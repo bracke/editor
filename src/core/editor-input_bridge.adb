@@ -18,6 +18,7 @@ with Editor.Input_Bridge.Build_UI_Pointer_Handlers;
 with Editor.Input_Bridge.Build_UI_Key_Handlers;
 with Editor.Input_Bridge.Buffer_Switcher_Key_Handlers;
 with Editor.Input_Bridge.Keybinding_Handlers;
+with Editor.Input_Bridge.Key_Chord_Routing;
 with Editor.Input_Bridge.Panel_Bars_Pointer_Handlers;
 with Editor.Input_Bridge.Panel_Feature_Problems_Pointer_Handlers;
 with Editor.Input_Bridge.Panel_Focus_Key_Handlers;
@@ -27,6 +28,7 @@ with Editor.Input_Bridge.Pointer_Routing;
 with Editor.Input_Bridge.Project_Search_Key_Handlers;
 with Editor.Input_Bridge.Project_Search_Bar_Handlers;
 with Editor.Input_Bridge.Pointer_Scroll_Handlers;
+with Editor.Input_Bridge.Pointer_Surface_Handlers;
 with Editor.Input_Bridge.Pointer_State;
 with Editor.Input_Bridge.Quick_Open_Key_Handlers;
 with Editor.Input_Bridge.Quick_Open_Handlers;
@@ -1369,7 +1371,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
      (Cmd : Editor.Commands.Command) return Boolean
    is
    begin
-      return Pointer_Scroll_Handlers.Handle_Minimap_Pointer
+      return Pointer_Surface_Handlers.Handle_Minimap_Pointer
         (The_Editor.State, Cmd);
    end Handle_Minimap_Pointer;
 
@@ -1415,7 +1417,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
      (Cmd : Editor.Commands.Command) return Boolean
    is
    begin
-      return Pointer_Scroll_Handlers.Handle_Scrollbar_Pointer
+      return Pointer_Surface_Handlers.Handle_Scrollbar_Pointer
         (The_Editor.State, Cmd, Max_Visible_Line_Length);
    end Handle_Scrollbar_Pointer;
 
@@ -1439,7 +1441,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
      (Cmd : Editor.Commands.Command) return Boolean
    is
    begin
-      return Gutter_Pointer_Handlers.Handle_Gutter_Pointer
+      return Pointer_Surface_Handlers.Handle_Gutter_Pointer
         (The_Editor.State, Cmd);
    end Handle_Gutter_Pointer;
 
@@ -1448,12 +1450,8 @@ use type Editor.Guided_Prompts.Prompt_Kind;
    function Handle_Message_Overlay_Pointer
      (Cmd : Editor.Commands.Command) return Boolean
    is
-      pragma Unreferenced (Cmd);
    begin
-      --  transient messages are passive, non-modal feedback.
-      --  They must not capture pointer input or disturb editor/panel/overlay
-      --  focus.  Clicks route normally through lower-priority surfaces.
-      return False;
+      return Pointer_Surface_Handlers.Handle_Message_Overlay_Pointer (Cmd);
    end Handle_Message_Overlay_Pointer;
 
 
@@ -1483,7 +1481,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
      (Cmd : Editor.Commands.Command) return Boolean
    is
    begin
-      return Panel_Bars_Pointer_Handlers.Handle_Pending_Transition_Bar_Pointer
+      return Pointer_Surface_Handlers.Handle_Pending_Transition_Bar_Pointer
         (The_Editor.State, Cmd, Execute_Pending_Bar_Command'Access);
    end Handle_Pending_Transition_Bar_Pointer;
 
@@ -1492,7 +1490,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
      (Cmd : Editor.Commands.Command) return Boolean
    is
    begin
-      return Build_UI_Pointer_Handlers.Handle_Build_UI_Panel_Pointer
+      return Pointer_Surface_Handlers.Handle_Build_UI_Panel_Pointer
         (The_Editor.State, Cmd, Execute_Pending_Bar_Command'Access,
          Report_Build_UI_Info'Access);
    end Handle_Build_UI_Panel_Pointer;
@@ -1502,7 +1500,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
      (Cmd : Editor.Commands.Command) return Boolean
    is
    begin
-      return Panel_Bars_Pointer_Handlers.Handle_Tab_Bar_Pointer
+      return Pointer_Surface_Handlers.Handle_Tab_Bar_Pointer
         (The_Editor.State, Cmd);
    end Handle_Tab_Bar_Pointer;
 
@@ -1510,7 +1508,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
      (Cmd : Editor.Commands.Command) return Boolean
    is
    begin
-      return Panel_Bars_Pointer_Handlers.Handle_Status_Bar_Pointer
+      return Pointer_Surface_Handlers.Handle_Status_Bar_Pointer
         (The_Editor.State, Cmd);
    end Handle_Status_Bar_Pointer;
 
@@ -1520,7 +1518,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
      (Cmd : Editor.Commands.Command) return Boolean
    is
    begin
-      return Panel_Bars_Pointer_Handlers.Handle_Panel_Splitter_Pointer
+      return Pointer_Surface_Handlers.Handle_Panel_Splitter_Pointer
         (The_Editor.State, Cmd);
    end Handle_Panel_Splitter_Pointer;
 
@@ -1528,7 +1526,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
      (Cmd : Editor.Commands.Command) return Boolean
    is
    begin
-      return Panel_Tree_Search_Pointer_Handlers.Handle_File_Tree_Pointer
+      return Pointer_Surface_Handlers.Handle_File_Tree_Pointer
         (The_Editor.State, Cmd);
    end Handle_File_Tree_Pointer;
 
@@ -1536,7 +1534,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
      (Cmd : Editor.Commands.Command) return Boolean
    is
    begin
-      return Panel_Tree_Search_Pointer_Handlers.Handle_Search_Results_Panel_Pointer
+      return Pointer_Surface_Handlers.Handle_Search_Results_Panel_Pointer
         (The_Editor.State, Cmd);
    end Handle_Search_Results_Panel_Pointer;
 
@@ -1544,7 +1542,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
      (Cmd : Editor.Commands.Command) return Boolean
    is
    begin
-      return Panel_Feature_Problems_Pointer_Handlers.Handle_Feature_Panel_Pointer
+      return Pointer_Surface_Handlers.Handle_Feature_Panel_Pointer
         (The_Editor.State, Cmd);
    end Handle_Feature_Panel_Pointer;
 
@@ -1552,7 +1550,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
      (Cmd : Editor.Commands.Command) return Boolean
    is
    begin
-      return Panel_Feature_Problems_Pointer_Handlers.Handle_Problems_Panel_Pointer
+      return Pointer_Surface_Handlers.Handle_Problems_Panel_Pointer
         (The_Editor.State, Cmd, Execute_Problems_Header_Command'Access);
    end Handle_Problems_Panel_Pointer;
 
@@ -1657,58 +1655,15 @@ use type Editor.Guided_Prompts.Prompt_Kind;
       pragma Assert (Initialized,
          "Input_Bridge must be initialized before handling key chords");
 
-      if Editor.Input_Bridge.Guided_Prompt_Key_Handlers.Handle_Guided_Prompt_Key
-        (The_Editor.State, Chord,
+      if Key_Chord_Routing.Handle_Pre_Bound_Chord
+        (The_Editor.State,
+         Chord,
          Accept_Guided_Prompt_Enter'Access,
-         Report_Info'Access)
-      then
-         return;
-      end if;
-
-      if Editor.Input_Bridge.Pending_Transition_Key_Handlers
-        .Handle_Pending_Transition_Key
-          (The_Editor.State, Chord,
-           Execute_Command_Id_With_Shift'Access,
-           Report_Info'Access)
-      then
-         return;
-      end if;
-
-      if Editor.Input_Bridge.Keybinding_Handlers.Handle_Keybinding_Chord
-        (Chord, Report_Info'Access)
-      then
-         return;
-      end if;
-
-      if Editor.Input_Bridge.Settings_Handlers.Handle_Settings_Chord
-        (The_Editor.State, Chord, Report_Info'Access)
-      then
-         return;
-      end if;
-
-      if Editor.Input_Bridge.Active_Find_Key_Handlers.Handle_Active_Find_Key
-        (The_Editor.State, Chord,
+         Report_Info'Access,
+         Execute_Command_Id_With_Shift'Access,
+         Execute_Command_Id_Default'Access,
          Execute_Active_Find_Previous_Default'Access,
          Hide_Active_Find_Default'Access)
-      then
-         return;
-      end if;
-
-      if Editor.Input_Bridge.Semantic_Popup_Key_Handlers.Handle_Semantic_Popup_Key
-        (The_Editor.State, Chord, Execute_Command_Id_Default'Access)
-      then
-         return;
-      end if;
-
-      if Editor.Input_Bridge.Build_UI_Key_Handlers.Handle_Build_UI_Tab_Key
-        (The_Editor.State, Chord)
-      then
-         return;
-      end if;
-
-      if Editor.Input_Bridge.Diagnostics_Focus_Key_Handlers
-        .Handle_Suppressed_Diagnostics_Key
-          (The_Editor.State, Chord, Report_Info'Access)
       then
          return;
       end if;
@@ -2004,38 +1959,20 @@ use type Editor.Guided_Prompts.Prompt_Kind;
       --  consume it.  This prevents prompt/overlay focus leaks such as a
       --  Go-To-Line prompt allowing an underlying File Tree, tab, gutter, or
       --  editor-text click to activate while the prompt still owns input.
-      if Editor.Overlay_Focus.Has_Active_Overlay
-        (The_Editor.State.Overlay_Focus)
+      if Editor.Input_Bridge.Command_Routing.Handle_Active_Overlay
+        (The_Editor.State,
+         Cmd,
+         Handle_Command_Palette'Access,
+         Handle_Quick_Open'Access,
+         Handle_Buffer_Switcher'Access,
+         Handle_Project_Search_Bar'Access,
+         Handle_Goto_Line'Access,
+         Handle_Active_Find_Input'Access,
+         Handle_File_Target_Prompt'Access)
       then
-         declare
-            Handled : Boolean := False;
-         begin
-            case Editor.Overlay_Focus.Active_Overlay
-              (The_Editor.State.Overlay_Focus)
-            is
-               when Editor.Overlay_Focus.Command_Palette_Overlay =>
-                  Handled := Handle_Command_Palette (Cmd);
-               when Editor.Overlay_Focus.Quick_Open_Overlay =>
-                  Handled := Handle_Quick_Open (Cmd);
-               when Editor.Overlay_Focus.Buffer_Switcher_Overlay =>
-                  Handled := Handle_Buffer_Switcher (Cmd);
-               when Editor.Overlay_Focus.Project_Search_Bar_Overlay =>
-                  Handled := Handle_Project_Search_Bar (Cmd);
-               when Editor.Overlay_Focus.Go_To_Line_Overlay =>
-                  Handled := Handle_Goto_Line (Cmd);
-               when Editor.Overlay_Focus.Active_Find_Prompt_Overlay =>
-                  Handled := Handle_Active_Find_Input (Cmd);
-               when Editor.Overlay_Focus.File_Target_Prompt_Overlay =>
-                  Handled := Handle_File_Target_Prompt (Cmd);
-               when Editor.Overlay_Focus.No_Overlay =>
-                  null;
-            end case;
-
-            pragma Unreferenced (Handled);
-            Editor.Cursor.Notify_Input
-              (Float (Editor.View.Current_Time_Seconds));
-            return;
-         end;
+         Editor.Cursor.Notify_Input
+           (Float (Editor.View.Current_Time_Seconds));
+         return;
       end if;
 
       --  Feature Search query input and Outline filter
@@ -2046,28 +1983,15 @@ use type Editor.Guided_Prompts.Prompt_Kind;
       --  consume it, so unrelated pointer/key events cannot activate File
       --  Tree rows, tab-bar items, search/problemlist rows, or editor text
       --  underneath a focused panel input field.
-      if Editor.Feature_Search_Results.Search_Input_Is_Active
-        (The_Editor.State.Feature_Search_Results)
+      if Editor.Input_Bridge.Command_Routing.Handle_Focused_Panel_Input
+        (The_Editor.State,
+         Cmd,
+         Handle_Search_Query_Input'Access,
+         Handle_Outline_Filter_Input'Access)
       then
-         declare
-            Handled : constant Boolean := Handle_Search_Query_Input (Cmd);
-         begin
-            pragma Unreferenced (Handled);
-            Editor.Cursor.Notify_Input
-              (Float (Editor.View.Current_Time_Seconds));
-            return;
-         end;
-      end if;
-
-      if Editor.Outline.Filter_Input_Is_Active (The_Editor.State.Outline) then
-         declare
-            Handled : constant Boolean := Handle_Outline_Filter_Input (Cmd);
-         begin
-            pragma Unreferenced (Handled);
-            Editor.Cursor.Notify_Input
-              (Float (Editor.View.Current_Time_Seconds));
-            return;
-         end;
+         Editor.Cursor.Notify_Input
+           (Float (Editor.View.Current_Time_Seconds));
+         return;
       end if;
 
       if Handle_Problems_Panel_Pointer (Cmd) then

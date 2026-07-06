@@ -34,6 +34,7 @@ with Editor.Executor.Build_Commands;
 with Editor.Executor.Outline_Commands;
 with Editor.Executor.Overlay_Commands;
 with Editor.Executor.Semantic_Commands;
+with Editor.Executor.Semantic_Routing_Commands;
 with Editor.Executor.Buffer_Switcher_Shared;
 with Editor.Executor.Buffer_Switcher_Mark_Commands;
 with Editor.Executor.Buffer_Switcher_Pending_Mark_Commands;
@@ -2357,7 +2358,8 @@ package body Editor.Executor is
             | Semantic_Refresh_Project_Index
             | Language_Index_Clear
             | Language_Index_Status =>
-            Editor.Executor.Semantic_Commands.Execute_Semantic_Kind (S, Cmd);
+            Editor.Executor.Semantic_Routing_Commands.Execute_Semantic_Kind
+              (S, Cmd);
             Editor.Invariants.Check (S);
             return;
 

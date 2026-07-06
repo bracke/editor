@@ -18069,43 +18069,6 @@ package body Editor.Ada_Declaration_Parser is
       end Parse_Bit_Range;
 
 
-      function Attribute_Base_Name (Target_Text : String) return String is
-         T : constant String := Trim (Target_Text);
-         Apostrophe_Pos : Natural := 0;
-      begin
-         for I in T'Range loop
-            if T (I) = Character'Val (39) then
-               Apostrophe_Pos := I;
-               exit;
-            end if;
-         end loop;
-         if Apostrophe_Pos = 0 then
-            return T;
-         elsif Apostrophe_Pos <= T'First then
-            return "";
-         else
-            return Trim (T (T'First .. Apostrophe_Pos - 1));
-         end if;
-      end Attribute_Base_Name;
-
-      function Attribute_Name (Target_Text : String) return String is
-         T : constant String := Trim (Target_Text);
-         Apostrophe_Pos : Natural := 0;
-      begin
-         for I in T'Range loop
-            if T (I) = Character'Val (39) then
-               Apostrophe_Pos := I;
-               exit;
-            end if;
-         end loop;
-         if Apostrophe_Pos = 0 or else Apostrophe_Pos >= T'Last then
-            return "";
-         else
-            return Trim (T (Apostrophe_Pos + 1 .. T'Last));
-         end if;
-      end Attribute_Name;
-
-
       procedure Apply_Enumeration_Representation_Associations
         (Clause_Node : Node_Id;
          Target      : Symbol_Id)
@@ -18174,8 +18137,10 @@ package body Editor.Ada_Declaration_Parser is
       procedure Apply_General_Representation_Clause (N : Node_Info) is
          Raw_Target : constant String := First_Child_Label (N.Id, Node_Representation_Target);
          Item_Text  : constant String := First_Child_Label (N.Id, Node_Representation_Item);
-         Attr       : constant String := Attribute_Name (Raw_Target);
-         Base_Name  : constant String := Attribute_Base_Name (Raw_Target);
+         Attr       : constant String :=
+           Representation_Metadata.Attribute_Name (Raw_Target);
+         Base_Name  : constant String :=
+           Representation_Metadata.Attribute_Base_Name (Raw_Target);
          Kind       : constant Representation_Clause_Kind :=
            Representation_Metadata.Attribute_Representation_Kind_For
              (Raw_Target, Item_Text, To_String (N.Label));

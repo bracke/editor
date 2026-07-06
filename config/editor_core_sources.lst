@@ -1033,6 +1033,8 @@ editor-executor-semantic_commands.adb
 editor-executor-semantic_commands.ads
 editor-executor-semantic_completion_commands.adb
 editor-executor-semantic_completion_commands.ads
+editor-executor-semantic_routing_commands.adb
+editor-executor-semantic_routing_commands.ads
 editor-executor-search_results_commands.adb
 editor-executor-search_results_commands.ads
 editor-executor-shared_services.adb
@@ -1197,6 +1199,8 @@ editor-input_bridge-gutter_pointer_handlers.adb
 editor-input_bridge-gutter_pointer_handlers.ads
 editor-input_bridge-keybinding_handlers.adb
 editor-input_bridge-keybinding_handlers.ads
+editor-input_bridge-key_chord_routing.adb
+editor-input_bridge-key_chord_routing.ads
 editor-input_bridge-outline_filter_handlers.adb
 editor-input_bridge-outline_filter_handlers.ads
 editor-input_bridge-panel_bars_pointer_handlers.adb
@@ -1223,6 +1227,8 @@ editor-input_bridge-pointer_routing.adb
 editor-input_bridge-pointer_routing.ads
 editor-input_bridge-pointer_scroll_handlers.adb
 editor-input_bridge-pointer_scroll_handlers.ads
+editor-input_bridge-pointer_surface_handlers.adb
+editor-input_bridge-pointer_surface_handlers.ads
 editor-input_bridge-pointer_state.adb
 editor-input_bridge-pointer_state.ads
 editor-input_bridge-semantic_popup_key_handlers.adb

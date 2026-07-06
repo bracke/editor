@@ -62,8 +62,4 @@ package Editor.Executor.Semantic_Commands is
       Cmd : Editor.Commands.Command)
       return Editor.Command_Execution.Command_Execution_Result;
 
-   procedure Execute_Semantic_Kind
-     (S   : in out Editor.State.State_Type;
-      Cmd : Editor.Commands.Command);
-
 end Editor.Executor.Semantic_Commands;

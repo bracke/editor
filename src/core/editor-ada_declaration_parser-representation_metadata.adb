@@ -176,6 +176,26 @@ package body Editor.Ada_Declaration_Parser.Representation_Metadata is
       Value := Acc;
    end Parse_Static_Natural;
 
+   function Attribute_Base_Name (Target_Text : String) return String is
+      T : constant String := Trim (Target_Text);
+      Apostrophe_Pos : Natural := 0;
+   begin
+      for I in T'Range loop
+         if T (I) = Character'Val (39) then
+            Apostrophe_Pos := I;
+            exit;
+         end if;
+      end loop;
+
+      if Apostrophe_Pos = 0 then
+         return T;
+      elsif Apostrophe_Pos <= T'First then
+         return "";
+      else
+         return Trim (T (T'First .. Apostrophe_Pos - 1));
+      end if;
+   end Attribute_Base_Name;
+
    procedure Add_Representation_Pragma_Representation
      (Analysis      : in out Analysis_Result;
       Target_Symbol : Symbol_Id;
