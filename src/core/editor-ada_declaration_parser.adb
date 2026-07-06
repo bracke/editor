@@ -18171,29 +18171,6 @@ package body Editor.Ada_Declaration_Parser is
          Has_Value  : Boolean := False;
          Value      : Natural := 0;
 
-         function Clause_Source_Form return Representation_Source_Form is
-         begin
-            if Kind = Representation_Address_Clause then
-               return Representation_Source_Address_Clause;
-            elsif Kind = Representation_Enumeration_Clause then
-               return Representation_Source_Enumeration_Clause;
-            elsif Kind = Representation_Record_Clause then
-               return Representation_Source_Record_Clause;
-            elsif Kind in Representation_Read_Clause |
-                         Representation_Write_Clause |
-                         Representation_Input_Clause |
-                         Representation_Output_Clause |
-                         Representation_Stream_Size_Clause
-            then
-               --  Stream operational attributes are still represented as
-               --  ordinary attribute-definition clauses, but retaining the
-               --  unified source form keeps their projection comparable with
-               --  other attribute-backed operational items.
-               return Representation_Source_Attribute_Definition;
-            else
-               return Representation_Source_Attribute_Definition;
-            end if;
-         end Clause_Source_Form;
       begin
          if Raw_Target = "" then
             return;
@@ -18207,7 +18184,8 @@ package body Editor.Ada_Declaration_Parser is
             Kind => Kind,
             Attribute_Name => Attr,
             Item_Text => Item_Text,
-            Source_Form => Clause_Source_Form,
+            Source_Form =>
+              Representation_Metadata.Representation_Source_Form_For (Kind),
             Has_Static_Value => Has_Value,
             Static_Value => Value,
             Source_Span => To_Model_Range (N.Source_Span));

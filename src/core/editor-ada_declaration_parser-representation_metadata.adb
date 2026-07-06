@@ -944,6 +944,21 @@ package body Editor.Ada_Declaration_Parser.Representation_Metadata is
            Representation_Suppress_Debug_Info_Clause;
    end Representation_Property_Is_Boolean;
 
+   function Representation_Source_Form_For
+     (Kind : Representation_Clause_Kind) return Representation_Source_Form
+   is
+   begin
+      if Kind = Representation_Address_Clause then
+         return Representation_Source_Address_Clause;
+      elsif Kind = Representation_Enumeration_Clause then
+         return Representation_Source_Enumeration_Clause;
+      elsif Kind = Representation_Record_Clause then
+         return Representation_Source_Record_Clause;
+      else
+         return Representation_Source_Attribute_Definition;
+      end if;
+   end Representation_Source_Form_For;
+
    function Representation_Property_Has_Static_Natural_Value
      (Kind  : Representation_Clause_Kind;
       Value : String) return Boolean

@@ -37,6 +37,10 @@ package Editor.Ada_Declaration_Parser.Representation_Metadata is
      (Kind : Editor.Ada_Language_Model.Representation_Clause_Kind)
       return Boolean;
 
+   function Representation_Source_Form_For
+     (Kind : Editor.Ada_Language_Model.Representation_Clause_Kind)
+      return Editor.Ada_Language_Model.Representation_Source_Form;
+
    function Representation_Property_Has_Static_Natural_Value
      (Kind  : Editor.Ada_Language_Model.Representation_Clause_Kind;
       Value : String)

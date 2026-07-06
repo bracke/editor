@@ -17,4 +17,11 @@ package Editor.Input_Bridge.Key_Chord_Routing is
       Hide_Active_Find             : not null access procedure)
       return Boolean;
 
+   function Handle_Focused_Surface_Pre_Bound_Chord
+     (S                       : in out Editor.State.State_Type;
+      Chord                   : Editor.Keybindings.Key_Chord;
+      Execute_Default_Command : not null access procedure
+        (Id : Editor.Commands.Command_Id))
+      return Boolean;
+
 end Editor.Input_Bridge.Key_Chord_Routing;

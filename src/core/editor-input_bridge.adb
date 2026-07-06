@@ -1,30 +1,24 @@
 with Editor.Instance;
 with Editor.Input_Bridge.Active_Find_Handlers;
-with Editor.Input_Bridge.Active_Find_Key_Handlers;
 with Editor.Input_Bridge.Buffer_Switcher_Handlers;
 with Editor.Input_Bridge.Command_Palette_Handlers;
 with Editor.Input_Bridge.Command_Routing;
 with Editor.Input_Bridge.Command_Prompt_Routing;
-with Editor.Input_Bridge.Diagnostics_Focus_Key_Handlers;
 with Editor.Input_Bridge.Feature_Panel_Key_Handlers;
 with Editor.Input_Bridge.File_Target_Key_Handlers;
 with Editor.Input_Bridge.File_Target_Handlers;
 with Editor.Input_Bridge.File_Tree_Key_Handlers;
 with Editor.Input_Bridge.Goto_Line_Key_Handlers;
 with Editor.Input_Bridge.Goto_Line_Handlers;
-with Editor.Input_Bridge.Guided_Prompt_Key_Handlers;
 with Editor.Input_Bridge.Gutter_Pointer_Handlers;
 with Editor.Input_Bridge.Build_UI_Pointer_Handlers;
 with Editor.Input_Bridge.Build_UI_Key_Handlers;
 with Editor.Input_Bridge.Buffer_Switcher_Key_Handlers;
-with Editor.Input_Bridge.Keybinding_Handlers;
 with Editor.Input_Bridge.Key_Chord_Routing;
 with Editor.Input_Bridge.Panel_Bars_Pointer_Handlers;
 with Editor.Input_Bridge.Panel_Feature_Problems_Pointer_Handlers;
 with Editor.Input_Bridge.Panel_Focus_Key_Handlers;
 with Editor.Input_Bridge.Panel_Tree_Search_Pointer_Handlers;
-with Editor.Input_Bridge.Pending_Transition_Key_Handlers;
-with Editor.Input_Bridge.Pointer_Routing;
 with Editor.Input_Bridge.Project_Search_Key_Handlers;
 with Editor.Input_Bridge.Project_Search_Bar_Handlers;
 with Editor.Input_Bridge.Pointer_Scroll_Handlers;
@@ -35,8 +29,6 @@ with Editor.Input_Bridge.Quick_Open_Handlers;
 with Editor.Input_Bridge.Render_Access;
 with Editor.Input_Bridge.Outline_Filter_Handlers;
 with Editor.Input_Bridge.Search_Query_Handlers;
-with Editor.Input_Bridge.Semantic_Popup_Key_Handlers;
-with Editor.Input_Bridge.Settings_Handlers;
 with Editor.Input_Bridge.Text_Entry_Routing;
 with Editor.Input_Bridge.Wheel_Handlers;
 with Editor.Commands;
@@ -1353,43 +1345,6 @@ use type Editor.Guided_Prompts.Prompt_Kind;
 
 
 
-   function Is_Minimap_Pointer_Command
-     (Kind : Editor.Commands.Command_Kind) return Boolean
-   is
-   begin
-      return Pointer_Routing.Is_Minimap_Pointer_Command (Kind);
-   end Is_Minimap_Pointer_Command;
-
-   function Is_Minimap_Drag_Command
-     (Kind : Editor.Commands.Command_Kind) return Boolean
-   is
-   begin
-      return Pointer_Routing.Is_Minimap_Drag_Command (Kind);
-   end Is_Minimap_Drag_Command;
-
-   function Handle_Minimap_Pointer
-     (Cmd : Editor.Commands.Command) return Boolean
-   is
-   begin
-      return Pointer_Surface_Handlers.Handle_Minimap_Pointer
-        (The_Editor.State, Cmd);
-   end Handle_Minimap_Pointer;
-
-
-   function Is_Scrollbar_Pointer_Command
-     (Kind : Editor.Commands.Command_Kind) return Boolean
-   is
-   begin
-      return Pointer_Routing.Is_Scrollbar_Pointer_Command (Kind);
-   end Is_Scrollbar_Pointer_Command;
-
-   function Is_Scrollbar_Drag_Command
-     (Kind : Editor.Commands.Command_Kind) return Boolean
-   is
-   begin
-      return Pointer_Routing.Is_Scrollbar_Drag_Command (Kind);
-   end Is_Scrollbar_Drag_Command;
-
    function Max_Visible_Line_Length return Natural
    is
       Snap : Editor.Render_Model.Render_Snapshot;
@@ -1413,47 +1368,6 @@ use type Editor.Guided_Prompts.Prompt_Kind;
       return Max_Col;
    end Max_Visible_Line_Length;
 
-   function Handle_Scrollbar_Pointer
-     (Cmd : Editor.Commands.Command) return Boolean
-   is
-   begin
-      return Pointer_Surface_Handlers.Handle_Scrollbar_Pointer
-        (The_Editor.State, Cmd, Max_Visible_Line_Length);
-   end Handle_Scrollbar_Pointer;
-
-
-
-   function Is_Gutter_Pointer_Command
-     (Kind : Editor.Commands.Command_Kind) return Boolean
-   is
-   begin
-      return Pointer_Routing.Is_Gutter_Pointer_Command (Kind);
-   end Is_Gutter_Pointer_Command;
-
-   function Is_Gutter_Drag_Command
-     (Kind : Editor.Commands.Command_Kind) return Boolean
-   is
-   begin
-      return Pointer_Routing.Is_Gutter_Drag_Command (Kind);
-   end Is_Gutter_Drag_Command;
-
-   function Handle_Gutter_Pointer
-     (Cmd : Editor.Commands.Command) return Boolean
-   is
-   begin
-      return Pointer_Surface_Handlers.Handle_Gutter_Pointer
-        (The_Editor.State, Cmd);
-   end Handle_Gutter_Pointer;
-
-
-
-   function Handle_Message_Overlay_Pointer
-     (Cmd : Editor.Commands.Command) return Boolean
-   is
-   begin
-      return Pointer_Surface_Handlers.Handle_Message_Overlay_Pointer (Cmd);
-   end Handle_Message_Overlay_Pointer;
-
 
 
    procedure Execute_Pending_Bar_Command
@@ -1476,83 +1390,6 @@ use type Editor.Guided_Prompts.Prompt_Kind;
    begin
       Report_Info (Message);
    end Report_Build_UI_Info;
-
-   function Handle_Pending_Transition_Bar_Pointer
-     (Cmd : Editor.Commands.Command) return Boolean
-   is
-   begin
-      return Pointer_Surface_Handlers.Handle_Pending_Transition_Bar_Pointer
-        (The_Editor.State, Cmd, Execute_Pending_Bar_Command'Access);
-   end Handle_Pending_Transition_Bar_Pointer;
-
-
-   function Handle_Build_UI_Panel_Pointer
-     (Cmd : Editor.Commands.Command) return Boolean
-   is
-   begin
-      return Pointer_Surface_Handlers.Handle_Build_UI_Panel_Pointer
-        (The_Editor.State, Cmd, Execute_Pending_Bar_Command'Access,
-         Report_Build_UI_Info'Access);
-   end Handle_Build_UI_Panel_Pointer;
-
-
-   function Handle_Tab_Bar_Pointer
-     (Cmd : Editor.Commands.Command) return Boolean
-   is
-   begin
-      return Pointer_Surface_Handlers.Handle_Tab_Bar_Pointer
-        (The_Editor.State, Cmd);
-   end Handle_Tab_Bar_Pointer;
-
-   function Handle_Status_Bar_Pointer
-     (Cmd : Editor.Commands.Command) return Boolean
-   is
-   begin
-      return Pointer_Surface_Handlers.Handle_Status_Bar_Pointer
-        (The_Editor.State, Cmd);
-   end Handle_Status_Bar_Pointer;
-
-
-
-   function Handle_Panel_Splitter_Pointer
-     (Cmd : Editor.Commands.Command) return Boolean
-   is
-   begin
-      return Pointer_Surface_Handlers.Handle_Panel_Splitter_Pointer
-        (The_Editor.State, Cmd);
-   end Handle_Panel_Splitter_Pointer;
-
-   function Handle_File_Tree_Pointer
-     (Cmd : Editor.Commands.Command) return Boolean
-   is
-   begin
-      return Pointer_Surface_Handlers.Handle_File_Tree_Pointer
-        (The_Editor.State, Cmd);
-   end Handle_File_Tree_Pointer;
-
-   function Handle_Search_Results_Panel_Pointer
-     (Cmd : Editor.Commands.Command) return Boolean
-   is
-   begin
-      return Pointer_Surface_Handlers.Handle_Search_Results_Panel_Pointer
-        (The_Editor.State, Cmd);
-   end Handle_Search_Results_Panel_Pointer;
-
-   function Handle_Feature_Panel_Pointer
-     (Cmd : Editor.Commands.Command) return Boolean
-   is
-   begin
-      return Pointer_Surface_Handlers.Handle_Feature_Panel_Pointer
-        (The_Editor.State, Cmd);
-   end Handle_Feature_Panel_Pointer;
-
-   function Handle_Problems_Panel_Pointer
-     (Cmd : Editor.Commands.Command) return Boolean
-   is
-   begin
-      return Pointer_Surface_Handlers.Handle_Problems_Panel_Pointer
-        (The_Editor.State, Cmd, Execute_Problems_Header_Command'Access);
-   end Handle_Problems_Panel_Pointer;
 
    ------------------------------------------------------------------
    -- Lifecycle
@@ -1668,57 +1505,11 @@ use type Editor.Guided_Prompts.Prompt_Kind;
          return;
       end if;
 
-      if not Chord.Modifiers.Ctrl
-        and then not Chord.Modifiers.Alt
-        and then not Chord.Modifiers.Meta
+      if Key_Chord_Routing.Handle_Focused_Surface_Pre_Bound_Chord
+        (The_Editor.State, Chord, Execute_Command_Id_Default'Access)
       then
-         if Editor.Panel_Focus.File_Tree_Has_Focus (The_Editor.State.Panel_Focus) then
-            declare
-               Result : constant
-                 Editor.Input_Bridge.File_Tree_Key_Handlers.Focused_Key_Result :=
-                   Editor.Input_Bridge.File_Tree_Key_Handlers
-                     .Handle_File_Tree_Focused_Surface_Key
-                       (The_Editor.State, Chord,
-                        Execute_Command_Id_Default'Access);
-            begin
-               case Result is
-                  when Editor.Input_Bridge.File_Tree_Key_Handlers.File_Tree_Key_Handled =>
-                     return;
-                  when Editor.Input_Bridge.File_Tree_Key_Handlers.File_Tree_Key_Not_Handled =>
-                     goto Focused_Surface_Not_Handled;
-                  when Editor.Input_Bridge.File_Tree_Key_Handlers.File_Tree_Not_Focused =>
-                     null;
-               end case;
-            end;
-         elsif The_Editor.State.Latest_Build_Result_Focused
-           or else The_Editor.State.Latest_Build_Output_Details.Build_Output_Details_Focused
-         then
-            declare
-               Result : constant
-                 Editor.Input_Bridge.Build_UI_Key_Handlers.Focused_Key_Result :=
-                   Editor.Input_Bridge.Build_UI_Key_Handlers
-                     .Handle_Build_UI_Focused_Surface_Key
-                       (The_Editor.State, Chord,
-                        Execute_Command_Id_Default'Access);
-            begin
-               case Result is
-                  when Editor.Input_Bridge.Build_UI_Key_Handlers.Build_UI_Key_Handled =>
-                     return;
-                  when Editor.Input_Bridge.Build_UI_Key_Handlers.Build_UI_Key_Not_Handled =>
-                     goto Focused_Surface_Not_Handled;
-                  when Editor.Input_Bridge.Build_UI_Key_Handlers.Build_UI_Not_Focused =>
-                     null;
-               end case;
-            end;
-         elsif Editor.Input_Bridge.Panel_Focus_Key_Handlers
-           .Handle_Focused_Surface_Key
-             (The_Editor.State, Chord, Execute_Command_Id_Default'Access)
-         then
-            return;
-         end if;
+         return;
       end if;
-
-      <<Focused_Surface_Not_Handled>>
 
       if Editor.Keybindings.Resolve (Chord, Id) = Editor.Keybindings.Bound_Command then
          Cmd := Editor.Commands.Command_For_Id (Id, Chord.Modifiers.Shift);
@@ -1887,7 +1678,8 @@ use type Editor.Guided_Prompts.Prompt_Kind;
       --  It is checked before modal/chrome routing so drag/release events cannot
       --  leak into text, gutter, file-tree rows, minimap, or scrollbars.
       if Editor.Panels.Resize_Active (The_Editor.State.Panels)
-        and then Handle_Panel_Splitter_Pointer (Cmd)
+        and then Pointer_Surface_Handlers.Handle_Panel_Splitter_Pointer
+          (The_Editor.State, Cmd)
       then
          Editor.Cursor.Notify_Input
            (Float (Editor.View.Current_Time_Seconds));
@@ -1895,7 +1687,9 @@ use type Editor.Guided_Prompts.Prompt_Kind;
       end if;
 
       if Pending_Confirmation_Active then
-         if Handle_Pending_Transition_Bar_Pointer (Cmd) then
+         if Pointer_Surface_Handlers.Handle_Pending_Transition_Bar_Pointer
+           (The_Editor.State, Cmd, Execute_Pending_Bar_Command'Access)
+         then
             Editor.Cursor.Notify_Input
               (Float (Editor.View.Current_Time_Seconds));
             return;
@@ -1994,7 +1788,9 @@ use type Editor.Guided_Prompts.Prompt_Kind;
          return;
       end if;
 
-      if Handle_Problems_Panel_Pointer (Cmd) then
+      if Pointer_Surface_Handlers.Handle_Problems_Panel_Pointer
+        (The_Editor.State, Cmd, Execute_Problems_Header_Command'Access)
+      then
          Editor.Cursor.Notify_Input
            (Float (Editor.View.Current_Time_Seconds));
          return;
@@ -2006,7 +1802,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
          return;
       end if;
 
-      if Handle_Message_Overlay_Pointer (Cmd) then
+      if Pointer_Surface_Handlers.Handle_Message_Overlay_Pointer (Cmd) then
          Editor.Cursor.Notify_Input
            (Float (Editor.View.Current_Time_Seconds));
          return;
@@ -2060,49 +1856,66 @@ use type Editor.Guided_Prompts.Prompt_Kind;
          return;
       end if;
 
-      if Handle_Pending_Transition_Bar_Pointer (Cmd) then
+      if Pointer_Surface_Handlers.Handle_Pending_Transition_Bar_Pointer
+        (The_Editor.State, Cmd, Execute_Pending_Bar_Command'Access)
+      then
          Editor.Cursor.Notify_Input
            (Float (Editor.View.Current_Time_Seconds));
          return;
       end if;
 
-      if Handle_Build_UI_Panel_Pointer (Cmd) then
+      if Pointer_Surface_Handlers.Handle_Build_UI_Panel_Pointer
+        (The_Editor.State, Cmd, Execute_Pending_Bar_Command'Access,
+         Report_Build_UI_Info'Access)
+      then
          Editor.Cursor.Notify_Input
            (Float (Editor.View.Current_Time_Seconds));
          return;
       end if;
 
-      if Handle_Tab_Bar_Pointer (Cmd) then
+      if Pointer_Surface_Handlers.Handle_Tab_Bar_Pointer
+        (The_Editor.State, Cmd)
+      then
          Editor.Cursor.Notify_Input
            (Float (Editor.View.Current_Time_Seconds));
          return;
       end if;
 
-      if Handle_Status_Bar_Pointer (Cmd) then
+      if Pointer_Surface_Handlers.Handle_Status_Bar_Pointer
+        (The_Editor.State, Cmd)
+      then
          Editor.Cursor.Notify_Input
            (Float (Editor.View.Current_Time_Seconds));
          return;
       end if;
 
-      if Handle_Panel_Splitter_Pointer (Cmd) then
+      if Pointer_Surface_Handlers.Handle_Panel_Splitter_Pointer
+        (The_Editor.State, Cmd)
+      then
          Editor.Cursor.Notify_Input
            (Float (Editor.View.Current_Time_Seconds));
          return;
       end if;
 
-      if Handle_File_Tree_Pointer (Cmd) then
+      if Pointer_Surface_Handlers.Handle_File_Tree_Pointer
+        (The_Editor.State, Cmd)
+      then
          Editor.Cursor.Notify_Input
            (Float (Editor.View.Current_Time_Seconds));
          return;
       end if;
 
-      if Handle_Search_Results_Panel_Pointer (Cmd) then
+      if Pointer_Surface_Handlers.Handle_Search_Results_Panel_Pointer
+        (The_Editor.State, Cmd)
+      then
          Editor.Cursor.Notify_Input
            (Float (Editor.View.Current_Time_Seconds));
          return;
       end if;
 
-      if Handle_Feature_Panel_Pointer (Cmd) then
+      if Pointer_Surface_Handlers.Handle_Feature_Panel_Pointer
+        (The_Editor.State, Cmd)
+      then
          Editor.Cursor.Notify_Input
            (Float (Editor.View.Current_Time_Seconds));
          return;
@@ -2110,25 +1923,34 @@ use type Editor.Guided_Prompts.Prompt_Kind;
 
       --  Minimap hit-testing owns the minimap region before scrollbars so a
       --  minimap click cannot be interpreted as a vertical scrollbar action.
-      if Pointer_State.Minimap_Drag_Active and then Handle_Minimap_Pointer (Cmd) then
+      if Pointer_State.Minimap_Drag_Active
+        and then Pointer_Surface_Handlers.Handle_Minimap_Pointer
+          (The_Editor.State, Cmd)
+      then
          Editor.Cursor.Notify_Input
            (Float (Editor.View.Current_Time_Seconds));
          return;
       end if;
 
-      if Handle_Minimap_Pointer (Cmd) then
+      if Pointer_Surface_Handlers.Handle_Minimap_Pointer
+        (The_Editor.State, Cmd)
+      then
          Editor.Cursor.Notify_Input
            (Float (Editor.View.Current_Time_Seconds));
          return;
       end if;
 
-      if Handle_Scrollbar_Pointer (Cmd) then
+      if Pointer_Surface_Handlers.Handle_Scrollbar_Pointer
+        (The_Editor.State, Cmd, Max_Visible_Line_Length)
+      then
          Editor.Cursor.Notify_Input
            (Float (Editor.View.Current_Time_Seconds));
          return;
       end if;
 
-      if Handle_Gutter_Pointer (Cmd) then
+      if Pointer_Surface_Handlers.Handle_Gutter_Pointer
+        (The_Editor.State, Cmd)
+      then
          Editor.Cursor.Notify_Input
            (Float (Editor.View.Current_Time_Seconds));
          return;

@@ -22,6 +22,7 @@ with Editor.Executor.File_Open_Commands;
 with Editor.Executor.History;
 with Editor.Executor.Outline_Commands;
 with Editor.Executor.Semantic_Completion_Commands;
+with Editor.Executor.Semantic_Rename_Commands;
 with Editor.Feature_Diagnostics;
 with Editor.Project;
 with Editor.Feature_Panel;
@@ -1210,46 +1211,7 @@ package body Editor.Executor.Semantic_Commands is
       Old_Name : String;
       New_Name : String)
       return Editor.Ada_Language_Service.Rename_Preview
-   is
-      Current_File : constant Editor.State.File_State :=
-        Editor.State.Current_File (S);
-      Req : Editor.Ada_Language_Service.Semantic_Request_Id;
-   begin
-      if Current_File.Has_Path
-        and then S.Active_Buffer_Token /= 0
-      then
-         declare
-            Current_Path : constant String := To_String (Current_File.Path);
-            Fingerprint  : constant Natural :=
-              Current_Semantic_Analysis_Fingerprint (S, Current_Path);
-         begin
-            Req := Editor.Ada_Language_Service.Begin_Semantic_Request
-              (Service, Editor.Ada_Language_Service.Semantic_Request_Rename,
-               Editor.Ada_Language_Service.Semantic_Current_Request_Query_Key
-                 (Editor.Ada_Language_Service.Semantic_Request_Rename,
-                  Old_Name, Current_Path,
-                  S.Active_Buffer_Token,
-                  Editor.State.Current_Buffer_Revision (S),
-                  Editor.State.Current_Lifecycle_Generation (S),
-                  Fingerprint,
-                  Detail => New_Name));
-            return Editor.Ada_Language_Service.Request_Preview_Rename_Current
-              (Service, Req, Old_Name, New_Name, Current_Path,
-               S.Active_Buffer_Token,
-               Editor.State.Current_Buffer_Revision (S),
-               Editor.State.Current_Lifecycle_Generation (S),
-               Fingerprint);
-         end;
-      end if;
-
-      Req := Editor.Ada_Language_Service.Begin_Semantic_Request
-        (Service, Editor.Ada_Language_Service.Semantic_Request_Rename,
-         Editor.Ada_Language_Service.Semantic_Request_Query_Key
-           (Editor.Ada_Language_Service.Semantic_Request_Rename,
-            Old_Name, Detail => New_Name));
-      return Editor.Ada_Language_Service.Request_Preview_Rename
-        (Service, Req, Old_Name, New_Name);
-   end Semantic_Rename_Preview;
+      renames Editor.Executor.Semantic_Rename_Commands.Semantic_Rename_Preview;
 
    function Selected_Outline_Language_Command_Availability
      (S  : Editor.State.State_Type;
