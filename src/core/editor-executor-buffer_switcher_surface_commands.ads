@@ -39,6 +39,12 @@ package Editor.Executor.Buffer_Switcher_Surface_Commands is
    procedure Execute_Buffer_Switcher_Delete_Forward
      (S : in out Editor.State.State_Type);
 
+   procedure Execute_Buffer_Switcher_Move_Cursor_Left
+     (S : in out Editor.State.State_Type);
+
+   procedure Execute_Buffer_Switcher_Move_Cursor_Right
+     (S : in out Editor.State.State_Type);
+
    procedure Execute_Buffer_Switcher_Filter_Clear
      (S : in out Editor.State.State_Type);
 

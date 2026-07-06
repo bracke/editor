@@ -315,6 +315,22 @@ package body Editor.Executor.Buffer_Switcher_Surface_Commands is
       end if;
    end Execute_Buffer_Switcher_Delete_Forward;
 
+   procedure Execute_Buffer_Switcher_Move_Cursor_Left
+     (S : in out Editor.State.State_Type)
+   is
+   begin
+      Editor.Buffer_Switcher.Move_Cursor_Left (S.Buffer_Switcher);
+      Editor.Render_Cache.Invalidate_All;
+   end Execute_Buffer_Switcher_Move_Cursor_Left;
+
+   procedure Execute_Buffer_Switcher_Move_Cursor_Right
+     (S : in out Editor.State.State_Type)
+   is
+   begin
+      Editor.Buffer_Switcher.Move_Cursor_Right (S.Buffer_Switcher);
+      Editor.Render_Cache.Invalidate_All;
+   end Execute_Buffer_Switcher_Move_Cursor_Right;
+
    procedure Execute_Buffer_Switcher_Filter_Clear
      (S : in out Editor.State.State_Type)
    is
@@ -481,6 +497,10 @@ package body Editor.Executor.Buffer_Switcher_Surface_Commands is
             Execute_Buffer_Switcher_Backspace (S);
          when Editor.Commands.Buffer_Switcher_Delete_Forward =>
             Execute_Buffer_Switcher_Delete_Forward (S);
+         when Editor.Commands.Buffer_Switcher_Move_Cursor_Left =>
+            Execute_Buffer_Switcher_Move_Cursor_Left (S);
+         when Editor.Commands.Buffer_Switcher_Move_Cursor_Right =>
+            Execute_Buffer_Switcher_Move_Cursor_Right (S);
          when Editor.Commands.Buffer_Switcher_Filter_Clear =>
             Execute_Buffer_Switcher_Filter_Clear (S);
          when Editor.Commands.Buffer_Switcher_Filter_Pinned =>

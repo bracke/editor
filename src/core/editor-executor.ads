@@ -232,11 +232,6 @@ package Editor.Executor is
    procedure Clear_Service_Semantic_Diagnostics_From_Feature
      (S : in out Editor.State.State_Type);
 
-   function Rename_Preview_Is_Open_Buffers_Applyable
-     (S       : Editor.State.State_Type;
-      Preview : Editor.Ada_Language_Service.Rename_Preview;
-      Reason  : out Unbounded_String) return Boolean;
-
    function Has_Selected_Outline_Activation_Target
      (S : Editor.State.State_Type) return Boolean;
 

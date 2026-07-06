@@ -1033,6 +1033,8 @@ editor-executor-semantic_commands.adb
 editor-executor-semantic_commands.ads
 editor-executor-semantic_completion_commands.adb
 editor-executor-semantic_completion_commands.ads
+editor-executor-semantic_index_commands.adb
+editor-executor-semantic_index_commands.ads
 editor-executor-semantic_rename_commands.adb
 editor-executor-semantic_rename_commands.ads
 editor-executor-semantic_routing_commands.adb
@@ -1049,6 +1051,8 @@ editor-executor-command_palette_projection.adb
 editor-executor-command_palette_projection.ads
 editor-executor-command_surface_commands.adb
 editor-executor-command_surface_commands.ads
+editor-executor-command_kind_routing.adb
+editor-executor-command_kind_routing.ads
 editor-executor-command_result_commands.adb
 editor-executor-command_result_commands.ads
 editor-executor-diagnostics_commands.adb
