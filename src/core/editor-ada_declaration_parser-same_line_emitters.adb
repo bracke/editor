@@ -402,14 +402,6 @@ package body Editor.Ada_Declaration_Parser.Same_Line_Emitters is
       end if;
    end Add_Same_Line_Type_Groups;
 
-   function Starts_With_Callable_Segment (Segment : String) return Boolean is
-      S : constant String := Strip_Callable_Prefix (Segment);
-      L : constant String := Lower (S);
-   begin
-      return Starts_With_Word (L, "procedure")
-        or else Starts_With_Word (L, "function");
-   end Starts_With_Callable_Segment;
-
    procedure Add_Same_Line_Callable_Groups
      (Analysis        : in out Analysis_Result;
       Raw_Line        : String;
@@ -759,16 +751,6 @@ package body Editor.Ada_Declaration_Parser.Same_Line_Emitters is
          Add_Segment (Segment_Start, Raw_Line'Last);
       end if;
    end Add_Same_Line_Package_Groups;
-
-   function Starts_With_Concurrent_Segment (Segment : String) return Boolean is
-      S : constant String := Lower (Trim (Segment));
-   begin
-      return Starts_With (S, "task type ")
-        or else Starts_With_Word (S, "task")
-        or else Starts_With (S, "protected type ")
-        or else Starts_With_Word (S, "protected")
-        or else Starts_With_Word (S, "entry");
-   end Starts_With_Concurrent_Segment;
 
    procedure Add_Same_Line_Concurrent_Groups
      (Analysis        : in out Analysis_Result;

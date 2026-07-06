@@ -78,6 +78,126 @@ package body Editor.Ada_Declaration_Parser.Metadata_Helpers is
         or else Ada.Strings.Fixed.Index (Code, " class") /= 0;
    end Has_Class_Wide_Metadata;
 
+   function Has_Aspect_Specification (Line : String) return Boolean is
+      Code    : constant String := Editor.Ada_Syntax_Core.Sanitize_Line (Line);
+      Lowered : constant String := Lower (Code);
+      Nesting : Natural := 0;
+
+      function Word_At (Pos : Natural; Word : String) return Boolean is
+      begin
+         return Pos >= Lowered'First
+           and then Pos + Word'Length - 1 <= Lowered'Last
+           and then Lowered (Pos .. Pos + Word'Length - 1) = Word
+           and then (Pos = Lowered'First or else not Is_Word_Char (Lowered (Pos - 1)))
+           and then (Pos + Word'Length > Lowered'Last
+                     or else not Is_Word_Char (Lowered (Pos + Word'Length)));
+      end Word_At;
+
+      function Following_Word (Start : Natural) return String is
+         I : Natural := Start;
+         J : Natural;
+      begin
+         while I <= Code'Last
+           and then (Code (I) = ' ' or else Code (I) = Ada.Characters.Latin_1.HT)
+         loop
+            I := I + 1;
+         end loop;
+
+         if I > Code'Last
+           or else not ((Code (I) >= 'A' and then Code (I) <= 'Z')
+                        or else (Code (I) >= 'a' and then Code (I) <= 'z'))
+         then
+            return "";
+         end if;
+
+         J := I;
+         while J <= Code'Last and then Is_Word_Char (Code (J)) loop
+            J := J + 1;
+         end loop;
+
+         return Lower (Code (I .. J - 1));
+      end Following_Word;
+   begin
+      for I in Lowered'Range loop
+         if Lowered (I) = '(' then
+            Nesting := Nesting + 1;
+         elsif Lowered (I) = ')' then
+            if Nesting > 0 then
+               Nesting := Nesting - 1;
+            end if;
+         elsif Nesting = 0 and then Word_At (I, "with") then
+            declare
+               Next : constant String := Following_Word (I + 4);
+            begin
+               if I = Lowered'First
+                 or else Next = "record"
+                 or else Next = "private"
+                 or else Next = "package"
+                 or else Next = "procedure"
+                 or else Next = "function"
+                 or else Next = "type"
+               then
+                  null;
+               else
+                  return True;
+               end if;
+            end;
+         elsif Lowered (I) = ';' then
+            return False;
+         end if;
+      end loop;
+
+      return False;
+   end Has_Aspect_Specification;
+
+   function Representation_Clause_Target (Line : String) return String is
+      Code     : constant String := Editor.Ada_Syntax_Core.Sanitize_Line (Line);
+      Lowered  : constant String := Lower (Code);
+      Trimmed  : constant String := Trim (Lowered);
+      For_Pos  : Natural := 0;
+      Use_Pos  : Natural := 0;
+      Stop     : Natural := 0;
+   begin
+      if not Starts_With_Word (Trimmed, "for") then
+         return "";
+      end if;
+
+      For_Pos := Ada.Strings.Fixed.Index (Lowered, "for");
+      Use_Pos := Ada.Strings.Fixed.Index (Lowered, " use " );
+      if For_Pos = 0 or else Use_Pos = 0 or else Use_Pos <= For_Pos + 3 then
+         return "";
+      end if;
+
+      declare
+         Raw_Start  : constant Natural :=
+           Code'First + (For_Pos - Lowered'First) + 3;
+         Raw_Stop   : constant Natural :=
+           Code'First + (Use_Pos - Lowered'First) - 1;
+         Raw_Target : constant String := Trim (Code (Raw_Start .. Raw_Stop));
+      begin
+         if Raw_Target'Length = 0 then
+            return "";
+         end if;
+
+         Stop := Raw_Target'Last;
+         for I in Raw_Target'Range loop
+            if Raw_Target (I) = Character'Val (39)
+              or else Raw_Target (I) = ' '
+              or else Raw_Target (I) = Ada.Characters.Latin_1.HT
+            then
+               Stop := I - 1;
+               exit;
+            end if;
+         end loop;
+
+         if Stop < Raw_Target'First then
+            return "";
+         end if;
+
+         return Raw_Target (Raw_Target'First .. Stop);
+      end;
+   end Representation_Clause_Target;
+
    function Generic_Formal_Type_Family_From_Line
      (Line : String) return Generic_Formal_Type_Family
    is

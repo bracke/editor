@@ -8,6 +8,10 @@ package Editor.Ada_Declaration_Parser.Metadata_Helpers is
 
    function Has_Class_Wide_Metadata (Line : String) return Boolean;
 
+   function Has_Aspect_Specification (Line : String) return Boolean;
+
+   function Representation_Clause_Target (Line : String) return String;
+
    function Generic_Formal_Type_Family_From_Line
      (Line : String) return Editor.Ada_Language_Model.Generic_Formal_Type_Family;
 

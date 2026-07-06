@@ -1,14 +1,18 @@
 with Editor.Instance;
 with Editor.Input_Bridge.Active_Find_Key_Handlers;
 with Editor.Input_Bridge.Command_Routing;
+with Editor.Input_Bridge.Command_Prompt_Routing;
+with Editor.Input_Bridge.Diagnostics_Focus_Key_Handlers;
 with Editor.Input_Bridge.Feature_Panel_Key_Handlers;
 with Editor.Input_Bridge.File_Tree_Key_Handlers;
+with Editor.Input_Bridge.Guided_Prompt_Key_Handlers;
 with Editor.Input_Bridge.Gutter_Pointer_Handlers;
 with Editor.Input_Bridge.Build_UI_Pointer_Handlers;
 with Editor.Input_Bridge.Keybinding_Handlers;
 with Editor.Input_Bridge.Panel_Bars_Pointer_Handlers;
 with Editor.Input_Bridge.Panel_Feature_Problems_Pointer_Handlers;
 with Editor.Input_Bridge.Panel_Tree_Search_Pointer_Handlers;
+with Editor.Input_Bridge.Pending_Transition_Key_Handlers;
 with Editor.Input_Bridge.Pointer_Routing;
 with Editor.Input_Bridge.Pointer_Scroll_Handlers;
 with Editor.Input_Bridge.Pointer_State;
@@ -423,326 +427,6 @@ use type Editor.Guided_Prompts.Prompt_Kind;
       end case;
    end Restore_Focus_After_Guided_Prompt_Cancel;
 
-   procedure Start_Guided_Prompt_For_Command
-     (Id : Editor.Commands.Command_Id) is
-   begin
-      case Id is
-         when Editor.Commands.Command_Open_Project =>
-            Editor.Guided_Prompts.Start
-              (The_Editor.State.Guided_Prompt,
-               Editor.Guided_Prompts.Project_Open_Prompt,
-               Id,
-               "Open Project",
-               "Enter project path.",
-               "Project",
-               Previous_Focus => "editor",
-               Confirm_Label => "Open",
-               Lifecycle_Command => True);
-            Report_Info ("Enter project path.");
-         when Editor.Commands.Command_Switch_Project =>
-            Editor.Guided_Prompts.Start
-              (The_Editor.State.Guided_Prompt,
-               Editor.Guided_Prompts.Project_Switch_Prompt,
-               Id,
-               "Switch Project",
-               "Enter target project path.",
-               "Project",
-               Previous_Focus => "editor",
-               Confirm_Label => "Switch",
-               Lifecycle_Command => True);
-            Report_Info ("Enter project path.");
-         when Editor.Commands.Command_Restore_Workspace_State =>
-            Editor.Guided_Prompts.Start
-              (The_Editor.State.Guided_Prompt,
-               Editor.Guided_Prompts.Workspace_Load_Prompt,
-               Id,
-               "Load Workspace",
-               "Enter workspace path or reference.",
-               "Workspace",
-               Confirm_Label => "Load",
-               Lifecycle_Command => True);
-            Report_Info ("Enter workspace path.");
-         when Editor.Commands.Command_Save_Workspace_State =>
-            Editor.Guided_Prompts.Start
-              (The_Editor.State.Guided_Prompt,
-               Editor.Guided_Prompts.Workspace_Save_Prompt,
-               Id,
-               "Save Workspace",
-               "Enter workspace path or confirm the default workspace target.",
-               "Workspace",
-               Confirm_Label => "Save");
-            Report_Info ("Enter workspace path.");
-         when Editor.Commands.Command_Run_Project_Search
-            | Editor.Commands.Command_Run_Project_Search_From_Bar =>
-            Editor.Guided_Prompts.Start
-              (The_Editor.State.Guided_Prompt,
-               Editor.Guided_Prompts.Search_Query_Prompt,
-               Id,
-               "Project Search",
-               "Enter search text.",
-               "Project Search",
-               Confirm_Label => "Search");
-            Report_Info ("Enter search text.");
-         when Editor.Commands.Command_Project_Search_Replace_Preview =>
-            Editor.Guided_Prompts.Start
-              (The_Editor.State.Guided_Prompt,
-               Editor.Guided_Prompts.Replace_Text_Prompt,
-               Id,
-               "Replacement Text",
-               "Enter replacement text for the current project search.",
-               "Project Search Replace",
-               Confirm_Label => "Preview");
-            Report_Info ("Enter replacement text.");
-         when Editor.Commands.Command_Keybindings_Assign_Selected =>
-            Editor.Guided_Prompts.Start
-              (The_Editor.State.Guided_Prompt,
-               Editor.Guided_Prompts.Keybinding_Capture_Prompt,
-               Id,
-               "Assign Keybinding",
-               "Press one key chord to assign to the selected bindable command.",
-               "Keybindings",
-               Confirm_Label => "Assign");
-            Report_Info ("Press keybinding chord.");
-         when Editor.Commands.Command_File_Tree_Create_File =>
-            Editor.Guided_Prompts.Start
-              (The_Editor.State.Guided_Prompt,
-               Editor.Guided_Prompts.File_Tree_Create_File_Prompt,
-               Id,
-               "Create File",
-               "Enter a file name or project-relative path inside the active project.",
-               "File Tree",
-               Confirm_Label => "Create");
-            Report_Info ("Enter file name.");
-         when Editor.Commands.Command_File_Tree_Create_Directory =>
-            Editor.Guided_Prompts.Start
-              (The_Editor.State.Guided_Prompt,
-               Editor.Guided_Prompts.File_Tree_Create_Directory_Prompt,
-               Id,
-               "Create Directory",
-               "Enter a directory name or project-relative path inside the active project.",
-               "File Tree",
-               Confirm_Label => "Create");
-            Report_Info ("Enter directory name.");
-         when Editor.Commands.Command_File_Tree_Rename_Selected =>
-            Editor.Guided_Prompts.Start
-              (The_Editor.State.Guided_Prompt,
-               Editor.Guided_Prompts.File_Tree_Rename_Prompt,
-               Id,
-               "Rename File or Directory",
-               "Enter a new name for the selected file or directory.",
-               "File Tree",
-               Confirm_Label => "Rename");
-            declare
-               Selected_Row : constant Natural :=
-                 Editor.File_Tree_View.Selected_Row_Index
-                   (The_Editor.State.File_Tree_View);
-               Found       : Boolean := False;
-               Node_Id     : Editor.File_Tree.File_Tree_Node_Id :=
-                 Editor.File_Tree.No_File_Tree_Node;
-               Summary     : Editor.File_Tree.File_Tree_Node_Summary;
-            begin
-               --  completeness: rename is a prompt-driven workflow,
-               --  but it should still present the current leaf name as the
-               --  editable starting point when a real selected row is known.
-               --  This remains transient prompt text; no path/name payload is
-               --  persisted or attached to keybindings/Command Palette rows.
-               if Selected_Row > 0 then
-                  Node_Id := Editor.File_Tree_View.Node_For_Row
-                    (The_Editor.State.File_Tree, Selected_Row, Found);
-               end if;
-
-               if Found and then Node_Id /= Editor.File_Tree.No_File_Tree_Node then
-                  Summary := Editor.File_Tree.Node
-                    (The_Editor.State.File_Tree, Node_Id);
-                  Editor.Guided_Prompts.Update_Input
-                    (The_Editor.State.Guided_Prompt, To_String (Summary.Name));
-               end if;
-            end;
-            Report_Info ("Enter new name.");
-         when Editor.Commands.Command_Rename_Symbol_Preview
-            | Editor.Commands.Command_Rename_Symbol_Apply =>
-            declare
-               Symbol : constant String :=
-                 Editor.Executor.Current_Semantic_Symbol_Name (The_Editor.State);
-            begin
-               Editor.Guided_Prompts.Start
-                 (The_Editor.State.Guided_Prompt,
-                  Editor.Guided_Prompts.Semantic_Rename_Prompt,
-                  Id,
-                  "Rename Symbol",
-                  "Enter the new Ada identifier for the selected symbol.",
-                  "Ada Semantics",
-                  Confirm_Label =>
-                    (if Id = Editor.Commands.Command_Rename_Symbol_Apply
-                     then "Rename"
-                     else "Preview"));
-               if Symbol'Length > 0 then
-                  Editor.Guided_Prompts.Update_Input
-                    (The_Editor.State.Guided_Prompt, Symbol);
-               end if;
-            end;
-            Report_Info ("Enter new symbol name.");
-         when Editor.Commands.Command_File_Tree_Delete_Selected =>
-            declare
-               Selected_Row : constant Natural :=
-                 Editor.File_Tree_View.Selected_Row_Index
-                   (The_Editor.State.File_Tree_View);
-               Found       : Boolean := False;
-               Node_Id     : Editor.File_Tree.File_Tree_Node_Id :=
-                 Editor.File_Tree.No_File_Tree_Node;
-               Summary     : Editor.File_Tree.File_Tree_Node_Summary;
-               Kind_Label  : Unbounded_String := To_Unbounded_String ("item");
-               Path_Label  : Unbounded_String := To_Unbounded_String ("selected File Tree item");
-               Impact      : Unbounded_String := Null_Unbounded_String;
-            begin
-               if Selected_Row > 0 then
-                  Node_Id := Editor.File_Tree_View.Node_For_Row
-                    (The_Editor.State.File_Tree, Selected_Row, Found);
-               end if;
-
-               if Found and then Node_Id /= Editor.File_Tree.No_File_Tree_Node then
-                  Summary := Editor.File_Tree.Node
-                    (The_Editor.State.File_Tree, Node_Id);
-                  Kind_Label := To_Unbounded_String
-                    (Editor.File_Tree.Kind_Label (Summary.Kind));
-                  Path_Label := Summary.Absolute_Path;
-                  if Editor.Buffers.Global_Has_Dirty_File_Under_Path
-                    (To_String (Summary.Absolute_Path))
-                  then
-                     Impact := To_Unbounded_String
-                       (" Dirty open buffer content will block deletion.");
-                  elsif Editor.Buffers.Global_Has_File_Under_Path
-                    (To_String (Summary.Absolute_Path))
-                  then
-                     Impact := To_Unbounded_String
-                       (" Clean open buffers under this target will be closed after successful deletion.");
-                  end if;
-               end if;
-
-               Editor.Guided_Prompts.Start
-                 (The_Editor.State.Guided_Prompt,
-                  Editor.Guided_Prompts.Confirmation_Prompt,
-                  Id,
-                  "Delete File or Directory",
-                  "Confirm deletion of the selected " & To_String (Kind_Label) & ": " &
-                    To_String (Path_Label) & "." &
-                    To_String (Impact),
-                  "File Tree",
-                  Confirm_Label => "Delete",
-                  Requires_Confirmation => True,
-                  Destructive => True,
-                  Affected_Count => 1);
-               Report_Info ("Confirmation required.");
-            end;
-         when Editor.Commands.Command_Delete_Buffer_File
-            | Editor.Commands.Command_Revert_Active_Buffer
-            | Editor.Commands.Command_Project_Search_Replace_All_Included
-            | Editor.Commands.Command_Reset_Settings_To_Defaults
-            | Editor.Commands.Command_Configuration_Reset_Settings
-            | Editor.Commands.Command_Configuration_Reset_Keybindings
-            | Editor.Commands.Command_Configuration_Reset_Workspace
-            | Editor.Commands.Command_Configuration_Reset_Recent_Projects
-            | Editor.Commands.Command_Configuration_Reset_All
-            | Editor.Commands.Command_Keybindings_Reset_To_Defaults
-            | Editor.Commands.Command_Clear_Workspace_State
-            | Editor.Commands.Command_Close_Project
-            | Editor.Commands.Command_Clear_Project
-            | Editor.Commands.Command_Clear_Recent_Projects
-            | Editor.Commands.Command_Close_All_Buffers
-            | Editor.Commands.Command_Close_All_Clean_Buffers
-            | Editor.Commands.Command_Close_Other_Buffers
-            | Editor.Commands.Command_Diagnostics_Clear =>
-            Editor.Guided_Prompts.Start
-              (The_Editor.State.Guided_Prompt,
-               Editor.Guided_Prompts.Confirmation_Prompt,
-               Id,
-               "Confirm Action",
-               "Confirm the pending action.",
-               "Confirmation",
-               Confirm_Label => "Confirm",
-               Requires_Confirmation => True,
-               Destructive => True,
-               Lifecycle_Command => True,
-               Affected_Count => 1);
-            Report_Info ("Confirmation required.");
-         when others =>
-            null;
-      end case;
-      Editor.Render_Cache.Invalidate_All;
-   end Start_Guided_Prompt_For_Command;
-
-   function Command_Starts_Guided_Prompt
-     (Id : Editor.Commands.Command_Id) return Boolean is
-   begin
-      case Id is
-         when Editor.Commands.Command_Open_Project
-            | Editor.Commands.Command_Switch_Project
-            | Editor.Commands.Command_Restore_Workspace_State
-            | Editor.Commands.Command_Save_Workspace_State
-            | Editor.Commands.Command_Run_Project_Search
-            | Editor.Commands.Command_Run_Project_Search_From_Bar
-            | Editor.Commands.Command_Project_Search_Replace_Preview
-            | Editor.Commands.Command_Keybindings_Assign_Selected
-            | Editor.Commands.Command_File_Tree_Create_File
-            | Editor.Commands.Command_File_Tree_Create_Directory
-            | Editor.Commands.Command_File_Tree_Rename_Selected
-            | Editor.Commands.Command_Rename_Symbol_Preview
-            | Editor.Commands.Command_Rename_Symbol_Apply
-            | Editor.Commands.Command_Delete_Buffer_File
-            | Editor.Commands.Command_Revert_Active_Buffer
-            | Editor.Commands.Command_File_Tree_Delete_Selected
-            | Editor.Commands.Command_Project_Search_Replace_All_Included
-            | Editor.Commands.Command_Reset_Settings_To_Defaults
-            | Editor.Commands.Command_Configuration_Reset_Settings
-            | Editor.Commands.Command_Configuration_Reset_Keybindings
-            | Editor.Commands.Command_Configuration_Reset_Workspace
-            | Editor.Commands.Command_Configuration_Reset_Recent_Projects
-            | Editor.Commands.Command_Configuration_Reset_All
-            | Editor.Commands.Command_Keybindings_Reset_To_Defaults
-            | Editor.Commands.Command_Clear_Workspace_State
-            | Editor.Commands.Command_Close_Project
-            | Editor.Commands.Command_Clear_Project
-            | Editor.Commands.Command_Clear_Recent_Projects
-            | Editor.Commands.Command_Close_All_Buffers
-            | Editor.Commands.Command_Close_All_Clean_Buffers
-            | Editor.Commands.Command_Close_Other_Buffers
-            | Editor.Commands.Command_Diagnostics_Clear =>
-            return True;
-         when others =>
-            return False;
-      end case;
-   end Command_Starts_Guided_Prompt;
-
-   function Command_Starts_Confirmation_Prompt
-     (Id : Editor.Commands.Command_Id) return Boolean is
-   begin
-      case Id is
-         when Editor.Commands.Command_Delete_Buffer_File
-            | Editor.Commands.Command_Revert_Active_Buffer
-            | Editor.Commands.Command_File_Tree_Delete_Selected
-            | Editor.Commands.Command_Project_Search_Replace_All_Included
-            | Editor.Commands.Command_Reset_Settings_To_Defaults
-            | Editor.Commands.Command_Configuration_Reset_Settings
-            | Editor.Commands.Command_Configuration_Reset_Keybindings
-            | Editor.Commands.Command_Configuration_Reset_Workspace
-            | Editor.Commands.Command_Configuration_Reset_Recent_Projects
-            | Editor.Commands.Command_Configuration_Reset_All
-            | Editor.Commands.Command_Keybindings_Reset_To_Defaults
-            | Editor.Commands.Command_Clear_Workspace_State
-            | Editor.Commands.Command_Close_Project
-            | Editor.Commands.Command_Clear_Project
-            | Editor.Commands.Command_Clear_Recent_Projects
-            | Editor.Commands.Command_Close_Active_Buffer
-            | Editor.Commands.Command_Close_All_Buffers
-            | Editor.Commands.Command_Close_All_Clean_Buffers
-            | Editor.Commands.Command_Close_Other_Buffers
-            | Editor.Commands.Command_Diagnostics_Clear =>
-            return True;
-         when others =>
-            return False;
-      end case;
-   end Command_Starts_Confirmation_Prompt;
-
    procedure Confirm_Guided_Prompt is
       Prompt_Id : constant Editor.Commands.Command_Id :=
         The_Editor.State.Guided_Prompt.Owning_Command;
@@ -913,7 +597,9 @@ use type Editor.Guided_Prompts.Prompt_Kind;
             Editor.Render_Cache.Invalidate_All;
             return;
          end if;
-      elsif Command_Starts_Guided_Prompt (Id) then
+      elsif Editor.Input_Bridge.Command_Prompt_Routing
+        .Command_Starts_Guided_Prompt (Id)
+      then
          --  Input-collection prompt starts deliberately precede ordinary
          --  availability because the missing value is the point of the
          --  workflow. Confirmation prompts are different: they wrap an already
@@ -926,7 +612,8 @@ use type Editor.Guided_Prompts.Prompt_Kind;
          --  selected rename target is already unavailable.  This check remains
          --  side-effect-free and uses the same Executor availability surface as
          --  palette/keybinding execution.
-         if Command_Starts_Confirmation_Prompt (Id)
+         if Editor.Input_Bridge.Command_Prompt_Routing
+              .Command_Starts_Confirmation_Prompt (Id)
            or else Id = Editor.Commands.Command_File_Tree_Create_File
            or else Id = Editor.Commands.Command_File_Tree_Create_Directory
            or else Id = Editor.Commands.Command_File_Tree_Rename_Selected
@@ -940,7 +627,9 @@ use type Editor.Guided_Prompts.Prompt_Kind;
                return;
             end if;
          end if;
-         Start_Guided_Prompt_For_Command (Id);
+         Editor.Input_Bridge.Command_Prompt_Routing
+           .Start_Guided_Prompt_For_Command
+             (The_Editor.State, Id, Report_Info'Access);
          Editor.Cursor.Notify_Input (Float (Editor.View.Current_Time_Seconds));
          return;
       end if;
@@ -3298,6 +2987,14 @@ use type Editor.Guided_Prompts.Prompt_Kind;
          Execute_Command_Id (Command_Id);
       end Execute_Command_Id_Default;
 
+      procedure Execute_Command_Id_With_Shift
+        (Command_Id : Editor.Commands.Command_Id;
+         Shift      : Boolean)
+      is
+      begin
+         Execute_Command_Id (Command_Id, Shift);
+      end Execute_Command_Id_With_Shift;
+
       procedure Execute_Active_Find_Previous_Default is
       begin
          Execute_Command_Id (Editor.Commands.Command_Active_Find_Previous);
@@ -3312,67 +3009,20 @@ use type Editor.Guided_Prompts.Prompt_Kind;
       pragma Assert (Initialized,
          "Input_Bridge must be initialized before handling key chords");
 
-      if Editor.Guided_Prompts.Is_Active (The_Editor.State.Guided_Prompt) then
-         case Chord.Key is
-            when Editor.Keybindings.Key_Escape =>
-               Editor.Guided_Prompts.Cancel (The_Editor.State.Guided_Prompt);
-               Report_Info ("Prompt cancelled.");
-            when Editor.Keybindings.Key_Enter =>
-               Accept_Guided_Prompt_Enter;
-            when Editor.Keybindings.Key_Up =>
-               Editor.Guided_Prompts.Move_File_Picker_Selection
-                 (The_Editor.State.Guided_Prompt, -1);
-            when Editor.Keybindings.Key_Down =>
-               Editor.Guided_Prompts.Move_File_Picker_Selection
-                 (The_Editor.State.Guided_Prompt, 1);
-            when Editor.Keybindings.Key_Right =>
-               if Editor.Guided_Prompts.Apply_File_Picker_Selection
-                 (The_Editor.State.Guided_Prompt)
-               then
-                  Report_Info ("Directory selected.");
-               end if;
-            when Editor.Keybindings.Key_Backspace =>
-               Editor.Guided_Prompts.Backspace (The_Editor.State.Guided_Prompt);
-            when Editor.Keybindings.Key_Delete =>
-               Editor.Guided_Prompts.Delete_Forward (The_Editor.State.Guided_Prompt);
-            when others =>
-               if The_Editor.State.Guided_Prompt.Kind =
-                 Editor.Guided_Prompts.Keybinding_Capture_Prompt
-               then
-                  Editor.Guided_Prompts.Capture_Chord
-                    (The_Editor.State.Guided_Prompt, Chord);
-                  Report_Info ("Keybinding chord captured");
-               else
-                  null;
-               end if;
-         end case;
-         Editor.Render_Cache.Invalidate_All;
-         Editor.Cursor.Notify_Input
-           (Float (Editor.View.Current_Time_Seconds));
+      if Editor.Input_Bridge.Guided_Prompt_Key_Handlers.Handle_Guided_Prompt_Key
+        (The_Editor.State, Chord,
+         Accept_Guided_Prompt_Enter'Access,
+         Report_Info'Access)
+      then
          return;
       end if;
 
-      if Pending_Confirmation_Active then
-         if Editor.Keybindings.Resolve (Chord, Id) /= Editor.Keybindings.Bound_Command then
-            Id := Editor.Commands.No_Command;
-         end if;
-
-         case Chord.Key is
-            when Editor.Keybindings.Key_Escape =>
-               Execute_Command_Id (Editor.Commands.Command_Cancel_Pending_Transition);
-            when Editor.Keybindings.Key_Enter =>
-               Execute_Command_Id (Editor.Commands.Command_Retry_Pending_Transition);
-            when others =>
-               if Editor.Focus_Management.Command_Allowed_While_Pending (Id) then
-                  Execute_Command_Id (Id, Shift => Chord.Modifiers.Shift);
-               else
-                  Report_Info ("Command unavailable while confirmation is pending");
-                  Editor.Render_Cache.Invalidate_All;
-               end if;
-         end case;
-
-         Editor.Cursor.Notify_Input
-           (Float (Editor.View.Current_Time_Seconds));
+      if Editor.Input_Bridge.Pending_Transition_Key_Handlers
+        .Handle_Pending_Transition_Key
+          (The_Editor.State, Chord,
+           Execute_Command_Id_With_Shift'Access,
+           Report_Info'Access)
+      then
          return;
       end if;
 
@@ -3456,81 +3106,11 @@ use type Editor.Guided_Prompts.Prompt_Kind;
          end;
       end if;
 
-      if The_Editor.State.Build_UI.Build_UI_Focused
-        and then Chord.Modifiers.Ctrl
+      if Editor.Input_Bridge.Diagnostics_Focus_Key_Handlers
+        .Handle_Suppressed_Diagnostics_Key
+          (The_Editor.State, Chord, Report_Info'Access)
       then
-         declare
-            Snapshot : constant Editor.Build_UI.Build_UI_Render_Snapshot :=
-              Editor.Build_UI_Actions.Build_UI_Operability_Snapshot
-                (The_Editor.State);
-            Action_Count : constant Natural := Natural (Snapshot.Actions.Length);
-            Layout_Config : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
-            Suppressed_Count : constant Natural :=
-              Editor.Feature_Diagnostics.Suppressed_Diagnostic_Count
-                (The_Editor.State.Feature_Diagnostics);
-            Text_Viewport_Height : constant Natural :=
-              Editor.Layout.Text_Viewport_Height
-                (Layout_Config, Editor.View.Viewport_Height);
-            Displayed_Suppressed_Count : constant Natural :=
-              Editor.Build_UI_Panel_Layout.Displayed_Suppressed_Row_Count
-                (Text_Viewport_Height => Text_Viewport_Height,
-                 Cell_H               => Editor.Layout.Cell_H,
-                 Action_Count         => Action_Count,
-                 Suppressed_Count     => Suppressed_Count);
-         begin
-         case Chord.Key is
-            when Editor.Keybindings.Key_Down =>
-               Editor.Feature_Diagnostics.Select_Next_Suppressed_Diagnostic
-                 (The_Editor.State.Feature_Diagnostics);
-               Editor.Feature_Diagnostics.Ensure_Selected_Suppressed_Diagnostic_Visible
-                 (The_Editor.State.Feature_Diagnostics,
-                  Displayed_Suppressed_Count);
-               Editor.Render_Cache.Invalidate_All;
-               Editor.Cursor.Notify_Input
-                 (Float (Editor.View.Current_Time_Seconds));
-               return;
-            when Editor.Keybindings.Key_Up =>
-               Editor.Feature_Diagnostics.Select_Previous_Suppressed_Diagnostic
-                 (The_Editor.State.Feature_Diagnostics);
-               Editor.Feature_Diagnostics.Ensure_Selected_Suppressed_Diagnostic_Visible
-                 (The_Editor.State.Feature_Diagnostics,
-                  Displayed_Suppressed_Count);
-               Editor.Render_Cache.Invalidate_All;
-               Editor.Cursor.Notify_Input
-                 (Float (Editor.View.Current_Time_Seconds));
-               return;
-            when Editor.Keybindings.Key_Enter =>
-               if Editor.Feature_Diagnostics.Restore_Selected_Suppressed_Diagnostic
-                 (The_Editor.State.Feature_Diagnostics, The_Editor.State.Feature_Panel)
-               then
-                  Report_Info ("Selected suppressed diagnostic restored.");
-               else
-                  Report_Info ("No suppressed diagnostic selected.");
-               end if;
-               Editor.Render_Cache.Invalidate_All;
-               Editor.Cursor.Notify_Input
-                 (Float (Editor.View.Current_Time_Seconds));
-               return;
-            when Editor.Keybindings.Key_Delete =>
-               declare
-                  Cleared : constant Natural :=
-                    Editor.Feature_Diagnostics.Clear_Suppressed_Diagnostics
-                      (The_Editor.State.Feature_Diagnostics);
-               begin
-                  if Cleared = 0 then
-                     Report_Info ("No suppressed diagnostics.");
-                  else
-                     Report_Info ("Suppressed diagnostics cleared.");
-                  end if;
-               end;
-               Editor.Render_Cache.Invalidate_All;
-               Editor.Cursor.Notify_Input
-                 (Float (Editor.View.Current_Time_Seconds));
-               return;
-            when others =>
-               null;
-         end case;
-         end;
+         return;
       end if;
 
       if not Chord.Modifiers.Ctrl
