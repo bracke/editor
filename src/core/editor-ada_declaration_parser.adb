@@ -10,6 +10,7 @@ with Editor.Ada_Declaration_Parser.Metadata_Helpers;
 with Editor.Ada_Declaration_Parser.Name_Profile_Helpers;
 with Editor.Ada_Declaration_Parser.Pragma_Helpers;
 with Editor.Ada_Declaration_Parser.Profile_Parameter_Collectors;
+with Editor.Ada_Declaration_Parser.Representation_Application;
 with Editor.Ada_Declaration_Parser.Representation_Metadata;
 with Editor.Ada_Declaration_Parser.Same_Line_Declarations;
 with Editor.Ada_Declaration_Parser.Same_Line_Emitters;
@@ -18043,213 +18044,48 @@ package body Editor.Ada_Declaration_Parser is
          end if;
       end Parse_Static_Integer;
 
-      procedure Apply_Enumeration_Representation_Associations
-        (Clause_Node : Node_Id;
-         Target      : Symbol_Id)
+      function Representation_Application_Context
+        return Representation_Application.Application_Context
       is
-         Positional_Index : Positive := 1;
       begin
-         if Target = No_Symbol then
-            return;
-         end if;
-
-         for C in 1 .. Child_Count (Tree, Clause_Node) loop
-            declare
-               Child_Id : constant Node_Id := Child_At (Tree, Clause_Node, C);
-               Child    : constant Node_Info := Node (Tree, Child_Id);
-            begin
-               if Child.Kind = Node_Named_Association then
-                  declare
-                     Selector_Text : constant String :=
-                       First_Child_Label (Child_Id, Node_Statement_Target);
-                     Action_Text : constant String :=
-                       First_Child_Label (Child_Id, Node_Statement_Action);
-                     Is_Named : constant Boolean := Action_Text /= "";
-                     Lit : Symbol_Id := No_Symbol;
-                     Lit_Name_Buffer : Unbounded_String := Null_Unbounded_String;
-                     Value_Text_Buffer : Unbounded_String := Null_Unbounded_String;
-                     Has_Value : Boolean := False;
-                     Value : Natural := 0;
-                  begin
-                     if Is_Named then
-                        Lit := Find_Enumeration_Literal_Symbol (Target, Selector_Text);
-                        Lit_Name_Buffer := To_Unbounded_String (Selector_Text);
-                        Value_Text_Buffer := To_Unbounded_String (Action_Text);
-                     else
-                        Lit := Enumeration_Literal_Symbol_At_Position
-                          (Target, Positional_Index);
-                        if Lit = No_Symbol then
-                           Lit_Name_Buffer :=
-                             To_Unbounded_String
-                               ("<positional" & Positive'Image (Positional_Index) & ">");
-                        else
-                           Lit_Name_Buffer := To_Unbounded_String (Symbol_Name_Or_Empty (Lit));
-                        end if;
-                        Value_Text_Buffer := To_Unbounded_String (Selector_Text);
-                        Positional_Index := Positional_Index + 1;
-                     end if;
-
-                     if To_String (Value_Text_Buffer) /= "" then
-                        Parse_Static_Natural
-                          (To_String (Value_Text_Buffer), Has_Value, Value);
-                        Add_Enumeration_Representation_Literal
-                          (Analysis,
-                           Target_Symbol => Target,
-                           Literal_Symbol => Lit,
-                           Literal_Name => To_String (Lit_Name_Buffer),
-                           Value_Text => To_String (Value_Text_Buffer),
-                           Has_Static_Value => Has_Value,
-                           Static_Value => Value,
-                           Source_Span => To_Model_Range (Child.Source_Span));
-                     end if;
-                  end;
-               end if;
-            end;
-         end loop;
-      end Apply_Enumeration_Representation_Associations;
+         return
+           (First_Child_Label => First_Child_Label'Unrestricted_Access,
+            Last_Child_Label  => Last_Child_Label'Unrestricted_Access,
+            To_Model_Range    => To_Model_Range'Unrestricted_Access,
+            Find_Metadata_Target =>
+              Find_Metadata_Target'Unrestricted_Access,
+            Normalize_Name => Normalize_Name'Unrestricted_Access,
+            Ancestor_Symbol => Ancestor_Symbol'Unrestricted_Access,
+            Parent_Representation_Target =>
+              Parent_Representation_Target'Unrestricted_Access,
+            Find_Enumeration_Literal =>
+              Find_Enumeration_Literal_Symbol'Unrestricted_Access,
+            Enumeration_Literal_At =>
+              Enumeration_Literal_Symbol_At_Position'Unrestricted_Access,
+            Find_Component => Find_Component_Symbol'Unrestricted_Access,
+            Symbol_Name => Symbol_Name_Or_Empty'Unrestricted_Access,
+            Parse_Static_Natural => Parse_Static_Natural'Unrestricted_Access,
+            Register_Static_Attribute =>
+              Register_Static_Representation_Attribute_Value
+                'Unrestricted_Access);
+      end Representation_Application_Context;
 
       procedure Apply_General_Representation_Clause (N : Node_Info) is
-         Raw_Target : constant String := First_Child_Label (N.Id, Node_Representation_Target);
-         Item_Text  : constant String := First_Child_Label (N.Id, Node_Representation_Item);
-         Attr       : constant String :=
-           Representation_Metadata.Attribute_Name (Raw_Target);
-         Base_Name  : constant String :=
-           Representation_Metadata.Attribute_Base_Name (Raw_Target);
-         Kind       : constant Representation_Clause_Kind :=
-           Representation_Metadata.Attribute_Representation_Kind_For
-             (Raw_Target, Item_Text, To_String (N.Label));
-         function Scoped_Target return Symbol_Id is
-            Owner : constant Symbol_Id := Ancestor_Symbol (N.Id);
-            Wanted : constant String := Normalize_Name (Base_Name);
-         begin
-            if Has_Dot (Base_Name) or else Owner = No_Symbol then
-               return Find_Metadata_Target (Base_Name);
-            end if;
-
-            for I in reverse 1 .. Symbol_Count (Analysis) loop
-               declare
-                  S : constant Symbol_Info := Symbol_At (Analysis, I);
-               begin
-                  if S.Parent_Symbol = Owner
-                    and then To_String (S.Normalized_Name) = Wanted
-                    and then S.Source_Span.Start_Line <= N.Source_Span.Start_Line
-                  then
-                     return S.Id;
-                  end if;
-               end;
-            end loop;
-
-            return Find_Metadata_Target (Base_Name);
-         end Scoped_Target;
-         Target     : constant Symbol_Id := Scoped_Target;
-         Has_Value  : Boolean := False;
-         Value      : Natural := 0;
-
       begin
-         if Raw_Target = "" then
-            return;
-         end if;
-
-         Parse_Static_Natural (Item_Text, Has_Value, Value);
-         Add_Representation_Clause
-           (Analysis,
-            Target_Symbol => Target,
-            Target_Name => Base_Name,
-            Kind => Kind,
-            Attribute_Name => Attr,
-            Item_Text => Item_Text,
-            Source_Form =>
-              Representation_Metadata.Representation_Source_Form_For (Kind),
-            Has_Static_Value => Has_Value,
-            Static_Value => Value,
-            Source_Span => To_Model_Range (N.Source_Span));
-
-         if Has_Value then
-            Register_Static_Representation_Attribute_Value
-              (Base_Name, Attr, Value);
-         end if;
-
-         if Kind = Representation_Enumeration_Clause then
-            Apply_Enumeration_Representation_Associations (N.Id, Target);
-         end if;
+         Representation_Application.Apply_General_Representation_Clause
+           (Representation_Application_Context, Tree, Analysis, N);
       end Apply_General_Representation_Clause;
 
       procedure Apply_Record_Representation_Component (N : Node_Info) is
-         Target : constant Symbol_Id := Parent_Representation_Target (N.Id);
-         Component_Name : constant String := First_Child_Label (N.Id, Node_Representation_Target);
-         Item_Text : constant String := First_Child_Label (N.Id, Node_Representation_Item);
-         Range_Text : constant String := Last_Child_Label (N.Id, Node_Range_Expression);
-         Storage_Text : constant String :=
-           Representation_Metadata.Record_Component_Storage_Unit_Text
-             (Item_Text);
-         First_Text : Unbounded_String := Null_Unbounded_String;
-         Last_Text  : Unbounded_String := Null_Unbounded_String;
-         Has_Storage : Boolean := False;
-         Storage_Value : Natural := 0;
-         Has_First : Boolean := False;
-         First_Value : Natural := 0;
-         Has_Last : Boolean := False;
-         Last_Value : Natural := 0;
-         Component : Symbol_Id;
       begin
-         if Target = No_Symbol or else Component_Name = "" then
-            return;
-         end if;
-
-         Representation_Metadata.Parse_Bit_Range
-           (Range_Text, First_Text, Last_Text);
-         Parse_Static_Natural (Storage_Text, Has_Storage, Storage_Value);
-         Parse_Static_Natural (To_String (First_Text), Has_First, First_Value);
-         Parse_Static_Natural (To_String (Last_Text), Has_Last, Last_Value);
-         Component := Find_Component_Symbol (Target, Component_Name);
-
-         Add_Record_Representation_Component
-           (Analysis,
-            Target_Symbol => Target,
-            Component_Symbol => Component,
-            Component_Name => Component_Name,
-            Storage_Unit_Text => Storage_Text,
-            First_Bit_Text => To_String (First_Text),
-            Last_Bit_Text => To_String (Last_Text),
-            Source_Form => Representation_Source_Record_Component_Clause,
-            Has_Static_Storage_Unit => Has_Storage,
-            Static_Storage_Unit => Storage_Value,
-            Has_Static_First_Bit => Has_First,
-            Static_First_Bit => First_Value,
-            Has_Static_Last_Bit => Has_Last,
-            Static_Last_Bit => Last_Value,
-            Source_Span => To_Model_Range (N.Source_Span));
+         Representation_Application.Apply_Record_Representation_Component
+           (Representation_Application_Context, Analysis, N);
       end Apply_Record_Representation_Component;
 
       procedure Apply_Record_Representation_Mod_Clause (N : Node_Info) is
-         Target : constant Symbol_Id := Parent_Representation_Target (N.Id);
-         Item_Text : constant String := First_Child_Label (N.Id, Node_Representation_Item);
-         Has_Value : Boolean := False;
-         Value     : Natural := 0;
-         Target_Name : Unbounded_String := Null_Unbounded_String;
       begin
-         if Target = No_Symbol then
-            return;
-         end if;
-
-         declare
-            Target_Info : constant Symbol_Info := Symbol_At (Analysis, Positive (Target));
-         begin
-            Target_Name := Target_Info.Name;
-         end;
-
-         Parse_Static_Natural (Item_Text, Has_Value, Value);
-         Add_Representation_Clause
-           (Analysis,
-            Target_Symbol => Target,
-            Target_Name => To_String (Target_Name),
-            Kind => Representation_Record_Mod_Clause,
-            Attribute_Name => "mod",
-            Item_Text => Item_Text,
-            Source_Form => Representation_Source_Record_Clause,
-            Has_Static_Value => Has_Value,
-            Static_Value => Value,
-            Source_Span => To_Model_Range (N.Source_Span));
+         Representation_Application.Apply_Record_Representation_Mod_Clause
+           (Representation_Application_Context, Analysis, N);
       end Apply_Record_Representation_Mod_Clause;
 
    begin
