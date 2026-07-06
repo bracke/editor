@@ -1,6 +1,8 @@
 with Editor.Instance;
 with Editor.Input_Bridge.Active_Find_Key_Handlers;
 with Editor.Input_Bridge.Command_Routing;
+with Editor.Input_Bridge.Feature_Panel_Key_Handlers;
+with Editor.Input_Bridge.File_Tree_Key_Handlers;
 with Editor.Input_Bridge.Gutter_Pointer_Handlers;
 with Editor.Input_Bridge.Build_UI_Pointer_Handlers;
 with Editor.Input_Bridge.Keybinding_Handlers;
@@ -3536,29 +3538,23 @@ use type Editor.Guided_Prompts.Prompt_Kind;
         and then not Chord.Modifiers.Meta
       then
          if Editor.Panel_Focus.File_Tree_Has_Focus (The_Editor.State.Panel_Focus) then
-            case Chord.Key is
-               when Editor.Keybindings.Key_Up =>
-                  Execute_Command_Id (Editor.Commands.Command_File_Tree_Move_Up);
-               when Editor.Keybindings.Key_Down =>
-                  Execute_Command_Id (Editor.Commands.Command_File_Tree_Move_Down);
-               when Editor.Keybindings.Key_Page_Up =>
-                  Execute_Command_Id (Editor.Commands.Command_File_Tree_Page_Up);
-               when Editor.Keybindings.Key_Page_Down =>
-                  Execute_Command_Id (Editor.Commands.Command_File_Tree_Page_Down);
-               when Editor.Keybindings.Key_Left =>
-                  Execute_Command_Id (Editor.Commands.Command_File_Tree_Collapse_Selected);
-               when Editor.Keybindings.Key_Right =>
-                  Execute_Command_Id (Editor.Commands.Command_File_Tree_Expand_Selected);
-               when Editor.Keybindings.Key_Enter =>
-                  Execute_Command_Id (Editor.Commands.Command_File_Tree_Open_Selected);
-               when Editor.Keybindings.Key_Escape =>
-                  Execute_Command_Id (Editor.Commands.Command_Focus_Editor_Text);
-               when others =>
-                  goto Focused_Surface_Not_Handled;
-            end case;
-            Editor.Cursor.Notify_Input
-              (Float (Editor.View.Current_Time_Seconds));
-            return;
+            declare
+               Result : constant
+                 Editor.Input_Bridge.File_Tree_Key_Handlers.Focused_Key_Result :=
+                   Editor.Input_Bridge.File_Tree_Key_Handlers
+                     .Handle_File_Tree_Focused_Surface_Key
+                       (The_Editor.State, Chord,
+                        Execute_Command_Id_Default'Access);
+            begin
+               case Result is
+                  when Editor.Input_Bridge.File_Tree_Key_Handlers.File_Tree_Key_Handled =>
+                     return;
+                  when Editor.Input_Bridge.File_Tree_Key_Handlers.File_Tree_Key_Not_Handled =>
+                     goto Focused_Surface_Not_Handled;
+                  when Editor.Input_Bridge.File_Tree_Key_Handlers.File_Tree_Not_Focused =>
+                     null;
+               end case;
+            end;
          elsif The_Editor.State.Latest_Build_Result_Focused then
             case Chord.Key is
                when Editor.Keybindings.Key_Enter =>
@@ -3993,200 +3989,15 @@ use type Editor.Guided_Prompts.Prompt_Kind;
             end case;
             Editor.Cursor.Notify_Input
               (Float (Editor.View.Current_Time_Seconds));
-         elsif Editor.Feature_Panel.Is_Focused (The_Editor.State.Feature_Panel) then
-            if not Editor.Feature_Panel.Is_Visible (The_Editor.State.Feature_Panel) then
-               Execute_Command_Id (Editor.Commands.Command_Focus_Editor_Text);
-            elsif Editor.Feature_Search_Results.Search_Input_Is_Active
-              (The_Editor.State.Feature_Search_Results)
-            then
-               case Chord.Key is
-                  when Editor.Keybindings.Key_Up =>
-                     Execute_Command_Id
-                       (Editor.Commands.Command_Search_Results_Query_History_Previous);
-                  when Editor.Keybindings.Key_Down =>
-                     Execute_Command_Id
-                       (Editor.Commands.Command_Search_Results_Query_History_Next);
-                  when Editor.Keybindings.Key_Enter =>
-                     Execute_Command_Id
-                       (Editor.Commands.Command_Search_Results_Search_Active_Buffer);
-                  when Editor.Keybindings.Key_Escape =>
-                     Editor.Feature_Search_Results.Deactivate_Search_Query_Input
-                       (The_Editor.State.Feature_Search_Results);
-                     Editor.Feature_Search_Results.Project_Rows
-                       (The_Editor.State.Feature_Search_Results,
-                        The_Editor.State.Feature_Panel);
-                     Editor.Render_Cache.Invalidate_All;
-                  when Editor.Keybindings.Key_Backspace =>
-                     Editor.Feature_Search_Results.Delete_Search_Input_Character_Backward
-                       (The_Editor.State.Feature_Search_Results);
-                     Editor.Feature_Search_Results.Project_Rows
-                       (The_Editor.State.Feature_Search_Results,
-                        The_Editor.State.Feature_Panel);
-                     Editor.Render_Cache.Invalidate_All;
-                  when Editor.Keybindings.Key_Delete =>
-                     Editor.Feature_Search_Results.Delete_Search_Input_Character_Forward
-                       (The_Editor.State.Feature_Search_Results);
-                     Editor.Feature_Search_Results.Project_Rows
-                       (The_Editor.State.Feature_Search_Results,
-                        The_Editor.State.Feature_Panel);
-                     Editor.Render_Cache.Invalidate_All;
-                  when others =>
-                     null;
-               end case;
-            elsif Editor.Outline.Filter_Input_Is_Active (The_Editor.State.Outline) then
-               case Chord.Key is
-                  when Editor.Keybindings.Key_Up =>
-                     if Chord.Modifiers.Ctrl or else Chord.Modifiers.Alt then
-                        Execute_Command_Id
-                          (Editor.Commands.Command_Outline_Filter_History_Previous);
-                     else
-                        Execute_Command_Id
-                          (Editor.Commands.Command_Select_Previous_Outline_Item);
-                     end if;
-                  when Editor.Keybindings.Key_Down =>
-                     if Chord.Modifiers.Ctrl or else Chord.Modifiers.Alt then
-                        Execute_Command_Id
-                          (Editor.Commands.Command_Outline_Filter_History_Next);
-                     else
-                        Execute_Command_Id
-                          (Editor.Commands.Command_Select_Next_Outline_Item);
-                     end if;
-                  when Editor.Keybindings.Key_Enter =>
-                     Editor.Outline.Commit_Filter_To_History (The_Editor.State.Outline);
-                     Execute_Command_Id
-                       (Editor.Commands.Command_Open_Selected_Outline_Item);
-                  when Editor.Keybindings.Key_Escape =>
-                     if Editor.Outline.Filter_Text (The_Editor.State.Outline) /= "" then
-                        Editor.Outline.Clear_Filter_Text (The_Editor.State.Outline);
-                     else
-                        Editor.Outline.Deactivate_Filter_Input (The_Editor.State.Outline);
-                     end if;
-                     Editor.Outline.Set_Rows_From_Outline
-                       (The_Editor.State.Outline, The_Editor.State.Feature_Panel);
-                     Editor.Render_Cache.Invalidate_All;
-                  when Editor.Keybindings.Key_Backspace =>
-                     Editor.Outline.Delete_Filter_Character_Backward
-                       (The_Editor.State.Outline);
-                     Editor.Outline.Set_Rows_From_Outline
-                       (The_Editor.State.Outline, The_Editor.State.Feature_Panel);
-                     Editor.Render_Cache.Invalidate_All;
-                  when Editor.Keybindings.Key_Delete =>
-                     Editor.Outline.Delete_Filter_Character_Forward
-                       (The_Editor.State.Outline);
-                     Editor.Outline.Set_Rows_From_Outline
-                       (The_Editor.State.Outline, The_Editor.State.Feature_Panel);
-                     Editor.Render_Cache.Invalidate_All;
-                  when Editor.Keybindings.Key_Left =>
-                     Editor.Outline.Move_Filter_Caret_Left (The_Editor.State.Outline);
-                     Editor.Render_Cache.Invalidate_All;
-                  when Editor.Keybindings.Key_Right =>
-                     Editor.Outline.Move_Filter_Caret_Right (The_Editor.State.Outline);
-                     Editor.Render_Cache.Invalidate_All;
-                  when Editor.Keybindings.Key_Home =>
-                     Editor.Outline.Move_Filter_Caret_Start (The_Editor.State.Outline);
-                     Editor.Render_Cache.Invalidate_All;
-                  when Editor.Keybindings.Key_End =>
-                     Editor.Outline.Move_Filter_Caret_End (The_Editor.State.Outline);
-                     Editor.Render_Cache.Invalidate_All;
-                  when others =>
-                     null;
-               end case;
-            else
-               case Chord.Key is
-                  when Editor.Keybindings.Key_Up =>
-                     Execute_Command_Id
-                       (Editor.Commands.Command_Feature_Panel_Select_Previous);
-                  when Editor.Keybindings.Key_Down =>
-                     Execute_Command_Id
-                       (Editor.Commands.Command_Feature_Panel_Select_Next);
-                  when Editor.Keybindings.Key_Enter =>
-                     if Editor.Feature_Panel.Selected_Row
-                         (The_Editor.State.Feature_Panel) /= 0
-                       and then Editor.Outline.Feature_Row_Maps_To_Item
-                         (The_Editor.State.Outline,
-                          The_Editor.State.Feature_Panel,
-                          Editor.Feature_Panel.Selected_Row
-                            (The_Editor.State.Feature_Panel))
-                     then
-                        Execute_Command_Id
-                          (Editor.Commands.Command_Open_Selected_Outline_Item);
-                     else
-                        Execute_Command_Id
-                          (Editor.Commands.Command_Feature_Panel_Open_Selected);
-                     end if;
-                  when Editor.Keybindings.Key_Escape =>
-                     Execute_Command_Id (Editor.Commands.Command_Focus_Editor_Text);
-                  when others =>
-                     null;
-               end case;
-            end if;
-            Editor.Cursor.Notify_Input
-              (Float (Editor.View.Current_Time_Seconds));
-         elsif Editor.Panel_Focus.File_Tree_Has_Focus (The_Editor.State.Panel_Focus) then
-            if (not Editor.Project.Has_Project (The_Editor.State.Project))
-              or else not Editor.Panels.Is_Visible
-                (The_Editor.State.Panels, Editor.Panels.File_Tree_Panel)
-            then
-               Execute_Command_Id (Editor.Commands.Command_Focus_Editor_Text);
-               Editor.Cursor.Notify_Input
-                 (Float (Editor.View.Current_Time_Seconds));
-               return;
-            end if;
-
-            case Chord.Key is
-               when Editor.Keybindings.Key_Up =>
-                  Execute_Command_Id (Editor.Commands.Command_File_Tree_Move_Up);
-               when Editor.Keybindings.Key_Down =>
-                  Execute_Command_Id (Editor.Commands.Command_File_Tree_Move_Down);
-               when Editor.Keybindings.Key_Page_Up =>
-                  Execute_Command_Id (Editor.Commands.Command_File_Tree_Page_Up);
-               when Editor.Keybindings.Key_Page_Down =>
-                  Execute_Command_Id (Editor.Commands.Command_File_Tree_Page_Down);
-               when Editor.Keybindings.Key_Home =>
-                  Editor.File_Tree_View.Select_First_Visible_Row
-                    (The_Editor.State.File_Tree_View, The_Editor.State.File_Tree);
-                  Editor.File_Tree_View.Set_Top_Row
-                    (The_Editor.State.File_Tree_View, 1);
-                  Editor.Render_Cache.Invalidate_All;
-               when Editor.Keybindings.Key_End =>
-                  declare
-                     Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
-                     Panel  : constant Editor.Layout.Rect :=
-                       Editor.Layout.Panel_Rect
-                         (Layout,
-                          Editor.Panels.File_Tree_Panel,
-                          Editor.View.Viewport_Width,
-                          Editor.View.Viewport_Height);
-                     Page_Rows : constant Natural :=
-                       (if Editor.Layout.Cell_H = 0 then 1
-                        else Natural'Max (1, Panel.Height / Editor.Layout.Cell_H));
-                     Count : constant Natural :=
-                       Editor.File_Tree.Visible_Row_Count (The_Editor.State.File_Tree);
-                  begin
-                     Editor.File_Tree_View.Select_Last_Visible_Row
-                       (The_Editor.State.File_Tree_View, The_Editor.State.File_Tree);
-                     if Count <= Page_Rows then
-                        Editor.File_Tree_View.Set_Top_Row
-                          (The_Editor.State.File_Tree_View, 1);
-                     else
-                        Editor.File_Tree_View.Set_Top_Row
-                          (The_Editor.State.File_Tree_View, Count - Page_Rows + 1);
-                     end if;
-                  end;
-                  Editor.Render_Cache.Invalidate_All;
-               when Editor.Keybindings.Key_Left =>
-                  Execute_Command_Id (Editor.Commands.Command_File_Tree_Collapse_Selected);
-               when Editor.Keybindings.Key_Right =>
-                  Execute_Command_Id (Editor.Commands.Command_File_Tree_Expand_Selected);
-               when Editor.Keybindings.Key_Enter =>
-                  Execute_Command_Id (Editor.Commands.Command_File_Tree_Open_Selected);
-               when Editor.Keybindings.Key_Escape =>
-                  Execute_Command_Id (Editor.Commands.Command_Focus_Editor_Text);
-               when others =>
-                  null;
-            end case;
-            Editor.Cursor.Notify_Input
-              (Float (Editor.View.Current_Time_Seconds));
+         elsif Editor.Input_Bridge.Feature_Panel_Key_Handlers
+           .Handle_Feature_Panel_Key
+             (The_Editor.State, Chord, Execute_Command_Id_Default'Access)
+         then
+            null;
+         elsif Editor.Input_Bridge.File_Tree_Key_Handlers.Handle_File_Tree_Key
+           (The_Editor.State, Chord, Execute_Command_Id_Default'Access)
+         then
+            null;
          elsif The_Editor.State.Build_UI.Build_UI_Focused then
             declare
                Projection : constant Build_UI_Panel_Input_Projection :=

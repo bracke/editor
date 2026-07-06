@@ -3224,38 +3224,6 @@ package body Editor.Ada_Declaration_Parser is
             Flags.Is_Private, Pending_Generic);
       end Add_Same_Line_Type_Groups;
 
-      function Strip_Override_Prefix (Segment : String) return String is
-         S : constant String := Trim (Segment);
-         L : constant String := Lower (S);
-      begin
-         if Starts_With (L, "not overriding ") then
-            return Trim (S (S'First + 15 .. S'Last));
-         elsif Starts_With (L, "overriding ") then
-            return Trim (S (S'First + 11 .. S'Last));
-         end if;
-
-         return S;
-      end Strip_Override_Prefix;
-
-      function Strip_Callable_Prefix (Segment : String) return String is
-         S : constant String := Strip_Override_Prefix (Segment);
-         L : constant String := Lower (S);
-      begin
-         if Starts_With_Word (L, "with") then
-            return Trim (S (S'First + 4 .. S'Last));
-         end if;
-
-         return S;
-      end Strip_Callable_Prefix;
-
-      function Starts_With_Callable_Segment (Segment : String) return Boolean is
-         S : constant String := Strip_Callable_Prefix (Segment);
-         L : constant String := Lower (S);
-      begin
-         return Starts_With_Word (L, "procedure")
-           or else Starts_With_Word (L, "function");
-      end Starts_With_Callable_Segment;
-
       function Has_Same_Line_Callable_Group return Boolean is
       begin
          return Same_Line_Declarations.Has_Same_Line_Callable_Group
@@ -3263,209 +3231,14 @@ package body Editor.Ada_Declaration_Parser is
       end Has_Same_Line_Callable_Group;
 
       procedure Add_Same_Line_Callable_Groups is
-         Code          : constant String := Editor.Ada_Syntax_Core.Sanitize_Line (Raw_Line);
-         Segment_Start : Natural := Raw_Line'First;
-         Nesting       : Natural := 0;
          Parent        : constant Symbol_Id :=
            Scope_Stack (Natural'Min (Depth, Max_Scope_Nesting));
-
-         procedure Add_Segment
-           (First : Natural;
-            Last  : Natural)
-         is
-         begin
-            if First > Last then
-               return;
-            end if;
-
-            declare
-               Segment       : constant String := Trim (Raw_Line (First .. Last));
-               Segment_Lower : constant String := Lower (Segment);
-               Override_Text : constant String := Strip_Override_Prefix (Segment);
-               Override_Lower : constant String := Lower (Override_Text);
-               Work          : constant String := Strip_Callable_Prefix (Segment);
-               Work_Lower    : constant String := Lower (Work);
-               Segment_Kind  : Symbol_Kind := Symbol_Unknown;
-               Segment_Flags : Declaration_Flags := (others => False);
-               Segment_Name  : String (1 .. 256) := (others => ' ');
-               Name_Len      : Natural := 0;
-               Target_Value  : String (1 .. 256) := (others => ' ');
-               Target_Len    : Natural := 0;
-               Profile_Value : String (1 .. 512) := (others => ' ');
-               Profile_Len   : Natural := 0;
-
-               procedure Set_Local_Name (Value : String) is
-                  Len : constant Natural := Natural'Min (Value'Length, Segment_Name'Length);
-               begin
-                  Name_Len := Len;
-                  if Len > 0 then
-                     Segment_Name (1 .. Len) := Value (Value'First .. Value'First + Len - 1);
-                  end if;
-               end Set_Local_Name;
-
-               procedure Set_Local_Target (Value : String) is
-                  Len : constant Natural := Natural'Min (Value'Length, Target_Value'Length);
-               begin
-                  Target_Len := Len;
-                  if Len > 0 then
-                     Target_Value (1 .. Len) := Value (Value'First .. Value'First + Len - 1);
-                  end if;
-               end Set_Local_Target;
-
-               procedure Set_Local_Profile (Value : String) is
-                  Len : constant Natural := Natural'Min (Value'Length, Profile_Value'Length);
-               begin
-                  Profile_Len := Len;
-                  if Len > 0 then
-                     Profile_Value (1 .. Len) := Value (Value'First .. Value'First + Len - 1);
-                  end if;
-               end Set_Local_Profile;
-            begin
-               if Segment'Length = 0 then
-                  return;
-               end if;
-
-               Segment_Flags.Is_Private := Flags.Is_Private;
-               Segment_Flags.Is_Abstract := Starts_With (Segment_Lower, "abstract ")
-                 or else Ada.Strings.Fixed.Index (Segment_Lower, " abstract ") /= 0;
-               Segment_Flags.Is_Overriding := Starts_With (Segment_Lower, "overriding ");
-               Segment_Flags.Is_Not_Overriding := Starts_With (Segment_Lower, "not overriding ");
-               Segment_Flags.Is_Rename := Has_Token (Segment_Lower, "renames");
-
-               if Starts_With_Word (Override_Lower, "with") then
-                  if not Pending_Generic then
-                     return;
-                  end if;
-                  Segment_Flags.Is_Generic := True;
-                  Segment_Kind := Symbol_Generic_Formal_Subprogram;
-               end if;
-
-               if Starts_With_Word (Work_Lower, "procedure") then
-                  if Segment_Kind = Symbol_Unknown then
-                     Segment_Flags.Is_Instantiation := Has_Token (Work_Lower, "new");
-                     Segment_Kind :=
-                       (if Segment_Flags.Is_Instantiation then Symbol_Instantiation
-                        else Symbol_Procedure);
-                  end if;
-                  Set_Local_Name (Read_Name (Work, Work'First + 9, True));
-                  if Name_Len > 0 then
-                     Set_Local_Profile
-                       (Profile_From (Work, Segment_Name (1 .. Name_Len)));
-                  end if;
-                  if Segment_Flags.Is_Rename then
-                     Set_Local_Target (Target_After (Work, "renames"));
-                  elsif Segment_Flags.Is_Instantiation then
-                     Set_Local_Target (Target_After (Work, "new"));
-                  elsif Segment_Flags.Is_Generic then
-                     Set_Local_Target (Target_After (Work, " is "));
-                  end if;
-               elsif Starts_With_Word (Work_Lower, "function") then
-                  declare
-                     F : constant String := Read_Function_Name (Work, Work'First + 8, True);
-                  begin
-                     if Segment_Kind = Symbol_Unknown then
-                        Segment_Flags.Is_Instantiation := Has_Token (Work_Lower, "new");
-                        Segment_Kind :=
-                          (if F'Length > 0 and then F (F'First) = '"' then
-                              Symbol_Operator_Function
-                           else
-                              Symbol_Function);
-                        if Segment_Flags.Is_Instantiation then
-                           Segment_Kind := Symbol_Instantiation;
-                        end if;
-                     end if;
-                     Set_Local_Name (F);
-                     if Name_Len > 0 then
-                        Set_Local_Profile
-                          (Profile_From (Work, Segment_Name (1 .. Name_Len)));
-                     end if;
-                     if Segment_Flags.Is_Rename then
-                        Set_Local_Target (Target_After (Work, "renames"));
-                     elsif Segment_Flags.Is_Instantiation then
-                        Set_Local_Target (Target_After (Work, "new"));
-                     else
-                        Set_Local_Target (Function_Return_Target (Work));
-                        if Target_Len = 0 and then Segment_Flags.Is_Generic then
-                           Set_Local_Target (Target_After (Work, " is "));
-                        end if;
-                        if Target_Len = 0
-                          and then Profile_Len = 0
-                          and then Ada.Strings.Fixed.Index (Work_Lower, " return ") /= 0
-                          and then (Ada.Strings.Fixed.Index
-                                      (Work_Lower, " access procedure") /= 0
-                                    or else Ada.Strings.Fixed.Index
-                                      (Work_Lower, " access function") /= 0
-                                    or else Ada.Strings.Fixed.Index
-                                      (Work_Lower, " access protected procedure") /= 0
-                                    or else Ada.Strings.Fixed.Index
-                                      (Work_Lower, " access protected function") /= 0)
-                        then
-                           Set_Local_Profile (Access_Subprogram_Profile (Work));
-                        end if;
-                     end if;
-                  end;
-               else
-                  return;
-               end if;
-
-               if Name_Len = 0 then
-                  return;
-               end if;
-
-               declare
-                  Name_Text : constant String := Segment_Name (1 .. Name_Len);
-                  Name_Pos  : constant Natural :=
-                    Ada.Strings.Fixed.Index (Raw_Line (First .. Last), Name_Text);
-                  Col       : constant Positive :=
-                    (if Name_Pos = 0 then First_Non_Blank_Column (Raw_Line)
-                     else Positive (Name_Pos - Raw_Line'First + 1));
-                  New_Id    : constant Symbol_Id := Add_Symbol
-                    (Analysis, Name_Text, Segment_Kind,
-                     (Line_Number, Col, Line_Number,
-                      Positive'Max (Col, Col + Name_Text'Length - 1)),
-                     Col, Enclosing_Scope => Scope_Id (Natural (Parent)),
-                     Parent_Symbol => Parent, Depth => Depth,
-                     Profile_Summary =>
-                       (if Profile_Len = 0 then "" else Profile_Value (1 .. Profile_Len)),
-                     Flags => Segment_Flags,
-                     Target_Name =>
-                       (if Target_Len = 0 then "" else Target_Value (1 .. Target_Len)));
-               begin
-                  if New_Id /= No_Symbol
-                    and then (Segment_Kind = Symbol_Procedure
-                              or else Segment_Kind = Symbol_Function
-                              or else Segment_Kind = Symbol_Operator_Function
-                              or else Segment_Kind = Symbol_Generic_Formal_Subprogram)
-                  then
-                     Add_Profile_Parameter_Names
-                       (Analysis, Work, Line_Number, Depth + 1, New_Id,
-                        Name_Text, Pending_Profile_Access_Target_Owners,
-                        Pending_Profile_Access_Target_Count);
-                  end if;
-               end;
-            end;
-         end Add_Segment;
       begin
-         --  Multiple callable specs, renames, instantiations, or generic
-         --  formal subprogram declarations may be compacted onto one line.
-         --  Split only at top-level semicolons so parameter-list semicolons
-         --  remain owned by the profile parser.
-         for I in Code'Range loop
-            if Code (I) = '(' then
-               Nesting := Nesting + 1;
-            elsif Code (I) = ')' then
-               if Nesting > 0 then
-                  Nesting := Nesting - 1;
-               end if;
-            elsif Code (I) = ';' and then Nesting = 0 then
-               Add_Segment (Segment_Start, I - 1);
-               Segment_Start := I + 1;
-            end if;
-         end loop;
-
-         if Segment_Start <= Raw_Line'Last then
-            Add_Segment (Segment_Start, Raw_Line'Last);
-         end if;
+         Same_Line_Emitters.Add_Same_Line_Callable_Groups
+           (Analysis, Raw_Line, Line_Number, Depth, Parent,
+            Flags.Is_Private, Pending_Generic,
+            Pending_Profile_Access_Target_Owners,
+            Pending_Profile_Access_Target_Count);
       end Add_Same_Line_Callable_Groups;
 
 
@@ -3484,16 +3257,6 @@ package body Editor.Ada_Declaration_Parser is
             Flags.Is_Private, Pending_Generic);
       end Add_Same_Line_Package_Groups;
 
-      function Starts_With_Concurrent_Segment (Segment : String) return Boolean is
-         S : constant String := Lower (Trim (Segment));
-      begin
-         return Starts_With (S, "task type ")
-           or else Starts_With_Word (S, "task")
-           or else Starts_With (S, "protected type ")
-           or else Starts_With_Word (S, "protected")
-           or else Starts_With_Word (S, "entry");
-      end Starts_With_Concurrent_Segment;
-
       function Has_Same_Line_Concurrent_Group return Boolean is
       begin
          return Same_Line_Declarations.Has_Same_Line_Concurrent_Group
@@ -3501,121 +3264,13 @@ package body Editor.Ada_Declaration_Parser is
       end Has_Same_Line_Concurrent_Group;
 
       procedure Add_Same_Line_Concurrent_Groups is
-         Code          : constant String := Editor.Ada_Syntax_Core.Sanitize_Line (Raw_Line);
-         Segment_Start : Natural := Raw_Line'First;
-         Nesting       : Natural := 0;
          Parent        : constant Symbol_Id :=
            Scope_Stack (Natural'Min (Depth, Max_Scope_Nesting));
-
-         procedure Add_Segment
-           (First : Natural;
-            Last  : Natural)
-         is
-         begin
-            if First > Last then
-               return;
-            end if;
-
-            declare
-               Segment       : constant String := Trim (Raw_Line (First .. Last));
-               Segment_Lower : constant String := Lower (Segment);
-               Segment_Name  : String (1 .. 256) := (others => ' ');
-               Name_Len      : Natural := 0;
-               Segment_Kind  : Symbol_Kind := Symbol_Unknown;
-               Segment_Flags : Declaration_Flags :=
-                 (Is_Private => Flags.Is_Private, others => False);
-
-               procedure Set_Local_Name (Value : String) is
-                  Len : constant Natural := Natural'Min (Value'Length, Segment_Name'Length);
-               begin
-                  Name_Len := Len;
-                  if Len > 0 then
-                     Segment_Name (1 .. Len) := Value (Value'First .. Value'First + Len - 1);
-                  end if;
-               end Set_Local_Name;
-            begin
-               if Starts_With (Segment_Lower, "task type ") then
-                  Segment_Kind := Symbol_Task;
-                  Segment_Flags.Has_Task_Type_Metadata := True;
-                  Set_Local_Name (Read_Name (Segment, Segment'First + 10, True));
-               elsif Starts_With_Word (Segment_Lower, "task") then
-                  Segment_Kind := Symbol_Task;
-                  Set_Local_Name (Read_Name (Segment, Segment'First + 4, True));
-               elsif Starts_With (Segment_Lower, "protected type ") then
-                  Segment_Kind := Symbol_Protected;
-                  Segment_Flags.Has_Protected_Type_Metadata := True;
-                  Set_Local_Name (Read_Name (Segment, Segment'First + 15, True));
-               elsif Starts_With_Word (Segment_Lower, "protected") then
-                  Segment_Kind := Symbol_Protected;
-                  Set_Local_Name (Read_Name (Segment, Segment'First + 9, True));
-               elsif Starts_With_Word (Segment_Lower, "entry") then
-                  Segment_Kind := Symbol_Entry;
-                  Segment_Flags.Has_Entry_Family_Metadata := Has_Entry_Family_Metadata (Segment);
-                  Set_Local_Name (Read_Name (Segment, Segment'First + 5, True));
-               else
-                  return;
-               end if;
-
-               if Name_Len = 0 then
-                  return;
-               end if;
-
-               declare
-                  Name_Text : constant String := Segment_Name (1 .. Name_Len);
-                  Name_Pos  : constant Natural :=
-                    Ada.Strings.Fixed.Index (Raw_Line (First .. Last), Name_Text);
-                  Col       : constant Positive :=
-                    (if Name_Pos = 0 then First_Non_Blank_Column (Raw_Line)
-                     else Positive (Name_Pos - Raw_Line'First + 1));
-                  New_Id    : constant Symbol_Id := Add_Symbol
-                    (Analysis, Name_Text, Segment_Kind,
-                     (Line_Number, Col, Line_Number,
-                      Positive'Max (Col, Col + Name_Text'Length - 1)),
-                     Col, Enclosing_Scope => Scope_Id (Natural (Parent)),
-                     Parent_Symbol => Parent, Depth => Depth,
-                     Profile_Summary => Profile_From (Segment, Name_Text),
-                     Flags => Segment_Flags);
-               begin
-                  if New_Id /= No_Symbol
-                    and then Segment_Kind = Symbol_Entry
-                  then
-                     Add_Profile_Parameter_Names
-                       (Analysis, Segment, Line_Number, Depth + 1, New_Id,
-                        Name_Text, Pending_Profile_Access_Target_Owners,
-                        Pending_Profile_Access_Target_Count);
-                  elsif New_Id /= No_Symbol
-                    and then (Segment_Kind = Symbol_Task
-                              or else Segment_Kind = Symbol_Protected)
-                    and then Ada.Strings.Fixed.Index (Segment_Lower, "(") /= 0
-                    and then Ada.Strings.Fixed.Index (Segment_Lower, ":") /= 0
-                  then
-                     Add_Discriminant_Names
-                       (Analysis, Segment, Line_Number, Depth + 1, New_Id);
-                  end if;
-               end;
-            end;
-         end Add_Segment;
       begin
-         --  Multiple task/protected/entry declarations can share one
-         --  compact physical line.  Split only at top-level
-         --  semicolons so task/protected discriminant parts and entry
-         --  profiles keep their internal separators as declaration metadata.
-         for I in Code'Range loop
-            if Code (I) = '(' then
-               Nesting := Nesting + 1;
-            elsif Code (I) = ')' then
-               if Nesting > 0 then
-                  Nesting := Nesting - 1;
-               end if;
-            elsif Code (I) = ';' and then Nesting = 0 then
-               Add_Segment (Segment_Start, I - 1);
-               Segment_Start := I + 1;
-            end if;
-         end loop;
-
-         if Segment_Start <= Raw_Line'Last then
-            Add_Segment (Segment_Start, Raw_Line'Last);
-         end if;
+         Same_Line_Emitters.Add_Same_Line_Concurrent_Groups
+           (Analysis, Raw_Line, Line_Number, Depth, Parent,
+            Flags.Is_Private, Pending_Profile_Access_Target_Owners,
+            Pending_Profile_Access_Target_Count);
       end Add_Same_Line_Concurrent_Groups;
 
       procedure Parse_Compact_Scope_Tail (Owner : Symbol_Id) is
