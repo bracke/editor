@@ -58,6 +58,9 @@ package Editor.Ada_Declaration_Parser.Representation_Metadata is
       First_Text : out Ada.Strings.Unbounded.Unbounded_String;
       Last_Text  : out Ada.Strings.Unbounded.Unbounded_String);
 
+   function Record_Component_Storage_Unit_Text
+     (Item_Text : String) return String;
+
    procedure Add_Interfacing_Pragma_Representation
      (Analysis      : in out Editor.Ada_Language_Model.Analysis_Result;
       Target_Symbol : Editor.Ada_Language_Model.Symbol_Id;

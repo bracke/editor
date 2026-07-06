@@ -16,6 +16,7 @@ with Editor.Executor.Shared_Services;
 with Editor.Feature_Diagnostics;
 with Editor.Feature_Panel;
 with Editor.Files;
+with Editor.Outline;
 with Editor.Project;
 with Editor.Render_Cache;
 with Editor.State;
@@ -398,6 +399,32 @@ package body Editor.Executor.Semantic_Index_Commands is
            (S.Feature_Diagnostics, S.Feature_Panel);
       end if;
    end Clear_Service_Semantic_Diagnostics_From_Feature;
+
+   function Semantic_Index_Command_Availability
+     (S  : Editor.State.State_Type;
+      Id : Editor.Commands.Command_Id)
+      return Editor.Commands.Command_Availability
+   is
+   begin
+      case Id is
+         when Editor.Commands.Command_Refresh_Outline_Project_Index
+            | Editor.Commands.Command_Semantic_Refresh_Buffer
+            | Editor.Commands.Command_Semantic_Refresh_Project_Index =>
+            if not Editor.State.Has_Active_Buffer (S) then
+               return Editor.Commands.Unavailable
+                 (Editor.Outline.Reason_No_Active_Buffer);
+            end if;
+            return Editor.Commands.Available;
+
+         when Editor.Commands.Command_Language_Index_Clear
+            | Editor.Commands.Command_Language_Index_Status =>
+            return Editor.Commands.Available;
+
+         when others =>
+            return Editor.Commands.Unavailable
+              ("Unsupported semantic index command.");
+      end case;
+   end Semantic_Index_Command_Availability;
 
    function Execute_Semantic_Index_Command
      (S  : in out Editor.State.State_Type;

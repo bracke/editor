@@ -1030,4 +1030,37 @@ package body Editor.Ada_Declaration_Parser.Representation_Metadata is
       end if;
    end Parse_Bit_Range;
 
+   function Text_After_Word (Text, Word : String) return String is
+      L  : constant String := Lower (Text);
+      Match_Pos : constant Natural := Ada.Strings.Fixed.Index (L, Lower (Word));
+   begin
+      if Match_Pos = 0 then
+         return "";
+      elsif Match_Pos + Word'Length > Text'Last then
+         return "";
+      else
+         return Trim (Text (Match_Pos + Word'Length .. Text'Last));
+      end if;
+   end Text_After_Word;
+
+   function Text_Before_Word (Text, Word : String) return String is
+      L  : constant String := Lower (Text);
+      Match_Pos : constant Natural := Ada.Strings.Fixed.Index (L, Lower (Word));
+   begin
+      if Match_Pos = 0 then
+         return Trim (Text);
+      elsif Match_Pos <= Text'First then
+         return "";
+      else
+         return Trim (Text (Text'First .. Match_Pos - 1));
+      end if;
+   end Text_Before_Word;
+
+   function Record_Component_Storage_Unit_Text
+     (Item_Text : String) return String
+   is
+   begin
+      return Text_Before_Word (Text_After_Word (Item_Text, "at"), "range");
+   end Record_Component_Storage_Unit_Text;
+
 end Editor.Ada_Declaration_Parser.Representation_Metadata;

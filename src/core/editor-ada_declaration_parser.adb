@@ -18180,7 +18180,8 @@ package body Editor.Ada_Declaration_Parser is
          Item_Text : constant String := First_Child_Label (N.Id, Node_Representation_Item);
          Range_Text : constant String := Last_Child_Label (N.Id, Node_Range_Expression);
          Storage_Text : constant String :=
-           Text_Before_Word (Text_After_Word (Item_Text, "at"), "range");
+           Representation_Metadata.Record_Component_Storage_Unit_Text
+             (Item_Text);
          First_Text : Unbounded_String := Null_Unbounded_String;
          Last_Text  : Unbounded_String := Null_Unbounded_String;
          Has_Storage : Boolean := False;

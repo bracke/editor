@@ -6,10 +6,8 @@ with Ada.Strings.Unbounded;
 
 with Text_Buffer;
 
-with Editor.Ada_Declaration_Parser;
 with Editor.Ada_Language_Model;
 with Editor.Ada_Language_Service;
-with Editor.Ada_Live_Semantic_Diagnostics;
 with Editor.Ada_Project_Index;
 with Editor.Buffers;
 with Editor.Command_Execution;
@@ -24,8 +22,7 @@ with Editor.Executor.Outline_Commands;
 with Editor.Executor.Semantic_Completion_Commands;
 with Editor.Executor.Semantic_Index_Commands;
 with Editor.Executor.Semantic_Rename_Commands;
-with Editor.Feature_Diagnostics;
-with Editor.Project;
+with Editor.Executor.Semantic_Service_Commands;
 with Editor.Feature_Panel;
 with Editor.Feature_Search_Results;
 with Editor.Files;
@@ -37,7 +34,6 @@ with Editor.Panels;
 with Editor.Recent_Projects;
 with Editor.Render_Cache;
 with Editor.State;
-with Editor.Syntax_Semantics;
 with Editor.UTF8;
 
 package body Editor.Executor.Semantic_Commands is
@@ -52,10 +48,8 @@ package body Editor.Executor.Semantic_Commands is
    use type Editor.Buffers.Buffer_Id;
    use type Editor.Commands.Command_Id;
    use type Editor.Files.File_Save_Status;
-   use type Editor.Files.File_Open_Status;
    use type Editor.Outline.Outline_Freshness;
    use type Editor.Outline.Outline_Item_Kind;
-   use type Editor.Project.Project_File_Refresh_Status;
    use type Editor.State.Semantic_Popup_Kind;
 
    procedure Report_Info
@@ -697,100 +691,22 @@ package body Editor.Executor.Semantic_Commands is
       Service : in out Editor.Ada_Language_Service.Service_State;
       Name    : String)
       return Editor.Ada_Language_Service.Language_Target_Set
-   is
-      Current_File : constant Editor.State.File_State :=
-        Editor.State.Current_File (S);
-      Req : Editor.Ada_Language_Service.Semantic_Request_Id;
-   begin
-      if Current_File.Has_Path
-        and then S.Active_Buffer_Token /= 0
-      then
-         declare
-            Current_Path : constant String := To_String (Current_File.Path);
-            Fingerprint  : constant Natural :=
-              Current_Semantic_Analysis_Fingerprint (S, Current_Path);
-         begin
-            Req := Editor.Ada_Language_Service.Begin_Semantic_Request
-              (Service,
-               Editor.Ada_Language_Service.Semantic_Request_Find_References,
-               Editor.Ada_Language_Service.Semantic_Current_Request_Query_Key
-                 (Editor.Ada_Language_Service.Semantic_Request_Find_References,
-                  Name, Current_Path,
-                  S.Active_Buffer_Token,
-                  Editor.State.Current_Buffer_Revision (S),
-                  Editor.State.Current_Lifecycle_Generation (S),
-                  Fingerprint));
-            return Editor.Ada_Language_Service.Request_Find_Current_References
-              (Service, Req, Name, Current_Path,
-               S.Active_Buffer_Token,
-               Editor.State.Current_Buffer_Revision (S),
-               Editor.State.Current_Lifecycle_Generation (S),
-               Fingerprint);
-         end;
-      end if;
-
-      Req := Editor.Ada_Language_Service.Begin_Semantic_Request
-        (Service, Editor.Ada_Language_Service.Semantic_Request_Find_References,
-         Name);
-      return Editor.Ada_Language_Service.Request_Find_References
-        (Service, Req, Name);
-   end Semantic_Find_References;
+      renames Editor.Executor.Semantic_Service_Commands
+        .Semantic_Find_References;
 
    function Semantic_Workspace_Symbols
      (Service : in out Editor.Ada_Language_Service.Service_State;
       Query   : String)
       return Editor.Ada_Language_Service.Language_Target_Set
-   is
-      Req : constant Editor.Ada_Language_Service.Semantic_Request_Id :=
-        Editor.Ada_Language_Service.Begin_Semantic_Request
-          (Service,
-           Editor.Ada_Language_Service.Semantic_Request_Workspace_Symbols,
-           Query);
-   begin
-      return Editor.Ada_Language_Service.Request_Workspace_Symbols
-        (Service, Req, Query);
-   end Semantic_Workspace_Symbols;
+      renames Editor.Executor.Semantic_Service_Commands
+        .Semantic_Workspace_Symbols;
 
    function Semantic_Hover
      (S       : Editor.State.State_Type;
       Service : in out Editor.Ada_Language_Service.Service_State;
       Name    : String)
       return Editor.Ada_Language_Service.Hover_Result
-   is
-      Current_File : constant Editor.State.File_State :=
-        Editor.State.Current_File (S);
-      Req : Editor.Ada_Language_Service.Semantic_Request_Id;
-   begin
-      if Current_File.Has_Path
-        and then S.Active_Buffer_Token /= 0
-      then
-         declare
-            Current_Path : constant String := To_String (Current_File.Path);
-            Fingerprint  : constant Natural :=
-              Current_Semantic_Analysis_Fingerprint (S, Current_Path);
-         begin
-            Req := Editor.Ada_Language_Service.Begin_Semantic_Request
-              (Service, Editor.Ada_Language_Service.Semantic_Request_Hover,
-               Editor.Ada_Language_Service.Semantic_Current_Request_Query_Key
-                 (Editor.Ada_Language_Service.Semantic_Request_Hover,
-                  Name, Current_Path,
-                  S.Active_Buffer_Token,
-                  Editor.State.Current_Buffer_Revision (S),
-                  Editor.State.Current_Lifecycle_Generation (S),
-                  Fingerprint));
-            return Editor.Ada_Language_Service.Request_Hover_Current
-              (Service, Req, Name, Current_Path,
-               S.Active_Buffer_Token,
-               Editor.State.Current_Buffer_Revision (S),
-               Editor.State.Current_Lifecycle_Generation (S),
-               Fingerprint);
-         end;
-      end if;
-
-      Req := Editor.Ada_Language_Service.Begin_Semantic_Request
-        (Service, Editor.Ada_Language_Service.Semantic_Request_Hover, Name);
-      return Editor.Ada_Language_Service.Request_Hover (Service, Req, Name);
-   end Semantic_Hover;
+      renames Editor.Executor.Semantic_Service_Commands.Semantic_Hover;
 
    function Semantic_Complete
      (S       : Editor.State.State_Type;
@@ -798,47 +714,7 @@ package body Editor.Executor.Semantic_Commands is
       Prefix  : String;
       Limit   : Positive)
       return Editor.Ada_Language_Service.Completion_Result
-   is
-      Current_File : constant Editor.State.File_State :=
-        Editor.State.Current_File (S);
-      Req : Editor.Ada_Language_Service.Semantic_Request_Id;
-   begin
-      if Current_File.Has_Path
-        and then S.Active_Buffer_Token /= 0
-      then
-         declare
-            Current_Path : constant String := To_String (Current_File.Path);
-            Fingerprint  : constant Natural :=
-              Current_Semantic_Analysis_Fingerprint (S, Current_Path);
-         begin
-            Req := Editor.Ada_Language_Service.Begin_Semantic_Request
-              (Service, Editor.Ada_Language_Service.Semantic_Request_Completion,
-               Editor.Ada_Language_Service.Semantic_Current_Request_Query_Key
-                 (Editor.Ada_Language_Service.Semantic_Request_Completion,
-                  Prefix, Current_Path,
-                  S.Active_Buffer_Token,
-                  Editor.State.Current_Buffer_Revision (S),
-                  Editor.State.Current_Lifecycle_Generation (S),
-                  Fingerprint,
-                  Detail => Positive'Image (Limit)));
-            return Editor.Ada_Language_Service.Request_Complete_Current
-              (Service, Req, Prefix, Current_Path,
-               S.Active_Buffer_Token,
-               Editor.State.Current_Buffer_Revision (S),
-               Editor.State.Current_Lifecycle_Generation (S),
-               Fingerprint,
-               Limit);
-         end;
-      end if;
-
-      Req := Editor.Ada_Language_Service.Begin_Semantic_Request
-        (Service, Editor.Ada_Language_Service.Semantic_Request_Completion,
-         Editor.Ada_Language_Service.Semantic_Request_Query_Key
-           (Editor.Ada_Language_Service.Semantic_Request_Completion,
-            Prefix, Detail => Positive'Image (Limit)));
-      return Editor.Ada_Language_Service.Request_Complete
-        (Service, Req, Prefix, Limit);
-   end Semantic_Complete;
+      renames Editor.Executor.Semantic_Service_Commands.Semantic_Complete;
 
    procedure Clear_Semantic_Popup
      (S : in out Editor.State.State_Type)
@@ -888,56 +764,20 @@ package body Editor.Executor.Semantic_Commands is
 
       case Id is
          when Editor.Commands.Command_Find_References =>
-            declare
-               Result : constant Editor.Ada_Language_Service.Language_Target_Set :=
-                 Semantic_Find_References (S, Service, Name);
-            begin
-               if Result.Status = Editor.Ada_Language_Service.Service_Success then
-                  return Editor.Commands.Available;
-               end if;
-               return Editor.Commands.Unavailable
-                 ("References unavailable for " & Name & ": " &
-                 Service_Status_Image (Result.Status) & ".");
-            end;
+            return Editor.Executor.Semantic_Service_Commands
+              .Semantic_Service_Command_Availability (S, Id, Service, Name);
 
          when Editor.Commands.Command_Workspace_Symbols =>
-            declare
-               Result : constant Editor.Ada_Language_Service.Language_Target_Set :=
-                 Semantic_Workspace_Symbols (Service, Name);
-            begin
-               if Result.Status = Editor.Ada_Language_Service.Service_Success then
-                  return Editor.Commands.Available;
-               end if;
-               return Editor.Commands.Unavailable
-                 ("Workspace symbols unavailable for " & Name & ": " &
-                  Service_Status_Image (Result.Status) & ".");
-            end;
+            return Editor.Executor.Semantic_Service_Commands
+              .Semantic_Service_Command_Availability (S, Id, Service, Name);
 
          when Editor.Commands.Command_Show_Hover =>
-            declare
-               Result : constant Editor.Ada_Language_Service.Hover_Result :=
-                 Semantic_Hover (S, Service, Name);
-            begin
-               if Result.Status = Editor.Ada_Language_Service.Service_Success then
-                  return Editor.Commands.Available;
-               end if;
-               return Editor.Commands.Unavailable
-                 ("Hover unavailable for " & Name & ": " &
-                  Service_Status_Image (Result.Status) & ".");
-            end;
+            return Editor.Executor.Semantic_Service_Commands
+              .Semantic_Service_Command_Availability (S, Id, Service, Name);
 
          when Editor.Commands.Command_Show_Completions =>
-            declare
-               Result : constant Editor.Ada_Language_Service.Completion_Result :=
-                 Semantic_Complete (S, Service, Name, 20);
-            begin
-               if Result.Status = Editor.Ada_Language_Service.Service_Success then
-                  return Editor.Commands.Available;
-               end if;
-               return Editor.Commands.Unavailable
-                 ("Completions unavailable for " & Name & ": " &
-                  Service_Status_Image (Result.Status) & ".");
-            end;
+            return Editor.Executor.Semantic_Service_Commands
+              .Semantic_Service_Command_Availability (S, Id, Service, Name);
 
          when Editor.Commands.Command_Rename_Symbol_Preview =>
             declare
@@ -985,16 +825,11 @@ package body Editor.Executor.Semantic_Commands is
       case Id is
          when Editor.Commands.Command_Refresh_Outline_Project_Index
             | Editor.Commands.Command_Semantic_Refresh_Buffer
-            | Editor.Commands.Command_Semantic_Refresh_Project_Index =>
-            if not Editor.State.Has_Active_Buffer (S) then
-               return Editor.Commands.Unavailable
-                 (Editor.Outline.Reason_No_Active_Buffer);
-            end if;
-            return Editor.Commands.Available;
-
-         when Editor.Commands.Command_Language_Index_Clear
+            | Editor.Commands.Command_Semantic_Refresh_Project_Index
+            | Editor.Commands.Command_Language_Index_Clear
             | Editor.Commands.Command_Language_Index_Status =>
-            return Editor.Commands.Available;
+            return Editor.Executor.Semantic_Index_Commands
+              .Semantic_Index_Command_Availability (S, Id);
 
          when Editor.Commands.Command_Goto_Declaration =>
             if Editor.Feature_Panel.Is_Visible (S.Feature_Panel)
