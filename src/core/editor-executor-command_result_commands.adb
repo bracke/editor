@@ -33,7 +33,7 @@ with Editor.Executor.Terminal_Commands;
 with Editor.Executor.Build_Commands;
 with Editor.Executor.Outline_Commands;
 with Editor.Executor.Overlay_Commands;
-with Editor.Executor.Semantic_Commands;
+with Editor.Executor.Semantic_Routing_Commands;
 with Editor.Executor.Buffer_Switcher_Shared;
 with Editor.Executor.Buffer_Switcher_Mark_Commands;
 with Editor.Executor.Buffer_Switcher_Pending_Mark_Commands;
@@ -789,8 +789,8 @@ package body Editor.Executor.Command_Result_Commands is
             | Editor.Commands.Command_Semantic_Completion_Select_Previous
             | Editor.Commands.Command_Semantic_Completion_Accept
             | Editor.Commands.Command_Semantic_Popup_Dismiss =>
-            return Editor.Executor.Semantic_Commands.Execute_Semantic_Command
-              (S, Id, Cmd);
+            return Editor.Executor.Semantic_Routing_Commands
+              .Execute_Semantic_Result_Command (S, Cmd);
 
          when Editor.Commands.Command_Show_Messages
             | Editor.Commands.Command_Clear_Messages =>

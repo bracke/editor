@@ -1,4 +1,5 @@
 with Editor.Command_Execution;
+with Editor.Executor.Semantic_Completion_Commands;
 with Editor.Executor.Semantic_Commands;
 
 package body Editor.Executor.Semantic_Routing_Commands is
@@ -7,58 +8,60 @@ package body Editor.Executor.Semantic_Routing_Commands is
      (S   : in out Editor.State.State_Type;
       Cmd : Editor.Commands.Command)
    is
+      Result : constant Editor.Command_Execution.Command_Execution_Result :=
+        Execute_Semantic_Result_Command (S, Cmd);
+      pragma Unreferenced (Result);
+   begin
+      null;
+   end Execute_Semantic_Kind;
+
+   function Execute_Semantic_Result_Command
+     (S  : in out Editor.State.State_Type;
+      Cmd : Editor.Commands.Command)
+      return Editor.Command_Execution.Command_Execution_Result
+   is
       use Editor.Commands;
-
-      procedure Run (Id : Editor.Commands.Command_Id);
-
-      procedure Run (Id : Editor.Commands.Command_Id)
-      is
-         Result : constant Editor.Command_Execution.Command_Execution_Result :=
-           Editor.Executor.Semantic_Commands.Execute_Semantic_Command
-             (S, Id, Cmd);
-         pragma Unreferenced (Result);
-      begin
-         null;
-      end Run;
    begin
       case Cmd.Kind is
-         when Goto_Declaration =>
-            Run (Command_Goto_Declaration);
-         when Goto_Body =>
-            Run (Command_Goto_Body);
-         when Goto_Spec =>
-            Run (Command_Goto_Spec);
-         when Find_References =>
-            Run (Command_Find_References);
-         when Workspace_Symbols =>
-            Run (Command_Workspace_Symbols);
-         when Show_Hover =>
-            Run (Command_Show_Hover);
-         when Show_Completions =>
-            Run (Command_Show_Completions);
+         when Goto_Declaration
+            | Goto_Body
+            | Goto_Spec
+            | Find_References
+            | Workspace_Symbols
+            | Show_Hover
+            | Show_Completions
+            | Rename_Symbol_Preview
+            | Rename_Symbol_Apply
+            | Semantic_Refresh_Buffer
+            | Semantic_Refresh_Project_Index
+            | Language_Index_Clear
+            | Language_Index_Status =>
+            return Editor.Executor.Semantic_Commands.Execute_Semantic_Command
+              (S, Cmd.Kind, Cmd);
+
          when Semantic_Completion_Select_Next =>
-            Run (Command_Semantic_Completion_Select_Next);
+            Editor.Executor.Semantic_Completion_Commands
+              .Execute_Semantic_Completion_Select (S, Next => True);
+            return Editor.Command_Execution.Executed (Cmd.Kind);
+
          when Semantic_Completion_Select_Previous =>
-            Run (Command_Semantic_Completion_Select_Previous);
+            Editor.Executor.Semantic_Completion_Commands
+              .Execute_Semantic_Completion_Select (S, Next => False);
+            return Editor.Command_Execution.Executed (Cmd.Kind);
+
          when Semantic_Completion_Accept =>
-            Run (Command_Semantic_Completion_Accept);
+            Editor.Executor.Semantic_Completion_Commands
+              .Execute_Semantic_Completion_Accept (S);
+            return Editor.Command_Execution.Executed (Cmd.Kind);
+
          when Semantic_Popup_Dismiss =>
-            Run (Command_Semantic_Popup_Dismiss);
-         when Rename_Symbol_Preview =>
-            Run (Command_Rename_Symbol_Preview);
-         when Rename_Symbol_Apply =>
-            Run (Command_Rename_Symbol_Apply);
-         when Semantic_Refresh_Buffer =>
-            Run (Command_Semantic_Refresh_Buffer);
-         when Semantic_Refresh_Project_Index =>
-            Run (Command_Semantic_Refresh_Project_Index);
-         when Language_Index_Clear =>
-            Run (Command_Language_Index_Clear);
-         when Language_Index_Status =>
-            Run (Command_Language_Index_Status);
+            Editor.Executor.Semantic_Completion_Commands
+              .Execute_Semantic_Popup_Dismiss (S);
+            return Editor.Command_Execution.Executed (Cmd.Kind);
+
          when others =>
-            raise Program_Error with "unsupported semantic command kind";
+            raise Program_Error with "unsupported semantic result command";
       end case;
-   end Execute_Semantic_Kind;
+   end Execute_Semantic_Result_Command;
 
 end Editor.Executor.Semantic_Routing_Commands;
