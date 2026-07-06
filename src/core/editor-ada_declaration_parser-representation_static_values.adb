@@ -37,4 +37,25 @@ package body Editor.Ada_Declaration_Parser.Representation_Static_Values is
       Value := Acc;
    end Parse_Static_Natural;
 
+   function Natural_In_Integer_Range
+     (Value    : Natural;
+      Has_Low  : Boolean;
+      Low      : Integer;
+      Has_High : Boolean;
+      High     : Integer) return Boolean
+   is
+      Int_Value : constant Integer := Integer (Value);
+   begin
+      if Has_Low and then Int_Value < Low then
+         return False;
+      elsif Has_High and then Int_Value > High then
+         return False;
+      else
+         return True;
+      end if;
+   exception
+      when Constraint_Error =>
+         return False;
+   end Natural_In_Integer_Range;
+
 end Editor.Ada_Declaration_Parser.Representation_Static_Values;

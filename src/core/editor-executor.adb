@@ -25,6 +25,7 @@ with Editor.Executor.Panel_Focus_Commands;
 with Editor.Executor.Overlay_Commands;
 with Editor.Executor.Semantic_Commands;
 with Editor.Executor.Semantic_Index_Commands;
+with Editor.Executor.Semantic_Symbol_Selection;
 with Editor.Executor.Buffer_Switcher_Shared;
 with Editor.Executor.Command_Surface_Commands;
 with Editor.Executor.Command_Kind_Routing;
@@ -561,7 +562,8 @@ package body Editor.Executor is
      (State : Editor.State.State_Type) return String
    is
    begin
-      return Editor.Executor.Semantic_Commands.Current_Semantic_Symbol_Name (State);
+      return Editor.Executor.Semantic_Symbol_Selection
+        .Current_Semantic_Symbol_Name (State);
    end Current_Semantic_Symbol_Name;
    function Command_Availability
      (S  : Editor.State.State_Type;

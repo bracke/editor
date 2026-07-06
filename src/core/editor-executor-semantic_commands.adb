@@ -60,11 +60,6 @@ package body Editor.Executor.Semantic_Commands is
       renames Editor.Executor.Semantic_Index_Commands
         .Clear_Service_Semantic_Diagnostics_From_Feature;
 
-   function Current_Semantic_Symbol_Name
-     (State : Editor.State.State_Type) return String
-      renames Editor.Executor.Semantic_Symbol_Selection
-        .Current_Semantic_Symbol_Name;
-
    function Current_Semantic_Symbol
      (S : Editor.State.State_Type)
       return Editor.Executor.Semantic_Symbol_Selection.Selected_Semantic_Symbol
@@ -116,13 +111,6 @@ package body Editor.Executor.Semantic_Commands is
       renames Editor.Executor.Semantic_Completion_Commands
         .Execute_Semantic_Completion_Accept;
 
-   function Selected_Outline_Language_Command_Availability
-     (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability
-      renames Editor.Executor.Semantic_Language_Command_Surface
-        .Selected_Language_Command_Availability;
-
    function Semantic_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
@@ -155,7 +143,8 @@ package body Editor.Executor.Semantic_Commands is
             | Editor.Commands.Command_Show_Completions
             | Editor.Commands.Command_Rename_Symbol_Preview
             | Editor.Commands.Command_Rename_Symbol_Apply =>
-            return Selected_Outline_Language_Command_Availability (S, Id);
+            return Editor.Executor.Semantic_Language_Command_Surface
+              .Selected_Language_Command_Availability (S, Id);
 
          when Editor.Commands.Command_Semantic_Completion_Select_Next
             | Editor.Commands.Command_Semantic_Completion_Select_Previous
@@ -176,14 +165,6 @@ package body Editor.Executor.Semantic_Commands is
               ("Unsupported semantic command.");
       end case;
    end Semantic_Command_Availability;
-
-   function Execute_Selected_Outline_Language_Command
-     (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id;
-      Target_Name : String := "")
-      return Editor.Command_Execution.Command_Execution_Result
-      renames Editor.Executor.Semantic_Language_Command_Surface
-        .Execute_Selected_Language_Command;
 
    function Execute_Semantic_Command
      (S  : in out Editor.State.State_Type;
@@ -222,12 +203,14 @@ package body Editor.Executor.Semantic_Commands is
             | Editor.Commands.Command_Workspace_Symbols
             | Editor.Commands.Command_Show_Hover
             | Editor.Commands.Command_Show_Completions =>
-            return Execute_Selected_Outline_Language_Command (S, Id);
+            return Editor.Executor.Semantic_Language_Command_Surface
+              .Execute_Selected_Language_Command (S, Id);
 
          when Editor.Commands.Command_Rename_Symbol_Preview
             | Editor.Commands.Command_Rename_Symbol_Apply =>
-            return Execute_Selected_Outline_Language_Command
-              (S, Id, To_String (Cmd.Text));
+            return Editor.Executor.Semantic_Language_Command_Surface
+              .Execute_Selected_Language_Command
+                (S, Id, To_String (Cmd.Text));
 
          when Editor.Commands.Command_Semantic_Completion_Select_Next =>
             Execute_Semantic_Completion_Select (S, Next => True);

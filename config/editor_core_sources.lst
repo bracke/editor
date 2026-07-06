@@ -146,6 +146,8 @@ editor-ada_declaration_parser-same_line_declarations.adb
 editor-ada_declaration_parser-same_line_declarations.ads
 editor-ada_declaration_parser-same_line_emitters.adb
 editor-ada_declaration_parser-same_line_emitters.ads
+editor-ada_declaration_parser-static_attribute_registry.adb
+editor-ada_declaration_parser-static_attribute_registry.ads
 editor-ada_declaration_parser-target_helpers.adb
 editor-ada_declaration_parser-target_helpers.ads
 editor-ada_declarative_regions.adb
@@ -1051,6 +1053,8 @@ editor-executor-semantic_routing_commands.adb
 editor-executor-semantic_routing_commands.ads
 editor-executor-semantic_service_commands.adb
 editor-executor-semantic_service_commands.ads
+editor-executor-semantic_service_state.adb
+editor-executor-semantic_service_state.ads
 editor-executor-semantic_symbol_selection.adb
 editor-executor-semantic_symbol_selection.ads
 editor-executor-search_results_commands.adb

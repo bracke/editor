@@ -106,4 +106,12 @@ package Editor.Ada_Declaration_Parser.Representation_Application is
       Analysis : in out Editor.Ada_Language_Model.Analysis_Result;
       Node     : Node_Info);
 
+   procedure Apply_Representation_Aspect
+     (Context      : Application_Context;
+      Analysis     : in out Editor.Ada_Language_Model.Analysis_Result;
+      Owner        : Symbol_Id;
+      Aspect_Name  : String;
+      Aspect_Value : String;
+      Source_Span  : Source_Range);
+
 end Editor.Ada_Declaration_Parser.Representation_Application;

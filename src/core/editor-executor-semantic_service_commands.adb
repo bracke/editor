@@ -8,6 +8,7 @@ with Editor.Ada_Project_Index;
 with Editor.Command_Execution;
 with Editor.Cursors;
 with Editor.Executor;
+with Editor.Executor.Semantic_Service_State;
 with Editor.Executor.Shared_Services;
 use Editor.Executor.Shared_Services;
 with Editor.Feature_Search_Results;
@@ -275,22 +276,8 @@ package body Editor.Executor.Semantic_Service_Commands is
 
    procedure Ensure_Current_Language_Service
      (S : in out Editor.State.State_Type)
-   is
-      Service_Status : constant Editor.Ada_Language_Service.Index_Status :=
-        Editor.Ada_Language_Service.Status (S.Language_Service);
-      Index_Status : constant Editor.Ada_Language_Service.Index_Status :=
-        Editor.Ada_Language_Service.Status (S.Language_Index);
-   begin
-      if Service_Status.File_Count /= Index_Status.File_Count
-        or else Service_Status.Unit_Count /= Index_Status.Unit_Count
-        or else Service_Status.Symbol_Count /= Index_Status.Symbol_Count
-        or else Service_Status.Fingerprint /= Index_Status.Fingerprint
-        or else Service_Status.Overflowed /= Index_Status.Overflowed
-      then
-         Editor.Ada_Language_Service.Put_Index
-           (S.Language_Service, S.Language_Index);
-      end if;
-   end Ensure_Current_Language_Service;
+      renames Editor.Executor.Semantic_Service_State
+        .Ensure_Current_Language_Service;
 
    function Execute_Semantic_Service_Command
      (S    : in out Editor.State.State_Type;

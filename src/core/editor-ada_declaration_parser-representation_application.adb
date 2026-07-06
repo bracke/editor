@@ -313,4 +313,55 @@ package body Editor.Ada_Declaration_Parser.Representation_Application is
          Source_Span => Context.To_Model_Range.all (Node.Source_Span));
    end Apply_Record_Representation_Mod_Clause;
 
+   procedure Apply_Representation_Aspect
+     (Context      : Application_Context;
+      Analysis     : in out Editor.Ada_Language_Model.Analysis_Result;
+      Owner        : Symbol_Id;
+      Aspect_Name  : String;
+      Aspect_Value : String;
+      Source_Span  : Source_Range)
+   is
+   begin
+      if Owner = No_Symbol
+        or else not Representation_Metadata
+          .Is_Attribute_Definition_Aspect_Name (Aspect_Name)
+      then
+         return;
+      end if;
+
+      declare
+         Owner_Info : constant Symbol_Info := Symbol (Analysis, Owner);
+         Target_Text : constant String := To_String (Owner_Info.Name);
+         Rep_Kind : constant Representation_Clause_Kind :=
+           Representation_Metadata.Attribute_Representation_Kind_For
+             (Target_Text & Character'Val (39) & Aspect_Name,
+              Aspect_Value);
+         Has_Aspect_Value : constant Boolean :=
+           Representation_Metadata
+             .Representation_Property_Has_Static_Natural_Value
+               (Rep_Kind, Aspect_Value);
+         Aspect_Static_Value : constant Natural :=
+           Representation_Metadata
+             .Representation_Property_Static_Natural_Value
+               (Rep_Kind, Aspect_Value);
+      begin
+         Add_Representation_Clause
+           (Analysis,
+            Target_Symbol => Owner,
+            Target_Name => Target_Text,
+            Kind => Rep_Kind,
+            Attribute_Name => Aspect_Name,
+            Item_Text => Aspect_Value,
+            Source_Form => Representation_Source_Aspect,
+            Has_Static_Value => Has_Aspect_Value,
+            Static_Value => Aspect_Static_Value,
+            Source_Span => Context.To_Model_Range.all (Source_Span));
+
+         if Has_Aspect_Value then
+            Context.Register_Static_Attribute.all
+              (Target_Text, Aspect_Name, Aspect_Static_Value);
+         end if;
+      end;
+   end Apply_Representation_Aspect;
+
 end Editor.Ada_Declaration_Parser.Representation_Application;

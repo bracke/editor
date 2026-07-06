@@ -15,6 +15,7 @@ with Editor.Ada_Declaration_Parser.Representation_Metadata;
 with Editor.Ada_Declaration_Parser.Representation_Static_Values;
 with Editor.Ada_Declaration_Parser.Same_Line_Declarations;
 with Editor.Ada_Declaration_Parser.Same_Line_Emitters;
+with Editor.Ada_Declaration_Parser.Static_Attribute_Registry;
 with Editor.Ada_Declaration_Parser.Target_Helpers;
 with Editor.Ada_Syntax_Core;
 with Editor.Ada_Syntax_Tree;
@@ -9745,17 +9746,7 @@ package body Editor.Ada_Declaration_Parser is
       Static_Subtype_Aliases : Static_Subtype_Alias_Table;
       Static_Subtype_Alias_Count : Natural := 0;
 
-      Max_Static_Attribute_Values : constant Positive := 256;
-      type Static_Attribute_Value_Info is record
-         Normalized_Name      : Unbounded_String;
-         Normalized_Attribute : Unbounded_String;
-         Value                : Natural := 0;
-      end record;
-      type Static_Attribute_Value_Table is
-        array (Positive range 1 .. Max_Static_Attribute_Values)
-          of Static_Attribute_Value_Info;
-      Static_Attribute_Values : Static_Attribute_Value_Table;
-      Static_Attribute_Value_Count : Natural := 0;
+      Static_Attributes : Static_Attribute_Registry.Registry;
 
       function To_Model_Range (R : Editor.Ada_Syntax_Tree.Source_Range) return Editor.Ada_Language_Model.Source_Range is
       begin
@@ -11231,22 +11222,13 @@ package body Editor.Ada_Declaration_Parser is
          Low      : Integer := 0;
          Has_High : Boolean := False;
          High     : Integer := 0;
-         Int_Value : constant Integer := Integer (Value);
       begin
          if not Static_Type_Range (Type_Name, Has_Low, Low, Has_High, High) then
             return True;
-         end if;
-
-         if Has_Low and then Int_Value < Low then
-            return False;
-         elsif Has_High and then Int_Value > High then
-            return False;
          else
-            return True;
+            return Representation_Static_Values.Natural_In_Integer_Range
+              (Value, Has_Low, Low, Has_High, High);
          end if;
-      exception
-         when Constraint_Error =>
-            return False;
       end Static_Value_In_Type_Range;
 
       function Static_Type_Modulus
@@ -11346,22 +11328,8 @@ package body Editor.Ada_Declaration_Parser is
          N : constant String := Normalize_Name (Name);
          A : constant String := Lower (Normalize_Name (Attribute));
       begin
-         Value := 0;
-         if N = "" or else A = "" then
-            return False;
-         end if;
-
-         for I in 1 .. Static_Attribute_Value_Count loop
-            if To_String (Static_Attribute_Values (I).Normalized_Name) = N
-              and then To_String
-                (Static_Attribute_Values (I).Normalized_Attribute) = A
-            then
-               Value := Static_Attribute_Values (I).Value;
-               return True;
-            end if;
-         end loop;
-
-         return False;
+         return Static_Attribute_Registry.Value
+           (Static_Attributes, N, A, Value);
       end Static_Attribute_Value;
 
       procedure Register_Static_Attribute_Value
@@ -11372,29 +11340,8 @@ package body Editor.Ada_Declaration_Parser is
          N : constant String := Normalize_Name (Name);
          A : constant String := Lower (Normalize_Name (Attribute));
       begin
-         if N = "" or else A = "" then
-            return;
-         end if;
-
-         for I in 1 .. Static_Attribute_Value_Count loop
-            if To_String (Static_Attribute_Values (I).Normalized_Name) = N
-              and then To_String
-                (Static_Attribute_Values (I).Normalized_Attribute) = A
-            then
-               Static_Attribute_Values (I).Value := Value;
-               return;
-            end if;
-         end loop;
-
-         if Static_Attribute_Value_Count >= Max_Static_Attribute_Values then
-            return;
-         end if;
-
-         Static_Attribute_Value_Count := Static_Attribute_Value_Count + 1;
-         Static_Attribute_Values (Static_Attribute_Value_Count) :=
-           (Normalized_Name => To_Unbounded_String (N),
-            Normalized_Attribute => To_Unbounded_String (A),
-            Value => Value);
+         Static_Attribute_Registry.Register
+           (Static_Attributes, N, A, Value);
       end Register_Static_Attribute_Value;
 
       procedure Register_Static_Representation_Attribute_Value
@@ -18154,44 +18101,13 @@ package body Editor.Ada_Declaration_Parser is
                     Representation_Metadata.Aspect_Default_Value
                       (Aspect_Name, Raw_Aspect_Value);
                begin
-                  if Owner /= No_Symbol
-                    and then Representation_Metadata
-                      .Is_Attribute_Definition_Aspect_Name (Aspect_Name)
-                  then
-                     declare
-                        Owner_Info : constant Symbol_Info := Symbol (Analysis, Owner);
-                        Target_Text : constant String := To_String (Owner_Info.Name);
-                        Rep_Kind : constant Representation_Clause_Kind :=
-                          Representation_Metadata.Attribute_Representation_Kind_For
-                            (Target_Text & Character'Val (39) & Aspect_Name,
-                             Aspect_Value);
-                        Has_Aspect_Value : constant Boolean :=
-                          Representation_Metadata
-                            .Representation_Property_Has_Static_Natural_Value
-                              (Rep_Kind, Aspect_Value);
-                        Aspect_Static_Value : constant Natural :=
-                          Representation_Metadata
-                            .Representation_Property_Static_Natural_Value
-                              (Rep_Kind, Aspect_Value);
-                     begin
-                        Add_Representation_Clause
-                          (Analysis,
-                           Target_Symbol => Owner,
-                           Target_Name => Target_Text,
-                           Kind => Rep_Kind,
-                           Attribute_Name => Aspect_Name,
-                           Item_Text => Aspect_Value,
-                           Source_Form => Representation_Source_Aspect,
-                           Has_Static_Value => Has_Aspect_Value,
-                           Static_Value => Aspect_Static_Value,
-                           Source_Span => To_Model_Range (N.Source_Span));
-
-                        if Has_Aspect_Value then
-                           Register_Static_Representation_Attribute_Value
-                             (Target_Text, Aspect_Name, Aspect_Static_Value);
-                        end if;
-                     end;
-                  end if;
+                  Representation_Application.Apply_Representation_Aspect
+                    (Representation_Context,
+                     Analysis,
+                     Owner,
+                     Aspect_Name,
+                     Aspect_Value,
+                     N.Source_Span);
                end;
             elsif N.Kind = Node_Generic_Actual_Part then
                declare
