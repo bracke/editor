@@ -1,4 +1,5 @@
 with Editor.Ada_Language_Service;
+with Editor.Commands;
 with Editor.State;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
@@ -15,5 +16,12 @@ package Editor.Executor.Semantic_Rename_Commands is
      (S       : Editor.State.State_Type;
       Preview : Editor.Ada_Language_Service.Rename_Preview;
       Reason  : out Unbounded_String) return Boolean;
+
+   function Semantic_Rename_Command_Availability
+     (S       : Editor.State.State_Type;
+      Id      : Editor.Commands.Command_Id;
+      Service : in out Editor.Ada_Language_Service.Service_State;
+      Name    : String)
+      return Editor.Commands.Command_Availability;
 
 end Editor.Executor.Semantic_Rename_Commands;

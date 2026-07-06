@@ -60,10 +60,6 @@ package body Editor.Executor.Semantic_Commands is
      (S : Editor.State.State_Type) return Natural
       renames Editor.Executor.Active_Feature_Buffer_Token;
 
-   function Safe_Caret
-     (S : Editor.State.State_Type) return Editor.Cursors.Cursor_Index
-      renames Editor.Executor.Safe_Caret;
-
    procedure Append_Replace_Op
      (Cmd          : in out Editor.Commands.Command;
       Pos          : Editor.Cursors.Cursor_Index;
@@ -686,35 +682,12 @@ package body Editor.Executor.Semantic_Commands is
       return Freshness /= Editor.Outline.Outline_Stale;
    end Active_Outline_Source_Is_Current;
 
-   function Semantic_Find_References
-     (S       : Editor.State.State_Type;
-      Service : in out Editor.Ada_Language_Service.Service_State;
-      Name    : String)
-      return Editor.Ada_Language_Service.Language_Target_Set
-      renames Editor.Executor.Semantic_Service_Commands
-        .Semantic_Find_References;
-
-   function Semantic_Workspace_Symbols
-     (Service : in out Editor.Ada_Language_Service.Service_State;
-      Query   : String)
-      return Editor.Ada_Language_Service.Language_Target_Set
-      renames Editor.Executor.Semantic_Service_Commands
-        .Semantic_Workspace_Symbols;
-
    function Semantic_Hover
      (S       : Editor.State.State_Type;
       Service : in out Editor.Ada_Language_Service.Service_State;
       Name    : String)
       return Editor.Ada_Language_Service.Hover_Result
       renames Editor.Executor.Semantic_Service_Commands.Semantic_Hover;
-
-   function Semantic_Complete
-     (S       : Editor.State.State_Type;
-      Service : in out Editor.Ada_Language_Service.Service_State;
-      Prefix  : String;
-      Limit   : Positive)
-      return Editor.Ada_Language_Service.Completion_Result
-      renames Editor.Executor.Semantic_Service_Commands.Semantic_Complete;
 
    procedure Clear_Semantic_Popup
      (S : in out Editor.State.State_Type)
@@ -780,36 +753,14 @@ package body Editor.Executor.Semantic_Commands is
               .Semantic_Service_Command_Availability (S, Id, Service, Name);
 
          when Editor.Commands.Command_Rename_Symbol_Preview =>
-            declare
-               Result : constant Editor.Ada_Language_Service.Rename_Preview :=
-                 Semantic_Rename_Preview
-                   (S, Service, Name, Name & "_Renamed");
-            begin
-               if Result.Status = Editor.Ada_Language_Service.Service_Success
-                 or else Result.Status = Editor.Ada_Language_Service.Service_Ambiguous
-               then
-                  return Editor.Commands.Available;
-               end if;
-               return Editor.Commands.Unavailable
-                 ("Rename preview unavailable for " & Name & ": " &
-                 Service_Status_Image (Result.Status) & ".");
-            end;
+            return Editor.Executor.Semantic_Rename_Commands
+              .Semantic_Rename_Command_Availability
+                (S, Id, Service, Name);
 
          when Editor.Commands.Command_Rename_Symbol_Apply =>
-            declare
-               Result : constant Editor.Ada_Language_Service.Rename_Preview :=
-                 Semantic_Rename_Preview
-                   (S, Service, Name, Name & "_Renamed");
-               Reason : Unbounded_String;
-            begin
-               if Editor.Executor.Semantic_Rename_Commands
-                 .Rename_Preview_Is_Open_Buffers_Applyable
-                 (S, Result, Reason)
-               then
-                  return Editor.Commands.Available;
-               end if;
-               return Editor.Commands.Unavailable (To_String (Reason));
-            end;
+            return Editor.Executor.Semantic_Rename_Commands
+              .Semantic_Rename_Command_Availability
+                (S, Id, Service, Name);
 
          when others =>
             return Editor.Commands.Unavailable ("Unsupported language command.");
@@ -931,289 +882,12 @@ package body Editor.Executor.Semantic_Commands is
       end if;
 
       case Id is
-         when Editor.Commands.Command_Find_References =>
-            declare
-               Result : constant Editor.Ada_Language_Service.Language_Target_Set :=
-                 Semantic_Find_References (S, S.Language_Service, Name);
-            begin
-               if Result.Status = Editor.Ada_Language_Service.Service_Success then
-                  Editor.Feature_Search_Results.Begin_External_Result_Set
-                    (S.Feature_Search_Results,
-                     Query        => "references: " & Name,
-                     Source_Label => "Ada semantic references");
-
-                  for Target of Result.Targets loop
-                     declare
-                        Path   : constant String := To_String (Target.Target.Path);
-                        Line   : constant Natural := Target.Target.Line;
-                        Column : constant Natural := Target.Target.Column;
-                        Label  : constant String :=
-                          Name & " at " & Path & ":" &
-                          Ada.Strings.Fixed.Trim (Natural'Image (Line), Ada.Strings.Both) &
-                          ":" &
-                          Ada.Strings.Fixed.Trim (Natural'Image (Column), Ada.Strings.Both);
-                     begin
-                        Editor.Feature_Search_Results.Add_Search_Result
-                          (S.Feature_Search_Results,
-                           Label         => Label,
-                           Source_Label  => Path,
-                           Has_Target    => Target.Key.Buffer_Token /= 0,
-                           Target_Buffer => Target.Key.Buffer_Token,
-                           Target_Line   => Line,
-                           Target_Column => Column,
-                           Query         => Name,
-                           Match_Line    => Line,
-                           Match_Column  => Column,
-                           Match_Length  => Name'Length);
-                     end;
-                  end loop;
-
-                  Editor.Feature_Search_Results.Reconcile_Search_Results_After_Row_Change
-                    (S.Feature_Search_Results, S.Feature_Panel,
-                     Select_First_When_Available => True);
-                  Editor.Panels.Set_Bottom_Content
-                    (S.Panels, Editor.Panels.Search_Results_Content);
-                  Editor.Panels.Set_Visible
-                    (S.Panels, Editor.Panels.Bottom_Panel, True);
-                  if Editor.Panel_Focus.Bottom_Panel_Has_Focus (S.Panel_Focus) then
-                     Editor.Focus_Management.Set_Focus_Owner
-                       (S, Editor.Focus_Management.Focus_Project_Search_Results);
-                  end if;
-                  Editor.Panels.Set_Current (S.Panels);
-                  Report_Info
-                    (S,
-                     "References for " & Name & ":" &
-                     Natural'Image (Natural (Result.Targets.Length)) & ".");
-                  Editor.Render_Cache.Invalidate_All;
-                  return Editor.Command_Execution.Executed (Id);
-               end if;
-
-               Report_Info
-                 (S, "References unavailable for " & Name & ": " &
-                  Service_Status_Image (Result.Status) & ".");
-               Editor.Render_Cache.Invalidate_All;
-               return Editor.Command_Execution.Unavailable (Id);
-            end;
-
-         when Editor.Commands.Command_Workspace_Symbols =>
-            declare
-               Result : constant Editor.Ada_Language_Service.Language_Target_Set :=
-                 Semantic_Workspace_Symbols (S.Language_Service, Name);
-            begin
-               if Result.Status = Editor.Ada_Language_Service.Service_Success then
-                  Editor.Feature_Search_Results.Begin_External_Result_Set
-                    (S.Feature_Search_Results,
-                     Query        => "symbols: " & Name,
-                     Source_Label => "Ada workspace symbols");
-
-                  for Target of Result.Targets loop
-                     declare
-                        Path   : constant String := To_String (Target.Target.Path);
-                        Line   : constant Natural := Target.Target.Line;
-                        Column : constant Natural := Target.Target.Column;
-                        Symbol_Name : constant String := To_String (Target.Name);
-                        Label  : constant String :=
-                          Symbol_Name & " at " & Path & ":" &
-                          Ada.Strings.Fixed.Trim (Natural'Image (Line), Ada.Strings.Both) &
-                          ":" &
-                          Ada.Strings.Fixed.Trim (Natural'Image (Column), Ada.Strings.Both);
-                     begin
-                        Editor.Feature_Search_Results.Add_Search_Result
-                          (S.Feature_Search_Results,
-                           Label         => Label,
-                           Source_Label  => Path,
-                           Has_Target    => Target.Key.Buffer_Token /= 0,
-                           Target_Buffer => Target.Key.Buffer_Token,
-                           Target_Line   => Line,
-                           Target_Column => Column,
-                           Query         => Name,
-                           Match_Line    => Line,
-                           Match_Column  => Column,
-                           Match_Length  => Symbol_Name'Length);
-                     end;
-                  end loop;
-
-                  Editor.Feature_Search_Results.Reconcile_Search_Results_After_Row_Change
-                    (S.Feature_Search_Results, S.Feature_Panel,
-                     Select_First_When_Available => True);
-                  Editor.Panels.Set_Bottom_Content
-                    (S.Panels, Editor.Panels.Search_Results_Content);
-                  Editor.Panels.Set_Visible
-                    (S.Panels, Editor.Panels.Bottom_Panel, True);
-                  if Editor.Panel_Focus.Bottom_Panel_Has_Focus (S.Panel_Focus) then
-                     Editor.Focus_Management.Set_Focus_Owner
-                       (S, Editor.Focus_Management.Focus_Project_Search_Results);
-                  end if;
-                  Editor.Panels.Set_Current (S.Panels);
-                  Report_Info
-                    (S,
-                     "Workspace symbols for " & Name & ":" &
-                     Natural'Image (Natural (Result.Targets.Length)) & ".");
-                  Editor.Render_Cache.Invalidate_All;
-                  return Editor.Command_Execution.Executed (Id);
-               end if;
-
-               Report_Info
-                 (S, "Workspace symbols unavailable for " & Name & ": " &
-                  Service_Status_Image (Result.Status) & ".");
-               Editor.Render_Cache.Invalidate_All;
-               return Editor.Command_Execution.Unavailable (Id);
-            end;
-
-         when Editor.Commands.Command_Show_Hover =>
-            declare
-               Result : constant Editor.Ada_Language_Service.Hover_Result :=
-                 Semantic_Hover (S, S.Language_Service, Name);
-            begin
-               if Result.Status = Editor.Ada_Language_Service.Service_Success then
-                  declare
-                     Anchor_Row : Natural := 0;
-                     Anchor_Col : Natural := 0;
-                     Path   : constant String := To_String (Result.Target.Path);
-                     Line   : constant Natural := Result.Target.Line;
-                     Column : constant Natural := Result.Target.Column;
-                     Detail : constant String := To_String (Result.Detail);
-                     Label  : constant String :=
-                       "hover " & To_String (Result.Label) &
-                       (if Detail'Length > 0 then " - " & Detail else "") &
-                       " at " & Path & ":" &
-                       Ada.Strings.Fixed.Trim (Natural'Image (Line), Ada.Strings.Both) &
-                       ":" &
-                        Ada.Strings.Fixed.Trim (Natural'Image (Column), Ada.Strings.Both);
-                  begin
-                     Editor.State.Row_Col_For_Index
-                       (S, Safe_Caret (S), Anchor_Row, Anchor_Col);
-                     S.Semantic_Popup :=
-                       (Active => True,
-                        Kind => Editor.State.Semantic_Hover_Popup,
-                        Anchor_Row => Anchor_Row,
-                        Anchor_Column => Anchor_Col,
-                        Title => Result.Label,
-                        Detail => Result.Detail,
-                        Item_Count => 0,
-                        Selected_Item => 0,
-                        Items => (others => (others => <>)));
-                     Editor.Feature_Search_Results.Begin_External_Result_Set
-                       (S.Feature_Search_Results,
-                        Query        => "hover: " & Name,
-                        Source_Label => "Ada semantic hover");
-                     Editor.Feature_Search_Results.Add_Search_Result
-                       (S.Feature_Search_Results,
-                        Label         => Label,
-                        Source_Label  => Path,
-                        Has_Target    => Result.Key.Buffer_Token /= 0,
-                        Target_Buffer => Result.Key.Buffer_Token,
-                        Target_Line   => Line,
-                        Target_Column => Column,
-                        Query         => Name,
-                        Match_Line    => Line,
-                        Match_Column  => Column,
-                        Match_Length  => Name'Length);
-                     Editor.Feature_Search_Results.Reconcile_Search_Results_After_Row_Change
-                       (S.Feature_Search_Results, S.Feature_Panel,
-                        Select_First_When_Available => True);
-                  end;
-                  Report_Info
-                    (S,
-                     "Hover: " & To_String (Result.Label) &
-                     (if Length (Result.Detail) > 0
-                      then " - " & To_String (Result.Detail)
-                      else "") & ".");
-                  Editor.Render_Cache.Invalidate_All;
-                  return Editor.Command_Execution.Executed (Id);
-               end if;
-
-               Report_Info
-                 (S, "Hover unavailable for " & Name & ": " &
-                  Service_Status_Image (Result.Status) & ".");
-               Editor.Render_Cache.Invalidate_All;
-               return Editor.Command_Execution.Unavailable (Id);
-            end;
-
-         when Editor.Commands.Command_Show_Completions =>
-            declare
-               Result : constant Editor.Ada_Language_Service.Completion_Result :=
-                 Semantic_Complete (S, S.Language_Service, Name, 20);
-            begin
-               if Result.Status = Editor.Ada_Language_Service.Service_Success then
-                  declare
-                     Anchor_Row : Natural := 0;
-                     Anchor_Col : Natural := 0;
-                     Popup : Editor.State.Semantic_Popup_State;
-                     Row : Natural := 0;
-                  begin
-                     Editor.State.Row_Col_For_Index
-                       (S, Safe_Caret (S), Anchor_Row, Anchor_Col);
-                     Popup.Active := True;
-                     Popup.Kind := Editor.State.Semantic_Completion_Popup;
-                     Popup.Anchor_Row := Anchor_Row;
-                     Popup.Anchor_Column := Anchor_Col;
-                     Popup.Title := To_Unbounded_String ("Completions for " & Name);
-                     Popup.Selected_Item :=
-                       (if Result.Items.Length > 0 then 1 else 0);
-                     for Item of Result.Items loop
-                        exit when Row >= Editor.State.Max_Semantic_Completion_Items;
-                        Row := Row + 1;
-                        Popup.Items (Editor.State.Semantic_Completion_Item_Index (Row)) :=
-                          (Label  => Item.Label,
-                           Detail => Item.Detail);
-                     end loop;
-                     Popup.Item_Count := Row;
-                     S.Semantic_Popup := Popup;
-                  end;
-
-                  Editor.Feature_Search_Results.Begin_External_Result_Set
-                    (S.Feature_Search_Results,
-                     Query        => "completions: " & Name,
-                     Source_Label => "Ada semantic completions");
-
-                  for Item of Result.Items loop
-                     declare
-                        Path   : constant String := To_String (Item.Target.Path);
-                        Line   : constant Natural := Item.Target.Line;
-                        Column : constant Natural := Item.Target.Column;
-                        Item_Label : constant String := To_String (Item.Label);
-                        Detail : constant String := To_String (Item.Detail);
-                        Label  : constant String :=
-                          Item_Label &
-                          (if Detail'Length > 0 then " - " & Detail else "") &
-                          " at " & Path & ":" &
-                          Ada.Strings.Fixed.Trim (Natural'Image (Line), Ada.Strings.Both) &
-                          ":" &
-                          Ada.Strings.Fixed.Trim (Natural'Image (Column), Ada.Strings.Both);
-                     begin
-                        Editor.Feature_Search_Results.Add_Search_Result
-                          (S.Feature_Search_Results,
-                           Label         => Label,
-                           Source_Label  => Path,
-                           Has_Target    => Item.Key.Buffer_Token /= 0,
-                           Target_Buffer => Item.Key.Buffer_Token,
-                           Target_Line   => Line,
-                           Target_Column => Column,
-                           Query         => Name,
-                           Match_Line    => Line,
-                           Match_Column  => Column,
-                           Match_Length  => Item_Label'Length);
-                     end;
-                  end loop;
-
-                  Editor.Feature_Search_Results.Reconcile_Search_Results_After_Row_Change
-                    (S.Feature_Search_Results, S.Feature_Panel,
-                     Select_First_When_Available => True);
-                  Report_Info
-                    (S,
-                     "Completions for " & Name & ":" &
-                     Natural'Image (Natural (Result.Items.Length)) & ".");
-                  Editor.Render_Cache.Invalidate_All;
-                  return Editor.Command_Execution.Executed (Id);
-               end if;
-
-               Report_Info
-                 (S, "Completions unavailable for " & Name & ": " &
-                  Service_Status_Image (Result.Status) & ".");
-               Editor.Render_Cache.Invalidate_All;
-               return Editor.Command_Execution.Unavailable (Id);
-            end;
+         when Editor.Commands.Command_Find_References
+            | Editor.Commands.Command_Workspace_Symbols
+            | Editor.Commands.Command_Show_Hover
+            | Editor.Commands.Command_Show_Completions =>
+            return Editor.Executor.Semantic_Service_Commands
+              .Execute_Semantic_Service_Command (S, Id, Name);
 
          when Editor.Commands.Command_Rename_Symbol_Preview =>
             declare

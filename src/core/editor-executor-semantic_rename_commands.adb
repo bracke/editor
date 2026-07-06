@@ -271,4 +271,43 @@ package body Editor.Executor.Semantic_Rename_Commands is
       return True;
    end Rename_Preview_Is_Open_Buffers_Applyable;
 
+   function Semantic_Rename_Command_Availability
+     (S       : Editor.State.State_Type;
+      Id      : Editor.Commands.Command_Id;
+      Service : in out Editor.Ada_Language_Service.Service_State;
+      Name    : String)
+      return Editor.Commands.Command_Availability
+   is
+      Result : constant Editor.Ada_Language_Service.Rename_Preview :=
+        Semantic_Rename_Preview (S, Service, Name, Name & "_Renamed");
+   begin
+      case Id is
+         when Editor.Commands.Command_Rename_Symbol_Preview =>
+            if Result.Status = Editor.Ada_Language_Service.Service_Success
+              or else Result.Status = Editor.Ada_Language_Service.Service_Ambiguous
+            then
+               return Editor.Commands.Available;
+            end if;
+            return Editor.Commands.Unavailable
+              ("Rename preview unavailable for " & Name & ": " &
+               Service_Status_Image (Result.Status) & ".");
+
+         when Editor.Commands.Command_Rename_Symbol_Apply =>
+            declare
+               Reason : Unbounded_String;
+            begin
+               if Rename_Preview_Is_Open_Buffers_Applyable
+                 (S, Result, Reason)
+               then
+                  return Editor.Commands.Available;
+               end if;
+               return Editor.Commands.Unavailable (To_String (Reason));
+            end;
+
+         when others =>
+            return Editor.Commands.Unavailable
+              ("Unsupported semantic rename command.");
+      end case;
+   end Semantic_Rename_Command_Availability;
+
 end Editor.Executor.Semantic_Rename_Commands;
