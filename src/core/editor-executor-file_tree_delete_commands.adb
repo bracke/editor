@@ -5,6 +5,7 @@ with Editor.Buffers;
 use type Editor.Buffers.Buffer_Id;
 with Editor.Commands;
 with Editor.Executor;
+with Editor.Executor.Semantic_Index_Commands;
 with Editor.Executor.Shared_Services;
 use Editor.Executor.Shared_Services;
 with Editor.Executor.File_Tree_Mutation_Commands;
@@ -118,7 +119,7 @@ package body Editor.Executor.File_Tree_Delete_Commands is
                   Editor.Focus_Management.Set_Focus_Owner
                     (S, Editor.Focus_Management.Focus_File_Tree);
                else
-                  Editor.Executor.Load_Global_Active_Preserving_Language_Index
+                  Editor.Executor.Semantic_Index_Commands.Load_Global_Active_Preserving_Language_Index
                     (S);
                   if Active_Buffer_Was_Deleted then
                      Editor.Focus_Management.Restore_Focus_To_Editor (S);

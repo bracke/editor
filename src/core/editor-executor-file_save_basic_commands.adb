@@ -18,6 +18,7 @@ with Editor.Executor.Shared_Services;
 use Editor.Executor.Shared_Services;
 with Editor.Executor.Pending_Transition_Policy;
 with Editor.Executor.Buffer_Close_Commands;
+with Editor.Executor.Semantic_Index_Commands;
 with Editor.Feature_Diagnostics;
 with Editor.Files;
 use type Editor.Files.File_Open_Status;
@@ -411,7 +412,7 @@ package body Editor.Executor.File_Save_Basic_Commands is
          Clear_Dirty_Close_Prompt (S);
          File_Lifecycle_Invalidate_Derived_State
            (S, "Derived state is stale after save");
-         Editor.Executor.Rebuild_Language_Index_After_File_Lifecycle (S);
+         Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
          Editor.Buffers.Sync_Global_Active_From_State (S);
          if S.File_Info.Has_Path and then Editor.Executor.Visible_Restore_Message_In_History (S) then
             Editor.Executor.Shared_Services.Report_Success_Append (S, "Saved " & To_String (S.File_Info.Display_Name));
@@ -696,7 +697,7 @@ package body Editor.Executor.File_Save_Basic_Commands is
            (S, Reload_Path, Reload_Display);
          File_Lifecycle_Invalidate_Derived_State
            (S, "Derived state is stale after reload");
-         Editor.Executor.Rebuild_Language_Index_After_File_Lifecycle (S);
+         Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
          Editor.Executor.Shared_Services.Report_Success (S, "Buffer reloaded");
       end;
    end Execute_Reload_Active_Buffer;
@@ -979,7 +980,7 @@ package body Editor.Executor.File_Save_Basic_Commands is
          --  file-backed buffer changed on disk.
          File_Lifecycle_Invalidate_Derived_State
            (S, "Derived state is stale after save all");
-         Editor.Executor.Rebuild_Language_Index_After_File_Lifecycle (S);
+         Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
          Editor.Buffers.Sync_Global_Active_From_State (S);
       end if;
 
@@ -1213,7 +1214,7 @@ package body Editor.Executor.File_Save_Basic_Commands is
          Clear_Dirty_Close_Prompt (S);
          File_Lifecycle_Invalidate_Derived_State
            (S, "Derived state is stale after save as");
-         Editor.Executor.Rebuild_Language_Index_After_File_Lifecycle (S);
+         Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
          Editor.Buffers.Sync_Global_Active_From_State (S);
          Editor.Executor.Shared_Services.Report_Success (S, "Saved file as");
       else

@@ -1,4 +1,6 @@
 with Ada.Characters.Handling;
+with Ada.Strings;
+with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
 
 with Editor.Ada_Declaration_Parser;
@@ -7,23 +9,32 @@ with Editor.Ada_Language_Service;
 with Editor.Ada_Live_Semantic_Diagnostics;
 with Editor.Ada_Project_Index;
 with Editor.Buffers;
+with Editor.Command_Execution;
+with Editor.Commands;
 with Editor.Executor;
+with Editor.Executor.Shared_Services;
 with Editor.Feature_Diagnostics;
 with Editor.Feature_Panel;
 with Editor.Files;
 with Editor.Project;
+with Editor.Render_Cache;
 with Editor.State;
 with Editor.Syntax_Semantics;
 
 package body Editor.Executor.Semantic_Index_Commands is
 
    use Ada.Strings.Unbounded;
+   use type Editor.Commands.Command_Id;
    use type Editor.Files.File_Open_Status;
    use type Editor.Project.Project_File_Refresh_Status;
 
    function Active_Feature_Buffer_Token
      (S : Editor.State.State_Type) return Natural
       renames Editor.Executor.Active_Feature_Buffer_Token;
+
+   procedure Report_Info
+     (S    : in out Editor.State.State_Type;
+      Text : String) renames Editor.Executor.Shared_Services.Report_Info;
 
    function Ends_With
      (Text   : String;
@@ -387,5 +398,297 @@ package body Editor.Executor.Semantic_Index_Commands is
            (S.Feature_Diagnostics, S.Feature_Panel);
       end if;
    end Clear_Service_Semantic_Diagnostics_From_Feature;
+
+   function Execute_Semantic_Index_Command
+     (S  : in out Editor.State.State_Type;
+      Id : Editor.Commands.Command_Id)
+      return Editor.Command_Execution.Command_Execution_Result
+   is
+      function Result_After_Command
+        (Command : Editor.Commands.Command_Id)
+         return Editor.Command_Execution.Command_Execution_Result is
+      begin
+         return Editor.Command_Execution.Executed (Command);
+      end Result_After_Command;
+   begin
+      case Id is
+         when Editor.Commands.Command_Refresh_Outline_Project_Index =>
+            declare
+               Indexed_Files : Natural;
+               Indexed_Symbols : Natural;
+               Skipped_Files : Natural;
+               Read_Errors : Natural;
+            begin
+               Refresh_Project_Language_Index
+                 (S,
+                  Build_Semantics    => False,
+                  Indexed_File_Count => Indexed_Files,
+                  Indexed_Symbols    => Indexed_Symbols,
+                  Skipped_File_Count => Skipped_Files,
+                  Read_Error_Count   => Read_Errors);
+               Report_Info
+                 (S,
+                  "Language project index refreshed: " &
+                  Natural'Image (Indexed_Files) & " files, " &
+                  Natural'Image (Indexed_Symbols) & " symbols, " &
+                  Natural'Image (Skipped_Files) & " skipped, " &
+                  Natural'Image (Read_Errors) & " read errors.");
+               Editor.Render_Cache.Invalidate_All;
+               return Result_After_Command (Id);
+            end;
+
+         when Editor.Commands.Command_Semantic_Refresh_Buffer =>
+            declare
+               Text : constant String := Editor.State.Current_Text (S);
+               Label : constant String :=
+                 (if S.File_Info.Has_Path
+                  then To_String (S.File_Info.Path)
+                  else To_String (S.File_Info.Display_Name));
+               Buffer_Token : constant Natural := Active_Feature_Buffer_Token (S);
+               Buffer_Revision : constant Natural :=
+                 Editor.State.Current_Buffer_Revision (S);
+               Lifecycle_Generation : constant Natural :=
+                 Editor.State.Current_Lifecycle_Generation (S);
+               Analysis : constant Editor.Ada_Language_Model.Analysis_Result :=
+                 Editor.Ada_Declaration_Parser.Parse (Text, Label);
+            begin
+               Editor.Syntax_Semantics.Clear (S.Syntax_Symbols);
+               S.Syntax_Analysis := Analysis;
+               Editor.Syntax_Semantics.Build_Map_From_Analysis
+                 (S.Syntax_Symbols, Analysis);
+               S.Syntax_Symbols_Revision := Buffer_Revision;
+               S.Syntax_Symbols_Buffer_Token := Buffer_Token;
+               if Label'Length > 0 and then Is_Ada_Source_Path (Label) then
+                  Editor.Ada_Project_Index.Put_Analysis
+                    (S.Language_Index,
+                     Label,
+                     Buffer_Token,
+                     Buffer_Revision,
+                     Lifecycle_Generation,
+                     Analysis);
+                  Editor.Ada_Language_Service.Put_Index
+                    (S.Language_Service, S.Language_Index);
+                  Editor.Ada_Live_Semantic_Diagnostics.Publish
+                    (S.Language_Service,
+                     Label,
+                     Text,
+                     Buffer_Token,
+                     Buffer_Revision,
+                     Lifecycle_Generation,
+                     Analysis);
+                  Publish_Service_Diagnostics_To_Feature
+                    (S, Label, Buffer_Token);
+               end if;
+               Report_Info
+                 (S,
+                  "Semantic colouring refreshed for active buffer: " &
+                  Natural'Image
+                    (Editor.Syntax_Semantics.Symbol_Count (S.Syntax_Symbols)) &
+                  " symbols.");
+               Editor.Render_Cache.Invalidate_All;
+               return Result_After_Command (Id);
+            end;
+
+         when Editor.Commands.Command_Semantic_Refresh_Project_Index =>
+            declare
+               Indexed_Files : Natural;
+               Indexed_Symbols : Natural;
+               Skipped_Files : Natural;
+               Read_Errors : Natural;
+            begin
+               Refresh_Project_Language_Index
+                 (S,
+                  Build_Semantics    => True,
+                  Indexed_File_Count => Indexed_Files,
+                  Indexed_Symbols    => Indexed_Symbols,
+                  Skipped_File_Count => Skipped_Files,
+                  Read_Error_Count   => Read_Errors);
+               Report_Info
+                 (S,
+                  "Semantic project index refreshed: " &
+                  Natural'Image (Indexed_Files) & " files, " &
+                  Natural'Image (Indexed_Symbols) & " symbols, " &
+                  Natural'Image (Skipped_Files) & " skipped, " &
+                  Natural'Image (Read_Errors) & " read errors.");
+               Editor.Render_Cache.Invalidate_All;
+               return Result_After_Command (Id);
+            end;
+
+         when Editor.Commands.Command_Language_Index_Clear =>
+            Clear_Service_Semantic_Diagnostics_From_Feature (S);
+            Editor.Ada_Project_Index.Clear (S.Language_Index);
+            Editor.Ada_Language_Service.Clear (S.Language_Service);
+            Report_Info (S, "Language index cleared.");
+            Editor.Render_Cache.Invalidate_All;
+            return Result_After_Command (Id);
+
+         when Editor.Commands.Command_Language_Index_Status =>
+            declare
+               Compiler : constant
+                 Editor.Ada_Language_Service.Compiler_Backend_Status :=
+                   Editor.Ada_Language_Service.Compiler_Status
+                     (S.Language_Service);
+               Backend : constant
+                 Editor.Ada_Language_Service.Semantic_Backend_Status :=
+                   Editor.Ada_Language_Service.Backend_Status
+                     (S.Language_Service);
+               Caps : constant
+                 Editor.Ada_Language_Service.Language_Service_Capabilities :=
+                   Editor.Ada_Language_Service.Capabilities
+                     (S.Language_Service);
+               Semantic : constant
+                 Editor.Ada_Language_Service.Semantic_Diagnostic_Status :=
+                   Editor.Ada_Language_Service.Semantic_Diagnostics_Status
+                     (S.Language_Service);
+               Current_File : constant Editor.State.File_State :=
+                 Editor.State.Current_File (S);
+               Active_Compiler : constant
+                 Editor.Ada_Language_Service.Compiler_Backend_Status :=
+                 (if Current_File.Has_Path
+                  then Editor.Ada_Language_Service.Compiler_Status_For_Path
+                    (S.Language_Service, To_String (Current_File.Path))
+                  else (others => <>));
+               Active_Semantic : constant
+                 Editor.Ada_Language_Service.Semantic_Diagnostic_Status :=
+                 (if Current_File.Has_Path
+                  then Editor.Ada_Language_Service.Semantic_Diagnostics_Status_For_Path
+                    (S.Language_Service, To_String (Current_File.Path))
+                  else (others => <>));
+               function Img (Value : Natural) return String is
+               begin
+                  return Ada.Strings.Fixed.Trim
+                    (Natural'Image (Value), Ada.Strings.Both);
+               end Img;
+
+               function Ready_Label
+                 (Supported : Boolean;
+                  Ready     : Boolean) return String is
+               begin
+                  if not Supported then
+                     return "-";
+                  elsif Ready then
+                     return "+";
+                  else
+                     return "!";
+                  end if;
+               end Ready_Label;
+
+               function Request_Kind_Label
+                 (Kind : Editor.Ada_Language_Service.Semantic_Request_Kind)
+                  return String
+               is
+               begin
+                  case Kind is
+                     when Editor.Ada_Language_Service.Semantic_Request_None =>
+                        return "none";
+                     when Editor.Ada_Language_Service.Semantic_Request_Goto_Declaration =>
+                        return "declaration";
+                     when Editor.Ada_Language_Service.Semantic_Request_Goto_Body =>
+                        return "body";
+                     when Editor.Ada_Language_Service.Semantic_Request_Goto_Spec =>
+                        return "spec";
+                     when Editor.Ada_Language_Service.Semantic_Request_Find_References =>
+                        return "references";
+                     when Editor.Ada_Language_Service.Semantic_Request_Workspace_Symbols =>
+                        return "workspace-symbols";
+                     when Editor.Ada_Language_Service.Semantic_Request_Completion =>
+                        return "completion";
+                     when Editor.Ada_Language_Service.Semantic_Request_Hover =>
+                        return "hover";
+                     when Editor.Ada_Language_Service.Semantic_Request_Rename =>
+                        return "rename";
+                  end case;
+               end Request_Kind_Label;
+
+               function Request_Status_Label
+                 (Status :
+                    Editor.Ada_Language_Service.Semantic_Request_Status_Kind)
+                  return String
+               is
+               begin
+                  case Status is
+                     when Editor.Ada_Language_Service.Semantic_Request_No_Request =>
+                        return "none";
+                     when Editor.Ada_Language_Service.Semantic_Request_Pending =>
+                        return "pending";
+                     when Editor.Ada_Language_Service.Semantic_Request_Completed =>
+                        return "completed";
+                     when Editor.Ada_Language_Service.Semantic_Request_Cancelled =>
+                        return "cancelled";
+                     when Editor.Ada_Language_Service.Semantic_Request_Superseded =>
+                        return "superseded";
+                     when Editor.Ada_Language_Service.Semantic_Request_Stale =>
+                        return "stale";
+                  end case;
+               end Request_Status_Label;
+            begin
+               Report_Info
+                 (S,
+                  "Language index status:" &
+                  "backend=" &
+                  Editor.Ada_Language_Service.Backend_Label (Backend) &
+                  " files symbols" &
+                  " compiler=" &
+                  (if Compiler.Has_Run
+                   then Img (Compiler.Diagnostic_Count)
+                   else "not-run") &
+                  (if Compiler.Has_Run
+                   then " warn=" & Img (Compiler.Warning_Count)
+                   else "") &
+                  " d=" &
+                  (if Current_File.Has_Path
+                   then Img (Active_Compiler.Diagnostic_Count)
+                   else "none") &
+                  " semantic=" &
+                  Img (Semantic.Diagnostic_Count) &
+                  (if Semantic.Overflowed then " overflow" else "") &
+                  " sd=" &
+                  (if Current_File.Has_Path
+                   then Img (Active_Semantic.Diagnostic_Count)
+                   else "none") &
+                  " rq=" &
+                  Request_Kind_Label (Backend.Active_Request_Kind) &
+                  "/" &
+                  Request_Status_Label (Backend.Active_Request_Status) &
+                  " cancel=" &
+                  (if Backend.Semantic_Requests_Cancellable then "yes" else "no") &
+                  " prev=" &
+                  Request_Status_Label (Backend.Previous_Request_Status) &
+                  " caps=nav" &
+                  Ready_Label
+                    (Caps.Navigation_Supported, Caps.Navigation_Ready) &
+                  ",ref" &
+                  Ready_Label
+                    (Caps.References_Supported, Caps.References_Ready) &
+                  ",sym" &
+                  Ready_Label
+                    (Caps.Workspace_Symbols_Supported,
+                     Caps.Workspace_Symbols_Ready) &
+                  ",cmp" &
+                  Ready_Label
+                    (Caps.Completion_Supported, Caps.Completion_Ready) &
+                  ",hov" &
+                  Ready_Label (Caps.Hover_Supported, Caps.Hover_Ready) &
+                  ",ren" &
+                  Ready_Label
+                    (Caps.Rename_Preview_Supported,
+                     Caps.Rename_Preview_Ready) &
+                  ",diag" &
+                  Ready_Label
+                    (Caps.Diagnostics_Supported,
+                     Caps.Internal_Diagnostics_Ready
+                       or else Caps.Compiler_Diagnostics_Ready) &
+                  ",req" &
+                  Ready_Label
+                    (Caps.Request_Lifecycle_Supported,
+                     Caps.Request_Cancellation_Available));
+            end;
+            Editor.Render_Cache.Invalidate_All;
+            return Result_After_Command (Id);
+
+         when others =>
+            return Editor.Command_Execution.No_Op (Id);
+      end case;
+   end Execute_Semantic_Index_Command;
 
 end Editor.Executor.Semantic_Index_Commands;

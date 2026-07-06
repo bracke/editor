@@ -5,6 +5,7 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Buffers;
 use type Editor.Buffers.Buffer_Id;
 with Editor.Executor;
+with Editor.Executor.Semantic_Index_Commands;
 with Editor.Executor.Shared_Services;
 use Editor.Executor.Shared_Services;
 with Editor.File_Tree;
@@ -144,7 +145,7 @@ package body Editor.Executor.Project_File_Index_Commands is
    begin
       Editor.Project.Refresh_Known_Files (S.Project, Result);
       if Result.Status = Editor.Project.Project_File_Refresh_Ok then
-         Editor.Executor.Rebuild_Language_Index_After_File_Lifecycle (S);
+         Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
          if Editor.Quick_Open.Is_Open (S.Quick_Open) then
             Editor.Executor.Recompute_Quick_Open (S);
          end if;

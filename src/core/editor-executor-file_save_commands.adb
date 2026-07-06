@@ -19,6 +19,7 @@ use Editor.Executor.Shared_Services;
 with Editor.Executor.Pending_Transition_Policy;
 with Editor.Executor.Buffer_Switcher_Shared;
 with Editor.Executor.Project_Lifecycle_Commands;
+with Editor.Executor.Semantic_Index_Commands;
 with Editor.Executor.Workspace_Commands;
 with Editor.Feature_Diagnostics;
 with Editor.Feature_Messages;
@@ -448,7 +449,8 @@ package body Editor.Executor.File_Save_Commands is
       then
          Editor.Buffers.Global_Set_Active_Buffer
            (Editor.Buffers.Buffer_Id (S.File_Conflict_Prompt_Buffer));
-         Load_Global_Active_Preserving_Language_Index (S);
+         Editor.Executor.Semantic_Index_Commands
+           .Load_Global_Active_Preserving_Language_Index (S);
       end if;
    end Load_File_Conflict_Buffer;
 
@@ -517,7 +519,8 @@ package body Editor.Executor.File_Save_Commands is
       if S.Active_Buffer_Token = Natural (Active_Id) then
          Editor.Buffers.Sync_Global_Active_From_State (S);
       else
-         Load_Global_Active_Preserving_Language_Index (S);
+         Editor.Executor.Semantic_Index_Commands
+           .Load_Global_Active_Preserving_Language_Index (S);
       end if;
 
       return True;
@@ -806,7 +809,7 @@ package body Editor.Executor.File_Save_Commands is
       Clear_File_Conflict_Prompt (S);
       File_Lifecycle_Invalidate_Derived_State
         (S, "Derived state is stale after reload");
-      Editor.Executor.Rebuild_Language_Index_After_File_Lifecycle (S);
+      Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
       Editor.Executor.Shared_Services.Report_Success (S, "File reloaded from disk");
    end Execute_File_Conflict_Reload_From_Disk;
 
@@ -873,7 +876,7 @@ package body Editor.Executor.File_Save_Commands is
          Mark_Active_Buffer_Saved (S, Result);
          File_Lifecycle_Invalidate_Derived_State
            (S, "Derived state is stale after overwrite");
-         Editor.Executor.Rebuild_Language_Index_After_File_Lifecycle (S);
+         Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
          Clear_File_Conflict_Prompt (S);
          if Resume_Close
            and then Resume_Buffer /= Editor.Buffers.No_Buffer
@@ -987,7 +990,8 @@ package body Editor.Executor.File_Save_Commands is
                   if S.Active_Buffer_Token = Natural (Target_Id) then
                      Editor.Buffers.Sync_Global_Active_From_State (S);
                   else
-                     Load_Global_Active_Preserving_Language_Index (S);
+                     Editor.Executor.Semantic_Index_Commands
+                       .Load_Global_Active_Preserving_Language_Index (S);
                   end if;
                end;
                declare
@@ -1016,7 +1020,7 @@ package body Editor.Executor.File_Save_Commands is
                   Update_Saved_Baseline_After_Reload (S, Reload_Path, Reload_Display);
                   File_Lifecycle_Invalidate_Derived_State
                     (S, "Derived state is stale after reload");
-                  Editor.Executor.Rebuild_Language_Index_After_File_Lifecycle (S);
+                  Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
                   Editor.Pending_Transitions.Clear (S.Pending_Transitions);
                   Editor.Executor.Shared_Services.Report_Success (S, "Buffer reloaded");
                end;
@@ -1034,7 +1038,8 @@ package body Editor.Executor.File_Save_Commands is
                   if S.Active_Buffer_Token = Natural (Target_Id) then
                      Editor.Buffers.Sync_Global_Active_From_State (S);
                   else
-                     Load_Global_Active_Preserving_Language_Index (S);
+                     Editor.Executor.Semantic_Index_Commands
+                       .Load_Global_Active_Preserving_Language_Index (S);
                   end if;
                end;
                declare
@@ -1063,7 +1068,7 @@ package body Editor.Executor.File_Save_Commands is
                   Update_Saved_Baseline_After_Revert (S, Revert_Path, Revert_Display);
                   File_Lifecycle_Invalidate_Derived_State
                     (S, "Derived state is stale after revert");
-                  Editor.Executor.Rebuild_Language_Index_After_File_Lifecycle (S);
+                  Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
                   Editor.Pending_Transitions.Clear (S.Pending_Transitions);
                   Editor.Executor.Shared_Services.Report_Success (S, "Buffer reverted");
                end;

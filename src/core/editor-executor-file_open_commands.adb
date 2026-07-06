@@ -14,6 +14,7 @@ with Editor.Buffer_Switcher;
 with Editor.Commands;
 with Editor.Dirty_Guards;
 with Editor.Executor;
+with Editor.Executor.Semantic_Index_Commands;
 with Editor.Executor.Shared_Services;
 use Editor.Executor.Shared_Services;
 with Editor.Executor.Buffer_Switcher_Shared;
@@ -193,7 +194,7 @@ package body Editor.Executor.File_Open_Commands is
             Capture_Active_File_Token (S);
             Editor.Buffers.Sync_Global_Active_From_State (S);
          end if;
-         Editor.Executor.Rebuild_Language_Index_After_File_Lifecycle (S);
+         Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
          Editor.Recent_Buffers.Mark_Activated
            (S.Recent_Buffers, Natural (Editor.Buffers.Global_Active_Buffer));
          Editor.Executor.Shared_Services.Report_Info_Append (S,
@@ -210,7 +211,7 @@ package body Editor.Executor.File_Open_Commands is
             Capture_Active_File_Token (S);
             Editor.Buffers.Sync_Global_Active_From_State (S);
          end if;
-         Editor.Executor.Rebuild_Language_Index_After_File_Lifecycle (S);
+         Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
          Editor.Recent_Buffers.Mark_Activated (S.Recent_Buffers, Natural (Id));
          Editor.Executor.Shared_Services.Report_Info_Append (S,
             "Focused existing buffer " & To_String (S.File_Info.Display_Name)
@@ -261,7 +262,7 @@ package body Editor.Executor.File_Open_Commands is
                Capture_Active_File_Token (S);
                Editor.Buffers.Sync_Global_Active_From_State (S);
             end if;
-            Editor.Executor.Rebuild_Language_Index_After_File_Lifecycle (S);
+            Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
             Editor.Recent_Buffers.Mark_Activated (S.Recent_Buffers, Natural (Id));
             Editor.Executor.Shared_Services.Report_Info_Append (S,
                "Focused existing buffer " & To_String (S.File_Info.Display_Name)
@@ -282,7 +283,7 @@ package body Editor.Executor.File_Open_Commands is
          --  token and save could fall back to pre-conflict behavior.
          Capture_Active_File_Token (S);
          Editor.Buffers.Sync_Global_Active_From_State (S);
-         Editor.Executor.Rebuild_Language_Index_After_File_Lifecycle (S);
+         Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
          Editor.Recent_Buffers.Mark_Activated (S.Recent_Buffers, Natural (Id));
          Editor.Executor.Shared_Services.Report_Success (S, "Opened " & To_String (Result.Display_Name));
       else

@@ -4,6 +4,7 @@ with Editor.Buffers;
 with Editor.Command_Execution;
 with Editor.Commands;
 with Editor.Executor;
+with Editor.Executor.Semantic_Index_Commands;
 with Editor.Executor.Shared_Services;
 use Editor.Executor.Shared_Services;
 with Editor.Feature_Panel;
@@ -400,7 +401,7 @@ package body Editor.Executor.Outline_Commands is
       Skipped_Files   : Natural;
       Read_Errors     : Natural;
    begin
-      Editor.Executor.Refresh_Project_Language_Index
+      Editor.Executor.Semantic_Index_Commands.Refresh_Project_Language_Index
         (S,
          Build_Semantics    => False,
          Indexed_File_Count => Indexed_Files,

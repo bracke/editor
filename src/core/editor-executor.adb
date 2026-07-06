@@ -18,42 +18,20 @@ with Editor.Executor.Availability;
 with Editor.Executor.Command_Palette_Projection;
 with Editor.Executor.Shared_Services;
 with Editor.Executor.Pending_Transition_Policy;
-with Editor.Executor.Search_Commands;
 with Editor.Executor.Search_Results_Commands;
-with Editor.Executor.Message_Commands;
 with Editor.Executor.Diagnostics_Commands;
-with Editor.Executor.File_Tree_Commands;
-with Editor.Executor.Buffer_Navigation_Commands;
 with Editor.Executor.Buffer_Metadata_Commands;
 with Editor.Executor.Panel_Focus_Commands;
-with Editor.Executor.Feature_Panel_Commands;
-with Editor.Executor.Editor_Preferences_Commands;
-with Editor.Executor.Editing_Commands;
-with Editor.Executor.Terminal_Commands;
-with Editor.Executor.Build_Commands;
-with Editor.Executor.Outline_Commands;
 with Editor.Executor.Overlay_Commands;
 with Editor.Executor.Semantic_Commands;
 with Editor.Executor.Semantic_Index_Commands;
-with Editor.Executor.Semantic_Rename_Commands;
-with Editor.Executor.Semantic_Routing_Commands;
 with Editor.Executor.Buffer_Switcher_Shared;
-with Editor.Executor.Buffer_Switcher_Mark_Commands;
-with Editor.Executor.Buffer_Switcher_Pending_Mark_Commands;
-with Editor.Executor.Buffer_Switcher_Preview_Commands;
-with Editor.Executor.Buffer_Switcher_Selected_Commands;
-with Editor.Executor.Buffer_Switcher_Surface_Commands;
 with Editor.Executor.Command_Surface_Commands;
 with Editor.Executor.Command_Kind_Routing;
 with Editor.Executor.Command_Result_Commands;
-with Editor.Executor.Buffer_Close_Commands;
-with Editor.Executor.File_Open_Commands;
-with Editor.Executor.File_Target_Prompt_Commands;
 with Editor.Executor.File_Lifecycle_Commands;
 with Editor.Executor.Project_Lifecycle_Commands;
 with Editor.Executor.Workspace_Commands;
-with Editor.Executor.Configuration_Commands;
-with Editor.Executor.Bookmark_Commands;
 with Editor.Executor.Selection_Commands;
 with Editor.Executor.Edits;
 with Editor.Executor.Rectangular;
@@ -187,55 +165,6 @@ package body Editor.Executor is
          return S.Registry_Token;
       end if;
    end Active_Feature_Buffer_Token;
-   function Is_Ada_Source_Path
-     (Path : String) return Boolean
-   is
-   begin
-      return Editor.Executor.Semantic_Index_Commands.Is_Ada_Source_Path (Path);
-   end Is_Ada_Source_Path;
-   procedure Publish_Service_Diagnostics_To_Feature
-     (S            : in out Editor.State.State_Type;
-      Path         : String;
-      Buffer_Token : Natural)
-   is
-   begin
-      Editor.Executor.Semantic_Index_Commands.Publish_Service_Diagnostics_To_Feature
-        (S, Path, Buffer_Token);
-   end Publish_Service_Diagnostics_To_Feature;
-   procedure Refresh_Project_Language_Index
-     (S                  : in out Editor.State.State_Type;
-      Build_Semantics    : Boolean;
-      Indexed_File_Count : out Natural;
-      Indexed_Symbols    : out Natural;
-      Skipped_File_Count : out Natural;
-      Read_Error_Count   : out Natural)
-   is
-   begin
-      Editor.Executor.Semantic_Index_Commands.Refresh_Project_Language_Index
-        (S, Build_Semantics, Indexed_File_Count, Indexed_Symbols,
-         Skipped_File_Count, Read_Error_Count);
-   end Refresh_Project_Language_Index;
-   procedure Load_Global_Active_Preserving_Language_Index
-     (S : in out Editor.State.State_Type)
-   is
-   begin
-      Editor.Executor.Semantic_Index_Commands
-        .Load_Global_Active_Preserving_Language_Index (S);
-   end Load_Global_Active_Preserving_Language_Index;
-   procedure Rebuild_Language_Index_After_File_Lifecycle
-     (S : in out Editor.State.State_Type)
-   is
-   begin
-      Editor.Executor.Semantic_Index_Commands
-        .Rebuild_Language_Index_After_File_Lifecycle (S);
-   end Rebuild_Language_Index_After_File_Lifecycle;
-   procedure Clear_Service_Semantic_Diagnostics_From_Feature
-     (S : in out Editor.State.State_Type)
-   is
-   begin
-      Editor.Executor.Semantic_Index_Commands
-        .Clear_Service_Semantic_Diagnostics_From_Feature (S);
-   end Clear_Service_Semantic_Diagnostics_From_Feature;
    function Has_Find_Target_Buffer
      (S : Editor.State.State_Type) return Boolean;
    function Feature_Target_Buffer_Is_Current
@@ -394,7 +323,8 @@ package body Editor.Executor is
          Editor.Buffers.Sync_Global_Active_From_State (S);
          Editor.Buffers.Global_Set_Active_Buffer
            (Editor.Buffers.Buffer_Id (Target_Buffer));
-         Load_Global_Active_Preserving_Language_Index (S);
+         Editor.Executor.Semantic_Index_Commands
+           .Load_Global_Active_Preserving_Language_Index (S);
          return True;
       else
          return False;

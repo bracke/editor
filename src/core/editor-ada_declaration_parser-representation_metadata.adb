@@ -1003,4 +1003,31 @@ package body Editor.Ada_Declaration_Parser.Representation_Metadata is
       return 0;
    end Representation_Property_Static_Natural_Value;
 
+   procedure Parse_Bit_Range
+     (Range_Text : String;
+      First_Text : out Unbounded_String;
+      Last_Text  : out Unbounded_String)
+   is
+      T : constant String := Trim (Range_Text);
+      Match_Pos : constant Natural := Ada.Strings.Fixed.Index (T, "..");
+   begin
+      if Match_Pos = 0 then
+         First_Text := To_Unbounded_String (T);
+         Last_Text := To_Unbounded_String (T);
+      else
+         if Match_Pos > T'First then
+            First_Text := To_Unbounded_String
+              (Trim (T (T'First .. Match_Pos - 1)));
+         else
+            First_Text := Null_Unbounded_String;
+         end if;
+         if Match_Pos + 2 <= T'Last then
+            Last_Text := To_Unbounded_String
+              (Trim (T (Match_Pos + 2 .. T'Last)));
+         else
+            Last_Text := Null_Unbounded_String;
+         end if;
+      end if;
+   end Parse_Bit_Range;
+
 end Editor.Ada_Declaration_Parser.Representation_Metadata;

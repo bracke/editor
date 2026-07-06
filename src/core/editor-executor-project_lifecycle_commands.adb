@@ -11,6 +11,7 @@ with Editor.Clipboard;
 with Editor.Command_Execution;
 with Editor.Dirty_Guards;
 with Editor.Executor;
+with Editor.Executor.Semantic_Index_Commands;
 with Editor.Executor.Pending_Transition_Policy;
 use Editor.Executor.Pending_Transition_Policy;
 with Editor.Executor.Shared_Services;
@@ -1147,7 +1148,8 @@ package body Editor.Executor.Project_Lifecycle_Commands is
          if Tree_Result.Status = Editor.File_Tree.File_Tree_Scan_Ok then
             S.File_Tree := Tree;
             Populate_Project_Known_Files_From_File_Tree (S);
-            Rebuild_Language_Index_After_File_Lifecycle (S);
+            Editor.Executor.Semantic_Index_Commands
+              .Rebuild_Language_Index_After_File_Lifecycle (S);
             Validate_File_Tree_View (S);
             Editor.Project_Search.Clear (S.Project_Search);
             if Editor.Quick_Open.Is_Open (S.Quick_Open) then

@@ -213,25 +213,6 @@ package Editor.Executor is
    function Active_Feature_Buffer_Token
      (S : Editor.State.State_Type) return Natural;
 
-   function Is_Ada_Source_Path
-     (Path : String) return Boolean;
-
-   procedure Publish_Service_Diagnostics_To_Feature
-     (S            : in out Editor.State.State_Type;
-      Path         : String;
-      Buffer_Token : Natural);
-
-   procedure Refresh_Project_Language_Index
-     (S                  : in out Editor.State.State_Type;
-      Build_Semantics    : Boolean;
-      Indexed_File_Count : out Natural;
-      Indexed_Symbols    : out Natural;
-      Skipped_File_Count : out Natural;
-      Read_Error_Count   : out Natural);
-
-   procedure Clear_Service_Semantic_Diagnostics_From_Feature
-     (S : in out Editor.State.State_Type);
-
    function Has_Selected_Outline_Activation_Target
      (S : Editor.State.State_Type) return Boolean;
 
@@ -258,9 +239,6 @@ package Editor.Executor is
    function Visible_Restore_Message_In_History
      (S : Editor.State.State_Type) return Boolean;
 
-   procedure Rebuild_Language_Index_After_File_Lifecycle
-     (S : in out Editor.State.State_Type);
-
    function File_Lifecycle_Confirmation_Pending
      (S : Editor.State.State_Type) return Boolean;
 
@@ -285,9 +263,6 @@ package Editor.Executor is
      (S          : in out Editor.State.State_Type;
       Id         : Editor.Buffers.Buffer_Id;
       Was_Active : Boolean);
-
-   procedure Load_Global_Active_Preserving_Language_Index
-     (S : in out Editor.State.State_Type);
 
    procedure Populate_Project_Known_Files_From_File_Tree
      (S : in out Editor.State.State_Type);

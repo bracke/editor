@@ -1,3 +1,5 @@
+with Ada.Strings.Unbounded;
+
 with Editor.Ada_Language_Model;
 
 package Editor.Ada_Declaration_Parser.Representation_Metadata is
@@ -50,6 +52,11 @@ package Editor.Ada_Declaration_Parser.Representation_Metadata is
      (Kind  : Editor.Ada_Language_Model.Representation_Clause_Kind;
       Value : String)
       return Natural;
+
+   procedure Parse_Bit_Range
+     (Range_Text : String;
+      First_Text : out Ada.Strings.Unbounded.Unbounded_String;
+      Last_Text  : out Ada.Strings.Unbounded.Unbounded_String);
 
    procedure Add_Interfacing_Pragma_Representation
      (Analysis      : in out Editor.Ada_Language_Model.Analysis_Result;

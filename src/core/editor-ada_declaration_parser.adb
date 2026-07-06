@@ -18043,32 +18043,6 @@ package body Editor.Ada_Declaration_Parser is
          end if;
       end Parse_Static_Integer;
 
-      procedure Parse_Bit_Range
-        (Range_Text : String;
-         First_Text : out Unbounded_String;
-         Last_Text  : out Unbounded_String)
-      is
-         T : constant String := Trim (Range_Text);
-         Match_Pos : constant Natural := Ada.Strings.Fixed.Index (T, "..");
-      begin
-         if Match_Pos = 0 then
-            First_Text := To_Unbounded_String (T);
-            Last_Text := To_Unbounded_String (T);
-         else
-            if Match_Pos > T'First then
-               First_Text := To_Unbounded_String (Trim (T (T'First .. Match_Pos - 1)));
-            else
-               First_Text := Null_Unbounded_String;
-            end if;
-            if Match_Pos + 2 <= T'Last then
-               Last_Text := To_Unbounded_String (Trim (T (Match_Pos + 2 .. T'Last)));
-            else
-               Last_Text := Null_Unbounded_String;
-            end if;
-         end if;
-      end Parse_Bit_Range;
-
-
       procedure Apply_Enumeration_Representation_Associations
         (Clause_Node : Node_Id;
          Target      : Symbol_Id)
@@ -18221,7 +18195,8 @@ package body Editor.Ada_Declaration_Parser is
             return;
          end if;
 
-         Parse_Bit_Range (Range_Text, First_Text, Last_Text);
+         Representation_Metadata.Parse_Bit_Range
+           (Range_Text, First_Text, Last_Text);
          Parse_Static_Natural (Storage_Text, Has_Storage, Storage_Value);
          Parse_Static_Natural (To_String (First_Text), Has_First, First_Value);
          Parse_Static_Natural (To_String (Last_Text), Has_Last, Last_Value);

@@ -9,6 +9,7 @@ with Editor.Buffers;
 use type Editor.Buffers.Buffer_Id;
 with Editor.Build_UI;
 with Editor.Executor;
+with Editor.Executor.Semantic_Index_Commands;
 with Editor.Executor.Shared_Services;
 use Editor.Executor.Shared_Services;
 with Editor.Feature_Diagnostics;
@@ -252,7 +253,7 @@ package body Editor.Executor.File_Operation_Commands is
          end if;
          File_Lifecycle_Invalidate_Derived_State
            (S, "Derived state is stale after rename");
-         Editor.Executor.Rebuild_Language_Index_After_File_Lifecycle (S);
+         Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
          Editor.Executor.Shared_Services.Report_Success (S, "Buffer file renamed");
       else
          S.File_Info := Previous_File;
@@ -346,7 +347,7 @@ package body Editor.Executor.File_Operation_Commands is
          end if;
          File_Lifecycle_Invalidate_Derived_State
            (S, "Derived state is stale after delete");
-         Editor.Executor.Rebuild_Language_Index_After_File_Lifecycle (S);
+         Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
          Editor.Executor.Shared_Services.Report_Success (S, "Buffer file deleted");
       else
          S.File_Info := Previous_File;
@@ -506,7 +507,7 @@ package body Editor.Executor.File_Operation_Commands is
          end if;
          File_Lifecycle_Invalidate_Derived_State
            (S, "Derived state is stale after move");
-         Editor.Executor.Rebuild_Language_Index_After_File_Lifecycle (S);
+         Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
          Editor.Executor.Shared_Services.Report_Success (S, "Buffer file moved");
       else
          S.File_Info := Previous_File;

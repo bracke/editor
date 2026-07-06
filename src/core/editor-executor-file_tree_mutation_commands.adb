@@ -13,6 +13,7 @@ with Editor.Build_Candidates;
 with Editor.Build_UI;
 with Editor.Commands;
 with Editor.Executor;
+with Editor.Executor.Semantic_Index_Commands;
 with Editor.Executor.Shared_Services;
 use Editor.Executor.Shared_Services;
 with Editor.Feature_Diagnostics;
@@ -1387,7 +1388,7 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
                New_Root      => To_String (Target),
                Rebased_Count => Rebased_Count);
             if Rebased_Count > 0 then
-               Editor.Executor.Load_Global_Active_Preserving_Language_Index (S);
+               Editor.Executor.Semantic_Index_Commands.Load_Global_Active_Preserving_Language_Index (S);
                if Active_Buffer_Was_Renamed then
                   --  renaming an already-open clean file
                   --  is a navigation workflow as well as a File Tree mutation.
