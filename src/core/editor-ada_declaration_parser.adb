@@ -12,6 +12,7 @@ with Editor.Ada_Declaration_Parser.Pragma_Helpers;
 with Editor.Ada_Declaration_Parser.Profile_Parameter_Collectors;
 with Editor.Ada_Declaration_Parser.Representation_Application;
 with Editor.Ada_Declaration_Parser.Representation_Metadata;
+with Editor.Ada_Declaration_Parser.Representation_Static_Values;
 with Editor.Ada_Declaration_Parser.Same_Line_Declarations;
 with Editor.Ada_Declaration_Parser.Same_Line_Emitters;
 with Editor.Ada_Declaration_Parser.Target_Helpers;
@@ -811,41 +812,8 @@ package body Editor.Ada_Declaration_Parser is
    procedure Parse_Static_Natural
      (Text  : String;
       Valid : out Boolean;
-      Value : out Natural);
-
-   procedure Parse_Static_Natural
-     (Text  : String;
-      Valid : out Boolean;
       Value : out Natural)
-   is
-      T     : constant String := Trim (Text);
-      Acc   : Natural := 0;
-      Digit : Natural;
-   begin
-      Valid := T'Length > 0;
-      Value := 0;
-      if not Valid then
-         return;
-      end if;
-
-      for C of T loop
-         if C < '0' or else C > '9' then
-            Valid := False;
-            Value := 0;
-            return;
-         end if;
-
-         Digit := Character'Pos (C) - Character'Pos ('0');
-         if Acc > (Natural'Last - Digit) / 10 then
-            Valid := False;
-            Value := 0;
-            return;
-         end if;
-         Acc := Acc * 10 + Digit;
-      end loop;
-
-      Value := Acc;
-   end Parse_Static_Natural;
+      renames Representation_Static_Values.Parse_Static_Natural;
 
    procedure Mark_Pragma_Target
      (Analysis      : in out Analysis_Result;
@@ -18044,49 +18012,28 @@ package body Editor.Ada_Declaration_Parser is
          end if;
       end Parse_Static_Integer;
 
-      function Representation_Application_Context
-        return Representation_Application.Application_Context
-      is
-      begin
-         return
-           (First_Child_Label => First_Child_Label'Unrestricted_Access,
-            Last_Child_Label  => Last_Child_Label'Unrestricted_Access,
-            To_Model_Range    => To_Model_Range'Unrestricted_Access,
-            Find_Metadata_Target =>
-              Find_Metadata_Target'Unrestricted_Access,
-            Normalize_Name => Normalize_Name'Unrestricted_Access,
-            Ancestor_Symbol => Ancestor_Symbol'Unrestricted_Access,
-            Parent_Representation_Target =>
-              Parent_Representation_Target'Unrestricted_Access,
-            Find_Enumeration_Literal =>
-              Find_Enumeration_Literal_Symbol'Unrestricted_Access,
-            Enumeration_Literal_At =>
-              Enumeration_Literal_Symbol_At_Position'Unrestricted_Access,
-            Find_Component => Find_Component_Symbol'Unrestricted_Access,
-            Symbol_Name => Symbol_Name_Or_Empty'Unrestricted_Access,
-            Parse_Static_Natural => Parse_Static_Natural'Unrestricted_Access,
-            Register_Static_Attribute =>
-              Register_Static_Representation_Attribute_Value
-                'Unrestricted_Access);
-      end Representation_Application_Context;
-
-      procedure Apply_General_Representation_Clause (N : Node_Info) is
-      begin
-         Representation_Application.Apply_General_Representation_Clause
-           (Representation_Application_Context, Tree, Analysis, N);
-      end Apply_General_Representation_Clause;
-
-      procedure Apply_Record_Representation_Component (N : Node_Info) is
-      begin
-         Representation_Application.Apply_Record_Representation_Component
-           (Representation_Application_Context, Analysis, N);
-      end Apply_Record_Representation_Component;
-
-      procedure Apply_Record_Representation_Mod_Clause (N : Node_Info) is
-      begin
-         Representation_Application.Apply_Record_Representation_Mod_Clause
-           (Representation_Application_Context, Analysis, N);
-      end Apply_Record_Representation_Mod_Clause;
+      Representation_Context : constant
+        Representation_Application.Application_Context :=
+        Representation_Application.Create_Context
+          (First_Child_Label => First_Child_Label'Unrestricted_Access,
+           Last_Child_Label  => Last_Child_Label'Unrestricted_Access,
+           To_Model_Range    => To_Model_Range'Unrestricted_Access,
+           Find_Metadata_Target =>
+             Find_Metadata_Target'Unrestricted_Access,
+           Normalize_Name => Normalize_Name'Unrestricted_Access,
+           Ancestor_Symbol => Ancestor_Symbol'Unrestricted_Access,
+           Parent_Representation_Target =>
+             Parent_Representation_Target'Unrestricted_Access,
+           Find_Enumeration_Literal =>
+             Find_Enumeration_Literal_Symbol'Unrestricted_Access,
+           Enumeration_Literal_At =>
+             Enumeration_Literal_Symbol_At_Position'Unrestricted_Access,
+           Find_Component => Find_Component_Symbol'Unrestricted_Access,
+           Symbol_Name => Symbol_Name_Or_Empty'Unrestricted_Access,
+           Parse_Static_Natural => Parse_Static_Natural'Unrestricted_Access,
+           Register_Static_Attribute =>
+             Register_Static_Representation_Attribute_Value
+               'Unrestricted_Access);
 
    begin
       if Count = 0 then
@@ -18408,7 +18355,8 @@ package body Editor.Ada_Declaration_Parser is
                   elsif Target /= "" then
                      Apply_Metadata_To_Target (Target, Flags);
                   end if;
-                  Apply_General_Representation_Clause (N);
+                  Representation_Application.Apply_General_Representation_Clause
+                    (Representation_Context, Tree, Analysis, N);
                end;
             elsif N.Kind = Node_Representation_Component_Clause then
                declare
@@ -18422,7 +18370,8 @@ package body Editor.Ada_Declaration_Parser is
                   elsif Target /= No_Symbol then
                      Merge_Symbol_Flags (Analysis, Target, Flags);
                   end if;
-                  Apply_Record_Representation_Component (N);
+                  Representation_Application.Apply_Record_Representation_Component
+                    (Representation_Context, Analysis, N);
                end;
             elsif N.Kind = Node_Representation_Mod_Clause then
                declare
@@ -18436,7 +18385,8 @@ package body Editor.Ada_Declaration_Parser is
                   elsif Target /= No_Symbol then
                      Merge_Symbol_Flags (Analysis, Target, Flags);
                   end if;
-                  Apply_Record_Representation_Mod_Clause (N);
+                  Representation_Application.Apply_Record_Representation_Mod_Clause
+                    (Representation_Context, Analysis, N);
                end;
             elsif N.Kind = Node_Pragma or else N.Kind = Node_Pragma_Statement then
                declare

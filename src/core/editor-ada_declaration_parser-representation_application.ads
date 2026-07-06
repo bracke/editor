@@ -74,6 +74,22 @@ package Editor.Ada_Declaration_Parser.Representation_Application is
 
    function Is_Complete (Context : Application_Context) return Boolean;
 
+   function Create_Context
+     (First_Child_Label : Child_Label_Function;
+      Last_Child_Label  : Child_Label_Function;
+      To_Model_Range    : Source_Range_Function;
+      Find_Metadata_Target : Symbol_Lookup_Function;
+      Normalize_Name       : Name_Normalizer_Function;
+      Ancestor_Symbol      : Scoped_Symbol_Function;
+      Parent_Representation_Target : Scoped_Symbol_Function;
+      Find_Enumeration_Literal : Enumeration_Literal_Function;
+      Enumeration_Literal_At   : Enumeration_Position_Function;
+      Find_Component           : Component_Lookup_Function;
+      Symbol_Name              : Symbol_Name_Function;
+      Parse_Static_Natural     : Static_Natural_Parser;
+      Register_Static_Attribute : Static_Attribute_Registration)
+      return Application_Context;
+
    procedure Apply_General_Representation_Clause
      (Context  : Application_Context;
       Tree     : Editor.Ada_Syntax_Tree.Tree_Type;

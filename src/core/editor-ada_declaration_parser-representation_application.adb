@@ -25,6 +25,39 @@ package body Editor.Ada_Declaration_Parser.Representation_Application is
         and then Context.Register_Static_Attribute /= null;
    end Is_Complete;
 
+   function Create_Context
+     (First_Child_Label : Child_Label_Function;
+      Last_Child_Label  : Child_Label_Function;
+      To_Model_Range    : Source_Range_Function;
+      Find_Metadata_Target : Symbol_Lookup_Function;
+      Normalize_Name       : Name_Normalizer_Function;
+      Ancestor_Symbol      : Scoped_Symbol_Function;
+      Parent_Representation_Target : Scoped_Symbol_Function;
+      Find_Enumeration_Literal : Enumeration_Literal_Function;
+      Enumeration_Literal_At   : Enumeration_Position_Function;
+      Find_Component           : Component_Lookup_Function;
+      Symbol_Name              : Symbol_Name_Function;
+      Parse_Static_Natural     : Static_Natural_Parser;
+      Register_Static_Attribute : Static_Attribute_Registration)
+      return Application_Context
+   is
+   begin
+      return
+        (First_Child_Label => First_Child_Label,
+         Last_Child_Label  => Last_Child_Label,
+         To_Model_Range    => To_Model_Range,
+         Find_Metadata_Target => Find_Metadata_Target,
+         Normalize_Name => Normalize_Name,
+         Ancestor_Symbol => Ancestor_Symbol,
+         Parent_Representation_Target => Parent_Representation_Target,
+         Find_Enumeration_Literal => Find_Enumeration_Literal,
+         Enumeration_Literal_At => Enumeration_Literal_At,
+         Find_Component => Find_Component,
+         Symbol_Name => Symbol_Name,
+         Parse_Static_Natural => Parse_Static_Natural,
+         Register_Static_Attribute => Register_Static_Attribute);
+   end Create_Context;
+
    function Has_Dot (Text : String) return Boolean is
    begin
       for Ch of Text loop
