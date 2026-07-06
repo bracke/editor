@@ -136,6 +136,8 @@ editor-ada_declaration_parser-pragma_helpers.adb
 editor-ada_declaration_parser-pragma_helpers.ads
 editor-ada_declaration_parser-profile_parameter_collectors.adb
 editor-ada_declaration_parser-profile_parameter_collectors.ads
+editor-ada_declaration_parser-representation_metadata.adb
+editor-ada_declaration_parser-representation_metadata.ads
 editor-ada_declaration_parser-same_line_declarations.adb
 editor-ada_declaration_parser-same_line_declarations.ads
 editor-ada_declaration_parser-same_line_emitters.adb
@@ -1159,6 +1161,10 @@ editor-input_bridge-active_find_key_handlers.adb
 editor-input_bridge-active_find_key_handlers.ads
 editor-input_bridge-build_ui_pointer_handlers.adb
 editor-input_bridge-build_ui_pointer_handlers.ads
+editor-input_bridge-build_ui_key_handlers.adb
+editor-input_bridge-build_ui_key_handlers.ads
+editor-input_bridge-buffer_switcher_key_handlers.adb
+editor-input_bridge-buffer_switcher_key_handlers.ads
 editor-input_bridge-command_routing.adb
 editor-input_bridge-command_routing.ads
 editor-input_bridge-command_prompt_routing.adb
@@ -1183,6 +1189,8 @@ editor-input_bridge-panel_tree_search_pointer_handlers.adb
 editor-input_bridge-panel_tree_search_pointer_handlers.ads
 editor-input_bridge-pending_transition_key_handlers.adb
 editor-input_bridge-pending_transition_key_handlers.ads
+editor-input_bridge-project_search_key_handlers.adb
+editor-input_bridge-project_search_key_handlers.ads
 editor-input_bridge-pointer_routing.adb
 editor-input_bridge-pointer_routing.ads
 editor-input_bridge-pointer_scroll_handlers.adb
