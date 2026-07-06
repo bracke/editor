@@ -141,6 +141,180 @@ package body Editor.Ada_Declaration_Parser.Representation_Metadata is
       end if;
    end Add_Interfacing_Pragma_Representation;
 
+   procedure Parse_Static_Natural
+     (Text  : String;
+      Valid : out Boolean;
+      Value : out Natural)
+   is
+      T     : constant String := Trim (Text);
+      Acc   : Natural := 0;
+      Digit : Natural;
+   begin
+      Valid := T'Length > 0;
+      Value := 0;
+      if not Valid then
+         return;
+      end if;
+
+      for C of T loop
+         if C < '0' or else C > '9' then
+            Valid := False;
+            Value := 0;
+            return;
+         end if;
+
+         Digit := Character'Pos (C) - Character'Pos ('0');
+         if Acc > (Natural'Last - Digit) / 10 then
+            Valid := False;
+            Value := 0;
+            return;
+         end if;
+         Acc := Acc * 10 + Digit;
+      end loop;
+
+      Value := Acc;
+   end Parse_Static_Natural;
+
+   procedure Add_Representation_Pragma_Representation
+     (Analysis      : in out Analysis_Result;
+      Target_Symbol : Symbol_Id;
+      Target_Name   : String;
+      Line          : String;
+      Source_Span   : Source_Range)
+   is
+      P : constant String := Pragma_Helpers.Pragma_Name_Of (Line);
+
+      function Display_Pragma_Property_Name (Name : String) return String is
+         Result : Unbounded_String := Null_Unbounded_String;
+         Start_Word : Boolean := True;
+
+         function Upper (C : Character) return Character is
+         begin
+            if C >= 'a' and then C <= 'z' then
+               return Character'Val
+                 (Character'Pos (C) - Character'Pos ('a') + Character'Pos ('A'));
+            else
+               return C;
+            end if;
+         end Upper;
+      begin
+         --  Keep user-facing/source-facing attribute spelling stable while
+         --  deriving the semantic kind from the canonical shared resolver.
+         --  Most property names are title-cased underscore-separated words;
+         --  preserve the few all-uppercase Ada/GNAT spellings explicitly.
+         if Name = "cpu" then
+            return "CPU";
+         elsif Name = "spark_mode" then
+            return "SPARK_Mode";
+         end if;
+
+         for C of Name loop
+            if C = '_' then
+               Append (Result, C);
+               Start_Word := True;
+            elsif Start_Word then
+               Append (Result, Upper (C));
+               Start_Word := False;
+            else
+               Append (Result, C);
+            end if;
+         end loop;
+
+         return To_String (Result);
+      end Display_Pragma_Property_Name;
+
+      Attribute : constant String := Display_Pragma_Property_Name (P);
+      Value_Text : constant String :=
+        (if P = "attach_handler" then
+            Pragma_Helpers.Interfacing_Pragma_Value
+              (Line, "interrupt", 2)
+         elsif P = "priority" or else P = "interrupt_priority" or else P = "cpu"
+           or else P = "dispatching_domain" or else P = "relative_deadline"
+           or else P = "max_entry_queue_length"
+         then
+            --  Value-only pragmas such as ``pragma Priority (10)`` bind to
+            --  the current enclosing task/protected declaration.  Their first
+            --  positional argument is the retained representation value; using
+            --  positional fallback 2 was appropriate only for entity,value
+            --  pragma shapes and silently dropped ordinary Ada spellings.
+            Pragma_Helpers.Interfacing_Pragma_Value (Line, "value", 1)
+         elsif P = "linker_section" then
+            (if Pragma_Helpers.Named_Pragma_Argument (Line, "section") /= "" then
+                Pragma_Helpers.Named_Pragma_Argument (Line, "section")
+             elsif Pragma_Helpers.Named_Pragma_Argument
+                (Line, "section_name") /= ""
+             then
+                Pragma_Helpers.Named_Pragma_Argument (Line, "section_name")
+             else
+                Pragma_Helpers.Interfacing_Pragma_Value (Line, "value", 2))
+         elsif P = "machine_attribute" then
+            (if Pragma_Helpers.Named_Pragma_Argument
+               (Line, "attribute_name") /= ""
+             then
+                Pragma_Helpers.Named_Pragma_Argument (Line, "attribute_name")
+             elsif Pragma_Helpers.Named_Pragma_Argument
+                (Line, "attribute") /= ""
+             then
+                Pragma_Helpers.Named_Pragma_Argument (Line, "attribute")
+             else
+                Pragma_Helpers.Interfacing_Pragma_Value (Line, "value", 2))
+         elsif P = "optimize" or else P = "spark_mode" then
+            Pragma_Helpers.Interfacing_Pragma_Value (Line, "", 1)
+         elsif P = "suppress" or else P = "unsuppress" then
+            (if Pragma_Helpers.Named_Pragma_Argument (Line, "check_name") /= "" then
+                Pragma_Helpers.Named_Pragma_Argument (Line, "check_name")
+             else
+                Pragma_Helpers.Interfacing_Pragma_Value (Line, "check", 1))
+         elsif P = "assertion_policy" or else P = "check_policy"
+           or else P = "debug_policy" or else P = "restrictions"
+           or else P = "restriction_warnings" or else P = "profile"
+         then
+            Pragma_Helpers.Interfacing_Pragma_Value (Line, "", 1)
+         else "True");
+      Kind : constant Representation_Clause_Kind :=
+        Representation_Kind_For ("Target'" & Attribute, Value_Text);
+      Has_Value : Boolean := False;
+      Static_Value : Natural := 0;
+   begin
+      if P = "convention"
+        or else P = "import"
+        or else P = "export"
+        or else P = "interface"
+        or else P = "external"
+      then
+         --  These are lowered by Add_Interfacing_Pragma_Representation, where
+         --  convention/entity/external-name/link-name arguments have
+         --  pragma-specific positions.  Do not also add a generic resolver
+         --  item with a Boolean placeholder value.
+         return;
+      end if;
+
+      Parse_Static_Natural (Value_Text, Has_Value, Static_Value);
+      if Target_Name = ""
+        or else Target_Symbol = No_Symbol
+        or else Kind = Representation_Other_Clause
+      then
+         return;
+      end if;
+
+      --  Representation pragmas are source aliases for the corresponding
+      --  representation aspects/attribute-definition clauses in the bounded
+      --  editor model.  Resolve the pragma property through the same shared
+      --  catalog used for aspects and attribute-definition clauses so new
+      --  explicit properties cannot drift into pragma-only special cases.
+      Add_Representation_Clause
+        (Analysis,
+         Target_Symbol => Target_Symbol,
+         Target_Name => Target_Name,
+         Kind => Kind,
+         Attribute_Name => Attribute,
+         Item_Text => Value_Text,
+         Source_Form => Representation_Source_Pragma,
+         Has_Static_Value => Has_Value,
+         Static_Value => Static_Value,
+         Source_Span => Source_Span);
+   end Add_Representation_Pragma_Representation;
+
    function Representation_Kind_For
      (Target_Text : String;
       Item_Text   : String;

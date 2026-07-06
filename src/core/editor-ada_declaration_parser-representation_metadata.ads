@@ -23,4 +23,11 @@ package Editor.Ada_Declaration_Parser.Representation_Metadata is
       Line          : String;
       Source_Span   : Editor.Ada_Language_Model.Source_Range);
 
+   procedure Add_Representation_Pragma_Representation
+     (Analysis      : in out Editor.Ada_Language_Model.Analysis_Result;
+      Target_Symbol : Editor.Ada_Language_Model.Symbol_Id;
+      Target_Name   : String;
+      Line          : String;
+      Source_Span   : Editor.Ada_Language_Model.Source_Range);
+
 end Editor.Ada_Declaration_Parser.Representation_Metadata;

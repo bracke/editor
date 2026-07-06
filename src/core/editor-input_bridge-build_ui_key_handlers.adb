@@ -5,21 +5,14 @@ with Editor.Build_UI_Panel_Layout;
 with Editor.Command_Execution;
 with Editor.Cursor;
 with Editor.Feature_Diagnostics;
-with Editor.Layout;
 with Editor.Render_Cache;
 with Editor.View;
+with Editor.Input_Bridge.Build_UI_Projection;
 
 package body Editor.Input_Bridge.Build_UI_Key_Handlers is
 
    use type Editor.Commands.Command_Id;
    use type Editor.Keybindings.Key_Code;
-
-   type Build_UI_Panel_Input_Projection is record
-      Snapshot                   : Editor.Build_UI.Build_UI_Render_Snapshot;
-      Action_Count               : Natural := 0;
-      Displayed_Suppressed_Count : Natural := 0;
-      Visible_Action_Rows        : Natural := 0;
-   end record;
 
    procedure Notify_Input is
    begin
@@ -27,51 +20,9 @@ package body Editor.Input_Bridge.Build_UI_Key_Handlers is
         (Float (Editor.View.Current_Time_Seconds));
    end Notify_Input;
 
-   function Current_Build_UI_Panel_Input_Projection
-     (S : Editor.State.State_Type) return Build_UI_Panel_Input_Projection
-   is
-      Snapshot : constant Editor.Build_UI.Build_UI_Render_Snapshot :=
-        Editor.Build_UI_Actions.Build_UI_Operability_Snapshot (S);
-      Action_Count : constant Natural := Natural (Snapshot.Actions.Length);
-      Layout_Config : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
-      Suppressed_Count : constant Natural :=
-        Editor.Feature_Diagnostics.Suppressed_Diagnostic_Count
-          (S.Feature_Diagnostics);
-      Text_Viewport_Height : constant Natural :=
-        Editor.Layout.Text_Viewport_Height
-          (Layout_Config, Editor.View.Viewport_Height);
-      Displayed_Suppressed_Count : constant Natural :=
-        Editor.Build_UI_Panel_Layout.Displayed_Suppressed_Row_Count
-          (Text_Viewport_Height => Text_Viewport_Height,
-           Cell_H               => Editor.Layout.Cell_H,
-           Action_Count         => Action_Count,
-           Suppressed_Count     => Suppressed_Count);
-      Geometry : constant Editor.Build_UI_Panel_Layout.Build_UI_Panel_Geometry :=
-        Editor.Build_UI_Panel_Layout.Layout
-          (Viewport_Width       => Editor.View.Viewport_Width,
-           Text_Viewport_Y      =>
-             Natural (Editor.Layout.Text_Viewport_Y (Layout_Config)),
-           Text_Viewport_Height => Text_Viewport_Height,
-           Cell_H               => Editor.Layout.Cell_H,
-           Action_Count         => Action_Count,
-           Suppressed_Count     => Displayed_Suppressed_Count);
-      Visible_Rows : constant Natural :=
-        Editor.Build_UI_Panel_Layout.Visible_Row_Count
-          (Geometry, Editor.Layout.Cell_H);
-      Visible_Action_Rows : constant Natural :=
-        (if Visible_Rows > Geometry.Action_Start_Row
-         then Natural'Min (Action_Count, Visible_Rows - Geometry.Action_Start_Row)
-         else 0);
-   begin
-      return (Snapshot                   => Snapshot,
-              Action_Count               => Action_Count,
-              Displayed_Suppressed_Count => Displayed_Suppressed_Count,
-              Visible_Action_Rows        => Visible_Action_Rows);
-   end Current_Build_UI_Panel_Input_Projection;
-
    procedure Select_Next_Or_Previous_Action
      (S          : in out Editor.State.State_Type;
-      Projection : Build_UI_Panel_Input_Projection;
+      Projection : Editor.Input_Bridge.Build_UI_Projection.Build_UI_Panel_Input_Projection;
       Previous   : Boolean)
    is
    begin
@@ -91,7 +42,7 @@ package body Editor.Input_Bridge.Build_UI_Key_Handlers is
      (S     : in out Editor.State.State_Type;
       Chord : Editor.Keybindings.Key_Chord) return Boolean
    is
-      Projection : Build_UI_Panel_Input_Projection;
+      Projection : Editor.Input_Bridge.Build_UI_Projection.Build_UI_Panel_Input_Projection;
    begin
       if not S.Build_UI.Build_UI_Focused
         or else Chord.Key /= Editor.Keybindings.Key_Tab
@@ -99,7 +50,7 @@ package body Editor.Input_Bridge.Build_UI_Key_Handlers is
          return False;
       end if;
 
-      Projection := Current_Build_UI_Panel_Input_Projection (S);
+      Projection := Editor.Input_Bridge.Build_UI_Projection.Current (S);
       Select_Next_Or_Previous_Action
         (S, Projection, Previous => Chord.Modifiers.Shift);
       Notify_Input;
@@ -145,7 +96,7 @@ package body Editor.Input_Bridge.Build_UI_Key_Handlers is
 
    procedure Activate_Selected_Action
      (S           : in out Editor.State.State_Type;
-      Projection  : Build_UI_Panel_Input_Projection;
+      Projection  : Editor.Input_Bridge.Build_UI_Projection.Build_UI_Panel_Input_Projection;
       Execute     : not null access procedure
         (Id : Editor.Commands.Command_Id);
       Report_Info : not null access procedure (Text : String))
@@ -204,10 +155,10 @@ package body Editor.Input_Bridge.Build_UI_Key_Handlers is
         (Id : Editor.Commands.Command_Id);
       Report_Info : not null access procedure (Text : String)) return Boolean
    is
-      Projection : Build_UI_Panel_Input_Projection;
+      Projection : Editor.Input_Bridge.Build_UI_Projection.Build_UI_Panel_Input_Projection;
    begin
       if S.Build_UI.Build_UI_Focused then
-         Projection := Current_Build_UI_Panel_Input_Projection (S);
+         Projection := Editor.Input_Bridge.Build_UI_Projection.Current (S);
 
          if Chord.Modifiers.Ctrl
            and then Chord.Key = Editor.Keybindings.Key_Down

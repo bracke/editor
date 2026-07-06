@@ -846,135 +846,6 @@ package body Editor.Ada_Declaration_Parser is
       Value := Acc;
    end Parse_Static_Natural;
 
-   procedure Add_Representation_Pragma_Representation
-     (Analysis      : in out Analysis_Result;
-      Target_Symbol : Symbol_Id;
-      Target_Name   : String;
-      Line          : String;
-      Source_Span         : Source_Range)
-   is
-      P : constant String := Pragma_Name_Of (Line);
-
-      function Display_Pragma_Property_Name (Name : String) return String is
-         Result : Unbounded_String := Null_Unbounded_String;
-         Start_Word : Boolean := True;
-
-         function Upper (C : Character) return Character is
-         begin
-            if C >= 'a' and then C <= 'z' then
-               return Character'Val
-                 (Character'Pos (C) - Character'Pos ('a') + Character'Pos ('A'));
-            else
-               return C;
-            end if;
-         end Upper;
-      begin
-         --  Keep user-facing/source-facing attribute spelling stable while
-         --  deriving the semantic kind from the canonical shared resolver.
-         --  Most property names are title-cased underscore-separated words;
-         --  preserve the few all-uppercase Ada/GNAT spellings explicitly.
-         if Name = "cpu" then
-            return "CPU";
-         elsif Name = "spark_mode" then
-            return "SPARK_Mode";
-         end if;
-
-         for C of Name loop
-            if C = '_' then
-               Append (Result, C);
-               Start_Word := True;
-            elsif Start_Word then
-               Append (Result, Upper (C));
-               Start_Word := False;
-            else
-               Append (Result, C);
-            end if;
-         end loop;
-
-         return To_String (Result);
-      end Display_Pragma_Property_Name;
-
-      Attribute : constant String := Display_Pragma_Property_Name (P);
-      Value_Text : constant String :=
-        (if P = "attach_handler" then Interfacing_Pragma_Value (Line, "interrupt", 2)
-         elsif P = "priority" or else P = "interrupt_priority" or else P = "cpu"
-           or else P = "dispatching_domain" or else P = "relative_deadline"
-           or else P = "max_entry_queue_length"
-         then
-            --  Value-only pragmas such as ``pragma Priority (10)`` bind to
-            --  the current enclosing task/protected declaration.  Their first
-            --  positional argument is the retained representation value; using
-            --  positional fallback 2 was appropriate only for entity,value
-            --  pragma shapes and silently dropped ordinary Ada spellings.
-            Interfacing_Pragma_Value (Line, "value", 1)
-         elsif P = "linker_section" then
-            (if Named_Pragma_Argument (Line, "section") /= "" then
-                Named_Pragma_Argument (Line, "section")
-             elsif Named_Pragma_Argument (Line, "section_name") /= "" then
-                Named_Pragma_Argument (Line, "section_name")
-             else Interfacing_Pragma_Value (Line, "value", 2))
-         elsif P = "machine_attribute" then
-            (if Named_Pragma_Argument (Line, "attribute_name") /= "" then
-                Named_Pragma_Argument (Line, "attribute_name")
-             elsif Named_Pragma_Argument (Line, "attribute") /= "" then
-                Named_Pragma_Argument (Line, "attribute")
-             else Interfacing_Pragma_Value (Line, "value", 2))
-         elsif P = "optimize" or else P = "spark_mode" then
-            Interfacing_Pragma_Value (Line, "", 1)
-         elsif P = "suppress" or else P = "unsuppress" then
-            (if Named_Pragma_Argument (Line, "check_name") /= "" then
-                Named_Pragma_Argument (Line, "check_name")
-             else Interfacing_Pragma_Value (Line, "check", 1))
-         elsif P = "assertion_policy" or else P = "check_policy"
-           or else P = "debug_policy" or else P = "restrictions"
-           or else P = "restriction_warnings" or else P = "profile"
-         then
-            Interfacing_Pragma_Value (Line, "", 1)
-         else "True");
-      Kind : constant Representation_Clause_Kind :=
-        Representation_Metadata.Representation_Kind_For ("Target'" & Attribute, Value_Text);
-      Has_Value : Boolean := False;
-      Static_Value : Natural := 0;
-   begin
-      if P = "convention"
-        or else P = "import"
-        or else P = "export"
-        or else P = "interface"
-        or else P = "external"
-      then
-         --  These are lowered by Representation_Metadata.Add_Interfacing_Pragma_Representation,
-         --  where convention/entity/external-name/link-name arguments have
-         --  pragma-specific positions.  Do not also add a generic resolver
-         --  item with a Boolean placeholder value.
-         return;
-      end if;
-
-      Parse_Static_Natural (Value_Text, Has_Value, Static_Value);
-      if Target_Name = ""
-        or else Target_Symbol = No_Symbol
-        or else Kind = Representation_Other_Clause
-      then
-         return;
-      end if;
-
-      --  Representation pragmas are source aliases for the corresponding
-      --  representation aspects/attribute-definition clauses in the bounded
-      --  editor model.  Resolve the pragma property through the same shared
-      --  catalog used for aspects and attribute-definition clauses so new
-      --  explicit properties cannot drift into pragma-only special cases.
-      Add_Representation_Clause
-        (Analysis,
-         Target_Symbol => Target_Symbol,
-         Target_Name => Target_Name,
-         Kind => Kind,
-         Attribute_Name => Attribute,
-         Item_Text => Value_Text,
-         Source_Form => Representation_Source_Pragma,
-         Has_Static_Value => Has_Value,
-         Static_Value => Static_Value,
-         Source_Span => Source_Span);
-   end Add_Representation_Pragma_Representation;
-
    procedure Mark_Pragma_Target
      (Analysis      : in out Analysis_Result;
       Line          : String;
@@ -1049,7 +920,7 @@ package body Editor.Ada_Declaration_Parser is
                      Target_Name => To_String (Info.Name),
                      Line => Line,
                      Source_Span => (1, 1, 1, 1));
-                  Add_Representation_Pragma_Representation
+                  Representation_Metadata.Add_Representation_Pragma_Representation
                     (Analysis,
                      Target_Symbol => Info.Id,
                      Target_Name => To_String (Info.Name),
@@ -1069,7 +940,7 @@ package body Editor.Ada_Declaration_Parser is
                Info : constant Symbol_Info := Symbol (Analysis, Current_Scope);
             begin
                Mark_Symbol_Pragma_Metadata (Analysis, Current_Scope);
-               Add_Representation_Pragma_Representation
+               Representation_Metadata.Add_Representation_Pragma_Representation
                  (Analysis,
                   Target_Symbol => Current_Scope,
                   Target_Name => To_String (Info.Name),
@@ -18269,7 +18140,7 @@ package body Editor.Ada_Declaration_Parser is
          return Buf (1 .. Len);
       end Canonical_Property_Name;
 
-      function Representation_Kind_For
+      function Attribute_Representation_Kind_For
         (Target_Text : String;
          Item_Text   : String;
          Clause_Text : String := "") return Representation_Clause_Kind
@@ -18589,7 +18460,7 @@ package body Editor.Ada_Declaration_Parser is
          else
             return Representation_Other_Clause;
          end if;
-      end Representation_Kind_For;
+      end Attribute_Representation_Kind_For;
 
       function Is_Boolean_Representation_Property
         (Kind : Representation_Clause_Kind) return Boolean
@@ -18663,7 +18534,7 @@ package body Editor.Ada_Declaration_Parser is
 
       function Is_Attribute_Definition_Aspect_Name (Name : String) return Boolean is
          Kind : constant Representation_Clause_Kind :=
-           Representation_Kind_For ("Target'" & Trim (Name), "");
+           Attribute_Representation_Kind_For ("Target'" & Trim (Name), "");
       begin
          --  Aspect recognition is intentionally resolver-driven.  Every
          --  property known to Representation_Kind_For is accepted here, so
@@ -18680,7 +18551,7 @@ package body Editor.Ada_Declaration_Parser is
             then Trim (Raw_V (Raw_V'First .. Raw_V'Last - 3))
             else Raw_V);
          Kind : constant Representation_Clause_Kind :=
-           Representation_Kind_For ("Target'" & Trim (Name), V);
+           Attribute_Representation_Kind_For ("Target'" & Trim (Name), V);
       begin
          if Is_Boolean_Representation_Property (Kind)
            and then (V = "" or else Normalize_Name (V) = Normalize_Name (Name))
@@ -18698,7 +18569,7 @@ package body Editor.Ada_Declaration_Parser is
          Value : String) return Boolean
       is
          K : constant Representation_Clause_Kind :=
-           Representation_Kind_For ("Target'" & Trim (Name), Value);
+           Attribute_Representation_Kind_For ("Target'" & Trim (Name), Value);
          Valid : Boolean := False;
          N : Natural := 0;
       begin
@@ -18810,7 +18681,8 @@ package body Editor.Ada_Declaration_Parser is
          Attr       : constant String := Attribute_Name (Raw_Target);
          Base_Name  : constant String := Attribute_Base_Name (Raw_Target);
          Kind       : constant Representation_Clause_Kind :=
-           Representation_Kind_For (Raw_Target, Item_Text, To_String (N.Label));
+           Attribute_Representation_Kind_For
+             (Raw_Target, Item_Text, To_String (N.Label));
          function Scoped_Target return Symbol_Id is
             Owner : constant Symbol_Id := Ancestor_Symbol (N.Id);
             Wanted : constant String := Normalize_Name (Base_Name);
@@ -19090,7 +18962,7 @@ package body Editor.Ada_Declaration_Parser is
                         Owner_Info : constant Symbol_Info := Symbol (Analysis, Owner);
                         Target_Text : constant String := To_String (Owner_Info.Name);
                         Rep_Kind : constant Representation_Clause_Kind :=
-                          Representation_Kind_For
+                          Attribute_Representation_Kind_For
                             (Target_Text & Character'Val (39) & Aspect_Name,
                              Aspect_Value);
                         Has_Aspect_Value : constant Boolean :=
