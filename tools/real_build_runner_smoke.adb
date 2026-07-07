@@ -35,23 +35,19 @@ procedure Real_Build_Runner_Smoke is
    Root   : constant String := Ada.Directories.Current_Directory;
 begin
    Require_File (Tool, "tests/e2e_real_build_runner_smoke.gpr");
-   if not Command_Exists ("alr") and then not Command_Exists ("gprbuild") then
+   if not Command_Exists ("alr") then
       if Strict ("EDITOR_REQUIRE_REAL_BUILD_SMOKE") then
-         Fail (Tool, "neither alr nor gprbuild found");
+         Fail (Tool, "alr not found; real build-runner smoke requires Alire-selected GNAT 15");
       else
-         Info (Tool, "neither alr nor gprbuild found; real build-runner smoke skipped");
+         Info (Tool, "alr not found; real build-runner smoke skipped");
          return;
       end if;
    end if;
-   if Command_Exists ("alr") then
-      Normalize_Alire_Environment;
-      Ada.Directories.Set_Directory ("tests");
-      Status := Run4
-        ("alr", "exec", "--", "gprbuild", "-Pe2e_real_build_runner_smoke.gpr");
-      Ada.Directories.Set_Directory (Root);
-   else
-      Status := Run2 ("gprbuild", "-P", "tests/e2e_real_build_runner_smoke.gpr");
-   end if;
+   Normalize_Alire_Environment;
+   Ada.Directories.Set_Directory ("tests");
+   Status := Run4
+     ("alr", "exec", "--", "gprbuild", "-Pe2e_real_build_runner_smoke.gpr");
+   Ada.Directories.Set_Directory (Root);
    if Status /= 0 then
       Fail (Tool, "real build-runner smoke build failed");
    end if;

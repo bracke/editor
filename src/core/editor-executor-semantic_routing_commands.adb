@@ -21,6 +21,54 @@ package body Editor.Executor.Semantic_Routing_Commands is
       return Editor.Command_Execution.Command_Execution_Result
    is
       use Editor.Commands;
+
+      function Id_From_Kind
+        (Kind : Command_Kind) return Command_Id
+      is
+      begin
+         case Kind is
+            when Goto_Declaration =>
+               return Command_Goto_Declaration;
+            when Goto_Body =>
+               return Command_Goto_Body;
+            when Goto_Spec =>
+               return Command_Goto_Spec;
+            when Find_References =>
+               return Command_Find_References;
+            when Workspace_Symbols =>
+               return Command_Workspace_Symbols;
+            when Show_Hover =>
+               return Command_Show_Hover;
+            when Show_Completions =>
+               return Command_Show_Completions;
+            when Rename_Symbol_Preview =>
+               return Command_Rename_Symbol_Preview;
+            when Rename_Symbol_Apply =>
+               return Command_Rename_Symbol_Apply;
+            when Semantic_Refresh_Buffer =>
+               return Command_Semantic_Refresh_Buffer;
+            when Semantic_Refresh_Project_Index =>
+               return Command_Semantic_Refresh_Project_Index;
+            when Language_Index_Clear =>
+               return Command_Language_Index_Clear;
+            when Language_Index_Status =>
+               return Command_Language_Index_Status;
+            when Semantic_Completion_Select_Next =>
+               return Command_Semantic_Completion_Select_Next;
+            when Semantic_Completion_Select_Previous =>
+               return Command_Semantic_Completion_Select_Previous;
+            when Semantic_Completion_Accept =>
+               return Command_Semantic_Completion_Accept;
+            when Semantic_Popup_Dismiss =>
+               return Command_Semantic_Popup_Dismiss;
+            when others =>
+               raise Program_Error with
+                 "unsupported semantic result command kind: " &
+                 Editor.Commands.Command_Kind'Image (Kind);
+         end case;
+      end Id_From_Kind;
+
+      Id : constant Command_Id := Id_From_Kind (Cmd.Kind);
    begin
       case Cmd.Kind is
          when Goto_Declaration
@@ -37,27 +85,15 @@ package body Editor.Executor.Semantic_Routing_Commands is
             | Language_Index_Clear
             | Language_Index_Status =>
             return Editor.Executor.Semantic_Commands.Execute_Semantic_Command
-              (S, Cmd.Kind, Cmd);
+              (S, Id, Cmd);
 
-         when Semantic_Completion_Select_Next =>
+         when Semantic_Completion_Select_Next
+            | Semantic_Completion_Select_Previous
+            | Semantic_Completion_Accept
+            | Semantic_Popup_Dismiss =>
             Editor.Executor.Semantic_Completion_Commands
-              .Execute_Semantic_Completion_Select (S, Next => True);
-            return Editor.Command_Execution.Executed (Cmd.Kind);
-
-         when Semantic_Completion_Select_Previous =>
-            Editor.Executor.Semantic_Completion_Commands
-              .Execute_Semantic_Completion_Select (S, Next => False);
-            return Editor.Command_Execution.Executed (Cmd.Kind);
-
-         when Semantic_Completion_Accept =>
-            Editor.Executor.Semantic_Completion_Commands
-              .Execute_Semantic_Completion_Accept (S);
-            return Editor.Command_Execution.Executed (Cmd.Kind);
-
-         when Semantic_Popup_Dismiss =>
-            Editor.Executor.Semantic_Completion_Commands
-              .Execute_Semantic_Popup_Dismiss (S);
-            return Editor.Command_Execution.Executed (Cmd.Kind);
+              .Execute_Semantic_Completion_Kind (S, Cmd.Kind);
+            return Editor.Command_Execution.Executed (Id);
 
          when others =>
             raise Program_Error with "unsupported semantic result command";

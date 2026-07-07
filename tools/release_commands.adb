@@ -6,7 +6,7 @@ procedure Release_Commands is
 
    Tool_Failed : Boolean := False;
 begin
-   Ada.Text_IO.Put_Line ("gprbuild -P tools/editor_tools.gpr");
+   Ada.Text_IO.Put_Line ("alr exec -- gprbuild -P tools/editor_tools.gpr");
    Ada.Text_IO.Put_Line ("tools/bin/outline_static_sanity");
    Ada.Text_IO.Put_Line ("tools/bin/ada_keyword_identifier_check");
    Ada.Text_IO.Put_Line ("tools/bin/runtime_compile_check");

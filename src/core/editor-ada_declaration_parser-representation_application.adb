@@ -25,6 +25,122 @@ package body Editor.Ada_Declaration_Parser.Representation_Application is
         and then Context.Register_Static_Attribute /= null;
    end Is_Complete;
 
+   function Parent_Representation_Target
+     (Tree : Editor.Ada_Syntax_Tree.Tree_Type;
+      First_Child_Label : Child_Label_Function;
+      Find_Metadata_Target : Symbol_Lookup_Function;
+      Component_Node : Node_Id) return Symbol_Id
+   is
+      P : constant Node_Id := Node (Tree, Component_Node).Parent;
+   begin
+      if P /= No_Node and then Node (Tree, P).Kind = Node_Representation_Clause then
+         declare
+            Target_Name : constant String := First_Child_Label (P, Node_Representation_Target);
+         begin
+            if Target_Name /= "" then
+               return Find_Metadata_Target (Target_Name);
+            end if;
+         end;
+      end if;
+      return No_Symbol;
+   end Parent_Representation_Target;
+
+   function Find_Component_Symbol
+     (Analysis : Editor.Ada_Language_Model.Analysis_Result;
+      Normalize_Name : Name_Normalizer_Function;
+      Target : Symbol_Id;
+      Name : String) return Symbol_Id
+   is
+      Wanted : constant String := Normalize_Name (Name);
+   begin
+      if Target = No_Symbol or else Wanted = "" then
+         return No_Symbol;
+      end if;
+
+      for I in 1 .. Symbol_Count (Analysis) loop
+         declare
+            S : constant Symbol_Info := Symbol_At (Analysis, I);
+         begin
+            if S.Parent_Symbol = Target
+              and then To_String (S.Normalized_Name) = Wanted
+              and then S.Kind = Symbol_Record_Component
+            then
+               return S.Id;
+            end if;
+         end;
+      end loop;
+
+      return No_Symbol;
+   end Find_Component_Symbol;
+
+   function Find_Enumeration_Literal_Symbol
+     (Analysis : Editor.Ada_Language_Model.Analysis_Result;
+      Normalize_Name : Name_Normalizer_Function;
+      Target : Symbol_Id;
+      Name : String) return Symbol_Id
+   is
+      Wanted : constant String := Normalize_Name (Name);
+   begin
+      if Target = No_Symbol or else Wanted = "" then
+         return No_Symbol;
+      end if;
+
+      for I in 1 .. Symbol_Count (Analysis) loop
+         declare
+            S : constant Symbol_Info := Symbol_At (Analysis, I);
+         begin
+            if S.Parent_Symbol = Target
+              and then To_String (S.Normalized_Name) = Wanted
+              and then S.Kind = Symbol_Enumeration_Literal
+            then
+               return S.Id;
+            end if;
+         end;
+      end loop;
+
+      return No_Symbol;
+   end Find_Enumeration_Literal_Symbol;
+
+   function Enumeration_Literal_Symbol_At_Position
+     (Analysis : Editor.Ada_Language_Model.Analysis_Result;
+      Target : Symbol_Id;
+      Position : Positive) return Symbol_Id
+   is
+      Seen : Natural := 0;
+   begin
+      if Target = No_Symbol then
+         return No_Symbol;
+      end if;
+
+      for I in 1 .. Symbol_Count (Analysis) loop
+         declare
+            S : constant Symbol_Info := Symbol_At (Analysis, I);
+         begin
+            if S.Parent_Symbol = Target
+              and then S.Kind = Symbol_Enumeration_Literal
+            then
+               Seen := Seen + 1;
+               if Seen = Natural (Position) then
+                  return S.Id;
+               end if;
+            end if;
+         end;
+      end loop;
+
+      return No_Symbol;
+   end Enumeration_Literal_Symbol_At_Position;
+
+   function Symbol_Name_Or_Empty
+     (Analysis : Editor.Ada_Language_Model.Analysis_Result;
+      Id : Symbol_Id) return String
+   is
+   begin
+      if Id = No_Symbol or else Natural (Id) > Natural (Symbol_Count (Analysis)) then
+         return "";
+      end if;
+      return To_String (Symbol_At (Analysis, Positive (Id)).Name);
+   end Symbol_Name_Or_Empty;
+
    function Create_Context
      (First_Child_Label : Child_Label_Function;
       Last_Child_Label  : Child_Label_Function;

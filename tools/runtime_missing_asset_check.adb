@@ -18,17 +18,17 @@ procedure Runtime_Missing_Asset_Check is
    Output_Path : constant String := "build/runtime-missing-shader-output.txt";
 begin
    if not Ada.Directories.Exists ("bin/editor") then
-      if Command_Exists ("alr") or else Command_Exists ("gprbuild") then
+      if Command_Exists ("alr") then
          Status := Run0 ("tools/bin/runtime_link_check");
          if Status /= 0 then
             Fail (Tool, "could not build bin/editor before missing-asset check");
          end if;
       elsif Strict ("EDITOR_REQUIRE_RUNTIME_MISSING_ASSET") then
-         Fail (Tool, "bin/editor missing and no Ada build tool is available");
+         Fail (Tool, "bin/editor missing and alr is unavailable");
       else
          Info
            (Tool,
-            "neither alr nor gprbuild found and bin/editor is not "
+            "alr not found and bin/editor is not "
             & "executable; missing-asset runtime check skipped");
          return;
       end if;

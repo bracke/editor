@@ -1,6 +1,7 @@
 with Ada.Calendar;
 with Ada.Directories;
 with Ada.Environment_Variables;
+with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 with GNAT.OS_Lib;
 with Editor_Tool_Common; use Editor_Tool_Common;
@@ -93,6 +94,39 @@ procedure Strict_Runtime_Validation_Record is
       Put ("");
    end Capture_Info_Arg1;
 
+   procedure Capture_Info_Args
+     (Name    : String;
+      Program : String;
+      Args    : GNAT.OS_Lib.Argument_List;
+      Slug    : String)
+   is
+      Result : Captured_Command_Output;
+      Command_Line : Ada.Strings.Unbounded.Unbounded_String;
+   begin
+      Put ("### " & Name);
+      Put ("");
+      Ada.Strings.Unbounded.Append (Command_Line, Program);
+      for I in Args'Range loop
+         Ada.Strings.Unbounded.Append (Command_Line, " ");
+         Ada.Strings.Unbounded.Append (Command_Line, Args (I).all);
+      end loop;
+      Put ("Command: `" & Ada.Strings.Unbounded.To_String (Command_Line) & "`");
+      if not Command_Exists (Program) then
+         Put ("Result: TOOL NOT FOUND");
+         Put ("");
+         return;
+      end if;
+
+      Result := Run_Capture_Bounded
+        (Program,
+         Args,
+         Out_Dir & "/" & Slug & ".out");
+      Put ("Exit code: " & Integer'Image (Result.Exit_Code));
+      Put ("Captured output:");
+      Put_Output_Block (Result);
+      Put ("");
+   end Capture_Info_Args;
+
    procedure Step (Name, Program, Slug : String) is
       Args   : GNAT.OS_Lib.Argument_List (1 .. 0);
       Result : Captured_Command_Output;
@@ -165,8 +199,16 @@ begin
    Put ("## Toolchain and platform probes");
    Put ("");
    Capture_Info_Arg1 ("gcc", "gcc", "--version", "toolchain-gcc");
-   Capture_Info_Arg1 ("gprbuild", "gprbuild", "--version", "toolchain-gprbuild");
    Capture_Info_Arg1 ("alr", "alr", "--version", "toolchain-alr");
+   declare
+      Gnatls_Args : GNAT.OS_Lib.Argument_List (1 .. 4) :=
+        (new String'("exec"),
+         new String'("--"),
+         new String'("gnatls"),
+         new String'("--version"));
+   begin
+      Capture_Info_Args ("Alire-selected GNAT", "alr", Gnatls_Args, "toolchain-gnatls");
+   end;
    --  Report output file: toolchain-glslangvalidator.out
    Capture_Info_Arg1
      ("glslangValidator",

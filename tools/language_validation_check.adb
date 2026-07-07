@@ -3316,46 +3316,34 @@ begin
    Check_Recent_Grammar_Pass_Guards;
    Check_Documentation;
 
-   if not Command_Exists ("alr") and then not Command_Exists ("gprbuild") then
+   if not Command_Exists ("alr") then
       if Strict ("EDITOR_REQUIRE_LANGUAGE_VALIDATION") then
          Fail
            (Tool,
-            "neither alr nor gprbuild found; cannot perform required GNAT/AUnit validation");
+            "alr not found; cannot perform required GNAT 15/AUnit validation");
       else
          Info
            (Tool,
-            "neither alr nor gprbuild found; GNAT/AUnit validation skipped after static checks");
+            "alr not found; GNAT 15/AUnit validation skipped after static checks");
          return;
       end if;
    end if;
 
    Info (Tool, "building AUnit suite");
-   if Command_Exists ("alr") then
-      Normalize_Alire_Environment;
-      Ada.Directories.Set_Directory ("tests");
-      declare
-         Args : GNAT.OS_Lib.Argument_List (1 .. 6) :=
-           (new String'("exec"),
-            new String'("--"),
-            new String'("gprbuild"),
-            new String'("-P"),
-            new String'("tests.gpr"),
-            new String'("ada_language_tests.adb"));
-      begin
-         Status := Run ("alr", Args);
-      end;
-      Ada.Directories.Set_Directory ("..");
-   else
-      declare
-         Args : GNAT.OS_Lib.Argument_List (1 .. 4) :=
-           (new String'("-q"),
-            new String'("-P"),
-            new String'("tests/tests.gpr"),
-            new String'("ada_language_tests.adb"));
-      begin
-         Status := Run ("gprbuild", Args);
-      end;
-   end if;
+   Normalize_Alire_Environment;
+   Ada.Directories.Set_Directory ("tests");
+   declare
+      Args : GNAT.OS_Lib.Argument_List (1 .. 6) :=
+        (new String'("exec"),
+         new String'("--"),
+         new String'("gprbuild"),
+         new String'("-P"),
+         new String'("tests.gpr"),
+         new String'("ada_language_tests.adb"));
+   begin
+      Status := Run ("alr", Args);
+   end;
+   Ada.Directories.Set_Directory ("..");
    if Status /= 0 then
       Fail (Tool, "AUnit build failed");
    end if;

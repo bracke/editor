@@ -10850,44 +10850,24 @@ package body Editor.Ada_Declaration_Parser is
       end Last_Child_Label;
 
       function Parent_Representation_Target (Component_Node : Node_Id) return Symbol_Id is
-         P : constant Node_Id := Node (Tree, Component_Node).Parent;
       begin
-         if P /= No_Node and then Node (Tree, P).Kind = Node_Representation_Clause then
-            declare
-               Target_Name : constant String := First_Child_Label (P, Node_Representation_Target);
-            begin
-               if Target_Name /= "" then
-                  return Find_Metadata_Target (Target_Name);
-               end if;
-            end;
-         end if;
-         return No_Symbol;
+         return Representation_Application.Parent_Representation_Target
+           (Tree => Tree,
+            First_Child_Label => First_Child_Label'Unrestricted_Access,
+            Find_Metadata_Target => Find_Metadata_Target'Unrestricted_Access,
+            Component_Node => Component_Node);
       end Parent_Representation_Target;
 
       function Find_Component_Symbol
         (Target : Symbol_Id;
          Name   : String) return Symbol_Id
       is
-         Wanted : constant String := Normalize_Name (Name);
       begin
-         if Target = No_Symbol or else Wanted = "" then
-            return No_Symbol;
-         end if;
-
-         for I in 1 .. Symbol_Count (Analysis) loop
-            declare
-               S : constant Symbol_Info := Symbol_At (Analysis, I);
-            begin
-               if S.Parent_Symbol = Target
-                 and then To_String (S.Normalized_Name) = Wanted
-                 and then S.Kind = Symbol_Record_Component
-               then
-                  return S.Id;
-               end if;
-            end;
-         end loop;
-
-         return No_Symbol;
+         return Representation_Application.Find_Component_Symbol
+           (Analysis,
+            Normalize_Name'Unrestricted_Access,
+            Target,
+            Name);
       end Find_Component_Symbol;
 
 
@@ -10895,62 +10875,28 @@ package body Editor.Ada_Declaration_Parser is
         (Target : Symbol_Id;
          Name   : String) return Symbol_Id
       is
-         Wanted : constant String := Normalize_Name (Name);
       begin
-         if Target = No_Symbol or else Wanted = "" then
-            return No_Symbol;
-         end if;
-
-         for I in 1 .. Symbol_Count (Analysis) loop
-            declare
-               S : constant Symbol_Info := Symbol_At (Analysis, I);
-            begin
-               if S.Parent_Symbol = Target
-                 and then To_String (S.Normalized_Name) = Wanted
-                 and then S.Kind = Symbol_Enumeration_Literal
-               then
-                  return S.Id;
-               end if;
-            end;
-         end loop;
-
-         return No_Symbol;
+         return Representation_Application.Find_Enumeration_Literal_Symbol
+           (Analysis,
+            Normalize_Name'Unrestricted_Access,
+            Target,
+            Name);
       end Find_Enumeration_Literal_Symbol;
 
       function Enumeration_Literal_Symbol_At_Position
         (Target   : Symbol_Id;
          Position : Positive) return Symbol_Id
       is
-         Seen : Natural := 0;
       begin
-         if Target = No_Symbol then
-            return No_Symbol;
-         end if;
-
-         for I in 1 .. Symbol_Count (Analysis) loop
-            declare
-               S : constant Symbol_Info := Symbol_At (Analysis, I);
-            begin
-               if S.Parent_Symbol = Target
-                 and then S.Kind = Symbol_Enumeration_Literal
-               then
-                  Seen := Seen + 1;
-                  if Seen = Natural (Position) then
-                     return S.Id;
-                  end if;
-               end if;
-            end;
-         end loop;
-
-         return No_Symbol;
+         return Representation_Application.Enumeration_Literal_Symbol_At_Position
+           (Analysis,
+            Target,
+            Position);
       end Enumeration_Literal_Symbol_At_Position;
 
       function Symbol_Name_Or_Empty (Id : Symbol_Id) return String is
       begin
-         if Id = No_Symbol or else Natural (Id) > Natural (Symbol_Count (Analysis)) then
-            return "";
-         end if;
-         return To_String (Symbol_At (Analysis, Positive (Id)).Name);
+         return Representation_Application.Symbol_Name_Or_Empty (Analysis, Id);
       end Symbol_Name_Or_Empty;
 
       function Text_After_Word (Text, Word : String) return String is

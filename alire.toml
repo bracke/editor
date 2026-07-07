@@ -6,7 +6,7 @@ authors = ["Bent Bracke"]
 maintainers = ["Bent Bracke <bent@bracke.dk>"]
 maintainers-logins = ["bracke"]
 licenses = "MIT"
-website = ""
+website = "https://github.com/bracke/editor"
 tags = ["editor"]
 
 executables = ["editor"]
@@ -21,6 +21,9 @@ directory = "tests"
 type = "test"
 command = ["./bin/tests"]
 directory = "tests"
+
+[[depends-on]]
+gnat_native = "=15.2.1"
 
 [[depends-on]]
 textrender = "*"

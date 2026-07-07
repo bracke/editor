@@ -1,7 +1,7 @@
 # Runtime smoke validation
 
 The runtime smoke gate is the release-facing check for the graphical GLFW/Vulkan
-entry point.  It complements two earlier gates: `tools/bin/runtime_compile_check`, which checks the C entrypoint and Ada backend files, and `tools/bin/runtime_link_check`, which builds and links the runtime application through `alr build` or `gprbuild -P editor.gpr`. The smoke gate proves that the built executable can create a GLFW window,
+entry point.  It complements two earlier gates: `tools/bin/runtime_compile_check`, which checks the C entrypoint and Ada backend files, and `tools/bin/runtime_link_check`, which builds and links the runtime application through Alire's pinned GNAT 15 environment. The smoke gate proves that the built executable can create a GLFW window,
 create the Vulkan backend, render a bounded number of frames, request a resize,
 and exit through the normal runtime loop.
 

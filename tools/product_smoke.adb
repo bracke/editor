@@ -40,22 +40,18 @@ procedure Product_Smoke is
       else Ada.Command_Line.Argument (1));
 begin
    Require_File (Tool, "tests/e2e_product_smoke.gpr");
-   if not Command_Exists ("alr") and then not Command_Exists ("gprbuild") then
+   if not Command_Exists ("alr") then
       if Strict ("EDITOR_REQUIRE_PRODUCT_SMOKE") then
-         Fail (Tool, "neither alr nor gprbuild found");
+         Fail (Tool, "alr not found; product smoke requires Alire-selected GNAT 15");
       else
-         Info (Tool, "neither alr nor gprbuild found; product smoke skipped");
+         Info (Tool, "alr not found; product smoke skipped");
          return;
       end if;
    end if;
-   if Command_Exists ("alr") then
-      Normalize_Alire_Environment;
-      Ada.Directories.Set_Directory ("tests");
-      Status := Run4 ("alr", "exec", "--", "gprbuild", "-Pe2e_product_smoke.gpr");
-      Ada.Directories.Set_Directory (Root);
-   else
-      Status := Run2 ("gprbuild", "-P", "tests/e2e_product_smoke.gpr");
-   end if;
+   Normalize_Alire_Environment;
+   Ada.Directories.Set_Directory ("tests");
+   Status := Run4 ("alr", "exec", "--", "gprbuild", "-Pe2e_product_smoke.gpr");
+   Ada.Directories.Set_Directory (Root);
    if Status /= 0 then
       Fail (Tool, "product smoke build failed");
    end if;

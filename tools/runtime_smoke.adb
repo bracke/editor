@@ -35,17 +35,17 @@ begin
       end if;
    end if;
    if not Ada.Directories.Exists ("bin/editor") then
-      if Command_Exists ("alr") or else Command_Exists ("gprbuild") then
+      if Command_Exists ("alr") then
          Status := Run0 ("tools/bin/runtime_link_check");
          if Status /= 0 then
             Fail (Tool, "could not build bin/editor before smoke");
          end if;
       elsif Strict ("EDITOR_REQUIRE_RUNTIME_SMOKE") then
-         Fail (Tool, "bin/editor missing and no Ada build tool is available");
+         Fail (Tool, "bin/editor missing and alr is unavailable");
       else
          Info
            (Tool,
-            "neither alr nor gprbuild found and bin/editor is not "
+            "alr not found and bin/editor is not "
             & "executable; runtime smoke skipped");
          return;
       end if;

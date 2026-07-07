@@ -207,11 +207,11 @@ begin
    end if;
 
    Require_File (Tool, "tests/tests.gpr");
-   if not Command_Exists ("alr") and then not Command_Exists ("gprbuild") then
+   if not Command_Exists ("alr") then
       if Strict ("EDITOR_REQUIRE_UNIT_TESTS") then
-         Fail (Tool, "neither alr nor gprbuild found");
+         Fail (Tool, "alr not found; unit tests require Alire-selected GNAT 15");
       else
-         Info (Tool, "neither alr nor gprbuild found; unit tests skipped");
+         Info (Tool, "alr not found; unit tests skipped");
          return;
       end if;
    end if;
@@ -223,46 +223,35 @@ begin
          Fail (Tool, "timed out waiting for unit test build lock");
       end if;
       Ada.Directories.Set_Directory ("tests");
-      if Command_Exists ("alr") then
-         if Ada.Environment_Variables.Exists ("HOME") then
-            declare
-               Home : constant String := Ada.Environment_Variables.Value ("HOME");
-            begin
-               if not Ada.Environment_Variables.Exists ("XDG_CONFIG_HOME") then
-                  Ada.Environment_Variables.Set
-                    ("XDG_CONFIG_HOME", Home & "/.config");
-               end if;
-               if not Ada.Environment_Variables.Exists ("XDG_DATA_HOME") then
-                  Ada.Environment_Variables.Set
-                    ("XDG_DATA_HOME", Home & "/.local/share");
-               end if;
-               if not Ada.Environment_Variables.Exists ("XDG_CACHE_HOME") then
-                  Ada.Environment_Variables.Set
-                    ("XDG_CACHE_HOME", Home & "/.cache");
-               end if;
-            end;
-         end if;
+      if Ada.Environment_Variables.Exists ("HOME") then
          declare
-            Args : GNAT.OS_Lib.Argument_List (1 .. 6) :=
-              (new String'("exec"),
-               new String'("--"),
-               new String'("gprbuild"),
-               new String'("-P"),
-               new String'("tests.gpr"),
-               new String'(Main));
+            Home : constant String := Ada.Environment_Variables.Value ("HOME");
          begin
-            Status := Run ("alr", Args);
-         end;
-      else
-         declare
-            Args : GNAT.OS_Lib.Argument_List (1 .. 3) :=
-              (new String'("-P"),
-               new String'("tests.gpr"),
-               new String'(Main));
-         begin
-            Status := Run ("gprbuild", Args);
+            if not Ada.Environment_Variables.Exists ("XDG_CONFIG_HOME") then
+               Ada.Environment_Variables.Set
+                 ("XDG_CONFIG_HOME", Home & "/.config");
+            end if;
+            if not Ada.Environment_Variables.Exists ("XDG_DATA_HOME") then
+               Ada.Environment_Variables.Set
+                 ("XDG_DATA_HOME", Home & "/.local/share");
+            end if;
+            if not Ada.Environment_Variables.Exists ("XDG_CACHE_HOME") then
+               Ada.Environment_Variables.Set
+                 ("XDG_CACHE_HOME", Home & "/.cache");
+            end if;
          end;
       end if;
+      declare
+         Args : GNAT.OS_Lib.Argument_List (1 .. 6) :=
+           (new String'("exec"),
+            new String'("--"),
+            new String'("gprbuild"),
+            new String'("-P"),
+            new String'("tests.gpr"),
+            new String'(Main));
+      begin
+         Status := Run ("alr", Args);
+      end;
 
       Ada.Directories.Set_Directory (Root);
       Unit_Test_Build_Lock.Release;

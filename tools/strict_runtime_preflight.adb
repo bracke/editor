@@ -22,17 +22,15 @@ procedure Strict_Runtime_Preflight is
       end if;
    end Require_Command;
 
-   procedure Require_One_Build_Tool is
+   procedure Require_Alire_Build_Tool is
    begin
       if Command_Exists ("alr") then
-         Info (Tool, "found Ada build tool: alr");
-      elsif Command_Exists ("gprbuild") then
-         Info (Tool, "found Ada build tool: gprbuild");
+         Info (Tool, "found required Ada build tool: alr");
       else
-         Info (Tool, "missing required Ada build tool: alr or gprbuild");
+         Info (Tool, "missing required Ada build tool: alr");
          Missing := Missing + 1;
       end if;
-   end Require_One_Build_Tool;
+   end Require_Alire_Build_Tool;
 
    procedure Require_Display is
    begin
@@ -59,7 +57,7 @@ begin
    Require_File (Tool, "docs/release/SHADER_TOOLCHAIN_VERSION.txt");
 
    Require_Command ("gcc");
-   Require_One_Build_Tool;
+   Require_Alire_Build_Tool;
    Require_Command ("glslangValidator");
    Require_Display;
 

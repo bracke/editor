@@ -17,11 +17,9 @@ procedure Runtime_Link_Check is
 
    Status : Integer;
    Alr : GNAT.OS_Lib.String_Access;
-   Gprbuild : GNAT.OS_Lib.String_Access;
 begin
    Require_File (Tool, "editor.gpr");
    Alr := GNAT.OS_Lib.Locate_Exec_On_Path ("alr");
-   Gprbuild := GNAT.OS_Lib.Locate_Exec_On_Path ("gprbuild");
 
    if Alr /= null then
       if Ada.Environment_Variables.Exists ("HOME")
@@ -54,13 +52,11 @@ begin
       begin
          Status := Run (Alr.all, Args);
       end;
-   elsif Gprbuild /= null then
-      Status := Run2 (Gprbuild.all, "-P", "editor.gpr");
    else
       if Strict ("EDITOR_REQUIRE_RUNTIME_LINK") then
-         Fail (Tool, "neither alr nor gprbuild found");
+         Fail (Tool, "alr not found; runtime link/build requires Alire-selected GNAT 15");
       else
-         Info (Tool, "neither alr nor gprbuild found; runtime link/build check skipped");
+         Info (Tool, "alr not found; runtime link/build check skipped");
          return;
       end if;
    end if;

@@ -2,15 +2,12 @@ with Editor.Ada_Language_Service;
 with Editor.Command_Execution;
 with Editor.Commands;
 with Editor.Executor;
-with Editor.Executor.Shared_Services;
-use Editor.Executor.Shared_Services;
 with Editor.Executor.Outline_Commands;
 with Editor.Executor.Semantic_Completion_Commands;
 with Editor.Executor.Semantic_Index_Commands;
 with Editor.Executor.Semantic_Language_Command_Surface;
 with Editor.Executor.Semantic_Navigation_Commands;
 with Editor.Executor.Semantic_Symbol_Selection;
-with Editor.Render_Cache;
 with Editor.State;
 
 package body Editor.Executor.Semantic_Commands is
@@ -18,11 +15,6 @@ package body Editor.Executor.Semantic_Commands is
    use Editor.Commands;
    use type Editor.Ada_Language_Service.Service_Status;
    use type Editor.Commands.Command_Id;
-   use type Editor.State.Semantic_Popup_Kind;
-
-   procedure Report_Info
-     (S    : in out Editor.State.State_Type;
-      Text : String) renames Editor.Executor.Shared_Services.Report_Info;
 
    function Is_Ada_Source_Path
      (Path : String) return Boolean
@@ -90,27 +82,6 @@ package body Editor.Executor.Semantic_Commands is
       end case;
    end Service_Status_Image;
 
-   procedure Clear_Semantic_Popup
-     (S : in out Editor.State.State_Type)
-      renames Editor.Executor.Semantic_Completion_Commands
-        .Clear_Semantic_Popup;
-
-   function Semantic_Completion_Popup_Is_Active
-     (S : Editor.State.State_Type) return Boolean
-      renames Editor.Executor.Semantic_Completion_Commands
-        .Semantic_Completion_Popup_Is_Active;
-
-   procedure Execute_Semantic_Completion_Select
-     (S    : in out Editor.State.State_Type;
-      Next : Boolean)
-      renames Editor.Executor.Semantic_Completion_Commands
-        .Execute_Semantic_Completion_Select;
-
-   procedure Execute_Semantic_Completion_Accept
-     (S : in out Editor.State.State_Type)
-      renames Editor.Executor.Semantic_Completion_Commands
-        .Execute_Semantic_Completion_Accept;
-
    function Semantic_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
@@ -148,17 +119,10 @@ package body Editor.Executor.Semantic_Commands is
 
          when Editor.Commands.Command_Semantic_Completion_Select_Next
             | Editor.Commands.Command_Semantic_Completion_Select_Previous
-            | Editor.Commands.Command_Semantic_Completion_Accept =>
-            if Semantic_Completion_Popup_Is_Active (S) then
-               return Editor.Commands.Available;
-            end if;
-            return Editor.Commands.Unavailable ("No completion menu is open.");
-
-         when Editor.Commands.Command_Semantic_Popup_Dismiss =>
-            if S.Semantic_Popup.Active then
-               return Editor.Commands.Available;
-            end if;
-            return Editor.Commands.Unavailable ("No semantic popup is open.");
+            | Editor.Commands.Command_Semantic_Completion_Accept
+            | Editor.Commands.Command_Semantic_Popup_Dismiss =>
+            return Editor.Executor.Semantic_Completion_Commands
+              .Semantic_Completion_Command_Availability (S, Id);
 
          when others =>
             return Editor.Commands.Unavailable
@@ -211,33 +175,6 @@ package body Editor.Executor.Semantic_Commands is
             return Editor.Executor.Semantic_Language_Command_Surface
               .Execute_Selected_Language_Command
                 (S, Id, To_String (Cmd.Text));
-
-         when Editor.Commands.Command_Semantic_Completion_Select_Next =>
-            Execute_Semantic_Completion_Select (S, Next => True);
-            return Result_After_Command (Id);
-
-         when Editor.Commands.Command_Semantic_Completion_Select_Previous =>
-            Execute_Semantic_Completion_Select (S, Next => False);
-            return Result_After_Command (Id);
-
-         when Editor.Commands.Command_Semantic_Completion_Accept =>
-            if not Semantic_Completion_Popup_Is_Active (S) then
-               Report_Info (S, "No completion menu is open.");
-               Editor.Render_Cache.Invalidate_All;
-               return Editor.Command_Execution.Unavailable (Id);
-            end if;
-            Execute_Semantic_Completion_Accept (S);
-            return Result_After_Command (Id);
-
-         when Editor.Commands.Command_Semantic_Popup_Dismiss =>
-            if not S.Semantic_Popup.Active then
-               Report_Info (S, "No semantic popup is open.");
-               Editor.Render_Cache.Invalidate_All;
-               return Editor.Command_Execution.Unavailable (Id);
-            end if;
-            Clear_Semantic_Popup (S);
-            Editor.Render_Cache.Invalidate_All;
-            return Result_After_Command (Id);
 
          when others =>
             return Editor.Command_Execution.Unavailable (Id);

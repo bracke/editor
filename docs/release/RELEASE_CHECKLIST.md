@@ -10,10 +10,17 @@ validation evidence gates pass.
 ## Command Sequence
 
 Run `tools/bin/release_commands` to print the release-only validation sequence.
+The sequence must be run from an Alire environment that selects the pinned
+GNAT 15 compiler. Confirm the selected compiler first:
+
+```sh
+alr exec -- gnatls --version
+```
+
 The sequence currently includes:
 
 ```sh
-gprbuild -P tools/editor_tools.gpr
+alr exec -- gprbuild -P tools/editor_tools.gpr
 tools/bin/outline_static_sanity
 tools/bin/ada_keyword_identifier_check
 tools/bin/runtime_compile_check

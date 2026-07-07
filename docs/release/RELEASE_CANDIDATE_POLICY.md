@@ -33,7 +33,7 @@ Build and run the Ada gate before publishing or labeling an archive as a release
 candidate:
 
 ```text
-gprbuild -P tools/editor_tools.gpr
+alr exec -- gprbuild -P tools/editor_tools.gpr
 EDITOR_REQUIRE_RELEASE_CANDIDATE=1 tools/bin/release_candidate_check
 ```
 

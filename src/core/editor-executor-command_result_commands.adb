@@ -789,6 +789,7 @@ package body Editor.Executor.Command_Result_Commands is
             | Editor.Commands.Command_Semantic_Completion_Select_Previous
             | Editor.Commands.Command_Semantic_Completion_Accept
             | Editor.Commands.Command_Semantic_Popup_Dismiss =>
+            Cmd := Editor.Commands.Command_For_Id (Id, Shift);
             return Editor.Executor.Semantic_Routing_Commands
               .Execute_Semantic_Result_Command (S, Cmd);
 

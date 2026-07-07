@@ -63,6 +63,39 @@ procedure Release_Check_Record is
       Put ("");
    end Capture_Info_Arg1;
 
+   procedure Capture_Info_Args
+     (Name    : String;
+      Program : String;
+      Args    : GNAT.OS_Lib.Argument_List;
+      Slug    : String)
+   is
+      Result : Captured_Command_Output;
+      Command_Line : Ada.Strings.Unbounded.Unbounded_String;
+   begin
+      Put ("### " & Name);
+      Put ("");
+      Ada.Strings.Unbounded.Append (Command_Line, Program);
+      for I in Args'Range loop
+         Ada.Strings.Unbounded.Append (Command_Line, " ");
+         Ada.Strings.Unbounded.Append (Command_Line, Args (I).all);
+      end loop;
+      Put ("Command: `" & Ada.Strings.Unbounded.To_String (Command_Line) & "`");
+      if not Command_Exists (Program) then
+         Put ("Result: TOOL NOT FOUND");
+         Put ("");
+         return;
+      end if;
+
+      Result := Run_Capture_Bounded
+        (Program,
+         Args,
+         Out_Dir & "/" & Slug & ".out");
+      Put ("Exit code: " & Integer'Image (Result.Exit_Code));
+      Put ("Captured output:");
+      Put_Output_Block (Result);
+      Put ("");
+   end Capture_Info_Args;
+
    procedure Step
      (Name        : String;
       Program     : String;
@@ -125,21 +158,34 @@ begin
    Put ("## Toolchain probes");
    Put ("");
    Capture_Info_Arg1 ("gcc", "gcc", "--version", "release-toolchain-gcc");
-   Capture_Info_Arg1 ("gprbuild", "gprbuild", "--version", "release-toolchain-gprbuild");
    Capture_Info_Arg1 ("alr", "alr", "--version", "release-toolchain-alr");
+   declare
+      Gnatls_Args : GNAT.OS_Lib.Argument_List (1 .. 4) :=
+        (new String'("exec"),
+         new String'("--"),
+         new String'("gnatls"),
+         new String'("--version"));
+   begin
+      Capture_Info_Args ("Alire-selected GNAT", "alr", Gnatls_Args, "release-toolchain-gnatls");
+   end;
    Capture_Info_Arg1 ("glslangValidator", "glslangValidator", "--version", "release-toolchain-glslangvalidator");
 
    if not Ada.Directories.Exists ("tools/bin/release_check") then
-      if Command_Exists ("gprbuild") then
+      if Command_Exists ("alr") then
          declare
-            Build_Args : GNAT.OS_Lib.Argument_List (1 .. 3) :=
-              (new String'("-q"), new String'("-P"), new String'("tools/editor_tools.gpr"));
+            Build_Args : GNAT.OS_Lib.Argument_List (1 .. 6) :=
+              (new String'("exec"),
+               new String'("--"),
+               new String'("gprbuild"),
+               new String'("-q"),
+               new String'("-P"),
+               new String'("tools/editor_tools.gpr"));
          begin
-            Step ("build Ada release tool suite", "gprbuild", Build_Args, "release-tools-build");
+            Step ("build Ada release tool suite", "alr", Build_Args, "release-tools-build");
          end;
       else
          Ada.Text_IO.Close (F);
-         Fail (Tool, "tools/bin/release_check is missing and gprbuild is unavailable; report written to " & Report_Path);
+         Fail (Tool, "tools/bin/release_check is missing and alr is unavailable; report written to " & Report_Path);
       end if;
    end if;
 

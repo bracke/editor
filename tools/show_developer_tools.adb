@@ -3,7 +3,7 @@ with Ada.Text_IO;
 procedure Show_Developer_Tools is
 begin
    Ada.Text_IO.Put_Line ("Editor developer tools:");
-   Ada.Text_IO.Put_Line ("  gprbuild -P tools/editor_tools.gpr");
+   Ada.Text_IO.Put_Line ("  alr exec -- gprbuild -P tools/editor_tools.gpr");
    Ada.Text_IO.Put_Line ("  tools/bin/release_check");
    Ada.Text_IO.Put_Line ("  tools/bin/editor_workflow_gate");
    Ada.Text_IO.Put_Line ("  tools/bin/editor_workflow_gate_selftest");

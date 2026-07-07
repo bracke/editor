@@ -1,3 +1,20 @@
+## Toolchain
+
+This repository enforces GNAT 15 through Alire. Active manifests must pin
+`gnat_native = "=15.2.1"`, and Ada builds, tests, documentation checks, and
+release tooling must run compiler tools through `alr exec -- ...`. Do not use a
+plain system `gprbuild`, `gnatls`, `gnatmake`, `gnatdoc`, or `gnatprove` from
+`PATH`.
+
+Recommended checks:
+
+```sh
+alr exec -- gnatls --version
+alr build
+cd tests && alr build
+alr exec -- gprbuild -P tools/editor_tools.gpr
+```
+
 ## Ada release tools
 
 Release and validation tooling is implemented as Ada programs in `tools/` and

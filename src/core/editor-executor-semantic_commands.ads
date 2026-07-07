@@ -10,9 +10,6 @@ package Editor.Executor.Semantic_Commands is
       Id : Editor.Commands.Command_Id)
       return Editor.Commands.Command_Availability;
 
-   function Semantic_Completion_Popup_Is_Active
-     (S : Editor.State.State_Type) return Boolean;
-
    function Service_Status_Image
      (Status : Editor.Ada_Language_Service.Service_Status) return String;
 

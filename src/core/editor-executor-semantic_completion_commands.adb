@@ -16,6 +16,17 @@ package body Editor.Executor.Semantic_Completion_Commands is
 
    use type Editor.State.Semantic_Popup_Kind;
 
+   procedure Report_Info
+     (S    : in out Editor.State.State_Type;
+      Text : String) renames Editor.Executor.Shared_Services.Report_Info;
+
+   function Semantic_Popup_Is_Active
+     (S : Editor.State.State_Type) return Boolean
+   is
+   begin
+      return S.Semantic_Popup.Active;
+   end Semantic_Popup_Is_Active;
+
    function Is_Semantic_Identifier_Character
      (Code : Wide_Wide_Character) return Boolean
    is
@@ -51,6 +62,55 @@ package body Editor.Executor.Semantic_Completion_Commands is
         and then S.Semantic_Popup.Selected_Item in 1 .. S.Semantic_Popup.Item_Count;
    end Semantic_Completion_Popup_Is_Active;
 
+   function Semantic_Completion_Command_Availability
+     (S  : Editor.State.State_Type;
+      Id : Editor.Commands.Command_Id)
+      return Editor.Commands.Command_Availability
+   is
+   begin
+      case Id is
+         when Editor.Commands.Command_Semantic_Completion_Select_Next
+            | Editor.Commands.Command_Semantic_Completion_Select_Previous
+            | Editor.Commands.Command_Semantic_Completion_Accept =>
+            if Semantic_Completion_Popup_Is_Active (S) then
+               return Editor.Commands.Available;
+            end if;
+            return Editor.Commands.Unavailable ("No completion menu is open.");
+
+         when Editor.Commands.Command_Semantic_Popup_Dismiss =>
+            if Semantic_Popup_Is_Active (S) then
+               return Editor.Commands.Available;
+            end if;
+            return Editor.Commands.Unavailable ("No semantic popup is open.");
+
+         when others =>
+            return Editor.Commands.Unavailable ("Unsupported semantic popup/ completion command.");
+      end case;
+   end Semantic_Completion_Command_Availability;
+
+   procedure Execute_Semantic_Completion_Kind
+     (S    : in out Editor.State.State_Type;
+      Kind : Editor.Commands.Command_Kind)
+   is
+   begin
+      case Kind is
+         when Editor.Commands.Semantic_Completion_Select_Next =>
+            Execute_Semantic_Completion_Select (S, Next => True);
+
+         when Editor.Commands.Semantic_Completion_Select_Previous =>
+            Execute_Semantic_Completion_Select (S, Next => False);
+
+         when Editor.Commands.Semantic_Completion_Accept =>
+            Execute_Semantic_Completion_Accept (S);
+
+         when Editor.Commands.Semantic_Popup_Dismiss =>
+            Execute_Semantic_Popup_Dismiss (S);
+
+         when others =>
+            raise Program_Error with "unsupported semantic completion command";
+      end case;
+   end Execute_Semantic_Completion_Kind;
+
    procedure Execute_Semantic_Completion_Select
      (S    : in out Editor.State.State_Type;
       Next : Boolean)
@@ -76,6 +136,19 @@ package body Editor.Executor.Semantic_Completion_Commands is
       Editor.Render_Cache.Invalidate_All;
    end Execute_Semantic_Completion_Select;
 
+   procedure Execute_Semantic_Popup_Dismiss (S : in out Editor.State.State_Type)
+   is
+   begin
+      if not Semantic_Popup_Is_Active (S) then
+         Report_Info (S, "No semantic popup is open.");
+         Editor.Render_Cache.Invalidate_All;
+         return;
+      end if;
+
+      Clear_Semantic_Popup (S);
+      Editor.Render_Cache.Invalidate_All;
+   end Execute_Semantic_Popup_Dismiss;
+
    procedure Execute_Semantic_Completion_Accept
      (S : in out Editor.State.State_Type)
    is
@@ -89,6 +162,8 @@ package body Editor.Executor.Semantic_Completion_Commands is
       Before_Text : Unbounded_String;
    begin
       if not Semantic_Completion_Popup_Is_Active (S) then
+         Report_Info (S, "No completion menu is open.");
+         Editor.Render_Cache.Invalidate_All;
          return;
       end if;
 

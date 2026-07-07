@@ -1,5 +1,10 @@
 # Testing
 
+Run all Ada build and test commands through Alire so the pinned
+`gnat_native = "=15.2.1"` compiler is selected. Do not use plain system GNAT or
+plain system GPRBuild from `PATH`; use `alr exec -- gprbuild ...`, `alr build`,
+or the repository's `tools/bin/*` wrappers.
+
 Run only the test slice that matches the changed surface during development.
 The full `All_Suites` aggregate is for release validation. `tools/bin/unit_tests all`
 prints a release-only warning unless `EDITOR_RELEASE_VALIDATION=1` is set.

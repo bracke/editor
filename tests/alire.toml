@@ -12,6 +12,9 @@ tags = []
 executables = ["tests"]
 
 [[depends-on]]
+gnat_native = "=15.2.1"
+
+[[depends-on]]
 aunit = "^26.0.0"
 
 [[depends-on]]

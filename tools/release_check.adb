@@ -1,6 +1,7 @@
 with Ada.Command_Line;
 with Ada.Directories;
 with Editor_Tool_Common; use Editor_Tool_Common;
+with GNAT.OS_Lib;
 
 procedure Release_Check is
    use type Ada.Directories.File_Kind;
@@ -151,13 +152,23 @@ procedure Release_Check is
       end if;
 
       Tools_Build_Attempted := True;
-      if not Command_Exists ("gprbuild") then
-         Info (Tool, "gprbuild not found; Ada tool execution gates that require built tool binaries are skipped");
+      if not Command_Exists ("alr") then
+         Info (Tool, "alr not found; Ada tool execution gates that require built tool binaries are skipped");
          return;
       end if;
 
       Info (Tool, "building Ada release tool suite");
-      Status := Run3 ("gprbuild", "-q", "-P", "tools/editor_tools.gpr");
+      declare
+         Args : GNAT.OS_Lib.Argument_List (1 .. 6) :=
+           (new String'("exec"),
+            new String'("--"),
+            new String'("gprbuild"),
+            new String'("-q"),
+            new String'("-P"),
+            new String'("tools/editor_tools.gpr"));
+      begin
+         Status := Run ("alr", Args);
+      end;
       if Status = 0 then
          Tools_Build_Ok := True;
       else
@@ -227,6 +238,12 @@ procedure Release_Check is
 
 begin
    Require_File (Tool, "alire.toml");
+   if not File_Contains ("alire.toml", "gnat_native = ""=15.2.1""") then
+      Fail (Tool, "root manifest must pin gnat_native = ""=15.2.1""");
+   end if;
+   if not File_Contains ("tests/alire.toml", "gnat_native = ""=15.2.1""") then
+      Fail (Tool, "tests manifest must pin gnat_native = ""=15.2.1""");
+   end if;
    Require_File (Tool, "editor.gpr");
    Require_File (Tool, "editor_core.gpr");
    Require_File (Tool, "README.md");
@@ -573,7 +590,7 @@ begin
    end if;
 
    if not File_Contains ("tools/strict_runtime_preflight.adb", "EDITOR_REQUIRE_STRICT_RUNTIME_PREFLIGHT")
-     or else not File_Contains ("tools/strict_runtime_preflight.adb", "Require_One_Build_Tool")
+     or else not File_Contains ("tools/strict_runtime_preflight.adb", "Require_Alire_Build_Tool")
      or else not File_Contains ("tools/strict_runtime_preflight.adb", "Require_Display")
      or else not File_Contains ("tools/strict_runtime_preflight.adb", "glslangValidator")
      or else not File_Contains ("tools/strict_runtime_validation.adb", "strict runtime preflight")
@@ -676,12 +693,23 @@ begin
    end if;
 
 
-   if File_Contains ("tools/product_smoke.adb", "Run3 (""gprbuild"", ""-P""")
-     or else File_Contains ("tools/real_build_runner_smoke.adb", "Run3 (""gprbuild"", ""-P""")
-     or else File_Contains ("tools/runtime_link_check.adb", "Run3 (""gprbuild"", ""-P""")
-     or else File_Contains ("tools/unit_tests.adb", "Run3 (""gprbuild"", ""-P""")
+   if File_Contains ("tools/product_smoke.adb", "Command_Exists (""gprbuild"")")
+     or else File_Contains ("tools/real_build_runner_smoke.adb", "Command_Exists (""gprbuild"")")
+     or else File_Contains ("tools/runtime_link_check.adb", "Locate_Exec_On_Path (""gprbuild"")")
+     or else File_Contains ("tools/unit_tests.adb", "Run (""gprbuild""")
+     or else File_Contains ("tools/language_validation_check.adb", "Run (""gprbuild""")
+     or else File_Contains ("tools/release_check_record.adb", "Command_Exists (""gprbuild"")")
+     or else File_Contains ("tools/strict_runtime_validation_record.adb", "Capture_Info_Arg1 (""gprbuild""")
    then
-      Fail (Tool, "Ada release tools must use Run2 for gprbuild -P <project> calls");
+      Fail (Tool, "Ada release tools must not invoke or probe system gprbuild directly");
+   end if;
+
+   if not File_Contains ("tools/release_commands.adb", "alr exec -- gprbuild -P tools/editor_tools.gpr")
+     or else not File_Contains ("tools/show_developer_tools.adb", "alr exec -- gprbuild -P tools/editor_tools.gpr")
+     or else not File_Contains ("tools/release_check_record.adb", "alr"", Gnatls_Args")
+     or else not File_Contains ("tools/strict_runtime_preflight.adb", "missing required Ada build tool: alr")
+   then
+      Fail (Tool, "Ada release tooling must route compiler tools through Alire's pinned GNAT 15 environment");
    end if;
 
    if not File_Contains ("tools/editor_tool_common.adb", "Last > 0")
