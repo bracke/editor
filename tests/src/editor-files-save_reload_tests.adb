@@ -581,7 +581,7 @@ package body Editor.Files.Save_Reload_Tests is
       Assert (Buffer_Text (S) = "disk baseline dirty" and then S.File_Info.Dirty,
         "reload cancel preserves dirty buffer text and dirty state");
       M := Editor.Messages.Active_Message (S.Messages, Found);
-      Assert (Found and then To_String (M.Text) = "Reload cancelled",
+      Assert (Found and then To_String (M.Text) = "Reload cancelled.",
         "reload cancel must name the file lifecycle operation");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Revert_Active_Buffer (S);
@@ -594,7 +594,7 @@ package body Editor.Files.Save_Reload_Tests is
       Assert (Buffer_Text (S) = "disk baseline dirty" and then S.File_Info.Dirty,
         "revert cancel preserves dirty buffer text and dirty state");
       M := Editor.Messages.Active_Message (S.Messages, Found);
-      Assert (Found and then To_String (M.Text) = "Revert cancelled",
+      Assert (Found and then To_String (M.Text) = "Revert cancelled.",
         "revert cancel must name the file lifecycle operation");
 
       Remove_If_Exists (Path);

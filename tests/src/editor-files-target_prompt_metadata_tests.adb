@@ -15,6 +15,7 @@ with Editor.Executor.Shared_Services;
 with Editor.Executor.Buffer_Close_Commands;
 with Editor.Executor.File_Open_Commands;
 with Editor.Executor.Command_Surface_Commands;
+with Editor.Executor.Quick_Open_Commands;
 with Editor.Executor.File_Save_Commands;
 with Editor.Executor.File_Target_Prompt_Commands;
 with Editor.Executor.File_Operation_Commands;
@@ -464,7 +465,7 @@ package body Editor.Files.Target_Prompt_Metadata_Tests is
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Rename_Buffer_File);
       Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text (S, "rename-text-must-be-cleared");
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
       Assert (not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S)
         and then Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (S) = "",
         "opening another exclusive overlay should deterministically clear target prompt state");
@@ -973,7 +974,7 @@ procedure Test_Target_Prompt_Final_Input_Overlay_Audit_And_Persistence_Freeze
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Move_Buffer_File);
       Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text (S, Target);
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
       Assert (not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S)
         and then Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (S) = ""
         and then not Ada.Directories.Exists (Target)

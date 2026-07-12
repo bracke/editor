@@ -1,6 +1,6 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Executor.Clipboard;
-with Editor.Executor.Command_Surface_Commands;
+with Editor.Executor.Navigation_Commands;
 with Editor.Go_To_Line;
 with Editor.Overlay_Focus;
 with Editor.Render_Cache;
@@ -108,12 +108,12 @@ package body Editor.Input_Bridge.Goto_Line_Handlers is
             return True;
 
          when Editor.Commands.Goto_Line_Query_Set =>
-            Editor.Executor.Command_Surface_Commands.Execute_Goto_Line_Set_Query
+            Editor.Executor.Navigation_Commands.Execute_Goto_Line_Set_Query
               (S, To_String (Cmd.Text));
             return True;
 
          when Editor.Commands.Goto_Line_Query_Clear =>
-            Editor.Executor.Command_Surface_Commands.Execute_Goto_Line_Clear_Query (S);
+            Editor.Executor.Navigation_Commands.Execute_Goto_Line_Clear_Query (S);
             return True;
 
          when others =>

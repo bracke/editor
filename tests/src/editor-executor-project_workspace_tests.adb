@@ -326,7 +326,7 @@ package body Editor.Executor.Project_Workspace_Tests is
               "cancelled switch must still preserve active project");
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "cancelled switch must clear only the transient payload");
-      Assert (Latest_Message_Text (S) = "Switch project cancelled",
+      Assert (Latest_Message_Text (S) = "Switch project cancelled.",
               "switch cancellation feedback must be specific");
 
       Cleanup_Fixture (Root_A);
@@ -681,7 +681,7 @@ package body Editor.Executor.Project_Workspace_Tests is
               "cancelled close must still preserve active project");
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "cancelled close must clear only the transient payload");
-      Assert (Latest_Message_Text (S) = "Close project cancelled",
+      Assert (Latest_Message_Text (S) = "Close project cancelled.",
               "close cancellation feedback must be specific");
 
       Cleanup_Fixture (Root);

@@ -1,6 +1,7 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Executor.Clipboard;
 with Editor.Executor.Find_Replace_Commands;
+with Editor.Executor.Find_Replace_Input_Commands;
 with Editor.Input_Field;
 with Editor.Overlay_Focus;
 with Editor.Render_Cache;
@@ -74,19 +75,19 @@ package body Editor.Input_Bridge.Active_Find_Handlers is
             return True;
 
          when Editor.Commands.Move_Left =>
-            Editor.Executor.Find_Replace_Commands.Execute_Active_Find_Input_Move_Cursor_Left (S);
+            Editor.Executor.Find_Replace_Input_Commands.Execute_Active_Find_Input_Move_Cursor_Left (S);
             return True;
 
          when Editor.Commands.Move_Right =>
-            Editor.Executor.Find_Replace_Commands.Execute_Active_Find_Input_Move_Cursor_Right (S);
+            Editor.Executor.Find_Replace_Input_Commands.Execute_Active_Find_Input_Move_Cursor_Right (S);
             return True;
 
          when Editor.Commands.Move_Home | Editor.Commands.Move_Line_Start =>
-            Editor.Executor.Find_Replace_Commands.Execute_Active_Find_Input_Move_Cursor_Start (S);
+            Editor.Executor.Find_Replace_Input_Commands.Execute_Active_Find_Input_Move_Cursor_Start (S);
             return True;
 
          when Editor.Commands.Move_End | Editor.Commands.Move_Line_End =>
-            Editor.Executor.Find_Replace_Commands.Execute_Active_Find_Input_Move_Cursor_End (S);
+            Editor.Executor.Find_Replace_Input_Commands.Execute_Active_Find_Input_Move_Cursor_End (S);
             return True;
 
          when Editor.Commands.Active_Find_Next =>

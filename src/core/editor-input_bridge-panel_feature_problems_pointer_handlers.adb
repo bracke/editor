@@ -1,5 +1,6 @@
 with Editor.Diagnostics;
 with Editor.Executor.Diagnostics_Commands;
+with Editor.Executor.Diagnostics_Navigation_Commands;
 with Editor.Executor.Message_Commands;
 with Editor.Executor.Outline_Commands;
 with Editor.Executor.Search_Results_Commands;
@@ -265,7 +266,7 @@ package body Editor.Input_Bridge.Panel_Feature_Problems_Pointer_Handlers is
                     (S.Problems_View, Row);
                end if;
             end;
-            Editor.Executor.Diagnostics_Commands.Execute_Jump_To_Diagnostic
+            Editor.Executor.Diagnostics_Navigation_Commands.Execute_Jump_To_Diagnostic
               (S, Hit.Diagnostic_Index);
             Editor.Focus_Management.Restore_Focus_To_Editor (S);
          elsif Cmd.Kind = Editor.Commands.Move_To_Point

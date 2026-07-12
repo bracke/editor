@@ -15,6 +15,8 @@ with Editor.Executor.Shared_Services;
 with Editor.Executor.Buffer_Close_Commands;
 with Editor.Executor.File_Open_Commands;
 with Editor.Executor.Command_Surface_Commands;
+with Editor.Executor.Quick_Open_Commands;
+with Editor.Executor.Navigation_Commands;
 with Editor.Executor.File_Save_Commands;
 with Editor.Executor.File_Target_Prompt_Commands;
 with Editor.Executor.File_Operation_Commands;
@@ -1251,7 +1253,7 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Editor.State.Init (S);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
       Editor.Executor.Command_Surface_Commands.Execute_Open_Command_Palette (S);
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Goto_Line (S);
+      Editor.Executor.Navigation_Commands.Execute_Open_Goto_Line (S);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "boundary");
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Show (S);
@@ -2218,7 +2220,7 @@ procedure Test_Delete_Validation_Order_And_Active_Source
       Editor.State.Init (S);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
       Editor.Executor.Command_Surface_Commands.Execute_Open_Command_Palette (S);
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "delete");
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Show (S);

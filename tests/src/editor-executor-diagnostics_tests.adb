@@ -10,6 +10,7 @@ with Editor.Buffers;
 with Editor.Commands;
 with Editor.Cursors;
 with Editor.Executor.Diagnostics_Commands;
+with Editor.Executor.Diagnostics_Navigation_Commands;
 with Editor.Executor.Panel_Focus_Commands;
 with Editor.Executor.Search_Commands;
 with Editor.Executor.Search_Results_Commands;
@@ -1072,12 +1073,12 @@ package body Editor.Executor.Diagnostics_Tests is
       Editor.State.Load_Text (S, "abc");
       Before := Editor.Executor.Safe_Caret (S);
 
-      Editor.Executor.Diagnostics_Commands.Execute_Next_Diagnostic (S);
+      Editor.Executor.Diagnostics_Navigation_Commands.Execute_Next_Diagnostic (S);
       Assert
         (Editor.Executor.Safe_Caret (S) = Before,
          "next diagnostic with no diagnostics must preserve the caret");
 
-      Editor.Executor.Diagnostics_Commands.Execute_Jump_To_Diagnostic (S, 99);
+      Editor.Executor.Diagnostics_Navigation_Commands.Execute_Jump_To_Diagnostic (S, 99);
       Assert
         (Editor.Executor.Safe_Caret (S) = Before,
          "invalid diagnostic jump must preserve the caret");
@@ -1098,7 +1099,7 @@ package body Editor.Executor.Diagnostics_Tests is
         (S, Start_Index => 4, End_Index => 5,
          Severity => Editor.Diagnostics.Error);
 
-      Editor.Executor.Diagnostics_Commands.Execute_Jump_To_Diagnostic (S, 1);
+      Editor.Executor.Diagnostics_Navigation_Commands.Execute_Jump_To_Diagnostic (S, 1);
 
       Assert
         (not Editor.Folding.Is_Fold_Collapsed (S.Folding, 1),
@@ -1121,7 +1122,7 @@ package body Editor.Executor.Diagnostics_Tests is
          Severity => Editor.Diagnostics.Error,
          Message => "bad");
 
-      Editor.Executor.Diagnostics_Commands.Execute_Jump_To_Diagnostic (S, 1);
+      Editor.Executor.Diagnostics_Navigation_Commands.Execute_Jump_To_Diagnostic (S, 1);
 
       Assert
         (Editor.Executor.Safe_Caret (S) = 5,
@@ -1149,13 +1150,13 @@ package body Editor.Executor.Diagnostics_Tests is
         (S, Start_Index => 5, End_Index => 6,
          Severity => Editor.Diagnostics.Error);
 
-      Editor.Executor.Diagnostics_Commands.Execute_Next_Diagnostic (S);
+      Editor.Executor.Diagnostics_Navigation_Commands.Execute_Next_Diagnostic (S);
       Assert (Editor.Executor.Safe_Caret (S) = 1,
               "next diagnostic from document start should jump to first diagnostic");
-      Editor.Executor.Diagnostics_Commands.Execute_Next_Diagnostic (S);
+      Editor.Executor.Diagnostics_Navigation_Commands.Execute_Next_Diagnostic (S);
       Assert (Editor.Executor.Safe_Caret (S) = 5,
               "next diagnostic should advance from active diagnostic");
-      Editor.Executor.Diagnostics_Commands.Execute_Previous_Diagnostic (S);
+      Editor.Executor.Diagnostics_Navigation_Commands.Execute_Previous_Diagnostic (S);
       Assert (Editor.Executor.Safe_Caret (S) = 1,
               "previous diagnostic should move back from active diagnostic");
    end Test_Next_Previous_Diagnostic;
@@ -1175,7 +1176,7 @@ package body Editor.Executor.Diagnostics_Tests is
         (S, Start_Index => 5, End_Index => 6,
          Severity => Editor.Diagnostics.Error);
 
-      Editor.Executor.Diagnostics_Commands.Execute_Jump_To_Diagnostic_On_Row (S, 1);
+      Editor.Executor.Diagnostics_Navigation_Commands.Execute_Jump_To_Diagnostic_On_Row (S, 1);
       Assert (Editor.Executor.Safe_Caret (S) = 5,
               "row diagnostic jump should choose dominant severity on the row");
    end Test_Jump_To_Diagnostic_On_Row;

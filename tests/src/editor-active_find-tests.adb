@@ -8,6 +8,7 @@ with Editor.Cursors;
 with Editor.Executor;
 with Editor.Executor.File_Open_Commands;
 with Editor.Executor.Find_Replace_Commands;
+with Editor.Executor.Find_Replace_Input_Commands;
 with Editor.Input_Field;
 with Editor.Go_To_Line;
 with Editor.Input_Bridge;
@@ -227,7 +228,7 @@ package body Editor.Active_Find.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "alpha beta alpha");
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
-      Editor.Executor.Find_Replace_Commands.Execute_Active_Find_Input_Insert_Text (S, "alpha");
+      Editor.Executor.Find_Replace_Input_Commands.Execute_Active_Find_Input_Insert_Text (S, "alpha");
 
       Assert
         (To_String (S.Active_Find_Query) = "alpha"
@@ -255,7 +256,7 @@ package body Editor.Active_Find.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "alpha beta alpha");
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
-      Editor.Executor.Find_Replace_Commands.Execute_Active_Find_Input_Insert_Text (S, "alpha");
+      Editor.Executor.Find_Replace_Input_Commands.Execute_Active_Find_Input_Insert_Text (S, "alpha");
 
       Cmd.Kind := Editor.Commands.Insert_Text_Input;
       Cmd.Ch := ASCII.CR;
@@ -2877,7 +2878,7 @@ package body Editor.Active_Find.Tests is
       Assert (Active_Message_Text (S) = "No matches", "test setup must create stale prompt failure feedback");
 
       Editor.Input_Field.Select_All (S.Active_Find_Input);
-      Editor.Executor.Find_Replace_Commands.Execute_Active_Find_Input_Insert_Text (S, "alpha");
+      Editor.Executor.Find_Replace_Input_Commands.Execute_Active_Find_Input_Insert_Text (S, "alpha");
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
 
       Assert

@@ -13,7 +13,9 @@ with Editor.Cursors;
 with Editor.Diagnostics;
 with Editor.Executor.Test_Support; use Editor.Executor.Test_Support;
 with Editor.Executor.Command_Surface_Commands;
+with Editor.Executor.Quick_Open_Commands;
 with Editor.Executor.Diagnostics_Commands;
+with Editor.Executor.Diagnostics_Problems_Commands;
 with Editor.Executor.Find_Replace_Commands;
 with Editor.Executor.Message_Commands;
 with Editor.Executor.Panel_Focus_Commands;
@@ -109,7 +111,7 @@ package body Editor.Executor.UI_Tests is
          Severity => Editor.Diagnostics.Warning, Message => "second");
       Editor.Executor.Panel_Focus_Commands.Execute_Focus_Problems (S);
 
-      Editor.Executor.Diagnostics_Commands.Execute_Problems_Move_Down (S);
+      Editor.Executor.Diagnostics_Problems_Commands.Execute_Problems_Move_Down (S);
 
       Assert
         (Editor.Problems.Selected_Row_Index (S.Problems_View) = 2,
@@ -138,9 +140,9 @@ package body Editor.Executor.UI_Tests is
         (S, Start_Index => 4, End_Index => 5,
          Severity => Editor.Diagnostics.Warning, Message => "second");
       Editor.Executor.Panel_Focus_Commands.Execute_Focus_Problems (S);
-      Editor.Executor.Diagnostics_Commands.Execute_Problems_Move_Down (S);
+      Editor.Executor.Diagnostics_Problems_Commands.Execute_Problems_Move_Down (S);
 
-      Editor.Executor.Diagnostics_Commands.Execute_Problems_Open_Selected (S);
+      Editor.Executor.Diagnostics_Problems_Commands.Execute_Problems_Open_Selected (S);
 
       Assert
         (S.Active_Diagnostic.Has_Active
@@ -169,7 +171,7 @@ package body Editor.Executor.UI_Tests is
       Editor.Executor.Panel_Focus_Commands.Execute_Focus_Problems (S);
       Editor.Problems.Set_Selected_Row_Index (S.Problems_View, 0);
 
-      Editor.Executor.Diagnostics_Commands.Execute_Problems_Open_Selected (S);
+      Editor.Executor.Diagnostics_Problems_Commands.Execute_Problems_Open_Selected (S);
 
       Msg := Editor.Messages.Active_Message (S.Messages, Found);
       Assert
@@ -190,7 +192,7 @@ package body Editor.Executor.UI_Tests is
       Init_Executor_Test_State (S);
       Editor.Executor.Panel_Focus_Commands.Execute_Focus_Problems (S);
 
-      Editor.Executor.Diagnostics_Commands.Execute_Problems_Focus_Editor (S);
+      Editor.Executor.Diagnostics_Problems_Commands.Execute_Problems_Focus_Editor (S);
 
       Assert
         (Editor.Panel_Focus.Editor_Text_Has_Focus (S.Panel_Focus),
@@ -219,7 +221,7 @@ package body Editor.Executor.UI_Tests is
            Editor.Overlay_Focus.Command_Palette_Overlay,
          "command palette command should activate command-palette overlay");
 
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
       Assert
         (not Editor.Command_Palette.Is_Open,
          "quick open should close the command palette surface");
@@ -261,7 +263,7 @@ package body Editor.Executor.UI_Tests is
            (S.Overlay_Focus, Editor.Overlay_Focus.Active_Find_Prompt_Overlay),
          "find command should activate the find overlay");
 
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
 
       Assert
         (S.Active_Find_Prompt,
@@ -314,9 +316,9 @@ package body Editor.Executor.UI_Tests is
       Init_Executor_Test_State (S);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Focus_File_Tree);
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
 
-      Editor.Executor.Command_Surface_Commands.Execute_Close_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Close_Quick_Open (S);
 
       Assert
         (Editor.Panel_Focus.File_Tree_Has_Focus (S.Panel_Focus),

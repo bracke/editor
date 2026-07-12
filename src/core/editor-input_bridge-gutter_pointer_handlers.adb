@@ -3,6 +3,7 @@ with Editor.Diagnostics;
 with Editor.Dirty_Lines;
 with Editor.Executor.Bookmark_Commands;
 with Editor.Executor.Diagnostics_Commands;
+with Editor.Executor.Diagnostics_Navigation_Commands;
 with Editor.Executor.Navigation;
 with Editor.Folding;
 with Editor.Gutter;
@@ -65,7 +66,7 @@ package body Editor.Input_Bridge.Gutter_Pointer_Handlers is
               (S, Row);
 
          when Editor.Gutter_Markers.Select_Diagnostic_Action =>
-            Editor.Executor.Diagnostics_Commands.Execute_Jump_To_Diagnostic_On_Row
+            Editor.Executor.Diagnostics_Navigation_Commands.Execute_Jump_To_Diagnostic_On_Row
               (S, Row);
 
          when Editor.Gutter_Markers.Acknowledge_Dirty_Line_Action =>

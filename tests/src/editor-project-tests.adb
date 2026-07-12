@@ -12,6 +12,7 @@ with Editor.File_Tree;
 with Editor.Executor;
 with Editor.Executor.File_Open_Commands;
 with Editor.Executor.Command_Surface_Commands;
+with Editor.Executor.Quick_Open_Commands;
 with Editor.Executor.File_Tree_Commands;
 with Editor.Executor.Project_File_Index_Commands;
 with Editor.Executor.Project_Lifecycle_Commands;
@@ -824,11 +825,11 @@ package body Editor.Project.Tests is
       Ada.Directories.Create_Directory (Ada.Directories.Compose (Root, "src"));
       Editor.State.Init (S);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
       Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "panels/view.adb");
       Editor.Quick_Open.Set_Path_Scope (S.Quick_Open, "src/");
 
-      Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Create_With_Parents_From_Query (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Create_With_Parents_From_Query (S);
 
       Assert (Ada.Directories.Exists (Ada.Directories.Compose
                 (Ada.Directories.Compose (Root, "src"), "panels")),
@@ -862,11 +863,11 @@ package body Editor.Project.Tests is
       Ada.Directories.Create_Directory (Src);
       Editor.State.Init (S);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
       Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "panels/sidebar/view.adb");
       Editor.Quick_Open.Set_Path_Scope (S.Quick_Open, "src/");
 
-      Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Create_With_Parents_From_Query (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Create_With_Parents_From_Query (S);
 
       Assert (Ada.Directories.Exists (Panels),
               "create-with-parents must create the first missing nested parent");
@@ -900,11 +901,11 @@ package body Editor.Project.Tests is
       Write_Bytes (Panels_File, "not a directory");
       Editor.State.Init (S);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
       Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "panels/sidebar/view.adb");
       Editor.Quick_Open.Set_Path_Scope (S.Quick_Open, "src/");
 
-      Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Create_With_Parents_From_Query (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Create_With_Parents_From_Query (S);
 
       Assert (Last_Message_Text (S) = "Parent path is not a directory: src/panels",
               "file parent conflict must emit deterministic parent-not-directory message");
@@ -931,10 +932,10 @@ package body Editor.Project.Tests is
          "generated/" & ASCII.LF);
       Editor.State.Init (S);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
       Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "generated/view.adb");
 
-      Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Create_With_Parents_From_Query (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Create_With_Parents_From_Query (S);
 
       Assert (Last_Message_Text (S) = "Path is ignored by project rules: generated/view.adb",
               "ignored parent directory rule must reject the target before directory creation");
@@ -965,10 +966,10 @@ package body Editor.Project.Tests is
          "generated/" & ASCII.LF);
       Editor.State.Init (S);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
       Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "generated/view.adb");
 
-      Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Create_From_Query (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Create_From_Query (S);
 
       Assert (Last_Message_Text (S) = "Path is ignored by project rules: generated/view.adb",
               "create-from-query must reject ignored targets before file creation");
@@ -1001,11 +1002,11 @@ package body Editor.Project.Tests is
       Ada.Directories.Create_Directory (Ada.Directories.Compose (Root, "src"));
       Editor.State.Init (S);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
       Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "panels/view.adb");
       Editor.Quick_Open.Set_Path_Scope (S.Quick_Open, "src/");
 
-      Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Create_From_Query (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Create_From_Query (S);
 
       Assert (not Ada.Directories.Exists (Parent),
               "create-from-query must not create missing parents");
@@ -1037,11 +1038,11 @@ package body Editor.Project.Tests is
 
       Editor.State.Init (S);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
       Editor.Quick_Open.Set_Path_Scope (S.Quick_Open, "src/editor/");
       Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "new_panel.adb");
 
-      Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Create_From_Query (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Create_From_Query (S);
 
       Assert (Ada.Directories.Exists (File_Path),
               "create-from-query must create the requested file");
@@ -1091,12 +1092,12 @@ package body Editor.Project.Tests is
 
       Editor.State.Init (S);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
       Editor.Quick_Open.Set_Path_Scope (S.Quick_Open, "src/");
       Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "panels/sidebar/view.adb");
       Editor.Quick_Open.Toggle_Priority_Mode (S.Quick_Open);
 
-      Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Create_From_Query (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Create_From_Query (S);
 
       Assert (not Ada.Directories.Exists (Panels),
               "narrow create failure must not create missing parent directories");
@@ -1110,7 +1111,7 @@ package body Editor.Project.Tests is
       Assert (Editor.Project.Known_File_Count (S.Project) = 0,
               "narrow create failure must not mutate known files");
 
-      Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Create_With_Parents_From_Query (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Create_With_Parents_From_Query (S);
 
       Assert (Ada.Directories.Exists (Panels)
               and then Ada.Directories.Exists (Sidebar)

@@ -85,6 +85,7 @@ with Editor.Executor.File_Target_Prompt_Commands;
 with Editor.Executor.File_Tree_Navigation_Commands;
 with Editor.Executor.File_Tree_Commands;
 with Editor.Executor.Find_Replace_Commands;
+with Editor.Executor.Find_Replace_Input_Commands;
 with Editor.Executor.Message_Commands;
 with Editor.Executor.Outline_Commands;
 with Editor.Executor.Project_Lifecycle_Commands;
@@ -95,6 +96,7 @@ with Editor.Executor.Search_Results_Commands;
 with Editor.Executor.Clipboard;
 with Editor.Executor.Diagnostics_Commands;
 with Editor.Executor.Navigation;
+with Editor.Executor.Quick_Open_Commands;
 with Editor.Build_UI;
 with Editor.Build_UI_Actions;
 with Editor.Build_UI_Panel_Layout;
@@ -676,11 +678,11 @@ use type Editor.Guided_Prompts.Prompt_Kind;
       end if;
 
       if Id = Editor.Commands.Command_Open_Quick_Open then
-         Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (The_Editor.State);
+         Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (The_Editor.State);
          Editor.Render_Cache.Invalidate_All;
          return;
       elsif Id = Editor.Commands.Command_Toggle_Quick_Open then
-         Editor.Executor.Command_Surface_Commands.Execute_Toggle_Quick_Open (The_Editor.State);
+         Editor.Executor.Quick_Open_Commands.Execute_Toggle_Quick_Open (The_Editor.State);
          Editor.Render_Cache.Invalidate_All;
          return;
       end if;
@@ -780,11 +782,11 @@ use type Editor.Guided_Prompts.Prompt_Kind;
             Editor.Render_Cache.Invalidate_All;
 
          when Editor.Commands.Command_Open_Quick_Open =>
-            Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (The_Editor.State);
+            Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
          when Editor.Commands.Command_Toggle_Quick_Open =>
-            Editor.Executor.Command_Surface_Commands.Execute_Toggle_Quick_Open (The_Editor.State);
+            Editor.Executor.Quick_Open_Commands.Execute_Toggle_Quick_Open (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
          when Editor.Commands.Command_Open_Project_Search_Bar =>
@@ -808,71 +810,71 @@ use type Editor.Guided_Prompts.Prompt_Kind;
             Editor.Render_Cache.Invalidate_All;
 
          when Editor.Commands.Command_Close_Quick_Open =>
-            Editor.Executor.Command_Surface_Commands.Execute_Close_Quick_Open (The_Editor.State);
+            Editor.Executor.Quick_Open_Commands.Execute_Close_Quick_Open (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
          when Editor.Commands.Command_Accept_Quick_Open =>
-            Editor.Executor.Command_Surface_Commands.Execute_Accept_Quick_Open (The_Editor.State);
+            Editor.Executor.Quick_Open_Commands.Execute_Accept_Quick_Open (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
          when Editor.Commands.Command_Quick_Open_Next_Result =>
-            Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Next_Result (The_Editor.State);
+            Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Next_Result (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
          when Editor.Commands.Command_Quick_Open_Previous_Result =>
-            Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Previous_Result (The_Editor.State);
+            Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Previous_Result (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
          when Editor.Commands.Command_Quick_Open_Query_Clear =>
-            Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Clear_Query (The_Editor.State);
+            Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Clear_Query (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
          when Editor.Commands.Command_Quick_Open_Kind_Next =>
-            Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Kind_Next (The_Editor.State);
+            Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Kind_Next (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
          when Editor.Commands.Command_Quick_Open_Kind_Previous =>
-            Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Kind_Previous (The_Editor.State);
+            Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Kind_Previous (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
          when Editor.Commands.Command_Quick_Open_Kind_Clear =>
-            Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Kind_Clear (The_Editor.State);
+            Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Kind_Clear (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
          when Editor.Commands.Command_Quick_Open_Scope_Clear =>
-            Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Scope_Clear (The_Editor.State);
+            Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Scope_Clear (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
          when Editor.Commands.Command_Quick_Open_Scope_From_Selected =>
-            Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Scope_From_Selected (The_Editor.State);
+            Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Scope_From_Selected (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
          when Editor.Commands.Command_Quick_Open_Scope_Parent =>
-            Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Scope_Parent (The_Editor.State);
+            Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Scope_Parent (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
          when Editor.Commands.Command_Quick_Open_Reveal_Active =>
-            Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Reveal_Active (The_Editor.State);
+            Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Reveal_Active (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
          when Editor.Commands.Command_Quick_Open_Scope_Active_Directory =>
-            Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Scope_Active_Directory (The_Editor.State);
+            Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Scope_Active_Directory (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
          when Editor.Commands.Command_Quick_Open_Create_From_Query =>
-            Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Create_From_Query (The_Editor.State);
+            Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Create_From_Query (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
          when Editor.Commands.Command_Quick_Open_Create_With_Parents_From_Query =>
-            Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Create_With_Parents_From_Query (The_Editor.State);
+            Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Create_With_Parents_From_Query (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
          when Editor.Commands.Command_Quick_Open_Priority_Toggle =>
-            Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Priority_Toggle (The_Editor.State);
+            Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Priority_Toggle (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
          when Editor.Commands.Command_Quick_Open_Priority_Clear =>
-            Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Priority_Clear (The_Editor.State);
+            Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Priority_Clear (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
          when Editor.Commands.Command_Open_Buffer_Switcher =>
@@ -1602,16 +1604,16 @@ use type Editor.Guided_Prompts.Prompt_Kind;
                   Cmd.Kind := Editor.Commands.Active_Find_Input_Delete_Forward;
                   Editor.Instance.Execute (The_Editor, Cmd);
                when Editor.Keybindings.Key_Left =>
-                  Editor.Executor.Find_Replace_Commands.Execute_Active_Find_Input_Move_Cursor_Left
+                  Editor.Executor.Find_Replace_Input_Commands.Execute_Active_Find_Input_Move_Cursor_Left
                     (The_Editor.State);
                when Editor.Keybindings.Key_Right =>
-                  Editor.Executor.Find_Replace_Commands.Execute_Active_Find_Input_Move_Cursor_Right
+                  Editor.Executor.Find_Replace_Input_Commands.Execute_Active_Find_Input_Move_Cursor_Right
                     (The_Editor.State);
                when Editor.Keybindings.Key_Home =>
-                  Editor.Executor.Find_Replace_Commands.Execute_Active_Find_Input_Move_Cursor_Start
+                  Editor.Executor.Find_Replace_Input_Commands.Execute_Active_Find_Input_Move_Cursor_Start
                     (The_Editor.State);
                when Editor.Keybindings.Key_End =>
-                  Editor.Executor.Find_Replace_Commands.Execute_Active_Find_Input_Move_Cursor_End
+                  Editor.Executor.Find_Replace_Input_Commands.Execute_Active_Find_Input_Move_Cursor_End
                     (The_Editor.State);
                when Editor.Keybindings.Key_V =>
                   if Chord.Modifiers.Ctrl then

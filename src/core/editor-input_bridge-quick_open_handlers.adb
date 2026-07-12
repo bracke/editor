@@ -1,6 +1,6 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Executor.Clipboard;
-with Editor.Executor.Command_Surface_Commands;
+with Editor.Executor.Quick_Open_Commands;
 with Editor.Layout;
 with Editor.Overlay_Focus;
 with Editor.Quick_Open;
@@ -123,7 +123,7 @@ package body Editor.Input_Bridge.Quick_Open_Handlers is
             return True;
 
          when Editor.Commands.Quick_Open_Query_Set =>
-            Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Set_Query
+            Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Set_Query
               (S, To_String (Cmd.Text));
             return True;
 
@@ -144,7 +144,7 @@ package body Editor.Input_Bridge.Quick_Open_Handlers is
             return True;
 
          when Editor.Commands.Quick_Open_Scope_Set =>
-            Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Scope_Set
+            Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Scope_Set
               (S, To_String (Cmd.Text));
             return True;
 

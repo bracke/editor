@@ -15,10 +15,13 @@ with Editor.Executor.File_Open_Commands;
 with Editor.Executor.Bookmark_Commands;
 with Editor.Executor.Buffer_Navigation_Commands;
 with Editor.Executor.Buffer_Switcher_Surface_Commands;
+with Editor.Executor.Navigation_Commands;
 with Editor.Executor.Command_Surface_Commands;
+with Editor.Executor.Quick_Open_Commands;
 with Editor.Executor.File_Tree_Commands;
 with Editor.Executor.File_Tree_Navigation_Commands;
 with Editor.Executor.Find_Replace_Commands;
+with Editor.Executor.Find_Replace_Input_Commands;
 with Editor.Executor.Project_Search_Result_Commands;
 with Editor.Executor.Search_Commands;
 with Editor.File_Tree;
@@ -453,7 +456,7 @@ package body Editor.Executor.Navigation_Tests is
       Init_Executor_Test_State (S);
       Set_Buffer_Text (S, "one" & ASCII.LF & "two" & ASCII.LF & "three");
 
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Goto_Line (S);
+      Editor.Executor.Navigation_Commands.Execute_Open_Goto_Line (S);
       Assert (Editor.Go_To_Line.Is_Open (S.Go_To_Line),
               "Go To Line input opens");
       Assert
@@ -462,7 +465,7 @@ package body Editor.Executor.Navigation_Tests is
          "Go To Line owns overlay focus while open");
 
       Editor.Go_To_Line.Set_Text (S.Go_To_Line, "3");
-      Editor.Executor.Command_Surface_Commands.Execute_Accept_Goto_Line (S);
+      Editor.Executor.Navigation_Commands.Execute_Accept_Goto_Line (S);
 
       Editor.State.Row_Col_For_Index
         (S, S.Carets (S.Carets.First_Index).Pos, Row, Col);
@@ -503,9 +506,9 @@ package body Editor.Executor.Navigation_Tests is
       Before_Anchor := S.Carets (S.Carets.First_Index).Anchor;
       Before_Scroll := Editor.View.Scroll_Y;
 
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Goto_Line (S);
+      Editor.Executor.Navigation_Commands.Execute_Open_Goto_Line (S);
       Editor.Go_To_Line.Set_Text (S.Go_To_Line, "99");
-      Editor.Executor.Command_Surface_Commands.Execute_Accept_Goto_Line (S);
+      Editor.Executor.Navigation_Commands.Execute_Accept_Goto_Line (S);
 
       Assert (Editor.Go_To_Line.Is_Open (S.Go_To_Line),
               "failed Go To Line keeps input open for correction");
@@ -536,9 +539,9 @@ package body Editor.Executor.Navigation_Tests is
       Editor.Feature_Panel.Clear (S.Feature_Panel);
       Before_Feature_Rows := Editor.Feature_Panel.Row_Count (S.Feature_Panel);
 
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Goto_Line (S);
+      Editor.Executor.Navigation_Commands.Execute_Open_Goto_Line (S);
       Editor.Go_To_Line.Set_Text (S.Go_To_Line, "2");
-      Editor.Executor.Command_Surface_Commands.Execute_Accept_Goto_Line (S);
+      Editor.Executor.Navigation_Commands.Execute_Accept_Goto_Line (S);
 
       Assert (Editor.Input_Field.Text (S.Active_Find_Input) = "alpha",
               "Go To Line preserves find query");
@@ -558,9 +561,9 @@ package body Editor.Executor.Navigation_Tests is
       Init_Executor_Test_State (S);
       Set_Buffer_Text (S, "one" & ASCII.LF & "two" & ASCII.LF & "three");
 
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Goto_Line (S);
+      Editor.Executor.Navigation_Commands.Execute_Open_Goto_Line (S);
       Editor.Go_To_Line.Set_Text (S.Go_To_Line, "3");
-      Editor.Executor.Command_Surface_Commands.Execute_Accept_Goto_Line (S);
+      Editor.Executor.Navigation_Commands.Execute_Accept_Goto_Line (S);
 
       Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 1,
               "Go To Line must record explicit navigation history");
@@ -587,7 +590,7 @@ package body Editor.Executor.Navigation_Tests is
       Init_Executor_Test_State (S);
       Set_Buffer_Text (S, "alpha beta alpha");
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
-      Editor.Executor.Find_Replace_Commands.Execute_Active_Find_Input_Insert_Text (S, "alpha");
+      Editor.Executor.Find_Replace_Input_Commands.Execute_Active_Find_Input_Insert_Text (S, "alpha");
 
       Cmd.Kind := Editor.Commands.Active_Find_Next;
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -823,12 +826,12 @@ package body Editor.Executor.Navigation_Tests is
       Editor.Project.Add_Known_File (S.Project, "src/executor.ads", Ads_Path);
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Exec_Path);
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (S);
-      Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Set_Query (S, "README");
-      Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Kind_Next (S);
-      Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Scope_Set (S, "docs");
+      Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Set_Query (S, "README");
+      Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Kind_Next (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Scope_Set (S, "docs");
 
-      Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Reveal_Active (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Reveal_Active (S);
       Snap := Editor.Quick_Open.Build_Snapshot (S.Quick_Open);
 
       Assert (Editor.Quick_Open.Is_Open (S.Quick_Open),
@@ -885,7 +888,7 @@ package body Editor.Executor.Navigation_Tests is
       Editor.Project.Add_Known_File (S.Project, "tests/test_executor.adb", Test_Path);
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Exec_Path);
-      Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Scope_Active_Directory (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Scope_Active_Directory (S);
       Snap := Editor.Quick_Open.Build_Snapshot (S.Quick_Open);
 
       Assert (Editor.Quick_Open.Is_Open (S.Quick_Open),
@@ -932,7 +935,7 @@ package body Editor.Executor.Navigation_Tests is
       Editor.Project.Add_Known_File (S.Project, "known.adb", Known);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Unknown);
 
-      Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Reveal_Active (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Reveal_Active (S);
 
       Assert (not Editor.Quick_Open.Is_Open (S.Quick_Open),
               "reveal-active must not open Quick Open when active file is not known");
@@ -978,13 +981,13 @@ package body Editor.Executor.Navigation_Tests is
       Editor.Project.Add_Known_File (S.Project, "docs/guide.md", Doc_Path);
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Exec_Path);
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (S);
-      Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Set_Query (S, "guide");
-      Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Kind_Next (S);
-      Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Scope_Set (S, "docs/");
-      Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Priority_Toggle (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Set_Query (S, "guide");
+      Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Kind_Next (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Scope_Set (S, "docs/");
+      Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Priority_Toggle (S);
 
-      Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Reveal_Active (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Reveal_Active (S);
       Snap := Editor.Quick_Open.Build_Snapshot (S.Quick_Open);
       Assert (Snap.Priority_Mode = Editor.Quick_Open.Open_Recent,
               "reveal-active must preserve Open/Recent priority mode");
@@ -998,13 +1001,13 @@ package body Editor.Executor.Navigation_Tests is
                 "Quick Open selected active file: src/executor.adb",
               "reveal-active must keep one selection message");
 
-      Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Set_Query (S, "guide");
-      Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Kind_Next (S);
-      Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Scope_Set (S, "docs/");
+      Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Set_Query (S, "guide");
+      Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Kind_Next (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Scope_Set (S, "docs/");
       Assert (Editor.Quick_Open.Priority_Mode (S.Quick_Open) = Editor.Quick_Open.Open_Recent,
               "test setup must keep Open/Recent priority before scope-active-directory");
 
-      Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Scope_Active_Directory (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Scope_Active_Directory (S);
       Snap := Editor.Quick_Open.Build_Snapshot (S.Quick_Open);
       Assert (Snap.Priority_Mode = Editor.Quick_Open.Open_Recent,
               "scope-active-directory must preserve Open/Recent priority mode");
@@ -1056,14 +1059,14 @@ package body Editor.Executor.Navigation_Tests is
       Assert (Refresh.Status = Editor.Project.Project_File_Refresh_Ok,
               "stale-open setup refresh must succeed");
 
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (S);
-      Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Set_Query (S, "stale");
+      Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Set_Query (S, "stale");
       Snap := Editor.Quick_Open.Build_Snapshot (S.Quick_Open);
       Assert (To_String (Snap.Selected_Path) = "src/stale.adb",
               "stale-open setup must select stale candidate");
 
       Ada.Directories.Delete_File (Stale_Path);
-      Editor.Executor.Command_Surface_Commands.Execute_Accept_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Accept_Quick_Open (S);
       Snap := Editor.Quick_Open.Build_Snapshot (S.Quick_Open);
 
       Assert (Latest_Message_Text (S) =
@@ -1125,9 +1128,9 @@ package body Editor.Executor.Navigation_Tests is
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, A_Path);
       Editor.Navigation_History.Clear (S.Navigation_History);
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (S);
-      Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Set_Query (S, "beta");
-      Editor.Executor.Command_Surface_Commands.Execute_Accept_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Set_Query (S, "beta");
+      Editor.Executor.Quick_Open_Commands.Execute_Accept_Quick_Open (S);
 
       Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = B_Path,
               "Quick Open accept must open selected target");
@@ -1171,10 +1174,10 @@ package body Editor.Executor.Navigation_Tests is
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Current);
       Editor.Navigation_History.Clear (S.Navigation_History);
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (S);
-      Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Set_Query (S, "stale");
+      Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Set_Query (S, "stale");
       Ada.Directories.Delete_File (Stale_Path);
-      Editor.Executor.Command_Surface_Commands.Execute_Accept_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Accept_Quick_Open (S);
 
       Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Current,
               "stale Quick Open failure must keep active editor location");
@@ -1221,9 +1224,9 @@ package body Editor.Executor.Navigation_Tests is
       Editor.Navigation_History.Clear (S.Navigation_History);
       Move_Caret_To_Line (S, 20);
 
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (S);
-      Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Set_Query (S, "beta");
-      Editor.Executor.Command_Surface_Commands.Execute_Accept_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Set_Query (S, "beta");
+      Editor.Executor.Quick_Open_Commands.Execute_Accept_Quick_Open (S);
 
       Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = B_Path,
               "Quick Open accept must open the selected target");
@@ -1424,9 +1427,9 @@ package body Editor.Executor.Navigation_Tests is
           Line => 1, Column => 0, Viewport_Row => 0,
           Reason => Editor.Navigation_History.Navigation_Reason_Unknown));
 
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (S);
-      Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Set_Query (S, "delta");
-      Editor.Executor.Command_Surface_Commands.Execute_Accept_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Set_Query (S, "delta");
+      Editor.Executor.Quick_Open_Commands.Execute_Accept_Quick_Open (S);
       Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = D_Path,
               "successful new navigation must open D");
       Assert (Editor.Navigation_History.Forward_Count (S.Navigation_History) = 0,
@@ -1450,9 +1453,9 @@ package body Editor.Executor.Navigation_Tests is
           Reason => Editor.Navigation_History.Navigation_Reason_Unknown));
       Ada.Directories.Delete_File (Stale_Path);
 
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (S);
-      Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Set_Query (S, "stale");
-      Editor.Executor.Command_Surface_Commands.Execute_Accept_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Set_Query (S, "stale");
+      Editor.Executor.Quick_Open_Commands.Execute_Accept_Quick_Open (S);
       Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = B_Path,
               "stale Quick Open failure must preserve active B");
       Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 1
@@ -1517,10 +1520,10 @@ package body Editor.Executor.Navigation_Tests is
       Back_Before := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Forward_Before := Editor.Navigation_History.Forward_Count (S.Navigation_History);
 
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (S);
-      Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Set_Query (S, "alpha");
-      Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Next_Result (S);
-      Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Previous_Result (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Set_Query (S, "alpha");
+      Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Next_Result (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Previous_Result (S);
       Editor.Executor.Project_Search_Result_Commands.Execute_Run_Project_Search (S, "needle");
       Editor.Executor.Project_Search_Result_Commands.Execute_Next_Project_Search_Result (S);
       Editor.Executor.Project_Search_Result_Commands.Execute_Previous_Project_Search_Result (S);
@@ -1532,8 +1535,8 @@ package body Editor.Executor.Navigation_Tests is
               and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = Forward_Before,
               "selection/read-only feature commands must not capture, clear, or normalize navigation history");
 
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (S);
-      Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Set_Query (S, "alpha");
+      Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Set_Query (S, "alpha");
       Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = Back_Before
               and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = Forward_Before,
               "reopening/querying Quick Open before clear must still not mutate history");

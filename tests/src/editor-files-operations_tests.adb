@@ -15,6 +15,7 @@ with Editor.Executor.Shared_Services;
 with Editor.Executor.Buffer_Close_Commands;
 with Editor.Executor.File_Open_Commands;
 with Editor.Executor.Command_Surface_Commands;
+with Editor.Executor.Quick_Open_Commands;
 with Editor.Executor.File_Save_Commands;
 with Editor.Executor.File_Target_Prompt_Commands;
 with Editor.Executor.File_Operation_Commands;
@@ -395,7 +396,7 @@ package body Editor.Files.Operations_Tests is
       S.Reopen_Candidate_Path := To_Unbounded_String (Reopen_Path);
       S.Reopen_Candidate_Label := To_Unbounded_String ("reopen");
       Editor.Executor.Command_Surface_Commands.Execute_Open_Command_Palette (S);
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, Active_Id);
 
       Editor.Messages.Clear (S.Messages);
@@ -1039,7 +1040,7 @@ package body Editor.Files.Operations_Tests is
       Editor.State.Init (S);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
       Editor.Executor.Command_Surface_Commands.Execute_Open_Command_Palette (S);
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "read");
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Show (S);

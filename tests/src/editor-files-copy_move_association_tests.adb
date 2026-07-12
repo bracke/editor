@@ -15,6 +15,8 @@ with Editor.Executor.Shared_Services;
 with Editor.Executor.Buffer_Close_Commands;
 with Editor.Executor.File_Open_Commands;
 with Editor.Executor.Command_Surface_Commands;
+with Editor.Executor.Quick_Open_Commands;
+with Editor.Executor.Navigation_Commands;
 with Editor.Executor.File_Save_Commands;
 with Editor.Executor.File_Target_Prompt_Commands;
 with Editor.Executor.File_Operation_Commands;
@@ -575,7 +577,7 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
       Inactive_Id := Editor.Buffers.Global_Active_Buffer;
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty inactive");
       Editor.Executor.Command_Surface_Commands.Execute_Open_Command_Palette (S);
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, Active_Id);
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Copy_Buffer_File (S, Target);
@@ -639,7 +641,7 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
       Editor.State.Init (S);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
       Editor.Executor.Command_Surface_Commands.Execute_Open_Command_Palette (S);
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "transient");
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Show (S);
@@ -1122,8 +1124,8 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
       Editor.State.Init (S);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
       Editor.Executor.Command_Surface_Commands.Execute_Open_Command_Palette (S);
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (S);
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Goto_Line (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
+      Editor.Executor.Navigation_Commands.Execute_Open_Goto_Line (S);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "read only");
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Show (S);
@@ -1432,7 +1434,7 @@ procedure Test_Copy_Source_Validation_And_Target_Canonicalization
       S.Reopen_Candidate_Path := To_Unbounded_String (Reopen_Path);
       S.Reopen_Candidate_Label := To_Unbounded_String ("reopen");
       Editor.Executor.Command_Surface_Commands.Execute_Open_Command_Palette (S);
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, Active_Id);
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Copy_Buffer_File (S, Target);
@@ -2105,7 +2107,7 @@ procedure Test_Move_Canonical_State_And_Persistence_Cleanup
       Inactive_Id := Editor.Buffers.Global_Active_Buffer;
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty inactive");
       Editor.Executor.Command_Surface_Commands.Execute_Open_Command_Palette (S);
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, Active_Id);
       Count_0 := Editor.Buffers.Global_Count;
 
@@ -2674,7 +2676,7 @@ procedure Test_Final_Association_Lifecycle_And_Failure_Freeze
       Inactive_Id := Editor.Buffers.Global_Active_Buffer;
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty inactive");
       Editor.Executor.Command_Surface_Commands.Execute_Open_Command_Palette (S);
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, Active_Id);
       Count_0 := Editor.Buffers.Global_Count;
 

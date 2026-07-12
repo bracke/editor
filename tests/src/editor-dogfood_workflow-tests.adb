@@ -26,6 +26,7 @@ with Editor.Executor.File_Save_Commands;
 with Editor.Executor.File_Save_Basic_Commands;
 with Editor.Executor.File_Open_Commands;
 with Editor.Executor.Command_Surface_Commands;
+with Editor.Executor.Quick_Open_Commands;
 with Editor.Executor.File_Tree_Commands;
 with Editor.Executor.Project_File_Index_Commands;
 with Editor.Executor.Project_Lifecycle_Commands;
@@ -2954,7 +2955,7 @@ package body Editor.Dogfood_Workflow.Tests is
         ("Opened dogfood_demo.adb",
          "main workflow smoke reports file-open feedback");
 
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
       Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "main.adb");
       Editor.Quick_Open.Recompute_Results
         (S.Quick_Open, S.Project, (Max_Visible_Results => 12,
@@ -3158,7 +3159,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Ada.Strings.Fixed.Index (Read_File (Source_Path), "Dogfood_Known_Token") > 0,
               "daily loop save preserves source contents on disk");
 
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
       Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "main.adb");
       Editor.Quick_Open.Recompute_Results
         (S.Quick_Open, S.Project, (Max_Visible_Results => 12,

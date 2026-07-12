@@ -9,6 +9,7 @@ with Editor.Cursors;
 with Editor.Executor.Test_Support; use Editor.Executor.Test_Support;
 with Editor.Executor.File_Open_Commands;
 with Editor.Executor.Find_Replace_Commands;
+with Editor.Executor.Find_Replace_Input_Commands;
 with Editor.Executor.Project_Search_Result_Commands;
 with Editor.Executor.Project_Search_Surface_Commands;
 with Editor.Executor.Project_Lifecycle_Commands;
@@ -1087,7 +1088,7 @@ package body Editor.Executor.Search_Tests is
       Init_Executor_Test_State (S);
       Set_Buffer_Text (S, "alpha beta alpha");
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
-      Editor.Executor.Find_Replace_Commands.Execute_Active_Find_Input_Insert_Text (S, "alpha");
+      Editor.Executor.Find_Replace_Input_Commands.Execute_Active_Find_Input_Insert_Text (S, "alpha");
 
       Cmd.Kind := Editor.Commands.Active_Find_Next;
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -1114,7 +1115,7 @@ package body Editor.Executor.Search_Tests is
       Init_Executor_Test_State (S);
       Set_Buffer_Text (S, "one two one");
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
-      Editor.Executor.Find_Replace_Commands.Execute_Active_Find_Input_Insert_Text (S, "one");
+      Editor.Executor.Find_Replace_Input_Commands.Execute_Active_Find_Input_Insert_Text (S, "one");
 
       Cmd.Kind := Editor.Commands.Active_Find_Previous;
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -1148,7 +1149,7 @@ package body Editor.Executor.Search_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, A_Path);
       A_Id := Editor.Buffers.Global_Active_Buffer;
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
-      Editor.Executor.Find_Replace_Commands.Execute_Active_Find_Input_Insert_Text (S, "alpha");
+      Editor.Executor.Find_Replace_Input_Commands.Execute_Active_Find_Input_Insert_Text (S, "alpha");
       Cmd.Kind := Editor.Commands.Active_Find_Next;
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Search.Has_Match (S.Active_Find_Match),
@@ -1191,7 +1192,7 @@ package body Editor.Executor.Search_Tests is
       Init_Executor_Test_State (S);
       Set_Buffer_Text (S, "alpha beta alpha");
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
-      Editor.Executor.Find_Replace_Commands.Execute_Active_Find_Input_Insert_Text (S, "alpha");
+      Editor.Executor.Find_Replace_Input_Commands.Execute_Active_Find_Input_Insert_Text (S, "alpha");
       Editor.Input_Bridge.Set_State_For_Test (S);
       declare
          Snapshot_State : Editor.State.State_Type := Editor.Input_Bridge.Get_State_For_Test;
@@ -1229,7 +1230,7 @@ package body Editor.Executor.Search_Tests is
           Virtual_Column        => 0,
           Anchor_Virtual_Column => 0));
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
-      Editor.Executor.Find_Replace_Commands.Execute_Active_Find_Input_Insert_Text (S, "alpha");
+      Editor.Executor.Find_Replace_Input_Commands.Execute_Active_Find_Input_Insert_Text (S, "alpha");
 
       Assert (Editor.Search.Has_Match (S.Active_Find_Match),
               "query edit must compute a current match");
@@ -1248,7 +1249,7 @@ package body Editor.Executor.Search_Tests is
       Init_Executor_Test_State (S);
       Set_Buffer_Text (S, "alpha beta alpha");
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
-      Editor.Executor.Find_Replace_Commands.Execute_Active_Find_Input_Insert_Text (S, "alpha");
+      Editor.Executor.Find_Replace_Input_Commands.Execute_Active_Find_Input_Insert_Text (S, "alpha");
       Cmd.Kind := Editor.Commands.Active_Find_Previous;
       Editor.Executor.Execute_No_Log (S, Cmd);
 
@@ -1267,7 +1268,7 @@ package body Editor.Executor.Search_Tests is
       Init_Executor_Test_State (S);
       Set_Buffer_Text (S, "alpha beta alpha");
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
-      Editor.Executor.Find_Replace_Commands.Execute_Active_Find_Input_Insert_Text (S, "alpha");
+      Editor.Executor.Find_Replace_Input_Commands.Execute_Active_Find_Input_Insert_Text (S, "alpha");
 
       Editor.Input_Bridge.Set_State_For_Test (S);
       declare
@@ -1294,7 +1295,7 @@ package body Editor.Executor.Search_Tests is
       Init_Executor_Test_State (S);
       Set_Buffer_Text (S, "alpha beta alpha");
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
-      Editor.Executor.Find_Replace_Commands.Execute_Active_Find_Input_Insert_Text (S, "alpha");
+      Editor.Executor.Find_Replace_Input_Commands.Execute_Active_Find_Input_Insert_Text (S, "alpha");
 
       Assert (Editor.Feature_Search_Results.Is_Empty (S.Feature_Search_Results),
               "find query edits must not populate Feature Search Results");

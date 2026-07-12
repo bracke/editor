@@ -19,6 +19,7 @@ with Editor.Input_Field;
 with Editor.Executor;
 with Editor.Executor.File_Open_Commands;
 with Editor.Executor.Command_Surface_Commands;
+with Editor.Executor.Quick_Open_Commands;
 with Editor.Executor.File_Save_Commands;
 with Editor.Executor.File_Target_Prompt_Commands;
 with Editor.Command_Route_Audit;
@@ -3211,7 +3212,7 @@ package body Editor.Quick_Open.Tests is
         (S.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay,
          S.Panel_Focus);
 
-      Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Set_Query (S, "main");
+      Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Set_Query (S, "main");
 
       Assert (Editor.Quick_Open.Query_Text (S.Quick_Open) = "main",
               "query-set should still update transient query text");
@@ -3260,13 +3261,13 @@ package body Editor.Quick_Open.Tests is
       Assert_No_Project_Availability
         (Editor.Commands.Command_Quick_Open_Scope_Parent, "scope-parent");
 
-      Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Kind_Next (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Kind_Next (S);
       Assert (Editor.Quick_Open.File_Kind_Filter (S.Quick_Open) = Editor.Quick_Open.All_Files,
               "kind-next without project must not mutate transient filter state");
       Assert (Active_Message_Text (S) = "No project open.",
               "kind-next runtime must report no-project");
 
-      Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Scope_Clear (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Scope_Clear (S);
       Assert (Editor.Quick_Open.Path_Scope (S.Quick_Open) = "src/editor/",
               "scope-clear without project must not mutate transient scope state");
       Assert (Active_Message_Text (S) = "No project open.",

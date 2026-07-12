@@ -25,6 +25,7 @@ with Editor.Dirty_Guards;
 with Editor.Executor;
 with Editor.Executor.File_Open_Commands;
 with Editor.Executor.Command_Surface_Commands;
+with Editor.Executor.Quick_Open_Commands;
 with Editor.Executor.Panel_Focus_Commands;
 with Editor.Executor.Project_Search_Result_Commands;
 with Editor.Executor.Project_Lifecycle_Commands;
@@ -1940,7 +1941,7 @@ package body Editor.Input_Bridge.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "abc");
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
       Editor.Input_Bridge.Set_State_For_Test (S);
 
       Assert
@@ -2096,7 +2097,7 @@ package body Editor.Input_Bridge.Tests is
       Editor.State.Load_Text (S, "Buffer");
       Editor.State.Set_Dirty (S, False);
       Set_Primary_Caret (S, 3, 3);
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Handle (Text_Command ("a"));
       Editor.Input_Bridge.Handle (Text_Command ("b"));
@@ -2161,7 +2162,7 @@ package body Editor.Input_Bridge.Tests is
       Assert (Natural (Editor.History.Redo_Stack.Length) = 1,
               "no-op/failure workflow route must preserve redo stack");
 
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Handle (Text_Command ("q"));
       S := Editor.Input_Bridge.Get_State_For_Test;
@@ -2347,7 +2348,7 @@ package body Editor.Input_Bridge.Tests is
               and then Editor.Navigation_History.Forward_Count (After.Navigation_History) = Before_Forward,
               "route previews must not record Navigation History");
 
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (After);
+      Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (After);
       Editor.Input_Bridge.Set_State_For_Test (After);
       Assert
         (Editor.Input_Bridge.Resolve_Text_Entry_Focus_Target =
@@ -2364,7 +2365,7 @@ package body Editor.Input_Bridge.Tests is
          Editor.Commands.No_Command,
          "overlay previous-character delete");
 
-      Editor.Executor.Command_Surface_Commands.Execute_Close_Quick_Open (After);
+      Editor.Executor.Quick_Open_Commands.Execute_Close_Quick_Open (After);
       Editor.Panel_Focus.Focus_File_Tree (After.Panel_Focus);
       Editor.Input_Bridge.Set_State_For_Test (After);
       Assert
@@ -2536,7 +2537,7 @@ package body Editor.Input_Bridge.Tests is
       Assert (Editor.State.Current_Text (S) = "AB",
               "no-caret failure does not mutate active-buffer text");
 
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Handle (Text_Command ("local"));
       Editor.Input_Bridge.Handle (Kind_Command (Editor.Commands.Delete_Previous_Character));
@@ -2630,11 +2631,11 @@ package body Editor.Input_Bridge.Tests is
       Set_Primary_Caret (S, 7, 7);
       S.Active_Find_Query := To_Unbounded_String ("persist");
       S.Active_Replace_Text := To_Unbounded_String ("state");
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Handle (Text_Command ("overlay"));
       S := Editor.Input_Bridge.Get_State_For_Test;
-      Editor.Executor.Command_Surface_Commands.Execute_Close_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Close_Quick_Open (S);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Handle (Text_Command ("X"));
       Editor.Input_Bridge.Handle (Kind_Command (Editor.Commands.Delete_Previous_Character));
@@ -2690,7 +2691,7 @@ package body Editor.Input_Bridge.Tests is
         (Natural (Editor.History.Undo_Stack.Length) = 1,
          "command-id text entry creates undo only through the canonical mutation owner");
 
-      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (S);
+      Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Assert
         (Editor.Input_Bridge.Resolve_Text_Entry_Focus_Target =
