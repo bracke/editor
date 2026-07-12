@@ -546,6 +546,79 @@ package body Editor.Executor.Lifecycle_Tests is
          raise;
    end Test_Save_And_Close_Conflict_Overwrite_Closes;
 
+   procedure Test_Save_And_Close_Conflict_Overwrite_Preserves_Survivor_Buffer
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      S              : Editor.State.State_Type;
+      Path           : constant String := Temp_Path ("save_close_conflict_survivor.txt");
+      Survivor_Path   : constant String := Temp_Path ("save_close_conflict_survivor_peer.txt");
+      Closed_Id       : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
+      Survivor_Id     : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
+      Result          : Editor.Files.File_Open_Result;
+   begin
+      Remove_File_If_Exists (Path);
+      Remove_File_If_Exists (Survivor_Path);
+      Write_Text_File (Path, "baseline");
+      Write_Text_File (Survivor_Path, "survivor");
+      Editor.Buffers.Reset_Global_For_Test;
+      Init_Executor_Test_State (S);
+
+      Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
+      Closed_Id := Editor.Buffers.Global_Active_Buffer;
+      Set_Buffer_Text (S, "dirty close overwrite");
+      S.File_Info.Dirty := True;
+      Editor.Buffers.Sync_Global_Active_From_State (S);
+
+      Editor.Executor.File_Open_Commands.Execute_Open_File (S, Survivor_Path);
+      Survivor_Id := Editor.Buffers.Global_Active_Buffer;
+      Editor.Buffers.Global_Set_Active_Buffer (Closed_Id);
+      Editor.Buffers.Load_Global_Active_Into_State (S);
+      Write_Text_File (Path, "external replacement with different size");
+
+      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_Active_Buffer);
+      Assert (S.Dirty_Close_Prompt_Active,
+              "conflict close starts from dirty close review");
+      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Confirm_Close_Save);
+
+      Assert (S.File_Conflict_Prompt_Active,
+              "save-and-close must surface conflict prompt");
+      Assert (S.File_Conflict_Close_After_Overwrite,
+              "save-and-close must remember close-after-overwrite transiently");
+      Assert (Editor.Buffers.Global_Contains (Closed_Id),
+              "conflicted buffer remains open before explicit overwrite");
+      Assert (Editor.Buffers.Global_Contains (Survivor_Id),
+              "surviving buffer remains open before explicit overwrite");
+
+      Editor.Executor.Execute_Command
+        (S, Editor.Commands.Command_File_Conflict_Overwrite_Disk);
+
+      Assert (not S.File_Conflict_Prompt_Active,
+              "overwrite-after-close must clear the file conflict prompt");
+      Assert (not Editor.Buffers.Global_Contains (Closed_Id),
+              "explicit overwrite after save-and-close must close the buffer");
+      Assert (Editor.Buffers.Global_Contains (Survivor_Id),
+              "explicit overwrite after save-and-close must preserve the survivor buffer");
+      Assert (Editor.Buffers.Global_Active_Buffer = Survivor_Id,
+              "explicit overwrite after save-and-close must keep the survivor active");
+      Result := Editor.Files.Open_File (Path);
+      Assert (To_String (Result.Contents) = "dirty close overwrite",
+              "overwrite-after-close must write buffer text before closing");
+      Result := Editor.Files.Open_File (Survivor_Path);
+      Assert (To_String (Result.Contents) = "survivor",
+              "overwrite-after-close must not alter the survivor buffer file");
+
+      Remove_File_If_Exists (Path);
+      Remove_File_If_Exists (Survivor_Path);
+      Editor.Buffers.Reset_Global_For_Test;
+   exception
+      when others =>
+         Remove_File_If_Exists (Path);
+         Remove_File_If_Exists (Survivor_Path);
+         Editor.Buffers.Reset_Global_For_Test;
+         raise;
+   end Test_Save_And_Close_Conflict_Overwrite_Preserves_Survivor_Buffer;
+
    procedure Test_Close_All_Save_Conflict_Overwrite_Continues
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
@@ -1670,6 +1743,9 @@ package body Editor.Executor.Lifecycle_Tests is
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Save_And_Close_Conflict_Overwrite_Closes'Access,
          "save and close conflict overwrite closes");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Save_And_Close_Conflict_Overwrite_Preserves_Survivor_Buffer'Access,
+         "save and close conflict overwrite preserves survivor buffer");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Close_All_Save_Conflict_Overwrite_Continues'Access,
          "close-all save conflict overwrite continues");

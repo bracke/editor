@@ -258,6 +258,49 @@ package body Editor.Executor.File_Conflict_Commands is
       Editor.Executor.Shared_Services.Report_Success (S, "File reloaded from disk");
    end Execute_File_Conflict_Reload_From_Disk;
 
+   procedure Resume_Close_After_Overwrite
+     (S              : in out Editor.State.State_Type;
+      Resume_Buffer   : Editor.Buffers.Buffer_Id;
+      Resume_Selected : Boolean;
+      Resume_All      : Boolean;
+      Closed          : out Boolean)
+   is
+   begin
+      Closed := False;
+      if Resume_Buffer /= Editor.Buffers.No_Buffer
+        and then Editor.Buffers.Global_Contains (Resume_Buffer)
+      then
+         Editor.Executor.Buffer_Close_Prompt_Commands.Close_Buffer_By_Discard
+           (S, Resume_Buffer, Closed);
+         if Resume_Selected then
+            Editor.Executor.Buffer_Switcher_Shared.Recompute_Buffer_Switcher (S);
+            Editor.Executor.Buffer_Switcher_Shared.Normalize_Switcher_Preview_Target (S);
+         end if;
+         if Resume_All then
+            declare
+               Remaining : constant Editor.Dirty_Guards.Dirty_Buffer_Summary :=
+                 Editor.Executor.Buffer_Close_Prompt_Commands.Dirty_Buffer_Summary_For_All_Buffers
+                   (S.Project);
+            begin
+               if Remaining.Dirty_Count > 0 then
+                  Editor.Executor.Buffer_Close_Prompt_Commands.Start_Dirty_Close_Prompt
+                    (S, Editor.State.All_Buffers_Close_Scope, True,
+                     Editor.Buffers.No_Buffer, Remaining);
+                  Editor.Executor.Buffer_Close_Prompt_Commands.Execute_Confirm_Close_Save (S);
+               else
+                  Editor.Executor.Buffer_Close_Prompt_Commands.Execute_Close_All_Buffers_Confirmed (S);
+               end if;
+            end;
+         elsif Closed then
+            Editor.Executor.Shared_Services.Report_Info (S, "Buffer closed");
+         else
+            Editor.Executor.Shared_Services.Report_Info (S, "No changes to overwrite");
+         end if;
+      else
+         Editor.Executor.Shared_Services.Report_Info (S, "No changes to overwrite");
+      end if;
+   end Resume_Close_After_Overwrite;
+
    procedure Execute_File_Conflict_Overwrite_Disk
      (S : in out Editor.State.State_Type)
    is
@@ -287,30 +330,8 @@ package body Editor.Executor.File_Conflict_Commands is
            and then Resume_Buffer /= Editor.Buffers.No_Buffer
            and then Editor.Buffers.Global_Contains (Resume_Buffer)
          then
-            Editor.Executor.Buffer_Close_Prompt_Commands.Close_Buffer_By_Discard (S, Resume_Buffer, Closed);
-            if Resume_Selected then
-               Editor.Executor.Buffer_Switcher_Shared.Recompute_Buffer_Switcher (S);
-               Editor.Executor.Buffer_Switcher_Shared.Normalize_Switcher_Preview_Target (S);
-            end if;
-            if Resume_All then
-               declare
-                  Remaining : constant Editor.Dirty_Guards.Dirty_Buffer_Summary :=
-                    Editor.Executor.Buffer_Close_Prompt_Commands.Dirty_Buffer_Summary_For_All_Buffers (S.Project);
-               begin
-                  if Remaining.Dirty_Count > 0 then
-                     Editor.Executor.Buffer_Close_Prompt_Commands.Start_Dirty_Close_Prompt
-                       (S, Editor.State.All_Buffers_Close_Scope, True,
-                        Editor.Buffers.No_Buffer, Remaining);
-                     Editor.Executor.Buffer_Close_Prompt_Commands.Execute_Confirm_Close_Save (S);
-                  else
-                     Editor.Executor.Buffer_Close_Prompt_Commands.Execute_Close_All_Buffers_Confirmed (S);
-                  end if;
-               end;
-            elsif Closed then
-               Editor.Executor.Shared_Services.Report_Info (S, "Buffer closed");
-            else
-               Editor.Executor.Shared_Services.Report_Info (S, "No changes to overwrite");
-            end if;
+            Resume_Close_After_Overwrite
+              (S, Resume_Buffer, Resume_Selected, Resume_All, Closed);
          else
             Editor.Executor.Shared_Services.Report_Info (S, "No changes to overwrite");
          end if;
@@ -329,30 +350,8 @@ package body Editor.Executor.File_Conflict_Commands is
            and then Resume_Buffer /= Editor.Buffers.No_Buffer
            and then Editor.Buffers.Global_Contains (Resume_Buffer)
          then
-            Editor.Executor.Buffer_Close_Prompt_Commands.Close_Buffer_By_Discard (S, Resume_Buffer, Closed);
-            if Resume_Selected then
-               Editor.Executor.Buffer_Switcher_Shared.Recompute_Buffer_Switcher (S);
-               Editor.Executor.Buffer_Switcher_Shared.Normalize_Switcher_Preview_Target (S);
-            end if;
-            if Resume_All then
-               declare
-                  Remaining : constant Editor.Dirty_Guards.Dirty_Buffer_Summary :=
-                    Editor.Executor.Buffer_Close_Prompt_Commands.Dirty_Buffer_Summary_For_All_Buffers (S.Project);
-               begin
-                  if Remaining.Dirty_Count > 0 then
-                     Editor.Executor.Buffer_Close_Prompt_Commands.Start_Dirty_Close_Prompt
-                       (S, Editor.State.All_Buffers_Close_Scope, True,
-                        Editor.Buffers.No_Buffer, Remaining);
-                     Editor.Executor.Buffer_Close_Prompt_Commands.Execute_Confirm_Close_Save (S);
-                  else
-                     Editor.Executor.Buffer_Close_Prompt_Commands.Execute_Close_All_Buffers_Confirmed (S);
-                  end if;
-               end;
-            elsif Closed then
-               Editor.Executor.Shared_Services.Report_Success (S, "Overwrite confirmed; buffer closed");
-            else
-               Editor.Executor.Shared_Services.Report_Success (S, "Overwrite confirmed");
-            end if;
+            Resume_Close_After_Overwrite
+              (S, Resume_Buffer, Resume_Selected, Resume_All, Closed);
          else
             Editor.Executor.Shared_Services.Report_Success (S, "Overwrite confirmed");
          end if;

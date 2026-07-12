@@ -1944,16 +1944,24 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
       pragma Unreferenced (T);
       S            : Editor.State.State_Type;
       Path         : constant String := Temp_Path ("overwrite_resume_close.txt");
-      Buffer_Id    : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
+      Survivor_Path : constant String := Temp_Path ("overwrite_resume_close_survivor.txt");
+      Buffer_Id     : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
+      Survivor_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
    begin
       Remove_If_Exists (Path);
+      Remove_If_Exists (Survivor_Path);
       Write_Bytes (Path, "disk baseline");
+      Write_Bytes (Survivor_Path, "survivor baseline");
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
       Buffer_Id := Editor.Buffers.Global_Active_Buffer;
       Editor.Executor.Execute_No_Log
         (S, Editor.Test_Helper.Insert (Buffer_Text (S)'Length, '!'));
+      Editor.Executor.File_Open_Commands.Execute_Open_File (S, Survivor_Path);
+      Survivor_Id := Editor.Buffers.Global_Active_Buffer;
+      Editor.Buffers.Global_Set_Active_Buffer (Buffer_Id);
+      Editor.Buffers.Load_Global_Active_Into_State (S);
       Write_Bytes (Path, "external disk replacement with different size");
 
       Editor.Executor.Buffer_Close_Commands.Execute_Close_Active_Buffer (S);
@@ -1961,6 +1969,8 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
         "dirty close should open the confirmation prompt");
       Assert (Editor.Buffers.Global_Contains (Buffer_Id),
         "dirty close should keep the target buffer open");
+      Assert (Editor.Buffers.Global_Contains (Survivor_Id),
+        "dirty close should preserve the surviving buffer");
 
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Confirm_Close_Save);
@@ -1979,18 +1989,22 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
         "overwrite should clear the conflict prompt");
       Assert (not Editor.Buffers.Global_Contains (Buffer_Id),
         "overwrite should resume and complete the pending close");
-      Assert (Editor.Buffers.Global_Count = 0,
-        "resumed close should leave no buffers open");
-      Assert (Editor.Buffers.Global_Active_Buffer = Editor.Buffers.No_Buffer,
-        "resumed close should leave no active buffer");
+      Assert (Editor.Buffers.Global_Contains (Survivor_Id),
+        "resumed close should keep the surviving buffer open");
+      Assert (Editor.Buffers.Global_Active_Buffer = Survivor_Id,
+        "resumed close should restore the surviving buffer as active");
       Assert (Read_Bytes (Path) = "disk baseline!",
         "overwrite should write the current buffer text before closing");
+      Assert (Read_Bytes (Survivor_Path) = "survivor baseline",
+        "overwrite should not disturb the surviving buffer's file");
 
       Remove_If_Exists (Path);
+      Remove_If_Exists (Survivor_Path);
       Editor.Buffers.Reset_Global_For_Test;
    exception
       when others =>
          Remove_If_Exists (Path);
+         Remove_If_Exists (Survivor_Path);
          Editor.Buffers.Reset_Global_For_Test;
          raise;
    end Test_File_Conflict_Overwrite_Resumes_Confirmed_Close;
