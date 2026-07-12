@@ -89,7 +89,12 @@ package body Editor.Executor.Command_Kind_Routing is
             | Goto_Line_Delete_Forward
             | Goto_Line_Move_Cursor_Left
             | Goto_Line_Move_Cursor_Right
-            | Open_Quick_Open
+            =>
+            Editor.Executor.Navigation_Commands.Execute_Goto_Line_Kind
+              (S, Cmd.Kind, To_String (Cmd.Text));
+            Check_And_Mark_Handled (Handled);
+
+         when Open_Quick_Open
             | Close_Quick_Open
             | Toggle_Quick_Open
             | Accept_Quick_Open

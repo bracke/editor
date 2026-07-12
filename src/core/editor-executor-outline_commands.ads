@@ -15,10 +15,6 @@ package Editor.Executor.Outline_Commands is
       Cmd : Editor.Commands.Command)
       return Editor.Command_Execution.Command_Execution_Result;
 
-   procedure Execute_Outline_Kind
-     (S   : in out Editor.State.State_Type;
-      Cmd : Editor.Commands.Command);
-
    function Execute_Outline_Row_Click
      (S                         : in out Editor.State.State_Type;
       Row                       : Natural;
@@ -30,5 +26,9 @@ package Editor.Executor.Outline_Commands is
       Row                       : Natural;
       Expected_Panel_Generation : Natural := 0)
       return Editor.Command_Execution.Command_Execution_Result;
+
+   procedure Execute_Outline_Kind
+     (S   : in out Editor.State.State_Type;
+      Cmd : Editor.Commands.Command);
 
 end Editor.Executor.Outline_Commands;

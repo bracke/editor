@@ -17,7 +17,9 @@ with Editor.Executor.Navigation_Commands;
 with Editor.Executor.Availability;
 with Editor.Executor.Command_Palette_Projection;
 with Editor.Executor.Shared_Services;
+with Editor.Executor_Edit_Status;
 with Editor.Executor.Pending_Transition_Policy;
+with Editor.Executor.File_Open_Commands;
 with Editor.Executor.Search_Results_Commands;
 with Editor.Executor.Diagnostics_Commands;
 with Editor.Executor.Buffer_Metadata_Commands;
@@ -117,37 +119,20 @@ package body Editor.Executor is
      (S : in out Editor.State.State_Type);
    procedure Recompute_Buffer_Switcher
      (S : in out Editor.State.State_Type);
+   procedure Report_Info
+     (S    : in out Editor.State.State_Type;
+      Text : String) renames Editor.Executor.Shared_Services.Report_Info;
+   procedure Report_Success
+     (S    : in out Editor.State.State_Type;
+      Text : String) renames Editor.Executor.Shared_Services.Report_Success;
+   procedure Report_Error
+     (S    : in out Editor.State.State_Type;
+      Text : String) renames Editor.Executor.Shared_Services.Report_Error;
 
    function Primary_Cursor_Line_Of_Buffer
      (Id : Editor.Buffers.Buffer_Id) return Natural;
    procedure Normalize_Switcher_Preview_Target
      (S : in out Editor.State.State_Type);
-   procedure Close_Buffer_By_Discard
-     (S      : in out Editor.State.State_Type;
-      Id     : Editor.Buffers.Buffer_Id;
-      Closed : out Boolean);
-   function Dirty_Buffer_Summary_For_All_Buffers
-     return Editor.Dirty_Guards.Dirty_Buffer_Summary;
-   function Dirty_Buffer_Summary_For_All_Buffers
-     (Project : Editor.Project.Project_State)
-      return Editor.Dirty_Guards.Dirty_Buffer_Summary;
-   function Dirty_Close_Open_Buffer_Fingerprint return Natural;
-   function Dirty_Close_Dirty_Buffer_Fingerprint return Natural;
-   function Dirty_Close_Open_Buffer_Id_List return Ada.Strings.Unbounded.Unbounded_String;
-   function Dirty_Close_Dirty_Buffer_Id_List return Ada.Strings.Unbounded.Unbounded_String;
-   function Dirty_Close_Current_Dirty_Set_Was_Reviewed
-     (S : Editor.State.State_Type) return Boolean;
-   function Dirty_Close_Current_Dirty_Set_Equals_Review
-     (S : Editor.State.State_Type) return Boolean;
-   function Dirty_Close_Current_Open_Set_Was_Reviewed
-     (S : Editor.State.State_Type) return Boolean;
-   function Dirty_Close_All_Buffer_Identity_Current
-     (S : Editor.State.State_Type) return Boolean;
-   function Dirty_Close_All_Buffer_Review_Current
-     (S : Editor.State.State_Type) return Boolean;
-   function Dirty_Close_Start_Message
-     (All_Buffers : Boolean;
-      Summary     : Editor.Dirty_Guards.Dirty_Buffer_Summary) return String;
    function Marked_Open_Count (S : Editor.State.State_Type) return Natural;
    function Selected_Switcher_Buffer
      (S     : Editor.State.State_Type;
@@ -1250,105 +1235,6 @@ package body Editor.Executor is
    begin
       return "Could not " & Operation & " buffer";
    end Read_Failure_Recovery_Message;
-   procedure Finalize_Cleanup_Buffer_Close
-     (S          : in out Editor.State.State_Type;
-      Id         : Editor.Buffers.Buffer_Id;
-      Was_Active : Boolean)
-   is
-   begin
-      Editor.Executor.File_Lifecycle_Commands.Finalize_Cleanup_Buffer_Close
-        (S, Id, Was_Active);
-   end Finalize_Cleanup_Buffer_Close;
-   function Dirty_Close_Start_Message
-     (All_Buffers : Boolean;
-      Summary     : Editor.Dirty_Guards.Dirty_Buffer_Summary) return String
-   is
-   begin
-      return Editor.Executor.File_Lifecycle_Commands.Dirty_Close_Start_Message
-        (All_Buffers, Summary);
-   end Dirty_Close_Start_Message;
-   function Dirty_Buffer_Summary_For_All_Buffers
-     return Editor.Dirty_Guards.Dirty_Buffer_Summary
-   is
-   begin
-      return
-        Editor.Executor.File_Lifecycle_Commands
-          .Dirty_Buffer_Summary_For_All_Buffers;
-   end Dirty_Buffer_Summary_For_All_Buffers;
-   function Dirty_Buffer_Summary_For_All_Buffers
-     (Project : Editor.Project.Project_State)
-      return Editor.Dirty_Guards.Dirty_Buffer_Summary
-   is
-   begin
-      return Editor.Executor.File_Lifecycle_Commands.Dirty_Buffer_Summary_For_All_Buffers
-        (Project);
-   end Dirty_Buffer_Summary_For_All_Buffers;
-   function Dirty_Close_Open_Buffer_Fingerprint return Natural is
-   begin
-      return Editor.Executor.File_Lifecycle_Commands.Dirty_Close_Open_Buffer_Fingerprint;
-   end Dirty_Close_Open_Buffer_Fingerprint;
-   function Dirty_Close_Dirty_Buffer_Fingerprint return Natural is
-   begin
-      return Editor.Executor.File_Lifecycle_Commands.Dirty_Close_Dirty_Buffer_Fingerprint;
-   end Dirty_Close_Dirty_Buffer_Fingerprint;
-   function Dirty_Close_Open_Buffer_Id_List return Ada.Strings.Unbounded.Unbounded_String is
-   begin
-      return Editor.Executor.File_Lifecycle_Commands.Dirty_Close_Open_Buffer_Id_List;
-   end Dirty_Close_Open_Buffer_Id_List;
-   function Dirty_Close_Dirty_Buffer_Id_List return Ada.Strings.Unbounded.Unbounded_String is
-   begin
-      return Editor.Executor.File_Lifecycle_Commands.Dirty_Close_Dirty_Buffer_Id_List;
-   end Dirty_Close_Dirty_Buffer_Id_List;
-   function Dirty_Close_Current_Dirty_Set_Was_Reviewed
-     (S : Editor.State.State_Type) return Boolean
-   is
-   begin
-      return Editor.Executor.File_Lifecycle_Commands.Dirty_Close_Current_Dirty_Set_Was_Reviewed (S);
-   end Dirty_Close_Current_Dirty_Set_Was_Reviewed;
-   function Dirty_Close_Current_Dirty_Set_Equals_Review
-     (S : Editor.State.State_Type) return Boolean
-   is
-   begin
-      return Editor.Executor.File_Lifecycle_Commands.Dirty_Close_Current_Dirty_Set_Equals_Review (S);
-   end Dirty_Close_Current_Dirty_Set_Equals_Review;
-   function Dirty_Close_Current_Open_Set_Was_Reviewed
-     (S : Editor.State.State_Type) return Boolean
-   is
-   begin
-      return Editor.Executor.File_Lifecycle_Commands.Dirty_Close_Current_Open_Set_Was_Reviewed (S);
-   end Dirty_Close_Current_Open_Set_Was_Reviewed;
-   function Dirty_Close_All_Buffer_Identity_Current
-     (S : Editor.State.State_Type) return Boolean
-   is
-   begin
-      return Editor.Executor.File_Lifecycle_Commands.Dirty_Close_All_Buffer_Identity_Current (S);
-   end Dirty_Close_All_Buffer_Identity_Current;
-   function Dirty_Close_All_Buffer_Review_Current
-     (S : Editor.State.State_Type) return Boolean
-   is
-   begin
-      return Editor.Executor.File_Lifecycle_Commands.Dirty_Close_All_Buffer_Review_Current (S);
-   end Dirty_Close_All_Buffer_Review_Current;
-   procedure Start_Dirty_Close_Prompt
-     (S           : in out Editor.State.State_Type;
-      Scope       : Editor.State.Dirty_Close_Scope;
-      All_Buffers : Boolean;
-      Buffer_Id   : Editor.Buffers.Buffer_Id;
-      Summary     : Editor.Dirty_Guards.Dirty_Buffer_Summary)
-   is
-   begin
-      Editor.Executor.File_Lifecycle_Commands.Start_Dirty_Close_Prompt
-        (S, Scope, All_Buffers, Buffer_Id, Summary);
-   end Start_Dirty_Close_Prompt;
-   procedure Close_Buffer_By_Discard
-     (S      : in out Editor.State.State_Type;
-      Id     : Editor.Buffers.Buffer_Id;
-      Closed : out Boolean)
-   is
-   begin
-      Editor.Executor.File_Lifecycle_Commands.Close_Buffer_By_Discard
-        (S, Id, Closed);
-   end Close_Buffer_By_Discard;
    function Trimmed_Command_Text (Text : String) return String is
    begin
       return Ada.Strings.Fixed.Trim (Text, Ada.Strings.Both);
@@ -1394,12 +1280,6 @@ package body Editor.Executor is
       when others =>
          return False;
    end Save_As_Target_Parent_Missing;
-   procedure Clear_Reopen_Candidate
-     (S : in out Editor.State.State_Type)
-   is
-   begin
-      Editor.Executor.File_Lifecycle_Commands.Clear_Reopen_Candidate (S);
-   end Clear_Reopen_Candidate;
    function Problems_Visible_Row_Count return Natural
    is
    begin
@@ -1742,6 +1622,7 @@ package body Editor.Executor is
          Desired_Scroll => Desired);
       Editor.View.Clear_User_Scroll_Override;
    end Reveal_Search_Match;
+
    ------------------------------------------------------------------------
    -- Main executor
    ------------------------------------------------------------------------

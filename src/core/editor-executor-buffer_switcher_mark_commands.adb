@@ -6,6 +6,7 @@ with Editor.Buffers;
 with Editor.Command_Execution;
 with Editor.Commands;
 with Editor.Executor;
+with Editor.Executor.Buffer_Close_Prompt_Commands;
 with Editor.Executor.Shared_Services;
 use Editor.Executor.Shared_Services;
 with Editor.Executor.Buffer_Switcher_Shared;
@@ -1003,7 +1004,8 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
                   if Closed then
                      Editor.Buffer_Switcher.Clear_Mark (S.Buffer_Switcher, Id);
                      Closed_Count := Closed_Count + 1;
-                     Editor.Executor.Finalize_Cleanup_Buffer_Close (S, Id, Summary.Is_Active);
+                     Editor.Executor.Buffer_Close_Prompt_Commands.Finalize_Cleanup_Buffer_Close
+                       (S, Id, Summary.Is_Active);
                   else
                      Kept_Count := Kept_Count + 1;
                   end if;

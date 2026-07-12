@@ -59,6 +59,7 @@ use type Editor.State.Dirty_Close_Scope;
 use type Editor.State.File_Conflict_Kind;
 with Editor.View;
 with Editor.Build_UI;
+with Editor.Executor.Buffer_Close_Prompt_Commands;
 with Editor.Executor.Buffer_Close_Commands;
 
 package body Editor.Executor.File_Save_Commands is
@@ -67,7 +68,7 @@ package body Editor.Executor.File_Save_Commands is
 
    procedure Clear_Dirty_Close_Prompt
      (S : in out Editor.State.State_Type) renames
-       Editor.Executor.Buffer_Close_Commands.Clear_Dirty_Close_Prompt;
+       Editor.Executor.Buffer_Close_Prompt_Commands.Clear_Dirty_Close_Prompt;
 
    function Count_Text
      (Count : Natural;
@@ -747,183 +748,6 @@ package body Editor.Executor.File_Save_Commands is
    end Update_Saved_Baseline_After_Revert;
 
 
-   procedure Execute_File_Conflict_Cancel
-     (S : in out Editor.State.State_Type)
-   is
-   begin
-      Clear_File_Conflict_Prompt (S);
-      Editor.Executor.Shared_Services.Report_Info (S, "File conflict cancelled");
-   end Execute_File_Conflict_Cancel;
-
-   procedure Execute_File_Conflict_Keep_Buffer
-     (S : in out Editor.State.State_Type)
-   is
-   begin
-      if not File_Conflict_Prompt_Is_Valid (S) then
-         Clear_File_Conflict_Prompt (S);
-         Editor.Executor.Shared_Services.Report_Warning (S, "Conflict prompt is stale");
-         return;
-      end if;
-      Load_File_Conflict_Buffer (S);
-      Clear_File_Conflict_Prompt (S);
-      --  Preserve the specific marker surfaced when the prompt was created:
-      --  changed/replaced, missing, or unreadable.  Keep-buffer must not
-      --  collapse every conflict kind into a generic changed-on-disk label.
-      Editor.Buffers.Sync_Global_Active_From_State (S);
-      Editor.Executor.Shared_Services.Report_Info (S, "Kept buffer changes; file remains conflicted");
-   end Execute_File_Conflict_Keep_Buffer;
-
-   procedure Execute_File_Conflict_Reload_From_Disk
-     (S : in out Editor.State.State_Type)
-   is
-      Result : Editor.Files.File_Open_Result;
-      Reload_Path    : Unbounded_String;
-      Reload_Display : Unbounded_String;
-   begin
-      if not File_Conflict_Prompt_Is_Valid (S) then
-         Clear_File_Conflict_Prompt (S);
-         Editor.Executor.Shared_Services.Report_Warning (S, "Conflict prompt is stale");
-         return;
-      end if;
-      Load_File_Conflict_Buffer (S);
-      Reload_Path := S.File_Info.Path;
-      Reload_Display := S.File_Info.Display_Name;
-      Result := Read_Active_Buffer_Associated_File_For_Reload (S);
-      if not Editor.Files.Is_Success (Result) then
-         S.File_Info.Last_Reload_Failed := True;
-         S.File_Info.Missing_Target_Surfaced :=
-           Result.Status = Editor.Files.File_Open_Not_Found;
-         S.File_Info.Unreadable_Target_Surfaced :=
-           Result.Status in Editor.Files.File_Open_Permission_Denied
-             | Editor.Files.File_Open_Read_Error
-             | Editor.Files.File_Open_Decode_Error
-             | Editor.Files.File_Open_Is_Directory
-             | Editor.Files.File_Open_Invalid_Path;
-         Editor.Buffers.Sync_Global_Active_From_State (S);
-         Editor.Executor.Shared_Services.Report_Error (S, "Could not reload file; buffer unchanged");
-         return;
-      end if;
-      Apply_Reloaded_Text_After_Read (S, Result.Contents);
-      Apply_Reload_Buffer_Local_Lifecycle (S);
-      Update_Saved_Baseline_After_Reload (S, Reload_Path, Reload_Display);
-      Clear_File_Conflict_Prompt (S);
-      File_Lifecycle_Invalidate_Derived_State
-        (S, "Derived state is stale after reload");
-      Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
-      Editor.Executor.Shared_Services.Report_Success (S, "File reloaded from disk");
-   end Execute_File_Conflict_Reload_From_Disk;
-
-   procedure Execute_File_Conflict_Overwrite_Disk
-     (S : in out Editor.State.State_Type)
-   is
-      Result : Editor.Files.File_Save_Result;
-      Resume_Close    : Boolean := False;
-      Resume_Buffer   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Resume_Selected : Boolean := False;
-      Resume_All      : Boolean := False;
-      Closed          : Boolean := False;
-   begin
-      if not File_Conflict_Prompt_Is_Valid (S) then
-         Clear_File_Conflict_Prompt (S);
-         Editor.Executor.Shared_Services.Report_Warning (S, "Conflict prompt is stale");
-         return;
-      end if;
-
-      Resume_Close := S.File_Conflict_Close_After_Overwrite;
-      Resume_Buffer :=
-        Editor.Buffers.Buffer_Id (S.File_Conflict_Close_After_Overwrite_Buffer);
-      Resume_Selected := S.File_Conflict_Close_After_Overwrite_Selected;
-      Resume_All := S.File_Conflict_Close_After_Overwrite_All_Buffers;
-
-      Load_File_Conflict_Buffer (S);
-      if not S.File_Info.Dirty then
-         Clear_File_Conflict_Prompt (S);
-         if Resume_Close
-           and then Resume_Buffer /= Editor.Buffers.No_Buffer
-           and then Editor.Buffers.Global_Contains (Resume_Buffer)
-         then
-            Editor.Executor.Buffer_Close_Commands.Close_Buffer_By_Discard (S, Resume_Buffer, Closed);
-            if Resume_Selected then
-               Editor.Executor.Buffer_Switcher_Shared.Recompute_Buffer_Switcher (S);
-               Editor.Executor.Buffer_Switcher_Shared.Normalize_Switcher_Preview_Target (S);
-            end if;
-            if Resume_All then
-               declare
-                  Remaining : constant Editor.Dirty_Guards.Dirty_Buffer_Summary :=
-                    Editor.Executor.Buffer_Close_Commands.Dirty_Buffer_Summary_For_All_Buffers (S.Project);
-               begin
-                  if Remaining.Dirty_Count > 0 then
-                     Start_Dirty_Close_Prompt
-                       (S, Editor.State.All_Buffers_Close_Scope, True,
-                        Editor.Buffers.No_Buffer, Remaining);
-                     Editor.Executor.Buffer_Close_Commands.Execute_Confirm_Close_Save (S);
-                  else
-                     Editor.Executor.Buffer_Close_Commands.Execute_Close_All_Buffers_Confirmed (S);
-                  end if;
-               end;
-            elsif Closed then
-               Editor.Executor.Shared_Services.Report_Info (S, "Buffer closed");
-            else
-               Editor.Executor.Shared_Services.Report_Info (S, "No changes to overwrite");
-            end if;
-         else
-            Editor.Executor.Shared_Services.Report_Info (S, "No changes to overwrite");
-         end if;
-         return;
-      end if;
-      Result := Write_Active_Buffer_Text_To_File (S);
-      if Editor.Files.Is_Success (Result) then
-         Mark_Active_Buffer_Saved (S, Result);
-         File_Lifecycle_Invalidate_Derived_State
-           (S, "Derived state is stale after overwrite");
-         Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
-         Clear_File_Conflict_Prompt (S);
-         if Resume_Close
-           and then Resume_Buffer /= Editor.Buffers.No_Buffer
-           and then Editor.Buffers.Global_Contains (Resume_Buffer)
-         then
-            Editor.Executor.Buffer_Close_Commands.Close_Buffer_By_Discard (S, Resume_Buffer, Closed);
-            if Resume_Selected then
-               Editor.Executor.Buffer_Switcher_Shared.Recompute_Buffer_Switcher (S);
-               Editor.Executor.Buffer_Switcher_Shared.Normalize_Switcher_Preview_Target (S);
-            end if;
-            if Resume_All then
-               declare
-                  Remaining : constant Editor.Dirty_Guards.Dirty_Buffer_Summary :=
-                    Editor.Executor.Buffer_Close_Commands.Dirty_Buffer_Summary_For_All_Buffers (S.Project);
-               begin
-                  if Remaining.Dirty_Count > 0 then
-                     Start_Dirty_Close_Prompt
-                       (S, Editor.State.All_Buffers_Close_Scope, True,
-                        Editor.Buffers.No_Buffer, Remaining);
-                     Editor.Executor.Buffer_Close_Commands.Execute_Confirm_Close_Save (S);
-                  else
-                     Editor.Executor.Buffer_Close_Commands.Execute_Close_All_Buffers_Confirmed (S);
-                  end if;
-               end;
-            elsif Closed then
-               Editor.Executor.Shared_Services.Report_Success (S, "Overwrite confirmed; buffer closed");
-            else
-               Editor.Executor.Shared_Services.Report_Success (S, "Overwrite confirmed");
-            end if;
-         else
-            Editor.Executor.Shared_Services.Report_Success (S, "Overwrite confirmed");
-         end if;
-      else
-         S.File_Info.Last_Save_Failed := True;
-         S.File_Info.Missing_Target_Surfaced :=
-           Result.Status in Editor.Files.File_Save_No_Current_Path
-             | Editor.Files.File_Save_Invalid_Path
-             | Editor.Files.File_Save_Parent_Unavailable;
-         S.File_Info.Unwritable_Target_Surfaced :=
-           Result.Status in Editor.Files.File_Save_Permission_Denied
-             | Editor.Files.File_Save_Write_Error
-             | Editor.Files.File_Save_Is_Directory;
-         Editor.Buffers.Sync_Global_Active_From_State (S);
-         Editor.Executor.Shared_Services.Report_Error (S, "Overwrite failed; buffer remains dirty");
-      end if;
-   end Execute_File_Conflict_Overwrite_Disk;
-
    procedure Execute_Retry_Pending_Transition
      (S : in out Editor.State.State_Type)
    is
@@ -973,10 +797,10 @@ package body Editor.Executor.File_Save_Commands is
 
       case Target.Kind is
          when Editor.Pending_Transitions.Pending_Close_All_Buffers =>
-            Editor.Executor.Buffer_Close_Commands.Execute_Close_All_Buffers_Confirmed (S);
+            Editor.Executor.Buffer_Close_Prompt_Commands.Execute_Close_All_Buffers_Confirmed (S);
             return;
          when Editor.Pending_Transitions.Pending_Close_Other_Buffers =>
-            Editor.Executor.Buffer_Close_Commands.Execute_Close_Other_Buffers_Confirmed (S, Editor.Buffers.Buffer_Id (Target.Buffer_Id));
+            Editor.Executor.Buffer_Close_Prompt_Commands.Execute_Close_Other_Buffers_Confirmed (S, Editor.Buffers.Buffer_Id (Target.Buffer_Id));
             return;
          when Editor.Pending_Transitions.Pending_Reload_Active_Buffer =>
             if Editor.Buffers.Global_Contains

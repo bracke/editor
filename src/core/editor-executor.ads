@@ -245,24 +245,9 @@ package Editor.Executor is
    procedure Clear_Restore_Feedback_Current
      (S : in out Editor.State.State_Type);
 
-   procedure Clear_Reopen_Candidate
-     (S : in out Editor.State.State_Type);
-
    function Trimmed_Command_Text (Text : String) return String;
 
    function Valid_Buffer_Label_Text (Text : String) return Boolean;
-
-   procedure Start_Dirty_Close_Prompt
-     (S           : in out Editor.State.State_Type;
-      Scope       : Editor.State.Dirty_Close_Scope;
-      All_Buffers : Boolean;
-      Buffer_Id   : Editor.Buffers.Buffer_Id;
-      Summary     : Editor.Dirty_Guards.Dirty_Buffer_Summary);
-
-   procedure Finalize_Cleanup_Buffer_Close
-     (S          : in out Editor.State.State_Type;
-      Id         : Editor.Buffers.Buffer_Id;
-      Was_Active : Boolean);
 
    procedure Populate_Project_Known_Files_From_File_Tree
      (S : in out Editor.State.State_Type);

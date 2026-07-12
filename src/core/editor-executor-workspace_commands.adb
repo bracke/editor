@@ -11,6 +11,7 @@ with Editor.Command_Execution;
 with Editor.Cursors;
 with Editor.Dirty_Guards;
 with Editor.Executor;
+with Editor.Executor.File_Open_Commands;
 with Editor.Executor.File_Save_Commands;
 with Editor.Executor.File_Target_Prompt_Commands;
 with Editor.Executor.Pending_Transition_Policy;
@@ -369,7 +370,7 @@ package body Editor.Executor.Workspace_Commands is
       Node_Id        : Editor.File_Tree.File_Tree_Node_Id := Editor.File_Tree.No_File_Tree_Node;
       Item          : Editor.Workspace_Persistence.Workspace_File_Entry;
    begin
-      Clear_Reopen_Candidate (S);
+      Editor.Executor.File_Open_Commands.Clear_Reopen_Candidate (S);
       Status := Editor.Workspace_Persistence.Workspace_Persistence_Ok;
       Summary := (others => <>);
 

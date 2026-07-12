@@ -14,10 +14,6 @@ package Editor.Executor.Message_Commands is
       Id : Editor.Commands.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result;
 
-   procedure Execute_Message_Kind
-     (S    : in out Editor.State.State_Type;
-      Kind : Editor.Commands.Command_Kind);
-
    function Execute_Message_Row_Click
      (S                         : in out Editor.State.State_Type;
       Row                       : Natural;
@@ -29,5 +25,9 @@ package Editor.Executor.Message_Commands is
       Row                       : Natural;
       Expected_Panel_Generation : Natural := 0)
       return Editor.Command_Execution.Command_Execution_Result;
+
+   procedure Execute_Message_Kind
+     (S    : in out Editor.State.State_Type;
+      Kind : Editor.Commands.Command_Kind);
 
 end Editor.Executor.Message_Commands;

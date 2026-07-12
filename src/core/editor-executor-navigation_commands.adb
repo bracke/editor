@@ -446,6 +446,44 @@ package body Editor.Executor.Navigation_Commands is
       end case;
    end Execute_Navigation_History_Kind;
 
+   procedure Execute_Goto_Line_Kind
+     (S    : in out Editor.State.State_Type;
+      Kind : Editor.Commands.Command_Kind;
+      Text : String := "")
+   is
+   begin
+      case Kind is
+         when Editor.Commands.Open_Goto_Line =>
+            Execute_Open_Goto_Line (S);
+         when Editor.Commands.Toggle_Goto_Line =>
+            Execute_Toggle_Goto_Line (S);
+         when Editor.Commands.Prefill_Goto_Line_Current =>
+            Execute_Prefill_Goto_Line_Current (S);
+         when Editor.Commands.Close_Goto_Line =>
+            Execute_Close_Goto_Line (S);
+         when Editor.Commands.Accept_Goto_Line =>
+            Execute_Accept_Goto_Line (S);
+         when Editor.Commands.Goto_Line_Query_Set =>
+            Execute_Goto_Line_Set_Query (S, Text);
+         when Editor.Commands.Goto_Line_Query_Clear =>
+            Execute_Goto_Line_Clear_Query (S);
+         when Editor.Commands.Goto_Line_Insert_Text =>
+            Execute_Goto_Line_Insert_Text (S, Text);
+         when Editor.Commands.Goto_Line_Backspace =>
+            Execute_Goto_Line_Backspace (S);
+         when Editor.Commands.Goto_Line_Delete_Forward =>
+            Execute_Goto_Line_Delete_Forward (S);
+         when Editor.Commands.Goto_Line_Move_Cursor_Left =>
+            Editor.Go_To_Line.Move_Cursor_Left (S.Go_To_Line);
+            Editor.Render_Cache.Invalidate_All;
+         when Editor.Commands.Goto_Line_Move_Cursor_Right =>
+            Editor.Go_To_Line.Move_Cursor_Right (S.Go_To_Line);
+            Editor.Render_Cache.Invalidate_All;
+         when others =>
+            raise Program_Error with "unsupported goto-line command kind";
+      end case;
+   end Execute_Goto_Line_Kind;
+
    procedure Execute_Open_Goto_Line
      (S : in out Editor.State.State_Type)
    is

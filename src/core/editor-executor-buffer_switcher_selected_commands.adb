@@ -6,6 +6,7 @@ with Editor.Command_Execution;
 with Editor.Commands;
 with Editor.Dirty_Guards;
 with Editor.Executor;
+with Editor.Executor.Buffer_Close_Prompt_Commands;
 with Editor.Executor.Shared_Services;
 use Editor.Executor.Shared_Services;
 with Editor.Executor.Pending_Transition_Policy;
@@ -122,7 +123,7 @@ package body Editor.Executor.Buffer_Switcher_Selected_Commands is
                Untitled_Count    => (if Summary.Has_Path then 0 else 1),
                File_Backed_Count => (if Summary.Has_Path then 1 else 0));
          begin
-            Editor.Executor.Start_Dirty_Close_Prompt
+            Editor.Executor.Buffer_Close_Prompt_Commands.Start_Dirty_Close_Prompt
               (S, Editor.State.Selected_Buffer_Close_Scope, False, Row.Id,
                Dirty_Summary);
          end;

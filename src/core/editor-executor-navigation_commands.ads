@@ -47,6 +47,11 @@ package Editor.Executor.Navigation_Commands is
      (S    : in out Editor.State.State_Type;
       Kind : Editor.Commands.Command_Kind);
 
+   procedure Execute_Goto_Line_Kind
+     (S    : in out Editor.State.State_Type;
+      Kind : Editor.Commands.Command_Kind;
+      Text : String := "");
+
    procedure Execute_Navigation_Back
      (S : in out Editor.State.State_Type);
 

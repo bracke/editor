@@ -17,7 +17,7 @@ with Editor.Executor;
 with Editor.Executor.Shared_Services;
 use Editor.Executor.Shared_Services;
 with Editor.Executor.Pending_Transition_Policy;
-with Editor.Executor.Buffer_Close_Commands;
+with Editor.Executor.Buffer_Close_Prompt_Commands;
 with Editor.Executor.Semantic_Index_Commands;
 with Editor.Feature_Diagnostics;
 with Editor.Files;
@@ -39,7 +39,7 @@ package body Editor.Executor.File_Save_Basic_Commands is
 
    procedure Clear_Dirty_Close_Prompt
      (S : in out Editor.State.State_Type) renames
-       Editor.Executor.Buffer_Close_Commands.Clear_Dirty_Close_Prompt;
+       Editor.Executor.Buffer_Close_Prompt_Commands.Clear_Dirty_Close_Prompt;
 
    procedure Load_Global_Active_Preserving_Language_Index
      (S : in out Editor.State.State_Type)

@@ -1,6 +1,7 @@
 with Editor.Commands;
 with Editor.Diagnostics;
 with Editor.Executor;
+with Editor.Executor.Diagnostics_Navigation_Commands;
 with Editor.Executor.Shared_Services;
 use Editor.Executor.Shared_Services;
 with Editor.Executor.Diagnostics_Commands;
@@ -104,7 +105,7 @@ package body Editor.Executor.Diagnostics_Problems_Commands is
          return;
       end if;
 
-      Editor.Executor.Diagnostics_Commands.Execute_Jump_To_Diagnostic
+      Editor.Executor.Diagnostics_Navigation_Commands.Execute_Jump_To_Diagnostic
         (S, Diagnostic_Index);
       Editor.Focus_Management.Restore_Focus_To_Editor (S);
       Editor.Render_Cache.Invalidate_All;
@@ -205,5 +206,69 @@ package body Editor.Executor.Diagnostics_Problems_Commands is
    begin
       Editor.Executor.Panel_Focus_Commands.Execute_Focus_Editor_Text (S);
    end Execute_Problems_Focus_Editor;
+
+   procedure Execute_Problems_Kind
+     (S    : in out Editor.State.State_Type;
+      Kind : Editor.Commands.Command_Kind)
+   is
+   begin
+      case Kind is
+         when Editor.Commands.Problems_Move_Up =>
+            Execute_Problems_Move_Up (S);
+
+         when Editor.Commands.Problems_Move_Down =>
+            Execute_Problems_Move_Down (S);
+
+         when Editor.Commands.Problems_Page_Up =>
+            Execute_Problems_Page_Up (S);
+
+         when Editor.Commands.Problems_Page_Down =>
+            Execute_Problems_Page_Down (S);
+
+         when Editor.Commands.Problems_Open_Selected =>
+            Execute_Problems_Open_Selected (S);
+
+         when Editor.Commands.Problems_Filter_All =>
+            Execute_Problems_Filter (S, Editor.Problems.Problems_Show_All);
+
+         when Editor.Commands.Problems_Filter_Errors =>
+            Execute_Problems_Filter (S, Editor.Problems.Problems_Show_Errors);
+
+         when Editor.Commands.Problems_Filter_Warnings =>
+            Execute_Problems_Filter (S, Editor.Problems.Problems_Show_Warnings);
+
+         when Editor.Commands.Problems_Filter_Info =>
+            Execute_Problems_Filter (S, Editor.Problems.Problems_Show_Info);
+
+         when Editor.Commands.Problems_Filter_Hints =>
+            Execute_Problems_Filter (S, Editor.Problems.Problems_Show_Hints);
+
+         when Editor.Commands.Problems_Sort_By_Location =>
+            Execute_Problems_Sort
+              (S, Editor.Problems.Problems_Sort_By_Location);
+
+         when Editor.Commands.Problems_Sort_By_Severity =>
+            Execute_Problems_Sort
+              (S, Editor.Problems.Problems_Sort_By_Severity);
+
+         when Editor.Commands.Problems_Sort_By_Source =>
+            Execute_Problems_Sort
+              (S, Editor.Problems.Problems_Sort_By_Source);
+
+         when Editor.Commands.Problems_Group_By_Severity =>
+            Execute_Problems_Group
+              (S, Editor.Problems.Problems_Group_By_Severity);
+
+         when Editor.Commands.Problems_Group_By_Source =>
+            Execute_Problems_Group
+              (S, Editor.Problems.Problems_Group_By_Source);
+
+         when Editor.Commands.Problems_Focus_Editor =>
+            Execute_Problems_Focus_Editor (S);
+
+         when others =>
+            raise Program_Error with "unsupported problems command kind";
+      end case;
+   end Execute_Problems_Kind;
 
 end Editor.Executor.Diagnostics_Problems_Commands;

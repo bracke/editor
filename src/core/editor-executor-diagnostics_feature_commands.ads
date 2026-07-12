@@ -5,7 +5,7 @@ with Editor.Feature_Diagnostics;
 with Editor.Problems;
 with Editor.State;
 
-package Editor.Executor.Diagnostics_Commands is
+package Editor.Executor.Diagnostics_Feature_Commands is
 
 
    function Feature_Target_Position_Is_Valid
@@ -41,15 +41,4 @@ package Editor.Executor.Diagnostics_Commands is
      (S    : in out Editor.State.State_Type;
       Kind : Editor.Commands.Command_Kind);
 
-   function Execute_Diagnostic_Row_Activation
-     (S                         : in out Editor.State.State_Type;
-      Row                       : Natural;
-      Expected_Panel_Generation : Natural := 0)
-      return Editor.Command_Execution.Command_Execution_Result;
-
-   function Execute_Diagnostic_Id_Activation
-     (S  : in out Editor.State.State_Type;
-      Id : Editor.Feature_Diagnostics.Diagnostic_Id)
-      return Editor.Command_Execution.Command_Execution_Result;
-
-end Editor.Executor.Diagnostics_Commands;
+end Editor.Executor.Diagnostics_Feature_Commands;

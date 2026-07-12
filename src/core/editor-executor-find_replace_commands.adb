@@ -10,6 +10,7 @@ with Editor.Buffers;
 with Editor.Commands; use Editor.Commands;
 with Editor.Cursors; use Editor.Cursors;
 with Editor.Executor.History;
+with Editor.Executor.Find_Replace_Input_Commands;
 with Editor.Input_Field;
 with Editor.Navigation; use Editor.Navigation;
 with Editor.Navigation_History;
@@ -604,10 +605,6 @@ package body Editor.Executor.Find_Replace_Commands is
       end;
    end Find_Query_From_Active_Word;
 
-   procedure Set_Active_Find_Query_And_Report
-     (S    : in out Editor.State.State_Type;
-      Text : String);
-
    procedure Apply_Find_Context_Query
      (S     : in out Editor.State.State_Type;
       Query : String)
@@ -708,6 +705,14 @@ package body Editor.Executor.Find_Replace_Commands is
          end if;
       end if;
    end Set_Active_Find_Query_And_Report;
+
+   procedure Sync_Active_Find_Input_From_Query
+     (S : in out Editor.State.State_Type)
+   is
+   begin
+      Editor.Input_Field.Set_Text
+        (S.Active_Find_Input, To_String (S.Active_Find_Query));
+   end Sync_Active_Find_Input_From_Query;
 
    procedure Execute_Find_Show
      (S : in out Editor.State.State_Type)
@@ -1544,91 +1549,6 @@ package body Editor.Executor.Find_Replace_Commands is
       Editor.Render_Cache.Invalidate_All;
    end Execute_Replace_All;
 
-   procedure Sync_Active_Find_Input_From_Query
-     (S : in out Editor.State.State_Type)
-   is
-   begin
-      Editor.Input_Field.Set_Text
-        (S.Active_Find_Input, To_String (S.Active_Find_Query));
-   end Sync_Active_Find_Input_From_Query;
-
-   procedure Execute_Active_Find_Input_Insert_Text
-     (S    : in out Editor.State.State_Type;
-      Text : String) is
-   begin
-      if not S.Active_Find_Prompt then
-         return;
-      end if;
-      Editor.Input_Field.Insert_Text (S.Active_Find_Input, Text);
-      Set_Active_Find_Query_And_Report
-        (S, Editor.Input_Field.Text (S.Active_Find_Input));
-      Editor.Render_Cache.Invalidate_All;
-   end Execute_Active_Find_Input_Insert_Text;
-
-   procedure Execute_Active_Find_Input_Backspace
-     (S : in out Editor.State.State_Type) is
-   begin
-      if not S.Active_Find_Prompt then
-         return;
-      end if;
-      Editor.Input_Field.Backspace (S.Active_Find_Input);
-      Set_Active_Find_Query_And_Report
-        (S, Editor.Input_Field.Text (S.Active_Find_Input));
-      Editor.Render_Cache.Invalidate_All;
-   end Execute_Active_Find_Input_Backspace;
-
-   procedure Execute_Active_Find_Input_Delete_Forward
-     (S : in out Editor.State.State_Type) is
-   begin
-      if not S.Active_Find_Prompt then
-         return;
-      end if;
-      Editor.Input_Field.Delete_Forward (S.Active_Find_Input);
-      Set_Active_Find_Query_And_Report
-        (S, Editor.Input_Field.Text (S.Active_Find_Input));
-      Editor.Render_Cache.Invalidate_All;
-   end Execute_Active_Find_Input_Delete_Forward;
-
-   procedure Execute_Active_Find_Input_Move_Cursor_Left
-     (S : in out Editor.State.State_Type) is
-   begin
-      if S.Active_Find_Prompt then
-         Sync_Active_Find_Input_From_Query (S);
-         Editor.Input_Field.Move_Cursor_Left (S.Active_Find_Input);
-         Editor.Render_Cache.Invalidate_All;
-      end if;
-   end Execute_Active_Find_Input_Move_Cursor_Left;
-
-   procedure Execute_Active_Find_Input_Move_Cursor_Right
-     (S : in out Editor.State.State_Type) is
-   begin
-      if S.Active_Find_Prompt then
-         Sync_Active_Find_Input_From_Query (S);
-         Editor.Input_Field.Move_Cursor_Right (S.Active_Find_Input);
-         Editor.Render_Cache.Invalidate_All;
-      end if;
-   end Execute_Active_Find_Input_Move_Cursor_Right;
-
-   procedure Execute_Active_Find_Input_Move_Cursor_Start
-     (S : in out Editor.State.State_Type) is
-   begin
-      if S.Active_Find_Prompt then
-         Sync_Active_Find_Input_From_Query (S);
-         Editor.Input_Field.Move_Cursor_Start (S.Active_Find_Input);
-         Editor.Render_Cache.Invalidate_All;
-      end if;
-   end Execute_Active_Find_Input_Move_Cursor_Start;
-
-   procedure Execute_Active_Find_Input_Move_Cursor_End
-     (S : in out Editor.State.State_Type) is
-   begin
-      if S.Active_Find_Prompt then
-         Sync_Active_Find_Input_From_Query (S);
-         Editor.Input_Field.Move_Cursor_End (S.Active_Find_Input);
-         Editor.Render_Cache.Invalidate_All;
-      end if;
-   end Execute_Active_Find_Input_Move_Cursor_End;
-
    procedure Execute_Find_Replace_Kind
      (S    : in out Editor.State.State_Type;
       Kind : Editor.Commands.Command_Kind;
@@ -1683,15 +1603,20 @@ package body Editor.Executor.Find_Replace_Commands is
          when Active_Replace_All =>
             Execute_Replace_All (S);
          when Active_Find_Input_Insert_Text =>
-            Execute_Active_Find_Input_Insert_Text (S, Text);
+            Editor.Executor.Find_Replace_Input_Commands
+              .Execute_Active_Find_Input_Insert_Text (S, Text);
          when Active_Find_Input_Backspace =>
-            Execute_Active_Find_Input_Backspace (S);
+            Editor.Executor.Find_Replace_Input_Commands
+              .Execute_Active_Find_Input_Backspace (S);
          when Active_Find_Input_Delete_Forward =>
-            Execute_Active_Find_Input_Delete_Forward (S);
+            Editor.Executor.Find_Replace_Input_Commands
+              .Execute_Active_Find_Input_Delete_Forward (S);
          when Active_Find_Input_Move_Cursor_Left =>
-            Execute_Active_Find_Input_Move_Cursor_Left (S);
+            Editor.Executor.Find_Replace_Input_Commands
+              .Execute_Active_Find_Input_Move_Cursor_Left (S);
          when Active_Find_Input_Move_Cursor_Right =>
-            Execute_Active_Find_Input_Move_Cursor_Right (S);
+            Editor.Executor.Find_Replace_Input_Commands
+              .Execute_Active_Find_Input_Move_Cursor_Right (S);
          when others =>
             raise Program_Error with "unsupported find/replace command kind";
       end case;

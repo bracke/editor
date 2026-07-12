@@ -21,16 +21,7 @@ package Editor.Executor.File_Save_Commands is
    function File_Conflict_Prompt_Is_Valid
      (S : Editor.State.State_Type) return Boolean;
 
-   procedure Execute_File_Conflict_Cancel
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_File_Conflict_Keep_Buffer
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_File_Conflict_Reload_From_Disk
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_File_Conflict_Overwrite_Disk
+   procedure Load_File_Conflict_Buffer
      (S : in out Editor.State.State_Type);
 
    procedure Execute_Retry_Pending_Transition

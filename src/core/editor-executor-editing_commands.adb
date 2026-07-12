@@ -7,6 +7,7 @@ with Editor.Clipboard;
 with Editor.Command_Execution;
 with Editor.Commands;
 with Editor.Executor;
+with Editor.Executor.Line_Edit_Commands;
 with Editor.Executor.Shared_Services;
 use Editor.Executor.Shared_Services;
 with Editor.Executor.Clipboard;
@@ -35,6 +36,54 @@ package body Editor.Executor.Editing_Commands is
    procedure Report_Error
      (S    : in out Editor.State.State_Type;
       Text : String) renames Editor.Executor.Shared_Services.Report_Error;
+
+   procedure Report_Editing_Status
+     (S      : in out Editor.State.State_Type;
+      Id     : Editor.Commands.Command_Id;
+      Status : Editor.Executor.Edits.Line_Edit_Status)
+   is
+   begin
+      case Status is
+         when Editor.Executor.Edits.Selection_Deleted =>
+            Report_Success (S, "Deleted selection");
+         when Editor.Executor.Edits.Nothing_Selected =>
+            Report_Info (S, "Nothing selected");
+         when Editor.Executor.Edits.Invalid_Selection =>
+            Report_Error (S, "Invalid selection");
+         when Editor.Executor.Edits.Selection_Delete_Failed =>
+            Report_Error (S, "Could not delete selection");
+         when Editor.Executor.Edits.No_Active_Buffer =>
+            Report_Info (S, "No active buffer.");
+         when Editor.Executor.Edits.No_Caret_Location =>
+            Report_Info (S, "No caret location");
+         when Editor.Executor.Edits.Nothing_To_Trim =>
+            Report_Info (S, "Nothing to trim");
+         when Editor.Executor.Edits.Trailing_Whitespace_Trimmed =>
+            Report_Success (S, "Trimmed trailing whitespace");
+         when Editor.Executor.Edits.Trim_Trailing_Whitespace_Failed =>
+            Report_Error (S, "Could not trim trailing whitespace");
+         when Editor.Executor.Edits.Nothing_To_Delete =>
+            Report_Info (S, "Nothing to delete");
+         when Editor.Executor.Edits.Previous_Character_Deleted =>
+            Report_Success (S, "Deleted previous character");
+         when Editor.Executor.Edits.Next_Character_Deleted =>
+            Report_Success (S, "Deleted next character");
+         when Editor.Executor.Edits.Delete_Previous_Character_Failed =>
+            Report_Error (S, "Could not delete previous character");
+         when Editor.Executor.Edits.Delete_Next_Character_Failed =>
+            Report_Error (S, "Could not delete next character");
+         when Editor.Executor.Edits.Previous_Word_Deleted =>
+            Report_Success (S, "Deleted previous word");
+         when Editor.Executor.Edits.Next_Word_Deleted =>
+            Report_Success (S, "Deleted next word");
+         when Editor.Executor.Edits.Delete_Previous_Word_Failed =>
+            Report_Error (S, "Could not delete previous word");
+         when Editor.Executor.Edits.Delete_Next_Word_Failed =>
+            Report_Error (S, "Could not delete next word");
+         when others =>
+            Report_Error (S, "Could not edit text");
+      end case;
+   end Report_Editing_Status;
 
    function Has_Buffer (S : Editor.State.State_Type) return Boolean is
    begin
@@ -216,6 +265,17 @@ package body Editor.Executor.Editing_Commands is
             end if;
             return Editor.Commands.Available;
 
+         when Editor.Commands.Command_Char_Delete_Previous
+            | Editor.Commands.Command_Char_Delete_Next
+            | Editor.Commands.Command_Word_Delete_Previous
+            | Editor.Commands.Command_Word_Delete_Next =>
+            if not Has_Buffer (S) then
+               return Editor.Commands.Unavailable ("No active buffer.");
+            elsif S.Carets.Length = 0 then
+               return Editor.Commands.Unavailable ("No caret location");
+            end if;
+            return Editor.Commands.Available;
+
          when Editor.Commands.Command_Line_Delete
             | Editor.Commands.Command_Line_Duplicate
             | Editor.Commands.Command_Line_Move_Up
@@ -227,16 +287,9 @@ package body Editor.Executor.Editing_Commands is
             | Editor.Commands.Command_Toggle_Line_Comment
             | Editor.Commands.Command_Line_Join_Next
             | Editor.Commands.Command_Line_Split_At_Caret
-            | Editor.Commands.Command_Char_Delete_Previous
-            | Editor.Commands.Command_Char_Delete_Next
-            | Editor.Commands.Command_Word_Delete_Previous
-            | Editor.Commands.Command_Word_Delete_Next =>
-            if not Has_Buffer (S) then
-               return Editor.Commands.Unavailable ("No active buffer.");
-            elsif S.Carets.Length = 0 then
-               return Editor.Commands.Unavailable ("No caret location");
-            end if;
-            return Editor.Commands.Available;
+            =>
+            return Editor.Executor.Line_Edit_Commands.Line_Edit_Command_Availability
+              (S, Id);
 
          when others =>
             return Editor.Commands.Unavailable ("Not an editing command");
@@ -439,6 +492,7 @@ package body Editor.Executor.Editing_Commands is
    is
       Before_Messages : constant Natural := Editor.Messages.Count (S.Messages);
       Cmd             : Editor.Commands.Command;
+      Line_Status     : Editor.Executor.Edits.Line_Edit_Status;
 
       function Result_After_Command
         (Command : Editor.Commands.Command_Id)
@@ -515,6 +569,21 @@ package body Editor.Executor.Editing_Commands is
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
 
+        when Editor.Commands.Command_Selection_Delete
+            | Editor.Commands.Command_Trim_Trailing_Whitespace
+            | Editor.Commands.Command_Format_Buffer
+            | Editor.Commands.Command_Format_Selected_Text
+            | Editor.Commands.Command_Char_Delete_Previous
+            | Editor.Commands.Command_Char_Delete_Next
+            | Editor.Commands.Command_Word_Delete_Previous
+            | Editor.Commands.Command_Word_Delete_Next =>
+            Cmd := Editor.Commands.Command_For_Id (Id, Shift);
+            Editor.Executor.Execute_No_Log_With_Status (S, Cmd, Line_Status);
+            Editor.Buffers.Sync_Global_Active_From_State (S);
+            Report_Editing_Status (S, Id, Line_Status);
+            Editor.Render_Cache.Invalidate_All;
+            return Result_After_Command (Id);
+
          when Editor.Commands.Command_Line_Delete
             | Editor.Commands.Command_Line_Duplicate
             | Editor.Commands.Command_Line_Move_Up
@@ -525,26 +594,9 @@ package body Editor.Executor.Editing_Commands is
             | Editor.Commands.Command_Uncomment_Line
             | Editor.Commands.Command_Toggle_Line_Comment
             | Editor.Commands.Command_Line_Join_Next
-            | Editor.Commands.Command_Line_Split_At_Caret
-            | Editor.Commands.Command_Trim_Trailing_Whitespace
-            | Editor.Commands.Command_Format_Buffer
-            | Editor.Commands.Command_Format_Selected_Text
-            | Editor.Commands.Command_Char_Delete_Previous
-            | Editor.Commands.Command_Char_Delete_Next
-            | Editor.Commands.Command_Word_Delete_Previous
-            | Editor.Commands.Command_Word_Delete_Next
-            | Editor.Commands.Command_Selection_Delete =>
-            declare
-               Line_Status : Editor.Executor.Edits.Line_Edit_Status;
-            begin
-               Cmd := Editor.Commands.Command_For_Id (Id, Shift);
-               Editor.Executor.Execute_No_Log_With_Status
-                 (S, Cmd, Line_Status);
-               Editor.Buffers.Sync_Global_Active_From_State (S);
-               Report_Line_Edit_Status (S, Id, Line_Status);
-               Editor.Render_Cache.Invalidate_All;
-               return Result_After_Command (Id);
-            end;
+            | Editor.Commands.Command_Line_Split_At_Caret =>
+            return Editor.Executor.Line_Edit_Commands.Execute_Line_Edit_Command
+              (S, Id, Shift);
 
          when others =>
             return Editor.Command_Execution.No_Op (Id);

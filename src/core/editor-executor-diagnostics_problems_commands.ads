@@ -1,5 +1,6 @@
 with Editor.Problems;
 with Editor.State;
+with Editor.Commands;
 
 package Editor.Executor.Diagnostics_Problems_Commands is
 
@@ -32,5 +33,9 @@ package Editor.Executor.Diagnostics_Problems_Commands is
 
    procedure Execute_Problems_Focus_Editor
      (S : in out Editor.State.State_Type);
+
+   procedure Execute_Problems_Kind
+     (S    : in out Editor.State.State_Type;
+      Kind : Editor.Commands.Command_Kind);
 
 end Editor.Executor.Diagnostics_Problems_Commands;

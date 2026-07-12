@@ -8,6 +8,8 @@ with Editor.Command_Execution;
 with Editor.Commands;
 with Editor.Dirty_Guards;
 with Editor.Executor.Buffer_Close_Commands;
+with Editor.Executor.Buffer_Close_Prompt_Commands;
+with Editor.Executor.File_Conflict_Commands;
 with Editor.Executor.File_Open_Commands;
 with Editor.Executor.File_Operation_Commands;
 with Editor.Executor.File_Save_Basic_Commands;
@@ -111,19 +113,19 @@ package body Editor.Executor.File_Lifecycle_Commands is
                if S.Dirty_Close_Prompt_All_Buffers then
                   declare
                      Current : constant Editor.Dirty_Guards.Dirty_Buffer_Summary :=
-                       Dirty_Buffer_Summary_For_All_Buffers (S.Project);
+                       Editor.Executor.Buffer_Close_Prompt_Commands.Dirty_Buffer_Summary_For_All_Buffers (S.Project);
                   begin
                      if Current.Dirty_Count = 0 then
-                        if Dirty_Close_All_Buffer_Identity_Current (S) then
+                        if Editor.Executor.Buffer_Close_Prompt_Commands.Dirty_Close_All_Buffer_Identity_Current (S) then
                            Result := Editor.Commands.Available;
                         else
                            Result := Editor.Commands.Unavailable
                              (Editor.Commands.Reason_Close_Review_Stale);
                         end if;
                         return;
-                     elsif not Dirty_Close_All_Buffer_Review_Current (S) then
-                        if not Dirty_Close_All_Buffer_Identity_Current (S)
-                          or else not Dirty_Close_Current_Dirty_Set_Was_Reviewed (S)
+                     elsif not Editor.Executor.Buffer_Close_Prompt_Commands.Dirty_Close_All_Buffer_Review_Current (S) then
+                        if not Editor.Executor.Buffer_Close_Prompt_Commands.Dirty_Close_All_Buffer_Identity_Current (S)
+                          or else not Editor.Executor.Buffer_Close_Prompt_Commands.Dirty_Close_Current_Dirty_Set_Was_Reviewed (S)
                         then
                            Result := Editor.Commands.Unavailable
                              (Editor.Commands.Reason_Close_Review_Stale);
@@ -172,9 +174,9 @@ package body Editor.Executor.File_Lifecycle_Commands is
                   if Editor.Buffers.Global_Count = 0 then
                      Result := Editor.Commands.Unavailable ("No buffers open");
                      return;
-                  elsif not Dirty_Close_All_Buffer_Review_Current (S) then
-                     if not Dirty_Close_All_Buffer_Identity_Current (S)
-                       or else not Dirty_Close_Current_Dirty_Set_Was_Reviewed (S)
+                  elsif not Editor.Executor.Buffer_Close_Prompt_Commands.Dirty_Close_All_Buffer_Review_Current (S) then
+                     if not Editor.Executor.Buffer_Close_Prompt_Commands.Dirty_Close_All_Buffer_Identity_Current (S)
+                       or else not Editor.Executor.Buffer_Close_Prompt_Commands.Dirty_Close_Current_Dirty_Set_Was_Reviewed (S)
                      then
                         Result := Editor.Commands.Unavailable
                           (Editor.Commands.Reason_Close_Review_Stale);
@@ -606,49 +608,49 @@ package body Editor.Executor.File_Lifecycle_Commands is
    begin
       case Id is
          when Command_Save_All =>
-            Execute_Save_All (S);
+            Editor.Executor.File_Save_Basic_Commands.Execute_Save_All (S);
 
          when Command_File_Conflict_Keep_Buffer =>
-            Execute_File_Conflict_Keep_Buffer (S);
+            Editor.Executor.File_Conflict_Commands.Execute_File_Conflict_Keep_Buffer (S);
 
          when Command_File_Conflict_Reload_From_Disk =>
-            Execute_File_Conflict_Reload_From_Disk (S);
+            Editor.Executor.File_Conflict_Commands.Execute_File_Conflict_Reload_From_Disk (S);
 
          when Command_File_Conflict_Overwrite_Disk =>
-            Execute_File_Conflict_Overwrite_Disk (S);
+            Editor.Executor.File_Conflict_Commands.Execute_File_Conflict_Overwrite_Disk (S);
 
          when Command_File_Conflict_Cancel =>
-            Execute_File_Conflict_Cancel (S);
+            Editor.Executor.File_Conflict_Commands.Execute_File_Conflict_Cancel (S);
 
          when Command_Close_Other_Buffers =>
-            Execute_Close_Other_Buffers (S);
+            Editor.Executor.Buffer_Close_Commands.Execute_Close_Other_Buffers (S);
 
          when Command_Close_All_Buffers =>
-            Execute_Close_All_Buffers (S);
+            Editor.Executor.Buffer_Close_Commands.Execute_Close_All_Buffers (S);
 
          when Command_Confirm_Close_Save =>
-            Execute_Confirm_Close_Save (S);
+            Editor.Executor.Buffer_Close_Prompt_Commands.Execute_Confirm_Close_Save (S);
 
          when Command_Confirm_Close_Discard =>
-            Execute_Confirm_Close_Discard (S);
+            Editor.Executor.Buffer_Close_Prompt_Commands.Execute_Confirm_Close_Discard (S);
 
          when Command_Cancel_Close =>
-            Execute_Cancel_Close (S);
+            Editor.Executor.Buffer_Close_Prompt_Commands.Execute_Cancel_Close (S);
 
          when Command_Close_All_Clean_Buffers =>
-            Execute_Close_All_Clean_Buffers (S);
+            Editor.Executor.Buffer_Close_Commands.Execute_Close_All_Clean_Buffers (S);
 
          when Command_Reopen_Closed_Buffer =>
-            Execute_Reopen_Closed_Buffer (S);
+            Editor.Executor.File_Open_Commands.Execute_Reopen_Closed_Buffer (S);
 
          when Command_Cancel_Pending_Transition =>
-            Execute_Cancel_Pending_Transition (S);
+            Editor.Executor.File_Save_Commands.Execute_Cancel_Pending_Transition (S);
 
          when Command_Retry_Pending_Transition =>
-            Execute_Retry_Pending_Transition (S);
+            Editor.Executor.File_Save_Commands.Execute_Retry_Pending_Transition (S);
 
          when Command_Discard_Pending_Transition =>
-            Execute_Discard_Pending_Transition (S);
+            Editor.Executor.Buffer_Close_Commands.Execute_Discard_Pending_Transition (S);
 
          when others =>
             raise Program_Error with "unsupported lifecycle result command";
@@ -699,22 +701,22 @@ package body Editor.Executor.File_Lifecycle_Commands is
               (S, To_String (Cmd.Path));
 
          when File_Conflict_Keep_Buffer =>
-            Execute_File_Conflict_Keep_Buffer (S);
+            Editor.Executor.File_Conflict_Commands.Execute_File_Conflict_Keep_Buffer (S);
 
          when File_Conflict_Reload_From_Disk =>
-            Execute_File_Conflict_Reload_From_Disk (S);
+            Editor.Executor.File_Conflict_Commands.Execute_File_Conflict_Reload_From_Disk (S);
 
          when File_Conflict_Overwrite_Disk =>
-            Execute_File_Conflict_Overwrite_Disk (S);
+            Editor.Executor.File_Conflict_Commands.Execute_File_Conflict_Overwrite_Disk (S);
 
          when File_Conflict_Cancel =>
-            Execute_File_Conflict_Cancel (S);
+            Editor.Executor.File_Conflict_Commands.Execute_File_Conflict_Cancel (S);
 
          when Cancel_Pending_Transition =>
-            Execute_Cancel_Pending_Transition (S);
+            Editor.Executor.File_Save_Commands.Execute_Cancel_Pending_Transition (S);
 
          when Retry_Pending_Transition =>
-            Execute_Retry_Pending_Transition (S);
+            Editor.Executor.File_Save_Commands.Execute_Retry_Pending_Transition (S);
 
          when others =>
             raise Program_Error with "unsupported lifecycle command kind";
@@ -730,13 +732,6 @@ package body Editor.Executor.File_Lifecycle_Commands is
       Editor.Messages.Push_Info
         (S.Messages, Text, Editor.Executor.Shared_Services.Current_Message_Time_Ms, Config);
    end Report_Info_Raw;
-
-   procedure Execute_Open_File
-     (S    : in out Editor.State.State_Type;
-      Path : String) is
-   begin
-      Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
-   end Execute_Open_File;
 
    function Active_File_External_Status
      (S : Editor.State.State_Type) return Editor.Files.File_External_Change_Status is
@@ -755,279 +750,5 @@ package body Editor.Executor.File_Lifecycle_Commands is
    begin
       return Editor.Executor.File_Save_Commands.Pending_File_State_Still_Current (Target);
    end Pending_File_State_Still_Current;
-
-   procedure Execute_Save (S : in out Editor.State.State_Type) is
-   begin
-      Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
-   end Execute_Save;
-
-   procedure Execute_Reload_Active_Buffer (S : in out Editor.State.State_Type) is
-   begin
-      Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
-   end Execute_Reload_Active_Buffer;
-
-   procedure Execute_Revert_Active_Buffer (S : in out Editor.State.State_Type) is
-   begin
-      Editor.Executor.File_Save_Basic_Commands.Execute_Revert_Active_Buffer (S);
-   end Execute_Revert_Active_Buffer;
-
-   procedure Execute_Rename_Buffer_File (S : in out Editor.State.State_Type; Path : String) is
-   begin
-      Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, Path);
-   end Execute_Rename_Buffer_File;
-
-   procedure Execute_Delete_Buffer_File (S : in out Editor.State.State_Type) is
-   begin
-      Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
-   end Execute_Delete_Buffer_File;
-
-   procedure Execute_Copy_Buffer_File (S : in out Editor.State.State_Type; Path : String) is
-   begin
-      Editor.Executor.File_Operation_Commands.Execute_Copy_Buffer_File (S, Path);
-   end Execute_Copy_Buffer_File;
-
-   procedure Execute_Move_Buffer_File (S : in out Editor.State.State_Type; Path : String) is
-   begin
-      Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, Path);
-   end Execute_Move_Buffer_File;
-
-   procedure Execute_File_Conflict_Cancel (S : in out Editor.State.State_Type) is
-   begin
-      Editor.Executor.File_Save_Commands.Execute_File_Conflict_Cancel (S);
-   end Execute_File_Conflict_Cancel;
-
-   procedure Clear_File_Conflict_Prompt (S : in out Editor.State.State_Type) is
-   begin
-      Editor.Executor.File_Save_Commands.Clear_File_Conflict_Prompt (S);
-   end Clear_File_Conflict_Prompt;
-
-   function File_Conflict_Prompt_Is_Valid (S : Editor.State.State_Type) return Boolean is
-   begin
-      return Editor.Executor.File_Save_Commands.File_Conflict_Prompt_Is_Valid (S);
-   end File_Conflict_Prompt_Is_Valid;
-
-   procedure Execute_File_Conflict_Keep_Buffer (S : in out Editor.State.State_Type) is
-   begin
-      Editor.Executor.File_Save_Commands.Execute_File_Conflict_Keep_Buffer (S);
-   end Execute_File_Conflict_Keep_Buffer;
-
-   procedure Execute_File_Conflict_Reload_From_Disk (S : in out Editor.State.State_Type) is
-   begin
-      Editor.Executor.File_Save_Commands.Execute_File_Conflict_Reload_From_Disk (S);
-   end Execute_File_Conflict_Reload_From_Disk;
-
-   procedure Execute_File_Conflict_Overwrite_Disk (S : in out Editor.State.State_Type) is
-   begin
-      Editor.Executor.File_Save_Commands.Execute_File_Conflict_Overwrite_Disk (S);
-   end Execute_File_Conflict_Overwrite_Disk;
-
-   procedure Execute_Save_All (S : in out Editor.State.State_Type) is
-   begin
-      Editor.Executor.File_Save_Basic_Commands.Execute_Save_All (S);
-   end Execute_Save_All;
-
-   procedure Execute_Close_All_Buffers_Confirmed (S : in out Editor.State.State_Type) is
-   begin
-      Editor.Executor.Buffer_Close_Commands.Execute_Close_All_Buffers_Confirmed (S);
-   end Execute_Close_All_Buffers_Confirmed;
-
-   procedure Execute_Close_Other_Buffers_Confirmed
-     (S : in out Editor.State.State_Type; Active : Editor.Buffers.Buffer_Id) is
-   begin
-      Editor.Executor.Buffer_Close_Commands.Execute_Close_Other_Buffers_Confirmed (S, Active);
-   end Execute_Close_Other_Buffers_Confirmed;
-
-   procedure Finalize_Cleanup_Buffer_Close
-     (S : in out Editor.State.State_Type; Id : Editor.Buffers.Buffer_Id; Was_Active : Boolean) is
-   begin
-      Editor.Executor.Buffer_Close_Commands.Finalize_Cleanup_Buffer_Close (S, Id, Was_Active);
-   end Finalize_Cleanup_Buffer_Close;
-
-   function Dirty_Close_Start_Message
-     (All_Buffers : Boolean; Summary : Editor.Dirty_Guards.Dirty_Buffer_Summary) return String is
-   begin
-      return Editor.Executor.Buffer_Close_Commands.Dirty_Close_Start_Message (All_Buffers, Summary);
-   end Dirty_Close_Start_Message;
-
-   function Dirty_Buffer_Summary_For_All_Buffers return Editor.Dirty_Guards.Dirty_Buffer_Summary is
-   begin
-      return Editor.Executor.Buffer_Close_Commands.Dirty_Buffer_Summary_For_All_Buffers;
-   end Dirty_Buffer_Summary_For_All_Buffers;
-
-   function Dirty_Buffer_Summary_For_All_Buffers
-     (Project : Editor.Project.Project_State) return Editor.Dirty_Guards.Dirty_Buffer_Summary is
-   begin
-      return Editor.Executor.Buffer_Close_Commands.Dirty_Buffer_Summary_For_All_Buffers (Project);
-   end Dirty_Buffer_Summary_For_All_Buffers;
-
-   function Dirty_Close_Open_Buffer_Fingerprint return Natural is
-   begin
-      return Editor.Executor.Buffer_Close_Commands.Dirty_Close_Open_Buffer_Fingerprint;
-   end Dirty_Close_Open_Buffer_Fingerprint;
-
-   function Dirty_Close_Dirty_Buffer_Fingerprint return Natural is
-   begin
-      return Editor.Executor.Buffer_Close_Commands.Dirty_Close_Dirty_Buffer_Fingerprint;
-   end Dirty_Close_Dirty_Buffer_Fingerprint;
-
-   function Dirty_Close_Open_Buffer_Id_List return Ada.Strings.Unbounded.Unbounded_String is
-   begin
-      return Editor.Executor.Buffer_Close_Commands.Dirty_Close_Open_Buffer_Id_List;
-   end Dirty_Close_Open_Buffer_Id_List;
-
-   function Dirty_Close_Dirty_Buffer_Id_List return Ada.Strings.Unbounded.Unbounded_String is
-   begin
-      return Editor.Executor.Buffer_Close_Commands.Dirty_Close_Dirty_Buffer_Id_List;
-   end Dirty_Close_Dirty_Buffer_Id_List;
-
-   function Dirty_Close_Current_Dirty_Set_Was_Reviewed (S : Editor.State.State_Type) return Boolean is
-   begin
-      return Editor.Executor.Buffer_Close_Commands.Dirty_Close_Current_Dirty_Set_Was_Reviewed (S);
-   end Dirty_Close_Current_Dirty_Set_Was_Reviewed;
-
-   function Dirty_Close_Current_Dirty_Set_Equals_Review (S : Editor.State.State_Type) return Boolean is
-   begin
-      return Editor.Executor.Buffer_Close_Commands.Dirty_Close_Current_Dirty_Set_Equals_Review (S);
-   end Dirty_Close_Current_Dirty_Set_Equals_Review;
-
-   function Dirty_Close_Current_Open_Set_Was_Reviewed (S : Editor.State.State_Type) return Boolean is
-   begin
-      return Editor.Executor.Buffer_Close_Commands.Dirty_Close_Current_Open_Set_Was_Reviewed (S);
-   end Dirty_Close_Current_Open_Set_Was_Reviewed;
-
-   function Dirty_Close_All_Buffer_Identity_Current (S : Editor.State.State_Type) return Boolean is
-   begin
-      return Editor.Executor.Buffer_Close_Commands.Dirty_Close_All_Buffer_Identity_Current (S);
-   end Dirty_Close_All_Buffer_Identity_Current;
-
-   function Dirty_Close_All_Buffer_Review_Current (S : Editor.State.State_Type) return Boolean is
-   begin
-      return Editor.Executor.Buffer_Close_Commands.Dirty_Close_All_Buffer_Review_Current (S);
-   end Dirty_Close_All_Buffer_Review_Current;
-
-   procedure Start_Dirty_Close_Prompt
-     (S : in out Editor.State.State_Type; Scope : Editor.State.Dirty_Close_Scope; All_Buffers : Boolean; Buffer_Id : Editor.Buffers.Buffer_Id; Summary : Editor.Dirty_Guards.Dirty_Buffer_Summary) is
-   begin
-      Editor.Executor.Buffer_Close_Commands.Start_Dirty_Close_Prompt (S, Scope, All_Buffers, Buffer_Id, Summary);
-   end Start_Dirty_Close_Prompt;
-
-   procedure Close_Buffer_By_Discard
-     (S : in out Editor.State.State_Type; Id : Editor.Buffers.Buffer_Id; Closed : out Boolean) is
-   begin
-      Editor.Executor.Buffer_Close_Commands.Close_Buffer_By_Discard (S, Id, Closed);
-   end Close_Buffer_By_Discard;
-
-   procedure Execute_Close_All_Buffers (S : in out Editor.State.State_Type) is
-   begin
-      Editor.Executor.Buffer_Close_Commands.Execute_Close_All_Buffers (S);
-   end Execute_Close_All_Buffers;
-
-   procedure Execute_Close_Other_Buffers (S : in out Editor.State.State_Type) is
-   begin
-      Editor.Executor.Buffer_Close_Commands.Execute_Close_Other_Buffers (S);
-   end Execute_Close_Other_Buffers;
-
-   procedure Execute_Close_All_Clean_Buffers (S : in out Editor.State.State_Type) is
-   begin
-      Editor.Executor.Buffer_Close_Commands.Execute_Close_All_Clean_Buffers (S);
-   end Execute_Close_All_Clean_Buffers;
-
-   procedure Execute_Discard_Pending_Transition (S : in out Editor.State.State_Type) is
-   begin
-      Editor.Executor.Buffer_Close_Commands.Execute_Discard_Pending_Transition (S);
-   end Execute_Discard_Pending_Transition;
-
-   procedure Execute_Cancel_Close (S : in out Editor.State.State_Type) is
-   begin
-      Editor.Executor.Buffer_Close_Commands.Execute_Cancel_Close (S);
-   end Execute_Cancel_Close;
-
-   procedure Execute_Confirm_Close_Discard (S : in out Editor.State.State_Type) is
-   begin
-      Editor.Executor.Buffer_Close_Commands.Execute_Confirm_Close_Discard (S);
-   end Execute_Confirm_Close_Discard;
-
-   procedure Execute_Confirm_Close_Save (S : in out Editor.State.State_Type) is
-   begin
-      Editor.Executor.Buffer_Close_Commands.Execute_Confirm_Close_Save (S);
-   end Execute_Confirm_Close_Save;
-
-   procedure Execute_Retry_Pending_Transition (S : in out Editor.State.State_Type) is
-   begin
-      Editor.Executor.File_Save_Commands.Execute_Retry_Pending_Transition (S);
-   end Execute_Retry_Pending_Transition;
-
-   procedure Execute_Cancel_Pending_Transition
-     (S : in out Editor.State.State_Type)
-   is
-   begin
-      if not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions) then
-         Report_Info_Raw
-           (S, Editor.Dirty_Guards.No_Pending_Transition_Message);
-         return;
-      end if;
-
-      declare
-         Target : constant Editor.Pending_Transitions.Pending_Transition_Target :=
-           Editor.Pending_Transitions.Target (S.Pending_Transitions);
-         Message : constant String :=
-           (case Target.Kind is
-              when Editor.Pending_Transitions.Pending_Switch_Project =>
-                 "Switch project cancelled",
-              when Editor.Pending_Transitions.Pending_Close_Project
-                 | Editor.Pending_Transitions.Pending_Clear_Project =>
-                 "Close project cancelled",
-              when Editor.Pending_Transitions.Pending_Clear_Workspace_State =>
-                 "Clear workspace cancelled",
-              when Editor.Pending_Transitions.Pending_Open_Project
-                 | Editor.Pending_Transitions.Pending_Open_Recent_Project =>
-                 "Project open cancelled",
-              when Editor.Pending_Transitions.Pending_Reload_Active_Buffer =>
-                 "Reload cancelled",
-              when Editor.Pending_Transitions.Pending_Revert_Active_Buffer =>
-                 "Revert cancelled",
-              when others =>
-                 Editor.Dirty_Guards.Pending_Transition_Canceled_Message);
-      begin
-         Editor.Pending_Transitions.Clear (S.Pending_Transitions);
-         Report_Info_Raw (S, Message);
-      end;
-   end Execute_Cancel_Pending_Transition;
-
-   procedure Execute_Save_As (S : in out Editor.State.State_Type; Path : String) is
-   begin
-      Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, Path);
-   end Execute_Save_As;
-
-   procedure Execute_New_Buffer (S : in out Editor.State.State_Type) is
-   begin
-      Editor.Executor.File_Open_Commands.Execute_New_Buffer (S);
-   end Execute_New_Buffer;
-
-   procedure Execute_Switch_Buffer
-     (S : in out Editor.State.State_Type; Id : Editor.Buffers.Buffer_Id; Recent_Traversal : Boolean := False; Emit_Feedback : Boolean := True) is
-   begin
-      Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, Id, Recent_Traversal, Emit_Feedback);
-   end Execute_Switch_Buffer;
-
-   procedure Clear_Reopen_Candidate (S : in out Editor.State.State_Type) is
-   begin
-      Editor.Executor.File_Open_Commands.Clear_Reopen_Candidate (S);
-   end Clear_Reopen_Candidate;
-
-   procedure Execute_Reopen_Closed_Buffer (S : in out Editor.State.State_Type) is
-   begin
-      Editor.Executor.File_Open_Commands.Execute_Reopen_Closed_Buffer (S);
-   end Execute_Reopen_Closed_Buffer;
-
-   procedure Execute_Close_Active_Buffer (S : in out Editor.State.State_Type) is
-   begin
-      Editor.Executor.Buffer_Close_Commands.Execute_Close_Active_Buffer (S);
-   end Execute_Close_Active_Buffer;
-
-   procedure Execute_Close_Buffer (S : in out Editor.State.State_Type; Id : Editor.Buffers.Buffer_Id) is
-   begin
-      Editor.Executor.Buffer_Close_Commands.Execute_Close_Buffer (S, Id);
-   end Execute_Close_Buffer;
 
 end Editor.Executor.File_Lifecycle_Commands;
