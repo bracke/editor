@@ -1939,6 +1939,62 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
          raise;
    end Test_Save_Conflict_Keep_And_Overwrite_Are_Explicit;
 
+   procedure Test_File_Conflict_Overwrite_Resumes_Confirmed_Close
+     (T : in out AUnit.Test_Cases.Test_Case'Class) is
+      pragma Unreferenced (T);
+      S            : Editor.State.State_Type;
+      Path         : constant String := Temp_Path ("overwrite_resume_close.txt");
+      Buffer_Id    : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
+   begin
+      Remove_If_Exists (Path);
+      Write_Bytes (Path, "disk baseline");
+      Editor.Buffers.Reset_Global_For_Test;
+      Editor.State.Init (S);
+      Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
+      Buffer_Id := Editor.Buffers.Global_Active_Buffer;
+      Editor.Executor.Execute_No_Log
+        (S, Editor.Test_Helper.Insert (Buffer_Text (S)'Length, '!'));
+      Write_Bytes (Path, "external disk replacement with different size");
+
+      Editor.Executor.Buffer_Close_Commands.Execute_Close_Active_Buffer (S);
+      Assert (S.Dirty_Close_Prompt_Active,
+        "dirty close should open the confirmation prompt");
+      Assert (Editor.Buffers.Global_Contains (Buffer_Id),
+        "dirty close should keep the target buffer open");
+
+      Editor.Executor.Execute_Command
+        (S, Editor.Commands.Command_Confirm_Close_Save);
+      Assert (S.File_Conflict_Prompt_Active,
+        "confirmed close-save should surface the file conflict prompt");
+      Assert (not S.Dirty_Close_Prompt_Active,
+        "confirming close-save should dismiss the dirty-close prompt");
+      Assert (S.File_Info.Dirty,
+        "the buffer should remain dirty until the conflict is resolved");
+      Assert (Editor.Buffers.Global_Contains (Buffer_Id),
+        "the buffer should remain open until overwrite resolves the conflict");
+
+      Editor.Executor.Execute_Command
+        (S, Editor.Commands.Command_File_Conflict_Overwrite_Disk);
+      Assert (not S.File_Conflict_Prompt_Active,
+        "overwrite should clear the conflict prompt");
+      Assert (not Editor.Buffers.Global_Contains (Buffer_Id),
+        "overwrite should resume and complete the pending close");
+      Assert (Editor.Buffers.Global_Count = 0,
+        "resumed close should leave no buffers open");
+      Assert (Editor.Buffers.Global_Active_Buffer = Editor.Buffers.No_Buffer,
+        "resumed close should leave no active buffer");
+      Assert (Read_Bytes (Path) = "disk baseline!",
+        "overwrite should write the current buffer text before closing");
+
+      Remove_If_Exists (Path);
+      Editor.Buffers.Reset_Global_For_Test;
+   exception
+      when others =>
+         Remove_If_Exists (Path);
+         Editor.Buffers.Reset_Global_For_Test;
+         raise;
+   end Test_File_Conflict_Overwrite_Resumes_Confirmed_Close;
+
 
    procedure Test_Clean_Save_Surfaces_External_Conflict
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
@@ -2389,6 +2445,9 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Save_Conflict_Keep_And_Overwrite_Are_Explicit'Access,
          "Save Conflict Keep And Overwrite Are Explicit");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_File_Conflict_Overwrite_Resumes_Confirmed_Close'Access,
+         "File Conflict Overwrite Resumes Confirmed Close");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Clean_Save_Surfaces_External_Conflict'Access,
          "Clean Save Surfaces External Conflict");
