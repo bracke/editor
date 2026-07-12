@@ -18,6 +18,7 @@ with Editor.Executor.Shared_Services;
 use Editor.Executor.Shared_Services;
 with Editor.Executor.Pending_Transition_Policy;
 with Editor.Executor.Buffer_Close_Prompt_Commands;
+with Editor.Executor.Project_File_Index_Commands;
 with Editor.Executor.Semantic_Index_Commands;
 with Editor.Feature_Diagnostics;
 with Editor.Files;
@@ -1214,6 +1215,17 @@ package body Editor.Executor.File_Save_Basic_Commands is
          Clear_Dirty_Close_Prompt (S);
          File_Lifecycle_Invalidate_Derived_State
            (S, "Derived state is stale after save as");
+         if Editor.Project.Has_Project (S.Project)
+           and then Editor.Project.Is_Under_Project (S.Project, Path)
+         then
+            declare
+               Tree_Result : Editor.File_Tree.File_Tree_Scan_Result;
+               Selection_Disappeared : Boolean := False;
+            begin
+               Editor.Executor.Project_File_Index_Commands.Refresh_Project_File_State
+                 (S, Tree_Result, Selection_Disappeared, False);
+            end;
+         end if;
          Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
          Editor.Buffers.Sync_Global_Active_From_State (S);
          Editor.Executor.Shared_Services.Report_Success (S, "Saved file as");

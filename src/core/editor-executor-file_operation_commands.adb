@@ -9,6 +9,7 @@ with Editor.Buffers;
 use type Editor.Buffers.Buffer_Id;
 with Editor.Build_UI;
 with Editor.Executor;
+with Editor.Executor.Project_File_Index_Commands;
 with Editor.Executor.Semantic_Index_Commands;
 with Editor.Executor.Shared_Services;
 use Editor.Executor.Shared_Services;
@@ -19,6 +20,7 @@ use type Editor.Files.File_Delete_Status;
 use type Editor.Files.File_Move_Status;
 use type Editor.Files.File_Rename_Status;
 with Editor.Outline;
+with Editor.File_Tree;
 with Editor.Project;
 with Editor.Project_Search;
 with Editor.State;
@@ -87,6 +89,35 @@ package body Editor.Executor.File_Operation_Commands is
               (Editor.Build_UI.Build_UI_Rejected_Selected_Candidate_Stale));
       end if;
    end File_Lifecycle_Invalidate_Derived_State;
+
+   function Path_Is_Under_Current_Project
+     (S    : Editor.State.State_Type;
+      Path : String) return Boolean
+   is
+   begin
+      return Editor.Project.Has_Project (S.Project)
+        and then Path'Length > 0
+        and then Editor.Project.Is_Under_Project (S.Project, Path);
+   end Path_Is_Under_Current_Project;
+
+   procedure Refresh_Project_File_State_If_Required
+     (S        : in out Editor.State.State_Type;
+      Old_Path  : String;
+      New_Path  : String := "")
+   is
+   begin
+      if Path_Is_Under_Current_Project (S, Old_Path)
+        or else Path_Is_Under_Current_Project (S, New_Path)
+      then
+         declare
+            Tree_Result : Editor.File_Tree.File_Tree_Scan_Result;
+            Selection_Disappeared : Boolean := False;
+         begin
+            Editor.Executor.Project_File_Index_Commands.Refresh_Project_File_State
+              (S, Tree_Result, Selection_Disappeared, False);
+         end;
+      end if;
+   end Refresh_Project_File_State_If_Required;
 
    function Resolve_Active_Buffer_Associated_File_Operation_Source
      (S : in out Editor.State.State_Type) return Boolean
@@ -253,6 +284,8 @@ package body Editor.Executor.File_Operation_Commands is
          end if;
          File_Lifecycle_Invalidate_Derived_State
            (S, "Derived state is stale after rename");
+         Refresh_Project_File_State_If_Required
+           (S, To_String (Previous_File.Path), Path);
          Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
          Editor.Executor.Shared_Services.Report_Success (S, "Buffer file renamed");
       else
@@ -347,6 +380,8 @@ package body Editor.Executor.File_Operation_Commands is
          end if;
          File_Lifecycle_Invalidate_Derived_State
            (S, "Derived state is stale after delete");
+         Refresh_Project_File_State_If_Required
+           (S, To_String (Previous_File.Path));
          Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
          Editor.Executor.Shared_Services.Report_Success (S, "Buffer file deleted");
       else
@@ -412,6 +447,7 @@ package body Editor.Executor.File_Operation_Commands is
          --  text-entry, and reopen candidate state exactly.
          S.File_Info := Previous_File;
          Editor.Buffers.Sync_Global_Active_From_State (S);
+         Refresh_Project_File_State_If_Required (S, "", Path);
          Editor.Executor.Shared_Services.Report_Success (S, "Buffer file copied");
       else
          S.File_Info := Previous_File;
@@ -507,6 +543,8 @@ package body Editor.Executor.File_Operation_Commands is
          end if;
          File_Lifecycle_Invalidate_Derived_State
            (S, "Derived state is stale after move");
+         Refresh_Project_File_State_If_Required
+           (S, To_String (Previous_File.Path), Path);
          Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
          Editor.Executor.Shared_Services.Report_Success (S, "Buffer file moved");
       else

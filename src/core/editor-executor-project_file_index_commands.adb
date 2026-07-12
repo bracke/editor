@@ -241,25 +241,28 @@ package body Editor.Executor.Project_File_Index_Commands is
       end if;
    end Execute_Reveal_Active_File_In_Tree;
 
-   procedure Execute_Refresh_File_Tree
-     (S : in out Editor.State.State_Type)
+   procedure Refresh_Project_File_State
+     (S : in out Editor.State.State_Type;
+      Result : out Editor.File_Tree.File_Tree_Scan_Result;
+      Selection_Disappeared : out Boolean;
+      Update_Known_Files : Boolean := True)
    is
       Tree   : Editor.File_Tree.File_Tree_State;
-      Result : Editor.File_Tree.File_Tree_Scan_Result;
       Selected_Found : Boolean := False;
       Selected_Node  : Editor.File_Tree.File_Tree_Node_Id :=
         Editor.File_Tree.No_File_Tree_Node;
       Selected_Path  : Unbounded_String := Null_Unbounded_String;
       Restored_Row   : Natural := 0;
-      Selection_Disappeared : Boolean := False;
       Default_Collapsed_Load : constant Boolean :=
         Editor.File_Tree.Is_Empty (S.File_Tree)
         or else Editor.File_Tree.Expanded_Node_Count (S.File_Tree) <= 1;
    begin
+      Selection_Disappeared := False;
+
       if not Editor.Project.Has_Project (S.Project) then
          Editor.File_Tree.Clear (S.File_Tree);
          Editor.File_Tree_View.Clear_View (S.File_Tree_View);
-         Editor.Executor.Shared_Services.Report_Warning (S, "No project open");
+         Result.Status := Editor.File_Tree.File_Tree_No_Project;
          return;
       end if;
 
@@ -288,7 +291,9 @@ package body Editor.Executor.Project_File_Index_Commands is
          end if;
 
          S.File_Tree := Tree;
-         Editor.Executor.Populate_Project_Known_Files_From_File_Tree (S);
+         if Update_Known_Files then
+            Editor.Executor.Populate_Project_Known_Files_From_File_Tree (S);
+         end if;
 
          if Length (Selected_Path) > 0 then
             declare
@@ -342,11 +347,42 @@ package body Editor.Executor.Project_File_Index_Commands is
       else
          Editor.File_Tree.Clear (S.File_Tree);
          Editor.File_Tree_View.Clear_View (S.File_Tree_View);
-         Editor.Project.Clear_Known_Files (S.Project);
+         if Update_Known_Files then
+            Editor.Project.Clear_Known_Files (S.Project);
+         end if;
          Editor.Project_Search.Mark_Stale (S.Project_Search);
          if Editor.Quick_Open.Is_Open (S.Quick_Open) then
             Editor.Executor.Recompute_Quick_Open (S);
          end if;
+      end if;
+   end Refresh_Project_File_State;
+
+   procedure Execute_Refresh_File_Tree
+     (S : in out Editor.State.State_Type)
+   is
+      Result : Editor.File_Tree.File_Tree_Scan_Result;
+      Selection_Disappeared : Boolean := False;
+   begin
+      Refresh_Project_File_State (S, Result, Selection_Disappeared);
+
+      if Result.Status = Editor.File_Tree.File_Tree_Scan_Ok then
+         if Ada.Strings.Fixed.Index
+           (To_String (Result.Error_Text), "limit reached") /= 0
+         then
+            Editor.Executor.Shared_Services.Report_Warning (S, "File Tree refresh limit reached");
+         elsif Selection_Disappeared then
+            Editor.Executor.Shared_Services.Report_Warning
+              (S, "File tree refreshed; selected path no longer exists");
+         elsif Length (Result.Error_Text) > 0 then
+            Editor.Executor.Shared_Services.Report_Warning
+              (S, "File tree refreshed with warnings: " &
+                    To_String (Result.Error_Text));
+         else
+            Editor.Executor.Shared_Services.Report_Success (S, "File tree refreshed");
+         end if;
+      elsif Result.Status = Editor.File_Tree.File_Tree_No_Project then
+         Editor.Executor.Shared_Services.Report_Warning (S, "No project open");
+      else
          Editor.Executor.Shared_Services.Report_Error
            (S, "File tree refresh failed: " & File_Tree_Refresh_Failure_Message (Result));
       end if;
