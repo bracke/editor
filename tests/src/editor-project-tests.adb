@@ -15,6 +15,8 @@ with Editor.Executor.Command_Surface_Commands;
 with Editor.Executor.Quick_Open_Commands;
 with Editor.Executor.File_Tree_Commands;
 with Editor.Executor.Project_File_Index_Commands;
+with Editor.Executor.File_Save_Basic_Commands;
+with Editor.Executor.File_Operation_Commands;
 with Editor.Executor.Project_Lifecycle_Commands;
 with Editor.Messages;
 with Editor.Project;
@@ -404,6 +406,129 @@ package body Editor.Project.Tests is
       Remove_If_Exists (File_P);
       Remove_If_Exists (Root);
    end Test_Execute_Refresh_File_Tree;
+
+   procedure Test_File_Lifecycle_Operations_Refresh_Project_File_State
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      S              : Editor.State.State_Type;
+      Root           : constant String := Temp_Path ("lifecycle_refresh_project");
+      Src            : constant String := Ada.Directories.Compose (Root, "src");
+      Save_As_Source : constant String := Ada.Directories.Compose (Src, "save_as.adb");
+      Save_As_Target : constant String := Ada.Directories.Compose (Src, "save_as_new.adb");
+      Rename_Source  : constant String := Ada.Directories.Compose (Src, "rename.adb");
+      Rename_Target  : constant String := Ada.Directories.Compose (Src, "rename_new.adb");
+      Copy_Source    : constant String := Ada.Directories.Compose (Src, "copy.adb");
+      Copy_Target    : constant String := Ada.Directories.Compose (Src, "copy_new.adb");
+      Move_Source    : constant String := Ada.Directories.Compose (Src, "move.adb");
+      Move_Target    : constant String := Ada.Directories.Compose (Src, "move_new.adb");
+      Delete_Source  : constant String := Ada.Directories.Compose (Src, "delete.adb");
+
+      procedure Assert_Project_File_State
+        (Relative : String;
+         Present  : Boolean;
+         Context  : String)
+      is
+         Found : Boolean := False;
+      begin
+         declare
+            Node : constant Editor.File_Tree.File_Tree_Node_Id :=
+              Editor.File_Tree.Find_By_Path (S.File_Tree, Relative, Found);
+            pragma Unreferenced (Node);
+         begin
+            Assert
+              (Found = Present,
+               Context & ": file-tree presence mismatch for " & Relative);
+         end;
+      end Assert_Project_File_State;
+   begin
+      Remove_If_Exists (Delete_Source);
+      Remove_If_Exists (Move_Target);
+      Remove_If_Exists (Move_Source);
+      Remove_If_Exists (Copy_Target);
+      Remove_If_Exists (Copy_Source);
+      Remove_If_Exists (Rename_Target);
+      Remove_If_Exists (Rename_Source);
+      Remove_If_Exists (Save_As_Target);
+      Remove_If_Exists (Save_As_Source);
+      Remove_If_Exists (Src);
+      Remove_If_Exists (Root);
+      Ada.Directories.Create_Directory (Root);
+      Ada.Directories.Create_Directory (Src);
+      Write_Bytes (Save_As_Source, "save as source");
+      Write_Bytes (Rename_Source, "rename source");
+      Write_Bytes (Copy_Source, "copy source");
+      Write_Bytes (Move_Source, "move source");
+      Write_Bytes (Delete_Source, "delete source");
+
+      Editor.State.Init (S);
+      Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
+      Assert_Project_File_State ("src/save_as.adb", True, "project open");
+      Assert_Project_File_State ("src/rename.adb", True, "project open");
+      Assert_Project_File_State ("src/copy.adb", True, "project open");
+      Assert_Project_File_State ("src/move.adb", True, "project open");
+      Assert_Project_File_State ("src/delete.adb", True, "project open");
+
+      Editor.Executor.File_Open_Commands.Execute_Open_File (S, Save_As_Source);
+      Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, Save_As_Target);
+      Assert_Project_File_State ("src/save_as.adb", True, "save-as keeps source");
+      Assert_Project_File_State ("src/save_as_new.adb", True, "save-as adds target");
+      Assert (not Editor.Project.Has_Known_File (S.Project, "src/save_as_new.adb"),
+              "save-as target must not be promoted to retained project search source");
+
+      Editor.Executor.File_Open_Commands.Execute_Open_File (S, Rename_Source);
+      Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, Rename_Target);
+      Assert_Project_File_State ("src/rename.adb", False, "rename removes source");
+      Assert_Project_File_State ("src/rename_new.adb", True, "rename adds target");
+      Assert (not Editor.Project.Has_Known_File (S.Project, "src/rename_new.adb"),
+              "rename target must not be promoted to retained project search source");
+
+      Editor.Executor.File_Open_Commands.Execute_Open_File (S, Copy_Source);
+      Editor.Executor.File_Operation_Commands.Execute_Copy_Buffer_File (S, Copy_Target);
+      Assert_Project_File_State ("src/copy.adb", True, "copy keeps source");
+      Assert_Project_File_State ("src/copy_new.adb", True, "copy adds target");
+      Assert (not Editor.Project.Has_Known_File (S.Project, "src/copy_new.adb"),
+              "copy target must not be promoted to retained project search source");
+
+      Editor.Executor.File_Open_Commands.Execute_Open_File (S, Move_Source);
+      Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, Move_Target);
+      Assert_Project_File_State ("src/move.adb", False, "move removes source");
+      Assert_Project_File_State ("src/move_new.adb", True, "move adds target");
+      Assert (not Editor.Project.Has_Known_File (S.Project, "src/move_new.adb"),
+              "move target must not be promoted to retained project search source");
+
+      Editor.Executor.File_Open_Commands.Execute_Open_File (S, Delete_Source);
+      Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
+      Assert_Project_File_State ("src/delete.adb", False, "delete removes source");
+
+      Editor.Buffers.Reset_Global_For_Test;
+      Remove_If_Exists (Delete_Source);
+      Remove_If_Exists (Move_Target);
+      Remove_If_Exists (Move_Source);
+      Remove_If_Exists (Copy_Target);
+      Remove_If_Exists (Copy_Source);
+      Remove_If_Exists (Rename_Target);
+      Remove_If_Exists (Rename_Source);
+      Remove_If_Exists (Save_As_Target);
+      Remove_If_Exists (Save_As_Source);
+      Remove_If_Exists (Src);
+      Remove_If_Exists (Root);
+   exception
+      when others =>
+         Editor.Buffers.Reset_Global_For_Test;
+         Remove_If_Exists (Delete_Source);
+         Remove_If_Exists (Move_Target);
+         Remove_If_Exists (Move_Source);
+         Remove_If_Exists (Copy_Target);
+         Remove_If_Exists (Copy_Source);
+         Remove_If_Exists (Rename_Target);
+         Remove_If_Exists (Rename_Source);
+         Remove_If_Exists (Save_As_Target);
+         Remove_If_Exists (Save_As_Source);
+         Remove_If_Exists (Src);
+         Remove_If_Exists (Root);
+         raise;
+   end Test_File_Lifecycle_Operations_Refresh_Project_File_State;
 
    procedure Test_Project_State_Survives_Buffer_Switch
      (T : in out AUnit.Test_Cases.Test_Case'Class)
@@ -1210,6 +1335,9 @@ package body Editor.Project.Tests is
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Execute_Refresh_File_Tree'Access,
          "Execute Refresh File Tree");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_File_Lifecycle_Operations_Refresh_Project_File_State'Access,
+         "File Lifecycle Operations Refresh Project File State");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Project_State_Survives_Buffer_Switch'Access,
          "Project State Survives Buffer Switch");
