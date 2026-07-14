@@ -1,3 +1,5 @@
+with Hostkit.Process;
+
 with Editor.Build_Output_Details;
 with Interfaces.C;
 
@@ -93,10 +95,8 @@ package body Editor.Build_Process_Control is
 
    Active_Process_State : Active_Build_Process_State;
 
-   function C_Kill
-     (Pid    : Interfaces.C.int;
-      Signal : Interfaces.C.int) return Interfaces.C.int
-   with Import, Convention => C, External_Name => "kill";
+   --  This was a raw kill(SIGTERM). Windows has no such thing, and the editor did not
+   --  link there because of it. Hostkit asks the host in its own terms.
 
    function No_Process_Handle return Build_Process_Handle is
    begin
@@ -211,8 +211,7 @@ package body Editor.Build_Process_Control is
          return Build_Process_Cancel_Not_Cancellable;
       end if;
 
-      RC := C_Kill (Interfaces.C.int (Handle.System_Process_Id), SIGTERM);
-      if RC = 0 then
+      if Hostkit.Process.Request_Stop (Handle.System_Process_Id) then
          Handle.Cancel_Requested := True;
          return Build_Process_Cancel_Sent;
       else

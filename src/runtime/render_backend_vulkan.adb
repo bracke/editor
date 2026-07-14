@@ -1,3 +1,5 @@
+with GNAT.OS_Lib;
+with Ada.Command_Line;
 with Ada.Directories;
 with Ada.Environment_Variables;
 with Ada.Streams.Stream_IO;
@@ -105,11 +107,6 @@ package body Render_Backend_Vulkan is
       Size : Interfaces.C.size_t) return System.Address
      with Import, Convention => C, External_Name => "memcpy";
 
-   function Readlink
-     (Path    : System.Address;
-      Buf     : System.Address;
-      Bufsize : Interfaces.C.size_t) return Interfaces.C.long
-     with Import, Convention => C, External_Name => "readlink";
 
    function Glfw_Get_Required_Instance_Extensions
      (Count : System.Address) return System.Address
@@ -401,37 +398,21 @@ package body Render_Backend_Vulkan is
          return False;
    end File_Readable_And_Nonempty;
 
+   --  Where this program is.
+   --
+   --  This read /proc/self/exe with readlink -- which is Linux, not even POSIX, and it is
+   --  why the editor would not link on Windows: undefined reference to readlink. Ada
+   --  already knows the program's own name, and GNAT will make it absolute; both do it on
+   --  every host, and no separator has to be assumed either.
    function Executable_Dir return String is
-      Proc_Self_Exe : aliased C.char_array := C.To_C ("/proc/self/exe");
-      Buffer : aliased C.char_array (0 .. 4095);
-      Len : constant C.long :=
-        Readlink
-          (Proc_Self_Exe'Address,
-           Buffer'Address,
-           Interfaces.C.size_t (Buffer'Length));
+      Full_Path : constant String :=
+        GNAT.OS_Lib.Normalize_Pathname (Ada.Command_Line.Command_Name);
    begin
-      if Len <= 0 or else Len >= C.long (Buffer'Length) then
+      if Full_Path = "" then
          return "";
       end if;
 
-      declare
-         Last : constant Interfaces.C.size_t :=
-           Interfaces.C.size_t (Natural (Len) - 1);
-         Full_Path : constant String :=
-           C.To_Ada (Buffer (0 .. Last), False);
-      begin
-         for I in reverse Full_Path'Range loop
-            if Full_Path (I) = '/' then
-               if I = Full_Path'First then
-                  return "/";
-               else
-                  return Full_Path (Full_Path'First .. I - 1);
-               end if;
-            end if;
-         end loop;
-      end;
-
-      return "";
+      return Ada.Directories.Containing_Directory (Full_Path);
    exception
       when others =>
          return "";
