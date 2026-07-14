@@ -331,8 +331,19 @@ package Editor.External_Producers is
       Process_Execution_Real_Fixture_Allowed,
       Process_Execution_Real_Allowed);
 
+   --  How the editor actually runs an external tool.
+   --
+   --  This had one value, and a label reading "POSIX/fork-exec-waitpid-kill", because the
+   --  process control was written straight into the body as fork, execvp, waitpid and
+   --  kill. The extension point was anticipated and never extended, and the editor did
+   --  not link on Windows at all: undefined reference to waitpid, and to kill.
+   --
+   --  It is Hostkit's now, and Hostkit has a body per host: fork and waitpid on POSIX,
+   --  CreateProcessW and TerminateProcess on Windows. So the answer is per host, and this
+   --  says which.
    type Native_Process_Control_Backend is
-     (Native_Process_Control_POSIX);
+     (Native_Process_Control_POSIX,
+      Native_Process_Control_Windows);
 
    --  The current real process runner is intentionally POSIX-backed.  This
    --  explicit backend contract prevents the product from silently implying

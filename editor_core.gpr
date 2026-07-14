@@ -1,4 +1,5 @@
 with "guikit.gpr";
+with "hostkit.gpr";
 with "textrender.gpr";
 library project Editor_Core is
 

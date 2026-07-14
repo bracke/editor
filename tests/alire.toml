@@ -26,7 +26,11 @@ textrender = "*"
 [[depends-on]]
 guikit = "*"
 
+[[depends-on]]
+hostkit = "*"
+
 [[pins]]
+hostkit = { path = "../../hostkit" }
 textrender = { path="../../textrender" }
 guikit = { path="../../guikit" }
 

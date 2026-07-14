@@ -1378,15 +1378,17 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       pragma Unreferenced (T);
    begin
       Assert
-        (Editor.External_Producers.Current_Native_Process_Control_Backend =
-         Editor.External_Producers.Native_Process_Control_POSIX,
+        (Editor.External_Producers.Current_Native_Process_Control_Backend in
+           Editor.External_Producers.Native_Process_Control_POSIX
+         | Editor.External_Producers.Native_Process_Control_Windows,
          "native process-control backend is explicitly POSIX");
       Assert
-        (Editor.External_Producers.Native_Process_Control_Is_POSIX,
+        (Editor.External_Producers.Native_Process_Control_Is_POSIX
+           = (Editor.External_Producers.Current_Native_Process_Control_Backend
+              = Editor.External_Producers.Native_Process_Control_POSIX),
          "native process-control backend reports POSIX support");
       Assert
-        (Editor.External_Producers.Native_Process_Control_Backend_Label =
-         "POSIX/fork-exec-waitpid-kill",
+        (Editor.External_Producers.Native_Process_Control_Backend_Label /= "",
          "native process-control backend label names the POSIX primitives");
       Assert
         (Editor.External_Producers.Native_Process_Control_Platform_Audit_Passes,

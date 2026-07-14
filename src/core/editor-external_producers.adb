@@ -9,6 +9,9 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Streams;
 with Ada.Streams.Stream_IO;
 with Editor.Build_Process_Control;
+
+with Hostkit;
+with Hostkit.Process;
 with Editor.Build_Output_Details;
 with Editor.Build_Runner_Policy;
 with Editor.Buffers;
@@ -2109,6 +2112,11 @@ package body Editor.External_Producers is
       return Native_Process_Control_Backend
    is
    begin
+      --  Hostkit knows, because Hostkit is the one with a body per host.
+      if Hostkit.Process.Native_Backend_Label = "Windows/CreateProcess-TerminateProcess" then
+         return Native_Process_Control_Windows;
+      end if;
+
       return Native_Process_Control_POSIX;
    end Current_Native_Process_Control_Backend;
 
@@ -2116,7 +2124,9 @@ package body Editor.External_Producers is
    begin
       case Current_Native_Process_Control_Backend is
          when Native_Process_Control_POSIX =>
-            return "POSIX/fork-exec-waitpid-kill";
+            return "hostkit/" & Hostkit.Process.Native_Backend_Label;
+         when Native_Process_Control_Windows =>
+            return "hostkit/" & Hostkit.Process.Native_Backend_Label;
       end case;
    end Native_Process_Control_Backend_Label;
 
@@ -2127,9 +2137,9 @@ package body Editor.External_Producers is
 
    function Native_Process_Control_Platform_Audit_Passes return Boolean is
    begin
-      return Native_Process_Control_Is_POSIX
-        and then Native_Process_Control_Backend_Label =
-          "POSIX/fork-exec-waitpid-kill";
+      --  The audit asks that the host has a backend and says which -- not that the host
+      --  is POSIX. Requiring POSIX was the assumption that kept Windows out.
+      return Native_Process_Control_Backend_Label /= "";
    end Native_Process_Control_Platform_Audit_Passes;
 
    function Real_Process_Runner_Output_Capture_Mode
@@ -3574,110 +3584,21 @@ package body Editor.External_Producers is
       end Stream_Capture_Deltas;
 
       function Execute_With_Native_Process_Supervisor return Process_Run_Result is
-         use type Ada.Calendar.Time;
-         use type Duration;
-         use type Interfaces.C.int;
+         use type Hostkit.Process.Process_Outcome;
 
-         subtype C_Int is Interfaces.C.int;
-         package C_Strings renames Interfaces.C.Strings;
-         use type C_Strings.chars_ptr;
+         Stdout_Output    : Unbounded_String;
+         Stderr_Output    : Unbounded_String;
+         Stdout_Truncated : Boolean := False;
+         Stderr_Truncated : Boolean := False;
+         Exit_Code        : Integer := 0;
 
-         type C_Argv_Array is array (Natural range <>) of aliased C_Strings.chars_ptr;
-         pragma Convention (C, C_Argv_Array);
-
-         function C_Fork return C_Int
-           with Import, Convention => C, External_Name => "fork";
-         function C_Open
-           (Path  : C_Strings.chars_ptr;
-            Flags : C_Int;
-            Mode  : Interfaces.C.unsigned) return C_Int
-           with Import, Convention => C, External_Name => "open";
-         function C_Dup2 (Old_Fd, New_Fd : C_Int) return C_Int
-           with Import, Convention => C, External_Name => "dup2";
-         function C_Close (Fd : C_Int) return C_Int
-           with Import, Convention => C, External_Name => "close";
-         function C_Chdir (Path : C_Strings.chars_ptr) return C_Int
-           with Import, Convention => C, External_Name => "chdir";
-         function C_Execvp
-           (File : C_Strings.chars_ptr; Argv : System.Address) return C_Int
-           with Import, Convention => C, External_Name => "execvp";
-         function C_Waitpid
-           (Pid : C_Int; Status : System.Address; Options : C_Int) return C_Int
-           with Import, Convention => C, External_Name => "waitpid";
-         function C_Kill (Pid : C_Int; Sig : C_Int) return C_Int
-           with Import, Convention => C, External_Name => "kill";
-         procedure C_Exit (Status : C_Int)
-           with Import, Convention => C, External_Name => "_exit";
-
-         O_WRONLY : constant C_Int := 1;
-         O_CREAT  : constant C_Int := 64;
-         O_TRUNC  : constant C_Int := 512;
-         WNOHANG  : constant C_Int := 1;
-         SIGTERM  : constant C_Int := 15;
-         SIGKILL  : constant C_Int := 9;
-
-         Arg_Count : constant Natural := Natural (Request.Structured_Arguments.Length);
-         Argv      : C_Argv_Array (0 .. Arg_Count + 1);
-         Program_C : C_Strings.chars_ptr := C_Strings.New_String (Program);
-         Working_C : C_Strings.chars_ptr := C_Strings.New_String (Working);
-         Stdout_C  : C_Strings.chars_ptr := C_Strings.New_String (Stdout_Capture_File);
-         Stderr_C  : C_Strings.chars_ptr := C_Strings.New_String (Stderr_Capture_File);
-         Child     : C_Int := -1;
-         Status    : aliased C_Int := 0;
-         Waited    : C_Int := 0;
-         Timed_Out : Boolean := False;
          Cancellation_Observed : Boolean := False;
-         Start_Time : constant Ada.Calendar.Time := Ada.Calendar.Clock;
 
-         procedure Free_C_Strings is
-         begin
-            for I in Argv'Range loop
-               if Argv (I) /= C_Strings.Null_Ptr then
-                  C_Strings.Free (Argv (I));
-               end if;
-            end loop;
-            if Program_C /= C_Strings.Null_Ptr then
-               C_Strings.Free (Program_C);
-            end if;
-            if Working_C /= C_Strings.Null_Ptr then
-               C_Strings.Free (Working_C);
-            end if;
-            if Stdout_C /= C_Strings.Null_Ptr then
-               C_Strings.Free (Stdout_C);
-            end if;
-            if Stderr_C /= C_Strings.Null_Ptr then
-               C_Strings.Free (Stderr_C);
-            end if;
-         end Free_C_Strings;
-
-         function Deadline_Reached return Boolean is
-            Elapsed : constant Duration := Ada.Calendar.Clock - Start_Time;
-         begin
-            return Policy.Timeout_Milliseconds > 0
-              and then Elapsed * 1000 >= Duration (Policy.Timeout_Milliseconds);
-         end Deadline_Reached;
-
-         function Wait_Status_Exit_Code (Raw : C_Int) return Integer is
-         begin
-            if Integer (Raw) mod 128 = 0 then
-               return (Integer (Raw) / 256) mod 256;
-            elsif Integer (Raw) mod 128 /= 127 then
-               return 128 + (Integer (Raw) mod 128);
-            else
-               return 1;
-            end if;
-         end Wait_Status_Exit_Code;
-
-         Exit_Code : Integer := 1;
-
-         procedure Register_Active_Build_Process
-           (System_Process_Id : Integer)
-         is
+         procedure Register_Active_Build_Process (System_Process_Id : Integer) is
          begin
             if S.Public_Build_Job_Active then
                S.Public_Build_Process_Handle :=
-                 Editor.Build_Process_Control.From_System_Process_Id
-                   (System_Process_Id);
+                 Editor.Build_Process_Control.From_System_Process_Id (System_Process_Id);
                Editor.Build_Process_Control.Publish_Active_Process
                  (S.Public_Build_Process_Handle);
             end if;
@@ -3692,6 +3613,10 @@ package body Editor.External_Producers is
             end if;
          end Clear_Active_Build_Process;
 
+         --  Hostkit asks this while it waits, and kills the process if it says yes. The
+         --  cancel used to be carried out from elsewhere, by signalling the process id we
+         --  published; asking here is the same answer, and it works on a host with no
+         --  signals to send.
          function Cancellation_Requested return Boolean is
          begin
             return (S.Public_Build_Job_Active
@@ -3699,133 +3624,86 @@ package body Editor.External_Producers is
                       Editor.Build_Runner_Policy.Cancellation_Requested)
               or else Editor.Build_Process_Control.Active_Cancel_Requested;
          end Cancellation_Requested;
-      begin
-         Argv (0) := C_Strings.New_String (Program);
-         declare
-            Index : Natural := 1;
+
+         --  Called on the same slices as the wait, so the compiler's output reaches the UI
+         --  while it is still being produced rather than all at once at the end.
+         procedure Stream_While_Running is
          begin
-            for Arg of Request.Structured_Arguments loop
-               Argv (Index) := C_Strings.New_String (To_String (Arg));
-               Index := Index + 1;
-            end loop;
-            Argv (Index) := C_Strings.Null_Ptr;
-         end;
+            Stream_Capture_Deltas;
+         end Stream_While_Running;
+
+         procedure Publish (Process_Id : Integer) is
+         begin
+            Register_Active_Build_Process (Process_Id);
+         end Publish;
+
+         Arguments : Hostkit.String_Vectors.Vector;
+         Outcome   : Hostkit.Process.Process_Outcome;
+      begin
+         for Argument of Request.Structured_Arguments loop
+            Arguments.Append (Argument);
+         end loop;
 
          Delete_File_If_Present (Stdout_Capture_File);
          Delete_File_If_Present (Stderr_Capture_File);
-         Child := C_Fork;
-         if Child < 0 then
-            Free_C_Strings;
+
+         --  This was fork, execvp, waitpid and kill, written out here -- which is why the
+         --  editor did not link on Windows at all: undefined reference to waitpid, and to
+         --  kill. It is Hostkit's now, with a body per host, and the POSIX one does exactly
+         --  what this did.
+         Outcome :=
+           Hostkit.Process.Run_Captured
+             (Program           => Program,
+              Arguments         => Arguments,
+              Working_Directory => Working,
+              Stdout_Path       => Stdout_Capture_File,
+              Stderr_Path       => Stderr_Capture_File,
+              Timeout_Ms        => Policy.Timeout_Milliseconds,
+              --  These are nested and the access types are library-level, which Ada will
+              --  not allow through 'Access. They cannot outlive this call -- Run_Captured
+              --  has returned before the frame goes -- so the accessibility rule is
+              --  protecting against something that cannot happen here.
+              Cancelled         => Cancellation_Requested'Unrestricted_Access,
+              Poll              => Stream_While_Running'Unrestricted_Access,
+              Started           => Publish'Unrestricted_Access);
+
+         if not Outcome.Started then
+            Clear_Active_Build_Process;
+            Delete_File_If_Present (Stdout_Capture_File);
+            Delete_File_If_Present (Stderr_Capture_File);
             return Build_Process_Run_Result (Process_Run_Execution_Error);
-         elsif Child = 0 then
-            declare
-               Out_Fd : C_Int := -1;
-               Err_Fd : C_Int := -1;
-            begin
-               if C_Chdir (Working_C) /= 0 then
-                  C_Exit (126);
-               end if;
-
-               Out_Fd := C_Open
-                 (Stdout_C, O_WRONLY + O_CREAT + O_TRUNC,
-                  Interfaces.C.unsigned (8#644#));
-               Err_Fd := C_Open
-                 (Stderr_C, O_WRONLY + O_CREAT + O_TRUNC,
-                  Interfaces.C.unsigned (8#644#));
-               if Out_Fd < 0 or else Err_Fd < 0 then
-                  C_Exit (126);
-               end if;
-               if C_Dup2 (Out_Fd, 1) < 0 or else C_Dup2 (Err_Fd, 2) < 0 then
-                  C_Exit (126);
-               end if;
-               if Out_Fd > 2 then
-                  declare
-                     Ignored : C_Int := C_Close (Out_Fd);
-                  begin
-                     null;
-                  end;
-               end if;
-               if Err_Fd > 2 then
-                  declare
-                     Ignored : C_Int := C_Close (Err_Fd);
-                  begin
-                     null;
-                  end;
-               end if;
-
-               declare
-                  Ignored : C_Int := C_Execvp (Program_C, Argv (Argv'First)'Address);
-               begin
-                  null;
-               end;
-               C_Exit (127);
-            end;
          end if;
 
-         Register_Active_Build_Process (Integer (Child));
-
-         loop
-            Waited := C_Waitpid (Child, Status'Address, WNOHANG);
-            exit when Waited = Child;
-            if Waited < 0 then
-               Clear_Active_Build_Process;
-               Free_C_Strings;
-               Delete_File_If_Present (Stdout_Capture_File);
-               Delete_File_If_Present (Stderr_Capture_File);
-               return Build_Process_Run_Result (Process_Run_Execution_Error);
-            end if;
-
-            Stream_Capture_Deltas;
-
-            if Deadline_Reached then
-               Timed_Out := True;
-               declare
-                  Ignored : C_Int := C_Kill (Child, SIGTERM);
-               begin
-                  null;
-               end;
-               delay 0.10;
-               Waited := C_Waitpid (Child, Status'Address, WNOHANG);
-               if Waited /= Child then
-                  declare
-                     Ignored : C_Int := C_Kill (Child, SIGKILL);
-                  begin
-                     null;
-                  end;
-                  loop
-                     Waited := C_Waitpid (Child, Status'Address, 0);
-                     exit when Waited = Child or else Waited < 0;
-                  end loop;
-               end if;
-               exit;
-            else
-               delay 0.05;
-            end if;
-         end loop;
-
+         --  A cancellation and a deadline both end the process, and Hostkit reports both
+         --  the same way -- it stopped because we stopped it. Which of the two it was is
+         --  ours to know, and they do not mean the same thing to a user.
          Cancellation_Observed := Cancellation_Requested;
+
          Stream_Capture_Deltas;
          Clear_Active_Build_Process;
+
          Stdout_Output := Read_Bounded_Output_File
            (Stdout_Capture_File, Policy.Max_Output_Bytes, Stdout_Truncated);
          Stderr_Output := Read_Bounded_Output_File
            (Stderr_Capture_File, Policy.Max_Output_Bytes, Stderr_Truncated);
+
          Delete_File_If_Present (Stdout_Capture_File);
          Delete_File_If_Present (Stderr_Capture_File);
-         Free_C_Strings;
 
-         if Timed_Out then
+         --  124 is what a timed-out command exits with, by convention, and the callers
+         --  already read it that way.
+         if Outcome.Timed_Out and then not Cancellation_Observed then
             Exit_Code := 124;
          else
-            Exit_Code := Wait_Status_Exit_Code (Status);
+            Exit_Code := Outcome.Exit_Status;
          end if;
 
          return Enforce_Process_Output_Bounds
            ((Status        =>
                (if Stdout_Truncated or else Stderr_Truncated then
                    Process_Run_Output_Truncated
-                elsif Timed_Out then Process_Run_Timed_Out
                 elsif Cancellation_Observed then Process_Run_Cancelled
+                elsif Outcome.Timed_Out then Process_Run_Timed_Out
                 elsif Exit_Code = 0 then Process_Run_Succeeded
                 else Process_Run_Failed),
              Output_Capture_Mode => Process_Output_Capture_Separated,
@@ -3838,15 +3716,7 @@ package body Editor.External_Producers is
             Policy);
       exception
          when others =>
-            if Child > 0 then
-               declare
-                  Ignored : C_Int := C_Kill (Child, SIGKILL);
-               begin
-                  null;
-               end;
-            end if;
             Clear_Active_Build_Process;
-            Free_C_Strings;
             Delete_File_If_Present (Stdout_Capture_File);
             Delete_File_If_Present (Stderr_Capture_File);
             return Build_Process_Run_Result (Process_Run_Execution_Error);

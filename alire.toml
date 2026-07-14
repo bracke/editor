@@ -28,7 +28,11 @@ gnat_native = "=15.2.1"
 [[depends-on]]
 textrender = "*"
 
+[[depends-on]]
+hostkit = "*"
+
 [[pins]]
+hostkit = { path = "../hostkit" }
 textrender = { path='../textrender' }
 
 [[depends-on]]
