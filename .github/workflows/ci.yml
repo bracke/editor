@@ -149,6 +149,12 @@ jobs:
         working-directory: editor/tests
         run: |
           alr --non-interactive build
+
+          # Through "alr exec", because the suite runs the compiler: the external-producer
+          # tests drive gnat to get real diagnostics, and Alire's toolchain is only on PATH
+          # inside its environment. Run the binary directly and 24 of them fail on "gnat:
+          # command not found" -- which looks like a code failure and is not one.
+          #
           # The binary is tests.exe on Windows, and bash will not find it under the Unix
           # name.
           if [ -f ./bin/tests.exe ]; then
@@ -159,7 +165,7 @@ jobs:
               echo "::error::the test binary has unresolved DLL imports (listed above)"
               exit 1
             fi
-            ./bin/tests.exe
+            alr --non-interactive exec -- ./bin/tests.exe
           else
-            ./bin/tests
+            alr --non-interactive exec -- ./bin/tests
           fi
