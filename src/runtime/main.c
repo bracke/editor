@@ -7,8 +7,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-void adainit(void);
-void adafinal(void);
 int render_backend_validate_required_shader_assets(void);
 #ifdef __cplusplus
 }
@@ -39,7 +37,17 @@ static int parse_int_suffix(const char *text, int *out_value)
     return 1;
 }
 
-int main(int argc, char **argv)
+/*  Called from the Ada main, which is what owns elaboration now.
+ *
+ *  This used to be main(), calling adainit/adafinal itself. With a C main the binder
+ *  has no Ada main to compute a closure from, so gprbuild binds every Ada unit of every
+ *  withed project -- which dragged in df_vulkan's SPARK safety layer, whose generated
+ *  wrappers call Vulkan extension entry points that libvulkan does not export. That is
+ *  why the editor could not simply depend on df_vulkan, and hand-picked vk.ads out of
+ *  its prefix instead. An Ada main gives the binder a closure, and the safety layer --
+ *  which nothing withs -- stays out of the link.
+ */
+int editor_main(int argc, char **argv)
 {
     RuntimeGlfwOptions options;
     int rc;
@@ -183,17 +191,11 @@ int main(int argc, char **argv)
     if (check_shaders_only) {
         int shader_check_rc;
 
-        adainit();
         shader_check_rc = render_backend_validate_required_shader_assets() ? 0 : 1;
-        adafinal();
         return shader_check_rc;
     }
 
-    adainit();
-
     rc = runtime_glfw_run_with_options(options.smoke_mode ? &options : NULL);
-
-    adafinal();
 
     return rc;
 }
