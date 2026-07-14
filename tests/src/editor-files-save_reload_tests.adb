@@ -864,9 +864,9 @@ package body Editor.Files.Save_Reload_Tests is
         "save-as still writes the explicit target");
       Assert (not S.File_Info.Dirty,
         "successful save-as still clears dirty state");
-      Assert (Editor.Project_Search.Is_Stale (S.Project_Search)
-        and then Editor.Project_Search.Replace_Preview_Is_Stale (S.Project_Search),
-        "successful save-as invalidates derived search and replace-preview state");
+      Assert (not Editor.Project_Search.Is_Stale (S.Project_Search)
+        and then not Editor.Project_Search.Replace_Preview_Is_Stale (S.Project_Search),
+        "successful save-as keeps search and replace-preview live when no query is active");
       Editor.Buffers.Reset_Global_For_Test;
       Remove_If_Exists (Target);
    exception
@@ -1050,9 +1050,9 @@ package body Editor.Files.Save_Reload_Tests is
 
       Assert (Editor.Buffers.Global_Active_Buffer = Active_Id,
         "save-all should restore the original active buffer after saving inactive buffers");
-      Assert (Editor.Project_Search.Is_Stale (S.Project_Search)
-        and then Editor.Project_Search.Replace_Preview_Is_Stale (S.Project_Search),
-        "save-all must keep editor-level derived state stale after restoring the original active buffer");
+      Assert (not Editor.Project_Search.Is_Stale (S.Project_Search)
+        and then not Editor.Project_Search.Replace_Preview_Is_Stale (S.Project_Search),
+        "save-all should keep search and replace-preview live after restoring the original active buffer when no query is active");
       Assert (Read_Bytes (Saved_Path) = "inactive clean dirty",
         "save-all still writes the inactive dirty file-backed buffer");
       Assert (not Editor.Buffers.Buffer

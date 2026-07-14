@@ -1432,7 +1432,7 @@ package body Editor.File_Tree.Tests is
    end Test_Rename_Path_Fragment_Execution_Message;
 
 
-   procedure Test_Mutations_Mark_Quick_Open_Stale
+   procedure Test_Mutations_Refresh_Quick_Open
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1465,14 +1465,14 @@ package body Editor.File_Tree.Tests is
       Editor.Panel_Focus.Focus_File_Tree (S.Panel_Focus);
       Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, 1);
 
-      Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "a");
+      Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "quick");
       Editor.Quick_Open.Open (S.Quick_Open);
-      Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "a");
+      Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "quick");
       Editor.Quick_Open.Recompute_Results (S.Quick_Open, S.File_Tree, Config);
       Assert (not Editor.Quick_Open.Results_Are_Stale (S.Quick_Open),
               "setup should start with fresh Quick Open results");
-      Assert (Editor.Quick_Open.Result_Count (S.Quick_Open) > 0,
-              "setup should have Quick Open candidates");
+      Assert (Editor.Quick_Open.Result_Count (S.Quick_Open) = 0,
+              "setup query should start with no Quick Open matches");
 
       Create_Cmd.Text := To_Unbounded_String ("quick_new.adb");
       Editor.Executor.Execute_No_Log (S, Create_Cmd);
@@ -1480,18 +1480,10 @@ package body Editor.File_Tree.Tests is
               "Quick Open stale setup must create the file");
       Assert (Editor.Quick_Open.Is_Open (S.Quick_Open),
               "File Tree mutation must preserve open Quick Open UI state");
-      Assert (Editor.Quick_Open.Results_Are_Stale (S.Quick_Open),
-              "create-file must mark open Quick Open results stale");
-      Assert (Editor.Quick_Open.Result_Count (S.Quick_Open) = 0,
-              "stale open Quick Open results must not expose old candidates");
-      Assert (Editor.Quick_Open.Known_Count (S.Quick_Open) = 0,
-              "stale Quick Open projection must clear retained known count");
-      Assert (Editor.Quick_Open.Total_Filtered_Count (S.Quick_Open) = 0,
-              "stale Quick Open projection must clear retained filtered count");
-
-      Editor.Quick_Open.Recompute_Results (S.Quick_Open, S.File_Tree, Config);
       Assert (not Editor.Quick_Open.Results_Are_Stale (S.Quick_Open),
-              "Quick Open recompute should clear stale state");
+              "create-file must refresh open Quick Open results");
+      Assert (Editor.Quick_Open.Result_Count (S.Quick_Open) > 0,
+              "create-file must expose the new Quick Open candidate");
 
       Node := Editor.File_Tree.Find_By_Path (S.File_Tree, "a.txt", Found);
       Assert (Found, "Quick Open stale setup must find rename source");
@@ -1502,14 +1494,10 @@ package body Editor.File_Tree.Tests is
       Editor.Executor.Execute_No_Log (S, Rename_Cmd);
       Assert (Ada.Directories.Exists (Renamed),
               "Quick Open stale setup must rename the file");
-      Assert (Editor.Quick_Open.Results_Are_Stale (S.Quick_Open),
-              "rename must mark Quick Open results stale");
-      Assert (Editor.Quick_Open.Known_Count (S.Quick_Open) = 0,
-              "rename stale Quick Open projection must clear known count");
-
-      Editor.Quick_Open.Recompute_Results (S.Quick_Open, S.File_Tree, Config);
       Assert (not Editor.Quick_Open.Results_Are_Stale (S.Quick_Open),
-              "Quick Open recompute should clear stale state after rename");
+              "rename must refresh Quick Open results");
+      Assert (Editor.Quick_Open.Result_Count (S.Quick_Open) > 0,
+              "rename must keep Quick Open candidates visible");
 
       Node := Editor.File_Tree.Find_By_Path (S.File_Tree, "quick_renamed.txt", Found);
       Assert (Found, "Quick Open stale setup must find delete source");
@@ -1520,17 +1508,17 @@ package body Editor.File_Tree.Tests is
       Editor.Executor.Execute_No_Log (S, Delete_Cmd);
       Assert (not Ada.Directories.Exists (Renamed),
               "Quick Open stale setup must delete the file");
-      Assert (Editor.Quick_Open.Results_Are_Stale (S.Quick_Open),
-              "delete must mark Quick Open results stale");
-      Assert (Editor.Quick_Open.Known_Count (S.Quick_Open) = 0,
-              "delete stale Quick Open projection must clear known count");
+      Assert (not Editor.Quick_Open.Results_Are_Stale (S.Quick_Open),
+              "delete must refresh Quick Open results");
+      Assert (Editor.Quick_Open.Result_Count (S.Quick_Open) > 0,
+              "delete must keep remaining Quick Open candidates visible");
 
       Cleanup_Fixture (Root);
    exception
       when others =>
          Remove_Any_If_Exists (Root);
          raise;
-   end Test_Mutations_Mark_Quick_Open_Stale;
+   end Test_Mutations_Refresh_Quick_Open;
 
 
    overriding procedure Register_Tests
@@ -1604,8 +1592,8 @@ package body Editor.File_Tree.Tests is
         (T, Test_Rename_Path_Fragment_Execution_Message'Access,
          "rename path fragment execution message");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Mutations_Mark_Quick_Open_Stale'Access,
-         "mutations mark Quick Open stale");
+        (T, Test_Mutations_Refresh_Quick_Open'Access,
+         "mutations refresh Quick Open");
    end Register_Tests;
 
 end Editor.File_Tree.Tests;

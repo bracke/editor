@@ -331,6 +331,9 @@ package body Editor.Buffer_Switcher.Tests is
       Assert (Editor.Buffer_Switcher.Filter_Text (S) = "ma", "backspace edits filter");
       Editor.Buffer_Switcher.Close (S);
       Assert (not Editor.Buffer_Switcher.Is_Open (S), "Close must close switcher");
+      Editor.Buffer_Switcher.Open (S);
+      Assert (Editor.Buffer_Switcher.Filter_Text (S) = "ma",
+              "reopening buffer switcher must preserve the previous filter");
    end Test_Open_Close_And_Filter_Input;
 
    procedure Test_Recompute_Uses_Open_Buffers_In_Order

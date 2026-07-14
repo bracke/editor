@@ -11,11 +11,6 @@ package Editor.Executor.Find_Replace_Commands is
    function Has_Find_Target_Buffer
      (S : Editor.State.State_Type) return Boolean;
 
-   procedure Execute_Find_Replace_Kind
-     (S    : in out Editor.State.State_Type;
-      Kind : Editor.Commands.Command_Kind;
-      Text : String := "");
-
    procedure Execute_Find_Show
      (S : in out Editor.State.State_Type);
 
@@ -90,8 +85,5 @@ package Editor.Executor.Find_Replace_Commands is
    procedure Set_Active_Find_Query_And_Report
      (S    : in out Editor.State.State_Type;
       Text : String);
-
-   procedure Sync_Active_Find_Input_From_Query
-     (S : in out Editor.State.State_Type);
 
 end Editor.Executor.Find_Replace_Commands;

@@ -8,6 +8,7 @@ with Editor.Commands;
 with Editor.Cursors;
 with Editor.Executor.Test_Support; use Editor.Executor.Test_Support;
 with Editor.Executor.File_Open_Commands;
+with Editor.Executor.File_Operation_Commands;
 with Editor.Executor.Find_Replace_Commands;
 with Editor.Executor.Find_Replace_Input_Commands;
 with Editor.Executor.Project_Search_Result_Commands;
@@ -39,6 +40,7 @@ package body Editor.Executor.Search_Tests is
    use type Editor.Panel_Focus.Bottom_Focus_Content;
    use type Editor.Panel_Focus.Focus_Target;
    use type Editor.Panels.Bottom_Panel_Content;
+   use type Editor.Project_Search.Project_Replace_Preview_Status;
    use type Editor.Project_Search.Project_Search_File_Kind_Filter;
    use type Editor.Project_Search.Project_Search_Status;
    use type Editor.Search.Search_Match_Index;
@@ -60,6 +62,7 @@ package body Editor.Executor.Search_Tests is
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Init_Executor_Test_State (S);
+      Remove_Tree_If_Exists (Root);
       Build_Project_Search_Fixture (Root);
 
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
@@ -82,14 +85,135 @@ package body Editor.Executor.Search_Tests is
            Editor.Panel_Focus.Search_Results_Focus,
          "focus Search Results should move keyboard ownership to Search Results");
 
-      Cleanup_Project_Search_Fixture (Root);
       Editor.Buffers.Reset_Global_For_Test;
    exception
       when others =>
-         Cleanup_Project_Search_Fixture (Root);
          Editor.Buffers.Reset_Global_For_Test;
          raise;
    end Test_Focus_Search_Results_Shows_And_Focuses;
+
+   procedure Test_Project_Search_Refreshes_After_Rename
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      Root     : constant String := Temp_Path ("search_refresh_root");
+      Original : constant String := Ada.Directories.Compose (Root, "needle.txt");
+      Renamed  : constant String := Ada.Directories.Compose (Root, "renamed.txt");
+      S        : Editor.State.State_Type;
+      Result   : Editor.Project_Search.Project_Search_Result;
+   begin
+      Editor.Buffers.Reset_Global_For_Test;
+      Init_Executor_Test_State (S);
+      Remove_Tree_If_Exists (Root);
+      Build_Project_Search_Fixture (Root);
+
+      Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
+      Editor.Executor.Project_Search_Result_Commands.Execute_Run_Project_Search (S, "needle");
+
+      Assert
+        (Editor.Project_Search.Result_Count (S.Project_Search) = 1
+         and then Editor.Project_Search.Status (S.Project_Search) =
+           Editor.Project_Search.Project_Search_Ok,
+         "fixture search should start with one matching file");
+      Result := Editor.Project_Search.Result_At (S.Project_Search, 1);
+      Assert
+        (To_String (Result.Relative_Path) = "needle.txt",
+         "initial search result should point at the original file");
+
+      Editor.Executor.File_Open_Commands.Execute_Open_File (S, Original);
+      Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, Renamed);
+
+      Assert
+        (Ada.Directories.Exists (Renamed)
+         and then not Ada.Directories.Exists (Original),
+         "rename should update the filesystem target");
+
+      Assert
+        (Editor.Project_Search.Result_Count (S.Project_Search) = 1
+         and then Editor.Project_Search.Status (S.Project_Search) =
+           Editor.Project_Search.Project_Search_Ok,
+         "rename should keep project search results live");
+      Result := Editor.Project_Search.Result_At (S.Project_Search, 1);
+      Assert
+        (To_String (Result.Relative_Path) = "renamed.txt",
+         "project search should refresh to the renamed file path");
+
+      Remove_File_If_Exists (Renamed);
+      Remove_File_If_Exists (Original);
+      Remove_Tree_If_Exists (Root);
+      Editor.Buffers.Reset_Global_For_Test;
+   exception
+      when others =>
+         Remove_File_If_Exists (Renamed);
+         Remove_File_If_Exists (Original);
+         Remove_Tree_If_Exists (Root);
+         Editor.Buffers.Reset_Global_For_Test;
+         raise;
+   end Test_Project_Search_Refreshes_After_Rename;
+
+   procedure Test_Replace_Preview_Refreshes_After_Rename
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      Root     : constant String := Temp_Path ("replace_refresh_root");
+      Original : constant String := Ada.Directories.Compose (Root, "needle.txt");
+      Renamed  : constant String := Ada.Directories.Compose (Root, "renamed.txt");
+      S        : Editor.State.State_Type;
+      Row      : Editor.Project_Search.Project_Replace_Preview_Row;
+   begin
+      Editor.Buffers.Reset_Global_For_Test;
+      Init_Executor_Test_State (S);
+      Remove_Tree_If_Exists (Root);
+      Build_Project_Search_Fixture (Root);
+
+      Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
+      Editor.Executor.Project_Search_Result_Commands.Execute_Run_Project_Search (S, "needle");
+      Editor.Project_Search.Set_Replace_Text (S.Project_Search, "pin");
+      Editor.Executor.Execute_Command
+        (S, Editor.Commands.Command_Project_Search_Replace_Preview);
+
+      Assert
+        (Editor.Project_Search.Replace_Preview_Count (S.Project_Search) = 1
+         and then Editor.Project_Search.Replace_Preview_Status (S.Project_Search) =
+           Editor.Project_Search.Project_Replace_Preview_Ok,
+         "replace preview setup should start with one fresh row");
+      Row := Editor.Project_Search.Replace_Preview_Row_At (S.Project_Search, 1);
+      Assert
+        (To_String (Row.Relative_Path) = "needle.txt"
+         and then not Row.Stale,
+         "replace preview setup should point at the original file");
+
+      Editor.Executor.File_Open_Commands.Execute_Open_File (S, Original);
+      Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, Renamed);
+
+      Assert
+        (Ada.Directories.Exists (Renamed)
+         and then not Ada.Directories.Exists (Original),
+         "rename should update the filesystem target");
+      Assert
+        (Editor.Project_Search.Replace_Preview_Count (S.Project_Search) = 1
+         and then Editor.Project_Search.Replace_Preview_Status (S.Project_Search) =
+           Editor.Project_Search.Project_Replace_Preview_Ok,
+         "rename should keep the replace preview live");
+      Row := Editor.Project_Search.Replace_Preview_Row_At (S.Project_Search, 1);
+      Assert
+        (To_String (Row.Relative_Path) = "renamed.txt"
+         and then not Row.Stale
+         and then Row.Included,
+         "replace preview should refresh to the renamed file path");
+
+      Remove_File_If_Exists (Renamed);
+      Remove_File_If_Exists (Original);
+      Remove_Tree_If_Exists (Root);
+      Editor.Buffers.Reset_Global_For_Test;
+   exception
+      when others =>
+         Remove_File_If_Exists (Renamed);
+         Remove_File_If_Exists (Original);
+         Remove_Tree_If_Exists (Root);
+         Editor.Buffers.Reset_Global_For_Test;
+         raise;
+   end Test_Replace_Preview_Refreshes_After_Rename;
 
    procedure Test_Search_Results_Move_Is_Selection_Only
      (T : in out AUnit.Test_Cases.Test_Case'Class)
@@ -1071,9 +1195,9 @@ package body Editor.Executor.Search_Tests is
         (S, Editor.Commands.Command_Refresh_Project_Files);
       Assert (Editor.Project_Search.Query (S.Project_Search) = "needle",
               "project file refresh should preserve visible Project Search query");
-      Assert (Editor.Project_Search.Result_Count (S.Project_Search) = 0
-              and then Editor.Project_Search.Selected_Result_Index (S.Project_Search) = 0,
-              "project file refresh should clear Project Search results and selection");
+      Assert (Editor.Project_Search.Result_Count (S.Project_Search) = 1
+              and then Editor.Project_Search.Selected_Result_Index (S.Project_Search) = 1,
+              "project file refresh should rerun Project Search against refreshed known files");
 
       Cleanup_Project_Search_Fixture (Root);
       Editor.Buffers.Reset_Global_For_Test;
@@ -2132,6 +2256,12 @@ package body Editor.Executor.Search_Tests is
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Focus_Search_Results_Shows_And_Focuses'Access,
          "focuses Search Results and shows the bottom panel");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Project_Search_Refreshes_After_Rename'Access,
+         "project search refreshes after file rename");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Replace_Preview_Refreshes_After_Rename'Access,
+         "replace preview refreshes after file rename");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Search_Results_Move_Is_Selection_Only'Access,
          "focused Search Results movement is selection-only");

@@ -54,6 +54,7 @@ with Editor.Clipboard;
 with Editor.Project;
 use type Editor.Project.Project_File_Refresh_Status;
 with Editor.File_Tree;
+use type Editor.File_Tree.File_Tree_Node_Id;
 with Editor.File_Tree_View;
 with Editor.View;
 with Editor.Buffers;
@@ -434,8 +435,27 @@ package body Editor.Executor is
       if not Editor.Project.Has_Project (S.Project)
         or else not Editor.State.Has_Active_Buffer (S)
         or else not File.Has_Path
-        or else Editor.Project.Known_File_Count (S.Project) = 0
       then
+         return "";
+      end if;
+
+      if Editor.File_Tree.File_Node_Count (S.File_Tree) > 0 then
+         declare
+            Tree_Found : Boolean := False;
+            Node_Id    : constant Editor.File_Tree.File_Tree_Node_Id :=
+              Editor.File_Tree.Find_By_Path (S.File_Tree, Raw_Path, Tree_Found);
+         begin
+            if Tree_Found
+              and then Node_Id /= Editor.File_Tree.No_File_Tree_Node
+            then
+               Found := True;
+               return Normalize_Project_Path_For_Command
+                 (To_String (Editor.File_Tree.Node (S.File_Tree, Node_Id).Relative_Path));
+            end if;
+         end;
+      end if;
+
+      if Editor.Project.Known_File_Count (S.Project) = 0 then
          return "";
       end if;
 

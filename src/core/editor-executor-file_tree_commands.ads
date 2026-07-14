@@ -14,8 +14,4 @@ package Editor.Executor.File_Tree_Commands is
       Id : Editor.Commands.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result;
 
-   procedure Execute_File_Tree_Kind
-     (S   : in out Editor.State.State_Type;
-      Cmd : Editor.Commands.Command);
-
 end Editor.Executor.File_Tree_Commands;

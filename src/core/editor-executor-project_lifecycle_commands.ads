@@ -65,8 +65,4 @@ package Editor.Executor.Project_Lifecycle_Commands is
       Recent_Project_Open      : Boolean := False;
       Explicit_Switch          : Boolean := False);
 
-   procedure Execute_Project_Lifecycle_Kind
-     (S   : in out Editor.State.State_Type;
-      Cmd : Editor.Commands.Command);
-
 end Editor.Executor.Project_Lifecycle_Commands;

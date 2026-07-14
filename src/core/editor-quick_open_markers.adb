@@ -4,6 +4,7 @@ with Ada.Characters.Handling;
 with Ada.Strings;
 with Ada.Strings.Fixed;
 with Editor.Buffers;
+with Editor.File_Tree;
 with Editor.Project;
 with Editor.Quick_Open;
 with Editor.Recent_Buffers;
@@ -11,6 +12,8 @@ with Editor.Recent_Buffers;
 package body Editor.Quick_Open_Markers is
 
    use type Editor.Buffers.Buffer_Id;
+   use type Editor.File_Tree.File_Tree_Node_Id;
+   use type Editor.File_Tree.File_Tree_Scan_Status;
    use type Editor.Quick_Open.Quick_Open_Priority_Mode;
    use type Editor.Quick_Open.Quick_Open_Priority_Bucket;
    use type Editor.Quick_Open.Quick_Open_Match_Bucket;
@@ -1161,6 +1164,373 @@ package body Editor.Quick_Open_Markers is
       Recompute_Selection_After_Sort;
       Refresh_Header_Text;
 
+      return Snapshot;
+   end Build_Snapshot;
+
+   function Build_Snapshot
+     (State    : Editor.Quick_Open.Quick_Open_State;
+      Tree     : Editor.File_Tree.File_Tree_State;
+      Project  : Editor.Project.Project_State;
+      Registry : Editor.Buffers.Buffer_Registry;
+      Recent   : Editor.Recent_Buffers.Recent_Buffer_State)
+      return Editor.Quick_Open.Quick_Open_Snapshot
+   is
+      Snapshot : Editor.Quick_Open.Quick_Open_Snapshot :=
+        Editor.Quick_Open.Build_Snapshot (State);
+      Retained_Result_Limit : constant Natural := Natural (Snapshot.Candidates.Length);
+      Next_Recent_Rank : Natural := 0;
+      Has_File_Tree : constant Boolean :=
+        Editor.File_Tree.File_Node_Count (Tree) > 0;
+
+      function Candidate_Index (Path : String) return Natural is
+         Wanted : constant String := Normalize_For_Compare (Path);
+      begin
+         if Snapshot.Candidates.Length = 0 then
+            return Natural'Last;
+         end if;
+
+         for I in Snapshot.Candidates.First_Index .. Snapshot.Candidates.Last_Index loop
+            if Normalize_For_Compare
+              (To_String (Snapshot.Candidates (I).Project_Relative_Path)) = Wanted
+            then
+               return I;
+            end if;
+         end loop;
+         return Natural'Last;
+      end Candidate_Index;
+
+      function Candidate_Index_For_Buffer_Path (Path : String) return Natural is
+         Wanted : constant String := Normalize_For_Compare (Path);
+      begin
+         if Snapshot.Candidates.Length = 0 then
+            return Natural'Last;
+         end if;
+
+         for I in Snapshot.Candidates.First_Index .. Snapshot.Candidates.Last_Index loop
+            declare
+               Candidate : constant String := Normalize_For_Compare
+                 (To_String (Snapshot.Candidates (I).Project_Relative_Path));
+            begin
+               if Candidate = Wanted
+                 or else (Wanted'Length > Candidate'Length
+                          and then Ends_With (Wanted, Candidate)
+                          and then Wanted (Wanted'Last - Candidate'Length) = '/')
+               then
+                  return I;
+               end if;
+            end;
+         end loop;
+         return Natural'Last;
+      end Candidate_Index_For_Buffer_Path;
+
+      procedure Refresh_Display_Text (Index : Natural) is
+         Text : Unbounded_String := Snapshot.Candidates (Index).Project_Relative_Path;
+      begin
+         if Snapshot.Candidates (Index).Is_Open then
+            Append (Text, " [open]");
+         end if;
+         if Snapshot.Candidates (Index).Is_Active then
+            Append (Text, " [active]");
+         end if;
+         if Snapshot.Candidates (Index).Is_Dirty then
+            Append (Text, " [dirty]");
+         end if;
+         if Snapshot.Candidates (Index).Is_Recent
+           and then not Snapshot.Candidates (Index).Is_Open
+         then
+            Append (Text, " [recent]");
+         end if;
+         Snapshot.Candidates (Index).Display_Text := Text;
+      end Refresh_Display_Text;
+
+      function Is_File_Known (Path : String) return Boolean is
+         Found : Boolean := False;
+      begin
+         if Has_File_Tree then
+            declare
+               Node : constant Editor.File_Tree.File_Tree_Node_Id :=
+                 Editor.File_Tree.Find_By_Path (Tree, Path, Found);
+            begin
+               return Found and then Node /= Editor.File_Tree.No_File_Tree_Node;
+            end;
+         elsif Editor.Project.Has_Project (Project) then
+            return Editor.Project.Has_Known_File (Project, Path);
+         else
+            return False;
+         end if;
+      end Is_File_Known;
+
+      function Resolve_Buffer_Project_Path
+        (Id       : Editor.Buffers.Buffer_Id;
+         Resolved : out Unbounded_String) return Boolean
+      is
+         Summary : Editor.Buffers.Buffer_Summary;
+         Node    : Editor.File_Tree.File_Tree_Node_Id := Editor.File_Tree.No_File_Tree_Node;
+         Found   : Boolean := False;
+      begin
+         Resolved := Null_Unbounded_String;
+         if Id = Editor.Buffers.No_Buffer
+           or else not Editor.Buffers.Contains (Registry, Id)
+         then
+            return False;
+         end if;
+
+         Summary := Editor.Buffers.Summary_For (Registry, Id);
+         if not Summary.Has_Path then
+            return False;
+         end if;
+
+         if Has_File_Tree then
+            Node := Editor.File_Tree.Find_By_Path (Tree, To_String (Summary.Path), Found);
+            if Found and then Node /= Editor.File_Tree.No_File_Tree_Node then
+               declare
+                  Node_Summary : constant Editor.File_Tree.File_Tree_Node_Summary :=
+                    Editor.File_Tree.Node (Tree, Node);
+               begin
+                  Resolved := Node_Summary.Relative_Path;
+                  return True;
+               end;
+            end if;
+         end if;
+
+         if Editor.Project.Has_Project (Project) then
+            if not Editor.Project.Is_Under_Project (Project, To_String (Summary.Path)) then
+               return False;
+            end if;
+            Resolved := To_Unbounded_String
+              (Editor.Project.Relative_Path (Project, To_String (Summary.Path)));
+            return True;
+         end if;
+
+         return False;
+      end Resolve_Buffer_Project_Path;
+
+      function Open_Buffer_Display_Path
+        (Summary : Editor.Buffers.Buffer_Summary;
+         Path    : String) return String
+      is
+         Name : constant String := To_String (Summary.Display_Name);
+      begin
+         if Path'Length > 0 then
+            return Path;
+         elsif not Summary.Has_Path then
+            return "Untitled";
+         elsif Name'Length > 0 then
+            return Name;
+         else
+            return "Untitled";
+         end if;
+      end Open_Buffer_Display_Path;
+
+      function Open_Buffer_May_Synthesize
+        (Summary : Editor.Buffers.Buffer_Summary;
+         Path    : String) return Boolean
+      is
+      begin
+         if not Snapshot.Has_Query then
+            return False;
+         elsif not Summary.Has_Path then
+            return Retained_Result_Limit > 0;
+         elsif Is_File_Known (Path) then
+            return False;
+         else
+            return Retained_Result_Limit > 0
+              or else (if Has_File_Tree then Editor.File_Tree.File_Node_Count (Tree) = 0
+                       else Editor.Project.Known_File_Count (Project) = 0);
+         end if;
+      end Open_Buffer_May_Synthesize;
+
+      procedure Ensure_Open_Buffer_Candidate
+        (Summary : Editor.Buffers.Buffer_Summary;
+         Path    : String;
+         Index   : out Natural)
+      is
+      begin
+         Index := Candidate_Index_For_Buffer_Path (Path);
+         if Index /= Natural'Last then
+            Snapshot.Candidates (Index).Buffer_Identity := Summary.Id;
+            return;
+         end if;
+
+         if Open_Buffer_May_Synthesize (Summary, Path) then
+            declare
+               Display_Path : constant String :=
+                 Open_Buffer_Display_Path (Summary, Path);
+            begin
+               Snapshot.Candidates.Append
+                 (Editor.Quick_Open.Quick_Open_Candidate_Snapshot'
+                    (Project_Relative_Path => To_Unbounded_String (Display_Path),
+                     Buffer_Identity       => Summary.Id,
+                     Basename              =>
+                       To_Unbounded_String (Base_Name (Display_Path)),
+                     Match_Bucket          =>
+                       Match_Bucket_For (To_String (Snapshot.Query), Display_Path),
+                     Priority_Bucket       => Editor.Quick_Open.Ordinary_File,
+                     Display_Text          => To_Unbounded_String (Display_Path),
+                     Is_Open               => True,
+                     Is_Active             =>
+                       Summary.Id = Editor.Buffers.Active_Buffer (Registry),
+                     Is_Dirty              =>
+                       Editor.Buffers.Is_Dirty (Registry, Summary.Id),
+                     Is_Recent             => False,
+                     Recent_Rank           => 0,
+                     Is_Selected           => False));
+               Index := Snapshot.Candidates.Last_Index;
+            end;
+         end if;
+      end Ensure_Open_Buffer_Candidate;
+
+      procedure Refresh_Header_Text is
+      begin
+         Snapshot.Header_Text := To_Unbounded_String
+           ("Kind: " & Editor.Quick_Open.File_Kind_Filter_Name (Snapshot.File_Kind_Filter)
+            & (if Length (Snapshot.Path_Scope) > 0
+               then " | Scope: " & To_String (Snapshot.Path_Scope)
+               else "")
+            & " | Priority: "
+            & (if Snapshot.Priority_Mode = Editor.Quick_Open.Open_Recent
+               then "Open/Recent" else "Path")
+            & (if not Snapshot.Has_Project then " | No project open."
+               elsif Snapshot.Known_Count = 0 then " | No project files."
+               else " | Results: " & Image (Snapshot.Total_Filtered_Count)
+                 & " of " & Image (Snapshot.Known_Count)));
+      end Refresh_Header_Text;
+
+      procedure Recompute_Selection_After_Sort is
+         Selected : constant String := To_String (Snapshot.Selected_Path);
+      begin
+         Snapshot.Selected_Index := 0;
+         if Snapshot.Candidates.Length = 0 then
+            return;
+         end if;
+
+         for I in Snapshot.Candidates.First_Index .. Snapshot.Candidates.Last_Index loop
+            Snapshot.Candidates (I).Is_Selected := False;
+            if Selected'Length > 0
+              and then To_String (Snapshot.Candidates (I).Project_Relative_Path) = Selected
+            then
+               Snapshot.Selected_Index := I + 1;
+               Snapshot.Candidates (I).Is_Selected := True;
+            end if;
+         end loop;
+
+         if Snapshot.Selected_Index = 0
+           and then Natural (Snapshot.Candidates.Length) > 0
+         then
+            Snapshot.Selected_Index := 1;
+            Snapshot.Selected_Path := Snapshot.Candidates (Snapshot.Candidates.First_Index).Project_Relative_Path;
+            Snapshot.Candidates (Snapshot.Candidates.First_Index).Is_Selected := True;
+         end if;
+      end Recompute_Selection_After_Sort;
+   begin
+      if not Editor.Project.Has_Project (Project) and then not Has_File_Tree then
+         Snapshot.Candidates.Clear;
+         Snapshot.Has_Project := False;
+         Snapshot.Has_Query := Ada.Strings.Fixed.Trim
+           (To_String (Snapshot.Query), Ada.Strings.Both)'Length > 0;
+         Snapshot.Known_Count := 0;
+         Snapshot.Visible_Count := 0;
+         Snapshot.Total_Filtered_Count := 0;
+         Snapshot.Selected_Index := 0;
+         Snapshot.Selected_Path := Null_Unbounded_String;
+         Snapshot.Empty_Message := To_Unbounded_String ("No project open.");
+         Refresh_Header_Text;
+         return Snapshot;
+      end if;
+
+      Snapshot.Has_Project :=
+        (if Has_File_Tree
+         then Editor.File_Tree.Scan_Status (Tree).Status /= Editor.File_Tree.File_Tree_No_Project
+         else Editor.Project.Has_Project (Project));
+      Snapshot.Known_Count :=
+        (if Has_File_Tree
+         then Editor.File_Tree.File_Node_Count (Tree)
+         else Editor.Project.Known_File_Count (Project));
+      Snapshot.Visible_Count := 0;
+      Snapshot.Total_Filtered_Count := Natural (Snapshot.Candidates.Length);
+
+      for B in 1 .. Editor.Buffers.Buffer_Count (Registry) loop
+         declare
+            Summary  : constant Editor.Buffers.Buffer_Summary :=
+              Editor.Buffers.Summary_At (Registry, B);
+            Resolved : Unbounded_String;
+            Index    : Natural := Natural'Last;
+         begin
+            if Resolve_Buffer_Project_Path (Summary.Id, Resolved) then
+               Ensure_Open_Buffer_Candidate (Summary, To_String (Resolved), Index);
+            elsif not Summary.Has_Path then
+               Ensure_Open_Buffer_Candidate (Summary, "", Index);
+            end if;
+
+            if Index /= Natural'Last then
+               Snapshot.Candidates (Index).Is_Open := True;
+               Snapshot.Candidates (Index).Is_Active :=
+                 Summary.Id = Editor.Buffers.Active_Buffer (Registry);
+               Snapshot.Candidates (Index).Is_Dirty :=
+                 Editor.Buffers.Is_Dirty (Registry, Summary.Id);
+            end if;
+         end;
+      end loop;
+
+      for R in 1 .. Editor.Recent_Buffers.Count (Recent) loop
+         declare
+            Id       : constant Editor.Buffers.Buffer_Id :=
+              Editor.Buffers.Buffer_Id (Editor.Recent_Buffers.Id_At (Recent, R));
+            Resolved : Unbounded_String;
+            Index    : Natural := Natural'Last;
+         begin
+            if Resolve_Buffer_Project_Path (Id, Resolved) then
+               Index := Candidate_Index (To_String (Resolved));
+               if Index /= Natural'Last
+                 and then not Snapshot.Candidates (Index).Is_Recent
+               then
+                  Next_Recent_Rank := Next_Recent_Rank + 1;
+                  Snapshot.Candidates (Index).Is_Recent := True;
+                  Snapshot.Candidates (Index).Recent_Rank := Next_Recent_Rank;
+               end if;
+            end if;
+         end;
+      end loop;
+
+      if Snapshot.Candidates.Length > 0 then
+         for I in Snapshot.Candidates.First_Index .. Snapshot.Candidates.Last_Index loop
+            if Snapshot.Candidates (I).Is_Active then
+               Snapshot.Candidates (I).Priority_Bucket := Editor.Quick_Open.Active_File;
+            elsif Snapshot.Candidates (I).Is_Open and then Snapshot.Candidates (I).Is_Dirty then
+               Snapshot.Candidates (I).Priority_Bucket := Editor.Quick_Open.Open_Dirty_File;
+            elsif Snapshot.Candidates (I).Is_Open then
+               Snapshot.Candidates (I).Priority_Bucket := Editor.Quick_Open.Open_Clean_File;
+            elsif Snapshot.Candidates (I).Is_Recent then
+               Snapshot.Candidates (I).Priority_Bucket := Editor.Quick_Open.Recent_File;
+            else
+               Snapshot.Candidates (I).Priority_Bucket := Editor.Quick_Open.Ordinary_File;
+            end if;
+            Refresh_Display_Text (I);
+         end loop;
+      end if;
+
+      if Snapshot.Priority_Mode = Editor.Quick_Open.Open_Recent then
+         Sort_Candidates (Snapshot);
+      end if;
+
+      Snapshot.Visible_Count := Natural (Snapshot.Candidates.Length);
+      if Snapshot.Candidates.Length = 0 then
+         Snapshot.Selected_Index := 0;
+         Snapshot.Selected_Path := Null_Unbounded_String;
+         if not Snapshot.Has_Project then
+            Snapshot.Empty_Message := To_Unbounded_String ("No project open.");
+         elsif Snapshot.Known_Count = 0 then
+            Snapshot.Empty_Message := To_Unbounded_String ("No project files.");
+         elsif not Snapshot.Has_Query then
+            Snapshot.Empty_Message := To_Unbounded_String ("Type to open file.");
+         else
+            Snapshot.Empty_Message := To_Unbounded_String ("No Quick Open matches.");
+         end if;
+      else
+         Snapshot.Empty_Message := Null_Unbounded_String;
+         Recompute_Selection_After_Sort;
+      end if;
+      Refresh_Header_Text;
       return Snapshot;
    end Build_Snapshot;
 

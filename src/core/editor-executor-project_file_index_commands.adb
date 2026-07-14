@@ -15,6 +15,7 @@ with Editor.File_Tree_View;
 with Editor.Focus_Management;
 with Editor.Project;
 use type Editor.Project.Project_File_Refresh_Status;
+with Editor.Executor.Project_Search_Result_Commands;
 with Editor.Project_Search;
 with Editor.Quick_Open;
 with Editor.Render_Cache;
@@ -149,7 +150,11 @@ package body Editor.Executor.Project_File_Index_Commands is
          if Editor.Quick_Open.Is_Open (S.Quick_Open) then
             Editor.Executor.Recompute_Quick_Open (S);
          end if;
-         Editor.Project_Search.Clear_Results_Preserve_Query (S.Project_Search);
+         if Editor.Project_Search.Has_Query (S.Project_Search) then
+            Editor.Executor.Project_Search_Result_Commands.Execute_Rerun_Project_Search (S);
+         else
+            Editor.Project_Search.Clear_Results_Preserve_Query (S.Project_Search);
+         end if;
          Editor.Executor.Shared_Services.Report_Success
            (S, Format_Project_File_Refresh_Message (Result));
       else
@@ -325,7 +330,8 @@ package body Editor.Executor.Project_File_Index_Commands is
             Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, 0);
             Editor.File_Tree_View.Set_Top_Row (S.File_Tree_View, 1);
          end if;
-         Editor.Project_Search.Mark_Stale (S.Project_Search);
+         Editor.Executor.Project_Search_Result_Commands
+           .Refresh_Project_Search_After_File_Lifecycle (S);
          if Editor.Quick_Open.Is_Open (S.Quick_Open) then
             Editor.Executor.Recompute_Quick_Open (S);
          end if;

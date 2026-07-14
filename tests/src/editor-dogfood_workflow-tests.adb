@@ -363,7 +363,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Quick_Open.Open (S.Quick_Open);
       Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "dogfood_demo.adb");
       Editor.Quick_Open.Recompute_Results
-        (S.Quick_Open, S.Project, (Max_Visible_Results => 12,
+        (S.Quick_Open, S.File_Tree, (Max_Visible_Results => 12,
                                    Max_Result_Count => 100,
                                    Query_Field_Min_Columns => 24,
                                    Overlay_Width_In_Columns => 72,
@@ -437,7 +437,7 @@ package body Editor.Dogfood_Workflow.Tests is
       --  not just through policy helpers.
       Editor.Project_Search.Clear_Stale (S.Project_Search);
       Editor.Quick_Open.Recompute_Results
-        (S.Quick_Open, S.Project, (Max_Visible_Results => 12,
+        (S.Quick_Open, S.File_Tree, (Max_Visible_Results => 12,
                                    Max_Result_Count => 100,
                                    Query_Field_Min_Columns => 24,
                                    Overlay_Width_In_Columns => 72,
@@ -468,10 +468,10 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Editor.Focus_Management.Effective_Focus_Owner (S) =
                 Editor.Focus_Management.Focus_File_Tree,
               "File Tree rename keeps focus on File Tree for adjacent actions");
-      Assert (Editor.Project_Search.Is_Stale (S.Project_Search),
-              "real File Tree rename marks Project Search results stale");
-      Assert (Editor.Quick_Open.Results_Are_Stale (S.Quick_Open),
-              "real File Tree rename marks Quick Open candidates stale");
+      Assert (not Editor.Project_Search.Is_Stale (S.Project_Search),
+              "real File Tree rename refreshes Project Search results");
+      Assert (not Editor.Quick_Open.Results_Are_Stale (S.Quick_Open),
+              "real File Tree rename refreshes Quick Open candidates");
       Diagnostic_Row := 0;
       for I in 1 .. Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) loop
          if Editor.Feature_Diagnostics.Item_Source_Label (S.Feature_Diagnostics, I) =
@@ -509,7 +509,7 @@ package body Editor.Dogfood_Workflow.Tests is
 
       Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "renamed_widget");
       Editor.Quick_Open.Recompute_Results
-        (S.Quick_Open, S.Project, (Max_Visible_Results => 12,
+        (S.Quick_Open, S.File_Tree, (Max_Visible_Results => 12,
                                    Max_Result_Count => 100,
                                    Query_Field_Min_Columns => 24,
                                    Overlay_Width_In_Columns => 72,
@@ -647,7 +647,7 @@ package body Editor.Dogfood_Workflow.Tests is
       --  Project Search finds and validates a real source target.
       Editor.Project_Search.Set_Query (S.Project_Search, "Dogfood_Known_Token");
       Editor.Project_Search.Search_Known_Project_Files
-        (S.Project_Search, S.Project,
+        (S.Project_Search, S.File_Tree, S.Project,
          (Case_Sensitive => True,
           Max_File_Count => 100,
           Max_Result_Count => 20,
@@ -896,7 +896,7 @@ package body Editor.Dogfood_Workflow.Tests is
                                      Result_Padding_Columns => 1));
       Editor.Project_Search.Set_Query (S2.Project_Search, "Dogfood_Known_Token");
       Editor.Project_Search.Search_Known_Project_Files
-        (S2.Project_Search, S2.Project,
+        (S2.Project_Search, S2.File_Tree, S2.Project,
          (Case_Sensitive => True,
           Max_File_Count => 100,
           Max_Result_Count => 20,
@@ -1461,7 +1461,7 @@ package body Editor.Dogfood_Workflow.Tests is
 
       Editor.Project_Search.Set_Query (S.Project_Search, "Dogfood_Known_Token");
       Editor.Project_Search.Search_Known_Project_Files
-        (S.Project_Search, S.Project,
+        (S.Project_Search, S.File_Tree, S.Project,
          (Case_Sensitive => True,
           Max_File_Count => 100,
           Max_Result_Count => 20,

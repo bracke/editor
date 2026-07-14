@@ -19,6 +19,7 @@ with Editor.Executor.Project_Search_Surface_Commands;
 with Editor.Executor.Search_Results_Commands;
 with Editor.Feature_Panel;
 with Editor.Files;
+with Editor.File_Tree;
 with Editor.Folding;
 with Editor.Focus_Management;
 with Editor.Layout;
@@ -43,6 +44,7 @@ package body Editor.Executor.Search_Commands is
 
    use type Editor.Command_Execution.Command_Execution_Status;
    use type Editor.Buffers.Buffer_Id;
+   use type Editor.File_Tree.File_Tree_Node_Id;
    use type Editor.Feature_Panel.Feature_Id;
    use type Editor.Panel_Focus.Bottom_Focus_Content;
    use type Editor.Panels.Bottom_Panel_Content;
@@ -98,6 +100,17 @@ package body Editor.Executor.Search_Commands is
          return Editor.Overlay_Focus.Is_Active (S.Overlay_Focus, Overlay);
       end Active_Overlay_Is;
 
+      function Project_Search_File_Count return Natural is
+      begin
+         if Editor.File_Tree.File_Node_Count (S.File_Tree) > 0 then
+            return Editor.File_Tree.File_Node_Count (S.File_Tree);
+         elsif Editor.Project.Has_Project (S.Project) then
+            return Editor.Project.Known_File_Count (S.Project);
+         else
+            return 0;
+         end if;
+      end Project_Search_File_Count;
+
       function Selected_Project_Search_Result_Still_Known return Boolean is
          Found  : Boolean := False;
          Result : constant Editor.Project_Search.Project_Search_Result :=
@@ -105,7 +118,13 @@ package body Editor.Executor.Search_Commands is
          Rel      : constant String := To_String (Result.Relative_Path);
          Abs_Path : constant String := To_String (Result.Absolute_Path);
       begin
-         if not Found or else not Editor.Project.Has_Project (S.Project) then
+         if not Found then
+            return False;
+         elsif Editor.File_Tree.File_Node_Count (S.File_Tree) > 0
+           and then Result.File_Node_Id /= Editor.File_Tree.No_File_Tree_Node
+         then
+            return Editor.File_Tree.Contains (S.File_Tree, Result.File_Node_Id);
+         elsif not Editor.Project.Has_Project (S.Project) then
             return False;
          end if;
 
@@ -129,7 +148,7 @@ package body Editor.Executor.Search_Commands is
          when Command_Project_Search_From_Selection =>
             if not Has_Project then
                return Editor.Commands.Unavailable ("No project open");
-            elsif Editor.Project.Known_File_Count (S.Project) = 0 then
+            elsif Project_Search_File_Count = 0 then
                return Editor.Commands.Unavailable ("No project open.");
             elsif not Has_Buffer then
                return Editor.Commands.Unavailable ("No active buffer.");
@@ -142,7 +161,7 @@ package body Editor.Executor.Search_Commands is
             | Command_Project_Search_Active_Directory =>
             if not Has_Project then
                return Editor.Commands.Unavailable ("No project open");
-            elsif Editor.Project.Known_File_Count (S.Project) = 0 then
+            elsif Project_Search_File_Count = 0 then
                return Editor.Commands.Unavailable ("No project open.");
             elsif not Has_Buffer then
                return Editor.Commands.Unavailable ("No active buffer.");
@@ -173,7 +192,7 @@ package body Editor.Executor.Search_Commands is
          when Command_Rerun_Project_Search | Command_Run_Project_Search =>
             if not Editor.Project.Has_Project (S.Project) then
                return Editor.Commands.Unavailable ("No project open");
-            elsif Editor.Project.Known_File_Count (S.Project) = 0 then
+            elsif Project_Search_File_Count = 0 then
                return Editor.Commands.Unavailable ("No project open.");
             elsif Editor.Project_Search.Query (S.Project_Search)'Length = 0 then
                return Editor.Commands.Unavailable ("No project search query");
@@ -221,6 +240,8 @@ package body Editor.Executor.Search_Commands is
                return Editor.Commands.Unavailable ("No project search results");
             elsif not Has_Buffer then
                return Editor.Commands.Unavailable ("No active buffer.");
+            elsif Project_Search_File_Count = 0 then
+               return Editor.Commands.Unavailable ("No project files.");
             end if;
             return Editor.Commands.Available;
 

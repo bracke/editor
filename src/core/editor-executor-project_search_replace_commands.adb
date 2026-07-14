@@ -985,4 +985,32 @@ package body Editor.Executor.Project_Search_Replace_Commands is
       Editor.Render_Cache.Invalidate_All;
    end Execute_Project_Search_Replace_Clear_Preview;
 
+   procedure Refresh_Project_Search_Replace_After_File_Lifecycle
+     (S                  : in out Editor.State.State_Type;
+      Had_Replace_Preview : Boolean)
+   is
+      Status : Editor.Project_Search.Project_Replace_Preview_Status;
+   begin
+      if not Had_Replace_Preview
+        or else not Editor.Project_Search.Replace_Mode_Active (S.Project_Search)
+        or else not Editor.Project_Search.Has_Query (S.Project_Search)
+        or else Editor.Project_Search.Result_Count (S.Project_Search) = 0
+        or else not Editor.Project_Search.Replace_Text_Is_Valid (S.Project_Search)
+      then
+         return;
+      end if;
+
+      Editor.Project_Search.Generate_Replace_Preview (S.Project_Search, Status);
+      if Status = Editor.Project_Search.Project_Replace_Preview_Ok then
+         declare
+            Dirty_Count : constant Natural :=
+              Mark_Dirty_Open_Project_Replace_Targets_Stale (S);
+            pragma Unreferenced (Dirty_Count);
+         begin
+            null;
+         end;
+      end if;
+      Editor.Render_Cache.Invalidate_All;
+   end Refresh_Project_Search_Replace_After_File_Lifecycle;
+
 end Editor.Executor.Project_Search_Replace_Commands;

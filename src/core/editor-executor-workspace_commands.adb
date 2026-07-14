@@ -874,24 +874,4 @@ package body Editor.Executor.Workspace_Commands is
       return Editor.Command_Execution.Executed (Id);
    end Execute_Workspace_Result_Command;
 
-   procedure Execute_Workspace_Kind
-     (S    : in out Editor.State.State_Type;
-      Kind : Editor.Commands.Command_Kind)
-   is
-   begin
-      case Kind is
-         when Save_Workspace_State =>
-            Execute_Save_Workspace_State (S);
-
-         when Restore_Workspace_State =>
-            Execute_Restore_Workspace_State (S);
-
-         when Clear_Workspace_State =>
-            Execute_Clear_Workspace_State (S);
-
-         when others =>
-            raise Program_Error with "unsupported workspace command kind";
-      end case;
-   end Execute_Workspace_Kind;
-
 end Editor.Executor.Workspace_Commands;

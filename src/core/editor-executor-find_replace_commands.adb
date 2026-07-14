@@ -706,14 +706,6 @@ package body Editor.Executor.Find_Replace_Commands is
       end if;
    end Set_Active_Find_Query_And_Report;
 
-   procedure Sync_Active_Find_Input_From_Query
-     (S : in out Editor.State.State_Type)
-   is
-   begin
-      Editor.Input_Field.Set_Text
-        (S.Active_Find_Input, To_String (S.Active_Find_Query));
-   end Sync_Active_Find_Input_From_Query;
-
    procedure Execute_Find_Show
      (S : in out Editor.State.State_Type)
    is
@@ -1548,79 +1540,5 @@ package body Editor.Executor.Find_Replace_Commands is
       if Count = 1 then Report_Success (S, "Replaced 1 match"); else Report_Success (S, "Replaced " & Image_Of (Count) & " matches"); end if;
       Editor.Render_Cache.Invalidate_All;
    end Execute_Replace_All;
-
-   procedure Execute_Find_Replace_Kind
-     (S    : in out Editor.State.State_Type;
-      Kind : Editor.Commands.Command_Kind;
-      Text : String := "")
-   is
-   begin
-      case Kind is
-         when Active_Find_Show =>
-            Execute_Find_Show (S);
-         when Active_Find_Hide =>
-            Execute_Find_Hide (S);
-         when Active_Find_Toggle =>
-            Execute_Find_Toggle (S);
-         when Active_Find_Query_Set =>
-            Execute_Find_Set_Query (S, Text);
-         when Active_Find_Query_Clear =>
-            Execute_Find_Clear_Query (S);
-         when Active_Find_Case_Toggle =>
-            Execute_Find_Case_Toggle (S);
-         when Active_Find_Case_Clear =>
-            Execute_Find_Case_Clear (S);
-         when Active_Find_Whole_Word_Toggle =>
-            Execute_Find_Whole_Word_Toggle (S);
-         when Active_Find_Whole_Word_Clear =>
-            Execute_Find_Whole_Word_Clear (S);
-         when Active_Find_From_Selection =>
-            Execute_Find_From_Selection (S);
-         when Active_Find_From_Active_Word =>
-            Execute_Find_From_Active_Word (S);
-         when Active_Find_Next =>
-            Execute_Find_Next (S);
-         when Active_Find_Previous =>
-            Execute_Find_Previous (S);
-         when Active_Find_First =>
-            Execute_Find_First (S);
-         when Active_Find_Last =>
-            Execute_Find_Last (S);
-         when Active_Find_Reveal_Current =>
-            Execute_Find_Reveal_Current (S);
-         when Active_Replace_Show =>
-            Execute_Replace_Show (S);
-         when Active_Replace_Hide =>
-            Execute_Replace_Hide (S);
-         when Active_Replace_Toggle =>
-            Execute_Replace_Toggle (S);
-         when Active_Replace_Text_Set =>
-            Execute_Replace_Set_Text (S, Text);
-         when Active_Replace_Text_Clear =>
-            Execute_Replace_Clear_Text (S);
-         when Active_Replace_Current =>
-            Execute_Replace_Current (S);
-         when Active_Replace_All =>
-            Execute_Replace_All (S);
-         when Active_Find_Input_Insert_Text =>
-            Editor.Executor.Find_Replace_Input_Commands
-              .Execute_Active_Find_Input_Insert_Text (S, Text);
-         when Active_Find_Input_Backspace =>
-            Editor.Executor.Find_Replace_Input_Commands
-              .Execute_Active_Find_Input_Backspace (S);
-         when Active_Find_Input_Delete_Forward =>
-            Editor.Executor.Find_Replace_Input_Commands
-              .Execute_Active_Find_Input_Delete_Forward (S);
-         when Active_Find_Input_Move_Cursor_Left =>
-            Editor.Executor.Find_Replace_Input_Commands
-              .Execute_Active_Find_Input_Move_Cursor_Left (S);
-         when Active_Find_Input_Move_Cursor_Right =>
-            Editor.Executor.Find_Replace_Input_Commands
-              .Execute_Active_Find_Input_Move_Cursor_Right (S);
-         when others =>
-            raise Program_Error with "unsupported find/replace command kind";
-      end case;
-   end Execute_Find_Replace_Kind;
-
 
 end Editor.Executor.Find_Replace_Commands;

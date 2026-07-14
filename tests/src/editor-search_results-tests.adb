@@ -238,6 +238,7 @@ package body Editor.Search_Results.Tests is
    is
       pragma Unreferenced (T);
       Root : constant String := Temp_Path ("skip_header_root");
+      Tree : Editor.File_Tree.File_Tree_State;
       Project : Editor.Project.Project_State;
       Search : Editor.Project_Search.Project_Search_State;
       Options : Editor.Project_Search.Project_Search_Options := (others => <>);
@@ -256,6 +257,7 @@ package body Editor.Search_Results.Tests is
 
       Opened := Editor.Project.Open_Project (Root);
       Editor.Project.Apply_Open_Result (Project, Opened);
+      Tree := Editor.File_Tree.Scan_Project (Root);
       Editor.Project.Add_Known_File
         (Project, "missing.txt", Ada.Directories.Compose (Root, "missing.txt"));
       Editor.Project.Add_Known_File
@@ -266,7 +268,8 @@ package body Editor.Search_Results.Tests is
       Options.Max_File_Size_Bytes := 14;
       Options.Max_Result_Count := 1;
       Editor.Project_Search.Set_Query (Search, "needle");
-      Editor.Project_Search.Search_Known_Project_Files (Search, Project, Options);
+      Editor.Project_Search.Search_Known_Project_Files
+        (Search, Tree, Project, Options);
       Snapshot := Editor.Search_Results.Build_Snapshot (Search, Config);
       Header := Editor.Search_Results.Row (Snapshot, 1);
       Header_Text := Header.Text;

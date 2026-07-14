@@ -160,7 +160,6 @@ package body Editor.Buffer_Switcher is
    procedure Open (State : in out Buffer_Switcher_State) is
    begin
       State.Opened := True;
-      Editor.Input_Field.Clear (State.Field);
       State.Rows.Clear;
       State.Selected_Index := 0;
       State.Top_Index := 1;

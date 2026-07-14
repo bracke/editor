@@ -1,4 +1,6 @@
 with Editor.Cursor;
+with Editor.Commands;
+with Editor.Guided_Prompts;
 with Editor.Keybinding_Management;
 with Editor.Render_Cache;
 with Editor.View;
@@ -6,8 +8,10 @@ with Editor.View;
 package body Editor.Input_Bridge.Keybinding_Handlers is
 
    use type Editor.Keybindings.Key_Code;
+   use type Editor.Commands.Command_Kind;
    use type Editor.Keybinding_Management.Keybinding_Action_Status;
    use type Editor.Keybinding_Management.Keybinding_Capture_State;
+   use type Editor.Guided_Prompts.Prompt_Kind;
 
    procedure Notify_Keybinding_Input is
    begin
@@ -118,5 +122,58 @@ package body Editor.Input_Bridge.Keybinding_Handlers is
       return Handle_Capture_Chord (Chord, Report)
         or else Handle_Focused_Surface_Chord (Chord, Report);
    end Handle_Keybinding_Chord;
+
+   function Consume_Keybinding_Text_Input
+     (Prompt : Editor.Guided_Prompts.Prompt_State;
+      Cmd    : Editor.Commands.Command) return Boolean
+   is
+   begin
+      return Is_Keybinding_Capture_Prompt (Prompt)
+        and then Cmd.Kind = Editor.Commands.Insert_Text_Input;
+   end Consume_Keybinding_Text_Input;
+
+   function Is_Keybinding_Capture_Prompt
+     (Prompt : Editor.Guided_Prompts.Prompt_State) return Boolean is
+   begin
+      return Prompt.Active
+        and then Prompt.Kind = Editor.Guided_Prompts.Keybinding_Capture_Prompt;
+   end Is_Keybinding_Capture_Prompt;
+
+   function Handle_Keybinding_Prompt_Key
+     (Prompt  : in out Editor.Guided_Prompts.Prompt_State;
+      Chord   : Editor.Keybindings.Key_Chord;
+      Report  : not null access procedure (Message : String)) return Boolean
+   is
+   begin
+      if not Is_Keybinding_Capture_Prompt (Prompt) then
+         return False;
+      end if;
+
+      if Chord.Key = Editor.Keybindings.Key_Escape then
+         Editor.Guided_Prompts.Cancel (Prompt);
+         Report ("Prompt cancelled.");
+      else
+         Editor.Guided_Prompts.Capture_Chord (Prompt, Chord);
+         Report ("Keybinding chord captured");
+      end if;
+
+      Editor.Render_Cache.Invalidate_All;
+      Notify_Keybinding_Input;
+      return True;
+   end Handle_Keybinding_Prompt_Key;
+
+   procedure Confirm_Keybinding_Capture
+     (Prompt      : in out Editor.Guided_Prompts.Prompt_State;
+      Report_Info : not null access procedure (Message : String))
+   is
+      Status : Editor.Keybinding_Management.Keybinding_Action_Status;
+      Chord  : constant Editor.Keybindings.Key_Chord :=
+        Editor.Guided_Prompts.Captured_Key_Chord (Prompt);
+   begin
+      Editor.Guided_Prompts.Clear (Prompt);
+      Editor.Keybinding_Management.Assign_Selected
+        (Chord, Confirm_Conflict => False, Status => Status);
+      Report_Info (Editor.Keybinding_Management.Action_Status_Label (Status));
+   end Confirm_Keybinding_Capture;
 
 end Editor.Input_Bridge.Keybinding_Handlers;

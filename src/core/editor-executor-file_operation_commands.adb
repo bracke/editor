@@ -9,6 +9,7 @@ with Editor.Buffers;
 use type Editor.Buffers.Buffer_Id;
 with Editor.Build_UI;
 with Editor.Executor;
+with Editor.Executor.Project_Search_Result_Commands;
 with Editor.Executor.Project_File_Index_Commands;
 with Editor.Executor.Semantic_Index_Commands;
 with Editor.Executor.Shared_Services;
@@ -23,6 +24,7 @@ with Editor.Outline;
 with Editor.File_Tree;
 with Editor.Project;
 with Editor.Project_Search;
+with Editor.Quick_Open;
 with Editor.State;
 
 package body Editor.Executor.File_Operation_Commands is
@@ -41,7 +43,9 @@ package body Editor.Executor.File_Operation_Commands is
    begin
       --  File content lifecycle operations stale derived state through
       --  Executor-owned runtime state only.  They do not refresh outline,
-      --  search, diagnostics, build, quick-open, render, or persistence data.
+      --  diagnostics, build, quick-open, render, or persistence data; the
+      --  project-file refresh path updates search results separately when a
+      --  query is active.
       S.Active_Find_Stale := True;
       Editor.Outline.Clear (S.Outline);
       S.Outline_Cursor_Key_Valid := False;
@@ -115,7 +119,7 @@ package body Editor.Executor.File_Operation_Commands is
          begin
             Editor.Executor.Project_File_Index_Commands.Refresh_Project_File_State
               (S, Tree_Result, Selection_Disappeared, False);
-         end;
+        end;
       end if;
    end Refresh_Project_File_State_If_Required;
 
@@ -286,7 +290,13 @@ package body Editor.Executor.File_Operation_Commands is
            (S, "Derived state is stale after rename");
          Refresh_Project_File_State_If_Required
            (S, To_String (Previous_File.Path), Path);
+         Editor.Executor.Project_Search_Result_Commands
+           .Refresh_Project_Search_After_File_Lifecycle (S);
          Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
+         Editor.Buffers.Sync_Global_Active_From_State (S);
+         if Editor.Quick_Open.Is_Open (S.Quick_Open) then
+            Editor.Executor.Recompute_Quick_Open (S);
+         end if;
          Editor.Executor.Shared_Services.Report_Success (S, "Buffer file renamed");
       else
          S.File_Info := Previous_File;
@@ -382,7 +392,13 @@ package body Editor.Executor.File_Operation_Commands is
            (S, "Derived state is stale after delete");
          Refresh_Project_File_State_If_Required
            (S, To_String (Previous_File.Path));
+         Editor.Executor.Project_Search_Result_Commands
+           .Refresh_Project_Search_After_File_Lifecycle (S);
          Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
+         Editor.Buffers.Sync_Global_Active_From_State (S);
+         if Editor.Quick_Open.Is_Open (S.Quick_Open) then
+            Editor.Executor.Recompute_Quick_Open (S);
+         end if;
          Editor.Executor.Shared_Services.Report_Success (S, "Buffer file deleted");
       else
          S.File_Info := Previous_File;
@@ -448,6 +464,12 @@ package body Editor.Executor.File_Operation_Commands is
          S.File_Info := Previous_File;
          Editor.Buffers.Sync_Global_Active_From_State (S);
          Refresh_Project_File_State_If_Required (S, "", Path);
+         Editor.Executor.Project_Search_Result_Commands
+           .Refresh_Project_Search_After_File_Lifecycle (S);
+         Editor.Buffers.Sync_Global_Active_From_State (S);
+         if Editor.Quick_Open.Is_Open (S.Quick_Open) then
+            Editor.Executor.Recompute_Quick_Open (S);
+         end if;
          Editor.Executor.Shared_Services.Report_Success (S, "Buffer file copied");
       else
          S.File_Info := Previous_File;
@@ -545,7 +567,13 @@ package body Editor.Executor.File_Operation_Commands is
            (S, "Derived state is stale after move");
          Refresh_Project_File_State_If_Required
            (S, To_String (Previous_File.Path), Path);
+         Editor.Executor.Project_Search_Result_Commands
+           .Refresh_Project_Search_After_File_Lifecycle (S);
          Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
+         Editor.Buffers.Sync_Global_Active_From_State (S);
+         if Editor.Quick_Open.Is_Open (S.Quick_Open) then
+            Editor.Executor.Recompute_Quick_Open (S);
+         end if;
          Editor.Executor.Shared_Services.Report_Success (S, "Buffer file moved");
       else
          S.File_Info := Previous_File;

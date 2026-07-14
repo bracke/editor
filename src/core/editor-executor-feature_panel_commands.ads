@@ -14,8 +14,4 @@ package Editor.Executor.Feature_Panel_Commands is
       Id : Editor.Commands.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result;
 
-   procedure Execute_Feature_Panel_Kind
-     (S    : in out Editor.State.State_Type;
-      Kind : Editor.Commands.Command_Kind);
-
 end Editor.Executor.Feature_Panel_Commands;

@@ -202,8 +202,13 @@ package Editor.File_Tree_View is
       Y        : Integer) return File_Tree_Hit_Result;
 
    function Action_For_Hit
-     (Tree : Editor.File_Tree.File_Tree_State;
-      Hit  : File_Tree_Hit_Result) return File_Tree_Action;
+     (Config : File_Tree_View_Config;
+      Tree   : Editor.File_Tree.File_Tree_State;
+      Hit    : File_Tree_Hit_Result) return File_Tree_Action;
+
+   function Action_For_Summary
+     (Summary : Editor.File_Tree.File_Tree_Node_Summary;
+      Zone    : File_Tree_View_Zone) return File_Tree_Action;
 
    function Safe_Display_Label
      (Node : Editor.File_Tree.File_Tree_Node_Summary) return String;
@@ -214,6 +219,11 @@ package Editor.File_Tree_View is
      (Config : File_Tree_View_Config;
       Node   : Editor.File_Tree.File_Tree_Node_Summary;
       Width  : Natural) return String;
+
+   function Visible_Row_Summary
+     (Config    : File_Tree_View_Config;
+      Tree      : Editor.File_Tree.File_Tree_State;
+      Row_Index : Positive) return Editor.File_Tree.File_Tree_Node_Summary;
 
    function Truncate_Label
      (Label       : String;

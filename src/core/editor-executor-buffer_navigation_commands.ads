@@ -26,8 +26,4 @@ package Editor.Executor.Buffer_Navigation_Commands is
    procedure Execute_Next_Recent_Buffer
      (S : in out Editor.State.State_Type);
 
-   procedure Execute_Buffer_Navigation_Kind
-     (S   : in out Editor.State.State_Type;
-      Cmd : Editor.Commands.Command);
-
 end Editor.Executor.Buffer_Navigation_Commands;

@@ -2,6 +2,7 @@ with Ada.Characters.Handling;
 with Ada.Containers; use type Ada.Containers.Count_Type;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Guikit.Palette;
 with Editor.Contextual_Help;
 with Editor.Input_Field;
 with Editor.Keybindings;
@@ -83,8 +84,6 @@ package body Editor.Command_Palette is
    function Transient_State_Clear return Boolean is
    begin
       return (not State.Open)
-        and then Length (State.Query) = 0
-        and then Editor.Input_Field.Text (Filter_Field)'Length = 0
         and then State.Selected_Item = 0
         and then State.Selected_Candidate_Index = 0
         and then State.Selected_Command_Id = Editor.Commands.No_Command
@@ -1391,13 +1390,10 @@ package body Editor.Command_Palette is
    procedure Open is
    begin
       State.Open := True;
-      State.Query := Null_Unbounded_String;
-      Editor.Input_Field.Clear (Filter_Field);
       State.Selected_Item := 0;
       State.Selected_Candidate_Index := 0;
       State.Selected_Command_Id := Editor.Commands.No_Command;
       State.Top_Row := 1;
-      Config_State.Show_Help_Row := False;
       Clear_Transient_Filters;
       Clear_Command_State_Contexts;
    end Open;
@@ -1433,8 +1429,6 @@ package body Editor.Command_Palette is
    procedure Close is
    begin
       State.Open := False;
-      State.Query := Null_Unbounded_String;
-      Editor.Input_Field.Clear (Filter_Field);
       State.Selected_Item := 0;
       State.Selected_Candidate_Index := 0;
       State.Selected_Command_Id := Editor.Commands.No_Command;
@@ -1625,20 +1619,67 @@ package body Editor.Command_Palette is
    is
       All_Commands : constant Editor.Commands.Command_Descriptor_Vectors.Vector :=
         Editor.Commands.Palette_Commands;
-      Q : constant String := To_String (State.Query);
+      Query : constant String := To_String (State.Query);
+      Visible_Commands : Editor.Commands.Command_Descriptor_Vectors.Vector;
+      Search_Items : Guikit.Palette.Item_Vectors.Vector;
+      Search_Results : Guikit.Palette.Item_Vectors.Vector;
+      Matched_Commands : Editor.Commands.Command_Descriptor_Vectors.Vector;
       Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
    begin
-      --  command-palette search includes active keybinding labels.
-      --  Keybindings are intentionally not a persisted palette cache input and
-      --  can change while the query text stays the same, so this projection must
-      --  be rebuilt on each request instead of reusing the older query-only
-      --  descriptor cache.
       Result.Clear;
-      for D of All_Commands loop
+      if All_Commands.Length = 0 then
+         return;
+      end if;
+
+      --  command-palette search includes active keybinding labels. The
+      --  high-level guikit fuzzy matcher handles the ranking and keeps empty
+      --  queries stable while we continue to project the editor-specific
+      --  descriptor metadata.
+      for I in All_Commands.First_Index .. All_Commands.Last_Index loop
          declare
-            Score : constant Natural := Descriptor_Match_Score (D, Q);
+            D : constant Editor.Commands.Command_Descriptor := All_Commands.Element (I);
          begin
-            if Score > 0 and then Descriptor_Passes_Transient_Metadata_Filters (D) then
+            if Descriptor_Passes_Transient_Metadata_Filters (D) then
+               declare
+                  Binding : constant Editor.Keybindings.Command_Keybinding_Info :=
+                    Editor.Keybindings.Primary_Binding_For_Command (D.Id);
+               begin
+                  Visible_Commands.Append (D);
+                  Search_Items.Append
+                    (Guikit.Palette.Item'
+                      (Id          => Natural (Visible_Commands.Last_Index),
+                       Identifier  => To_Unbounded_String
+                         (Editor.Commands.Stable_Command_Name (D.Id)),
+                       Label       => D.Name,
+                       Description => D.Description,
+                       Shortcut    =>
+                         (if Current_Config.Show_Keybindings
+                          then Binding.Display
+                          else Null_Unbounded_String),
+                       Enabled     => True,
+                       Score       => 0));
+               end;
+            end if;
+         end;
+      end loop;
+
+      if Search_Items.Length = 0 then
+         return;
+      end if;
+
+      Search_Results := Guikit.Palette.Search (To_String (State.Query), Search_Items);
+
+      for Item of Search_Results loop
+         if Item.Id in Visible_Commands.First_Index .. Visible_Commands.Last_Index then
+            Matched_Commands.Append (Visible_Commands.Element (Item.Id));
+         end if;
+      end loop;
+
+      for D of Matched_Commands loop
+         declare
+            Score : constant Natural := Descriptor_Match_Score (D, Query);
+         begin
+            if Score > 0 or else Query'Length = 0 then
                declare
                   Binding : constant Editor.Keybindings.Command_Keybinding_Info :=
                     Editor.Keybindings.Primary_Binding_For_Command (D.Id);
@@ -1646,20 +1687,20 @@ package body Editor.Command_Palette is
                   Candidates.Append
                     (Editor.Commands.Command_Palette_Candidate'
                       (Id                 => D.Id,
-                      Label              => D.Name,
-                      Description        => D.Description,
-                      Category           => D.Category,
-                      Category_Label     => To_Unbounded_String
-                        (Editor.Commands.Discoverability_Category_Label (D.Id)),
-                      Available          => True,
-                      Reason             => Null_Unbounded_String,
-                      Has_Keybinding     => D.Bindable and then Binding.Has_Binding,
-                      Keybinding_Display => Binding.Display,
-                      Reference_Summary  => D.Summary,
-                      Family             => D.Family,
-                      Effect_Classification => D.Effect_Classification,
-                      Match_Score        => Score,
-                      Registry_Order     => Descriptor_Registry_Order (D.Id)));
+                       Label              => D.Name,
+                       Description        => D.Description,
+                       Category           => D.Category,
+                       Category_Label     => To_Unbounded_String
+                         (Editor.Commands.Discoverability_Category_Label (D.Id)),
+                       Available          => True,
+                       Reason             => Null_Unbounded_String,
+                       Has_Keybinding     => D.Bindable and then Binding.Has_Binding,
+                       Keybinding_Display => Binding.Display,
+                       Reference_Summary  => D.Summary,
+                       Family             => D.Family,
+                       Effect_Classification => D.Effect_Classification,
+                       Match_Score        => Score,
+                       Registry_Order     => Descriptor_Registry_Order (D.Id)));
                end;
             end if;
          end;

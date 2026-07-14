@@ -1228,6 +1228,91 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
    end Test_Rename_File_Lifecycle_Integrated_Workflow;
 
 
+   procedure Test_Rename_Refreshes_Quick_Open_Results
+     (T : in out AUnit.Test_Cases.Test_Case'Class) is
+      pragma Unreferenced (T);
+      Root     : constant String := Temp_Path ("quick_open_rename_refresh");
+      A_Path   : constant String := Ada.Directories.Compose (Root, "lifecycle_a.txt");
+      B_Path   : constant String := Ada.Directories.Compose (Root, "lifecycle_b.txt");
+      A_Target : constant String := Ada.Directories.Compose (Root, "lifecycle_a_renamed.txt");
+      S        : Editor.State.State_Type;
+
+      function Quick_Open_Has_Result_Path (Path : String) return Boolean is
+      begin
+         for I in 1 .. Editor.Quick_Open.Result_Count (S.Quick_Open) loop
+            if To_String (Editor.Quick_Open.Result_At (S.Quick_Open, I).Display_Path) = Path then
+               return True;
+            end if;
+         end loop;
+         return False;
+      end Quick_Open_Has_Result_Path;
+
+      function Quick_Open_Result_Summary return String is
+         Summary : Unbounded_String := Null_Unbounded_String;
+      begin
+         for I in 1 .. Editor.Quick_Open.Result_Count (S.Quick_Open) loop
+            if Length (Summary) > 0 then
+               Append (Summary, ", ");
+            end if;
+            Append
+              (Summary,
+               To_String (Editor.Quick_Open.Result_At (S.Quick_Open, I).Display_Path));
+         end loop;
+         if Length (Summary) = 0 then
+            return "<empty>";
+         else
+            return To_String (Summary);
+         end if;
+      end Quick_Open_Result_Summary;
+   begin
+      Remove_If_Exists (A_Path);
+      Remove_If_Exists (B_Path);
+      Remove_If_Exists (A_Target);
+      if Ada.Directories.Exists (Root) then
+         Ada.Directories.Delete_Tree (Root);
+      end if;
+      Ada.Directories.Create_Directory (Root);
+      Write_Bytes (A_Path, "alpha");
+      Write_Bytes (B_Path, "beta");
+      Editor.Buffers.Reset_Global_For_Test;
+      Editor.State.Init (S);
+
+      Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
+      Editor.Executor.File_Open_Commands.Execute_Open_File (S, A_Path);
+      Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
+      Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "lifecycle_a.txt");
+      Editor.Quick_Open.Recompute_Results (S.Quick_Open, S.File_Tree, (others => <>));
+      Assert (Editor.Quick_Open.Result_Count (S.Quick_Open) = 1,
+              "quick open setup must see the original file");
+      Assert (To_String (Editor.Quick_Open.Result_At (S.Quick_Open, 1).Display_Path) =
+                "lifecycle_a.txt",
+              "quick open setup must resolve the original relative path");
+
+      Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, A_Target);
+
+      Assert (Editor.Quick_Open.Is_Open (S.Quick_Open),
+              "rename must keep quick open open when it is already visible");
+      Assert (Quick_Open_Has_Result_Path ("lifecycle_a_renamed.txt"),
+              "rename must refresh quick open results to include the new path; results="
+              & Quick_Open_Result_Summary);
+      Assert (not Quick_Open_Has_Result_Path ("lifecycle_a.txt"),
+              "rename must refresh quick open results away from the removed path; results="
+              & Quick_Open_Result_Summary);
+
+      Editor.Buffers.Reset_Global_For_Test;
+      if Ada.Directories.Exists (Root) then
+         Ada.Directories.Delete_Tree (Root);
+      end if;
+   exception
+      when others =>
+         Editor.Buffers.Reset_Global_For_Test;
+         if Ada.Directories.Exists (Root) then
+            Ada.Directories.Delete_Tree (Root);
+         end if;
+         raise;
+   end Test_Rename_Refreshes_Quick_Open_Results;
+
+
    procedure Test_Rename_Read_Only_Feature_And_Persistence_Boundaries
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
@@ -2535,6 +2620,8 @@ procedure Test_Delete_Cleanup_Preserves_Source_State_And_Persistence
         (T, Test_Rename_Dirty_And_Transient_State_Preservation'Access, "Rename Dirty And Transient State Preservation");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Rename_File_Lifecycle_Integrated_Workflow'Access, "Rename File Lifecycle Integrated Workflow");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Rename_Refreshes_Quick_Open_Results'Access, "Rename Refreshes Quick Open Results");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Rename_Read_Only_Feature_And_Persistence_Boundaries'Access, "Rename Read Only Feature And Persistence Boundaries");
       AUnit.Test_Cases.Registration.Register_Routine

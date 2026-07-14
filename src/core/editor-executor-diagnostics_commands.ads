@@ -37,10 +37,6 @@ package Editor.Executor.Diagnostics_Commands is
       Id : Editor.Commands.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result;
 
-   procedure Execute_Diagnostics_Kind
-     (S    : in out Editor.State.State_Type;
-      Kind : Editor.Commands.Command_Kind);
-
    function Execute_Diagnostic_Row_Activation
      (S                         : in out Editor.State.State_Type;
       Row                       : Natural;

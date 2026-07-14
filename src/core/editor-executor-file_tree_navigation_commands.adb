@@ -9,6 +9,7 @@ with Editor.File_Tree;
 use type Editor.File_Tree.File_Tree_Node_Id;
 use type Editor.File_Tree.File_Tree_Node_Kind;
 with Editor.File_Tree_View;
+with Editor.Layout;
 use type Editor.File_Tree_View.File_Tree_Action;
 with Editor.Focus_Management;
 with Editor.Project;
@@ -191,7 +192,8 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
       Hit : Editor.File_Tree_View.File_Tree_Hit_Result)
    is
       Action : constant Editor.File_Tree_View.File_Tree_Action :=
-        Editor.File_Tree_View.Action_For_Hit (S.File_Tree, Hit);
+        Editor.File_Tree_View.Action_For_Hit
+          (Editor.Layout.Current.File_Tree_View, S.File_Tree, Hit);
    begin
       if Hit.Node_Id /= Editor.File_Tree.No_File_Tree_Node then
          --  Row activation must not mutate transient File Tree selection

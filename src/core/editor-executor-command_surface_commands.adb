@@ -23,6 +23,7 @@ with Editor.Executor.File_Save_Commands;
 with Editor.Executor.Navigation_Commands;
 with Editor.Executor.Quick_Open_Commands;
 with Editor.Files;
+with Editor.File_Tree;
 with Editor.Focus_Management;
 with Editor.Feature_Panel;
 with Editor.Guided_Prompts;
@@ -166,7 +167,7 @@ package body Editor.Executor.Command_Surface_Commands is
    is
    begin
       Editor.Quick_Open.Recompute_Results
-        (S.Quick_Open, S.Project, Default_Quick_Open_Config);
+        (S.Quick_Open, S.File_Tree, Default_Quick_Open_Config);
       Editor.Render_Cache.Invalidate_All;
    end Recompute_Quick_Open;
 

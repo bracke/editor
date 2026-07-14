@@ -267,63 +267,6 @@ package body Editor.Executor.Message_Commands is
       end case;
    end Execute_Message_Command;
 
-   procedure Execute_Message_Kind
-     (S    : in out Editor.State.State_Type;
-      Kind : Editor.Commands.Command_Kind)
-   is
-      procedure Run (Id : Editor.Commands.Command_Id);
-
-      procedure Run (Id : Editor.Commands.Command_Id)
-      is
-         Result : constant Editor.Command_Execution.Command_Execution_Result :=
-           Execute_Message_Command (S, Id);
-         pragma Unreferenced (Result);
-      begin
-         null;
-      end Run;
-   begin
-      case Kind is
-         when Show_Messages =>
-            Run (Command_Show_Messages);
-
-         when Clear_Messages =>
-            Run (Command_Clear_Messages);
-
-         when Clear_Selected_Message =>
-            Run (Command_Clear_Selected_Message);
-
-         when Copy_Selected_Message_Text =>
-            Run (Command_Copy_Selected_Message_Text);
-
-         when Clear_Info_Messages =>
-            Run (Command_Clear_Info_Messages);
-
-         when Clear_Warning_Messages =>
-            Run (Command_Clear_Warning_Messages);
-
-         when Clear_Error_Messages =>
-            Run (Command_Clear_Error_Messages);
-
-         when Toggle_Message_Info =>
-            Run (Command_Toggle_Message_Info);
-
-         when Toggle_Message_Warnings =>
-            Run (Command_Toggle_Message_Warnings);
-
-         when Toggle_Message_Errors =>
-            Run (Command_Toggle_Message_Errors);
-
-         when Show_All_Messages =>
-            Run (Command_Show_All_Messages);
-
-         when Clear_Message_Filter =>
-            Run (Command_Clear_Message_Filter);
-
-         when others =>
-            raise Program_Error with "unsupported message command kind";
-      end case;
-   end Execute_Message_Kind;
-
    function Execute_Message_Row_Click
      (S                         : in out Editor.State.State_Type;
       Row                       : Natural;

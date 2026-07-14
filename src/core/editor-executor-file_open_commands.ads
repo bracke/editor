@@ -40,8 +40,4 @@ package Editor.Executor.File_Open_Commands is
    procedure Execute_Reopen_Closed_Buffer
      (S : in out Editor.State.State_Type);
 
-   procedure Execute_File_Open_Kind
-     (S   : in out Editor.State.State_Type;
-      Cmd : Editor.Commands.Command);
-
 end Editor.Executor.File_Open_Commands;

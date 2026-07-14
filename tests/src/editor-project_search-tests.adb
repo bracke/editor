@@ -292,8 +292,13 @@ package body Editor.Project_Search.Tests is
       Options : Editor.Project_Search.Project_Search_Options)
    is
    begin
-      Editor.Project_Search.Search_Known_Project_Files
-        (S.Project_Search, S.Project, Options);
+      if Editor.File_Tree.File_Node_Count (S.File_Tree) > 0 then
+         Editor.Project_Search.Search_Known_Project_Files
+           (S.Project_Search, S.File_Tree, S.Project, Options);
+      else
+         Editor.Project_Search.Search_Known_Project_Files
+           (S.Project_Search, S.Project, Options);
+      end if;
    end Rerun_Project_Search;
 
    procedure Assert_Project_Search_File_Lifecycle_Observation_Coherent

@@ -23,6 +23,7 @@ with Editor.Executor.File_Save_Commands;
 with Editor.Executor.File_Open_Commands;
 with Editor.Executor.Navigation_Commands;
 with Editor.Files;
+with Editor.File_Tree;
 with Editor.Focus_Management;
 with Editor.Feature_Panel;
 with Editor.Guided_Prompts;
@@ -42,6 +43,68 @@ with Editor.State;
 use Editor.Executor.Command_Surface_Commands;
 
 package body Editor.Executor.Quick_Open_Commands is
+
+   use type Editor.File_Tree.File_Tree_Node_Id;
+
+   function Normalize_Path_Separators (Text : String) return String is
+      Result : String (Text'Range);
+   begin
+      for I in Text'Range loop
+         if Text (I) = '\' then
+            Result (I) := '/';
+         else
+            Result (I) := Text (I);
+         end if;
+      end loop;
+      return Result;
+   end Normalize_Path_Separators;
+
+   function Quick_Open_File_Count
+     (S : Editor.State.State_Type) return Natural
+   is
+   begin
+      if Editor.File_Tree.File_Node_Count (S.File_Tree) > 0 then
+         return Editor.File_Tree.File_Node_Count (S.File_Tree);
+      elsif Editor.Project.Has_Project (S.Project) then
+         return Editor.Project.Known_File_Count (S.Project);
+      else
+         return 0;
+      end if;
+   end Quick_Open_File_Count;
+
+   function Quick_Open_Selected_File_Is_Current
+     (S : Editor.State.State_Type) return Boolean
+   is
+      Found  : Boolean := False;
+      Result : constant Editor.Quick_Open.Quick_Open_Result :=
+        Editor.Quick_Open.Selected_Result (S.Quick_Open, Found);
+   begin
+      if not Found then
+         return False;
+      elsif Editor.File_Tree.File_Node_Count (S.File_Tree) > 0
+        and then Result.Node_Id /= Editor.File_Tree.No_File_Tree_Node
+      then
+         return Editor.File_Tree.Contains (S.File_Tree, Result.Node_Id);
+      elsif not Editor.Project.Has_Project (S.Project) then
+         return False;
+      end if;
+
+      for I in 1 .. Editor.Project.Known_File_Count (S.Project) loop
+         declare
+            File_Item : constant Editor.Project.Project_File_Entry :=
+              Editor.Project.Known_File_At (S.Project, I);
+         begin
+            if Normalize_Path_Separators
+              (To_String (File_Item.Relative_Path)) = To_String (Result.Display_Path)
+              and then To_String (File_Item.Absolute_Path) = To_String (Result.Absolute_Path)
+            then
+               return True;
+            end if;
+         end;
+      end loop;
+
+      return False;
+   end Quick_Open_Selected_File_Is_Current;
 
    function Command_Surface_Command_Availability
      (S  : Editor.State.State_Type;
@@ -69,48 +132,6 @@ package body Editor.Executor.Quick_Open_Commands is
          return Editor.Quick_Open.Result_Count (S.Quick_Open) > 0
            and then Editor.Quick_Open.Selected_Result_Index (S.Quick_Open) /= 0;
       end Quick_Open_Has_Selected_Result;
-
-      function Normalize_Quick_Open_Project_Path
-        (Text : String) return String
-      is
-         Result : String (Text'Range);
-      begin
-         for I in Text'Range loop
-            if Text (I) = '\' then
-               Result (I) := '/';
-            else
-               Result (I) := Text (I);
-            end if;
-         end loop;
-         return Result;
-      end Normalize_Quick_Open_Project_Path;
-
-      function Quick_Open_Selected_File_Still_Known return Boolean is
-         Found  : Boolean := False;
-         Result : constant Editor.Quick_Open.Quick_Open_Result :=
-           Editor.Quick_Open.Selected_Result (S.Quick_Open, Found);
-         Label  : constant String := To_String (Result.Display_Path);
-         Path   : constant String := To_String (Result.Absolute_Path);
-      begin
-         if not Found then
-            return False;
-         end if;
-
-         for I in 1 .. Editor.Project.Known_File_Count (S.Project) loop
-            declare
-               File_Item : constant Editor.Project.Project_File_Entry :=
-                 Editor.Project.Known_File_At (S.Project, I);
-            begin
-               if Normalize_Quick_Open_Project_Path
-                 (To_String (File_Item.Relative_Path)) = Label
-                 and then To_String (File_Item.Absolute_Path) = Path
-               then
-                  return True;
-               end if;
-            end;
-         end loop;
-         return False;
-      end Quick_Open_Selected_File_Still_Known;
    begin
       case Id is
          when Command_Goto_Line
@@ -149,7 +170,7 @@ package body Editor.Executor.Quick_Open_Commands is
                return Editor.Commands.Unavailable ("No project open");
             elsif not Has_Buffer then
                return Editor.Commands.Unavailable ("No active buffer.");
-            elsif Editor.Project.Known_File_Count (S.Project) = 0 then
+            elsif Quick_Open_File_Count (S) = 0 then
                return Editor.Commands.Unavailable ("No project files.");
             else
                declare
@@ -219,7 +240,7 @@ package body Editor.Executor.Quick_Open_Commands is
                return Editor.Commands.Unavailable ("No project open");
             elsif not Quick_Open_Has_Selected_Result then
                return Editor.Commands.Unavailable ("No Quick Open selection");
-            elsif not Quick_Open_Selected_File_Still_Known then
+            elsif not Quick_Open_Selected_File_Is_Current (S) then
                return Editor.Commands.Unavailable
                  ("Selected file is no longer in project");
             end if;
@@ -234,7 +255,7 @@ package body Editor.Executor.Quick_Open_Commands is
             elsif not Has_Project then
                return Editor.Commands.Unavailable ("No project open");
             elsif Editor.Quick_Open.Result_Count (S.Quick_Open) = 0 then
-               if Editor.Project.Known_File_Count (S.Project) = 0 then
+               if Quick_Open_File_Count (S) = 0 then
                   return Editor.Commands.Unavailable ("No project files");
                else
                   return Editor.Commands.Unavailable ("No Quick Open matches.");
@@ -382,7 +403,7 @@ package body Editor.Executor.Quick_Open_Commands is
    is
    begin
       Editor.Quick_Open.Recompute_Results
-        (S.Quick_Open, S.Project, Default_Quick_Open_Config);
+        (S.Quick_Open, S.File_Tree, Default_Quick_Open_Config);
       Editor.Render_Cache.Invalidate_All;
    end Recompute_Quick_Open;
 
@@ -423,7 +444,7 @@ package body Editor.Executor.Quick_Open_Commands is
       if Count = 0 then
          if not Editor.Project.Has_Project (S.Project) then
             Editor.Executor.Shared_Services.Report_Info (S, "No project open");
-         elsif Editor.Project.Known_File_Count (S.Project) = 0 then
+         elsif Quick_Open_File_Count (S) = 0 then
             Editor.Executor.Shared_Services.Report_Info (S, "No project files");
          else
             Editor.Executor.Shared_Services.Report_Info (S, "No Quick Open matches.");
@@ -484,34 +505,9 @@ package body Editor.Executor.Quick_Open_Commands is
       Path         : constant String := To_String (Result.Absolute_Path);
       Label        : constant String := To_String (Result.Display_Path);
 
-      function Normalize_Project_Path (Text : String) return String is
-         Result : String (Text'Range);
-      begin
-         for I in Text'Range loop
-            if Text (I) = '\' then
-               Result (I) := '/';
-            else
-               Result (I) := Text (I);
-            end if;
-         end loop;
-         return Result;
-      end Normalize_Project_Path;
-
       function Selected_File_Still_Known return Boolean is
       begin
-         for I in 1 .. Editor.Project.Known_File_Count (S.Project) loop
-            declare
-               File_Item : constant Editor.Project.Project_File_Entry :=
-                 Editor.Project.Known_File_At (S.Project, I);
-            begin
-               if Normalize_Project_Path (To_String (File_Item.Relative_Path)) = Label
-                 and then To_String (File_Item.Absolute_Path) = Path
-               then
-                  return True;
-               end if;
-            end;
-         end loop;
-         return False;
+         return Quick_Open_Selected_File_Is_Current (S);
       end Selected_File_Still_Known;
 
       function Current_State_Is_Disposable_Initial_Untitled return Boolean is
@@ -595,8 +591,11 @@ package body Editor.Executor.Quick_Open_Commands is
    is
       Snapshot : constant Editor.Quick_Open.Quick_Open_Snapshot :=
         Editor.Quick_Open_Markers.Build_Snapshot
-          (S.Quick_Open, S.Project, Editor.Buffers.Global_Registry_For_UI,
-           S.Recent_Buffers);
+          (State    => S.Quick_Open,
+           Tree     => S.File_Tree,
+           Project  => S.Project,
+           Registry => Editor.Buffers.Global_Registry_For_UI,
+           Recent   => S.Recent_Buffers);
       Count : constant Natural := Natural (Snapshot.Candidates.Length);
       Current : Natural := 0;
       Target  : Natural := 0;
@@ -643,7 +642,7 @@ package body Editor.Executor.Quick_Open_Commands is
       if Editor.Quick_Open.Result_Count (S.Quick_Open) = 0 then
          if not Editor.Project.Has_Project (S.Project) then
             Editor.Executor.Shared_Services.Report_Info (S, "No project open");
-         elsif Editor.Project.Known_File_Count (S.Project) = 0 then
+         elsif Quick_Open_File_Count (S) = 0 then
             Editor.Executor.Shared_Services.Report_Info (S, "No project files");
          else
             Editor.Executor.Shared_Services.Report_Info (S, "No Quick Open matches.");
@@ -662,7 +661,7 @@ package body Editor.Executor.Quick_Open_Commands is
       if Editor.Quick_Open.Result_Count (S.Quick_Open) = 0 then
          if not Editor.Project.Has_Project (S.Project) then
             Editor.Executor.Shared_Services.Report_Info (S, "No project open");
-         elsif Editor.Project.Known_File_Count (S.Project) = 0 then
+         elsif Quick_Open_File_Count (S) = 0 then
             Editor.Executor.Shared_Services.Report_Info (S, "No project files");
          else
             Editor.Executor.Shared_Services.Report_Info (S, "No Quick Open matches.");
@@ -685,7 +684,7 @@ package body Editor.Executor.Quick_Open_Commands is
          if Editor.Quick_Open.Result_Count (S.Quick_Open) = 0 then
             if not Editor.Project.Has_Project (S.Project) then
                Editor.Executor.Shared_Services.Report_Info (S, "No project open");
-            elsif Editor.Project.Known_File_Count (S.Project) = 0 then
+            elsif Quick_Open_File_Count (S) = 0 then
                Editor.Executor.Shared_Services.Report_Info (S, "No project files");
             else
                Editor.Executor.Shared_Services.Report_Info (S, "No Quick Open matches.");
@@ -934,7 +933,7 @@ package body Editor.Executor.Quick_Open_Commands is
          Editor.Executor.Shared_Services.Report_Info (S, "No active buffer.");
          Editor.Render_Cache.Invalidate_All;
          return;
-      elsif Editor.Project.Known_File_Count (S.Project) = 0 then
+      elsif Quick_Open_File_Count (S) = 0 then
          Editor.Executor.Shared_Services.Report_Info (S, "No project files.");
          Editor.Render_Cache.Invalidate_All;
          return;
@@ -984,7 +983,7 @@ package body Editor.Executor.Quick_Open_Commands is
          Editor.Executor.Shared_Services.Report_Info (S, "No active buffer.");
          Editor.Render_Cache.Invalidate_All;
          return;
-      elsif Editor.Project.Known_File_Count (S.Project) = 0 then
+      elsif Quick_Open_File_Count (S) = 0 then
          Editor.Executor.Shared_Services.Report_Info (S, "No project files.");
          Editor.Render_Cache.Invalidate_All;
          return;

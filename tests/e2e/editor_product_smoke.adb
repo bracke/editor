@@ -679,7 +679,7 @@ procedure Editor_Product_Smoke is
    begin
       Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
       Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "main.adb");
-      Editor.Quick_Open.Recompute_Results (S.Quick_Open, S.Project, (others => <>));
+      Editor.Quick_Open.Recompute_Results (S.Quick_Open, S.File_Tree, (others => <>));
       Check (Editor.Quick_Open.Result_Count (S.Quick_Open) >= 1,
              "Quick Open did not find main.adb");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Accept_Quick_Open);
@@ -728,7 +728,7 @@ procedure Editor_Product_Smoke is
 
       Editor.Project_Search.Set_Query (S.Project_Search, "E2E_Token");
       Editor.Project_Search.Search_Known_Project_Files
-        (S.Project_Search, S.Project, (others => <>));
+        (S.Project_Search, S.File_Tree, S.Project, (others => <>));
       Check (Editor.Project_Search.Status (S.Project_Search) =
                Editor.Project_Search.Project_Search_Ok
              and then Editor.Project_Search.Result_Count (S.Project_Search) >= 1,
@@ -1013,7 +1013,7 @@ begin
 
    Editor.Project_Search.Set_Query (S.Project_Search, "E2E_Token");
    Editor.Project_Search.Search_Known_Project_Files
-     (S.Project_Search, S.Project, (others => <>));
+     (S.Project_Search, S.File_Tree, S.Project, (others => <>));
    Check (Editor.Project_Search.Status (S.Project_Search) =
             Editor.Project_Search.Project_Search_Ok
           and then Editor.Project_Search.Result_Count (S.Project_Search) >= 1,

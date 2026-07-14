@@ -2,6 +2,9 @@ with Editor.State;
 
 package Editor.Executor.Project_Search_Result_Commands is
 
+   procedure Refresh_Project_Search_After_File_Lifecycle
+     (S : in out Editor.State.State_Type);
+
    procedure Execute_Run_Project_Search
      (S     : in out Editor.State.State_Type;
       Query : String);

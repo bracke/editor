@@ -689,13 +689,4 @@ package body Editor.Executor.Diagnostics_Commands is
         (S, Natural (Id));
    end Execute_Diagnostic_Id_Activation;
 
-   procedure Execute_Diagnostics_Kind
-     (S    : in out Editor.State.State_Type;
-      Kind : Editor.Commands.Command_Kind)
-   is
-   begin
-      Editor.Executor.Diagnostics_Feature_Commands.Execute_Diagnostics_Kind
-        (S, Kind);
-   end Execute_Diagnostics_Kind;
-
 end Editor.Executor.Diagnostics_Commands;

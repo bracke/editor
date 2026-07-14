@@ -12,12 +12,15 @@ with Editor.Cursors;
 with Editor.Executor;
 with Editor.Executor.Command_Palette_Projection;
 with Editor.Gutter_Markers;
+with Editor.Guided_Prompts;
 with Editor.Input_Bridge;
+with Editor.Input_Bridge.Keybinding_Handlers;
 with Editor.Keybindings;
 with Editor.Keybinding_Config;
 with Editor.Keybinding_Management;
 with Editor.Render_Model;
 with Editor.State;
+with Guikit.Draw;
 use type Editor.Commands.Command_Id;
 use type Editor.Commands.Command_Availability_Status;
 use type Editor.Keybindings.Binding_Result;
@@ -1751,6 +1754,82 @@ package body Editor.Keybindings.Tests is
          "Input_Bridge capture must report the assignment outcome");
    end Test_Input_Bridge_Capture_Consumes_And_Assigns;
 
+   procedure Test_Keybinding_Prompt_Handlers_Capture_And_Confirm
+     (T : in out AUnit.Test_Cases.Test_Case'Class) is
+      pragma Unreferenced (T);
+      Prompt  : Editor.Guided_Prompts.Prompt_State;
+      Status  : Editor.Keybinding_Management.Keybinding_Action_Status;
+      Actual  : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Report  : Unbounded_String := Null_Unbounded_String;
+      Custom  : constant Editor.Keybindings.Key_Chord :=
+        Chord (Editor.Keybindings.Key_F, Ctrl => True, Alt => True);
+
+      procedure Capture_Report (Text : String) is
+      begin
+         Report := To_Unbounded_String (Text);
+      end Capture_Report;
+   begin
+      Editor.Keybindings.Reset_To_Defaults;
+      Editor.Keybinding_Management.Reset_Transient_State;
+      Editor.Keybinding_Management.Show;
+      Editor.Keybinding_Management.Focus;
+      Editor.Keybinding_Management.Select_Command (Editor.Commands.Command_Find_Show);
+      Editor.Keybinding_Management.Begin_Assign_Selected (Status);
+      Assert
+        (Status = Editor.Keybinding_Management.Keybinding_Action_Ok,
+         "keybinding prompt handler test must enter capture mode");
+
+      Editor.Guided_Prompts.Start
+        (Prompt,
+         Editor.Guided_Prompts.Keybinding_Capture_Prompt,
+         Editor.Commands.Command_Keybindings_Assign_Selected,
+         "Assign Keybinding",
+         "Press keybinding chord.",
+         "Keybindings");
+      Assert
+        (Editor.Input_Bridge.Keybinding_Handlers.Is_Keybinding_Capture_Prompt (Prompt),
+         "keybinding prompt helper must recognize capture prompts");
+      Assert
+        (Editor.Input_Bridge.Keybinding_Handlers.Consume_Keybinding_Text_Input
+           (Prompt,
+            Editor.Commands.Command'
+              (Kind => Editor.Commands.Insert_Text_Input,
+               Text => To_Unbounded_String ("x"),
+               others => <>)),
+         "keybinding prompt helper must consume text input events");
+
+      Editor.Guided_Prompts.Capture_Chord (Prompt, Custom);
+      Assert
+        (Editor.Input_Bridge.Keybinding_Handlers.Handle_Keybinding_Prompt_Key
+           (Prompt, Chord (Editor.Keybindings.Key_Escape), Capture_Report'Access),
+         "Escape must cancel a keybinding prompt through the helper");
+      Assert
+        (To_String (Report) = "Prompt cancelled.",
+         "Escape must cancel a keybinding prompt through the helper");
+
+      Editor.Guided_Prompts.Start
+        (Prompt,
+         Editor.Guided_Prompts.Keybinding_Capture_Prompt,
+         Editor.Commands.Command_Keybindings_Assign_Selected,
+         "Assign Keybinding",
+         "Press keybinding chord.",
+         "Keybindings");
+      Editor.Guided_Prompts.Capture_Chord (Prompt, Custom);
+      Report := Null_Unbounded_String;
+      Editor.Input_Bridge.Keybinding_Handlers.Confirm_Keybinding_Capture
+        (Prompt, Capture_Report'Access);
+      Assert
+        (To_String (Report) = "Keybinding operation completed.",
+         "confirm helper must report the assignment outcome");
+      Assert
+        (not Editor.Guided_Prompts.Is_Active (Prompt),
+         "confirm helper must clear the guided prompt");
+      Assert
+        (Editor.Keybindings.Resolve (Custom, Actual) = Editor.Keybindings.Bound_Command
+         and then Actual = Editor.Commands.Command_Find_Show,
+         "confirm helper must assign the captured chord through keybinding management");
+   end Test_Keybinding_Prompt_Handlers_Capture_And_Confirm;
+
    procedure Test_Input_Bridge_Focused_Surface_Consumes_Local_Navigation
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
@@ -2714,6 +2793,9 @@ package body Editor.Keybindings.Tests is
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Input_Bridge_Capture_Consumes_And_Assigns'Access,
          "Input_Bridge capture consumes and assigns");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Keybinding_Prompt_Handlers_Capture_And_Confirm'Access,
+         "keybinding prompt handlers capture and confirm");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Input_Bridge_Capture_Conflict_Requires_Enter'Access,
          "Input_Bridge capture conflict requires Enter");

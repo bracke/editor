@@ -470,6 +470,22 @@ package body Editor.File_Tree_View.Tests is
       Nested_Id := Editor.File_Tree.Find_By_Path (Tree, "a_dir/nested.txt", Found);
       Assert (Found, "fixture must contain hidden nested child");
 
+      declare
+         Hidden_Config : Editor.File_Tree_View.File_Tree_View_Config := Config;
+         Root_Info : Editor.File_Tree.File_Tree_Node_Summary;
+         Child_Info : Editor.File_Tree.File_Tree_Node_Summary;
+      begin
+         Hidden_Config.Show_Root := False;
+         Root_Info := Editor.File_Tree_View.Visible_Row_Summary (Hidden_Config, Tree, 1);
+         Child_Info := Editor.File_Tree_View.Visible_Row_Summary (Hidden_Config, Tree, 2);
+         Assert (Root_Info.Id = Editor.File_Tree.No_File_Tree_Node,
+                 "hidden root rows must be omitted from the visible row summary");
+         Assert (Child_Info.Id /= Editor.File_Tree.No_File_Tree_Node,
+                 "first child row must remain visible when root display is disabled");
+         Assert (Child_Info.Depth = 0,
+                 "child depth must shift down when root display is disabled");
+      end;
+
       Hit := Editor.File_Tree_View.Hit_Test
         (Default_Geometry, Config, Tree, -1, 1);
       Assert (Hit.Zone = Editor.File_Tree_View.Outside_File_Tree,
@@ -526,21 +542,27 @@ package body Editor.File_Tree_View.Tests is
       Dir_Hit := Editor.File_Tree_View.Hit_Test
         (Default_Geometry, Config, Tree,
          Editor.Layout.Cell_W + 1, 1);
-      Assert (Editor.File_Tree_View.Action_For_Hit (Tree, Dir_Hit) =
+      Assert (Editor.File_Tree_View.Action_For_Hit (Config, Tree, Dir_Hit) =
               Editor.File_Tree_View.Toggle_Directory_Action,
               "directory hit must map to toggle action");
+      Assert
+        (Editor.File_Tree_View.Action_For_Summary
+           (Editor.File_Tree_View.Visible_Row_Summary (Config, Tree, Dir_Hit.Row),
+            Dir_Hit.Zone) =
+           Editor.File_Tree_View.Toggle_Directory_Action,
+         "directory action must match the visible row summary");
 
       File_Hit := Editor.File_Tree_View.Hit_Test
         (Default_Geometry, Config, Tree,
          (5 * Editor.Layout.Cell_W) + 1, 2 * Editor.Layout.Cell_H + 1);
-      Assert (Editor.File_Tree_View.Action_For_Hit (Tree, File_Hit) =
+      Assert (Editor.File_Tree_View.Action_For_Hit (Config, Tree, File_Hit) =
               Editor.File_Tree_View.Open_File_Action,
               "file hit must map to open action");
 
-      Assert (Editor.File_Tree_View.Action_For_Hit (Tree, Background_Hit) =
+      Assert (Editor.File_Tree_View.Action_For_Hit (Config, Tree, Background_Hit) =
               Editor.File_Tree_View.No_File_Tree_Action,
               "background hit must map to no action");
-      Assert (Editor.File_Tree_View.Action_For_Hit (Tree, Invalid_Hit) =
+      Assert (Editor.File_Tree_View.Action_For_Hit (Config, Tree, Invalid_Hit) =
               Editor.File_Tree_View.No_File_Tree_Action,
               "invalid node hit must map to no action");
 

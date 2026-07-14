@@ -19,6 +19,7 @@ use Editor.Executor.Shared_Services;
 with Editor.Executor.Pending_Transition_Policy;
 with Editor.Executor.Buffer_Close_Prompt_Commands;
 with Editor.Executor.Project_File_Index_Commands;
+with Editor.Executor.Project_Search_Result_Commands;
 with Editor.Executor.Semantic_Index_Commands;
 with Editor.Feature_Diagnostics;
 with Editor.Files;
@@ -30,6 +31,7 @@ with Editor.Outline;
 with Editor.Pending_Transitions;
 with Editor.Project;
 with Editor.Project_Search;
+with Editor.Quick_Open;
 with Editor.Render_Cache;
 with Editor.Settings;
 with Editor.State;
@@ -413,6 +415,11 @@ package body Editor.Executor.File_Save_Basic_Commands is
          Clear_Dirty_Close_Prompt (S);
          File_Lifecycle_Invalidate_Derived_State
            (S, "Derived state is stale after save");
+         Editor.Executor.Project_Search_Result_Commands
+           .Refresh_Project_Search_After_File_Lifecycle (S);
+         if Editor.Quick_Open.Is_Open (S.Quick_Open) then
+            Editor.Executor.Recompute_Quick_Open (S);
+         end if;
          Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
          Editor.Buffers.Sync_Global_Active_From_State (S);
          if S.File_Info.Has_Path and then Editor.Executor.Visible_Restore_Message_In_History (S) then
@@ -565,7 +572,9 @@ package body Editor.Executor.File_Save_Basic_Commands is
    begin
       --  File content lifecycle operations stale derived state through
       --  Executor-owned runtime state only.  They do not refresh outline,
-      --  search, diagnostics, build, quick-open, render, or persistence data.
+      --  diagnostics, build, quick-open, render, or persistence data; the
+      --  project-file refresh path updates search results separately when a
+      --  query is active.
       S.Active_Find_Stale := True;
       Editor.Outline.Clear (S.Outline);
       S.Outline_Cursor_Key_Valid := False;
@@ -698,6 +707,11 @@ package body Editor.Executor.File_Save_Basic_Commands is
            (S, Reload_Path, Reload_Display);
          File_Lifecycle_Invalidate_Derived_State
            (S, "Derived state is stale after reload");
+         Editor.Executor.Project_Search_Result_Commands
+           .Refresh_Project_Search_After_File_Lifecycle (S);
+         if Editor.Quick_Open.Is_Open (S.Quick_Open) then
+            Editor.Executor.Recompute_Quick_Open (S);
+         end if;
          Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
          Editor.Executor.Shared_Services.Report_Success (S, "Buffer reloaded");
       end;
@@ -981,6 +995,11 @@ package body Editor.Executor.File_Save_Basic_Commands is
          --  file-backed buffer changed on disk.
          File_Lifecycle_Invalidate_Derived_State
            (S, "Derived state is stale after save all");
+         Editor.Executor.Project_Search_Result_Commands
+           .Refresh_Project_Search_After_File_Lifecycle (S);
+         if Editor.Quick_Open.Is_Open (S.Quick_Open) then
+            Editor.Executor.Recompute_Quick_Open (S);
+         end if;
          Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
          Editor.Buffers.Sync_Global_Active_From_State (S);
       end if;
@@ -1222,9 +1241,14 @@ package body Editor.Executor.File_Save_Basic_Commands is
                Tree_Result : Editor.File_Tree.File_Tree_Scan_Result;
                Selection_Disappeared : Boolean := False;
             begin
-               Editor.Executor.Project_File_Index_Commands.Refresh_Project_File_State
+              Editor.Executor.Project_File_Index_Commands.Refresh_Project_File_State
                  (S, Tree_Result, Selection_Disappeared, False);
             end;
+         end if;
+         Editor.Executor.Project_Search_Result_Commands
+           .Refresh_Project_Search_After_File_Lifecycle (S);
+         if Editor.Quick_Open.Is_Open (S.Quick_Open) then
+            Editor.Executor.Recompute_Quick_Open (S);
          end if;
          Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
          Editor.Buffers.Sync_Global_Active_From_State (S);

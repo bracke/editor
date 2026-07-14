@@ -135,9 +135,15 @@ package body Editor.Command_Palette.Tests is
       Editor.Command_Palette.Open;
       Assert (Editor.Command_Palette.Is_Open,
               "Open must mark palette open");
+      Editor.Command_Palette.Insert_Text ("search");
+      Assert (To_String (Editor.Command_Palette.Current.Query) = "search",
+              "typing must update the palette query");
       Editor.Command_Palette.Close;
       Assert (not Editor.Command_Palette.Is_Open,
               "Close must mark palette closed");
+      Editor.Command_Palette.Open;
+      Assert (To_String (Editor.Command_Palette.Current.Query) = "search",
+              "reopening palette must preserve the previous query");
    end Test_Open_Close;
 
    procedure Test_Typing_Backspace_Filtering
@@ -2724,7 +2730,9 @@ package body Editor.Command_Palette.Tests is
       Editor.Command_Palette.Close;
 
       Assert (Editor.Command_Palette.Transient_State_Clear,
-              "Closing the palette must clear query, selection, help, and transient filters");
+              "Closing the palette must clear selection, help, and transient filters");
+      Assert (To_String (Editor.Command_Palette.Current.Query) = "build",
+              "Closing the palette must preserve the current query for reopen");
       Assert (not Editor.Command_Palette.Current_Config.Show_Help_Row,
               "Selected-command help/details state must not survive palette close");
       Assert (Editor.Command_Palette.Current_Availability_Filter =

@@ -589,6 +589,9 @@ package body Editor.Quick_Open.Tests is
       Assert (Editor.Quick_Open.Query_Text (S) = "a", "Delete_Forward must remove the next query character");
       Editor.Quick_Open.Close (S);
       Assert (not Editor.Quick_Open.Is_Open (S), "Close must close quick-open");
+      Editor.Quick_Open.Open (S);
+      Assert (Editor.Quick_Open.Query_Text (S) = "a",
+              "reopening quick-open must preserve the previous query");
    end Test_Open_Close_And_Query;
 
    procedure Test_Recompute_And_Ranking

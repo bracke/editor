@@ -46,8 +46,4 @@ package Editor.Executor.Search_Results_Commands is
       Expected_Panel_Generation : Natural := 0)
       return Editor.Command_Execution.Command_Execution_Result;
 
-   procedure Execute_Search_Results_Kind
-     (S    : in out Editor.State.State_Type;
-      Kind : Editor.Commands.Command_Kind);
-
 end Editor.Executor.Search_Results_Commands;

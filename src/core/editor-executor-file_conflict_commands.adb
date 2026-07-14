@@ -15,12 +15,14 @@ with Editor.Executor.Buffer_Close_Prompt_Commands;
 with Editor.Executor.Buffer_Switcher_Shared;
 with Editor.Executor.File_Save_Commands;
 with Editor.Executor.File_Save_Basic_Commands;
+with Editor.Executor.Project_Search_Result_Commands;
 with Editor.Executor.Pending_Transition_Policy;
 with Editor.Executor.Semantic_Index_Commands;
 with Editor.Executor.Shared_Services;
 with Editor.Feature_Diagnostics;
 with Editor.Feature_Messages;
 with Editor.Files;
+with Editor.Quick_Open;
 use type Editor.Files.File_External_Change_Status;
 use type Editor.Files.File_Open_Status;
 use type Editor.Files.File_Save_Status;
@@ -254,6 +256,11 @@ package body Editor.Executor.File_Conflict_Commands is
       Editor.Executor.File_Save_Commands.Clear_File_Conflict_Prompt (S);
       File_Lifecycle_Invalidate_Derived_State
         (S, "Derived state is stale after reload");
+      Editor.Executor.Project_Search_Result_Commands
+        .Refresh_Project_Search_After_File_Lifecycle (S);
+      if Editor.Quick_Open.Is_Open (S.Quick_Open) then
+         Editor.Executor.Recompute_Quick_Open (S);
+      end if;
       Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
       Editor.Executor.Shared_Services.Report_Success (S, "File reloaded from disk");
    end Execute_File_Conflict_Reload_From_Disk;
@@ -344,6 +351,11 @@ package body Editor.Executor.File_Conflict_Commands is
          Mark_Active_Buffer_Saved_After_Overwrite (S, Result);
          File_Lifecycle_Invalidate_Derived_State
            (S, "Derived state is stale after overwrite");
+         Editor.Executor.Project_Search_Result_Commands
+           .Refresh_Project_Search_After_File_Lifecycle (S);
+         if Editor.Quick_Open.Is_Open (S.Quick_Open) then
+            Editor.Executor.Recompute_Quick_Open (S);
+         end if;
          Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
          Editor.Executor.File_Save_Commands.Clear_File_Conflict_Prompt (S);
          if Resume_Close

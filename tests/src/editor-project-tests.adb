@@ -18,7 +18,9 @@ with Editor.Executor.Project_File_Index_Commands;
 with Editor.Executor.File_Save_Basic_Commands;
 with Editor.Executor.File_Operation_Commands;
 with Editor.Executor.Project_Lifecycle_Commands;
+with Editor.Executor.Project_Search_Result_Commands;
 with Editor.Messages;
+with Editor.Project_Search;
 with Editor.Project;
 with Editor.Quick_Open;
 with Editor.Recent_Projects;
@@ -100,6 +102,19 @@ package body Editor.Project.Tests is
       end loop;
       return False;
    end Known_File_Present;
+
+   function Project_Search_Has_Result_Path
+     (Search : Editor.Project_Search.Project_Search_State;
+      Relative_Path : String) return Boolean
+   is
+   begin
+      for I in 1 .. Editor.Project_Search.Result_Count (Search) loop
+         if To_String (Editor.Project_Search.Result_At (Search, I).Relative_Path) = Relative_Path then
+            return True;
+         end if;
+      end loop;
+      return False;
+   end Project_Search_Has_Result_Path;
 
    function Descriptor_Exists (Id : Editor.Commands.Command_Id) return Boolean is
       Descriptors : constant Editor.Commands.Command_Descriptor_Vectors.Vector :=
@@ -423,6 +438,7 @@ package body Editor.Project.Tests is
       Move_Source    : constant String := Ada.Directories.Compose (Src, "move.adb");
       Move_Target    : constant String := Ada.Directories.Compose (Src, "move_new.adb");
       Delete_Source  : constant String := Ada.Directories.Compose (Src, "delete.adb");
+      Refresh_Added  : constant String := Ada.Directories.Compose (Src, "refresh_added.adb");
 
       procedure Assert_Project_File_State
         (Relative : String;
@@ -443,6 +459,7 @@ package body Editor.Project.Tests is
       end Assert_Project_File_State;
    begin
       Remove_If_Exists (Delete_Source);
+      Remove_If_Exists (Refresh_Added);
       Remove_If_Exists (Move_Target);
       Remove_If_Exists (Move_Source);
       Remove_If_Exists (Copy_Target);
@@ -455,11 +472,12 @@ package body Editor.Project.Tests is
       Remove_If_Exists (Root);
       Ada.Directories.Create_Directory (Root);
       Ada.Directories.Create_Directory (Src);
-      Write_Bytes (Save_As_Source, "save as source");
-      Write_Bytes (Rename_Source, "rename source");
-      Write_Bytes (Copy_Source, "copy source");
-      Write_Bytes (Move_Source, "move source");
-      Write_Bytes (Delete_Source, "delete source");
+      Write_Bytes (Save_As_Source, "save as needle");
+      Write_Bytes (Rename_Source, "rename needle");
+      Write_Bytes (Copy_Source, "copy needle");
+      Write_Bytes (Move_Source, "move needle");
+      Write_Bytes (Delete_Source, "delete needle");
+      Write_Bytes (Refresh_Added, "refresh needle");
 
       Editor.State.Init (S);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
@@ -469,12 +487,23 @@ package body Editor.Project.Tests is
       Assert_Project_File_State ("src/move.adb", True, "project open");
       Assert_Project_File_State ("src/delete.adb", True, "project open");
 
+      Editor.Executor.Project_Search_Result_Commands.Execute_Run_Project_Search
+        (S, "needle");
+      Assert (Editor.Project_Search.Result_Count (S.Project_Search) > 0,
+              "initial project search should see the seeded matches");
+      Assert (not Editor.Project_Search.Is_Stale (S.Project_Search),
+              "initial project search should be coherent");
+
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Save_As_Source);
       Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, Save_As_Target);
       Assert_Project_File_State ("src/save_as.adb", True, "save-as keeps source");
       Assert_Project_File_State ("src/save_as_new.adb", True, "save-as adds target");
       Assert (not Editor.Project.Has_Known_File (S.Project, "src/save_as_new.adb"),
               "save-as target must not be promoted to retained project search source");
+      Assert (Project_Search_Has_Result_Path (S.Project_Search, "src/save_as_new.adb"),
+              "save-as target should appear in refreshed project search results");
+      Assert (not Editor.Project_Search.Is_Stale (S.Project_Search),
+              "save-as should leave refreshed search results coherent");
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Rename_Source);
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, Rename_Target);
@@ -482,6 +511,12 @@ package body Editor.Project.Tests is
       Assert_Project_File_State ("src/rename_new.adb", True, "rename adds target");
       Assert (not Editor.Project.Has_Known_File (S.Project, "src/rename_new.adb"),
               "rename target must not be promoted to retained project search source");
+      Assert (not Project_Search_Has_Result_Path (S.Project_Search, "src/rename.adb"),
+              "rename should remove the old search result path");
+      Assert (Project_Search_Has_Result_Path (S.Project_Search, "src/rename_new.adb"),
+              "rename should add the new search result path");
+      Assert (not Editor.Project_Search.Is_Stale (S.Project_Search),
+              "rename should leave refreshed search results coherent");
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Copy_Source);
       Editor.Executor.File_Operation_Commands.Execute_Copy_Buffer_File (S, Copy_Target);
@@ -489,6 +524,10 @@ package body Editor.Project.Tests is
       Assert_Project_File_State ("src/copy_new.adb", True, "copy adds target");
       Assert (not Editor.Project.Has_Known_File (S.Project, "src/copy_new.adb"),
               "copy target must not be promoted to retained project search source");
+      Assert (Project_Search_Has_Result_Path (S.Project_Search, "src/copy_new.adb"),
+              "copy target should appear in refreshed project search results");
+      Assert (not Editor.Project_Search.Is_Stale (S.Project_Search),
+              "copy should leave refreshed search results coherent");
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Move_Source);
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, Move_Target);
@@ -496,13 +535,31 @@ package body Editor.Project.Tests is
       Assert_Project_File_State ("src/move_new.adb", True, "move adds target");
       Assert (not Editor.Project.Has_Known_File (S.Project, "src/move_new.adb"),
               "move target must not be promoted to retained project search source");
+      Assert (not Project_Search_Has_Result_Path (S.Project_Search, "src/move.adb"),
+              "move should remove the old search result path");
+      Assert (Project_Search_Has_Result_Path (S.Project_Search, "src/move_new.adb"),
+              "move should add the new search result path");
+      Assert (not Editor.Project_Search.Is_Stale (S.Project_Search),
+              "move should leave refreshed search results coherent");
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Delete_Source);
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
       Assert_Project_File_State ("src/delete.adb", False, "delete removes source");
+      Assert (not Project_Search_Has_Result_Path (S.Project_Search, "src/delete.adb"),
+              "delete should remove the deleted search result path");
+      Assert (not Editor.Project_Search.Is_Stale (S.Project_Search),
+              "delete should leave refreshed search results coherent");
+
+      Write_Bytes (Refresh_Added, "refresh needle");
+      Editor.Executor.Project_File_Index_Commands.Execute_Refresh_Project_Files (S);
+      Assert (Project_Search_Has_Result_Path (S.Project_Search, "src/refresh_added.adb"),
+              "project-files refresh should surface the new search result path");
+      Assert (not Editor.Project_Search.Is_Stale (S.Project_Search),
+              "project-files refresh should leave project search coherent");
 
       Editor.Buffers.Reset_Global_For_Test;
       Remove_If_Exists (Delete_Source);
+      Remove_If_Exists (Refresh_Added);
       Remove_If_Exists (Move_Target);
       Remove_If_Exists (Move_Source);
       Remove_If_Exists (Copy_Target);
@@ -517,6 +574,7 @@ package body Editor.Project.Tests is
       when others =>
          Editor.Buffers.Reset_Global_For_Test;
          Remove_If_Exists (Delete_Source);
+         Remove_If_Exists (Refresh_Added);
          Remove_If_Exists (Move_Target);
          Remove_If_Exists (Move_Source);
          Remove_If_Exists (Copy_Target);

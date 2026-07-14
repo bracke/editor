@@ -13,5 +13,8 @@ package Editor.Executor.Project_Search_Replace_Commands is
    procedure Execute_Project_Search_Replace_Selected (S : in out Editor.State.State_Type);
    procedure Execute_Project_Search_Replace_All_Included (S : in out Editor.State.State_Type);
    procedure Execute_Project_Search_Replace_Clear_Preview (S : in out Editor.State.State_Type);
+   procedure Refresh_Project_Search_Replace_After_File_Lifecycle
+     (S                 : in out Editor.State.State_Type;
+      Had_Replace_Preview : Boolean);
 
 end Editor.Executor.Project_Search_Replace_Commands;

@@ -1904,13 +1904,17 @@ package body Editor.Render_Model.Tests is
               "Message background layer C ABI value must be 62");
       Assert (To_C (Message_Text_Layer) = 63,
               "Message text layer C ABI value must be 63");
-      Assert (To_C (Palette_Background_Layer) = 64,
-              "Palette background layer C ABI value must be 64");
-      Assert (To_C (Palette_Selection_Layer) = 65,
-              "Palette selection layer C ABI value must be 65");
-      Assert (To_C (Palette_Text_Layer) = 66,
-              "Palette text layer C ABI value must be 66");
-      Assert (Editor.Render_Layers.Layer_Count = 67,
+      Assert (To_C (Settings_Background_Layer) = 64,
+              "Settings background layer C ABI value must be 64");
+      Assert (To_C (Settings_Text_Layer) = 65,
+              "Settings text layer C ABI value must be 65");
+      Assert (To_C (Palette_Background_Layer) = 66,
+              "Palette background layer C ABI value must be 66");
+      Assert (To_C (Palette_Selection_Layer) = 67,
+              "Palette selection layer C ABI value must be 67");
+      Assert (To_C (Palette_Text_Layer) = 68,
+              "Palette text layer C ABI value must be 68");
+      Assert (Editor.Render_Layers.Layer_Count = 69,
               "Layer count must stay synchronized with the C ABI enum");
    end Test_C_ABI_Layer_Values_Are_Stable;
 

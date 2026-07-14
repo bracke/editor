@@ -2,15 +2,9 @@ with Editor.Executor.Find_Replace_Commands;
 with Editor.Input_Field;
 with Editor.Render_Cache;
 with Editor.State;
+with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Executor.Find_Replace_Input_Commands is
-
-   procedure Sync_Active_Find_Input_From_Query
-     (S : in out Editor.State.State_Type)
-   is
-   begin
-      Editor.Executor.Find_Replace_Commands.Sync_Active_Find_Input_From_Query (S);
-   end Sync_Active_Find_Input_From_Query;
 
    procedure Execute_Active_Find_Input_Insert_Text
      (S    : in out Editor.State.State_Type;
@@ -53,7 +47,8 @@ package body Editor.Executor.Find_Replace_Input_Commands is
      (S : in out Editor.State.State_Type) is
    begin
       if S.Active_Find_Prompt then
-         Sync_Active_Find_Input_From_Query (S);
+         Editor.Input_Field.Set_Text
+           (S.Active_Find_Input, To_String (S.Active_Find_Query));
          Editor.Input_Field.Move_Cursor_Left (S.Active_Find_Input);
          Editor.Render_Cache.Invalidate_All;
       end if;
@@ -63,7 +58,8 @@ package body Editor.Executor.Find_Replace_Input_Commands is
      (S : in out Editor.State.State_Type) is
    begin
       if S.Active_Find_Prompt then
-         Sync_Active_Find_Input_From_Query (S);
+         Editor.Input_Field.Set_Text
+           (S.Active_Find_Input, To_String (S.Active_Find_Query));
          Editor.Input_Field.Move_Cursor_Right (S.Active_Find_Input);
          Editor.Render_Cache.Invalidate_All;
       end if;
@@ -73,7 +69,8 @@ package body Editor.Executor.Find_Replace_Input_Commands is
      (S : in out Editor.State.State_Type) is
    begin
       if S.Active_Find_Prompt then
-         Sync_Active_Find_Input_From_Query (S);
+         Editor.Input_Field.Set_Text
+           (S.Active_Find_Input, To_String (S.Active_Find_Query));
          Editor.Input_Field.Move_Cursor_Start (S.Active_Find_Input);
          Editor.Render_Cache.Invalidate_All;
       end if;
@@ -83,7 +80,8 @@ package body Editor.Executor.Find_Replace_Input_Commands is
      (S : in out Editor.State.State_Type) is
    begin
       if S.Active_Find_Prompt then
-         Sync_Active_Find_Input_From_Query (S);
+         Editor.Input_Field.Set_Text
+           (S.Active_Find_Input, To_String (S.Active_Find_Query));
          Editor.Input_Field.Move_Cursor_End (S.Active_Find_Input);
          Editor.Render_Cache.Invalidate_All;
       end if;

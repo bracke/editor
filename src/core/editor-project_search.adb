@@ -17,6 +17,22 @@ package body Editor.Project_Search is
    use type Editor.File_Tree.File_Tree_Node_Kind;
    use type Editor.Files.File_Open_Status;
 
+   function Read_Search_File
+     (Path : String;
+      Text : out Unbounded_String) return Boolean
+   is
+      Result : Editor.Files.File_Open_Result;
+   begin
+      Result := Editor.Files.Open_File (Path);
+      if Result.Status = Editor.Files.File_Open_Ok then
+         Text := Result.Contents;
+         return True;
+      else
+         Text := Null_Unbounded_String;
+         return False;
+      end if;
+   end Read_Search_File;
+
 
    type Preserved_Result_Key is record
       Has_Value   : Boolean := False;
@@ -88,6 +104,92 @@ package body Editor.Project_Search is
 
       State.Selected_Index := 1;
    end Restore_Selected_Key;
+
+   function Contains_Newline (Text : String) return Boolean;
+
+   procedure Reset_Results
+     (State  : in out Project_Search_State;
+      Status : Project_Search_Status := Project_Search_Idle);
+
+   procedure Preserve_Results_For_Precondition_Failure
+     (State  : in out Project_Search_State;
+      Status : Project_Search_Status;
+      Query  : String);
+
+   procedure Begin_Search_Run
+     (State             : in out Project_Search_State;
+      Query             : String;
+      Project_Open      : Boolean;
+      File_Total        : Natural;
+      No_Project_Status : Project_Search_Status;
+      No_Files_Status   : Project_Search_Status;
+      Previous_Key      : out Preserved_Result_Key;
+      Effective_Options : in out Project_Search_Options;
+      Regex_Compile     : out Ada_Regexp.Compile_Result;
+      Ready             : out Boolean)
+   is
+   begin
+      Previous_Key := Capture_Selected_Key (State);
+      Effective_Options.Case_Sensitive := State.Case_Sensitive_Search;
+      Ready := False;
+
+      if Query'Length = 0 or else Contains_Newline (Query) then
+         --  invalid/no-query execution clears transient results so
+         --  render can show the no-query state without stale rows.
+         Reset_Results (State, Project_Search_Empty_Query);
+         State.Last_Query_Text := Null_Unbounded_String;
+         return;
+      elsif not Project_Open then
+         Preserve_Results_For_Precondition_Failure
+           (State, No_Project_Status, Query);
+         return;
+      elsif File_Total = 0 then
+         Preserve_Results_For_Precondition_Failure
+           (State, No_Files_Status, Query);
+         return;
+      end if;
+
+      State.Last_Regex_Error := Null_Unbounded_String;
+      if State.Regex_Search then
+         Regex_Compile := Ada_Regexp.Compile (Query);
+         if Regex_Compile.Status /= Ada_Regexp.Compile_Ok then
+            Reset_Results (State, Project_Search_Invalid_Regex);
+            State.Last_Query_Text := To_Unbounded_String (Query);
+            State.Last_Regex_Error :=
+              To_Unbounded_String (Ada_Regexp.Status_Image (Regex_Compile.Status));
+            return;
+         end if;
+      end if;
+
+      Reset_Results (State, Project_Search_Idle);
+      State.Last_Query_Text := To_Unbounded_String (Query);
+      Ready := True;
+   end Begin_Search_Run;
+
+   procedure Finalize_Search_Run
+     (State             : in out Project_Search_State;
+      Previous_Key      : Preserved_Result_Key;
+      Effective_Options : Project_Search_Options;
+      Eligible          : Natural;
+      Scanned           : Natural;
+      Processed         : Natural)
+   is
+   begin
+      State.Eligible_File_Total := Eligible;
+      State.Files_Searched_Count := Scanned;
+
+      if Processed >= Effective_Options.Max_File_Count and then Eligible > Processed then
+         State.Truncated := True;
+      end if;
+
+      if Natural (State.Results.Length) > 0 then
+         Restore_Selected_Key (State, Previous_Key);
+      else
+         State.Selected_Index := 0;
+      end if;
+
+      State.Last_Status := Project_Search_Ok;
+   end Finalize_Search_Run;
 
    function Fold_Case (Text : String) return String is
       Result : String (Text'Range);
@@ -2637,9 +2739,8 @@ package body Editor.Project_Search is
       Reader  : Read_File_Access;
       Options : Project_Search_Options)
    is
-      Previous_Key : constant Preserved_Result_Key := Capture_Selected_Key (State);
-      Q          : constant String := To_String (State.Query_Text);
-      Scope      : constant String := To_String (State.Scope_Text);
+      Q              : constant String := To_String (State.Query_Text);
+      Scope          : constant String := To_String (State.Scope_Text);
       Include_Filter : constant String := To_String (State.Include_Filter_Text);
       Exclude_Filter : constant String := To_String (State.Exclude_Filter_Text);
       Effective_Options : Project_Search_Options := Options;
@@ -2651,35 +2752,24 @@ package body Editor.Project_Search is
       Eligible   : Natural := 0;
       File_Count : Natural := 0;
       Regex_Compile : Ada_Regexp.Compile_Result;
+      Previous_Key  : Preserved_Result_Key;
+      Ready         : Boolean := False;
    begin
-      Effective_Options.Case_Sensitive := State.Case_Sensitive_Search;
+      Begin_Search_Run
+        (State             => State,
+         Query             => Q,
+         Project_Open      => True,
+         File_Total        => File_Total,
+         No_Project_Status => Project_Search_No_Project,
+         No_Files_Status   => Project_Search_No_Files,
+         Previous_Key      => Previous_Key,
+         Effective_Options => Effective_Options,
+         Regex_Compile     => Regex_Compile,
+         Ready             => Ready);
 
-      if Q'Length = 0 or else Contains_Newline (Q) then
-         --  an unavailable/no-query run is a real display state,
-         --  not permission to keep showing stale project result rows.
-         Reset_Results (State, Project_Search_Empty_Query);
-         State.Last_Query_Text := Null_Unbounded_String;
-         return;
-      elsif File_Total = 0 then
-         Preserve_Results_For_Precondition_Failure
-           (State, Project_Search_No_Files, Q);
+      if not Ready then
          return;
       end if;
-
-      State.Last_Regex_Error := Null_Unbounded_String;
-      if State.Regex_Search then
-         Regex_Compile := Ada_Regexp.Compile (Q);
-         if Regex_Compile.Status /= Ada_Regexp.Compile_Ok then
-            Reset_Results (State, Project_Search_Invalid_Regex);
-            State.Last_Query_Text := To_Unbounded_String (Q);
-            State.Last_Regex_Error :=
-              To_Unbounded_String (Ada_Regexp.Status_Image (Regex_Compile.Status));
-            return;
-         end if;
-      end if;
-
-      Reset_Results (State, Project_Search_Idle);
-      State.Last_Query_Text := To_Unbounded_String (Q);
 
       for I in 1 .. File_Total loop
          declare
@@ -2804,19 +2894,13 @@ package body Editor.Project_Search is
          end;
       end loop;
 
-      State.Eligible_File_Total := Eligible;
-      State.Files_Searched_Count := Scanned;
-
-      if Processed >= Effective_Options.Max_File_Count and then Eligible > Processed then
-         State.Truncated := True;
-      end if;
-
-      if Natural (State.Results.Length) > 0 then
-         Restore_Selected_Key (State, Previous_Key);
-      else
-         State.Selected_Index := 0;
-      end if;
-      State.Last_Status := Project_Search_Ok;
+      Finalize_Search_Run
+        (State             => State,
+         Previous_Key      => Previous_Key,
+         Effective_Options => Effective_Options,
+         Eligible          => Eligible,
+         Scanned           => Scanned,
+         Processed         => Processed);
    end Search_Project;
 
 
@@ -3093,52 +3177,37 @@ package body Editor.Project_Search is
       Project : Editor.Project.Project_State;
       Options : Project_Search_Options)
    is
-      Previous_Key : constant Preserved_Result_Key := Capture_Selected_Key (State);
-      Q          : constant String := To_String (State.Query_Text);
-      Scope      : constant String := To_String (State.Scope_Text);
+      Q              : constant String := To_String (State.Query_Text);
+      Scope          : constant String := To_String (State.Scope_Text);
       Include_Filter : constant String := To_String (State.Include_Filter_Text);
       Exclude_Filter : constant String := To_String (State.Exclude_Filter_Text);
-      Project_Root : constant String := Editor.Project.Root_Path (Project);
+      Project_Open   : constant Boolean := Editor.Project.Has_Project (Project);
+      Project_Root   : constant String := Editor.Project.Root_Path (Project);
       Effective_Options : Project_Search_Options := Options;
-      File_Total : constant Natural := Editor.Project.Known_File_Count (Project);
-      Scanned    : Natural := 0;
-      Processed  : Natural := 0;
-      Eligible   : Natural := 0;
-      File_Count : Natural := 0;
+      File_Total      : constant Natural := Editor.Project.Known_File_Count (Project);
+      Scanned         : Natural := 0;
+      Processed       : Natural := 0;
+      Eligible        : Natural := 0;
+      File_Count      : Natural := 0;
       Regex_Compile : Ada_Regexp.Compile_Result;
+      Previous_Key    : Preserved_Result_Key;
+      Ready           : Boolean := False;
    begin
-      Effective_Options.Case_Sensitive := State.Case_Sensitive_Search;
+      Begin_Search_Run
+        (State             => State,
+         Query             => Q,
+         Project_Open      => Project_Open,
+         File_Total        => File_Total,
+         No_Project_Status => Project_Search_No_Project,
+         No_Files_Status   => Project_Search_No_Files,
+         Previous_Key      => Previous_Key,
+         Effective_Options => Effective_Options,
+         Regex_Compile     => Regex_Compile,
+         Ready             => Ready);
 
-      if Q'Length = 0 or else Contains_Newline (Q) then
-         --  invalid/no-query execution clears transient results so
-         --  render can show the no-query state without stale rows.
-         Reset_Results (State, Project_Search_Empty_Query);
-         State.Last_Query_Text := Null_Unbounded_String;
-         return;
-      elsif not Editor.Project.Has_Project (Project) then
-         Preserve_Results_For_Precondition_Failure
-           (State, Project_Search_No_Project, Q);
-         return;
-      elsif File_Total = 0 then
-         Preserve_Results_For_Precondition_Failure
-           (State, Project_Search_No_Files, Q);
+      if not Ready then
          return;
       end if;
-
-      State.Last_Regex_Error := Null_Unbounded_String;
-      if State.Regex_Search then
-         Regex_Compile := Ada_Regexp.Compile (Q);
-         if Regex_Compile.Status /= Ada_Regexp.Compile_Ok then
-            Reset_Results (State, Project_Search_Invalid_Regex);
-            State.Last_Query_Text := To_Unbounded_String (Q);
-            State.Last_Regex_Error :=
-              To_Unbounded_String (Ada_Regexp.Status_Image (Regex_Compile.Status));
-            return;
-         end if;
-      end if;
-
-      Reset_Results (State, Project_Search_Idle);
-      State.Last_Query_Text := To_Unbounded_String (Q);
 
       for I in 1 .. File_Total loop
          declare
@@ -3221,22 +3290,31 @@ package body Editor.Project_Search is
                then
                   State.Read_Error_Count := State.Read_Error_Count + 1;
                end if;
-         end;
+        end;
       end loop;
 
-      State.Eligible_File_Total := Eligible;
-      State.Files_Searched_Count := Scanned;
+      Finalize_Search_Run
+        (State             => State,
+         Previous_Key      => Previous_Key,
+         Effective_Options => Effective_Options,
+         Eligible          => Eligible,
+         Scanned           => Scanned,
+         Processed         => Processed);
+   end Search_Known_Project_Files;
 
-      if Processed >= Effective_Options.Max_File_Count and then Eligible > Processed then
-         State.Truncated := True;
-      end if;
-
-      if Natural (State.Results.Length) > 0 then
-         Restore_Selected_Key (State, Previous_Key);
-      else
-         State.Selected_Index := 0;
-      end if;
-      State.Last_Status := Project_Search_Ok;
+   procedure Search_Known_Project_Files
+     (State   : in out Project_Search_State;
+      Tree    : Editor.File_Tree.File_Tree_State;
+      Project : Editor.Project.Project_State;
+      Options : Project_Search_Options)
+   is
+      pragma Unreferenced (Project);
+   begin
+      Search_Project
+        (State   => State,
+         Tree    => Tree,
+         Reader  => Read_Search_File'Access,
+         Options => Options);
    end Search_Known_Project_Files;
 
 end Editor.Project_Search;

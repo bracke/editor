@@ -1,4 +1,5 @@
 with Editor.Cursor;
+with Editor.Input_Bridge.Keybinding_Handlers;
 with Editor.Guided_Prompts;
 with Editor.Render_Cache;
 with Editor.View;
@@ -48,12 +49,11 @@ package body Editor.Input_Bridge.Guided_Prompt_Key_Handlers is
          when Editor.Keybindings.Key_Delete =>
             Editor.Guided_Prompts.Delete_Forward (S.Guided_Prompt);
          when others =>
-            if S.Guided_Prompt.Kind =
-              Editor.Guided_Prompts.Keybinding_Capture_Prompt
+            if Editor.Input_Bridge.Keybinding_Handlers
+              .Handle_Keybinding_Prompt_Key
+                (S.Guided_Prompt, Chord, Report_Info)
             then
-               Editor.Guided_Prompts.Capture_Chord
-                 (S.Guided_Prompt, Chord);
-               Report_Info ("Keybinding chord captured");
+               return True;
             end if;
       end case;
 

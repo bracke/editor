@@ -12,6 +12,7 @@ with Editor.Keybindings;
 with Editor.Overlay_Focus;
 with Editor.Problems;
 with Editor.State;
+with Guikit.Command_Palette;
 
 package body Editor.Executor.Command_Palette_Projection is
 
@@ -193,6 +194,28 @@ package body Editor.Executor.Command_Palette_Projection is
 
       Editor.Command_Palette.Sort_Candidates (Result);
    end Command_Palette_Candidates;
+
+   procedure Project_Guikit_Commands
+     (S      : Editor.State.State_Type;
+      Result : out Guikit.Command_Palette.Command_Vectors.Vector)
+   is
+      Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+   begin
+      Result.Clear;
+      Command_Palette_Candidates (S, Candidates);
+      for C of Candidates loop
+         Result.Append
+           (Guikit.Command_Palette.Command'
+              (Id          => Editor.Commands.Command_Id'Pos (C.Id),
+               Identifier  =>
+                 To_Unbounded_String (Editor.Commands.Stable_Command_Name (C.Id)),
+               Label       => C.Label,
+               Description => C.Description,
+               Shortcut    => C.Keybinding_Display,
+               Enabled     => C.Available,
+               Icon        => Guikit.Command_Palette.No_Icon));
+      end loop;
+   end Project_Guikit_Commands;
 
 
 end Editor.Executor.Command_Palette_Projection;

@@ -3,6 +3,7 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
 with Ada.Strings;
 with Ada.Containers; use Ada.Containers;
+with Guikit.Layout;
 with Editor.Input_Field;
 with Editor.Buffer_Types;
 
@@ -652,9 +653,6 @@ package body Editor.Quick_Open is
    begin
       State.Opened := True;
       State.Visible_Window := 12;
-      Editor.Input_Field.Clear (State.Query_Field);
-      State.Kind_Filter := All_Files;
-      State.Scope := Null_Unbounded_String;
       State.Results.Clear;
       State.Results_Stale := False;
       State.Project_Available := False;
@@ -1531,21 +1529,21 @@ package body Editor.Quick_Open is
       Cell_Width  : Positive;
       Cell_Height : Positive) return Editor.Layout.Rect
    is
-      Wanted_W : constant Natural := Config.Overlay_Width_In_Columns * Cell_Width;
-      Margin   : constant Natural := 2 * Cell_Width;
-      Width    : constant Natural :=
-        (if Body_Rect.Width > 2 * Margin
-         then Natural'Min (Wanted_W, Body_Rect.Width - 2 * Margin)
-         else Body_Rect.Width);
-      Rows     : constant Natural :=
-        Config.Header_Height_In_Rows + Config.Field_Height_In_Rows +
-        Config.Max_Visible_Results * Config.Row_Height_In_Rows;
-      Height   : constant Natural := Rows * Cell_Height;
-      X        : constant Integer :=
-        Body_Rect.X + Integer ((if Body_Rect.Width > Width then (Body_Rect.Width - Width) / 2 else 0));
-      Y        : constant Integer := Body_Rect.Y + Integer (Cell_Height);
+      Title_Height : constant Natural := Config.Header_Height_In_Rows * Cell_Height;
+      Layout : constant Guikit.Layout.Palette_Layout :=
+        Guikit.Layout.Calculate_Palette_Layout
+          (Command_X      => Body_Rect.X,
+           Command_Y      => Body_Rect.Y,
+           Command_Width  => Body_Rect.Width,
+           Command_Height => Body_Rect.Height,
+           Line_Height    => Cell_Height,
+           Title_Height   => Title_Height);
    begin
-      return (X => X, Y => Y, Width => Width, Height => Height);
+      return
+        (X      => Integer (Layout.X),
+         Y      => Integer (Layout.Y),
+         Width  => Integer (Layout.Width),
+         Height => Integer (Layout.Height));
    end Geometry;
 
    function Hit_Test

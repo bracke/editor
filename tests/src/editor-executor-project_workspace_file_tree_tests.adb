@@ -659,8 +659,8 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
               "rename of active file must clear stale active diagnostics");
       Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
               "rename of active file must clear stale diagnostics feature rows");
-      Assert (Editor.Project_Search.Is_Stale (S.Project_Search),
-              "rename must mark project search state stale");
+      Assert (not Editor.Project_Search.Is_Stale (S.Project_Search),
+              "rename must refresh project search state");
       Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) = 0,
               "rename drops stale language index rows for the moved file");
       Assert (Editor.Ada_Language_Service.Status (S.Language_Service) =

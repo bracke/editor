@@ -587,43 +587,4 @@ package body Editor.Executor.File_Open_Commands is
       end;
    end Candidate_For_Closed_Associated_Buffer;
 
-   procedure Execute_File_Open_Kind
-     (S   : in out Editor.State.State_Type;
-      Cmd : Editor.Commands.Command)
-   is
-   begin
-      case Cmd.Kind is
-         when Open_File =>
-            if Length (Cmd.Path) = 0 then
-               Editor.Executor.Shared_Services.Report_Info (S, "Open File requires a path");
-            else
-               declare
-                  Before_Location : constant Editor.Navigation_History.Navigation_Location :=
-                    Editor.Executor.Current_Navigation_Location
-                      (S, Editor.Navigation_History.Navigation_Reason_Unknown);
-                  Target_Path : constant String := To_String (Cmd.Path);
-               begin
-                  Execute_Open_File (S, Target_Path);
-                  if S.File_Info.Has_Path
-                    and then To_String (S.File_Info.Path) = Target_Path
-                  then
-                     Editor.Executor.Record_Navigation_If_Target_Changed
-                       (S, Before_Location,
-                        Editor.Executor.Structured_File_Navigation_Target
-                          (Target_Path));
-                  end if;
-               end;
-            end if;
-
-         when New_Buffer =>
-            Execute_New_Buffer (S);
-
-         when Reopen_Closed_Buffer =>
-            Execute_Reopen_Closed_Buffer (S);
-
-         when others =>
-            raise Program_Error with "unsupported file open command kind";
-      end case;
-   end Execute_File_Open_Kind;
-
 end Editor.Executor.File_Open_Commands;

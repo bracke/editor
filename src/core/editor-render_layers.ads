@@ -71,6 +71,8 @@ package Editor.Render_Layers is
       Pending_Transition_Action_Layer,
       Message_Background_Layer,
       Message_Text_Layer,
+      Settings_Background_Layer,
+      Settings_Text_Layer,
       Palette_Background_Layer,
       Palette_Selection_Layer,
       Palette_Text_Layer);

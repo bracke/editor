@@ -1086,7 +1086,7 @@ package body Editor.Executor.Navigation_Tests is
       Assert (Refresh.Status = Editor.Project.Project_File_Refresh_Ok
               and then Refresh.Removed_Count = 1,
               "later refresh must remove the stale known path");
-      Editor.Quick_Open.Recompute_Results (S.Quick_Open, S.Project, (others => <>));
+      Editor.Quick_Open.Recompute_Results (S.Quick_Open, S.File_Tree, (others => <>));
       Snap := Editor.Quick_Open.Build_Snapshot (S.Quick_Open);
       Assert (not Editor.Project.Has_Known_File (S.Project, "src/stale.adb")
               and then Snap.Visible_Count = 0

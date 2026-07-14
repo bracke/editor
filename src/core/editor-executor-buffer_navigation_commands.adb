@@ -254,36 +254,4 @@ package body Editor.Executor.Buffer_Navigation_Commands is
       Report_Info (S, "Buffer: next");
    end Execute_Next_Recent_Buffer;
 
-   procedure Execute_Buffer_Navigation_Kind
-     (S   : in out Editor.State.State_Type;
-      Cmd : Editor.Commands.Command)
-   is
-   begin
-      case Cmd.Kind is
-         when Next_Buffer_Group =>
-            Execute_Next_Buffer_Group (S);
-
-         when Previous_Buffer_Group =>
-            Execute_Previous_Buffer_Group (S);
-
-         when Next_Buffer =>
-            Execute_Next_Buffer (S);
-
-         when Previous_Buffer =>
-            Execute_Previous_Buffer (S);
-
-         when Previous_Recent_Buffer =>
-            Execute_Previous_Recent_Buffer (S);
-
-         when Next_Recent_Buffer =>
-            Execute_Next_Recent_Buffer (S);
-
-         when Switch_Buffer =>
-            Execute_Switch_Buffer (S, Editor.Buffers.Buffer_Id (Cmd.Buffer_Id));
-
-         when others =>
-            raise Program_Error with "unsupported buffer navigation command kind";
-      end case;
-   end Execute_Buffer_Navigation_Kind;
-
 end Editor.Executor.Buffer_Navigation_Commands;

@@ -76,7 +76,7 @@ package body Editor.Input_Bridge.Panel_Tree_Search_Pointer_Handlers is
             declare
                Action : constant Editor.File_Tree_View.File_Tree_Action :=
                  Editor.File_Tree_View.Action_For_Hit
-                   (S.File_Tree, Hit);
+                   (Layout.File_Tree_View, S.File_Tree, Hit);
             begin
                Editor.Focus_Management.Set_Focus_Owner
                  (S, Editor.Focus_Management.Focus_File_Tree);

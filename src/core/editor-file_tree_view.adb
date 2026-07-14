@@ -463,18 +463,6 @@ package body Editor.File_Tree_View is
 
 
 
-   function Display_Depth
-     (Config : File_Tree_View_Config;
-      Node   : Editor.File_Tree.File_Tree_Node_Summary) return Natural
-   is
-   begin
-      if (not Config.Show_Root) and then Node.Depth > 0 then
-         return Node.Depth - 1;
-      else
-         return Node.Depth;
-      end if;
-   end Display_Depth;
-
    function Hit_Test
      (Geometry : File_Tree_Geometry;
       Config   : File_Tree_View_Config;
@@ -540,41 +528,36 @@ package body Editor.File_Tree_View is
 
       for Row in Source_Row .. Editor.File_Tree.Visible_Row_Count (Tree) loop
          declare
-            Visible : constant Editor.File_Tree.Visible_File_Tree_Row :=
-              Editor.File_Tree.Visible_Row (Tree, Row);
-            Node : constant Editor.File_Tree.File_Tree_Node_Summary :=
-              Editor.File_Tree.Node (Tree, Visible.Node_Id);
+            Display_Node : constant Editor.File_Tree.File_Tree_Node_Summary :=
+              Visible_Row_Summary (Config, Tree, Row);
          begin
-            if (not Config.Show_Root) and then Node.Id = Editor.File_Tree.Root (Tree) then
-               null;
-            else
+            if Display_Node.Id /= Editor.File_Tree.No_File_Tree_Node then
                Emitted_Row := Emitted_Row + 1;
                if Emitted_Row = Display_Row then
                   declare
-                     Display_Node : constant Editor.File_Tree.File_Tree_Node_Summary := Node;
-                     Depth_Cols   : constant Natural := Display_Depth (Config, Display_Node)
-                       * Config.Indent_In_Columns;
+                     Depth_Cols   : constant Natural :=
+                       Display_Node.Depth * Config.Indent_In_Columns;
                      Marker_X     : constant Integer := Geometry.X + Integer (Cell_W)
                        + Integer (Depth_Cols * Cell_W);
                      Marker_Right : constant Integer := Marker_X + Integer (Cell_W);
                      Label_X      : constant Integer := Marker_Right + Integer (Cell_W);
                   begin
-                     if Node.Kind = Editor.File_Tree.Directory_Node
+                     if Display_Node.Kind = Editor.File_Tree.Directory_Node
                        and then Config.Show_Expansion_Markers
                        and then X >= Marker_X
                        and then X < Marker_Right
                      then
                         return (Zone => File_Tree_Expansion_Zone,
                                 Row => Row,
-                                Node_Id => Node.Id);
+                                Node_Id => Display_Node.Id);
                      elsif X >= Label_X then
                         return (Zone => File_Tree_Label_Zone,
                                 Row => Row,
-                                Node_Id => Node.Id);
+                                Node_Id => Display_Node.Id);
                      else
                         return (Zone => File_Tree_Row_Zone,
                                 Row => Row,
-                                Node_Id => Node.Id);
+                                Node_Id => Display_Node.Id);
                      end if;
                   end;
                end if;
@@ -587,30 +570,49 @@ package body Editor.File_Tree_View is
    end Hit_Test;
 
    function Action_For_Hit
-     (Tree : Editor.File_Tree.File_Tree_State;
-      Hit  : File_Tree_Hit_Result) return File_Tree_Action
+     (Config : File_Tree_View_Config;
+      Tree   : Editor.File_Tree.File_Tree_State;
+      Hit    : File_Tree_Hit_Result) return File_Tree_Action
    is
-      Node : Editor.File_Tree.File_Tree_Node_Summary;
+      Summary : Editor.File_Tree.File_Tree_Node_Summary;
    begin
-      if Hit.Zone = Outside_File_Tree
-        or else Hit.Zone = File_Tree_Background_Zone
+      if Hit.Row = 0
         or else Hit.Node_Id = Editor.File_Tree.No_File_Tree_Node
-        or else not Editor.File_Tree.Contains (Tree, Hit.Node_Id)
+        or else Hit.Zone = Outside_File_Tree
+        or else Hit.Zone = File_Tree_Background_Zone
       then
          return No_File_Tree_Action;
       end if;
 
-      Node := Editor.File_Tree.Node (Tree, Hit.Node_Id);
-      if Node.Kind = Editor.File_Tree.Directory_Node then
+      Summary := Visible_Row_Summary (Config, Tree, Hit.Row);
+      if Summary.Id = Editor.File_Tree.No_File_Tree_Node
+        or else Hit.Node_Id /= Summary.Id
+      then
+         return No_File_Tree_Action;
+      end if;
+      return Action_For_Summary (Summary, Hit.Zone);
+   end Action_For_Hit;
+
+   function Action_For_Summary
+     (Summary : Editor.File_Tree.File_Tree_Node_Summary;
+      Zone    : File_Tree_View_Zone) return File_Tree_Action
+   is
+   begin
+      if Summary.Id = Editor.File_Tree.No_File_Tree_Node
+        or else Zone = Outside_File_Tree
+        or else Zone = File_Tree_Background_Zone
+      then
+         return No_File_Tree_Action;
+      elsif Summary.Kind = Editor.File_Tree.Directory_Node then
          return Toggle_Directory_Action;
-      elsif Hit.Zone = File_Tree_Row_Zone
-        or else Hit.Zone = File_Tree_Label_Zone
+      elsif Zone = File_Tree_Row_Zone
+        or else Zone = File_Tree_Label_Zone
       then
          return Open_File_Action;
       else
          return No_File_Tree_Action;
       end if;
-   end Action_For_Hit;
+   end Action_For_Summary;
 
    function Safe_Display_Label
      (Node : Editor.File_Tree.File_Tree_Node_Summary) return String
@@ -707,5 +709,30 @@ package body Editor.File_Tree_View is
          end if;
       end;
    end Format_Row_Text;
+
+   function Visible_Row_Summary
+     (Config    : File_Tree_View_Config;
+      Tree      : Editor.File_Tree.File_Tree_State;
+      Row_Index : Positive) return Editor.File_Tree.File_Tree_Node_Summary
+   is
+      Visible : constant Editor.File_Tree.Visible_File_Tree_Row :=
+        Editor.File_Tree.Visible_Row (Tree, Row_Index);
+      Node : Editor.File_Tree.File_Tree_Node_Summary :=
+        Editor.File_Tree.Node (Tree, Visible.Node_Id);
+   begin
+      if Node.Id = Editor.File_Tree.No_File_Tree_Node then
+         return Node;
+      end if;
+
+      if (not Config.Show_Root) and then Node.Id = Editor.File_Tree.Root (Tree) then
+         return (others => <>);
+      end if;
+
+      if not Config.Show_Root and then Node.Depth > 0 then
+         Node.Depth := Node.Depth - 1;
+      end if;
+
+      return Node;
+   end Visible_Row_Summary;
 
 end Editor.File_Tree_View;

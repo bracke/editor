@@ -242,25 +242,4 @@ package body Editor.Executor.Panel_Focus_Commands is
       return Editor.Command_Execution.Executed (Id);
    end Execute_Panel_Focus_Command;
 
-   procedure Execute_Panel_Focus_Kind
-     (S    : in out Editor.State.State_Type;
-      Kind : Editor.Commands.Command_Kind)
-   is
-   begin
-      case Kind is
-         when Editor.Commands.Toggle_Problems_Panel =>
-            Execute_Toggle_Problems_Panel (S);
-         when Editor.Commands.Focus_Editor_Text =>
-            Execute_Focus_Editor_Text (S);
-         when Editor.Commands.Focus_Search_Results =>
-            Execute_Focus_Search_Results (S);
-         when Editor.Commands.Focus_Problems =>
-            Execute_Focus_Problems (S);
-         when Editor.Commands.Toggle_Bottom_Panel_Focus =>
-            Execute_Toggle_Bottom_Panel_Focus (S);
-         when others =>
-            null;
-      end case;
-   end Execute_Panel_Focus_Kind;
-
 end Editor.Executor.Panel_Focus_Commands;

@@ -14,10 +14,6 @@ package Editor.Executor.Panel_Focus_Commands is
       Id : Editor.Commands.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result;
 
-   procedure Execute_Panel_Focus_Kind
-     (S    : in out Editor.State.State_Type;
-      Kind : Editor.Commands.Command_Kind);
-
    procedure Execute_Toggle_Problems_Panel
      (S : in out Editor.State.State_Type);
 

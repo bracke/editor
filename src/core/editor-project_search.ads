@@ -472,6 +472,12 @@ package Editor.Project_Search is
       Project : Editor.Project.Project_State;
       Options : Project_Search_Options);
 
+   procedure Search_Known_Project_Files
+     (State   : in out Project_Search_State;
+      Tree    : Editor.File_Tree.File_Tree_State;
+      Project : Editor.Project.Project_State;
+      Options : Project_Search_Options);
+
    --  canonical cleanup predicates.  These helpers intentionally
    --  expose only structural invariants: Project Search owns query, selection,
    --  retained search results, and retained search options.  It does not own

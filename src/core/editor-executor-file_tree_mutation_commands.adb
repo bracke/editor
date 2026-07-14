@@ -14,6 +14,7 @@ with Editor.Build_UI;
 with Editor.Commands;
 with Editor.Executor;
 with Editor.Executor.Semantic_Index_Commands;
+with Editor.Executor.Project_Search_Result_Commands;
 with Editor.Executor.Shared_Services;
 use Editor.Executor.Shared_Services;
 with Editor.Feature_Diagnostics;
@@ -749,14 +750,11 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
          end if;
 
          Editor.Executor.Validate_File_Tree_View (S);
-         Editor.Project_Search.Mark_Stale (S.Project_Search);
-         --  completeness: File Tree mutations invalidate Quick Open
-         --  candidates even while the Quick Open overlay is visible.  Do not
-         --  silently recompute here: the mutation path owns filesystem
-         --  consistency, while Quick Open owns explicit candidate discovery.
-         --  Keeping the open/query/filter UI state but clearing stale rows
-         --  prevents accepting a pre-mutation candidate after create/rename/delete.
-         Editor.Quick_Open.Mark_Stale (S.Quick_Open);
+         Editor.Executor.Project_Search_Result_Commands
+           .Refresh_Project_Search_After_File_Lifecycle (S);
+         if Editor.Quick_Open.Is_Open (S.Quick_Open) then
+            Editor.Executor.Recompute_Quick_Open (S);
+         end if;
       else
          --  completeness: after a filesystem mutation, a failed
          --  refresh must not leave pre-mutation File Tree rows or known-file
@@ -915,7 +913,6 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
       --  Command Palette rows, keybinding payloads, or persisted operation data.
       Editor.Project_Search.Mark_Stale_Unconditionally (S.Project_Search);
       Editor.Project_Search.Mark_Replace_Preview_Stale (S.Project_Search);
-      Editor.Quick_Open.Mark_Stale (S.Quick_Open);
 
       --  File Tree create/rename/delete changes the set
       --  of project source paths independently of active-buffer commands.

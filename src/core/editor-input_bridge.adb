@@ -14,6 +14,7 @@ with Editor.Input_Bridge.Gutter_Pointer_Handlers;
 with Editor.Input_Bridge.Build_UI_Pointer_Handlers;
 with Editor.Input_Bridge.Build_UI_Key_Handlers;
 with Editor.Input_Bridge.Buffer_Switcher_Key_Handlers;
+with Editor.Input_Bridge.Keybinding_Handlers;
 with Editor.Input_Bridge.Key_Chord_Routing;
 with Editor.Input_Bridge.Panel_Bars_Pointer_Handlers;
 with Editor.Input_Bridge.Panel_Feature_Problems_Pointer_Handlers;
@@ -165,8 +166,6 @@ use type Editor.Project_Search_Bar.Project_Search_Bar_Field;
 use type Editor.Panel_Focus.Bottom_Focus_Content;
 use type Editor.Overlay_Focus.Overlay_Target;
 use type Editor.Keybindings.Key_Code;
-use type Editor.Keybinding_Management.Keybinding_Capture_State;
-use type Editor.Keybinding_Management.Keybinding_Action_Status;
 use type Editor.Guided_Prompts.Prompt_Kind;
    The_Editor : Editor.Instance.Editor_Instance;
    Initialized : Boolean := False;
@@ -465,26 +464,11 @@ use type Editor.Guided_Prompts.Prompt_Kind;
       end if;
 
       Editor.Guided_Prompts.Mark_Confirmed (The_Editor.State.Guided_Prompt);
-      --  keybinding capture has its own typed
-      --  transient chord and must not re-execute the prompt-start command.  It
-      --  completes through Keybinding_Management, which stores only normalized
-      --  chord -> stable command-name mappings after explicit success and keeps
-      --  conflicts pending instead of silently replacing them.
-      if The_Editor.State.Guided_Prompt.Kind =
-        Editor.Guided_Prompts.Keybinding_Capture_Prompt
+      if Editor.Input_Bridge.Keybinding_Handlers
+        .Is_Keybinding_Capture_Prompt (The_Editor.State.Guided_Prompt)
       then
-         declare
-            Status : Editor.Keybinding_Management.Keybinding_Action_Status;
-            Chord  : constant Editor.Keybindings.Key_Chord :=
-              Editor.Guided_Prompts.Captured_Key_Chord
-                (The_Editor.State.Guided_Prompt);
-         begin
-            Editor.Guided_Prompts.Clear (The_Editor.State.Guided_Prompt);
-            Editor.Keybinding_Management.Assign_Selected
-              (Chord, Confirm_Conflict => False, Status => Status);
-            Report_Info
-              (Editor.Keybinding_Management.Action_Status_Label (Status));
-         end;
+         Editor.Input_Bridge.Keybinding_Handlers.Confirm_Keybinding_Capture
+           (The_Editor.State.Guided_Prompt, Report_Info'Access);
       else
          --  Completion re-enters Executor through the original stable command
          --  id. Prompt input remains transient; it is copied only into the one
@@ -1712,12 +1696,10 @@ use type Editor.Guided_Prompts.Prompt_Kind;
       if Editor.Guided_Prompts.Is_Active (The_Editor.State.Guided_Prompt) then
          case Cmd.Kind is
             when Editor.Commands.Insert_Text_Input =>
-               if The_Editor.State.Guided_Prompt.Kind =
-                 Editor.Guided_Prompts.Keybinding_Capture_Prompt
+               if Editor.Input_Bridge.Keybinding_Handlers
+                 .Consume_Keybinding_Text_Input
+                   (The_Editor.State.Guided_Prompt, Cmd)
                then
-                  --  Keybinding capture owns keyboard chords, not text input.
-                  --  Character text events must not become prompt payload or edit
-                  --  the active buffer while capture is active.
                   null;
                elsif Cmd.Ch = ASCII.LF or else Cmd.Ch = ASCII.CR then
                   Accept_Guided_Prompt_Enter;

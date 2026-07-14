@@ -311,49 +311,4 @@ package body Editor.Executor.Feature_Panel_Commands is
       end case;
    end Execute_Feature_Panel_Command;
 
-   procedure Execute_Feature_Panel_Kind
-     (S    : in out Editor.State.State_Type;
-      Kind : Editor.Commands.Command_Kind)
-   is
-      procedure Run (Id : Editor.Commands.Command_Id);
-
-      procedure Run (Id : Editor.Commands.Command_Id)
-      is
-         Result : constant Editor.Command_Execution.Command_Execution_Result :=
-           Execute_Feature_Panel_Command (S, Id);
-         pragma Unreferenced (Result);
-      begin
-         null;
-      end Run;
-   begin
-      case Kind is
-         when Toggle_Feature_Panel =>
-            Run (Command_Toggle_Feature_Panel);
-
-         when Show_Feature_Panel =>
-            Run (Command_Show_Feature_Panel);
-
-         when Hide_Feature_Panel =>
-            Run (Command_Hide_Feature_Panel);
-
-         when Focus_Feature_Panel =>
-            Run (Command_Focus_Feature_Panel);
-
-         when Clear_Feature_Panel =>
-            Run (Command_Clear_Feature_Panel);
-
-         when Feature_Panel_Select_Next =>
-            Run (Command_Feature_Panel_Select_Next);
-
-         when Feature_Panel_Select_Previous =>
-            Run (Command_Feature_Panel_Select_Previous);
-
-         when Feature_Panel_Open_Selected =>
-            Run (Command_Feature_Panel_Open_Selected);
-
-         when others =>
-            raise Program_Error with "unsupported feature-panel command kind";
-      end case;
-   end Execute_Feature_Panel_Kind;
-
 end Editor.Executor.Feature_Panel_Commands;
