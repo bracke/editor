@@ -47,6 +47,14 @@ jobs:
           repository: ${{ github.repository_owner }}/textrender
           path: textrender
 
+      # The editor asks hostkit to run its external tools -- a compiler, with its output
+      # captured and a deadline on it -- so hostkit is a path pin like the others.
+      - name: Check out hostkit sibling
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/hostkit
+          path: hostkit
+
       - name: Install system libraries (Linux)
         if: runner.os == 'Linux'
         run: |
