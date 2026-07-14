@@ -19,7 +19,11 @@ jobs:
   build-and-test:
     name: build-and-test (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 60
+    # The editor is big -- 5567 tests, and the whole of guikit and textrender underneath
+    # it. Ubuntu takes about 40 minutes; the Windows and macOS runners are slower and were
+    # being cancelled mid-build at 60, having linked cleanly. This is a backstop against a
+    # hang, not a budget: it should never be reached.
+    timeout-minutes: 150
     env:
       ALIRE_NONINTERACTIVE: "true"
     strategy:
