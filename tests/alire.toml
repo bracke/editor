@@ -20,8 +20,15 @@ aunit = "^26.0.0"
 [[depends-on]]
 textrender = "*"
 
+# editor_core withs guikit.gpr now -- it depends on the crate rather than compiling its
+# sources -- so the tests root, which builds editor_core, needs it on the project path
+# too. It built locally only because a sibling checkout happened to be there.
+[[depends-on]]
+guikit = "*"
+
 [[pins]]
 textrender = { path="../../textrender" }
+guikit = { path="../../guikit" }
 
 # Build dependencies in the development profile (-Og) too, not the default release
 # (-O3). -O3 is a lot of optimisation for code we are about to run a test suite over,
