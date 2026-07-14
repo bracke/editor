@@ -1,3 +1,4 @@
+with AUnit;
 with AUnit.Reporter.Text;
 with AUnit.Options;
 with AUnit.Run;
@@ -9,8 +10,13 @@ with Editor.Build_Command;
 with Editor.Fonts.Init;
 with Editor.Recent_Projects;
 
+--  Test_Runner exits zero whatever happens, so this suite could not fail: a failing
+--  test reported success, "alr test" was green over it, and nothing would ever have
+--  said otherwise. A check that cannot fail is not a check.
 procedure Tests is
-   procedure Runner is new AUnit.Run.Test_Runner (All_Suites.Suite);
+   use type AUnit.Status;
+
+   function Runner is new AUnit.Run.Test_Runner_With_Status (All_Suites.Suite);
    Reporter : AUnit.Reporter.Text.Text_Reporter;
    Options  : AUnit.Options.AUnit_Options := AUnit.Options.Default_Options;
    Filter   : aliased AUnit.Test_Filters.Name_Filter;
@@ -22,7 +28,10 @@ begin
       Options.Filter := Filter'Unchecked_Access;
    end if;
 
-   Runner (Reporter, Options);
+   if Runner (Reporter, Options) /= AUnit.Success then
+      Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
+   end if;
+
    Editor.Build_Command.Stop_Public_Build_Workers_For_Application_Exit;
 exception
    when others =>

@@ -1,0 +1,165 @@
+name: ci
+
+# Builds the editor and runs its AUnit suite on Linux, macOS and Windows.
+#
+# There was no CI at all, and the suite could not fail even when run: tests.adb used
+# AUnit's Test_Runner, which exits zero whatever happens. So a red suite reported
+# success and "alr test" was green over it. Both are fixed; this is what makes the
+# result mean something.
+#
+# PREREQUISITE: editor pins textrender and guikit by local path, so both must exist as
+# sibling checkouts or the manifest will not load.
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    name: build-and-test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    env:
+      ALIRE_NONINTERACTIVE: "true"
+    strategy:
+      fail-fast: false
+      matrix:
+        # An x86_64 macOS image is required: gnat_native=15.2.1 ships no aarch64-darwin
+        # binary, so macos-latest (arm64) cannot resolve the pin.
+        os: [ubuntu-latest, macos-15-intel, windows-latest]
+
+    steps:
+      - name: Check out editor
+        uses: actions/checkout@v4
+        with:
+          path: editor
+
+      - name: Check out guikit sibling
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/guikit
+          path: guikit
+
+      - name: Check out textrender sibling
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/textrender
+          path: textrender
+
+      - name: Install system libraries (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          # openglada_glfw's Linker_Options require the X11 libraries below; without them
+          # everything compiles and the link then fails on -lXxf86vm.
+          sudo apt-get install -y --no-install-recommends \
+            libvulkan-dev \
+            libgdk-pixbuf-2.0-dev \
+            libglib2.0-dev \
+            mesa-vulkan-drivers \
+            fonts-dejavu-core \
+            libxcursor-dev \
+            libxxf86vm-dev \
+            libxrandr-dev \
+            libxinerama-dev \
+            libxi-dev
+          sudo apt-get install -y libaunit-dev \
+            || sudo apt-get install -y libaunit22-dev \
+            || sudo apt-get install -y libaunit24-dev
+
+      - name: Install system libraries (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew update
+          brew install vulkan-headers vulkan-loader molten-vk glfw gdk-pixbuf
+
+          # Homebrew on the x86_64 runner installs under /usr/local, which is not on the
+          # linker's default search path.
+          echo "LIBRARY_PATH=$(brew --prefix)/lib" >> "$GITHUB_ENV"
+
+      - name: Install system libraries (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          # Alire's gnat_native is a mingw-w64 toolchain, so its `ld` needs mingw import
+          # libraries (libvulkan-1.dll.a). The chocolatey vulkan-sdk ships MSVC .lib
+          # files, which that linker cannot use -- take the libraries from the MSYS2
+          # installation preinstalled on the runner instead.
+          pacman() { /c/msys64/usr/bin/pacman "$@"; }
+
+          # The runner's MSYS2 keyring goes stale, and the database then refuses to sync
+          # at all. Refresh it, and fall back to an unsigned sync if the signed one still
+          # will not go -- a throwaway CI image installing four well-known libraries is
+          # not a machine whose supply chain we are defending.
+          pacman-key() { /c/msys64/usr/bin/pacman-key "$@"; }
+          pacman-key --init || true
+          pacman-key --populate msys2 || true
+
+          packages="mingw-w64-x86_64-vulkan-loader
+                    mingw-w64-x86_64-glib2
+                    mingw-w64-x86_64-gdk-pixbuf2
+                    mingw-w64-x86_64-glfw"
+
+          # The mirrors stall often enough to matter -- a sync dies on "less than 1
+          # bytes/sec" rather than on anything we did -- so give each one room to be slow
+          # and retry before concluding otherwise.
+          sync() {
+            pacman -Sy --noconfirm --needed --disable-download-timeout "$@" $packages
+          }
+
+          synced=""
+          for attempt in 1 2 3; do
+            if sync; then synced=yes; break; fi
+            echo "::warning::pacman sync attempt ${attempt} failed"
+            sleep 15
+          done
+
+          if [ -z "$synced" ]; then
+            echo "::warning::signed pacman sync failed; retrying without signature checks"
+            # This step runs in Git Bash, whose /tmp is NOT the /tmp of the MSYS2
+            # installation that owns this pacman. Hand both a path they agree on.
+            sed 's/^SigLevel.*/SigLevel = Never/' /c/msys64/etc/pacman.conf \
+              > /c/msys64/tmp/pacman-nosig.conf
+            for attempt in 1 2 3; do
+              if sync --config C:/msys64/tmp/pacman-nosig.conf; then synced=yes; break; fi
+              echo "::warning::unsigned pacman sync attempt ${attempt} failed"
+              sleep 15
+            done
+          fi
+
+          [ -n "$synced" ] || { echo "::error::could not install the MSYS2 packages"; exit 1; }
+
+          echo "LIBRARY_PATH=C:/msys64/mingw64/lib" >> "$GITHUB_ENV"
+          echo "C:\msys64\mingw64\bin" >> "$GITHUB_PATH"
+
+      - name: Set up Alire
+        # v5 defaults to alr 2.1.0, whose index carries gnat_native 15.2.1.
+        uses: alire-project/setup-alire@v5
+        with:
+          toolchain: gnat_native=15.2.1 gprbuild
+
+      - name: Build the editor
+        shell: bash
+        working-directory: editor
+        run: alr --non-interactive build
+
+      - name: Build and run the test suite
+        shell: bash
+        working-directory: editor/tests
+        run: |
+          alr --non-interactive build
+          # The binary is tests.exe on Windows, and bash will not find it under the Unix
+          # name.
+          if [ -f ./bin/tests.exe ]; then
+            export PATH="/c/msys64/mingw64/bin:$PATH"
+            # A missing DLL makes Windows refuse to start the process, and bash reports
+            # that as a bare "not found" (exit 127) naming nothing.
+            if ldd ./bin/tests.exe | grep -i 'not found'; then
+              echo "::error::the test binary has unresolved DLL imports (listed above)"
+              exit 1
+            fi
+            ./bin/tests.exe
+          else
+            ./bin/tests
+          fi

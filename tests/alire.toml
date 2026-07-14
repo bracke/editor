@@ -22,3 +22,10 @@ textrender = "*"
 
 [[pins]]
 textrender = { path="../../textrender" }
+
+# Build dependencies in the development profile (-Og) too, not the default release
+# (-O3). -O3 is a lot of optimisation for code we are about to run a test suite over,
+# and it does not fix a latent bug -- it hides one: it kept an uninitialised read in a
+# sibling crate invisible until the profile changed.
+[build-profiles]
+"*" = "development"

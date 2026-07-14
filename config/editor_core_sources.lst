@@ -1199,6 +1199,7 @@ editor-folding.ads
 editor-font_bridge.adb
 editor-font_bridge.ads
 editor-font_config.ads
+editor-font_config.adb
 editor-fonts-init.adb
 editor-fonts-init.ads
 editor-fonts.adb
