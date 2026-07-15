@@ -159,6 +159,16 @@ jobs:
       - name: Build and run the test suite
         shell: bash
         working-directory: editor/tests
+        env:
+          # Point the font probe at a real TrueType .ttf per host, rather than trust it to
+          # find one. On macOS the obvious monospace font is Menlo.ttc, a collection -- which
+          # textrender now reads, but Arial is a plain .ttf that files already proved loads on
+          # this runner, so there is no guessing. Windows Consolas likewise. On Linux the
+          # probe finds DejaVu from fonts-dejavu-core and needs no help.
+          EDITOR_FONT_PATH: >-
+            ${{ runner.os == 'macOS' && '/System/Library/Fonts/Supplemental/Arial.ttf'
+            || runner.os == 'Windows' && 'C:/Windows/Fonts/consola.ttf'
+            || '' }}
         run: |
           alr --non-interactive build
 
