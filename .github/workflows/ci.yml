@@ -160,13 +160,14 @@ jobs:
         shell: bash
         working-directory: editor/tests
         env:
-          # Point the font probe at a real TrueType .ttf per host, rather than trust it to
-          # find one. On macOS the obvious monospace font is Menlo.ttc, a collection -- which
-          # textrender now reads, but Arial is a plain .ttf that files already proved loads on
-          # this runner, so there is no guessing. Windows Consolas likewise. On Linux the
-          # probe finds DejaVu from fonts-dejavu-core and needs no help.
+          # Point the font probe at a real MONOSPACE TrueType .ttf per host. The editor is a
+          # grid, and one test asserts the cell width fits the font's advance -- so the font
+          # has to be monospace, which Arial is not (it cleared the empty-atlas failures but
+          # left the two that need a fixed advance). Courier New sits in the same Supplemental
+          # directory Arial proved is populated; Windows Consolas is likewise monospace. Linux
+          # finds DejaVu Sans Mono on its own.
           EDITOR_FONT_PATH: >-
-            ${{ runner.os == 'macOS' && '/System/Library/Fonts/Supplemental/Arial.ttf'
+            ${{ runner.os == 'macOS' && '/System/Library/Fonts/Supplemental/Courier New.ttf'
             || runner.os == 'Windows' && 'C:/Windows/Fonts/consola.ttf'
             || '' }}
         run: |
