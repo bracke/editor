@@ -146,6 +146,23 @@ jobs:
           echo "LIBRARY_PATH=C:/msys64/mingw64/lib" >> "$GITHUB_ENV"
           echo "C:\msys64\mingw64\bin" >> "$GITHUB_PATH"
 
+      - name: Exclude the build tree from Windows Defender
+        if: runner.os == 'Windows'
+        shell: pwsh
+        # Compiling this many units spawns tens of thousands of short-lived processes and
+        # writes as many intermediate .o and .s files, and Defender inspects each one through
+        # its filter driver. On a codebase this size that scanning is a large part of why the
+        # Windows build runs hours where macOS runs minutes. Exclude the paths the build
+        # actually touches -- the workspace and Alire's build cache -- so the compiler is not
+        # racing an antivirus for every temporary file. Best-effort: if the runner will not
+        # allow it, the build is only slow, not broken.
+        run: |
+          $paths = @("${{ github.workspace }}", "$env:LOCALAPPDATA\alire", "$env:USERPROFILE\.cache\alire", "C:\msys64")
+          foreach ($p in $paths) {
+            try { Add-MpPreference -ExclusionPath $p -ErrorAction Stop; Write-Host "excluded $p" }
+            catch { Write-Warning "could not exclude $p: $_" }
+          }
+
       - name: Set up Alire
         # v5 defaults to alr 2.1.0, whose index carries gnat_native 15.2.1.
         uses: alire-project/setup-alire@v5
