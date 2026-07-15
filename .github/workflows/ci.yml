@@ -172,7 +172,12 @@ jobs:
             || runner.os == 'Windows' && 'C:/Windows/Fonts/consola.ttf'
             || '' }}
         run: |
-          alr --non-interactive build
+          # Build only the tests.adb executable, not all seventeen. tests.gpr declares a main
+          # per focused subset, and each statically links the whole editor -- seventeen slow
+          # mingw links, sixteen of them for binaries CI never runs. tests.adb runs the full
+          # 5567 on its own (via All_Suites), so it is the only one needed, and building just
+          # it is the difference between a build that finishes on Windows and one that does not.
+          alr --non-interactive exec -- gprbuild -j0 -p -P tests.gpr tests.adb
 
           # Through "alr exec", because the suite runs the compiler: the external-producer
           # tests drive gnat to get real diagnostics, and Alire's toolchain is only on PATH
