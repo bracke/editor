@@ -1,3 +1,4 @@
+with Editor.Test_Temp;
 with AUnit.Assertions;  use AUnit.Assertions;
 with Ada.Containers;
 with AUnit.Test_Cases;
@@ -1128,7 +1129,7 @@ package body Editor.Clipboard.Tests is
       S           : Editor.State.State_Type;
       Project_Dir : constant String :=
         Ada.Directories.Compose
-          (Ada.Directories.Compose ("/tmp", "editor-tests"),
+          (Ada.Directories.Compose (Editor.Test_Temp.Base & "", "editor-tests"),
            "clipboard_project_lifecycle");
    begin
       Reset_Transient_State;

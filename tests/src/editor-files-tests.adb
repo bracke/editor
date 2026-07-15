@@ -1,3 +1,4 @@
+with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with Ada.Containers;
 with Ada.Directories;
@@ -432,7 +433,7 @@ package body Editor.Files.Tests is
       S             : Editor.State.State_Type;
       Path          : constant String := Temp_Path ("alias.txt");
       Alias_Path    : constant String :=
-        "/tmp/editor-tests/../editor-tests/alias.txt";
+        Editor.Test_Temp.Base & "/editor-tests/../editor-tests/alias.txt";
       First_Id      : Editor.Buffers.Buffer_Id;
       Before_Count  : Natural;
    begin

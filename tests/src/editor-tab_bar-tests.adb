@@ -1,3 +1,4 @@
+with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -39,11 +40,11 @@ package body Editor.Tab_Bar.Tests is
    is
    begin
       First := Editor.Buffers.Add_Buffer_From_File
-        (Registry, "/tmp/alpha.adb", "alpha.adb", "alpha");
+        (Registry, Editor.Test_Temp.Base & "/alpha.adb", "alpha.adb", "alpha");
       Second := Editor.Buffers.Add_Buffer_From_File
-        (Registry, "/tmp/beta.adb", "beta.adb", "beta");
+        (Registry, Editor.Test_Temp.Base & "/beta.adb", "beta.adb", "beta");
       Third := Editor.Buffers.Add_Buffer_From_File
-        (Registry, "/tmp/gamma.adb", "gamma.adb", "gamma");
+        (Registry, Editor.Test_Temp.Base & "/gamma.adb", "gamma.adb", "gamma");
    end Build_Three_Buffers;
 
    procedure Test_Height_Follows_Config
@@ -195,9 +196,9 @@ package body Editor.Tab_Bar.Tests is
       Second_Summary : Editor.Buffers.Buffer_Summary;
    begin
       First := Editor.Buffers.Add_Buffer_From_File
-        (Registry, "/tmp/one/main.adb", "main.adb", "one");
+        (Registry, Editor.Test_Temp.Base & "/one/main.adb", "main.adb", "one");
       Second := Editor.Buffers.Add_Buffer_From_File
-        (Registry, "/tmp/two/main.adb", "main.adb", "two");
+        (Registry, Editor.Test_Temp.Base & "/two/main.adb", "main.adb", "two");
 
       First_Summary := Editor.Buffers.Summary_For (Registry, First);
       Second_Summary := Editor.Buffers.Summary_For (Registry, Second);

@@ -1,3 +1,4 @@
+with Editor.Test_Temp;
 with Ada.Characters.Handling;
 with Editor.Test_Helper;
 with Editor.Pending_Transitions;
@@ -110,7 +111,7 @@ package body Editor.Outline.Tests is
 
    function Temp_Path (Name : String) return String is
    begin
-      return "/tmp/editor_outline_" & Name;
+      return Editor.Test_Temp.Base & "/editor_outline_" & Name;
    end Temp_Path;
 
    procedure Remove_If_Exists (Path : String) is

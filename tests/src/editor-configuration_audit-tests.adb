@@ -1,3 +1,4 @@
+with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Directories;
@@ -44,7 +45,7 @@ package body Editor.Configuration_Audit.Tests is
 
    function Temp_Path (Name : String) return String is
    begin
-      return "/tmp/editor_" & Name;
+      return Editor.Test_Temp.Base & "/editor_" & Name;
    end Temp_Path;
 
    procedure Delete_If_Exists (Path : String) is
@@ -290,11 +291,11 @@ package body Editor.Configuration_Audit.Tests is
       Editor.Settings.Set_Line_Number_Mode_Name (Model, "relative");
       Editor.Settings.Set_Command_Palette_Show_Keybindings (Model, False);
       Editor.State.Apply_Settings (S, Model);
-      Install_Project (S, "/tmp/editor-a", "editor-a");
+      Install_Project (S, Editor.Test_Temp.Base & "/editor-a", "editor-a");
       S.File_Info.Dirty := True;
       Editor.Recent_Projects.Clear (S.Recent_Projects);
       Editor.Recent_Projects.Add_Or_Promote
-        (S.Recent_Projects, "/tmp/editor-a", "editor-a", 108);
+        (S.Recent_Projects, Editor.Test_Temp.Base & "/editor-a", "editor-a", 108);
 
       Summary := Editor.Configuration_Audit.Configuration_State_Summary_For (S);
 
@@ -475,7 +476,7 @@ package body Editor.Configuration_Audit.Tests is
       After  : Editor.Configuration_Audit.Configuration_State_Summary;
       Target : constant Editor.Pending_Transitions.Pending_Transition_Target :=
         (Kind       => Editor.Pending_Transitions.Pending_Open_Project,
-         Path       => To_Unbounded_String ("/tmp/editor-b"),
+         Path       => To_Unbounded_String (Editor.Test_Temp.Base & "/editor-b"),
          Display    => To_Unbounded_String ("editor-b"),
          Buffer_Id  => 0,
          Has_Buffer => False,
@@ -493,11 +494,11 @@ package body Editor.Configuration_Audit.Tests is
       Ada.Environment_Variables.Set ("EDITOR_SETTINGS_PATH", Settings_Path);
       Ada.Environment_Variables.Set ("EDITOR_KEYBINDINGS_PATH", Keybindings_Path);
       Simulate_Startup_Config_Load (S, Settings_Path, Keybindings_Path);
-      Install_Project (S, "/tmp/editor-a", "editor-a");
+      Install_Project (S, Editor.Test_Temp.Base & "/editor-a", "editor-a");
       Editor.State.Load_Text (S, "dirty text");
       S.File_Info :=
         (Has_Path     => True,
-         Path         => To_Unbounded_String ("/tmp/editor-a/main.adb"),
+         Path         => To_Unbounded_String (Editor.Test_Temp.Base & "/editor-a/main.adb"),
          Display_Name => To_Unbounded_String ("main.adb"),
          Dirty        => True,
          others       => <>);
@@ -541,13 +542,13 @@ package body Editor.Configuration_Audit.Tests is
 
       Assert (Ada.Strings.Fixed.Index (To_String (Settings_Text), "Ctrl+Alt+S") = 0,
               "settings file must not contain keybinding chords");
-      Assert (Ada.Strings.Fixed.Index (To_String (Settings_Text), "/tmp/editor-") = 0,
+      Assert (Ada.Strings.Fixed.Index (To_String (Settings_Text), Editor.Test_Temp.Base & "/editor-") = 0,
               "settings file must not contain project paths");
       Assert (Ada.Strings.Fixed.Index (To_String (Keybindings_Text), "show-keybindings") = 0,
               "keybindings file must not contain settings keys");
       Assert (Ada.Strings.Fixed.Index (To_String (Keybindings_Text), "line-numbers") = 0,
               "keybindings file must not contain settings-owned keys");
-      Assert (Ada.Strings.Fixed.Index (To_String (Keybindings_Text), "/tmp/editor-") = 0,
+      Assert (Ada.Strings.Fixed.Index (To_String (Keybindings_Text), Editor.Test_Temp.Base & "/editor-") = 0,
               "keybindings file must not contain project paths");
       Delete_If_Exists (Settings_Path);
       Delete_If_Exists (Keybindings_Path);
@@ -930,7 +931,7 @@ package body Editor.Configuration_Audit.Tests is
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Editor.Buffers.Global_Add_File_Buffer
-        ("/tmp/editor-/selected.adb", "selected.adb", "procedure Selected is begin null; end;", Id);
+        (Editor.Test_Temp.Base & "/editor-/selected.adb", "selected.adb", "procedure Selected is begin null; end;", Id);
       Editor.Buffers.Global_Set_Active_Buffer (Id);
       Editor.Buffer_Switcher.Open (S.Buffer_Switcher);
       Editor.Buffer_Switcher.Recompute_Rows
@@ -1026,7 +1027,7 @@ package body Editor.Configuration_Audit.Tests is
       Target.Display := To_Unbounded_String ("reload.adb");
       Target.Buffer_Id := 77;
       Target.Has_Buffer := True;
-      Target.Path := To_Unbounded_String ("/tmp/editor-/reload.adb");
+      Target.Path := To_Unbounded_String (Editor.Test_Temp.Base & "/editor-/reload.adb");
       Target.Has_Path := True;
       Target.Observed_File_Status_Code := 2;
       Target.Has_Observed_File_Status := True;
@@ -1084,7 +1085,7 @@ package body Editor.Configuration_Audit.Tests is
       Editor.Keybindings.Reset_To_Defaults;
       S.File_Conflict_Prompt_Active := True;
       S.File_Conflict_Prompt_Buffer := 91;
-      S.File_Conflict_Prompt_Path := To_Unbounded_String ("/tmp/editor-/conflicted.adb");
+      S.File_Conflict_Prompt_Path := To_Unbounded_String (Editor.Test_Temp.Base & "/editor-/conflicted.adb");
       S.File_Conflict_Prompt_Display := To_Unbounded_String ("conflicted.adb");
       S.File_Conflict_Prompt_Kind := Editor.State.External_Modified_While_Dirty;
       S.File_Conflict_Prompt_Dirty := True;
@@ -1234,7 +1235,7 @@ package body Editor.Configuration_Audit.Tests is
       Editor.Keybindings.Reset_To_Defaults;
       Editor.State.Init (S);
       S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String ("/tmp/editor-/preserved.adb");
+      S.File_Info.Path := To_Unbounded_String (Editor.Test_Temp.Base & "/editor-/preserved.adb");
       S.File_Info.Display_Name := To_Unbounded_String ("preserved.adb");
       S.File_Info.Dirty := True;
       Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);

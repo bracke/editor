@@ -1,3 +1,4 @@
+with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Containers;
@@ -45,9 +46,9 @@ package body Editor.Project.Tests is
 
    function Temp_Path (Name : String) return String is
    begin
-      Ada.Directories.Create_Path ("/tmp/editor-tests");
+      Ada.Directories.Create_Path (Editor.Test_Temp.Base & "/editor-tests");
       return Ada.Directories.Compose
-        ("/tmp/editor-tests", "" & Name);
+        (Editor.Test_Temp.Base & "/editor-tests", "" & Name);
    end Temp_Path;
 
    procedure Remove_If_Exists (Path : String) is
@@ -712,7 +713,7 @@ package body Editor.Project.Tests is
       Editor.Recent_Projects.Set_Config_Directory_For_Tests (Config_Dir);
       Editor.State.Init (S);
       Editor.Recent_Projects.Add_Or_Promote
-        (S.Recent_Projects, "/tmp/editor", "editor", 1);
+        (S.Recent_Projects, Editor.Test_Temp.Base & "/editor", "editor", 1);
 
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Clear_Recent_Projects);

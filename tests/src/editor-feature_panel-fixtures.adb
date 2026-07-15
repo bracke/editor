@@ -1,3 +1,4 @@
+with Editor.Test_Temp;
 with Editor.State;
 with Ada.Directories;
 with Editor.Project;
@@ -115,7 +116,7 @@ package body Editor.Feature_Panel.Fixtures is
      return Editor.State.State_Type
    is
       S : Editor.State.State_Type := State_With_Feature_Panel_Rows;
-      Path   : constant String := "/tmp/editor-project";
+      Path   : constant String := Editor.Test_Temp.Base & "/editor-project";
       Result : Editor.Project.Project_Open_Result;
    begin
       if not Ada.Directories.Exists (Path) then
@@ -149,7 +150,7 @@ package body Editor.Feature_Panel.Fixtures is
       S : Editor.State.State_Type := State_With_Feature_Panel_Rows;
       Target : Editor.Pending_Transitions.Pending_Transition_Target :=
         (Kind       => Editor.Pending_Transitions.Pending_Open_Project,
-         Path       => Ada.Strings.Unbounded.To_Unbounded_String ("/tmp/next"),
+         Path       => Ada.Strings.Unbounded.To_Unbounded_String (Editor.Test_Temp.Base & "/next"),
          Display    => Ada.Strings.Unbounded.To_Unbounded_String ("next"),
          Buffer_Id  => 0,
          Has_Buffer => False,

@@ -1,3 +1,4 @@
+with Editor.Test_Temp;
 with Ada.Directories;
 with Ada.Streams;
 with Ada.Streams.Stream_IO;
@@ -19,8 +20,8 @@ package body Editor.Files.Test_Helpers is
 
    function Temp_Path (Name : String) return String is
    begin
-      Ada.Directories.Create_Path ("/tmp/editor-tests");
-      return Ada.Directories.Compose ("/tmp/editor-tests", Name);
+      Ada.Directories.Create_Path (Editor.Test_Temp.Base & "/editor-tests");
+      return Ada.Directories.Compose (Editor.Test_Temp.Base & "/editor-tests", Name);
    end Temp_Path;
 
    procedure Write_Bytes (Path : String; Bytes : String) is

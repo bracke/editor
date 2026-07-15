@@ -1,3 +1,4 @@
+with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with Ada.Containers;
 with Ada.Directories;
@@ -271,10 +272,10 @@ package body Editor.Files.Target_Prompt_Metadata_Tests is
       Editor.Messages.Clear (S.Messages);
       Editor.Command_Palette.Reset;
       Editor.Command_Palette.Open;
-      Editor.Command_Palette.Insert_Text ("/tmp/from-palette-query.adb");
-      Editor.Clipboard.Set_Text (To_Unbounded_String ("/tmp/from-clipboard.adb"));
-      S.Active_Find_Query := To_Unbounded_String ("/tmp/from-find.adb");
-      S.Active_Replace_Text := To_Unbounded_String ("/tmp/from-replace.adb");
+      Editor.Command_Palette.Insert_Text (Editor.Test_Temp.Base & "/from-palette-query.adb");
+      Editor.Clipboard.Set_Text (To_Unbounded_String (Editor.Test_Temp.Base & "/from-clipboard.adb"));
+      S.Active_Find_Query := To_Unbounded_String (Editor.Test_Temp.Base & "/from-find.adb");
+      S.Active_Replace_Text := To_Unbounded_String (Editor.Test_Temp.Base & "/from-replace.adb");
 
       for Id in Editor.Commands.Command_Id loop
          Assert (Editor.Executor.Shared_Services.Command_Requires_Explicit_Target (Id) = Is_Target_Command (Id),
@@ -437,7 +438,7 @@ package body Editor.Files.Target_Prompt_Metadata_Tests is
       Assert (not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S),
         "Command Palette projection must be side-effect-free and must not open prompts");
 
-      Editor.Command_Palette.Insert_Text ("/tmp/query-must-not-be-target.adb");
+      Editor.Command_Palette.Insert_Text (Editor.Test_Temp.Base & "/query-must-not-be-target.adb");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File_As);
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S)
         and then Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (S) = "",
@@ -649,11 +650,11 @@ procedure Test_Target_Prompt_No_Inference_State_And_Persistence_Cleanup
       Editor.Messages.Clear (S.Messages);
       Editor.Command_Palette.Reset;
       Editor.Command_Palette.Open;
-      Editor.Command_Palette.Insert_Text ("/tmp/command-palette-query.adb");
-      Editor.Clipboard.Set_Text (To_Unbounded_String ("/tmp/clipboard-target.adb"));
-      S.Active_Find_Query := To_Unbounded_String ("/tmp/find-target.adb");
-      S.Active_Replace_Text := To_Unbounded_String ("/tmp/replace-target.adb");
-      S.Reopen_Candidate_Path := To_Unbounded_String ("/tmp/reopen-target.adb");
+      Editor.Command_Palette.Insert_Text (Editor.Test_Temp.Base & "/command-palette-query.adb");
+      Editor.Clipboard.Set_Text (To_Unbounded_String (Editor.Test_Temp.Base & "/clipboard-target.adb"));
+      S.Active_Find_Query := To_Unbounded_String (Editor.Test_Temp.Base & "/find-target.adb");
+      S.Active_Replace_Text := To_Unbounded_String (Editor.Test_Temp.Base & "/replace-target.adb");
+      S.Reopen_Candidate_Path := To_Unbounded_String (Editor.Test_Temp.Base & "/reopen-target.adb");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File_As);
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S)
@@ -673,10 +674,10 @@ procedure Test_Target_Prompt_No_Inference_State_And_Persistence_Cleanup
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (S) = Target,
         "prompt editing must be owned by the canonical prompt input helper");
       Assert (Buffer_Text (S) = Before_Text
-        and then To_String (S.Active_Find_Query) = "/tmp/find-target.adb"
-        and then To_String (S.Active_Replace_Text) = "/tmp/replace-target.adb"
+        and then To_String (S.Active_Find_Query) = Editor.Test_Temp.Base & "/find-target.adb"
+        and then To_String (S.Active_Replace_Text) = Editor.Test_Temp.Base & "/replace-target.adb"
         and then Editor.Clipboard.Has_Text
-        and then To_String (Editor.Clipboard.Get_Text) = "/tmp/clipboard-target.adb",
+        and then To_String (Editor.Clipboard.Get_Text) = Editor.Test_Temp.Base & "/clipboard-target.adb",
         "prompt input must not leak into buffer, find/replace, or clipboard state");
 
       Workspace := Editor.State.Build_Workspace_Snapshot (S);
@@ -897,11 +898,11 @@ procedure Test_Target_Prompt_Final_Input_Overlay_Audit_And_Persistence_Freeze
       Editor.Messages.Clear (S.Messages);
       Editor.Command_Palette.Reset;
       Editor.Command_Palette.Open;
-      Editor.Command_Palette.Insert_Text ("/tmp/palette-query-must-not-be-target.txt");
-      Editor.Clipboard.Set_Text (To_Unbounded_String ("/tmp/clipboard-must-not-be-target.txt"));
-      S.Active_Find_Query := To_Unbounded_String ("/tmp/find-must-not-be-target.txt");
-      S.Active_Replace_Text := To_Unbounded_String ("/tmp/replace-must-not-be-target.txt");
-      S.Reopen_Candidate_Path := To_Unbounded_String ("/tmp/reopen-must-not-be-target.txt");
+      Editor.Command_Palette.Insert_Text (Editor.Test_Temp.Base & "/palette-query-must-not-be-target.txt");
+      Editor.Clipboard.Set_Text (To_Unbounded_String (Editor.Test_Temp.Base & "/clipboard-must-not-be-target.txt"));
+      S.Active_Find_Query := To_Unbounded_String (Editor.Test_Temp.Base & "/find-must-not-be-target.txt");
+      S.Active_Replace_Text := To_Unbounded_String (Editor.Test_Temp.Base & "/replace-must-not-be-target.txt");
+      S.Reopen_Candidate_Path := To_Unbounded_String (Editor.Test_Temp.Base & "/reopen-must-not-be-target.txt");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy_Buffer_File);
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S)
@@ -919,10 +920,10 @@ procedure Test_Target_Prompt_Final_Input_Overlay_Audit_And_Persistence_Freeze
       Editor.Executor.File_Target_Prompt_Commands.Delete_Forward_File_Target_Prompt (S);
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (S) = Target
         and then Buffer_Text (S) = Before_Text
-        and then To_String (S.Active_Find_Query) = "/tmp/find-must-not-be-target.txt"
-        and then To_String (S.Active_Replace_Text) = "/tmp/replace-must-not-be-target.txt"
+        and then To_String (S.Active_Find_Query) = Editor.Test_Temp.Base & "/find-must-not-be-target.txt"
+        and then To_String (S.Active_Replace_Text) = Editor.Test_Temp.Base & "/replace-must-not-be-target.txt"
         and then Editor.Clipboard.Has_Text
-        and then To_String (Editor.Clipboard.Get_Text) = "/tmp/clipboard-must-not-be-target.txt",
+        and then To_String (Editor.Clipboard.Get_Text) = Editor.Test_Temp.Base & "/clipboard-must-not-be-target.txt",
         "prompt input edits must remain local to focused prompt state and not leak into buffer/find/replace/clipboard");
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);

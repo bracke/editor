@@ -1,3 +1,4 @@
+with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Directories;
@@ -75,7 +76,7 @@ package body Editor.Settings.Tests is
 
    function Temp_Path (Name : String) return String is
    begin
-      return "/tmp/editor_" & Name;
+      return Editor.Test_Temp.Base & "/editor_" & Name;
    end Temp_Path;
 
    procedure Remove_If_Exists (Path : String) is
@@ -364,8 +365,8 @@ package body Editor.Settings.Tests is
    procedure Test_Settings_Model_Round_Trip_Deterministic
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Path    : constant String := "/tmp/editor_settings_roundtrip.txt";
-      Path_2  : constant String := "/tmp/editor_settings_roundtrip_2.txt";
+      Path    : constant String := Editor.Test_Temp.Base & "/editor_settings_roundtrip.txt";
+      Path_2  : constant String := Editor.Test_Temp.Base & "/editor_settings_roundtrip_2.txt";
       Model   : Editor.Settings.Settings_Model;
       Loaded  : Editor.Settings.Settings_Model;
       Status  : Editor.Settings.Settings_Status;
@@ -400,9 +401,9 @@ package body Editor.Settings.Tests is
    procedure Test_Settings_Load_Statuses
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Missing : constant String := "/tmp/editor_settings_missing.txt";
-      Invalid : constant String := "/tmp/editor_settings_invalid.txt";
-      Future  : constant String := "/tmp/editor_settings_future.txt";
+      Missing : constant String := Editor.Test_Temp.Base & "/editor_settings_missing.txt";
+      Invalid : constant String := Editor.Test_Temp.Base & "/editor_settings_invalid.txt";
+      Future  : constant String := Editor.Test_Temp.Base & "/editor_settings_future.txt";
       Model   : Editor.Settings.Settings_Model;
       Status  : Editor.Settings.Settings_Status;
    begin
@@ -425,7 +426,7 @@ package body Editor.Settings.Tests is
    procedure Test_Settings_Partial_Load_Defaults_Invalid_Optional_Value
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Path   : constant String := "/tmp/editor_settings_partial.txt";
+      Path   : constant String := Editor.Test_Temp.Base & "/editor_settings_partial.txt";
       Model  : Editor.Settings.Settings_Model;
       Status : Editor.Settings.Settings_Status;
    begin
@@ -738,7 +739,7 @@ package body Editor.Settings.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path   : constant String := "/tmp/editor_settings_only.txt";
+      Path   : constant String := Editor.Test_Temp.Base & "/editor_settings_only.txt";
       Model  : Editor.Settings.Settings_Model;
       Status : Editor.Settings.Settings_Status;
       Text   : Unbounded_String;
@@ -799,7 +800,7 @@ package body Editor.Settings.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path   : constant String := "/tmp/editor_settings_excludes_buffer_list.txt";
+      Path   : constant String := Editor.Test_Temp.Base & "/editor_settings_excludes_buffer_list.txt";
       S      : Editor.State.State_Type;
       Status : Editor.Settings.Settings_Status;
       Text   : Unbounded_String;
@@ -850,7 +851,7 @@ package body Editor.Settings.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path   : constant String := "/tmp/editor_missing_fields.txt";
+      Path   : constant String := Editor.Test_Temp.Base & "/editor_missing_fields.txt";
       Model  : Editor.Settings.Settings_Model;
       Status : Editor.Settings.Settings_Status;
    begin
@@ -883,7 +884,7 @@ package body Editor.Settings.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Blocker : constant String := "/tmp/editor_settings_blocker";
+      Blocker : constant String := Editor.Test_Temp.Base & "/editor_settings_blocker";
       Path    : constant String := Blocker & "/settings";
       S       : Editor.State.State_Type;
       Found   : Boolean := False;
@@ -913,7 +914,7 @@ package body Editor.Settings.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path   : constant String := "/tmp/editor_malformed_reload.txt";
+      Path   : constant String := Editor.Test_Temp.Base & "/editor_malformed_reload.txt";
       S      : Editor.State.State_Type;
       Model  : Editor.Settings.Settings_Model;
       Found  : Boolean := False;
@@ -958,7 +959,7 @@ package body Editor.Settings.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path   : constant String := "/tmp/editor_empty_settings.txt";
+      Path   : constant String := Editor.Test_Temp.Base & "/editor_empty_settings.txt";
       Model  : Editor.Settings.Settings_Model;
       Status : Editor.Settings.Settings_Status;
    begin
@@ -978,8 +979,8 @@ package body Editor.Settings.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path_A : constant String := "/tmp/editor_settings_a.txt";
-      Path_B : constant String := "/tmp/editor_settings_b.txt";
+      Path_A : constant String := Editor.Test_Temp.Base & "/editor_settings_a.txt";
+      Path_B : constant String := Editor.Test_Temp.Base & "/editor_settings_b.txt";
       Model  : Editor.Settings.Settings_Model;
       Loaded : Editor.Settings.Settings_Model;
       Status : Editor.Settings.Settings_Status;
@@ -1040,13 +1041,13 @@ package body Editor.Settings.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Settings_Path : constant String := "/tmp/editor_command_settings.txt";
+      Settings_Path : constant String := Editor.Test_Temp.Base & "/editor_command_settings.txt";
       Before : Editor.Lifecycle_Audit.Lifecycle_State_Summary;
       After  : Editor.Lifecycle_Audit.Lifecycle_State_Summary;
       Result : Editor.Lifecycle_Audit.Lifecycle_Audit_Result;
       Target : constant Editor.Pending_Transitions.Pending_Transition_Target :=
         (Kind       => Editor.Pending_Transitions.Pending_Open_Project,
-         Path       => To_Unbounded_String ("/tmp/editor-b"),
+         Path       => To_Unbounded_String (Editor.Test_Temp.Base & "/editor-b"),
          Display    => To_Unbounded_String ("editor-b"),
          Buffer_Id  => 0,
          Has_Buffer => False,
@@ -1059,18 +1060,18 @@ package body Editor.Settings.Tests is
       Delete_If_Exists (Settings_Path);
       Ada.Environment_Variables.Set ("EDITOR_SETTINGS_PATH", Settings_Path);
       Editor.State.Init (S);
-      Install_Project_For_Settings (S, "/tmp/editor-a", "editor-a");
+      Install_Project_For_Settings (S, Editor.Test_Temp.Base & "/editor-a", "editor-a");
       Editor.State.Load_Text (S, "dirty text");
       S.File_Info :=
         (Has_Path     => True,
-         Path         => To_Unbounded_String ("/tmp/editor-a/main.adb"),
+         Path         => To_Unbounded_String (Editor.Test_Temp.Base & "/editor-a/main.adb"),
          Display_Name => To_Unbounded_String ("main.adb"),
          Dirty        => True,
          others       => <>);
       Editor.Pending_Transitions.Set_Pending
         (S.Pending_Transitions, Target, Dirty);
       Editor.Recent_Projects.Add_Or_Promote
-        (S.Recent_Projects, "/tmp/editor-a", "editor-a", 104);
+        (S.Recent_Projects, Editor.Test_Temp.Base & "/editor-a", "editor-a", 104);
 
       Before := Editor.Lifecycle_Audit.State_Summary (S);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_Settings);
@@ -1106,7 +1107,7 @@ package body Editor.Settings.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path   : constant String := "/tmp/editor_toggle_persistence.txt";
+      Path   : constant String := Editor.Test_Temp.Base & "/editor_toggle_persistence.txt";
       S      : Editor.State.State_Type;
       Loaded : Editor.Settings.Settings_Model;
       Status : Editor.Settings.Settings_Status;

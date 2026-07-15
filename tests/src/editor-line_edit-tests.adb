@@ -1,3 +1,4 @@
+with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Directories;
@@ -728,7 +729,7 @@ package body Editor.Line_Edit.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path   : constant String := "/tmp/editor-removed-name-line-keybindings";
+      Path   : constant String := Editor.Test_Temp.Base & "/editor-removed-name-line-keybindings";
       File   : Ada.Text_IO.File_Type;
       Config : Editor.Keybinding_Config.Keybinding_Config_Model;
       Status : Editor.Keybinding_Config.Keybinding_Config_Status;

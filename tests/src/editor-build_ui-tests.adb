@@ -1,3 +1,4 @@
+with Editor.Test_Temp;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -439,14 +440,14 @@ package body Editor.Build_UI.Tests is
       Raw : constant Editor.Build_Working_Context.Build_Working_Context_Record :=
         Editor.Build_Working_Context.Unsafe_Context
           (Editor.Build_Working_Context.Build_Working_Context_Unavailable,
-           "/tmp/build", Editor.Build_Working_Context.Working_Context_Source_Raw_Text,
-           "/tmp/build");
+           Editor.Test_Temp.Base & "/build", Editor.Build_Working_Context.Working_Context_Source_Raw_Text,
+           Editor.Test_Temp.Base & "/build");
       Shell : constant Editor.Build_Working_Context.Build_Working_Context_Record :=
         Editor.Build_Working_Context.Unsafe_Context
           (Editor.Build_Working_Context.Build_Working_Context_Unavailable,
            "cd /tmp && alr build",
            Editor.Build_Working_Context.Working_Context_Source_Shell_Derived,
-           "/tmp");
+           Editor.Test_Temp.Base & "");
       Metadata : constant Editor.Build_Working_Context.Build_Working_Context_Record :=
         Editor.Build_Working_Context.Unsafe_Context
           (Editor.Build_Working_Context.Build_Working_Context_Current_Project_Root,
@@ -500,9 +501,9 @@ package body Editor.Build_UI.Tests is
       S.Selected_Working_Context :=
         Editor.Build_Working_Context.Unsafe_Context
           (Editor.Build_Working_Context.Build_Working_Context_Unavailable,
-           "/tmp/build",
+           Editor.Test_Temp.Base & "/build",
            Editor.Build_Working_Context.Working_Context_Source_Raw_Text,
-           "/tmp/build");
+           Editor.Test_Temp.Base & "/build");
       Editor.Build_UI.Acknowledge_Consent (S);
       C := Editor.Build_Public_Request.Build_Public_Request_From_UI_State (S);
       Assert (C.Status = Editor.Build_UI.Build_UI_Rejected_Unsafe_Working_Context,

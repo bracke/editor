@@ -1,3 +1,4 @@
+with Editor.Test_Temp;
 with Ada.Directories;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -41,8 +42,8 @@ package body Editor.Build_Candidates.Tests is
 
    function Fixture_Root return String is
    begin
-      Ada.Directories.Create_Path ("/tmp/editor-tests");
-      return "/tmp/editor-tests/candidate_fixture";
+      Ada.Directories.Create_Path (Editor.Test_Temp.Base & "/editor-tests");
+      return Editor.Test_Temp.Base & "/editor-tests/candidate_fixture";
    end Fixture_Root;
 
    procedure Write_File (Path : String; Text : String := "") is
@@ -1114,8 +1115,8 @@ package body Editor.Build_Candidates.Tests is
 
    function Lifecycle_Root (Suffix : String) return String is
    begin
-      Ada.Directories.Create_Path ("/tmp/editor-tests");
-      return "/tmp/editor-tests/lifecycle_" & Suffix;
+      Ada.Directories.Create_Path (Editor.Test_Temp.Base & "/editor-tests");
+      return Editor.Test_Temp.Base & "/editor-tests/lifecycle_" & Suffix;
    end Lifecycle_Root;
 
    procedure Reset_Lifecycle_Root (Suffix : String) is
@@ -1858,11 +1859,11 @@ package body Editor.Build_Candidates.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Root : constant String := "/tmp/editor-tests/$safe;root";
+      Root : constant String := Editor.Test_Temp.Base & "/editor-tests/$safe;root";
       Context : Editor.Build_Working_Context.Build_Working_Context_Record;
       R : Editor.Build_Candidate_Discovery.Build_Candidate_Discovery_Result;
    begin
-      Ada.Directories.Create_Path ("/tmp/editor-tests");
+      Ada.Directories.Create_Path (Editor.Test_Temp.Base & "/editor-tests");
       if Ada.Directories.Exists (Root) then
          Ada.Directories.Delete_Tree (Root);
       end if;

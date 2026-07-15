@@ -1,3 +1,4 @@
+with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Characters.Handling;
@@ -36,7 +37,7 @@ package body Editor.Keybindings.Tests is
 
    function Temp_Path (Name : String) return String is
    begin
-      return "/tmp/editor_" & Name & ".keybindings";
+      return Editor.Test_Temp.Base & "/editor_" & Name & ".keybindings";
    end Temp_Path;
 
    procedure Write_File (Path : String; Text : String) is

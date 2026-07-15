@@ -1,3 +1,4 @@
+with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Containers; use type Ada.Containers.Count_Type;
@@ -543,7 +544,7 @@ package body Editor.Command_Surface.Product_Surface_Tests is
       Path   : out Unbounded_String;
       Node   : out Editor.File_Tree.File_Tree_Node_Summary)
    is
-      Root : constant String := "/tmp/editor_affordance_tree";
+      Root : constant String := Editor.Test_Temp.Base & "/editor_affordance_tree";
       File_Path : constant String := Root & "/a.txt";
       Found : Boolean := False;
       Node_Id : Editor.File_Tree.File_Tree_Node_Id;
@@ -575,8 +576,8 @@ package body Editor.Command_Surface.Product_Surface_Tests is
    procedure Test_Configuration_Command_Domain_Isolation
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Settings_Path : constant String := "/tmp/editor-tests/command-surface-settings.tmp";
-      Keybindings_Path : constant String := "/tmp/editor-tests/command-surface-keybindings.tmp";
+      Settings_Path : constant String := Editor.Test_Temp.Base & "/editor-tests/command-surface-settings.tmp";
+      Keybindings_Path : constant String := Editor.Test_Temp.Base & "/editor-tests/command-surface-keybindings.tmp";
 
       procedure Check (Id : Editor.Commands.Command_Id; Label : String) is
          S              : Editor.State.State_Type;
@@ -601,7 +602,7 @@ package body Editor.Command_Surface.Product_Surface_Tests is
                  Label & " must not create or clear pending transitions");
       end Check;
    begin
-      Ada.Directories.Create_Path ("/tmp/editor-tests");
+      Ada.Directories.Create_Path (Editor.Test_Temp.Base & "/editor-tests");
       Ada.Environment_Variables.Set
         ("EDITOR_SETTINGS_PATH", Settings_Path);
       Ada.Environment_Variables.Set

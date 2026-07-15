@@ -1,3 +1,4 @@
+with Editor.Test_Temp;
 with Ada.Containers;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -120,7 +121,7 @@ package body Editor.External_Producers.Tests is
 
    procedure Name_Current_Buffer
      (S            : in out Editor.State.State_Type;
-      Path         : String := "/tmp/main.adb";
+      Path         : String := Editor.Test_Temp.Base & "/main.adb";
       Display_Name : String := "main.adb")
    is
       File : Editor.State.File_State := S.File_Info;
@@ -559,7 +560,7 @@ package body Editor.External_Producers.Tests is
       R : Editor.External_Producers.External_Diagnostic_Record;
    begin
       Prepare_State (S);
-      Name_Current_Buffer (S, Path => "/tmp/main.adb", Display_Name => "main.adb");
+      Name_Current_Buffer (S, Path => Editor.Test_Temp.Base & "/main.adb", Display_Name => "main.adb");
       R := Editor.External_Producers.Normalize_Compiler_Diagnostic
         (S, Compiler_Source,
          CRec ("other file", File_Label => "other.adb",

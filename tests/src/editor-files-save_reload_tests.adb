@@ -1,3 +1,4 @@
+with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with Ada.Containers;
 with Ada.Directories;
@@ -925,7 +926,7 @@ package body Editor.Files.Save_Reload_Tests is
          Is_Dirty     => False,
          Is_Active    => False,
          Has_Path     => True,
-         Path         => To_Unbounded_String ("/tmp/project/demo.adb"),
+         Path         => To_Unbounded_String (Editor.Test_Temp.Base & "/project/demo.adb"),
          Last_Save_Failed   => False,
          Last_Reload_Failed => True,
          Last_Revert_Failed => False,
@@ -1216,7 +1217,7 @@ package body Editor.Files.Save_Reload_Tests is
          Is_Dirty     => True,
          Is_Active    => True,
          Has_Path     => True,
-         Path         => To_Unbounded_String ("/tmp/project/demo.adb"),
+         Path         => To_Unbounded_String (Editor.Test_Temp.Base & "/project/demo.adb"),
          Last_Save_Failed   => True,
          Last_Reload_Failed => False,
          Last_Revert_Failed => False,
@@ -1273,7 +1274,7 @@ package body Editor.Files.Save_Reload_Tests is
          Is_Dirty     => True,
          Is_Active    => False,
          Has_Path     => True,
-         Path         => To_Unbounded_String ("/tmp/project/demo.adb"),
+         Path         => To_Unbounded_String (Editor.Test_Temp.Base & "/project/demo.adb"),
          Last_Save_Failed   => True,
          Last_Reload_Failed => False,
          Last_Revert_Failed => False,

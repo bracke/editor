@@ -1,3 +1,4 @@
+with Editor.Test_Temp;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -704,7 +705,7 @@ package body Editor.Go_To_Line.Tests is
       Editor.Project_Search.Set_Status
         (S.Project_Search, Editor.Project_Search.Project_Search_Ok);
       Editor.Bookmarks.Toggle
-        (S.Bookmarks, "/tmp/a.adb", "a.adb", 1, 0, False, Added);
+        (S.Bookmarks, Editor.Test_Temp.Base & "/a.adb", "a.adb", 1, 0, False, Added);
       Editor.Buffer_Switcher.Open (S.Buffer_Switcher);
       Editor.Buffer_Switcher.Set_Filter_Text
         (S.Buffer_Switcher, "switch-query");

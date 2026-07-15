@@ -1,3 +1,4 @@
+with Editor.Test_Temp;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Containers;
 with Ada.Directories;
@@ -251,7 +252,7 @@ package body Editor.Terminal_Tasks.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Root : constant String := "/tmp/editor-terminal-tasks-project";
+      Root : constant String := Editor.Test_Temp.Base & "/editor-terminal-tasks-project";
       S : Editor.State.State_Type;
       Snapshot : Editor.Terminal_Tasks.Terminal_Task_Render_Snapshot;
       Build_Seen : Boolean := False;
@@ -345,7 +346,7 @@ package body Editor.Terminal_Tasks.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Root : constant String := "/tmp/editor-terminal-tasks-command-project";
+      Root : constant String := Editor.Test_Temp.Base & "/editor-terminal-tasks-command-project";
       S : Editor.State.State_Type;
       Result : Editor.Command_Execution.Command_Execution_Result;
       Snapshot : Editor.Terminal_Tasks.Terminal_Task_Render_Snapshot;
@@ -372,7 +373,7 @@ package body Editor.Terminal_Tasks.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Root : constant String := "/tmp/editor-terminal-tasks-profile-project";
+      Root : constant String := Editor.Test_Temp.Base & "/editor-terminal-tasks-profile-project";
       S : Editor.Terminal_Tasks.Terminal_Task_State;
       Request : Editor.External_Producers.Process_Run_Request;
    begin

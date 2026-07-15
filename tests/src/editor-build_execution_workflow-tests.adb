@@ -1,3 +1,4 @@
+with Editor.Test_Temp;
 with Ada.Directories;
 with Ada.Text_IO;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -45,8 +46,8 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
 
    function Fixture_Root return String is
    begin
-      Ada.Directories.Create_Path ("/tmp/editor-tests");
-      return "/tmp/editor-tests/execution_fixture";
+      Ada.Directories.Create_Path (Editor.Test_Temp.Base & "/editor-tests");
+      return Editor.Test_Temp.Base & "/editor-tests/execution_fixture";
    end Fixture_Root;
 
    procedure Write_File (Path : String; Text : String := "") is

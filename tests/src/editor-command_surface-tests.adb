@@ -1,3 +1,4 @@
+with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Containers; use type Ada.Containers.Count_Type;
@@ -1786,7 +1787,7 @@ package body Editor.Command_Surface.Tests is
       Path   : out Unbounded_String;
       Node   : out Editor.File_Tree.File_Tree_Node_Summary)
    is
-      Root : constant String := "/tmp/editor_affordance_tree";
+      Root : constant String := Editor.Test_Temp.Base & "/editor_affordance_tree";
       File_Path : constant String := Root & "/a.txt";
       Found : Boolean := False;
       Node_Id : Editor.File_Tree.File_Tree_Node_Id;

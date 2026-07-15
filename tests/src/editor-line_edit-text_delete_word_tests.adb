@@ -1,3 +1,4 @@
+with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Directories;
@@ -1484,7 +1485,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Palette_Prev   : Natural := 0;
       Palette_Next   : Natural := 0;
       Candidates     : Editor.Commands.Command_Descriptor_Vectors.Vector;
-      Path           : constant String := "/tmp/editor-canonical-word-delete-keybindings";
+      Path           : constant String := Editor.Test_Temp.Base & "/editor-canonical-word-delete-keybindings";
       File           : Ada.Text_IO.File_Type;
       Config         : Editor.Keybinding_Config.Keybinding_Config_Model;
       Status         : Editor.Keybinding_Config.Keybinding_Config_Status;

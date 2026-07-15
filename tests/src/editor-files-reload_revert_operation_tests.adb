@@ -1,3 +1,4 @@
+with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with Ada.Containers;
 with Ada.Directories;
@@ -329,7 +330,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
 
       S.Has_Reopen_Candidate := True;
-      S.Reopen_Candidate_Path := To_Unbounded_String ("/tmp/unrelated-reopen.txt");
+      S.Reopen_Candidate_Path := To_Unbounded_String (Editor.Test_Temp.Base & "/unrelated-reopen.txt");
       S.Reopen_Candidate_Label := To_Unbounded_String ("unrelated");
       Write_Bytes (Path, Exact);
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
@@ -337,7 +338,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Assert (Buffer_Text (S) = Exact,
         "reload must preserve empty lines, spaces, tabs, punctuation, and trailing newlines exactly");
       Assert (S.Has_Reopen_Candidate
-        and then To_String (S.Reopen_Candidate_Path) = "/tmp/unrelated-reopen.txt",
+        and then To_String (S.Reopen_Candidate_Path) = Editor.Test_Temp.Base & "/unrelated-reopen.txt",
         "reload must not consume, create, or clear reopen candidate state");
       Assert (Read_Bytes (Path) = Exact,
         "reload must not write, format, trim, or normalize the disk file");

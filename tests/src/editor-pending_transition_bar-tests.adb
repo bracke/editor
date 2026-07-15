@@ -1,3 +1,4 @@
+with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Fixed;
@@ -39,7 +40,7 @@ package body Editor.Pending_Transition_Bar.Tests is
       State : Editor.Pending_Transitions.Pending_Transition_State;
       Target : constant Editor.Pending_Transitions.Pending_Transition_Target :=
         (Kind       => Kind,
-         Path       => To_Unbounded_String ("/tmp/target"),
+         Path       => To_Unbounded_String (Editor.Test_Temp.Base & "/target"),
          Display    => To_Unbounded_String (Display),
          Buffer_Id  => 7,
          Has_Buffer => Kind = Editor.Pending_Transitions.Pending_Close_Buffer,
@@ -269,7 +270,7 @@ package body Editor.Pending_Transition_Bar.Tests is
       State : Editor.Pending_Transitions.Pending_Transition_State;
       First_Target : constant Editor.Pending_Transitions.Pending_Transition_Target :=
         (Kind       => Editor.Pending_Transitions.Pending_Open_Project,
-         Path       => To_Unbounded_String ("/tmp/a"),
+         Path       => To_Unbounded_String (Editor.Test_Temp.Base & "/a"),
          Display    => To_Unbounded_String ("Project A"),
          Buffer_Id  => 0,
          Has_Buffer => False,
@@ -277,7 +278,7 @@ package body Editor.Pending_Transition_Bar.Tests is
          others     => <>);
       Second_Target : constant Editor.Pending_Transitions.Pending_Transition_Target :=
         (Kind       => Editor.Pending_Transitions.Pending_Open_Project,
-         Path       => To_Unbounded_String ("/tmp/b"),
+         Path       => To_Unbounded_String (Editor.Test_Temp.Base & "/b"),
          Display    => To_Unbounded_String ("Project B"),
          Buffer_Id  => 0,
          Has_Buffer => False,

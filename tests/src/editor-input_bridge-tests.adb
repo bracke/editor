@@ -1,3 +1,4 @@
+with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Directories;
@@ -81,9 +82,9 @@ package body Editor.Input_Bridge.Tests is
 
    function Temp_Path (Name : String) return String is
    begin
-      Ada.Directories.Create_Path ("/tmp/editor-tests");
+      Ada.Directories.Create_Path (Editor.Test_Temp.Base & "/editor-tests");
       return Ada.Directories.Compose
-        ("/tmp/editor-tests", "input_" & Name);
+        (Editor.Test_Temp.Base & "/editor-tests", "input_" & Name);
    end Temp_Path;
 
    procedure Remove_File_If_Exists (Path : String) is
@@ -1302,9 +1303,9 @@ package body Editor.Input_Bridge.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "recent focus");
       Editor.Recent_Projects.Add_Or_Promote
-        (S.Recent_Projects, "/tmp/recent-a", "recent-a", 1);
+        (S.Recent_Projects, Editor.Test_Temp.Base & "/recent-a", "recent-a", 1);
       Editor.Recent_Projects.Add_Or_Promote
-        (S.Recent_Projects, "/tmp/recent-b", "recent-b", 2);
+        (S.Recent_Projects, Editor.Test_Temp.Base & "/recent-b", "recent-b", 2);
       S.Recent_Projects_Focused := True;
       S.Recent_Project_Selected_Index := 1;
       Editor.Input_Bridge.Set_State_For_Test (S);
@@ -2904,7 +2905,7 @@ package body Editor.Input_Bridge.Tests is
          "Enter a file name or project-relative path inside the active project.",
          "File Tree",
          Confirm_Label => "Create");
-      Editor.Guided_Prompts.Update_Input (Prompt, "/tmp/outside.adb");
+      Editor.Guided_Prompts.Update_Input (Prompt, Editor.Test_Temp.Base & "/outside.adb");
       Snapshot := Editor.Guided_Prompts.Snapshot (Prompt);
       Assert (not Editor.Guided_Prompts.Ready (Prompt),
               "absolute create-file prompt input must block confirmation");

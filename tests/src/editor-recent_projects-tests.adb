@@ -1,3 +1,4 @@
+with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Directories;
@@ -36,9 +37,9 @@ package body Editor.Recent_Projects.Tests is
 
    function Temp_Path (Name : String) return String is
    begin
-      Ada.Directories.Create_Path ("/tmp/editor-tests");
+      Ada.Directories.Create_Path (Editor.Test_Temp.Base & "/editor-tests");
       return Ada.Directories.Compose
-        ("/tmp/editor-tests", "" & Name);
+        (Editor.Test_Temp.Base & "/editor-tests", "" & Name);
    end Temp_Path;
 
    procedure Remove_If_Exists (Path : String) is
@@ -100,15 +101,15 @@ package body Editor.Recent_Projects.Tests is
       Assert (Editor.Recent_Projects.Count (List) = 0,
               "new recent-project list must be empty");
 
-      Editor.Recent_Projects.Add_Or_Promote (List, "/tmp/editor", "editor", 10);
+      Editor.Recent_Projects.Add_Or_Promote (List, Editor.Test_Temp.Base & "/editor", "editor", 10);
       Assert (Editor.Recent_Projects.Count (List) = 1,
               "Add_Or_Promote must add an entry");
       Item := Editor.Recent_Projects.Item (List, 1);
       Assert (To_String (Item.Display_Name) = "editor",
               "Add_Or_Promote must store the display name");
 
-      Editor.Recent_Projects.Add_Or_Promote (List, "/tmp/database", "database", 20);
-      Editor.Recent_Projects.Add_Or_Promote (List, "/tmp/editor", "editor2", 30);
+      Editor.Recent_Projects.Add_Or_Promote (List, Editor.Test_Temp.Base & "/database", "database", 20);
+      Editor.Recent_Projects.Add_Or_Promote (List, Editor.Test_Temp.Base & "/editor", "editor2", 30);
       Assert (Editor.Recent_Projects.Count (List) = 2,
               "promoting an existing project must not duplicate it");
       Item := Editor.Recent_Projects.Item (List, 1);
@@ -124,18 +125,18 @@ package body Editor.Recent_Projects.Tests is
       Config : constant Editor.Recent_Projects.Recent_Project_Config :=
         (Max_Entries => 2);
    begin
-      Editor.Recent_Projects.Add_Or_Promote (List, "/tmp/a", "a", 1, Config);
-      Editor.Recent_Projects.Add_Or_Promote (List, "/tmp/b", "b", 2, Config);
-      Editor.Recent_Projects.Add_Or_Promote (List, "/tmp/c", "c", 3, Config);
+      Editor.Recent_Projects.Add_Or_Promote (List, Editor.Test_Temp.Base & "/a", "a", 1, Config);
+      Editor.Recent_Projects.Add_Or_Promote (List, Editor.Test_Temp.Base & "/b", "b", 2, Config);
+      Editor.Recent_Projects.Add_Or_Promote (List, Editor.Test_Temp.Base & "/c", "c", 3, Config);
       Assert (Editor.Recent_Projects.Count (List) = 2,
               "Max_Entries must cap the recent-project list");
       Assert (To_String (Editor.Recent_Projects.Item (List, 1).Display_Name) = "c",
               "newest entry must be first after cap normalization");
 
-      Editor.Recent_Projects.Remove (List, "/tmp/c/");
+      Editor.Recent_Projects.Remove (List, Editor.Test_Temp.Base & "/c/");
       Assert (Editor.Recent_Projects.Count (List) = 1,
               "Remove must delete a matching normalized path");
-      Editor.Recent_Projects.Remove (List, "/tmp/missing");
+      Editor.Recent_Projects.Remove (List, Editor.Test_Temp.Base & "/missing");
       Assert (Editor.Recent_Projects.Count (List) = 1,
               "Remove of a missing path must be a no-op");
    end Test_Max_Remove_And_Normalize;
@@ -151,8 +152,8 @@ package body Editor.Recent_Projects.Tests is
       Text : Unbounded_String;
    begin
       Remove_If_Exists (Path);
-      Editor.Recent_Projects.Add_Or_Promote (List, "/tmp/editor", "editor", 123);
-      Editor.Recent_Projects.Add_Or_Promote (List, "/tmp/database", "database", 124);
+      Editor.Recent_Projects.Add_Or_Promote (List, Editor.Test_Temp.Base & "/editor", "editor", 123);
+      Editor.Recent_Projects.Add_Or_Promote (List, Editor.Test_Temp.Base & "/database", "database", 124);
       Editor.Recent_Projects.Save_To_File (List, Path, Status);
       Assert (Status = Editor.Recent_Projects.Recent_Project_Ok,
               "Save_To_File must succeed for a writable path");
@@ -199,7 +200,7 @@ package body Editor.Recent_Projects.Tests is
          "editor-recent-projects-version=1" & ASCII.LF &
          "[projects]" & ASCII.LF &
          "not a valid entry" & ASCII.LF &
-         "/tmp/editor|name=editor|opened=44" & ASCII.LF);
+         Editor.Test_Temp.Base & "/editor|name=editor|opened=44" & ASCII.LF);
       Editor.Recent_Projects.Load_From_File (Malformed, List, Status);
       Assert (Status = Editor.Recent_Projects.Recent_Project_Partial_Load,
               "malformed project entries must be skipped and reported as partial recovery");
@@ -223,7 +224,7 @@ package body Editor.Recent_Projects.Tests is
    begin
       Remove_If_Exists (Path);
       Editor.Recent_Projects.Add_Or_Promote
-        (List, "/tmp/editor", "editor", 213);
+        (List, Editor.Test_Temp.Base & "/editor", "editor", 213);
       Editor.Recent_Projects.Save_To_File (List, Path, Status);
       Assert (Status = Editor.Recent_Projects.Recent_Project_Ok,
               "recent projects save should succeed for writable path");
@@ -255,7 +256,7 @@ package body Editor.Recent_Projects.Tests is
       Editor.State.Init (S);
 
       Editor.Recent_Projects.Add_Or_Promote
-        (S.Recent_Projects, "/tmp/editor-project", "editor-", 576);
+        (S.Recent_Projects, Editor.Test_Temp.Base & "/editor-project", "editor-", 576);
 
       --  Recent Projects persistence owns only project recency
       --  entries.  It must not serialize any transient Buffer List state even
@@ -350,7 +351,7 @@ package body Editor.Recent_Projects.Tests is
    begin
       Remove_If_Exists (Path);
       Editor.Recent_Projects.Add_Or_Promote
-        (List, "/tmp/editor-", "editor-", 559);
+        (List, Editor.Test_Temp.Base & "/editor-", "editor-", 559);
       Editor.Recent_Projects.Save_To_File (List, Path, Status);
       Assert (Status = Editor.Recent_Projects.Recent_Project_Ok,
               "recent projects save must succeed for lightweight entries");
@@ -438,7 +439,7 @@ package body Editor.Recent_Projects.Tests is
       Remove_If_Exists (Path);
 
       Editor.Recent_Projects.Add_Or_Promote
-        (List, "/tmp/|bad", "bad", 1);
+        (List, Editor.Test_Temp.Base & "/|bad", "bad", 1);
       Assert (Editor.Recent_Projects.Count (List) = 0,
               "unsupported pipe-delimited recent project references must be ignored before save");
 
@@ -446,8 +447,8 @@ package body Editor.Recent_Projects.Tests is
         (Path,
          "editor-recent-projects-version=1" & ASCII.LF &
          "[projects]" & ASCII.LF &
-         "/tmp/ok|name=ok|opened=2" & ASCII.LF &
-         "/tmp/|bad|name=bad|opened=3" & ASCII.LF);
+         Editor.Test_Temp.Base & "/ok|name=ok|opened=2" & ASCII.LF &
+         Editor.Test_Temp.Base & "/|bad|name=bad|opened=3" & ASCII.LF);
       Editor.Recent_Projects.Load_From_File (Path, Loaded, Status);
       Assert (Status = Editor.Recent_Projects.Recent_Project_Partial_Load,
               "unsupported recent project references must not invalidate the whole file and must be reported");
@@ -474,14 +475,14 @@ package body Editor.Recent_Projects.Tests is
       Label : Unbounded_String;
    begin
       Editor.Recent_Projects.Add_Or_Promote
-        (List, "/tmp/row", "row", 559);
+        (List, Editor.Test_Temp.Base & "/row", "row", 559);
       Label := To_Unbounded_String
         (Editor.Recent_Projects.Row_Label
            (Editor.Recent_Projects.Item (List, 1), Is_Selected => True));
 
       Assert (Ada.Strings.Fixed.Index (To_String (Label), "> row") = 1,
               "row label must carry a selected marker for the projected row");
-      Assert (Ada.Strings.Fixed.Index (To_String (Label), "/tmp/row") > 0,
+      Assert (Ada.Strings.Fixed.Index (To_String (Label), Editor.Test_Temp.Base & "/row") > 0,
               "row label must include the project path label");
       Assert (Ada.Strings.Fixed.Index (To_String (Label), "workspace") = 0,
               "row label must not project workspace state");

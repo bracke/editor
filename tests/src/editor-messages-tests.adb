@@ -1,3 +1,4 @@
+with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with Ada.Directories;
 with AUnit.Test_Cases;
@@ -99,9 +100,9 @@ package body Editor.Messages.Tests is
      (Name : String) return String
    is
    begin
-      Ada.Directories.Create_Path ("/tmp/editor-tests");
+      Ada.Directories.Create_Path (Editor.Test_Temp.Base & "/editor-tests");
       return Ada.Directories.Compose
-        ("/tmp/editor-tests", "" & Name);
+        (Editor.Test_Temp.Base & "/editor-tests", "" & Name);
    end Temp_Path;
 
    procedure Test_Push_Message_Makes_State_Non_Empty
@@ -416,7 +417,7 @@ package body Editor.Messages.Tests is
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String ("/tmp");
+      S.File_Info.Path := To_Unbounded_String (Editor.Test_Temp.Base & "");
       S.File_Info.Display_Name := To_Unbounded_String ("tmp");
       S.File_Info.Dirty := True;
       S.File_Info.File_Token_Known := False;

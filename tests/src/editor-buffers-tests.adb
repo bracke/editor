@@ -1,3 +1,4 @@
+with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Containers;
@@ -200,7 +201,7 @@ package body Editor.Buffers.Tests is
    is
       pragma Unreferenced (T);
       S    : Editor.State.State_Type;
-      Path : constant String := "/tmp/editor_open_once.txt";
+      Path : constant String := Editor.Test_Temp.Base & "/editor_open_once.txt";
       Id   : Editor.Buffers.Buffer_Id;
    begin
       Editor.Buffers.Reset_Global_For_Test;
@@ -235,7 +236,7 @@ package body Editor.Buffers.Tests is
       Untitled_Buffer : access Editor.State.State_Type;
    begin
       File_Id := Editor.Buffers.Add_Buffer_From_File
-        (Registry, "/tmp/.txt", ".txt", "disk");
+        (Registry, Editor.Test_Temp.Base & "/.txt", ".txt", "disk");
       Untitled := Editor.Buffers.Create_Untitled_Buffer (Registry);
 
       File_Buffer := Editor.Buffers.Buffer_Access (Registry, File_Id);
@@ -404,8 +405,8 @@ package body Editor.Buffers.Tests is
    is
       pragma Unreferenced (T);
       S      : Editor.State.State_Type;
-      A_Path : constant String := "/tmp/editor_save_as_a.txt";
-      B_Path : constant String := "/tmp/editor_save_as_b.txt";
+      A_Path : constant String := Editor.Test_Temp.Base & "/editor_save_as_a.txt";
+      B_Path : constant String := Editor.Test_Temp.Base & "/editor_save_as_b.txt";
       Old    : Editor.State.File_State;
       Found  : Boolean := False;
       M      : Editor.Messages.Editor_Message;
@@ -439,7 +440,7 @@ package body Editor.Buffers.Tests is
    is
       pragma Unreferenced (T);
       S    : Editor.State.State_Type;
-      Path : constant String := "/tmp/editor_first_open.txt";
+      Path : constant String := Editor.Test_Temp.Base & "/editor_first_open.txt";
       Row  : Editor.Buffers.Buffer_Summary;
    begin
       Editor.Buffers.Reset_Global_For_Test;
@@ -468,10 +469,10 @@ package body Editor.Buffers.Tests is
    is
       pragma Unreferenced (T);
       S          : Editor.State.State_Type;
-      A_Path     : constant String := "/tmp/editor_multi_a.txt";
-      B_Path     : constant String := "/tmp/editor_multi_b.txt";
-      C_Path     : constant String := "/tmp/editor_multi_c.txt";
-      Missing    : constant String := "/tmp/editor_missing.txt";
+      A_Path     : constant String := Editor.Test_Temp.Base & "/editor_multi_a.txt";
+      B_Path     : constant String := Editor.Test_Temp.Base & "/editor_multi_b.txt";
+      C_Path     : constant String := Editor.Test_Temp.Base & "/editor_multi_c.txt";
+      Missing    : constant String := Editor.Test_Temp.Base & "/editor_missing.txt";
       A_Id       : Editor.Buffers.Buffer_Id;
       B_Id       : Editor.Buffers.Buffer_Id;
       C_Id       : Editor.Buffers.Buffer_Id;
@@ -531,8 +532,8 @@ package body Editor.Buffers.Tests is
    is
       pragma Unreferenced (T);
       S      : Editor.State.State_Type;
-      A_Path : constant String := "/tmp/editor_dirty_a.txt";
-      B_Path : constant String := "/tmp/editor_dirty_b.txt";
+      A_Path : constant String := Editor.Test_Temp.Base & "/editor_dirty_a.txt";
+      B_Path : constant String := Editor.Test_Temp.Base & "/editor_dirty_b.txt";
       A_Id   : Editor.Buffers.Buffer_Id;
       B_Id   : Editor.Buffers.Buffer_Id;
    begin
@@ -607,8 +608,8 @@ package body Editor.Buffers.Tests is
    is
       pragma Unreferenced (T);
       S      : Editor.State.State_Type;
-      A_Path : constant String := "/tmp/editor_reload_a.txt";
-      B_Path : constant String := "/tmp/editor_reload_b.txt";
+      A_Path : constant String := Editor.Test_Temp.Base & "/editor_reload_a.txt";
+      B_Path : constant String := Editor.Test_Temp.Base & "/editor_reload_b.txt";
       A_Id   : Editor.Buffers.Buffer_Id;
       B_Id   : Editor.Buffers.Buffer_Id;
    begin
@@ -648,9 +649,9 @@ package body Editor.Buffers.Tests is
    is
       pragma Unreferenced (T);
       S      : Editor.State.State_Type;
-      A_Path : constant String := "/tmp/editor_close_a.txt";
-      B_Path : constant String := "/tmp/editor_close_b.txt";
-      C_Path : constant String := "/tmp/editor_close_c.txt";
+      A_Path : constant String := Editor.Test_Temp.Base & "/editor_close_a.txt";
+      B_Path : constant String := Editor.Test_Temp.Base & "/editor_close_b.txt";
+      C_Path : constant String := Editor.Test_Temp.Base & "/editor_close_c.txt";
       A_Id   : Editor.Buffers.Buffer_Id;
       B_Id   : Editor.Buffers.Buffer_Id;
       C_Id   : Editor.Buffers.Buffer_Id;
@@ -704,8 +705,8 @@ package body Editor.Buffers.Tests is
    is
       pragma Unreferenced (T);
       S      : Editor.State.State_Type;
-      A_Path : constant String := "/tmp/editor_dirty_close_a.txt";
-      B_Path : constant String := "/tmp/editor_dirty_close_b.txt";
+      A_Path : constant String := Editor.Test_Temp.Base & "/editor_dirty_close_a.txt";
+      B_Path : constant String := Editor.Test_Temp.Base & "/editor_dirty_close_b.txt";
       A_Id   : Editor.Buffers.Buffer_Id;
       B_Id   : Editor.Buffers.Buffer_Id;
    begin
@@ -877,8 +878,8 @@ package body Editor.Buffers.Tests is
    is
       pragma Unreferenced (T);
       S           : Editor.State.State_Type;
-      Pinned_Path : constant String := "/tmp/editor_pinned.txt";
-      Loose_Path  : constant String := "/tmp/editor_loose.txt";
+      Pinned_Path : constant String := Editor.Test_Temp.Base & "/editor_pinned.txt";
+      Loose_Path  : constant String := Editor.Test_Temp.Base & "/editor_loose.txt";
       Pinned_Id   : Editor.Buffers.Buffer_Id;
       Loose_Id    : Editor.Buffers.Buffer_Id;
       Reopened_Id : Editor.Buffers.Buffer_Id;
@@ -923,9 +924,9 @@ package body Editor.Buffers.Tests is
       pragma Unreferenced (T);
       S          : Editor.State.State_Type;
       Cmd        : Editor.Commands.Command;
-      Core_Path  : constant String := "/tmp/editor_core.txt";
-      Test_Path  : constant String := "/tmp/editor_tests.txt";
-      Pin_Path   : constant String := "/tmp/editor_pinned.txt";
+      Core_Path  : constant String := Editor.Test_Temp.Base & "/editor_core.txt";
+      Test_Path  : constant String := Editor.Test_Temp.Base & "/editor_tests.txt";
+      Pin_Path   : constant String := Editor.Test_Temp.Base & "/editor_pinned.txt";
       Core_Id    : Editor.Buffers.Buffer_Id;
       Test_Id    : Editor.Buffers.Buffer_Id;
       Pin_Id     : Editor.Buffers.Buffer_Id;
@@ -1018,9 +1019,9 @@ package body Editor.Buffers.Tests is
       S           : Editor.State.State_Type;
       Cmd         : Editor.Commands.Command;
       Availability : Editor.Commands.Command_Availability;
-      Core_Path   : constant String := "/tmp/editor_core_dirty.txt";
-      Dirty_Path  : constant String := "/tmp/editor_dirty_outside.txt";
-      Pin_Path    : constant String := "/tmp/editor_pinned_outside.txt";
+      Core_Path   : constant String := Editor.Test_Temp.Base & "/editor_core_dirty.txt";
+      Dirty_Path  : constant String := Editor.Test_Temp.Base & "/editor_dirty_outside.txt";
+      Pin_Path    : constant String := Editor.Test_Temp.Base & "/editor_pinned_outside.txt";
       Core_Id     : Editor.Buffers.Buffer_Id;
       Dirty_Id    : Editor.Buffers.Buffer_Id;
       Pin_Id      : Editor.Buffers.Buffer_Id;
@@ -1184,9 +1185,9 @@ package body Editor.Buffers.Tests is
       pragma Unreferenced (T);
       S             : Editor.State.State_Type;
       Cmd           : Editor.Commands.Command;
-      Note_Path     : constant String := "/tmp/editor_note.txt";
-      Pinned_Path   : constant String := "/tmp/editor_pinned_note.txt";
-      Existing_Path : constant String := "/tmp/editor_existing_note.txt";
+      Note_Path     : constant String := Editor.Test_Temp.Base & "/editor_note.txt";
+      Pinned_Path   : constant String := Editor.Test_Temp.Base & "/editor_pinned_note.txt";
+      Existing_Path : constant String := Editor.Test_Temp.Base & "/editor_existing_note.txt";
       Note_Id       : Editor.Buffers.Buffer_Id;
       Pinned_Id     : Editor.Buffers.Buffer_Id;
       Existing_Id   : Editor.Buffers.Buffer_Id;
@@ -1391,9 +1392,9 @@ package body Editor.Buffers.Tests is
       pragma Unreferenced (T);
       S             : Editor.State.State_Type;
       Cmd           : Editor.Commands.Command;
-      Label_Path    : constant String := "/tmp/editor_label.txt";
-      Pinned_Path   : constant String := "/tmp/editor_pinned_label.txt";
-      Existing_Path : constant String := "/tmp/editor_existing_label.txt";
+      Label_Path    : constant String := Editor.Test_Temp.Base & "/editor_label.txt";
+      Pinned_Path   : constant String := Editor.Test_Temp.Base & "/editor_pinned_label.txt";
+      Existing_Path : constant String := Editor.Test_Temp.Base & "/editor_existing_label.txt";
       Label_Id      : Editor.Buffers.Buffer_Id;
       Pinned_Id     : Editor.Buffers.Buffer_Id;
       Existing_Id   : Editor.Buffers.Buffer_Id;
@@ -1645,7 +1646,7 @@ package body Editor.Buffers.Tests is
    is
       pragma Unreferenced (T);
       S    : Editor.State.State_Type;
-      Path : constant String := "/tmp/editor_no_close_history.txt";
+      Path : constant String := Editor.Test_Temp.Base & "/editor_no_close_history.txt";
       Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
    begin
       Editor.Buffers.Reset_Global_For_Test;
@@ -1684,7 +1685,7 @@ package body Editor.Buffers.Tests is
    is
       pragma Unreferenced (T);
       S     : Editor.State.State_Type;
-      Path  : constant String := "/tmp/editor_reopen_success.txt";
+      Path  : constant String := Editor.Test_Temp.Base & "/editor_reopen_success.txt";
       D     : constant Editor.Commands.Command_Descriptor :=
         Editor.Commands.Descriptor (Editor.Commands.Command_Reopen_Closed_Buffer);
       M     : Editor.Messages.Editor_Message;
@@ -1891,7 +1892,7 @@ package body Editor.Buffers.Tests is
    is
       pragma Unreferenced (T);
       S     : Editor.State.State_Type;
-      Path  : constant String := "/tmp/editor_close_does_not_save.txt";
+      Path  : constant String := Editor.Test_Temp.Base & "/editor_close_does_not_save.txt";
       Id    : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
    begin
       Editor.Buffers.Reset_Global_For_Test;
@@ -2117,8 +2118,8 @@ package body Editor.Buffers.Tests is
    is
       pragma Unreferenced (T);
       S             : Editor.State.State_Type;
-      A_Path        : constant String := "/tmp/editor_a.txt";
-      B_Path        : constant String := "/tmp/editor_b.txt";
+      A_Path        : constant String := Editor.Test_Temp.Base & "/editor_a.txt";
+      B_Path        : constant String := Editor.Test_Temp.Base & "/editor_b.txt";
       Missing_Path  : constant String := "";
       A_Id          : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id          : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
@@ -2374,7 +2375,7 @@ package body Editor.Buffers.Tests is
    is
       pragma Unreferenced (T);
       S       : Editor.State.State_Type;
-      A_Path  : constant String := "/tmp/editor_candidate_a.txt";
+      A_Path  : constant String := Editor.Test_Temp.Base & "/editor_candidate_a.txt";
       A_Id    : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id    : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       C_Id    : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
@@ -2463,7 +2464,7 @@ package body Editor.Buffers.Tests is
    is
       pragma Unreferenced (T);
       S             : Editor.State.State_Type;
-      Path          : constant String := "/tmp/editor_duplicate.txt";
+      Path          : constant String := Editor.Test_Temp.Base & "/editor_duplicate.txt";
       Id            : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Before_Undo   : Natural := 0;
       Before_Redo   : Natural := 0;
@@ -2538,8 +2539,8 @@ package body Editor.Buffers.Tests is
    is
       pragma Unreferenced (T);
       S              : Editor.State.State_Type;
-      Candidate_Path : constant String := "/tmp/editor_missing_candidate.txt";
-      Open_Path      : constant String := "/tmp/editor_failure_active.txt";
+      Candidate_Path : constant String := Editor.Test_Temp.Base & "/editor_missing_candidate.txt";
+      Open_Path      : constant String := Editor.Test_Temp.Base & "/editor_failure_active.txt";
       Active_Id      : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Before_Count   : Natural := 0;
       Before_Text    : Unbounded_String := Null_Unbounded_String;
@@ -2651,8 +2652,8 @@ package body Editor.Buffers.Tests is
    is
       pragma Unreferenced (T);
       S       : Editor.State.State_Type;
-      A_Path  : constant String := "/tmp/editor_integrated_a.txt";
-      B_Path  : constant String := "/tmp/editor_integrated_b.txt";
+      A_Path  : constant String := Editor.Test_Temp.Base & "/editor_integrated_a.txt";
+      B_Path  : constant String := Editor.Test_Temp.Base & "/editor_integrated_b.txt";
       A_Id    : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id    : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       M       : Editor.Messages.Editor_Message;
@@ -2757,8 +2758,8 @@ package body Editor.Buffers.Tests is
    is
       pragma Unreferenced (T);
       S              : Editor.State.State_Type;
-      Candidate_Path : constant String := "/tmp/editor_state_candidate.txt";
-      Active_Path    : constant String := "/tmp/editor_state_active.txt";
+      Candidate_Path : constant String := Editor.Test_Temp.Base & "/editor_state_candidate.txt";
+      Active_Path    : constant String := Editor.Test_Temp.Base & "/editor_state_active.txt";
       Active_Id      : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Before_Count   : Natural := 0;
       Before_Undo    : Natural := 0;
@@ -2870,7 +2871,7 @@ package body Editor.Buffers.Tests is
    is
       pragma Unreferenced (T);
       S             : Editor.State.State_Type;
-      Path          : constant String := "/tmp/editor_duplicate.txt";
+      Path          : constant String := Editor.Test_Temp.Base & "/editor_duplicate.txt";
       Id            : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Before_Count  : Natural := 0;
       Before_Text   : Unbounded_String := Null_Unbounded_String;
@@ -2985,7 +2986,7 @@ package body Editor.Buffers.Tests is
    is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
-      Root     : constant String := "/tmp/editor_project";
+      Root     : constant String := Editor.Test_Temp.Base & "/editor_project";
       Project  : constant Editor.Project.Project_State := Make_Project (Root);
       Project_Id : Editor.Buffers.Buffer_Id;
       Outside_Id : Editor.Buffers.Buffer_Id;
@@ -2997,7 +2998,7 @@ package body Editor.Buffers.Tests is
       Project_Id := Editor.Buffers.Add_Buffer_From_File
         (Registry, Root & "/src/main.adb", "main.adb", "project text must not leak");
       Outside_Id := Editor.Buffers.Add_Buffer_From_File
-        (Registry, "/tmp/editor_outside.adb", "outside.adb", "outside text");
+        (Registry, Editor.Test_Temp.Base & "/editor_outside.adb", "outside.adb", "outside text");
       Scratch_Id := Editor.Buffers.Create_Untitled_Buffer (Registry);
 
       Editor.Buffers.Set_Active_Buffer (Registry, Outside_Id);
@@ -3040,7 +3041,7 @@ package body Editor.Buffers.Tests is
    is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
-      Root     : constant String := "/tmp/editor_project_dirty";
+      Root     : constant String := Editor.Test_Temp.Base & "/editor_project_dirty";
       Project  : constant Editor.Project.Project_State := Make_Project (Root);
       Project_Id : Editor.Buffers.Buffer_Id;
       Outside_Id : Editor.Buffers.Buffer_Id;
@@ -3056,7 +3057,7 @@ package body Editor.Buffers.Tests is
       Dirty_Ids : array (Positive range 1 .. 6) of Editor.Buffers.Buffer_Id;
    begin
       Project_Id := Editor.Buffers.Add_Buffer_From_File (Registry, Root & "/a.adb", "a.adb", "a");
-      Outside_Id := Editor.Buffers.Add_Buffer_From_File (Registry, "/tmp/outside-a.adb", "outside-a.adb", "b");
+      Outside_Id := Editor.Buffers.Add_Buffer_From_File (Registry, Editor.Test_Temp.Base & "/outside-a.adb", "outside-a.adb", "b");
       Scratch_Id := Editor.Buffers.Create_Untitled_Buffer (Registry);
       Missing_Id := Editor.Buffers.Add_Buffer_From_File (Registry, Root & "/missing.adb", "missing.adb", "c");
       Conflict_Id := Editor.Buffers.Add_Buffer_From_File (Registry, Root & "/conflict.adb", "conflict.adb", "d");
@@ -3185,11 +3186,11 @@ package body Editor.Buffers.Tests is
       Before_Count : Natural;
       M : Editor.Buffers.Buffer_Metadata_Snapshot;
    begin
-      File_Id := Editor.Buffers.Add_Buffer_From_File (Registry, "/tmp/clean.adb", "clean.adb", "clean");
+      File_Id := Editor.Buffers.Add_Buffer_From_File (Registry, Editor.Test_Temp.Base & "/clean.adb", "clean.adb", "clean");
       Scratch_Id := Editor.Buffers.Create_Untitled_Buffer (Registry);
-      Conflict_Id := Editor.Buffers.Add_Buffer_From_File (Registry, "/tmp/conflict.adb", "conflict.adb", "x");
-      Unwritable_Id := Editor.Buffers.Add_Buffer_From_File (Registry, "/tmp/readonly.adb", "readonly.adb", "x");
-      Unreadable_Id := Editor.Buffers.Add_Buffer_From_File (Registry, "/tmp/unreadable.adb", "unreadable.adb", "x");
+      Conflict_Id := Editor.Buffers.Add_Buffer_From_File (Registry, Editor.Test_Temp.Base & "/conflict.adb", "conflict.adb", "x");
+      Unwritable_Id := Editor.Buffers.Add_Buffer_From_File (Registry, Editor.Test_Temp.Base & "/readonly.adb", "readonly.adb", "x");
+      Unreadable_Id := Editor.Buffers.Add_Buffer_From_File (Registry, Editor.Test_Temp.Base & "/unreadable.adb", "unreadable.adb", "x");
       Before_Count := Editor.Buffers.Count (Registry);
 
       M := Editor.Buffers.Metadata_For (Registry, Project, File_Id);
@@ -3288,7 +3289,7 @@ package body Editor.Buffers.Tests is
    is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
-      Root     : constant String := "/tmp/editor_norm/project";
+      Root     : constant String := Editor.Test_Temp.Base & "/editor_norm/project";
       Project  : constant Editor.Project.Project_State := Make_Project (Root);
       In_Id    : Editor.Buffers.Buffer_Id;
       Outside_Id : Editor.Buffers.Buffer_Id;
@@ -3299,7 +3300,7 @@ package body Editor.Buffers.Tests is
       In_Id := Editor.Buffers.Add_Buffer_From_File
         (Registry, Root & "/sub/../unit.adb", "unit.adb", "package Unit is end Unit;");
       Outside_Id := Editor.Buffers.Add_Buffer_From_File
-        (Registry, "/tmp/editor_norm/outside.adb", "outside.adb", "outside body text");
+        (Registry, Editor.Test_Temp.Base & "/editor_norm/outside.adb", "outside.adb", "outside body text");
 
       M := Editor.Buffers.Metadata_For (Registry, Project, In_Id);
       Assert (M.Ownership = Editor.Buffers.Buffer_Project_Owned,
@@ -3413,7 +3414,7 @@ package body Editor.Buffers.Tests is
    is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
-      Root     : constant String := "/tmp/editor_readability";
+      Root     : constant String := Editor.Test_Temp.Base & "/editor_readability";
       Project  : constant Editor.Project.Project_State := Make_Project (Root);
       Clean_Id : Editor.Buffers.Buffer_Id;
       Read_Id  : Editor.Buffers.Buffer_Id;
@@ -3467,7 +3468,7 @@ package body Editor.Buffers.Tests is
    is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
-      Root     : constant String := "/tmp/editor_bounded";
+      Root     : constant String := Editor.Test_Temp.Base & "/editor_bounded";
       Project  : constant Editor.Project.Project_State := Make_Project (Root);
       Long_Name : constant String :=
         "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" &
@@ -3498,7 +3499,7 @@ package body Editor.Buffers.Tests is
       pragma Unreferenced (T);
       S    : Editor.State.State_Type;
       Snap : Editor.Render_Model.Render_Snapshot;
-      Root : constant String := "/tmp/editor_render_project";
+      Root : constant String := Editor.Test_Temp.Base & "/editor_render_project";
       Path : constant String := Root & "/src/rendered.adb";
    begin
       Editor.Buffers.Reset_Global_For_Test;

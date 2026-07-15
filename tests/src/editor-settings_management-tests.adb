@@ -1,3 +1,4 @@
+with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Directories;
@@ -40,7 +41,7 @@ package body Editor.Settings_Management.Tests is
 
    function Temp_Path (Name : String) return String is
    begin
-      return "/tmp/editor_" & Name;
+      return Editor.Test_Temp.Base & "/editor_" & Name;
    end Temp_Path;
 
    procedure Delete_If_Exists (Path : String) is

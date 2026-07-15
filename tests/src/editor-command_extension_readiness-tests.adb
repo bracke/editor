@@ -1,3 +1,4 @@
+with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Containers;
@@ -34,7 +35,7 @@ package body Editor.Command_Extension_Readiness.Tests is
 
    function Temp_Path (Name : String) return String is
    begin
-      return "/tmp/editor_" & Name & ".keybindings";
+      return Editor.Test_Temp.Base & "/editor_" & Name & ".keybindings";
    end Temp_Path;
 
    procedure Write_File (Path : String; Text : String) is
@@ -168,9 +169,9 @@ package body Editor.Command_Extension_Readiness.Tests is
    begin
       Editor.State.Init (Before);
       Editor.Recent_Projects.Add_Or_Promote
-        (Before.Recent_Projects, "/tmp/domain-a", "domain-a", 1);
+        (Before.Recent_Projects, Editor.Test_Temp.Base & "/domain-a", "domain-a", 1);
       Editor.Recent_Projects.Add_Or_Promote
-        (Before.Recent_Projects, "/tmp/domain-b", "domain-b", 2);
+        (Before.Recent_Projects, Editor.Test_Temp.Base & "/domain-b", "domain-b", 2);
       Before.Recent_Project_Selected_Index := 0;
       After := Before;
 

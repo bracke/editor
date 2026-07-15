@@ -1,3 +1,4 @@
+with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with Ada.Directories;
 with Ada.Streams;
@@ -73,9 +74,9 @@ package body Editor.Buffer_Switcher.Tests is
 
    function Temp_Path (Name : String) return String is
    begin
-      Ada.Directories.Create_Path ("/tmp/editor-tests");
+      Ada.Directories.Create_Path (Editor.Test_Temp.Base & "/editor-tests");
       return Ada.Directories.Compose
-        ("/tmp/editor-tests", "" & Name);
+        (Editor.Test_Temp.Base & "/editor-tests", "" & Name);
    end Temp_Path;
 
    procedure Write_Bytes (Path : String; Bytes : String) is
@@ -203,9 +204,9 @@ package body Editor.Buffer_Switcher.Tests is
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Editor.Buffers.Global_Add_File_Buffer
-        ("/tmp/hints/alpha.adb", "alpha.adb", "procedure Alpha is begin null; end;", Alpha);
+        (Editor.Test_Temp.Base & "/hints/alpha.adb", "alpha.adb", "procedure Alpha is begin null; end;", Alpha);
       Editor.Buffers.Global_Add_File_Buffer
-        ("/tmp/hints/alphabet.adb", "alphabet.adb", "procedure Alphabet is begin null; end;", Beta);
+        (Editor.Test_Temp.Base & "/hints/alphabet.adb", "alphabet.adb", "procedure Alphabet is begin null; end;", Beta);
       Editor.Buffers.Global_Set_Active_Buffer (Alpha);
       Editor.Buffer_Switcher.Open (S.Buffer_Switcher);
       Editor.Buffer_Switcher.Recompute_Rows
@@ -244,9 +245,9 @@ package body Editor.Buffer_Switcher.Tests is
    is
    begin
       Alpha := Editor.Buffers.Add_Buffer_From_File
-        (Registry, "/tmp/project/src/main.adb", "main.adb", "procedure Main is begin null; end;");
+        (Registry, Editor.Test_Temp.Base & "/project/src/main.adb", "main.adb", "procedure Main is begin null; end;");
       Beta := Editor.Buffers.Add_Buffer_From_File
-        (Registry, "/tmp/project/src/readme.txt", "readme.txt", "readme");
+        (Registry, Editor.Test_Temp.Base & "/project/src/readme.txt", "readme.txt", "readme");
       Untitled := Editor.Buffers.Create_Untitled_Buffer (Registry);
       Editor.Buffers.Set_Active_Buffer (Registry, Beta);
    end Build_Registry;
@@ -1606,9 +1607,9 @@ package body Editor.Buffer_Switcher.Tests is
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Gamma := Editor.Buffers.Add_Buffer_From_File
-        (Registry, "/tmp/project/src/gamma.adb", "gamma.adb", "gamma");
+        (Registry, Editor.Test_Temp.Base & "/project/src/gamma.adb", "gamma.adb", "gamma");
       Step_Delta := Editor.Buffers.Add_Buffer_From_File
-        (Registry, "/tmp/project/src/delta.adb", "delta.adb", "delta");
+        (Registry, Editor.Test_Temp.Base & "/project/src/delta.adb", "delta.adb", "delta");
       Editor.Buffer_Switcher.Open (S);
 
       Editor.Buffers.Buffer_Access (Registry, Alpha).File_Info.Dirty := True;
@@ -2202,7 +2203,7 @@ package body Editor.Buffer_Switcher.Tests is
    begin
       return Editor.Buffers.Add_Buffer_From_File
         (Registry,
-         "/tmp/project/src/" & Name,
+         Editor.Test_Temp.Base & "/project/src/" & Name,
          Name,
          "procedure " & Name & " is begin null; end;");
    end Add_Buffer;
@@ -3214,7 +3215,7 @@ package body Editor.Buffer_Switcher.Tests is
 
       --  Save As / rename / move all update association through buffer state only.
       Set_Buffer_Association_For_Test
-        (Registry, Alpha, "/tmp/project/src/saved_as.adb", "saved_as.adb");
+        (Registry, Alpha, Editor.Test_Temp.Base & "/project/src/saved_as.adb", "saved_as.adb");
       Recompute_For_Test (S, Registry);
       Row := Row_For (S, Alpha);
       Assert (Row.Has_Path, "save-as association remains path-backed");
@@ -3223,7 +3224,7 @@ package body Editor.Buffer_Switcher.Tests is
               "save-as association update is observed through buffer label");
 
       Set_Buffer_Association_For_Test
-        (Registry, Alpha, "/tmp/project/src/renamed.adb", "renamed.adb");
+        (Registry, Alpha, Editor.Test_Temp.Base & "/project/src/renamed.adb", "renamed.adb");
       Recompute_For_Test (S, Registry);
       Row := Row_For (S, Alpha);
       Assert (To_String (Row.Display_Label) = "renamed.adb",
@@ -3243,7 +3244,7 @@ package body Editor.Buffer_Switcher.Tests is
       end;
 
       Set_Buffer_Association_For_Test
-        (Registry, Alpha, "/tmp/project/src/moved.adb", "moved.adb");
+        (Registry, Alpha, Editor.Test_Temp.Base & "/project/src/moved.adb", "moved.adb");
       Recompute_For_Test (S, Registry);
       Row := Row_For (S, Alpha);
       Assert (To_String (Row.Display_Label) = "moved.adb",
@@ -3281,7 +3282,7 @@ package body Editor.Buffer_Switcher.Tests is
               "close observation only removes collection membership");
 
       Reopened := Editor.Buffers.Add_Buffer_From_File
-        (Registry, "/tmp/project/src/reopened.adb", "reopened.adb", "procedure Reopened is begin null; end;");
+        (Registry, Editor.Test_Temp.Base & "/project/src/reopened.adb", "reopened.adb", "procedure Reopened is begin null; end;");
       Editor.Buffers.Set_Active_Buffer (Registry, Reopened);
       Recompute_For_Test (S, Registry);
       Assert (Editor.Buffer_Switcher.Row_Count (S) = 3,
@@ -3318,12 +3319,12 @@ package body Editor.Buffer_Switcher.Tests is
       App.File_Target_Prompt_Active := True;
       App.File_Target_Prompt_Command := Editor.Commands.Command_Save_File_As;
       App.File_Target_Prompt_Label := To_Unbounded_String ("Save As target");
-      Editor.Input_Field.Insert_Text (App.File_Target_Prompt_Input, "/tmp/explicit-target.adb");
+      Editor.Input_Field.Insert_Text (App.File_Target_Prompt_Input, Editor.Test_Temp.Base & "/explicit-target.adb");
 
       Recompute_For_Test (S, Registry);
       Assert (App.File_Target_Prompt_Active,
               "recomputing switcher rows must not own or clear prompt state");
-      Assert (Editor.Input_Field.Text (App.File_Target_Prompt_Input) = "/tmp/explicit-target.adb",
+      Assert (Editor.Input_Field.Text (App.File_Target_Prompt_Input) = Editor.Test_Temp.Base & "/explicit-target.adb",
               "switcher selection must not become target prompt input");
       Assert (Editor.Buffers.Active_Buffer (Registry) = Alpha,
               "prompt-active switcher interaction preserves active-buffer source policy");
@@ -3339,7 +3340,7 @@ package body Editor.Buffer_Switcher.Tests is
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Set_Buffer_Association_For_Test
-        (Registry, Alpha, "/tmp/project/src/current.adb", "current.adb");
+        (Registry, Alpha, Editor.Test_Temp.Base & "/project/src/current.adb", "current.adb");
       Set_Buffer_Dirty_For_Test (Registry, Alpha, True);
       Editor.Buffer_Switcher.Open (S);
       Recompute_For_Test (S, Registry);
@@ -3412,7 +3413,7 @@ package body Editor.Buffer_Switcher.Tests is
 
       --  file.save-as / prompted file.save-as final state: same buffer identity, new association.
       Set_Buffer_Association_For_Test
-        (Registry, Alpha, "/tmp/project/src/saved_as.adb", "saved_as.adb");
+        (Registry, Alpha, Editor.Test_Temp.Base & "/project/src/saved_as.adb", "saved_as.adb");
       Set_Buffer_Dirty_For_Test (Registry, Alpha, False);
       Recompute_For_Test (Visible_S, Registry);
       Recompute_For_Test (Hidden_S, Registry);
@@ -3427,7 +3428,7 @@ package body Editor.Buffer_Switcher.Tests is
 
       --  file.rename-buffer-file: same row identity, new association, no reordering.
       Set_Buffer_Association_For_Test
-        (Registry, Alpha, "/tmp/project/src/renamed.adb", "renamed.adb");
+        (Registry, Alpha, Editor.Test_Temp.Base & "/project/src/renamed.adb", "renamed.adb");
       Recompute_For_Test (Visible_S, Registry);
       Assert (Editor.Buffer_Switcher.Row_At (Visible_S, 1).Id = Alpha
                 and then Editor.Buffer_Switcher.Row_At (Visible_S, 2).Id = Beta,
@@ -3448,7 +3449,7 @@ package body Editor.Buffer_Switcher.Tests is
 
       --  file.move-buffer-file: same row identity, moved association, no duplicate target row.
       Set_Buffer_Association_For_Test
-        (Registry, Alpha, "/tmp/project/src/moved.adb", "moved.adb");
+        (Registry, Alpha, Editor.Test_Temp.Base & "/project/src/moved.adb", "moved.adb");
       Recompute_For_Test (Visible_S, Registry);
       Assert (Editor.Buffer_Switcher.Row_Count (Visible_S) = 3,
               "move must not synthesize moved target rows");
@@ -3475,7 +3476,7 @@ package body Editor.Buffer_Switcher.Tests is
       Assert (Editor.Buffer_Switcher.Row_Count (Visible_S) = 2,
               "close leaves other open-buffer rows intact");
       Reopened := Editor.Buffers.Add_Buffer_From_File
-        (Registry, "/tmp/project/src/reopened.adb", "reopened.adb", "procedure R is begin null; end;");
+        (Registry, Editor.Test_Temp.Base & "/project/src/reopened.adb", "reopened.adb", "procedure R is begin null; end;");
       Editor.Buffers.Set_Active_Buffer (Registry, Reopened);
       Recompute_For_Test (Visible_S, Registry);
       Assert (Row_Index_For (Visible_S, Reopened) /= 0,
@@ -3496,7 +3497,7 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffer_Switcher.Open (S);
       Editor.Buffers.Set_Active_Buffer (Registry, Alpha);
       Set_Buffer_Association_For_Test
-        (Registry, Alpha, "/tmp/project/src/source.adb", "source.adb");
+        (Registry, Alpha, Editor.Test_Temp.Base & "/project/src/source.adb", "source.adb");
       Set_Buffer_Dirty_For_Test (Registry, Alpha, True);
       Recompute_For_Test (S, Registry);
       Before_Count := Editor.Buffer_Switcher.Row_Count (S);
@@ -3531,7 +3532,7 @@ package body Editor.Buffer_Switcher.Tests is
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Set_Buffer_Association_For_Test
-        (Registry, Beta, "/tmp/project/src/path_like_target_name.adb", "path_like_target_name.adb");
+        (Registry, Beta, Editor.Test_Temp.Base & "/project/src/path_like_target_name.adb", "path_like_target_name.adb");
       Editor.Buffers.Set_Active_Buffer (Registry, Alpha);
       Editor.Buffer_Switcher.Open (S);
       Recompute_For_Test (S, Registry);
@@ -3552,9 +3553,9 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffer_Switcher.Move_Selection_Up (S);
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (App) = "",
               "switcher interaction must not mutate prompt input");
-      Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text (App, "/tmp/explicit_target.adb");
+      Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text (App, Editor.Test_Temp.Base & "/explicit_target.adb");
       Editor.Buffer_Switcher.Move_Selection_Down (S);
-      Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (App) = "/tmp/explicit_target.adb",
+      Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (App) = Editor.Test_Temp.Base & "/explicit_target.adb",
               "explicit prompt text remains owned by canonical prompt input");
       Editor.Executor.File_Target_Prompt_Commands.Cancel_File_Target_Prompt (App);
       Assert (not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (App),
@@ -3579,7 +3580,7 @@ package body Editor.Buffer_Switcher.Tests is
          "stale snapshot setup");
 
       Set_Buffer_Association_For_Test
-        (Registry, Alpha, "/tmp/project/src/fresh_after_rename.adb", "fresh_after_rename.adb");
+        (Registry, Alpha, Editor.Test_Temp.Base & "/project/src/fresh_after_rename.adb", "fresh_after_rename.adb");
       Set_Buffer_Dirty_For_Test (Registry, Alpha, True);
 
       --  A retained stale snapshot is inert data; render must not repair it by probing or patching.
@@ -3605,7 +3606,7 @@ package body Editor.Buffer_Switcher.Tests is
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffer_Switcher.Open (S);
       Set_Buffer_Association_For_Test
-        (Registry, Alpha, "/tmp/project/src/current_.adb", "current_.adb");
+        (Registry, Alpha, Editor.Test_Temp.Base & "/project/src/current_.adb", "current_.adb");
       Set_Buffer_Dirty_For_Test (Registry, Alpha, True);
       Recompute_For_Test (S, Registry);
       Row := Row_For (S, Alpha);
@@ -3635,7 +3636,7 @@ package body Editor.Buffer_Switcher.Tests is
          Is_Dirty     => True,
          Is_Active    => True,
          Has_Path     => True,
-         Path         => To_Unbounded_String ("/tmp/project/demo.adb"),
+         Path         => To_Unbounded_String (Editor.Test_Temp.Base & "/project/demo.adb"),
          Last_Save_Failed => True,
          Last_Reload_Failed => False,
          Last_Revert_Failed => False,
@@ -3707,7 +3708,7 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffers.Set_Active_Buffer (Registry, Alpha);
       Editor.Buffer_Switcher.Open (S);
       Set_Buffer_Association_For_Test
-        (Registry, Alpha, "/tmp/project/src/old.adb", "old.adb");
+        (Registry, Alpha, Editor.Test_Temp.Base & "/project/src/old.adb", "old.adb");
       Set_Buffer_Dirty_For_Test (Registry, Alpha, True);
       Recompute_For_Test (S, Registry);
       Assert_Row_State
@@ -3719,7 +3720,7 @@ package body Editor.Buffer_Switcher.Tests is
       --  lifecycle observation fields from the registry snapshot; no row-local
       --  label/dirty cache may participate.
       Set_Buffer_Association_For_Test
-        (Registry, Alpha, "/tmp/project/src/new.adb", "new.adb");
+        (Registry, Alpha, Editor.Test_Temp.Base & "/project/src/new.adb", "new.adb");
       Set_Buffer_Dirty_For_Test (Registry, Alpha, False);
       Recompute_For_Test (S, Registry);
       Row := Row_For (S, Alpha);
@@ -3784,7 +3785,7 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffers.Set_Active_Buffer (Registry, Alpha);
       Editor.Buffer_Switcher.Open (S);
       Set_Buffer_Association_For_Test
-        (Registry, Alpha, "/tmp/project/src/source_for_copy.adb", "source_for_copy.adb");
+        (Registry, Alpha, Editor.Test_Temp.Base & "/project/src/source_for_copy.adb", "source_for_copy.adb");
       Recompute_For_Test (S, Registry);
       Before_Count := Editor.Buffer_Switcher.Row_Count (S);
 
@@ -3814,7 +3815,7 @@ package body Editor.Buffer_Switcher.Tests is
               "close observation is canonical open-buffer collection removal only");
 
       Reopened := Editor.Buffers.Add_Buffer_From_File
-        (Registry, "/tmp/project/src/reopened.adb", "reopened.adb", "procedure R is begin null; end;");
+        (Registry, Editor.Test_Temp.Base & "/project/src/reopened.adb", "reopened.adb", "procedure R is begin null; end;");
       Editor.Buffers.Set_Active_Buffer (Registry, Reopened);
       Recompute_For_Test (S, Registry);
       Assert (Row_For (S, Reopened).Is_Active
@@ -3909,7 +3910,7 @@ package body Editor.Buffer_Switcher.Tests is
          "successful save observation");
 
       Set_Buffer_Association_For_Test
-        (Registry, Alpha, "/tmp/project/src/save_as.adb", "save_as.adb");
+        (Registry, Alpha, Editor.Test_Temp.Base & "/project/src/save_as.adb", "save_as.adb");
       Recompute_For_Test (S, Registry);
       Assert_Row_Frozen
         (S, Alpha, "save_as.adb", True, False, True, 1,
@@ -3918,7 +3919,7 @@ package body Editor.Buffer_Switcher.Tests is
               "save-as preserves row membership");
 
       Set_Buffer_Association_For_Test
-        (Registry, Alpha, "/tmp/project/src/renamed.adb", "renamed.adb");
+        (Registry, Alpha, Editor.Test_Temp.Base & "/project/src/renamed.adb", "renamed.adb");
       Recompute_For_Test (S, Registry);
       Assert_Row_Frozen
         (S, Alpha, "renamed.adb", True, False, True, 1,
@@ -3932,7 +3933,7 @@ package body Editor.Buffer_Switcher.Tests is
          "successful copy preserves source association observation");
 
       Set_Buffer_Association_For_Test
-        (Registry, Alpha, "/tmp/project/src/moved.adb", "moved.adb");
+        (Registry, Alpha, Editor.Test_Temp.Base & "/project/src/moved.adb", "moved.adb");
       Recompute_For_Test (S, Registry);
       Assert_Row_Frozen
         (S, Alpha, "moved.adb", True, False, True, 1,
@@ -3957,7 +3958,7 @@ package body Editor.Buffer_Switcher.Tests is
               "close observation removes only the canonical closed buffer row");
 
       Reopened := Editor.Buffers.Add_Buffer_From_File
-        (Registry, "/tmp/project/src/reopened.adb", "reopened.adb", "procedure R is begin null; end;");
+        (Registry, Editor.Test_Temp.Base & "/project/src/reopened.adb", "reopened.adb", "procedure R is begin null; end;");
       Editor.Buffers.Set_Active_Buffer (Registry, Reopened);
       Recompute_For_Test (S, Registry);
       Assert (Row_For (S, Reopened).Is_Active,
@@ -3977,7 +3978,7 @@ package body Editor.Buffer_Switcher.Tests is
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffers.Set_Active_Buffer (Registry, Alpha);
       Set_Buffer_Association_For_Test
-        (Registry, Alpha, "/tmp/project/src/source.adb", "source.adb");
+        (Registry, Alpha, Editor.Test_Temp.Base & "/project/src/source.adb", "source.adb");
       Set_Buffer_Dirty_For_Test (Registry, Alpha, True);
       Editor.Buffer_Switcher.Open (S);
       Recompute_For_Test (S, Registry);
@@ -4011,7 +4012,7 @@ package body Editor.Buffer_Switcher.Tests is
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffers.Set_Active_Buffer (Registry, Alpha);
       Set_Buffer_Association_For_Test
-        (Registry, Beta, "/tmp/project/src/row_label_looks_like_target.adb", "row_label_looks_like_target.adb");
+        (Registry, Beta, Editor.Test_Temp.Base & "/project/src/row_label_looks_like_target.adb", "row_label_looks_like_target.adb");
       Editor.Buffer_Switcher.Open (S);
       Recompute_For_Test (S, Registry);
       Editor.Buffer_Switcher.Move_Selection_Down (S);
@@ -4036,14 +4037,14 @@ package body Editor.Buffer_Switcher.Tests is
               "switcher owns no target prompt state");
 
       Set_Buffer_Association_For_Test
-        (Registry, Alpha, "/tmp/project/src/direct.adb", "direct.adb");
+        (Registry, Alpha, Editor.Test_Temp.Base & "/project/src/direct.adb", "direct.adb");
       Recompute_For_Test (S, Registry);
       Assert_Row_Frozen
         (S, Alpha, "direct.adb", True, False, True, 1,
          "direct explicit-target observation");
 
       Set_Buffer_Association_For_Test
-        (Registry, Alpha, "/tmp/project/src/prompted.adb", "prompted.adb");
+        (Registry, Alpha, Editor.Test_Temp.Base & "/project/src/prompted.adb", "prompted.adb");
       Recompute_For_Test (S, Registry);
       Assert_Row_Frozen
         (S, Alpha, "prompted.adb", True, False, True, 1,
@@ -4062,14 +4063,14 @@ package body Editor.Buffer_Switcher.Tests is
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffers.Set_Active_Buffer (Registry, Alpha);
       Set_Buffer_Association_For_Test
-        (Registry, Alpha, "/tmp/project/src/before.adb", "before.adb");
+        (Registry, Alpha, Editor.Test_Temp.Base & "/project/src/before.adb", "before.adb");
       Set_Buffer_Dirty_For_Test (Registry, Alpha, True);
       Editor.Buffer_Switcher.Open (Stale_S);
       Recompute_For_Test (Stale_S, Registry);
       Stale_Row := Row_For (Stale_S, Alpha);
 
       Set_Buffer_Association_For_Test
-        (Registry, Alpha, "/tmp/project/src/after.adb", "after.adb");
+        (Registry, Alpha, Editor.Test_Temp.Base & "/project/src/after.adb", "after.adb");
       Set_Buffer_Dirty_For_Test (Registry, Alpha, False);
       Fresh_S := Stale_S;
       Recompute_For_Test (Fresh_S, Registry);
@@ -4098,7 +4099,7 @@ package body Editor.Buffer_Switcher.Tests is
          Is_Dirty                 => True,
          Is_Active                => True,
          Has_Path                 => True,
-         Path                     => To_Unbounded_String ("/tmp/project/demo.adb"),
+         Path                     => To_Unbounded_String (Editor.Test_Temp.Base & "/project/demo.adb"),
          Last_Save_Failed         => True,
          Last_Reload_Failed       => True,
          Last_Revert_Failed       => False,
@@ -4187,7 +4188,7 @@ package body Editor.Buffer_Switcher.Tests is
               "next buffer is unavailable with no open buffers");
 
       Editor.Buffers.Global_Add_File_Buffer
-        ("/tmp/scenario/alpha.adb", "alpha.adb", "procedure Alpha is begin null; end;", Alpha);
+        (Editor.Test_Temp.Base & "/scenario/alpha.adb", "alpha.adb", "procedure Alpha is begin null; end;", Alpha);
       Editor.Buffers.Global_Set_Active_Buffer (Alpha);
       A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Previous_Buffer);
       Assert (A.Status = Editor.Commands.Command_Unavailable
@@ -4195,7 +4196,7 @@ package body Editor.Buffer_Switcher.Tests is
               "previous buffer is unavailable with one open buffer");
 
       Editor.Buffers.Global_Add_File_Buffer
-        ("/tmp/scenario/beta.adb", "beta.adb", "procedure Beta is begin null; end;", Beta);
+        (Editor.Test_Temp.Base & "/scenario/beta.adb", "beta.adb", "procedure Beta is begin null; end;", Beta);
       A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Next_Buffer);
       Assert (A.Status = Editor.Commands.Command_Available,
               "next buffer is available with multiple open buffers");
@@ -4274,14 +4275,14 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Project.Apply_Open_Result
         (S.Project,
          (Status       => Editor.Project.Project_Open_Ok,
-          Root_Path    => To_Unbounded_String ("/tmp/scenario/project"),
+          Root_Path    => To_Unbounded_String (Editor.Test_Temp.Base & "/scenario/project"),
           Display_Name => To_Unbounded_String ("project"),
           Error_Text   => Null_Unbounded_String));
 
       Editor.Buffers.Global_Add_File_Buffer
-        ("/tmp/scenario/project/src/main.adb", "main.adb", "procedure Main is begin null; end;", Inside);
+        (Editor.Test_Temp.Base & "/scenario/project/src/main.adb", "main.adb", "procedure Main is begin null; end;", Inside);
       Editor.Buffers.Global_Add_File_Buffer
-        ("/tmp/scenario/outside/other.adb", "other.adb", "procedure Other is begin null; end;", Outside);
+        (Editor.Test_Temp.Base & "/scenario/outside/other.adb", "other.adb", "procedure Other is begin null; end;", Outside);
       Editor.Buffers.Global_Set_Active_Buffer (Inside);
       Editor.Buffer_Switcher.Open (S.Buffer_Switcher);
       Editor.Buffer_Switcher.Recompute_Rows
@@ -4329,14 +4330,14 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Project.Apply_Open_Result
         (S.Project,
          (Status       => Editor.Project.Project_Open_Ok,
-          Root_Path    => To_Unbounded_String ("/tmp/scenario/labels/project"),
+          Root_Path    => To_Unbounded_String (Editor.Test_Temp.Base & "/scenario/labels/project"),
           Display_Name => To_Unbounded_String ("project"),
           Error_Text   => Null_Unbounded_String));
 
       Editor.Buffers.Global_Add_File_Buffer
-        ("/tmp/scenario/labels/project/src/main.adb", "main.adb", "procedure Main is begin null; end;", Inside);
+        (Editor.Test_Temp.Base & "/scenario/labels/project/src/main.adb", "main.adb", "procedure Main is begin null; end;", Inside);
       Editor.Buffers.Global_Add_File_Buffer
-        ("/tmp/scenario/labels/outside/main.adb", "main.adb", "procedure Outside is begin null; end;", Outside);
+        (Editor.Test_Temp.Base & "/scenario/labels/outside/main.adb", "main.adb", "procedure Outside is begin null; end;", Outside);
       Editor.Buffers.Global_Add_Untitled_Buffer (Scratch);
       Editor.Buffers.Global_Set_Active_Buffer (Inside);
       Editor.Buffer_Switcher.Open (S.Buffer_Switcher);
@@ -4388,9 +4389,9 @@ package body Editor.Buffer_Switcher.Tests is
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Initialize (S);
-      Editor.Buffers.Global_Add_File_Buffer ("/tmp/scenario/sel/alpha.adb", "alpha.adb", "", Alpha);
-      Editor.Buffers.Global_Add_File_Buffer ("/tmp/scenario/sel/beta.adb", "beta.adb", "", Beta);
-      Editor.Buffers.Global_Add_File_Buffer ("/tmp/scenario/sel/gamma.adb", "gamma.adb", "", Gamma);
+      Editor.Buffers.Global_Add_File_Buffer (Editor.Test_Temp.Base & "/scenario/sel/alpha.adb", "alpha.adb", "", Alpha);
+      Editor.Buffers.Global_Add_File_Buffer (Editor.Test_Temp.Base & "/scenario/sel/beta.adb", "beta.adb", "", Beta);
+      Editor.Buffers.Global_Add_File_Buffer (Editor.Test_Temp.Base & "/scenario/sel/gamma.adb", "gamma.adb", "", Gamma);
       Editor.Buffers.Global_Set_Active_Buffer (Alpha);
       Editor.Buffer_Switcher.Open (S.Buffer_Switcher);
       Editor.Buffer_Switcher.Recompute_Rows
@@ -4435,7 +4436,7 @@ package body Editor.Buffer_Switcher.Tests is
          Is_Dirty                   => False,
          Is_Active                  => False,
          Has_Path                   => True,
-         Path                       => To_Unbounded_String ("/tmp/scenario/markers/not-the-buffer-text.adb"),
+         Path                       => To_Unbounded_String (Editor.Test_Temp.Base & "/scenario/markers/not-the-buffer-text.adb"),
          Last_Save_Failed           => True,
          Last_Reload_Failed         => True,
          Last_Revert_Failed         => True,
@@ -4484,14 +4485,14 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Project.Apply_Open_Result
         (S.Project,
          (Status       => Editor.Project.Project_Open_Ok,
-          Root_Path    => To_Unbounded_String ("/tmp/scenario/duplicate_project"),
+          Root_Path    => To_Unbounded_String (Editor.Test_Temp.Base & "/scenario/duplicate_project"),
           Display_Name => To_Unbounded_String ("duplicate_project"),
           Error_Text   => Null_Unbounded_String));
 
       Editor.Buffers.Global_Add_File_Buffer
-        ("/tmp/scenario/duplicate_project/src/main.adb", "main.adb", "src", Main_A);
+        (Editor.Test_Temp.Base & "/scenario/duplicate_project/src/main.adb", "main.adb", "src", Main_A);
       Editor.Buffers.Global_Add_File_Buffer
-        ("/tmp/scenario/duplicate_project/tests/main.adb", "main.adb", "tests", Main_B);
+        (Editor.Test_Temp.Base & "/scenario/duplicate_project/tests/main.adb", "main.adb", "tests", Main_B);
       Editor.Buffers.Global_Set_Active_Buffer (Main_A);
       Editor.Buffer_Switcher.Open (S.Buffer_Switcher);
       Editor.Buffer_Switcher.Recompute_Rows
@@ -4534,27 +4535,27 @@ package body Editor.Buffer_Switcher.Tests is
       Project_Label_Before : Unbounded_String;
       Outside_Label_Before : Unbounded_String;
       Deep_Path : constant String :=
-        "/tmp/scenario/labels/outside/a/b/c/d/e/final.adb";
+        Editor.Test_Temp.Base & "/scenario/labels/outside/a/b/c/d/e/final.adb";
       No_Project_Path : constant String :=
-        "/tmp/scenario/labels/no_project/parent/main.adb";
+        Editor.Test_Temp.Base & "/scenario/labels/no_project/parent/main.adb";
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Initialize (S);
       Editor.Project.Apply_Open_Result
         (S.Project,
          (Status       => Editor.Project.Project_Open_Ok,
-          Root_Path    => To_Unbounded_String ("/tmp/scenario/labels/project"),
+          Root_Path    => To_Unbounded_String (Editor.Test_Temp.Base & "/scenario/labels/project"),
           Display_Name => To_Unbounded_String ("project"),
           Error_Text   => Null_Unbounded_String));
 
       Editor.Buffers.Global_Add_File_Buffer
-        ("/tmp/scenario/labels/project/src/main.adb",
+        (Editor.Test_Temp.Base & "/scenario/labels/project/src/main.adb",
          "main.adb", "project src", Project_Main);
       Editor.Buffers.Global_Add_File_Buffer
-        ("/tmp/scenario/labels/project/tests/main.adb",
+        (Editor.Test_Temp.Base & "/scenario/labels/project/tests/main.adb",
          "main.adb", "project tests", Project_Test);
       Editor.Buffers.Global_Add_File_Buffer
-        ("/tmp/scenario/labels/outside/src/main.adb",
+        (Editor.Test_Temp.Base & "/scenario/labels/outside/src/main.adb",
          "main.adb", "outside duplicate", Outside_Main);
       Editor.Buffers.Global_Add_File_Buffer
         (Deep_Path, "final.adb", "outside deep", Outside_Deep);
@@ -4587,7 +4588,7 @@ package body Editor.Buffer_Switcher.Tests is
       Assert (Found and then To_String (Row.Display_Label) = "src/main.adb"
                 and then Row.Is_Outside_Project
                 and then To_String (Row.Path) =
-                  "/tmp/scenario/labels/outside/src/main.adb",
+                  Editor.Test_Temp.Base & "/scenario/labels/outside/src/main.adb",
               "cross-category duplicate labels remain distinguished by ownership and path projection");
       Outside_Label_Before := Row.Display_Label;
 
@@ -4598,7 +4599,7 @@ package body Editor.Buffer_Switcher.Tests is
               "deep outside-project paths are bounded to parent/basename labels");
       Assert (Length (Row.Display_Label) < Deep_Path'Length
                 and then not Contains_Text (To_String (Row.Display_Label),
-                                            "/tmp/"),
+                                            Editor.Test_Temp.Base & "/"),
               "outside-project labels do not dump unbounded absolute paths");
 
       Row := Editor.Buffer_Switcher.Row_For_Buffer
@@ -4673,7 +4674,7 @@ package body Editor.Buffer_Switcher.Tests is
    begin
       Id := Editor.Buffers.Add_Buffer_From_File
         (Registry,
-         "/tmp/scenario/lifecycle/conflicted.adb",
+         Editor.Test_Temp.Base & "/scenario/lifecycle/conflicted.adb",
          "conflicted.adb",
          "buffer text must not appear in row markers");
       Editor.Buffers.Buffer_Access (Registry, Id).File_Info.Missing_Target_Surfaced := True;
@@ -4861,9 +4862,9 @@ package body Editor.Buffer_Switcher.Tests is
       Summary : Unbounded_String;
    begin
       A := Editor.Buffers.Add_Buffer_From_File
-        (Registry, "/tmp/scenario/persist/alpha.adb", "alpha.adb", "alpha");
+        (Registry, Editor.Test_Temp.Base & "/scenario/persist/alpha.adb", "alpha.adb", "alpha");
       B := Editor.Buffers.Add_Buffer_From_File
-        (Registry, "/tmp/scenario/persist/beta.adb", "beta.adb", "beta");
+        (Registry, Editor.Test_Temp.Base & "/scenario/persist/beta.adb", "beta.adb", "beta");
       Editor.Buffers.Set_Active_Buffer (Registry, A);
       Editor.Buffer_Switcher.Open (Switcher);
       Editor.Buffer_Switcher.Set_Filter_Text (Switcher, "beta");
@@ -4871,7 +4872,7 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffer_Switcher.Move_Selection_Down (Switcher);
 
       Editor.Workspace_Persistence.Clear (Workspace);
-      Editor.Workspace_Persistence.Set_Project_Root (Workspace, "/tmp/scenario/persist");
+      Editor.Workspace_Persistence.Set_Project_Root (Workspace, Editor.Test_Temp.Base & "/scenario/persist");
       Item.Path := To_Unbounded_String ("alpha.adb");
       Item.Is_Project_Relative := True;
       Editor.Workspace_Persistence.Add_Open_File (Workspace, Item);
@@ -4910,9 +4911,9 @@ package body Editor.Buffer_Switcher.Tests is
       Remove_If_Exists (Path);
 
       A := Editor.Buffers.Add_Buffer_From_File
-        (Registry, "/tmp/scenario/persist-roundtrip/alpha.adb", "alpha.adb", "alpha structural");
+        (Registry, Editor.Test_Temp.Base & "/scenario/persist-roundtrip/alpha.adb", "alpha.adb", "alpha structural");
       B := Editor.Buffers.Add_Buffer_From_File
-        (Registry, "/tmp/scenario/persist-roundtrip/beta.adb", "beta.adb", "beta transient row");
+        (Registry, Editor.Test_Temp.Base & "/scenario/persist-roundtrip/beta.adb", "beta.adb", "beta transient row");
       Editor.Buffers.Set_Active_Buffer (Registry, A);
       Set_Buffer_Dirty_For_Test (Registry, B, True);
 
@@ -4931,7 +4932,7 @@ package body Editor.Buffer_Switcher.Tests is
 
       Editor.Workspace_Persistence.Clear (Workspace);
       Editor.Workspace_Persistence.Set_Project_Root
-        (Workspace, "/tmp/scenario/persist-roundtrip");
+        (Workspace, Editor.Test_Temp.Base & "/scenario/persist-roundtrip");
       Item.Path := To_Unbounded_String ("alpha.adb");
       Item.Is_Project_Relative := True;
       Editor.Workspace_Persistence.Add_Open_File (Workspace, Item);
@@ -4990,9 +4991,9 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Initialize (S);
       Editor.Buffers.Global_Add_File_Buffer
-        ("/tmp/scenario/render/alpha.adb", "alpha.adb", "alpha", Alpha);
+        (Editor.Test_Temp.Base & "/scenario/render/alpha.adb", "alpha.adb", "alpha", Alpha);
       Editor.Buffers.Global_Add_File_Buffer
-        ("/tmp/scenario/render/beta.adb", "beta.adb", "beta", Beta);
+        (Editor.Test_Temp.Base & "/scenario/render/beta.adb", "beta.adb", "beta", Beta);
       Editor.Buffers.Global_Set_Active_Buffer (Alpha);
       Editor.Buffer_Switcher.Open (S.Buffer_Switcher);
       Editor.Buffer_Switcher.Set_Filter_Text (S.Buffer_Switcher, "adb");
@@ -5374,7 +5375,7 @@ package body Editor.Buffer_Switcher.Tests is
                    and then not Contains_Text (Text, "Buffer_Id")
                    and then not Contains_Text (Text, "live-a.adb")
                    and then not Contains_Text (Text, "live-b.adb")
-                   and then not Contains_Text (Text, "/tmp/live"),
+                   and then not Contains_Text (Text, Editor.Test_Temp.Base & "/live"),
                  Domain & " persistence must exclude runtime buffer ids, row labels, and paths");
       end Assert_Runtime_State_Excluded;
    begin
@@ -5385,9 +5386,9 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Recent_Projects.Clear (Recent_List);
 
       Alpha := Editor.Buffers.Add_Buffer_From_File
-        (Registry, "/tmp/live/a/live-a.adb", "live-a.adb", "alpha text");
+        (Registry, Editor.Test_Temp.Base & "/live/a/live-a.adb", "live-a.adb", "alpha text");
       Beta := Editor.Buffers.Add_Buffer_From_File
-        (Registry, "/tmp/live/b/live-b.adb", "live-b.adb", "beta text");
+        (Registry, Editor.Test_Temp.Base & "/live/b/live-b.adb", "live-b.adb", "beta text");
       Editor.Buffers.Set_Active_Buffer (Registry, Alpha);
       Editor.Buffer_Switcher.Open (S.Buffer_Switcher);
       Editor.Buffer_Switcher.Set_Filter_Text (S.Buffer_Switcher, "settings-recent-query");
@@ -5408,7 +5409,7 @@ package body Editor.Buffer_Switcher.Tests is
       Assert_Runtime_State_Excluded (To_String (Settings_Text), "settings");
 
       Editor.Recent_Projects.Add_Or_Promote
-        (Recent_List, "/tmp/recent-domain-root", "recent-domain", 576);
+        (Recent_List, Editor.Test_Temp.Base & "/recent-domain-root", "recent-domain", 576);
       Editor.Recent_Projects.Save_To_File (Recent_List, Recent_Path, Recent_Status);
       Assert (Recent_Status = Editor.Recent_Projects.Recent_Project_Ok,
               "recent-projects persistence should save successfully for exclusion audit");
@@ -5521,7 +5522,7 @@ package body Editor.Buffer_Switcher.Tests is
                 and then not Contains_Text (To_String (Text), "Selected_Row")
                 and then not Contains_Text (To_String (Text), "runtime-buffer")
                 and then not Contains_Text (To_String (Text), "Buffer_Id")
-                and then not Contains_Text (To_String (Text), "/tmp/")
+                and then not Contains_Text (To_String (Text), Editor.Test_Temp.Base & "/")
                 and then not Contains_Text (To_String (Text), "alpha.adb")
                 and then not Contains_Text (To_String (Text), "beta.adb"),
               "keybinding persistence excludes buffer-list selection, filters, row labels, paths, and runtime buffer ids");
@@ -5567,14 +5568,14 @@ package body Editor.Buffer_Switcher.Tests is
       Original_Active : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
    begin
       Dirty_Project := Editor.Buffers.Add_Buffer_From_File
-        (Registry, "/tmp/project/src/dirty.adb", "dirty.adb", "dirty project");
+        (Registry, Editor.Test_Temp.Base & "/project/src/dirty.adb", "dirty.adb", "dirty project");
       Clean_Project := Editor.Buffers.Add_Buffer_From_File
-        (Registry, "/tmp/project/src/clean.adb", "clean.adb", "clean project");
+        (Registry, Editor.Test_Temp.Base & "/project/src/clean.adb", "clean.adb", "clean project");
       Scratch := Editor.Buffers.Create_Untitled_Buffer (Registry);
       Outside := Editor.Buffers.Add_Buffer_From_File
-        (Registry, "/tmp/outside/conflict.adb", "conflict.adb", "outside conflict");
+        (Registry, Editor.Test_Temp.Base & "/outside/conflict.adb", "conflict.adb", "outside conflict");
       Missing := Editor.Buffers.Add_Buffer_From_File
-        (Registry, "/tmp/project/missing.adb", "missing.adb", "missing project");
+        (Registry, Editor.Test_Temp.Base & "/project/missing.adb", "missing.adb", "missing project");
 
       Editor.Buffers.Set_Active_Buffer (Registry, Clean_Project);
       Set_Buffer_Dirty_For_Test (Registry, Dirty_Project, True);
@@ -5584,7 +5585,7 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Project.Apply_Open_Result
         (Project,
          (Status       => Editor.Project.Project_Open_Ok,
-          Root_Path    => To_Unbounded_String ("/tmp/project"),
+          Root_Path    => To_Unbounded_String (Editor.Test_Temp.Base & "/project"),
           Display_Name => To_Unbounded_String ("project"),
           Error_Text   => Null_Unbounded_String));
 
@@ -5698,28 +5699,28 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Project.Apply_Open_Result
         (Project,
          (Status       => Editor.Project.Project_Open_Ok,
-          Root_Path    => To_Unbounded_String ("/tmp/scenario/final/project"),
+          Root_Path    => To_Unbounded_String (Editor.Test_Temp.Base & "/scenario/final/project"),
           Display_Name => To_Unbounded_String ("project"),
           Error_Text   => Null_Unbounded_String));
 
       Clean_Project := Editor.Buffers.Add_Buffer_From_File
         (Registry,
-         "/tmp/scenario/final/project/src/clean.adb",
+         Editor.Test_Temp.Base & "/scenario/final/project/src/clean.adb",
          "clean.adb",
          "clean buffer text must never appear in a row");
       Dirty_Project := Editor.Buffers.Add_Buffer_From_File
         (Registry,
-         "/tmp/scenario/final/project/src/dirty.adb",
+         Editor.Test_Temp.Base & "/scenario/final/project/src/dirty.adb",
          "dirty.adb",
          "dirty buffer text must never appear in a row");
       Missing_Project := Editor.Buffers.Add_Buffer_From_File
         (Registry,
-         "/tmp/scenario/final/project/src/missing.adb",
+         Editor.Test_Temp.Base & "/scenario/final/project/src/missing.adb",
          "missing.adb",
          "missing buffer text must never appear in a row");
       Outside_Conflict := Editor.Buffers.Add_Buffer_From_File
         (Registry,
-         "/tmp/scenario/final/outside/conflict.adb",
+         Editor.Test_Temp.Base & "/scenario/final/outside/conflict.adb",
          "conflict.adb",
          "conflict buffer text must never appear in a row");
       Scratch := Editor.Buffers.Create_Untitled_Buffer (Registry);
@@ -5829,17 +5830,17 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Project.Apply_Open_Result
         (S.Project,
          (Status       => Editor.Project.Project_Open_Ok,
-          Root_Path    => To_Unbounded_String ("/tmp/scenario/canonical/project"),
+          Root_Path    => To_Unbounded_String (Editor.Test_Temp.Base & "/scenario/canonical/project"),
           Display_Name => To_Unbounded_String ("project"),
           Error_Text   => Null_Unbounded_String));
 
       Editor.Buffers.Global_Add_File_Buffer
-        ("/tmp/scenario/canonical/project/./src/../src/main.adb",
+        (Editor.Test_Temp.Base & "/scenario/canonical/project/./src/../src/main.adb",
          "main.adb",
          "procedure Main is begin null; end;",
          Inside);
       Editor.Buffers.Global_Add_File_Buffer
-        ("/tmp/scenario/canonical/project/../outside/other.adb",
+        (Editor.Test_Temp.Base & "/scenario/canonical/project/../outside/other.adb",
          "other.adb",
          "procedure Other is begin null; end;",
          Outside);
@@ -5905,13 +5906,13 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Project.Apply_Open_Result
         (Project,
          (Status       => Editor.Project.Project_Open_Ok,
-          Root_Path    => To_Unbounded_String ("/tmp/scenario/ownership/project"),
+          Root_Path    => To_Unbounded_String (Editor.Test_Temp.Base & "/scenario/ownership/project"),
           Display_Name => To_Unbounded_String ("project"),
           Error_Text   => Null_Unbounded_String));
 
       Row.Has_Path := True;
       Row.Path := To_Unbounded_String
-        ("/tmp/scenario/ownership/project/../outside/not_project.adb");
+        (Editor.Test_Temp.Base & "/scenario/ownership/project/../outside/not_project.adb");
 
       Canonical := Editor.Buffers.Classify_Buffer_Ownership
         (Has_Path => Row.Has_Path,
@@ -6005,7 +6006,7 @@ package body Editor.Buffer_Switcher.Tests is
       Metadata.Id := 42;
       Metadata.Display_Label := To_Unbounded_String ("main.adb");
       Metadata.Has_File_Path := True;
-      Metadata.File_Path := To_Unbounded_String ("/tmp/scenario/render/project/main.adb");
+      Metadata.File_Path := To_Unbounded_String (Editor.Test_Temp.Base & "/scenario/render/project/main.adb");
       Metadata.Has_Project_Relative_Path := True;
       Metadata.Project_Relative_Path := To_Unbounded_String ("src/main.adb");
       Metadata.Is_Dirty := True;

@@ -1,3 +1,4 @@
+with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -90,7 +91,7 @@ package body Editor.Empty_State_Guidance.Tests is
       S : Editor.State.State_Type;
       Result : Editor.Project.Project_Open_Result :=
         (Status       => Editor.Project.Project_Open_Ok,
-         Root_Path    => To_Unbounded_String ("/tmp/project"),
+         Root_Path    => To_Unbounded_String (Editor.Test_Temp.Base & "/project"),
          Display_Name => To_Unbounded_String ("project"),
          Error_Text   => Null_Unbounded_String);
       Snapshot : Empty_State_Snapshot;
@@ -129,7 +130,7 @@ package body Editor.Empty_State_Guidance.Tests is
       S : Editor.State.State_Type;
       Result : Editor.Project.Project_Open_Result :=
         (Status       => Editor.Project.Project_Open_Ok,
-         Root_Path    => To_Unbounded_String ("/tmp/project"),
+         Root_Path    => To_Unbounded_String (Editor.Test_Temp.Base & "/project"),
          Display_Name => To_Unbounded_String ("project"),
          Error_Text   => Null_Unbounded_String);
       File_Tree_State : Empty_State_Snapshot;
@@ -166,7 +167,7 @@ package body Editor.Empty_State_Guidance.Tests is
       S : Editor.State.State_Type;
       Result : Editor.Project.Project_Open_Result :=
         (Status       => Editor.Project.Project_Open_Ok,
-         Root_Path    => To_Unbounded_String ("/tmp/project"),
+         Root_Path    => To_Unbounded_String (Editor.Test_Temp.Base & "/project"),
          Display_Name => To_Unbounded_String ("project"),
          Error_Text   => Null_Unbounded_String);
       Snapshot : Empty_State_Snapshot;
@@ -209,7 +210,7 @@ package body Editor.Empty_State_Guidance.Tests is
       S : Editor.State.State_Type;
       Result : Editor.Project.Project_Open_Result :=
         (Status       => Editor.Project.Project_Open_Ok,
-         Root_Path    => To_Unbounded_String ("/tmp/project"),
+         Root_Path    => To_Unbounded_String (Editor.Test_Temp.Base & "/project"),
          Display_Name => To_Unbounded_String ("project"),
          Error_Text   => Null_Unbounded_String);
       Snapshot : Empty_State_Snapshot;
@@ -258,7 +259,7 @@ package body Editor.Empty_State_Guidance.Tests is
       S : Editor.State.State_Type;
       Result : Editor.Project.Project_Open_Result :=
         (Status       => Editor.Project.Project_Open_Ok,
-         Root_Path    => To_Unbounded_String ("/tmp/project"),
+         Root_Path    => To_Unbounded_String (Editor.Test_Temp.Base & "/project"),
          Display_Name => To_Unbounded_String ("project"),
          Error_Text   => Null_Unbounded_String);
       Snapshot : Empty_State_Snapshot;
@@ -445,7 +446,7 @@ package body Editor.Empty_State_Guidance.Tests is
          Invocation_Label => "gprbuild",
          Tool_Kind      => Editor.Build_Result_Summary.Build_Result_GPRbuild_Tool,
          Request_Mode   => Editor.Build_Result_Summary.Build_Result_Request_Manual,
-         Working_Context_Label => "/tmp/project",
+         Working_Context_Label => Editor.Test_Temp.Base & "/project",
          Runner_Status_Label => "succeeded",
          Primary_Message => "Build completed.",
          Diagnostics_Ingestion_Status =>
@@ -789,7 +790,7 @@ package body Editor.Empty_State_Guidance.Tests is
       S : Editor.State.State_Type;
       Result : Editor.Project.Project_Open_Result :=
         (Status       => Editor.Project.Project_Open_Ok,
-         Root_Path    => To_Unbounded_String ("/tmp/project"),
+         Root_Path    => To_Unbounded_String (Editor.Test_Temp.Base & "/project"),
          Display_Name => To_Unbounded_String ("project"),
          Error_Text   => Null_Unbounded_String);
       Main : Empty_State_Snapshot;

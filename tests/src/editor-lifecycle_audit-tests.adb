@@ -1,3 +1,4 @@
+with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -80,7 +81,7 @@ package body Editor.Lifecycle_Audit.Tests is
       S : Editor.State.State_Type;
       Target : constant Editor.Pending_Transitions.Pending_Transition_Target :=
         (Kind       => Editor.Pending_Transitions.Pending_Open_Project,
-         Path       => To_Unbounded_String ("/tmp/editor-b"),
+         Path       => To_Unbounded_String (Editor.Test_Temp.Base & "/editor-b"),
          Display    => To_Unbounded_String ("editor-b"),
          Buffer_Id  => 0,
          Has_Buffer => False,
@@ -93,17 +94,17 @@ package body Editor.Lifecycle_Audit.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.Recent_Projects.Clear (S.Recent_Projects);
-      Install_Project (S, "/tmp/editor-a", "editor-a");
+      Install_Project (S, Editor.Test_Temp.Base & "/editor-a", "editor-a");
       S.File_Info :=
         (Has_Path     => True,
-         Path         => To_Unbounded_String ("/tmp/editor-a/main.adb"),
+         Path         => To_Unbounded_String (Editor.Test_Temp.Base & "/editor-a/main.adb"),
          Display_Name => To_Unbounded_String ("main.adb"),
          Dirty        => True,
          others       => <>);
       Editor.Pending_Transitions.Set_Pending
         (S.Pending_Transitions, Target, Dirty);
       Editor.Recent_Projects.Add_Or_Promote
-        (S.Recent_Projects, "/tmp/editor-a", "editor-a", 100);
+        (S.Recent_Projects, Editor.Test_Temp.Base & "/editor-a", "editor-a", 100);
 
       Summary := Editor.Lifecycle_Audit.State_Summary (S);
 
@@ -136,7 +137,7 @@ package body Editor.Lifecycle_Audit.Tests is
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
-      Install_Project (S, "/tmp/editor-a", "editor-a");
+      Install_Project (S, Editor.Test_Temp.Base & "/editor-a", "editor-a");
       S.File_Info.Dirty := True;
 
       Before := Editor.Lifecycle_Audit.State_Summary (S);
@@ -169,7 +170,7 @@ package body Editor.Lifecycle_Audit.Tests is
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
-      Install_Project (S, "/tmp/editor-a", "editor-a");
+      Install_Project (S, Editor.Test_Temp.Base & "/editor-a", "editor-a");
       S.File_Info.Dirty := True;
       Editor.Pending_Transitions.Set_Pending
         (S.Pending_Transitions, Target, Dirty);
@@ -203,7 +204,7 @@ package body Editor.Lifecycle_Audit.Tests is
       After  : Editor.Lifecycle_Audit.Settings_Lifecycle_Summary;
       Target : constant Editor.Pending_Transitions.Pending_Transition_Target :=
         (Kind       => Editor.Pending_Transitions.Pending_Open_Project,
-         Path       => To_Unbounded_String ("/tmp/editor-b"),
+         Path       => To_Unbounded_String (Editor.Test_Temp.Base & "/editor-b"),
          Display    => To_Unbounded_String ("editor-b"),
          Buffer_Id  => 0,
          Has_Buffer => False,
@@ -221,12 +222,12 @@ package body Editor.Lifecycle_Audit.Tests is
       Editor.Settings.Set_Cursor_Blink (Model, False);
       Editor.Settings.Set_Minimap_Visible (Model, False);
       Editor.State.Apply_Settings (S, Model);
-      Install_Project (S, "/tmp/editor-a", "editor-a");
+      Install_Project (S, Editor.Test_Temp.Base & "/editor-a", "editor-a");
       S.File_Info.Dirty := True;
       Editor.Pending_Transitions.Set_Pending
         (S.Pending_Transitions, Target, Dirty);
       Editor.Recent_Projects.Add_Or_Promote
-        (S.Recent_Projects, "/tmp/editor-a", "editor-a", 104);
+        (S.Recent_Projects, Editor.Test_Temp.Base & "/editor-a", "editor-a", 104);
 
       Before := Editor.Lifecycle_Audit.Settings_Lifecycle_Summary_For (S);
       After := Editor.Lifecycle_Audit.Settings_Lifecycle_Summary_For (S);

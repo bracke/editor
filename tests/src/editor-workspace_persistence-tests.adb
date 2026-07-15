@@ -1,3 +1,4 @@
+with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Directories;
@@ -25,9 +26,9 @@ package body Editor.Workspace_Persistence.Tests is
 
    function Temp_Path (Name : String) return String is
    begin
-      Ada.Directories.Create_Path ("/tmp/editor-tests");
+      Ada.Directories.Create_Path (Editor.Test_Temp.Base & "/editor-tests");
       return Ada.Directories.Compose
-        ("/tmp/editor-tests", "" & Name);
+        (Editor.Test_Temp.Base & "/editor-tests", "" & Name);
    end Temp_Path;
 
    procedure Remove_If_Exists (Path : String) is
@@ -106,7 +107,7 @@ package body Editor.Workspace_Persistence.Tests is
       Assert (Editor.Workspace_Persistence.Open_File_Count (Snapshot) = 0,
               "new workspace snapshot should have no open files");
 
-      Editor.Workspace_Persistence.Set_Project_Root (Snapshot, "/tmp/project");
+      Editor.Workspace_Persistence.Set_Project_Root (Snapshot, Editor.Test_Temp.Base & "/project");
       Editor.Workspace_Persistence.Add_Open_File
         (Snapshot,
          (Path                => To_Unbounded_String ("src/editor.adb"),
@@ -120,7 +121,7 @@ package body Editor.Workspace_Persistence.Tests is
 
       Assert (Editor.Workspace_Persistence.Has_Project_Root (Snapshot),
               "Set_Project_Root should mark project root present");
-      Assert (Editor.Workspace_Persistence.Project_Root (Snapshot) = "/tmp/project",
+      Assert (Editor.Workspace_Persistence.Project_Root (Snapshot) = Editor.Test_Temp.Base & "/project",
               "Set_Project_Root should store root path");
       Assert (Editor.Workspace_Persistence.Open_File_Count (Snapshot) = 1,
               "Add_Open_File should append a file entry");
@@ -129,7 +130,7 @@ package body Editor.Workspace_Persistence.Tests is
       Assert (Editor.Workspace_Persistence.Expanded_File_Tree_Path_Count (Snapshot) = 1,
               "Add_Expanded_File_Tree_Path should append expansion path");
       Editor.Workspace_Persistence.Set_Recent_Project_Path
-        (Snapshot, "/tmp/project");
+        (Snapshot, Editor.Test_Temp.Base & "/project");
       Editor.Workspace_Persistence.Set_Quick_Open_Path_Scope
         (Snapshot, "src");
       Editor.Workspace_Persistence.Set_Quick_Open_File_Kind_Filter
@@ -185,7 +186,7 @@ package body Editor.Workspace_Persistence.Tests is
       Item    : Editor.Workspace_Persistence.Workspace_File_Entry;
    begin
       Remove_If_Exists (Path);
-      Editor.Workspace_Persistence.Set_Project_Root (Snapshot, "/tmp/project");
+      Editor.Workspace_Persistence.Set_Project_Root (Snapshot, Editor.Test_Temp.Base & "/project");
       Editor.Workspace_Persistence.Add_Open_File
         (Snapshot,
          (Path                => To_Unbounded_String ("src/editor.adb"),
@@ -208,7 +209,7 @@ package body Editor.Workspace_Persistence.Tests is
         (Snapshot, True, 12,
          Editor.Workspace_Persistence.Workspace_Search_Results_Content);
       Editor.Workspace_Persistence.Set_Recent_Project_Path
-        (Snapshot, "/tmp/project");
+        (Snapshot, Editor.Test_Temp.Base & "/project");
       Editor.Workspace_Persistence.Set_Quick_Open_Path_Scope
         (Snapshot, "src/editor");
       Editor.Workspace_Persistence.Set_Quick_Open_File_Kind_Filter
@@ -224,7 +225,7 @@ package body Editor.Workspace_Persistence.Tests is
       Editor.Workspace_Persistence.Load_From_File (Path, Loaded, Status);
       Assert (Status = Editor.Workspace_Persistence.Workspace_Persistence_Ok,
               "Load_From_File should load saved workspace file");
-      Assert (Editor.Workspace_Persistence.Project_Root (Loaded) = "/tmp/project",
+      Assert (Editor.Workspace_Persistence.Project_Root (Loaded) = Editor.Test_Temp.Base & "/project",
               "roundtrip should preserve project root");
       Assert (Editor.Workspace_Persistence.Open_File_Count (Loaded) = 2,
               "roundtrip should preserve open file count");
@@ -246,7 +247,7 @@ package body Editor.Workspace_Persistence.Tests is
               "roundtrip should preserve active bottom panel content");
       Assert (Editor.Workspace_Persistence.Has_Recent_Project_Path (Loaded)
               and then Editor.Workspace_Persistence.Recent_Project_Path (Loaded) =
-                "/tmp/project",
+                Editor.Test_Temp.Base & "/project",
               "roundtrip should preserve recent project path");
       Assert (Editor.Workspace_Persistence.Quick_Open_Path_Scope (Loaded) =
                 "src/editor/",
@@ -334,7 +335,7 @@ package body Editor.Workspace_Persistence.Tests is
               "strict normalization should reject noncanonical separators");
       Assert (not Editor.Workspace_Persistence.Is_Safe_Project_Relative_Path ("../outside.adb"),
               "workspace persistence should reject parent-directory escapes");
-      Assert (not Editor.Workspace_Persistence.Is_Safe_Project_Relative_Path ("/tmp/outside.adb"),
+      Assert (not Editor.Workspace_Persistence.Is_Safe_Project_Relative_Path (Editor.Test_Temp.Base & "/outside.adb"),
               "workspace persistence should reject absolute file paths");
       Assert (not Editor.Workspace_Persistence.Is_Safe_Project_Relative_Path ("src/./editor.adb"),
               "workspace persistence should reject explicit dot path segments");
@@ -353,7 +354,7 @@ package body Editor.Workspace_Persistence.Tests is
       Remove_If_Exists (Path_A);
       Remove_If_Exists (Path_B);
 
-      Editor.Workspace_Persistence.Set_Project_Root (Left, "/tmp/project");
+      Editor.Workspace_Persistence.Set_Project_Root (Left, Editor.Test_Temp.Base & "/project");
       Editor.Workspace_Persistence.Add_Open_File
         (Left,
          (Path                => To_Unbounded_String ("src/editor.adb"),
@@ -372,7 +373,7 @@ package body Editor.Workspace_Persistence.Tests is
       Editor.Workspace_Persistence.Add_Expanded_File_Tree_Path (Left, "src");
       Editor.Workspace_Persistence.Set_Active_File_Path (Left, "src/editor.adb", True);
 
-      Editor.Workspace_Persistence.Set_Project_Root (Right, "/tmp/project");
+      Editor.Workspace_Persistence.Set_Project_Root (Right, Editor.Test_Temp.Base & "/project");
       Editor.Workspace_Persistence.Add_Open_File
         (Right,
          (Path                => To_Unbounded_String ("src/editor.adb"),
@@ -416,7 +417,7 @@ package body Editor.Workspace_Persistence.Tests is
       Remove_If_Exists (Temp);
       Write_Text (Path, "previous-good-session");
 
-      Editor.Workspace_Persistence.Set_Project_Root (Snapshot, "/tmp/project");
+      Editor.Workspace_Persistence.Set_Project_Root (Snapshot, Editor.Test_Temp.Base & "/project");
       Editor.Workspace_Persistence.Add_Open_File
         (Snapshot,
          (Path                => To_Unbounded_String ("src/editor.adb"),
@@ -564,7 +565,7 @@ package body Editor.Workspace_Persistence.Tests is
       Remove_If_Exists (Path);
 
       Editor.Workspace_Persistence.Set_Project_Root
-        (Snapshot, "/tmp/project");
+        (Snapshot, Editor.Test_Temp.Base & "/project");
       Editor.Workspace_Persistence.Add_Open_File
         (Snapshot,
          (Path                => To_Unbounded_String ("src/main.adb"),
@@ -654,7 +655,7 @@ package body Editor.Workspace_Persistence.Tests is
               "save must retain structural open file references");
 
       Editor.Workspace_Persistence.Clear (Snapshot);
-      Editor.Workspace_Persistence.Set_Project_Root (Snapshot, "/tmp/project");
+      Editor.Workspace_Persistence.Set_Project_Root (Snapshot, Editor.Test_Temp.Base & "/project");
       Editor.Workspace_Persistence.Set_Active_File_Path
         (Snapshot, "src/active-only.adb", True);
       Editor.Workspace_Persistence.Save_To_File (Snapshot, Saved, Status);
@@ -2083,7 +2084,7 @@ package body Editor.Workspace_Persistence.Tests is
       Audit    : Editor.Workspace_Persistence.Workspace_Buffer_Persistence_Audit;
       Text     : Unbounded_String;
    begin
-      Editor.Workspace_Persistence.Set_Project_Root (Snapshot, "/tmp/project");
+      Editor.Workspace_Persistence.Set_Project_Root (Snapshot, Editor.Test_Temp.Base & "/project");
       Editor.Workspace_Persistence.Add_Open_File
         (Snapshot,
          (Path                => To_Unbounded_String ("src/main.adb"),
@@ -2232,7 +2233,7 @@ package body Editor.Workspace_Persistence.Tests is
       Status   : Editor.Workspace_Persistence.Workspace_Persistence_Status;
    begin
       Remove_If_Exists (Path);
-      Editor.Workspace_Persistence.Set_Project_Root (Snapshot, "/tmp/project");
+      Editor.Workspace_Persistence.Set_Project_Root (Snapshot, Editor.Test_Temp.Base & "/project");
       Editor.Workspace_Persistence.Add_Open_File
         (Snapshot,
          (Path                => To_Unbounded_String ("src/main.adb"),
@@ -2270,7 +2271,7 @@ package body Editor.Workspace_Persistence.Tests is
          Panel_Values_Clamped => 0);
       Audit : Editor.Workspace_Persistence.Workspace_Restore_Audit;
    begin
-      Editor.Workspace_Persistence.Set_Project_Root (Before, "/tmp/project");
+      Editor.Workspace_Persistence.Set_Project_Root (Before, Editor.Test_Temp.Base & "/project");
       Editor.Workspace_Persistence.Add_Open_File
         (Before,
          (Path                => To_Unbounded_String ("src/main.adb"),
@@ -2282,7 +2283,7 @@ package body Editor.Workspace_Persistence.Tests is
         (Before, "src/main.adb", True);
       Editor.Workspace_Persistence.Add_Expanded_File_Tree_Path (Before, "src");
       Editor.Workspace_Persistence.Set_Recent_Project_Path
-        (Before, "/tmp/project");
+        (Before, Editor.Test_Temp.Base & "/project");
       Editor.Workspace_Persistence.Set_Quick_Open_Path_Scope (Before, "src");
       Editor.Workspace_Persistence.Set_Quick_Open_File_Kind_Filter
         (Before,

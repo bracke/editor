@@ -1,3 +1,4 @@
+with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Containers; use type Ada.Containers.Count_Type;
@@ -81,7 +82,7 @@ package body Editor.Core_Editing_Workflow.Tests is
       Assert (S.Buffer_Revision = Before_Revision, "labels do not mutate buffer revision");
 
       S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String ("/tmp/example.adb");
+      S.File_Info.Path := To_Unbounded_String (Editor.Test_Temp.Base & "/example.adb");
       S.File_Info.Display_Name := To_Unbounded_String ("example.adb");
       S.File_Info.Dirty := True;
       S.File_Info.Last_Save_Failed := True;
@@ -113,7 +114,7 @@ package body Editor.Core_Editing_Workflow.Tests is
          "save-as is available for an active unbacked buffer");
 
       S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String ("/tmp/example.adb");
+      S.File_Info.Path := To_Unbounded_String (Editor.Test_Temp.Base & "/example.adb");
       S.File_Info.Display_Name := To_Unbounded_String ("example.adb");
       Assert
         (Editor.Core_Editing_Workflow.Editing_Availability_Reason

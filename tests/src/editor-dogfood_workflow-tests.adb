@@ -1,3 +1,4 @@
+with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Directories;
@@ -84,14 +85,14 @@ package body Editor.Dogfood_Workflow.Tests is
 
    function Temp_Root return String is
    begin
-      Ada.Directories.Create_Path ("/tmp/editor-tests");
-      return "/tmp/editor-tests/dogfood_project";
+      Ada.Directories.Create_Path (Editor.Test_Temp.Base & "/editor-tests");
+      return Editor.Test_Temp.Base & "/editor-tests/dogfood_project";
    end Temp_Root;
 
    function Temp_Config_Root return String is
    begin
-      Ada.Directories.Create_Path ("/tmp/editor-tests");
-      return "/tmp/editor-tests/dogfood_config";
+      Ada.Directories.Create_Path (Editor.Test_Temp.Base & "/editor-tests");
+      return Editor.Test_Temp.Base & "/editor-tests/dogfood_config";
    end Temp_Config_Root;
 
    procedure Remove_Tree_If_Exists (Path : String) is

@@ -1,3 +1,4 @@
+with Editor.Test_Temp;
 with Ada.Directories;
 with Ada.Containers;
 with Ada.Strings;
@@ -24,9 +25,9 @@ package body Editor.Executor.Test_Support is
 
    function Temp_Path (Name : String) return String is
    begin
-      Ada.Directories.Create_Path ("/tmp/editor-tests");
+      Ada.Directories.Create_Path (Editor.Test_Temp.Base & "/editor-tests");
       return Ada.Directories.Compose
-        ("/tmp/editor-tests", "exec_" & Name);
+        (Editor.Test_Temp.Base & "/editor-tests", "exec_" & Name);
    end Temp_Path;
 
    function Executor_Recent_Config_Dir return String is

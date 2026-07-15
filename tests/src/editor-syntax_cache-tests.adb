@@ -1,3 +1,4 @@
+with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Editor.Syntax;
@@ -115,10 +116,10 @@ package body Editor.Syntax_Cache.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.Buffers.Global_Add_File_Buffer
-        ("/tmp/editor-syntax-a.adb", "editor-syntax-a.adb",
+        (Editor.Test_Temp.Base & "/editor-syntax-a.adb", "editor-syntax-a.adb",
          "S := ""unterminated" & ASCII.LF & "still string"";", A);
       Editor.Buffers.Global_Add_File_Buffer
-        ("/tmp/editor-syntax-b.adb", "editor-syntax-b.adb",
+        (Editor.Test_Temp.Base & "/editor-syntax-b.adb", "editor-syntax-b.adb",
          "procedure Normal is" & ASCII.LF & "begin" & ASCII.LF & "   null;" & ASCII.LF & "end Normal;", B);
 
       Editor.Buffers.Global_Set_Active_Buffer (A);
@@ -445,7 +446,7 @@ package body Editor.Syntax_Cache.Tests is
       --  It must not silently persist detached syntax state or force a stale
       --  rebuild when the active buffer text/revision are unchanged.
       S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String ("/tmp/save-as-demo.adb");
+      S.File_Info.Path := To_Unbounded_String (Editor.Test_Temp.Base & "/save-as-demo.adb");
       S.File_Info.Display_Name := To_Unbounded_String ("save-as-demo.adb");
       S.File_Info.Dirty := False;
       Editor.State.Reset_Dirty_Line_Baseline (S);

@@ -1,3 +1,4 @@
+with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Containers; use type Ada.Containers.Count_Type;
@@ -390,9 +391,9 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
    begin
       Init_Executor_Test_State (S);
       Editor.Recent_Projects.Add_Or_Promote
-        (S.Recent_Projects, "/tmp/a", "a", 1);
+        (S.Recent_Projects, Editor.Test_Temp.Base & "/a", "a", 1);
       Editor.Recent_Projects.Add_Or_Promote
-        (S.Recent_Projects, "/tmp/b", "b", 2);
+        (S.Recent_Projects, Editor.Test_Temp.Base & "/b", "b", 2);
 
       S.Recent_Project_Selected_Index := 0;
       Editor.Executor.Execute_Command

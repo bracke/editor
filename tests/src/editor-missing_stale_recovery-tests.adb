@@ -1,3 +1,4 @@
+with Editor.Test_Temp;
 with Ada.Directories;
 with Ada.Text_IO;
 with Ada.Strings.Unbounded;
@@ -34,8 +35,8 @@ package body Editor.Missing_Stale_Recovery.Tests is
 
    function Fixture_Root return String is
    begin
-      Ada.Directories.Create_Path ("/tmp/editor-tests");
-      return "/tmp/editor-tests/missing_stale_fixture";
+      Ada.Directories.Create_Path (Editor.Test_Temp.Base & "/editor-tests");
+      return Editor.Test_Temp.Base & "/editor-tests/missing_stale_fixture";
    end Fixture_Root;
 
    procedure Write_File (Path : String; Text : String := "demo") is
@@ -163,7 +164,7 @@ package body Editor.Missing_Stale_Recovery.Tests is
       Root : constant String := Fixture_Root;
       Existing : constant String := Root & "/src/main.adb";
       Missing  : constant String := Root & "/src/missing.adb";
-      Outside  : constant String := "/tmp/editor-tests/outside.adb";
+      Outside  : constant String := Editor.Test_Temp.Base & "/editor-tests/outside.adb";
    begin
       Reset_Fixture;
       Write_File (Outside, "outside");
@@ -733,7 +734,7 @@ package body Editor.Missing_Stale_Recovery.Tests is
       pragma Unreferenced (T);
       Root : constant String := Fixture_Root;
       Source : constant String := Root & "/src/main.adb";
-      Outside : constant String := "/tmp/editor-tests/outside_search.adb";
+      Outside : constant String := Editor.Test_Temp.Base & "/editor-tests/outside_search.adb";
    begin
       Reset_Fixture;
       Write_File (Outside, "outside");
@@ -859,7 +860,7 @@ package body Editor.Missing_Stale_Recovery.Tests is
       pragma Unreferenced (T);
       Root : constant String := Fixture_Root;
       Source : constant String := Root & "/src/main.adb";
-      Outside : constant String := "/tmp/editor-tests/recent_outside.adb";
+      Outside : constant String := Editor.Test_Temp.Base & "/editor-tests/recent_outside.adb";
       Summary : constant Editor.Missing_Stale_Recovery.Replace_Apply_Validation_Summary :=
         (Applied_Targets => 2, Missing_Targets => 1, Stale_Targets => 1,
          Out_Of_Range_Targets => 1);
@@ -1175,10 +1176,10 @@ package body Editor.Missing_Stale_Recovery.Tests is
                 (Editor.Missing_Stale_Recovery.Staleness_Project_Identity_Mismatch),
               "project identity mismatch requires explicit recovery");
       Assert (Editor.Missing_Stale_Recovery.Project_Scope_Identity_Matches
-                ("/tmp/editor-", "/tmp/editor-"),
+                (Editor.Test_Temp.Base & "/editor-", Editor.Test_Temp.Base & "/editor-"),
               "matching project identity is accepted");
       Assert (not Editor.Missing_Stale_Recovery.Project_Scope_Identity_Matches
-                ("/tmp/editor-", "/tmp/other-"),
+                (Editor.Test_Temp.Base & "/editor-", Editor.Test_Temp.Base & "/other-"),
               "previous-project identity cannot be reused for stale rows");
       Assert (not Editor.Missing_Stale_Recovery.Stale_Target_May_Be_Opened_From_Previous_Project,
               "stale previous-project target cannot be opened");
@@ -1402,7 +1403,7 @@ package body Editor.Missing_Stale_Recovery.Tests is
       Recent_Result : constant Editor.Missing_Stale_Recovery.Target_Validation_Result :=
         (State   => Editor.Missing_Stale_Recovery.Target_Missing,
          Surface => Editor.Missing_Stale_Recovery.Recent_Project_Surface,
-         Path    => Ada.Strings.Unbounded.To_Unbounded_String ("/tmp/missing-project"),
+         Path    => Ada.Strings.Unbounded.To_Unbounded_String (Editor.Test_Temp.Base & "/missing-project"),
          Line    => 0,
          Column  => 0);
       Pending_Result : constant Editor.Missing_Stale_Recovery.Target_Validation_Result :=
