@@ -19,11 +19,12 @@ jobs:
   build-and-test:
     name: build-and-test (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
-    # The editor is big -- 5567 tests, and the whole of guikit and textrender underneath
-    # it. Ubuntu takes about 40 minutes; the Windows and macOS runners are slower and were
-    # being cancelled mid-build at 60, having linked cleanly. This is a backstop against a
-    # hang, not a budget: it should never be reached.
-    timeout-minutes: 150
+    # The editor is big -- 5567 tests, and the whole of guikit and textrender underneath it.
+    # Ubuntu builds and tests in ~35 minutes, macOS in ~65; the mingw compiler on Windows is
+    # far slower and was still building the tests at 150, having linked the editor cleanly and
+    # run nothing yet. This is a backstop against a hang, not a budget. Public-repo runners are
+    # free, so the only cost of a high cap is wall-clock.
+    timeout-minutes: 240
     env:
       ALIRE_NONINTERACTIVE: "true"
     strategy:
