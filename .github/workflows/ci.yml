@@ -172,12 +172,14 @@ jobs:
             || runner.os == 'Windows' && 'C:/Windows/Fonts/consola.ttf'
             || '' }}
         run: |
-          # Build only the tests.adb executable, not all seventeen. tests.gpr declares a main
-          # per focused subset, and each statically links the whole editor -- seventeen slow
-          # mingw links, sixteen of them for binaries CI never runs. tests.adb runs the full
-          # 5567 on its own (via All_Suites), so it is the only one needed, and building just
-          # it is the difference between a build that finishes on Windows and one that does not.
-          alr --non-interactive exec -- gprbuild -j0 -p -P tests.gpr tests.adb
+          # Build only the tests.adb executable, not all of tests.gpr's mains. It declares one
+          # per focused subset, and each statically links the whole editor -- many slow mingw
+          # links, all but one for binaries CI never runs, which is why the Windows job could
+          # not finish. tests.adb runs the full 5567 on its own (via All_Suites). Passing it to
+          # gprbuild through "alr build --" is what limits the link to that one main while still
+          # letting Alire generate the crate config (config/tests_config.gpr) that a bare
+          # gprbuild would not.
+          alr --non-interactive build -- tests.adb
 
           # Through "alr exec", because the suite runs the compiler: the external-producer
           # tests drive gnat to get real diagnostics, and Alire's toolchain is only on PATH
