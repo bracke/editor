@@ -160,7 +160,7 @@ jobs:
           $paths = @("${{ github.workspace }}", "$env:LOCALAPPDATA\alire", "$env:USERPROFILE\.cache\alire", "C:\msys64")
           foreach ($p in $paths) {
             try { Add-MpPreference -ExclusionPath $p -ErrorAction Stop; Write-Host "excluded $p" }
-            catch { Write-Warning "could not exclude $p: $_" }
+            catch { Write-Warning "could not exclude ${p}: $_" }
           }
 
       - name: Set up Alire
