@@ -4,8 +4,9 @@ with Ada.Text_IO;
 with Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases; use AUnit.Test_Cases.Registration;
-with Editor.Commands;
 with Editor.Missing_Stale_Recovery;
+with Editor.Missing_Stale_Recovery.Boundary_Tests;
+with Editor.Missing_Stale_Recovery.Target_Validation_Tests;
 
 package body Editor.Missing_Stale_Recovery.Tests is
 
@@ -59,429 +60,7 @@ package body Editor.Missing_Stale_Recovery.Tests is
       Write_File (Root & "/demo.gpr", "project Demo is end Demo;");
    end Reset_Fixture;
 
-   procedure Test_User_Readable_Labels_Are_Stable
-     (T : in out AUnit.Test_Cases.Test_Case'Class)
-   is
-      pragma Unreferenced (T);
-   begin
-      Assert (Editor.Missing_Stale_Recovery.Label
-                (Editor.Missing_Stale_Recovery.Target_Missing) = "target missing",
-              "missing label is user-readable and not an enum name");
-      Assert (Editor.Missing_Stale_Recovery.Availability_Reason
-                (Editor.Missing_Stale_Recovery.Target_Outside_Project) =
-                "Target is outside the current project.",
-              "outside-project reason is distinct from missing");
-      Assert (Editor.Missing_Stale_Recovery.Availability_Reason
-                (Editor.Missing_Stale_Recovery.Target_Unreadable) =
-                "File is not readable.",
-              "unreadable reason is distinct");
-      Assert (Editor.Missing_Stale_Recovery.Availability_Reason
-                (Editor.Missing_Stale_Recovery.Target_Unwritable) =
-                "File is not writable.",
-              "unwritable reason is distinct");
-      Assert (Editor.Missing_Stale_Recovery.Availability_Reason
-                (Editor.Missing_Stale_Recovery.Target_Stale) =
-                Editor.Commands.Reason_Target_Stale,
-              "stale target reason uses the canonical wording");
-      Assert (Editor.Missing_Stale_Recovery.Outcome_Label
-                ((State   => Editor.Missing_Stale_Recovery.Target_Stale,
-                  Surface => Editor.Missing_Stale_Recovery.Project_Search_Surface,
-                  Path    => Ada.Strings.Unbounded.To_Unbounded_String (""),
-                  Line    => 0,
-                  Column  => 0)) =
-                "Project Search: Target is stale; refresh required.",
-              "generic stale outcome cannot bypass canonical wording");
-   end Test_User_Readable_Labels_Are_Stable;
 
-   procedure Test_Workspace_And_Recent_Recovery_Messages
-     (T : in out AUnit.Test_Cases.Test_Case'Class)
-   is
-      pragma Unreferenced (T);
-      Root : constant String := Fixture_Root;
-      Missing : constant String := Root & "/missing-project";
-      Summary : constant Editor.Missing_Stale_Recovery.Workspace_Recovery_Summary :=
-        (Project_Missing        => False,
-         Missing_Open_Files     => 2,
-         Active_File_Missing    => True,
-         Ignored_Expanded_Paths => 1,
-         Invalid_Caret_Targets  => 1,
-         Fabricated_Project     => False,
-         Fabricated_Buffer      => False);
-   begin
-      Reset_Fixture;
-      Assert (Editor.Missing_Stale_Recovery.Validate_Workspace_Project_Target (Missing).State =
-                Editor.Missing_Stale_Recovery.Target_Missing,
-              "missing workspace project is unavailable");
-      Assert (Editor.Missing_Stale_Recovery.Workspace_Recovery_Message (Summary) =
-                "Some workspace files could not be reopened; active file could not be restored.",
-              "workspace load emits one primary missing-reference summary");
-      Assert (Editor.Missing_Stale_Recovery.Recent_Project_Recovery_Message (1, 0) =
-                "Recent project path no longer exists.",
-              "recent project open failure is explicit");
-      Assert (Editor.Missing_Stale_Recovery.Recent_Project_Recovery_Message (1, 1) =
-                "Removed unavailable recent project.",
-              "recent project removal message is explicit");
-      Assert (Editor.Missing_Stale_Recovery.Recent_Project_Recovery_Message (0, 0) =
-                "No unavailable recent projects.",
-              "no-op recent missing removal is explicit");
-      Assert (Editor.Missing_Stale_Recovery.Validate_Recent_Project_Target (Missing).Surface =
-                Editor.Missing_Stale_Recovery.Recent_Project_Surface,
-              "recent project missing marker is surface-specific");
-   end Test_Workspace_And_Recent_Recovery_Messages;
-
-   procedure Test_File_Lifecycle_Missing_Backing_File_Recovery
-     (T : in out AUnit.Test_Cases.Test_Case'Class)
-   is
-      pragma Unreferenced (T);
-      Root : constant String := Fixture_Root;
-      Source : constant String := Root & "/src/main.adb";
-      Missing : constant String := Root & "/src/deleted.adb";
-      Missing_Parent : constant String := Root & "/gone/new.adb";
-   begin
-      Reset_Fixture;
-      Ada.Directories.Delete_File (Source);
-      Assert (Editor.Missing_Stale_Recovery.Validate_Buffer_Backing_File_Target
-                (Source, Dirty => True).State = Editor.Missing_Stale_Recovery.Target_Missing,
-              "deleted dirty backing file is missing without clearing buffer text");
-      Assert (Editor.Missing_Stale_Recovery.Dirty_Buffer_Text_Preserved_On
-                (Editor.Missing_Stale_Recovery.Target_Missing),
-              "dirty buffer text is preserved on missing backing file");
-      Assert (Editor.Missing_Stale_Recovery.Validate_Save_Target (Missing).State =
-                Editor.Missing_Stale_Recovery.Target_Available,
-              "save to existing parent remains an explicit create/write operation");
-      Assert (Editor.Missing_Stale_Recovery.Validate_Save_Target (Missing_Parent).State =
-                Editor.Missing_Stale_Recovery.Target_Parent_Directory_Missing,
-              "save target with missing parent reports the parent-directory recovery label");
-      Assert (Editor.Missing_Stale_Recovery.Validate_Reveal_Target (Missing, Root).Surface =
-                Editor.Missing_Stale_Recovery.File_Tree_Surface,
-              "reveal validates through the File Tree surface");
-   end Test_File_Lifecycle_Missing_Backing_File_Recovery;
-
-   procedure Test_File_Project_And_Project_Boundary_Validation
-     (T : in out AUnit.Test_Cases.Test_Case'Class)
-   is
-      pragma Unreferenced (T);
-      Root : constant String := Fixture_Root;
-      Existing : constant String := Root & "/src/main.adb";
-      Missing  : constant String := Root & "/src/missing.adb";
-      Outside  : constant String := Editor.Test_Temp.Base & "/editor-tests/outside.adb";
-   begin
-      Reset_Fixture;
-      Write_File (Outside, "outside");
-      Assert (Editor.Missing_Stale_Recovery.Validate_Project_Target (Root).State =
-                Editor.Missing_Stale_Recovery.Target_Available,
-              "existing project root is available");
-      Assert (Editor.Missing_Stale_Recovery.Validate_Project_Target (Root & "/gone").State =
-                Editor.Missing_Stale_Recovery.Target_Missing,
-              "missing workspace project is reported as missing");
-      Assert (Editor.Missing_Stale_Recovery.Validate_Project_File_Target
-                (Root, Existing).State = Editor.Missing_Stale_Recovery.Target_Available,
-              "existing in-project file is available");
-      Assert (Editor.Missing_Stale_Recovery.Validate_Project_File_Target
-                (Root, Missing).State = Editor.Missing_Stale_Recovery.Target_Missing,
-              "missing in-project file is missing, not fabricated");
-      Assert (Editor.Missing_Stale_Recovery.Validate_Project_File_Target
-                (Root, Outside).State = Editor.Missing_Stale_Recovery.Target_Outside_Project,
-              "outside-project file is rejected before open/navigation");
-      Ada.Directories.Delete_File (Outside);
-   end Test_File_Project_And_Project_Boundary_Validation;
-
-   procedure Test_Surface_Specific_Stale_Target_Validation
-     (T : in out AUnit.Test_Cases.Test_Case'Class)
-   is
-      pragma Unreferenced (T);
-      Root : constant String := Fixture_Root;
-      Existing : constant String := Root & "/src/main.adb";
-      Missing  : constant String := Root & "/src/gone.adb";
-   begin
-      Reset_Fixture;
-      Assert (Editor.Missing_Stale_Recovery.Validate_File_Tree_Node_Target
-                (Missing, Root).State = Editor.Missing_Stale_Recovery.Target_Missing,
-              "stale File Tree node validates to missing");
-      Assert (Editor.Missing_Stale_Recovery.Validate_Quick_Open_Result_Target
-                (Missing, Root).State = Editor.Missing_Stale_Recovery.Target_Stale,
-              "stale Quick Open match validates to stale");
-      Assert (Editor.Missing_Stale_Recovery.Validate_Search_Result_Target
-                (Existing, 3, 1).State = Editor.Missing_Stale_Recovery.Target_Line_Out_Of_Range,
-              "Project Search line out of range is rejected");
-      Assert (Editor.Missing_Stale_Recovery.Validate_Search_Result_Target
-                (Existing, 1, 1, Stale => True).State = Editor.Missing_Stale_Recovery.Target_Stale,
-              "stale Project Search row requires rerun before activation");
-      Assert (Editor.Missing_Stale_Recovery.Validate_Replace_Preview_Target
-                (Existing, 1, 1, Stale => True).State = Editor.Missing_Stale_Recovery.Target_Preview_Stale,
-              "stale replace preview is rejected before apply");
-   end Test_Surface_Specific_Stale_Target_Validation;
-
-   procedure Test_Outline_Diagnostics_And_Build_Validation
-     (T : in out AUnit.Test_Cases.Test_Case'Class)
-   is
-      pragma Unreferenced (T);
-      Root : constant String := Fixture_Root;
-      Source : constant String := Root & "/src/main.adb";
-      Candidate : constant String := Root & "/demo.gpr";
-   begin
-      Reset_Fixture;
-      Assert (Editor.Missing_Stale_Recovery.Validate_Outline_Target
-                (Active_Buffer_Matches => False,
-                 Stale => False,
-                 Line => 1,
-                 Column => 1,
-                 Last_Line => 1,
-                 Last_Line_Column => 20).State =
-                Editor.Missing_Stale_Recovery.Target_Stale,
-              "Outline for another buffer is rejected");
-      Assert (Editor.Missing_Stale_Recovery.Validate_Outline_Target
-                (Active_Buffer_Matches => True,
-                 Stale => True,
-                 Line => 1,
-                 Column => 1,
-                 Last_Line => 1,
-                 Last_Line_Column => 20).State =
-                Editor.Missing_Stale_Recovery.Target_Refresh_Required,
-              "stale Outline requires explicit refresh");
-      Assert (Editor.Missing_Stale_Recovery.Validate_Diagnostic_Target
-                (Source, False, 1, 1, 1, 20).State =
-                Editor.Missing_Stale_Recovery.Target_Source_Less,
-              "source-less diagnostic is non-navigable");
-      Assert (Editor.Missing_Stale_Recovery.Validate_Diagnostic_Target
-                (Source, True, 2, 1, 1, 20).State =
-                Editor.Missing_Stale_Recovery.Target_Line_Out_Of_Range,
-              "diagnostic line out of range is rejected");
-      Assert (Editor.Missing_Stale_Recovery.Validate_Build_Candidate_Target
-                (Candidate, Root, Stale => True).State =
-                Editor.Missing_Stale_Recovery.Target_Candidate_Stale,
-              "stale build candidate blocks build.run preflight");
-      Ada.Directories.Delete_File (Candidate);
-      Assert (Editor.Missing_Stale_Recovery.Validate_Build_Candidate_Target
-                (Candidate, Root).State = Editor.Missing_Stale_Recovery.Target_Missing,
-              "deleted build candidate blocks build.run preflight");
-   end Test_Outline_Diagnostics_And_Build_Validation;
-
-   procedure Test_Render_Persistence_And_Command_Payload_Boundaries
-     (T : in out AUnit.Test_Cases.Test_Case'Class)
-   is
-      pragma Unreferenced (T);
-   begin
-      Assert (not Editor.Missing_Stale_Recovery.Render_May_Probe_Targets,
-              "render remains observational and may not probe filesystem targets");
-      Assert (not Editor.Missing_Stale_Recovery.Recovery_State_Is_Persistable
-                (Editor.Missing_Stale_Recovery.Target_Stale),
-              "stale target state is transient and excluded from persistence");
-      Assert (not Editor.Missing_Stale_Recovery.Recovery_State_Is_Persistable
-                (Editor.Missing_Stale_Recovery.Target_Preview_Stale),
-              "replace preview stale state is excluded from persistence");
-      Assert (Editor.Missing_Stale_Recovery.Recovery_Command_Is_Payload_Free
-                (Editor.Missing_Stale_Recovery.Recovery_File_Tree_Refresh),
-              "file-tree.refresh carries no file/tree-node payload");
-      Assert (Editor.Missing_Stale_Recovery.Recovery_Command_Is_Payload_Free
-                (Editor.Missing_Stale_Recovery.Recovery_Project_Search_Run),
-              "project-search.run carries no stale result payload");
-      Assert (Editor.Missing_Stale_Recovery.Recovery_Command_Name
-                (Editor.Missing_Stale_Recovery.Recovery_Build_Refresh_Candidates) =
-                "build.refresh-candidates",
-              "build recovery command uses canonical command name only");
-   end Test_Render_Persistence_And_Command_Payload_Boundaries;
-
-
-   procedure Test_Project_Transition_And_Explicit_Recovery_Boundaries
-     (T : in out AUnit.Test_Cases.Test_Case'Class)
-   is
-      pragma Unreferenced (T);
-      Root : constant String := Fixture_Root;
-      Candidate : constant String := Root & "/demo.gpr";
-   begin
-      Reset_Fixture;
-      Assert (Editor.Missing_Stale_Recovery.Surface_Cleared_On_Project_Transition
-                (Editor.Missing_Stale_Recovery.Quick_Open_Surface),
-              "project switch/close clears Quick Open results");
-      Assert (Editor.Missing_Stale_Recovery.Surface_Cleared_On_Project_Transition
-                (Editor.Missing_Stale_Recovery.Project_Search_Surface),
-              "project switch/close clears Project Search results");
-      Assert (Editor.Missing_Stale_Recovery.Surface_Cleared_On_Project_Transition
-                (Editor.Missing_Stale_Recovery.Replace_Preview_Surface),
-              "project switch/close clears replace preview state");
-      Assert (Editor.Missing_Stale_Recovery.Surface_Cleared_On_Project_Transition
-                (Editor.Missing_Stale_Recovery.Build_Surface),
-              "project switch/close clears Build candidates/request/result/output");
-      Assert (not Editor.Missing_Stale_Recovery.Surface_Cleared_On_Project_Transition
-                (Editor.Missing_Stale_Recovery.Recent_Project_Surface),
-              "project switch does not delete Recent Projects state");
-      Assert (Editor.Missing_Stale_Recovery.Recovery_Command_Is_Explicit
-                (Editor.Missing_Stale_Recovery.Recovery_File_Tree_Refresh),
-              "file-tree.refresh is an explicit recovery action");
-      Assert (Editor.Missing_Stale_Recovery.Recovery_Command_Replaces_Stale_Surface
-                (Editor.Missing_Stale_Recovery.Recovery_Outline_Refresh,
-                 Editor.Missing_Stale_Recovery.Outline_Surface),
-              "outline.refresh is bounded to Outline stale recovery");
-      Assert (not Editor.Missing_Stale_Recovery.Recovery_Command_Replaces_Stale_Surface
-                (Editor.Missing_Stale_Recovery.Recovery_Build_Refresh_Candidates,
-                 Editor.Missing_Stale_Recovery.Project_Search_Surface),
-              "build.refresh-candidates cannot repair Project Search stale rows");
-      Assert (Editor.Missing_Stale_Recovery.Build_Run_Allowed
-                (Editor.Missing_Stale_Recovery.Validate_Build_Candidate_Target
-                   (Candidate, Root)),
-              "available build candidate passes build.run preflight");
-   end Test_Project_Transition_And_Explicit_Recovery_Boundaries;
-
-   procedure Test_Stale_Targets_Block_Actions_Until_Recovery
-     (T : in out AUnit.Test_Cases.Test_Case'Class)
-   is
-      pragma Unreferenced (T);
-      Root : constant String := Fixture_Root;
-      Source : constant String := Root & "/src/main.adb";
-      Candidate : constant String := Root & "/demo.gpr";
-   begin
-      Reset_Fixture;
-      Assert (Editor.Missing_Stale_Recovery.Stale_State_After_Content_Change
-                (Editor.Missing_Stale_Recovery.Outline_Surface) =
-                Editor.Missing_Stale_Recovery.Target_Refresh_Required,
-              "buffer edit/reload marks Outline refresh-required");
-      Assert (Editor.Missing_Stale_Recovery.Stale_State_After_Content_Change
-                (Editor.Missing_Stale_Recovery.Replace_Preview_Surface) =
-                Editor.Missing_Stale_Recovery.Target_Preview_Stale,
-              "edit/delete marks replace preview stale");
-      Assert (not Editor.Missing_Stale_Recovery.Navigation_Allowed
-                (Editor.Missing_Stale_Recovery.Validate_Search_Result_Target
-                   (Source, 1, 1, Stale => True)),
-              "stale Project Search result cannot navigate");
-      Assert (not Editor.Missing_Stale_Recovery.Replace_Apply_Allowed
-                (Editor.Missing_Stale_Recovery.Validate_Replace_Preview_Target
-                   (Source, 1, 1, Stale => True)),
-              "stale replace preview cannot apply");
-      Assert (not Editor.Missing_Stale_Recovery.Build_Run_Allowed
-                (Editor.Missing_Stale_Recovery.Validate_Build_Candidate_Target
-                   (Candidate, Root, Stale => True)),
-              "stale build candidate cannot run");
-      Assert (Editor.Missing_Stale_Recovery.Navigation_Allowed
-                (Editor.Missing_Stale_Recovery.Validate_Diagnostic_Target
-                   (Source, True, 1, 1, 1, 80)),
-              "available diagnostic target may navigate after validation");
-   end Test_Stale_Targets_Block_Actions_Until_Recovery;
-
-
-   procedure Test_Workspace_Action_Caret_And_Selection_Policies
-     (T : in out AUnit.Test_Cases.Test_Case'Class)
-   is
-      pragma Unreferenced (T);
-   begin
-      Assert (Editor.Missing_Stale_Recovery.Workspace_Restore_Action_Is_Safe
-                (Editor.Missing_Stale_Recovery.Workspace_Skip_Missing_File),
-              "workspace restore may skip missing open files without fabricating buffers");
-      Assert (Editor.Missing_Stale_Recovery.Workspace_Restore_Action_Is_Safe
-                (Editor.Missing_Stale_Recovery.Workspace_Fallback_To_First_Available_File),
-              "workspace restore may deterministically fall back from missing active file");
-      Assert (not Editor.Missing_Stale_Recovery.Workspace_Restore_Action_Is_Safe
-                (Editor.Missing_Stale_Recovery.Workspace_Reject_Fabricated_Project),
-              "workspace restore rejects fabricated project state");
-      Assert (Editor.Missing_Stale_Recovery.Workspace_Restore_Action_Fabricates_State
-                (Editor.Missing_Stale_Recovery.Workspace_Reject_Fabricated_Buffer),
-              "fabricated buffer recovery is explicitly unsafe");
-      Assert (Editor.Missing_Stale_Recovery.Caret_Target_Policy
-                (Editor.Missing_Stale_Recovery.Target_Line_Out_Of_Range, False) =
-                "ignore caret target",
-              "invalid workspace caret targets are ignored unless clamp policy is explicit");
-      Assert (Editor.Missing_Stale_Recovery.Caret_Target_Policy
-                (Editor.Missing_Stale_Recovery.Target_Line_Out_Of_Range, True) =
-                "clamp caret target",
-              "caret clamping is represented only under explicit policy");
-      Assert (Editor.Missing_Stale_Recovery.Command_Availability_When_No_Selection
-                (Editor.Missing_Stale_Recovery.Quick_Open_Surface).State =
-                Editor.Missing_Stale_Recovery.Target_No_Result_Selected,
-              "Quick Open activation without selection is unavailable without a payload");
-      Assert (Editor.Missing_Stale_Recovery.Target_Outcome_Message
-                (Editor.Missing_Stale_Recovery.Command_Availability_When_No_Selection
-                   (Editor.Missing_Stale_Recovery.Quick_Open_Surface)) =
-                "No Quick Open result selected.",
-              "Quick Open no-selection message is user-readable");
-      Assert (Editor.Missing_Stale_Recovery.Command_Availability_When_No_Selection
-                (Editor.Missing_Stale_Recovery.Diagnostics_Surface).State =
-                Editor.Missing_Stale_Recovery.Target_No_Diagnostic_Selected,
-              "Diagnostics navigation without selection is unavailable without a payload");
-      Assert (Editor.Missing_Stale_Recovery.Command_Availability_When_No_Selection
-                (Editor.Missing_Stale_Recovery.Build_Surface).State =
-                Editor.Missing_Stale_Recovery.Target_No_Build_Candidate_Selected,
-              "Build run without selected candidate is unavailable without a payload");
-   end Test_Workspace_Action_Caret_And_Selection_Policies;
-
-   procedure Test_Dirty_Guards_And_Parent_Directory_Messages
-     (T : in out AUnit.Test_Cases.Test_Case'Class)
-   is
-      pragma Unreferenced (T);
-      Root : constant String := Fixture_Root;
-      Missing_Parent : constant String := Root & "/gone/new.adb";
-   begin
-      Reset_Fixture;
-      Assert (Editor.Missing_Stale_Recovery.Target_Outcome_Message
-                (Editor.Missing_Stale_Recovery.Validate_Save_Target (Missing_Parent)) =
-                "Parent directory is unavailable.",
-              "save failure distinguishes missing parent directory from missing backing file");
-      Assert (Editor.Missing_Stale_Recovery.Dirty_State_Preserved_On
-                (Editor.Missing_Stale_Recovery.Target_Parent_Directory_Missing),
-              "dirty state remains set when save target parent is missing");
-      Assert (not Editor.Missing_Stale_Recovery.Recovery_Command_May_Bypass_Dirty_Guards
-                (Editor.Missing_Stale_Recovery.Recovery_File_Reload_From_Disk),
-              "reload recovery cannot bypass dirty-buffer guards");
-      Assert (not Editor.Missing_Stale_Recovery.Recovery_Command_May_Bypass_Dirty_Guards
-                (Editor.Missing_Stale_Recovery.Recovery_File_Revert_Buffer),
-              "revert recovery cannot bypass dirty-buffer guards");
-      Assert (not Editor.Missing_Stale_Recovery.Recovery_Command_May_Bypass_Dirty_Guards
-                (Editor.Missing_Stale_Recovery.Recovery_Workspace_Load),
-              "workspace load recovery cannot bypass dirty-buffer guards");
-   end Test_Dirty_Guards_And_Parent_Directory_Messages;
-
-   procedure Test_Command_Route_Payload_Outcome_And_Snapshot_Label_Gates
-     (T : in out AUnit.Test_Cases.Test_Case'Class)
-   is
-      pragma Unreferenced (T);
-      Stale_Quick_Open : constant Editor.Missing_Stale_Recovery.Target_Validation_Result :=
-        Editor.Missing_Stale_Recovery.Validate_Quick_Open_Result_Target ("missing.adb");
-      Missing_Build : constant Editor.Missing_Stale_Recovery.Target_Validation_Result :=
-        (State   => Editor.Missing_Stale_Recovery.Target_Missing,
-         Surface => Editor.Missing_Stale_Recovery.Build_Surface,
-         Path    => Ada.Strings.Unbounded.To_Unbounded_String ("missing.gpr"),
-         Line    => 0,
-         Column  => 0);
-   begin
-      Assert (Editor.Missing_Stale_Recovery.Recovery_Command_Routes_Through_Executor
-                (Editor.Missing_Stale_Recovery.Recovery_File_Tree_Refresh),
-              "recovery commands are Executor-routed commands, not local widget actions");
-      Assert (Editor.Missing_Stale_Recovery.Recovery_Command_Routes_Through_Executor
-                (Editor.Missing_Stale_Recovery.Recovery_Build_Refresh_Candidates),
-              "build.refresh-candidates routes through Executor");
-      Assert (not Editor.Missing_Stale_Recovery.Invocation_Source_May_Carry_Target_Payload
-                (Editor.Missing_Stale_Recovery.Invocation_Command_Palette),
-              "Command Palette may invoke only canonical command names without stale target payloads");
-      Assert (not Editor.Missing_Stale_Recovery.Invocation_Source_May_Carry_Target_Payload
-                (Editor.Missing_Stale_Recovery.Invocation_Keybinding),
-              "keybindings may invoke only canonical command names without target payloads");
-      Assert (not Editor.Missing_Stale_Recovery.Invocation_Source_May_Execute_Recovery_Command
-                (Editor.Missing_Stale_Recovery.Invocation_Render),
-              "render cannot execute recovery commands");
-      Assert (not Editor.Missing_Stale_Recovery.Invocation_Source_May_Execute_Recovery_Command
-                (Editor.Missing_Stale_Recovery.Invocation_Availability),
-              "availability cannot execute recovery commands");
-      Assert (Editor.Missing_Stale_Recovery.Invocation_Source_May_Execute_Recovery_Command
-                (Editor.Missing_Stale_Recovery.Invocation_Executor),
-              "Executor is the single recovery command mutation boundary");
-      Assert (Editor.Missing_Stale_Recovery.Command_Outcome_Count_For_Validation
-                (Stale_Quick_Open) = 1,
-              "stale target validation produces one primary command outcome");
-      Assert (Editor.Missing_Stale_Recovery.Command_Outcome_Is_User_Readable
-                (Stale_Quick_Open),
-              "Quick Open stale outcome exposes no enum names");
-      Assert (Editor.Missing_Stale_Recovery.Command_Outcome_Is_User_Readable
-                (Missing_Build),
-              "Build missing-candidate outcome exposes no enum names");
-      Assert (Editor.Missing_Stale_Recovery.Surface_Recovery_Label
-                (Editor.Missing_Stale_Recovery.Quick_Open_Surface,
-                 Editor.Missing_Stale_Recovery.Target_Stale) =
-                "Quick Open target stale",
-              "snapshot marker combines surface and stale label without probing filesystem");
-      Assert (Editor.Missing_Stale_Recovery.Surface_Recovery_Label
-                (Editor.Missing_Stale_Recovery.Outline_Surface,
-                 Editor.Missing_Stale_Recovery.Target_Available) = "",
-              "available targets do not render stale markers");
-   end Test_Command_Route_Payload_Outcome_And_Snapshot_Label_Gates;
 
 
 
@@ -1753,31 +1332,31 @@ package body Editor.Missing_Stale_Recovery.Tests is
    is
    begin
       Register_Routine
-        (T, Test_User_Readable_Labels_Are_Stable'Access,
+        (T, Editor.Missing_Stale_Recovery.Target_Validation_Tests.Test_User_Readable_Labels_Are_Stable'Access,
          "missing/stale labels are user-readable and distinct");
       Register_Routine
-        (T, Test_Workspace_And_Recent_Recovery_Messages'Access,
+        (T, Editor.Missing_Stale_Recovery.Target_Validation_Tests.Test_Workspace_And_Recent_Recovery_Messages'Access,
          "reports workspace and recent-project missing references");
       Register_Routine
-        (T, Test_File_Project_And_Project_Boundary_Validation'Access,
+        (T, Editor.Missing_Stale_Recovery.Target_Validation_Tests.Test_File_Project_And_Project_Boundary_Validation'Access,
          "validates missing workspace/file targets and project boundary");
       Register_Routine
-        (T, Test_File_Lifecycle_Missing_Backing_File_Recovery'Access,
+        (T, Editor.Missing_Stale_Recovery.Target_Validation_Tests.Test_File_Lifecycle_Missing_Backing_File_Recovery'Access,
          "preserves dirty buffers and validates save/reveal recovery");
       Register_Routine
-        (T, Test_Surface_Specific_Stale_Target_Validation'Access,
+        (T, Editor.Missing_Stale_Recovery.Target_Validation_Tests.Test_Surface_Specific_Stale_Target_Validation'Access,
          "validates stale File Tree/Quick Open/Search/replace targets");
       Register_Routine
-        (T, Test_Outline_Diagnostics_And_Build_Validation'Access,
+        (T, Editor.Missing_Stale_Recovery.Target_Validation_Tests.Test_Outline_Diagnostics_And_Build_Validation'Access,
          "validates stale Outline/Diagnostics/Build targets");
       Register_Routine
-        (T, Test_Render_Persistence_And_Command_Payload_Boundaries'Access,
+        (T, Editor.Missing_Stale_Recovery.Boundary_Tests.Test_Render_Persistence_And_Command_Payload_Boundaries'Access,
          "preserves render, persistence and no-payload boundaries");
       Register_Routine
-        (T, Test_Project_Transition_And_Explicit_Recovery_Boundaries'Access,
+        (T, Editor.Missing_Stale_Recovery.Boundary_Tests.Test_Project_Transition_And_Explicit_Recovery_Boundaries'Access,
          "clears project-scoped stale surfaces and bounds recovery commands");
       Register_Routine
-        (T, Test_Stale_Targets_Block_Actions_Until_Recovery'Access,
+        (T, Editor.Missing_Stale_Recovery.Boundary_Tests.Test_Stale_Targets_Block_Actions_Until_Recovery'Access,
          "stale targets block navigation, replace apply and build run");
       Register_Routine
         (T, Test_Surface_Specific_Outcome_Messages'Access,
@@ -1786,10 +1365,10 @@ package body Editor.Missing_Stale_Recovery.Tests is
         (T, Test_Render_Availability_And_Persistence_Exclusion_Depth'Access,
          "excludes automatic repair and transient recovery persistence");
       Register_Routine
-        (T, Test_Workspace_Action_Caret_And_Selection_Policies'Access,
+        (T, Editor.Missing_Stale_Recovery.Boundary_Tests.Test_Workspace_Action_Caret_And_Selection_Policies'Access,
          "makes workspace fallback, caret and no-selection policies explicit");
       Register_Routine
-        (T, Test_Dirty_Guards_And_Parent_Directory_Messages'Access,
+        (T, Editor.Missing_Stale_Recovery.Boundary_Tests.Test_Dirty_Guards_And_Parent_Directory_Messages'Access,
          "preserves dirty guards and distinguishes missing parent directories");
 
       Register_Routine
@@ -1806,7 +1385,7 @@ package body Editor.Missing_Stale_Recovery.Tests is
         (T, Test_Selection_Marker_Fabrication_And_Reconsent_Gates'Access,
          "gates stale selections, snapshot markers, replace-all and build reconsent");
       Register_Routine
-        (T, Test_Command_Route_Payload_Outcome_And_Snapshot_Label_Gates'Access,
+        (T, Editor.Missing_Stale_Recovery.Boundary_Tests.Test_Command_Route_Payload_Outcome_And_Snapshot_Label_Gates'Access,
          "enforces Executor routing, payload-free invocations and one outcome");
 
       Register_Routine

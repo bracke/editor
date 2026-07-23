@@ -19,6 +19,7 @@ with Editor.Recent_Projects;
 with Editor.Render_Model;
 with Editor.Messages;
 with Editor.State;
+with Editor.Empty_State_Guidance.Surfaces; use Editor.Empty_State_Guidance.Surfaces;
 
 package body Editor.Empty_State_Guidance.Tests is
 

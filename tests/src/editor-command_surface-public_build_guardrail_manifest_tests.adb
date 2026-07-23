@@ -19,6 +19,7 @@ with Editor.Executor.Command_Palette_Projection;
 with Editor.File_Tree;
 with Editor.File_Tree_View;
 with Editor.External_Producers;
+with Editor.External_Producers.Public_Build_Guardrail_Audits;
 with Editor.Messages;
 with Editor.Keybindings;
 with Editor.Keybinding_Management;
@@ -722,8 +723,12 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
       Unsafe.Dependency_Blockers_Active := True;
       Unsafe.Persistence_Clean := False;
       Unsafe.Audits_Consistent := False;
-      A := Collect_Public_Build_Guardrail_Failures (Unsafe);
-      B := Collect_Public_Build_Guardrail_Failures (Unsafe);
+      A :=
+        Editor.External_Producers.Public_Build_Guardrail_Audits.
+          Collect_Public_Build_Guardrail_Failures (Unsafe);
+      B :=
+        Editor.External_Producers.Public_Build_Guardrail_Audits.
+          Collect_Public_Build_Guardrail_Failures (Unsafe);
       Assert (Natural (A.Length) = Natural (B.Length),
               "collected guardrail failures must have deterministic ordering");
       Assert (Natural (A.Length) > 1,
@@ -788,8 +793,11 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
       Unsafe_Health.Snapshot_Mismatch :=
         Detect_Public_Build_Guardrail_Contract_Mismatch (Unsafe_Result);
       Unsafe_Health.First_Failure :=
-        First_Public_Build_Guardrail_Failure (Unsafe_Result);
-      Unsafe_Failures := Collect_Public_Build_Guardrail_Failures (Unsafe_Result);
+        Editor.External_Producers.Public_Build_Guardrail_Audits.
+          First_Public_Build_Guardrail_Failure (Unsafe_Result);
+      Unsafe_Failures :=
+        Editor.External_Producers.Public_Build_Guardrail_Audits.
+          Collect_Public_Build_Guardrail_Failures (Unsafe_Result);
       Unsafe_Health.Failure_Count := Natural (Unsafe_Failures.Length);
       Unsafe_Health.Healthy := False;
       Assert (not Unsafe_Health.Healthy,

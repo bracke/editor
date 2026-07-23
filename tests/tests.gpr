@@ -36,6 +36,10 @@ project Tests is
       for Switches ("Ada") use ("-Es"); --  Symbolic traceback
    end Binder;
 
+   package Linker is
+      for Switches ("Ada") use ("-lgcov");
+   end Linker;
+
    package Install is
       for Artifacts (".") use ("share");
    end Install;

@@ -26,6 +26,7 @@ with Editor.Project;
 with Editor.Project_Search;
 with Editor.Recent_Projects;
 with Editor.Render_Packet;
+with Editor.Render_Packet.Debug_Support;
 with Editor.Settings;
 with Editor.Settings_Management;
 with Editor.Startup_Readiness;
@@ -1276,7 +1277,7 @@ package body Editor.Configuration_Audit.Tests is
       pragma Unreferenced (T);
       S       : Editor.State.State_Type;
       Render  : constant Editor.Render_Packet.Buffer_Metadata_Render_Boundary_Audit :=
-        Editor.Render_Packet.Audit_Buffer_Metadata_Render_Boundary;
+        Editor.Render_Packet.Debug_Support.Audit_Buffer_Metadata_Render_Boundary;
       Summary : Editor.Configuration_Audit.Buffer_Boundary_Audit_Summary;
       Result  : Editor.Configuration_Audit.Configuration_Audit_Result;
    begin
@@ -1298,7 +1299,7 @@ package body Editor.Configuration_Audit.Tests is
               "Buffer List render metadata must be snapshot-only");
       Assert (Render.Active_Buffer_Metadata_Projection_Only,
               "active-buffer render metadata must be snapshot-only");
-      Assert (Editor.Render_Packet.Assert_Buffer_Metadata_Render_Boundary_Safe,
+      Assert (Editor.Render_Packet.Debug_Support.Assert_Buffer_Metadata_Render_Boundary_Safe,
               "aggregate render boundary assertion must pass");
 
       Summary := Editor.Configuration_Audit.Buffer_Boundary_Audit_For

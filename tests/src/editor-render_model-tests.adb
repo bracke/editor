@@ -1,5 +1,6 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with Editor.Render_Packet; use Editor.Render_Packet;
+with Editor.Render_Packet.Debug_Support;
 with Editor.Render_Model;
 with Editor.Fonts;
 with Editor.Font_Config;
@@ -4774,14 +4775,14 @@ package body Editor.Render_Model.Tests is
       Set_Render_State_For_Test (S);
       Editor.View.Reset_Scroll;
       Editor.View.Set_Viewport (Width => Width, Height => Height);
-      Editor.Render_Packet.Clear_Debug_Text_For_Test;
+      Editor.Render_Packet.Debug_Support.Clear_Debug_Text_For_Test;
       Editor.Input_Bridge.Build_Render_Packet (Packet);
 
       Assert
-        (Editor.Render_Packet.Debug_Text_Contains_For_Test (Label)
-         and then Editor.Render_Packet.Debug_Text_Contains_For_Test (Detail),
+        (Editor.Render_Packet.Debug_Support.Debug_Text_Contains_For_Test (Label)
+         and then Editor.Render_Packet.Debug_Support.Debug_Text_Contains_For_Test (Detail),
          "Build UI packet should push quick-fix label and detail text, got: " &
-         Editor.Render_Packet.Debug_Text_For_Test);
+         Editor.Render_Packet.Debug_Support.Debug_Text_For_Test);
       Assert
         (Layer_Content_In_Viewport
            (Packet, Build_UI_Text_Layer, Width, Height),

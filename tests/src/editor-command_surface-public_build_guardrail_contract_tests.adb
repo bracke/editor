@@ -19,6 +19,7 @@ with Editor.Executor.Command_Palette_Projection;
 with Editor.File_Tree;
 with Editor.File_Tree_View;
 with Editor.External_Producers;
+with Editor.External_Producers.Public_Build_Guardrail_Audits;
 with Editor.Messages;
 with Editor.Keybindings;
 with Editor.Keybinding_Management;
@@ -737,7 +738,8 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Contract_Tests is
       pragma Unreferenced (T);
       use Editor.External_Producers;
       Detail : constant Public_Build_Guardrail_Failure_Detail :=
-        First_Public_Build_Guardrail_Failure (Default_Result);
+        Editor.External_Producers.Public_Build_Guardrail_Audits.
+          First_Public_Build_Guardrail_Failure (Default_Result);
    begin
       Assert (Detail.Kind = Public_Build_Failure_None,
               "default guardrail failure detail must be none");
@@ -753,7 +755,9 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Contract_Tests is
    begin
       R.No_Public_Command := False;
       R.No_Public_Keybinding := False;
-      Detail := First_Public_Build_Guardrail_Failure (R);
+      Detail :=
+        Editor.External_Producers.Public_Build_Guardrail_Audits.
+          First_Public_Build_Guardrail_Failure (R);
       Assert (Detail.Kind = Public_Build_Failure_Public_Command_Registered,
               "first failure must prefer command registration before keybindings");
    end Test_Public_Build_Guardrail_First_Failure_Uses_Blocker_Precedence;
@@ -769,8 +773,12 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Contract_Tests is
    begin
       R.No_Public_Keybinding := False;
       R.Persistence_Clean := False;
-      A := Collect_Public_Build_Guardrail_Failures (R);
-      B := Collect_Public_Build_Guardrail_Failures (R);
+      A :=
+        Editor.External_Producers.Public_Build_Guardrail_Audits.
+          Collect_Public_Build_Guardrail_Failures (R);
+      B :=
+        Editor.External_Producers.Public_Build_Guardrail_Audits.
+          Collect_Public_Build_Guardrail_Failures (R);
       Assert (A.Length = B.Length and then A.Length = 2,
               "failure collection must be stable and exhaustive");
       Assert (A.Element (0).Kind = Public_Build_Failure_Public_Keybinding_Found,
@@ -943,7 +951,8 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Contract_Tests is
       M := Compare_Public_Build_Guardrail_Snapshots (Before, After);
       Assert (not M.Any_Mismatch,
               "lifecycle operations must not alter normalized guardrail snapshot");
-      Assert (First_Public_Build_Guardrail_Failure (After).Kind =
+      Assert (Editor.External_Producers.Public_Build_Guardrail_Audits.
+                First_Public_Build_Guardrail_Failure (After).Kind =
               Public_Build_Failure_None,
               "default lifecycle guardrail snapshot must have no failure detail");
    end Test_Public_Build_Guardrail_Lifecycle_Snapshot_No_Mismatch;
