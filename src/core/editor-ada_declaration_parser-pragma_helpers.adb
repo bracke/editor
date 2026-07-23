@@ -1,10 +1,13 @@
 with Ada.Characters.Latin_1;
 with Ada.Strings.Fixed;
+with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.Text_Helpers;
 with Editor.Ada_Declaration_Parser.Lexical_Helpers;
 with Editor.Ada_Syntax_Core;
 
 package body Editor.Ada_Declaration_Parser.Pragma_Helpers is
 
+   use Editor.Text_Helpers;
    use Editor.Ada_Declaration_Parser.Lexical_Helpers;
 
    function Is_Pragma_Character_Literal_At
@@ -72,12 +75,6 @@ package body Editor.Ada_Declaration_Parser.Pragma_Helpers is
       First_Comma : Natural := 0;
       Start_Pos   : Natural := 0;
       Stop_Pos    : Natural := 0;
-
-      function Is_Name_Start (C : Character) return Boolean is
-      begin
-         return (C >= 'A' and then C <= 'Z')
-           or else (C >= 'a' and then C <= 'z');
-      end Is_Name_Start;
 
       procedure Skip_Separators (Pos : in out Natural) is
       begin
@@ -682,6 +679,71 @@ package body Editor.Ada_Declaration_Parser.Pragma_Helpers is
       end loop;
       return "";
    end Named_Pragma_Argument;
+
+   function Pragma_Metadata_Name (Text : String) return String is
+      Clean : constant String := Trim (Text);
+      Low   : constant String := Lower (Clean);
+      Start : Natural;
+      Stop  : Natural;
+   begin
+      if not Starts_With_Word (Low, "pragma") then
+         return "";
+      end if;
+
+      Start := Clean'First + 6;
+      while Start <= Clean'Last
+        and then (Clean (Start) = ' '
+                  or else Clean (Start) = Ada.Characters.Latin_1.HT)
+      loop
+         Start := Start + 1;
+      end loop;
+
+      if Start > Clean'Last or else not ((Clean (Start) >= 'A' and then Clean (Start) <= 'Z') or else (Clean (Start) >= 'a' and then Clean (Start) <= 'z')) then
+         return "";
+      end if;
+
+      Stop := Start;
+      while Stop <= Clean'Last and then Is_Word_Char (Clean (Stop)) loop
+         Stop := Stop + 1;
+      end loop;
+
+      return Clean (Start .. Stop - 1);
+   end Pragma_Metadata_Name;
+
+   function Display_Pragma_Property_Name (Name : String) return String is
+      Result : Unbounded_String := Null_Unbounded_String;
+      Start_Word : Boolean := True;
+
+      function Upper (C : Character) return Character is
+      begin
+         if C >= 'a' and then C <= 'z' then
+            return Character'Val
+              (Character'Pos (C) - Character'Pos ('a') + Character'Pos ('A'));
+         else
+            return C;
+         end if;
+      end Upper;
+   begin
+      if Name = "cpu" then
+         return "CPU";
+      elsif Name = "spark_mode" then
+         return "SPARK_Mode";
+      end if;
+
+      for C of Name loop
+         if C = '_' then
+            Append (Result, C);
+            Start_Word := True;
+         elsif Start_Word then
+            Append (Result, Upper (C));
+            Start_Word := False;
+         else
+            Append (Result, C);
+         end if;
+      end loop;
+
+      return To_String (Result);
+   end Display_Pragma_Property_Name;
 
    function Interfacing_Pragma_Value
      (Line               : String;

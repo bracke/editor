@@ -1,6 +1,6 @@
-with Ada.Characters.Handling;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.Ada_Call_Profile_Text_Helpers;
 
 package body Editor.Ada_Call_And_Operator_Overload_Resolution_Legality is
 
@@ -14,14 +14,10 @@ package body Editor.Ada_Call_And_Operator_Overload_Resolution_Legality is
       return ((A * 65599) + (B * 257) + 1297) mod 1_000_000_007;
    end Mix;
 
-   function Normalize (S : String) return String is
-   begin
-      return Ada.Characters.Handling.To_Lower (Ada.Strings.Fixed.Trim (S, Ada.Strings.Both));
-   end Normalize;
-
    function Same (Left, Right : Unbounded_String) return Boolean is
    begin
-      return Normalize (To_String (Left)) = Normalize (To_String (Right));
+      return Editor.Ada_Call_Profile_Text_Helpers.Normalize (To_String (Left))
+        = Editor.Ada_Call_Profile_Text_Helpers.Normalize (To_String (Right));
    end Same;
 
    function Profile_Count (Profile : Unbounded_String) return Natural is
@@ -51,7 +47,7 @@ package body Editor.Ada_Call_And_Operator_Overload_Resolution_Legality is
       for Pos in S'Range loop
          if S (Pos) = '|' then
             if Current = Index then
-               return Normalize (S (Start .. Pos - 1));
+               return Editor.Ada_Call_Profile_Text_Helpers.Normalize (S (Start .. Pos - 1));
             end if;
             Current := Current + 1;
             if Pos < S'Last then
@@ -61,20 +57,20 @@ package body Editor.Ada_Call_And_Operator_Overload_Resolution_Legality is
       end loop;
 
       if Current = Index then
-         return Normalize (S (Start .. S'Last));
+         return Editor.Ada_Call_Profile_Text_Helpers.Normalize (S (Start .. S'Last));
       end if;
       return "";
    end Type_At;
 
    function Is_Integer_Type (Name : String) return Boolean is
-      N : constant String := Normalize (Name);
+      N : constant String := Editor.Ada_Call_Profile_Text_Helpers.Normalize (Name);
    begin
       return N = "integer" or else N = "natural" or else N = "positive"
         or else N = "universal_integer" or else N = "root_integer";
    end Is_Integer_Type;
 
    function Is_Real_Type (Name : String) return Boolean is
-      N : constant String := Normalize (Name);
+      N : constant String := Editor.Ada_Call_Profile_Text_Helpers.Normalize (Name);
    begin
       return N = "float" or else N = "long_float" or else N = "universal_real"
         or else N = "root_real" or else N = "fixed" or else N = "root_fixed";
@@ -87,23 +83,23 @@ package body Editor.Ada_Call_And_Operator_Overload_Resolution_Legality is
 
    function Is_Universal_Integer (Name : String) return Boolean is
    begin
-      return Normalize (Name) = "universal_integer";
+      return Editor.Ada_Call_Profile_Text_Helpers.Normalize (Name) = "universal_integer";
    end Is_Universal_Integer;
 
    function Is_Universal_Real (Name : String) return Boolean is
    begin
-      return Normalize (Name) = "universal_real";
+      return Editor.Ada_Call_Profile_Text_Helpers.Normalize (Name) = "universal_real";
    end Is_Universal_Real;
 
    function Is_Access_Type (Name : String) return Boolean is
-      N : constant String := Normalize (Name);
+      N : constant String := Editor.Ada_Call_Profile_Text_Helpers.Normalize (Name);
    begin
       return N'Length >= 6 and then N (N'First .. N'First + 5) = "access";
    end Is_Access_Type;
 
    function Type_Compatible (Actual, Formal : String) return Boolean is
-      A : constant String := Normalize (Actual);
-      F : constant String := Normalize (Formal);
+      A : constant String := Editor.Ada_Call_Profile_Text_Helpers.Normalize (Actual);
+      F : constant String := Editor.Ada_Call_Profile_Text_Helpers.Normalize (Formal);
    begin
       if A = F then
          return True;
@@ -177,7 +173,8 @@ package body Editor.Ada_Call_And_Operator_Overload_Resolution_Legality is
             A : constant String := Type_At (Actuals, I);
             F : constant String := Type_At (Formals, I);
          begin
-            if Normalize (A) /= Normalize (F)
+            if Editor.Ada_Call_Profile_Text_Helpers.Normalize (A)
+              /= Editor.Ada_Call_Profile_Text_Helpers.Normalize (F)
               and then Is_Numeric_Type (A)
               and then Is_Numeric_Type (F)
             then
@@ -191,11 +188,16 @@ package body Editor.Ada_Call_And_Operator_Overload_Resolution_Legality is
    function Expected_Result_Matches
      (Context : Context_Info;
       Candidate : Candidate_Info) return Boolean is
-      Expected : constant String := Normalize (To_String (Context.Expected_Result_Type));
-      Result   : constant String := Normalize (To_String (Candidate.Result_Type));
+      Expected : constant String :=
+        Editor.Ada_Call_Profile_Text_Helpers.Normalize
+          (To_String (Context.Expected_Result_Type));
+      Result   : constant String :=
+        Editor.Ada_Call_Profile_Text_Helpers.Normalize
+          (To_String (Candidate.Result_Type));
    begin
       return Expected'Length > 0 and then Result'Length > 0
-        and then Normalize (Result) = Normalize (Expected);
+        and then Editor.Ada_Call_Profile_Text_Helpers.Normalize (Result)
+          = Editor.Ada_Call_Profile_Text_Helpers.Normalize (Expected);
    end Expected_Result_Matches;
 
    function Arity_Compatible

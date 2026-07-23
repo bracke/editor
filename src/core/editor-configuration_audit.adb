@@ -1,5 +1,6 @@
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.Image_Helpers;
 with Editor.Buffers;
 with Editor.Buffer_Switcher;
 with Editor.Command_Palette;
@@ -11,17 +12,12 @@ with Editor.Pending_Transitions;
 with Editor.Project;
 with Editor.Recent_Projects;
 with Editor.Render_Packet;
+with Editor.Render_Packet.Debug_Support;
 with Editor.Settings;
 with Editor.State;
 with Editor.Workspace_Persistence;
 
 package body Editor.Configuration_Audit is
-
-   function Count_Image (Value : Natural) return String is
-      Raw : constant String := Natural'Image (Value);
-   begin
-      return Raw (Raw'First + 1 .. Raw'Last);
-   end Count_Image;
 
    function Domain_Name (Domain : Configuration_Domain) return String is
    begin
@@ -125,7 +121,7 @@ package body Editor.Configuration_Audit is
          return "Configuration audit failed: " & To_String (Result.Failures (0));
       else
          return "Configuration audit failed: "
-           & Count_Image (Natural (Result.Failures.Length)) & " failures";
+           & Editor.Image_Helpers.Trim_Image (Natural (Result.Failures.Length)) & " failures";
       end if;
    end Summary;
 
@@ -253,7 +249,7 @@ package body Editor.Configuration_Audit is
         Audit_File_Conflict_Prompt_Boundary (State);
       Render_Audit : constant
         Editor.Render_Packet.Buffer_Metadata_Render_Boundary_Audit :=
-          Editor.Render_Packet.Audit_Buffer_Metadata_Render_Boundary;
+          Editor.Render_Packet.Debug_Support.Audit_Buffer_Metadata_Render_Boundary;
       Route_Audit : Editor.Command_Route_Audit.Route_Audit_Result;
       Result : Buffer_Boundary_Audit_Summary;
    begin
@@ -707,10 +703,12 @@ package body Editor.Configuration_Audit is
    is
    begin
       if Before /= After then
-         Add_Failure
-           (Result, Domain,
+        Add_Failure
+          (Result, Domain,
             Context & " changed " & Label & " from "
-            & Count_Image (Before) & " to " & Count_Image (After));
+            & Editor.Image_Helpers.Trim_Image (Before)
+            & " to "
+            & Editor.Image_Helpers.Trim_Image (After));
       end if;
    end Check_Equal;
 
@@ -722,20 +720,14 @@ package body Editor.Configuration_Audit is
       After   : Boolean;
       Context : String)
    is
-      function Image (Value : Boolean) return String is
-      begin
-         if Value then
-            return "true";
-         else
-            return "false";
-         end if;
-      end Image;
    begin
       if Before /= After then
          Add_Failure
            (Result, Domain,
             Context & " changed " & Label & " from "
-            & Image (Before) & " to " & Image (After));
+            & Editor.Image_Helpers.Trim_Image (Before)
+            & " to "
+            & Editor.Image_Helpers.Trim_Image (After));
       end if;
    end Check_Equal;
 

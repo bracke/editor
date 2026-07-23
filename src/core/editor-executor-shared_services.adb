@@ -3,6 +3,7 @@ use Editor.Executor.Shared_Services;
 with Ada.Strings;
 with Ada.Strings.Fixed;
 with Editor.Commands;
+with Editor.Commands.Workflow_Messages;
 with Editor.Messages;
 with Editor.State;
 with Editor.View;
@@ -39,7 +40,8 @@ package body Editor.Executor.Shared_Services is
    is
    begin
       Editor.Messages.Push_Info
-        (S.Messages, Editor.Commands.Normalize_Workflow_Message (Text),
+        (S.Messages,
+         Editor.Commands.Workflow_Messages.Normalize_Workflow_Message (Text),
          Current_Message_Time_Ms, Default_Message_Config);
    end Report_Info;
 
@@ -67,7 +69,8 @@ package body Editor.Executor.Shared_Services is
    is
    begin
       Editor.Messages.Push_Info
-        (S.Messages, Editor.Commands.Normalize_Workflow_Message (Text),
+        (S.Messages,
+         Editor.Commands.Workflow_Messages.Normalize_Workflow_Message (Text),
          Current_Message_Time_Ms, Append_Message_Config);
    end Report_Info_Append;
 
@@ -141,7 +144,8 @@ package body Editor.Executor.Shared_Services is
    is
    begin
       Editor.Messages.Push_Warning
-        (S.Messages, Editor.Commands.Normalize_Workflow_Message (Text),
+        (S.Messages,
+         Editor.Commands.Workflow_Messages.Normalize_Workflow_Message (Text),
          Current_Message_Time_Ms, Default_Message_Config);
    end Report_Warning;
 
@@ -152,7 +156,8 @@ package body Editor.Executor.Shared_Services is
    is
    begin
       Editor.Messages.Push_Error
-        (S.Messages, Editor.Commands.Normalize_Workflow_Message (Text),
+        (S.Messages,
+         Editor.Commands.Workflow_Messages.Normalize_Workflow_Message (Text),
          Current_Message_Time_Ms, Default_Message_Config);
    end Report_Error;
 

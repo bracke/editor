@@ -1,6 +1,7 @@
 with Ada.Directories;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.Image_Helpers;
 with Editor.Commands;
 with Editor.Configuration_Recovery;
 
@@ -20,12 +21,6 @@ package body Editor.Startup_Readiness is
 
    Recorded_Summary     : Startup_Summary := (others => <>);
    Recorded_Summary_Set : Boolean := False;
-
-   function Count_Image (Value : Natural) return String is
-      Raw : constant String := Natural'Image (Value);
-   begin
-      return Raw (Raw'First + 1 .. Raw'Last);
-   end Count_Image;
 
    function Bounded (Text : String) return Unbounded_String is
    begin
@@ -1048,26 +1043,28 @@ package body Editor.Startup_Readiness is
          then ""
          else
            (if Summary.Warning_Count = 0 then ""
-            else " Warnings: " & Count_Image (Summary.Warning_Count) & ".")
+            else " Warnings: "
+              & Editor.Image_Helpers.Trim_Image (Summary.Warning_Count) & ".")
            & (if Summary.Error_Count = 0 then ""
-              else " Errors: " & Count_Image (Summary.Error_Count) & ".")
+              else " Errors: "
+                & Editor.Image_Helpers.Trim_Image (Summary.Error_Count) & ".")
            & (if Summary.Invalid_Entry_Count = 0 then ""
               else " Invalid entries: "
-                & Count_Image (Summary.Invalid_Entry_Count) & ".")
+                & Editor.Image_Helpers.Trim_Image (Summary.Invalid_Entry_Count) & ".")
            & (if Summary.Rejected_Entry_Count = 0 then ""
               else " Rejected entries: "
-                & Count_Image (Summary.Rejected_Entry_Count) & ".")
+                & Editor.Image_Helpers.Trim_Image (Summary.Rejected_Entry_Count) & ".")
            & (if Summary.Missing_File_Count = 0 then ""
               else " Missing files: "
-                & Count_Image (Summary.Missing_File_Count) & ".")
+                & Editor.Image_Helpers.Trim_Image (Summary.Missing_File_Count) & ".")
            & (if Summary.Restored_File_Count = 0 then ""
               else " Restored files: "
-                & Count_Image (Summary.Restored_File_Count) & "."));
+                & Editor.Image_Helpers.Trim_Image (Summary.Restored_File_Count) & "."));
       Defaults : constant String :=
         (if Summary.First_Run or else Summary.Safe_Default_Domain_Count = 0
          then ""
          else " Defaults active: "
-           & Count_Image (Summary.Safe_Default_Domain_Count) & ".");
+           & Editor.Image_Helpers.Trim_Image (Summary.Safe_Default_Domain_Count) & ".");
       Action : constant String :=
         (if Length (Summary.Action_Suggestion) = 0
          then ""

@@ -1,6 +1,7 @@
 with Ada.Characters.Handling;
 with Ada.Strings;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.Image_Helpers;
 with Editor.Contextual_Help;
 with Ada.Strings.Fixed;
 
@@ -11,18 +12,14 @@ package body Editor.Feature_Messages is
    Max_Retained_Message_Rows : constant Natural := 200;
    Max_Message_Label_Text_Length : constant Natural := 96;
 
-   function Trim_Image (Value : Natural) return String is
-   begin
-      return Ada.Strings.Fixed.Trim (Natural'Image (Value), Ada.Strings.Both);
-   end Trim_Image;
-
    function Plural
      (Count       : Natural;
       Singular    : String;
       Plural_Word : String) return String
    is
    begin
-      return Trim_Image (Count) & " " & (if Count = 1 then Singular else Plural_Word);
+      return Editor.Image_Helpers.Trim_Image (Count)
+        & " " & (if Count = 1 then Singular else Plural_Word);
    end Plural;
 
    function Lower (Value : String) return String is
@@ -139,7 +136,7 @@ package body Editor.Feature_Messages is
         & Safe_Message_Text (To_String (Item.Text));
    begin
       if Item.Repeat_Count > 1 then
-         return Base & " (x" & Trim_Image (Item.Repeat_Count) & ")";
+         return Base & " (x" & Editor.Image_Helpers.Trim_Image (Item.Repeat_Count) & ")";
       else
          return Base;
       end if;
@@ -155,7 +152,8 @@ package body Editor.Feature_Messages is
       elsif Item.Has_Target then
          declare
             Position : constant String :=
-              Trim_Image (Item.Target_Line) & ":" & Trim_Image (Item.Target_Column);
+              Editor.Image_Helpers.Trim_Image (Item.Target_Line)
+              & ":" & Editor.Image_Helpers.Trim_Image (Item.Target_Column);
          begin
             if Source'Length = 0 then
                return Position;
@@ -573,7 +571,7 @@ package body Editor.Feature_Messages is
 
       if Item.Repeat_Count > 1 then
          Append (Result, " (x");
-         Append (Result, Trim_Image (Item.Repeat_Count));
+         Append (Result, Editor.Image_Helpers.Trim_Image (Item.Repeat_Count));
          Append (Result, ")");
       end if;
       return To_String (Result);
@@ -795,8 +793,9 @@ package body Editor.Feature_Messages is
          if Visible_Count = 0 then
             return "Messages: no matching messages";
          else
-            return "Messages: " & Trim_Image (Visible_Count) & " of " &
-              Trim_Image (Count) & " messages";
+            return "Messages: "
+              & Editor.Image_Helpers.Trim_Image (Visible_Count) & " of "
+              & Editor.Image_Helpers.Trim_Image (Count) & " messages";
          end if;
       end if;
 

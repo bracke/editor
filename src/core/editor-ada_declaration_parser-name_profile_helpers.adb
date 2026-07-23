@@ -1,11 +1,12 @@
 with Ada.Characters.Latin_1;
 with Ada.Strings.Fixed;
+with Editor.Text_Helpers;
 with Editor.Ada_Declaration_Parser.Lexical_Helpers;
 with Editor.Ada_Syntax_Core;
 
 package body Editor.Ada_Declaration_Parser.Name_Profile_Helpers is
 
-   use Editor.Ada_Declaration_Parser.Lexical_Helpers;
+   use Editor.Text_Helpers;
 
    function Read_Name
      (Text      : String;

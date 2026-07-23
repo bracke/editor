@@ -6,6 +6,9 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Build_Candidates;
 with Editor.Build_Working_Context;
 with Editor.External_Producers;
+with Editor.Image_Helpers;
+with Editor.Path_Helpers;
+with Editor.Text_Helpers;
 
 package body Editor.Build_Candidate_Discovery is
 
@@ -42,11 +45,6 @@ package body Editor.Build_Candidate_Discovery is
       end loop;
    end Sort_Strings;
 
-   function Trim (S : String) return String is
-   begin
-      return Ada.Strings.Fixed.Trim (S, Ada.Strings.Both);
-   end Trim;
-
    function Contains_Control (Text : String) return Boolean is
    begin
       for C of Text loop
@@ -58,7 +56,7 @@ package body Editor.Build_Candidate_Discovery is
    end Contains_Control;
 
    function Safe_Root (Project_Root : String) return Boolean is
-      Clean : constant String := Trim (Project_Root);
+      Clean : constant String := Editor.Text_Helpers.Trim (Project_Root);
    begin
       --  Discovery never executes the project root through a shell, so ordinary
       --  filesystem characters such as '$', ';', or literal '..' inside a
@@ -83,24 +81,6 @@ package body Editor.Build_Candidate_Discovery is
       end if;
    end Join_Relative;
 
-   function Starts_With (Text, Prefix : String) return Boolean is
-   begin
-      return Text'Length >= Prefix'Length
-        and then Text (Text'First .. Text'First + Prefix'Length - 1) = Prefix;
-   end Starts_With;
-
-
-   function Lower (S : String) return String is
-      Result : String := S;
-   begin
-      for I in Result'Range loop
-         if Result (I) in 'A' .. 'Z' then
-            Result (I) := Character'Val (Character'Pos (Result (I)) + 32);
-         end if;
-      end loop;
-      return Result;
-   end Lower;
-
    function Base_Name (Path : String) return String is
       Last_Slash : Natural := 0;
    begin
@@ -118,42 +98,31 @@ package body Editor.Build_Candidate_Discovery is
       end if;
    end Base_Name;
 
-   function Path_Depth (Path : String) return Natural is
-      Depth : Natural := 0;
-   begin
-      for C of Path loop
-         if C = '/' or else C = Character'Val (16#5C#) then
-            Depth := Depth + 1;
-         end if;
-      end loop;
-      return Depth;
-   end Path_Depth;
-
    function Gpr_Discovery_Rank (Project_Root, Relative_Gpr_Path : String) return Natural is
-      Rel : constant String := Lower (Relative_Gpr_Path);
-      Base : constant String := Lower (Base_Name (Rel));
-      Root_Base : constant String := Lower (Base_Name (Project_Root));
+      Rel : constant String := Editor.Text_Helpers.Lower (Relative_Gpr_Path);
+      Base : constant String := Editor.Text_Helpers.Lower (Base_Name (Rel));
+      Root_Base : constant String := Editor.Text_Helpers.Lower (Base_Name (Project_Root));
       Base_Without_Extension : constant String :=
         (if Base'Length > 4 and then Base (Base'Last - 3 .. Base'Last) = ".gpr" then
             Base (Base'First .. Base'Last - 4)
          else
             Base);
    begin
-      if Path_Depth (Rel) = 0 and then Base_Without_Extension = Root_Base then
+      if Editor.Path_Helpers.Path_Depth (Rel) = 0 and then Base_Without_Extension = Root_Base then
          return 5;
-      elsif Path_Depth (Rel) = 0 then
+      elsif Editor.Path_Helpers.Path_Depth (Rel) = 0 then
          return 10;
       elsif Ada.Strings.Fixed.Index (Rel, "test") > 0
         or else Ada.Strings.Fixed.Index (Rel, "example") > 0
       then
-         return 40 + Path_Depth (Rel);
+         return 40 + Editor.Path_Helpers.Path_Depth (Rel);
       elsif Ada.Strings.Fixed.Index (Base, "app") > 0
         or else Ada.Strings.Fixed.Index (Base, "main") > 0
         or else Ada.Strings.Fixed.Index (Base, "demo") > 0
       then
-         return 20 + Path_Depth (Rel);
+         return 20 + Editor.Path_Helpers.Path_Depth (Rel);
       else
-         return 30 + Path_Depth (Rel);
+         return 30 + Editor.Path_Helpers.Path_Depth (Rel);
       end if;
    end Gpr_Discovery_Rank;
 
@@ -190,11 +159,6 @@ package body Editor.Build_Candidate_Discovery is
    end Sort_Gpr_Relative_Paths;
 
 
-   function Image (Value : Natural) return String is
-   begin
-      return Trim (Natural'Image (Value));
-   end Image;
-
    function Normalize_Separators (Path : String) return String is
       Result : String := Path;
    begin
@@ -208,7 +172,7 @@ package body Editor.Build_Candidate_Discovery is
 
    function Canonical_Existing_Path (Path : String) return String is
    begin
-      if Trim (Path)'Length = 0 then
+      if Editor.Text_Helpers.Trim (Path)'Length = 0 then
          return "";
       elsif Ada.Directories.Exists (Path) then
          return Normalize_Separators (Ada.Directories.Full_Name (Path));
@@ -247,9 +211,13 @@ package body Editor.Build_Candidate_Discovery is
          return True;
       elsif Simple_Name = ".git" or else Simple_Name = ".build" then
          return True;
-      elsif Rel = "alire/cache" or else Starts_With (Rel, "alire/cache/") then
+      elsif Rel = "alire/cache"
+        or else Editor.Text_Helpers.Starts_With (Rel, "alire/cache/")
+      then
          return True;
-      elsif Rel = "alire/build" or else Starts_With (Rel, "alire/build/") then
+      elsif Rel = "alire/build"
+        or else Editor.Text_Helpers.Starts_With (Rel, "alire/build/")
+      then
          return True;
       else
          return False;
@@ -618,7 +586,7 @@ package body Editor.Build_Candidate_Discovery is
          end if;
          if Result.Skipped_Directory_Count > 0 then
             Append (Text, " Skipped ");
-            Append (Text, Image (Result.Skipped_Directory_Count));
+            Append (Text, Editor.Image_Helpers.Trim_Image (Result.Skipped_Directory_Count));
             Append (Text, " directories.");
          end if;
          return To_String (Text);
@@ -627,19 +595,20 @@ package body Editor.Build_Candidate_Discovery is
       if Total = 1 then
          Text := To_Unbounded_String ("Found 1 build candidate");
       else
-         Text := To_Unbounded_String ("Found " & Image (Total) & " build candidates");
+         Text := To_Unbounded_String
+           ("Found " & Editor.Image_Helpers.Trim_Image (Total) & " build candidates");
       end if;
       Append (Text, ": ");
-      Append (Text, Image (Result.Alire_Candidate_Count));
+      Append (Text, Editor.Image_Helpers.Trim_Image (Result.Alire_Candidate_Count));
       Append (Text, " Alire, ");
-      Append (Text, Image (Result.Gpr_Candidate_Count));
+      Append (Text, Editor.Image_Helpers.Trim_Image (Result.Gpr_Candidate_Count));
       Append (Text, " GPR.");
       if Result.Limit_Reached then
          Append (Text, " Build candidate discovery limit reached.");
       end if;
       if Result.Skipped_Directory_Count > 0 then
          Append (Text, " Skipped ");
-         Append (Text, Image (Result.Skipped_Directory_Count));
+         Append (Text, Editor.Image_Helpers.Trim_Image (Result.Skipped_Directory_Count));
          Append (Text, " directories.");
       end if;
       return To_String (Text);

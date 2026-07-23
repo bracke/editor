@@ -846,22 +846,22 @@ package body Editor.Executor.Command_Result_Commands is
 
                when Editor.Commands.Semantic_Completion_Select_Next =>
                   Editor.Executor.Semantic_Completion_Commands
-                    .Execute_Semantic_Completion_Kind (S, Cmd.Kind);
+                    .Execute_Semantic_Completion_Select (S, Next => True);
                   return Editor.Command_Execution.Executed (Id);
 
                when Editor.Commands.Semantic_Completion_Select_Previous =>
                   Editor.Executor.Semantic_Completion_Commands
-                    .Execute_Semantic_Completion_Kind (S, Cmd.Kind);
+                    .Execute_Semantic_Completion_Select (S, Next => False);
                   return Editor.Command_Execution.Executed (Id);
 
                when Editor.Commands.Semantic_Completion_Accept =>
                   Editor.Executor.Semantic_Completion_Commands
-                    .Execute_Semantic_Completion_Kind (S, Cmd.Kind);
+                    .Execute_Semantic_Completion_Accept (S);
                   return Editor.Command_Execution.Executed (Id);
 
                when Editor.Commands.Semantic_Popup_Dismiss =>
                   Editor.Executor.Semantic_Completion_Commands
-                    .Execute_Semantic_Completion_Kind (S, Cmd.Kind);
+                    .Execute_Semantic_Popup_Dismiss (S);
                   return Editor.Command_Execution.Executed (Id);
 
                when others =>

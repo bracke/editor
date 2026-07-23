@@ -408,8 +408,42 @@ package body Editor.Executor.Command_Surface_Commands is
             | Goto_Line_Delete_Forward
             | Goto_Line_Move_Cursor_Left
             | Goto_Line_Move_Cursor_Right =>
-            Editor.Executor.Navigation_Commands.Execute_Goto_Line_Kind
-              (S, Kind, Text);
+            case Kind is
+               when Open_Goto_Line =>
+                  Editor.Executor.Navigation_Commands.Execute_Open_Goto_Line (S);
+               when Prefill_Goto_Line_Current =>
+                  Editor.Executor.Navigation_Commands
+                    .Execute_Prefill_Goto_Line_Current (S);
+               when Toggle_Goto_Line =>
+                  Editor.Executor.Navigation_Commands.Execute_Toggle_Goto_Line (S);
+               when Close_Goto_Line =>
+                  Editor.Executor.Navigation_Commands.Execute_Close_Goto_Line (S);
+               when Accept_Goto_Line =>
+                  Editor.Executor.Navigation_Commands.Execute_Accept_Goto_Line (S);
+               when Goto_Line_Query_Set =>
+                  Editor.Executor.Navigation_Commands.Execute_Goto_Line_Set_Query
+                    (S, Text);
+               when Goto_Line_Query_Clear =>
+                  Editor.Executor.Navigation_Commands.Execute_Goto_Line_Clear_Query
+                    (S);
+               when Goto_Line_Insert_Text =>
+                  Editor.Executor.Navigation_Commands.Execute_Goto_Line_Insert_Text
+                    (S, Text);
+               when Goto_Line_Backspace =>
+                  Editor.Executor.Navigation_Commands.Execute_Goto_Line_Backspace
+                    (S);
+               when Goto_Line_Delete_Forward =>
+                  Editor.Executor.Navigation_Commands
+                    .Execute_Goto_Line_Delete_Forward (S);
+               when Goto_Line_Move_Cursor_Left =>
+                  Editor.Go_To_Line.Move_Cursor_Left (S.Go_To_Line);
+                  Editor.Render_Cache.Invalidate_All;
+               when Goto_Line_Move_Cursor_Right =>
+                  Editor.Go_To_Line.Move_Cursor_Right (S.Go_To_Line);
+                  Editor.Render_Cache.Invalidate_All;
+               when others =>
+                  raise Program_Error with "unsupported goto-line command kind";
+            end case;
          when others =>
             raise Program_Error with "unsupported command-surface command kind";
       end case;

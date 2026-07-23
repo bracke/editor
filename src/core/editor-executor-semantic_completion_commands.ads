@@ -14,10 +14,6 @@ package Editor.Executor.Semantic_Completion_Commands is
       Id : Editor.Commands.Command_Id)
       return Editor.Commands.Command_Availability;
 
-   procedure Execute_Semantic_Completion_Kind
-     (S    : in out Editor.State.State_Type;
-      Kind : Editor.Commands.Command_Kind);
-
    procedure Clear_Semantic_Popup
      (S : in out Editor.State.State_Type);
 

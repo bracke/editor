@@ -1325,15 +1325,6 @@ package Editor.External_Producers is
    procedure Assert_Public_Build_Guardrail_State_Not_Persisted
      (State : Editor.State.State_Type);
 
-   function First_Public_Build_Guardrail_Failure
-     (Result : Public_Build_Guardrail_Result)
-      return Public_Build_Guardrail_Failure_Detail;
-
-   function Collect_Public_Build_Guardrail_Failures
-     (Result : Public_Build_Guardrail_Result)
-      return Public_Build_Guardrail_Failure_Detail_Vector;
-
-
    function Scan_Public_Build_Surface_Ids
      (Command_Id        : String := "";
       Display_Name     : String := "";
@@ -1703,12 +1694,6 @@ package Editor.External_Producers is
 
    function Execute_Process_Request_Gated
      (Request         : Process_Run_Request;
-      Policy          : Process_Execution_Policy;
-      Supplied_Result : Process_Run_Result) return Process_Run_Result;
-
-   function Execute_Process_Request_Gated_With_State
-     (S               : in out Editor.State.State_Type;
-      Request         : Process_Run_Request;
       Policy          : Process_Execution_Policy;
       Supplied_Result : Process_Run_Result) return Process_Run_Result;
 

@@ -2,13 +2,12 @@ with Ada.Characters.Latin_1;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps.Constants;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.Text_Helpers;
 
 package body Editor.Ada_Token_Cursor.Tokenization is
 
-   function Lower (S : String) return String is
-   begin
-      return Ada.Strings.Fixed.Translate (S, Ada.Strings.Maps.Constants.Lower_Case_Map);
-   end Lower;
+   function Lower (S : String) return String
+     renames Editor.Text_Helpers.Lower;
 
    function Is_Letter (C : Character) return Boolean is
    begin

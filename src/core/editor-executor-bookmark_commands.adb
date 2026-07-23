@@ -19,6 +19,7 @@ with Editor.Messages;
 with Editor.Navigation; use Editor.Navigation;
 with Editor.Navigation_History;
 with Editor.Project;
+with Editor.Image_Helpers;
 with Editor.Render_Cache;
 with Editor.State;
 with Editor.View;
@@ -226,11 +227,6 @@ package body Editor.Executor.Bookmark_Commands is
    end Jump_To_Bookmark_Row;
 
 
-   function Trim_Natural_Image (Value : Natural) return String is
-   begin
-      return Ada.Strings.Fixed.Trim (Natural'Image (Value), Ada.Strings.Both);
-   end Trim_Natural_Image;
-
    function Current_Bookmark_Display_Path
      (S : Editor.State.State_Type) return String
    is
@@ -289,9 +285,19 @@ package body Editor.Executor.Bookmark_Commands is
          Has_Project_Relative_Path => Has_Project_Relative);
 
       if Added then
-         Report_Info (S, "Bookmark added: " & To_String (Display) & ":" & Trim_Natural_Image (Line));
+         Report_Info
+           (S,
+            "Bookmark added: "
+            & To_String (Display)
+            & ":"
+            & Editor.Image_Helpers.Trim_Image (Line));
       else
-         Report_Info (S, "Bookmark removed: " & To_String (Display) & ":" & Trim_Natural_Image (Line));
+         Report_Info
+           (S,
+            "Bookmark removed: "
+            & To_String (Display)
+            & ":"
+            & Editor.Image_Helpers.Trim_Image (Line));
       end if;
       Editor.Render_Cache.Invalidate_All;
    end Execute_Bookmark_Toggle_Current_Location;
@@ -336,7 +342,9 @@ package body Editor.Executor.Bookmark_Commands is
          Report_Info (S, "No bookmarks");
       else
          Editor.Bookmarks.Clear_Bookmarks (S.Bookmarks);
-         Report_Info (S, "Cleared " & Trim_Natural_Image (Count) & " bookmarks");
+         Report_Info
+           (S,
+            "Cleared " & Editor.Image_Helpers.Trim_Image (Count) & " bookmarks");
       end if;
       Editor.Render_Cache.Invalidate_All;
    end Execute_Bookmark_Clear_All;
@@ -403,13 +411,13 @@ package body Editor.Executor.Bookmark_Commands is
             Report_Info
               (S, "Selected bookmark at current location: "
                & To_String (Item.Display_Path) & ":"
-               & Trim_Natural_Image (Item.Line_Number));
+               & Editor.Image_Helpers.Trim_Image (Item.Line_Number));
          when Editor.Bookmarks.Reveal_Selected_Nearest_In_File =>
             Editor.Bookmarks.Show (S.Bookmarks);
             Report_Info
               (S, "Selected bookmark in active file: "
                & To_String (Item.Display_Path) & ":"
-               & Trim_Natural_Image (Item.Line_Number));
+               & Editor.Image_Helpers.Trim_Image (Item.Line_Number));
          when Editor.Bookmarks.Reveal_No_Bookmarks =>
             Report_Info (S, "No bookmarks");
          when Editor.Bookmarks.Reveal_No_Bookmark_In_Active_File =>
@@ -437,7 +445,7 @@ package body Editor.Executor.Bookmark_Commands is
          Editor.Bookmarks.Show (S.Bookmarks);
          Report_Info
            (S, "Bookmark removed: " & To_String (Item.Display_Path) & ":"
-            & Trim_Natural_Image (Item.Line_Number));
+            & Editor.Image_Helpers.Trim_Image (Item.Line_Number));
       else
          Report_Info (S, "No selected bookmark");
       end if;
@@ -544,12 +552,12 @@ package body Editor.Executor.Bookmark_Commands is
          Report_Info
            (S,
             (if Was_Open then "Activated bookmark: " else "Opened bookmark: ")
-            & Display & ":" & Trim_Natural_Image (Item.Line_Number));
+            & Display & ":" & Editor.Image_Helpers.Trim_Image (Item.Line_Number));
       else
          Report_Info
            (S,
             (if Was_Open then "Activated " else "Opened ")
-            & Display & ":" & Trim_Natural_Image (Item.Line_Number));
+            & Display & ":" & Editor.Image_Helpers.Trim_Image (Item.Line_Number));
       end if;
       Editor.Render_Cache.Invalidate_All;
    end Open_Bookmark_Target;
@@ -991,68 +999,5 @@ package body Editor.Executor.Bookmark_Commands is
       end if;
       Editor.Render_Cache.Invalidate_All;
    end Execute_Clear_All_Bookmarks;
-
-   procedure Execute_Bookmark_Kind
-     (S    : in out Editor.State.State_Type;
-      Kind : Editor.Commands.Command_Kind)
-   is
-   begin
-      case Kind is
-         when Toggle_Bookmark =>
-            Execute_Toggle_Bookmark (S);
-
-         when Next_Bookmark =>
-            Execute_Next_Bookmark (S);
-
-         when Previous_Bookmark =>
-            Execute_Previous_Bookmark (S);
-
-         when Clear_Bookmarks =>
-            Execute_Clear_Bookmarks (S);
-
-         when Clear_All_Bookmarks =>
-            Execute_Clear_All_Bookmarks (S);
-
-         when Bookmark_Toggle_Current_Location =>
-            Execute_Bookmark_Toggle_Current_Location (S);
-
-         when Bookmark_Clear_All =>
-            Execute_Bookmark_Clear_All (S);
-
-         when Bookmark_Next =>
-            Execute_Bookmark_Next (S);
-
-         when Bookmark_Previous =>
-            Execute_Bookmark_Previous (S);
-
-         when Bookmark_Goto_Next =>
-            Execute_Bookmark_Goto_Next (S);
-
-         when Bookmark_Goto_Previous =>
-            Execute_Bookmark_Goto_Previous (S);
-
-         when Bookmark_Open_Selected =>
-            Execute_Bookmark_Open_Selected (S);
-
-         when Bookmark_Reveal_Current =>
-            Execute_Bookmark_Reveal_Current (S);
-
-         when Bookmark_Remove_Selected =>
-            Execute_Bookmark_Remove_Selected (S);
-
-         when Bookmark_Show =>
-            Execute_Bookmark_Show (S);
-
-         when Bookmark_Hide =>
-            Execute_Bookmark_Hide (S);
-
-         when Bookmark_Toggle =>
-            Execute_Bookmark_Toggle_Surface (S);
-
-         when others =>
-            raise Program_Error with "unsupported bookmark command kind";
-      end case;
-   end Execute_Bookmark_Kind;
-
 
 end Editor.Executor.Bookmark_Commands;

@@ -26,10 +26,6 @@ package Editor.Executor.File_Lifecycle_Commands is
       Id : Editor.Commands.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result;
 
-   procedure Execute_Lifecycle_Kind
-     (S   : in out Editor.State.State_Type;
-      Cmd : Editor.Commands.Command);
-
    function Active_File_External_Status
      (S : Editor.State.State_Type) return Editor.Files.File_External_Change_Status;
 

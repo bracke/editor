@@ -1215,6 +1215,97 @@ package Editor.Ada_Token_Cursor is
      (Result : Grammar_Result;
       Kind   : Production_Kind) return Boolean;
 
+   procedure Parse_Primary
+     (Position : in out Cursor;
+      Result   : in out Grammar_Result);
+
+   procedure Parse_Type_Modifiers
+     (Position : in out Cursor;
+      Result   : in out Grammar_Result);
+
+   procedure Parse_Enumeration_Type_Definition
+     (Position : in out Cursor;
+      Result   : in out Grammar_Result);
+
+   procedure Parse_Record_Definition
+     (Position : in out Cursor;
+      Result   : in out Grammar_Result);
+
+   procedure Parse_Range_Constraint
+     (Position : in out Cursor;
+      Result   : in out Grammar_Result);
+
+   procedure Parse_Digits_Constraint
+     (Position : in out Cursor;
+      Result   : in out Grammar_Result);
+
+   procedure Parse_Delta_Constraint
+     (Position : in out Cursor;
+      Result   : in out Grammar_Result);
+
+   procedure Parse_Null_Exclusion
+     (Position : in out Cursor;
+      Result   : in out Grammar_Result);
+
+   procedure Parse_Access_Type_Definition
+     (Position : in out Cursor;
+      Result   : in out Grammar_Result);
+
+   procedure Parse_Array_Type_Definition
+     (Position : in out Cursor;
+      Result   : in out Grammar_Result);
+
+   procedure Parse_Type_Definition
+     (Position : in out Cursor;
+      Result   : in out Grammar_Result);
+
+   procedure Parse_Subtype_Indication
+     (Position : in out Cursor;
+      Result   : in out Grammar_Result);
+
+   function Has_Top_Level_Arrow_Before_Association_End
+     (Position : Cursor) return Boolean;
+
+   procedure Parse_Allocator_Subtype_Indication
+     (Position : in out Cursor;
+      Result   : in out Grammar_Result);
+
+   procedure Parse_Reduction_Argument_Part
+     (Position : in out Cursor;
+      Result   : in out Grammar_Result;
+      Origin   : Token_Info;
+      Attribute_Name : String);
+
+   procedure Parse_Attribute_Argument_List
+     (Position : in out Cursor;
+      Result   : in out Grammar_Result;
+      Origin   : Token_Info;
+      Label    : String);
+
+   procedure Parse_Entry_Parenthesized_Parts
+     (Position : in out Cursor;
+      Result   : in out Grammar_Result;
+      Tok      : Token_Info);
+
+   procedure Add_Statement_Name_Suffix_Productions
+     (Position       : Cursor;
+      Result         : in out Grammar_Result;
+      Start_At       : Natural;
+      End_At         : Natural;
+      For_Assignment : Boolean);
+
+   procedure Add_Entry_Body_Part_Productions
+     (Position : Cursor;
+      Result   : in out Grammar_Result);
+
+   procedure Mark_Raise_Exception_Target_Shape
+     (Position               : Cursor;
+      Result                 : in out Grammar_Result;
+      Origin                 : Token_Info;
+      Selected_Production    : Production_Kind;
+      Recovery_Production    : Production_Kind;
+      Label                  : String);
+
 private
    package Token_Vectors is new Ada.Containers.Vectors
      (Index_Type   => Positive,

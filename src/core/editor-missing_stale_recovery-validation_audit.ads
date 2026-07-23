@@ -1,0 +1,27 @@
+package Editor.Missing_Stale_Recovery.Validation_Audit is
+
+   function Assert_Access_Distinctions_Are_Explicit return Boolean;
+   function Assert_Line_Only_Diagnostics_Navigate_To_Line_Start return Boolean;
+   function Assert_Search_Content_Staleness_Is_Gated return Boolean;
+   function Assert_Replace_Apply_Summary_Is_Bounded return Boolean;
+   function Assert_Session_Recent_And_Build_Consent_Do_Not_Bypass_Validation return Boolean;
+   function Assert_Selected_Stale_Targets_Are_Not_Persisted_Or_Auto_Repaired return Boolean;
+   function Assert_Recent_Missing_Markers_Are_Snapshot_Only return Boolean;
+   function Assert_Replace_All_And_Build_Reconsent_Are_Gated return Boolean;
+   function Assert_File_Tree_Mutations_Preflight_At_Execution return Boolean;
+   function Assert_Workspace_Active_File_Fallback_Is_Deterministic return Boolean;
+   function Assert_Replace_Skipped_Report_Requires_Validation return Boolean;
+   function Assert_Target_Reference_Identity_And_Message_Payload_Policies_Are_Explicit return Boolean;
+   function Assert_Target_Use_Blocking_Matrix_Is_Explicit return Boolean;
+   function Assert_Target_Uses_Validate_And_Do_Not_Auto_Refresh return Boolean;
+   function Assert_Failed_Target_Uses_Preserve_User_Text_And_Do_Not_Fabricate return Boolean;
+   function Assert_Failed_Validation_Is_Non_Mutating_And_Preserves_Surface_State return Boolean;
+   function Assert_Stale_Targets_Expose_Explicit_User_Action_Hints return Boolean;
+   function Assert_Recovery_Hints_Map_To_Explicit_Commands return Boolean;
+   function Assert_Transient_Snapshot_Status_Is_Not_Persisted_Or_Probing return Boolean;
+   function Assert_Project_Transitions_And_Workspace_Loads_Preserve_Dirty_Text return Boolean;
+   function Assert_Content_And_Project_Events_Update_Recovery_Surfaces return Boolean;
+   function Assert_Recovery_Events_Do_Not_Fabricate_Or_Bypass_Executor return Boolean;
+   function Assert_Non_Executor_Recovery_Triggers_Are_Observational return Boolean;
+
+end Editor.Missing_Stale_Recovery.Validation_Audit;

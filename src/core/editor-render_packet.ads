@@ -71,18 +71,6 @@ package Editor.Render_Packet is
       Boundary_Safe                      : Boolean := True;
    end record;
 
-   function Audit_Buffer_Metadata_Render_Boundary
-     return Buffer_Metadata_Render_Boundary_Audit;
-
-   function Assert_Buffer_Metadata_Render_Boundary_Safe return Boolean;
-
-   procedure Clear_Debug_Text_For_Test;
-
-   function Debug_Text_Contains_For_Test
-     (Text : String) return Boolean;
-
-   function Debug_Text_For_Test return String;
-
    --  Internal render-packet builder.
    --  Runtime-facing code must call Editor.Input_Bridge.Build_Render_Packet
    --  instead, so initialization and active-instance checks are enforced.

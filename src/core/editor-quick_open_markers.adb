@@ -1,13 +1,16 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Containers; use type Ada.Containers.Count_Type;
-with Ada.Characters.Handling;
 with Ada.Strings;
 with Ada.Strings.Fixed;
 with Editor.Buffers;
 with Editor.File_Tree;
+with Editor.Image_Helpers;
+with Editor.Path_Helpers;
+with Editor.Quick_Open_Text_Helpers;
 with Editor.Project;
 with Editor.Quick_Open;
 with Editor.Recent_Buffers;
+with Editor.Text_Helpers;
 
 package body Editor.Quick_Open_Markers is
 
@@ -20,106 +23,33 @@ package body Editor.Quick_Open_Markers is
    use type Editor.Quick_Open.Quick_Open_File_Kind_Filter;
 
    function Normalize_For_Compare (Text : String) return String is
-      Result : String (Text'Range);
    begin
-      for I in Text'Range loop
-         if Text (I) = '\' then
-            Result (I) := '/';
-         else
-            Result (I) := Ada.Characters.Handling.To_Lower (Text (I));
-         end if;
-      end loop;
-      return Result;
+      return Editor.Quick_Open_Text_Helpers.Normalize_For_Compare (Text);
    end Normalize_For_Compare;
 
-   function Image (Value : Natural) return String is
-   begin
-      return Ada.Strings.Fixed.Trim (Natural'Image (Value), Ada.Strings.Both);
-   end Image;
+   function Base_Name (Path : String) return String
+     renames Editor.Quick_Open_Text_Helpers.Base_Name;
 
-   function Base_Name (Path : String) return String is
-      Last_Sep : Natural := 0;
-   begin
-      for I in Path'Range loop
-         if Path (I) = '/' or else Path (I) = '\' then
-            Last_Sep := I;
-         end if;
-      end loop;
+   function Extension_Of (Path : String) return String
+     renames Editor.Quick_Open_Text_Helpers.Extension_Of;
 
-      if Last_Sep = 0 then
-         return Path;
-      elsif Last_Sep >= Path'Last then
-         return "";
-      else
-         return Path (Last_Sep + 1 .. Path'Last);
-      end if;
-   end Base_Name;
+   function Is_Ada_File (Path : String) return Boolean
+     renames Editor.Quick_Open_Text_Helpers.Is_Ada_File;
 
-   function Starts_With (Text, Prefix : String) return Boolean is
-   begin
-      return Prefix'Length <= Text'Length
-        and then Text (Text'First .. Text'First + Prefix'Length - 1) = Prefix;
-   end Starts_With;
+   function Is_Doc_File (Path : String) return Boolean
+     renames Editor.Quick_Open_Text_Helpers.Is_Doc_File;
 
-   function Contains (Text, Part : String) return Boolean is
-   begin
-      if Part'Length = 0 then
-         return True;
-      elsif Part'Length > Text'Length then
-         return False;
-      end if;
+   function Is_Test_File (Path : String) return Boolean
+     renames Editor.Quick_Open_Text_Helpers.Is_Test_File;
 
-      for I in Text'First .. Text'Last - Part'Length + 1 loop
-         if Text (I .. I + Part'Length - 1) = Part then
-            return True;
-         end if;
-      end loop;
-      return False;
-   end Contains;
+   function Starts_With (Text, Prefix : String) return Boolean
+     renames Editor.Text_Helpers.Starts_With;
 
-   function Ends_With (Text, Suffix : String) return Boolean is
-   begin
-      return Suffix'Length <= Text'Length
-        and then Text (Text'Last - Suffix'Length + 1 .. Text'Last) = Suffix;
-   end Ends_With;
+   function Contains (Text, Part : String) return Boolean
+     renames Editor.Text_Helpers.Contains;
 
-   function Extension_Of (Path : String) return String is
-      Name : constant String := Normalize_For_Compare (Base_Name (Path));
-   begin
-      for I in reverse Name'Range loop
-         if Name (I) = '.' then
-            return Name (I .. Name'Last);
-         end if;
-      end loop;
-      return "";
-   end Extension_Of;
-
-   function Is_Ada_File (Path : String) return Boolean is
-      Ext : constant String := Extension_Of (Path);
-   begin
-      return Ext = ".adb" or else Ext = ".ads";
-   end Is_Ada_File;
-
-   function Is_Doc_File (Path : String) return Boolean is
-      Ext : constant String := Extension_Of (Path);
-   begin
-      return Ext = ".md" or else Ext = ".txt" or else Ext = ".rst" or else Ext = ".adoc";
-   end Is_Doc_File;
-
-   function Is_Test_File (Path : String) return Boolean is
-      P : constant String := Normalize_For_Compare (Path);
-      B : constant String := Normalize_For_Compare (Base_Name (Path));
-      Ext : constant String := Extension_Of (Path);
-      Stem_Last : constant Natural := (if Ext'Length > 0 then B'Last - Ext'Length else B'Last);
-      Stem : constant String := (if Stem_Last >= B'First then B (B'First .. Stem_Last) else "");
-   begin
-      return Contains (P, "/test/")
-        or else Contains (P, "/tests/")
-        or else Starts_With (P, "test/")
-        or else Starts_With (P, "tests/")
-        or else Starts_With (B, "test_")
-        or else Ends_With (Stem, "_test");
-   end Is_Test_File;
+   function Ends_With (Text, Suffix : String) return Boolean
+     renames Editor.Text_Helpers.Ends_With;
 
    function Matches_File_Kind
      (Path   : String;
@@ -142,193 +72,36 @@ package body Editor.Quick_Open_Markers is
       end case;
    end Matches_File_Kind;
 
-   function In_Path_Scope (Path, Scope : String) return Boolean is
-      P : constant String := Normalize_For_Compare (Path);
-      S : constant String := Normalize_For_Compare (Scope);
-   begin
-      return S'Length = 0 or else Starts_With (P, S);
-   end In_Path_Scope;
+   function In_Path_Scope (Path, Scope : String) return Boolean
+     renames Editor.Quick_Open_Text_Helpers.In_Path_Scope;
 
-   function Path_Depth (Path : String) return Natural is
-      P : constant String := Normalize_For_Compare (Path);
-      Count : Natural := 0;
-   begin
-      for Ch of P loop
-         if Ch = '/' then
-            Count := Count + 1;
-         end if;
-      end loop;
-      return Count;
-   end Path_Depth;
+   function Is_Term_Boundary (Ch : Character) return Boolean
+     renames Editor.Quick_Open_Text_Helpers.Is_Term_Boundary;
 
-   function Is_Term_Boundary (Ch : Character) return Boolean is
-   begin
-      return Ch = '/' or else Ch = '-' or else Ch = '_' or else Ch = '.' or else Ch = ' ';
-   end Is_Term_Boundary;
-
-   function Has_Whitespace (Text : String) return Boolean is
-   begin
-      for Ch of Text loop
-         if Ch = ' ' or else Ch = Character'Val (9) then
-            return True;
-         end if;
-      end loop;
-      return False;
-   end Has_Whitespace;
+   function Has_Whitespace (Text : String) return Boolean
+     renames Editor.Quick_Open_Text_Helpers.Has_Whitespace;
 
    function Ordered_Characters_Match
      (Pattern : String;
       Text    : String) return Boolean
-   is
-      P : constant String := Normalize_For_Compare
-        (Ada.Strings.Fixed.Trim (Pattern, Ada.Strings.Both));
-      T : constant String := Normalize_For_Compare (Text);
-      Pos : Natural := T'First;
-      Found : Boolean;
-   begin
-      if P'Length = 0 then
-         return True;
-      elsif T'Length = 0 then
-         return False;
-      end if;
-
-      for Ch of P loop
-         if Ch = ' ' or else Ch = '/' then
-            null;
-         else
-            Found := False;
-            while Pos <= T'Last loop
-               if T (Pos) = Ch then
-                  Found := True;
-                  Pos := Pos + 1;
-                  exit;
-               end if;
-               Pos := Pos + 1;
-            end loop;
-            if not Found then
-               return False;
-            end if;
-         end if;
-      end loop;
-      return True;
-   end Ordered_Characters_Match;
+     renames Editor.Quick_Open_Text_Helpers.Ordered_Characters_Match;
 
    function Ordered_Basename_Fuzzy_Match
      (Pattern : String;
       Text    : String) return Boolean
-   is
-      P : constant String := Normalize_For_Compare
-        (Ada.Strings.Fixed.Trim (Pattern, Ada.Strings.Both));
-      T : constant String := Normalize_For_Compare (Text);
-   begin
-      return P'Length > 0
-        and then T'Length > 0
-        and then T (T'First) = P (P'First)
-        and then Ordered_Characters_Match (P, T);
-   end Ordered_Basename_Fuzzy_Match;
+     renames Editor.Quick_Open_Text_Helpers.Ordered_Basename_Fuzzy_Match;
 
    function Ordered_Terms_Match
      (Query       : String;
       Path        : String;
       Prefix_Only : Boolean) return Boolean
-   is
-      Q : constant String := Normalize_For_Compare
-        (Ada.Strings.Fixed.Trim (Query, Ada.Strings.Both));
-      P : constant String := Normalize_For_Compare (Path);
-      Term : Unbounded_String := Null_Unbounded_String;
-      Search_From : Natural := P'First;
-
-      function Find_Term (Term_Text : String) return Boolean is
-      begin
-         if Term_Text'Length = 0 then
-            return True;
-         end if;
-         if P'Length = 0 or else Search_From > P'Last then
-            return False;
-         end if;
-
-         for I in Search_From .. P'Last loop
-            if I + Term_Text'Length - 1 <= P'Last
-              and then P (I .. I + Term_Text'Length - 1) = Term_Text
-              and then ((not Prefix_Only)
-                        or else I = P'First
-                        or else Is_Term_Boundary (P (I - 1)))
-            then
-               Search_From := I + Term_Text'Length;
-               return True;
-            end if;
-         end loop;
-         return False;
-      end Find_Term;
-
-      procedure Flush_Term (Ok : in out Boolean) is
-      begin
-         if Length (Term) > 0 then
-            Ok := Ok and then Find_Term (To_String (Term));
-            Term := Null_Unbounded_String;
-         end if;
-      end Flush_Term;
-
-      Ok : Boolean := True;
-   begin
-      if Q'Length = 0 then
-         return True;
-      end if;
-
-      for Ch of Q loop
-         if Ch = ' ' or else Ch = Character'Val (9) then
-            Flush_Term (Ok);
-            if not Ok then
-               return False;
-            end if;
-         else
-            Append (Term, Ch);
-         end if;
-      end loop;
-      Flush_Term (Ok);
-      return Ok;
-   end Ordered_Terms_Match;
+     renames Editor.Quick_Open_Text_Helpers.Ordered_Terms_Match;
 
    function Segment_Contains
      (Path : String;
       Term : String;
       Prefix_Only : Boolean) return Boolean
-   is
-      P : constant String := Normalize_For_Compare (Path);
-      T : constant String := Normalize_For_Compare (Term);
-      Segment_Start : Natural := P'First;
-   begin
-      if T'Length = 0 then
-         return True;
-      end if;
-
-      for I in P'Range loop
-         if P (I) = '/' then
-            if I > Segment_Start then
-               declare
-                  Segment : constant String := P (Segment_Start .. I - 1);
-               begin
-                  if (Prefix_Only and then Starts_With (Segment, T))
-                    or else ((not Prefix_Only) and then Contains (Segment, T))
-                  then
-                     return True;
-                  end if;
-               end;
-            end if;
-            Segment_Start := I + 1;
-         end if;
-      end loop;
-
-      if Segment_Start <= P'Last then
-         declare
-            Segment : constant String := P (Segment_Start .. P'Last);
-         begin
-            return (Prefix_Only and then Starts_With (Segment, T))
-              or else ((not Prefix_Only) and then Contains (Segment, T));
-         end;
-      end if;
-      return False;
-   end Segment_Contains;
+     renames Editor.Quick_Open_Text_Helpers.Segment_Contains;
 
 
    function Query_Has_Path_Traversal_Term (Query : String) return Boolean is
@@ -563,9 +336,11 @@ package body Editor.Quick_Open_Markers is
       elsif Source_Root_Priority (LO) /= Source_Root_Priority (RO) then
          return Source_Root_Priority (LO) < Source_Root_Priority (RO);
       elsif Left.Match_Bucket /= Editor.Quick_Open.Path_Substring
-        and then Path_Depth (LO) /= Path_Depth (RO)
+        and then Editor.Path_Helpers.Path_Depth (LO)
+          /= Editor.Path_Helpers.Path_Depth (RO)
       then
-         return Path_Depth (LO) < Path_Depth (RO);
+         return Editor.Path_Helpers.Path_Depth (LO)
+           < Editor.Path_Helpers.Path_Depth (RO);
       elsif Left.Match_Bucket /= Editor.Quick_Open.Path_Substring
         and then LO'Length /= RO'Length
       then
@@ -890,8 +665,10 @@ package body Editor.Quick_Open_Markers is
                then "Open/Recent" else "Path")
             & (if not Snapshot.Has_Project then " | No project open."
                elsif Snapshot.Known_Count = 0 then " | No project files."
-               else " | Results: " & Image (Snapshot.Total_Filtered_Count)
-                 & " of " & Image (Snapshot.Known_Count)));
+               else " | Results: "
+                 & Editor.Image_Helpers.Trim_Image (Snapshot.Total_Filtered_Count)
+                 & " of "
+                 & Editor.Image_Helpers.Trim_Image (Snapshot.Known_Count)));
       end Refresh_Header_Text;
 
       function No_Matches_Message return String is
@@ -1392,8 +1169,10 @@ package body Editor.Quick_Open_Markers is
                then "Open/Recent" else "Path")
             & (if not Snapshot.Has_Project then " | No project open."
                elsif Snapshot.Known_Count = 0 then " | No project files."
-               else " | Results: " & Image (Snapshot.Total_Filtered_Count)
-                 & " of " & Image (Snapshot.Known_Count)));
+               else " | Results: "
+                 & Editor.Image_Helpers.Trim_Image (Snapshot.Total_Filtered_Count)
+                 & " of "
+                 & Editor.Image_Helpers.Trim_Image (Snapshot.Known_Count)));
       end Refresh_Header_Text;
 
       procedure Recompute_Selection_After_Sort is

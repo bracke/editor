@@ -1,0 +1,22 @@
+package Editor.Missing_Stale_Recovery.Recovery_Audit is
+
+   function Assert_Workspace_Recovery_Summary_Is_One_Primary_Transient_Outcome return Boolean;
+   function Assert_Availability_And_Render_Cannot_Clear_Stale_State return Boolean;
+   function Assert_Recovery_Command_Clears_Only_Owning_Surface_From_Executor return Boolean;
+   function Assert_Staleness_Provenance_Is_Explicit_Transient_And_Project_Scoped return Boolean;
+   function Assert_Missing_Targets_Are_Not_Remapped return Boolean;
+   function Assert_Target_Validation_Is_Command_Execution_Boundary return Boolean;
+   function Assert_Cached_Target_Validation_Is_Never_Authoritative return Boolean;
+   function Assert_Confirmation_Pending_Blocks_Recovery_Commands return Boolean;
+   function Assert_Forbidden_Recovery_Mechanisms_Remain_Disabled return Boolean;
+   function Assert_Transient_Surface_Fields_Are_Not_Persisted return Boolean;
+   function Assert_Project_Transition_Clears_Build_Transient_State return Boolean;
+   function Assert_Recovery_Attempts_Clear_Only_On_Success_And_Never_Embed_Targets return Boolean;
+   function Assert_Recovery_Command_Effects_Are_Explicit_And_Non_Goal_Safe return Boolean;
+   function Assert_Recovery_Postconditions_Require_Revalidation_Before_Target_Use return Boolean;
+   function Assert_Stale_Surface_Lifecycle_Is_Bounded_Transient_And_Explicit return Boolean;
+   function Assert_Multi_Target_Validation_Is_Atomic_And_Payload_Free return Boolean;
+   function Assert_Recovery_Actions_Are_Non_Destructive_And_Payloadless return Boolean;
+   function Assert_Missing_Stale_Target_Recovery_Coherent return Boolean;
+
+end Editor.Missing_Stale_Recovery.Recovery_Audit;

@@ -1,3 +1,5 @@
+with Editor.Image_Helpers;
+
 package body Editor.Line_Numbers is
 
    State : Line_Number_Config := (Mode => Absolute_Line_Numbers);
@@ -61,12 +63,6 @@ package body Editor.Line_Numbers is
       end case;
    end Toggle_Mode;
 
-   function Trimmed_Image (Value : Natural) return String is
-      Image : constant String := Natural'Image (Value);
-   begin
-      return Image (Image'First + 1 .. Image'Last);
-   end Trimmed_Image;
-
    function Distance
      (Left  : Natural;
       Right : Natural) return Natural
@@ -87,20 +83,20 @@ package body Editor.Line_Numbers is
    begin
       case Config.Mode is
          when Absolute_Line_Numbers =>
-            return Trimmed_Image (Document_Row + 1);
+            return Editor.Image_Helpers.Trim_Image (Document_Row + 1);
 
          when Relative_Line_Numbers =>
             if Document_Row = Current_Row then
                return "0";
             else
-               return Trimmed_Image (Distance (Document_Row, Current_Row));
+               return Editor.Image_Helpers.Trim_Image (Distance (Document_Row, Current_Row));
             end if;
 
          when Hybrid_Line_Numbers =>
             if Document_Row = Current_Row then
-               return Trimmed_Image (Document_Row + 1);
+               return Editor.Image_Helpers.Trim_Image (Document_Row + 1);
             else
-               return Trimmed_Image (Distance (Document_Row, Current_Row));
+               return Editor.Image_Helpers.Trim_Image (Distance (Document_Row, Current_Row));
             end if;
       end case;
    end Display_Text;

@@ -88,29 +88,6 @@ package body Editor.Executor.Semantic_Completion_Commands is
       end case;
    end Semantic_Completion_Command_Availability;
 
-   procedure Execute_Semantic_Completion_Kind
-     (S    : in out Editor.State.State_Type;
-      Kind : Editor.Commands.Command_Kind)
-   is
-   begin
-      case Kind is
-         when Editor.Commands.Semantic_Completion_Select_Next =>
-            Execute_Semantic_Completion_Select (S, Next => True);
-
-         when Editor.Commands.Semantic_Completion_Select_Previous =>
-            Execute_Semantic_Completion_Select (S, Next => False);
-
-         when Editor.Commands.Semantic_Completion_Accept =>
-            Execute_Semantic_Completion_Accept (S);
-
-         when Editor.Commands.Semantic_Popup_Dismiss =>
-            Execute_Semantic_Popup_Dismiss (S);
-
-         when others =>
-            raise Program_Error with "unsupported semantic completion command";
-      end case;
-   end Execute_Semantic_Completion_Kind;
-
    procedure Execute_Semantic_Completion_Select
      (S    : in out Editor.State.State_Type;
       Next : Boolean)

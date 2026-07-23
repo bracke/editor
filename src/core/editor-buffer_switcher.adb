@@ -7,6 +7,11 @@ with Editor.Buffers;
 with Editor.Input_Field;
 with Editor.Project;
 with Editor.Recent_Buffers;
+with Editor.Buffer_Switcher.Labels;
+with Editor.Buffer_Switcher.Pending_Close_Operations;
+with Editor.Buffer_Switcher.Dirty_Prune_Operations;
+with Editor.Buffer_Switcher.Review_Operations;
+with Editor.Buffer_Switcher.Row_Operations;
 
 package body Editor.Buffer_Switcher is
    use type Editor.Buffers.Buffer_Close_Eligibility;
@@ -27,116 +32,29 @@ package body Editor.Buffer_Switcher is
      (Index_Type   => Natural,
       Element_Type => Switcher_Candidate);
 
-   function Lower (Text : String) return String is
-      Result : String (Text'Range);
-   begin
-      for I in Text'Range loop
-         Result (I) := Ada.Characters.Handling.To_Lower (Text (I));
-      end loop;
-      return Result;
-   end Lower;
+   function Lower (Text : String) return String
+     renames Editor.Buffer_Switcher.Row_Operations.Lower;
 
+   function Contains (Text, Part : String) return Boolean
+     renames Editor.Buffer_Switcher.Row_Operations.Contains;
+
+   function Matches_Metadata_Filter
+     (Summary : Editor.Buffers.Buffer_Summary;
+      Filter  : Switcher_Metadata_Filter) return Boolean
+     renames Editor.Buffer_Switcher.Row_Operations.Matches_Metadata_Filter;
+
+   function Matches_Buffer_State_Filter
+     (Row    : Buffer_Switcher_Row;
+      Filter : Switcher_Metadata_Filter) return Boolean
+     renames Editor.Buffer_Switcher.Row_Operations.Matches_Buffer_State_Filter;
 
    function Trimmed (Text : String) return String is
    begin
       return Ada.Strings.Fixed.Trim (Text, Ada.Strings.Both);
    end Trimmed;
 
-   function Matches_Metadata_Filter
-     (Summary : Editor.Buffers.Buffer_Summary;
-      Filter  : Switcher_Metadata_Filter) return Boolean
-   is
-      Text : constant String := To_String (Filter.Text);
-   begin
-      case Filter.Kind is
-         when No_Filter =>
-            return True;
-         when Pinned_Filter =>
-            return Summary.Is_Pinned;
-         when Group_Filter =>
-            return Summary.Has_Group and then To_String (Summary.Group_Name) = Text;
-         when Label_Filter =>
-            return Summary.Has_Label and then To_String (Summary.Label_Text) = Text;
-         when Noted_Filter =>
-            return Summary.Has_Note;
-         when Dirty_Filter
-            | Clean_Filter
-            | Missing_Or_Conflict_Filter
-            | Project_Owned_Filter
-            | Outside_Project_Filter
-            | Scratch_Filter =>
-            return True;
-      end case;
-   end Matches_Metadata_Filter;
-
-   function Matches_Buffer_State_Filter
-     (Row    : Buffer_Switcher_Row;
-      Filter : Switcher_Metadata_Filter) return Boolean
-   is
-   begin
-      case Filter.Kind is
-         when Dirty_Filter =>
-            return Row.Is_Dirty;
-         when Clean_Filter =>
-            return not Row.Is_Dirty;
-         when Missing_Or_Conflict_Filter =>
-            return Row.Missing_Target_Surfaced
-              or else Row.External_Change_Surfaced
-              or else Row.Unreadable_Target_Surfaced
-              or else Row.Unwritable_Target_Surfaced
-              or else Row.Last_Save_Failed
-              or else Row.Last_Reload_Failed
-              or else Row.Last_Revert_Failed;
-         when Project_Owned_Filter =>
-            return Row.Project_Ownership = Buffer_Project_Owned;
-         when Outside_Project_Filter =>
-            return Row.Project_Ownership = Buffer_Project_Outside;
-         when Scratch_Filter =>
-            return Row.Project_Ownership = Buffer_Project_Scratch
-              or else Row.Is_Unbacked;
-         when No_Filter
-            | Pinned_Filter
-            | Group_Filter
-            | Label_Filter
-            | Noted_Filter =>
-            return True;
-      end case;
-   end Matches_Buffer_State_Filter;
-
-   function Contains (Text, Part : String) return Boolean is
-   begin
-      if Part'Length = 0 then
-         return True;
-      elsif Part'Length > Text'Length then
-         return False;
-      end if;
-
-      for I in Text'First .. Text'Last - Part'Length + 1 loop
-         if Text (I .. I + Part'Length - 1) = Part then
-            return True;
-         end if;
-      end loop;
-      return False;
-   end Contains;
-
-   procedure Clamp_Window (State : in out Buffer_Switcher_State) is
-      Count : constant Natural := Natural (State.Rows.Length);
-   begin
-      if Count = 0 then
-         State.Selected_Index := 0;
-         State.Top_Index := 1;
-      else
-         if State.Selected_Index = 0 or else State.Selected_Index > Count then
-            State.Selected_Index := 1;
-         end if;
-         if State.Top_Index = 0 or else State.Top_Index > State.Selected_Index then
-            State.Top_Index := State.Selected_Index;
-         end if;
-         if State.Selected_Index >= State.Top_Index + State.Visible_Window then
-            State.Top_Index := State.Selected_Index - State.Visible_Window + 1;
-         end if;
-      end if;
-   end Clamp_Window;
+   procedure Clamp_Window (State : in out Buffer_Switcher_State)
+     renames Editor.Buffer_Switcher.Row_Operations.Clamp_Window;
 
    procedure Clear (State : in out Buffer_Switcher_State) is
    begin
@@ -527,80 +445,6 @@ package body Editor.Buffer_Switcher is
 
 
 
-   function Path_Base_Name (Path : String) return String is
-      Last_Sep : Natural := 0;
-   begin
-      for I in Path'Range loop
-         if Path (I) = '/' or else Path (I) = '\' then
-            Last_Sep := I;
-         end if;
-      end loop;
-
-      if Last_Sep = 0 then
-         return Path;
-      elsif Last_Sep >= Path'Last then
-         return Path;
-      else
-         return Path (Last_Sep + 1 .. Path'Last);
-      end if;
-   end Path_Base_Name;
-
-   function Parent_Hint (Path : String) return String is
-      Last_Sep : Natural := 0;
-      Prev_Sep : Natural := 0;
-   begin
-      for I in Path'Range loop
-         if Path (I) = '/' or else Path (I) = '\' then
-            Prev_Sep := Last_Sep;
-            Last_Sep := I;
-         end if;
-      end loop;
-
-      if Last_Sep = 0 then
-         return "";
-      elsif Prev_Sep = 0 then
-         if Last_Sep > Path'First then
-            return Path (Path'First .. Last_Sep - 1);
-         else
-            return "";
-         end if;
-      elsif Prev_Sep + 1 <= Last_Sep - 1 then
-         return Path (Prev_Sep + 1 .. Last_Sep - 1);
-      else
-         return "";
-      end if;
-   end Parent_Hint;
-
-   function Short_Path_Label (Path : String) return String is
-      Base   : constant String := Path_Base_Name (Path);
-      Parent : constant String := Parent_Hint (Path);
-   begin
-      if Parent'Length = 0 then
-         return Base;
-      else
-         return Parent & "/" & Base;
-      end if;
-   end Short_Path_Label;
-
-   procedure Apply_Buffer_List_Display_Label
-     (Row     : in out Buffer_Switcher_Row;
-      Project : Editor.Project.Project_State)
-   is
-      Path_Text : constant String := To_String (Row.Path);
-   begin
-      if not Row.Has_Path then
-         --  Scratch/untitled rows keep the runtime title assigned by the
-         --  buffer registry.  The label remains display-only and contains no
-         --  buffer text or persisted runtime identity.
-         null;
-      elsif Row.Project_Ownership = Buffer_Project_Owned then
-         Row.Display_Label := To_Unbounded_String
-           (Editor.Project.Relative_Path (Project, Path_Text));
-      else
-         Row.Display_Label := To_Unbounded_String (Short_Path_Label (Path_Text));
-      end if;
-   end Apply_Buffer_List_Display_Label;
-
    function Build_Open_Buffer_Switcher_Row_From_Buffer_Snapshot
      (Summary : Editor.Buffers.Buffer_Summary) return Buffer_Switcher_Row
    is
@@ -676,29 +520,6 @@ package body Editor.Buffer_Switcher is
       end case;
    end Switcher_Ownership_Kind;
 
-   function Metadata_Display_Label
-     (Metadata : Editor.Buffers.Buffer_Metadata_Snapshot) return Unbounded_String
-   is
-   begin
-      if Metadata.Has_Project_Relative_Path then
-         return Metadata.Project_Relative_Path;
-      elsif Metadata.Has_Outside_Project_Path_Label then
-         return To_Unbounded_String
-           (Short_Path_Label (To_String (Metadata.Outside_Project_Path_Label)));
-      elsif Metadata.Has_File_Path then
-         if Metadata.Ownership = Editor.Buffers.Buffer_Missing_Project_Context then
-            return To_Unbounded_String (Path_Base_Name (To_String (Metadata.File_Path)));
-         else
-            return To_Unbounded_String
-              (Short_Path_Label (To_String (Metadata.File_Path)));
-         end if;
-      elsif Metadata.Has_Scratch_Label then
-         return To_Unbounded_String ("Untitled");
-      else
-         return Metadata.Display_Label;
-      end if;
-   end Metadata_Display_Label;
-
    function Build_Open_Buffer_Switcher_Row_From_Metadata_Snapshot
      (Metadata : Editor.Buffers.Buffer_Metadata_Snapshot;
       Summary  : Editor.Buffers.Buffer_Summary) return Buffer_Switcher_Row
@@ -708,14 +529,15 @@ package body Editor.Buffer_Switcher is
    begin
       return
         (Id            => Metadata.Id,
-         Display_Label => Metadata_Display_Label (Metadata),
+         Display_Label => Editor.Buffer_Switcher.Labels.Metadata_Display_Label (Metadata),
          Is_Dirty      => Metadata.Is_Dirty,
          Is_Active     => Metadata.Is_Active,
          Has_Path      => Metadata.Has_File_Path,
          Path          => Metadata.File_Path,
          Project_Ownership => Ownership,
          Project_Ownership_Label =>
-           To_Unbounded_String (Buffer_Project_Ownership_Label (Ownership)),
+           To_Unbounded_String
+             (Editor.Buffer_Switcher.Labels.Buffer_Project_Ownership_Label (Ownership)),
          Lifecycle_Status_Label => Metadata.Lifecycle_Status_Label,
          Workspace_Persistability_Label =>
            To_Unbounded_String
@@ -756,122 +578,20 @@ package body Editor.Buffer_Switcher is
 
    function Buffer_Row_State_Markers
      (Row : Buffer_Switcher_Row) return String
-   is
-      Result : Unbounded_String := Null_Unbounded_String;
-
-      procedure Add (Text : String) is
-      begin
-         if Length (Result) /= 0 then
-            Append (Result, " ");
-         end if;
-         Append (Result, Text);
-      end Add;
-   begin
-      if Row.Is_Active then
-         Add ("active");
-      end if;
-      if Row.Is_Dirty then
-         Add ("dirty");
-      end if;
-      if Row.Is_File_Backed then
-         Add ("file");
-      elsif Row.Is_Unbacked then
-         Add ("scratch");
-      end if;
-      if Row.Is_Project_Owned then
-         Add ("project");
-      elsif Row.Is_Outside_Project then
-         Add ("outside-project");
-      elsif Row.Project_Ownership = Buffer_Project_No_Project then
-         Add ("no-project");
-      end if;
-      if Row.Missing_Target_Surfaced then
-         Add ("missing");
-      end if;
-      if Row.Unreadable_Target_Surfaced
-        or else Row.Last_Reload_Failed
-        or else Row.Last_Revert_Failed
-      then
-         Add ("unreadable");
-      end if;
-      if Row.Unwritable_Target_Surfaced or else Row.Last_Save_Failed then
-         Add ("unwritable");
-      end if;
-      if Row.External_Change_Surfaced then
-         if Row.Is_Outside_Project then
-            Add ("conflict");
-         end if;
-         Add ("external-change");
-      end if;
-      if Row.Blocked_Close_Surfaced then
-         Add ("guarded");
-      end if;
-      return To_String (Result);
-   end Buffer_Row_State_Markers;
+       renames Editor.Buffer_Switcher.Labels.Buffer_Row_State_Markers;
 
    function Buffer_Row_Metadata_Render_Label
      (Row : Buffer_Switcher_Row) return String
-   is
-      Result : Unbounded_String := Null_Unbounded_String;
-
-      procedure Add (Text : String) is
-      begin
-         if Text'Length = 0 then
-            return;
-         end if;
-         if Length (Result) /= 0 then
-            Append (Result, "; " );
-         end if;
-         Append (Result, Text);
-      end Add;
-   begin
-      Add (To_String (Row.Project_Ownership_Label));
-      Add (To_String (Row.Lifecycle_Status_Label));
-      Add (To_String (Row.Workspace_Persistability_Label));
-      Add (To_String (Row.Close_Eligibility_Label));
-      if Row.Stale_Backing_State then
-         Add ("Stale backing state");
-      end if;
-      return To_String (Result);
-   end Buffer_Row_Metadata_Render_Label;
-
+       renames Editor.Buffer_Switcher.Labels.Buffer_Row_Metadata_Render_Label;
 
    function Buffer_Project_Ownership_Label
      (Kind : Buffer_Project_Ownership_Kind) return String
-   is
-   begin
-      case Kind is
-         when Buffer_Project_Unknown =>
-            return "project unknown";
-         when Buffer_Project_Owned =>
-            return "project";
-         when Buffer_Project_Outside =>
-            return "outside project";
-         when Buffer_Project_Scratch =>
-            return "scratch";
-         when Buffer_Project_No_Project =>
-            return "no project";
-      end case;
-   end Buffer_Project_Ownership_Label;
+       renames Editor.Buffer_Switcher.Labels.Buffer_Project_Ownership_Label;
 
    procedure Apply_Project_Ownership
      (Row     : in out Buffer_Switcher_Row;
       Project : Editor.Project.Project_State)
-   is
-      Canonical : constant Editor.Buffers.Buffer_Ownership_Kind :=
-        Editor.Buffers.Classify_Buffer_Ownership
-          (Has_Path => Row.Has_Path,
-           Path     => To_String (Row.Path),
-           Project  => Project);
-   begin
-      Row.Project_Ownership := Switcher_Ownership_Kind (Canonical);
-      Row.Is_Project_Owned := Canonical = Editor.Buffers.Buffer_Project_Owned;
-      Row.Is_Outside_Project := Canonical = Editor.Buffers.Buffer_Outside_Project;
-      Row.Is_File_Backed := Row.Has_Path;
-      Row.Is_Unbacked := Canonical = Editor.Buffers.Buffer_Scratch_Unbacked;
-      Row.Project_Ownership_Label :=
-        To_Unbounded_String (Buffer_Project_Ownership_Label (Row.Project_Ownership));
-   end Apply_Project_Ownership;
+       renames Editor.Buffer_Switcher.Labels.Apply_Project_Ownership;
 
    function Buffer_List_Empty_State_Label
      (State              : Buffer_Switcher_State;
@@ -955,6 +675,252 @@ package body Editor.Buffer_Switcher is
         and then Open_Buffer_Switcher_No_Prompt_State (State)
         and then Open_Buffer_Switcher_No_File_Lifecycle_Source_Override (State);
    end Open_Buffer_Switcher_File_Lifecycle_Observation_Frozen;
+
+   procedure Set_Switcher_Review_Mode
+     (State : in out Buffer_Switcher_State;
+      Mode  : Switcher_Review_Mode) is
+   begin
+      Editor.Buffer_Switcher.Review_Operations.Set_Switcher_Review_Mode (State, Mode);
+   end Set_Switcher_Review_Mode;
+
+   procedure Clear_Switcher_Review_Mode
+     (State : in out Buffer_Switcher_State;
+      Mode  : Switcher_Review_Mode) is
+   begin
+      Editor.Buffer_Switcher.Review_Operations.Clear_Switcher_Review_Mode (State, Mode);
+   end Clear_Switcher_Review_Mode;
+
+   procedure Toggle_Switcher_Review_Mode
+     (State : in out Buffer_Switcher_State;
+      Mode  : Switcher_Review_Mode) is
+   begin
+      Editor.Buffer_Switcher.Review_Operations.Toggle_Switcher_Review_Mode (State, Mode);
+   end Toggle_Switcher_Review_Mode;
+
+   function Has_Switcher_Review_Mode
+     (State : Buffer_Switcher_State;
+      Mode  : Switcher_Review_Mode) return Boolean is
+   begin
+      return Editor.Buffer_Switcher.Review_Operations.Has_Switcher_Review_Mode (State, Mode);
+   end Has_Switcher_Review_Mode;
+
+   procedure Clear_Dirty_Prune_Apply_Review_Modes
+     (State : in out Buffer_Switcher_State) is
+   begin
+      Editor.Buffer_Switcher.Review_Operations.Clear_Dirty_Prune_Apply_Review_Modes (State);
+   end Clear_Dirty_Prune_Apply_Review_Modes;
+
+   procedure Clear_Dirty_Prune_Preview_Review_Modes
+     (State : in out Buffer_Switcher_State) is
+   begin
+      Editor.Buffer_Switcher.Review_Operations.Clear_Dirty_Prune_Preview_Review_Modes (State);
+   end Clear_Dirty_Prune_Preview_Review_Modes;
+
+   procedure Clear_Pending_Marked_Review_Modes
+     (State : in out Buffer_Switcher_State) is
+   begin
+      Editor.Buffer_Switcher.Review_Operations.Clear_Pending_Marked_Review_Modes (State);
+   end Clear_Pending_Marked_Review_Modes;
+
+   procedure Show_Marked_Review (State : in out Buffer_Switcher_State) is
+   begin
+      Editor.Buffer_Switcher.Review_Operations.Show_Marked_Review (State);
+   end Show_Marked_Review;
+
+   procedure Hide_Marked_Review (State : in out Buffer_Switcher_State) is
+   begin
+      Editor.Buffer_Switcher.Review_Operations.Hide_Marked_Review (State);
+   end Hide_Marked_Review;
+
+   procedure Toggle_Marked_Review (State : in out Buffer_Switcher_State) is
+   begin
+      Editor.Buffer_Switcher.Review_Operations.Toggle_Marked_Review (State);
+   end Toggle_Marked_Review;
+
+   function Has_Marked_Review (State : Buffer_Switcher_State) return Boolean is
+   begin
+      return Editor.Buffer_Switcher.Review_Operations.Has_Marked_Review (State);
+   end Has_Marked_Review;
+
+   function Marked_Review_Description (State : Buffer_Switcher_State) return String is
+   begin
+      return Editor.Buffer_Switcher.Review_Operations.Marked_Review_Description (State);
+   end Marked_Review_Description;
+
+   procedure Show_Pending_Marked_Review (State : in out Buffer_Switcher_State) is
+   begin
+      Editor.Buffer_Switcher.Review_Operations.Show_Pending_Marked_Review (State);
+   end Show_Pending_Marked_Review;
+
+   procedure Hide_Pending_Marked_Review (State : in out Buffer_Switcher_State) is
+   begin
+      Editor.Buffer_Switcher.Review_Operations.Hide_Pending_Marked_Review (State);
+   end Hide_Pending_Marked_Review;
+
+   procedure Toggle_Pending_Marked_Review (State : in out Buffer_Switcher_State) is
+   begin
+      Editor.Buffer_Switcher.Review_Operations.Toggle_Pending_Marked_Review (State);
+   end Toggle_Pending_Marked_Review;
+
+   function Has_Pending_Marked_Review (State : Buffer_Switcher_State) return Boolean is
+   begin
+      return Editor.Buffer_Switcher.Review_Operations.Has_Pending_Marked_Review (State);
+   end Has_Pending_Marked_Review;
+
+   function Pending_Marked_Review_Description (State : Buffer_Switcher_State) return String is
+   begin
+      return Editor.Buffer_Switcher.Review_Operations.Pending_Marked_Review_Description (State);
+   end Pending_Marked_Review_Description;
+
+   procedure Show_Pruned_Pending_Marked_Review (State : in out Buffer_Switcher_State) is
+   begin
+      Editor.Buffer_Switcher.Review_Operations.Show_Pruned_Pending_Marked_Review (State);
+   end Show_Pruned_Pending_Marked_Review;
+
+   procedure Hide_Pruned_Pending_Marked_Review (State : in out Buffer_Switcher_State) is
+   begin
+      Editor.Buffer_Switcher.Review_Operations.Hide_Pruned_Pending_Marked_Review (State);
+   end Hide_Pruned_Pending_Marked_Review;
+
+   procedure Toggle_Pruned_Pending_Marked_Review (State : in out Buffer_Switcher_State) is
+   begin
+      Editor.Buffer_Switcher.Review_Operations.Toggle_Pruned_Pending_Marked_Review (State);
+   end Toggle_Pruned_Pending_Marked_Review;
+
+   function Has_Pruned_Pending_Marked_Review (State : Buffer_Switcher_State) return Boolean is
+   begin
+      return Editor.Buffer_Switcher.Review_Operations.Has_Pruned_Pending_Marked_Review (State);
+   end Has_Pruned_Pending_Marked_Review;
+
+   function Pruned_Pending_Marked_Review_Description (State : Buffer_Switcher_State) return String is
+   begin
+      return Editor.Buffer_Switcher.Review_Operations.Pruned_Pending_Marked_Review_Description (State);
+   end Pruned_Pending_Marked_Review_Description;
+
+   procedure Show_Dirty_Pending_Marked_Review (State : in out Buffer_Switcher_State) is
+   begin
+      Editor.Buffer_Switcher.Review_Operations.Show_Dirty_Pending_Marked_Review (State);
+   end Show_Dirty_Pending_Marked_Review;
+
+   procedure Hide_Dirty_Pending_Marked_Review (State : in out Buffer_Switcher_State) is
+   begin
+      Editor.Buffer_Switcher.Review_Operations.Hide_Dirty_Pending_Marked_Review (State);
+   end Hide_Dirty_Pending_Marked_Review;
+
+   procedure Toggle_Dirty_Pending_Marked_Review (State : in out Buffer_Switcher_State) is
+   begin
+      Editor.Buffer_Switcher.Review_Operations.Toggle_Dirty_Pending_Marked_Review (State);
+   end Toggle_Dirty_Pending_Marked_Review;
+
+   function Has_Dirty_Pending_Marked_Review (State : Buffer_Switcher_State) return Boolean is
+   begin
+      return Editor.Buffer_Switcher.Review_Operations.Has_Dirty_Pending_Marked_Review (State);
+   end Has_Dirty_Pending_Marked_Review;
+
+   function Dirty_Pending_Marked_Review_Description (State : Buffer_Switcher_State) return String is
+   begin
+      return Editor.Buffer_Switcher.Review_Operations.Dirty_Pending_Marked_Review_Description (State);
+   end Dirty_Pending_Marked_Review_Description;
+
+   procedure Show_Dirty_Prune_Review (State : in out Buffer_Switcher_State) is
+   begin
+      Editor.Buffer_Switcher.Review_Operations.Show_Dirty_Prune_Review (State);
+   end Show_Dirty_Prune_Review;
+
+   procedure Hide_Dirty_Prune_Review (State : in out Buffer_Switcher_State) is
+   begin
+      Editor.Buffer_Switcher.Review_Operations.Hide_Dirty_Prune_Review (State);
+   end Hide_Dirty_Prune_Review;
+
+   procedure Toggle_Dirty_Prune_Review (State : in out Buffer_Switcher_State) is
+   begin
+      Editor.Buffer_Switcher.Review_Operations.Toggle_Dirty_Prune_Review (State);
+   end Toggle_Dirty_Prune_Review;
+
+   function Has_Dirty_Prune_Review (State : Buffer_Switcher_State) return Boolean is
+   begin
+      return Editor.Buffer_Switcher.Review_Operations.Has_Dirty_Prune_Review (State);
+   end Has_Dirty_Prune_Review;
+
+   function Dirty_Prune_Review_Description (State : Buffer_Switcher_State) return String is
+   begin
+      return Editor.Buffer_Switcher.Review_Operations.Dirty_Prune_Review_Description (State);
+   end Dirty_Prune_Review_Description;
+
+   procedure Show_Removed_Dirty_Prune_Review (State : in out Buffer_Switcher_State) is
+   begin
+      Editor.Buffer_Switcher.Review_Operations.Show_Removed_Dirty_Prune_Review (State);
+   end Show_Removed_Dirty_Prune_Review;
+
+   procedure Hide_Removed_Dirty_Prune_Review (State : in out Buffer_Switcher_State) is
+   begin
+      Editor.Buffer_Switcher.Review_Operations.Hide_Removed_Dirty_Prune_Review (State);
+   end Hide_Removed_Dirty_Prune_Review;
+
+   procedure Toggle_Removed_Dirty_Prune_Review (State : in out Buffer_Switcher_State) is
+   begin
+      Editor.Buffer_Switcher.Review_Operations.Toggle_Removed_Dirty_Prune_Review (State);
+   end Toggle_Removed_Dirty_Prune_Review;
+
+   function Has_Removed_Dirty_Prune_Review (State : Buffer_Switcher_State) return Boolean is
+   begin
+      return Editor.Buffer_Switcher.Review_Operations.Has_Removed_Dirty_Prune_Review (State);
+   end Has_Removed_Dirty_Prune_Review;
+
+   function Removed_Dirty_Prune_Review_Description (State : Buffer_Switcher_State) return String is
+   begin
+      return Editor.Buffer_Switcher.Review_Operations.Removed_Dirty_Prune_Review_Description (State);
+   end Removed_Dirty_Prune_Review_Description;
+
+   procedure Show_Dirty_Prune_Apply_Review (State : in out Buffer_Switcher_State) is
+   begin
+      Editor.Buffer_Switcher.Review_Operations.Show_Dirty_Prune_Apply_Review (State);
+   end Show_Dirty_Prune_Apply_Review;
+
+   procedure Hide_Dirty_Prune_Apply_Review (State : in out Buffer_Switcher_State) is
+   begin
+      Editor.Buffer_Switcher.Review_Operations.Hide_Dirty_Prune_Apply_Review (State);
+   end Hide_Dirty_Prune_Apply_Review;
+
+   procedure Toggle_Dirty_Prune_Apply_Review (State : in out Buffer_Switcher_State) is
+   begin
+      Editor.Buffer_Switcher.Review_Operations.Toggle_Dirty_Prune_Apply_Review (State);
+   end Toggle_Dirty_Prune_Apply_Review;
+
+   function Has_Dirty_Prune_Apply_Review (State : Buffer_Switcher_State) return Boolean is
+   begin
+      return Editor.Buffer_Switcher.Review_Operations.Has_Dirty_Prune_Apply_Review (State);
+   end Has_Dirty_Prune_Apply_Review;
+
+   function Dirty_Prune_Apply_Review_Description (State : Buffer_Switcher_State) return String is
+   begin
+      return Editor.Buffer_Switcher.Review_Operations.Dirty_Prune_Apply_Review_Description (State);
+   end Dirty_Prune_Apply_Review_Description;
+
+   procedure Show_Removed_Dirty_Prune_Apply_Review (State : in out Buffer_Switcher_State) is
+   begin
+      Editor.Buffer_Switcher.Review_Operations.Show_Removed_Dirty_Prune_Apply_Review (State);
+   end Show_Removed_Dirty_Prune_Apply_Review;
+
+   procedure Hide_Removed_Dirty_Prune_Apply_Review (State : in out Buffer_Switcher_State) is
+   begin
+      Editor.Buffer_Switcher.Review_Operations.Hide_Removed_Dirty_Prune_Apply_Review (State);
+   end Hide_Removed_Dirty_Prune_Apply_Review;
+
+   procedure Toggle_Removed_Dirty_Prune_Apply_Review (State : in out Buffer_Switcher_State) is
+   begin
+      Editor.Buffer_Switcher.Review_Operations.Toggle_Removed_Dirty_Prune_Apply_Review (State);
+   end Toggle_Removed_Dirty_Prune_Apply_Review;
+
+   function Has_Removed_Dirty_Prune_Apply_Review (State : Buffer_Switcher_State) return Boolean is
+   begin
+      return Editor.Buffer_Switcher.Review_Operations.Has_Removed_Dirty_Prune_Apply_Review (State);
+   end Has_Removed_Dirty_Prune_Apply_Review;
+
+   function Removed_Dirty_Prune_Apply_Review_Description (State : Buffer_Switcher_State) return String is
+   begin
+      return Editor.Buffer_Switcher.Review_Operations.Removed_Dirty_Prune_Apply_Review_Description (State);
+   end Removed_Dirty_Prune_Apply_Review_Description;
 
    function Assert_Multi_Buffer_Management_Coherent
      (State : Buffer_Switcher_State) return Boolean
@@ -1042,379 +1008,12 @@ package body Editor.Buffer_Switcher is
    end Assert_Multi_Buffer_Management_Coherent;
 
 
-   procedure Set_Switcher_Review_Mode
-     (State : in out Buffer_Switcher_State;
-      Mode  : Switcher_Review_Mode)
-   is
-   begin
-      State.Active_Review := Mode;
-   end Set_Switcher_Review_Mode;
-
-   procedure Clear_Switcher_Review_Mode
-     (State : in out Buffer_Switcher_State;
-      Mode  : Switcher_Review_Mode)
-   is
-   begin
-      if State.Active_Review = Mode then
-         State.Active_Review := No_Review;
-      end if;
-   end Clear_Switcher_Review_Mode;
-
-   procedure Toggle_Switcher_Review_Mode
-     (State : in out Buffer_Switcher_State;
-      Mode  : Switcher_Review_Mode)
-   is
-   begin
-      if State.Active_Review = Mode then
-         State.Active_Review := No_Review;
-      else
-         State.Active_Review := Mode;
-      end if;
-   end Toggle_Switcher_Review_Mode;
-
-   function Has_Switcher_Review_Mode
-     (State : Buffer_Switcher_State;
-      Mode  : Switcher_Review_Mode) return Boolean
-   is
-   begin
-      return State.Active_Review = Mode;
-   end Has_Switcher_Review_Mode;
-
-   procedure Clear_Dirty_Prune_Apply_Review_Modes
-     (State : in out Buffer_Switcher_State)
-   is
-   begin
-      if State.Active_Review = Dirty_Prune_Apply_Review
-        or else State.Active_Review = Removed_Dirty_Prune_Apply_Review
-      then
-         State.Active_Review := No_Review;
-      end if;
-   end Clear_Dirty_Prune_Apply_Review_Modes;
-
-   procedure Clear_Dirty_Prune_Preview_Review_Modes
-     (State : in out Buffer_Switcher_State)
-   is
-   begin
-      if State.Active_Review = Dirty_Prune_Preview_Review
-        or else State.Active_Review = Removed_Dirty_Prune_Preview_Review
-      then
-         State.Active_Review := No_Review;
-      end if;
-   end Clear_Dirty_Prune_Preview_Review_Modes;
-
-   procedure Clear_Pending_Marked_Review_Modes
-     (State : in out Buffer_Switcher_State)
-   is
-   begin
-      case State.Active_Review is
-         when Pending_Marked_Close_Review
-            | Pruned_Pending_Close_Review
-            | Dirty_Pending_Close_Review
-            | Dirty_Prune_Preview_Review
-            | Removed_Dirty_Prune_Preview_Review
-            | Dirty_Prune_Apply_Review
-            | Removed_Dirty_Prune_Apply_Review =>
-            State.Active_Review := No_Review;
-         when No_Review | Marked_Review =>
-            null;
-      end case;
-   end Clear_Pending_Marked_Review_Modes;
-
-   procedure Show_Marked_Review (State : in out Buffer_Switcher_State) is
-   begin
-      Set_Switcher_Review_Mode (State, Marked_Review);
-   end Show_Marked_Review;
-
-   procedure Hide_Marked_Review (State : in out Buffer_Switcher_State) is
-   begin
-      Clear_Switcher_Review_Mode (State, Marked_Review);
-   end Hide_Marked_Review;
-
-   procedure Toggle_Marked_Review (State : in out Buffer_Switcher_State) is
-   begin
-      Toggle_Switcher_Review_Mode (State, Marked_Review);
-   end Toggle_Marked_Review;
-
-   function Has_Marked_Review (State : Buffer_Switcher_State) return Boolean is
-   begin
-      return Has_Switcher_Review_Mode (State, Marked_Review);
-   end Has_Marked_Review;
-
-   function Marked_Review_Description (State : Buffer_Switcher_State) return String is
-   begin
-      if Has_Marked_Review (State) then
-         return "marked";
-      else
-         return "off";
-      end if;
-   end Marked_Review_Description;
-
-   procedure Show_Pending_Marked_Review (State : in out Buffer_Switcher_State) is
-   begin
-      if State.Pending_Action /= No_Pending_Marked_Action
-        and then Natural (State.Pending_Targets.Length) > 0
-      then
-         Set_Switcher_Review_Mode (State, Pending_Marked_Close_Review);
-      end if;
-   end Show_Pending_Marked_Review;
-
-   procedure Hide_Pending_Marked_Review (State : in out Buffer_Switcher_State) is
-   begin
-      Clear_Switcher_Review_Mode (State, Pending_Marked_Close_Review);
-   end Hide_Pending_Marked_Review;
-
-   procedure Toggle_Pending_Marked_Review (State : in out Buffer_Switcher_State) is
-   begin
-      if Has_Pending_Marked_Review (State) then
-         Hide_Pending_Marked_Review (State);
-      else
-         Show_Pending_Marked_Review (State);
-      end if;
-   end Toggle_Pending_Marked_Review;
-
-   function Has_Pending_Marked_Review (State : Buffer_Switcher_State) return Boolean is
-   begin
-      return Has_Switcher_Review_Mode (State, Pending_Marked_Close_Review);
-   end Has_Pending_Marked_Review;
-
-   function Pending_Marked_Review_Description (State : Buffer_Switcher_State) return String is
-   begin
-      if Has_Pending_Marked_Review (State) then
-         return "pending close";
-      else
-         return "off";
-      end if;
-   end Pending_Marked_Review_Description;
-
-   procedure Show_Pruned_Pending_Marked_Review (State : in out Buffer_Switcher_State) is
-   begin
-      if State.Pending_Action = Pending_Marked_Close
-        and then Natural (State.Pruned_Pending_Targets.Length) > 0
-      then
-         Set_Switcher_Review_Mode (State, Pruned_Pending_Close_Review);
-      end if;
-   end Show_Pruned_Pending_Marked_Review;
-
-   procedure Hide_Pruned_Pending_Marked_Review (State : in out Buffer_Switcher_State) is
-   begin
-      Clear_Switcher_Review_Mode (State, Pruned_Pending_Close_Review);
-   end Hide_Pruned_Pending_Marked_Review;
-
-   procedure Toggle_Pruned_Pending_Marked_Review (State : in out Buffer_Switcher_State) is
-   begin
-      if Has_Pruned_Pending_Marked_Review (State) then
-         Hide_Pruned_Pending_Marked_Review (State);
-      else
-         Show_Pruned_Pending_Marked_Review (State);
-      end if;
-   end Toggle_Pruned_Pending_Marked_Review;
-
-   function Has_Pruned_Pending_Marked_Review (State : Buffer_Switcher_State) return Boolean is
-   begin
-      return Has_Switcher_Review_Mode (State, Pruned_Pending_Close_Review);
-   end Has_Pruned_Pending_Marked_Review;
-
-   function Pruned_Pending_Marked_Review_Description (State : Buffer_Switcher_State) return String is
-   begin
-      if Has_Pruned_Pending_Marked_Review (State) then
-         return "pruned pending close";
-      else
-         return "off";
-      end if;
-   end Pruned_Pending_Marked_Review_Description;
-
-   procedure Show_Dirty_Pending_Marked_Review (State : in out Buffer_Switcher_State) is
-   begin
-      if State.Pending_Action = Pending_Marked_Close then
-         Set_Switcher_Review_Mode (State, Dirty_Pending_Close_Review);
-      end if;
-   end Show_Dirty_Pending_Marked_Review;
-
-   procedure Hide_Dirty_Pending_Marked_Review (State : in out Buffer_Switcher_State) is
-   begin
-      Clear_Switcher_Review_Mode (State, Dirty_Pending_Close_Review);
-   end Hide_Dirty_Pending_Marked_Review;
-
-   procedure Toggle_Dirty_Pending_Marked_Review (State : in out Buffer_Switcher_State) is
-   begin
-      if Has_Dirty_Pending_Marked_Review (State) then
-         Hide_Dirty_Pending_Marked_Review (State);
-      else
-         Show_Dirty_Pending_Marked_Review (State);
-      end if;
-   end Toggle_Dirty_Pending_Marked_Review;
-
-   function Has_Dirty_Pending_Marked_Review (State : Buffer_Switcher_State) return Boolean is
-   begin
-      return Has_Switcher_Review_Mode (State, Dirty_Pending_Close_Review);
-   end Has_Dirty_Pending_Marked_Review;
-
-   function Dirty_Pending_Marked_Review_Description (State : Buffer_Switcher_State) return String is
-   begin
-      if Has_Dirty_Pending_Marked_Review (State) then
-         return "dirty pending close";
-      else
-         return "off";
-      end if;
-   end Dirty_Pending_Marked_Review_Description;
-
-   procedure Show_Dirty_Prune_Review (State : in out Buffer_Switcher_State) is
-   begin
-      if Natural (State.Dirty_Prune_Targets.Length) > 0 then
-         Set_Switcher_Review_Mode (State, Dirty_Prune_Preview_Review);
-      end if;
-   end Show_Dirty_Prune_Review;
-
-   procedure Hide_Dirty_Prune_Review (State : in out Buffer_Switcher_State) is
-   begin
-      Clear_Switcher_Review_Mode (State, Dirty_Prune_Preview_Review);
-   end Hide_Dirty_Prune_Review;
-
-   procedure Toggle_Dirty_Prune_Review (State : in out Buffer_Switcher_State) is
-   begin
-      if Has_Dirty_Prune_Review (State) then
-         Hide_Dirty_Prune_Review (State);
-      else
-         Show_Dirty_Prune_Review (State);
-      end if;
-   end Toggle_Dirty_Prune_Review;
-
-   function Has_Dirty_Prune_Review (State : Buffer_Switcher_State) return Boolean is
-   begin
-      return Has_Switcher_Review_Mode (State, Dirty_Prune_Preview_Review);
-   end Has_Dirty_Prune_Review;
-
-   function Dirty_Prune_Review_Description (State : Buffer_Switcher_State) return String is
-   begin
-      if Has_Dirty_Prune_Review (State) then
-         return "dirty prune preview";
-      else
-         return "off";
-      end if;
-   end Dirty_Prune_Review_Description;
-
-   procedure Show_Removed_Dirty_Prune_Review (State : in out Buffer_Switcher_State) is
-   begin
-      if Natural (State.Removed_Dirty_Prune_Targets.Length) > 0 then
-         Set_Switcher_Review_Mode (State, Removed_Dirty_Prune_Preview_Review);
-      end if;
-   end Show_Removed_Dirty_Prune_Review;
-
-   procedure Hide_Removed_Dirty_Prune_Review (State : in out Buffer_Switcher_State) is
-   begin
-      Clear_Switcher_Review_Mode (State, Removed_Dirty_Prune_Preview_Review);
-   end Hide_Removed_Dirty_Prune_Review;
-
-   procedure Toggle_Removed_Dirty_Prune_Review (State : in out Buffer_Switcher_State) is
-   begin
-      if Has_Removed_Dirty_Prune_Review (State) then
-         Hide_Removed_Dirty_Prune_Review (State);
-      else
-         Show_Removed_Dirty_Prune_Review (State);
-      end if;
-   end Toggle_Removed_Dirty_Prune_Review;
-
-   function Has_Removed_Dirty_Prune_Review (State : Buffer_Switcher_State) return Boolean is
-   begin
-      return Has_Switcher_Review_Mode (State, Removed_Dirty_Prune_Preview_Review);
-   end Has_Removed_Dirty_Prune_Review;
-
-   function Removed_Dirty_Prune_Review_Description (State : Buffer_Switcher_State) return String is
-   begin
-      if Has_Removed_Dirty_Prune_Review (State) then
-         return "removed dirty-prune targets";
-      else
-         return "off";
-      end if;
-   end Removed_Dirty_Prune_Review_Description;
-
-   procedure Show_Dirty_Prune_Apply_Review (State : in out Buffer_Switcher_State) is
-   begin
-      if Natural (State.Dirty_Prune_Apply_Targets.Length) > 0 then
-         Set_Switcher_Review_Mode (State, Dirty_Prune_Apply_Review);
-      end if;
-   end Show_Dirty_Prune_Apply_Review;
-
-   procedure Hide_Dirty_Prune_Apply_Review (State : in out Buffer_Switcher_State) is
-   begin
-      Clear_Switcher_Review_Mode (State, Dirty_Prune_Apply_Review);
-   end Hide_Dirty_Prune_Apply_Review;
-
-   procedure Toggle_Dirty_Prune_Apply_Review (State : in out Buffer_Switcher_State) is
-   begin
-      if Has_Dirty_Prune_Apply_Review (State) then
-         Hide_Dirty_Prune_Apply_Review (State);
-      else
-         Show_Dirty_Prune_Apply_Review (State);
-      end if;
-   end Toggle_Dirty_Prune_Apply_Review;
-
-   function Has_Dirty_Prune_Apply_Review (State : Buffer_Switcher_State) return Boolean is
-   begin
-      return Has_Switcher_Review_Mode (State, Dirty_Prune_Apply_Review);
-   end Has_Dirty_Prune_Apply_Review;
-
-   function Dirty_Prune_Apply_Review_Description (State : Buffer_Switcher_State) return String is
-   begin
-      if Has_Dirty_Prune_Apply_Review (State) then
-         return "dirty-prune apply";
-      else
-         return "off";
-      end if;
-   end Dirty_Prune_Apply_Review_Description;
-
-   procedure Show_Removed_Dirty_Prune_Apply_Review (State : in out Buffer_Switcher_State) is
-   begin
-      if Natural (State.Removed_Dirty_Prune_Apply_Targets.Length) > 0 then
-         Set_Switcher_Review_Mode (State, Removed_Dirty_Prune_Apply_Review);
-      end if;
-   end Show_Removed_Dirty_Prune_Apply_Review;
-
-   procedure Hide_Removed_Dirty_Prune_Apply_Review (State : in out Buffer_Switcher_State) is
-   begin
-      Clear_Switcher_Review_Mode (State, Removed_Dirty_Prune_Apply_Review);
-   end Hide_Removed_Dirty_Prune_Apply_Review;
-
-   procedure Toggle_Removed_Dirty_Prune_Apply_Review (State : in out Buffer_Switcher_State) is
-   begin
-      if Has_Removed_Dirty_Prune_Apply_Review (State) then
-         Hide_Removed_Dirty_Prune_Apply_Review (State);
-      else
-         Show_Removed_Dirty_Prune_Apply_Review (State);
-      end if;
-   end Toggle_Removed_Dirty_Prune_Apply_Review;
-
-   function Has_Removed_Dirty_Prune_Apply_Review (State : Buffer_Switcher_State) return Boolean is
-   begin
-      return Has_Switcher_Review_Mode (State, Removed_Dirty_Prune_Apply_Review);
-   end Has_Removed_Dirty_Prune_Apply_Review;
-
-   function Removed_Dirty_Prune_Apply_Review_Description (State : Buffer_Switcher_State) return String is
-   begin
-      if Has_Removed_Dirty_Prune_Apply_Review (State) then
-         return "removed dirty-prune apply targets";
-      else
-         return "off";
-      end if;
-   end Removed_Dirty_Prune_Apply_Review_Description;
+   use Editor.Buffer_Switcher.Review_Operations;
 
    function Is_Pending_Marked_Close_Target
      (State : Buffer_Switcher_State;
-      Id    : Editor.Buffers.Buffer_Id) return Boolean
-   is
-   begin
-      if Id = Editor.Buffers.No_Buffer
-        or else State.Pending_Action /= Pending_Marked_Close
-      then
-         return False;
-      end if;
-      for I in 1 .. Natural (State.Pending_Targets.Length) loop
-         if State.Pending_Targets (I - 1) = Id then
-            return True;
-         end if;
-      end loop;
-      return False;
-   end Is_Pending_Marked_Close_Target;
+      Id    : Editor.Buffers.Buffer_Id) return Boolean renames
+     Pending_Close_Operations.Is_Pending_Marked_Close_Target;
 
    function Row_Is_Dirty_Prune_Target
      (State : Buffer_Switcher_State;
@@ -1456,408 +1055,101 @@ package body Editor.Buffer_Switcher is
 
    function Build_Switcher_Row_Markers
      (State : Buffer_Switcher_State;
-      Row   : Buffer_Switcher_Row) return Buffer_Switcher_Row
-   is
-      Result : Buffer_Switcher_Row := Row;
-   begin
-      Result.Is_Marked := Is_Marked (State, Row.Id);
-      Result.Is_Pending_Close_Target := Is_Pending_Marked_Close_Target (State, Row.Id);
-      Result.Is_Ordinary_Pruned_Target := Is_Pruned_Pending_Marked_Close_Target (State, Row.Id);
-      Result.Is_Dirty_Prune_Preview_Target := Row_Is_Dirty_Prune_Target (State, Row.Id);
-      Result.Is_Removed_Dirty_Prune_Preview_Target :=
-        Is_Removed_Dirty_Pending_Marked_Close_Prune_Target (State, Row.Id);
-      Result.Is_Dirty_Prune_Apply_Target := Row_Is_Dirty_Prune_Apply_Target (State, Row.Id);
-      Result.Is_Removed_Dirty_Prune_Apply_Target :=
-        Is_Removed_Dirty_Pending_Marked_Close_Prune_Apply_Target (State, Row.Id);
-      return Result;
-   end Build_Switcher_Row_Markers;
+      Row   : Buffer_Switcher_Row) return Buffer_Switcher_Row renames
+     Pending_Close_Operations.Build_Switcher_Row_Markers;
 
    function Has_Pruned_Pending_Marked_Close_Targets
-     (State : Buffer_Switcher_State) return Boolean
-   is
-   begin
-      return State.Pending_Action = Pending_Marked_Close
-        and then Natural (State.Pruned_Pending_Targets.Length) > 0;
-   end Has_Pruned_Pending_Marked_Close_Targets;
+     (State : Buffer_Switcher_State) return Boolean renames
+     Pending_Close_Operations.Has_Pruned_Pending_Marked_Close_Targets;
 
    function Pruned_Pending_Marked_Close_Target_Count
-     (State : Buffer_Switcher_State) return Natural
-   is
-   begin
-      if State.Pending_Action /= Pending_Marked_Close then
-         return 0;
-      end if;
-      return Natural (State.Pruned_Pending_Targets.Length);
-   end Pruned_Pending_Marked_Close_Target_Count;
+     (State : Buffer_Switcher_State) return Natural renames
+     Pending_Close_Operations.Pruned_Pending_Marked_Close_Target_Count;
 
    function Open_Pruned_Pending_Marked_Close_Target_Count
      (State    : Buffer_Switcher_State;
-      Registry : Editor.Buffers.Buffer_Registry) return Natural
-   is
-      Count : Natural := 0;
-   begin
-      if State.Pending_Action /= Pending_Marked_Close then
-         return 0;
-      end if;
-      for I in 1 .. Natural (State.Pruned_Pending_Targets.Length) loop
-         if Editor.Buffers.Contains (Registry, State.Pruned_Pending_Targets (I - 1).Id) then
-            Count := Count + 1;
-         end if;
-      end loop;
-      return Count;
-   end Open_Pruned_Pending_Marked_Close_Target_Count;
+      Registry : Editor.Buffers.Buffer_Registry) return Natural renames
+     Pending_Close_Operations.Open_Pruned_Pending_Marked_Close_Target_Count;
 
    function Last_Pruned_Pending_Marked_Close_Target_Name
-     (State : Buffer_Switcher_State) return String
-   is
-   begin
-      if State.Pending_Action /= Pending_Marked_Close
-        or else Natural (State.Pruned_Pending_Targets.Length) = 0
-      then
-         return "";
-      end if;
-      return To_String
-        (State.Pruned_Pending_Targets
-           (Natural (State.Pruned_Pending_Targets.Length) - 1).Display_Name);
-   end Last_Pruned_Pending_Marked_Close_Target_Name;
+     (State : Buffer_Switcher_State) return String renames
+     Pending_Close_Operations.Last_Pruned_Pending_Marked_Close_Target_Name;
 
    function Is_Pruned_Pending_Marked_Close_Target
      (State : Buffer_Switcher_State;
-      Id    : Editor.Buffers.Buffer_Id) return Boolean
-   is
-   begin
-      if Id = Editor.Buffers.No_Buffer
-        or else State.Pending_Action /= Pending_Marked_Close
-      then
-         return False;
-      end if;
-      for I in 1 .. Natural (State.Pruned_Pending_Targets.Length) loop
-         if State.Pruned_Pending_Targets (I - 1).Id = Id then
-            return True;
-         end if;
-      end loop;
-      return False;
-   end Is_Pruned_Pending_Marked_Close_Target;
-
-   function Is_Open_Dirty_Pending_Target
-     (State    : Buffer_Switcher_State;
-      Registry : Editor.Buffers.Buffer_Registry;
-      Id       : Editor.Buffers.Buffer_Id) return Boolean
-   is
-   begin
-      if Id = Editor.Buffers.No_Buffer
-        or else not Is_Pending_Marked_Close_Target (State, Id)
-      then
-         return False;
-      end if;
-
-      for J in 1 .. Editor.Buffers.Count (Registry) loop
-         declare
-            Summary : constant Editor.Buffers.Buffer_Summary :=
-              Editor.Buffers.Summary_At (Registry, J);
-         begin
-            if Summary.Id = Id then
-               declare
-                  No_Project : Editor.Project.Project_State;
-                  Metadata : constant Editor.Buffers.Buffer_Metadata_Snapshot :=
-                    Editor.Buffers.Metadata_For (Registry, No_Project, Summary.Id);
-               begin
-                  return Metadata.Dirty_Category /= Editor.Buffers.Buffer_Not_Dirty;
-               end;
-            end if;
-         end;
-      end loop;
-
-      return False;
-   end Is_Open_Dirty_Pending_Target;
-
-   procedure Clear_Dirty_Prune_Apply_State (State : in out Buffer_Switcher_State) is
-   begin
-      State.Dirty_Prune_Apply_Targets.Clear;
-      State.Removed_Dirty_Prune_Apply_Targets.Clear;
-      Clear_Dirty_Prune_Apply_Review_Modes (State);
-   end Clear_Dirty_Prune_Apply_State;
+      Id    : Editor.Buffers.Buffer_Id) return Boolean renames
+     Pending_Close_Operations.Is_Pruned_Pending_Marked_Close_Target;
 
    procedure Prepare_Dirty_Pending_Marked_Close_Prune
      (State    : in out Buffer_Switcher_State;
       Registry : Editor.Buffers.Buffer_Registry;
-      Count    : out Natural)
-   is
-   begin
-      State.Dirty_Prune_Targets.Clear;
-      State.Removed_Dirty_Prune_Targets.Clear;
-      Clear_Dirty_Prune_Preview_Review_Modes (State);
-      Clear_Dirty_Prune_Apply_State (State);
-      Count := 0;
-
-      if State.Pending_Action /= Pending_Marked_Close then
-         return;
-      end if;
-
-      for I in 1 .. Natural (State.Pending_Targets.Length) loop
-         declare
-            Id : constant Editor.Buffers.Buffer_Id := State.Pending_Targets (I - 1);
-         begin
-            if Is_Open_Dirty_Pending_Target (State, Registry, Id) then
-               State.Dirty_Prune_Targets.Append (Id);
-               Count := Count + 1;
-            end if;
-         end;
-      end loop;
-
-      if Count = 0 then
-         Clear_Dirty_Prune_Preview_Review_Modes (State);
-         Clear_Dirty_Prune_Apply_Review_Modes (State);
-      end if;
-   end Prepare_Dirty_Pending_Marked_Close_Prune;
+      Count    : out Natural) renames
+     Dirty_Prune_Operations.Prepare_Dirty_Pending_Marked_Close_Prune;
 
    function Has_Dirty_Pending_Marked_Close_Prune
-     (State : Buffer_Switcher_State) return Boolean
-   is
-   begin
-      return Natural (State.Dirty_Prune_Targets.Length) > 0;
-   end Has_Dirty_Pending_Marked_Close_Prune;
+     (State : Buffer_Switcher_State) return Boolean renames
+     Dirty_Prune_Operations.Has_Dirty_Pending_Marked_Close_Prune;
 
    function Dirty_Pending_Marked_Close_Prune_Target_Count
-     (State : Buffer_Switcher_State) return Natural
-   is
-   begin
-      return Natural (State.Dirty_Prune_Targets.Length);
-   end Dirty_Pending_Marked_Close_Prune_Target_Count;
+     (State : Buffer_Switcher_State) return Natural renames
+     Dirty_Prune_Operations.Dirty_Pending_Marked_Close_Prune_Target_Count;
 
    function Applicable_Dirty_Pending_Marked_Close_Prune_Target_Count
      (State    : Buffer_Switcher_State;
-      Registry : Editor.Buffers.Buffer_Registry) return Natural
-   is
-      Count : Natural := 0;
-   begin
-      if State.Pending_Action /= Pending_Marked_Close then
-         return 0;
-      end if;
-
-      for I in 1 .. Natural (State.Dirty_Prune_Targets.Length) loop
-         if Is_Open_Dirty_Pending_Target (State, Registry, State.Dirty_Prune_Targets (I - 1)) then
-            Count := Count + 1;
-         end if;
-      end loop;
-
-      return Count;
-   end Applicable_Dirty_Pending_Marked_Close_Prune_Target_Count;
-
+      Registry : Editor.Buffers.Buffer_Registry) return Natural renames
+     Dirty_Prune_Operations.Applicable_Dirty_Pending_Marked_Close_Prune_Target_Count;
 
    function Dirty_Pending_Marked_Close_Prune_Stale_Target_Count
      (State    : Buffer_Switcher_State;
-      Registry : Editor.Buffers.Buffer_Registry) return Natural
-   is
-      Count : Natural := 0;
-   begin
-      if State.Pending_Action /= Pending_Marked_Close then
-         return Natural (State.Dirty_Prune_Targets.Length);
-      end if;
-
-      for I in 1 .. Natural (State.Dirty_Prune_Targets.Length) loop
-         if not Is_Open_Dirty_Pending_Target
-           (State, Registry, State.Dirty_Prune_Targets (I - 1))
-         then
-            Count := Count + 1;
-         end if;
-      end loop;
-
-      return Count;
-   end Dirty_Pending_Marked_Close_Prune_Stale_Target_Count;
+      Registry : Editor.Buffers.Buffer_Registry) return Natural renames
+     Dirty_Prune_Operations.Dirty_Pending_Marked_Close_Prune_Stale_Target_Count;
 
    function Has_Stale_Dirty_Pending_Marked_Close_Prune_Targets
      (State    : Buffer_Switcher_State;
-      Registry : Editor.Buffers.Buffer_Registry) return Boolean
-   is
-   begin
-      return Dirty_Pending_Marked_Close_Prune_Stale_Target_Count
-        (State, Registry) > 0;
-   end Has_Stale_Dirty_Pending_Marked_Close_Prune_Targets;
+      Registry : Editor.Buffers.Buffer_Registry) return Boolean renames
+     Dirty_Prune_Operations.Has_Stale_Dirty_Pending_Marked_Close_Prune_Targets;
 
    procedure Clear_Stale_Dirty_Pending_Marked_Close_Prune_Targets
      (State     : in out Buffer_Switcher_State;
       Registry  : Editor.Buffers.Buffer_Registry;
       Cleared   : out Natural;
-      Remaining : out Natural)
-   is
-      I : Natural := 1;
-   begin
-      Cleared := 0;
-      Remaining := Natural (State.Dirty_Prune_Targets.Length);
-
-      while I <= Natural (State.Dirty_Prune_Targets.Length) loop
-         if not Is_Open_Dirty_Pending_Target
-           (State, Registry, State.Dirty_Prune_Targets (I - 1))
-         then
-            State.Dirty_Prune_Targets.Delete (I - 1);
-            Cleared := Cleared + 1;
-         else
-            I := I + 1;
-         end if;
-      end loop;
-
-      Remaining := Natural (State.Dirty_Prune_Targets.Length);
-      if Remaining = 0 then
-         State.Dirty_Prune_Targets.Clear;
-         State.Removed_Dirty_Prune_Targets.Clear;
-         Clear_Dirty_Prune_Preview_Review_Modes (State);
-      end if;
-   end Clear_Stale_Dirty_Pending_Marked_Close_Prune_Targets;
+      Remaining : out Natural) renames
+     Dirty_Prune_Operations.Clear_Stale_Dirty_Pending_Marked_Close_Prune_Targets;
 
    function Is_Dirty_Pending_Marked_Close_Prune_Target
      (State : Buffer_Switcher_State;
-      Id    : Editor.Buffers.Buffer_Id) return Boolean
-   is
-   begin
-      return Row_Is_Dirty_Prune_Target (State, Id);
-   end Is_Dirty_Pending_Marked_Close_Prune_Target;
+      Id    : Editor.Buffers.Buffer_Id) return Boolean renames
+     Dirty_Prune_Operations.Is_Dirty_Pending_Marked_Close_Prune_Target;
 
    procedure Remove_Dirty_Pending_Marked_Close_Prune_Target
      (State     : in out Buffer_Switcher_State;
       Registry  : Editor.Buffers.Buffer_Registry;
       Id        : Editor.Buffers.Buffer_Id;
       Removed   : out Boolean;
-      Remaining : out Natural)
-   is
-      Removed_Index    : Natural := 0;
-      Found            : Boolean := False;
-      Removed_Position : Natural := 0;
-      Removed_Name     : Unbounded_String := Null_Unbounded_String;
-   begin
-      Removed := False;
-      Remaining := Natural (State.Dirty_Prune_Targets.Length);
-
-      if Id = Editor.Buffers.No_Buffer
-        or else Natural (State.Dirty_Prune_Targets.Length) = 0
-      then
-         return;
-      end if;
-
-      for I in 1 .. Natural (State.Dirty_Prune_Targets.Length) loop
-         if State.Dirty_Prune_Targets (I - 1) = Id then
-            Removed_Index := I - 1;
-            Found := True;
-            exit;
-         end if;
-      end loop;
-
-      if not Found then
-         return;
-      end if;
-
-      Removed_Position := Removed_Index;
-      for I in 1 .. Natural (State.Pending_Targets.Length) loop
-         if State.Pending_Targets (I - 1) = Id then
-            if I - 1 < Natural (State.Pending_Target_Original_Positions.Length) then
-               Removed_Position := State.Pending_Target_Original_Positions (I - 1);
-            else
-               Removed_Position := I - 1;
-            end if;
-            exit;
-         end if;
-      end loop;
-
-      for J in 1 .. Editor.Buffers.Count (Registry) loop
-         declare
-            Summary : constant Editor.Buffers.Buffer_Summary :=
-              Editor.Buffers.Summary_At (Registry, J);
-         begin
-            if Summary.Id = Id then
-               Removed_Name := To_Unbounded_String (Editor.Buffers.Display_Name (Registry, Id));
-               exit;
-            end if;
-         end;
-      end loop;
-      if Length (Removed_Name) = 0 then
-         Removed_Name := To_Unbounded_String ("unnamed buffer");
-      end if;
-
-      State.Dirty_Prune_Targets.Delete (Removed_Index);
-
-      declare
-         I : Natural := 1;
-      begin
-         while I <= Natural (State.Removed_Dirty_Prune_Targets.Length) loop
-            if State.Removed_Dirty_Prune_Targets (I - 1).Id = Id then
-               State.Removed_Dirty_Prune_Targets.Delete (I - 1);
-            else
-               I := I + 1;
-            end if;
-         end loop;
-      end;
-      State.Removed_Dirty_Prune_Targets.Append
-        (Pruned_Pending_Target'(Id                => Id,
-          Display_Name      => Removed_Name,
-          Original_Position => Removed_Position));
-
-      Removed := True;
-      Remaining := Natural (State.Dirty_Prune_Targets.Length);
-
-      if Remaining = 0 then
-         State.Dirty_Prune_Targets.Clear;
-         State.Removed_Dirty_Prune_Targets.Clear;
-         Clear_Dirty_Prune_Preview_Review_Modes (State);
-      end if;
-   end Remove_Dirty_Pending_Marked_Close_Prune_Target;
+      Remaining : out Natural) renames
+     Dirty_Prune_Operations.Remove_Dirty_Pending_Marked_Close_Prune_Target;
 
    function Has_Removed_Dirty_Pending_Marked_Close_Prune_Targets
-     (State : Buffer_Switcher_State) return Boolean
-   is
-   begin
-      return Natural (State.Removed_Dirty_Prune_Targets.Length) > 0;
-   end Has_Removed_Dirty_Pending_Marked_Close_Prune_Targets;
+     (State : Buffer_Switcher_State) return Boolean renames
+     Dirty_Prune_Operations.Has_Removed_Dirty_Pending_Marked_Close_Prune_Targets;
 
    function Removed_Dirty_Pending_Marked_Close_Prune_Target_Count
-     (State : Buffer_Switcher_State) return Natural
-   is
-   begin
-      return Natural (State.Removed_Dirty_Prune_Targets.Length);
-   end Removed_Dirty_Pending_Marked_Close_Prune_Target_Count;
+     (State : Buffer_Switcher_State) return Natural renames
+     Dirty_Prune_Operations.Removed_Dirty_Pending_Marked_Close_Prune_Target_Count;
 
    function Open_Removed_Dirty_Pending_Marked_Close_Prune_Target_Count
      (State    : Buffer_Switcher_State;
-      Registry : Editor.Buffers.Buffer_Registry) return Natural
-   is
-      Count : Natural := 0;
-   begin
-      for I in 1 .. Natural (State.Removed_Dirty_Prune_Targets.Length) loop
-         if Editor.Buffers.Contains (Registry, State.Removed_Dirty_Prune_Targets (I - 1).Id) then
-            Count := Count + 1;
-         end if;
-      end loop;
-      return Count;
-   end Open_Removed_Dirty_Pending_Marked_Close_Prune_Target_Count;
+      Registry : Editor.Buffers.Buffer_Registry) return Natural renames
+     Dirty_Prune_Operations.Open_Removed_Dirty_Pending_Marked_Close_Prune_Target_Count;
 
    function Last_Removed_Dirty_Pending_Marked_Close_Prune_Target_Name
-     (State : Buffer_Switcher_State) return String
-   is
-   begin
-      if Natural (State.Removed_Dirty_Prune_Targets.Length) = 0 then
-         return "";
-      end if;
-      return To_String
-        (State.Removed_Dirty_Prune_Targets
-           (Natural (State.Removed_Dirty_Prune_Targets.Length) - 1).Display_Name);
-   end Last_Removed_Dirty_Pending_Marked_Close_Prune_Target_Name;
+     (State : Buffer_Switcher_State) return String renames
+     Dirty_Prune_Operations.Last_Removed_Dirty_Pending_Marked_Close_Prune_Target_Name;
 
    function Is_Removed_Dirty_Pending_Marked_Close_Prune_Target
      (State : Buffer_Switcher_State;
-      Id    : Editor.Buffers.Buffer_Id) return Boolean
-   is
-   begin
-      if Id = Editor.Buffers.No_Buffer then
-         return False;
-      end if;
-
-      for I in 1 .. Natural (State.Removed_Dirty_Prune_Targets.Length) loop
-         if State.Removed_Dirty_Prune_Targets (I - 1).Id = Id then
-            return True;
-         end if;
-      end loop;
-
-      return False;
-   end Is_Removed_Dirty_Pending_Marked_Close_Prune_Target;
+      Id    : Editor.Buffers.Buffer_Id) return Boolean renames
+     Dirty_Prune_Operations.Is_Removed_Dirty_Pending_Marked_Close_Prune_Target;
 
    procedure Restore_Last_Removed_Dirty_Pending_Marked_Close_Prune_Target
      (State        : in out Buffer_Switcher_State;
@@ -1865,334 +1157,86 @@ package body Editor.Buffer_Switcher is
       Restored     : out Boolean;
       Target       : out Editor.Buffers.Buffer_Id;
       Display_Name : out Ada.Strings.Unbounded.Unbounded_String;
-      Remaining    : out Natural)
-   is
-      Entry_Index  : Natural := 0;
-      Item        : Pruned_Pending_Target;
-      Insert_Index : Natural := 0;
-      Current_Position : Natural := 0;
-   begin
-      Restored := False;
-      Target := Editor.Buffers.No_Buffer;
-      Display_Name := Null_Unbounded_String;
-      Remaining := Natural (State.Dirty_Prune_Targets.Length);
-
-      if Natural (State.Removed_Dirty_Prune_Targets.Length) = 0 then
-         return;
-      end if;
-
-      Entry_Index := Natural (State.Removed_Dirty_Prune_Targets.Length) - 1;
-      Item := State.Removed_Dirty_Prune_Targets (Entry_Index);
-      Target := Item.Id;
-      Display_Name := Item.Display_Name;
-
-      if not Editor.Buffers.Contains (Registry, Item.Id) then
-         return;
-      end if;
-
-      if Row_Is_Dirty_Prune_Target (State, Item.Id) then
-         State.Removed_Dirty_Prune_Targets.Delete (Entry_Index);
-         Restored := True;
-         Remaining := Natural (State.Dirty_Prune_Targets.Length);
-         return;
-      end if;
-
-      Insert_Index := Natural (State.Dirty_Prune_Targets.Length);
-      for I in 1 .. Natural (State.Dirty_Prune_Targets.Length) loop
-         Current_Position := I - 1;
-         for J in 1 .. Natural (State.Pending_Targets.Length) loop
-            if State.Pending_Targets (J - 1) = State.Dirty_Prune_Targets (I - 1) then
-               if J - 1 < Natural (State.Pending_Target_Original_Positions.Length) then
-                  Current_Position := State.Pending_Target_Original_Positions (J - 1);
-               else
-                  Current_Position := J - 1;
-               end if;
-               exit;
-            end if;
-         end loop;
-
-         if Current_Position > Item.Original_Position then
-            Insert_Index := I - 1;
-            exit;
-         end if;
-      end loop;
-
-      State.Dirty_Prune_Targets.Insert (Insert_Index, Item.Id);
-      State.Removed_Dirty_Prune_Targets.Delete (Entry_Index);
-      Restored := True;
-      Remaining := Natural (State.Dirty_Prune_Targets.Length);
-   end Restore_Last_Removed_Dirty_Pending_Marked_Close_Prune_Target;
+      Remaining    : out Natural) renames
+     Dirty_Prune_Operations.Restore_Last_Removed_Dirty_Pending_Marked_Close_Prune_Target;
 
    procedure Cancel_Dirty_Pending_Marked_Close_Prune
-     (State : in out Buffer_Switcher_State)
-   is
-   begin
-      State.Dirty_Prune_Targets.Clear;
-      State.Removed_Dirty_Prune_Targets.Clear;
-      Clear_Dirty_Prune_Preview_Review_Modes (State);
-      Clear_Dirty_Prune_Apply_State (State);
-   end Cancel_Dirty_Pending_Marked_Close_Prune;
+     (State : in out Buffer_Switcher_State) renames
+     Dirty_Prune_Operations.Cancel_Dirty_Pending_Marked_Close_Prune;
 
    procedure Apply_Dirty_Pending_Marked_Close_Prune
      (State     : in out Buffer_Switcher_State;
       Registry  : Editor.Buffers.Buffer_Registry;
       Applied   : out Natural;
-      Remaining : out Natural)
-   is
-      Captured : Mark_Vectors.Vector := State.Dirty_Prune_Targets;
-      Removed  : Boolean := False;
-   begin
-      Applied := 0;
-      Remaining := Pending_Marked_Target_Count (State);
-
-      if State.Pending_Action /= Pending_Marked_Close
-        or else Natural (Captured.Length) = 0
-      then
-         State.Dirty_Prune_Targets.Clear;
-         State.Removed_Dirty_Prune_Targets.Clear;
-         Clear_Dirty_Prune_Preview_Review_Modes (State);
-         return;
-      end if;
-
-      for I in 1 .. Natural (Captured.Length) loop
-         exit when State.Pending_Action /= Pending_Marked_Close;
-         declare
-            Id : constant Editor.Buffers.Buffer_Id := Captured (I - 1);
-         begin
-            if Is_Open_Dirty_Pending_Target (State, Registry, Id) then
-               Remove_Pending_Marked_Close_Target
-                 (State, Registry, Id, Removed, Remaining);
-               if Removed then
-                  Applied := Applied + 1;
-               end if;
-            end if;
-         end;
-      end loop;
-
-      State.Dirty_Prune_Targets.Clear;
-      State.Removed_Dirty_Prune_Targets.Clear;
-      Clear_Dirty_Prune_Preview_Review_Modes (State);
-      Remaining := Pending_Marked_Target_Count (State);
-   end Apply_Dirty_Pending_Marked_Close_Prune;
-
+      Remaining : out Natural) renames
+     Dirty_Prune_Operations.Apply_Dirty_Pending_Marked_Close_Prune;
 
    procedure Prepare_Dirty_Pending_Marked_Close_Prune_Apply
      (State      : in out Buffer_Switcher_State;
       Registry   : Editor.Buffers.Buffer_Registry;
       Count      : out Natural;
-      Applicable : out Natural)
-   is
-   begin
-      Clear_Dirty_Prune_Apply_State (State);
-      Count := 0;
-      Applicable := 0;
-      if not Has_Dirty_Pending_Marked_Close_Prune (State) then
-         return;
-      end if;
-      for I in 1 .. Natural (State.Dirty_Prune_Targets.Length) loop
-         declare
-            Id : constant Editor.Buffers.Buffer_Id := State.Dirty_Prune_Targets (I - 1);
-         begin
-            State.Dirty_Prune_Apply_Targets.Append (Id);
-            Count := Count + 1;
-            if Is_Open_Dirty_Pending_Target (State, Registry, Id) then
-               Applicable := Applicable + 1;
-            end if;
-         end;
-      end loop;
-   end Prepare_Dirty_Pending_Marked_Close_Prune_Apply;
+      Applicable : out Natural) renames
+     Dirty_Prune_Operations.Prepare_Dirty_Pending_Marked_Close_Prune_Apply;
 
    function Has_Dirty_Pending_Marked_Close_Prune_Apply
-     (State : Buffer_Switcher_State) return Boolean is
-   begin
-      return Natural (State.Dirty_Prune_Apply_Targets.Length) > 0;
-   end Has_Dirty_Pending_Marked_Close_Prune_Apply;
+     (State : Buffer_Switcher_State) return Boolean renames
+     Dirty_Prune_Operations.Has_Dirty_Pending_Marked_Close_Prune_Apply;
 
    function Dirty_Pending_Marked_Close_Prune_Apply_Target_Count
-     (State : Buffer_Switcher_State) return Natural is
-   begin
-      return Natural (State.Dirty_Prune_Apply_Targets.Length);
-   end Dirty_Pending_Marked_Close_Prune_Apply_Target_Count;
+     (State : Buffer_Switcher_State) return Natural renames
+     Dirty_Prune_Operations.Dirty_Pending_Marked_Close_Prune_Apply_Target_Count;
 
    function Applicable_Dirty_Pending_Marked_Close_Prune_Apply_Target_Count
      (State    : Buffer_Switcher_State;
-      Registry : Editor.Buffers.Buffer_Registry) return Natural
-   is
-      Count : Natural := 0;
-   begin
-      for I in 1 .. Natural (State.Dirty_Prune_Apply_Targets.Length) loop
-         if Is_Open_Dirty_Pending_Target
-           (State, Registry, State.Dirty_Prune_Apply_Targets (I - 1))
-         then
-            Count := Count + 1;
-         end if;
-      end loop;
-      return Count;
-   end Applicable_Dirty_Pending_Marked_Close_Prune_Apply_Target_Count;
+      Registry : Editor.Buffers.Buffer_Registry) return Natural renames
+     Dirty_Prune_Operations.Applicable_Dirty_Pending_Marked_Close_Prune_Apply_Target_Count;
 
    function Dirty_Pending_Marked_Close_Prune_Apply_Stale_Target_Count
      (State    : Buffer_Switcher_State;
-      Registry : Editor.Buffers.Buffer_Registry) return Natural
-   is
-      Count : Natural := 0;
-   begin
-      for I in 1 .. Natural (State.Dirty_Prune_Apply_Targets.Length) loop
-         if not Is_Open_Dirty_Pending_Target
-           (State, Registry, State.Dirty_Prune_Apply_Targets (I - 1))
-         then
-            Count := Count + 1;
-         end if;
-      end loop;
-      return Count;
-   end Dirty_Pending_Marked_Close_Prune_Apply_Stale_Target_Count;
+      Registry : Editor.Buffers.Buffer_Registry) return Natural renames
+     Dirty_Prune_Operations.Dirty_Pending_Marked_Close_Prune_Apply_Stale_Target_Count;
 
    procedure Clear_Stale_Dirty_Pending_Marked_Close_Prune_Apply_Targets
      (State     : in out Buffer_Switcher_State;
       Registry  : Editor.Buffers.Buffer_Registry;
       Cleared   : out Natural;
-      Remaining : out Natural)
-   is
-      I : Natural := 1;
-   begin
-      Cleared := 0;
-      while I <= Natural (State.Dirty_Prune_Apply_Targets.Length) loop
-         if not Is_Open_Dirty_Pending_Target
-           (State, Registry, State.Dirty_Prune_Apply_Targets (I - 1))
-         then
-            State.Dirty_Prune_Apply_Targets.Delete (I - 1);
-            Cleared := Cleared + 1;
-         else
-            I := I + 1;
-         end if;
-      end loop;
-      Remaining := Natural (State.Dirty_Prune_Apply_Targets.Length);
-      if Remaining = 0 then
-         Clear_Dirty_Prune_Apply_State (State);
-      end if;
-   end Clear_Stale_Dirty_Pending_Marked_Close_Prune_Apply_Targets;
+      Remaining : out Natural) renames
+     Dirty_Prune_Operations.Clear_Stale_Dirty_Pending_Marked_Close_Prune_Apply_Targets;
 
    function Is_Dirty_Pending_Marked_Close_Prune_Apply_Target
      (State : Buffer_Switcher_State;
-      Id    : Editor.Buffers.Buffer_Id) return Boolean is
-   begin
-      return Row_Is_Dirty_Prune_Apply_Target (State, Id);
-   end Is_Dirty_Pending_Marked_Close_Prune_Apply_Target;
+      Id    : Editor.Buffers.Buffer_Id) return Boolean renames
+     Dirty_Prune_Operations.Is_Dirty_Pending_Marked_Close_Prune_Apply_Target;
 
    procedure Remove_Dirty_Pending_Marked_Close_Prune_Apply_Target
      (State     : in out Buffer_Switcher_State;
       Registry  : Editor.Buffers.Buffer_Registry;
       Id        : Editor.Buffers.Buffer_Id;
       Removed   : out Boolean;
-      Remaining : out Natural)
-   is
-      Removed_Index : Natural := 0;
-      Found         : Boolean := False;
-      Removed_Name  : Unbounded_String := Null_Unbounded_String;
-   begin
-      Removed := False;
-      Remaining := Natural (State.Dirty_Prune_Apply_Targets.Length);
-      if Id = Editor.Buffers.No_Buffer then
-         return;
-      end if;
-      for I in 1 .. Natural (State.Dirty_Prune_Apply_Targets.Length) loop
-         if State.Dirty_Prune_Apply_Targets (I - 1) = Id then
-            Removed_Index := I - 1;
-            Found := True;
-            exit;
-         end if;
-      end loop;
-      if not Found then
-         return;
-      end if;
-      for J in 1 .. Editor.Buffers.Count (Registry) loop
-         declare
-            Summary : constant Editor.Buffers.Buffer_Summary :=
-              Editor.Buffers.Summary_At (Registry, J);
-         begin
-            if Summary.Id = Id then
-               Removed_Name := To_Unbounded_String (Editor.Buffers.Display_Name (Registry, Id));
-               exit;
-            end if;
-         end;
-      end loop;
-      if Length (Removed_Name) = 0 then
-         Removed_Name := To_Unbounded_String ("unnamed buffer");
-      end if;
-      State.Dirty_Prune_Apply_Targets.Delete (Removed_Index);
-      declare
-         I : Natural := 1;
-      begin
-         while I <= Natural (State.Removed_Dirty_Prune_Apply_Targets.Length) loop
-            if State.Removed_Dirty_Prune_Apply_Targets (I - 1).Id = Id then
-               State.Removed_Dirty_Prune_Apply_Targets.Delete (I - 1);
-            else
-               I := I + 1;
-            end if;
-         end loop;
-      end;
-      State.Removed_Dirty_Prune_Apply_Targets.Append
-        (Pruned_Pending_Target'(Id                => Id,
-          Display_Name      => Removed_Name,
-          Original_Position => Removed_Index));
-      Removed := True;
-      Remaining := Natural (State.Dirty_Prune_Apply_Targets.Length);
-      if Remaining = 0 then
-         Clear_Dirty_Prune_Apply_Review_Modes (State);
-      end if;
-   end Remove_Dirty_Pending_Marked_Close_Prune_Apply_Target;
+      Remaining : out Natural) renames
+     Dirty_Prune_Operations.Remove_Dirty_Pending_Marked_Close_Prune_Apply_Target;
 
    function Has_Removed_Dirty_Pending_Marked_Close_Prune_Apply_Targets
-     (State : Buffer_Switcher_State) return Boolean is
-   begin
-      return Natural (State.Removed_Dirty_Prune_Apply_Targets.Length) > 0;
-   end Has_Removed_Dirty_Pending_Marked_Close_Prune_Apply_Targets;
+     (State : Buffer_Switcher_State) return Boolean renames
+     Dirty_Prune_Operations.Has_Removed_Dirty_Pending_Marked_Close_Prune_Apply_Targets;
 
    function Removed_Dirty_Pending_Marked_Close_Prune_Apply_Target_Count
-     (State : Buffer_Switcher_State) return Natural is
-   begin
-      return Natural (State.Removed_Dirty_Prune_Apply_Targets.Length);
-   end Removed_Dirty_Pending_Marked_Close_Prune_Apply_Target_Count;
+     (State : Buffer_Switcher_State) return Natural renames
+     Dirty_Prune_Operations.Removed_Dirty_Pending_Marked_Close_Prune_Apply_Target_Count;
 
    function Open_Removed_Dirty_Pending_Marked_Close_Prune_Apply_Target_Count
      (State    : Buffer_Switcher_State;
-      Registry : Editor.Buffers.Buffer_Registry) return Natural
-   is
-      Count : Natural := 0;
-   begin
-      for I in 1 .. Natural (State.Removed_Dirty_Prune_Apply_Targets.Length) loop
-         if Editor.Buffers.Contains (Registry, State.Removed_Dirty_Prune_Apply_Targets (I - 1).Id) then
-            Count := Count + 1;
-         end if;
-      end loop;
-      return Count;
-   end Open_Removed_Dirty_Pending_Marked_Close_Prune_Apply_Target_Count;
+      Registry : Editor.Buffers.Buffer_Registry) return Natural renames
+     Dirty_Prune_Operations.Open_Removed_Dirty_Pending_Marked_Close_Prune_Apply_Target_Count;
 
    function Last_Removed_Dirty_Pending_Marked_Close_Prune_Apply_Target_Name
-     (State : Buffer_Switcher_State) return String is
-   begin
-      if Natural (State.Removed_Dirty_Prune_Apply_Targets.Length) = 0 then
-         return "";
-      end if;
-      return To_String
-        (State.Removed_Dirty_Prune_Apply_Targets
-           (Natural (State.Removed_Dirty_Prune_Apply_Targets.Length) - 1).Display_Name);
-   end Last_Removed_Dirty_Pending_Marked_Close_Prune_Apply_Target_Name;
+     (State : Buffer_Switcher_State) return String renames
+     Dirty_Prune_Operations.Last_Removed_Dirty_Pending_Marked_Close_Prune_Apply_Target_Name;
 
    function Is_Removed_Dirty_Pending_Marked_Close_Prune_Apply_Target
      (State : Buffer_Switcher_State;
-      Id    : Editor.Buffers.Buffer_Id) return Boolean
-   is
-   begin
-      if Id = Editor.Buffers.No_Buffer then
-         return False;
-      end if;
-      for I in 1 .. Natural (State.Removed_Dirty_Prune_Apply_Targets.Length) loop
-         if State.Removed_Dirty_Prune_Apply_Targets (I - 1).Id = Id then
-            return True;
-         end if;
-      end loop;
-      return False;
-   end Is_Removed_Dirty_Pending_Marked_Close_Prune_Apply_Target;
+      Id    : Editor.Buffers.Buffer_Id) return Boolean renames
+     Dirty_Prune_Operations.Is_Removed_Dirty_Pending_Marked_Close_Prune_Apply_Target;
 
    procedure Restore_Last_Removed_Dirty_Pending_Marked_Close_Prune_Apply_Target
      (State        : in out Buffer_Switcher_State;
@@ -2200,318 +1244,63 @@ package body Editor.Buffer_Switcher is
       Restored     : out Boolean;
       Target       : out Editor.Buffers.Buffer_Id;
       Display_Name : out Ada.Strings.Unbounded.Unbounded_String;
-      Remaining    : out Natural)
-   is
-      Entry_Index  : Natural := 0;
-      Item        : Pruned_Pending_Target;
-      Insert_Index : Natural := 0;
-   begin
-      Restored := False;
-      Target := Editor.Buffers.No_Buffer;
-      Display_Name := Null_Unbounded_String;
-      Remaining := Natural (State.Dirty_Prune_Apply_Targets.Length);
-      if Natural (State.Removed_Dirty_Prune_Apply_Targets.Length) = 0 then
-         return;
-      end if;
-      Entry_Index := Natural (State.Removed_Dirty_Prune_Apply_Targets.Length) - 1;
-      Item := State.Removed_Dirty_Prune_Apply_Targets (Entry_Index);
-      Target := Item.Id;
-      Display_Name := Item.Display_Name;
-      if not Editor.Buffers.Contains (Registry, Item.Id) then
-         return;
-      end if;
-      if Row_Is_Dirty_Prune_Apply_Target (State, Item.Id) then
-         State.Removed_Dirty_Prune_Apply_Targets.Delete (Entry_Index);
-         Restored := True;
-         return;
-      end if;
-      Insert_Index := Natural'Min (Item.Original_Position, Natural (State.Dirty_Prune_Apply_Targets.Length));
-      State.Dirty_Prune_Apply_Targets.Insert (Insert_Index, Item.Id);
-      State.Removed_Dirty_Prune_Apply_Targets.Delete (Entry_Index);
-      Restored := True;
-      Remaining := Natural (State.Dirty_Prune_Apply_Targets.Length);
-   end Restore_Last_Removed_Dirty_Pending_Marked_Close_Prune_Apply_Target;
+      Remaining    : out Natural) renames
+     Dirty_Prune_Operations.Restore_Last_Removed_Dirty_Pending_Marked_Close_Prune_Apply_Target;
 
    procedure Confirm_Dirty_Pending_Marked_Close_Prune_Apply
      (State     : in out Buffer_Switcher_State;
       Registry  : Editor.Buffers.Buffer_Registry;
       Applied   : out Natural;
       Skipped   : out Natural;
-      Remaining : out Natural)
-   is
-      Captured : Mark_Vectors.Vector := State.Dirty_Prune_Apply_Targets;
-      Removed  : Boolean := False;
-   begin
-      Applied := 0;
-      Skipped := 0;
-      Remaining := Pending_Marked_Target_Count (State);
-      for I in 1 .. Natural (Captured.Length) loop
-         declare
-            Id : constant Editor.Buffers.Buffer_Id := Captured (I - 1);
-         begin
-            if Is_Open_Dirty_Pending_Target (State, Registry, Id) then
-               Remove_Pending_Marked_Close_Target
-                 (State, Registry, Id, Removed, Remaining);
-               if Removed then
-                  Applied := Applied + 1;
-               else
-                  Skipped := Skipped + 1;
-               end if;
-            else
-               Skipped := Skipped + 1;
-            end if;
-         end;
-      end loop;
-      Clear_Dirty_Prune_Apply_State (State);
-      State.Dirty_Prune_Targets.Clear;
-      State.Removed_Dirty_Prune_Targets.Clear;
-      Clear_Dirty_Prune_Preview_Review_Modes (State);
-      Remaining := Pending_Marked_Target_Count (State);
-   end Confirm_Dirty_Pending_Marked_Close_Prune_Apply;
+      Remaining : out Natural) renames
+     Dirty_Prune_Operations.Confirm_Dirty_Pending_Marked_Close_Prune_Apply;
 
    procedure Cancel_Dirty_Pending_Marked_Close_Prune_Apply
-     (State : in out Buffer_Switcher_State) is
-   begin
-      Clear_Dirty_Prune_Apply_State (State);
-   end Cancel_Dirty_Pending_Marked_Close_Prune_Apply;
+     (State : in out Buffer_Switcher_State) renames
+     Dirty_Prune_Operations.Cancel_Dirty_Pending_Marked_Close_Prune_Apply;
 
 
-   procedure Clear_Pending_Marked_Action (State : in out Buffer_Switcher_State) is
-   begin
-      State.Pending_Action := No_Pending_Marked_Action;
-      State.Pending_Targets.Clear;
-      State.Pending_Target_Original_Positions.Clear;
-      State.Pruned_Pending_Targets.Clear;
-      State.Dirty_Prune_Targets.Clear;
-      State.Removed_Dirty_Prune_Targets.Clear;
-      Clear_Pending_Marked_Review_Modes (State);
-      Clear_Dirty_Prune_Apply_State (State);
-      State.Pending_Count := 0;
-      State.Pending_Dirty_Count := 0;
-   end Clear_Pending_Marked_Action;
+   procedure Clear_Pending_Marked_Action (State : in out Buffer_Switcher_State) renames
+     Pending_Close_Operations.Clear_Pending_Marked_Action;
 
-   function Pending_Marked_Action (State : Buffer_Switcher_State) return Pending_Marked_Action_Kind is
-   begin
-      return State.Pending_Action;
-   end Pending_Marked_Action;
+   function Pending_Marked_Action (State : Buffer_Switcher_State) return Pending_Marked_Action_Kind renames
+     Pending_Close_Operations.Pending_Marked_Action;
 
-   function Pending_Marked_Target_Count (State : Buffer_Switcher_State) return Natural is
-   begin
-      return State.Pending_Count;
-   end Pending_Marked_Target_Count;
+   function Pending_Marked_Target_Count (State : Buffer_Switcher_State) return Natural renames
+     Pending_Close_Operations.Pending_Marked_Target_Count;
 
-   function Pending_Marked_Dirty_Count (State : Buffer_Switcher_State) return Natural is
-   begin
-      return State.Pending_Dirty_Count;
-   end Pending_Marked_Dirty_Count;
+   function Pending_Marked_Dirty_Count (State : Buffer_Switcher_State) return Natural renames
+     Pending_Close_Operations.Pending_Marked_Dirty_Count;
 
    function Pending_Marked_Target_At
      (State : Buffer_Switcher_State;
-      Index : Positive) return Editor.Buffers.Buffer_Id
-   is
-   begin
-      if Index > Natural (State.Pending_Targets.Length) then
-         return Editor.Buffers.No_Buffer;
-      end if;
-      return State.Pending_Targets (Index - 1);
-   end Pending_Marked_Target_At;
+      Index : Positive) return Editor.Buffers.Buffer_Id renames
+     Pending_Close_Operations.Pending_Marked_Target_At;
 
    procedure Prepare_Pending_Marked_Close
      (State       : in out Buffer_Switcher_State;
       Registry    : Editor.Buffers.Buffer_Registry;
       Count       : out Natural;
-      Dirty_Count : out Natural)
-   is
-      Review_Was_Active : constant Boolean := State.Active_Review = Pending_Marked_Close_Review;
-   begin
-      Clear_Pending_Marked_Action (State);
-      Count := 0;
-      Dirty_Count := 0;
-      for I in 1 .. Natural (State.Marks.Length) loop
-         declare
-            Id : constant Editor.Buffers.Buffer_Id := State.Marks (I - 1);
-         begin
-            for J in 1 .. Editor.Buffers.Count (Registry) loop
-               declare
-                  Summary : constant Editor.Buffers.Buffer_Summary := Editor.Buffers.Summary_At (Registry, J);
-               begin
-                  if Summary.Id = Id then
-                     State.Pending_Targets.Append (Id);
-                     State.Pending_Target_Original_Positions.Append (Count);
-                     Count := Count + 1;
-                     if Summary.Is_Dirty then
-                        Dirty_Count := Dirty_Count + 1;
-                     end if;
-                     exit;
-                  end if;
-               end;
-            end loop;
-         end;
-      end loop;
-      if Count > 0 then
-         State.Pending_Action := Pending_Marked_Close;
-         State.Pending_Count := Count;
-         State.Pending_Dirty_Count := Dirty_Count;
-         if Review_Was_Active then
-            State.Active_Review := Pending_Marked_Close_Review;
-         end if;
-      end if;
-   end Prepare_Pending_Marked_Close;
+      Dirty_Count : out Natural) renames
+     Pending_Close_Operations.Prepare_Pending_Marked_Close;
 
    function Pending_Marked_Open_Count
      (State    : Buffer_Switcher_State;
-      Registry : Editor.Buffers.Buffer_Registry) return Natural
-   is
-      Count : Natural := 0;
-   begin
-      if State.Pending_Action = No_Pending_Marked_Action then
-         return 0;
-      end if;
-      for I in 1 .. Natural (State.Pending_Targets.Length) loop
-         for J in 1 .. Editor.Buffers.Count (Registry) loop
-            if Editor.Buffers.Summary_At (Registry, J).Id = State.Pending_Targets (I - 1) then
-               Count := Count + 1;
-               exit;
-            end if;
-         end loop;
-      end loop;
-      return Count;
-   end Pending_Marked_Open_Count;
+      Registry : Editor.Buffers.Buffer_Registry) return Natural renames
+     Pending_Close_Operations.Pending_Marked_Open_Count;
 
    function Pending_Marked_Open_Dirty_Count
      (State    : Buffer_Switcher_State;
-      Registry : Editor.Buffers.Buffer_Registry) return Natural
-   is
-      Count : Natural := 0;
-   begin
-      if State.Pending_Action = No_Pending_Marked_Action then
-         return 0;
-      end if;
-
-      for I in 1 .. Natural (State.Pending_Targets.Length) loop
-         for J in 1 .. Editor.Buffers.Count (Registry) loop
-            declare
-               Summary : constant Editor.Buffers.Buffer_Summary :=
-                 Editor.Buffers.Summary_At (Registry, J);
-            begin
-               if Summary.Id = State.Pending_Targets (I - 1) then
-                  if Summary.Is_Dirty then
-                     Count := Count + 1;
-                  end if;
-                  exit;
-               end if;
-            end;
-         end loop;
-      end loop;
-
-      return Count;
-   end Pending_Marked_Open_Dirty_Count;
+      Registry : Editor.Buffers.Buffer_Registry) return Natural renames
+     Pending_Close_Operations.Pending_Marked_Open_Dirty_Count;
 
    procedure Remove_Pending_Marked_Close_Target
      (State       : in out Buffer_Switcher_State;
       Registry    : Editor.Buffers.Buffer_Registry;
       Id          : Editor.Buffers.Buffer_Id;
       Removed     : out Boolean;
-      Remaining   : out Natural)
-   is
-      Removed_Index     : Natural := 0;
-      Removed_Found     : Boolean := False;
-      Dirty_Count       : Natural := 0;
-      Removed_Position  : Natural := 0;
-      Removed_Name      : Unbounded_String := Null_Unbounded_String;
-   begin
-      Removed := False;
-      Remaining := Pending_Marked_Target_Count (State);
-
-      if State.Pending_Action /= Pending_Marked_Close
-        or else Id = Editor.Buffers.No_Buffer
-      then
-         return;
-      end if;
-
-      for I in 1 .. Natural (State.Pending_Targets.Length) loop
-         if State.Pending_Targets (I - 1) = Id then
-            Removed_Index := I - 1;
-            Removed_Found := True;
-            exit;
-         end if;
-      end loop;
-
-      if not Removed_Found then
-         return;
-      end if;
-
-      if Removed_Index < Natural (State.Pending_Target_Original_Positions.Length) then
-         Removed_Position := State.Pending_Target_Original_Positions (Removed_Index);
-      else
-         Removed_Position := Removed_Index;
-      end if;
-
-      for J in 1 .. Editor.Buffers.Count (Registry) loop
-         declare
-            Summary : constant Editor.Buffers.Buffer_Summary := Editor.Buffers.Summary_At (Registry, J);
-         begin
-            if Summary.Id = Id then
-               Removed_Name := To_Unbounded_String (Editor.Buffers.Display_Name (Registry, Id));
-               exit;
-            end if;
-         end;
-      end loop;
-      if Length (Removed_Name) = 0 then
-         Removed_Name := To_Unbounded_String ("unnamed buffer");
-      end if;
-
-      State.Pending_Targets.Delete (Removed_Index);
-      if Removed_Index < Natural (State.Pending_Target_Original_Positions.Length) then
-         State.Pending_Target_Original_Positions.Delete (Removed_Index);
-      end if;
-      Removed := True;
-
-      if Natural (State.Pending_Targets.Length) = 0 then
-         Clear_Pending_Marked_Action (State);
-         Remaining := 0;
-         return;
-      end if;
-
-      -- Keep only the latest prune entry for an identity in the current pending action.
-      declare
-         I : Natural := 1;
-      begin
-         while I <= Natural (State.Pruned_Pending_Targets.Length) loop
-            if State.Pruned_Pending_Targets (I - 1).Id = Id then
-               State.Pruned_Pending_Targets.Delete (I - 1);
-            else
-               I := I + 1;
-            end if;
-         end loop;
-      end;
-      State.Pruned_Pending_Targets.Append
-        (Pruned_Pending_Target'(Id                => Id,
-          Display_Name      => Removed_Name,
-          Original_Position => Removed_Position));
-
-      State.Pending_Count := Natural (State.Pending_Targets.Length);
-      for I in 1 .. Natural (State.Pending_Targets.Length) loop
-         declare
-            Target : constant Editor.Buffers.Buffer_Id := State.Pending_Targets (I - 1);
-         begin
-            for J in 1 .. Editor.Buffers.Count (Registry) loop
-               declare
-                  Summary : constant Editor.Buffers.Buffer_Summary := Editor.Buffers.Summary_At (Registry, J);
-               begin
-                  if Summary.Id = Target then
-                     if Summary.Is_Dirty then
-                        Dirty_Count := Dirty_Count + 1;
-                     end if;
-                     exit;
-                  end if;
-               end;
-            end loop;
-         end;
-      end loop;
-      State.Pending_Dirty_Count := Dirty_Count;
-      Remaining := State.Pending_Count;
-   end Remove_Pending_Marked_Close_Target;
+      Remaining   : out Natural) renames
+     Pending_Close_Operations.Remove_Pending_Marked_Close_Target;
 
    procedure Restore_Last_Pruned_Pending_Marked_Close_Target
      (State        : in out Buffer_Switcher_State;
@@ -2519,75 +1308,8 @@ package body Editor.Buffer_Switcher is
       Restored     : out Boolean;
       Target       : out Editor.Buffers.Buffer_Id;
       Display_Name : out Ada.Strings.Unbounded.Unbounded_String;
-      Remaining    : out Natural)
-   is
-      Entry_Index  : Natural := 0;
-      Item        : Pruned_Pending_Target;
-      Insert_Index : Natural := 0;
-      Dirty_Count  : Natural := 0;
-   begin
-      Restored := False;
-      Target := Editor.Buffers.No_Buffer;
-      Display_Name := Null_Unbounded_String;
-      Remaining := Pending_Marked_Target_Count (State);
-
-      if State.Pending_Action /= Pending_Marked_Close
-        or else Natural (State.Pruned_Pending_Targets.Length) = 0
-      then
-         return;
-      end if;
-
-      Entry_Index := Natural (State.Pruned_Pending_Targets.Length) - 1;
-      Item := State.Pruned_Pending_Targets (Entry_Index);
-      Target := Item.Id;
-      Display_Name := Item.Display_Name;
-
-      if not Editor.Buffers.Contains (Registry, Item.Id) then
-         return;
-      end if;
-
-      if Is_Pending_Marked_Close_Target (State, Item.Id) then
-         State.Pruned_Pending_Targets.Delete (Entry_Index);
-         Restored := True;
-         Remaining := State.Pending_Count;
-         return;
-      end if;
-
-      Insert_Index := Natural (State.Pending_Targets.Length);
-      for I in 1 .. Natural (State.Pending_Target_Original_Positions.Length) loop
-         if State.Pending_Target_Original_Positions (I - 1) > Item.Original_Position then
-            Insert_Index := I - 1;
-            exit;
-         end if;
-      end loop;
-
-      State.Pending_Targets.Insert (Insert_Index, Item.Id);
-      State.Pending_Target_Original_Positions.Insert (Insert_Index, Item.Original_Position);
-      State.Pruned_Pending_Targets.Delete (Entry_Index);
-
-      State.Pending_Count := Natural (State.Pending_Targets.Length);
-      for I in 1 .. Natural (State.Pending_Targets.Length) loop
-         declare
-            Current : constant Editor.Buffers.Buffer_Id := State.Pending_Targets (I - 1);
-         begin
-            for J in 1 .. Editor.Buffers.Count (Registry) loop
-               declare
-                  Summary : constant Editor.Buffers.Buffer_Summary := Editor.Buffers.Summary_At (Registry, J);
-               begin
-                  if Summary.Id = Current then
-                     if Summary.Is_Dirty then
-                        Dirty_Count := Dirty_Count + 1;
-                     end if;
-                     exit;
-                  end if;
-               end;
-            end loop;
-         end;
-      end loop;
-      State.Pending_Dirty_Count := Dirty_Count;
-      Restored := True;
-      Remaining := State.Pending_Count;
-   end Restore_Last_Pruned_Pending_Marked_Close_Target;
+      Remaining    : out Natural) renames
+     Pending_Close_Operations.Restore_Last_Pruned_Pending_Marked_Close_Target;
 
    procedure Restore_Pruned_Pending_Marked_Close_Target
      (State        : in out Buffer_Switcher_State;
@@ -2595,84 +1317,8 @@ package body Editor.Buffer_Switcher is
       Id           : Editor.Buffers.Buffer_Id;
       Restored     : out Boolean;
       Display_Name : out Ada.Strings.Unbounded.Unbounded_String;
-      Remaining    : out Natural)
-   is
-      Entry_Index  : Natural := 0;
-      Item        : Pruned_Pending_Target;
-      Found        : Boolean := False;
-      Insert_Index : Natural := 0;
-      Dirty_Count  : Natural := 0;
-   begin
-      Restored := False;
-      Display_Name := Null_Unbounded_String;
-      Remaining := Pending_Marked_Target_Count (State);
-
-      if State.Pending_Action /= Pending_Marked_Close
-        or else Id = Editor.Buffers.No_Buffer
-      then
-         return;
-      end if;
-
-      for I in 1 .. Natural (State.Pruned_Pending_Targets.Length) loop
-         if State.Pruned_Pending_Targets (I - 1).Id = Id then
-            Entry_Index := I - 1;
-            Item := State.Pruned_Pending_Targets (I - 1);
-            Found := True;
-            exit;
-         end if;
-      end loop;
-
-      if not Found then
-         return;
-      end if;
-
-      Display_Name := Item.Display_Name;
-      if not Editor.Buffers.Contains (Registry, Item.Id) then
-         return;
-      end if;
-
-      if Is_Pending_Marked_Close_Target (State, Item.Id) then
-         State.Pruned_Pending_Targets.Delete (Entry_Index);
-         Restored := True;
-         Remaining := State.Pending_Count;
-         return;
-      end if;
-
-      Insert_Index := Natural (State.Pending_Targets.Length);
-      for I in 1 .. Natural (State.Pending_Target_Original_Positions.Length) loop
-         if State.Pending_Target_Original_Positions (I - 1) > Item.Original_Position then
-            Insert_Index := I - 1;
-            exit;
-         end if;
-      end loop;
-
-      State.Pending_Targets.Insert (Insert_Index, Item.Id);
-      State.Pending_Target_Original_Positions.Insert (Insert_Index, Item.Original_Position);
-      State.Pruned_Pending_Targets.Delete (Entry_Index);
-
-      State.Pending_Count := Natural (State.Pending_Targets.Length);
-      for I in 1 .. Natural (State.Pending_Targets.Length) loop
-         declare
-            Current : constant Editor.Buffers.Buffer_Id := State.Pending_Targets (I - 1);
-         begin
-            for J in 1 .. Editor.Buffers.Count (Registry) loop
-               declare
-                  Summary : constant Editor.Buffers.Buffer_Summary := Editor.Buffers.Summary_At (Registry, J);
-               begin
-                  if Summary.Id = Current then
-                     if Summary.Is_Dirty then
-                        Dirty_Count := Dirty_Count + 1;
-                     end if;
-                     exit;
-                  end if;
-               end;
-            end loop;
-         end;
-      end loop;
-      State.Pending_Dirty_Count := Dirty_Count;
-      Restored := True;
-      Remaining := State.Pending_Count;
-   end Restore_Pruned_Pending_Marked_Close_Target;
+      Remaining    : out Natural) renames
+     Pending_Close_Operations.Restore_Pruned_Pending_Marked_Close_Target;
 
    function Matches_Active_Review_Constraint
      (State    : Buffer_Switcher_State;
@@ -2815,59 +1461,33 @@ package body Editor.Buffer_Switcher is
    end Recompute_Rows;
 
    procedure Move_Selection_Down (State : in out Buffer_Switcher_State) is
-      Count : constant Natural := Natural (State.Rows.Length);
    begin
-      if Count = 0 then
-         State.Selected_Index := 0;
-         State.Top_Index := 1;
-      elsif State.Selected_Index = 0 or else State.Selected_Index >= Count then
-         State.Selected_Index := 1;
-         State.Top_Index := 1;
-      else
-         State.Selected_Index := State.Selected_Index + 1;
-      end if;
-      Clamp_Window (State);
+      Row_Operations.Move_Selection_Down (State);
    end Move_Selection_Down;
 
    procedure Move_Selection_Up (State : in out Buffer_Switcher_State) is
-      Count : constant Natural := Natural (State.Rows.Length);
    begin
-      if Count = 0 then
-         State.Selected_Index := 0;
-         State.Top_Index := 1;
-      elsif State.Selected_Index <= 1 then
-         State.Selected_Index := Count;
-      else
-         State.Selected_Index := State.Selected_Index - 1;
-      end if;
-      Clamp_Window (State);
+      Row_Operations.Move_Selection_Up (State);
    end Move_Selection_Up;
 
    procedure Show_Preview (State : in out Buffer_Switcher_State) is
    begin
-      State.Preview_Visible := True;
+      Row_Operations.Show_Preview (State);
    end Show_Preview;
 
    procedure Hide_Preview (State : in out Buffer_Switcher_State) is
    begin
-      State.Preview_Visible := False;
-      State.Preview_Target_Id := Editor.Buffers.No_Buffer;
-      State.Preview_Anchor := 1;
-      State.Preview_Scroll := 0;
+      Row_Operations.Hide_Preview (State);
    end Hide_Preview;
 
    procedure Toggle_Preview (State : in out Buffer_Switcher_State) is
    begin
-      if State.Preview_Visible then
-         Hide_Preview (State);
-      else
-         Show_Preview (State);
-      end if;
+      Row_Operations.Toggle_Preview (State);
    end Toggle_Preview;
 
    function Has_Preview (State : Buffer_Switcher_State) return Boolean is
    begin
-      return State.Preview_Visible;
+      return Row_Operations.Has_Preview (State);
    end Has_Preview;
 
    procedure Set_Preview_Target
@@ -2876,53 +1496,37 @@ package body Editor.Buffer_Switcher is
       Anchor_Line : Natural)
    is
    begin
-      if Target = Editor.Buffers.No_Buffer then
-         Clear_Preview_Target (State);
-      else
-         State.Preview_Target_Id := Target;
-         State.Preview_Anchor := Natural'Max (1, Anchor_Line);
-         State.Preview_Scroll := 0;
-      end if;
+      Row_Operations.Set_Preview_Target (State, Target, Anchor_Line);
    end Set_Preview_Target;
 
    procedure Clear_Preview_Target (State : in out Buffer_Switcher_State) is
    begin
-      State.Preview_Target_Id := Editor.Buffers.No_Buffer;
-      State.Preview_Anchor := 1;
-      State.Preview_Scroll := 0;
+      Row_Operations.Clear_Preview_Target (State);
    end Clear_Preview_Target;
 
    function Preview_Target (State : Buffer_Switcher_State) return Editor.Buffers.Buffer_Id is
    begin
-      return State.Preview_Target_Id;
+      return Row_Operations.Preview_Target (State);
    end Preview_Target;
 
    function Preview_Anchor_Line (State : Buffer_Switcher_State) return Natural is
    begin
-      return State.Preview_Anchor;
+      return Row_Operations.Preview_Anchor_Line (State);
    end Preview_Anchor_Line;
 
    function Preview_Scroll_Offset (State : Buffer_Switcher_State) return Natural is
    begin
-      return State.Preview_Scroll;
+      return Row_Operations.Preview_Scroll_Offset (State);
    end Preview_Scroll_Offset;
 
    procedure Scroll_Preview_Next_Line (State : in out Buffer_Switcher_State) is
    begin
-      if State.Preview_Visible and then State.Preview_Target_Id /= Editor.Buffers.No_Buffer then
-         State.Preview_Scroll := State.Preview_Scroll + 1;
-      end if;
+      Row_Operations.Scroll_Preview_Next_Line (State);
    end Scroll_Preview_Next_Line;
 
    procedure Scroll_Preview_Previous_Line (State : in out Buffer_Switcher_State) is
    begin
-      if State.Preview_Visible and then State.Preview_Target_Id /= Editor.Buffers.No_Buffer then
-         if State.Preview_Scroll > 0 then
-            State.Preview_Scroll := State.Preview_Scroll - 1;
-         elsif State.Preview_Anchor > 1 then
-            State.Preview_Anchor := State.Preview_Anchor - 1;
-         end if;
-      end if;
+      Row_Operations.Scroll_Preview_Previous_Line (State);
    end Scroll_Preview_Previous_Line;
 
    procedure Center_Preview_On_Line
@@ -2930,45 +1534,101 @@ package body Editor.Buffer_Switcher is
       Anchor_Line : Natural)
    is
    begin
-      if State.Preview_Visible and then State.Preview_Target_Id /= Editor.Buffers.No_Buffer then
-         State.Preview_Anchor := Natural'Max (1, Anchor_Line);
-         State.Preview_Scroll := 0;
-      end if;
+      Row_Operations.Center_Preview_On_Line (State, Anchor_Line);
    end Center_Preview_On_Line;
-
 
    procedure Select_Buffer_Or_Row
      (State          : in out Buffer_Switcher_State;
       Preferred_Id   : Editor.Buffers.Buffer_Id;
       Fallback_Index : Natural)
    is
-      Count : constant Natural := Natural (State.Rows.Length);
    begin
-      if Count = 0 then
-         State.Selected_Index := 0;
-         State.Top_Index := 1;
-         return;
-      end if;
-
-      if Preferred_Id /= Editor.Buffers.No_Buffer then
-         for I in 1 .. Count loop
-            if State.Rows (I - 1).Id = Preferred_Id then
-               State.Selected_Index := I;
-               Clamp_Window (State);
-               return;
-            end if;
-         end loop;
-      end if;
-
-      if Fallback_Index = 0 then
-         State.Selected_Index := 1;
-      elsif Fallback_Index > Count then
-         State.Selected_Index := Count;
-      else
-         State.Selected_Index := Fallback_Index;
-      end if;
-      Clamp_Window (State);
+      Row_Operations.Select_Buffer_Or_Row (State, Preferred_Id, Fallback_Index);
    end Select_Buffer_Or_Row;
+
+   function Select_Next_Pruned_Pending_Marked_Buffer
+     (State : in out Buffer_Switcher_State) return Boolean is
+   begin
+      return Row_Operations.Select_Next_Pruned_Pending_Marked_Buffer (State);
+   end Select_Next_Pruned_Pending_Marked_Buffer;
+
+   function Select_Previous_Pruned_Pending_Marked_Buffer
+     (State : in out Buffer_Switcher_State) return Boolean is
+   begin
+      return Row_Operations.Select_Previous_Pruned_Pending_Marked_Buffer (State);
+   end Select_Previous_Pruned_Pending_Marked_Buffer;
+
+   function Select_Next_Dirty_Pending_Marked_Buffer
+     (State : in out Buffer_Switcher_State) return Boolean is
+   begin
+      return Row_Operations.Select_Next_Dirty_Pending_Marked_Buffer (State);
+   end Select_Next_Dirty_Pending_Marked_Buffer;
+
+   function Select_Previous_Dirty_Pending_Marked_Buffer
+     (State : in out Buffer_Switcher_State) return Boolean is
+   begin
+      return Row_Operations.Select_Previous_Dirty_Pending_Marked_Buffer (State);
+   end Select_Previous_Dirty_Pending_Marked_Buffer;
+
+   function Select_Next_Dirty_Prune_Target
+     (State : in out Buffer_Switcher_State) return Boolean is
+   begin
+      return Row_Operations.Select_Next_Dirty_Prune_Target (State);
+   end Select_Next_Dirty_Prune_Target;
+
+   function Select_Previous_Dirty_Prune_Target
+     (State : in out Buffer_Switcher_State) return Boolean is
+   begin
+      return Row_Operations.Select_Previous_Dirty_Prune_Target (State);
+   end Select_Previous_Dirty_Prune_Target;
+
+   function Select_Next_Removed_Dirty_Prune_Target
+     (State : in out Buffer_Switcher_State) return Boolean is
+   begin
+      return Row_Operations.Select_Next_Removed_Dirty_Prune_Target (State);
+   end Select_Next_Removed_Dirty_Prune_Target;
+
+   function Select_Previous_Removed_Dirty_Prune_Target
+     (State : in out Buffer_Switcher_State) return Boolean is
+   begin
+      return Row_Operations.Select_Previous_Removed_Dirty_Prune_Target (State);
+   end Select_Previous_Removed_Dirty_Prune_Target;
+
+   function Select_Next_Pending_Marked_Buffer
+     (State : in out Buffer_Switcher_State) return Boolean is
+   begin
+      return Row_Operations.Select_Next_Pending_Marked_Buffer (State);
+   end Select_Next_Pending_Marked_Buffer;
+
+   function Select_Previous_Pending_Marked_Buffer
+     (State : in out Buffer_Switcher_State) return Boolean is
+   begin
+      return Row_Operations.Select_Previous_Pending_Marked_Buffer (State);
+   end Select_Previous_Pending_Marked_Buffer;
+
+   function Select_Next_Dirty_Prune_Apply_Target
+     (State : in out Buffer_Switcher_State) return Boolean is
+   begin
+      return Row_Operations.Select_Next_Dirty_Prune_Apply_Target (State);
+   end Select_Next_Dirty_Prune_Apply_Target;
+
+   function Select_Previous_Dirty_Prune_Apply_Target
+     (State : in out Buffer_Switcher_State) return Boolean is
+   begin
+      return Row_Operations.Select_Previous_Dirty_Prune_Apply_Target (State);
+   end Select_Previous_Dirty_Prune_Apply_Target;
+
+   function Select_Next_Removed_Dirty_Prune_Apply_Target
+     (State : in out Buffer_Switcher_State) return Boolean is
+   begin
+      return Row_Operations.Select_Next_Removed_Dirty_Prune_Apply_Target (State);
+   end Select_Next_Removed_Dirty_Prune_Apply_Target;
+
+   function Select_Previous_Removed_Dirty_Prune_Apply_Target
+     (State : in out Buffer_Switcher_State) return Boolean is
+   begin
+      return Row_Operations.Select_Previous_Removed_Dirty_Prune_Apply_Target (State);
+   end Select_Previous_Removed_Dirty_Prune_Apply_Target;
 
 
    function Mark_Index
@@ -3472,97 +2132,24 @@ package body Editor.Buffer_Switcher is
       return Select_Previous_Switcher_Review_Target (State, Marked_Review);
    end Select_Previous_Marked_Buffer;
 
-   function Select_Next_Pending_Marked_Buffer (State : in out Buffer_Switcher_State) return Boolean is
-   begin
-      return Select_Next_Switcher_Review_Target (State, Pending_Marked_Close_Review);
-   end Select_Next_Pending_Marked_Buffer;
-
-   function Select_Previous_Pending_Marked_Buffer (State : in out Buffer_Switcher_State) return Boolean is
-   begin
-      return Select_Previous_Switcher_Review_Target (State, Pending_Marked_Close_Review);
-   end Select_Previous_Pending_Marked_Buffer;
-
-   function Select_Next_Pruned_Pending_Marked_Buffer (State : in out Buffer_Switcher_State) return Boolean is
-   begin
-      return Select_Next_Switcher_Review_Target (State, Pruned_Pending_Close_Review);
-   end Select_Next_Pruned_Pending_Marked_Buffer;
-
-   function Select_Previous_Pruned_Pending_Marked_Buffer (State : in out Buffer_Switcher_State) return Boolean is
-   begin
-      return Select_Previous_Switcher_Review_Target (State, Pruned_Pending_Close_Review);
-   end Select_Previous_Pruned_Pending_Marked_Buffer;
-
-   function Select_Next_Dirty_Pending_Marked_Buffer (State : in out Buffer_Switcher_State) return Boolean is
-   begin
-      return Select_Next_Switcher_Review_Target (State, Dirty_Pending_Close_Review);
-   end Select_Next_Dirty_Pending_Marked_Buffer;
-
-   function Select_Previous_Dirty_Pending_Marked_Buffer (State : in out Buffer_Switcher_State) return Boolean is
-   begin
-      return Select_Previous_Switcher_Review_Target (State, Dirty_Pending_Close_Review);
-   end Select_Previous_Dirty_Pending_Marked_Buffer;
-
-   function Select_Next_Dirty_Prune_Target (State : in out Buffer_Switcher_State) return Boolean is
-   begin
-      return Select_Next_Switcher_Review_Target (State, Dirty_Prune_Preview_Review);
-   end Select_Next_Dirty_Prune_Target;
-
-   function Select_Previous_Dirty_Prune_Target (State : in out Buffer_Switcher_State) return Boolean is
-   begin
-      return Select_Previous_Switcher_Review_Target (State, Dirty_Prune_Preview_Review);
-   end Select_Previous_Dirty_Prune_Target;
-
-   function Select_Next_Removed_Dirty_Prune_Target (State : in out Buffer_Switcher_State) return Boolean is
-   begin
-      return Select_Next_Switcher_Review_Target (State, Removed_Dirty_Prune_Preview_Review);
-   end Select_Next_Removed_Dirty_Prune_Target;
-
-   function Select_Previous_Removed_Dirty_Prune_Target (State : in out Buffer_Switcher_State) return Boolean is
-   begin
-      return Select_Previous_Switcher_Review_Target (State, Removed_Dirty_Prune_Preview_Review);
-   end Select_Previous_Removed_Dirty_Prune_Target;
-
-   function Select_Next_Dirty_Prune_Apply_Target (State : in out Buffer_Switcher_State) return Boolean is
-   begin
-      return Select_Next_Switcher_Review_Target (State, Dirty_Prune_Apply_Review);
-   end Select_Next_Dirty_Prune_Apply_Target;
-
-   function Select_Previous_Dirty_Prune_Apply_Target (State : in out Buffer_Switcher_State) return Boolean is
-   begin
-      return Select_Previous_Switcher_Review_Target (State, Dirty_Prune_Apply_Review);
-   end Select_Previous_Dirty_Prune_Apply_Target;
-
-   function Select_Next_Removed_Dirty_Prune_Apply_Target (State : in out Buffer_Switcher_State) return Boolean is
-   begin
-      return Select_Next_Switcher_Review_Target (State, Removed_Dirty_Prune_Apply_Review);
-   end Select_Next_Removed_Dirty_Prune_Apply_Target;
-
-   function Select_Previous_Removed_Dirty_Prune_Apply_Target (State : in out Buffer_Switcher_State) return Boolean is
-   begin
-      return Select_Previous_Switcher_Review_Target (State, Removed_Dirty_Prune_Apply_Review);
-   end Select_Previous_Removed_Dirty_Prune_Apply_Target;
-
    function Row_Count (State : Buffer_Switcher_State) return Natural is
    begin
-      return Natural (State.Rows.Length);
+      return Row_Operations.Row_Count (State);
    end Row_Count;
 
    function Selected_Row_Index (State : Buffer_Switcher_State) return Natural is
    begin
-      return State.Selected_Index;
+      return Row_Operations.Selected_Row_Index (State);
    end Selected_Row_Index;
 
    function Top_Row_Index (State : Buffer_Switcher_State) return Natural is
    begin
-      return State.Top_Index;
+      return Row_Operations.Top_Row_Index (State);
    end Top_Row_Index;
 
    function Row_At (State : Buffer_Switcher_State; Index : Positive) return Buffer_Switcher_Row is
    begin
-      if Index > Natural (State.Rows.Length) then
-         return (others => <>);
-      end if;
-      return State.Rows (Index - 1);
+      return Row_Operations.Row_At (State, Index);
    end Row_At;
 
    function Row_For_Buffer
@@ -3571,83 +2158,29 @@ package body Editor.Buffer_Switcher is
       Found : out Boolean) return Buffer_Switcher_Row
    is
    begin
-      for I in 1 .. Natural (State.Rows.Length) loop
-         if State.Rows (I - 1).Id = Id then
-            Found := True;
-            return State.Rows (I - 1);
-         end if;
-      end loop;
-      Found := False;
-      return (others => <>);
+      return Row_Operations.Row_For_Buffer (State, Id, Found);
    end Row_For_Buffer;
 
    function Selected_Row
      (State : Buffer_Switcher_State;
       Found : out Boolean) return Buffer_Switcher_Row is
    begin
-      if State.Selected_Index = 0 or else State.Selected_Index > Natural (State.Rows.Length) then
-         Found := False;
-         return (others => <>);
-      end if;
-      Found := True;
-      return State.Rows (State.Selected_Index - 1);
+      return Row_Operations.Selected_Row (State, Found);
    end Selected_Row;
 
    function Audit_Selected_Buffer_List_State
      (State    : Buffer_Switcher_State;
       Registry : Editor.Buffers.Buffer_Registry) return Selected_Buffer_List_Audit
    is
-      Result : Selected_Buffer_List_Audit;
-      Found  : Boolean := False;
-      Row    : Buffer_Switcher_Row;
    begin
-      Result.Row_Count := Natural (State.Rows.Length);
-      Result.Selected_Row_Index := State.Selected_Index;
-
-      if Result.Row_Count = 0 then
-         Result.Selection_Cleared_When_No_Rows := State.Selected_Index = 0;
-         Result.Selection_Index_Clamped_To_Rows := State.Selected_Index = 0;
-         Result.Selected_Row_Is_Buffer := True;
-         Result.Selected_Runtime_Id_Registered := True;
-         Result.Selected_Row_Valid := Result.Selection_Cleared_When_No_Rows;
-      elsif State.Selected_Index = 0 or else State.Selected_Index > Result.Row_Count then
-         Result.Selection_Cleared_When_No_Rows := True;
-         Result.Selection_Index_Clamped_To_Rows := False;
-         Result.Selected_Row_Is_Buffer := False;
-         Result.Selected_Runtime_Id_Registered := False;
-         Result.Selected_Row_Valid := False;
-      else
-         Row := Selected_Row (State, Found);
-         Result.Selection_Cleared_When_No_Rows := True;
-         Result.Selection_Index_Clamped_To_Rows := Found;
-         Result.Selected_Row_Is_Buffer := Found and then Row.Id /= Editor.Buffers.No_Buffer;
-         Result.Selection_Skips_Status_Rows := Result.Selected_Row_Is_Buffer;
-         if Result.Selected_Row_Is_Buffer then
-            Result.Selected_Buffer_Id := Row.Id;
-            Result.Selected_Runtime_Id_Registered := Editor.Buffers.Contains (Registry, Row.Id);
-         else
-            Result.Selected_Runtime_Id_Registered := False;
-         end if;
-         Result.Selected_Row_Valid :=
-           Result.Selection_Index_Clamped_To_Rows
-           and then Result.Selected_Row_Is_Buffer
-           and then Result.Selected_Runtime_Id_Registered;
-      end if;
-
-      --  Buffer List selection remains runtime-only state: it is never a
-      --  workspace/keybinding/command payload, and this audit is purely
-      --  observational over already-materialized rows.
-      Result.Selection_Is_Transient := True;
-      Result.Selection_Not_Persisted := True;
-      Result.Selection_Not_Keybinding_Payload := True;
-      return Result;
+      return Row_Operations.Audit_Selected_Buffer_List_State (State, Registry);
    end Audit_Selected_Buffer_List_State;
 
    function Query_Snapshot
      (State           : Buffer_Switcher_State;
       Visible_Columns : Natural) return Editor.Input_Field.Field_Snapshot is
    begin
-      return Editor.Input_Field.Snapshot (State.Field, Visible_Columns);
+      return Row_Operations.Query_Snapshot (State, Visible_Columns);
    end Query_Snapshot;
 
    function Geometry
@@ -3656,22 +2189,8 @@ package body Editor.Buffer_Switcher is
       Cell_Width  : Positive;
       Cell_Height : Positive) return Editor.Layout.Rect
    is
-      Wanted_W : constant Natural := Config.Overlay_Width_In_Columns * Cell_Width;
-      Margin   : constant Natural := 2 * Cell_Width;
-      Width    : constant Natural :=
-        (if Body_Rect.Width > 2 * Margin
-         then Natural'Min (Wanted_W, Body_Rect.Width - 2 * Margin)
-         else Body_Rect.Width);
-      Rows     : constant Natural :=
-        Config.Header_Height_In_Rows + Config.Field_Height_In_Rows +
-        Config.Max_Visible_Results * Config.Row_Height_In_Rows +
-        Config.Preview_Max_Lines + 1;
-      Height   : constant Natural := Rows * Cell_Height;
-      X        : constant Integer :=
-        Body_Rect.X + Integer ((if Body_Rect.Width > Width then (Body_Rect.Width - Width) / 2 else 0));
-      Y        : constant Integer := Body_Rect.Y + Integer (Cell_Height);
    begin
-      return (X => X, Y => Y, Width => Width, Height => Height);
+      return Row_Operations.Geometry (Body_Rect, Config, Cell_Width, Cell_Height);
    end Geometry;
 
 end Editor.Buffer_Switcher;

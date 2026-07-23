@@ -4,6 +4,8 @@ with Ada.Environment_Variables;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Text_IO;
+with Editor.Path_Helpers;
+with Editor.Text_Helpers;
 
 package body Editor.Recent_Projects is
 
@@ -12,58 +14,24 @@ package body Editor.Recent_Projects is
    Config_Directory_Override : Unbounded_String := Null_Unbounded_String;
    Last_Ignored_Load_Entries : Natural := 0;
 
-   function Trimmed (Text : String) return String is
-   begin
-      return Ada.Strings.Fixed.Trim (Text, Ada.Strings.Both);
-   end Trimmed;
-
-   function Is_Separator (Ch : Character) return Boolean is
-   begin
-      return Ch = '/' or else Ch = '\';
-   end Is_Separator;
-
-   function Strip_Trailing_Separators (Path : String) return String is
-      Last : Integer := Path'Last;
-   begin
-      if Path'Length = 0 then
-         return Path;
-      end if;
-
-      while Last > Path'First and then Is_Separator (Path (Last)) loop
-         Last := Last - 1;
-      end loop;
-
-      return Path (Path'First .. Last);
-   end Strip_Trailing_Separators;
-
-   function Slashed (Path : String) return String is
-      Result : String (Path'Range);
-   begin
-      for I in Path'Range loop
-         if Path (I) = '\' then
-            Result (I) := '/';
-         else
-            Result (I) := Path (I);
-         end if;
-      end loop;
-      return Result;
-   end Slashed;
-
    function Normalized_Root_Path
      (Root_Path : String) return String
    is
-      Clean : constant String := Strip_Trailing_Separators (Trimmed (Root_Path));
+      Clean : constant String :=
+        Editor.Path_Helpers.Strip_Trailing_Separators
+          (Editor.Text_Helpers.Trim (Root_Path));
    begin
       if Clean'Length = 0 then
          return "";
       elsif Ada.Directories.Exists (Clean) then
-         return Slashed (Strip_Trailing_Separators (Ada.Directories.Full_Name (Clean)));
+         return Editor.Path_Helpers.Normalize_For_Compare
+           (Ada.Directories.Full_Name (Clean), True);
       else
-         return Slashed (Clean);
+         return Editor.Path_Helpers.Normalize_For_Compare (Clean, True);
       end if;
    exception
       when others =>
-         return Slashed (Clean);
+         return Editor.Path_Helpers.Normalize_For_Compare (Clean, True);
    end Normalized_Root_Path;
 
    function Contains_Format_Separator (Text : String) return Boolean is
@@ -77,7 +45,7 @@ package body Editor.Recent_Projects is
    end Contains_Format_Separator;
 
    function Sanitized_Field (Text : String) return String is
-      T : constant String := Trimmed (Text);
+      T : constant String := Editor.Text_Helpers.Trim (Text);
    begin
       if Contains_Format_Separator (T) then
          declare
@@ -88,14 +56,14 @@ package body Editor.Recent_Projects is
                   R (I) := ' ';
                end if;
             end loop;
-            return Trimmed (R);
+            return Editor.Text_Helpers.Trim (R);
          end;
       end if;
       return T;
    end Sanitized_Field;
 
    function Valid_Project_Reference_Field (Root_Path : String) return Boolean is
-      Root : constant String := Trimmed (Root_Path);
+      Root : constant String := Editor.Text_Helpers.Trim (Root_Path);
    begin
       --  The recent-projects file is deliberately line-oriented and
       --  pipe-delimited.  Project references that cannot be represented in
@@ -135,7 +103,7 @@ package body Editor.Recent_Projects is
       if Item.Last_Opened_Ms = 0 then
          return "last opened unknown";
       end if;
-      return "last opened " & Trimmed (Natural'Image (Item.Last_Opened_Ms));
+      return "last opened " & Editor.Text_Helpers.Trim (Natural'Image (Item.Last_Opened_Ms));
    end Last_Opened_Label;
 
    function Unavailable_Label
@@ -445,7 +413,7 @@ package body Editor.Recent_Projects is
            (File,
             To_String (Item.Root_Path)
             & "|name=" & Sanitized_Field (To_String (Item.Display_Name))
-            & "|opened=" & Trimmed (Natural'Image (Item.Last_Opened_Ms)));
+            & "|opened=" & Editor.Text_Helpers.Trim (Natural'Image (Item.Last_Opened_Ms)));
       end loop;
       Ada.Text_IO.Close (File);
       Status := Recent_Project_Ok;
@@ -570,7 +538,7 @@ package body Editor.Recent_Projects is
                      end if;
                   end if;
                end;
-            elsif Trimmed (Line)'Length /= 0 then
+            elsif Editor.Text_Helpers.Trim (Line)'Length /= 0 then
                Ada.Text_IO.Close (File);
                Clear (List);
                Status := Recent_Project_Invalid_Format;

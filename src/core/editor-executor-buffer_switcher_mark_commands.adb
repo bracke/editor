@@ -7,6 +7,7 @@ with Editor.Command_Execution;
 with Editor.Commands;
 with Editor.Executor;
 with Editor.Executor.Buffer_Close_Prompt_Commands;
+with Editor.Executor.Buffer_Switcher_Mark_Metadata_Commands;
 with Editor.Executor.Shared_Services;
 use Editor.Executor.Shared_Services;
 with Editor.Executor.Buffer_Switcher_Shared;
@@ -483,439 +484,110 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
    procedure Execute_Buffer_Switcher_Mark_Pinned
      (S : in out Editor.State.State_Type)
    is
-      Count : Natural := 0;
    begin
-      Editor.Buffers.Ensure_Global_Registry (S);
-      Editor.Buffers.Sync_Global_Active_From_State (S);
-      for I in 1 .. Editor.Buffers.Global_Count loop
-         declare
-            Summary : constant Editor.Buffers.Buffer_Summary := Editor.Buffers.Global_Summary_At (I);
-         begin
-            if Summary.Is_Pinned then
-               Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, Summary.Id);
-               Count := Count + 1;
-            end if;
-         end;
-      end loop;
-      if Count = 0 then
-         Editor.Executor.Shared_Services.Report_Info (S, "No pinned buffers");
-      else
-         Recompute_Buffer_Switcher_After_Marked_Action (S);
-         Editor.Executor.Shared_Services.Report_Success (S, "Marked " & Switcher_Image (Count) & " pinned buffers");
-      end if;
-      Editor.Render_Cache.Invalidate_All;
+      Editor.Executor.Buffer_Switcher_Mark_Metadata_Commands
+        .Execute_Buffer_Switcher_Mark_Pinned (S);
    end Execute_Buffer_Switcher_Mark_Pinned;
 
    procedure Execute_Buffer_Switcher_Mark_Group
      (S    : in out Editor.State.State_Type;
       Name : String)
    is
-      Group : constant String := Editor.Executor.Trimmed_Command_Text (Name);
-      Has_Groups : Boolean := False;
-      Count : Natural := 0;
    begin
-      if Group'Length = 0 then
-         Editor.Executor.Shared_Services.Report_Info (S, "No group name");
-         return;
-      end if;
-      Editor.Buffers.Ensure_Global_Registry (S);
-      Editor.Buffers.Sync_Global_Active_From_State (S);
-      for I in 1 .. Editor.Buffers.Global_Count loop
-         declare
-            Summary : constant Editor.Buffers.Buffer_Summary := Editor.Buffers.Global_Summary_At (I);
-         begin
-            if Summary.Has_Group then
-               Has_Groups := True;
-               if To_String (Summary.Group_Name) = Group then
-                  Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, Summary.Id);
-                  Count := Count + 1;
-               end if;
-            end if;
-         end;
-      end loop;
-      if not Has_Groups then
-         Editor.Executor.Shared_Services.Report_Info (S, "No buffer groups");
-      elsif Count = 0 then
-         Editor.Executor.Shared_Services.Report_Info (S, "No matching open buffers");
-      else
-         Recompute_Buffer_Switcher_After_Marked_Action (S);
-         Editor.Executor.Shared_Services.Report_Success (S, "Marked " & Switcher_Image (Count) & " buffers in group " & Group);
-      end if;
-      Editor.Render_Cache.Invalidate_All;
+      Editor.Executor.Buffer_Switcher_Mark_Metadata_Commands
+        .Execute_Buffer_Switcher_Mark_Group (S, Name);
    end Execute_Buffer_Switcher_Mark_Group;
 
    procedure Execute_Buffer_Switcher_Mark_Label
      (S     : in out Editor.State.State_Type;
       Label : String)
    is
-      Text : constant String := Editor.Executor.Trimmed_Command_Text (Label);
-      Has_Labels : Boolean := False;
-      Count : Natural := 0;
    begin
-      if Text'Length = 0 then
-         Editor.Executor.Shared_Services.Report_Info (S, "No label text");
-         return;
-      end if;
-      Editor.Buffers.Ensure_Global_Registry (S);
-      Editor.Buffers.Sync_Global_Active_From_State (S);
-      for I in 1 .. Editor.Buffers.Global_Count loop
-         declare
-            Summary : constant Editor.Buffers.Buffer_Summary := Editor.Buffers.Global_Summary_At (I);
-         begin
-            if Summary.Has_Label then
-               Has_Labels := True;
-               if To_String (Summary.Label_Text) = Text then
-                  Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, Summary.Id);
-                  Count := Count + 1;
-               end if;
-            end if;
-         end;
-      end loop;
-      if not Has_Labels then
-         Editor.Executor.Shared_Services.Report_Info (S, "No buffer labels");
-      elsif Count = 0 then
-         Editor.Executor.Shared_Services.Report_Info (S, "No matching open buffers");
-      else
-         Recompute_Buffer_Switcher_After_Marked_Action (S);
-         Editor.Executor.Shared_Services.Report_Success (S, "Marked " & Switcher_Image (Count) & " buffers with label " & Text);
-      end if;
-      Editor.Render_Cache.Invalidate_All;
+      Editor.Executor.Buffer_Switcher_Mark_Metadata_Commands
+        .Execute_Buffer_Switcher_Mark_Label (S, Label);
    end Execute_Buffer_Switcher_Mark_Label;
 
    procedure Execute_Buffer_Switcher_Mark_Noted
      (S : in out Editor.State.State_Type)
    is
-      Count : Natural := 0;
    begin
-      Editor.Buffers.Ensure_Global_Registry (S);
-      Editor.Buffers.Sync_Global_Active_From_State (S);
-      for I in 1 .. Editor.Buffers.Global_Count loop
-         declare
-            Summary : constant Editor.Buffers.Buffer_Summary := Editor.Buffers.Global_Summary_At (I);
-         begin
-            if Summary.Has_Note then
-               Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, Summary.Id);
-               Count := Count + 1;
-            end if;
-         end;
-      end loop;
-      if Count = 0 then
-         Editor.Executor.Shared_Services.Report_Info (S, "No noted buffers");
-      else
-         Recompute_Buffer_Switcher_After_Marked_Action (S);
-         Editor.Executor.Shared_Services.Report_Success (S, "Marked " & Switcher_Image (Count) & " noted buffers");
-      end if;
-      Editor.Render_Cache.Invalidate_All;
+      Editor.Executor.Buffer_Switcher_Mark_Metadata_Commands
+        .Execute_Buffer_Switcher_Mark_Noted (S);
    end Execute_Buffer_Switcher_Mark_Noted;
 
    procedure Execute_Buffer_Switcher_Mark_Pin_Marked
      (S : in out Editor.State.State_Type)
    is
-      Count : Natural := 0;
    begin
-      Editor.Buffers.Ensure_Global_Registry (S);
-      Editor.Buffers.Sync_Global_Active_From_State (S);
-      Count := Marked_Open_Count (S);
-      if Count = 0 then
-         Editor.Executor.Shared_Services.Report_Info (S, "No marked buffers");
-         return;
-      end if;
-      for I in 1 .. Count loop
-         Editor.Buffers.Global_Pin_Buffer (Marked_Open_Id_At (S, I));
-      end loop;
-      Recompute_Buffer_Switcher_After_Marked_Action (S);
-      Editor.Executor.Shared_Services.Report_Success (S, "Pinned " & Switcher_Image (Count) & " marked buffers");
+      Editor.Executor.Buffer_Switcher_Mark_Metadata_Commands
+        .Execute_Buffer_Switcher_Mark_Pin_Marked (S);
    end Execute_Buffer_Switcher_Mark_Pin_Marked;
 
    procedure Execute_Buffer_Switcher_Mark_Unpin_Marked
      (S : in out Editor.State.State_Type)
    is
-      Count : Natural := 0;
    begin
-      Editor.Buffers.Ensure_Global_Registry (S);
-      Editor.Buffers.Sync_Global_Active_From_State (S);
-      Count := Marked_Open_Count (S);
-      if Count = 0 then
-         Editor.Executor.Shared_Services.Report_Info (S, "No marked buffers");
-         return;
-      end if;
-      for I in 1 .. Count loop
-         Editor.Buffers.Global_Unpin_Buffer (Marked_Open_Id_At (S, I));
-      end loop;
-      Recompute_Buffer_Switcher_After_Marked_Action (S);
-      Editor.Executor.Shared_Services.Report_Success (S, "Unpinned " & Switcher_Image (Count) & " marked buffers");
+      Editor.Executor.Buffer_Switcher_Mark_Metadata_Commands
+        .Execute_Buffer_Switcher_Mark_Unpin_Marked (S);
    end Execute_Buffer_Switcher_Mark_Unpin_Marked;
 
    procedure Execute_Buffer_Switcher_Mark_Clear_Metadata
      (S : in out Editor.State.State_Type)
    is
-      Count : Natural := 0;
    begin
-      Editor.Buffers.Ensure_Global_Registry (S);
-      Editor.Buffers.Sync_Global_Active_From_State (S);
-      Count := Marked_Open_Count (S);
-      if Count = 0 then
-         Editor.Executor.Shared_Services.Report_Info (S, "No marked buffers");
-         return;
-      end if;
-      for I in 1 .. Count loop
-         declare
-            Id : constant Editor.Buffers.Buffer_Id := Marked_Open_Id_At (S, I);
-         begin
-            Editor.Buffers.Global_Clear_Buffer_Group (Id);
-            Editor.Buffers.Global_Clear_Buffer_Label (Id);
-            Editor.Buffers.Global_Clear_Buffer_Note (Id);
-         end;
-      end loop;
-      Recompute_Buffer_Switcher_After_Marked_Action (S);
-      Editor.Executor.Shared_Services.Report_Success (S, "Cleared metadata for " & Switcher_Image (Count) & " marked buffers");
+      Editor.Executor.Buffer_Switcher_Mark_Metadata_Commands
+        .Execute_Buffer_Switcher_Mark_Clear_Metadata (S);
    end Execute_Buffer_Switcher_Mark_Clear_Metadata;
 
    procedure Execute_Buffer_Switcher_Mark_Group_Assign
      (S    : in out Editor.State.State_Type;
       Name : String)
    is
-      Group : constant String := Editor.Executor.Trimmed_Command_Text (Name);
-      Count : Natural := 0;
-      Applied : Natural := 0;
    begin
-      if Group'Length = 0 then
-         Editor.Executor.Shared_Services.Report_Info (S, "No group name");
-         return;
-      end if;
-      Editor.Buffers.Ensure_Global_Registry (S);
-      Editor.Buffers.Sync_Global_Active_From_State (S);
-      Count := Marked_Open_Count (S);
-      if Count = 0 then
-         Editor.Executor.Shared_Services.Report_Info (S, "No marked buffers");
-         return;
-      end if;
-      declare
-         Targets  : Marked_Target_Array (1 .. Count);
-         Captured : Natural := 0;
-      begin
-         Capture_Marked_Open_Targets (S, Targets, Captured);
-         for I in 1 .. Captured loop
-            if Editor.Buffers.Global_Contains (Targets (I)) then
-               Editor.Buffers.Global_Assign_Buffer_Group (Targets (I), Group);
-               Applied := Applied + 1;
-            else
-               Editor.Buffer_Switcher.Clear_Mark (S.Buffer_Switcher, Targets (I));
-            end if;
-         end loop;
-      end;
-      if Applied = 0 then
-         Editor.Executor.Shared_Services.Report_Info (S, "No marked buffers");
-         return;
-      end if;
-      Recompute_Buffer_Switcher_After_Marked_Action (S);
-      Editor.Executor.Shared_Services.Report_Success (S, "Assigned " & Switcher_Image (Applied) & " marked buffers to group " & Group);
+      Editor.Executor.Buffer_Switcher_Mark_Metadata_Commands
+        .Execute_Buffer_Switcher_Mark_Group_Assign (S, Name);
    end Execute_Buffer_Switcher_Mark_Group_Assign;
 
    procedure Execute_Buffer_Switcher_Mark_Group_Clear
      (S : in out Editor.State.State_Type)
    is
-      Count : Natural := 0;
-      Applied : Natural := 0;
    begin
-      Editor.Buffers.Ensure_Global_Registry (S);
-      Editor.Buffers.Sync_Global_Active_From_State (S);
-      Count := Marked_Open_Count (S);
-      if Count = 0 then
-         Editor.Executor.Shared_Services.Report_Info (S, "No marked buffers");
-         return;
-      end if;
-      declare
-         Targets  : Marked_Target_Array (1 .. Count);
-         Captured : Natural := 0;
-      begin
-         Capture_Marked_Open_Targets (S, Targets, Captured);
-         for I in 1 .. Captured loop
-            if Editor.Buffers.Global_Contains (Targets (I)) then
-               Editor.Buffers.Global_Clear_Buffer_Group (Targets (I));
-               Applied := Applied + 1;
-            else
-               Editor.Buffer_Switcher.Clear_Mark (S.Buffer_Switcher, Targets (I));
-            end if;
-         end loop;
-      end;
-      if Applied = 0 then
-         Editor.Executor.Shared_Services.Report_Info (S, "No marked buffers");
-         return;
-      end if;
-      Recompute_Buffer_Switcher_After_Marked_Action (S);
-      Editor.Executor.Shared_Services.Report_Success (S, "Cleared group from " & Switcher_Image (Applied) & " marked buffers");
+      Editor.Executor.Buffer_Switcher_Mark_Metadata_Commands
+        .Execute_Buffer_Switcher_Mark_Group_Clear (S);
    end Execute_Buffer_Switcher_Mark_Group_Clear;
 
    procedure Execute_Buffer_Switcher_Mark_Label_Set
      (S     : in out Editor.State.State_Type;
       Label : String)
    is
-      Text : constant String := Editor.Executor.Trimmed_Command_Text (Label);
-      Count : Natural := 0;
-      Applied : Natural := 0;
    begin
-      if Text'Length > Editor.Buffers.Max_Buffer_Label_Length then
-         Editor.Executor.Shared_Services.Report_Info (S, "Label too long");
-         return;
-      elsif not Editor.Executor.Valid_Buffer_Label_Text (Text) then
-         Editor.Executor.Shared_Services.Report_Info (S, "Invalid label");
-         return;
-      end if;
-      Editor.Buffers.Ensure_Global_Registry (S);
-      Editor.Buffers.Sync_Global_Active_From_State (S);
-      Count := Marked_Open_Count (S);
-      if Count = 0 then
-         Editor.Executor.Shared_Services.Report_Info (S, "No marked buffers");
-         return;
-      end if;
-      declare
-         Targets  : Marked_Target_Array (1 .. Count);
-         Captured : Natural := 0;
-      begin
-         Capture_Marked_Open_Targets (S, Targets, Captured);
-         for I in 1 .. Captured loop
-            if Editor.Buffers.Global_Contains (Targets (I)) then
-               if Text'Length = 0 then
-                  Editor.Buffers.Global_Clear_Buffer_Label (Targets (I));
-               else
-                  Editor.Buffers.Global_Set_Buffer_Label (Targets (I), Text);
-               end if;
-               Applied := Applied + 1;
-            else
-               Editor.Buffer_Switcher.Clear_Mark (S.Buffer_Switcher, Targets (I));
-            end if;
-         end loop;
-      end;
-      if Applied = 0 then
-         Editor.Executor.Shared_Services.Report_Info (S, "No marked buffers");
-         return;
-      end if;
-      Recompute_Buffer_Switcher_After_Marked_Action (S);
-      if Text'Length = 0 then
-         Editor.Executor.Shared_Services.Report_Success (S, "Cleared label from " & Switcher_Image (Applied) & " marked buffers");
-      else
-         Editor.Executor.Shared_Services.Report_Success (S, "Label set on " & Switcher_Image (Applied) & " marked buffers: " & Text);
-      end if;
+      Editor.Executor.Buffer_Switcher_Mark_Metadata_Commands
+        .Execute_Buffer_Switcher_Mark_Label_Set (S, Label);
    end Execute_Buffer_Switcher_Mark_Label_Set;
 
    procedure Execute_Buffer_Switcher_Mark_Label_Clear
      (S : in out Editor.State.State_Type)
    is
-      Count : Natural := 0;
-      Applied : Natural := 0;
    begin
-      Editor.Buffers.Ensure_Global_Registry (S);
-      Editor.Buffers.Sync_Global_Active_From_State (S);
-      Count := Marked_Open_Count (S);
-      if Count = 0 then
-         Editor.Executor.Shared_Services.Report_Info (S, "No marked buffers");
-         return;
-      end if;
-      declare
-         Targets  : Marked_Target_Array (1 .. Count);
-         Captured : Natural := 0;
-      begin
-         Capture_Marked_Open_Targets (S, Targets, Captured);
-         for I in 1 .. Captured loop
-            if Editor.Buffers.Global_Contains (Targets (I)) then
-               Editor.Buffers.Global_Clear_Buffer_Label (Targets (I));
-               Applied := Applied + 1;
-            else
-               Editor.Buffer_Switcher.Clear_Mark (S.Buffer_Switcher, Targets (I));
-            end if;
-         end loop;
-      end;
-      if Applied = 0 then
-         Editor.Executor.Shared_Services.Report_Info (S, "No marked buffers");
-         return;
-      end if;
-      Recompute_Buffer_Switcher_After_Marked_Action (S);
-      Editor.Executor.Shared_Services.Report_Success (S, "Cleared label from " & Switcher_Image (Applied) & " marked buffers");
+      Editor.Executor.Buffer_Switcher_Mark_Metadata_Commands
+        .Execute_Buffer_Switcher_Mark_Label_Clear (S);
    end Execute_Buffer_Switcher_Mark_Label_Clear;
 
    procedure Execute_Buffer_Switcher_Mark_Note_Set
      (S    : in out Editor.State.State_Type;
       Note : String)
    is
-      Text : constant String := Editor.Executor.Trimmed_Command_Text (Note);
-      Count : Natural := 0;
-      Applied : Natural := 0;
    begin
-      if Text'Length > Editor.Buffers.Max_Buffer_Note_Length then
-         Editor.Executor.Shared_Services.Report_Info (S, "Note too long");
-         return;
-      end if;
-      Editor.Buffers.Ensure_Global_Registry (S);
-      Editor.Buffers.Sync_Global_Active_From_State (S);
-      Count := Marked_Open_Count (S);
-      if Count = 0 then
-         Editor.Executor.Shared_Services.Report_Info (S, "No marked buffers");
-         return;
-      end if;
-      declare
-         Targets  : Marked_Target_Array (1 .. Count);
-         Captured : Natural := 0;
-      begin
-         Capture_Marked_Open_Targets (S, Targets, Captured);
-         for I in 1 .. Captured loop
-            if Editor.Buffers.Global_Contains (Targets (I)) then
-               if Text'Length = 0 then
-                  Editor.Buffers.Global_Clear_Buffer_Note (Targets (I));
-               else
-                  Editor.Buffers.Global_Set_Buffer_Note (Targets (I), Text);
-               end if;
-               Applied := Applied + 1;
-            else
-               Editor.Buffer_Switcher.Clear_Mark (S.Buffer_Switcher, Targets (I));
-            end if;
-         end loop;
-      end;
-      if Applied = 0 then
-         Editor.Executor.Shared_Services.Report_Info (S, "No marked buffers");
-         return;
-      end if;
-      Recompute_Buffer_Switcher_After_Marked_Action (S);
-      if Text'Length = 0 then
-         Editor.Executor.Shared_Services.Report_Success (S, "Cleared note from " & Switcher_Image (Applied) & " marked buffers");
-      else
-         Editor.Executor.Shared_Services.Report_Success (S, "Note set on " & Switcher_Image (Applied) & " marked buffers");
-      end if;
+      Editor.Executor.Buffer_Switcher_Mark_Metadata_Commands
+        .Execute_Buffer_Switcher_Mark_Note_Set (S, Note);
    end Execute_Buffer_Switcher_Mark_Note_Set;
 
    procedure Execute_Buffer_Switcher_Mark_Note_Clear
      (S : in out Editor.State.State_Type)
    is
-      Count : Natural := 0;
-      Applied : Natural := 0;
    begin
-      Editor.Buffers.Ensure_Global_Registry (S);
-      Editor.Buffers.Sync_Global_Active_From_State (S);
-      Count := Marked_Open_Count (S);
-      if Count = 0 then
-         Editor.Executor.Shared_Services.Report_Info (S, "No marked buffers");
-         return;
-      end if;
-      declare
-         Targets  : Marked_Target_Array (1 .. Count);
-         Captured : Natural := 0;
-      begin
-         Capture_Marked_Open_Targets (S, Targets, Captured);
-         for I in 1 .. Captured loop
-            if Editor.Buffers.Global_Contains (Targets (I)) then
-               Editor.Buffers.Global_Clear_Buffer_Note (Targets (I));
-               Applied := Applied + 1;
-            else
-               Editor.Buffer_Switcher.Clear_Mark (S.Buffer_Switcher, Targets (I));
-            end if;
-         end loop;
-      end;
-      if Applied = 0 then
-         Editor.Executor.Shared_Services.Report_Info (S, "No marked buffers");
-         return;
-      end if;
-      Recompute_Buffer_Switcher_After_Marked_Action (S);
-      Editor.Executor.Shared_Services.Report_Success (S, "Cleared note from " & Switcher_Image (Applied) & " marked buffers");
+      Editor.Executor.Buffer_Switcher_Mark_Metadata_Commands
+        .Execute_Buffer_Switcher_Mark_Note_Clear (S);
    end Execute_Buffer_Switcher_Mark_Note_Clear;
 
    procedure Execute_Buffer_Switcher_Mark_Close_Marked

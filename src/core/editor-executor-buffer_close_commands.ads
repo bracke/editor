@@ -23,8 +23,4 @@ package Editor.Executor.Buffer_Close_Commands is
      (S  : in out Editor.State.State_Type;
       Id : Editor.Buffers.Buffer_Id);
 
-   procedure Execute_Buffer_Close_Kind
-     (S   : in out Editor.State.State_Type;
-      Cmd : Editor.Commands.Command);
-
 end Editor.Executor.Buffer_Close_Commands;

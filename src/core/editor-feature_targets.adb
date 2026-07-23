@@ -1,13 +1,9 @@
 with Ada.Strings; use Ada.Strings;
 with Ada.Strings.Fixed;
+with Editor.Image_Helpers;
 with Editor.State;
 
 package body Editor.Feature_Targets is
-
-   function Trim_Image (Value : Natural) return String is
-   begin
-      return Ada.Strings.Fixed.Trim (Natural'Image (Value), Both);
-   end Trim_Image;
 
    function Validate_Buffer_Target_For_Feature_Row
      (S      : Editor.State.State_Type;
@@ -42,7 +38,9 @@ package body Editor.Feature_Targets is
       Column : Natural) return String
    is
       Clean_Source : constant String := Ada.Strings.Fixed.Trim (Source, Both);
-      Position     : constant String := Trim_Image (Line) & ":" & Trim_Image (Column);
+      Position     : constant String :=
+        Editor.Image_Helpers.Trim_Image (Line) & ":" &
+        Editor.Image_Helpers.Trim_Image (Column);
    begin
       if Clean_Source'Length = 0 then
          return Position;

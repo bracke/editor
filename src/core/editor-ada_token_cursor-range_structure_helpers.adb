@@ -1,14 +1,10 @@
-with Ada.Strings.Fixed;
-with Ada.Strings.Maps.Constants;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.Text_Helpers;
 
-package body Editor.Ada_Token_Cursor.Expressions is
+package body Editor.Ada_Token_Cursor.Range_Structure_Helpers is
 
-   function Lower (S : String) return String is
-   begin
-      return Ada.Strings.Fixed.Translate
-        (S, Ada.Strings.Maps.Constants.Lower_Case_Map);
-   end Lower;
+   function Lower (S : String) return String
+     renames Editor.Text_Helpers.Lower;
 
    function At_Iterator_Filter_Condition_Boundary
      (Position : Cursor) return Boolean is
@@ -222,13 +218,14 @@ package body Editor.Ada_Token_Cursor.Expressions is
             if T = "(" then
                Depth := Depth + 1;
             elsif T = ")" then
-               if Depth = 0 or else Depth = 1 then
-                  return False;
-               else
-                  Depth := Depth - 1;
+               if Depth = 0 then
+                  exit;
                end if;
-            elsif Depth = 1 and then T = "=>" then
+               Depth := Depth - 1;
+            elsif T = "=>" and then Depth = 1 then
                return True;
+            elsif T = ";" and then Depth = 0 then
+               exit;
             end if;
          end;
          Advance (Probe);
@@ -246,26 +243,22 @@ package body Editor.Ada_Token_Cursor.Expressions is
          declare
             T : constant String := To_String (Current (Probe).Text);
          begin
-            if T = "(" or else T = "[" then
+            if T = "(" then
                Depth := Depth + 1;
             elsif T = ")" then
                if Depth = 0 then
-                  return False;
-               else
-                  Depth := Depth - 1;
+                  exit;
                end if;
-            elsif T = "]" then
-               if Depth > 0 then
-                  Depth := Depth - 1;
-               end if;
-            elsif Depth = 0 and then T = "," then
-               return False;
-            elsif Depth = 0 and then T = "=>" then
+               Depth := Depth - 1;
+            elsif T = "=>" and then Depth = 0 then
                return True;
+            elsif T = "," and then Depth = 0 then
+               exit;
             end if;
          end;
          Advance (Probe);
       end loop;
+
       return False;
    end Has_Top_Level_Arrow_Before_Constraint_Association_End;
 
@@ -281,19 +274,15 @@ package body Editor.Ada_Token_Cursor.Expressions is
       while not At_End (Probe) loop
          declare
             T : constant String := To_String (Current (Probe).Text);
-            L : constant String := To_String (Current (Probe).Lower);
          begin
             if T = "(" then
                Depth := Depth + 1;
             elsif T = ")" then
                if Depth = 0 then
-                  return False;
-               elsif Depth = 1 then
-                  return False;
-               else
-                  Depth := Depth - 1;
+                  exit;
                end if;
-            elsif Depth = 1 and then (T = ".." or else L = "range") then
+               Depth := Depth - 1;
+            elsif T = ".." and then Depth = 1 then
                return True;
             end if;
          end;
@@ -314,24 +303,20 @@ package body Editor.Ada_Token_Cursor.Expressions is
          begin
             if T = "(" or else T = "[" then
                Depth := Depth + 1;
-            elsif T = ")" then
+            elsif T = ")" or else T = "]" then
                if Depth = 0 then
-                  return False;
-               else
-                  Depth := Depth - 1;
+                  exit;
                end if;
-            elsif T = "]" then
-               if Depth > 0 then
-                  Depth := Depth - 1;
-               end if;
-            elsif Depth = 0 and then T = "," then
-               return False;
-            elsif Depth = 0 and then T = "=>" then
+               Depth := Depth - 1;
+            elsif T = "=>" and then Depth = 0 then
                return True;
+            elsif (T = "," or else T = ";") and then Depth = 0 then
+               exit;
             end if;
          end;
          Advance (Probe);
       end loop;
+
       return False;
    end Has_Top_Level_Arrow_Before_Association_End;
 
@@ -340,6 +325,7 @@ package body Editor.Ada_Token_Cursor.Expressions is
       Text     : String) return Boolean is
       Probe : Cursor := Position;
       Depth : Natural := 0;
+      Wanted : constant String := Lower (Text);
    begin
       if To_String (Current (Probe).Text) /= "(" then
          return False;
@@ -347,22 +333,21 @@ package body Editor.Ada_Token_Cursor.Expressions is
 
       while not At_End (Probe) loop
          declare
-            T      : constant String := To_String (Current (Probe).Text);
-            L      : constant String := To_String (Current (Probe).Lower);
-            Wanted : constant String := Lower (Text);
+            T : constant String := To_String (Current (Probe).Text);
+            L : constant String := To_String (Current (Probe).Lower);
          begin
             if T = "(" then
                Depth := Depth + 1;
             elsif T = ")" then
                if Depth = 0 then
-                  return False;
-               elsif Depth = 1 then
-                  return False;
-               else
-                  Depth := Depth - 1;
+                  exit;
                end if;
+               Depth := Depth - 1;
+               exit when Depth = 0;
             elsif Depth = 1 and then (T = Text or else L = Wanted) then
                return True;
+            elsif Depth = 0 and then (T = "," or else T = ";" or else T = "=>" or else T = ")") then
+               exit;
             end if;
          end;
          Advance (Probe);
@@ -371,4 +356,4 @@ package body Editor.Ada_Token_Cursor.Expressions is
       return False;
    end Parenthesized_Has_Top_Level_Token;
 
-end Editor.Ada_Token_Cursor.Expressions;
+end Editor.Ada_Token_Cursor.Range_Structure_Helpers;

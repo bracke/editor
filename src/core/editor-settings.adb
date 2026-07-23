@@ -1,4 +1,3 @@
-with Ada.Characters.Handling;
 with Ada.Directories;
 with Ada.Environment_Variables;
 with Ada.Strings.Fixed;
@@ -9,6 +8,7 @@ with Editor.Minimap;
 with Editor.Scrollbars;
 with Editor.Command_Palette;
 with Editor.Theme;
+with Editor.Text_Helpers;
 
 package body Editor.Settings is
 
@@ -29,18 +29,9 @@ package body Editor.Settings is
       end if;
    end Bump_Version;
 
-   function Trimmed (S : String) return String is
-   begin
-      return Ada.Strings.Fixed.Trim (S, Ada.Strings.Both);
-   end Trimmed;
-
-   function Lower (S : String) return String is
-   begin
-      return Ada.Characters.Handling.To_Lower (S);
-   end Lower;
-
    function Valid_Boolean (S : String; Value : out Boolean) return Boolean is
-      V : constant String := Lower (Trimmed (S));
+      V : constant String :=
+        Editor.Text_Helpers.Lower (Editor.Text_Helpers.Trim (S));
    begin
       if V = "true" then
          Value := True;
@@ -63,7 +54,7 @@ package body Editor.Settings is
    end Valid_Line_Number_Mode;
 
    function Valid_Cursor_Style (Name : String) return Boolean is
-      V : constant String := Lower (Trimmed (Name));
+      V : constant String := Editor.Text_Helpers.Lower (Editor.Text_Helpers.Trim (Name));
    begin
       return V = "bar" or else V = "block" or else V = "underline";
    end Valid_Cursor_Style;
@@ -243,7 +234,7 @@ package body Editor.Settings is
    end Settings_Status_Label;
 
    function Settings_Display_Label (Setting_Name : String) return String is
-      Key : constant String := Lower (Setting_Name);
+      Key : constant String := Editor.Text_Helpers.Lower (Setting_Name);
    begin
       if Key = Setting_Name_Theme then
          return "Theme";
@@ -284,27 +275,32 @@ package body Editor.Settings is
      (Setting_Name : String;
       Value        : String) return String
    is
-      Key : constant String := Lower (Setting_Name);
+      Key : constant String := Editor.Text_Helpers.Lower (Setting_Name);
       Bool_Value : Boolean := False;
    begin
       if Settings_Display_Label (Key) = "Unknown setting" then
          return "Unknown setting.";
       elsif Key = Setting_Name_Theme then
-         if Trimmed (Value)'Length = 0
-           or else Editor.Theme.Is_Valid_Theme_Id (Lower (Trimmed (Value)))
+         if Editor.Text_Helpers.Trim (Value)'Length = 0
+           or else Editor.Theme.Is_Valid_Theme_Id
+             (Editor.Text_Helpers.Lower (Editor.Text_Helpers.Trim (Value)))
          then
             return "Setting is valid.";
          else
             return "Theme is not available.";
          end if;
       elsif Key = Setting_Name_Line_Numbers then
-         if Valid_Line_Number_Mode (Lower (Trimmed (Value))) then
+         if Valid_Line_Number_Mode
+           (Editor.Text_Helpers.Lower (Editor.Text_Helpers.Trim (Value)))
+         then
             return "Setting is valid.";
          else
             return "Line number mode is not supported.";
          end if;
       elsif Key = Setting_Name_Cursor_Style then
-         if Valid_Cursor_Style (Lower (Trimmed (Value))) then
+         if Valid_Cursor_Style
+           (Editor.Text_Helpers.Lower (Editor.Text_Helpers.Trim (Value)))
+         then
             return "Setting is valid.";
          else
             return "Cursor style is not supported.";
@@ -354,12 +350,13 @@ package body Editor.Settings is
 
    procedure Set_Theme_Id (Settings : in out Settings_Model; Id : String) is
    begin
-      if Trimmed (Id)'Length = 0 then
+      if Editor.Text_Helpers.Trim (Id)'Length = 0 then
          Settings.Theme_Mode_Value := Use_Default_Theme;
          Settings.Theme_Id_Value := To_Unbounded_String ("dark");
       else
          Settings.Theme_Mode_Value := Use_Named_Theme;
-         Settings.Theme_Id_Value := To_Unbounded_String (Lower (Trimmed (Id)));
+         Settings.Theme_Id_Value :=
+           To_Unbounded_String (Editor.Text_Helpers.Lower (Editor.Text_Helpers.Trim (Id)));
       end if;
    end Set_Theme_Id;
 
@@ -377,8 +374,9 @@ package body Editor.Settings is
      (Settings : in out Settings_Model;
       Name     : String) is
    begin
-      Settings.Has_Line_Number_Mode_Value := Trimmed (Name)'Length > 0;
-      Settings.Line_Number_Mode_Value := To_Unbounded_String (Lower (Trimmed (Name)));
+      Settings.Has_Line_Number_Mode_Value := Editor.Text_Helpers.Trim (Name)'Length > 0;
+      Settings.Line_Number_Mode_Value :=
+        To_Unbounded_String (Editor.Text_Helpers.Lower (Editor.Text_Helpers.Trim (Name)));
    end Set_Line_Number_Mode_Name;
 
    function Cursor_Style_Name (Settings : Settings_Model) return String is
@@ -390,7 +388,8 @@ package body Editor.Settings is
      (Settings : in out Settings_Model;
       Name     : String) is
    begin
-      Settings.Cursor_Style_Value := To_Unbounded_String (Lower (Trimmed (Name)));
+      Settings.Cursor_Style_Value :=
+        To_Unbounded_String (Editor.Text_Helpers.Lower (Editor.Text_Helpers.Trim (Name)));
    end Set_Cursor_Style_Name;
 
    function Cursor_Blink (Settings : Settings_Model) return Boolean is
@@ -591,7 +590,8 @@ package body Editor.Settings is
       end if;
 
       declare
-         Style_Name : constant String := Lower (Cursor_Style_Name (Normalized));
+         Style_Name : constant String :=
+           Editor.Text_Helpers.Lower (Cursor_Style_Name (Normalized));
       begin
          if Style_Name = "bar" then
             Cursor.Style := Editor.Cursor.Bar_Cursor;
@@ -830,7 +830,7 @@ package body Editor.Settings is
       while not Ada.Text_IO.End_Of_File (File) loop
          declare
             Raw : constant String := Ada.Text_IO.Get_Line (File);
-            L   : constant String := Trimmed (Raw);
+            L   : constant String := Editor.Text_Helpers.Trim (Raw);
             Eq  : Natural := 0;
          begin
             Line_No := Line_No + 1;
@@ -871,7 +871,10 @@ package body Editor.Settings is
                Set_Defaults (Settings);
                return;
             elsif L (L'First) = '[' and then L (L'Last) = ']' then
-               Section := To_Unbounded_String (Lower (Trimmed (L (L'First + 1 .. L'Last - 1))));
+               Section :=
+                 To_Unbounded_String
+                   (Editor.Text_Helpers.Lower
+                      (Editor.Text_Helpers.Trim (L (L'First + 1 .. L'Last - 1))));
             else
                for I in L'Range loop
                   if L (I) = '=' then
@@ -883,8 +886,11 @@ package body Editor.Settings is
                   Note_Unsupported_Field (Status);
                else
                   declare
-                     Key : constant String := Lower (Trimmed (L (L'First .. Eq - 1)));
-                     Val : constant String := Trimmed (L (Eq + 1 .. L'Last));
+                     Key : constant String :=
+                       Editor.Text_Helpers.Lower
+                         (Editor.Text_Helpers.Trim (L (L'First .. Eq - 1)));
+                     Val : constant String :=
+                       Editor.Text_Helpers.Trim (L (Eq + 1 .. L'Last));
                      Sec : constant String := To_String (Section);
                   begin
                      if Sec = "appearance" and then Key = "theme" then

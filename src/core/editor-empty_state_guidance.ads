@@ -116,9 +116,6 @@ package Editor.Empty_State_Guidance is
      array (Positive range 1 .. Max_Empty_State_Surfaces)
        of Empty_State_Snapshot;
 
-   function Build_All_Empty_State_Snapshots
-     (S : Editor.State.State_Type) return Empty_State_Snapshot_Array;
-
    function Contains_Command_Suggestion
      (Snapshot : Empty_State_Snapshot;
       Command  : Editor.Commands.Command_Id) return Boolean;
@@ -186,34 +183,6 @@ package Editor.Empty_State_Guidance is
 
    function Assert_Guided_Action_Routing_Coherent
      (S : Editor.State.State_Type) return Boolean;
-
-   function Build_Main_Empty_State
-     (S : Editor.State.State_Type) return Empty_State_Snapshot;
-
-   function Build_File_Tree_Empty_State
-     (S : Editor.State.State_Type) return Empty_State_Snapshot;
-
-   function Build_Quick_Open_Empty_State
-     (S : Editor.State.State_Type) return Empty_State_Snapshot;
-
-   function Build_Project_Search_Empty_State
-     (S : Editor.State.State_Type) return Empty_State_Snapshot;
-
-   function Build_Outline_Empty_State
-     (S : Editor.State.State_Type) return Empty_State_Snapshot;
-
-   function Build_Diagnostics_Empty_State
-     (S : Editor.State.State_Type) return Empty_State_Snapshot;
-
-   function Build_Build_UI_Empty_State
-     (S : Editor.State.State_Type) return Empty_State_Snapshot;
-
-   function Build_Recent_Projects_Empty_State
-     (S : Editor.State.State_Type) return Empty_State_Snapshot;
-
-   function Build_Config_Recovery_Empty_State
-     (S : Editor.State.State_Type) return Empty_State_Snapshot;
-
 
    function Empty_State_Surface_Count return Natural;
 

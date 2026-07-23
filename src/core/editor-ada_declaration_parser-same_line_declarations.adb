@@ -1,20 +1,23 @@
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps.Constants;
 with Ada.Strings; use Ada.Strings;
+with Editor.Text_Helpers;
+with Editor.Ada_Declaration_Parser.Same_Line_Segment_Helpers;
 with Editor.Ada_Declaration_Parser.Lexical_Helpers;
 with Editor.Ada_Declaration_Parser.Name_Profile_Helpers;
 with Editor.Ada_Syntax_Core;
 
 package body Editor.Ada_Declaration_Parser.Same_Line_Declarations is
 
-   use Editor.Ada_Declaration_Parser.Lexical_Helpers;
+   use Editor.Text_Helpers;
+   use Editor.Ada_Declaration_Parser.Same_Line_Segment_Helpers;
    use Editor.Ada_Declaration_Parser.Name_Profile_Helpers;
 
-   function Lower (S : String) return String is
-   begin
-      return Ada.Strings.Fixed.Translate
-        (S, Ada.Strings.Maps.Constants.Lower_Case_Map);
-   end Lower;
+   function Has_Token (Line, Token : String) return Boolean
+     renames Editor.Ada_Declaration_Parser.Lexical_Helpers.Has_Token;
+
+   function Starts_With_Subprogram_Keyword (Text : String) return Boolean
+     renames Editor.Ada_Declaration_Parser.Lexical_Helpers.Starts_With_Subprogram_Keyword;
 
    function Has_Same_Line_Subtype_Group
      (Raw_Line   : String;
@@ -70,36 +73,11 @@ package body Editor.Ada_Declaration_Parser.Same_Line_Declarations is
       return False;
    end Has_Same_Line_Type_Group;
 
-   function Strip_Override_Prefix (Segment : String) return String is
-      S : constant String := Trim (Segment);
-      L : constant String := Lower (S);
-   begin
-      if Starts_With (L, "not overriding ") then
-         return Trim (S (S'First + 15 .. S'Last));
-      elsif Starts_With (L, "overriding ") then
-         return Trim (S (S'First + 11 .. S'Last));
-      end if;
-
-      return S;
-   end Strip_Override_Prefix;
-
-   function Strip_Callable_Prefix (Segment : String) return String is
-      S : constant String := Strip_Override_Prefix (Segment);
-      L : constant String := Lower (S);
-   begin
-      if Starts_With_Word (L, "with") then
-         return Trim (S (S'First + 4 .. S'Last));
-      end if;
-
-      return S;
-   end Strip_Callable_Prefix;
-
    function Starts_With_Callable_Segment (Segment : String) return Boolean is
       S : constant String := Strip_Callable_Prefix (Segment);
       L : constant String := Lower (S);
    begin
-      return Starts_With_Word (L, "procedure")
-        or else Starts_With_Word (L, "function");
+      return Starts_With_Subprogram_Keyword (L);
    end Starts_With_Callable_Segment;
 
    function Has_Same_Line_Callable_Group

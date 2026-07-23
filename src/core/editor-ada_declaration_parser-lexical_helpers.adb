@@ -4,27 +4,34 @@ with Ada.Strings.Fixed;
 with Ada.Strings.Maps.Constants;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Ada_Syntax_Core;
+with Editor.Text_Helpers;
 
 package body Editor.Ada_Declaration_Parser.Lexical_Helpers is
 
-   function Lower (S : String) return String is
-   begin
-      return Ada.Strings.Fixed.Translate
-        (S, Ada.Strings.Maps.Constants.Lower_Case_Map);
-   end Lower;
+   function Lower (S : String) return String
+     renames Editor.Text_Helpers.Lower;
 
-   function Trim (S : String) return String is
-   begin
-      return Ada.Strings.Fixed.Trim (S, Ada.Strings.Both);
-   end Trim;
+   function Trim (S : String) return String
+     renames Editor.Text_Helpers.Trim;
 
-   function Is_Word_Char (C : Character) return Boolean is
+   function Is_Word_Char (C : Character) return Boolean
+     renames Editor.Text_Helpers.Is_Word_Char;
+
+   function Normalized_Line (Line : String) return String
+     renames Editor.Text_Helpers.Normalized_Line;
+
+   function Is_Name_Start (C : Character) return Boolean is
    begin
       return (C >= 'A' and then C <= 'Z')
-        or else (C >= 'a' and then C <= 'z')
+        or else (C >= 'a' and then C <= 'z');
+   end Is_Name_Start;
+
+   function Is_Name_Char (C : Character) return Boolean is
+   begin
+      return Is_Name_Start (C)
         or else (C >= '0' and then C <= '9')
         or else C = '_';
-   end Is_Word_Char;
+   end Is_Name_Char;
 
    function Is_Static_Space (C : Character) return Boolean is
    begin
@@ -36,34 +43,12 @@ package body Editor.Ada_Declaration_Parser.Lexical_Helpers is
         or else C = Ada.Characters.Latin_1.LF;
    end Is_Static_Space;
 
-   function Trim_Static_Space (Text : String) return String is
-      First : Natural := Text'First;
-      Last  : Natural := Text'Last;
+   procedure Skip_Blanks (Text : String; Pos : in out Natural) is
    begin
-      if Text'Length = 0 then
-         return "";
-      end if;
-
-      while First <= Text'Last and then Is_Static_Space (Text (First)) loop
-         First := First + 1;
+      while Pos <= Text'Last and then Is_Static_Space (Text (Pos)) loop
+         Pos := Pos + 1;
       end loop;
-
-      while Last >= Text'First and then Is_Static_Space (Text (Last)) loop
-         if Last = Text'First then
-            exit;
-         end if;
-         Last := Last - 1;
-      end loop;
-
-      if First > Last or else Is_Static_Space (Text (Last)) then
-         return "";
-      else
-         return Text (First .. Last);
-      end if;
-   exception
-      when Constraint_Error =>
-         return Trim (Text);
-   end Trim_Static_Space;
+   end Skip_Blanks;
 
    function Normalize_Character_Pos_Static_Operands
      (Text : String) return String is
@@ -176,21 +161,44 @@ package body Editor.Ada_Declaration_Parser.Lexical_Helpers is
       return To_String (Result);
    end Normalize_Static_Attribute_Spacing;
 
-   function Starts_With (Text, Prefix : String) return Boolean is
-   begin
-      return Text'Length >= Prefix'Length
-        and then Text (Text'First .. Text'First + Prefix'Length - 1) = Prefix;
-   end Starts_With;
+   function Starts_With (Text, Prefix : String) return Boolean
+     renames Editor.Text_Helpers.Starts_With;
 
-   function Starts_With_Word (Text, Word : String) return Boolean is
-      After : Natural;
+   function Starts_With_Word (Text, Word : String) return Boolean
+     renames Editor.Text_Helpers.Starts_With_Word;
+
+   function Starts_At_Word
+     (Text  : String;
+      Pos   : Natural;
+      Word  : String) return Boolean
+   is
    begin
-      if not Starts_With (Text, Word) then
-         return False;
-      end if;
-      After := Text'First + Word'Length;
-      return After > Text'Last or else not Is_Word_Char (Text (After));
-   end Starts_With_Word;
+      return Pos >= Text'First
+        and then Pos + Word'Length - 1 <= Text'Last
+        and then Lower (Text (Pos .. Pos + Word'Length - 1)) = Word
+        and then (Pos = Text'First or else not Is_Word_Char (Text (Pos - 1)))
+        and then (Pos + Word'Length > Text'Last
+                  or else not Is_Word_Char (Text (Pos + Word'Length)));
+   end Starts_At_Word;
+
+   function Word_At
+     (Text  : String;
+      Pos   : Natural;
+      Word  : String) return Boolean
+   is
+   begin
+      return Starts_At_Word (Text, Pos, Word);
+   end Word_At;
+
+   function Next_Non_Blank
+     (Text  : String;
+      From  : Natural) return Natural
+   is
+      Pos : Natural := From;
+   begin
+      Skip_Blanks (Text, Pos);
+      return Pos;
+   end Next_Non_Blank;
 
    function Segment_Before (Text, Marker : String) return String is
       Marker_Pos : constant Natural :=
@@ -220,20 +228,111 @@ package body Editor.Ada_Declaration_Parser.Lexical_Helpers is
       return Trim (Text (First .. Text'Last));
    end Segment_After;
 
-   function Contains (Text, Fragment : String) return Boolean is
-   begin
-      return Ada.Strings.Fixed.Index (Text, Fragment) /= 0;
-   end Contains;
+   function Contains (Text, Fragment : String) return Boolean
+     renames Editor.Text_Helpers.Contains;
 
-   function Ends_With (Text, Suffix : String) return Boolean is
+   function Ends_With (Text, Suffix : String) return Boolean
+     renames Editor.Text_Helpers.Ends_With;
+
+   function Is_Declaration_Or_Metadata_Line (Line : String) return Boolean is
    begin
-      return Text'Length >= Suffix'Length
-        and then Text (Text'Last - Suffix'Length + 1 .. Text'Last) = Suffix;
-   end Ends_With;
+      return Starts_With_Word (Line, "package")
+        or else Starts_With_Word (Line, "procedure")
+        or else Starts_With_Word (Line, "function")
+        or else Starts_With_Word (Line, "type")
+        or else Starts_With_Word (Line, "subtype")
+        or else Starts_With_Word (Line, "task")
+        or else Starts_With_Word (Line, "protected")
+        or else Starts_With_Word (Line, "entry")
+        or else Starts_With_Word (Line, "generic")
+        or else Starts_With_Word (Line, "with")
+        or else Starts_With_Word (Line, "use")
+        or else Starts_With_Word (Line, "pragma")
+        or else Starts_With_Word (Line, "private")
+        or else Starts_With_Word (Line, "separate")
+        or else Starts_With_Word (Line, "overriding")
+        or else Starts_With_Word (Line, "not overriding")
+        or else Starts_With_Word (Line, "end")
+        or else (Starts_With_Word (Line, "for")
+                 and then Has_Token (Line, "use"));
+   end Is_Declaration_Or_Metadata_Line;
+
+   function Is_Executable_Scan_Keyword (Name : String) return Boolean is
+      L : constant String := Lower (Name);
+   begin
+      return L = "abort"
+        or else L = "abs"
+        or else L = "accept"
+        or else L = "and"
+        or else L = "begin"
+        or else L = "case"
+        or else L = "declare"
+        or else L = "delay"
+        or else L = "else"
+        or else L = "elsif"
+        or else L = "end"
+        or else L = "entry"
+        or else L = "exception"
+        or else L = "exit"
+        or else L = "for"
+        or else L = "function"
+        or else L = "goto"
+        or else L = "if"
+        or else L = "is"
+        or else L = "loop"
+        or else L = "mod"
+        or else L = "new"
+        or else L = "not"
+        or else L = "null"
+        or else L = "or"
+        or else L = "others"
+        or else L = "package"
+        or else L = "pragma"
+        or else L = "procedure"
+        or else L = "raise"
+        or else L = "record"
+        or else L = "rem"
+        or else L = "renames"
+        or else L = "return"
+        or else L = "select"
+        or else L = "separate"
+        or else L = "subtype"
+        or else L = "task"
+        or else L = "then"
+        or else L = "terminate"
+        or else L = "type"
+        or else L = "until"
+        or else L = "use"
+        or else L = "when"
+        or else L = "while"
+        or else L = "with"
+        or else L = "xor";
+   end Is_Executable_Scan_Keyword;
+
+   function Is_Executable_Declaration_Line (LWork : String) return Boolean is
+   begin
+      return Starts_With_Word (LWork, "procedure")
+        or else Starts_With_Word (LWork, "function")
+        or else Starts_With_Word (LWork, "package")
+        or else Starts_With_Word (LWork, "type")
+        or else Starts_With_Word (LWork, "subtype")
+        or else Starts_With_Word (LWork, "task")
+        or else Starts_With_Word (LWork, "protected")
+        or else Starts_With_Word (LWork, "entry")
+        or else Starts_With_Word (LWork, "generic")
+        or else Starts_With_Word (LWork, "with")
+        or else Starts_With_Word (LWork, "use")
+        or else Starts_With_Word (LWork, "for");
+   end Is_Executable_Declaration_Line;
+
+   function Starts_With_Subprogram_Keyword (Text : String) return Boolean is
+   begin
+      return Starts_With_Word (Text, "procedure")
+        or else Starts_With_Word (Text, "function");
+   end Starts_With_Subprogram_Keyword;
 
    function Has_Null_Exclusion (Line : String) return Boolean is
-      Code : constant String :=
-        Lower (Editor.Ada_Syntax_Core.Sanitize_Line (Line));
+      Code : constant String := Normalized_Line (Line);
       I    : Natural := Code'First;
    begin
       if Code'Length < 8 then
@@ -271,6 +370,47 @@ package body Editor.Ada_Declaration_Parser.Lexical_Helpers is
       return False;
    end Has_Null_Exclusion;
 
+   function Has_Code_Char (Line : String; C : Character) return Boolean is
+      Code : constant String := Editor.Ada_Syntax_Core.Sanitize_Line (Line);
+   begin
+      for X of Code loop
+         if X = C then
+            return True;
+         end if;
+      end loop;
+      return False;
+   end Has_Code_Char;
+
+   function Declaration_Colon_Position (Line : String) return Natural is
+      Code    : constant String := Editor.Ada_Syntax_Core.Sanitize_Line (Line);
+      Nesting : Natural := 0;
+   begin
+      for I in Code'Range loop
+         if Code (I) = '(' then
+            Nesting := Nesting + 1;
+         elsif Code (I) = ')' then
+            if Nesting > 0 then
+               Nesting := Nesting - 1;
+            end if;
+         elsif Code (I) = ';' and then Nesting = 0 then
+            return 0;
+         elsif Code (I) = ':' and then Nesting = 0 then
+            if I < Code'Last and then Code (I + 1) = '=' then
+               null;
+            else
+               return I;
+            end if;
+         end if;
+      end loop;
+
+      return 0;
+   end Declaration_Colon_Position;
+
+   function Has_Declaration_Colon (Line : String) return Boolean is
+   begin
+      return Declaration_Colon_Position (Line) /= 0;
+   end Has_Declaration_Colon;
+
    function Has_Token (Line, Token : String) return Boolean is
       Code : constant String := Editor.Ada_Syntax_Core.Sanitize_Line (Line);
       I    : Natural := Code'First;
@@ -294,8 +434,7 @@ package body Editor.Ada_Declaration_Parser.Lexical_Helpers is
    end Has_Token;
 
    function Token_Source_Position (Line, Token : String) return Natural is
-      Code : constant String :=
-        Lower (Editor.Ada_Syntax_Core.Sanitize_Line (Line));
+      Code : constant String := Normalized_Line (Line);
       I    : Natural := Code'First;
    begin
       if Token'Length = 0 then
@@ -363,5 +502,42 @@ package body Editor.Ada_Declaration_Parser.Lexical_Helpers is
       end loop;
       return False;
    end Has_Token_Pair;
+
+   function Has_Object_Constant_Qualifier (Line : String) return Boolean is
+      Code  : constant String := Normalized_Line (Line);
+      Colon : constant Natural := Ada.Strings.Fixed.Index (Code, ":");
+      I     : Natural;
+
+      procedure Skip_Blanks is
+      begin
+         while I <= Code'Last
+           and then (Code (I) = ' ' or else Code (I) = Ada.Characters.Latin_1.HT)
+         loop
+            I := I + 1;
+         end loop;
+      end Skip_Blanks;
+
+      function Token_At (Token : String) return Boolean is
+      begin
+         return I + Token'Length - 1 <= Code'Last
+           and then Code (I .. I + Token'Length - 1) = Token
+           and then (I = Code'First or else not Is_Word_Char (Code (I - 1)))
+           and then (I + Token'Length > Code'Last
+                     or else not Is_Word_Char (Code (I + Token'Length)));
+      end Token_At;
+   begin
+      if Colon = 0 or else Colon >= Code'Last then
+         return False;
+      end if;
+
+      I := Colon + 1;
+      Skip_Blanks;
+      if I <= Code'Last and then Token_At ("aliased") then
+         I := I + 7;
+         Skip_Blanks;
+      end if;
+
+      return I <= Code'Last and then Token_At ("constant");
+   end Has_Object_Constant_Qualifier;
 
 end Editor.Ada_Declaration_Parser.Lexical_Helpers;

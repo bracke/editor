@@ -1,6 +1,7 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with Editor.Bookmarks;
+with Editor.Image_Helpers;
 with Editor.Layout;
 with Editor.Render_Layers;
 with Editor.Render_Packet.Guikit_Adapters;
@@ -12,20 +13,12 @@ package body Editor.Bookmarks.Surface_Rendering is
 
    use Editor.Render_Packet.Guikit_Adapters;
 
-   function Line_Image (Value : Natural) return String is
-      Raw : constant String := Natural'Image (Value);
-   begin
-      if Raw'Length > 0 and then Raw (Raw'First) = ' ' then
-         return Raw (Raw'First + 1 .. Raw'Last);
-      else
-         return Raw;
-      end if;
-   end Line_Image;
-
    function Row_Text (Row : Editor.Bookmarks.Bookmark_Row) return String is
       Location : constant String :=
-        To_String (Row.File_Display_Path) & ":" & Line_Image (Row.Line_Number) &
-        (if Row.Has_Column then ":" & Line_Image (Row.Column) else "");
+        To_String (Row.File_Display_Path) & ":"
+        & Editor.Image_Helpers.Trim_Image (Row.Line_Number)
+        & (if Row.Has_Column then ":"
+           & Editor.Image_Helpers.Trim_Image (Row.Column) else "");
       Markers : constant String :=
         (if Row.Is_Open then " [open]" else "") &
         (if Row.Is_Active then " [active]" else "") &

@@ -1,6 +1,7 @@
 with Ada.Characters.Latin_1;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.Text_Helpers;
 with Editor.Ada_Declaration_Parser.Declaration_Collectors;
 with Editor.Ada_Declaration_Parser.Lexical_Helpers;
 with Editor.Ada_Declaration_Parser.Name_Profile_Helpers;
@@ -10,21 +11,23 @@ with Editor.Ada_Syntax_Core;
 package body Editor.Ada_Declaration_Parser.Profile_Parameter_Collectors is
 
    use Editor.Ada_Language_Model;
+   use Editor.Text_Helpers;
    use Editor.Ada_Declaration_Parser.Declaration_Collectors;
    use Editor.Ada_Declaration_Parser.Lexical_Helpers;
    use Editor.Ada_Declaration_Parser.Name_Profile_Helpers;
    use Editor.Ada_Declaration_Parser.Target_Helpers;
 
-   function Has_Code_Char (Line : String; C : Character) return Boolean is
-      Code : constant String := Editor.Ada_Syntax_Core.Sanitize_Line (Line);
+   function Default_Text_After
+     (Segment     : String;
+      Default_Pos : Natural) return String
+   is
    begin
-      for X of Code loop
-         if X = C then
-            return True;
-         end if;
-      end loop;
-      return False;
-   end Has_Code_Char;
+      if Default_Pos = 0 or else Default_Pos + 2 > Segment'Last then
+         return "";
+      end if;
+
+      return Trim (Segment (Default_Pos + 2 .. Segment'Last));
+   end Default_Text_After;
 
    procedure Add_Profile_Parameter_Names
      (Analysis      : in out Analysis_Result;
@@ -40,16 +43,6 @@ package body Editor.Ada_Declaration_Parser.Profile_Parameter_Collectors is
       Name_Pos     : constant Natural := Declaration_Name_Position (Raw_Line, Declared_Name);
       Search_Start : Natural := 0;
       Group_Index  : Natural := 0;
-
-      function Word_At (Pos : Natural; Word : String) return Boolean is
-      begin
-         return Pos >= Code'First
-           and then Pos + Word'Length - 1 <= Code'Last
-           and then Lower (Code (Pos .. Pos + Word'Length - 1)) = Word
-           and then (Pos = Code'First or else not Is_Word_Char (Code (Pos - 1)))
-           and then (Pos + Word'Length > Code'Last
-                     or else not Is_Word_Char (Code (Pos + Word'Length)));
-      end Word_At;
 
       procedure Add_Group (Open : Natural; Close : Natural) is
          Nesting       : Natural := 0;
@@ -96,37 +89,14 @@ package body Editor.Ada_Declaration_Parser.Profile_Parameter_Collectors is
             return 0;
          end Top_Level_Default;
 
-         function Starts_With_Word
-           (Text  : String;
-            Start : Natural;
-            Word  : String) return Boolean
-         is
-         begin
-            return Start >= Text'First
-              and then Start + Word'Length - 1 <= Text'Last
-              and then Lower (Text (Start .. Start + Word'Length - 1)) = Word
-              and then (Start = Text'First or else not Is_Word_Char (Text (Start - 1)))
-              and then (Start + Word'Length > Text'Last
-                        or else not Is_Word_Char (Text (Start + Word'Length)));
-         end Starts_With_Word;
-
-         procedure Skip_Blanks (Text : String; Pos : in out Natural) is
-         begin
-            while Pos <= Text'Last
-              and then (Text (Pos) = ' ' or else Text (Pos) = Ada.Characters.Latin_1.HT)
-            loop
-               Pos := Pos + 1;
-            end loop;
-         end Skip_Blanks;
-
          procedure Skip_Word
            (Text : String;
             Pos  : in out Natural;
             Word : String)
          is
          begin
-            Skip_Blanks (Text, Pos);
-            if Starts_With_Word (Text, Pos, Word) then
+            Lexical_Helpers.Skip_Blanks (Text, Pos);
+            if Lexical_Helpers.Starts_At_Word (Text, Pos, Word) then
                Pos := Pos + Word'Length;
             end if;
          end Skip_Word;
@@ -140,29 +110,20 @@ package body Editor.Ada_Declaration_Parser.Profile_Parameter_Collectors is
             end if;
 
             Skip_Word (Segment, Pos, "aliased");
-            Skip_Blanks (Segment, Pos);
-            if Starts_With_Word (Segment, Pos, "in") then
+            Lexical_Helpers.Skip_Blanks (Segment, Pos);
+            if Lexical_Helpers.Starts_At_Word (Segment, Pos, "in") then
                Pos := Pos + 2;
-               Skip_Blanks (Segment, Pos);
-               if Starts_With_Word (Segment, Pos, "out") then
+               Lexical_Helpers.Skip_Blanks (Segment, Pos);
+               if Lexical_Helpers.Starts_At_Word (Segment, Pos, "out") then
                   return Profile_Parameter_In_Out;
                end if;
                return Profile_Parameter_In;
-            elsif Starts_With_Word (Segment, Pos, "out") then
+            elsif Lexical_Helpers.Starts_At_Word (Segment, Pos, "out") then
                return Profile_Parameter_Out;
             end if;
 
             return Profile_Parameter_Default_In;
          end Parameter_Mode_For;
-
-         function Default_Text_For (Segment : String) return String is
-            Default_Pos : constant Natural := Top_Level_Default (Segment'First, Segment'Last);
-         begin
-            if Default_Pos = 0 or else Default_Pos + 2 > Segment'Last then
-               return "";
-            end if;
-            return Trim (Segment (Default_Pos + 2 .. Segment'Last));
-         end Default_Text_For;
 
          procedure Add_Segment (First, Last : Natural) is
          begin
@@ -177,7 +138,9 @@ package body Editor.Ada_Declaration_Parser.Profile_Parameter_Collectors is
                   Mode : constant Profile_Parameter_Mode :=
                     Parameter_Mode_For (Segment);
                   Type_Target : constant String := Object_Target_After_Colon (Segment);
-                  Default_Text : constant String := Default_Text_For (Segment);
+                  Default_Text : constant String :=
+                    Default_Text_After
+                      (Segment, Top_Level_Default (Segment'First, Segment'Last));
                   Has_Access : constant Boolean := Has_Token (Segment_Lower, "access");
                   Has_Aliased : constant Boolean := Has_Token (Segment_Lower, "aliased");
                   Has_Default : constant Boolean := Default_Text'Length /= 0;
@@ -316,11 +279,11 @@ package body Editor.Ada_Declaration_Parser.Profile_Parameter_Collectors is
             for I in Search_Start .. Code'Last loop
                if Code (I) = ';' then
                   return;
-               elsif Word_At (I, "is")
-                 or else Word_At (I, "return")
-                 or else Word_At (I, "renames")
-                 or else Word_At (I, "with")
-                 or else Word_At (I, "when")
+               elsif Lexical_Helpers.Starts_At_Word (Code, I, "is")
+                 or else Lexical_Helpers.Starts_At_Word (Code, I, "return")
+                 or else Lexical_Helpers.Starts_At_Word (Code, I, "renames")
+                 or else Lexical_Helpers.Starts_At_Word (Code, I, "with")
+                 or else Lexical_Helpers.Starts_At_Word (Code, I, "when")
                then
                   --  Do not treat expression-function/body-expression
                   --  parentheses or anonymous access-to-subprogram result
@@ -502,21 +465,12 @@ package body Editor.Ada_Declaration_Parser.Profile_Parameter_Collectors is
             Word  : String) return Boolean
          is
          begin
-            return Start >= Text'First
-              and then Start + Word'Length - 1 <= Text'Last
-              and then Lower (Text (Start .. Start + Word'Length - 1)) = Word
-              and then (Start = Text'First or else not Is_Word_Char (Text (Start - 1)))
-              and then (Start + Word'Length > Text'Last
-                        or else not Is_Word_Char (Text (Start + Word'Length)));
+            return Lexical_Helpers.Starts_At_Word (Text, Start, Word);
          end Starts_With_Local_Word;
 
          procedure Skip_Blanks (Text : String; Pos : in out Natural) is
          begin
-            while Pos <= Text'Last
-              and then (Text (Pos) = ' ' or else Text (Pos) = Ada.Characters.Latin_1.HT)
-            loop
-               Pos := Pos + 1;
-            end loop;
+            Lexical_Helpers.Skip_Blanks (Text, Pos);
          end Skip_Blanks;
 
          procedure Skip_Word
@@ -555,14 +509,6 @@ package body Editor.Ada_Declaration_Parser.Profile_Parameter_Collectors is
             return Profile_Parameter_Default_In;
          end Parameter_Mode_For;
 
-         function Default_Text_For (Segment : String) return String is
-            Default_Pos : constant Natural := Top_Level_Default (Segment);
-         begin
-            if Default_Pos = 0 or else Default_Pos + 2 > Segment'Last then
-               return "";
-            end if;
-            return Trim (Segment (Default_Pos + 2 .. Segment'Last));
-         end Default_Text_For;
       begin
          if Last >= First then
             declare
@@ -574,7 +520,8 @@ package body Editor.Ada_Declaration_Parser.Profile_Parameter_Collectors is
                Mode : constant Profile_Parameter_Mode :=
                  Parameter_Mode_For (Segment);
                Type_Target : constant String := Object_Target_After_Colon (Segment);
-               Default_Text : constant String := Default_Text_For (Segment);
+               Default_Text : constant String :=
+                 Default_Text_After (Segment, Top_Level_Default (Segment));
                Has_Access : constant Boolean := Has_Token (Segment_Lower, "access");
                Has_Aliased : constant Boolean := Has_Token (Segment_Lower, "aliased");
                Has_Default : constant Boolean := Default_Text'Length /= 0;
@@ -683,6 +630,97 @@ package body Editor.Ada_Declaration_Parser.Profile_Parameter_Collectors is
          Add_Segment (Segment_Start, Raw_Line'Last);
       end if;
    end Add_Profile_Parameter_Names_Continuation;
+
+   function Profile_Parameter_Duplicate (Profile : String) return String is
+      subtype Name_Index is Positive range 1 .. 64;
+      Names : array (Name_Index) of Unbounded_String;
+      Count : Natural := 0;
+      Duplicate : Unbounded_String;
+
+      procedure Add_Name (Raw : String) is
+         N : constant String := Editor.Text_Helpers.Clean_Name (Raw);
+      begin
+         if N = "" or else To_String (Duplicate) /= "" then
+            return;
+         end if;
+
+         for I in 1 .. Count loop
+            if To_String (Names (I)) = N then
+               Duplicate := To_Unbounded_String (N);
+               return;
+            end if;
+         end loop;
+
+         if Count < Names'Last then
+            Count := Count + 1;
+            Names (Count) := To_Unbounded_String (N);
+         end if;
+      end Add_Name;
+
+      procedure Parse_Group (Group_Text : String) is
+         Colon : constant Natural := Ada.Strings.Fixed.Index (Group_Text, ":");
+         Start : Natural := Group_Text'First;
+      begin
+         if Colon = 0 then
+            return;
+         end if;
+
+         for I in Group_Text'First .. Colon - 1 loop
+            if Group_Text (I) = ',' then
+               if I > Start then
+                  Add_Name (Group_Text (Start .. I - 1));
+               end if;
+               Start := I + 1;
+            end if;
+         end loop;
+
+         if Colon > Start then
+            Add_Name (Group_Text (Start .. Colon - 1));
+         end if;
+      end Parse_Group;
+
+      First : Natural := 0;
+      Last  : Natural := 0;
+      Depth : Natural := 0;
+      Start : Natural := Profile'First;
+   begin
+      if Profile = "" then
+         return "";
+      end if;
+
+      for I in Profile'Range loop
+         if Profile (I) = '(' then
+            if Depth = 0 and then First = 0 then
+               First := I + 1;
+               Start := I + 1;
+            end if;
+            Depth := Depth + 1;
+         elsif Profile (I) = ')' then
+            if Depth > 0 then
+               Depth := Depth - 1;
+               if Depth = 0 then
+                  Last := I - 1;
+                  exit;
+               end if;
+            end if;
+         elsif Depth = 1 and then Profile (I) = ';' then
+            if I > Start then
+               Parse_Group (Profile (Start .. I - 1));
+            end if;
+            Start := I + 1;
+         end if;
+      end loop;
+
+      if First = 0 or else Last < First then
+         return "";
+      end if;
+
+      if Last >= Start then
+         Parse_Group (Profile (Start .. Last));
+      end if;
+
+      return To_String (Duplicate);
+   end Profile_Parameter_Duplicate;
 
 
 end Editor.Ada_Declaration_Parser.Profile_Parameter_Collectors;

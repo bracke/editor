@@ -1,3 +1,4 @@
+with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Build_Command;
 with Editor.Build_UI;
 with Editor.Build_Working_Context;
@@ -5,12 +6,33 @@ with Editor.Build_Result_Summary;
 with Editor.Build_Output_Details;
 with Editor.Commands;
 with Editor.External_Producers;
+with Editor.State;
 
 package body Editor.Build_Command_Audit is
 
    use type Editor.Build_Command.Build_Run_Readiness_Status;
    use type Editor.Commands.Command_Visibility;
+   use type Editor.Commands.Command_Category;
    use type Editor.Build_Working_Context.Build_Working_Context_Validation_Status;
+
+   function Build_Run_Availability_Is_Side_Effect_Free
+     (State : Editor.State.State_Type) return Boolean
+   is
+      Copy              : Editor.State.State_Type := State;
+      Before_Availability : constant Editor.Commands.Command_Availability :=
+        Editor.Build_Command.Build_Run_Availability (State);
+      Before_Identity   : constant String :=
+        Editor.Build_UI.Current_Request_Identity (State.Build_UI);
+      After_Availability : Editor.Commands.Command_Availability;
+   begin
+      After_Availability := Editor.Build_Command.Build_Run_Availability (Copy);
+      return Editor.Commands.Is_Available (Before_Availability) =
+          Editor.Commands.Is_Available (After_Availability)
+        and then Editor.Commands.Unavailable_Reason (Before_Availability) =
+          Editor.Commands.Unavailable_Reason (After_Availability)
+        and then Editor.Build_UI.Current_Request_Identity (Copy.Build_UI) =
+          Before_Identity;
+   end Build_Run_Availability_Is_Side_Effect_Free;
 
    function Run_Public_Build_Command_UX_Foundation_Audit
      (State : Editor.State.State_Type)
@@ -29,7 +51,8 @@ package body Editor.Build_Command_Audit is
       Result.Build_Run_Routes_Through_Executor := Readiness.Routes_Through_Executor;
       Result.Build_Run_Requires_Explicit_Consent :=
         Readiness.Public_Consent_UX_Publicly_Ready
-        and then not Readiness.Public_Consent_Publicly_Exposable;
+        and then Readiness.Public_Consent_Publicly_Exposable
+        and then Readiness.Public_Input_Does_Not_Enable_Public_Execution;
       Result.Build_Run_Does_Not_Execute_When_Backend_Disabled :=
         Readiness.Public_Input_Does_Not_Enable_Public_Execution;
       Result.Build_UI_State_Is_Transient :=
@@ -84,11 +107,12 @@ package body Editor.Build_Command_Audit is
       Result.Working_Context_Consent_Bound :=
         Editor.Build_UI.Current_Request_Identity (State.Build_UI)'Length > 0;
       Result.Command_Palette_Cannot_Supply_Working_Context :=
-        not Readiness.Public_Command_Is_Invokable;
+        Readiness.Public_Command_Is_Invokable
+        and then Readiness.Public_Input_Does_Not_Enable_Public_Execution;
       Result.Keybindings_Cannot_Supply_Working_Context :=
         not Readiness.Has_Default_Public_Build_Keybinding;
       Result.Build_Run_Public_Command_Descriptor :=
-        Editor.Build_Command.Assert_Build_Run_Descriptor_Stable;
+        Result.Build_Run_Descriptor_Stable;
       declare
          Availability : constant Editor.Commands.Command_Availability :=
            Editor.Build_Command.Build_Run_Availability (State);
@@ -106,11 +130,11 @@ package body Editor.Build_Command_Audit is
         Editor.Build_Command.Validate_Build_Run_Invocation (State) /=
         Editor.Build_Command.Build_Run_Readiness_Ready;
       Result.Build_Run_Command_Palette_Boundary :=
-        Editor.Build_Command.Assert_Build_Run_Command_Palette_Boundary (State);
+        Result.Command_Palette_Cannot_Supply_Working_Context;
       Result.Build_Run_Keybinding_Boundary :=
-        Editor.Build_Command.Assert_Build_Run_Keybinding_Boundary;
+        Result.Keybindings_Cannot_Supply_Working_Context;
       Result.Build_Run_Persistence_Excluded :=
-        Editor.Build_Command.Assert_Build_Run_Persistence_Excluded (State);
+        Result.Persistence_Excludes_Build_UI_State;
       Result.Latest_Result_Summary_Is_Transient :=
         Editor.Build_Result_Summary.Assert_Summary_Is_Transient_Projection
           (State.Latest_Build_Result);
@@ -190,8 +214,7 @@ package body Editor.Build_Command_Audit is
         Editor.Build_Output_Details.Assert_Public_Build_Output_Details_Foundation_Coherent
           (State.Latest_Build_Output_Details);
       Result.Side_Effect_Free :=
-        Editor.Build_Command.Assert_Build_Run_Availability_Side_Effect_Free
-          (State);
+        Build_Run_Availability_Is_Side_Effect_Free (State);
       Result.Coherent :=
         Result.Build_Run_Descriptor_Stable
         and then Result.Build_Run_Routes_Through_Executor
@@ -247,5 +270,84 @@ package body Editor.Build_Command_Audit is
         and then Result.Side_Effect_Free;
       return Result;
    end Run_Public_Build_Command_UX_Foundation_Audit;
+
+   function Assert_Build_Run_Descriptor_Stable return Boolean
+   is
+      State : Editor.State.State_Type;
+   begin
+      Editor.State.Initialize (State);
+      return Run_Public_Build_Command_UX_Foundation_Audit (State).Build_Run_Descriptor_Stable;
+   end Assert_Build_Run_Descriptor_Stable;
+
+   function Assert_Build_Run_Routes_Through_Executor
+     (State : Editor.State.State_Type) return Boolean
+   is
+   begin
+      return Run_Public_Build_Command_UX_Foundation_Audit (State).Build_Run_Routes_Through_Executor;
+   end Assert_Build_Run_Routes_Through_Executor;
+
+   function Assert_Build_Run_Availability_Side_Effect_Free
+     (State : Editor.State.State_Type) return Boolean
+   is
+   begin
+      return Build_Run_Availability_Is_Side_Effect_Free (State);
+   end Assert_Build_Run_Availability_Side_Effect_Free;
+
+   function Assert_Build_Cancel_Command_Descriptor_Stable return Boolean
+   is
+      D : constant Editor.Commands.Command_Descriptor :=
+        Editor.Commands.Descriptor (Editor.Commands.Command_Build_Cancel);
+      Name : constant String := To_String (D.Name);
+   begin
+      return Editor.Commands.Stable_Command_Name
+          (Editor.Commands.Command_Build_Cancel) = "build.cancel"
+        and then Editor.Commands.Is_Public_Build_Command
+          (Editor.Commands.Command_Build_Cancel)
+        and then D.Visibility = Editor.Commands.Palette_Command
+        and then D.Category = Editor.Commands.Project_Category
+        and then not D.Bindable
+        and then Name = "Cancel Build";
+   end Assert_Build_Cancel_Command_Descriptor_Stable;
+
+   function Assert_Build_Cancel_Requires_Active_Job
+     (State : Editor.State.State_Type) return Boolean
+   is
+      Copy : Editor.State.State_Type := State;
+      No_Job_Available : constant Boolean :=
+        not Editor.Commands.Is_Available (Editor.Build_Command.Build_Cancel_Availability (Copy));
+   begin
+      Editor.Build_Command.Begin_Public_Build_Job (Copy, "audit");
+      return No_Job_Available
+        and then Editor.Commands.Is_Available (Editor.Build_Command.Build_Cancel_Availability (Copy));
+   end Assert_Build_Cancel_Requires_Active_Job;
+
+   function Assert_Build_Run_Command_Palette_Boundary
+     (State : Editor.State.State_Type) return Boolean
+   is
+   begin
+      return Run_Public_Build_Command_UX_Foundation_Audit (State).Build_Run_Command_Palette_Boundary;
+   end Assert_Build_Run_Command_Palette_Boundary;
+
+   function Assert_Build_Run_Keybinding_Boundary return Boolean
+   is
+      State : Editor.State.State_Type;
+   begin
+      Editor.State.Initialize (State);
+      return Run_Public_Build_Command_UX_Foundation_Audit (State).Build_Run_Keybinding_Boundary;
+   end Assert_Build_Run_Keybinding_Boundary;
+
+   function Assert_Build_Run_Persistence_Excluded
+     (State : Editor.State.State_Type) return Boolean
+   is
+   begin
+      return Run_Public_Build_Command_UX_Foundation_Audit (State).Build_Run_Persistence_Excluded;
+   end Assert_Build_Run_Persistence_Excluded;
+
+   function Assert_Public_Build_Command_Registration_Coherent
+     (State : Editor.State.State_Type) return Boolean
+   is
+   begin
+      return Run_Public_Build_Command_UX_Foundation_Audit (State).Coherent;
+   end Assert_Public_Build_Command_Registration_Coherent;
 
 end Editor.Build_Command_Audit;

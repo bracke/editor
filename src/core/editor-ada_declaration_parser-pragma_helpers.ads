@@ -15,6 +15,8 @@ package Editor.Ada_Declaration_Parser.Pragma_Helpers is
    function Pragma_Argument_Name (Arg : String) return String;
    function Pragma_Argument_Value (Arg : String) return String;
    function Named_Pragma_Argument (Line, Name : String) return String;
+   function Pragma_Metadata_Name (Text : String) return String;
+   function Display_Pragma_Property_Name (Name : String) return String;
 
    function Interfacing_Pragma_Value
      (Line                : String;

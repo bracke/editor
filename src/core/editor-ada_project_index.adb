@@ -2,6 +2,7 @@ with Ada.Strings; use Ada.Strings;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Ada_Language_Model;
+with Editor.Image_Helpers;
 use type Editor.Ada_Language_Model.Symbol_Kind;
 
 package body Editor.Ada_Project_Index is
@@ -45,11 +46,6 @@ package body Editor.Ada_Project_Index is
       return H;
    end Hash_String;
 
-
-   function Trim_Image (Value : Natural) return String is
-   begin
-      return Ada.Strings.Fixed.Trim (Natural'Image (Value), Both);
-   end Trim_Image;
 
    function Symbol_Kind_Label
      (Kind : Editor.Ada_Language_Model.Symbol_Kind) return String
@@ -918,8 +914,8 @@ package body Editor.Ada_Project_Index is
       Name     : constant String := To_String (Candidate.Symbol.Name);
       Profile  : constant String := To_String (Candidate.Symbol.Profile_Summary);
       Position : constant String :=
-        Trim_Image (Candidate.Symbol.Source_Span.Start_Line) & ":" &
-        Trim_Image (Candidate.Symbol.Source_Span.Start_Column);
+        Editor.Image_Helpers.Trim_Image (Candidate.Symbol.Source_Span.Start_Line) & ":" &
+        Editor.Image_Helpers.Trim_Image (Candidate.Symbol.Source_Span.Start_Column);
       Prefix   : constant String :=
         (if Path'Length = 0 then Position else Path & ":" & Position);
    begin

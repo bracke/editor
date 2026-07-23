@@ -22,6 +22,7 @@ with Editor.Recent_Buffers;
 with Editor.Render_Cache;
 with Editor.State;
 with Editor.UTF8;
+with Editor.Executor.Project_Search_Replace_Preview_Commands;
 
 package body Editor.Executor.Project_Search_Replace_Commands is
 
@@ -49,31 +50,12 @@ package body Editor.Executor.Project_Search_Replace_Commands is
       return Ada.Strings.Fixed.Trim (Natural'Image (Value), Ada.Strings.Both);
    end Image_Of;
 
-   procedure Show_Search_Results_Panel
-     (S : in out Editor.State.State_Type)
+   function Project_Search_Replace_Pending_Blocked
+     (S : Editor.State.State_Type) return Boolean
    is
    begin
-      Editor.Panels.Set_Bottom_Content
-        (S.Panels, Editor.Panels.Search_Results_Content);
-      Editor.Panels.Set_Visible (S.Panels, Editor.Panels.Bottom_Panel, True);
-      if Editor.Panel_Focus.Bottom_Panel_Has_Focus (S.Panel_Focus) then
-         Editor.Focus_Management.Set_Focus_Owner
-           (S, Editor.Focus_Management.Focus_Project_Search_Results);
-      end if;
-      Editor.Panels.Set_Current (S.Panels);
-      Editor.Render_Cache.Invalidate_All;
-   end Show_Search_Results_Panel;
-
-   procedure Append_Replace_Op
-     (Cmd          : in out Editor.Commands.Command;
-      Pos          : Cursor_Index;
-      Delete_Count : Natural;
-      Insert_Text  : Unbounded_String) is
-   begin
-      Cmd.Positions.Append (Pos);
-      Cmd.Delete_Counts.Append (Delete_Count);
-      Cmd.Insert_Texts.Append (Insert_Text);
-   end Append_Replace_Op;
+      return Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions);
+   end Project_Search_Replace_Pending_Blocked;
 
    function Mark_Dirty_Open_Project_Replace_Targets_Stale
      (S : in out Editor.State.State_Type) return Natural
@@ -97,13 +79,6 @@ package body Editor.Executor.Project_Search_Replace_Commands is
       return Count;
    end Mark_Dirty_Open_Project_Replace_Targets_Stale;
 
-   function Project_Search_Replace_Pending_Blocked
-     (S : Editor.State.State_Type) return Boolean
-   is
-   begin
-      return Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions);
-   end Project_Search_Replace_Pending_Blocked;
-
    procedure Report_Project_Search_Replace_Pending_Blocked
      (S : in out Editor.State.State_Type)
    is
@@ -115,290 +90,57 @@ package body Editor.Executor.Project_Search_Replace_Commands is
    procedure Execute_Project_Search_Replace_Preview
      (S : in out Editor.State.State_Type)
    is
-      Status : Editor.Project_Search.Project_Replace_Preview_Status;
    begin
-      if not Editor.Project.Has_Project (S.Project) then
-         Report_Warning (S, "No project open");
-         Editor.Render_Cache.Invalidate_All;
-         return;
-      elsif Project_Search_Replace_Pending_Blocked (S) then
-         Report_Project_Search_Replace_Pending_Blocked (S);
-         return;
-      end if;
-
-      Editor.Project_Search.Generate_Replace_Preview (S.Project_Search, Status);
-      if Status = Editor.Project_Search.Project_Replace_Preview_Ok
-        and then Mark_Dirty_Open_Project_Replace_Targets_Stale (S) > 0
-      then
-         --  Project Search currently scans file text from the project file
-         --  system.  If a target file is already open and dirty, replacement
-         --  preview rows for that file are not based on the current buffer
-         --  text and must fail before inclusion/apply can treat them as a
-         --  valid edit script.
-         Status := Editor.Project_Search.Project_Replace_Search_Stale;
-      end if;
-      Show_Search_Results_Panel (S);
-      case Status is
-         when Editor.Project_Search.Project_Replace_Preview_Ok =>
-            Report_Info
-              (S, "Preview: "
-               & Natural'Image (Editor.Project_Search.Included_Replacement_Count (S.Project_Search))
-               & " replacements in"
-               & Natural'Image (Editor.Project_Search.Included_Replacement_File_Count (S.Project_Search))
-               & " files.");
-         when Editor.Project_Search.Project_Replace_No_Search_Results =>
-            Report_Info (S, "No search results to replace.");
-         when Editor.Project_Search.Project_Replace_Search_Stale =>
-            Report_Warning (S, "Search results are stale; rerun search.");
-         when Editor.Project_Search.Project_Replace_Overlapping_Matches =>
-            Report_Warning (S, "Replacement preview has overlapping matches; refine search.");
-         when Editor.Project_Search.Project_Replace_Invalid_Replacement_Text =>
-            Report_Warning (S, "Replacement text must be single-line.");
-         when Editor.Project_Search.Project_Replace_Invalid_Target =>
-            Report_Warning (S, "Replacement preview contains invalid target ranges; rerun search.");
-         when others =>
-            Report_Warning (S, "Replacement preview unavailable.");
-      end case;
-      Editor.Render_Cache.Invalidate_All;
+      Editor.Executor.Project_Search_Replace_Preview_Commands.Execute_Project_Search_Replace_Preview (S);
    end Execute_Project_Search_Replace_Preview;
 
    procedure Execute_Project_Search_Replace_Toggle_Selected
      (S : in out Editor.State.State_Type)
    is
    begin
-      if not Editor.Project.Has_Project (S.Project) then
-         Report_Warning (S, "No project open");
-      elsif Project_Search_Replace_Pending_Blocked (S) then
-         Report_Warning (S, "Command unavailable while confirmation is pending");
-      elsif Editor.Project_Search.Replace_Preview_Count (S.Project_Search) = 0 then
-         Report_Warning (S, "No replacement preview");
-      elsif Editor.Project_Search.Replace_Preview_Is_Stale (S.Project_Search) then
-         Report_Warning (S, "Replacement preview is stale; rerun search.");
-      elsif not Editor.Project_Search.Replace_Text_Is_Valid (S.Project_Search) then
-         Report_Warning (S, "Replacement text must be single-line.");
-      elsif Editor.Project_Search.Selected_Replace_Preview_Index (S.Project_Search) = 0 then
-         Report_Warning (S, "No replacement selected");
-      else
-         declare
-            Row : constant Editor.Project_Search.Project_Replace_Preview_Row :=
-              Editor.Project_Search.Replace_Preview_Row_At
-                (S.Project_Search,
-                 Editor.Project_Search.Selected_Replace_Preview_Index
-                   (S.Project_Search));
-         begin
-            if Row.Search_Result_Id = Editor.Project_Search.No_Project_Search_Result then
-               Report_Warning (S, "No replacement selected");
-            elsif Row.Stale then
-               Report_Warning (S, "Selected replacement is stale");
-            elsif Row.Invalid then
-               Report_Warning (S, "Selected replacement is invalid");
-            else
-               Editor.Project_Search.Toggle_Selected_Replacement (S.Project_Search);
-               Report_Info (S, "Replacement selection toggled");
-            end if;
-         end;
-      end if;
-      Editor.Render_Cache.Invalidate_All;
+      Editor.Executor.Project_Search_Replace_Preview_Commands.Execute_Project_Search_Replace_Toggle_Selected (S);
    end Execute_Project_Search_Replace_Toggle_Selected;
 
    procedure Execute_Project_Search_Replace_Include_Selected
      (S : in out Editor.State.State_Type)
    is
    begin
-      if not Editor.Project.Has_Project (S.Project) then
-         Report_Warning (S, "No project open");
-      elsif Project_Search_Replace_Pending_Blocked (S) then
-         Report_Warning (S, "Command unavailable while confirmation is pending");
-      elsif Editor.Project_Search.Replace_Preview_Count (S.Project_Search) = 0 then
-         Report_Warning (S, "No replacement preview");
-      elsif Editor.Project_Search.Replace_Preview_Is_Stale (S.Project_Search) then
-         Report_Warning (S, "Replacement preview is stale; rerun search.");
-      elsif not Editor.Project_Search.Replace_Text_Is_Valid (S.Project_Search) then
-         Report_Warning (S, "Replacement text must be single-line.");
-      elsif Editor.Project_Search.Selected_Replace_Preview_Index (S.Project_Search) = 0 then
-         Report_Warning (S, "No replacement selected");
-      else
-         declare
-            Row : constant Editor.Project_Search.Project_Replace_Preview_Row :=
-              Editor.Project_Search.Replace_Preview_Row_At
-                (S.Project_Search,
-                 Editor.Project_Search.Selected_Replace_Preview_Index
-                   (S.Project_Search));
-         begin
-            if Row.Search_Result_Id = Editor.Project_Search.No_Project_Search_Result then
-               Report_Warning (S, "No replacement selected");
-            elsif Row.Stale then
-               Report_Warning (S, "Selected replacement is stale");
-            elsif Row.Invalid then
-               Report_Warning (S, "Selected replacement is invalid");
-            else
-               Editor.Project_Search.Include_Selected_Replacement (S.Project_Search);
-               Report_Info (S, "Replacement included");
-            end if;
-         end;
-      end if;
-      Editor.Render_Cache.Invalidate_All;
+      Editor.Executor.Project_Search_Replace_Preview_Commands.Execute_Project_Search_Replace_Include_Selected (S);
    end Execute_Project_Search_Replace_Include_Selected;
 
    procedure Execute_Project_Search_Replace_Exclude_Selected
      (S : in out Editor.State.State_Type)
    is
    begin
-      if not Editor.Project.Has_Project (S.Project) then
-         Report_Warning (S, "No project open");
-      elsif Project_Search_Replace_Pending_Blocked (S) then
-         Report_Warning (S, "Command unavailable while confirmation is pending");
-      elsif Editor.Project_Search.Replace_Preview_Count (S.Project_Search) = 0 then
-         Report_Warning (S, "No replacement preview");
-      elsif Editor.Project_Search.Replace_Preview_Is_Stale (S.Project_Search) then
-         Report_Warning (S, "Replacement preview is stale; rerun search.");
-      elsif not Editor.Project_Search.Replace_Text_Is_Valid (S.Project_Search) then
-         Report_Warning (S, "Replacement text must be single-line.");
-      elsif Editor.Project_Search.Selected_Replace_Preview_Index (S.Project_Search) = 0 then
-         Report_Warning (S, "No replacement selected");
-      else
-         declare
-            Row : constant Editor.Project_Search.Project_Replace_Preview_Row :=
-              Editor.Project_Search.Replace_Preview_Row_At
-                (S.Project_Search,
-                 Editor.Project_Search.Selected_Replace_Preview_Index
-                   (S.Project_Search));
-         begin
-            if Row.Search_Result_Id = Editor.Project_Search.No_Project_Search_Result then
-               Report_Warning (S, "No replacement selected");
-            elsif Row.Stale then
-               Report_Warning (S, "Selected replacement is stale");
-            elsif Row.Invalid then
-               Report_Warning (S, "Selected replacement is invalid");
-            else
-               Editor.Project_Search.Exclude_Selected_Replacement (S.Project_Search);
-               Report_Info (S, "Replacement excluded");
-            end if;
-         end;
-      end if;
-      Editor.Render_Cache.Invalidate_All;
+      Editor.Executor.Project_Search_Replace_Preview_Commands.Execute_Project_Search_Replace_Exclude_Selected (S);
    end Execute_Project_Search_Replace_Exclude_Selected;
 
    procedure Execute_Project_Search_Replace_Include_File
      (S : in out Editor.State.State_Type)
    is
-      Index : constant Natural :=
-        Editor.Project_Search.Selected_Replace_Preview_Index (S.Project_Search);
    begin
-      if not Editor.Project.Has_Project (S.Project) then
-         Report_Warning (S, "No project open");
-      elsif Project_Search_Replace_Pending_Blocked (S) then
-         Report_Warning (S, "Command unavailable while confirmation is pending");
-      elsif Editor.Project_Search.Replace_Preview_Count (S.Project_Search) = 0 then
-         Report_Warning (S, "No replacement preview");
-      elsif Editor.Project_Search.Replace_Preview_Is_Stale (S.Project_Search) then
-         Report_Warning (S, "Replacement preview is stale; rerun search.");
-      elsif not Editor.Project_Search.Replace_Text_Is_Valid (S.Project_Search) then
-         Report_Warning (S, "Replacement text must be single-line.");
-      elsif Index = 0 then
-         Report_Warning (S, "No replacement selected");
-      else
-         declare
-            Row : constant Editor.Project_Search.Project_Replace_Preview_Row :=
-              Editor.Project_Search.Replace_Preview_Row_At (S.Project_Search, Index);
-         begin
-            if Row.Search_Result_Id = Editor.Project_Search.No_Project_Search_Result then
-               Report_Warning (S, "No replacement selected");
-            elsif Row.Stale then
-               Report_Warning (S, "Selected replacement is stale");
-            elsif Row.Invalid then
-               Report_Warning (S, "Selected replacement is invalid");
-            else
-               Editor.Project_Search.Include_File_Replacements
-                 (S.Project_Search, To_String (Row.Relative_Path));
-               Report_Info (S, "Replacement file included");
-            end if;
-         end;
-      end if;
-      Editor.Render_Cache.Invalidate_All;
+      Editor.Executor.Project_Search_Replace_Preview_Commands.Execute_Project_Search_Replace_Include_File (S);
    end Execute_Project_Search_Replace_Include_File;
 
    procedure Execute_Project_Search_Replace_Exclude_File
      (S : in out Editor.State.State_Type)
    is
-      Index : constant Natural :=
-        Editor.Project_Search.Selected_Replace_Preview_Index (S.Project_Search);
    begin
-      if not Editor.Project.Has_Project (S.Project) then
-         Report_Warning (S, "No project open");
-      elsif Project_Search_Replace_Pending_Blocked (S) then
-         Report_Warning (S, "Command unavailable while confirmation is pending");
-      elsif Editor.Project_Search.Replace_Preview_Count (S.Project_Search) = 0 then
-         Report_Warning (S, "No replacement preview");
-      elsif Editor.Project_Search.Replace_Preview_Is_Stale (S.Project_Search) then
-         Report_Warning (S, "Replacement preview is stale; rerun search.");
-      elsif not Editor.Project_Search.Replace_Text_Is_Valid (S.Project_Search) then
-         Report_Warning (S, "Replacement text must be single-line.");
-      elsif Index = 0 then
-         Report_Warning (S, "No replacement selected");
-      else
-         declare
-            Row : constant Editor.Project_Search.Project_Replace_Preview_Row :=
-              Editor.Project_Search.Replace_Preview_Row_At (S.Project_Search, Index);
-         begin
-            if Row.Search_Result_Id = Editor.Project_Search.No_Project_Search_Result then
-               Report_Warning (S, "No replacement selected");
-            elsif Row.Stale then
-               Report_Warning (S, "Selected replacement is stale");
-            elsif Row.Invalid then
-               Report_Warning (S, "Selected replacement is invalid");
-            else
-               Editor.Project_Search.Exclude_File_Replacements
-                 (S.Project_Search, To_String (Row.Relative_Path));
-               Report_Info (S, "Replacement file excluded");
-            end if;
-         end;
-      end if;
-      Editor.Render_Cache.Invalidate_All;
+      Editor.Executor.Project_Search_Replace_Preview_Commands.Execute_Project_Search_Replace_Exclude_File (S);
    end Execute_Project_Search_Replace_Exclude_File;
 
    procedure Execute_Project_Search_Replace_Include_All
      (S : in out Editor.State.State_Type)
    is
    begin
-      if not Editor.Project.Has_Project (S.Project) then
-         Report_Warning (S, "No project open");
-      elsif Project_Search_Replace_Pending_Blocked (S) then
-         Report_Warning (S, "Command unavailable while confirmation is pending");
-      elsif Editor.Project_Search.Replace_Preview_Count (S.Project_Search) = 0 then
-         Report_Warning (S, "No replacement preview");
-      elsif Editor.Project_Search.Replace_Preview_Is_Stale (S.Project_Search) then
-         Report_Warning (S, "Replacement preview is stale; rerun search.");
-      elsif not Editor.Project_Search.Replace_Text_Is_Valid (S.Project_Search) then
-         Report_Warning (S, "Replacement text must be single-line.");
-      elsif Editor.Project_Search.Eligible_Replacement_Count (S.Project_Search) = 0 then
-         Report_Warning (S, "No eligible replacements");
-      else
-         Editor.Project_Search.Include_All_Replacements (S.Project_Search);
-         Report_Info (S, "All eligible replacement preview rows included");
-      end if;
-      Editor.Render_Cache.Invalidate_All;
+      Editor.Executor.Project_Search_Replace_Preview_Commands.Execute_Project_Search_Replace_Include_All (S);
    end Execute_Project_Search_Replace_Include_All;
 
    procedure Execute_Project_Search_Replace_Exclude_All
      (S : in out Editor.State.State_Type)
    is
    begin
-      if not Editor.Project.Has_Project (S.Project) then
-         Report_Warning (S, "No project open");
-      elsif Project_Search_Replace_Pending_Blocked (S) then
-         Report_Warning (S, "Command unavailable while confirmation is pending");
-      elsif Editor.Project_Search.Replace_Preview_Count (S.Project_Search) = 0 then
-         Report_Warning (S, "No replacement preview");
-      elsif Editor.Project_Search.Replace_Preview_Is_Stale (S.Project_Search) then
-         Report_Warning (S, "Replacement preview is stale; rerun search.");
-      elsif not Editor.Project_Search.Replace_Text_Is_Valid (S.Project_Search) then
-         Report_Warning (S, "Replacement text must be single-line.");
-      else
-         Editor.Project_Search.Exclude_All_Replacements (S.Project_Search);
-         Report_Info (S, "All replacement preview rows excluded");
-      end if;
-      Editor.Render_Cache.Invalidate_All;
+      Editor.Executor.Project_Search_Replace_Preview_Commands.Execute_Project_Search_Replace_Exclude_All (S);
    end Execute_Project_Search_Replace_Exclude_All;
 
    procedure Focus_Project_Replace_Target_File

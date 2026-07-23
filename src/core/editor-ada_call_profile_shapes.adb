@@ -1,7 +1,7 @@
-with Ada.Characters.Handling;
 with Ada.Strings;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.Ada_Call_Profile_Text_Helpers;
 
 package body Editor.Ada_Call_Profile_Shapes is
 
@@ -11,21 +11,14 @@ package body Editor.Ada_Call_Profile_Shapes is
    use type Editor.Ada_Syntax_Tree.Node_Id;
    use type Editor.Ada_Syntax_Tree.Node_Kind;
 
-   function Trim (Text : String) return String is
-   begin
-      return Ada.Strings.Fixed.Trim (Text, Ada.Strings.Both);
-   end Trim;
+   function Trim (Text : String) return String
+     renames Editor.Ada_Call_Profile_Text_Helpers.Trim;
 
-   function Normalize (Text : String) return String is
-   begin
-      return Ada.Characters.Handling.To_Lower (Trim (Text));
-   end Normalize;
+   function Normalize (Text : String) return String
+     renames Editor.Ada_Call_Profile_Text_Helpers.Normalize;
 
-   function Contains (Text : String; Pattern : String) return Boolean is
-   begin
-      return Pattern'Length = 0
-        or else Ada.Strings.Fixed.Index (Text, Pattern) /= 0;
-   end Contains;
+   function Contains (Text : String; Pattern : String) return Boolean
+     renames Editor.Ada_Call_Profile_Text_Helpers.Contains;
 
    function Hash_Mix
      (Seed       : Natural;
@@ -132,67 +125,11 @@ package body Editor.Ada_Call_Profile_Shapes is
       return "";
    end Child_Label;
 
-   function Is_Name_Char (C : Character) return Boolean is
-   begin
-      return (C in 'A' .. 'Z') or else (C in 'a' .. 'z')
-        or else (C in '0' .. '9') or else C = '_'
-        or else C = '.' or else C = '"' or else C = '+'
-        or else C = '-' or else C = '*' or else C = '/'
-        or else C = '=' or else C = '<' or else C = '>';
-   end Is_Name_Char;
+   function Is_Name_Char (C : Character) return Boolean
+     renames Editor.Ada_Call_Profile_Text_Helpers.Is_Name_Char;
 
-   function Clean_Call_Name (Text : String) return String is
-      T        : constant String := Trim (Text);
-      Stop     : Natural := 0;
-      First    : Natural := 0;
-      Operator : Boolean := False;
-   begin
-      if T = "" then
-         return "";
-      end if;
-
-      for I in T'Range loop
-         if T (I) = '(' then
-            Stop := I - 1;
-            exit;
-         end if;
-      end loop;
-
-      if Stop = 0 then
-         Stop := T'Last;
-      end if;
-
-      while Stop >= T'First and then T (Stop) = ' ' loop
-         Stop := Stop - 1;
-         exit when Stop < T'First;
-      end loop;
-
-      if Stop < T'First then
-         return "";
-      end if;
-
-      Operator := T (T'First) = '"';
-
-      for I in reverse T'First .. Stop loop
-         if Operator then
-            if T (I) = '"' and then I /= Stop then
-               First := I;
-               exit;
-            end if;
-         elsif not Is_Name_Char (T (I)) then
-            First := I + 1;
-            exit;
-         elsif I = T'First then
-            First := T'First;
-         end if;
-      end loop;
-
-      if First = 0 or else First > Stop then
-         return "";
-      end if;
-
-      return Trim (T (First .. Stop));
-   end Clean_Call_Name;
+   function Clean_Call_Name (Text : String) return String
+     renames Editor.Ada_Call_Profile_Text_Helpers.Clean_Call_Name;
 
    function Between_First_Parens (Text : String; Malformed : out Boolean) return String is
       Open  : Natural := 0;

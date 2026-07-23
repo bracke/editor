@@ -9,6 +9,8 @@ with Editor.Executor.Buffer_Switcher_Pending_Mark_Commands;
 with Editor.Executor.Buffer_Switcher_Preview_Commands;
 with Editor.Executor.Buffer_Switcher_Selected_Commands;
 with Editor.Executor.Buffer_Switcher_Surface_Commands;
+with Editor.Executor.Command_Kind_Diagnostics_Commands;
+with Editor.Executor.Command_Kind_Input_Commands;
 with Editor.Executor.Clipboard;
 with Editor.Executor.Command_Surface_Commands;
 with Editor.Executor.Configuration_Commands;
@@ -19,6 +21,12 @@ with Editor.Executor.Editor_Preferences_Commands;
 with Editor.Executor.Feature_Panel_Commands;
 with Editor.Executor.File_Lifecycle_Commands;
 with Editor.Executor.File_Open_Commands;
+with Editor.Executor.File_Tree_Create_Commands;
+with Editor.Executor.File_Tree_Rename_Commands;
+with Editor.Executor.File_Conflict_Commands;
+with Editor.Executor.File_Operation_Commands;
+with Editor.Executor.File_Save_Basic_Commands;
+with Editor.Executor.File_Save_Commands;
 with Editor.Executor.File_Tree_Commands;
 with Editor.Executor.File_Tree_Delete_Commands;
 with Editor.Executor.File_Tree_Mutation_Commands;
@@ -32,15 +40,18 @@ with Editor.Executor.Editor_Preferences_Commands;
 with Editor.Executor.Outline_Commands;
 with Editor.Executor.Panel_Focus_Commands;
 with Editor.Executor.Project_Lifecycle_Commands;
+with Editor.Executor.Project_Lifecycle_Recent_Commands;
 with Editor.Executor.Project_File_Index_Commands;
 with Editor.Executor.Shared_Services;
 with Editor.Executor.Search_Commands;
 with Editor.Executor.Search_Results_Commands;
+with Editor.Go_To_Line;
 with Editor.Executor.Semantic_Commands;
 with Editor.Executor.Semantic_Completion_Commands;
 with Editor.Executor.Workspace_Commands;
 with Editor.Problems;
 with Editor.Invariants;
+with Editor.Render_Cache;
 
 package body Editor.Executor.Command_Kind_Routing is
 
@@ -174,12 +185,7 @@ package body Editor.Executor.Command_Kind_Routing is
             | Goto_Line_Delete_Forward
             | Goto_Line_Move_Cursor_Left
             | Goto_Line_Move_Cursor_Right
-            =>
-            Editor.Executor.Navigation_Commands.Execute_Goto_Line_Kind
-              (S, Cmd.Kind, To_String (Cmd.Text));
-            Check_And_Mark_Handled (Handled);
-
-         when Open_Quick_Open
+            | Open_Quick_Open
             | Close_Quick_Open
             | Toggle_Quick_Open
             | Accept_Quick_Open
@@ -206,12 +212,8 @@ package body Editor.Executor.Command_Kind_Routing is
             | Quick_Open_Move_Cursor_Left
             | Quick_Open_Move_Cursor_Right
             | Open_Command_Palette
-            | Palette_Show_Command_Help =>
-            Editor.Executor.Command_Surface_Commands.Execute_Command_Surface_Kind
-              (S, Cmd.Kind, To_String (Cmd.Text));
-            Check_And_Mark_Handled (Handled);
-
-         when Active_Find_Show
+            | Palette_Show_Command_Help
+            | Active_Find_Show
             | Active_Find_Hide
             | Active_Find_Toggle
             | Active_Find_Query_Set
@@ -239,80 +241,27 @@ package body Editor.Executor.Command_Kind_Routing is
             | Active_Find_Input_Delete_Forward
             | Active_Find_Input_Move_Cursor_Left
             | Active_Find_Input_Move_Cursor_Right =>
-            case Cmd.Kind is
-               when Active_Find_Show =>
-                  Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
-               when Active_Find_Hide =>
-                  Editor.Executor.Find_Replace_Commands.Execute_Find_Hide (S);
-               when Active_Find_Toggle =>
-                  Editor.Executor.Find_Replace_Commands.Execute_Find_Toggle (S);
-               when Active_Find_Query_Set =>
-                  Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query
-                    (S, To_String (Cmd.Text));
-               when Active_Find_Query_Clear =>
-                  Editor.Executor.Find_Replace_Commands.Execute_Find_Clear_Query (S);
-               when Active_Find_Case_Toggle =>
-                  Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Toggle (S);
-               when Active_Find_Case_Clear =>
-                  Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Clear (S);
-               when Active_Find_Whole_Word_Toggle =>
-                  Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Toggle (S);
-               when Active_Find_Whole_Word_Clear =>
-                  Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Clear (S);
-               when Active_Find_From_Selection =>
-                  Editor.Executor.Find_Replace_Commands.Execute_Find_From_Selection (S);
-               when Active_Find_From_Active_Word =>
-                  Editor.Executor.Find_Replace_Commands.Execute_Find_From_Active_Word (S);
-               when Active_Find_Next =>
-                  Editor.Executor.Find_Replace_Commands.Execute_Find_Next (S);
-               when Active_Find_Previous =>
-                  Editor.Executor.Find_Replace_Commands.Execute_Find_Previous (S);
-               when Active_Find_First =>
-                  Editor.Executor.Find_Replace_Commands.Execute_Find_First (S);
-               when Active_Find_Last =>
-                  Editor.Executor.Find_Replace_Commands.Execute_Find_Last (S);
-               when Active_Find_Reveal_Current =>
-                  Editor.Executor.Find_Replace_Commands.Execute_Find_Reveal_Current (S);
-               when Active_Replace_Show =>
-                  Editor.Executor.Find_Replace_Commands.Execute_Replace_Show (S);
-               when Active_Replace_Hide =>
-                  Editor.Executor.Find_Replace_Commands.Execute_Replace_Hide (S);
-               when Active_Replace_Toggle =>
-                  Editor.Executor.Find_Replace_Commands.Execute_Replace_Toggle (S);
-               when Active_Replace_Text_Set =>
-                  Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text
-                    (S, To_String (Cmd.Text));
-               when Active_Replace_Text_Clear =>
-                  Editor.Executor.Find_Replace_Commands.Execute_Replace_Clear_Text (S);
-               when Active_Replace_Current =>
-                  Editor.Executor.Find_Replace_Commands.Execute_Replace_Current (S);
-               when Active_Replace_All =>
-                  Editor.Executor.Find_Replace_Commands.Execute_Replace_All (S);
-               when Active_Find_Input_Insert_Text =>
-                  Editor.Executor.Find_Replace_Input_Commands
-                    .Execute_Active_Find_Input_Insert_Text (S, To_String (Cmd.Text));
-               when Active_Find_Input_Backspace =>
-                  Editor.Executor.Find_Replace_Input_Commands
-                    .Execute_Active_Find_Input_Backspace (S);
-               when Active_Find_Input_Delete_Forward =>
-                  Editor.Executor.Find_Replace_Input_Commands
-                    .Execute_Active_Find_Input_Delete_Forward (S);
-               when Active_Find_Input_Move_Cursor_Left =>
-                  Editor.Executor.Find_Replace_Input_Commands
-                    .Execute_Active_Find_Input_Move_Cursor_Left (S);
-               when Active_Find_Input_Move_Cursor_Right =>
-                  Editor.Executor.Find_Replace_Input_Commands
-                    .Execute_Active_Find_Input_Move_Cursor_Right (S);
-               when others =>
-                  raise Program_Error with "unsupported find/replace command kind";
-            end case;
-            Check_And_Mark_Handled (Handled);
+            if Editor.Executor.Command_Kind_Input_Commands.Try_Execute_Input_Kind
+              (S, Cmd)
+            then
+               Check_And_Mark_Handled (Handled);
+            end if;
 
          when Navigation_Back
             | Navigation_Forward
             | Navigation_History_Clear =>
-            Editor.Executor.Navigation_Commands.Execute_Navigation_History_Kind
-              (S, Cmd.Kind);
+            case Cmd.Kind is
+               when Navigation_Back =>
+                  Editor.Executor.Navigation_Commands.Execute_Navigation_Back (S);
+               when Navigation_Forward =>
+                  Editor.Executor.Navigation_Commands.Execute_Navigation_Forward (S);
+               when Navigation_History_Clear =>
+                  Editor.Executor.Navigation_Commands
+                    .Execute_Navigation_History_Clear (S);
+               when others =>
+                  raise Program_Error with
+                    "unsupported navigation history command kind";
+            end case;
             Check_And_Mark_Handled (Handled);
 
          when Previous_Recent_Buffer
@@ -583,23 +532,19 @@ package body Editor.Executor.Command_Kind_Routing is
 
                when Semantic_Completion_Select_Next =>
                   Editor.Executor.Semantic_Completion_Commands
-                    .Execute_Semantic_Completion_Kind
-                      (S, Semantic_Completion_Select_Next);
+                    .Execute_Semantic_Completion_Select (S, Next => True);
 
                when Semantic_Completion_Select_Previous =>
                   Editor.Executor.Semantic_Completion_Commands
-                    .Execute_Semantic_Completion_Kind
-                      (S, Semantic_Completion_Select_Previous);
+                    .Execute_Semantic_Completion_Select (S, Next => False);
 
                when Semantic_Completion_Accept =>
                   Editor.Executor.Semantic_Completion_Commands
-                    .Execute_Semantic_Completion_Kind
-                      (S, Semantic_Completion_Accept);
+                    .Execute_Semantic_Completion_Accept (S);
 
                when Semantic_Popup_Dismiss =>
                   Editor.Executor.Semantic_Completion_Commands
-                    .Execute_Semantic_Completion_Kind
-                      (S, Semantic_Popup_Dismiss);
+                    .Execute_Semantic_Popup_Dismiss (S);
 
                when others =>
                   raise Program_Error with "unsupported semantic command kind";
@@ -763,8 +708,135 @@ package body Editor.Executor.Command_Kind_Routing is
             | Configuration_Save_Clean_Keybindings
             | Configuration_Save_Clean_Workspace
             | Configuration_Save_Clean_Recent_Projects =>
-            Editor.Executor.Configuration_Commands.Execute_Configuration_Kind
-              (S, Cmd.Kind);
+            case Cmd.Kind is
+               when Save_Settings =>
+                  Editor.Executor.Configuration_Commands
+                    .Execute_Save_Settings (S);
+
+               when Reload_Settings =>
+                  Editor.Executor.Configuration_Commands
+                    .Execute_Reload_Settings (S);
+
+               when Reset_Settings_To_Defaults =>
+                  Editor.Executor.Configuration_Commands
+                    .Execute_Reset_Settings_To_Defaults (S);
+
+               when Save_Keybindings =>
+                  Editor.Executor.Configuration_Commands
+                    .Execute_Save_Keybindings (S);
+
+               when Reload_Keybindings =>
+                  Editor.Executor.Configuration_Commands
+                    .Execute_Reload_Keybindings (S);
+
+               when Validate_Keybindings =>
+                  Editor.Executor.Configuration_Commands
+                    .Execute_Validate_Keybindings (S);
+
+               when Keybindings_Show =>
+                  Editor.Executor.Configuration_Commands
+                    .Execute_Keybinding_UI_Command
+                      (S, Command_Keybindings_Show);
+
+               when Keybindings_Focus =>
+                  Editor.Executor.Configuration_Commands
+                    .Execute_Keybinding_UI_Command
+                      (S, Command_Keybindings_Focus);
+
+               when Keybindings_Assign_Selected =>
+                  Editor.Executor.Configuration_Commands
+                    .Execute_Keybinding_UI_Command
+                      (S, Command_Keybindings_Assign_Selected);
+
+               when Keybindings_Remove_Selected =>
+                  Editor.Executor.Configuration_Commands
+                    .Execute_Keybinding_UI_Command
+                      (S, Command_Keybindings_Remove_Selected);
+
+               when Keybindings_Reset_To_Defaults =>
+                  Editor.Executor.Configuration_Commands
+                    .Execute_Keybinding_UI_Command
+                      (S, Command_Keybindings_Reset_To_Defaults);
+
+               when Keybindings_Filter_Conflicts =>
+                  Editor.Executor.Configuration_Commands
+                    .Execute_Keybinding_UI_Command
+                      (S, Command_Keybindings_Filter_Conflicts);
+
+               when Keybindings_Filter_Unbound =>
+                  Editor.Executor.Configuration_Commands
+                    .Execute_Keybinding_UI_Command
+                      (S, Command_Keybindings_Filter_Unbound);
+
+               when Keybindings_Clear_Filter =>
+                  Editor.Executor.Configuration_Commands
+                    .Execute_Keybinding_UI_Command
+                      (S, Command_Keybindings_Clear_Filter);
+
+               when Keybindings_Cancel_Capture =>
+                  Editor.Executor.Configuration_Commands
+                    .Execute_Keybinding_UI_Command
+                      (S, Command_Keybindings_Cancel_Capture);
+
+               when Startup_Show_Summary =>
+                  Editor.Executor.Configuration_Commands
+                    .Execute_Startup_Show_Summary (S);
+
+               when Configuration_Recover_Show =>
+                  Editor.Executor.Configuration_Commands
+                    .Execute_Configuration_Recover_Show (S);
+
+               when Configuration_Audit =>
+                  Editor.Executor.Configuration_Commands
+                    .Execute_Configuration_Audit (S);
+
+               when Configuration_Reset_Settings =>
+                  Editor.Executor.Configuration_Commands
+                    .Execute_Configuration_Reset_Settings (S);
+
+               when Configuration_Reset_Keybindings =>
+                  Editor.Executor.Configuration_Commands
+                    .Execute_Configuration_Reset_Keybindings (S);
+
+               when Configuration_Reset_Workspace =>
+                  Editor.Executor.Configuration_Commands
+                    .Execute_Configuration_Reset_Workspace (S);
+
+               when Configuration_Reset_Recent_Projects =>
+                  Editor.Executor.Configuration_Commands
+                    .Execute_Configuration_Reset_Recent_Projects (S);
+
+               when Configuration_Reset_All =>
+                  Editor.Executor.Configuration_Commands
+                    .Execute_Configuration_Reset_All (S);
+
+               when Configuration_Reset_All_Confirm =>
+                  Editor.Executor.Configuration_Commands
+                    .Execute_Configuration_Reset_All_Confirm (S);
+
+               when Configuration_Reset_All_Cancel =>
+                  Editor.Executor.Configuration_Commands
+                    .Execute_Configuration_Reset_All_Cancel (S);
+
+               when Configuration_Save_Clean_Settings =>
+                  Editor.Executor.Configuration_Commands
+                    .Execute_Configuration_Save_Clean_Settings (S);
+
+               when Configuration_Save_Clean_Keybindings =>
+                  Editor.Executor.Configuration_Commands
+                    .Execute_Configuration_Save_Clean_Keybindings (S);
+
+               when Configuration_Save_Clean_Workspace =>
+                  Editor.Executor.Configuration_Commands
+                    .Execute_Configuration_Save_Clean_Workspace (S);
+
+               when Configuration_Save_Clean_Recent_Projects =>
+                  Editor.Executor.Configuration_Commands
+                    .Execute_Configuration_Save_Clean_Recent_Projects (S);
+
+               when others =>
+                  raise Program_Error with "unsupported configuration command kind";
+            end case;
             Check_And_Mark_Handled (Handled);
 
          when Save_Workspace_State
@@ -866,7 +938,7 @@ package body Editor.Executor.Command_Kind_Routing is
                   end if;
 
                when Show_Recent_Projects =>
-                  Editor.Executor.Project_Lifecycle_Commands
+                  Editor.Executor.Project_Lifecycle_Recent_Commands
                     .Execute_Show_Recent_Projects (S);
 
                when Open_Selected_Recent_Project =>
@@ -874,23 +946,23 @@ package body Editor.Executor.Command_Kind_Routing is
                     .Execute_Open_Selected_Recent_Project (S);
 
                when Clear_Recent_Projects =>
-                  Editor.Executor.Project_Lifecycle_Commands
+                  Editor.Executor.Project_Lifecycle_Recent_Commands
                     .Execute_Clear_Recent_Projects (S);
 
                when Remove_Selected_Recent_Project =>
-                  Editor.Executor.Project_Lifecycle_Commands
+                  Editor.Executor.Project_Lifecycle_Recent_Commands
                     .Execute_Remove_Selected_Recent_Project (S);
 
                when Remove_Missing_Recent_Projects =>
-                  Editor.Executor.Project_Lifecycle_Commands
+                  Editor.Executor.Project_Lifecycle_Recent_Commands
                     .Execute_Remove_Missing_Recent_Projects (S);
 
                when Select_Next_Recent_Project =>
-                  Editor.Executor.Project_Lifecycle_Commands
+                  Editor.Executor.Project_Lifecycle_Recent_Commands
                     .Execute_Select_Next_Recent_Project (S);
 
                when Select_Previous_Recent_Project =>
-                  Editor.Executor.Project_Lifecycle_Commands
+                  Editor.Executor.Project_Lifecycle_Recent_Commands
                     .Execute_Select_Previous_Recent_Project (S);
 
                when Close_Project | Clear_Project =>
@@ -964,15 +1036,15 @@ package body Editor.Executor.Command_Kind_Routing is
                     .Execute_File_Tree_Open_Selected (S);
 
                when File_Tree_Create_File =>
-                  Editor.Executor.File_Tree_Mutation_Commands
+                  Editor.Executor.File_Tree_Create_Commands
                     .Execute_File_Tree_Create_File (S, Cmd);
 
                when File_Tree_Create_Directory =>
-                  Editor.Executor.File_Tree_Mutation_Commands
+                  Editor.Executor.File_Tree_Create_Commands
                     .Execute_File_Tree_Create_Directory (S, Cmd);
 
                when File_Tree_Rename_Selected =>
-                  Editor.Executor.File_Tree_Mutation_Commands
+                  Editor.Executor.File_Tree_Rename_Commands
                     .Execute_File_Tree_Rename_Selected (S, Cmd);
 
                when File_Tree_Delete_Selected =>
@@ -1019,16 +1091,100 @@ package body Editor.Executor.Command_Kind_Routing is
             | File_Conflict_Cancel
             | Cancel_Pending_Transition
             | Retry_Pending_Transition =>
-            Editor.Executor.File_Lifecycle_Commands.Execute_Lifecycle_Kind
-              (S, Cmd);
+            case Cmd.Kind is
+               when Save_File =>
+                  Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
+
+               when Save_File_As =>
+                  Editor.Executor.File_Save_Basic_Commands.Execute_Save_As
+                    (S, To_String (Cmd.Path));
+
+               when Save_All =>
+                  Editor.Executor.File_Save_Basic_Commands.Execute_Save_All (S);
+
+               when Reload_Active_Buffer =>
+                  Editor.Executor.File_Save_Basic_Commands
+                    .Execute_Reload_Active_Buffer (S);
+
+               when Revert_Active_Buffer =>
+                  Editor.Executor.File_Save_Basic_Commands
+                    .Execute_Revert_Active_Buffer (S);
+
+               when Rename_Buffer_File =>
+                  Editor.Executor.File_Operation_Commands
+                    .Execute_Rename_Buffer_File (S, To_String (Cmd.Path));
+
+               when Delete_Buffer_File =>
+                  Editor.Executor.File_Operation_Commands
+                    .Execute_Delete_Buffer_File (S);
+
+               when Copy_Buffer_File =>
+                  Editor.Executor.File_Operation_Commands
+                    .Execute_Copy_Buffer_File (S, To_String (Cmd.Path));
+
+               when Move_Buffer_File =>
+                  Editor.Executor.File_Operation_Commands
+                    .Execute_Move_Buffer_File (S, To_String (Cmd.Path));
+
+               when File_Conflict_Keep_Buffer =>
+                  Editor.Executor.File_Conflict_Commands
+                    .Execute_File_Conflict_Keep_Buffer (S);
+
+               when File_Conflict_Reload_From_Disk =>
+                  Editor.Executor.File_Conflict_Commands
+                    .Execute_File_Conflict_Reload_From_Disk (S);
+
+               when File_Conflict_Overwrite_Disk =>
+                  Editor.Executor.File_Conflict_Commands
+                    .Execute_File_Conflict_Overwrite_Disk (S);
+
+               when File_Conflict_Cancel =>
+                  Editor.Executor.File_Conflict_Commands
+                    .Execute_File_Conflict_Cancel (S);
+
+               when Cancel_Pending_Transition =>
+                  Editor.Executor.File_Save_Commands
+                    .Execute_Cancel_Pending_Transition (S);
+
+               when Retry_Pending_Transition =>
+                  Editor.Executor.File_Save_Commands
+                    .Execute_Retry_Pending_Transition (S);
+
+               when others =>
+                  raise Program_Error with "unsupported lifecycle command kind";
+            end case;
             Check_And_Mark_Handled (Handled);
 
          when Close_Buffer
             | Close_Other_Buffers
             | Close_All_Clean_Buffers
             | Discard_Pending_Transition =>
-            Editor.Executor.Buffer_Close_Commands.Execute_Buffer_Close_Kind
-              (S, Cmd);
+            case Cmd.Kind is
+               when Close_Buffer =>
+                  if Cmd.Buffer_Id = 0 then
+                     Editor.Executor.Buffer_Close_Commands
+                       .Execute_Close_Active_Buffer (S);
+                  else
+                     Editor.Executor.Buffer_Close_Commands
+                       .Execute_Close_Buffer
+                         (S, Editor.Buffers.Buffer_Id (Cmd.Buffer_Id));
+                  end if;
+
+               when Close_Other_Buffers =>
+                  Editor.Executor.Buffer_Close_Commands
+                    .Execute_Close_Other_Buffers (S);
+
+               when Close_All_Clean_Buffers =>
+                  Editor.Executor.Buffer_Close_Commands
+                    .Execute_Close_All_Clean_Buffers (S);
+
+               when Discard_Pending_Transition =>
+                  Editor.Executor.Buffer_Close_Commands
+                    .Execute_Discard_Pending_Transition (S);
+
+               when others =>
+                  raise Program_Error with "unsupported buffer close command kind";
+            end case;
             Check_And_Mark_Handled (Handled);
 
          when Pin_Buffer
@@ -1219,215 +1375,14 @@ package body Editor.Executor.Command_Kind_Routing is
             | Diagnostics_Toggle_Project_Source
             | Diagnostics_Toggle_External_Source
             | Diagnostics_Toggle_Unknown_Source =>
-            case Cmd.Kind is
-               when Diagnostics_Show =>
-                  Run_Diagnostics_Feature_Command (Command_Diagnostics_Show);
-
-               when Diagnostics_Clear =>
-                  Run_Diagnostics_Feature_Command (Command_Diagnostics_Clear);
-
-               when Diagnostics_Toggle_Info =>
-                  Run_Diagnostics_Feature_Command (Command_Diagnostics_Toggle_Info);
-
-               when Diagnostics_Toggle_Warnings =>
-                  Run_Diagnostics_Feature_Command
-                    (Command_Diagnostics_Toggle_Warnings);
-
-               when Diagnostics_Toggle_Errors =>
-                  Run_Diagnostics_Feature_Command (Command_Diagnostics_Toggle_Errors);
-
-               when Diagnostics_Show_All =>
-                  Run_Diagnostics_Feature_Command (Command_Diagnostics_Show_All);
-
-               when Diagnostics_Clear_Filter =>
-                  Run_Diagnostics_Feature_Command
-                    (Command_Diagnostics_Clear_Filter);
-
-               when Diagnostics_Filter_Errors =>
-                  Run_Diagnostics_Feature_Command (Command_Diagnostics_Filter_Errors);
-
-               when Diagnostics_Filter_Warnings =>
-                  Run_Diagnostics_Feature_Command
-                    (Command_Diagnostics_Filter_Warnings);
-
-               when Diagnostics_Filter_Info_Notes =>
-                  Run_Diagnostics_Feature_Command
-                    (Command_Diagnostics_Filter_Info_Notes);
-
-               when Diagnostics_Filter_Source =>
-                  Run_Diagnostics_Feature_Command (Command_Diagnostics_Filter_Source);
-
-               when Diagnostics_Filter_Build =>
-                  Run_Diagnostics_Feature_Command (Command_Diagnostics_Filter_Build);
-
-               when Diagnostics_Clear_Build =>
-                  Run_Diagnostics_Feature_Command (Command_Diagnostics_Clear_Build);
-
-               when Diagnostics_Open_Selected =>
-                  Run_Diagnostics_Feature_Command (Command_Diagnostics_Open_Selected);
-
-               when Next_Diagnostic =>
-                  Editor.Executor.Diagnostics_Navigation_Commands
-                    .Execute_Next_Diagnostic (S);
-
-               when Previous_Diagnostic =>
-                  Editor.Executor.Diagnostics_Navigation_Commands
-                    .Execute_Previous_Diagnostic (S);
-
-               when Diagnostic_Open_Source =>
-                  Run_Diagnostics_Feature_Command (Command_Diagnostic_Open_Source);
-
-               when Diagnostic_Suppress_Selected =>
-                  Run_Diagnostics_Feature_Command
-                    (Command_Diagnostic_Suppress_Selected);
-
-               when Diagnostic_Show_Suppressed =>
-                  Run_Diagnostics_Feature_Command
-                    (Command_Diagnostic_Show_Suppressed);
-
-               when Diagnostic_Restore_Last_Suppressed =>
-                  Run_Diagnostics_Feature_Command
-                    (Command_Diagnostic_Restore_Last_Suppressed);
-
-               when Diagnostic_Restore_Selected_Suppressed =>
-                  Run_Diagnostics_Feature_Command
-                    (Command_Diagnostic_Restore_Selected_Suppressed);
-
-               when Diagnostic_Clear_Suppressed =>
-                  Run_Diagnostics_Feature_Command
-                    (Command_Diagnostic_Clear_Suppressed);
-
-               when Diagnostic_Apply_Quick_Fix =>
-                  Run_Diagnostics_Feature_Command
-                    (Command_Diagnostic_Apply_Quick_Fix);
-
-               when Diagnostics_Execute_Selected_Action =>
-                  Run_Diagnostics_Feature_Command
-                    (Command_Diagnostics_Execute_Selected_Action);
-
-               when Diagnostics_Select_Next =>
-                  Run_Diagnostics_Feature_Command (Command_Diagnostics_Select_Next);
-
-               when Diagnostics_Select_Previous =>
-                  Run_Diagnostics_Feature_Command
-                    (Command_Diagnostics_Select_Previous);
-
-               when Diagnostics_Clear_Selected =>
-                  Run_Diagnostics_Feature_Command
-                    (Command_Diagnostics_Clear_Selected);
-
-               when Diagnostics_Copy_Selected_Text =>
-                  Run_Diagnostics_Feature_Command
-                    (Command_Diagnostics_Copy_Selected_Text);
-
-               when Diagnostics_Clear_Info =>
-                  Run_Diagnostics_Feature_Command (Command_Diagnostics_Clear_Info);
-
-               when Diagnostics_Clear_Warnings =>
-                  Run_Diagnostics_Feature_Command
-                    (Command_Diagnostics_Clear_Warnings);
-
-               when Diagnostics_Clear_Errors =>
-                  Run_Diagnostics_Feature_Command (Command_Diagnostics_Clear_Errors);
-
-               when Diagnostics_Toggle_Editor_Source =>
-                  Run_Diagnostics_Feature_Command
-                    (Command_Diagnostics_Toggle_Editor_Source);
-
-               when Diagnostics_Toggle_File_Source =>
-                  Run_Diagnostics_Feature_Command
-                    (Command_Diagnostics_Toggle_File_Source);
-
-               when Diagnostics_Toggle_Project_Source =>
-                  Run_Diagnostics_Feature_Command
-                    (Command_Diagnostics_Toggle_Project_Source);
-
-               when Diagnostics_Toggle_External_Source =>
-                  Run_Diagnostics_Feature_Command
-                    (Command_Diagnostics_Toggle_External_Source);
-
-               when Diagnostics_Toggle_Unknown_Source =>
-                  Run_Diagnostics_Feature_Command
-                    (Command_Diagnostics_Toggle_Unknown_Source);
-
-               when Problems_Move_Up =>
-                  Editor.Executor.Diagnostics_Problems_Commands
-                    .Execute_Problems_Move_Up (S);
-
-               when Problems_Move_Down =>
-                  Editor.Executor.Diagnostics_Problems_Commands
-                    .Execute_Problems_Move_Down (S);
-
-               when Problems_Page_Up =>
-                  Editor.Executor.Diagnostics_Problems_Commands
-                    .Execute_Problems_Page_Up (S);
-
-               when Problems_Page_Down =>
-                  Editor.Executor.Diagnostics_Problems_Commands
-                    .Execute_Problems_Page_Down (S);
-
-               when Problems_Open_Selected =>
-                  Editor.Executor.Diagnostics_Problems_Commands
-                    .Execute_Problems_Open_Selected (S);
-
-               when Problems_Filter_All =>
-                  Editor.Executor.Diagnostics_Problems_Commands
-                    .Execute_Problems_Filter
-                      (S, Editor.Problems.Problems_Show_All);
-
-               when Problems_Filter_Errors =>
-                  Editor.Executor.Diagnostics_Problems_Commands
-                    .Execute_Problems_Filter
-                      (S, Editor.Problems.Problems_Show_Errors);
-
-               when Problems_Filter_Warnings =>
-                  Editor.Executor.Diagnostics_Problems_Commands
-                    .Execute_Problems_Filter
-                      (S, Editor.Problems.Problems_Show_Warnings);
-
-               when Problems_Filter_Info =>
-                  Editor.Executor.Diagnostics_Problems_Commands
-                    .Execute_Problems_Filter
-                      (S, Editor.Problems.Problems_Show_Info);
-
-               when Problems_Filter_Hints =>
-                  Editor.Executor.Diagnostics_Problems_Commands
-                    .Execute_Problems_Filter
-                      (S, Editor.Problems.Problems_Show_Hints);
-
-               when Problems_Sort_By_Location =>
-                  Editor.Executor.Diagnostics_Problems_Commands
-                    .Execute_Problems_Sort
-                      (S, Editor.Problems.Problems_Sort_By_Location);
-
-               when Problems_Sort_By_Severity =>
-                  Editor.Executor.Diagnostics_Problems_Commands
-                    .Execute_Problems_Sort
-                      (S, Editor.Problems.Problems_Sort_By_Severity);
-
-               when Problems_Sort_By_Source =>
-                  Editor.Executor.Diagnostics_Problems_Commands
-                    .Execute_Problems_Sort
-                      (S, Editor.Problems.Problems_Sort_By_Source);
-
-               when Problems_Group_By_Severity =>
-                  Editor.Executor.Diagnostics_Problems_Commands
-                    .Execute_Problems_Group
-                      (S, Editor.Problems.Problems_Group_By_Severity);
-
-               when Problems_Group_By_Source =>
-                  Editor.Executor.Diagnostics_Problems_Commands
-                    .Execute_Problems_Group
-                      (S, Editor.Problems.Problems_Group_By_Source);
-
-               when Problems_Focus_Editor =>
-                  Editor.Executor.Diagnostics_Problems_Commands
-                    .Execute_Problems_Focus_Editor (S);
-
-               when others =>
-                  raise Program_Error with
-                    "unsupported diagnostics command kind";
-            end case;
+            declare
+               Ignored : constant Boolean :=
+                 Editor.Executor.Command_Kind_Diagnostics_Commands
+                   .Try_Execute_Diagnostics_Kind (S, Cmd);
+               pragma Unreferenced (Ignored);
+            begin
+               null;
+            end;
             Check_And_Mark_Handled (Handled);
 
          when Toggle_Bookmark
@@ -1447,8 +1402,63 @@ package body Editor.Executor.Command_Kind_Routing is
             | Bookmark_Show
             | Bookmark_Hide
             | Bookmark_Toggle =>
-            Editor.Executor.Bookmark_Commands.Execute_Bookmark_Kind
-              (S, Cmd.Kind);
+            case Cmd.Kind is
+               when Toggle_Bookmark =>
+                  Editor.Executor.Bookmark_Commands.Execute_Toggle_Bookmark (S);
+
+               when Next_Bookmark =>
+                  Editor.Executor.Bookmark_Commands.Execute_Next_Bookmark (S);
+
+               when Previous_Bookmark =>
+                  Editor.Executor.Bookmark_Commands.Execute_Previous_Bookmark (S);
+
+               when Clear_Bookmarks =>
+                  Editor.Executor.Bookmark_Commands.Execute_Clear_Bookmarks (S);
+
+               when Clear_All_Bookmarks =>
+                  Editor.Executor.Bookmark_Commands.Execute_Clear_All_Bookmarks (S);
+
+               when Bookmark_Toggle_Current_Location =>
+                  Editor.Executor.Bookmark_Commands
+                    .Execute_Bookmark_Toggle_Current_Location (S);
+
+               when Bookmark_Clear_All =>
+                  Editor.Executor.Bookmark_Commands.Execute_Bookmark_Clear_All (S);
+
+               when Bookmark_Next =>
+                  Editor.Executor.Bookmark_Commands.Execute_Bookmark_Next (S);
+
+               when Bookmark_Previous =>
+                  Editor.Executor.Bookmark_Commands.Execute_Bookmark_Previous (S);
+
+               when Bookmark_Goto_Next =>
+                  Editor.Executor.Bookmark_Commands.Execute_Bookmark_Goto_Next (S);
+
+               when Bookmark_Goto_Previous =>
+                  Editor.Executor.Bookmark_Commands
+                    .Execute_Bookmark_Goto_Previous (S);
+
+               when Bookmark_Open_Selected =>
+                  Editor.Executor.Bookmark_Commands.Execute_Bookmark_Open_Selected (S);
+
+               when Bookmark_Reveal_Current =>
+                  Editor.Executor.Bookmark_Commands.Execute_Bookmark_Reveal_Current (S);
+
+               when Bookmark_Remove_Selected =>
+                  Editor.Executor.Bookmark_Commands.Execute_Bookmark_Remove_Selected (S);
+
+               when Bookmark_Show =>
+                  Editor.Executor.Bookmark_Commands.Execute_Bookmark_Show (S);
+
+               when Bookmark_Hide =>
+                  Editor.Executor.Bookmark_Commands.Execute_Bookmark_Hide (S);
+
+               when Bookmark_Toggle =>
+                  Editor.Executor.Bookmark_Commands.Execute_Bookmark_Toggle_Surface (S);
+
+               when others =>
+                  raise Program_Error with "unsupported bookmark command kind";
+            end case;
             Check_And_Mark_Handled (Handled);
 
          when Run_Project_Search

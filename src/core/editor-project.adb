@@ -4,55 +4,24 @@ with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Strings.Unbounded.Text_IO;
 with Ada.Text_IO;
+with Editor.Path_Helpers;
 
 package body Editor.Project is
    use type Ada.Directories.File_Kind;
-
-   function Is_Separator (Ch : Character) return Boolean is
-   begin
-      return Ch = '/' or else Ch = '\';
-   end Is_Separator;
-
-   function Strip_Trailing_Separators (Path : String) return String is
-      Last : Integer := Path'Last;
-   begin
-      if Path'Length = 0 then
-         return Path;
-      end if;
-
-      while Last > Path'First and then Is_Separator (Path (Last)) loop
-         Last := Last - 1;
-      end loop;
-
-      return Path (Path'First .. Last);
-   end Strip_Trailing_Separators;
-
-   function Normalize_For_Compare (Path : String) return String is
-      Stripped : constant String := Strip_Trailing_Separators (Path);
-      Result   : String (Stripped'Range);
-   begin
-      for I in Stripped'Range loop
-         if Stripped (I) = '\' then
-            Result (I) := '/';
-         else
-            Result (I) := Stripped (I);
-         end if;
-      end loop;
-      return Result;
-   end Normalize_For_Compare;
 
    function Comparable_Path (Path : String) return String is
    begin
       if Path'Length = 0 then
          return Path;
       elsif Ada.Directories.Exists (Path) then
-         return Normalize_For_Compare (Ada.Directories.Full_Name (Path));
+         return Editor.Path_Helpers.Normalize_For_Compare
+           (Ada.Directories.Full_Name (Path), True);
       else
-         return Normalize_For_Compare (Path);
+         return Editor.Path_Helpers.Normalize_For_Compare (Path, True);
       end if;
    exception
       when others =>
-         return Normalize_For_Compare (Path);
+         return Editor.Path_Helpers.Normalize_For_Compare (Path, True);
    end Comparable_Path;
 
    function Starts_With
@@ -100,7 +69,7 @@ package body Editor.Project is
    function Display_Name_For_Path
      (Path : String) return String
    is
-      Stripped : constant String := Strip_Trailing_Separators (Path);
+      Stripped : constant String := Editor.Path_Helpers.Strip_Trailing_Separators (Path);
    begin
       if Stripped'Length = 0 then
          return "";
@@ -117,7 +86,7 @@ package body Editor.Project is
       end;
    exception
       when others =>
-         return Strip_Trailing_Separators (Path);
+         return Editor.Path_Helpers.Strip_Trailing_Separators (Path);
    end Display_Name_For_Path;
 
    function Open_Project

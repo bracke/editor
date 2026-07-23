@@ -35,6 +35,8 @@ with Editor.Project_Search_Bar;
 with Editor.Quick_Open;
 with Editor.Recent_Buffers;
 with Editor.Recent_Projects;
+with Editor.Executor.Project_Lifecycle_Availability_Commands;
+with Editor.Executor.Project_Lifecycle_Recent_Commands;
 use type Editor.Recent_Projects.Recent_Project_Status;
 with Editor.Render_Cache;
 with Editor.State;
@@ -51,86 +53,9 @@ package body Editor.Executor.Project_Lifecycle_Commands is
       Id : Editor.Commands.Command_Id)
       return Editor.Commands.Command_Availability
    is
-      function Has_Project return Boolean is
-      begin
-         return Editor.Project.Has_Project (S.Project);
-      end Has_Project;
    begin
-      case Id is
-         when Command_Open_Project =>
-            return Editor.Commands.Available;
-
-         when Command_Switch_Project =>
-            return Editor.Commands.Unavailable ("No target project selected");
-
-         when Command_Close_Project
-            | Command_Clear_Project =>
-            if not Has_Project then
-               return Editor.Commands.Unavailable ("No project open");
-            end if;
-            return Editor.Commands.Available;
-
-         when Command_Show_Recent_Projects =>
-            return Editor.Commands.Available;
-
-         when Command_Clear_Recent_Projects =>
-            if Editor.Recent_Projects.Count (S.Recent_Projects) = 0 then
-               return Editor.Commands.Unavailable ("No recent projects");
-            end if;
-            return Editor.Commands.Available;
-
-         when Command_Open_Selected_Recent_Project =>
-            if Editor.Recent_Projects.Count (S.Recent_Projects) = 0 then
-               return Editor.Commands.Unavailable ("No recent project selected");
-            else
-               declare
-                  Total : constant Natural :=
-                    Editor.Recent_Projects.Count (S.Recent_Projects);
-                  Selected : constant Positive :=
-                    (if S.Recent_Project_Selected_Index in 1 .. Total
-                     then Positive (S.Recent_Project_Selected_Index)
-                     else 1);
-                  Item : constant Editor.Recent_Projects.Recent_Project_Entry :=
-                    Editor.Recent_Projects.Item (S.Recent_Projects, Selected);
-               begin
-                  if not Editor.Recent_Projects.Is_Available (Item) then
-                     return Editor.Commands.Unavailable
-                       ("Selected recent project is unavailable");
-                  end if;
-               end;
-            end if;
-            return Editor.Commands.Available;
-
-         when Command_Remove_Selected_Recent_Project =>
-            if Editor.Recent_Projects.Count (S.Recent_Projects) = 0 then
-               return Editor.Commands.Unavailable ("No recent project selected");
-            end if;
-            return Editor.Commands.Available;
-
-         when Command_Remove_Missing_Recent_Projects =>
-            if Editor.Recent_Projects.Count (S.Recent_Projects) = 0 then
-               return Editor.Commands.Unavailable ("No recent projects");
-            end if;
-            for Index in 1 .. Editor.Recent_Projects.Count (S.Recent_Projects) loop
-               if not Editor.Recent_Projects.Is_Available
-                 (Editor.Recent_Projects.Item (S.Recent_Projects, Index))
-               then
-                  return Editor.Commands.Available;
-               end if;
-            end loop;
-            return Editor.Commands.Unavailable ("No unavailable recent projects");
-
-         when Command_Select_Next_Recent_Project
-            | Command_Select_Previous_Recent_Project =>
-            if Editor.Recent_Projects.Count (S.Recent_Projects) = 0 then
-               return Editor.Commands.Unavailable ("No recent projects");
-            end if;
-            return Editor.Commands.Available;
-
-         when others =>
-            return Editor.Commands.Unavailable
-              ("Command is not a project lifecycle command");
-      end case;
+      return Editor.Executor.Project_Lifecycle_Availability_Commands
+        .Project_Lifecycle_Command_Availability (S, Id);
    end Project_Lifecycle_Command_Availability;
 
    function Result_After_Command
@@ -351,99 +276,25 @@ package body Editor.Executor.Project_Lifecycle_Commands is
    procedure Execute_Select_Next_Recent_Project
      (S : in out Editor.State.State_Type)
    is
-      Total : constant Natural := Editor.Recent_Projects.Count (S.Recent_Projects);
    begin
-      if Total = 0 then
-         Report_Info (S, "No recent projects");
-         S.Recent_Project_Selected_Index := 0;
-         return;
-      end if;
-
-      if S.Recent_Project_Selected_Index not in 1 .. Total then
-         S.Recent_Project_Selected_Index := 1;
-      elsif S.Recent_Project_Selected_Index >= Total then
-         S.Recent_Project_Selected_Index := 1;
-      else
-         S.Recent_Project_Selected_Index := S.Recent_Project_Selected_Index + 1;
-      end if;
-      Report_Selected_Recent_Project (S, "Selected recent project");
+      Editor.Executor.Project_Lifecycle_Recent_Commands
+        .Execute_Select_Next_Recent_Project (S);
    end Execute_Select_Next_Recent_Project;
 
    procedure Execute_Select_Previous_Recent_Project
      (S : in out Editor.State.State_Type)
    is
-      Total : constant Natural := Editor.Recent_Projects.Count (S.Recent_Projects);
    begin
-      if Total = 0 then
-         Report_Info (S, "No recent projects");
-         S.Recent_Project_Selected_Index := 0;
-         return;
-      end if;
-
-      if S.Recent_Project_Selected_Index not in 1 .. Total then
-         S.Recent_Project_Selected_Index := Total;
-      elsif S.Recent_Project_Selected_Index <= 1 then
-         S.Recent_Project_Selected_Index := Total;
-      else
-         S.Recent_Project_Selected_Index := S.Recent_Project_Selected_Index - 1;
-      end if;
-      Report_Selected_Recent_Project (S, "Selected recent project");
+      Editor.Executor.Project_Lifecycle_Recent_Commands
+        .Execute_Select_Previous_Recent_Project (S);
    end Execute_Select_Previous_Recent_Project;
 
    procedure Execute_Show_Recent_Projects
      (S : in out Editor.State.State_Type)
    is
-      use Ada.Strings.Unbounded;
-      Total : constant Natural := Editor.Recent_Projects.Count (S.Recent_Projects);
-      Summary : Unbounded_String := Null_Unbounded_String;
-      Selected : Natural := 0;
    begin
-      if Total = 0 then
-         Report_Info (S, "No recent projects");
-         return;
-      end if;
-
-      --  Rebuilding the user-facing Recent Projects projection is the safe
-      --  boundary for path checks: render and command availability consume the
-      --  cached marker, while this explicit command may refresh it without
-      --  opening projects, creating directories, or touching other domains.
-      Editor.Recent_Projects.Refresh_Availability (S.Recent_Projects);
-      Ensure_Recent_Project_Selection (S);
-      Editor.Focus_Management.Set_Focus_Owner
-        (S, Editor.Focus_Management.Focus_Recent_Projects);
-      Selected := Selected_Recent_Project_Index (S);
-      --  Rows are projection-only and intentionally exclude workspace state.
-      Append
-        (Summary,
-         "Recent projects: "
-         & Ada.Strings.Fixed.Trim (Natural'Image (Total), Ada.Strings.Both));
-      if Editor.Recent_Projects.Available_Count (S.Recent_Projects) = 0 then
-         Append (Summary, "; No available recent projects");
-         if Editor.Recent_Projects.Unavailable_Count (S.Recent_Projects) > 0 then
-            Append (Summary, "; project path no longer exists");
-         end if;
-      elsif Editor.Recent_Projects.Unavailable_Count (S.Recent_Projects) > 0 then
-         Append
-           (Summary,
-            "; unavailable: "
-            & Ada.Strings.Fixed.Trim
-              (Natural'Image
-                 (Editor.Recent_Projects.Unavailable_Count (S.Recent_Projects)),
-               Ada.Strings.Both));
-      end if;
-      for Index in 1 .. Total loop
-         declare
-            Item : constant Editor.Recent_Projects.Recent_Project_Entry :=
-              Editor.Recent_Projects.Item (S.Recent_Projects, Index);
-         begin
-            Append
-              (Summary,
-               "; " & Editor.Recent_Projects.Row_Label
-                 (Item, Is_Selected => Index = Selected));
-         end;
-      end loop;
-
-      Report_Info (S, To_String (Summary));
+      Editor.Executor.Project_Lifecycle_Recent_Commands
+        .Execute_Show_Recent_Projects (S);
    end Execute_Show_Recent_Projects;
 
    procedure Execute_Open_Selected_Recent_Project
@@ -502,58 +353,25 @@ package body Editor.Executor.Project_Lifecycle_Commands is
    procedure Execute_Clear_Recent_Projects
      (S : in out Editor.State.State_Type)
    is
-      Status : Editor.Recent_Projects.Recent_Project_Status;
    begin
-      Editor.Recent_Projects.Clear (S.Recent_Projects);
-      S.Recent_Project_Selected_Index := 0;
-      Invalidate_Pending_Transition_If_Stale (S);
-      Editor.Recent_Projects.Save_To_File
-        (S.Recent_Projects,
-         Editor.Recent_Projects.Recent_Projects_File_Path,
-         Status);
-      if Status /= Editor.Recent_Projects.Recent_Project_Ok then
-         Report_Warning (S, "Save recent projects failed");
-      end if;
-      Report_Info (S, "Cleared recent projects");
+      Editor.Executor.Project_Lifecycle_Recent_Commands
+        .Execute_Clear_Recent_Projects (S);
    end Execute_Clear_Recent_Projects;
 
    procedure Execute_Remove_Selected_Recent_Project
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Recent_Projects.Count (S.Recent_Projects) = 0 then
-         Report_Info (S, "No recent project selected");
-         return;
-      end if;
-
-      Ensure_Recent_Project_Selection (S);
-      Editor.Recent_Projects.Remove_At
-        (S.Recent_Projects, Selected_Recent_Project_Index (S));
-      Ensure_Recent_Project_Selection (S);
-      Invalidate_Pending_Transition_If_Stale (S);
-      Save_Recent_Projects_Best_Effort (S);
-      Report_Info (S, "Removed recent project");
+      Editor.Executor.Project_Lifecycle_Recent_Commands
+        .Execute_Remove_Selected_Recent_Project (S);
    end Execute_Remove_Selected_Recent_Project;
 
    procedure Execute_Remove_Missing_Recent_Projects
      (S : in out Editor.State.State_Type)
    is
-      Removed : Natural := 0;
    begin
-      Removed := Editor.Recent_Projects.Remove_Missing (S.Recent_Projects);
-      if Removed = 0 then
-         Report_Info (S, "No unavailable recent projects");
-         return;
-      end if;
-
-      Ensure_Recent_Project_Selection (S);
-      Invalidate_Pending_Transition_If_Stale (S);
-      Save_Recent_Projects_Best_Effort (S);
-      Report_Info
-        (S,
-         "Removed " & Ada.Strings.Fixed.Trim (Natural'Image (Removed), Ada.Strings.Both)
-         & (if Removed = 1 then " unavailable recent project"
-            else " unavailable recent projects"));
+      Editor.Executor.Project_Lifecycle_Recent_Commands
+        .Execute_Remove_Missing_Recent_Projects (S);
    end Execute_Remove_Missing_Recent_Projects;
 
    function Execute_Project_Lifecycle_Result_Command
@@ -565,25 +383,31 @@ package body Editor.Executor.Project_Lifecycle_Commands is
    begin
       case Id is
          when Command_Show_Recent_Projects =>
-            Execute_Show_Recent_Projects (S);
+            Editor.Executor.Project_Lifecycle_Recent_Commands
+              .Execute_Show_Recent_Projects (S);
 
          when Command_Clear_Recent_Projects =>
-            Execute_Clear_Recent_Projects (S);
+            Editor.Executor.Project_Lifecycle_Recent_Commands
+              .Execute_Clear_Recent_Projects (S);
 
          when Command_Open_Selected_Recent_Project =>
             Execute_Open_Selected_Recent_Project (S);
 
          when Command_Remove_Selected_Recent_Project =>
-            Execute_Remove_Selected_Recent_Project (S);
+            Editor.Executor.Project_Lifecycle_Recent_Commands
+              .Execute_Remove_Selected_Recent_Project (S);
 
          when Command_Remove_Missing_Recent_Projects =>
-            Execute_Remove_Missing_Recent_Projects (S);
+            Editor.Executor.Project_Lifecycle_Recent_Commands
+              .Execute_Remove_Missing_Recent_Projects (S);
 
          when Command_Select_Next_Recent_Project =>
-            Execute_Select_Next_Recent_Project (S);
+            Editor.Executor.Project_Lifecycle_Recent_Commands
+              .Execute_Select_Next_Recent_Project (S);
 
          when Command_Select_Previous_Recent_Project =>
-            Execute_Select_Previous_Recent_Project (S);
+            Editor.Executor.Project_Lifecycle_Recent_Commands
+              .Execute_Select_Previous_Recent_Project (S);
 
          when others =>
             raise Program_Error with

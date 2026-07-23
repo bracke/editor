@@ -63,8 +63,4 @@ package Editor.Executor.Bookmark_Commands is
    procedure Execute_Bookmark_Toggle_Surface
      (S : in out Editor.State.State_Type);
 
-   procedure Execute_Bookmark_Kind
-     (S    : in out Editor.State.State_Type;
-      Kind : Editor.Commands.Command_Kind);
-
 end Editor.Executor.Bookmark_Commands;

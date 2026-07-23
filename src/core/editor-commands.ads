@@ -683,18 +683,14 @@ package Editor.Commands is
    function Unavailable
      (Reason : String) return Command_Availability;
 
-   --  Normalize common workflow messages so Command Palette availability,
-   --  Executor blocking, status feedback, and empty-state guidance use the
-   --  same user-facing wording for the same condition.  This is a pure
-   --  string projection; it does not inspect or mutate editor state.
-   function Normalize_Workflow_Message
-     (Text : String) return String;
-
    function Is_Available
      (Availability : Command_Availability) return Boolean;
 
    function Unavailable_Reason
      (Availability : Command_Availability) return String;
+
+   function Normalize_Workflow_Message
+     (Text : String) return String;
 
    type Command_Descriptor is record
       Id          : Command_Id := No_Command;

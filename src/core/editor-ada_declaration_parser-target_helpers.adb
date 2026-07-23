@@ -1,11 +1,13 @@
 with Ada.Characters.Latin_1;
 with Ada.Strings.Fixed;
+with Editor.Text_Helpers;
 with Editor.Ada_Declaration_Parser.Lexical_Helpers;
 with Editor.Ada_Declaration_Parser.Name_Profile_Helpers;
 with Editor.Ada_Syntax_Core;
 
 package body Editor.Ada_Declaration_Parser.Target_Helpers is
 
+   use Editor.Text_Helpers;
    use Editor.Ada_Declaration_Parser.Lexical_Helpers;
    use Editor.Ada_Declaration_Parser.Name_Profile_Helpers;
 
@@ -14,29 +16,15 @@ package body Editor.Ada_Declaration_Parser.Target_Helpers is
       Start : Natural) return Natural
    is
       I : Natural := Start;
-
-      procedure Skip_Blanks is
-      begin
-         while I <= Line'Last
-           and then (Line (I) = ' ' or else Line (I) = Ada.Characters.Latin_1.HT)
-         loop
-            I := I + 1;
-         end loop;
-      end Skip_Blanks;
-
       procedure Skip_Word (Word : String) is
       begin
-         Skip_Blanks;
-         if I + Word'Length - 1 <= Line'Last
-           and then Lower (Line (I .. I + Word'Length - 1)) = Word
-           and then (I + Word'Length > Line'Last
-                     or else not Is_Word_Char (Line (I + Word'Length)))
-         then
+         Lexical_Helpers.Skip_Blanks (Line, I);
+         if Starts_At_Word (Line, I, Word) then
             I := I + Word'Length;
          end if;
       end Skip_Word;
    begin
-      Skip_Blanks;
+      Lexical_Helpers.Skip_Blanks (Line, I);
       Skip_Word ("aliased");
       Skip_Word ("constant");
       Skip_Word ("in");
@@ -47,12 +35,12 @@ package body Editor.Ada_Declaration_Parser.Target_Helpers is
       Skip_Word ("access");
       Skip_Word ("all");
       Skip_Word ("constant");
-      Skip_Blanks;
+      Lexical_Helpers.Skip_Blanks (Line, I);
       return I;
    end Skip_Component_Qualifiers;
 
    function Array_Element_Target (Line : String) return String is
-      L      : constant String := Lower (Editor.Ada_Syntax_Core.Sanitize_Line (Line));
+      L      : constant String := Normalized_Line (Line);
       Of_Pos : constant Natural := Ada.Strings.Fixed.Index (L, " of ");
       Start  : Natural;
    begin
@@ -86,7 +74,7 @@ package body Editor.Ada_Declaration_Parser.Target_Helpers is
       --  "protected" as a target subtype.  Preserve the protected prefix as
       --  profile metadata and still keep anonymous profile parameters out of
       --  the language-model symbol tree.
-      L          : constant String := Lower (Editor.Ada_Syntax_Core.Sanitize_Line (Line));
+      L          : constant String := Normalized_Line (Line);
       Access_Pos : constant Natural := Token_Source_Position (Line, "access");
       Start      : Natural := 0;
 
@@ -169,8 +157,7 @@ package body Editor.Ada_Declaration_Parser.Target_Helpers is
                   Trimmed_Line  : constant String := Line (Source_First .. Source_Last);
                   Lower_Trimmed : constant String := Lower (Trimmed_Line);
                begin
-                  if Starts_With_Word (Lower_Trimmed, "procedure")
-                    or else Starts_With_Word (Lower_Trimmed, "function")
+                  if Starts_With_Subprogram_Keyword (Lower_Trimmed)
                     or else Starts_With_Word (Lower_Trimmed, "protected procedure")
                     or else Starts_With_Word (Lower_Trimmed, "protected function")
                   then
@@ -222,7 +209,7 @@ package body Editor.Ada_Declaration_Parser.Target_Helpers is
    end Access_Subprogram_Profile;
 
    function Access_Object_Target (Line : String) return String is
-      L          : constant String := Lower (Editor.Ada_Syntax_Core.Sanitize_Line (Line));
+      L          : constant String := Normalized_Line (Line);
       Access_Pos : constant Natural := Token_Source_Position (Line, "access");
       Start      : Natural;
    begin
@@ -451,7 +438,7 @@ package body Editor.Ada_Declaration_Parser.Target_Helpers is
    end Interface_Target_From_Line_Start;
 
    function Subtype_Target_After_Is (Line : String) return String is
-      L      : constant String := Lower (Editor.Ada_Syntax_Core.Sanitize_Line (Line));
+      L      : constant String := Normalized_Line (Line);
       Is_Pos : constant Natural := Ada.Strings.Fixed.Index (L, " is");
       Start  : Natural;
    begin
@@ -483,5 +470,333 @@ package body Editor.Ada_Declaration_Parser.Target_Helpers is
 
       return Read_Subtype_Mark (Line, Positive (Start), True);
    end Subtype_Target_After_Is;
+
+   function Declaration_Target_From_Line_Start (Line : String) return String is
+      Start : Natural := Line'First;
+   begin
+      while Start <= Line'Last
+        and then (Line (Start) = ' ' or else Line (Start) = Ada.Characters.Latin_1.HT)
+      loop
+         Start := Start + 1;
+      end loop;
+
+      if Start > Line'Last then
+         return "";
+      end if;
+
+      declare
+         Target       : constant String := Read_Function_Name (Line, Positive (Start), True);
+         Target_Lower : constant String := Lower (Target);
+      begin
+         if Target'Length = 0
+           or else Target_Lower = "is"
+           or else Target_Lower = "new"
+           or else Target_Lower = "renames"
+           or else Target_Lower = "with"
+           or else Target_Lower = "private"
+           or else Target_Lower = "package"
+           or else Target_Lower = "procedure"
+           or else Target_Lower = "function"
+           or else Target_Lower = "return"
+           or else Target_Lower = "separate"
+         then
+            return "";
+         end if;
+
+         return Target;
+      end;
+   end Declaration_Target_From_Line_Start;
+
+   function Generic_Formal_Package_Target_From_Line_Start
+     (Line : String) return String
+   is
+      Start : Natural := Line'First;
+
+   begin
+      Lexical_Helpers.Skip_Blanks (Line, Start);
+      if Start > Line'Last then
+         return "";
+      end if;
+
+      if Lexical_Helpers.Starts_At_Word (Line, Start, "is") then
+         Start := Start + 2;
+         Lexical_Helpers.Skip_Blanks (Line, Start);
+      end if;
+
+      if Lexical_Helpers.Starts_At_Word (Line, Start, "new") then
+         Start := Start + 3;
+         Lexical_Helpers.Skip_Blanks (Line, Start);
+      else
+         return "";
+      end if;
+
+      if Start > Line'Last then
+         return "";
+      end if;
+
+      declare
+         Target       : constant String := Read_Function_Name (Line, Positive (Start), True);
+         Target_Lower : constant String := Lower (Target);
+      begin
+         if Target'Length = 0
+           or else Target_Lower = "is"
+           or else Target_Lower = "new"
+           or else Target_Lower = "with"
+           or else Target_Lower = "package"
+           or else Target_Lower = "renames"
+           or else Target_Lower = "private"
+         then
+            return "";
+         end if;
+
+         return Target;
+      end;
+   end Generic_Formal_Package_Target_From_Line_Start;
+
+   function Generic_Formal_Subprogram_Default_After_Is
+     (Line : String) return String
+   is
+      L : constant String := Lower (Line);
+      P : constant Natural := Ada.Strings.Fixed.Index (L, " is ");
+      Start : Natural;
+
+   begin
+      if P = 0 then
+         return "";
+      end if;
+
+      Start := P + 4;
+      Lexical_Helpers.Skip_Blanks (Line, Start);
+
+      if Start > Line'Last then
+         return "";
+      end if;
+
+      if Start + 1 <= Line'Last
+        and then Line (Start) = '<'
+        and then Line (Start + 1) = '>'
+      then
+         return "<>";
+      elsif Lexical_Helpers.Starts_At_Word (Line, Start, "null") then
+         return "null";
+      else
+         return Read_Function_Name (Line, Positive (Start), True);
+      end if;
+   end Generic_Formal_Subprogram_Default_After_Is;
+
+   function Generic_Formal_Subprogram_Target_From_Line_Start
+     (Line : String) return String
+   is
+      Start : Natural := Line'First;
+
+   begin
+      Lexical_Helpers.Skip_Blanks (Line, Start);
+      if Start > Line'Last then
+         return "";
+      end if;
+
+      if Lexical_Helpers.Starts_At_Word (Line, Start, "is") then
+         Start := Start + 2;
+         Lexical_Helpers.Skip_Blanks (Line, Start);
+      end if;
+
+      if Start > Line'Last then
+         return "";
+      end if;
+
+      if Start + 1 <= Line'Last
+        and then Line (Start) = '<'
+        and then Line (Start + 1) = '>'
+      then
+         return "<>";
+      elsif Lexical_Helpers.Starts_At_Word (Line, Start, "null") then
+         return "null";
+      end if;
+
+      declare
+         Target       : constant String := Read_Function_Name (Line, Positive (Start), True);
+         Target_Lower : constant String := Lower (Target);
+      begin
+         if Target'Length = 0
+           or else Target_Lower = "is"
+           or else Target_Lower = "with"
+           or else Target_Lower = "package"
+           or else Target_Lower = "procedure"
+           or else Target_Lower = "function"
+           or else Target_Lower = "return"
+           or else Target_Lower = "private"
+         then
+            return "";
+         end if;
+
+         return Target;
+      end;
+   end Generic_Formal_Subprogram_Target_From_Line_Start;
+
+   function Subtype_Target_From_Line_Start (Line : String) return String is
+      Start : Natural := Line'First;
+   begin
+      while Start <= Line'Last
+        and then (Line (Start) = ' ' or else Line (Start) = Ada.Characters.Latin_1.HT)
+      loop
+         Start := Start + 1;
+      end loop;
+
+      if Start > Line'Last then
+         return "";
+      end if;
+
+      if Start + 7 <= Line'Last
+        and then Lower (Line (Start .. Start + 7)) = "not null"
+      then
+         Start := Start + 8;
+         while Start <= Line'Last
+           and then (Line (Start) = ' ' or else Line (Start) = Ada.Characters.Latin_1.HT)
+         loop
+            Start := Start + 1;
+         end loop;
+      end if;
+
+      declare
+         Target       : constant String := Read_Subtype_Mark (Line, Positive (Start), True);
+         Target_Lower : constant String := Lower (Target);
+      begin
+         if Target'Length = 0
+           or else Target_Lower = "range"
+           or else Target_Lower = "with"
+           or else Target_Lower = "renames"
+           or else Target_Lower = "is"
+           or else Target_Lower = "record"
+           or else Target_Lower = "array"
+           or else Target_Lower = "access"
+         then
+            return "";
+         end if;
+
+         return Target;
+      end;
+   end Subtype_Target_From_Line_Start;
+
+   function Derived_Target_From_Line_Start (Line : String) return String is
+      Start : Natural := Line'First;
+   begin
+      while Start <= Line'Last
+        and then (Line (Start) = ' ' or else Line (Start) = Ada.Characters.Latin_1.HT)
+      loop
+         Start := Start + 1;
+      end loop;
+
+      if Start > Line'Last then
+         return "";
+      end if;
+
+      declare
+         Target       : constant String := Read_Subtype_Mark (Line, Positive (Start), True);
+         Target_Lower : constant String := Lower (Target);
+      begin
+         if Target'Length = 0
+           or else Target_Lower = "with"
+           or else Target_Lower = "record"
+           or else Target_Lower = "private"
+           or else Target_Lower = "interface"
+           or else Target_Lower = "is"
+           or else Target_Lower = "new"
+           or else Target_Lower = "abstract"
+           or else Target_Lower = "tagged"
+           or else Target_Lower = "limited"
+         then
+            return "";
+         end if;
+
+         return Target;
+      end;
+   end Derived_Target_From_Line_Start;
+
+   function Access_Target_From_Line_Start (Line : String) return String is
+      Start : Natural := Skip_Component_Qualifiers (Line, Line'First);
+   begin
+      if Start > Line'Last then
+         return "";
+      end if;
+
+      declare
+         Target : constant String := Read_Subtype_Mark (Line, Positive (Start), True);
+         Target_Lower : constant String := Lower (Target);
+      begin
+         if Target'Length = 0
+           or else Target_Lower = "procedure"
+           or else Target_Lower = "function"
+           or else Target_Lower = "protected"
+           or else Target_Lower = "with"
+           or else Target_Lower = "renames"
+           or else Target_Lower = "is"
+         then
+            return "";
+         end if;
+         return Target;
+      end;
+   end Access_Target_From_Line_Start;
+
+   function Array_Target_From_Line (Line : String) return String is
+   begin
+      return Array_Element_Target (Line);
+   end Array_Target_From_Line;
+
+   function Object_Target_From_Line_Start (Line : String) return String is
+      Start : Natural := Skip_Component_Qualifiers (Line, Line'First);
+   begin
+      if Start > Line'Last then
+         return "";
+      end if;
+
+      declare
+         Candidate       : constant String := Read_Subtype_Mark (Line, Positive (Start), True);
+         Candidate_Lower : constant String := Lower (Candidate);
+      begin
+         if Candidate'Length = 0
+           or else Candidate_Lower = "array"
+           or else Candidate_Lower = "access"
+           or else Candidate_Lower = "record"
+           or else Candidate_Lower = "range"
+           or else Candidate_Lower = "procedure"
+           or else Candidate_Lower = "function"
+           or else Candidate_Lower = "exception"
+           or else Candidate_Lower = "renames"
+           or else Candidate_Lower = "with"
+           or else Candidate_Lower = "is"
+           or else Candidate_Lower = "return"
+         then
+            return "";
+         end if;
+
+         return Candidate;
+      end;
+   end Object_Target_From_Line_Start;
+
+   function Separate_Parent_Name (Line : String) return String is
+      Code  : constant String := Editor.Ada_Syntax_Core.Sanitize_Line (Line);
+      Open  : Natural := 0;
+      Close : Natural := 0;
+   begin
+      for I in Code'Range loop
+         if Code (I) = '(' then
+            Open := I;
+            exit;
+         end if;
+      end loop;
+      if Open = 0 then
+         return "";
+      end if;
+      for I in Open + 1 .. Code'Last loop
+         if Code (I) = ')' then
+            Close := I;
+            exit;
+         end if;
+      end loop;
+      if Close = 0 or else Close <= Open + 1 then
+         return "";
+      end if;
+      return Trim (Line (Open + 1 .. Close - 1));
+   end Separate_Parent_Name;
 
 end Editor.Ada_Declaration_Parser.Target_Helpers;

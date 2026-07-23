@@ -1,6 +1,7 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Buffers;
 with Editor.File_Tree;
+with Editor.Image_Helpers;
 with Editor.Messages;
 with Editor.Pending_Transitions;
 with Editor.Project;
@@ -13,12 +14,6 @@ with Editor.Command_Palette;
 package body Editor.Lifecycle_Audit is
 
    use type Editor.Buffers.Buffer_Id;
-
-   function Count_Image (Value : Natural) return String is
-      Raw : constant String := Natural'Image (Value);
-   begin
-      return Raw (Raw'First + 1 .. Raw'Last);
-   end Count_Image;
 
    function Pending_Kind_Image
      (Kind : Editor.Pending_Transitions.Pending_Transition_Kind) return String
@@ -109,7 +104,7 @@ package body Editor.Lifecycle_Audit is
          return "Lifecycle audit failed: " & To_String (Result.Failures (0));
       else
          return "Lifecycle audit failed: "
-           & Count_Image (Natural (Result.Failures.Length)) & " failures";
+           & Editor.Image_Helpers.Trim_Image (Natural (Result.Failures.Length)) & " failures";
       end if;
    end Summary;
 
@@ -205,7 +200,9 @@ package body Editor.Lifecycle_Audit is
          Add_Failure
            (Result,
             Context & ": " & Name & " changed from "
-            & Count_Image (Before) & " to " & Count_Image (After));
+            & Editor.Image_Helpers.Trim_Image (Before)
+            & " to "
+            & Editor.Image_Helpers.Trim_Image (After));
       end if;
    end Check_Equal;
 

@@ -1,5 +1,5 @@
-with Ada.Characters.Handling;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.Text_Helpers;
 
 package body Editor.Ada_Discriminant_Dependent_Legality is
 
@@ -25,14 +25,8 @@ package body Editor.Ada_Discriminant_Dependent_Legality is
       return ((A * 311) + (B * 53) + 1142) mod 1_000_000_007;
    end Mix;
 
-   function Lower (S : String) return String is
-      R : String := S;
-   begin
-      for I in R'Range loop
-         R (I) := Ada.Characters.Handling.To_Lower (R (I));
-      end loop;
-      return R;
-   end Lower;
+   function Lower (S : String) return String
+     renames Editor.Text_Helpers.Lower;
 
    function Kind_Slot (Kind : Discriminant_Context_Kind) return Natural is
    begin

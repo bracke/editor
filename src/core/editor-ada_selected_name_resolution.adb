@@ -1,7 +1,5 @@
-with Ada.Characters.Handling;
-with Ada.Strings;
-with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.Ada_Call_Profile_Text_Helpers;
 
 package body Editor.Ada_Selected_Name_Resolution is
 
@@ -13,30 +11,17 @@ package body Editor.Ada_Selected_Name_Resolution is
    use type Editor.Ada_Direct_Visibility.Lookup_Status;
    use type Editor.Ada_Syntax_Tree.Node_Id;
 
-   function Trim (Text : String) return String is
-   begin
-      return Ada.Strings.Fixed.Trim (Text, Ada.Strings.Both);
-   end Trim;
+   function Trim (Text : String) return String
+     renames Editor.Ada_Call_Profile_Text_Helpers.Trim;
 
-   function Normalize (Text : String) return String is
-   begin
-      return Ada.Characters.Handling.To_Lower (Trim (Text));
-   end Normalize;
+   function Normalize (Text : String) return String
+     renames Editor.Ada_Call_Profile_Text_Helpers.Normalize;
 
-   function Is_Name_Char (C : Character) return Boolean is
-   begin
-      return (C in 'A' .. 'Z') or else (C in 'a' .. 'z')
-        or else (C in '0' .. '9') or else C = '_';
-   end Is_Name_Char;
+   function Is_Name_Char (C : Character) return Boolean
+     renames Editor.Ada_Call_Profile_Text_Helpers.Is_Name_Char;
 
-   function Hash_Text (Text : String) return Natural is
-      H : Natural := 2166136261 mod Natural'Last;
-   begin
-      for C of Text loop
-         H := (H * 16777619 + Character'Pos (C) + 1) mod Natural'Last;
-      end loop;
-      return H;
-   end Hash_Text;
+   function Hash_Text (Text : String) return Natural
+     renames Editor.Ada_Call_Profile_Text_Helpers.Hash_Text;
 
    procedure Mix (Model : in out Selected_Name_Model; Value : Natural) is
    begin

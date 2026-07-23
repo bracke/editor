@@ -1,4 +1,4 @@
-with Ada.Characters.Handling;
+with Editor.Text_Helpers;
 
 package body Editor.Syntax is
 
@@ -33,18 +33,8 @@ package body Editor.Syntax is
       return Is_Letter (Ch) or else Is_Digit (Ch) or else Ch = '_';
    end Is_Identifier_Body;
 
-   function Lower (S : String) return String is
-      Result : String (S'Range);
-   begin
-      for I in S'Range loop
-         Result (I) := Ada.Characters.Handling.To_Lower (S (I));
-      end loop;
-
-      return Result;
-   end Lower;
-
    function Is_Keyword (Word : String) return Boolean is
-      L : constant String := Lower (Word);
+      L : constant String := Editor.Text_Helpers.Lower (Word);
    begin
       return L = "abort"
         or else L = "abs"
@@ -122,7 +112,7 @@ package body Editor.Syntax is
    end Is_Keyword;
 
    function Is_Predefined_Type (Word : String) return Boolean is
-      L : constant String := Lower (Word);
+      L : constant String := Editor.Text_Helpers.Lower (Word);
    begin
       return L = "boolean"
         or else L = "character"
@@ -215,7 +205,7 @@ package body Editor.Syntax is
             Start := Start - 1;
          end loop;
 
-         return Lower (Line (Start .. Stop));
+         return Editor.Text_Helpers.Lower (Line (Start .. Stop));
       end;
    end Last_Word_Before;
 

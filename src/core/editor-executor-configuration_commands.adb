@@ -818,7 +818,104 @@ package body Editor.Executor.Configuration_Commands is
             | Command_Configuration_Save_Clean_Keybindings
             | Command_Configuration_Save_Clean_Workspace
             | Command_Configuration_Save_Clean_Recent_Projects =>
-            Execute_Configuration_Kind (S, Editor.Commands.Command_For_Id (Id).Kind);
+            case Editor.Commands.Command_For_Id (Id).Kind is
+               when Save_Settings =>
+                  Execute_Save_Settings (S);
+
+               when Reload_Settings =>
+                  Execute_Reload_Settings (S);
+
+               when Reset_Settings_To_Defaults =>
+                  Execute_Reset_Settings_To_Defaults (S);
+
+               when Save_Keybindings =>
+                  Execute_Save_Keybindings (S);
+
+               when Reload_Keybindings =>
+                  Execute_Reload_Keybindings (S);
+
+               when Validate_Keybindings =>
+                  Execute_Validate_Keybindings (S);
+
+               when Keybindings_Show =>
+                  Execute_Keybinding_UI_Command (S, Command_Keybindings_Show);
+
+               when Keybindings_Focus =>
+                  Execute_Keybinding_UI_Command (S, Command_Keybindings_Focus);
+
+               when Keybindings_Assign_Selected =>
+                  Execute_Keybinding_UI_Command
+                    (S, Command_Keybindings_Assign_Selected);
+
+               when Keybindings_Remove_Selected =>
+                  Execute_Keybinding_UI_Command
+                    (S, Command_Keybindings_Remove_Selected);
+
+               when Keybindings_Reset_To_Defaults =>
+                  Execute_Keybinding_UI_Command
+                    (S, Command_Keybindings_Reset_To_Defaults);
+
+               when Keybindings_Filter_Conflicts =>
+                  Execute_Keybinding_UI_Command
+                    (S, Command_Keybindings_Filter_Conflicts);
+
+               when Keybindings_Filter_Unbound =>
+                  Execute_Keybinding_UI_Command
+                    (S, Command_Keybindings_Filter_Unbound);
+
+               when Keybindings_Clear_Filter =>
+                  Execute_Keybinding_UI_Command
+                    (S, Command_Keybindings_Clear_Filter);
+
+               when Keybindings_Cancel_Capture =>
+                  Execute_Keybinding_UI_Command
+                    (S, Command_Keybindings_Cancel_Capture);
+
+               when Startup_Show_Summary =>
+                  Execute_Startup_Show_Summary (S);
+
+               when Configuration_Recover_Show =>
+                  Execute_Configuration_Recover_Show (S);
+
+               when Configuration_Audit =>
+                  Execute_Configuration_Audit (S);
+
+               when Configuration_Reset_Settings =>
+                  Execute_Configuration_Reset_Settings (S);
+
+               when Configuration_Reset_Keybindings =>
+                  Execute_Configuration_Reset_Keybindings (S);
+
+               when Configuration_Reset_Workspace =>
+                  Execute_Configuration_Reset_Workspace (S);
+
+               when Configuration_Reset_Recent_Projects =>
+                  Execute_Configuration_Reset_Recent_Projects (S);
+
+               when Configuration_Reset_All =>
+                  Execute_Configuration_Reset_All (S);
+
+               when Configuration_Reset_All_Confirm =>
+                  Execute_Configuration_Reset_All_Confirm (S);
+
+               when Configuration_Reset_All_Cancel =>
+                  Execute_Configuration_Reset_All_Cancel (S);
+
+               when Configuration_Save_Clean_Settings =>
+                  Execute_Configuration_Save_Clean_Settings (S);
+
+               when Configuration_Save_Clean_Keybindings =>
+                  Execute_Configuration_Save_Clean_Keybindings (S);
+
+               when Configuration_Save_Clean_Workspace =>
+                  Execute_Configuration_Save_Clean_Workspace (S);
+
+               when Configuration_Save_Clean_Recent_Projects =>
+                  Execute_Configuration_Save_Clean_Recent_Projects (S);
+
+               when others =>
+                  raise Program_Error with "unsupported configuration command kind";
+            end case;
 
          when Command_Keybindings_Show
             .. Command_Keybindings_Cancel_Capture =>
@@ -831,110 +928,5 @@ package body Editor.Executor.Configuration_Commands is
       Editor.Render_Cache.Invalidate_All;
       return Result_After_Command (S, Id, Before_Messages);
    end Execute_Configuration_Result_Command;
-
-   procedure Execute_Configuration_Kind
-     (S    : in out Editor.State.State_Type;
-      Kind : Editor.Commands.Command_Kind)
-   is
-   begin
-      case Kind is
-         when Save_Settings =>
-            Execute_Save_Settings (S);
-
-         when Reload_Settings =>
-            Execute_Reload_Settings (S);
-
-         when Reset_Settings_To_Defaults =>
-            Execute_Reset_Settings_To_Defaults (S);
-
-         when Save_Keybindings =>
-            Execute_Save_Keybindings (S);
-
-         when Reload_Keybindings =>
-            Execute_Reload_Keybindings (S);
-
-         when Validate_Keybindings =>
-            Execute_Validate_Keybindings (S);
-
-         when Keybindings_Show =>
-            Execute_Keybinding_UI_Command (S, Command_Keybindings_Show);
-
-         when Keybindings_Focus =>
-            Execute_Keybinding_UI_Command (S, Command_Keybindings_Focus);
-
-         when Keybindings_Assign_Selected =>
-            Execute_Keybinding_UI_Command
-              (S, Command_Keybindings_Assign_Selected);
-
-         when Keybindings_Remove_Selected =>
-            Execute_Keybinding_UI_Command
-              (S, Command_Keybindings_Remove_Selected);
-
-         when Keybindings_Reset_To_Defaults =>
-            Execute_Keybinding_UI_Command
-              (S, Command_Keybindings_Reset_To_Defaults);
-
-         when Keybindings_Filter_Conflicts =>
-            Execute_Keybinding_UI_Command
-              (S, Command_Keybindings_Filter_Conflicts);
-
-         when Keybindings_Filter_Unbound =>
-            Execute_Keybinding_UI_Command
-              (S, Command_Keybindings_Filter_Unbound);
-
-         when Keybindings_Clear_Filter =>
-            Execute_Keybinding_UI_Command
-              (S, Command_Keybindings_Clear_Filter);
-
-         when Keybindings_Cancel_Capture =>
-            Execute_Keybinding_UI_Command
-              (S, Command_Keybindings_Cancel_Capture);
-
-         when Startup_Show_Summary =>
-            Execute_Startup_Show_Summary (S);
-
-         when Configuration_Recover_Show =>
-            Execute_Configuration_Recover_Show (S);
-
-         when Configuration_Audit =>
-            Execute_Configuration_Audit (S);
-
-         when Configuration_Reset_Settings =>
-            Execute_Configuration_Reset_Settings (S);
-
-         when Configuration_Reset_Keybindings =>
-            Execute_Configuration_Reset_Keybindings (S);
-
-         when Configuration_Reset_Workspace =>
-            Execute_Configuration_Reset_Workspace (S);
-
-         when Configuration_Reset_Recent_Projects =>
-            Execute_Configuration_Reset_Recent_Projects (S);
-
-         when Configuration_Reset_All =>
-            Execute_Configuration_Reset_All (S);
-
-         when Configuration_Reset_All_Confirm =>
-            Execute_Configuration_Reset_All_Confirm (S);
-
-         when Configuration_Reset_All_Cancel =>
-            Execute_Configuration_Reset_All_Cancel (S);
-
-         when Configuration_Save_Clean_Settings =>
-            Execute_Configuration_Save_Clean_Settings (S);
-
-         when Configuration_Save_Clean_Keybindings =>
-            Execute_Configuration_Save_Clean_Keybindings (S);
-
-         when Configuration_Save_Clean_Workspace =>
-            Execute_Configuration_Save_Clean_Workspace (S);
-
-         when Configuration_Save_Clean_Recent_Projects =>
-            Execute_Configuration_Save_Clean_Recent_Projects (S);
-
-         when others =>
-            raise Program_Error with "unsupported configuration command kind";
-      end case;
-   end Execute_Configuration_Kind;
 
 end Editor.Executor.Configuration_Commands;

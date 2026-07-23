@@ -287,6 +287,10 @@ package Editor.Buffers is
      (Registry : in out Buffer_Registry;
       Id       : Buffer_Id) return access Buffer_State;
 
+   function Buffer_File_Info
+     (Registry : Buffer_Registry;
+      Id       : Buffer_Id) return File_Identity;
+
    procedure Close_Buffer
      (Registry : in out Buffer_Registry;
       Id       : Buffer_Id;

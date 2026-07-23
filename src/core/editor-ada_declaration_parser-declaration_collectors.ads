@@ -69,4 +69,34 @@ package Editor.Ada_Declaration_Parser.Declaration_Collectors is
         (Flags : in out Declaration_Flags;
          Line  : String));
 
+   procedure Add_Object_Rename_Declaration_Groups
+     (Analysis    : in out Analysis_Result;
+      Raw_Line    : String;
+      Line_Number : Positive;
+      Depth       : Natural;
+      Parent      : Symbol_Id);
+
+   procedure Add_Object_Declaration_Groups
+     (Analysis    : in out Analysis_Result;
+      Raw_Line    : String;
+      Line_Number : Positive;
+      Depth       : Natural;
+      Parent      : Symbol_Id;
+      Kind        : Symbol_Kind;
+      Flags       : Declaration_Flags := (others => False));
+
+   procedure Add_Enumeration_Literals
+     (Analysis    : in out Analysis_Result;
+      Raw_Line    : String;
+      Line_Number : Positive;
+      Depth       : Natural;
+      Parent      : Symbol_Id);
+
+   procedure Add_Enumeration_Literals_Continuation
+     (Analysis    : in out Analysis_Result;
+      Raw_Line    : String;
+      Line_Number : Positive;
+      Depth       : Natural;
+      Parent      : Symbol_Id);
+
 end Editor.Ada_Declaration_Parser.Declaration_Collectors;

@@ -1,12 +1,8 @@
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.Image_Helpers;
 
 package body Editor.Build_Result_Summary is
-
-   function Image (Value : Natural) return String is
-   begin
-      return Ada.Strings.Fixed.Trim (Natural'Image (Value), Ada.Strings.Both);
-   end Image;
 
    function Empty_Summary return Latest_Build_Result_Summary is
    begin
@@ -245,14 +241,17 @@ package body Editor.Build_Result_Summary is
    begin
       if Summary.Has_Duration then
          if Summary.Duration_Milliseconds < 1_000 then
-            return "duration " & Image (Summary.Duration_Milliseconds) & " ms";
+            return "duration "
+              & Editor.Image_Helpers.Trim_Image (Summary.Duration_Milliseconds)
+              & " ms";
          else
             declare
                Tenths : constant Natural :=
                  (Summary.Duration_Milliseconds + 50) / 100;
             begin
-               return "duration " & Image (Tenths / 10) & "."
-                 & Image (Tenths mod 10) & " s";
+               return "duration "
+                 & Editor.Image_Helpers.Trim_Image (Tenths / 10) & "."
+                 & Editor.Image_Helpers.Trim_Image (Tenths mod 10) & " s";
             end;
          end if;
       end if;
@@ -427,7 +426,9 @@ package body Editor.Build_Result_Summary is
 
       if Summary.Has_Diagnostics_Count then
          Append_Part
-           ("diagnostics " & Image (Summary.Diagnostics_Count_If_Available));
+           ("diagnostics "
+            & Editor.Image_Helpers.Trim_Image
+                (Summary.Diagnostics_Count_If_Available));
       end if;
 
       if Summary.Stdout_Truncated or else Summary.Stderr_Truncated then

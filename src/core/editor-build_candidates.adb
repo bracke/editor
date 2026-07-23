@@ -5,6 +5,8 @@ with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Build_Working_Context;
 with Editor.External_Producers;
+with Editor.Path_Helpers;
+with Editor.Text_Helpers;
 
 package body Editor.Build_Candidates is
 
@@ -12,11 +14,6 @@ package body Editor.Build_Candidates is
    use type Editor.External_Producers.Build_Tool_Kind;
    use type Ada.Directories.File_Kind;
    use type Editor.Build_Working_Context.Build_Working_Context_Validation_Status;
-
-   function Trim (S : String) return String is
-   begin
-      return Ada.Strings.Fixed.Trim (S, Ada.Strings.Both);
-   end Trim;
 
    function Contains_Control (Text : String) return Boolean is
    begin
@@ -47,29 +44,19 @@ package body Editor.Build_Candidates is
       end if;
    end Base_Name;
 
-   function Normalize_Separators (Path : String) return String is
-      Result : String := Path;
-   begin
-      for I in Result'Range loop
-         if Result (I) = Character'Val (16#5C#) then
-            Result (I) := '/';
-         end if;
-      end loop;
-      return Result;
-   end Normalize_Separators;
-
    function Canonical_Existing_Path (Path : String) return String is
    begin
-      if Trim (Path)'Length = 0 then
+      if Editor.Text_Helpers.Trim (Path)'Length = 0 then
          return "";
       elsif Ada.Directories.Exists (Path) then
-         return Normalize_Separators (Ada.Directories.Full_Name (Path));
+         return Editor.Path_Helpers.Normalize_For_Compare
+           (Ada.Directories.Full_Name (Path), True);
       else
-         return Normalize_Separators (Path);
+         return Editor.Path_Helpers.Normalize_For_Compare (Path, True);
       end if;
    exception
       when others =>
-         return Normalize_Separators (Path);
+         return Editor.Path_Helpers.Normalize_For_Compare (Path, True);
    end Canonical_Existing_Path;
 
    function Is_Path_Within_Project_Root (Path, Project_Root : String) return Boolean is
@@ -85,7 +72,7 @@ package body Editor.Build_Candidates is
    function Is_Safe_Project_Relative_Path (Path : String) return Boolean is
       Start : Positive := Path'First;
    begin
-      if Trim (Path)'Length = 0
+      if Editor.Text_Helpers.Trim (Path)'Length = 0
         or else Path (Path'First) = '/'
         or else Path (Path'First) = Character'Val (16#5C#)
         or else Ada.Strings.Fixed.Index (Path, "//") > 0
@@ -118,7 +105,7 @@ package body Editor.Build_Candidates is
    function Path_Is_Readable_Ordinary_File (Path : String) return Boolean is
       File : Ada.Text_IO.File_Type;
    begin
-      if Trim (Path)'Length = 0
+      if Editor.Text_Helpers.Trim (Path)'Length = 0
         or else not Ada.Directories.Exists (Path)
         or else Ada.Directories.Kind (Path) /= Ada.Directories.Ordinary_File
       then
@@ -328,7 +315,7 @@ package body Editor.Build_Candidates is
          declare
             S : constant String := To_String (Arg);
          begin
-            if Trim (S)'Length = 0 or else Contains_Control (S) then
+            if Editor.Text_Helpers.Trim (S)'Length = 0 or else Contains_Control (S) then
                return Build_Candidate_Rejected_Shell_Text;
             end if;
          end;
@@ -388,28 +375,6 @@ package body Editor.Build_Candidates is
       Candidates.Replace_Element (Right, L);
    end Swap;
 
-   function Path_Depth (Path : String) return Natural is
-      Depth : Natural := 0;
-   begin
-      for C of Path loop
-         if C = '/' then
-            Depth := Depth + 1;
-         end if;
-      end loop;
-      return Depth;
-   end Path_Depth;
-
-   function Lower (S : String) return String is
-      Result : String := S;
-   begin
-      for I in Result'Range loop
-         if Result (I) in 'A' .. 'Z' then
-            Result (I) := Character'Val (Character'Pos (Result (I)) + 32);
-         end if;
-      end loop;
-      return Result;
-   end Lower;
-
    function Gpr_Relative_Path (Candidate : Build_Candidate_Record) return String is
    begin
       if Candidate.Structured_Arguments.Length >= 2 then
@@ -420,9 +385,9 @@ package body Editor.Build_Candidates is
    end Gpr_Relative_Path;
 
    function Rank (Candidate : Build_Candidate_Record) return Natural is
-      Rel : constant String := Lower (Gpr_Relative_Path (Candidate));
-      Base : constant String := Lower (Base_Name (Rel));
-      Root_Base : constant String := Lower
+      Rel : constant String := Editor.Text_Helpers.Lower (Gpr_Relative_Path (Candidate));
+      Base : constant String := Editor.Text_Helpers.Lower (Base_Name (Rel));
+      Root_Base : constant String := Editor.Text_Helpers.Lower
         (Base_Name (To_String (Candidate.Working_Context.Canonical_Path_If_Available)));
       Base_Without_Extension : constant String :=
         (if Base'Length > 4 and then Base (Base'Last - 3 .. Base'Last) = ".gpr" then
@@ -434,21 +399,21 @@ package body Editor.Build_Candidates is
          when Build_Candidate_Alire_Project =>
             return 0;
          when Build_Candidate_Gpr_Project =>
-            if Path_Depth (Rel) = 0 and then Base_Without_Extension = Root_Base then
+            if Editor.Path_Helpers.Path_Depth (Rel) = 0 and then Base_Without_Extension = Root_Base then
                return 5;
-            elsif Path_Depth (Rel) = 0 then
+            elsif Editor.Path_Helpers.Path_Depth (Rel) = 0 then
                return 10;
             elsif Ada.Strings.Fixed.Index (Rel, "test") > 0
               or else Ada.Strings.Fixed.Index (Rel, "example") > 0
             then
-               return 40 + Path_Depth (Rel);
+               return 40 + Editor.Path_Helpers.Path_Depth (Rel);
             elsif Ada.Strings.Fixed.Index (Base, "app") > 0
               or else Ada.Strings.Fixed.Index (Base, "main") > 0
               or else Ada.Strings.Fixed.Index (Base, "demo") > 0
             then
-               return 20 + Path_Depth (Rel);
+               return 20 + Editor.Path_Helpers.Path_Depth (Rel);
             else
-               return 30 + Path_Depth (Rel);
+               return 30 + Editor.Path_Helpers.Path_Depth (Rel);
             end if;
          when Build_Candidate_Manual_Request => return 90;
          when Build_Candidate_None => return 99;

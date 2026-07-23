@@ -30,4 +30,6 @@ package Editor.Ada_Declaration_Parser.Profile_Parameter_Collectors is
       Pending_Profile_Access_Target_Count  : in out Natural;
       Closed      : out Boolean);
 
+   function Profile_Parameter_Duplicate (Profile : String) return String;
+
 end Editor.Ada_Declaration_Parser.Profile_Parameter_Collectors;

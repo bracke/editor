@@ -24,6 +24,7 @@ with Editor.Panels;
 with Editor.Project;
 with Editor.Project_Search;
 with Editor.Project_Search_Bar;
+with Editor.Image_Helpers;
 with Editor.Render_Cache;
 with Editor.Selection;
 with Editor.State;
@@ -148,11 +149,6 @@ package body Editor.Executor.Project_Search_Result_Commands is
    is
       Options : constant Editor.Project_Search.Project_Search_Options := (others => <>);
 
-      function Search_Image (Value : Natural) return String is
-      begin
-         return Ada.Strings.Fixed.Trim (Natural'Image (Value), Ada.Strings.Both);
-      end Search_Image;
-
       function Search_Summary_Message return String is
          Matches : constant Natural := Editor.Project_Search.Result_Count (S.Project_Search);
          Files   : constant Natural := Editor.Project_Search.Files_With_Matches (S.Project_Search);
@@ -163,38 +159,57 @@ package body Editor.Executor.Project_Search_Result_Commands is
             Text := To_Unbounded_String ("Project search completed: no matches.");
          else
             Text := To_Unbounded_String
-              ("Project search completed: " & Search_Image (Matches) &
-               " matches in " & Search_Image (Files) & " files");
+              ("Project search completed: "
+               & Editor.Image_Helpers.Trim_Image (Matches)
+               & " matches in "
+               & Editor.Image_Helpers.Trim_Image (Files)
+               & " files");
          end if;
-         Append (Text, "; searched "
-           & Search_Image (Editor.Project_Search.Files_Searched (S.Project_Search))
+        Append (Text, "; searched "
+           & Editor.Image_Helpers.Trim_Image
+               (Editor.Project_Search.Files_Searched (S.Project_Search))
            & " files");
 
          if Skipped > 0 then
-            Append (Text, "; skipped " & Search_Image (Skipped));
+            Append (Text, "; skipped " & Editor.Image_Helpers.Trim_Image (Skipped));
             if Editor.Project_Search.Skipped_Missing_Count (S.Project_Search) > 0 then
-               Append (Text, " missing=" & Search_Image
-                 (Editor.Project_Search.Skipped_Missing_Count (S.Project_Search)));
+               Append
+                 (Text,
+                  " missing="
+                  & Editor.Image_Helpers.Trim_Image
+                      (Editor.Project_Search.Skipped_Missing_Count (S.Project_Search)));
             end if;
             if Editor.Project_Search.Skipped_Large_Count (S.Project_Search) > 0 then
-               Append (Text, " large=" & Search_Image
-                 (Editor.Project_Search.Skipped_Large_Count (S.Project_Search)));
+               Append
+                 (Text,
+                  " large="
+                  & Editor.Image_Helpers.Trim_Image
+                      (Editor.Project_Search.Skipped_Large_Count (S.Project_Search)));
             end if;
             if Editor.Project_Search.Skipped_Binary_Count (S.Project_Search) > 0 then
-               Append (Text, " binary=" & Search_Image
-                 (Editor.Project_Search.Skipped_Binary_Count (S.Project_Search)));
+               Append
+                 (Text,
+                  " binary="
+                  & Editor.Image_Helpers.Trim_Image
+                      (Editor.Project_Search.Skipped_Binary_Count (S.Project_Search)));
             end if;
             if Editor.Project_Search.Read_Error_Count (S.Project_Search) > 0 then
-               Append (Text, " unreadable=" & Search_Image
-                 (Editor.Project_Search.Read_Error_Count (S.Project_Search)));
+               Append
+                 (Text,
+                  " unreadable="
+                  & Editor.Image_Helpers.Trim_Image
+                      (Editor.Project_Search.Read_Error_Count (S.Project_Search)));
             end if;
          end if;
          if Editor.Project_Search.Was_Truncated (S.Project_Search) then
             Append (Text, "; result limit reached");
             if Editor.Project_Search.Matches_Truncated_Count (S.Project_Search) > 0 then
-               Append (Text, ": truncated " & Search_Image
-                 (Editor.Project_Search.Matches_Truncated_Count (S.Project_Search))
-                 & " matches");
+               Append
+                 (Text,
+                  ": truncated "
+                  & Editor.Image_Helpers.Trim_Image
+                      (Editor.Project_Search.Matches_Truncated_Count (S.Project_Search))
+                  & " matches");
             end if;
          end if;
          return To_String (Text);

@@ -1,4 +1,7 @@
 with Ada.Strings.Fixed;
+with Editor.Text_Helpers;
+with Editor.Ada_Declaration_Parser.Same_Line_Segment_Helpers;
+with Editor.Ada_Declaration_Parser.Compact_Record_Tail_Phase;
 with Editor.Ada_Declaration_Parser.Declaration_Collectors;
 with Editor.Ada_Declaration_Parser.Lexical_Helpers;
 with Editor.Ada_Declaration_Parser.Metadata_Helpers;
@@ -9,34 +12,12 @@ with Editor.Ada_Syntax_Core;
 
 package body Editor.Ada_Declaration_Parser.Same_Line_Emitters is
 
+   use Editor.Text_Helpers;
+   use Editor.Ada_Declaration_Parser.Same_Line_Segment_Helpers;
    use Editor.Ada_Declaration_Parser.Lexical_Helpers;
    use Editor.Ada_Declaration_Parser.Metadata_Helpers;
    use Editor.Ada_Declaration_Parser.Name_Profile_Helpers;
    use Editor.Ada_Declaration_Parser.Target_Helpers;
-
-   function Strip_Override_Prefix (Segment : String) return String is
-      S : constant String := Trim (Segment);
-      L : constant String := Lower (S);
-   begin
-      if Starts_With (L, "not overriding ") then
-         return Trim (S (S'First + 15 .. S'Last));
-      elsif Starts_With (L, "overriding ") then
-         return Trim (S (S'First + 11 .. S'Last));
-      end if;
-
-      return S;
-   end Strip_Override_Prefix;
-
-   function Strip_Callable_Prefix (Segment : String) return String is
-      S : constant String := Strip_Override_Prefix (Segment);
-      L : constant String := Lower (S);
-   begin
-      if Starts_With_Word (L, "with") then
-         return Trim (S (S'First + 4 .. S'Last));
-      end if;
-
-      return S;
-   end Strip_Callable_Prefix;
 
    procedure Add_Same_Line_Subtype_Groups
      (Analysis        : in out Analysis_Result;
@@ -366,6 +347,15 @@ package body Editor.Ada_Declaration_Parser.Same_Line_Emitters is
                        and then Ada.Strings.Fixed.Index (Segment_Lower, ":") /= 0,
                      Source_Span => (Line_Number, Col, Line_Number,
                                Positive'Max (Col, Col + Segment_Name'Length - 1)));
+               end if;
+
+               if New_Id /= No_Symbol
+                 and then Segment_Kind = Symbol_Record_Type
+               then
+                  Editor.Ada_Declaration_Parser.Compact_Record_Tail_Phase.
+                    Parse_Compact_Record_Tail
+                      (Analysis, Raw_Line, Line_Number, Depth, New_Id,
+                       Mark_Declaration_Form_Metadata'Access);
                end if;
 
                if New_Id /= No_Symbol

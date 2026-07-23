@@ -3,6 +3,7 @@ with Ada.Directories;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Text_IO;
+with Editor.Image_Helpers;
 with Editor.Theme;
 with Editor.Commands;
 
@@ -88,13 +89,6 @@ package body Editor.Settings_Management is
    begin
       return (if Value then "true" else "false");
    end Bool_Image;
-
-   function Count_Image (Value : Natural) return String is
-      Raw : constant String := Natural'Image (Value);
-   begin
-      return Raw (Raw'First + 1 .. Raw'Last);
-   end Count_Image;
-
 
    function Clamped_Query (Query : String) return String is
    begin
@@ -918,10 +912,10 @@ package body Editor.Settings_Management is
       Op : constant String := Lower (Trimmed (Operation));
       Prefix : constant String := (if Op = "save" or else Op = "saved" then "Settings saved" else "Settings loaded");
       Detail : constant String :=
-        Count_Image (Summary.Unknown_Field_Count) & " unsupported, "
-        & Count_Image (Summary.Invalid_Value_Count) & " invalid, "
-        & Count_Image (Summary.Forbidden_Field_Count) & " forbidden-domain, "
-        & Count_Image (Summary.Malformed_Line_Count) & " malformed";
+        Editor.Image_Helpers.Trim_Image (Summary.Unknown_Field_Count) & " unsupported, "
+        & Editor.Image_Helpers.Trim_Image (Summary.Invalid_Value_Count) & " invalid, "
+        & Editor.Image_Helpers.Trim_Image (Summary.Forbidden_Field_Count) & " forbidden-domain, "
+        & Editor.Image_Helpers.Trim_Image (Summary.Malformed_Line_Count) & " malformed";
    begin
       case Summary.Status is
          when Editor.Settings.Settings_Ok =>
@@ -1037,13 +1031,15 @@ package body Editor.Settings_Management is
         and then Result.Forbidden_Domain_Count = 0
         and then Result.Malformed_Line_Count = 0
       then
-         return "Settings audit ok: " & Count_Image (Result.Supported_Field_Count) & " supported fields.";
+         return "Settings audit ok: "
+           & Editor.Image_Helpers.Trim_Image (Result.Supported_Field_Count)
+           & " supported fields.";
       else
          return "Settings audit: "
-           & Count_Image (Result.Unknown_Field_Count) & " unknown, "
-           & Count_Image (Result.Invalid_Value_Count) & " invalid, "
-           & Count_Image (Result.Forbidden_Domain_Count) & " forbidden-domain, "
-           & Count_Image (Result.Malformed_Line_Count) & " malformed.";
+           & Editor.Image_Helpers.Trim_Image (Result.Unknown_Field_Count) & " unknown, "
+           & Editor.Image_Helpers.Trim_Image (Result.Invalid_Value_Count) & " invalid, "
+           & Editor.Image_Helpers.Trim_Image (Result.Forbidden_Domain_Count) & " forbidden-domain, "
+           & Editor.Image_Helpers.Trim_Image (Result.Malformed_Line_Count) & " malformed.";
       end if;
    end File_Audit_Summary;
 
@@ -1052,7 +1048,9 @@ package body Editor.Settings_Management is
       if Result.Forbidden_Field_Count = 0 then
          return "Settings domain separation ok.";
       else
-         return "Settings domain separation warning: " & Count_Image (Result.Forbidden_Field_Count) & " forbidden field groups.";
+         return "Settings domain separation warning: "
+           & Editor.Image_Helpers.Trim_Image (Result.Forbidden_Field_Count)
+           & " forbidden field groups.";
       end if;
    end Domain_Audit_Summary;
 
@@ -1074,7 +1072,9 @@ package body Editor.Settings_Management is
       end if;
       Result.Row_Count := Setting_Count;
       Result.Audit_Summary := To_Unbounded_String
-        ("Settings surface: " & Count_Image (Setting_Count) & " supported global preferences.");
+        ("Settings surface: "
+         & Editor.Image_Helpers.Trim_Image (Setting_Count)
+         & " supported global preferences.");
       Audit_Domain_Separation_Text
         ("theme=" & Editor.Settings.Theme_Id (Settings) & ASCII.LF &
          "line-numbers=" & Editor.Settings.Line_Number_Mode_Name (Settings) & ASCII.LF &
@@ -1904,11 +1904,11 @@ package body Editor.Settings_Management is
          return "Settings command surface ok: save/load/reset commands are visible, described, configuration-classified, and payload-free.";
       else
          return "Settings command surface warning: "
-           & Count_Image (Result.Missing_Descriptor_Count) & " descriptor, "
-           & Count_Image (Result.Wrong_Category_Count) & " category, "
-           & Count_Image (Result.Non_Configuration_Count) & " configuration, "
-           & Count_Image (Result.Payload_Capable_Count) & " payload, "
-           & Count_Image (Result.Hidden_Command_Count) & " visibility.";
+           & Editor.Image_Helpers.Trim_Image (Result.Missing_Descriptor_Count) & " descriptor, "
+           & Editor.Image_Helpers.Trim_Image (Result.Wrong_Category_Count) & " category, "
+           & Editor.Image_Helpers.Trim_Image (Result.Non_Configuration_Count) & " configuration, "
+           & Editor.Image_Helpers.Trim_Image (Result.Payload_Capable_Count) & " payload, "
+           & Editor.Image_Helpers.Trim_Image (Result.Hidden_Command_Count) & " visibility.";
       end if;
    end Command_Surface_Audit_Summary;
 
@@ -1982,7 +1982,7 @@ package body Editor.Settings_Management is
            ("Configuration audit ok: settings, keybindings, workspace, recent projects, commands, and transient state are separated.");
       else
          Result.Summary := To_Unbounded_String
-           ("Configuration audit warnings: " & Count_Image (Result.Warning_Count)
+           ("Configuration audit warnings: " & Editor.Image_Helpers.Trim_Image (Result.Warning_Count)
             & " warning rows across settings configuration domains.");
       end if;
       return Result;

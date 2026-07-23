@@ -1,4 +1,5 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.Image_Helpers;
 with Editor.Commands;
 
 package body Editor.Configuration_Recovery is
@@ -11,12 +12,6 @@ package body Editor.Configuration_Recovery is
    Pending_Reset_All_Confirmation : Boolean := False;
    Recorded_Recovery_Summary      : Configuration_Recovery_Summary := (others => <>);
    Recorded_Recovery_Summary_Set  : Boolean := False;
-
-   function Count_Image (Value : Natural) return String is
-      Raw : constant String := Natural'Image (Value);
-   begin
-      return Raw (Raw'First + 1 .. Raw'Last);
-   end Count_Image;
 
    function Bounded_Text (Text : String) return Unbounded_String is
    begin
@@ -581,11 +576,11 @@ package body Editor.Configuration_Recovery is
          return "Configuration recovery clean";
       elsif Summary.Error_Count > 0 then
          return "Configuration recovery: "
-           & Count_Image (Summary.Domains_With_Issues_Count)
+           & Editor.Image_Helpers.Trim_Image (Summary.Domains_With_Issues_Count)
            & " domains need attention";
       else
          return "Configuration recovery: "
-           & Count_Image (Summary.Warning_Count) & " warnings";
+           & Editor.Image_Helpers.Trim_Image (Summary.Warning_Count) & " warnings";
       end if;
    end Summary_Label;
 

@@ -782,31 +782,4 @@ package body Editor.Executor.Buffer_Close_Commands is
       end if;
    end Execute_Close_Buffer;
 
-   procedure Execute_Buffer_Close_Kind
-     (S   : in out Editor.State.State_Type;
-      Cmd : Editor.Commands.Command)
-   is
-   begin
-      case Cmd.Kind is
-         when Close_Buffer =>
-            if Cmd.Buffer_Id = 0 then
-               Execute_Close_Active_Buffer (S);
-            else
-               Execute_Close_Buffer (S, Editor.Buffers.Buffer_Id (Cmd.Buffer_Id));
-            end if;
-
-         when Close_Other_Buffers =>
-            Execute_Close_Other_Buffers (S);
-
-         when Close_All_Clean_Buffers =>
-            Execute_Close_All_Clean_Buffers (S);
-
-         when Discard_Pending_Transition =>
-            Execute_Discard_Pending_Transition (S);
-
-         when others =>
-            raise Program_Error with "unsupported buffer close command kind";
-      end case;
-   end Execute_Buffer_Close_Kind;
-
 end Editor.Executor.Buffer_Close_Commands;

@@ -1,17 +1,13 @@
 with Ada.Characters.Handling;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.Image_Helpers;
 with Editor.Contextual_Help;
 with Editor.Input_Field;
 
 package body Editor.Feature_Search_Results is
 
    use type Editor.Feature_Panel.Feature_Id;
-
-   function Trim_Image (Value : Natural) return String is
-   begin
-      return Ada.Strings.Fixed.Trim (Natural'Image (Value), Ada.Strings.Both);
-   end Trim_Image;
 
    function Lower (Text : String) return String is
       Result : String := Text;
@@ -153,7 +149,7 @@ package body Editor.Feature_Search_Results is
    is
       Prefix : constant String :=
         (if Source_Label'Length = 0 then "buffer" else Source_Label)
-        & ":" & Trim_Image (Match_Line) & ": ";
+        & ":" & Editor.Image_Helpers.Trim_Image (Match_Line) & ": ";
    begin
       return Prefix & Build_Search_Result_Context (Line_Text, Match_Column, Match_Length);
    end Format_Search_Result_Label;
@@ -688,7 +684,7 @@ package body Editor.Feature_Search_Results is
       elsif Results.Match_Count = 1 then
          return Prefix & "1 match for """ & Query & """";
       else
-         return Prefix & Trim_Image (Results.Match_Count) & " matches for """ & Query & """";
+         return Prefix & Editor.Image_Helpers.Trim_Image (Results.Match_Count) & " matches for """ & Query & """";
       end if;
    end Header_Text;
 
@@ -803,7 +799,9 @@ package body Editor.Feature_Search_Results is
    begin
       if Item.Has_Target then
          declare
-            Pos : constant String := Trim_Image (Item.Target_Line) & ":" & Trim_Image (Item.Target_Column);
+            Pos : constant String :=
+              Editor.Image_Helpers.Trim_Image (Item.Target_Line) & ":" &
+              Editor.Image_Helpers.Trim_Image (Item.Target_Column);
          begin
             if Source'Length = 0 then
                return Pos;
@@ -1104,7 +1102,7 @@ package body Editor.Feature_Search_Results is
       elsif Results.Match_Count = 1 then
          return "Search Results: 1 match";
       else
-         return "Search Results: " & Trim_Image (Results.Match_Count) & " matches";
+         return "Search Results: " & Editor.Image_Helpers.Trim_Image (Results.Match_Count) & " matches";
       end if;
    end Message_Search_Active_Buffer_Completed;
 

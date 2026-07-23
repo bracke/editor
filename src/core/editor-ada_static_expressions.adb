@@ -1,7 +1,7 @@
 with Ada.Characters.Handling;
-with Ada.Strings;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
+with Editor.Text_Helpers;
 
 package body Editor.Ada_Static_Expressions is
 
@@ -20,17 +20,12 @@ package body Editor.Ada_Static_Expressions is
    function To_String (Value : Ada.Strings.Unbounded.Unbounded_String) return String
       renames Ada.Strings.Unbounded.To_String;
 
-   function Trim (Text : String) return String is
-     (Ada.Strings.Fixed.Trim (Text, Ada.Strings.Both));
+   function Trim (Text : String) return String
+     renames Editor.Text_Helpers.Trim;
 
    function Normalize_Name (Text : String) return String is
-      T : constant String := Trim (Text);
-      R : String (T'Range) := T;
    begin
-      for I in R'Range loop
-         R (I) := Ada.Characters.Handling.To_Lower (R (I));
-      end loop;
-      return R;
+      return Editor.Text_Helpers.Normalize (Text);
    end Normalize_Name;
 
 

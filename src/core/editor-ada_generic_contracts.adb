@@ -5,6 +5,9 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with Editor.Ada_Static_Expressions;
 with Editor.Ada_Type_Graph;
+with Editor.Ada_Generic_Contracts.Core_Utilities;
+with Editor.Ada_Generic_Contracts.Profile_Text;
+with Editor.Ada_Generic_Contracts.Type_Conformance;
 
 package body Editor.Ada_Generic_Contracts is
 
@@ -19,22 +22,16 @@ package body Editor.Ada_Generic_Contracts is
    use type Editor.Ada_Static_Expressions.Static_Value_Status;
    use type Editor.Ada_Type_Graph.Type_Id;
    use type Editor.Ada_Type_Graph.Compatibility_Status;
+   use Editor.Ada_Generic_Contracts.Type_Conformance;
 
-   function Trim (Text : String) return String is
-   begin
-      return Ada.Strings.Fixed.Trim (Text, Ada.Strings.Both);
-   end Trim;
+   function Trim (Text : String) return String
+     renames Editor.Ada_Generic_Contracts.Core_Utilities.Trim;
 
-   function Normalize (Text : String) return String is
-   begin
-      return Ada.Characters.Handling.To_Lower (Trim (Text));
-   end Normalize;
+   function Normalize (Text : String) return String
+     renames Editor.Ada_Generic_Contracts.Core_Utilities.Normalize;
 
-   function Contains (Text : String; Pattern : String) return Boolean is
-   begin
-      return Pattern'Length = 0
-        or else Ada.Strings.Fixed.Index (Text, Pattern) /= 0;
-   end Contains;
+   function Contains (Text : String; Pattern : String) return Boolean
+     renames Editor.Ada_Generic_Contracts.Core_Utilities.Contains;
 
    function Hash_Mix
      (Seed       : Natural;
@@ -42,201 +39,36 @@ package body Editor.Ada_Generic_Contracts is
       Multiplier : Long_Long_Integer;
       Modulus    : Long_Long_Integer := Long_Long_Integer (Natural'Last))
       return Natural
-   is
-   begin
-      return Natural
-        ((Long_Long_Integer (Seed) * Multiplier + Addend) mod Modulus);
-   end Hash_Mix;
+     renames Editor.Ada_Generic_Contracts.Core_Utilities.Hash_Mix;
 
-   function Hash_Text (Text : String) return Natural is
-      H : Natural := 2166136261 mod Natural'Last;
-   begin
-      for C of Text loop
-         H := Hash_Mix
-           (H, Long_Long_Integer (Character'Pos (C)) + 1, 16_777_619);
-      end loop;
-      return H;
-   end Hash_Text;
+   function Hash_Text (Text : String) return Natural
+     renames Editor.Ada_Generic_Contracts.Core_Utilities.Hash_Text;
 
-   procedure Mix (Model : in out Generic_Contract_Model; Value : Natural) is
-   begin
-      Model.Result_Fingerprint :=
-        Hash_Mix (Model.Result_Fingerprint, Long_Long_Integer (Value) + 197, 65_599);
-   end Mix;
+   procedure Mix (Model : in out Generic_Contract_Model; Value : Natural)
+     renames Editor.Ada_Generic_Contracts.Core_Utilities.Mix;
 
-   function Empty_Formal return Generic_Formal_Info is
-   begin
-      return (Id => No_Generic_Formal,
-              Declaration => Editor.Ada_Direct_Visibility.No_Declaration,
-              Node => Editor.Ada_Syntax_Tree.No_Node,
-              Region => Editor.Ada_Declarative_Regions.No_Region,
-              Name => Null_Unbounded_String,
-              Normalized_Name => Null_Unbounded_String,
-              Kind => Generic_Formal_Unknown,
-              Has_Default => False,
-              Default_Text => Null_Unbounded_String,
-              Formal_Parameter_Count => 0,
-              Formal_Parameter_Subtypes => Null_Unbounded_String,
-              Formal_Parameter_Modes => Null_Unbounded_String,
-              Formal_Parameter_Names => Null_Unbounded_String,
-              Formal_Parameter_Defaults => Null_Unbounded_String,
-              Formal_Subprogram_Convention => Null_Unbounded_String,
-              Formal_Has_Result => False,
-              Formal_Result_Subtype => Null_Unbounded_String,
-              Formal_Package_Generic_Name => Null_Unbounded_String,
-              Formal_Package_Normalized_Generic => Null_Unbounded_String,
-              Formal_Package_Has_Box => False,
-              Status => Generic_Formal_Unsupported,
-              Start_Line => 1,
-              End_Line => 1,
-              Fingerprint => 0);
-   end Empty_Formal;
+   function Empty_Formal return Generic_Formal_Info
+     renames Editor.Ada_Generic_Contracts.Core_Utilities.Empty_Formal;
 
-   function Empty_Instance return Generic_Instance_Info is
-   begin
-      return (Id => No_Generic_Instance,
-              Declaration => Editor.Ada_Direct_Visibility.No_Declaration,
-              Node => Editor.Ada_Syntax_Tree.No_Node,
-              Region => Editor.Ada_Declarative_Regions.No_Region,
-              Name => Null_Unbounded_String,
-              Normalized_Name => Null_Unbounded_String,
-              Generic_Name => Null_Unbounded_String,
-              Normalized_Generic => Null_Unbounded_String,
-              Positional_Actuals => 0,
-              Named_Actuals => 0,
-              Total_Actuals => 0,
-              Named_Actual_Names => Null_Unbounded_String,
-              Positional_Actual_Kinds => Null_Unbounded_String,
-              Named_Actual_Kinds => Null_Unbounded_String,
-              Positional_Actual_Texts => Null_Unbounded_String,
-              Named_Actual_Texts => Null_Unbounded_String,
-              Status => Generic_Instance_Unsupported,
-              Start_Line => 1,
-              End_Line => 1,
-              Fingerprint => 0);
-   end Empty_Instance;
+   function Empty_Instance return Generic_Instance_Info
+     renames Editor.Ada_Generic_Contracts.Core_Utilities.Empty_Instance;
 
-   function Empty_Actual_Match return Generic_Actual_Match_Info is
-   begin
-      return (Id => No_Generic_Actual_Match,
-              Instance => No_Generic_Instance,
-              Instance_Node => Editor.Ada_Syntax_Tree.No_Node,
-              Instance_Region => Editor.Ada_Declarative_Regions.No_Region,
-              Generic_Declaration => Editor.Ada_Direct_Visibility.No_Declaration,
-              Generic_Formal_Region => Editor.Ada_Declarative_Regions.No_Region,
-              Formal_Count => 0,
-              Required_Formals => 0,
-              Positional_Actuals => 0,
-              Named_Actuals => 0,
-              Matched_Formals => 0,
-              Defaulted_Formals => 0,
-              Unknown_Named_Actuals => 0,
-              Duplicate_Named_Actuals => 0,
-              Missing_Required_Formals => 0,
-              Kind_Compatible_Formals => 0,
-              Kind_Mismatched_Formals => 0,
-              Kind_Unknown_Formals => 0,
-              Subprogram_Profile_Compatible_Formals => 0,
-              Subprogram_Profile_Mismatched_Formals => 0,
-              Subprogram_Profile_Unknown_Formals => 0,
-              Subprogram_Profile_Mode_Mismatched_Formals => 0,
-              Subprogram_Profile_Null_Exclusion_Mismatched_Formals => 0,
-              Subprogram_Profile_Access_Profile_Mismatched_Formals => 0,
-              Subprogram_Profile_Convention_Mismatched_Formals => 0,
-              Subprogram_Profile_Default_Mismatched_Formals => 0,
-              Subprogram_Profile_Class_Wide_Mismatched_Formals => 0,
-              Subprogram_Profile_Name_Mismatched_Formals => 0,
-              Subprogram_Profile_Result_Compatible_Formals => 0,
-              Subprogram_Profile_Result_Mismatched_Formals => 0,
-              Subprogram_Profile_Result_Unknown_Formals => 0,
-              Subprogram_Profile_Type_Compatible_Formals => 0,
-              Subprogram_Profile_Type_Mismatched_Formals => 0,
-              Subprogram_Profile_Type_Unknown_Formals => 0,
-              Subprogram_Profile_Overload_Candidates => 0,
-              Subprogram_Profile_Overload_Selected_Formals => 0,
-              Subprogram_Profile_Overload_Ambiguous_Formals => 0,
-              Subprogram_Profile_Overload_Unresolved_Formals => 0,
-              Formal_Package_Compatible_Formals => 0,
-              Formal_Package_Mismatched_Formals => 0,
-              Formal_Package_Unknown_Formals => 0,
-              Formal_Package_Unresolved_Formals => 0,
-              Formal_Package_Ambiguous_Formals => 0,
-              Formal_Package_Not_Instance_Formals => 0,
-              Formal_Package_Wrong_Generic_Formals => 0,
-              Formal_Package_Contract_Unknown_Formals => 0,
-              Formal_Package_Malformed_Formals => 0,
-              Default_Expression_Checked_Formals => 0,
-              Default_Expression_Static_Formals => 0,
-              Default_Expression_Illegal_Formals => 0,
-              Default_Expression_Unknown_Formals => 0,
-              Default_Expression_Unresolved_Formals => 0,
-              Default_Expression_Nonstatic_Formals => 0,
-              Default_Expression_Malformed_Formals => 0,
-              Default_Expression_Division_By_Zero_Formals => 0,
-              Status => Generic_Actual_Match_Generic_Not_Found,
-              Start_Line => 1,
-              End_Line => 1,
-              Fingerprint => 0);
-   end Empty_Actual_Match;
+   function Empty_Actual_Match return Generic_Actual_Match_Info
+     renames Editor.Ada_Generic_Contracts.Core_Utilities.Empty_Actual_Match;
 
    function Empty_Body_Contract_Visibility
-     return Generic_Body_Contract_Visibility_Info is
-   begin
-      return (Id => No_Generic_Body_Contract_Visibility,
-              Generic_Declaration => Editor.Ada_Direct_Visibility.No_Declaration,
-              Generic_Node => Editor.Ada_Syntax_Tree.No_Node,
-              Generic_Formal_Region => Editor.Ada_Declarative_Regions.No_Region,
-              Body_Declaration => Editor.Ada_Direct_Visibility.No_Declaration,
-              Body_Node => Editor.Ada_Syntax_Tree.No_Node,
-              Body_Region => Editor.Ada_Declarative_Regions.No_Region,
-              Name => Null_Unbounded_String,
-              Normalized_Name => Null_Unbounded_String,
-              Formal_Count => 0,
-              Visible_Formals => 0,
-              Shadowed_Formals => 0,
-              Shadowed_Formal_Names => Null_Unbounded_String,
-              Status => Generic_Body_Contract_Unsupported,
-              Start_Line => 1,
-              End_Line => 1,
-              Fingerprint => 0);
-   end Empty_Body_Contract_Visibility;
+     return Generic_Body_Contract_Visibility_Info
+     renames Editor.Ada_Generic_Contracts.Core_Utilities.Empty_Body_Contract_Visibility;
 
    function To_Formal_Kind
-     (Kind : Editor.Ada_Direct_Visibility.Declaration_Kind) return Generic_Formal_Kind is
-   begin
-      case Kind is
-         when Editor.Ada_Direct_Visibility.Declaration_Formal_Type =>
-            return Generic_Formal_Type;
-         when Editor.Ada_Direct_Visibility.Declaration_Formal_Object =>
-            return Generic_Formal_Object;
-         when Editor.Ada_Direct_Visibility.Declaration_Formal_Subprogram =>
-            return Generic_Formal_Subprogram;
-         when Editor.Ada_Direct_Visibility.Declaration_Formal_Package =>
-            return Generic_Formal_Package;
-         when others =>
-            return Generic_Formal_Unknown;
-      end case;
-   end To_Formal_Kind;
+     (Kind : Editor.Ada_Direct_Visibility.Declaration_Kind) return Generic_Formal_Kind
+     renames Editor.Ada_Generic_Contracts.Core_Utilities.To_Formal_Kind;
 
    function Child_Label
      (Tree   : Editor.Ada_Syntax_Tree.Tree_Type;
       Parent : Editor.Ada_Syntax_Tree.Node_Id;
       Kind   : Editor.Ada_Syntax_Tree.Node_Kind) return String
-   is
-   begin
-      for Index in 1 .. Editor.Ada_Syntax_Tree.Child_Count (Tree, Parent) loop
-         declare
-            Child : constant Editor.Ada_Syntax_Tree.Node_Info :=
-              Editor.Ada_Syntax_Tree.Node
-                (Tree, Editor.Ada_Syntax_Tree.Child_At (Tree, Parent, Index));
-         begin
-            if Child.Kind = Kind then
-               return To_String (Child.Label);
-            end if;
-         end;
-      end loop;
-      return "";
-   end Child_Label;
+     renames Editor.Ada_Generic_Contracts.Core_Utilities.Child_Label;
 
 
    function Explicit_Convention_For_Declaration
@@ -951,239 +783,49 @@ package body Editor.Ada_Generic_Contracts is
    function Delimited_Text_At
      (List  : String;
       Index : Positive) return String
-   is
-      First : Natural := List'First;
-      Pos   : Positive := 1;
-   begin
-      if List = "" then
-         return "";
-      end if;
-      while First <= List'Last loop
-         declare
-            Sep  : Natural := Ada.Strings.Fixed.Index (List (First .. List'Last), "|");
-            Last : Natural := List'Last;
-         begin
-            if Sep /= 0 then
-               Last := Sep - 1;
-            end if;
-            if Pos = Index then
-               return Trim (List (First .. Last));
-            end if;
-            exit when Sep = 0;
-            First := Sep + 1;
-            Pos := Pos + 1;
-         end;
-      end loop;
-      return "";
-   end Delimited_Text_At;
+     renames Editor.Ada_Generic_Contracts.Profile_Text.Delimited_Text_At;
 
    function Named_Text_For
      (List : String;
       Name : String) return String
-   is
-      N     : constant String := Normalize (Name);
-      First : Natural := List'First;
-   begin
-      if List = "" or else N = "" then
-         return "";
-      end if;
-      while First <= List'Last loop
-         declare
-            Sep  : Natural := Ada.Strings.Fixed.Index (List (First .. List'Last), "|");
-            Last : Natural := List'Last;
-            Eq   : Natural;
-         begin
-            if Sep /= 0 then
-               Last := Sep - 1;
-            end if;
-            Eq := Ada.Strings.Fixed.Index (List (First .. Last), "=");
-            if Eq /= 0 and then Normalize (List (First .. Eq - 1)) = N then
-               return Trim (List (Eq + 1 .. Last));
-            end if;
-            exit when Sep = 0;
-            First := Sep + 1;
-         end;
-      end loop;
-      return "";
-   end Named_Text_For;
+     renames Editor.Ada_Generic_Contracts.Profile_Text.Named_Text_For;
 
-   function Strip_Default_And_Mode (Text : String) return String is
-      T : constant String := Trim (Text);
-      Cut : Natural := Ada.Strings.Fixed.Index (T, ":=");
-      Lower : constant String := Ada.Characters.Handling.To_Lower (T);
-      First : Natural := T'First;
-   begin
-      if T = "" then
-         return "";
-      end if;
-      if Cut = 0 then
-         Cut := T'Last + 1;
-      end if;
-      if Ada.Strings.Fixed.Index (Lower, "in out ") = Lower'First then
-         First := T'First + 7;
-      elsif Ada.Strings.Fixed.Index (Lower, "out ") = Lower'First then
-         First := T'First + 4;
-      elsif Ada.Strings.Fixed.Index (Lower, "in ") = Lower'First then
-         First := T'First + 3;
-      end if;
-      if First > Cut - 1 then
-         return "";
-      end if;
-      return Normalize (T (First .. Cut - 1));
-   end Strip_Default_And_Mode;
+   function Strip_Default_And_Mode (Text : String) return String
+     renames Editor.Ada_Generic_Contracts.Profile_Text.Strip_Default_And_Mode;
 
    function Append_Repeated_Subtype
      (List  : Unbounded_String;
       Count : Natural;
       Text  : String) return Unbounded_String
-   is
-      Result : Unbounded_String := List;
-      Subtype_Text : constant String := Strip_Default_And_Mode (Text);
-   begin
-      for I in 1 .. Count loop
-         if Length (Result) = 0 then
-            Result := To_Unbounded_String (Subtype_Text);
-         else
-            Result := Result & "|" & Subtype_Text;
-         end if;
-      end loop;
-      return Result;
-   end Append_Repeated_Subtype;
+     renames Editor.Ada_Generic_Contracts.Profile_Text.Append_Repeated_Subtype;
 
-
-   function Mode_From_Parameter_Tail (Text : String) return String is
-      T : constant String := Trim (Text);
-      Lower : constant String := Ada.Characters.Handling.To_Lower (T);
-   begin
-      if Ada.Strings.Fixed.Index (Lower, "in out ") = Lower'First then
-         return "in out";
-      elsif Ada.Strings.Fixed.Index (Lower, "out ") = Lower'First then
-         return "out";
-      elsif Ada.Strings.Fixed.Index (Lower, "in ") = Lower'First then
-         return "in";
-      else
-         return "in";
-      end if;
-   end Mode_From_Parameter_Tail;
+   function Mode_From_Parameter_Tail (Text : String) return String
+     renames Editor.Ada_Generic_Contracts.Profile_Text.Mode_From_Parameter_Tail;
 
    function Append_Repeated_Mode
      (List  : Unbounded_String;
       Count : Natural;
       Text  : String) return Unbounded_String
-   is
-      Result : Unbounded_String := List;
-      Mode_Text : constant String := Mode_From_Parameter_Tail (Text);
-   begin
-      for I in 1 .. Count loop
-         if Length (Result) = 0 then
-            Result := To_Unbounded_String (Mode_Text);
-         else
-            Result := Result & "|" & Mode_Text;
-         end if;
-      end loop;
-      return Result;
-   end Append_Repeated_Mode;
+     renames Editor.Ada_Generic_Contracts.Profile_Text.Append_Repeated_Mode;
 
-   function Default_From_Parameter_Tail (Text : String) return String is
-   begin
-      if Ada.Strings.Fixed.Index (Text, ":=") /= 0 then
-         return "default";
-      else
-         return "required";
-      end if;
-   end Default_From_Parameter_Tail;
+   function Default_From_Parameter_Tail (Text : String) return String
+     renames Editor.Ada_Generic_Contracts.Profile_Text.Default_From_Parameter_Tail;
 
    function Append_Repeated_Default
      (List  : Unbounded_String;
       Count : Natural;
       Text  : String) return Unbounded_String
-   is
-      Result : Unbounded_String := List;
-      Default_Text : constant String := Default_From_Parameter_Tail (Text);
-   begin
-      for I in 1 .. Count loop
-         if Length (Result) = 0 then
-            Result := To_Unbounded_String (Default_Text);
-         else
-            Result := Result & "|" & Default_Text;
-         end if;
-      end loop;
-      return Result;
-   end Append_Repeated_Default;
-
-
+     renames Editor.Ada_Generic_Contracts.Profile_Text.Append_Repeated_Default;
 
    function Append_Parameter_Names
      (List  : Unbounded_String;
       Names : String) return Unbounded_String
-   is
-      Result : Unbounded_String := List;
-      First  : Natural := Names'First;
-
-      procedure Append_One (Text : String) is
-         Name_Text : constant String := Normalize (Text);
-      begin
-         if Name_Text = "" then
-            return;
-         elsif Length (Result) = 0 then
-            Result := To_Unbounded_String (Name_Text);
-         else
-            Result := Result & "|" & Name_Text;
-         end if;
-      end Append_One;
-   begin
-      if Names = "" then
-         return Result;
-      end if;
-
-      for I in Names'Range loop
-         if Names (I) = ',' then
-            if I > First then
-               Append_One (Names (First .. I - 1));
-            end if;
-            First := I + 1;
-         end if;
-      end loop;
-      if First <= Names'Last then
-         Append_One (Names (First .. Names'Last));
-      end if;
-      return Result;
-   end Append_Parameter_Names;
-
+     renames Editor.Ada_Generic_Contracts.Profile_Text.Append_Parameter_Names;
 
    function Parameter_Defaults_Conform
      (Formal_Defaults : String;
       Actual_Defaults : String) return Boolean
-   is
-      First : Natural := Formal_Defaults'First;
-      Index : Positive := 1;
-   begin
-      if Formal_Defaults = "" then
-         return True;
-      end if;
-      while First <= Formal_Defaults'Last loop
-         declare
-            Sep  : Natural := Ada.Strings.Fixed.Index
-              (Formal_Defaults (First .. Formal_Defaults'Last), "|");
-            Last : Natural := Formal_Defaults'Last;
-            Actual_Default : constant String := Delimited_Text_At (Actual_Defaults, Index);
-         begin
-            if Sep /= 0 then
-               Last := Sep - 1;
-            end if;
-            if Trim (Formal_Defaults (First .. Last)) = "default"
-              and then Actual_Default /= "default"
-            then
-               return False;
-            end if;
-            exit when Sep = 0;
-            First := Sep + 1;
-            Index := Index + 1;
-         end;
-      end loop;
-      return True;
-   end Parameter_Defaults_Conform;
-
+     renames Editor.Ada_Generic_Contracts.Profile_Text.Parameter_Defaults_Conform;
 
    procedure Analyze_Subprogram_Profile
      (Tree       : Editor.Ada_Syntax_Tree.Tree_Type;
@@ -1196,86 +838,7 @@ package body Editor.Ada_Generic_Contracts is
       Has_Result : out Boolean;
       Result     : out Unbounded_String;
       Malformed  : out Boolean)
-   is
-      Profile : constant String :=
-        Child_Label (Tree, Node, Editor.Ada_Syntax_Tree.Node_Declaration_Profile);
-      Mode_Text : constant String :=
-        Normalize (Child_Label (Tree, Node, Editor.Ada_Syntax_Tree.Node_Declaration_Mode));
-      Result_Text : constant String :=
-        Trim (Child_Label (Tree, Node, Editor.Ada_Syntax_Tree.Node_Declaration_Result));
-      Segment_First : Natural := Profile'First;
-
-      procedure Add_Segment (First : Natural; Last : Natural) is
-         Segment : constant String := Trim (Profile (First .. Last));
-         Colon   : constant Natural := Ada.Strings.Fixed.Index (Segment, ":");
-         Names_Last : Natural := 0;
-         Name_First : Natural := 0;
-         Segment_Count : Natural := 0;
-      begin
-         if Segment = "" then
-            return;
-         end if;
-         if Colon = 0 then
-            Malformed := True;
-            Parameters := Parameters + 1;
-            return;
-         end if;
-         Names_Last := Colon - 1;
-         Name_First := Segment'First;
-         for I in Segment'First .. Names_Last loop
-            if Segment (I) = ',' then
-               if I > Name_First then
-                  Parameters := Parameters + 1;
-                  Segment_Count := Segment_Count + 1;
-               else
-                  Malformed := True;
-               end if;
-               Name_First := I + 1;
-            end if;
-         end loop;
-         if Name_First <= Names_Last then
-            Parameters := Parameters + 1;
-            Segment_Count := Segment_Count + 1;
-         end if;
-         Subtypes := Append_Repeated_Subtype
-           (Subtypes, Segment_Count, Segment (Colon + 1 .. Segment'Last));
-         Modes := Append_Repeated_Mode
-           (Modes, Segment_Count, Segment (Colon + 1 .. Segment'Last));
-         Names := Append_Parameter_Names
-           (Names, Segment (Segment'First .. Names_Last));
-         Defaults := Append_Repeated_Default
-           (Defaults, Segment_Count, Segment (Colon + 1 .. Segment'Last));
-      end Add_Segment;
-   begin
-      Parameters := 0;
-      Has_Result := Result_Text /= "";
-      Subtypes := Null_Unbounded_String;
-      Modes := Null_Unbounded_String;
-      Names := Null_Unbounded_String;
-      Defaults := Null_Unbounded_String;
-      Result := To_Unbounded_String (Normalize (Result_Text));
-      Malformed := False;
-
-      if Profile /= ""
-        and then not
-          (Mode_Text = "expression function"
-           and then Ada.Strings.Fixed.Index (Profile, ":") = 0)
-      then
-         for I in Profile'Range loop
-            if Profile (I) = ';' then
-               if I > Segment_First then
-                  Add_Segment (Segment_First, I - 1);
-               else
-                  Malformed := True;
-               end if;
-               Segment_First := I + 1;
-            end if;
-         end loop;
-         if Segment_First <= Profile'Last then
-            Add_Segment (Segment_First, Profile'Last);
-         end if;
-      end if;
-   end Analyze_Subprogram_Profile;
+     renames Editor.Ada_Generic_Contracts.Profile_Text.Analyze_Subprogram_Profile;
 
 
    function Substitute_Generic_Formal_Subtypes
@@ -1441,45 +1004,14 @@ package body Editor.Ada_Generic_Contracts is
    end record;
 
 
-   type Profile_Type_Conformance_Status is
-     (Profile_Type_Conformance_Not_Checked,
-      Profile_Type_Conformance_Compatible,
-      Profile_Type_Conformance_Mismatch,
-      Profile_Type_Conformance_Unknown);
+   subtype Profile_Type_Conformance_Status is
+     Editor.Ada_Generic_Contracts.Type_Conformance.Profile_Type_Conformance_Status;
 
    function Type_Id_For_Profile_Subtype
      (Types  : Editor.Ada_Type_Graph.Type_Model;
       Region : Editor.Ada_Declarative_Regions.Region_Id;
       Name   : String) return Editor.Ada_Type_Graph.Type_Id
-   is
-      Wanted : constant String := Normalize (Name);
-      Found  : Editor.Ada_Type_Graph.Type_Id := Editor.Ada_Type_Graph.No_Type;
-   begin
-      if Wanted = "" then
-         return Editor.Ada_Type_Graph.No_Type;
-      end if;
-
-      Found := Editor.Ada_Type_Graph.Lookup_Type (Types, Region, Wanted);
-      if Found /= Editor.Ada_Type_Graph.No_Type then
-         return Found;
-      end if;
-
-      for Index in 1 .. Editor.Ada_Type_Graph.Type_Count (Types) loop
-         declare
-            Info : constant Editor.Ada_Type_Graph.Type_Info :=
-              Editor.Ada_Type_Graph.Type_At (Types, Index);
-         begin
-            if To_String (Info.Normalized_Name) = Wanted then
-               if Found /= Editor.Ada_Type_Graph.No_Type then
-                  return Editor.Ada_Type_Graph.No_Type;
-               end if;
-               Found := Info.Id;
-            end if;
-         end;
-      end loop;
-
-      return Found;
-   end Type_Id_For_Profile_Subtype;
+     renames Editor.Ada_Generic_Contracts.Type_Conformance.Type_Id_For_Profile_Subtype;
 
    function Type_Graph_Profile_Subtypes_Conform
      (Types           : Editor.Ada_Type_Graph.Type_Model;
@@ -1487,94 +1019,7 @@ package body Editor.Ada_Generic_Contracts is
       Actual_Region   : Editor.Ada_Declarative_Regions.Region_Id;
       Expected_Subtypes : String;
       Actual_Subtypes   : String) return Profile_Type_Conformance_Status
-   is
-      Expected_First : Natural := Expected_Subtypes'First;
-      Actual_First   : Natural := Actual_Subtypes'First;
-      Saw_Type_Graph_Relation : Boolean := False;
-
-      function Next_Field
-        (Text  : String;
-         First : in out Natural;
-         Field : out Unbounded_String) return Boolean
-      is
-         Sep  : Natural;
-         Last : Natural;
-      begin
-         Field := Null_Unbounded_String;
-         if Text = "" or else First > Text'Last then
-            return False;
-         end if;
-         Sep := Ada.Strings.Fixed.Index (Text (First .. Text'Last), "|");
-         Last := Text'Last;
-         if Sep /= 0 then
-            Last := Sep - 1;
-         end if;
-         Field := To_Unbounded_String (Normalize (Text (First .. Last)));
-         if Sep = 0 then
-            First := Text'Last + 1;
-         else
-            First := Sep + 1;
-         end if;
-         return True;
-      end Next_Field;
-   begin
-      if Expected_Subtypes = Actual_Subtypes then
-         return Profile_Type_Conformance_Compatible;
-      end if;
-
-      loop
-         declare
-            Expected_Field : Unbounded_String;
-            Actual_Field   : Unbounded_String;
-            Has_Expected   : constant Boolean :=
-              Next_Field (Expected_Subtypes, Expected_First, Expected_Field);
-            Has_Actual     : constant Boolean :=
-              Next_Field (Actual_Subtypes, Actual_First, Actual_Field);
-         begin
-            if Has_Expected /= Has_Actual then
-               return Profile_Type_Conformance_Mismatch;
-            elsif not Has_Expected then
-               exit;
-            elsif To_String (Expected_Field) = To_String (Actual_Field) then
-               null;
-            else
-               declare
-                  Expected_Type : constant Editor.Ada_Type_Graph.Type_Id :=
-                    Type_Id_For_Profile_Subtype
-                      (Types, Formal_Region, To_String (Expected_Field));
-                  Actual_Type : constant Editor.Ada_Type_Graph.Type_Id :=
-                    Type_Id_For_Profile_Subtype
-                      (Types, Actual_Region, To_String (Actual_Field));
-               begin
-                  if Expected_Type = Editor.Ada_Type_Graph.No_Type
-                    or else Actual_Type = Editor.Ada_Type_Graph.No_Type
-                  then
-                     return Profile_Type_Conformance_Unknown;
-                  end if;
-
-                  case Editor.Ada_Type_Graph.Compatibility
-                    (Types, Expected_Type, Actual_Type)
-                  is
-                     when Editor.Ada_Type_Graph.Type_Compatibility_Exact_Type
-                        | Editor.Ada_Type_Graph.Type_Compatibility_Subtype_Of =>
-                        Saw_Type_Graph_Relation := True;
-                     when Editor.Ada_Type_Graph.Type_Compatibility_Known_Different_Root =>
-                        return Profile_Type_Conformance_Mismatch;
-                     when others =>
-                        return Profile_Type_Conformance_Unknown;
-                  end case;
-               end;
-            end if;
-         end;
-      end loop;
-
-      if Saw_Type_Graph_Relation then
-         return Profile_Type_Conformance_Compatible;
-      else
-         return Profile_Type_Conformance_Unknown;
-      end if;
-   end Type_Graph_Profile_Subtypes_Conform;
-
+     renames Editor.Ada_Generic_Contracts.Type_Conformance.Type_Graph_Profile_Subtypes_Conform;
 
    function Type_Graph_Result_Subtype_Conforms
      (Types         : Editor.Ada_Type_Graph.Type_Model;
@@ -1582,122 +1027,7 @@ package body Editor.Ada_Generic_Contracts is
       Actual_Region : Editor.Ada_Declarative_Regions.Region_Id;
       Expected_Subtype : String;
       Actual_Subtype   : String) return Profile_Type_Conformance_Status
-   is
-      Expected : constant String := Normalize (Expected_Subtype);
-      Actual   : constant String := Normalize (Actual_Subtype);
-      Expected_Type : Editor.Ada_Type_Graph.Type_Id;
-      Actual_Type   : Editor.Ada_Type_Graph.Type_Id;
-
-      function Builtin_Root (Name : String) return String is
-         N : constant String := Normalize (Name);
-      begin
-         if N = "integer" or else N = "natural" or else N = "positive" then
-            return "integer";
-         elsif N = "float" or else N = "long_float" or else N = "short_float" then
-            return "float";
-         elsif N = "string" then
-            return "string";
-         else
-            return "";
-         end if;
-      end Builtin_Root;
-
-      function Type_Info_For_Id
-        (Id : Editor.Ada_Type_Graph.Type_Id) return Editor.Ada_Type_Graph.Type_Info
-      is
-      begin
-         for Index in 1 .. Editor.Ada_Type_Graph.Type_Count (Types) loop
-            declare
-               Info : constant Editor.Ada_Type_Graph.Type_Info :=
-                 Editor.Ada_Type_Graph.Type_At (Types, Index);
-            begin
-               if Info.Id = Id then
-                  return Info;
-               end if;
-            end;
-         end loop;
-         return Editor.Ada_Type_Graph.Type_At (Types, 1);
-      end Type_Info_For_Id;
-
-      function Has_Class (Text : String) return Boolean is
-         Lower : constant String := Ada.Characters.Handling.To_Lower (Normalize (Text));
-      begin
-         return Ada.Strings.Fixed.Index (Lower, "'class") /= 0;
-      end Has_Class;
-
-      function Strip_Class (Text : String) return String is
-         Lower : constant String := Ada.Characters.Handling.To_Lower (Normalize (Text));
-         Pos   : constant Natural := Ada.Strings.Fixed.Index (Lower, "'class");
-      begin
-         if Pos = 0 then
-            return Lower;
-         else
-            return Trim (Lower (Lower'First .. Pos - 1));
-         end if;
-      end Strip_Class;
-   begin
-      if Expected = Actual then
-         return Profile_Type_Conformance_Compatible;
-      elsif Expected = "" or else Actual = "" then
-         return Profile_Type_Conformance_Unknown;
-      end if;
-
-      if Has_Class (Actual) and then not Has_Class (Expected) then
-         return Profile_Type_Conformance_Mismatch;
-      end if;
-
-      Expected_Type := Type_Id_For_Profile_Subtype (Types, Formal_Region, Strip_Class (Expected));
-      Actual_Type := Type_Id_For_Profile_Subtype (Types, Actual_Region, Strip_Class (Actual));
-      if Expected_Type = Editor.Ada_Type_Graph.No_Type
-        and then Actual_Type /= Editor.Ada_Type_Graph.No_Type
-      then
-         declare
-            Actual_Info : constant Editor.Ada_Type_Graph.Type_Info :=
-              Type_Info_For_Id (Actual_Type);
-         begin
-            if To_String (Actual_Info.Normalized_Base) = Strip_Class (Expected) then
-               return Profile_Type_Conformance_Compatible;
-            end if;
-         end;
-      elsif Expected_Type = Editor.Ada_Type_Graph.No_Type
-        and then Actual_Type = Editor.Ada_Type_Graph.No_Type
-        and then Builtin_Root (Expected) /= ""
-        and then Builtin_Root (Actual) /= ""
-        and then Builtin_Root (Expected) /= Builtin_Root (Actual)
-      then
-         return Profile_Type_Conformance_Mismatch;
-      end if;
-      if Expected_Type = Editor.Ada_Type_Graph.No_Type
-        or else Actual_Type = Editor.Ada_Type_Graph.No_Type
-      then
-         return Profile_Type_Conformance_Unknown;
-      end if;
-
-      if Has_Class (Expected) then
-         case Editor.Ada_Type_Graph.Class_Wide_Compatibility
-           (Types, Expected_Type, Actual_Type)
-         is
-            when Editor.Ada_Type_Graph.Type_Compatibility_Class_Wide
-               | Editor.Ada_Type_Graph.Type_Compatibility_Exact_Type
-               | Editor.Ada_Type_Graph.Type_Compatibility_Subtype_Of =>
-               return Profile_Type_Conformance_Compatible;
-            when Editor.Ada_Type_Graph.Type_Compatibility_Known_Different_Root =>
-               return Profile_Type_Conformance_Mismatch;
-            when others =>
-               return Profile_Type_Conformance_Unknown;
-         end case;
-      end if;
-
-      case Editor.Ada_Type_Graph.Compatibility (Types, Expected_Type, Actual_Type) is
-         when Editor.Ada_Type_Graph.Type_Compatibility_Exact_Type
-            | Editor.Ada_Type_Graph.Type_Compatibility_Subtype_Of =>
-            return Profile_Type_Conformance_Compatible;
-         when Editor.Ada_Type_Graph.Type_Compatibility_Known_Different_Root =>
-            return Profile_Type_Conformance_Mismatch;
-         when others =>
-            return Profile_Type_Conformance_Unknown;
-      end case;
-   end Type_Graph_Result_Subtype_Conforms;
+     renames Editor.Ada_Generic_Contracts.Type_Conformance.Type_Graph_Result_Subtype_Conforms;
 
    function Profile_Matches_Formal
      (Model      : Generic_Contract_Model;

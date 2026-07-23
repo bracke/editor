@@ -1,5 +1,5 @@
-with Ada.Characters.Handling;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.Text_Helpers;
 
 package body Editor.Ada_Overload_RM_Edge_Legality is
 
@@ -18,15 +18,6 @@ package body Editor.Ada_Overload_RM_Edge_Legality is
    begin
       return ((A * 307) + (B * 47) + 1141) mod 1_000_000_007;
    end Mix;
-
-   function Lower (S : String) return String is
-      R : String := S;
-   begin
-      for I in R'Range loop
-         R (I) := Ada.Characters.Handling.To_Lower (R (I));
-      end loop;
-      return R;
-   end Lower;
 
    function Kind_Slot (Kind : RM_Edge_Context_Kind) return Natural is
    begin
@@ -503,10 +494,10 @@ package body Editor.Ada_Overload_RM_Edge_Legality is
      (Model      : RM_Edge_Legality_Model;
       Designator : String) return RM_Edge_Result_Set is
       Results : RM_Edge_Result_Set;
-      Wanted : constant String := Lower (Designator);
+      Wanted : constant String := Editor.Text_Helpers.Lower (Designator);
    begin
       for Row of Model.Items loop
-         if Lower (To_String (Row.Designator)) = Wanted then
+         if Editor.Text_Helpers.Lower (To_String (Row.Designator)) = Wanted then
             Results.Items.Append (Row);
             Results.Fingerprint := Mix (Results.Fingerprint, Row.Fingerprint);
          end if;

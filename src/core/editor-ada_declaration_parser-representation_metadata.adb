@@ -1,6 +1,7 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
 with Ada.Characters.Latin_1;
+with Editor.Text_Helpers;
 with Editor.Ada_Declaration_Parser.Lexical_Helpers;
 with Editor.Ada_Declaration_Parser.Metadata_Helpers;
 with Editor.Ada_Declaration_Parser.Pragma_Helpers;
@@ -9,6 +10,7 @@ with Editor.Ada_Declaration_Parser.Representation_Static_Values;
 package body Editor.Ada_Declaration_Parser.Representation_Metadata is
 
    use Editor.Ada_Language_Model;
+   use Editor.Text_Helpers;
    use Editor.Ada_Declaration_Parser.Lexical_Helpers;
 
    procedure Mark_Representation_Clause_Target
@@ -179,46 +181,8 @@ package body Editor.Ada_Declaration_Parser.Representation_Metadata is
    is
       P : constant String := Pragma_Helpers.Pragma_Name_Of (Line);
 
-      function Display_Pragma_Property_Name (Name : String) return String is
-         Result : Unbounded_String := Null_Unbounded_String;
-         Start_Word : Boolean := True;
-
-         function Upper (C : Character) return Character is
-         begin
-            if C >= 'a' and then C <= 'z' then
-               return Character'Val
-                 (Character'Pos (C) - Character'Pos ('a') + Character'Pos ('A'));
-            else
-               return C;
-            end if;
-         end Upper;
-      begin
-         --  Keep user-facing/source-facing attribute spelling stable while
-         --  deriving the semantic kind from the canonical shared resolver.
-         --  Most property names are title-cased underscore-separated words;
-         --  preserve the few all-uppercase Ada/GNAT spellings explicitly.
-         if Name = "cpu" then
-            return "CPU";
-         elsif Name = "spark_mode" then
-            return "SPARK_Mode";
-         end if;
-
-         for C of Name loop
-            if C = '_' then
-               Append (Result, C);
-               Start_Word := True;
-            elsif Start_Word then
-               Append (Result, Upper (C));
-               Start_Word := False;
-            else
-               Append (Result, C);
-            end if;
-         end loop;
-
-         return To_String (Result);
-      end Display_Pragma_Property_Name;
-
-      Attribute : constant String := Display_Pragma_Property_Name (P);
+      Attribute : constant String :=
+        Pragma_Helpers.Display_Pragma_Property_Name (P);
       Value_Text : constant String :=
         (if P = "attach_handler" then
             Pragma_Helpers.Interfacing_Pragma_Value
@@ -1004,37 +968,11 @@ package body Editor.Ada_Declaration_Parser.Representation_Metadata is
       end if;
    end Parse_Bit_Range;
 
-   function Text_After_Word (Text, Word : String) return String is
-      L  : constant String := Lower (Text);
-      Match_Pos : constant Natural := Ada.Strings.Fixed.Index (L, Lower (Word));
-   begin
-      if Match_Pos = 0 then
-         return "";
-      elsif Match_Pos + Word'Length > Text'Last then
-         return "";
-      else
-         return Trim (Text (Match_Pos + Word'Length .. Text'Last));
-      end if;
-   end Text_After_Word;
-
-   function Text_Before_Word (Text, Word : String) return String is
-      L  : constant String := Lower (Text);
-      Match_Pos : constant Natural := Ada.Strings.Fixed.Index (L, Lower (Word));
-   begin
-      if Match_Pos = 0 then
-         return Trim (Text);
-      elsif Match_Pos <= Text'First then
-         return "";
-      else
-         return Trim (Text (Text'First .. Match_Pos - 1));
-      end if;
-   end Text_Before_Word;
-
    function Record_Component_Storage_Unit_Text
      (Item_Text : String) return String
    is
    begin
-      return Text_Before_Word (Text_After_Word (Item_Text, "at"), "range");
+      return Segment_Before (Segment_After (Item_Text, "at"), "range");
    end Record_Component_Storage_Unit_Text;
 
 end Editor.Ada_Declaration_Parser.Representation_Metadata;

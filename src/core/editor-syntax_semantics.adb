@@ -4,21 +4,12 @@ with Editor.Ada_Syntax_Core;
 with Editor.Ada_Language_Model;
 with Editor.Ada_Symbol_Resolver;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Ada.Characters.Handling;
+with Editor.Text_Helpers;
 
 package body Editor.Syntax_Semantics is
 
    use type Editor.Ada_Language_Model.Symbol_Id;
    use type Editor.Syntax.Syntax_Kind;
-
-   function Lower (S : String) return String is
-      Result : String (S'Range);
-   begin
-      for I in S'Range loop
-         Result (I) := Ada.Characters.Handling.To_Lower (S (I));
-      end loop;
-      return Result;
-   end Lower;
 
    function Is_Name_Char (Ch : Character) return Boolean is
    begin
@@ -34,7 +25,7 @@ package body Editor.Syntax_Semantics is
       Name : String;
       Kind : Editor.Syntax.Token_Kind)
    is
-      Key : constant String := Lower (Name);
+      Key : constant String := Editor.Text_Helpers.Lower (Name);
       Len : constant Natural := Natural'Min (Key'Length, Stored_Name'Length);
    begin
       if Len = 0 then
@@ -140,8 +131,8 @@ package body Editor.Syntax_Semantics is
    end Is_Recovered_Unresolved_Binding;
 
    function Word_After (Line : String; Marker : String) return String is
-      Lower_Line : constant String := Lower (Line);
-      Lower_Marker : constant String := Lower (Marker);
+      Lower_Line : constant String := Editor.Text_Helpers.Lower (Line);
+      Lower_Marker : constant String := Editor.Text_Helpers.Lower (Marker);
       Start : Natural := 0;
    begin
       if Lower_Line'Length < Lower_Marker'Length then
@@ -210,8 +201,8 @@ package body Editor.Syntax_Semantics is
       end if;
 
       declare
-         Lower_Code   : constant String := Lower (Code_Line);
-         Lower_Marker : constant String := Lower (Marker);
+         Lower_Code   : constant String := Editor.Text_Helpers.Lower (Code_Line);
+         Lower_Marker : constant String := Editor.Text_Helpers.Lower (Marker);
          Start        : Natural := 0;
       begin
          if Lower_Code'Length < Lower_Marker'Length then
@@ -328,7 +319,7 @@ package body Editor.Syntax_Semantics is
       --  display prefix/suffix, so semantic lookup can match identifier tokens.
       declare
          Trimmed : constant String := Label (Label'First .. Stop);
-         Lowered : constant String := Lower (Trimmed);
+         Lowered : constant String := Editor.Text_Helpers.Lower (Trimmed);
       begin
          if Lowered'Length > 8
            and then Lowered (Lowered'Last - 7 .. Lowered'Last) = " renames"
@@ -700,7 +691,7 @@ package body Editor.Syntax_Semantics is
      (Map  : Semantic_Map;
       Name : String) return Editor.Syntax.Token_Kind
    is
-      Key : constant String := Lower (Name);
+      Key : constant String := Editor.Text_Helpers.Lower (Name);
       Len : constant Natural := Natural'Min (Key'Length, Stored_Name'Length);
    begin
       if Len = 0 then

@@ -1,7 +1,7 @@
 with Ada.Characters.Handling;
-with Ada.Strings;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.Text_Helpers;
 
 package body Editor.Ada_Type_Graph is
 
@@ -10,20 +10,14 @@ package body Editor.Ada_Type_Graph is
    use type Editor.Ada_Direct_Visibility.Declaration_Id;
    use type Editor.Ada_Declarative_Regions.Region_Id;
 
-   function Trim (Text : String) return String is
-   begin
-      return Ada.Strings.Fixed.Trim (Text, Ada.Strings.Both);
-   end Trim;
+   function Trim (Text : String) return String
+     renames Editor.Text_Helpers.Trim;
 
-   function Lower (Text : String) return String is
-   begin
-      return Ada.Characters.Handling.To_Lower (Text);
-   end Lower;
+   function Lower (Text : String) return String
+     renames Editor.Text_Helpers.Lower;
 
-   function Normalize (Text : String) return String is
-   begin
-      return Lower (Trim (Text));
-   end Normalize;
+   function Normalize (Text : String) return String
+     renames Editor.Text_Helpers.Normalize;
 
    function Hash_Mix
      (Seed       : Natural;

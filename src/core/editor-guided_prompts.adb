@@ -1,15 +1,10 @@
-with Ada.Strings.Fixed;
 with Ada.Directories;
 with Editor.Commands;
 with Editor.Keybindings;
+with Editor.Text_Helpers;
 use type Editor.Commands.Command_Id;
 package body Editor.Guided_Prompts is
    use type Ada.Directories.File_Kind;
-
-   function Trimmed (S : String) return String is
-   begin
-      return Ada.Strings.Fixed.Trim (S, Ada.Strings.Both);
-   end Trimmed;
 
    function Is_Separator (Ch : Character) return Boolean is
    begin
@@ -52,13 +47,6 @@ package body Editor.Guided_Prompts is
          return Ada.Directories.Current_Directory;
    end Safe_Containing_Directory;
 
-   function Starts_With (Text : String; Prefix : String) return Boolean is
-   begin
-      return Prefix'Length = 0
-        or else (Text'Length >= Prefix'Length
-                 and then Text (Text'First .. Text'First + Prefix'Length - 1) = Prefix);
-   end Starts_With;
-
    procedure Insert_File_Picker_Row
      (Rows : in out File_Picker_Row_Vectors.Vector;
       Row  : File_Picker_Row)
@@ -81,7 +69,8 @@ package body Editor.Guided_Prompts is
    end Insert_File_Picker_Row;
 
    procedure Refresh_File_Picker (Prompt : in out Prompt_State) is
-      Input       : constant String := Trimmed (Editor.Input_Field.Text (Prompt.Input));
+      Input       : constant String :=
+        Editor.Text_Helpers.Trim (Editor.Input_Field.Text (Prompt.Input));
       Base_Dir    : Unbounded_String := Null_Unbounded_String;
       Prefix      : Unbounded_String := Null_Unbounded_String;
       Sep         : Natural := 0;
@@ -173,7 +162,8 @@ package body Editor.Guided_Prompts is
             begin
                if Name /= "."
                  and then Name /= ".."
-                 and then Starts_With (Name, To_String (Prefix))
+                 and then Editor.Text_Helpers.Starts_With
+                   (Name, To_String (Prefix))
                then
                   Insert_File_Picker_Row
                     (Prompt.File_Picker_Rows,
@@ -511,7 +501,8 @@ package body Editor.Guided_Prompts is
    end Selected_File_Picker_Path;
 
    procedure Validate (Prompt : in out Prompt_State) is
-      Text : constant String := Trimmed (Editor.Input_Field.Text (Prompt.Input));
+      Text : constant String :=
+        Editor.Text_Helpers.Trim (Editor.Input_Field.Text (Prompt.Input));
    begin
       if not Prompt.Active then
          return;

@@ -13,11 +13,15 @@ with Editor.Build_Output_Details;
 with Editor.Executor;
 with Editor.Command_Execution;
 with Editor.Command_Palette;
+with Editor.Empty_State_Guidance.Guided_Actions;
 with Editor.Configuration_Audit;
 with Editor.Configuration_Recovery;
+with Editor.Commands.Workflow_Messages;
 with Editor.Feature_Diagnostics;
 with Editor.Keybindings;
 with Editor.Messages;
+with Editor.Empty_State_Guidance.Audits;
+with Editor.Empty_State_Guidance.Surfaces;
 
 package body Editor.Empty_State_Guidance is
 
@@ -35,6 +39,85 @@ package body Editor.Empty_State_Guidance is
    use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
    use type Editor.Build_Output_Details.Build_Output_Details_Kind;
    use type Editor.Feature_Diagnostics.Diagnostic_Severity;
+   function Command_Suggestion_From_Descriptor
+     (S       : Editor.State.State_Type;
+      Command : Editor.Commands.Command_Id)
+      return Empty_State_Suggested_Command
+     renames Editor.Empty_State_Guidance.Guided_Actions.Command_Suggestion_From_Descriptor;
+
+   function Stable_Name_Is_Display_Only
+     (Name : String) return Boolean
+     renames Editor.Empty_State_Guidance.Guided_Actions.Stable_Name_Is_Display_Only;
+
+   function Suggestion_Is_Descriptor_Consistent
+     (Suggestion : Empty_State_Suggested_Command) return Boolean
+     renames Editor.Empty_State_Guidance.Guided_Actions.Suggestion_Is_Descriptor_Consistent;
+
+   function Suggestion_Is_Activation_Safe
+     (Suggestion : Empty_State_Suggested_Command) return Boolean
+     renames Editor.Empty_State_Guidance.Guided_Actions.Suggestion_Is_Activation_Safe;
+
+   function Suggested_Action_Availability_Label
+     (Suggestion : Empty_State_Suggested_Command) return String
+     renames Editor.Empty_State_Guidance.Guided_Actions.Suggested_Action_Availability_Label;
+
+   function Suggested_Action_Select_Next
+     (Snapshot      : Empty_State_Snapshot;
+      Current_Index : Natural) return Natural
+     renames Editor.Empty_State_Guidance.Guided_Actions.Suggested_Action_Select_Next;
+
+   function Suggested_Action_Select_Previous
+     (Snapshot      : Empty_State_Snapshot;
+      Current_Index : Natural) return Natural
+     renames Editor.Empty_State_Guidance.Guided_Actions.Suggested_Action_Select_Previous;
+
+   function Suggested_Action_Selected_Index
+     (Snapshot : Empty_State_Snapshot) return Natural
+     renames Editor.Empty_State_Guidance.Guided_Actions.Suggested_Action_Selected_Index;
+
+   procedure Mark_Selected_Suggestion
+     (Snapshot : in out Empty_State_Snapshot;
+      Index    : Natural)
+     renames Editor.Empty_State_Guidance.Guided_Actions.Mark_Selected_Suggestion;
+
+   function Open_Suggested_Command_In_Command_Palette
+     (Snapshot : Empty_State_Snapshot;
+      Index    : Positive) return Boolean
+     renames Editor.Empty_State_Guidance.Guided_Actions.Open_Suggested_Command_In_Command_Palette;
+
+   function Open_Selected_Suggested_Command_In_Command_Palette
+     (Snapshot : Empty_State_Snapshot) return Boolean
+     renames Editor.Empty_State_Guidance.Guided_Actions.Open_Selected_Suggested_Command_In_Command_Palette;
+
+   function Execute_Suggested_Command
+     (S        : in out Editor.State.State_Type;
+      Snapshot : Empty_State_Snapshot;
+      Index    : Positive)
+      return Editor.Executor.Command_Execution_Result
+     renames Editor.Empty_State_Guidance.Guided_Actions.Execute_Suggested_Command;
+
+   function Activate_Suggested_Command
+     (S        : in out Editor.State.State_Type;
+      Snapshot : Empty_State_Snapshot;
+      Index    : Positive)
+      return Editor.Executor.Command_Execution_Result
+     renames Editor.Empty_State_Guidance.Guided_Actions.Activate_Suggested_Command;
+
+   function Execute_Selected_Suggested_Command
+     (S        : in out Editor.State.State_Type;
+      Snapshot : Empty_State_Snapshot)
+      return Editor.Executor.Command_Execution_Result
+     renames Editor.Empty_State_Guidance.Guided_Actions.Execute_Selected_Suggested_Command;
+
+   function Activate_Selected_Suggested_Command
+     (S        : in out Editor.State.State_Type;
+      Snapshot : Empty_State_Snapshot)
+      return Editor.Executor.Command_Execution_Result
+     renames Editor.Empty_State_Guidance.Guided_Actions.Activate_Selected_Suggested_Command;
+
+   function Assert_Guided_Action_Routing_Coherent
+     (S : Editor.State.State_Type) return Boolean
+     renames Editor.Empty_State_Guidance.Guided_Actions.Assert_Guided_Action_Routing_Coherent;
 
    function Safe_Stable_Command_Name (Name : String) return Boolean is
    begin
@@ -47,59 +130,6 @@ package body Editor.Empty_State_Guidance is
         and then Ada.Strings.Unbounded.Index (To_Unbounded_String (Name), "=") = 0;
    end Safe_Stable_Command_Name;
 
-   function Has_Active_Buffer (S : Editor.State.State_Type) return Boolean is
-   begin
-      return S.Active_Buffer_Token /= 0 or else S.File_Info.Has_Path;
-   end Has_Active_Buffer;
-
-   function Suggested_Action_Guard_Label
-     (Command : Editor.Commands.Command_Id) return String
-   is
-      D : constant Editor.Commands.Command_Descriptor :=
-        Editor.Commands.Descriptor (Command);
-   begin
-      if Command = Editor.Commands.Command_Build_Acknowledge_Consent then
-         return "Consent required";
-      elsif D.Target_Prompt_Capable or else D.Requires_Explicit_Target then
-         return "Requires input";
-      elsif D.Destructive then
-         return "Requires confirmation";
-      elsif D.Lifecycle then
-         return "Project/file safety check";
-      elsif D.Configuration then
-         return "Configuration safety check";
-      else
-         return "";
-      end if;
-   end Suggested_Action_Guard_Label;
-
-   function Suggested_Action_Label_With_Guard
-     (Base    : String;
-      Command : Editor.Commands.Command_Id) return String
-   is
-      Guard : constant String := Suggested_Action_Guard_Label (Command);
-   begin
-      if Guard'Length = 0 then
-         return Base;
-      elsif Base'Length = 0 then
-         return Guard;
-      else
-         return Base & "; " & Guard;
-      end if;
-   end Suggested_Action_Label_With_Guard;
-
-   function Pending_Confirmation_Blocks_Suggestion
-     (Command : Editor.Commands.Command_Id) return Boolean
-   is
-   begin
-      if not Editor.Configuration_Recovery.Has_Pending_Reset_All_Confirmation then
-         return False;
-      end if;
-
-      return Command /= Editor.Commands.Command_Configuration_Reset_All_Confirm
-        and then Command /= Editor.Commands.Command_Configuration_Reset_All_Cancel;
-   end Pending_Confirmation_Blocks_Suggestion;
-
    function Command_Is_Visible_In_Guidance
      (Command : Editor.Commands.Command_Id) return Boolean
    is
@@ -110,307 +140,6 @@ package body Editor.Empty_State_Guidance is
         or else Command = Editor.Commands.Command_Open_Command_Palette;
    end Command_Is_Visible_In_Guidance;
 
-   procedure Set_Text
-     (Snapshot  : in out Empty_State_Snapshot;
-      Surface   : Empty_State_Surface;
-      Kind      : Empty_State_Kind;
-      Primary   : String;
-      Secondary : String := "";
-      Severity  : Empty_State_Severity := Empty_Info)
-   is
-   begin
-      Snapshot.Surface := Surface;
-      Snapshot.Kind := Kind;
-      Snapshot.Primary_Message :=
-        To_Unbounded_String (Editor.Commands.Normalize_Workflow_Message (Primary));
-      Snapshot.Secondary_Explanation :=
-        To_Unbounded_String (Editor.Commands.Normalize_Workflow_Message (Secondary));
-      Snapshot.Severity := Severity;
-   end Set_Text;
-
-   function Canonical_Surface_Suggestion
-     (S       : Editor.State.State_Type;
-      Surface : Empty_State_Surface;
-      Command : Editor.Commands.Command_Id)
-      return Empty_State_Suggested_Command
-   is
-      Suggestion : Empty_State_Suggested_Command :=
-        Command_Suggestion_From_Descriptor (S, Command);
-   begin
-      --  keeps every surface-specific guided action on one
-      --  construction path: descriptor projection first, then the emitting
-      --  surface label only.  No caller may attach paths, row ids, result ids,
-      --  recovery domains, setting values, or other hidden payload state.
-      if Suggestion.Visible then
-         Suggestion.Surface_Source_Label :=
-           To_Unbounded_String (Empty_State_Surface_Label (Surface));
-      end if;
-      return Suggestion;
-   end Canonical_Surface_Suggestion;
-
-   procedure Add_Suggestion
-     (Snapshot : in out Empty_State_Snapshot;
-      S        : Editor.State.State_Type;
-      Command  : Editor.Commands.Command_Id)
-   is
-      Suggestion : Empty_State_Suggested_Command :=
-        Canonical_Surface_Suggestion (S, Snapshot.Surface, Command);
-   begin
-      if not Suggestion.Visible
-        or else Snapshot.Suggestion_Count >= Max_Empty_State_Suggestions
-      then
-         return;
-      end if;
-
-      for I in 1 .. Snapshot.Suggestion_Count loop
-         if Snapshot.Suggestions (I).Command = Suggestion.Command
-           or else To_String (Snapshot.Suggestions (I).Stable_Name) =
-             To_String (Suggestion.Stable_Name)
-         then
-            return;
-         end if;
-      end loop;
-
-      Snapshot.Suggestion_Count := Snapshot.Suggestion_Count + 1;
-      Snapshot.Suggestions (Snapshot.Suggestion_Count) := Suggestion;
-   end Add_Suggestion;
-
-
-   function Build_All_Empty_State_Snapshots
-     (S : Editor.State.State_Type) return Empty_State_Snapshot_Array
-   is
-   begin
-      return
-        (Build_Main_Empty_State (S),
-         Build_File_Tree_Empty_State (S),
-         Build_Quick_Open_Empty_State (S),
-         Build_Project_Search_Empty_State (S),
-         Build_Outline_Empty_State (S),
-         Build_Diagnostics_Empty_State (S),
-         Build_Build_UI_Empty_State (S),
-         Build_Recent_Projects_Empty_State (S),
-         Build_Config_Recovery_Empty_State (S));
-   end Build_All_Empty_State_Snapshots;
-
-   function Contains_Command_Suggestion
-     (Snapshot : Empty_State_Snapshot;
-      Command  : Editor.Commands.Command_Id) return Boolean
-   is
-   begin
-      for I in 1 .. Snapshot.Suggestion_Count loop
-         if Snapshot.Suggestions (I).Command = Command then
-            return True;
-         end if;
-      end loop;
-      return False;
-   end Contains_Command_Suggestion;
-
-   function Selected_Diagnostic_Is_Source_Less
-     (S : Editor.State.State_Type) return Boolean
-   is
-      D : Editor.Diagnostics.Diagnostic;
-   begin
-      if not S.Active_Diagnostic.Has_Active
-        or else not Editor.Diagnostics.Is_Valid_Diagnostic_Index
-          (S.Diagnostics, S.Active_Diagnostic.Index)
-      then
-         return False;
-      end if;
-
-      D := Editor.Diagnostics.Diagnostic_At
-        (S.Diagnostics, Positive (S.Active_Diagnostic.Index));
-      return not D.Has_Location;
-   end Selected_Diagnostic_Is_Source_Less;
-
-   function File_Tree_Selection_Is_Stale
-     (S : Editor.State.State_Type) return Boolean
-   is
-      Found : Boolean := False;
-      Selected_Row : constant Natural :=
-        Editor.File_Tree_View.Selected_Row_Index (S.File_Tree_View);
-      Node_Id : Editor.File_Tree.File_Tree_Node_Id :=
-        Editor.File_Tree.No_File_Tree_Node;
-   begin
-      if Selected_Row = 0 then
-         return False;
-      end if;
-
-      Node_Id := Editor.File_Tree_View.Node_For_Row
-        (S.File_Tree, Selected_Row, Found);
-      return not Found
-        or else Node_Id = Editor.File_Tree.No_File_Tree_Node
-        or else not Editor.File_Tree.Contains (S.File_Tree, Node_Id);
-   end File_Tree_Selection_Is_Stale;
-
-   function Quick_Open_Selection_Is_Stale
-     (Snapshot : Editor.Quick_Open.Quick_Open_Snapshot) return Boolean
-   is
-   begin
-      return Snapshot.Selected_Index > 0
-        and then (Snapshot.Visible_Count = 0
-                  or else Snapshot.Selected_Index > Snapshot.Visible_Count);
-   end Quick_Open_Selection_Is_Stale;
-
-   function Feature_Diagnostics_Has_Stale_Target
-     (S : Editor.State.State_Type) return Boolean
-   is
-   begin
-      for I in 1 .. Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) loop
-         if Editor.Feature_Diagnostics.Item_Is_Stale
-           (S.Feature_Diagnostics, Positive (I))
-         then
-            return True;
-         end if;
-      end loop;
-      return False;
-   end Feature_Diagnostics_Has_Stale_Target;
-
-   function Feature_Diagnostics_Selected_Source_Less
-     (S : Editor.State.State_Type) return Boolean
-   is
-   begin
-      return Editor.Feature_Diagnostics.Has_Selected_Diagnostic
-          (S.Feature_Diagnostics, S.Feature_Panel)
-        and then Editor.Feature_Diagnostics.Selected_Diagnostic_Target_Unavailable_Label
-          (S.Feature_Diagnostics, S.Feature_Panel) = "No source target";
-   end Feature_Diagnostics_Selected_Source_Less;
-
-   function Feature_Diagnostics_Selected_Unavailable_Reason
-     (S : Editor.State.State_Type) return String
-   is
-      Reason : constant String :=
-        Editor.Feature_Diagnostics.Selected_Diagnostic_Open_Unavailable_Reason
-          (S.Feature_Diagnostics, S.Feature_Panel);
-   begin
-      if not Editor.Feature_Diagnostics.Has_Selected_Diagnostic
-        (S.Feature_Diagnostics, S.Feature_Panel)
-        or else Feature_Diagnostics_Selected_Source_Less (S)
-        or else Reason'Length = 0
-      then
-         return "";
-      end if;
-
-      return Reason;
-   end Feature_Diagnostics_Selected_Unavailable_Reason;
-
-
-   function Command_Suggestion_From_Descriptor
-     (S       : Editor.State.State_Type;
-      Command : Editor.Commands.Command_Id)
-      return Empty_State_Suggested_Command
-   is
-      R : Empty_State_Suggested_Command;
-   begin
-      if Command = Editor.Commands.No_Command then
-         return R;
-      end if;
-
-      declare
-         D : constant Editor.Commands.Command_Descriptor :=
-           Editor.Commands.Descriptor (Command);
-         A : constant Editor.Commands.Command_Availability :=
-           Editor.Executor.Command_Availability (S, Command);
-         Stable : constant String := Editor.Commands.Stable_Command_Name (Command);
-      begin
-         if not Command_Is_Visible_In_Guidance (Command)
-           or else Stable'Length = 0
-           or else not Safe_Stable_Command_Name (Stable)
-         then
-            return R;
-         end if;
-
-         R.Command := Command;
-         R.Stable_Name := To_Unbounded_String (Stable);
-         R.Title := D.Name;
-         R.Short_Explanation := D.Description;
-         R.Surface_Source_Label := To_Unbounded_String ("empty-state guidance");
-         R.Available := Editor.Commands.Is_Available (A);
-         R.Visible := True;
-         R.Carries_Payload := False;
-         R.Activation_Mode := Suggestion_Execute_Through_Executor;
-
-         if Command = Editor.Commands.Command_Open_Command_Palette then
-            --  Opening the palette from guidance is itself palette entry, not
-            --  a hidden execution shortcut.  This remains payload-free and
-            --  lets the user review availability before choosing a command.
-            R.Activation_Mode := Suggestion_Open_In_Command_Palette;
-         end if;
-
-         R.Availability_Label :=
-           To_Unbounded_String
-             (Suggested_Action_Label_With_Guard
-                ((if R.Available then "Available" else "Unavailable"), Command));
-         if not R.Available then
-            R.Unavailable_Reason :=
-              To_Unbounded_String (Editor.Commands.Unavailable_Reason (A));
-            if Length (R.Unavailable_Reason) > 0 then
-               R.Availability_Label :=
-                 To_Unbounded_String
-                   (Suggested_Action_Label_With_Guard
-                      ("Unavailable: " & To_String (R.Unavailable_Reason),
-                       Command));
-            end if;
-         end if;
-      end;
-
-      return R;
-   end Command_Suggestion_From_Descriptor;
-
-   function Stable_Name_Is_Display_Only
-     (Name : String) return Boolean
-   is
-      Found    : Boolean := False;
-      Resolved : Editor.Commands.Command_Id := Editor.Commands.No_Command;
-   begin
-      if not Safe_Stable_Command_Name (Name) then
-         return False;
-      end if;
-
-      Resolved := Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
-      if not Found or else Resolved = Editor.Commands.No_Command then
-         return False;
-      end if;
-
-      return Command_Is_Visible_In_Guidance (Resolved);
-   end Stable_Name_Is_Display_Only;
-
-   function Suggestion_Is_Descriptor_Consistent
-     (Suggestion : Empty_State_Suggested_Command) return Boolean
-   is
-      Found    : Boolean := False;
-      Resolved : Editor.Commands.Command_Id := Editor.Commands.No_Command;
-      Name     : constant String := To_String (Suggestion.Stable_Name);
-   begin
-      if not Suggestion.Visible
-        or else Suggestion.Command = Editor.Commands.No_Command
-        or else Suggestion.Carries_Payload
-        or else not Stable_Name_Is_Display_Only (Name)
-      then
-         return False;
-      end if;
-
-      Resolved := Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
-      if not Found
-        or else Resolved /= Suggestion.Command
-        or else not Command_Is_Visible_In_Guidance (Suggestion.Command)
-        or else To_String (Suggestion.Title) /=
-          To_String (Editor.Commands.Descriptor (Suggestion.Command).Name)
-        or else To_String (Suggestion.Short_Explanation) /=
-          To_String (Editor.Commands.Descriptor (Suggestion.Command).Description)
-      then
-         return False;
-      end if;
-
-      return Name = Editor.Commands.Stable_Command_Name (Suggestion.Command);
-   end Suggestion_Is_Descriptor_Consistent;
-
-   function Suggestion_Is_Activation_Safe
-     (Suggestion : Empty_State_Suggested_Command) return Boolean
-   is
-   begin
-      return Suggestion_Is_Descriptor_Consistent (Suggestion);
-   end Suggestion_Is_Activation_Safe;
-
    function Suggestion_Is_Selectable
      (Suggestion : Empty_State_Suggested_Command) return Boolean
    is
@@ -418,340 +147,6 @@ package body Editor.Empty_State_Guidance is
       return Suggestion_Is_Activation_Safe (Suggestion)
         and then Suggestion.Activation_Mode /= Suggestion_Display_Only;
    end Suggestion_Is_Selectable;
-
-   function Suggested_Action_Availability_Label
-     (Suggestion : Empty_State_Suggested_Command) return String
-   is
-   begin
-      if Length (Suggestion.Availability_Label) > 0 then
-         return To_String (Suggestion.Availability_Label);
-      elsif Suggestion.Available then
-         return Suggested_Action_Label_With_Guard ("Available", Suggestion.Command);
-      elsif Length (Suggestion.Unavailable_Reason) > 0 then
-         return Suggested_Action_Label_With_Guard
-           ("Unavailable: " & To_String (Suggestion.Unavailable_Reason),
-            Suggestion.Command);
-      else
-         return Suggested_Action_Label_With_Guard ("Unavailable", Suggestion.Command);
-      end if;
-   end Suggested_Action_Availability_Label;
-
-   function Suggested_Action_Select_Next
-     (Snapshot      : Empty_State_Snapshot;
-      Current_Index : Natural) return Natural
-   is
-      Start : Natural := Current_Index;
-      Probe : Natural := 0;
-   begin
-      if Snapshot.Suggestion_Count = 0 then
-         return 0;
-      end if;
-
-      if Start = 0 or else Start > Snapshot.Suggestion_Count then
-         Start := Snapshot.Suggestion_Count;
-      end if;
-
-      for Step in 1 .. Snapshot.Suggestion_Count loop
-         Probe := ((Start + Step - 1) mod Snapshot.Suggestion_Count) + 1;
-         if Suggestion_Is_Selectable (Snapshot.Suggestions (Probe)) then
-            return Probe;
-         end if;
-      end loop;
-
-      return 0;
-   end Suggested_Action_Select_Next;
-
-   function Suggested_Action_Select_Previous
-     (Snapshot      : Empty_State_Snapshot;
-      Current_Index : Natural) return Natural
-   is
-      Start : Natural := Current_Index;
-      Probe : Natural := 0;
-   begin
-      if Snapshot.Suggestion_Count = 0 then
-         return 0;
-      end if;
-
-      if Start = 0 or else Start > Snapshot.Suggestion_Count then
-         Start := 1;
-      end if;
-
-      for Step in 1 .. Snapshot.Suggestion_Count loop
-         Probe := ((Start + Snapshot.Suggestion_Count - Step - 1)
-                   mod Snapshot.Suggestion_Count) + 1;
-         if Suggestion_Is_Selectable (Snapshot.Suggestions (Probe)) then
-            return Probe;
-         end if;
-      end loop;
-
-      return 0;
-   end Suggested_Action_Select_Previous;
-
-   function Suggested_Action_Selected_Index
-     (Snapshot : Empty_State_Snapshot) return Natural
-   is
-      Found : Natural := 0;
-   begin
-      for I in 1 .. Snapshot.Suggestion_Count loop
-         if Snapshot.Suggestions (I).Selected then
-            if Found /= 0 then
-               return 0;
-            end if;
-
-            if not Suggestion_Is_Selectable (Snapshot.Suggestions (I)) then
-               return 0;
-            end if;
-
-            Found := I;
-         end if;
-      end loop;
-
-      for I in Snapshot.Suggestion_Count + 1 .. Max_Empty_State_Suggestions loop
-         if Snapshot.Suggestions (I).Selected then
-            return 0;
-         end if;
-      end loop;
-
-      return Found;
-   end Suggested_Action_Selected_Index;
-
-   procedure Mark_Selected_Suggestion
-     (Snapshot : in out Empty_State_Snapshot;
-      Index    : Natural)
-   is
-   begin
-      for I in 1 .. Max_Empty_State_Suggestions loop
-         Snapshot.Suggestions (I).Selected :=
-           Index /= 0
-           and then I = Index
-           and then I <= Snapshot.Suggestion_Count
-           and then Suggestion_Is_Selectable (Snapshot.Suggestions (I));
-      end loop;
-   end Mark_Selected_Suggestion;
-
-   function Open_Suggested_Command_In_Command_Palette
-     (Snapshot : Empty_State_Snapshot;
-      Index    : Positive) return Boolean
-   is
-      Suggestion : Empty_State_Suggested_Command;
-      Found      : Boolean := False;
-      Resolved   : Editor.Commands.Command_Id := Editor.Commands.No_Command;
-   begin
-      if Index > Snapshot.Suggestion_Count
-        or else Index > Max_Empty_State_Suggestions
-      then
-         return False;
-      end if;
-
-      Suggestion := Snapshot.Suggestions (Index);
-      if not Assert_Suggested_Action_Index_Is_Activatable (Snapshot, Index)
-        or else not Suggestion_Is_Selectable (Suggestion)
-      then
-         return False;
-      end if;
-
-      Resolved := Editor.Commands.Command_Id_From_Stable_Name
-        (To_String (Suggestion.Stable_Name), Found);
-      if not Found
-        or else Resolved = Editor.Commands.No_Command
-        or else Resolved /= Suggestion.Command
-      then
-         return False;
-      end if;
-
-      if Pending_Confirmation_Blocks_Suggestion (Resolved) then
-         return False;
-      end if;
-
-      if Resolved = Editor.Commands.Command_Open_Command_Palette then
-         Editor.Command_Palette.Open;
-         return Editor.Command_Palette.Is_Open;
-      else
-         Editor.Command_Palette.Open_With_Command (Resolved);
-         return Editor.Command_Palette.Is_Open
-           and then Editor.Command_Palette.Selected_Command = Resolved;
-      end if;
-   end Open_Suggested_Command_In_Command_Palette;
-
-   function Open_Selected_Suggested_Command_In_Command_Palette
-     (Snapshot : Empty_State_Snapshot) return Boolean
-   is
-      Selected : constant Natural := Suggested_Action_Selected_Index (Snapshot);
-   begin
-      if Selected = 0 then
-         return False;
-      end if;
-
-      return Open_Suggested_Command_In_Command_Palette
-        (Snapshot, Positive (Selected));
-   end Open_Selected_Suggested_Command_In_Command_Palette;
-
-   function Execute_Suggested_Command
-     (S        : in out Editor.State.State_Type;
-      Snapshot : Empty_State_Snapshot;
-      Index    : Positive)
-      return Editor.Executor.Command_Execution_Result
-   is
-      Suggestion : Empty_State_Suggested_Command;
-      Found      : Boolean := False;
-      Resolved   : Editor.Commands.Command_Id := Editor.Commands.No_Command;
-      A          : Editor.Commands.Command_Availability;
-   begin
-      if Index > Snapshot.Suggestion_Count
-        or else Index > Max_Empty_State_Suggestions
-      then
-         return Editor.Command_Execution.No_Op (Editor.Commands.No_Command);
-      end if;
-
-      Suggestion := Snapshot.Suggestions (Index);
-      if not Assert_Suggested_Action_Index_Is_Activatable (Snapshot, Index)
-        or else not Suggestion_Is_Activation_Safe (Suggestion)
-      then
-         return Editor.Command_Execution.No_Op (Editor.Commands.No_Command);
-      end if;
-
-      Resolved := Editor.Commands.Command_Id_From_Stable_Name
-        (To_String (Suggestion.Stable_Name), Found);
-      if not Found
-        or else Resolved = Editor.Commands.No_Command
-        or else Resolved /= Suggestion.Command
-      then
-         return Editor.Command_Execution.No_Op (Editor.Commands.No_Command);
-      end if;
-
-      if Suggestion.Activation_Mode /= Suggestion_Execute_Through_Executor then
-         return Editor.Command_Execution.No_Op (Resolved);
-      end if;
-
-      if Pending_Confirmation_Blocks_Suggestion (Resolved) then
-         Editor.Messages.Push_Info
-           (S.Messages, "Finish the pending confirmation before using guided actions");
-         return Editor.Command_Execution.Unavailable (Resolved);
-      end if;
-
-      A := Editor.Executor.Command_Availability (S, Resolved);
-      if not Editor.Commands.Is_Available (A) then
-         --  Preserve the normal unavailable-command reporting path: guided
-         --  execution observes availability first, then delegates to Executor
-         --  so the user sees the canonical unavailable reason/message.
-         return Editor.Executor.Execute_Command_With_Result (S, Resolved);
-      end if;
-
-      return Editor.Executor.Execute_Command_With_Result (S, Resolved);
-   end Execute_Suggested_Command;
-
-   function Activate_Suggested_Command
-     (S        : in out Editor.State.State_Type;
-      Snapshot : Empty_State_Snapshot;
-      Index    : Positive)
-      return Editor.Executor.Command_Execution_Result
-   is
-      Suggestion : Empty_State_Suggested_Command;
-   begin
-      if Index > Snapshot.Suggestion_Count
-        or else Index > Max_Empty_State_Suggestions
-      then
-         return Editor.Command_Execution.No_Op (Editor.Commands.No_Command);
-      end if;
-
-      Suggestion := Snapshot.Suggestions (Index);
-      if not Assert_Suggested_Action_Index_Is_Activatable (Snapshot, Index)
-        or else not Suggestion_Is_Activation_Safe (Suggestion)
-      then
-         return Editor.Command_Execution.No_Op (Editor.Commands.No_Command);
-      end if;
-
-      if Pending_Confirmation_Blocks_Suggestion (Suggestion.Command) then
-         Editor.Messages.Push_Info
-           (S.Messages, "Finish the pending confirmation before using guided actions");
-         return Editor.Command_Execution.Unavailable (Suggestion.Command);
-      end if;
-
-      case Suggestion.Activation_Mode is
-         when Suggestion_Display_Only =>
-            return Editor.Command_Execution.No_Op (Suggestion.Command);
-         when Suggestion_Open_In_Command_Palette =>
-            if Open_Suggested_Command_In_Command_Palette (Snapshot, Index) then
-               return Editor.Command_Execution.Executed
-                 (Editor.Commands.Command_Open_Command_Palette);
-            else
-               return Editor.Command_Execution.Failed
-                 (Editor.Commands.Command_Open_Command_Palette);
-            end if;
-         when Suggestion_Execute_Through_Executor =>
-            return Execute_Suggested_Command (S, Snapshot, Index);
-      end case;
-   end Activate_Suggested_Command;
-
-   function Execute_Selected_Suggested_Command
-     (S        : in out Editor.State.State_Type;
-      Snapshot : Empty_State_Snapshot)
-      return Editor.Executor.Command_Execution_Result
-   is
-      Selected : constant Natural := Suggested_Action_Selected_Index (Snapshot);
-   begin
-      if Selected = 0 then
-         return Editor.Command_Execution.No_Op (Editor.Commands.No_Command);
-      end if;
-
-      return Execute_Suggested_Command (S, Snapshot, Positive (Selected));
-   end Execute_Selected_Suggested_Command;
-
-   function Activate_Selected_Suggested_Command
-     (S        : in out Editor.State.State_Type;
-      Snapshot : Empty_State_Snapshot)
-      return Editor.Executor.Command_Execution_Result
-   is
-      Selected : constant Natural := Suggested_Action_Selected_Index (Snapshot);
-   begin
-      if Selected = 0 then
-         return Editor.Command_Execution.No_Op (Editor.Commands.No_Command);
-      end if;
-
-      return Activate_Suggested_Command (S, Snapshot, Positive (Selected));
-   end Activate_Selected_Suggested_Command;
-
-   function Assert_Guided_Action_Routing_Coherent
-     (S : Editor.State.State_Type) return Boolean
-   is
-      Snapshots : constant Empty_State_Snapshot_Array :=
-        Build_All_Empty_State_Snapshots (S);
-   begin
-      if not Assert_Empty_State_Array_Is_Display_Only (Snapshots) then
-         return False;
-      end if;
-
-      for Surface_Index in Snapshots'Range loop
-         declare
-            Snapshot : constant Empty_State_Snapshot := Snapshots (Surface_Index);
-         begin
-            for I in 1 .. Snapshot.Suggestion_Count loop
-               if not Suggestion_Is_Activation_Safe (Snapshot.Suggestions (I))
-                 or else Snapshot.Suggestions (I).Carries_Payload
-                 or else Length (Snapshot.Suggestions (I).Stable_Name) = 0
-                 or else not Safe_Stable_Command_Name
-                   (To_String (Snapshot.Suggestions (I).Stable_Name))
-                 or else Length (Snapshot.Suggestions (I).Title) = 0
-                 or else Length (Snapshot.Suggestions (I).Availability_Label) = 0
-                 or else not Assert_Suggested_Action_Metadata_Is_Current
-                   (Snapshot.Suggestions (I))
-                 or else not Assert_Suggested_Action_Is_Canonical_Surface_Projection
-                   (S, Snapshot.Surface, Snapshot.Suggestions (I))
-                 or else not Assert_Suggested_Action_Source_Label_Is_Surface_Owned
-                   (Snapshot, Positive (I))
-                 or else not Assert_Suggested_Action_Availability_Label_Is_Current
-                   (S, Snapshot.Suggestions (I))
-                 or else not Assert_Suggested_Action_Activation_Mode_Is_Coherent
-                   (Snapshot.Suggestions (I))
-               then
-                  return False;
-               end if;
-            end loop;
-         end;
-      end loop;
-
-      return True;
-   end Assert_Guided_Action_Routing_Coherent;
 
 
 
@@ -1234,451 +629,34 @@ package body Editor.Empty_State_Guidance is
       return True;
    end Assert_Empty_State_Snapshot_Has_No_Target_Text;
 
-   function Build_Main_Empty_State (S : Editor.State.State_Type) return Empty_State_Snapshot is
-      Snapshot : Empty_State_Snapshot;
-      Has_Project : constant Boolean := Editor.Project.Has_Project (S.Project);
-      Has_Buffer  : constant Boolean := Has_Active_Buffer (S);
-      Recent_Count : constant Natural := Editor.Recent_Projects.Count (S.Recent_Projects);
+   function Contains_Command_Suggestion
+     (Snapshot : Empty_State_Snapshot;
+      Command  : Editor.Commands.Command_Id) return Boolean
+   is
    begin
-      if not Has_Project and then not Has_Buffer and then Recent_Count = 0 then
-         Set_Text
-           (Snapshot, Main_Surface, First_Run_State,
-            "Start by opening a project.",
-            "No project, buffer, workspace, or recent project is active. "
-            & "Missing optional configuration files are normal on first run.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Open_Project);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Restore_Workspace_State);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Show_Recent_Projects);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Open_Command_Palette);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Configuration_Recover_Show);
-      elsif not Has_Project then
-         Set_Text
-           (Snapshot, Main_Surface, No_Project_State,
-            "No project open.",
-            "Open a project, restore workspace state, inspect recent projects, "
-            & "or review configuration before editing.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Open_Project);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Show_Recent_Projects);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Restore_Workspace_State);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Configuration_Audit);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Reload_Settings);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Keybindings_Show);
-      elsif not Has_Buffer then
-         Set_Text (Snapshot, Main_Surface, No_Active_Buffer_State, "Project open; no file selected.",
-                   "Use File Tree, Quick Open, Project Search, or Build candidate discovery to continue.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Focus_File_Tree);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Open_Quick_Open);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Open_Project_Search_Bar);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Refresh_Project_Files);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Build_UI_Show);
-      else
-         Set_Text (Snapshot, Main_Surface, Ready_State, "Ready.");
-      end if;
-      return Snapshot;
-   end Build_Main_Empty_State;
-
-   function Build_File_Tree_Empty_State (S : Editor.State.State_Type) return Empty_State_Snapshot is
-      Snapshot : Empty_State_Snapshot;
-      Scan : constant Editor.File_Tree.File_Tree_Scan_Result := Editor.File_Tree.Scan_Status (S.File_Tree);
-   begin
-      if not Editor.Project.Has_Project (S.Project) then
-         Set_Text
-           (Snapshot, File_Tree_Surface, No_Project_State,
-            "No project open.", "Open a project before using File Tree.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Open_Project);
-      elsif Scan.Status = Editor.File_Tree.File_Tree_No_Project then
-         Set_Text (Snapshot, File_Tree_Surface, Not_Refreshed_State, "File Tree has not been refreshed.",
-                   "Refresh builds the in-memory tree; this empty state does not scan the filesystem.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Refresh_File_Tree);
-      elsif Scan.Status /= Editor.File_Tree.File_Tree_Scan_Ok then
-         Set_Text (Snapshot, File_Tree_Surface, Missing_Root_State, "Project root unavailable.",
-                   "File Tree target is stale; refresh after the project root is available.", Empty_Warning);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Refresh_File_Tree);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Open_Project);
-      elsif File_Tree_Selection_Is_Stale (S) then
-         Set_Text (Snapshot, File_Tree_Surface, Stale_State,
-                   "File Tree target is stale; refresh required.",
-                   "The selected row no longer maps to a live File Tree node.",
-                   Empty_Warning);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Refresh_File_Tree);
-      elsif Editor.File_Tree.Is_Empty (S.File_Tree) then
-         Set_Text (Snapshot, File_Tree_Surface, Not_Refreshed_State, "File Tree has not been refreshed.",
-                   "No tree nodes are present and no placeholder nodes are created.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Refresh_File_Tree);
-      elsif Editor.File_Tree.File_Node_Count (S.File_Tree) = 0 then
-         Set_Text (Snapshot, File_Tree_Surface, Empty_Project_State, "No files found in project.",
-                   "The tree contains no file rows and no placeholder nodes are created.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Refresh_File_Tree);
-      else
-         Set_Text (Snapshot, File_Tree_Surface, Ready_State, "File Tree ready.");
-      end if;
-      Add_Suggestion (Snapshot, S, Editor.Commands.Command_Reveal_Active_File_In_Tree);
-      return Snapshot;
-   end Build_File_Tree_Empty_State;
-
-   function Build_Quick_Open_Empty_State (S : Editor.State.State_Type) return Empty_State_Snapshot is
-      Snapshot : Empty_State_Snapshot;
-      Quick : constant Editor.Quick_Open.Quick_Open_Snapshot := Editor.Quick_Open.Build_Snapshot (S.Quick_Open);
-   begin
-      if not Editor.Project.Has_Project (S.Project) then
-         Set_Text (Snapshot, Quick_Open_Surface, No_Project_State, "Open a project to use Quick Open.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Open_Project);
-      elsif Quick.Known_Count = 0 then
-         Set_Text (Snapshot, Quick_Open_Surface, No_Candidates_State, "No project files available.",
-                   "Refresh project files or File Tree before opening by name.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Refresh_File_Tree);
-      elsif not Quick.Has_Query then
-         Set_Text (Snapshot, Quick_Open_Surface, No_Query_State, "Type to search project files.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Quick_Open_Query_Clear);
-      elsif Quick_Open_Selection_Is_Stale (Quick) then
-         Set_Text (Snapshot, Quick_Open_Surface, Stale_State, "Selected result is stale.",
-                   "Clear or update the query before opening a file.", Empty_Warning);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Quick_Open_Query_Clear);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Refresh_File_Tree);
-      elsif Quick.Visible_Count = 0 then
-         Set_Text (Snapshot, Quick_Open_Surface, No_Matches_State, "No matching files.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Quick_Open_Query_Clear);
-      else
-         Set_Text (Snapshot, Quick_Open_Surface, Ready_State, "Quick Open ready.");
-      end if;
-      return Snapshot;
-   end Build_Quick_Open_Empty_State;
-
-   function Build_Project_Search_Empty_State (S : Editor.State.State_Type) return Empty_State_Snapshot is
-      Snapshot : Empty_State_Snapshot;
-      Status : constant Editor.Project_Search.Project_Search_Status := Editor.Project_Search.Status (S.Project_Search);
-      Replace_Status : constant Editor.Project_Search.Project_Replace_Preview_Status :=
-        Editor.Project_Search.Replace_Preview_Status (S.Project_Search);
-   begin
-      if not Editor.Project.Has_Project (S.Project) then
-         Set_Text (Snapshot, Project_Search_Surface, No_Project_State, "Open a project to search files.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Open_Project);
-      elsif not Editor.Project_Search.Has_Query (S.Project_Search) then
-         Set_Text (Snapshot, Project_Search_Surface, No_Query_State, "Enter a query and run Project Search.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Open_Project_Search_Bar);
-      elsif Editor.Project_Search.Is_Stale (S.Project_Search) then
-         Set_Text (Snapshot, Project_Search_Surface, Stale_State,
-                   "Search results are stale.",
-                   "Rerun Project Search before opening or replacing matches.",
-                   Empty_Warning);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Rerun_Project_Search);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Open_Project_Search_Bar);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Clear_Project_Search);
-      elsif Replace_Status = Editor.Project_Search.Project_Replace_Search_Stale
-        or else Editor.Project_Search.Replace_Preview_Is_Stale (S.Project_Search)
-      then
-         Set_Text (Snapshot, Project_Search_Surface, Stale_State,
-                   "Replacement preview is stale.",
-                   "Regenerate the preview before applying replacements.",
-                   Empty_Warning);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Project_Search_Replace_Preview);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Project_Search_Replace_Clear_Preview);
-      elsif Replace_Status = Editor.Project_Search.Project_Replace_No_Preview
-        and then Editor.Project_Search.Result_Count (S.Project_Search) > 0
-      then
-         Set_Text (Snapshot, Project_Search_Surface, Replace_Preview_Empty_State, "No replacement preview.",
-                   "Create a replace preview explicitly before applying replacements.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Project_Search_Replace_Preview);
-      elsif Status = Editor.Project_Search.Project_Search_Idle then
-         Set_Text (Snapshot, Project_Search_Surface, Not_Refreshed_State, "Project Search has not run.",
-                   "Run search explicitly; this empty state does not compute matches.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Run_Project_Search);
-      elsif Status = Editor.Project_Search.Project_Search_No_Files then
-         Set_Text (Snapshot, Project_Search_Surface, No_Files_State, "No project files available.",
-                   "Refresh File Tree or project files before searching.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Refresh_File_Tree);
-      elsif Status = Editor.Project_Search.Project_Search_Invalid_Regex then
-         Set_Text (Snapshot, Project_Search_Surface, Unavailable_State, "Project Search query is invalid.",
-                   "Edit the query or disable regex mode.", Empty_Warning);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Open_Project_Search_Bar);
-      elsif Status = Editor.Project_Search.Project_Search_Read_Error then
-         Set_Text
-           (Snapshot, Project_Search_Surface, Unavailable_State,
-            "Project Search could not read one or more files.",
-            "Results are not repaired or re-run by this guidance.", Empty_Warning);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Run_Project_Search);
-      elsif Editor.Project_Search.Was_Truncated (S.Project_Search)
-        or else Editor.Project_Search.Results_Truncated (S.Project_Search)
-      then
-         Set_Text (Snapshot, Project_Search_Surface, Limit_Reached_State, "Search limit reached.",
-                   "Refine the query or scope and run Project Search again.", Empty_Warning);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Open_Project_Search_Bar);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Project_Search_Scope_Clear);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Project_Search_Include_Filter_Clear);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Project_Search_Exclude_Filter_Clear);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Run_Project_Search);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Clear_Project_Search);
-      elsif Editor.Project_Search.Result_Count (S.Project_Search) = 0 then
-         Set_Text (Snapshot, Project_Search_Surface, No_Results_State,
-                   "No Project Search matches.",
-                   "Clear scope/filter options or adjust the query, then run Project Search again.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Open_Project_Search_Bar);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Project_Search_Scope_Clear);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Project_Search_Kind_Clear);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Project_Search_Include_Filter_Clear);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Project_Search_Exclude_Filter_Clear);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Run_Project_Search);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Clear_Project_Search);
-      else
-         Set_Text (Snapshot, Project_Search_Surface, Ready_State, "Project Search ready.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Open_Selected_Project_Search_Result);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Next_Project_Search_Result);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Previous_Project_Search_Result);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Project_Search_Replace_Preview);
-      end if;
-      return Snapshot;
-   end Build_Project_Search_Empty_State;
-
-   function Build_Outline_Empty_State (S : Editor.State.State_Type) return Empty_State_Snapshot is
-      Snapshot : Empty_State_Snapshot;
-      Source : constant Editor.Outline.Outline_Source_Class := Editor.Outline.Source_Class (S.Outline);
-   begin
-      if not Has_Active_Buffer (S) then
-         Set_Text (Snapshot, Outline_Surface, No_Active_Buffer_State, "Open a file to use Outline.");
-         if Editor.Project.Has_Project (S.Project) then
-            Add_Suggestion (Snapshot, S, Editor.Commands.Command_Open_Quick_Open);
-            Add_Suggestion (Snapshot, S, Editor.Commands.Command_Focus_File_Tree);
-         else
-            Add_Suggestion (Snapshot, S, Editor.Commands.Command_Open_Project);
+      for I in 1 .. Snapshot.Suggestion_Count loop
+         if Snapshot.Suggestions (I).Command = Command then
+            return True;
          end if;
-      elsif Source = Editor.Outline.No_Outline then
-         Set_Text (Snapshot, Outline_Surface, Not_Refreshed_State, "Refresh Outline to extract symbols.",
-                   "No parsing is triggered by this guidance.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Refresh_Outline);
-      elsif Source = Editor.Outline.Unsupported_Content then
-         Set_Text (Snapshot, Outline_Surface, Unsupported_Buffer_State,
-                   "Outline is unavailable for this buffer.",
-                   "Open a supported source file or refresh after changing buffers.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Refresh_Outline);
-      elsif Source = Editor.Outline.Extraction_Failed then
-         Set_Text (Snapshot, Outline_Surface, Unavailable_State,
-                   "Outline refresh failed.",
-                   "Refresh explicitly after fixing the buffer or extractor input.",
-                   Empty_Warning);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Refresh_Outline);
-      elsif Source = Editor.Outline.Extracted_Outline
-        and then not Editor.Outline.Outline_Buffer_Identity_Matches
-          (S.Outline, S.Active_Buffer_Token)
-      then
-         Set_Text (Snapshot, Outline_Surface, Different_Buffer_State,
-                   "Outline belongs to another buffer.",
-                   "Refresh Outline for the active buffer before navigating.",
-                   Empty_Warning);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Refresh_Outline);
-      elsif Source = Editor.Outline.Stale_Extracted_Outline then
-         Set_Text (Snapshot, Outline_Surface, Stale_State, "Outline is stale; refresh required.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Refresh_Outline);
-      elsif not Editor.Outline.Has_Items (S.Outline) then
-         Set_Text (Snapshot, Outline_Surface, No_Symbols_State, "No symbols found.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Refresh_Outline);
-      else
-         Set_Text (Snapshot, Outline_Surface, Ready_State, "Outline ready.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Reveal_Current_Outline_Symbol);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Clear_Outline_Filter);
-      end if;
-      return Snapshot;
-   end Build_Outline_Empty_State;
+      end loop;
+      return False;
+   end Contains_Command_Suggestion;
 
-   function Build_Diagnostics_Empty_State (S : Editor.State.State_Type) return Empty_State_Snapshot is
-      Snapshot : Empty_State_Snapshot;
-      Feature_Total : constant Natural :=
-        Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics);
-      Feature_Visible : constant Natural :=
-        Editor.Feature_Diagnostics.Visible_Row_Count (S.Feature_Diagnostics);
+   function Canonical_Surface_Suggestion
+     (S       : Editor.State.State_Type;
+      Surface : Empty_State_Surface;
+      Command : Editor.Commands.Command_Id)
+      return Empty_State_Suggested_Command
+   is
+      Suggestion : Empty_State_Suggested_Command :=
+        Command_Suggestion_From_Descriptor (S, Command);
    begin
-      if Feature_Total > 0 and then Feature_Visible = 0 then
-         Set_Text
-           (Snapshot, Diagnostics_Surface, Filtered_None_State,
-            "No diagnostics match current filter.",
-            "Clear the filter explicitly; guidance does not delete or rewrite diagnostic rows.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Diagnostics_Clear_Filter);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Diagnostics_Show_All);
-      elsif Feature_Diagnostics_Selected_Source_Less (S) then
-         Set_Text (Snapshot, Diagnostics_Surface, Source_Less_Selected_State,
-                   "Selected diagnostic has no source target.",
-                   "Navigation is unavailable until a diagnostic carries a source location.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Diagnostics_Clear_Selected);
-      elsif Feature_Diagnostics_Selected_Unavailable_Reason (S)'Length > 0 then
-         Set_Text
-           (Snapshot, Diagnostics_Surface, Selected_Unavailable_State,
-            Feature_Diagnostics_Selected_Unavailable_Reason (S),
-            "Clear the selected diagnostic or run the producer again after fixing the target.",
-            Empty_Warning);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Diagnostics_Clear_Selected);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Build_UI_Show);
-      elsif Feature_Diagnostics_Has_Stale_Target (S) then
-         Set_Text (Snapshot, Diagnostics_Surface, Stale_State,
-                   "Some diagnostics may be stale.",
-                   "Clear stale diagnostics or run the producer again explicitly.",
-                   Empty_Warning);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Diagnostics_Clear);
-      elsif S.Latest_Build_Result.Has_Diagnostics_Count
-        and then S.Latest_Build_Result.Diagnostics_Count_If_Available = 0
-      then
-         Set_Text (Snapshot, Diagnostics_Surface, No_Build_Diagnostics_State,
-                   "Build completed with no diagnostics.",
-                   "Inspect Build Output for command details or run build again after changes.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Build_UI_Show);
-      elsif Feature_Total = 0
-        and then Editor.Diagnostics.Diagnostic_Count (S.Diagnostics) = 0
-      then
-         Set_Text (Snapshot, Diagnostics_Surface, No_Diagnostics_State,
-                   "No diagnostics yet.",
-                   "Run build or diagnostics-producing commands to populate this panel.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Diagnostics_Clear_Filter);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Build_UI_Show);
-      elsif S.Active_Diagnostic.Has_Active
-        and then not Editor.Diagnostics.Is_Valid_Diagnostic_Index
-          (S.Diagnostics, S.Active_Diagnostic.Index)
-      then
-         Set_Text (Snapshot, Diagnostics_Surface, Stale_State, "Some diagnostics may be stale.", "", Empty_Warning);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Diagnostics_Clear);
-      elsif Selected_Diagnostic_Is_Source_Less (S) then
-         Set_Text (Snapshot, Diagnostics_Surface, Source_Less_Selected_State,
-                   "Selected diagnostic has no source target.",
-                   "Navigation is unavailable until a diagnostic carries a source location.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Diagnostics_Clear_Selected);
-      else
-         Set_Text (Snapshot, Diagnostics_Surface, Ready_State, "Diagnostics ready.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Diagnostics_Clear_Filter);
+      if Suggestion.Visible then
+         Suggestion.Surface_Source_Label :=
+           To_Unbounded_String (Empty_State_Surface_Label (Surface));
       end if;
-      Add_Suggestion (Snapshot, S, Editor.Commands.Command_Build_Run);
-      return Snapshot;
-   end Build_Diagnostics_Empty_State;
-
-   function Build_Build_UI_Empty_State (S : Editor.State.State_Type) return Empty_State_Snapshot is
-      Snapshot : Empty_State_Snapshot;
-      Candidate_Count : constant Natural := Editor.Build_UI.Candidate_Count (S.Build_UI);
-      Validation : constant Editor.Build_UI.Public_Build_UI_Validation_Status :=
-        Editor.Build_UI.Validate_Build_UI_State (S.Build_UI);
-   begin
-      if not Editor.Project.Has_Project (S.Project) then
-         Set_Text (Snapshot, Build_Surface, No_Project_State, "Open a project to build.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Open_Project);
-      elsif Candidate_Count = 0
-        and then S.Build_UI.Candidate_Refresh_Status = Editor.Build_UI.Build_Candidate_Refresh_Not_Requested
-      then
-         Set_Text (Snapshot, Build_Surface, Not_Refreshed_State, "Refresh build candidates.",
-                   "Candidate discovery is explicit; this guidance does not scan or run anything.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Build_Refresh_Candidates);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Build_UI_Show);
-      elsif Candidate_Count = 0 then
-         Set_Text (Snapshot, Build_Surface, No_Candidates_State, "No build candidates found.",
-                   "Refresh build candidates explicitly; this guidance does not scan or run anything.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Build_Refresh_Candidates);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Build_UI_Show);
-      elsif Validation = Editor.Build_UI.Build_UI_Rejected_Selected_Candidate_Stale then
-         Set_Text (Snapshot, Build_Surface, Stale_State, "Selected build candidate is stale.",
-                   "Refresh candidates before running build.", Empty_Warning);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Build_Refresh_Candidates);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Build_UI_Show);
-      elsif Validation = Editor.Build_UI.Build_UI_Rejected_No_Candidate_Selected then
-         Set_Text (Snapshot, Build_Surface, No_Selected_Candidate_State, "Select a build candidate.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Build_Select_First_Candidate);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Build_UI_Show);
-      elsif Validation = Editor.Build_UI.Build_UI_Rejected_Missing_Consent
-        or else Validation = Editor.Build_UI.Build_UI_Rejected_Stale_Consent
-      then
-         Set_Text (Snapshot, Build_Surface, Consent_Required_State, "Consent required before running build.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Build_Acknowledge_Consent);
-      elsif Validation /= Editor.Build_UI.Build_UI_Valid then
-         Set_Text
-         (Snapshot, Build_Surface, Request_Invalid_State,
-            "Build request is invalid.",
-            Editor.Build_UI.Validation_Message (Validation), Empty_Warning);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Build_UI_Show);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Build_Refresh_Candidates);
-      elsif S.Latest_Build_Result.Diagnostics_Ingestion_Status =
-        Editor.Build_Result_Summary.Diagnostics_Ingestion_Disabled
-      then
-         Set_Text (Snapshot, Build_Surface, Diagnostics_Disabled_State, "Diagnostics ingestion is disabled.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Build_Toggle_Diagnostics_Ingestion);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Diagnostics_Show);
-      elsif not S.Latest_Build_Result.Has_Result then
-         Set_Text (Snapshot, Build_Surface, No_Result_State, "No build has run.",
-                   "Run build or inspect output details after an explicit build request.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Build_Run);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Build_UI_Show);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Diagnostics_Show);
-      elsif S.Latest_Build_Output_Details.Has_Output_Details
-        and then S.Latest_Build_Output_Details.Kind = Editor.Build_Output_Details.Build_Output_Details_None
-      then
-         Set_Text (Snapshot, Build_Surface, No_Output_State, "No output captured.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Build_UI_Show);
-      else
-         Set_Text (Snapshot, Build_Surface, Ready_State, "Build Output ready.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Build_Run);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Build_UI_Show);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Diagnostics_Show);
-      end if;
-      return Snapshot;
-   end Build_Build_UI_Empty_State;
-
-   function Build_Recent_Projects_Empty_State (S : Editor.State.State_Type) return Empty_State_Snapshot is
-      Snapshot : Empty_State_Snapshot;
-      Total : constant Natural := Editor.Recent_Projects.Count (S.Recent_Projects);
-      Missing : constant Natural := Editor.Recent_Projects.Unavailable_Count (S.Recent_Projects);
-   begin
-      if Total = 0 then
-         Set_Text (Snapshot, Recent_Projects_Surface, No_Recent_Projects_State, "No recent projects.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Open_Project);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Restore_Workspace_State);
-      elsif S.Recent_Project_Selected_Index in 1 .. Total
-        and then not Editor.Recent_Projects.Is_Available
-          (Editor.Recent_Projects.Item
-             (S.Recent_Projects, Positive (S.Recent_Project_Selected_Index)))
-      then
-         Set_Text (Snapshot, Recent_Projects_Surface, Selected_Unavailable_State,
-                   "Recent project is unavailable.",
-                   "Remove missing entries or open a project explicitly.", Empty_Warning);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Remove_Selected_Recent_Project);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Remove_Missing_Recent_Projects);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Open_Project);
-      elsif Missing = Total then
-         Set_Text (Snapshot, Recent_Projects_Surface, Only_Missing_Projects_State, "Some recent projects are missing.",
-                   "Missing entries are not removed until a command does it.", Empty_Warning);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Remove_Missing_Recent_Projects);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Clear_Recent_Projects);
-      else
-         Set_Text (Snapshot, Recent_Projects_Surface, Ready_State, "Recent Projects ready.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Open_Selected_Recent_Project);
-      end if;
-      return Snapshot;
-   end Build_Recent_Projects_Empty_State;
-
-   function Build_Config_Recovery_Empty_State (S : Editor.State.State_Type) return Empty_State_Snapshot is
-      Snapshot : Empty_State_Snapshot;
-      Summary : constant Editor.Configuration_Audit.Configuration_State_Summary :=
-        Editor.Configuration_Audit.Configuration_State_Summary_For (S);
-   begin
-      if Summary.Has_Pending_Transition then
-         Set_Text
-           (Snapshot, Configuration_Recovery_Surface,
-            Configuration_Warning_State, "Configuration warnings available.",
-            "Pending transition state is runtime-only; run audit or recovery view "
-            & "explicitly.", Empty_Warning);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Configuration_Audit);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Configuration_Recover_Show);
-      elsif Summary.Message_Count > 0 then
-         Set_Text
-           (Snapshot, Configuration_Recovery_Surface, Safe_Defaults_State,
-            "Safe defaults are active for one or more domains.",
-            "Inspect recovery details explicitly; guidance does not reset or save "
-            & "configuration.", Empty_Warning);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Configuration_Audit);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Configuration_Recover_Show);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Configuration_Reset_Settings);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Configuration_Reset_Keybindings);
-      else
-         Set_Text (Snapshot, Configuration_Recovery_Surface, Clean_State, "Configuration is clean.",
-                   "Run configuration audit when you want an explicit domain report.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Configuration_Audit);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Configuration_Recover_Show);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Configuration_Reset_Settings);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Configuration_Reset_Keybindings);
-      end if;
-      return Snapshot;
-   end Build_Config_Recovery_Empty_State;
+      return Suggestion;
+   end Canonical_Surface_Suggestion;
 
    function Assert_Empty_State_Is_Display_Only (Snapshot : Empty_State_Snapshot) return Boolean is
    begin
@@ -2087,19 +1065,8 @@ package body Editor.Empty_State_Guidance is
       After  : Editor.State.State_Type) return Boolean
    is
    begin
-      return Assert_First_Run_Guidance_Fabricates_No_Project (Before, After)
-        and then Editor.Diagnostics.Diagnostic_Count (Before.Diagnostics) =
-          Editor.Diagnostics.Diagnostic_Count (After.Diagnostics)
-        and then Editor.File_Tree.File_Node_Count (Before.File_Tree) =
-          Editor.File_Tree.File_Node_Count (After.File_Tree)
-        and then Editor.Project_Search.Result_Count (Before.Project_Search) =
-          Editor.Project_Search.Result_Count (After.Project_Search)
-        and then Editor.Build_UI.Candidate_Count (Before.Build_UI) =
-          Editor.Build_UI.Candidate_Count (After.Build_UI)
-        and then Editor.Feature_Diagnostics.Row_Count (Before.Feature_Diagnostics) =
-          Editor.Feature_Diagnostics.Row_Count (After.Feature_Diagnostics)
-        and then Editor.Feature_Diagnostics.Visible_Row_Count (Before.Feature_Diagnostics) =
-          Editor.Feature_Diagnostics.Visible_Row_Count (After.Feature_Diagnostics);
+      return Editor.Empty_State_Guidance.Audits.Assert_Render_Empty_State_Construction_Is_Observational
+        (Before, After);
    end Assert_Render_Empty_State_Construction_Is_Observational;
 
    function Assert_Empty_State_Not_Persisted
@@ -2107,15 +1074,8 @@ package body Editor.Empty_State_Guidance is
       After  : Editor.State.State_Type) return Boolean
    is
    begin
-      return Assert_Render_Empty_State_Construction_Is_Observational (Before, After)
-        and then Editor.Recent_Projects.Count (Before.Recent_Projects) =
-          Editor.Recent_Projects.Count (After.Recent_Projects)
-        and then Editor.Build_UI.Candidate_Count (Before.Build_UI) =
-          Editor.Build_UI.Candidate_Count (After.Build_UI)
-        and then Editor.Feature_Diagnostics.Row_Count (Before.Feature_Diagnostics) =
-          Editor.Feature_Diagnostics.Row_Count (After.Feature_Diagnostics)
-        and then Editor.Feature_Diagnostics.Visible_Row_Count (Before.Feature_Diagnostics) =
-          Editor.Feature_Diagnostics.Visible_Row_Count (After.Feature_Diagnostics);
+      return Editor.Empty_State_Guidance.Audits.Assert_Empty_State_Not_Persisted
+        (Before, After);
    end Assert_Empty_State_Not_Persisted;
 
    function Assert_Empty_State_Suggestions_Are_Descriptor_Derived
@@ -2313,38 +1273,15 @@ package body Editor.Empty_State_Guidance is
       Command : Editor.Commands.Command_Id) return Boolean
    is
    begin
-      return Result.Command = Command
-        and then Result.Status /= Editor.Executor.Command_No_Op
-        and then Assert_First_Run_Guidance_Fabricates_No_Project (Before, After);
+      return Editor.Empty_State_Guidance.Audits.Assert_Empty_State_Activation_Uses_Executor
+        (Before, After, Result, Command);
    end Assert_Empty_State_Activation_Uses_Executor;
 
    function Assert_Major_Empty_State_Surface_Coverage
      (S : Editor.State.State_Type) return Boolean
    is
-      Snapshots : constant Empty_State_Snapshot_Array :=
-        Build_All_Empty_State_Snapshots (S);
    begin
-      if not Assert_Empty_State_Surface_Model_Is_Closed
-        or else not Assert_All_Empty_State_Surfaces_Are_Present_Once (Snapshots)
-        or else not Assert_All_Empty_State_Surfaces_In_Canonical_Order (Snapshots)
-        or else not Assert_Empty_State_Array_Uses_Canonical_Slots (Snapshots)
-        or else not Assert_Empty_State_Array_Suggestion_Budget (Snapshots)
-      then
-         return False;
-      end if;
-
-      for I in Snapshots'Range loop
-         if Length (Snapshots (I).Primary_Message) = 0
-           or else not Assert_Empty_State_Is_Display_Only (Snapshots (I))
-           or else not Assert_Empty_State_Suggestions_Are_Descriptor_Derived (Snapshots (I))
-           or else not Assert_Empty_State_Suggestions_Are_Stable_Names_Only (Snapshots (I))
-           or else not Assert_Empty_State_Suggestions_Resolve_From_Stable_Names (Snapshots (I))
-           or else not Assert_Empty_State_Suggestions_Are_Unique_And_Tail_Clean (Snapshots (I))
-         then
-            return False;
-         end if;
-      end loop;
-      return True;
+      return Editor.Empty_State_Guidance.Audits.Assert_Major_Empty_State_Surface_Coverage (S);
    end Assert_Major_Empty_State_Surface_Coverage;
 
    function Assert_All_Empty_State_Surfaces_Are_Present_Once
@@ -2373,45 +1310,8 @@ package body Editor.Empty_State_Guidance is
    end Assert_All_Empty_State_Surfaces_Are_Present_Once;
 
    function Assert_First_Use_Empty_State_Guidance_Coherent return Boolean is
-      S : Editor.State.State_Type;
-      Main : constant Empty_State_Snapshot := Build_Main_Empty_State (S);
-      File_Tree : constant Empty_State_Snapshot := Build_File_Tree_Empty_State (S);
-      Quick : constant Empty_State_Snapshot := Build_Quick_Open_Empty_State (S);
-      Search : constant Empty_State_Snapshot := Build_Project_Search_Empty_State (S);
-      Outline : constant Empty_State_Snapshot := Build_Outline_Empty_State (S);
-      Diagnostics : constant Empty_State_Snapshot := Build_Diagnostics_Empty_State (S);
-      Build : constant Empty_State_Snapshot := Build_Build_UI_Empty_State (S);
-      Recent : constant Empty_State_Snapshot := Build_Recent_Projects_Empty_State (S);
-      Config : constant Empty_State_Snapshot := Build_Config_Recovery_Empty_State (S);
    begin
-      return Assert_Empty_State_Surface_Model_Is_Closed
-        and then Main.Kind = First_Run_State
-        and then File_Tree.Kind = No_Project_State
-        and then Quick.Kind = No_Project_State
-        and then Search.Kind = No_Project_State
-        and then Outline.Kind = No_Active_Buffer_State
-        and then Diagnostics.Kind = No_Diagnostics_State
-        and then Build.Kind = No_Project_State
-        and then Recent.Kind = No_Recent_Projects_State
-        and then Config.Kind = Clean_State
-        and then Assert_All_Empty_State_Surfaces_Are_Present_Once
-          (Build_All_Empty_State_Snapshots (S))
-        and then Assert_All_Empty_State_Surfaces_In_Canonical_Order
-          (Build_All_Empty_State_Snapshots (S))
-        and then Assert_Empty_State_Array_Uses_Canonical_Slots
-          (Build_All_Empty_State_Snapshots (S))
-        and then Empty_State_Renderable_Count
-          (Build_All_Empty_State_Snapshots (S)) > 0
-        and then Assert_Empty_State_Is_Display_Only (Main)
-        and then Assert_Empty_State_Is_Display_Only (File_Tree)
-        and then Assert_Empty_State_Is_Display_Only (Quick)
-        and then Assert_Empty_State_Is_Display_Only (Search)
-        and then Assert_Empty_State_Is_Display_Only (Outline)
-        and then Assert_Empty_State_Is_Display_Only (Diagnostics)
-        and then Assert_Empty_State_Is_Display_Only (Build)
-        and then Assert_Empty_State_Is_Display_Only (Recent)
-        and then Assert_Empty_State_Is_Display_Only (Config)
-        and then Assert_Major_Empty_State_Surface_Coverage (S);
+      return Editor.Empty_State_Guidance.Audits.Assert_First_Use_Empty_State_Guidance_Coherent;
    end Assert_First_Use_Empty_State_Guidance_Coherent;
 
 end Editor.Empty_State_Guidance;

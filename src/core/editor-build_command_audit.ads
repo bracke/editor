@@ -62,4 +62,20 @@ package Editor.Build_Command_Audit is
      (State : Editor.State.State_Type)
       return Public_Build_Command_UX_Foundation_Audit;
 
+   function Assert_Build_Run_Descriptor_Stable return Boolean;
+   function Assert_Build_Run_Routes_Through_Executor
+     (State : Editor.State.State_Type) return Boolean;
+   function Assert_Build_Run_Availability_Side_Effect_Free
+     (State : Editor.State.State_Type) return Boolean;
+   function Assert_Build_Cancel_Command_Descriptor_Stable return Boolean;
+   function Assert_Build_Cancel_Requires_Active_Job
+     (State : Editor.State.State_Type) return Boolean;
+   function Assert_Build_Run_Command_Palette_Boundary
+     (State : Editor.State.State_Type) return Boolean;
+   function Assert_Build_Run_Keybinding_Boundary return Boolean;
+   function Assert_Build_Run_Persistence_Excluded
+     (State : Editor.State.State_Type) return Boolean;
+   function Assert_Public_Build_Command_Registration_Coherent
+     (State : Editor.State.State_Type) return Boolean;
+
 end Editor.Build_Command_Audit;

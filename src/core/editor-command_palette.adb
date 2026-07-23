@@ -1,4 +1,3 @@
-with Ada.Characters.Handling;
 with Ada.Containers; use type Ada.Containers.Count_Type;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -6,6 +5,7 @@ with Guikit.Palette;
 with Editor.Contextual_Help;
 with Editor.Input_Field;
 with Editor.Keybindings;
+with Editor.Text_Helpers;
 
 package body Editor.Command_Palette is
 
@@ -156,10 +156,8 @@ package body Editor.Command_Palette is
       return Keybinding_Filter_State;
    end Current_Keybinding_Filter;
 
-   function Lower (S : String) return String is
-   begin
-      return Ada.Characters.Handling.To_Lower (S);
-   end Lower;
+   function Lower (S : String) return String
+     renames Editor.Text_Helpers.Lower;
 
    function Product_Facing_Classification_Label (Text : String) return String is
       Source : constant String := Lower (Text);
@@ -311,11 +309,8 @@ package body Editor.Command_Palette is
       return True;
    end Descriptor_Passes_Transient_Metadata_Filters;
 
-   function Starts_With (Text, Prefix : String) return Boolean is
-   begin
-      return Prefix'Length <= Text'Length
-        and then Text (Text'First .. Text'First + Prefix'Length - 1) = Prefix;
-   end Starts_With;
+   function Starts_With (Text, Prefix : String) return Boolean
+     renames Editor.Text_Helpers.Starts_With;
 
    function Word_Initial_Or_Subsequence_Match (Text, Query : String) return Boolean is
       J         : Natural := Query'First;
@@ -906,11 +901,8 @@ package body Editor.Command_Palette is
       Cat    : constant String := Lower (Category_Label);
       Q      : constant String := Lower (Query);
 
-      function Starts_With (Text, Prefix : String) return Boolean is
-      begin
-         return Prefix'Length <= Text'Length
-           and then Text (Text'First .. Text'First + Prefix'Length - 1) = Prefix;
-      end Starts_With;
+      function Starts_With (Text, Prefix : String) return Boolean
+        renames Editor.Text_Helpers.Starts_With;
    begin
       if Q'Length = 0 then
          return 0;

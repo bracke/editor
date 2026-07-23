@@ -1,4 +1,4 @@
-package Editor.Ada_Token_Cursor.Expressions is
+package Editor.Ada_Token_Cursor.Range_Structure_Helpers is
 
    function At_Iterator_Filter_Condition_Boundary
      (Position : Cursor) return Boolean;
@@ -49,4 +49,4 @@ package Editor.Ada_Token_Cursor.Expressions is
      (Position : Cursor;
       Text     : String) return Boolean;
 
-end Editor.Ada_Token_Cursor.Expressions;
+end Editor.Ada_Token_Cursor.Range_Structure_Helpers;

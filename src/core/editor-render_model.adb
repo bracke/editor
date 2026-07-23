@@ -31,6 +31,7 @@ with Editor.Build_UI;
 with Editor.Build_UI_Actions;
 with Editor.Terminal_Tasks;
 with Editor.Empty_State_Guidance;
+with Editor.Empty_State_Guidance.Surfaces;
 with Editor.Guided_Prompts;
 with Editor.Keybinding_Management;
 with Editor.Settings_Management;
@@ -1722,7 +1723,7 @@ package body Editor.Render_Model is
       declare
          Empty_States : constant
            Editor.Empty_State_Guidance.Empty_State_Snapshot_Array :=
-             Editor.Empty_State_Guidance.Build_All_Empty_State_Snapshots (S);
+             Editor.Empty_State_Guidance.Surfaces.Build_All_Empty_State_Snapshots (S);
       begin
          O.Main_Empty_State :=
            Empty_States

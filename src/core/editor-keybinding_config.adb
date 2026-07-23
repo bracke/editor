@@ -1,8 +1,8 @@
-with Ada.Characters.Handling;
 with Ada.Directories;
 with Ada.Environment_Variables;
 with Ada.Strings.Fixed;
 with Ada.Text_IO;
+with Editor.Text_Helpers;
 
 package body Editor.Keybinding_Config is
 
@@ -45,17 +45,6 @@ package body Editor.Keybinding_Config is
    begin
       return Last_Load_Diagnostics (Kind);
    end Last_Load_Diagnostic_Count;
-
-   function Trimmed (S : String) return String is
-   begin
-      return Ada.Strings.Fixed.Trim (S, Ada.Strings.Both);
-   end Trimmed;
-
-   function Lower (S : String) return String is
-   begin
-      return Ada.Characters.Handling.To_Lower (Trimmed (S));
-   end Lower;
-
 
    function Status_Label
      (Status : Keybinding_Config_Status) return String
@@ -106,7 +95,7 @@ package body Editor.Keybinding_Config is
    end Diagnostic_Label;
 
    function Contains_Unsupported_Payload (Value : String) return Boolean is
-      V : constant String := Trimmed (Value);
+      V : constant String := Editor.Text_Helpers.Trim (Value);
    begin
       for Ch of V loop
          if Ch = '{' or else Ch = '}' or else Ch = '[' or else Ch = ']'
@@ -663,7 +652,7 @@ package body Editor.Keybinding_Config is
       while not Ada.Text_IO.End_Of_File (File) loop
          declare
             Raw : constant String := Ada.Text_IO.Get_Line (File);
-            L   : constant String := Trimmed (Raw);
+            L   : constant String := Editor.Text_Helpers.Trim (Raw);
             Eq  : Natural := 0;
          begin
             if L'Length = 0 or else L (L'First) = '#' then
@@ -697,7 +686,8 @@ package body Editor.Keybinding_Config is
                end;
             elsif L (L'First) = '[' and then L (L'Last) = ']' then
                declare
-                  Sec : constant String := Lower (L (L'First + 1 .. L'Last - 1));
+               Sec : constant String :=
+                 Editor.Text_Helpers.Lower (L (L'First + 1 .. L'Last - 1));
                begin
                   if Sec = "bindings" then
                      In_Bindings := True;
@@ -714,8 +704,9 @@ package body Editor.Keybinding_Config is
                   Mark_Partial (Status, Malformed_Line);
                else
                   declare
-                     Key : constant String := Lower (L (L'First .. Eq - 1));
-                     Val : constant String := Trimmed (L (Eq + 1 .. L'Last));
+                     Key : constant String :=
+                       Editor.Text_Helpers.Lower (L (L'First .. Eq - 1));
+                     Val : constant String := Editor.Text_Helpers.Trim (L (Eq + 1 .. L'Last));
                      Found_Command : Boolean := False;
                      Found_Chord   : Boolean := False;
                      Id : constant Editor.Commands.Command_Id :=
@@ -727,7 +718,7 @@ package body Editor.Keybinding_Config is
                         Mark_Partial (Status, Unknown_Command);
                      elsif not Editor.Keybindings.Is_Normal_Assignable_Command (Id) then
                         Mark_Partial (Status, Invalid_Command_Name);
-                     elsif Lower (Val) = "none" then
+                     elsif Editor.Text_Helpers.Lower (Val) = "none" then
                         Unbind (Config, Id);
                      elsif Keybinding_Value_Has_Unsupported_Payload (Val) then
                         --  persisted keybindings are chords mapped to
