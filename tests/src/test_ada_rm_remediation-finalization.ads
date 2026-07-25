@@ -1,0 +1,2 @@
+package Test_Ada_RM_Remediation.Finalization is
+end Test_Ada_RM_Remediation.Finalization;

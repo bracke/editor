@@ -1,0 +1,2 @@
+package Test_Ada_RM_Remediation.Accessibility is
+end Test_Ada_RM_Remediation.Accessibility;

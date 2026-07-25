@@ -1,0 +1,2 @@
+package Test_Ada_RM_Remediation is
+end Test_Ada_RM_Remediation;

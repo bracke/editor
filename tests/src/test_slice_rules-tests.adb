@@ -72,7 +72,7 @@ package body Test_Slice_Rules.Tests is
          "RM burn-down validation belongs to ada-rm-validation");
       Assert
         (Slice_For
-           ("tests/src/test_ada_rm_remaining_gap_remediation_case_1428.adb") =
+           ("tests/src/test_ada_rm_remediation-final_readiness-frozen_remaining_inventory.adb") =
            "ada-rm-validation",
          "remaining RM remediation tests belong to ada-rm-validation");
       Assert (Slice_For ("src/core/editor-feature_diagnostics.adb") =

@@ -1,0 +1,2 @@
+package Test_Ada_RM_Remediation.Generics is
+end Test_Ada_RM_Remediation.Generics;
