@@ -23,7 +23,7 @@ with Editor.Ada_Syntax_Tree;
 with Editor.Ada_Tagged_Derived_Legality;
 with Editor.Ada_Legality.Tasking.Repair_Protected_Legality;
 with Editor.Ada_Wide_Semantic_Legality_Diagnostics;
-with Editor.External_Producers;
+with Editor.External_Producers.Diagnostics;
 with Editor.External_Producers.Diagnostic_Text_Lines;
 
 
@@ -32,7 +32,7 @@ package body Test_Ada_Language_Service_Integration is
    package LM renames Editor.Ada_Language_Model;
    package LS renames Editor.Ada_Language_Service;
    package PI renames Editor.Ada_Project_Index;
-   package EP renames Editor.External_Producers;
+   package EP renames Editor.External_Producers.Diagnostics;
    package DTL renames Editor.External_Producers.Diagnostic_Text_Lines;
    package AL renames Editor.Ada_Assignment_Legality;
    package ET renames Editor.Ada_Expression_Types;
