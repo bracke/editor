@@ -1,12 +1,12 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
-with Editor.Ada_Abstract_State_Refined_State_Consumer_Integration_Legality;
+with Editor.Ada_Legality.Dataflow.Abstract_State_Refined_State_Integration_Legality;
 with Editor.Ada_Abstract_State_Refined_State_Legality;
 with Editor.Ada_Flow_Contract_Final_Proof_Legality;
 with Editor.Ada_Overload_Shared_State_RM_Edge_Legality;
-with Editor.Ada_Shared_State_Stabilized_Closure_Legality;
+with Editor.Ada_Legality.Dataflow.State_Stable_Closure_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Volatile_Atomic_Representation_Consumer_Legality;
+with Editor.Ada_Legality.Representation.Volatile_Atomic_Representation_Legality;
 
 package Editor.Ada_Dispatching_Global_Refinement_Legality is
 
@@ -25,10 +25,10 @@ package Editor.Ada_Dispatching_Global_Refinement_Legality is
 
    package Flow renames Editor.Ada_Flow_Contract_Final_Proof_Legality;
    package Abstract_State renames Editor.Ada_Abstract_State_Refined_State_Legality;
-   package Abstract_Consumers renames Editor.Ada_Abstract_State_Refined_State_Consumer_Integration_Legality;
+   package Abstract_Consumers renames Editor.Ada_Legality.Dataflow.Abstract_State_Refined_State_Integration_Legality;
    package Overload_State renames Editor.Ada_Overload_Shared_State_RM_Edge_Legality;
-   package Volatile_Rep renames Editor.Ada_Volatile_Atomic_Representation_Consumer_Legality;
-   package Closure renames Editor.Ada_Shared_State_Stabilized_Closure_Legality;
+   package Volatile_Rep renames Editor.Ada_Legality.Representation.Volatile_Atomic_Representation_Legality;
+   package Closure renames Editor.Ada_Legality.Dataflow.State_Stable_Closure_Legality;
 
    type Dispatching_Global_Row_Id is new Natural;
    No_Dispatching_Global_Row : constant Dispatching_Global_Row_Id := 0;

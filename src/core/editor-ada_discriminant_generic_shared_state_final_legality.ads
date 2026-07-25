@@ -1,15 +1,15 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
-with Editor.Ada_Accessibility_Remediation;
+with Editor.Ada_Legality.Accessibility.Repair;
 with Editor.Ada_Cross_Unit_Generic_Shared_State_Final_Closure_Legality;
-with Editor.Ada_Discriminant_Variant_Consumer_Integration_Legality;
+with Editor.Ada_Legality.Representation.Discriminant_Variant_Integration_Legality;
 with Editor.Ada_Elaboration_Generic_Shared_State_Final_Legality;
 with Editor.Ada_Generic_Abstract_State_Replay_Legality;
 with Editor.Ada_Overload_Generic_Shared_State_Final_Legality;
 with Editor.Ada_Representation_Generic_Shared_State_Final_Legality;
-with Editor.Ada_Shared_State_Stabilized_Closure_Legality;
+with Editor.Ada_Legality.Dataflow.State_Stable_Closure_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Remediation.Generic_Shared_State_Final;
+with Editor.Ada_Legality.Tasking.Repair_Generic_Shared_State_Final;
 
 package Editor.Ada_Discriminant_Generic_Shared_State_Final_Legality is
 
@@ -27,15 +27,15 @@ package Editor.Ada_Discriminant_Generic_Shared_State_Final_Legality is
    --  accessibility lifetime evidence, elaboration evidence, and stabilized
    --  shared-state closure.  Missing evidence is preserved as a blocker.
 
-   package Disc_Final renames Editor.Ada_Discriminant_Variant_Consumer_Integration_Legality;
+   package Disc_Final renames Editor.Ada_Legality.Representation.Discriminant_Variant_Integration_Legality;
    package Cross_Generic renames Editor.Ada_Cross_Unit_Generic_Shared_State_Final_Closure_Legality;
    package Elab_Generic renames Editor.Ada_Elaboration_Generic_Shared_State_Final_Legality;
    package Generic_Replay renames Editor.Ada_Generic_Abstract_State_Replay_Legality;
    package Overload_Generic renames Editor.Ada_Overload_Generic_Shared_State_Final_Legality;
    package Rep_Generic renames Editor.Ada_Representation_Generic_Shared_State_Final_Legality;
-   package Tasking_Generic renames Editor.Ada_Tasking_Remediation.Generic_Shared_State_Final;
-   package Access_Generic renames Editor.Ada_Accessibility_Remediation.Generic_Shared_State_Final;
-   package Closure renames Editor.Ada_Shared_State_Stabilized_Closure_Legality;
+   package Tasking_Generic renames Editor.Ada_Legality.Tasking.Repair_Generic_Shared_State_Final;
+   package Access_Generic renames Editor.Ada_Legality.Accessibility.Repair.Generic_Shared_State_Final;
+   package Closure renames Editor.Ada_Legality.Dataflow.State_Stable_Closure_Legality;
 
    type Discriminant_Generic_Final_Row_Id is new Natural;
    No_Discriminant_Generic_Final_Row : constant Discriminant_Generic_Final_Row_Id := 0;

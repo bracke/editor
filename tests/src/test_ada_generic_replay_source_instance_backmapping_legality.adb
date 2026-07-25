@@ -3,7 +3,7 @@ with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with AUnit;
 with Editor.Ada_Generic_Instance_Body_Semantic_Replay;
-with Editor.Ada_Generic_Replay_Representation_Contract_Predicate_Dataflow_Consumer_Legality;
+with Editor.Ada_Legality.Representation.Generic_Replay_Representation_Contract_Predicate_Dataflow_Legality;
 with Editor.Ada_Generic_Replay_Source_Instance_Backmapping_Legality;
 with Editor.Ada_Overload_Type_Edge_Precision_Legality;
 with Editor.Ada_Syntax_Tree;
@@ -29,7 +29,7 @@ package body Test_Ada_Generic_Replay_Source_Instance_Backmapping_Legality is
    use type Backmap.Generic_Backmap_Context_Model;
    use type Backmap.Generic_Backmap_Set;
    use type Backmap.Generic_Backmap_Model;
-   package Replay_CPD renames Editor.Ada_Generic_Replay_Representation_Contract_Predicate_Dataflow_Consumer_Legality;
+   package Replay_CPD renames Editor.Ada_Legality.Representation.Generic_Replay_Representation_Contract_Predicate_Dataflow_Legality;
    use type Replay_CPD.Generic_Replay_Representation_Row_Id;
    use type Replay_CPD.Generic_Replay_Representation_Context_Kind;
    use type Replay_CPD.Generic_Replay_Representation_Status;

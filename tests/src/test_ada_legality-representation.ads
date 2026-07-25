@@ -1,0 +1,2 @@
+package Test_Ada_Legality.Representation is
+end Test_Ada_Legality.Representation;

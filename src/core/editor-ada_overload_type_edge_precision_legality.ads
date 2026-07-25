@@ -1,7 +1,7 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
 with Editor.Ada_Expression_Construct_AST_Repair_Legality;
-with Editor.Ada_Generic_Replay_Representation_Contract_Predicate_Dataflow_Consumer_Legality;
+with Editor.Ada_Legality.Representation.Generic_Replay_Representation_Contract_Predicate_Dataflow_Legality;
 with Editor.Ada_Overload_RM_Edge_Legality;
 with Editor.Ada_Syntax_Tree;
 
@@ -20,7 +20,7 @@ package Editor.Ada_Overload_Type_Edge_Precision_Legality is
 
    package RM_Edge renames Editor.Ada_Overload_RM_Edge_Legality;
    package Expr_AST renames Editor.Ada_Expression_Construct_AST_Repair_Legality;
-   package Replay_CPD renames Editor.Ada_Generic_Replay_Representation_Contract_Predicate_Dataflow_Consumer_Legality;
+   package Replay_CPD renames Editor.Ada_Legality.Representation.Generic_Replay_Representation_Contract_Predicate_Dataflow_Legality;
 
    type Overload_Type_Edge_Row_Id is new Natural;
    No_Overload_Type_Edge_Row : constant Overload_Type_Edge_Row_Id := 0;

@@ -2,8 +2,8 @@ with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
 with Editor.Ada_Syntax_Tree;
 with Editor.Ada_RM_Coverage_Matrix_Audit;
-with Editor.Ada_RM_Coverage_Gap_Remediation_Audit;
-with Editor.Ada_Semantic_Consumer_Enforcement_Audit;
+with Editor.Ada_Legality.Expressions.RM_Coverage_Gap_Repair_Audit;
+with Editor.Ada_Legality.Expressions.Semantic_Enforcement_Audit;
 
 package Editor.Ada_Partial_Evidence_Precision_Audit is
 
@@ -17,8 +17,8 @@ package Editor.Ada_Partial_Evidence_Precision_Audit is
    --  checker states without inventing semantic facts.
 
    package Matrix renames Editor.Ada_RM_Coverage_Matrix_Audit;
-   package Remediation renames Editor.Ada_RM_Coverage_Gap_Remediation_Audit;
-   package Consumers renames Editor.Ada_Semantic_Consumer_Enforcement_Audit;
+   package Remediation renames Editor.Ada_Legality.Expressions.RM_Coverage_Gap_Repair_Audit;
+   package Consumers renames Editor.Ada_Legality.Expressions.Semantic_Enforcement_Audit;
 
    subtype RM_Family is Matrix.RM_Family;
    subtype Implementing_Slice is Matrix.Implementing_Slice;

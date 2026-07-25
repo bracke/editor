@@ -2,7 +2,7 @@ with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
 with Editor.Ada_Abstract_State_Refined_State_Legality;
 with Editor.Ada_Overload_Shared_State_RM_Edge_Legality;
-with Editor.Ada_Representation_Freezing_Final_Hard_Cases_Legality;
+with Editor.Ada_Legality.Representation.Freezing_Final_Edge_Cases_Legality;
 with Editor.Ada_Syntax_Tree;
 with Editor.Ada_Volatile_Atomic_Shared_State_Legality;
 
@@ -19,7 +19,7 @@ package Editor.Ada_Representation_Shared_State_Final_Legality is
 
    package Abstract_States renames Editor.Ada_Abstract_State_Refined_State_Legality;
    package Overload_State renames Editor.Ada_Overload_Shared_State_RM_Edge_Legality;
-   package Rep_Final renames Editor.Ada_Representation_Freezing_Final_Hard_Cases_Legality;
+   package Rep_Final renames Editor.Ada_Legality.Representation.Freezing_Final_Edge_Cases_Legality;
    package Shared_State renames Editor.Ada_Volatile_Atomic_Shared_State_Legality;
 
    type Representation_Shared_State_Row_Id is new Natural;

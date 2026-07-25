@@ -1,13 +1,13 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
-with Editor.Ada_Tasking_Remediation.Generic_Shared_State_Final;
+with Editor.Ada_Legality.Tasking.Repair_Generic_Shared_State_Final;
 with Editor.Ada_Syntax_Tree;
 
 package body Test_Ada_Tasking_Generic_Shared_State_Final_Legality is
 
    package Registration renames AUnit.Test_Cases.Registration;
-   package C renames Editor.Ada_Tasking_Remediation.Generic_Shared_State_Final;
+   package C renames Editor.Ada_Legality.Tasking.Repair_Generic_Shared_State_Final;
    use type C.Tasking_Generic_Final_Row_Id;
    use type C.Tasking_Generic_Final_Kind;
    use type C.Tasking_Generic_Final_Blocker_Family;

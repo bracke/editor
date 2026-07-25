@@ -2,7 +2,7 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Editor.Ada_Diagnostic_Action_Router;
-with Editor.Ada_Final_Semantic_Diagnostic_Integration;
+with Editor.Ada_Legality.Expressions.Semantic_Readiness_Diagnostic_Integration;
 with Editor.Ada_Diagnostic_Navigation;
 with Editor.Ada_Diagnostic_Panel_Projection;
 with Editor.Ada_Diagnostic_Provenance;
@@ -17,7 +17,7 @@ with Editor.Ada_Syntax_Tree;
 package body Test_Ada_Diagnostic_Action_Router is
 
    package Router renames Editor.Ada_Diagnostic_Action_Router;
-   package Final_Diag renames Editor.Ada_Final_Semantic_Diagnostic_Integration;
+   package Final_Diag renames Editor.Ada_Legality.Expressions.Semantic_Readiness_Diagnostic_Integration;
    package Cross_Final renames Final_Diag.Cross_Final;
    package Generic_Final renames Final_Diag.Generic_Final;
    package Navigation renames Editor.Ada_Diagnostic_Navigation;

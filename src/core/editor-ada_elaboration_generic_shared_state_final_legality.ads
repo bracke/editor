@@ -2,11 +2,11 @@ with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
 with Editor.Ada_Cross_Unit_Generic_Shared_State_Final_Closure_Legality;
 with Editor.Ada_Dispatching_Global_Refinement_Legality;
-with Editor.Ada_Elaboration_Graph_Final_Consumer_Legality;
+with Editor.Ada_Legality.Elaboration.Graph_Final_Legality;
 with Editor.Ada_Generic_Abstract_State_Replay_Legality;
 with Editor.Ada_Representation_Generic_Shared_State_Final_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Remediation.Generic_Shared_State_Final;
+with Editor.Ada_Legality.Tasking.Repair_Generic_Shared_State_Final;
 
 package Editor.Ada_Elaboration_Generic_Shared_State_Final_Legality is
 
@@ -26,10 +26,10 @@ package Editor.Ada_Elaboration_Generic_Shared_State_Final_Legality is
 
    package Cross_Generic renames Editor.Ada_Cross_Unit_Generic_Shared_State_Final_Closure_Legality;
    package Dispatching_Global renames Editor.Ada_Dispatching_Global_Refinement_Legality;
-   package Elaboration_Final renames Editor.Ada_Elaboration_Graph_Final_Consumer_Legality;
+   package Elaboration_Final renames Editor.Ada_Legality.Elaboration.Graph_Final_Legality;
    package Generic_Replay renames Editor.Ada_Generic_Abstract_State_Replay_Legality;
    package Rep_Generic renames Editor.Ada_Representation_Generic_Shared_State_Final_Legality;
-   package Tasking_Generic renames Editor.Ada_Tasking_Remediation.Generic_Shared_State_Final;
+   package Tasking_Generic renames Editor.Ada_Legality.Tasking.Repair_Generic_Shared_State_Final;
 
    type Elaboration_Generic_Final_Row_Id is new Natural;
    No_Elaboration_Generic_Final_Row : constant Elaboration_Generic_Final_Row_Id := 0;

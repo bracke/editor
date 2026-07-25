@@ -10,7 +10,7 @@ with Editor.Ada_Predicate_Invariant_Propagation_Legality;
 with Editor.Ada_Representation_Freezing_Exact_Propagation_Legality;
 with Editor.Ada_Representation_Freezing_Precision_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Remediation.Protected_Effects;
+with Editor.Ada_Legality.Tasking.Repair_Protected_Effects;
 with Editor.Ada_Widened_Legality_Coverage_Gate_Enforcement;
 
 package body Test_Ada_Representation_Freezing_Exact_Propagation_Legality is
@@ -101,7 +101,7 @@ package body Test_Ada_Representation_Freezing_Exact_Propagation_Legality is
    use type Elab.Elaboration_Graph_Context_Model;
    use type Elab.Elaboration_Graph_Result_Set;
    use type Elab.Elaboration_Graph_Closure_Model;
-   package Tasking renames Editor.Ada_Tasking_Remediation.Protected_Effects;
+   package Tasking renames Editor.Ada_Legality.Tasking.Repair_Protected_Effects;
    use type Tasking.Tasking_Effect_Id;
    use type Tasking.Tasking_Effect_Context_Kind;
    use type Tasking.Tasking_Effect_Status;

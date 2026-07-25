@@ -2,15 +2,15 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Ada_Overload_Preference_Legality;
 with Editor.Ada_Wide_Semantic_Legality_Diagnostics;
 with Editor.Ada_Integrated_Semantic_Closure;
-with Editor.Ada_Final_Semantic_Diagnostic_Integration;
-with Editor.Ada_Final_Semantic_Remediation_Diagnostic_Integration;
-with Editor.Ada_Final_Semantic_Stabilized_Diagnostic_Integration;
-with Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics;
-with Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics;
-with Editor.Ada_RM_Completion_Closure_Consumer_Diagnostic_Integration;
-with Editor.Ada_RM_Completion_Closure_Consumer_Stabilized_Diagnostic_Integration;
-with Editor.Ada_Remaining_RM_Edge_Stabilized_Diagnostic_Integration;
-with Editor.Ada_Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Integration;
+with Editor.Ada_Legality.Expressions.Semantic_Readiness_Diagnostic_Integration;
+with Editor.Ada_Legality.Expressions.Semantic_Readiness_Repair_Diagnostic_Integration;
+with Editor.Ada_Legality.Expressions.Semantic_Readiness_Stable_Diagnostic_Integration;
+with Editor.Ada_Legality.Dataflow.Generic_Shared_State_Repair_Final_Diagnostics;
+with Editor.Ada_Legality.Generics.Shared_State_Repair_RM_Closure_Diagnostics;
+with Editor.Ada_Legality.Expressions.RM_Closure_Closure_Diagnostic_Integration;
+with Editor.Ada_Legality.Expressions.RM_Closure_Closure_Stable_Diagnostic_Integration;
+with Editor.Ada_Legality.Expressions.RM_Coverage_Stable_Diagnostic_Integration;
+with Editor.Ada_Legality.Expressions.RM_Coverage_Stable_Closure_Diagnostic_Integration;
 with Editor.Syntax;
 
 package body Editor.Ada_Semantic_Diagnostic_Feed is
@@ -201,152 +201,152 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
    end Integrated_Closure_Is_Diagnostic;
 
    function Severity_Of
-     (Severity : Editor.Ada_Final_Semantic_Diagnostic_Integration.Final_Diagnostic_Severity)
+     (Severity : Editor.Ada_Legality.Expressions.Semantic_Readiness_Diagnostic_Integration.Final_Diagnostic_Severity)
       return Semantic_Diagnostic_Feed_Severity is
    begin
       case Severity is
-         when Editor.Ada_Final_Semantic_Diagnostic_Integration.Final_Diagnostic_Error =>
+         when Editor.Ada_Legality.Expressions.Semantic_Readiness_Diagnostic_Integration.Final_Diagnostic_Error =>
             return Semantic_Diagnostic_Feed_Error;
-         when Editor.Ada_Final_Semantic_Diagnostic_Integration.Final_Diagnostic_Warning =>
+         when Editor.Ada_Legality.Expressions.Semantic_Readiness_Diagnostic_Integration.Final_Diagnostic_Warning =>
             return Semantic_Diagnostic_Feed_Warning;
-         when Editor.Ada_Final_Semantic_Diagnostic_Integration.Final_Diagnostic_Severity_Info =>
+         when Editor.Ada_Legality.Expressions.Semantic_Readiness_Diagnostic_Integration.Final_Diagnostic_Severity_Info =>
             return Semantic_Diagnostic_Feed_Info;
       end case;
    end Severity_Of;
 
    function Source_Of
-     (Family : Editor.Ada_Final_Semantic_Diagnostic_Integration.Final_Diagnostic_Source_Family)
+     (Family : Editor.Ada_Legality.Expressions.Semantic_Readiness_Diagnostic_Integration.Final_Diagnostic_Source_Family)
       return Semantic_Diagnostic_Feed_Source is
    begin
       case Family is
-         when Editor.Ada_Final_Semantic_Diagnostic_Integration.Final_Diagnostic_Cross_Unit =>
+         when Editor.Ada_Legality.Expressions.Semantic_Readiness_Diagnostic_Integration.Final_Diagnostic_Cross_Unit =>
             return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Cross_Unit;
-         when Editor.Ada_Final_Semantic_Diagnostic_Integration.Final_Diagnostic_Generic_Replay =>
+         when Editor.Ada_Legality.Expressions.Semantic_Readiness_Diagnostic_Integration.Final_Diagnostic_Generic_Replay =>
             return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Generic_Contract;
-         when Editor.Ada_Final_Semantic_Diagnostic_Integration.Final_Diagnostic_Representation_Freezing =>
+         when Editor.Ada_Legality.Expressions.Semantic_Readiness_Diagnostic_Integration.Final_Diagnostic_Representation_Freezing =>
             return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Representation;
-         when Editor.Ada_Final_Semantic_Diagnostic_Integration.Final_Diagnostic_Overload_Type
-            | Editor.Ada_Final_Semantic_Diagnostic_Integration.Final_Diagnostic_Flow_Contract
-            | Editor.Ada_Final_Semantic_Diagnostic_Integration.Final_Diagnostic_Tasking_Protected
-            | Editor.Ada_Final_Semantic_Diagnostic_Integration.Final_Diagnostic_Elaboration
-            | Editor.Ada_Final_Semantic_Diagnostic_Integration.Final_Diagnostic_Accessibility_Lifetime
-            | Editor.Ada_Final_Semantic_Diagnostic_Integration.Final_Diagnostic_Discriminant_Variant
-            | Editor.Ada_Final_Semantic_Diagnostic_Integration.Final_Diagnostic_Multiple
-            | Editor.Ada_Final_Semantic_Diagnostic_Integration.Final_Diagnostic_Unknown =>
+         when Editor.Ada_Legality.Expressions.Semantic_Readiness_Diagnostic_Integration.Final_Diagnostic_Overload_Type
+            | Editor.Ada_Legality.Expressions.Semantic_Readiness_Diagnostic_Integration.Final_Diagnostic_Flow_Contract
+            | Editor.Ada_Legality.Expressions.Semantic_Readiness_Diagnostic_Integration.Final_Diagnostic_Tasking_Protected
+            | Editor.Ada_Legality.Expressions.Semantic_Readiness_Diagnostic_Integration.Final_Diagnostic_Elaboration
+            | Editor.Ada_Legality.Expressions.Semantic_Readiness_Diagnostic_Integration.Final_Diagnostic_Accessibility_Lifetime
+            | Editor.Ada_Legality.Expressions.Semantic_Readiness_Diagnostic_Integration.Final_Diagnostic_Discriminant_Variant
+            | Editor.Ada_Legality.Expressions.Semantic_Readiness_Diagnostic_Integration.Final_Diagnostic_Multiple
+            | Editor.Ada_Legality.Expressions.Semantic_Readiness_Diagnostic_Integration.Final_Diagnostic_Unknown =>
             return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Expression;
       end case;
    end Source_Of;
 
 
    function Severity_Of
-     (Severity : Editor.Ada_Final_Semantic_Remediation_Diagnostic_Integration.Final_Remediation_Diagnostic_Severity)
+     (Severity : Editor.Ada_Legality.Expressions.Semantic_Readiness_Repair_Diagnostic_Integration.Final_Remediation_Diagnostic_Severity)
       return Semantic_Diagnostic_Feed_Severity is
    begin
       case Severity is
-         when Editor.Ada_Final_Semantic_Remediation_Diagnostic_Integration.Final_Remediation_Diagnostic_Error =>
+         when Editor.Ada_Legality.Expressions.Semantic_Readiness_Repair_Diagnostic_Integration.Final_Remediation_Diagnostic_Error =>
             return Semantic_Diagnostic_Feed_Error;
-         when Editor.Ada_Final_Semantic_Remediation_Diagnostic_Integration.Final_Remediation_Diagnostic_Warning =>
+         when Editor.Ada_Legality.Expressions.Semantic_Readiness_Repair_Diagnostic_Integration.Final_Remediation_Diagnostic_Warning =>
             return Semantic_Diagnostic_Feed_Warning;
-         when Editor.Ada_Final_Semantic_Remediation_Diagnostic_Integration.Final_Remediation_Diagnostic_Info =>
+         when Editor.Ada_Legality.Expressions.Semantic_Readiness_Repair_Diagnostic_Integration.Final_Remediation_Diagnostic_Info =>
             return Semantic_Diagnostic_Feed_Info;
       end case;
    end Severity_Of;
 
    function Severity_Of
-     (Severity : Editor.Ada_Final_Semantic_Stabilized_Diagnostic_Integration.Final_Stabilized_Diagnostic_Severity)
+     (Severity : Editor.Ada_Legality.Expressions.Semantic_Readiness_Stable_Diagnostic_Integration.Final_Stabilized_Diagnostic_Severity)
       return Semantic_Diagnostic_Feed_Severity is
    begin
       case Severity is
-         when Editor.Ada_Final_Semantic_Stabilized_Diagnostic_Integration.Final_Stabilized_Diagnostic_Error =>
+         when Editor.Ada_Legality.Expressions.Semantic_Readiness_Stable_Diagnostic_Integration.Final_Stabilized_Diagnostic_Error =>
             return Semantic_Diagnostic_Feed_Error;
-         when Editor.Ada_Final_Semantic_Stabilized_Diagnostic_Integration.Final_Stabilized_Diagnostic_Warning =>
+         when Editor.Ada_Legality.Expressions.Semantic_Readiness_Stable_Diagnostic_Integration.Final_Stabilized_Diagnostic_Warning =>
             return Semantic_Diagnostic_Feed_Warning;
-         when Editor.Ada_Final_Semantic_Stabilized_Diagnostic_Integration.Final_Stabilized_Diagnostic_Info =>
+         when Editor.Ada_Legality.Expressions.Semantic_Readiness_Stable_Diagnostic_Integration.Final_Stabilized_Diagnostic_Info =>
             return Semantic_Diagnostic_Feed_Info;
       end case;
    end Severity_Of;
 
 
    function Severity_Of
-     (Severity : Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics.Generic_Shared_State_Final_Diagnostic_Severity)
+     (Severity : Editor.Ada_Legality.Dataflow.Generic_Shared_State_Repair_Final_Diagnostics.Generic_Shared_State_Final_Diagnostic_Severity)
       return Semantic_Diagnostic_Feed_Severity is
    begin
       case Severity is
-         when Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics.Generic_Shared_State_Final_Diagnostic_Error =>
+         when Editor.Ada_Legality.Dataflow.Generic_Shared_State_Repair_Final_Diagnostics.Generic_Shared_State_Final_Diagnostic_Error =>
             return Semantic_Diagnostic_Feed_Error;
-         when Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics.Generic_Shared_State_Final_Diagnostic_Warning =>
+         when Editor.Ada_Legality.Dataflow.Generic_Shared_State_Repair_Final_Diagnostics.Generic_Shared_State_Final_Diagnostic_Warning =>
             return Semantic_Diagnostic_Feed_Warning;
-         when Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics.Generic_Shared_State_Final_Diagnostic_Info =>
+         when Editor.Ada_Legality.Dataflow.Generic_Shared_State_Repair_Final_Diagnostics.Generic_Shared_State_Final_Diagnostic_Info =>
             return Semantic_Diagnostic_Feed_Info;
       end case;
    end Severity_Of;
 
    function Source_Of
-     (Family : Editor.Ada_Final_Semantic_Remediation_Diagnostic_Integration.Final_Remediation_Diagnostic_Family)
+     (Family : Editor.Ada_Legality.Expressions.Semantic_Readiness_Repair_Diagnostic_Integration.Final_Remediation_Diagnostic_Family)
       return Semantic_Diagnostic_Feed_Source is
    begin
       case Family is
-         when Editor.Ada_Final_Semantic_Remediation_Diagnostic_Integration.Final_Remediation_Diagnostic_Cross_Unit =>
+         when Editor.Ada_Legality.Expressions.Semantic_Readiness_Repair_Diagnostic_Integration.Final_Remediation_Diagnostic_Cross_Unit =>
             return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Cross_Unit;
-         when Editor.Ada_Final_Semantic_Remediation_Diagnostic_Integration.Final_Remediation_Diagnostic_Generic_Replay =>
+         when Editor.Ada_Legality.Expressions.Semantic_Readiness_Repair_Diagnostic_Integration.Final_Remediation_Diagnostic_Generic_Replay =>
             return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Generic_Contract;
-         when Editor.Ada_Final_Semantic_Remediation_Diagnostic_Integration.Final_Remediation_Diagnostic_Representation_Freezing =>
+         when Editor.Ada_Legality.Expressions.Semantic_Readiness_Repair_Diagnostic_Integration.Final_Remediation_Diagnostic_Representation_Freezing =>
             return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Representation;
-         when Editor.Ada_Final_Semantic_Remediation_Diagnostic_Integration.Final_Remediation_Diagnostic_Overload_Type
-            | Editor.Ada_Final_Semantic_Remediation_Diagnostic_Integration.Final_Remediation_Diagnostic_Flow_Contract
-            | Editor.Ada_Final_Semantic_Remediation_Diagnostic_Integration.Final_Remediation_Diagnostic_Tasking_Protected
-            | Editor.Ada_Final_Semantic_Remediation_Diagnostic_Integration.Final_Remediation_Diagnostic_Elaboration
-            | Editor.Ada_Final_Semantic_Remediation_Diagnostic_Integration.Final_Remediation_Diagnostic_Accessibility_Lifetime
-            | Editor.Ada_Final_Semantic_Remediation_Diagnostic_Integration.Final_Remediation_Diagnostic_Discriminant_Variant
-            | Editor.Ada_Final_Semantic_Remediation_Diagnostic_Integration.Final_Remediation_Diagnostic_AST_Coverage
-            | Editor.Ada_Final_Semantic_Remediation_Diagnostic_Integration.Final_Remediation_Diagnostic_View_Barrier
-            | Editor.Ada_Final_Semantic_Remediation_Diagnostic_Integration.Final_Remediation_Diagnostic_Stale_Input
-            | Editor.Ada_Final_Semantic_Remediation_Diagnostic_Integration.Final_Remediation_Diagnostic_Multiple
-            | Editor.Ada_Final_Semantic_Remediation_Diagnostic_Integration.Final_Remediation_Diagnostic_Unknown =>
+         when Editor.Ada_Legality.Expressions.Semantic_Readiness_Repair_Diagnostic_Integration.Final_Remediation_Diagnostic_Overload_Type
+            | Editor.Ada_Legality.Expressions.Semantic_Readiness_Repair_Diagnostic_Integration.Final_Remediation_Diagnostic_Flow_Contract
+            | Editor.Ada_Legality.Expressions.Semantic_Readiness_Repair_Diagnostic_Integration.Final_Remediation_Diagnostic_Tasking_Protected
+            | Editor.Ada_Legality.Expressions.Semantic_Readiness_Repair_Diagnostic_Integration.Final_Remediation_Diagnostic_Elaboration
+            | Editor.Ada_Legality.Expressions.Semantic_Readiness_Repair_Diagnostic_Integration.Final_Remediation_Diagnostic_Accessibility_Lifetime
+            | Editor.Ada_Legality.Expressions.Semantic_Readiness_Repair_Diagnostic_Integration.Final_Remediation_Diagnostic_Discriminant_Variant
+            | Editor.Ada_Legality.Expressions.Semantic_Readiness_Repair_Diagnostic_Integration.Final_Remediation_Diagnostic_AST_Coverage
+            | Editor.Ada_Legality.Expressions.Semantic_Readiness_Repair_Diagnostic_Integration.Final_Remediation_Diagnostic_View_Barrier
+            | Editor.Ada_Legality.Expressions.Semantic_Readiness_Repair_Diagnostic_Integration.Final_Remediation_Diagnostic_Stale_Input
+            | Editor.Ada_Legality.Expressions.Semantic_Readiness_Repair_Diagnostic_Integration.Final_Remediation_Diagnostic_Multiple
+            | Editor.Ada_Legality.Expressions.Semantic_Readiness_Repair_Diagnostic_Integration.Final_Remediation_Diagnostic_Unknown =>
             return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Expression;
       end case;
    end Source_Of;
 
    function Source_Of
-     (Family : Editor.Ada_Final_Semantic_Stabilized_Diagnostic_Integration.Final_Stabilized_Diagnostic_Family)
+     (Family : Editor.Ada_Legality.Expressions.Semantic_Readiness_Stable_Diagnostic_Integration.Final_Stabilized_Diagnostic_Family)
       return Semantic_Diagnostic_Feed_Source is
    begin
       case Family is
-         when Editor.Ada_Final_Semantic_Stabilized_Diagnostic_Integration.Final_Stabilized_Diagnostic_Cross_Unit =>
+         when Editor.Ada_Legality.Expressions.Semantic_Readiness_Stable_Diagnostic_Integration.Final_Stabilized_Diagnostic_Cross_Unit =>
             return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Cross_Unit;
-         when Editor.Ada_Final_Semantic_Stabilized_Diagnostic_Integration.Final_Stabilized_Diagnostic_Generic_Replay =>
+         when Editor.Ada_Legality.Expressions.Semantic_Readiness_Stable_Diagnostic_Integration.Final_Stabilized_Diagnostic_Generic_Replay =>
             return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Generic_Contract;
-         when Editor.Ada_Final_Semantic_Stabilized_Diagnostic_Integration.Final_Stabilized_Diagnostic_Representation_Freezing =>
+         when Editor.Ada_Legality.Expressions.Semantic_Readiness_Stable_Diagnostic_Integration.Final_Stabilized_Diagnostic_Representation_Freezing =>
             return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Representation;
-         when Editor.Ada_Final_Semantic_Stabilized_Diagnostic_Integration.Final_Stabilized_Diagnostic_Overload_Type
-            | Editor.Ada_Final_Semantic_Stabilized_Diagnostic_Integration.Final_Stabilized_Diagnostic_Flow_Contract
-            | Editor.Ada_Final_Semantic_Stabilized_Diagnostic_Integration.Final_Stabilized_Diagnostic_Tasking_Protected
-            | Editor.Ada_Final_Semantic_Stabilized_Diagnostic_Integration.Final_Stabilized_Diagnostic_Elaboration
-            | Editor.Ada_Final_Semantic_Stabilized_Diagnostic_Integration.Final_Stabilized_Diagnostic_Accessibility_Lifetime
-            | Editor.Ada_Final_Semantic_Stabilized_Diagnostic_Integration.Final_Stabilized_Diagnostic_Discriminant_Variant
-            | Editor.Ada_Final_Semantic_Stabilized_Diagnostic_Integration.Final_Stabilized_Diagnostic_AST_Coverage
-            | Editor.Ada_Final_Semantic_Stabilized_Diagnostic_Integration.Final_Stabilized_Diagnostic_View_Barrier
-            | Editor.Ada_Final_Semantic_Stabilized_Diagnostic_Integration.Final_Stabilized_Diagnostic_Stale_Input
-            | Editor.Ada_Final_Semantic_Stabilized_Diagnostic_Integration.Final_Stabilized_Diagnostic_Preserved_Error
-            | Editor.Ada_Final_Semantic_Stabilized_Diagnostic_Integration.Final_Stabilized_Diagnostic_Multiple
-            | Editor.Ada_Final_Semantic_Stabilized_Diagnostic_Integration.Final_Stabilized_Diagnostic_Indeterminate
-            | Editor.Ada_Final_Semantic_Stabilized_Diagnostic_Integration.Final_Stabilized_Diagnostic_Unknown =>
+         when Editor.Ada_Legality.Expressions.Semantic_Readiness_Stable_Diagnostic_Integration.Final_Stabilized_Diagnostic_Overload_Type
+            | Editor.Ada_Legality.Expressions.Semantic_Readiness_Stable_Diagnostic_Integration.Final_Stabilized_Diagnostic_Flow_Contract
+            | Editor.Ada_Legality.Expressions.Semantic_Readiness_Stable_Diagnostic_Integration.Final_Stabilized_Diagnostic_Tasking_Protected
+            | Editor.Ada_Legality.Expressions.Semantic_Readiness_Stable_Diagnostic_Integration.Final_Stabilized_Diagnostic_Elaboration
+            | Editor.Ada_Legality.Expressions.Semantic_Readiness_Stable_Diagnostic_Integration.Final_Stabilized_Diagnostic_Accessibility_Lifetime
+            | Editor.Ada_Legality.Expressions.Semantic_Readiness_Stable_Diagnostic_Integration.Final_Stabilized_Diagnostic_Discriminant_Variant
+            | Editor.Ada_Legality.Expressions.Semantic_Readiness_Stable_Diagnostic_Integration.Final_Stabilized_Diagnostic_AST_Coverage
+            | Editor.Ada_Legality.Expressions.Semantic_Readiness_Stable_Diagnostic_Integration.Final_Stabilized_Diagnostic_View_Barrier
+            | Editor.Ada_Legality.Expressions.Semantic_Readiness_Stable_Diagnostic_Integration.Final_Stabilized_Diagnostic_Stale_Input
+            | Editor.Ada_Legality.Expressions.Semantic_Readiness_Stable_Diagnostic_Integration.Final_Stabilized_Diagnostic_Preserved_Error
+            | Editor.Ada_Legality.Expressions.Semantic_Readiness_Stable_Diagnostic_Integration.Final_Stabilized_Diagnostic_Multiple
+            | Editor.Ada_Legality.Expressions.Semantic_Readiness_Stable_Diagnostic_Integration.Final_Stabilized_Diagnostic_Indeterminate
+            | Editor.Ada_Legality.Expressions.Semantic_Readiness_Stable_Diagnostic_Integration.Final_Stabilized_Diagnostic_Unknown =>
             return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Expression;
       end case;
    end Source_Of;
 
 
    function Source_Of
-     (Family : Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics.Generic_Shared_State_Final_Diagnostic_Family)
+     (Family : Editor.Ada_Legality.Dataflow.Generic_Shared_State_Repair_Final_Diagnostics.Generic_Shared_State_Final_Diagnostic_Family)
       return Semantic_Diagnostic_Feed_Source is
    begin
       case Family is
-         when Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics.Generic_Shared_State_Final_Diagnostic_Generic_Abstract_Replay =>
+         when Editor.Ada_Legality.Dataflow.Generic_Shared_State_Repair_Final_Diagnostics.Generic_Shared_State_Final_Diagnostic_Generic_Abstract_Replay =>
             return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Generic_Contract;
-         when Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics.Generic_Shared_State_Final_Diagnostic_Representation_Generic_Shared_State |
-              Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics.Generic_Shared_State_Final_Diagnostic_Volatile_Atomic_Representation =>
+         when Editor.Ada_Legality.Dataflow.Generic_Shared_State_Repair_Final_Diagnostics.Generic_Shared_State_Final_Diagnostic_Representation_Generic_Shared_State |
+              Editor.Ada_Legality.Dataflow.Generic_Shared_State_Repair_Final_Diagnostics.Generic_Shared_State_Final_Diagnostic_Volatile_Atomic_Representation =>
             return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Representation;
-         when Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics.Generic_Shared_State_Final_Diagnostic_Stabilized_Shared_State_Closure =>
+         when Editor.Ada_Legality.Dataflow.Generic_Shared_State_Repair_Final_Diagnostics.Generic_Shared_State_Final_Diagnostic_Stabilized_Shared_State_Closure =>
             return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Cross_Unit;
          when others =>
             return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Expression;
@@ -356,30 +356,30 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
 
 
    function Severity_Of
-     (Severity : Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics.RM_Completion_Diagnostic_Severity)
+     (Severity : Editor.Ada_Legality.Generics.Shared_State_Repair_RM_Closure_Diagnostics.RM_Completion_Diagnostic_Severity)
       return Semantic_Diagnostic_Feed_Severity is
    begin
       case Severity is
-         when Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics.RM_Completion_Diagnostic_Error =>
+         when Editor.Ada_Legality.Generics.Shared_State_Repair_RM_Closure_Diagnostics.RM_Completion_Diagnostic_Error =>
             return Semantic_Diagnostic_Feed_Error;
-         when Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics.RM_Completion_Diagnostic_Warning =>
+         when Editor.Ada_Legality.Generics.Shared_State_Repair_RM_Closure_Diagnostics.RM_Completion_Diagnostic_Warning =>
             return Semantic_Diagnostic_Feed_Warning;
-         when Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics.RM_Completion_Diagnostic_Info =>
+         when Editor.Ada_Legality.Generics.Shared_State_Repair_RM_Closure_Diagnostics.RM_Completion_Diagnostic_Info =>
             return Semantic_Diagnostic_Feed_Info;
       end case;
    end Severity_Of;
 
    function Source_Of
-     (Family : Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics.RM_Completion_Diagnostic_Family)
+     (Family : Editor.Ada_Legality.Generics.Shared_State_Repair_RM_Closure_Diagnostics.RM_Completion_Diagnostic_Family)
       return Semantic_Diagnostic_Feed_Source is
    begin
       case Family is
-         when Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics.RM_Completion_Diagnostic_Cross_Unit_RM_Completion =>
+         when Editor.Ada_Legality.Generics.Shared_State_Repair_RM_Closure_Diagnostics.RM_Completion_Diagnostic_Cross_Unit_RM_Completion =>
             return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Cross_Unit;
-         when Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics.RM_Completion_Diagnostic_Representation_RM_Completion |
-              Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics.RM_Completion_Diagnostic_Volatile_Atomic_Effect =>
+         when Editor.Ada_Legality.Generics.Shared_State_Repair_RM_Closure_Diagnostics.RM_Completion_Diagnostic_Representation_RM_Completion |
+              Editor.Ada_Legality.Generics.Shared_State_Repair_RM_Closure_Diagnostics.RM_Completion_Diagnostic_Volatile_Atomic_Effect =>
             return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Representation;
-         when Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics.RM_Completion_Diagnostic_Generic_Substitution =>
+         when Editor.Ada_Legality.Generics.Shared_State_Repair_RM_Closure_Diagnostics.RM_Completion_Diagnostic_Generic_Substitution =>
             return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Generic_Contract;
          when others =>
             return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Expression;
@@ -388,66 +388,32 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
 
 
    function Severity_Of
-     (Severity : Editor.Ada_RM_Completion_Closure_Consumer_Diagnostic_Integration.RM_Closure_Consumer_Diagnostic_Severity)
+     (Severity : Editor.Ada_Legality.Expressions.RM_Closure_Closure_Diagnostic_Integration.RM_Closure_Consumer_Diagnostic_Severity)
       return Semantic_Diagnostic_Feed_Severity is
    begin
       case Severity is
-         when Editor.Ada_RM_Completion_Closure_Consumer_Diagnostic_Integration.RM_Closure_Consumer_Diagnostic_Error =>
+         when Editor.Ada_Legality.Expressions.RM_Closure_Closure_Diagnostic_Integration.RM_Closure_Consumer_Diagnostic_Error =>
             return Semantic_Diagnostic_Feed_Error;
-         when Editor.Ada_RM_Completion_Closure_Consumer_Diagnostic_Integration.RM_Closure_Consumer_Diagnostic_Warning =>
+         when Editor.Ada_Legality.Expressions.RM_Closure_Closure_Diagnostic_Integration.RM_Closure_Consumer_Diagnostic_Warning =>
             return Semantic_Diagnostic_Feed_Warning;
-         when Editor.Ada_RM_Completion_Closure_Consumer_Diagnostic_Integration.RM_Closure_Consumer_Diagnostic_Info =>
+         when Editor.Ada_Legality.Expressions.RM_Closure_Closure_Diagnostic_Integration.RM_Closure_Consumer_Diagnostic_Info =>
             return Semantic_Diagnostic_Feed_Info;
       end case;
    end Severity_Of;
 
    function Source_Of
-     (Family : Editor.Ada_RM_Completion_Closure_Consumer_Diagnostic_Integration.RM_Closure_Consumer_Diagnostic_Family)
+     (Family : Editor.Ada_Legality.Expressions.RM_Closure_Closure_Diagnostic_Integration.RM_Closure_Consumer_Diagnostic_Family)
       return Semantic_Diagnostic_Feed_Source is
    begin
       case Family is
-         when Editor.Ada_RM_Completion_Closure_Consumer_Diagnostic_Integration.RM_Closure_Consumer_Diagnostic_Cross_Unit |
-              Editor.Ada_RM_Completion_Closure_Consumer_Diagnostic_Integration.RM_Closure_Consumer_Diagnostic_Stabilized_Closure =>
+         when Editor.Ada_Legality.Expressions.RM_Closure_Closure_Diagnostic_Integration.RM_Closure_Consumer_Diagnostic_Cross_Unit |
+              Editor.Ada_Legality.Expressions.RM_Closure_Closure_Diagnostic_Integration.RM_Closure_Consumer_Diagnostic_Stabilized_Closure =>
             return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Cross_Unit;
-         when Editor.Ada_RM_Completion_Closure_Consumer_Diagnostic_Integration.RM_Closure_Consumer_Diagnostic_Representation |
-              Editor.Ada_RM_Completion_Closure_Consumer_Diagnostic_Integration.RM_Closure_Consumer_Diagnostic_Volatile_Atomic =>
+         when Editor.Ada_Legality.Expressions.RM_Closure_Closure_Diagnostic_Integration.RM_Closure_Consumer_Diagnostic_Representation |
+              Editor.Ada_Legality.Expressions.RM_Closure_Closure_Diagnostic_Integration.RM_Closure_Consumer_Diagnostic_Volatile_Atomic =>
             return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Representation;
-         when Editor.Ada_RM_Completion_Closure_Consumer_Diagnostic_Integration.RM_Closure_Consumer_Diagnostic_Generic_Substitution |
-              Editor.Ada_RM_Completion_Closure_Consumer_Diagnostic_Integration.RM_Closure_Consumer_Diagnostic_Predicate_RM =>
-            return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Generic_Contract;
-         when others =>
-            return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Expression;
-      end case;
-   end Source_Of;
-
-
-
-   function Severity_Of
-     (Severity : Editor.Ada_RM_Completion_Closure_Consumer_Stabilized_Diagnostic_Integration.RM_Closure_Consumer_Stabilized_Diagnostic_Severity)
-      return Semantic_Diagnostic_Feed_Severity is
-   begin
-      case Severity is
-         when Editor.Ada_RM_Completion_Closure_Consumer_Stabilized_Diagnostic_Integration.RM_Closure_Consumer_Stabilized_Diagnostic_Error =>
-            return Semantic_Diagnostic_Feed_Error;
-         when Editor.Ada_RM_Completion_Closure_Consumer_Stabilized_Diagnostic_Integration.RM_Closure_Consumer_Stabilized_Diagnostic_Warning =>
-            return Semantic_Diagnostic_Feed_Warning;
-         when Editor.Ada_RM_Completion_Closure_Consumer_Stabilized_Diagnostic_Integration.RM_Closure_Consumer_Stabilized_Diagnostic_Info =>
-            return Semantic_Diagnostic_Feed_Info;
-      end case;
-   end Severity_Of;
-
-   function Source_Of
-     (Family : Editor.Ada_RM_Completion_Closure_Consumer_Stabilized_Diagnostic_Integration.RM_Closure_Consumer_Stabilized_Diagnostic_Family)
-      return Semantic_Diagnostic_Feed_Source is
-   begin
-      case Family is
-         when Editor.Ada_RM_Completion_Closure_Consumer_Stabilized_Diagnostic_Integration.RM_Closure_Consumer_Stabilized_Diagnostic_Cross_Unit =>
-            return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Cross_Unit;
-         when Editor.Ada_RM_Completion_Closure_Consumer_Stabilized_Diagnostic_Integration.RM_Closure_Consumer_Stabilized_Diagnostic_Representation |
-              Editor.Ada_RM_Completion_Closure_Consumer_Stabilized_Diagnostic_Integration.RM_Closure_Consumer_Stabilized_Diagnostic_Volatile_Atomic =>
-            return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Representation;
-         when Editor.Ada_RM_Completion_Closure_Consumer_Stabilized_Diagnostic_Integration.RM_Closure_Consumer_Stabilized_Diagnostic_Generic_Substitution |
-              Editor.Ada_RM_Completion_Closure_Consumer_Stabilized_Diagnostic_Integration.RM_Closure_Consumer_Stabilized_Diagnostic_Predicate_Invariant =>
+         when Editor.Ada_Legality.Expressions.RM_Closure_Closure_Diagnostic_Integration.RM_Closure_Consumer_Diagnostic_Generic_Substitution |
+              Editor.Ada_Legality.Expressions.RM_Closure_Closure_Diagnostic_Integration.RM_Closure_Consumer_Diagnostic_Predicate_RM =>
             return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Generic_Contract;
          when others =>
             return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Expression;
@@ -457,27 +423,61 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
 
 
    function Severity_Of
-     (Severity : Editor.Ada_Remaining_RM_Edge_Stabilized_Diagnostic_Integration.Remaining_RM_Edge_Stabilized_Diagnostic_Severity)
+     (Severity : Editor.Ada_Legality.Expressions.RM_Closure_Closure_Stable_Diagnostic_Integration.RM_Closure_Consumer_Stabilized_Diagnostic_Severity)
       return Semantic_Diagnostic_Feed_Severity is
    begin
       case Severity is
-         when Editor.Ada_Remaining_RM_Edge_Stabilized_Diagnostic_Integration.Remaining_RM_Edge_Stabilized_Diagnostic_Error =>
+         when Editor.Ada_Legality.Expressions.RM_Closure_Closure_Stable_Diagnostic_Integration.RM_Closure_Consumer_Stabilized_Diagnostic_Error =>
             return Semantic_Diagnostic_Feed_Error;
-         when Editor.Ada_Remaining_RM_Edge_Stabilized_Diagnostic_Integration.Remaining_RM_Edge_Stabilized_Diagnostic_Warning =>
+         when Editor.Ada_Legality.Expressions.RM_Closure_Closure_Stable_Diagnostic_Integration.RM_Closure_Consumer_Stabilized_Diagnostic_Warning =>
             return Semantic_Diagnostic_Feed_Warning;
-         when Editor.Ada_Remaining_RM_Edge_Stabilized_Diagnostic_Integration.Remaining_RM_Edge_Stabilized_Diagnostic_Info =>
+         when Editor.Ada_Legality.Expressions.RM_Closure_Closure_Stable_Diagnostic_Integration.RM_Closure_Consumer_Stabilized_Diagnostic_Info =>
             return Semantic_Diagnostic_Feed_Info;
       end case;
    end Severity_Of;
 
    function Source_Of
-     (Family : Editor.Ada_Remaining_RM_Edge_Stabilized_Diagnostic_Integration.Remaining_RM_Edge_Stabilized_Diagnostic_Family)
+     (Family : Editor.Ada_Legality.Expressions.RM_Closure_Closure_Stable_Diagnostic_Integration.RM_Closure_Consumer_Stabilized_Diagnostic_Family)
       return Semantic_Diagnostic_Feed_Source is
    begin
       case Family is
-         when Editor.Ada_Remaining_RM_Edge_Stabilized_Diagnostic_Integration.Remaining_RM_Edge_Stabilized_Diagnostic_Stabilized_Closure =>
+         when Editor.Ada_Legality.Expressions.RM_Closure_Closure_Stable_Diagnostic_Integration.RM_Closure_Consumer_Stabilized_Diagnostic_Cross_Unit =>
             return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Cross_Unit;
-         when Editor.Ada_Remaining_RM_Edge_Stabilized_Diagnostic_Integration.Remaining_RM_Edge_Stabilized_Diagnostic_Remaining_Edge =>
+         when Editor.Ada_Legality.Expressions.RM_Closure_Closure_Stable_Diagnostic_Integration.RM_Closure_Consumer_Stabilized_Diagnostic_Representation |
+              Editor.Ada_Legality.Expressions.RM_Closure_Closure_Stable_Diagnostic_Integration.RM_Closure_Consumer_Stabilized_Diagnostic_Volatile_Atomic =>
+            return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Representation;
+         when Editor.Ada_Legality.Expressions.RM_Closure_Closure_Stable_Diagnostic_Integration.RM_Closure_Consumer_Stabilized_Diagnostic_Generic_Substitution |
+              Editor.Ada_Legality.Expressions.RM_Closure_Closure_Stable_Diagnostic_Integration.RM_Closure_Consumer_Stabilized_Diagnostic_Predicate_Invariant =>
+            return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Generic_Contract;
+         when others =>
+            return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Expression;
+      end case;
+   end Source_Of;
+
+
+
+   function Severity_Of
+     (Severity : Editor.Ada_Legality.Expressions.RM_Coverage_Stable_Diagnostic_Integration.Remaining_RM_Edge_Stabilized_Diagnostic_Severity)
+      return Semantic_Diagnostic_Feed_Severity is
+   begin
+      case Severity is
+         when Editor.Ada_Legality.Expressions.RM_Coverage_Stable_Diagnostic_Integration.Remaining_RM_Edge_Stabilized_Diagnostic_Error =>
+            return Semantic_Diagnostic_Feed_Error;
+         when Editor.Ada_Legality.Expressions.RM_Coverage_Stable_Diagnostic_Integration.Remaining_RM_Edge_Stabilized_Diagnostic_Warning =>
+            return Semantic_Diagnostic_Feed_Warning;
+         when Editor.Ada_Legality.Expressions.RM_Coverage_Stable_Diagnostic_Integration.Remaining_RM_Edge_Stabilized_Diagnostic_Info =>
+            return Semantic_Diagnostic_Feed_Info;
+      end case;
+   end Severity_Of;
+
+   function Source_Of
+     (Family : Editor.Ada_Legality.Expressions.RM_Coverage_Stable_Diagnostic_Integration.Remaining_RM_Edge_Stabilized_Diagnostic_Family)
+      return Semantic_Diagnostic_Feed_Source is
+   begin
+      case Family is
+         when Editor.Ada_Legality.Expressions.RM_Coverage_Stable_Diagnostic_Integration.Remaining_RM_Edge_Stabilized_Diagnostic_Stabilized_Closure =>
+            return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Cross_Unit;
+         when Editor.Ada_Legality.Expressions.RM_Coverage_Stable_Diagnostic_Integration.Remaining_RM_Edge_Stabilized_Diagnostic_Remaining_Edge =>
             return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Expression;
          when others =>
             return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Expression;
@@ -487,27 +487,27 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
 
 
    function Severity_Of
-     (Severity : Editor.Ada_Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Integration.Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Severity)
+     (Severity : Editor.Ada_Legality.Expressions.RM_Coverage_Stable_Closure_Diagnostic_Integration.Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Severity)
       return Semantic_Diagnostic_Feed_Severity is
    begin
       case Severity is
-         when Editor.Ada_Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Integration.Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Error =>
+         when Editor.Ada_Legality.Expressions.RM_Coverage_Stable_Closure_Diagnostic_Integration.Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Error =>
             return Semantic_Diagnostic_Feed_Error;
-         when Editor.Ada_Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Integration.Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Warning =>
+         when Editor.Ada_Legality.Expressions.RM_Coverage_Stable_Closure_Diagnostic_Integration.Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Warning =>
             return Semantic_Diagnostic_Feed_Warning;
-         when Editor.Ada_Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Integration.Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Info =>
+         when Editor.Ada_Legality.Expressions.RM_Coverage_Stable_Closure_Diagnostic_Integration.Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Info =>
             return Semantic_Diagnostic_Feed_Info;
       end case;
    end Severity_Of;
 
    function Source_Of
-     (Family : Editor.Ada_Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Integration.Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Family)
+     (Family : Editor.Ada_Legality.Expressions.RM_Coverage_Stable_Closure_Diagnostic_Integration.Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Family)
       return Semantic_Diagnostic_Feed_Source is
    begin
       case Family is
-         when Editor.Ada_Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Integration.Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Stabilized_Closure =>
+         when Editor.Ada_Legality.Expressions.RM_Coverage_Stable_Closure_Diagnostic_Integration.Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Stabilized_Closure =>
             return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Cross_Unit;
-         when Editor.Ada_Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Integration.Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Remaining_Edge =>
+         when Editor.Ada_Legality.Expressions.RM_Coverage_Stable_Closure_Diagnostic_Integration.Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Remaining_Edge =>
             return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Expression;
          when others =>
             return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Expression;
@@ -900,7 +900,7 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
 
    function Build_With_Final_Semantic_Diagnostics
      (Guarded : Editor.Ada_Semantic_Diagnostic_Snapshot_Guards.Guarded_Semantic_Diagnostic_Model;
-      Final   : Editor.Ada_Final_Semantic_Diagnostic_Integration.Final_Diagnostic_Model;
+      Final   : Editor.Ada_Legality.Expressions.Semantic_Readiness_Diagnostic_Integration.Final_Diagnostic_Model;
       Final_Input_Current : Boolean := True;
       Final_Rejected_Count : Natural := 0)
       return Semantic_Diagnostic_Feed_Model
@@ -912,7 +912,7 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
          Model.Feed_Status := Semantic_Diagnostic_Feed_Rejected_Stale;
          Model.Rejected_Total := Final_Rejected_Count;
          Model.Result_Fingerprint :=
-           Mix (Editor.Ada_Final_Semantic_Diagnostic_Integration.Fingerprint (Final),
+           Mix (Editor.Ada_Legality.Expressions.Semantic_Readiness_Diagnostic_Integration.Fingerprint (Final),
                 Final_Rejected_Count + 1);
          return Model;
       end if;
@@ -922,17 +922,17 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
            Model.Rejected_Total + Final_Rejected_Count;
          Model.Result_Fingerprint :=
            Mix (Model.Result_Fingerprint,
-                Editor.Ada_Final_Semantic_Diagnostic_Integration.Fingerprint (Final));
+                Editor.Ada_Legality.Expressions.Semantic_Readiness_Diagnostic_Integration.Fingerprint (Final));
          return Model;
       end if;
 
-      for Index in 1 .. Editor.Ada_Final_Semantic_Diagnostic_Integration.Row_Count (Final) loop
+      for Index in 1 .. Editor.Ada_Legality.Expressions.Semantic_Readiness_Diagnostic_Integration.Row_Count (Final) loop
          declare
-            Final_Row : constant Editor.Ada_Final_Semantic_Diagnostic_Integration.Final_Diagnostic_Info :=
-              Editor.Ada_Final_Semantic_Diagnostic_Integration.Row_At (Final, Index);
+            Final_Row : constant Editor.Ada_Legality.Expressions.Semantic_Readiness_Diagnostic_Integration.Final_Diagnostic_Info :=
+              Editor.Ada_Legality.Expressions.Semantic_Readiness_Diagnostic_Integration.Row_At (Final, Index);
             Feed_Item : Semantic_Diagnostic_Feed_Entry;
          begin
-            if Editor.Ada_Final_Semantic_Diagnostic_Integration.Is_Emitted (Final_Row.Status) then
+            if Editor.Ada_Legality.Expressions.Semantic_Readiness_Diagnostic_Integration.Is_Emitted (Final_Row.Status) then
                Feed_Item.Id := Semantic_Diagnostic_Feed_Id (Natural (Model.Entries.Length) + 1);
                Feed_Item.Source := Source_Of (Final_Row.Family);
                Feed_Item.Severity := Severity_Of (Final_Row.Severity);
@@ -962,7 +962,7 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
 
       Model.Result_Fingerprint :=
         Mix (Model.Result_Fingerprint,
-             Editor.Ada_Final_Semantic_Diagnostic_Integration.Fingerprint (Final));
+             Editor.Ada_Legality.Expressions.Semantic_Readiness_Diagnostic_Integration.Fingerprint (Final));
       return Model;
    end Build_With_Final_Semantic_Diagnostics;
 
@@ -970,7 +970,7 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
 
    function Build_With_Final_Remediation_Diagnostics
      (Guarded : Editor.Ada_Semantic_Diagnostic_Snapshot_Guards.Guarded_Semantic_Diagnostic_Model;
-      Final   : Editor.Ada_Final_Semantic_Remediation_Diagnostic_Integration.Final_Remediation_Diagnostic_Model;
+      Final   : Editor.Ada_Legality.Expressions.Semantic_Readiness_Repair_Diagnostic_Integration.Final_Remediation_Diagnostic_Model;
       Final_Input_Current : Boolean := True;
       Final_Rejected_Count : Natural := 0)
       return Semantic_Diagnostic_Feed_Model
@@ -982,7 +982,7 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
          Model.Feed_Status := Semantic_Diagnostic_Feed_Rejected_Stale;
          Model.Rejected_Total := Final_Rejected_Count;
          Model.Result_Fingerprint :=
-           Mix (Editor.Ada_Final_Semantic_Remediation_Diagnostic_Integration.Fingerprint (Final),
+           Mix (Editor.Ada_Legality.Expressions.Semantic_Readiness_Repair_Diagnostic_Integration.Fingerprint (Final),
                 Final_Rejected_Count + 1);
          return Model;
       end if;
@@ -991,17 +991,17 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
          Model.Rejected_Total := Model.Rejected_Total + Final_Rejected_Count;
          Model.Result_Fingerprint :=
            Mix (Model.Result_Fingerprint,
-                Editor.Ada_Final_Semantic_Remediation_Diagnostic_Integration.Fingerprint (Final));
+                Editor.Ada_Legality.Expressions.Semantic_Readiness_Repair_Diagnostic_Integration.Fingerprint (Final));
          return Model;
       end if;
 
-      for Index in 1 .. Editor.Ada_Final_Semantic_Remediation_Diagnostic_Integration.Row_Count (Final) loop
+      for Index in 1 .. Editor.Ada_Legality.Expressions.Semantic_Readiness_Repair_Diagnostic_Integration.Row_Count (Final) loop
          declare
-            Final_Row : constant Editor.Ada_Final_Semantic_Remediation_Diagnostic_Integration.Final_Remediation_Diagnostic_Row :=
-              Editor.Ada_Final_Semantic_Remediation_Diagnostic_Integration.Row_At (Final, Index);
+            Final_Row : constant Editor.Ada_Legality.Expressions.Semantic_Readiness_Repair_Diagnostic_Integration.Final_Remediation_Diagnostic_Row :=
+              Editor.Ada_Legality.Expressions.Semantic_Readiness_Repair_Diagnostic_Integration.Row_At (Final, Index);
             Feed_Item : Semantic_Diagnostic_Feed_Entry;
          begin
-            if Editor.Ada_Final_Semantic_Remediation_Diagnostic_Integration.Is_Emitted (Final_Row.Status) then
+            if Editor.Ada_Legality.Expressions.Semantic_Readiness_Repair_Diagnostic_Integration.Is_Emitted (Final_Row.Status) then
                Feed_Item.Id := Semantic_Diagnostic_Feed_Id (Natural (Model.Entries.Length) + 1);
                Feed_Item.Source := Source_Of (Final_Row.Family);
                Feed_Item.Severity := Severity_Of (Final_Row.Severity);
@@ -1031,13 +1031,13 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
 
       Model.Result_Fingerprint :=
         Mix (Model.Result_Fingerprint,
-             Editor.Ada_Final_Semantic_Remediation_Diagnostic_Integration.Fingerprint (Final));
+             Editor.Ada_Legality.Expressions.Semantic_Readiness_Repair_Diagnostic_Integration.Fingerprint (Final));
       return Model;
    end Build_With_Final_Remediation_Diagnostics;
 
    function Build_With_Final_Stabilized_Diagnostics
      (Guarded : Editor.Ada_Semantic_Diagnostic_Snapshot_Guards.Guarded_Semantic_Diagnostic_Model;
-      Final   : Editor.Ada_Final_Semantic_Stabilized_Diagnostic_Integration.Final_Stabilized_Diagnostic_Model;
+      Final   : Editor.Ada_Legality.Expressions.Semantic_Readiness_Stable_Diagnostic_Integration.Final_Stabilized_Diagnostic_Model;
       Final_Input_Current : Boolean := True;
       Final_Rejected_Count : Natural := 0)
       return Semantic_Diagnostic_Feed_Model
@@ -1049,7 +1049,7 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
          Model.Feed_Status := Semantic_Diagnostic_Feed_Rejected_Stale;
          Model.Rejected_Total := Final_Rejected_Count;
          Model.Result_Fingerprint :=
-           Mix (Editor.Ada_Final_Semantic_Stabilized_Diagnostic_Integration.Fingerprint (Final),
+           Mix (Editor.Ada_Legality.Expressions.Semantic_Readiness_Stable_Diagnostic_Integration.Fingerprint (Final),
                 Final_Rejected_Count + 1);
          return Model;
       end if;
@@ -1058,17 +1058,17 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
          Model.Rejected_Total := Model.Rejected_Total + Final_Rejected_Count;
          Model.Result_Fingerprint :=
            Mix (Model.Result_Fingerprint,
-                Editor.Ada_Final_Semantic_Stabilized_Diagnostic_Integration.Fingerprint (Final));
+                Editor.Ada_Legality.Expressions.Semantic_Readiness_Stable_Diagnostic_Integration.Fingerprint (Final));
          return Model;
       end if;
 
-      for Index in 1 .. Editor.Ada_Final_Semantic_Stabilized_Diagnostic_Integration.Row_Count (Final) loop
+      for Index in 1 .. Editor.Ada_Legality.Expressions.Semantic_Readiness_Stable_Diagnostic_Integration.Row_Count (Final) loop
          declare
-            Final_Row : constant Editor.Ada_Final_Semantic_Stabilized_Diagnostic_Integration.Final_Stabilized_Diagnostic_Row :=
-              Editor.Ada_Final_Semantic_Stabilized_Diagnostic_Integration.Row_At (Final, Index);
+            Final_Row : constant Editor.Ada_Legality.Expressions.Semantic_Readiness_Stable_Diagnostic_Integration.Final_Stabilized_Diagnostic_Row :=
+              Editor.Ada_Legality.Expressions.Semantic_Readiness_Stable_Diagnostic_Integration.Row_At (Final, Index);
             Feed_Item : Semantic_Diagnostic_Feed_Entry;
          begin
-            if Editor.Ada_Final_Semantic_Stabilized_Diagnostic_Integration.Is_Emitted (Final_Row.Status) then
+            if Editor.Ada_Legality.Expressions.Semantic_Readiness_Stable_Diagnostic_Integration.Is_Emitted (Final_Row.Status) then
                Feed_Item.Id := Semantic_Diagnostic_Feed_Id (Natural (Model.Entries.Length) + 1);
                Feed_Item.Source := Source_Of (Final_Row.Family);
                Feed_Item.Severity := Severity_Of (Final_Row.Severity);
@@ -1098,14 +1098,14 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
 
       Model.Result_Fingerprint :=
         Mix (Model.Result_Fingerprint,
-             Editor.Ada_Final_Semantic_Stabilized_Diagnostic_Integration.Fingerprint (Final));
+             Editor.Ada_Legality.Expressions.Semantic_Readiness_Stable_Diagnostic_Integration.Fingerprint (Final));
       return Model;
    end Build_With_Final_Stabilized_Diagnostics;
 
 
    function Build_With_Generic_Shared_State_Final_Diagnostics
      (Guarded : Editor.Ada_Semantic_Diagnostic_Snapshot_Guards.Guarded_Semantic_Diagnostic_Model;
-      Final   : Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics.Generic_Shared_State_Final_Diagnostic_Model;
+      Final   : Editor.Ada_Legality.Dataflow.Generic_Shared_State_Repair_Final_Diagnostics.Generic_Shared_State_Final_Diagnostic_Model;
       Final_Input_Current : Boolean := True;
       Final_Rejected_Count : Natural := 0)
       return Semantic_Diagnostic_Feed_Model
@@ -1117,7 +1117,7 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
          Model.Feed_Status := Semantic_Diagnostic_Feed_Rejected_Stale;
          Model.Rejected_Total := Final_Rejected_Count;
          Model.Result_Fingerprint :=
-           Mix (Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics.Fingerprint (Final),
+           Mix (Editor.Ada_Legality.Dataflow.Generic_Shared_State_Repair_Final_Diagnostics.Fingerprint (Final),
                 Final_Rejected_Count + 1);
          return Model;
       end if;
@@ -1126,17 +1126,17 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
          Model.Rejected_Total := Model.Rejected_Total + Final_Rejected_Count;
          Model.Result_Fingerprint :=
            Mix (Model.Result_Fingerprint,
-                Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics.Fingerprint (Final));
+                Editor.Ada_Legality.Dataflow.Generic_Shared_State_Repair_Final_Diagnostics.Fingerprint (Final));
          return Model;
       end if;
 
-      for Index in 1 .. Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics.Row_Count (Final) loop
+      for Index in 1 .. Editor.Ada_Legality.Dataflow.Generic_Shared_State_Repair_Final_Diagnostics.Row_Count (Final) loop
          declare
-            Final_Row : constant Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics.Generic_Shared_State_Final_Diagnostic_Row :=
-              Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics.Row_At (Final, Index);
+            Final_Row : constant Editor.Ada_Legality.Dataflow.Generic_Shared_State_Repair_Final_Diagnostics.Generic_Shared_State_Final_Diagnostic_Row :=
+              Editor.Ada_Legality.Dataflow.Generic_Shared_State_Repair_Final_Diagnostics.Row_At (Final, Index);
             Feed_Item : Semantic_Diagnostic_Feed_Entry;
          begin
-            if Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics.Is_Emitted (Final_Row.Status) then
+            if Editor.Ada_Legality.Dataflow.Generic_Shared_State_Repair_Final_Diagnostics.Is_Emitted (Final_Row.Status) then
                Feed_Item.Id := Semantic_Diagnostic_Feed_Id (Natural (Model.Entries.Length) + 1);
                Feed_Item.Source := Source_Of (Final_Row.Family);
                Feed_Item.Severity := Severity_Of (Final_Row.Severity);
@@ -1166,14 +1166,14 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
 
       Model.Result_Fingerprint :=
         Mix (Model.Result_Fingerprint,
-             Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics.Fingerprint (Final));
+             Editor.Ada_Legality.Dataflow.Generic_Shared_State_Repair_Final_Diagnostics.Fingerprint (Final));
       return Model;
    end Build_With_Generic_Shared_State_Final_Diagnostics;
 
 
    function Build_With_Generic_Shared_State_RM_Completion_Diagnostics
      (Guarded : Editor.Ada_Semantic_Diagnostic_Snapshot_Guards.Guarded_Semantic_Diagnostic_Model;
-      Final   : Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics.RM_Completion_Diagnostic_Model;
+      Final   : Editor.Ada_Legality.Generics.Shared_State_Repair_RM_Closure_Diagnostics.RM_Completion_Diagnostic_Model;
       Final_Input_Current : Boolean := True;
       Final_Rejected_Count : Natural := 0)
       return Semantic_Diagnostic_Feed_Model
@@ -1185,7 +1185,7 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
          Model.Feed_Status := Semantic_Diagnostic_Feed_Rejected_Stale;
          Model.Rejected_Total := Final_Rejected_Count;
          Model.Result_Fingerprint :=
-           Mix (Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics.Fingerprint (Final),
+           Mix (Editor.Ada_Legality.Generics.Shared_State_Repair_RM_Closure_Diagnostics.Fingerprint (Final),
                 Final_Rejected_Count + 1);
          return Model;
       end if;
@@ -1194,17 +1194,17 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
          Model.Rejected_Total := Model.Rejected_Total + Final_Rejected_Count;
          Model.Result_Fingerprint :=
            Mix (Model.Result_Fingerprint,
-                Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics.Fingerprint (Final));
+                Editor.Ada_Legality.Generics.Shared_State_Repair_RM_Closure_Diagnostics.Fingerprint (Final));
          return Model;
       end if;
 
-      for Index in 1 .. Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics.Row_Count (Final) loop
+      for Index in 1 .. Editor.Ada_Legality.Generics.Shared_State_Repair_RM_Closure_Diagnostics.Row_Count (Final) loop
          declare
-            Final_Row : constant Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics.RM_Completion_Diagnostic_Row :=
-              Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics.Row_At (Final, Index);
+            Final_Row : constant Editor.Ada_Legality.Generics.Shared_State_Repair_RM_Closure_Diagnostics.RM_Completion_Diagnostic_Row :=
+              Editor.Ada_Legality.Generics.Shared_State_Repair_RM_Closure_Diagnostics.Row_At (Final, Index);
             Feed_Item : Semantic_Diagnostic_Feed_Entry;
          begin
-            if Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics.Is_Emitted (Final_Row.Status) then
+            if Editor.Ada_Legality.Generics.Shared_State_Repair_RM_Closure_Diagnostics.Is_Emitted (Final_Row.Status) then
                Feed_Item.Id := Semantic_Diagnostic_Feed_Id (Natural (Model.Entries.Length) + 1);
                Feed_Item.Source := Source_Of (Final_Row.Family);
                Feed_Item.Severity := Severity_Of (Final_Row.Severity);
@@ -1234,14 +1234,14 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
 
       Model.Result_Fingerprint :=
         Mix (Model.Result_Fingerprint,
-             Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics.Fingerprint (Final));
+             Editor.Ada_Legality.Generics.Shared_State_Repair_RM_Closure_Diagnostics.Fingerprint (Final));
       return Model;
    end Build_With_Generic_Shared_State_RM_Completion_Diagnostics;
 
 
    function Build_With_RM_Completion_Closure_Consumer_Diagnostics
      (Guarded : Editor.Ada_Semantic_Diagnostic_Snapshot_Guards.Guarded_Semantic_Diagnostic_Model;
-      Final   : Editor.Ada_RM_Completion_Closure_Consumer_Diagnostic_Integration.RM_Closure_Consumer_Diagnostic_Model;
+      Final   : Editor.Ada_Legality.Expressions.RM_Closure_Closure_Diagnostic_Integration.RM_Closure_Consumer_Diagnostic_Model;
       Final_Input_Current : Boolean := True;
       Final_Rejected_Count : Natural := 0)
       return Semantic_Diagnostic_Feed_Model
@@ -1253,7 +1253,7 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
          Model.Feed_Status := Semantic_Diagnostic_Feed_Rejected_Stale;
          Model.Rejected_Total := Final_Rejected_Count;
          Model.Result_Fingerprint :=
-           Mix (Editor.Ada_RM_Completion_Closure_Consumer_Diagnostic_Integration.Fingerprint (Final),
+           Mix (Editor.Ada_Legality.Expressions.RM_Closure_Closure_Diagnostic_Integration.Fingerprint (Final),
                 Final_Rejected_Count + 1);
          return Model;
       end if;
@@ -1262,17 +1262,17 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
          Model.Rejected_Total := Model.Rejected_Total + Final_Rejected_Count;
          Model.Result_Fingerprint :=
            Mix (Model.Result_Fingerprint,
-                Editor.Ada_RM_Completion_Closure_Consumer_Diagnostic_Integration.Fingerprint (Final));
+                Editor.Ada_Legality.Expressions.RM_Closure_Closure_Diagnostic_Integration.Fingerprint (Final));
          return Model;
       end if;
 
-      for Index in 1 .. Editor.Ada_RM_Completion_Closure_Consumer_Diagnostic_Integration.Row_Count (Final) loop
+      for Index in 1 .. Editor.Ada_Legality.Expressions.RM_Closure_Closure_Diagnostic_Integration.Row_Count (Final) loop
          declare
-            Final_Row : constant Editor.Ada_RM_Completion_Closure_Consumer_Diagnostic_Integration.RM_Closure_Consumer_Diagnostic_Row :=
-              Editor.Ada_RM_Completion_Closure_Consumer_Diagnostic_Integration.Row_At (Final, Index);
+            Final_Row : constant Editor.Ada_Legality.Expressions.RM_Closure_Closure_Diagnostic_Integration.RM_Closure_Consumer_Diagnostic_Row :=
+              Editor.Ada_Legality.Expressions.RM_Closure_Closure_Diagnostic_Integration.Row_At (Final, Index);
             Feed_Item : Semantic_Diagnostic_Feed_Entry;
          begin
-            if Editor.Ada_RM_Completion_Closure_Consumer_Diagnostic_Integration.Is_Emitted (Final_Row.Status) then
+            if Editor.Ada_Legality.Expressions.RM_Closure_Closure_Diagnostic_Integration.Is_Emitted (Final_Row.Status) then
                Feed_Item.Id := Semantic_Diagnostic_Feed_Id (Natural (Model.Entries.Length) + 1);
                Feed_Item.Source := Source_Of (Final_Row.Family);
                Feed_Item.Severity := Severity_Of (Final_Row.Severity);
@@ -1302,7 +1302,7 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
 
       Model.Result_Fingerprint :=
         Mix (Model.Result_Fingerprint,
-             Editor.Ada_RM_Completion_Closure_Consumer_Diagnostic_Integration.Fingerprint (Final));
+             Editor.Ada_Legality.Expressions.RM_Closure_Closure_Diagnostic_Integration.Fingerprint (Final));
       return Model;
    end Build_With_RM_Completion_Closure_Consumer_Diagnostics;
 
@@ -1310,7 +1310,7 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
 
    function Build_With_RM_Completion_Closure_Consumer_Stabilized_Diagnostics
      (Guarded : Editor.Ada_Semantic_Diagnostic_Snapshot_Guards.Guarded_Semantic_Diagnostic_Model;
-      Final   : Editor.Ada_RM_Completion_Closure_Consumer_Stabilized_Diagnostic_Integration.RM_Closure_Consumer_Stabilized_Diagnostic_Model;
+      Final   : Editor.Ada_Legality.Expressions.RM_Closure_Closure_Stable_Diagnostic_Integration.RM_Closure_Consumer_Stabilized_Diagnostic_Model;
       Final_Input_Current : Boolean := True;
       Final_Rejected_Count : Natural := 0)
       return Semantic_Diagnostic_Feed_Model
@@ -1322,7 +1322,7 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
          Model.Feed_Status := Semantic_Diagnostic_Feed_Rejected_Stale;
          Model.Rejected_Total := Final_Rejected_Count;
          Model.Result_Fingerprint :=
-           Mix (Editor.Ada_RM_Completion_Closure_Consumer_Stabilized_Diagnostic_Integration.Fingerprint (Final),
+           Mix (Editor.Ada_Legality.Expressions.RM_Closure_Closure_Stable_Diagnostic_Integration.Fingerprint (Final),
                 Final_Rejected_Count + 1);
          return Model;
       end if;
@@ -1331,17 +1331,17 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
          Model.Rejected_Total := Model.Rejected_Total + Final_Rejected_Count;
          Model.Result_Fingerprint :=
            Mix (Model.Result_Fingerprint,
-                Editor.Ada_RM_Completion_Closure_Consumer_Stabilized_Diagnostic_Integration.Fingerprint (Final));
+                Editor.Ada_Legality.Expressions.RM_Closure_Closure_Stable_Diagnostic_Integration.Fingerprint (Final));
          return Model;
       end if;
 
-      for Index in 1 .. Editor.Ada_RM_Completion_Closure_Consumer_Stabilized_Diagnostic_Integration.Row_Count (Final) loop
+      for Index in 1 .. Editor.Ada_Legality.Expressions.RM_Closure_Closure_Stable_Diagnostic_Integration.Row_Count (Final) loop
          declare
-            Final_Row : constant Editor.Ada_RM_Completion_Closure_Consumer_Stabilized_Diagnostic_Integration.RM_Closure_Consumer_Stabilized_Diagnostic_Row :=
-              Editor.Ada_RM_Completion_Closure_Consumer_Stabilized_Diagnostic_Integration.Row_At (Final, Index);
+            Final_Row : constant Editor.Ada_Legality.Expressions.RM_Closure_Closure_Stable_Diagnostic_Integration.RM_Closure_Consumer_Stabilized_Diagnostic_Row :=
+              Editor.Ada_Legality.Expressions.RM_Closure_Closure_Stable_Diagnostic_Integration.Row_At (Final, Index);
             Feed_Item : Semantic_Diagnostic_Feed_Entry;
          begin
-            if Editor.Ada_RM_Completion_Closure_Consumer_Stabilized_Diagnostic_Integration.Is_Emitted (Final_Row.Status) then
+            if Editor.Ada_Legality.Expressions.RM_Closure_Closure_Stable_Diagnostic_Integration.Is_Emitted (Final_Row.Status) then
                Feed_Item.Id := Semantic_Diagnostic_Feed_Id (Natural (Model.Entries.Length) + 1);
                Feed_Item.Source := Source_Of (Final_Row.Family);
                Feed_Item.Severity := Severity_Of (Final_Row.Severity);
@@ -1371,7 +1371,7 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
 
       Model.Result_Fingerprint :=
         Mix (Model.Result_Fingerprint,
-             Editor.Ada_RM_Completion_Closure_Consumer_Stabilized_Diagnostic_Integration.Fingerprint (Final));
+             Editor.Ada_Legality.Expressions.RM_Closure_Closure_Stable_Diagnostic_Integration.Fingerprint (Final));
       return Model;
    end Build_With_RM_Completion_Closure_Consumer_Stabilized_Diagnostics;
 
@@ -1379,7 +1379,7 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
 
    function Build_With_Remaining_RM_Edge_Stabilized_Diagnostics
      (Guarded : Editor.Ada_Semantic_Diagnostic_Snapshot_Guards.Guarded_Semantic_Diagnostic_Model;
-      Final   : Editor.Ada_Remaining_RM_Edge_Stabilized_Diagnostic_Integration.Remaining_RM_Edge_Stabilized_Diagnostic_Model;
+      Final   : Editor.Ada_Legality.Expressions.RM_Coverage_Stable_Diagnostic_Integration.Remaining_RM_Edge_Stabilized_Diagnostic_Model;
       Final_Input_Current : Boolean := True;
       Final_Rejected_Count : Natural := 0)
       return Semantic_Diagnostic_Feed_Model
@@ -1391,7 +1391,7 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
          Model.Feed_Status := Semantic_Diagnostic_Feed_Rejected_Stale;
          Model.Rejected_Total := Final_Rejected_Count;
          Model.Result_Fingerprint :=
-           Mix (Editor.Ada_Remaining_RM_Edge_Stabilized_Diagnostic_Integration.Fingerprint (Final),
+           Mix (Editor.Ada_Legality.Expressions.RM_Coverage_Stable_Diagnostic_Integration.Fingerprint (Final),
                 Final_Rejected_Count + 1);
          return Model;
       end if;
@@ -1400,17 +1400,17 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
          Model.Rejected_Total := Model.Rejected_Total + Final_Rejected_Count;
          Model.Result_Fingerprint :=
            Mix (Model.Result_Fingerprint,
-                Editor.Ada_Remaining_RM_Edge_Stabilized_Diagnostic_Integration.Fingerprint (Final));
+                Editor.Ada_Legality.Expressions.RM_Coverage_Stable_Diagnostic_Integration.Fingerprint (Final));
          return Model;
       end if;
 
-      for Index in 1 .. Editor.Ada_Remaining_RM_Edge_Stabilized_Diagnostic_Integration.Row_Count (Final) loop
+      for Index in 1 .. Editor.Ada_Legality.Expressions.RM_Coverage_Stable_Diagnostic_Integration.Row_Count (Final) loop
          declare
-            Final_Row : constant Editor.Ada_Remaining_RM_Edge_Stabilized_Diagnostic_Integration.Remaining_RM_Edge_Stabilized_Diagnostic_Row :=
-              Editor.Ada_Remaining_RM_Edge_Stabilized_Diagnostic_Integration.Row_At (Final, Index);
+            Final_Row : constant Editor.Ada_Legality.Expressions.RM_Coverage_Stable_Diagnostic_Integration.Remaining_RM_Edge_Stabilized_Diagnostic_Row :=
+              Editor.Ada_Legality.Expressions.RM_Coverage_Stable_Diagnostic_Integration.Row_At (Final, Index);
             Feed_Item : Semantic_Diagnostic_Feed_Entry;
          begin
-            if Editor.Ada_Remaining_RM_Edge_Stabilized_Diagnostic_Integration.Is_Emitted (Final_Row.Status) then
+            if Editor.Ada_Legality.Expressions.RM_Coverage_Stable_Diagnostic_Integration.Is_Emitted (Final_Row.Status) then
                Feed_Item.Id := Semantic_Diagnostic_Feed_Id (Natural (Model.Entries.Length) + 1);
                Feed_Item.Source := Source_Of (Final_Row.Family);
                Feed_Item.Severity := Severity_Of (Final_Row.Severity);
@@ -1440,14 +1440,14 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
 
       Model.Result_Fingerprint :=
         Mix (Model.Result_Fingerprint,
-             Editor.Ada_Remaining_RM_Edge_Stabilized_Diagnostic_Integration.Fingerprint (Final));
+             Editor.Ada_Legality.Expressions.RM_Coverage_Stable_Diagnostic_Integration.Fingerprint (Final));
       return Model;
    end Build_With_Remaining_RM_Edge_Stabilized_Diagnostics;
 
 
    function Build_With_Remaining_RM_Edge_Stabilized_Closure_Diagnostics
      (Guarded : Editor.Ada_Semantic_Diagnostic_Snapshot_Guards.Guarded_Semantic_Diagnostic_Model;
-      Final   : Editor.Ada_Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Integration.Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Model;
+      Final   : Editor.Ada_Legality.Expressions.RM_Coverage_Stable_Closure_Diagnostic_Integration.Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Model;
       Final_Input_Current : Boolean := True;
       Final_Rejected_Count : Natural := 0)
       return Semantic_Diagnostic_Feed_Model
@@ -1459,7 +1459,7 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
          Model.Feed_Status := Semantic_Diagnostic_Feed_Rejected_Stale;
          Model.Rejected_Total := Final_Rejected_Count;
          Model.Result_Fingerprint :=
-           Mix (Editor.Ada_Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Integration.Fingerprint (Final),
+           Mix (Editor.Ada_Legality.Expressions.RM_Coverage_Stable_Closure_Diagnostic_Integration.Fingerprint (Final),
                 Final_Rejected_Count + 1);
          return Model;
       end if;
@@ -1468,17 +1468,17 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
          Model.Rejected_Total := Model.Rejected_Total + Final_Rejected_Count;
          Model.Result_Fingerprint :=
            Mix (Model.Result_Fingerprint,
-                Editor.Ada_Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Integration.Fingerprint (Final));
+                Editor.Ada_Legality.Expressions.RM_Coverage_Stable_Closure_Diagnostic_Integration.Fingerprint (Final));
          return Model;
       end if;
 
-      for Index in 1 .. Editor.Ada_Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Integration.Row_Count (Final) loop
+      for Index in 1 .. Editor.Ada_Legality.Expressions.RM_Coverage_Stable_Closure_Diagnostic_Integration.Row_Count (Final) loop
          declare
-            Final_Row : constant Editor.Ada_Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Integration.Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Row :=
-              Editor.Ada_Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Integration.Row_At (Final, Index);
+            Final_Row : constant Editor.Ada_Legality.Expressions.RM_Coverage_Stable_Closure_Diagnostic_Integration.Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Row :=
+              Editor.Ada_Legality.Expressions.RM_Coverage_Stable_Closure_Diagnostic_Integration.Row_At (Final, Index);
             Feed_Item : Semantic_Diagnostic_Feed_Entry;
          begin
-            if Editor.Ada_Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Integration.Is_Emitted (Final_Row.Status) then
+            if Editor.Ada_Legality.Expressions.RM_Coverage_Stable_Closure_Diagnostic_Integration.Is_Emitted (Final_Row.Status) then
                Feed_Item.Id := Semantic_Diagnostic_Feed_Id (Natural (Model.Entries.Length) + 1);
                Feed_Item.Source := Source_Of (Final_Row.Family);
                Feed_Item.Severity := Severity_Of (Final_Row.Severity);
@@ -1508,7 +1508,7 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
 
       Model.Result_Fingerprint :=
         Mix (Model.Result_Fingerprint,
-             Editor.Ada_Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Integration.Fingerprint (Final));
+             Editor.Ada_Legality.Expressions.RM_Coverage_Stable_Closure_Diagnostic_Integration.Fingerprint (Final));
       return Model;
    end Build_With_Remaining_RM_Edge_Stabilized_Closure_Diagnostics;
 

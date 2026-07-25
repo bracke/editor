@@ -3,7 +3,7 @@ with AUnit; use AUnit;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Editor.Ada_Expression_Construct_AST_Repair_Legality;
-with Editor.Ada_Generic_Replay_Representation_Contract_Predicate_Dataflow_Consumer_Legality;
+with Editor.Ada_Legality.Representation.Generic_Replay_Representation_Contract_Predicate_Dataflow_Legality;
 with Editor.Ada_Overload_RM_Edge_Legality;
 with Editor.Ada_Overload_Type_Edge_Precision_Legality;
 with Editor.Ada_Syntax_Tree;
@@ -19,7 +19,7 @@ package body Test_Ada_Overload_Type_Edge_Precision_Legality is
    use type Expr_AST.Expression_Construct_AST_Repair_Context_Model;
    use type Expr_AST.Expression_Construct_AST_Repair_Model;
    use type Expr_AST.Expression_Construct_AST_Repair_Result_Set;
-   package Replay_CPD renames Editor.Ada_Generic_Replay_Representation_Contract_Predicate_Dataflow_Consumer_Legality;
+   package Replay_CPD renames Editor.Ada_Legality.Representation.Generic_Replay_Representation_Contract_Predicate_Dataflow_Legality;
    use type Replay_CPD.Generic_Replay_Representation_Row_Id;
    use type Replay_CPD.Generic_Replay_Representation_Context_Kind;
    use type Replay_CPD.Generic_Replay_Representation_Status;

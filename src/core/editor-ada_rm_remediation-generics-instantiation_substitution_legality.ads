@@ -2,8 +2,8 @@ with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
 with Editor.Ada_Syntax_Tree;
 with Editor.Ada_RM_Coverage_Matrix_Audit;
-with Editor.Ada_RM_Coverage_Gap_Remediation_Audit;
-with Editor.Ada_Semantic_Consumer_Enforcement_Audit;
+with Editor.Ada_Legality.Expressions.RM_Coverage_Gap_Repair_Audit;
+with Editor.Ada_Legality.Expressions.Semantic_Enforcement_Audit;
 with Editor.Ada_Partial_Evidence_Precision_Audit;
 
 package Editor.Ada_RM_Remediation.Generics.Instantiation_Substitution_Legality is
@@ -16,8 +16,8 @@ package Editor.Ada_RM_Remediation.Generics.Instantiation_Substitution_Legality i
    --  regression evidence, and real semantic consumers.
 
    package Matrix renames Editor.Ada_RM_Coverage_Matrix_Audit;
-   package Remediation renames Editor.Ada_RM_Coverage_Gap_Remediation_Audit;
-   package Consumers renames Editor.Ada_Semantic_Consumer_Enforcement_Audit;
+   package Remediation renames Editor.Ada_Legality.Expressions.RM_Coverage_Gap_Repair_Audit;
+   package Consumers renames Editor.Ada_Legality.Expressions.Semantic_Enforcement_Audit;
    package Precision renames Editor.Ada_Partial_Evidence_Precision_Audit;
 
    subtype RM_Family is Matrix.RM_Family;

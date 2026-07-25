@@ -4,7 +4,7 @@ with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Editor.Ada_Abstract_State_Refined_State_Legality;
 with Editor.Ada_Overload_Shared_State_RM_Edge_Legality;
-with Editor.Ada_Overload_Type_Final_RM_Consumer_Legality;
+with Editor.Ada_Legality.Expressions.Overload_Type_Final_RM_Legality;
 with Editor.Ada_Syntax_Tree;
 with Editor.Ada_Volatile_Atomic_Shared_State_Legality;
 
@@ -28,7 +28,7 @@ package body Test_Ada_Overload_Shared_State_RM_Edge_Legality is
    use type States.Abstract_State_Context_Model;
    use type States.Abstract_State_Model;
    use type States.Abstract_State_Set;
-   package RM renames Editor.Ada_Overload_Type_Final_RM_Consumer_Legality;
+   package RM renames Editor.Ada_Legality.Expressions.Overload_Type_Final_RM_Legality;
    use type RM.Final_RM_Row_Id;
    use type RM.Final_RM_Context_Kind;
    use type RM.Final_RM_Status;

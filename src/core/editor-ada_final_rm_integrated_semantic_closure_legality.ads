@@ -1,10 +1,10 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
-with Editor.Ada_Final_Semantic_Stabilized_Closure_Legality;
-with Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Closure;
-with Editor.Ada_Remaining_RM_Edge_Coverage_Proven_AST_Repair_Legality;
-with Editor.Ada_Remaining_RM_Edge_Stabilized_Closure_Legality;
-with Editor.Ada_RM_Completion_Closure_Consumer_Stabilized_Closure_Legality;
+with Editor.Ada_Legality.Expressions.Semantic_Readiness_Stable_Closure_Legality;
+with Editor.Ada_Legality.Generics.Shared_State_Repair_RM_Closure_Closure;
+with Editor.Ada_Legality.Expressions.RM_Coverage_AST_Repair_Legality;
+with Editor.Ada_Legality.Expressions.RM_Coverage_Stable_Closure_Legality_2;
+with Editor.Ada_Legality.Expressions.RM_Closure_Closure_Stable_Closure_Legality;
 with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Final_RM_Integrated_Semantic_Closure_Legality is
@@ -19,11 +19,11 @@ package Editor.Ada_Final_RM_Integrated_Semantic_Closure_Legality is
    --  prerequisite blocker family is preserved so later diagnostic, remediation,
    --  and recheck passes cannot flatten or bypass the real semantic cause.
 
-   package Final_Base renames Editor.Ada_Final_Semantic_Stabilized_Closure_Legality;
-   package RM_Completion renames Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Closure;
-   package Consumers renames Editor.Ada_RM_Completion_Closure_Consumer_Stabilized_Closure_Legality;
-   package Remaining_Edge renames Editor.Ada_Remaining_RM_Edge_Stabilized_Closure_Legality;
-   package AST_Repair renames Editor.Ada_Remaining_RM_Edge_Coverage_Proven_AST_Repair_Legality;
+   package Final_Base renames Editor.Ada_Legality.Expressions.Semantic_Readiness_Stable_Closure_Legality;
+   package RM_Completion renames Editor.Ada_Legality.Generics.Shared_State_Repair_RM_Closure_Closure;
+   package Consumers renames Editor.Ada_Legality.Expressions.RM_Closure_Closure_Stable_Closure_Legality;
+   package Remaining_Edge renames Editor.Ada_Legality.Expressions.RM_Coverage_Stable_Closure_Legality_2;
+   package AST_Repair renames Editor.Ada_Legality.Expressions.RM_Coverage_AST_Repair_Legality;
 
    subtype Final_Base_Row is Final_Base.Final_Stabilized_Closure_Row;
    subtype RM_Completion_Row is RM_Completion.RM_Completion_Stabilized_Closure_Row;

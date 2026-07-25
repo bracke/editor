@@ -2,10 +2,10 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AUnit; use AUnit;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
-with Editor.Ada_Cross_Unit_Final_Semantic_Closure_Legality;
+with Editor.Ada_Legality.Visibility.Cross_Unit_Semantic_Readiness_Closure_Legality;
 with Editor.Ada_Generic_Replay_Nested_Cycle_Closure_Legality;
 with Editor.Ada_Generic_Replay_Source_Instance_Backmapping_Legality;
-with Editor.Ada_Overload_Type_Final_RM_Consumer_Legality;
+with Editor.Ada_Legality.Expressions.Overload_Type_Final_RM_Legality;
 with Editor.Ada_Syntax_Tree;
 
 package body Test_Ada_Generic_Replay_Nested_Cycle_Closure_Legality is
@@ -19,7 +19,7 @@ package body Test_Ada_Generic_Replay_Nested_Cycle_Closure_Legality is
    use type Backmap.Generic_Backmap_Context_Model;
    use type Backmap.Generic_Backmap_Set;
    use type Backmap.Generic_Backmap_Model;
-   package Cross_Final renames Editor.Ada_Cross_Unit_Final_Semantic_Closure_Legality;
+   package Cross_Final renames Editor.Ada_Legality.Visibility.Cross_Unit_Semantic_Readiness_Closure_Legality;
    use type Cross_Final.Cross_Unit_Final_Row_Id;
    use type Cross_Final.Cross_Unit_Final_Context_Kind;
    use type Cross_Final.Cross_Unit_Dependency_State;
@@ -29,7 +29,7 @@ package body Test_Ada_Generic_Replay_Nested_Cycle_Closure_Legality is
    use type Cross_Final.Cross_Unit_Final_Context_Model;
    use type Cross_Final.Cross_Unit_Final_Set;
    use type Cross_Final.Cross_Unit_Final_Model;
-   package Final_RM renames Editor.Ada_Overload_Type_Final_RM_Consumer_Legality;
+   package Final_RM renames Editor.Ada_Legality.Expressions.Overload_Type_Final_RM_Legality;
    use type Final_RM.Final_RM_Row_Id;
    use type Final_RM.Final_RM_Context_Kind;
    use type Final_RM.Final_RM_Status;

@@ -2,15 +2,15 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with AUnit; use AUnit;
-with Editor.Ada_Cross_Unit_Final_Semantic_Closure_Legality;
+with Editor.Ada_Legality.Visibility.Cross_Unit_Semantic_Readiness_Closure_Legality;
 with Editor.Ada_Flow_Contract_Final_Proof_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Remediation.Protected_Deep_Edge;
-with Editor.Ada_Tasking_Remediation.Protected_Final_Effects;
+with Editor.Ada_Legality.Tasking.Repair_Protected_Deep_Edge;
+with Editor.Ada_Legality.Tasking.Repair_Protected_Final_Effects;
 
 package body Test_Ada_Tasking_Protected_Deep_Edge_Legality is
 
-   package Cross_Final renames Editor.Ada_Cross_Unit_Final_Semantic_Closure_Legality;
+   package Cross_Final renames Editor.Ada_Legality.Visibility.Cross_Unit_Semantic_Readiness_Closure_Legality;
    use type Cross_Final.Cross_Unit_Final_Row_Id;
    use type Cross_Final.Cross_Unit_Final_Context_Kind;
    use type Cross_Final.Cross_Unit_Dependency_State;
@@ -20,7 +20,7 @@ package body Test_Ada_Tasking_Protected_Deep_Edge_Legality is
    use type Cross_Final.Cross_Unit_Final_Context_Model;
    use type Cross_Final.Cross_Unit_Final_Set;
    use type Cross_Final.Cross_Unit_Final_Model;
-   package Deep renames Editor.Ada_Tasking_Remediation.Protected_Deep_Edge;
+   package Deep renames Editor.Ada_Legality.Tasking.Repair_Protected_Deep_Edge;
    use type Deep.Deep_Tasking_Row_Id;
    use type Deep.Deep_Tasking_Context_Kind;
    use type Deep.Deep_Tasking_Status;
@@ -38,7 +38,7 @@ package body Test_Ada_Tasking_Protected_Deep_Edge_Legality is
    use type Flow_Proof.Flow_Contract_Proof_Context_Model;
    use type Flow_Proof.Flow_Contract_Proof_Set;
    use type Flow_Proof.Flow_Contract_Proof_Model;
-   package Tasking_Final renames Editor.Ada_Tasking_Remediation.Protected_Final_Effects;
+   package Tasking_Final renames Editor.Ada_Legality.Tasking.Repair_Protected_Final_Effects;
    use type Tasking_Final.Final_Tasking_Row_Id;
    use type Tasking_Final.Final_Tasking_Context_Kind;
    use type Tasking_Final.Final_Tasking_Status;

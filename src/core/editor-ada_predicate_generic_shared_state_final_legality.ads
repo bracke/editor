@@ -1,6 +1,6 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
-with Editor.Ada_Accessibility_Remediation;
+with Editor.Ada_Legality.Accessibility.Repair;
 with Editor.Ada_Cross_Unit_Generic_Shared_State_Final_Closure_Legality;
 with Editor.Ada_Discriminant_Generic_Shared_State_Final_Legality;
 with Editor.Ada_Dispatching_Global_Refinement_Legality;
@@ -11,9 +11,9 @@ with Editor.Ada_Predicate_Invariant_Propagation_Legality;
 with Editor.Ada_Predicate_Invariant_Use_Site_Legality;
 with Editor.Ada_Renaming_Generic_Shared_State_Final_Legality;
 with Editor.Ada_Representation_Generic_Shared_State_Final_Legality;
-with Editor.Ada_Shared_State_Stabilized_Closure_Legality;
+with Editor.Ada_Legality.Dataflow.State_Stable_Closure_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Remediation.Generic_Shared_State_Final;
+with Editor.Ada_Legality.Tasking.Repair_Generic_Shared_State_Final;
 
 package Editor.Ada_Predicate_Generic_Shared_State_Final_Legality is
 
@@ -36,13 +36,13 @@ package Editor.Ada_Predicate_Generic_Shared_State_Final_Legality is
    package Generic_Replay renames Editor.Ada_Generic_Abstract_State_Replay_Legality;
    package Overload_Generic renames Editor.Ada_Overload_Generic_Shared_State_Final_Legality;
    package Rep_Generic renames Editor.Ada_Representation_Generic_Shared_State_Final_Legality;
-   package Tasking_Generic renames Editor.Ada_Tasking_Remediation.Generic_Shared_State_Final;
-   package Access_Generic renames Editor.Ada_Accessibility_Remediation.Generic_Shared_State_Final;
+   package Tasking_Generic renames Editor.Ada_Legality.Tasking.Repair_Generic_Shared_State_Final;
+   package Access_Generic renames Editor.Ada_Legality.Accessibility.Repair.Generic_Shared_State_Final;
    package Disc_Generic renames Editor.Ada_Discriminant_Generic_Shared_State_Final_Legality;
    package Exception_Generic renames Editor.Ada_Exception_Finalization_Generic_Shared_State_Final_Legality;
    package Renaming_Generic renames Editor.Ada_Renaming_Generic_Shared_State_Final_Legality;
    package Dispatching_Global renames Editor.Ada_Dispatching_Global_Refinement_Legality;
-   package Closure renames Editor.Ada_Shared_State_Stabilized_Closure_Legality;
+   package Closure renames Editor.Ada_Legality.Dataflow.State_Stable_Closure_Legality;
 
    type Predicate_Generic_Final_Row_Id is new Natural;
    No_Predicate_Generic_Final_Row : constant Predicate_Generic_Final_Row_Id := 0;

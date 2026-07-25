@@ -4,15 +4,15 @@ with Editor.Ada_Semantic_Colour_Projection;
 with Editor.Ada_Semantic_Diagnostic_Snapshot_Guards;
 with Editor.Ada_Syntax_Tree;
 with Editor.Ada_Overload_Preference_Legality;
-limited with Editor.Ada_Final_Semantic_Diagnostic_Integration;
-limited with Editor.Ada_Final_Semantic_Remediation_Diagnostic_Integration;
-limited with Editor.Ada_Final_Semantic_Stabilized_Diagnostic_Integration;
-limited with Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics;
-limited with Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics;
-limited with Editor.Ada_RM_Completion_Closure_Consumer_Diagnostic_Integration;
-limited with Editor.Ada_RM_Completion_Closure_Consumer_Stabilized_Diagnostic_Integration;
-limited with Editor.Ada_Remaining_RM_Edge_Stabilized_Diagnostic_Integration;
-limited with Editor.Ada_Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Integration;
+limited with Editor.Ada_Legality.Expressions.Semantic_Readiness_Diagnostic_Integration;
+limited with Editor.Ada_Legality.Expressions.Semantic_Readiness_Repair_Diagnostic_Integration;
+limited with Editor.Ada_Legality.Expressions.Semantic_Readiness_Stable_Diagnostic_Integration;
+limited with Editor.Ada_Legality.Dataflow.Generic_Shared_State_Repair_Final_Diagnostics;
+limited with Editor.Ada_Legality.Generics.Shared_State_Repair_RM_Closure_Diagnostics;
+limited with Editor.Ada_Legality.Expressions.RM_Closure_Closure_Diagnostic_Integration;
+limited with Editor.Ada_Legality.Expressions.RM_Closure_Closure_Stable_Diagnostic_Integration;
+limited with Editor.Ada_Legality.Expressions.RM_Coverage_Stable_Diagnostic_Integration;
+limited with Editor.Ada_Legality.Expressions.RM_Coverage_Stable_Closure_Diagnostic_Integration;
 with Editor.Ada_Wide_Semantic_Legality_Diagnostics;
 limited with Editor.Ada_Integrated_Semantic_Closure;
 with Editor.Syntax;
@@ -96,63 +96,63 @@ package Editor.Ada_Semantic_Diagnostic_Feed is
 
    function Build_With_Final_Semantic_Diagnostics
      (Guarded : Editor.Ada_Semantic_Diagnostic_Snapshot_Guards.Guarded_Semantic_Diagnostic_Model;
-      Final   : Editor.Ada_Final_Semantic_Diagnostic_Integration.Final_Diagnostic_Model;
+      Final   : Editor.Ada_Legality.Expressions.Semantic_Readiness_Diagnostic_Integration.Final_Diagnostic_Model;
       Final_Input_Current : Boolean := True;
       Final_Rejected_Count : Natural := 0)
       return Semantic_Diagnostic_Feed_Model;
 
    function Build_With_Final_Remediation_Diagnostics
      (Guarded : Editor.Ada_Semantic_Diagnostic_Snapshot_Guards.Guarded_Semantic_Diagnostic_Model;
-      Final   : Editor.Ada_Final_Semantic_Remediation_Diagnostic_Integration.Final_Remediation_Diagnostic_Model;
+      Final   : Editor.Ada_Legality.Expressions.Semantic_Readiness_Repair_Diagnostic_Integration.Final_Remediation_Diagnostic_Model;
       Final_Input_Current : Boolean := True;
       Final_Rejected_Count : Natural := 0)
       return Semantic_Diagnostic_Feed_Model;
 
    function Build_With_Final_Stabilized_Diagnostics
      (Guarded : Editor.Ada_Semantic_Diagnostic_Snapshot_Guards.Guarded_Semantic_Diagnostic_Model;
-      Final   : Editor.Ada_Final_Semantic_Stabilized_Diagnostic_Integration.Final_Stabilized_Diagnostic_Model;
+      Final   : Editor.Ada_Legality.Expressions.Semantic_Readiness_Stable_Diagnostic_Integration.Final_Stabilized_Diagnostic_Model;
       Final_Input_Current : Boolean := True;
       Final_Rejected_Count : Natural := 0)
       return Semantic_Diagnostic_Feed_Model;
 
    function Build_With_Generic_Shared_State_Final_Diagnostics
      (Guarded : Editor.Ada_Semantic_Diagnostic_Snapshot_Guards.Guarded_Semantic_Diagnostic_Model;
-      Final   : Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics.Generic_Shared_State_Final_Diagnostic_Model;
+      Final   : Editor.Ada_Legality.Dataflow.Generic_Shared_State_Repair_Final_Diagnostics.Generic_Shared_State_Final_Diagnostic_Model;
       Final_Input_Current : Boolean := True;
       Final_Rejected_Count : Natural := 0)
       return Semantic_Diagnostic_Feed_Model;
 
    function Build_With_Generic_Shared_State_RM_Completion_Diagnostics
      (Guarded : Editor.Ada_Semantic_Diagnostic_Snapshot_Guards.Guarded_Semantic_Diagnostic_Model;
-      Final   : Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics.RM_Completion_Diagnostic_Model;
+      Final   : Editor.Ada_Legality.Generics.Shared_State_Repair_RM_Closure_Diagnostics.RM_Completion_Diagnostic_Model;
       Final_Input_Current : Boolean := True;
       Final_Rejected_Count : Natural := 0)
       return Semantic_Diagnostic_Feed_Model;
 
    function Build_With_RM_Completion_Closure_Consumer_Diagnostics
      (Guarded : Editor.Ada_Semantic_Diagnostic_Snapshot_Guards.Guarded_Semantic_Diagnostic_Model;
-      Final   : Editor.Ada_RM_Completion_Closure_Consumer_Diagnostic_Integration.RM_Closure_Consumer_Diagnostic_Model;
+      Final   : Editor.Ada_Legality.Expressions.RM_Closure_Closure_Diagnostic_Integration.RM_Closure_Consumer_Diagnostic_Model;
       Final_Input_Current : Boolean := True;
       Final_Rejected_Count : Natural := 0)
       return Semantic_Diagnostic_Feed_Model;
 
    function Build_With_RM_Completion_Closure_Consumer_Stabilized_Diagnostics
      (Guarded : Editor.Ada_Semantic_Diagnostic_Snapshot_Guards.Guarded_Semantic_Diagnostic_Model;
-      Final   : Editor.Ada_RM_Completion_Closure_Consumer_Stabilized_Diagnostic_Integration.RM_Closure_Consumer_Stabilized_Diagnostic_Model;
+      Final   : Editor.Ada_Legality.Expressions.RM_Closure_Closure_Stable_Diagnostic_Integration.RM_Closure_Consumer_Stabilized_Diagnostic_Model;
       Final_Input_Current : Boolean := True;
       Final_Rejected_Count : Natural := 0)
       return Semantic_Diagnostic_Feed_Model;
 
    function Build_With_Remaining_RM_Edge_Stabilized_Diagnostics
      (Guarded : Editor.Ada_Semantic_Diagnostic_Snapshot_Guards.Guarded_Semantic_Diagnostic_Model;
-      Final   : Editor.Ada_Remaining_RM_Edge_Stabilized_Diagnostic_Integration.Remaining_RM_Edge_Stabilized_Diagnostic_Model;
+      Final   : Editor.Ada_Legality.Expressions.RM_Coverage_Stable_Diagnostic_Integration.Remaining_RM_Edge_Stabilized_Diagnostic_Model;
       Final_Input_Current : Boolean := True;
       Final_Rejected_Count : Natural := 0)
       return Semantic_Diagnostic_Feed_Model;
 
    function Build_With_Remaining_RM_Edge_Stabilized_Closure_Diagnostics
      (Guarded : Editor.Ada_Semantic_Diagnostic_Snapshot_Guards.Guarded_Semantic_Diagnostic_Model;
-      Final   : Editor.Ada_Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Integration.Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Model;
+      Final   : Editor.Ada_Legality.Expressions.RM_Coverage_Stable_Closure_Diagnostic_Integration.Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Model;
       Final_Input_Current : Boolean := True;
       Final_Rejected_Count : Natural := 0)
       return Semantic_Diagnostic_Feed_Model;

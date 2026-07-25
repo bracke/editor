@@ -18,7 +18,7 @@ with Editor.Ada_Return_Legality;
 with Editor.Ada_Static_Expressions;
 with Editor.Ada_Syntax_Tree;
 with Editor.Ada_Tagged_Derived_Legality;
-with Editor.Ada_Tasking_Remediation.Protected_Legality;
+with Editor.Ada_Legality.Tasking.Repair_Protected_Legality;
 with Editor.Ada_Wide_Semantic_Legality_Diagnostics;
 
 package body Test_Ada_Wide_Semantic_Legality_Diagnostics is
@@ -76,7 +76,7 @@ package body Test_Ada_Wide_Semantic_Legality_Diagnostics is
    use type FL.Flow_Context_Model;
    use type FL.Flow_Legality_Result_Set;
    use type FL.Flow_Legality_Model;
-   package TL renames Editor.Ada_Tasking_Remediation.Protected_Legality;
+   package TL renames Editor.Ada_Legality.Tasking.Repair_Protected_Legality;
    use type TL.Tasking_Context_Id;
    use type TL.Tasking_Legality_Id;
    use type TL.Tasking_Context_Kind;

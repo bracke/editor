@@ -1,7 +1,7 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
 with Editor.Ada_Abstract_State_Refined_State_Legality;
-with Editor.Ada_Overload_Type_Final_RM_Consumer_Legality;
+with Editor.Ada_Legality.Expressions.Overload_Type_Final_RM_Legality;
 with Editor.Ada_Syntax_Tree;
 with Editor.Ada_Volatile_Atomic_Shared_State_Legality;
 
@@ -22,7 +22,7 @@ package Editor.Ada_Overload_Shared_State_RM_Edge_Legality is
    --  use, external parser generation, or projection-side analysis.
 
    package Abstract_States renames Editor.Ada_Abstract_State_Refined_State_Legality;
-   package Final_RM renames Editor.Ada_Overload_Type_Final_RM_Consumer_Legality;
+   package Final_RM renames Editor.Ada_Legality.Expressions.Overload_Type_Final_RM_Legality;
    package Shared_State renames Editor.Ada_Volatile_Atomic_Shared_State_Legality;
 
    type Overload_Shared_State_Row_Id is new Natural;

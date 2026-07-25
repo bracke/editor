@@ -2,11 +2,11 @@ with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
 with Editor.Ada_Generic_Abstract_State_Replay_Legality;
 with Editor.Ada_Overload_Generic_Shared_State_Final_Legality;
-with Editor.Ada_Representation_Freezing_Final_Hard_Cases_Legality;
+with Editor.Ada_Legality.Representation.Freezing_Final_Edge_Cases_Legality;
 with Editor.Ada_Representation_Shared_State_Final_Legality;
-with Editor.Ada_Shared_State_Stabilized_Closure_Legality;
+with Editor.Ada_Legality.Dataflow.State_Stable_Closure_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Volatile_Atomic_Representation_Consumer_Legality;
+with Editor.Ada_Legality.Representation.Volatile_Atomic_Representation_Legality;
 
 package Editor.Ada_Representation_Generic_Shared_State_Final_Legality is
 
@@ -25,10 +25,10 @@ package Editor.Ada_Representation_Generic_Shared_State_Final_Legality is
 
    package Generic_Replay renames Editor.Ada_Generic_Abstract_State_Replay_Legality;
    package Overload_Generic renames Editor.Ada_Overload_Generic_Shared_State_Final_Legality;
-   package Rep_Final renames Editor.Ada_Representation_Freezing_Final_Hard_Cases_Legality;
+   package Rep_Final renames Editor.Ada_Legality.Representation.Freezing_Final_Edge_Cases_Legality;
    package Rep_Shared renames Editor.Ada_Representation_Shared_State_Final_Legality;
-   package Closure renames Editor.Ada_Shared_State_Stabilized_Closure_Legality;
-   package Volatile_Rep renames Editor.Ada_Volatile_Atomic_Representation_Consumer_Legality;
+   package Closure renames Editor.Ada_Legality.Dataflow.State_Stable_Closure_Legality;
+   package Volatile_Rep renames Editor.Ada_Legality.Representation.Volatile_Atomic_Representation_Legality;
 
    type Representation_Generic_Final_Row_Id is new Natural;
    No_Representation_Generic_Final_Row : constant Representation_Generic_Final_Row_Id := 0;

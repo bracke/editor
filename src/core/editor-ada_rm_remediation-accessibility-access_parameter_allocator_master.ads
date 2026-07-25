@@ -2,8 +2,8 @@ with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
 with Editor.Ada_Syntax_Tree;
 with Editor.Ada_RM_Coverage_Matrix_Audit;
-with Editor.Ada_RM_Coverage_Gap_Remediation_Audit;
-with Editor.Ada_Semantic_Consumer_Enforcement_Audit;
+with Editor.Ada_Legality.Expressions.RM_Coverage_Gap_Repair_Audit;
+with Editor.Ada_Legality.Expressions.Semantic_Enforcement_Audit;
 with Editor.Ada_Partial_Evidence_Precision_Audit;
 with Editor.Ada_RM_Remediation.Final_Readiness.Remaining_Gap_Inventory;
 
@@ -13,8 +13,8 @@ package Editor.Ada_RM_Remediation.Accessibility.Access_Parameter_Allocator_Maste
       --  inventory: access parameters initialized from allocator-created objects and their master/lifetime evidence.
 
       package Matrix renames Editor.Ada_RM_Coverage_Matrix_Audit;
-      package Remediation renames Editor.Ada_RM_Coverage_Gap_Remediation_Audit;
-      package Consumers renames Editor.Ada_Semantic_Consumer_Enforcement_Audit;
+      package Remediation renames Editor.Ada_Legality.Expressions.RM_Coverage_Gap_Repair_Audit;
+      package Consumers renames Editor.Ada_Legality.Expressions.Semantic_Enforcement_Audit;
       package Precision renames Editor.Ada_Partial_Evidence_Precision_Audit;
       package Inventory renames Editor.Ada_RM_Remediation.Final_Readiness.Remaining_Gap_Inventory;
 

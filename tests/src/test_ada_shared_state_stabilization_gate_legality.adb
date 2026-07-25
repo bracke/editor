@@ -2,18 +2,18 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Editor.Ada_Abstract_State_Refined_State_Legality;
-with Editor.Ada_Cross_Unit_Final_Semantic_Closure_Legality;
+with Editor.Ada_Legality.Visibility.Cross_Unit_Semantic_Readiness_Closure_Legality;
 with Editor.Ada_Cross_Unit_Shared_State_Final_Closure_Legality;
 with Editor.Ada_Overload_Shared_State_RM_Edge_Legality;
 with Editor.Ada_Representation_Shared_State_Final_Legality;
-with Editor.Ada_Shared_State_Recheck_Application_Legality;
-with Editor.Ada_Shared_State_Recheck_Convergence_Legality;
-with Editor.Ada_Shared_State_Recheck_Eligibility_Legality;
-with Editor.Ada_Shared_State_Remediation_Worklist_Legality;
+with Editor.Ada_Legality.Dataflow.State_Review_Application_Legality;
+with Editor.Ada_Legality.Dataflow.State_Review_Convergence_Legality;
+with Editor.Ada_Legality.Dataflow.State_Review_Eligibility_Legality;
+with Editor.Ada_Legality.Dataflow.State_Repair_Worklist_Legality;
 with Editor.Ada_Shared_State_Stabilization_Gate_Legality;
-with Editor.Ada_Shared_State_Stabilized_Diagnostic_Integration;
+with Editor.Ada_Legality.Dataflow.State_Stable_Diagnostic_Integration;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Remediation.Shared_State_Final;
+with Editor.Ada_Legality.Tasking.Repair_Shared_State_Final;
 with Editor.Ada_Volatile_Atomic_Shared_State_Legality;
 
 package body Test_Ada_Shared_State_Stabilization_Gate_Legality is
@@ -27,7 +27,7 @@ package body Test_Ada_Shared_State_Stabilization_Gate_Legality is
    use type CUS.Cross_Unit_Shared_State_Context_Model;
    use type CUS.Cross_Unit_Shared_State_Model;
    use type CUS.Cross_Unit_Shared_State_Set;
-   package CU renames Editor.Ada_Cross_Unit_Final_Semantic_Closure_Legality;
+   package CU renames Editor.Ada_Legality.Visibility.Cross_Unit_Semantic_Readiness_Closure_Legality;
    use type CU.Cross_Unit_Final_Row_Id;
    use type CU.Cross_Unit_Final_Context_Kind;
    use type CU.Cross_Unit_Dependency_State;
@@ -73,7 +73,7 @@ package body Test_Ada_Shared_State_Stabilization_Gate_Legality is
    use type Rep.Representation_Shared_State_Context_Model;
    use type Rep.Representation_Shared_State_Model;
    use type Rep.Representation_Shared_State_Set;
-   package Tasking renames Editor.Ada_Tasking_Remediation.Shared_State_Final;
+   package Tasking renames Editor.Ada_Legality.Tasking.Repair_Shared_State_Final;
    use type Tasking.Tasking_Shared_State_Row_Id;
    use type Tasking.Tasking_Shared_State_Context_Kind;
    use type Tasking.Tasking_Shared_State_Status;
@@ -82,7 +82,7 @@ package body Test_Ada_Shared_State_Stabilization_Gate_Legality is
    use type Tasking.Tasking_Shared_State_Context_Model;
    use type Tasking.Tasking_Shared_State_Model;
    use type Tasking.Tasking_Shared_State_Set;
-   package Stable renames Editor.Ada_Shared_State_Stabilized_Diagnostic_Integration;
+   package Stable renames Editor.Ada_Legality.Dataflow.State_Stable_Diagnostic_Integration;
    use type Stable.Shared_State_Stabilized_Diagnostic_Id;
    use type Stable.Shared_State_Stabilized_Family;
    use type Stable.Shared_State_Stabilized_Severity;
@@ -90,7 +90,7 @@ package body Test_Ada_Shared_State_Stabilization_Gate_Legality is
    use type Stable.Shared_State_Stabilized_Row;
    use type Stable.Shared_State_Stabilized_Set;
    use type Stable.Shared_State_Stabilized_Model;
-   package WL renames Editor.Ada_Shared_State_Remediation_Worklist_Legality;
+   package WL renames Editor.Ada_Legality.Dataflow.State_Repair_Worklist_Legality;
    use type WL.Shared_State_Worklist_Id;
    use type WL.Shared_State_Worklist_Family;
    use type WL.Shared_State_Worklist_Diagnostic_Status;
@@ -99,7 +99,7 @@ package body Test_Ada_Shared_State_Stabilization_Gate_Legality is
    use type WL.Shared_State_Worklist_Item;
    use type WL.Shared_State_Worklist_Model;
    use type WL.Shared_State_Worklist_Set;
-   package Recheck renames Editor.Ada_Shared_State_Recheck_Eligibility_Legality;
+   package Recheck renames Editor.Ada_Legality.Dataflow.State_Review_Eligibility_Legality;
    use type Recheck.Shared_State_Recheck_Family;
    use type Recheck.Shared_State_Recheck_Work_Action;
    use type Recheck.Shared_State_Recheck_Work_Priority;
@@ -109,7 +109,7 @@ package body Test_Ada_Shared_State_Stabilization_Gate_Legality is
    use type Recheck.Shared_State_Recheck_Row;
    use type Recheck.Shared_State_Recheck_Model;
    use type Recheck.Shared_State_Recheck_Set;
-   package Apply renames Editor.Ada_Shared_State_Recheck_Application_Legality;
+   package Apply renames Editor.Ada_Legality.Dataflow.State_Review_Application_Legality;
    use type Apply.Shared_State_Recheck_Eligibility_Status;
    use type Apply.Shared_State_Recheck_Eligibility_Action;
    use type Apply.Shared_State_Recheck_Blocker_Family;
@@ -119,7 +119,7 @@ package body Test_Ada_Shared_State_Stabilization_Gate_Legality is
    use type Apply.Shared_State_Recheck_Application_Row;
    use type Apply.Shared_State_Recheck_Application_Model;
    use type Apply.Shared_State_Recheck_Application_Set;
-   package Conv renames Editor.Ada_Shared_State_Recheck_Convergence_Legality;
+   package Conv renames Editor.Ada_Legality.Dataflow.State_Review_Convergence_Legality;
    use type Conv.Shared_State_Recheck_Application_Status;
    use type Conv.Shared_State_Recheck_Application_Action;
    use type Conv.Shared_State_Recheck_Blocker_Family;

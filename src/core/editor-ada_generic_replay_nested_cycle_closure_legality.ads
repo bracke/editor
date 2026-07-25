@@ -1,8 +1,8 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
 with Editor.Ada_Generic_Replay_Source_Instance_Backmapping_Legality;
-with Editor.Ada_Overload_Type_Final_RM_Consumer_Legality;
-with Editor.Ada_Cross_Unit_Final_Semantic_Closure_Legality;
+with Editor.Ada_Legality.Expressions.Overload_Type_Final_RM_Legality;
+with Editor.Ada_Legality.Visibility.Cross_Unit_Semantic_Readiness_Closure_Legality;
 with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Generic_Replay_Nested_Cycle_Closure_Legality is
@@ -18,8 +18,8 @@ package Editor.Ada_Generic_Replay_Nested_Cycle_Closure_Legality is
    --  indeterminate generic replay diagnostic.
 
    package Backmap renames Editor.Ada_Generic_Replay_Source_Instance_Backmapping_Legality;
-   package Final_RM renames Editor.Ada_Overload_Type_Final_RM_Consumer_Legality;
-   package Cross_Final renames Editor.Ada_Cross_Unit_Final_Semantic_Closure_Legality;
+   package Final_RM renames Editor.Ada_Legality.Expressions.Overload_Type_Final_RM_Legality;
+   package Cross_Final renames Editor.Ada_Legality.Visibility.Cross_Unit_Semantic_Readiness_Closure_Legality;
 
    type Nested_Generic_Closure_Row_Id is new Natural;
    No_Nested_Generic_Closure_Row : constant Nested_Generic_Closure_Row_Id := 0;

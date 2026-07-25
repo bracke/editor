@@ -1,7 +1,7 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
 with Editor.Ada_Generic_Instance_Body_Semantic_Replay;
-with Editor.Ada_Generic_Replay_Representation_Contract_Predicate_Dataflow_Consumer_Legality;
+with Editor.Ada_Legality.Representation.Generic_Replay_Representation_Contract_Predicate_Dataflow_Legality;
 with Editor.Ada_Overload_Type_Edge_Precision_Legality;
 with Editor.Ada_Syntax_Tree;
 
@@ -18,7 +18,7 @@ package Editor.Ada_Generic_Replay_Source_Instance_Backmapping_Legality is
    --  overload/type edge evidence is missing, blocked, ambiguous, or indeterminate.
 
    package Replay renames Editor.Ada_Generic_Instance_Body_Semantic_Replay;
-   package Replay_CPD renames Editor.Ada_Generic_Replay_Representation_Contract_Predicate_Dataflow_Consumer_Legality;
+   package Replay_CPD renames Editor.Ada_Legality.Representation.Generic_Replay_Representation_Contract_Predicate_Dataflow_Legality;
    package Overload_Edge renames Editor.Ada_Overload_Type_Edge_Precision_Legality;
 
    type Generic_Backmap_Row_Id is new Natural;

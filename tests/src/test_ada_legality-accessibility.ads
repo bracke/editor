@@ -1,0 +1,2 @@
+package Test_Ada_Legality.Accessibility is
+end Test_Ada_Legality.Accessibility;

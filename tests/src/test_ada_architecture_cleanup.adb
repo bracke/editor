@@ -127,7 +127,7 @@ package body Test_Ada_Architecture_Cleanup is
         (Input,
          Historical_Row
            (8,
-            "Editor.Ada_Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Provenance",
+            "Editor.Ada_Legality.Expressions.RM_Coverage_Stable_Closure_Diagnostic_Provenance",
             "src/core/editor-ada_remaining_rm_edge_stabilized_closure_"
             & "diagnostic_provenance.ads"));
 
@@ -222,7 +222,7 @@ package body Test_Ada_Architecture_Cleanup is
         (Input,
          Historical_Row
            (108,
-            "Editor.Ada_Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Provenance",
+            "Editor.Ada_Legality.Expressions.RM_Coverage_Stable_Closure_Diagnostic_Provenance",
             "src/core/editor-ada_remaining_rm_edge_stabilized_closure_"
             & "diagnostic_provenance.ads"));
 

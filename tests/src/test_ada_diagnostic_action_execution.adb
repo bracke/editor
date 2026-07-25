@@ -9,7 +9,7 @@ with Editor.Ada_Diagnostic_Panel_Projection;
 with Editor.Ada_Diagnostic_Provenance;
 with Editor.Ada_Diagnostic_Quick_Fix_Skeleton;
 with Editor.Ada_Diagnostic_Status_Line;
-with Editor.Ada_Final_Semantic_Diagnostic_Integration;
+with Editor.Ada_Legality.Expressions.Semantic_Readiness_Diagnostic_Integration;
 with Editor.Ada_Semantic_Colour_Projection;
 with Editor.Ada_Semantic_Diagnostic_Feed;
 with Editor.Ada_Semantic_Diagnostic_Index;
@@ -21,7 +21,7 @@ package body Test_Ada_Diagnostic_Action_Execution is
    package Execution renames Editor.Ada_Diagnostic_Action_Execution;
    package Commands renames Editor.Ada_Diagnostic_Command_Projection;
    package Router renames Editor.Ada_Diagnostic_Action_Router;
-   package Final_Diag renames Editor.Ada_Final_Semantic_Diagnostic_Integration;
+   package Final_Diag renames Editor.Ada_Legality.Expressions.Semantic_Readiness_Diagnostic_Integration;
    package Cross_Final renames Final_Diag.Cross_Final;
    package Navigation renames Editor.Ada_Diagnostic_Navigation;
    package Panel renames Editor.Ada_Diagnostic_Panel_Projection;

@@ -1,0 +1,2 @@
+package Editor.Ada_Legality.Dataflow.Generic_Shared_State_Repair is
+end Editor.Ada_Legality.Dataflow.Generic_Shared_State_Repair;

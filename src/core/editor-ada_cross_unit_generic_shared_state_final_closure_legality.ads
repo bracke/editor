@@ -1,13 +1,13 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
-with Editor.Ada_Abstract_State_Refined_State_Consumer_Integration_Legality;
+with Editor.Ada_Legality.Dataflow.Abstract_State_Refined_State_Integration_Legality;
 with Editor.Ada_Cross_Unit_Shared_State_Final_Closure_Legality;
 with Editor.Ada_Generic_Abstract_State_Replay_Legality;
 with Editor.Ada_Overload_Generic_Shared_State_Final_Legality;
 with Editor.Ada_Representation_Generic_Shared_State_Final_Legality;
-with Editor.Ada_Shared_State_Stabilized_Closure_Legality;
+with Editor.Ada_Legality.Dataflow.State_Stable_Closure_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Remediation.Generic_Shared_State_Final;
+with Editor.Ada_Legality.Tasking.Repair_Generic_Shared_State_Final;
 
 package Editor.Ada_Cross_Unit_Generic_Shared_State_Final_Closure_Legality is
 
@@ -22,13 +22,13 @@ package Editor.Ada_Cross_Unit_Generic_Shared_State_Final_Closure_Legality is
    --  Dependency, view, generic, state-visibility, fingerprint, and
    --  family-specific blockers are preserved as first-class semantic blockers.
 
-   package Abstract_Consumers renames Editor.Ada_Abstract_State_Refined_State_Consumer_Integration_Legality;
+   package Abstract_Consumers renames Editor.Ada_Legality.Dataflow.Abstract_State_Refined_State_Integration_Legality;
    package Cross_Shared renames Editor.Ada_Cross_Unit_Shared_State_Final_Closure_Legality;
    package Generic_Replay renames Editor.Ada_Generic_Abstract_State_Replay_Legality;
    package Overload_Generic renames Editor.Ada_Overload_Generic_Shared_State_Final_Legality;
    package Rep_Generic renames Editor.Ada_Representation_Generic_Shared_State_Final_Legality;
-   package Closure renames Editor.Ada_Shared_State_Stabilized_Closure_Legality;
-   package Tasking_Generic renames Editor.Ada_Tasking_Remediation.Generic_Shared_State_Final;
+   package Closure renames Editor.Ada_Legality.Dataflow.State_Stable_Closure_Legality;
+   package Tasking_Generic renames Editor.Ada_Legality.Tasking.Repair_Generic_Shared_State_Final;
 
    type Cross_Unit_Generic_Final_Row_Id is new Natural;
    No_Cross_Unit_Generic_Final_Row : constant Cross_Unit_Generic_Final_Row_Id := 0;

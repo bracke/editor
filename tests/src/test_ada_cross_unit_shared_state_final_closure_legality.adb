@@ -2,12 +2,12 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Editor.Ada_Abstract_State_Refined_State_Legality;
-with Editor.Ada_Cross_Unit_Final_Semantic_Closure_Legality;
+with Editor.Ada_Legality.Visibility.Cross_Unit_Semantic_Readiness_Closure_Legality;
 with Editor.Ada_Cross_Unit_Shared_State_Final_Closure_Legality;
 with Editor.Ada_Overload_Shared_State_RM_Edge_Legality;
 with Editor.Ada_Representation_Shared_State_Final_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Remediation.Shared_State_Final;
+with Editor.Ada_Legality.Tasking.Repair_Shared_State_Final;
 with Editor.Ada_Volatile_Atomic_Shared_State_Legality;
 
 package body Test_Ada_Cross_Unit_Shared_State_Final_Closure_Legality is
@@ -22,7 +22,7 @@ package body Test_Ada_Cross_Unit_Shared_State_Final_Closure_Legality is
    use type CUS.Cross_Unit_Shared_State_Context_Model;
    use type CUS.Cross_Unit_Shared_State_Model;
    use type CUS.Cross_Unit_Shared_State_Set;
-   package CU renames Editor.Ada_Cross_Unit_Final_Semantic_Closure_Legality;
+   package CU renames Editor.Ada_Legality.Visibility.Cross_Unit_Semantic_Readiness_Closure_Legality;
    use type CU.Cross_Unit_Final_Row_Id;
    use type CU.Cross_Unit_Final_Context_Kind;
    use type CU.Cross_Unit_Dependency_State;
@@ -68,7 +68,7 @@ package body Test_Ada_Cross_Unit_Shared_State_Final_Closure_Legality is
    use type Rep.Representation_Shared_State_Context_Model;
    use type Rep.Representation_Shared_State_Model;
    use type Rep.Representation_Shared_State_Set;
-   package Tasking renames Editor.Ada_Tasking_Remediation.Shared_State_Final;
+   package Tasking renames Editor.Ada_Legality.Tasking.Repair_Shared_State_Final;
    use type Tasking.Tasking_Shared_State_Row_Id;
    use type Tasking.Tasking_Shared_State_Context_Kind;
    use type Tasking.Tasking_Shared_State_Status;

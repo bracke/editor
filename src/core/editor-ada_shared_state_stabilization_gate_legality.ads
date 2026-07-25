@@ -1,6 +1,6 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
-with Editor.Ada_Shared_State_Recheck_Convergence_Legality;
+with Editor.Ada_Legality.Dataflow.State_Review_Convergence_Legality;
 with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Shared_State_Stabilization_Gate_Legality is
@@ -15,7 +15,7 @@ package Editor.Ada_Shared_State_Stabilization_Gate_Legality is
    --  recheck, and indeterminate rows remain degraded instead of becoming
    --  confident legal conclusions.
 
-   package Conv renames Editor.Ada_Shared_State_Recheck_Convergence_Legality;
+   package Conv renames Editor.Ada_Legality.Dataflow.State_Review_Convergence_Legality;
 
    subtype Shared_State_Recheck_Convergence_Status is Conv.Shared_State_Recheck_Convergence_Status;
    subtype Shared_State_Recheck_Convergence_Action is Conv.Shared_State_Recheck_Convergence_Action;

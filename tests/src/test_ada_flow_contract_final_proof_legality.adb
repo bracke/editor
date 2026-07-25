@@ -2,18 +2,18 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with AUnit; use AUnit;
-with Editor.Ada_Contract_Predicate_Dataflow_Consumer_Legality;
-with Editor.Ada_Cross_Unit_Final_Semantic_Closure_Legality;
-with Editor.Ada_Dataflow_Definite_Initialization_Consumer_Legality;
+with Editor.Ada_Legality.Dataflow.Contract_Predicate_Dataflow_Legality;
+with Editor.Ada_Legality.Visibility.Cross_Unit_Semantic_Readiness_Closure_Legality;
+with Editor.Ada_Legality.Dataflow.Definite_Initialization_Legality;
 with Editor.Ada_Flow_Contract_Final_Proof_Legality;
-with Editor.Ada_Flow_Refinement_Consumer_Legality;
+with Editor.Ada_Legality.Dataflow.Flow_Refinement_Integration_Legality;
 with Editor.Ada_Refined_Global_Depends_Conformance_Legality;
-with Editor.Ada_Representation_Freezing_Final_Hard_Cases_Legality;
+with Editor.Ada_Legality.Representation.Freezing_Final_Edge_Cases_Legality;
 with Editor.Ada_Syntax_Tree;
 
 package body Test_Ada_Flow_Contract_Final_Proof_Legality is
 
-   package Contract_CPD renames Editor.Ada_Contract_Predicate_Dataflow_Consumer_Legality;
+   package Contract_CPD renames Editor.Ada_Legality.Dataflow.Contract_Predicate_Dataflow_Legality;
    use type Contract_CPD.Contract_Predicate_Row_Id;
    use type Contract_CPD.Contract_Predicate_Status;
    use type Contract_CPD.Contract_Predicate_Context_Info;
@@ -21,7 +21,7 @@ package body Test_Ada_Flow_Contract_Final_Proof_Legality is
    use type Contract_CPD.Contract_Predicate_Context_Model;
    use type Contract_CPD.Contract_Predicate_Set;
    use type Contract_CPD.Contract_Predicate_Model;
-   package Cross_Final renames Editor.Ada_Cross_Unit_Final_Semantic_Closure_Legality;
+   package Cross_Final renames Editor.Ada_Legality.Visibility.Cross_Unit_Semantic_Readiness_Closure_Legality;
    use type Cross_Final.Cross_Unit_Final_Row_Id;
    use type Cross_Final.Cross_Unit_Final_Context_Kind;
    use type Cross_Final.Cross_Unit_Dependency_State;
@@ -31,7 +31,7 @@ package body Test_Ada_Flow_Contract_Final_Proof_Legality is
    use type Cross_Final.Cross_Unit_Final_Context_Model;
    use type Cross_Final.Cross_Unit_Final_Set;
    use type Cross_Final.Cross_Unit_Final_Model;
-   package Dataflow_Init renames Editor.Ada_Dataflow_Definite_Initialization_Consumer_Legality;
+   package Dataflow_Init renames Editor.Ada_Legality.Dataflow.Definite_Initialization_Legality;
    use type Dataflow_Init.Dataflow_Init_Row_Id;
    use type Dataflow_Init.Dataflow_Init_Status;
    use type Dataflow_Init.Dataflow_Init_Context_Info;
@@ -48,7 +48,7 @@ package body Test_Ada_Flow_Contract_Final_Proof_Legality is
    use type Proof.Flow_Contract_Proof_Context_Model;
    use type Proof.Flow_Contract_Proof_Set;
    use type Proof.Flow_Contract_Proof_Model;
-   package Flow_Consumer renames Editor.Ada_Flow_Refinement_Consumer_Legality;
+   package Flow_Consumer renames Editor.Ada_Legality.Dataflow.Flow_Refinement_Integration_Legality;
    use type Flow_Consumer.Consumer_Row_Id;
    use type Flow_Consumer.Consumer_Kind;
    use type Flow_Consumer.Consumer_Effect_Kind;
@@ -68,7 +68,7 @@ package body Test_Ada_Flow_Contract_Final_Proof_Legality is
    use type Refined.Refined_Context_Model;
    use type Refined.Refined_Conformance_Set;
    use type Refined.Refined_Conformance_Model;
-   package Rep_Final renames Editor.Ada_Representation_Freezing_Final_Hard_Cases_Legality;
+   package Rep_Final renames Editor.Ada_Legality.Representation.Freezing_Final_Edge_Cases_Legality;
    use type Rep_Final.Final_Representation_Row_Id;
    use type Rep_Final.Final_Representation_Context_Kind;
    use type Rep_Final.Final_Representation_Status;

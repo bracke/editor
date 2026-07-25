@@ -57,7 +57,7 @@ with Editor.Ada_Wide_Semantic_Legality_Diagnostics;
 with Editor.Ada_Assignment_Legality;
 with Editor.Ada_Return_Legality;
 with Editor.Ada_Control_Flow_Legality;
-with Editor.Ada_Tasking_Remediation.Protected_Legality;
+with Editor.Ada_Legality.Tasking.Repair_Protected_Legality;
 with Editor.Ada_Tagged_Derived_Legality;
 with Editor.Ada_Generic_Instance_Freezing_Representation_Legality;
 with Editor.Ada_Conversion_Access_Aggregate_Legality;
@@ -1597,12 +1597,12 @@ package body Editor.Syntax_Semantics.Expression_Tests is
         Editor.Ada_Control_Flow_Legality.Build
           (Flow_Contexts, Return_Legality);
       Tasking_Contexts : constant
-        Editor.Ada_Tasking_Remediation.Protected_Legality.Tasking_Context_Model :=
-        Editor.Ada_Tasking_Remediation.Protected_Legality.Build_Contexts_From_Syntax
+        Editor.Ada_Legality.Tasking.Repair_Protected_Legality.Tasking_Context_Model :=
+        Editor.Ada_Legality.Tasking.Repair_Protected_Legality.Build_Contexts_From_Syntax
           (Tree, Flow_Legality);
       Tasking_Legality : constant
-        Editor.Ada_Tasking_Remediation.Protected_Legality.Tasking_Legality_Model :=
-        Editor.Ada_Tasking_Remediation.Protected_Legality.Build
+        Editor.Ada_Legality.Tasking.Repair_Protected_Legality.Tasking_Legality_Model :=
+        Editor.Ada_Legality.Tasking.Repair_Protected_Legality.Build
           (Tasking_Contexts, Flow_Legality);
       Dispatching : constant
         Editor.Ada_Dispatching_Call_Legality.Dispatching_Legality_Model :=
@@ -1696,13 +1696,13 @@ package body Editor.Syntax_Semantics.Expression_Tests is
               "control-flow legality adapter must accept compatible return paths");
       Assert (Editor.Ada_Control_Flow_Legality.Fingerprint (Flow_Legality) /= 0,
               "control-flow legality adapter must keep deterministic fingerprints");
-      Assert (Editor.Ada_Tasking_Remediation.Protected_Legality.Context_Count (Tasking_Contexts) >= 3,
+      Assert (Editor.Ada_Legality.Tasking.Repair_Protected_Legality.Context_Count (Tasking_Contexts) >= 3,
               "tasking legality adapter must consume tasking syntax nodes");
-      Assert (Editor.Ada_Tasking_Remediation.Protected_Legality.Legality_Count (Tasking_Legality) >= 3,
+      Assert (Editor.Ada_Legality.Tasking.Repair_Protected_Legality.Legality_Count (Tasking_Legality) >= 3,
               "tasking legality adapter must produce tasking legality rows");
-      Assert (Editor.Ada_Tasking_Remediation.Protected_Legality.Compatible_Count (Tasking_Legality) >= 1,
+      Assert (Editor.Ada_Legality.Tasking.Repair_Protected_Legality.Compatible_Count (Tasking_Legality) >= 1,
               "tasking legality adapter must accept conservative tasking contexts");
-      Assert (Editor.Ada_Tasking_Remediation.Protected_Legality.Fingerprint (Tasking_Legality) /= 0,
+      Assert (Editor.Ada_Legality.Tasking.Repair_Protected_Legality.Fingerprint (Tasking_Legality) /= 0,
               "tasking legality adapter must keep deterministic fingerprints");
       Assert (Editor.Ada_Tagged_Derived_Legality.Context_Count (Tagged_Contexts) >= 2,
               "tagged legality adapter must consume tagged and derived syntax nodes");

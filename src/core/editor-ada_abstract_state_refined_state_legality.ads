@@ -1,9 +1,9 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
-with Editor.Ada_Final_Semantic_Stabilized_Closure_Legality;
+with Editor.Ada_Legality.Expressions.Semantic_Readiness_Stable_Closure_Legality;
 with Editor.Ada_Flow_Contract_Final_Proof_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Remediation.Protected_Deep_Edge;
+with Editor.Ada_Legality.Tasking.Repair_Protected_Deep_Edge;
 
 package Editor.Ada_Abstract_State_Refined_State_Legality is
 
@@ -19,8 +19,8 @@ package Editor.Ada_Abstract_State_Refined_State_Legality is
    --  invocation, or external parser generation.
 
    package Flow_Proof renames Editor.Ada_Flow_Contract_Final_Proof_Legality;
-   package Stabilized renames Editor.Ada_Final_Semantic_Stabilized_Closure_Legality;
-   package Tasking_Deep renames Editor.Ada_Tasking_Remediation.Protected_Deep_Edge;
+   package Stabilized renames Editor.Ada_Legality.Expressions.Semantic_Readiness_Stable_Closure_Legality;
+   package Tasking_Deep renames Editor.Ada_Legality.Tasking.Repair_Protected_Deep_Edge;
 
    type Abstract_State_Row_Id is new Natural;
    No_Abstract_State_Row : constant Abstract_State_Row_Id := 0;

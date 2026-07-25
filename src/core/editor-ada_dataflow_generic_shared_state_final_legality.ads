@@ -1,19 +1,19 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
-with Editor.Ada_Accessibility_Remediation;
-with Editor.Ada_Dataflow_Definite_Initialization_Consumer_Legality;
+with Editor.Ada_Legality.Accessibility.Repair;
+with Editor.Ada_Legality.Dataflow.Definite_Initialization_Legality;
 with Editor.Ada_Definite_Initialization_Flow_Legality;
 with Editor.Ada_Discriminant_Generic_Shared_State_Final_Legality;
 with Editor.Ada_Exception_Finalization_Generic_Shared_State_Final_Legality;
 with Editor.Ada_Generic_Abstract_State_Replay_Legality;
-with Editor.Ada_Predicate_Dataflow_Initialization_Consumer_Legality;
+with Editor.Ada_Legality.Dataflow.Predicate_Dataflow_Initialization_Legality;
 with Editor.Ada_Predicate_Generic_Shared_State_Final_Legality;
 with Editor.Ada_Renaming_Generic_Shared_State_Final_Legality;
 with Editor.Ada_Representation_Generic_Shared_State_Final_Legality;
-with Editor.Ada_Shared_State_Stabilized_Closure_Legality;
+with Editor.Ada_Legality.Dataflow.State_Stable_Closure_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Remediation.Generic_Shared_State_Final;
-with Editor.Ada_Volatile_Atomic_Representation_Consumer_Legality;
+with Editor.Ada_Legality.Tasking.Repair_Generic_Shared_State_Final;
+with Editor.Ada_Legality.Representation.Volatile_Atomic_Representation_Legality;
 
 package Editor.Ada_Dataflow_Generic_Shared_State_Final_Legality is
 
@@ -31,18 +31,18 @@ package Editor.Ada_Dataflow_Generic_Shared_State_Final_Legality is
    --  volatile/atomic representation evidence agree.
 
    package Init renames Editor.Ada_Definite_Initialization_Flow_Legality;
-   package Dataflow_Init renames Editor.Ada_Dataflow_Definite_Initialization_Consumer_Legality;
-   package Predicate_Dataflow renames Editor.Ada_Predicate_Dataflow_Initialization_Consumer_Legality;
+   package Dataflow_Init renames Editor.Ada_Legality.Dataflow.Definite_Initialization_Legality;
+   package Predicate_Dataflow renames Editor.Ada_Legality.Dataflow.Predicate_Dataflow_Initialization_Legality;
    package Predicate_Generic renames Editor.Ada_Predicate_Generic_Shared_State_Final_Legality;
    package Generic_Replay renames Editor.Ada_Generic_Abstract_State_Replay_Legality;
-   package Closure renames Editor.Ada_Shared_State_Stabilized_Closure_Legality;
+   package Closure renames Editor.Ada_Legality.Dataflow.State_Stable_Closure_Legality;
    package Rep_Generic renames Editor.Ada_Representation_Generic_Shared_State_Final_Legality;
-   package Tasking_Generic renames Editor.Ada_Tasking_Remediation.Generic_Shared_State_Final;
-   package Access_Generic renames Editor.Ada_Accessibility_Remediation.Generic_Shared_State_Final;
+   package Tasking_Generic renames Editor.Ada_Legality.Tasking.Repair_Generic_Shared_State_Final;
+   package Access_Generic renames Editor.Ada_Legality.Accessibility.Repair.Generic_Shared_State_Final;
    package Disc_Generic renames Editor.Ada_Discriminant_Generic_Shared_State_Final_Legality;
    package Exception_Generic renames Editor.Ada_Exception_Finalization_Generic_Shared_State_Final_Legality;
    package Renaming_Generic renames Editor.Ada_Renaming_Generic_Shared_State_Final_Legality;
-   package Volatile_Rep renames Editor.Ada_Volatile_Atomic_Representation_Consumer_Legality;
+   package Volatile_Rep renames Editor.Ada_Legality.Representation.Volatile_Atomic_Representation_Legality;
 
    type Dataflow_Generic_Final_Row_Id is new Natural;
    No_Dataflow_Generic_Final_Row : constant Dataflow_Generic_Final_Row_Id := 0;

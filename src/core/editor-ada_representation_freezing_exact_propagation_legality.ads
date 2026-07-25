@@ -8,7 +8,7 @@ with Editor.Ada_Generic_Instance_Body_Semantic_Replay;
 with Editor.Ada_Predicate_Invariant_Propagation_Legality;
 with Editor.Ada_Representation_Freezing_Precision_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Remediation.Protected_Effects;
+with Editor.Ada_Legality.Tasking.Repair_Protected_Effects;
 with Editor.Ada_Widened_Legality_Coverage_Gate_Enforcement;
 
 package Editor.Ada_Representation_Freezing_Exact_Propagation_Legality is
@@ -32,7 +32,7 @@ package Editor.Ada_Representation_Freezing_Exact_Propagation_Legality is
    package Predicates renames Editor.Ada_Predicate_Invariant_Propagation_Legality;
    package Scope renames Editor.Ada_Accessibility_Scope_Graph_Legality;
    package Elab renames Editor.Ada_Elaboration_Graph_Closure_Legality;
-   package Tasking renames Editor.Ada_Tasking_Remediation.Protected_Effects;
+   package Tasking renames Editor.Ada_Legality.Tasking.Repair_Protected_Effects;
    package Gates renames Editor.Ada_Widened_Legality_Coverage_Gate_Enforcement;
 
    type Freezing_Propagation_Id is new Natural;

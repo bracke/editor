@@ -1,10 +1,10 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
-with Editor.Ada_Abstract_State_Refined_State_Consumer_Integration_Legality;
+with Editor.Ada_Legality.Dataflow.Abstract_State_Refined_State_Integration_Legality;
 with Editor.Ada_Dispatching_Global_Refinement_Legality;
 with Editor.Ada_Generic_Replay_Nested_Cycle_Closure_Legality;
 with Editor.Ada_Generic_Replay_Source_Instance_Backmapping_Legality;
-with Editor.Ada_Shared_State_Stabilized_Closure_Legality;
+with Editor.Ada_Legality.Dataflow.State_Stable_Closure_Legality;
 with Editor.Ada_Syntax_Tree;
 with Editor.Ada_Volatile_Atomic_Shared_State_Legality;
 
@@ -22,10 +22,10 @@ package Editor.Ada_Generic_Abstract_State_Replay_Legality is
 
    package Backmap renames Editor.Ada_Generic_Replay_Source_Instance_Backmapping_Legality;
    package Nested renames Editor.Ada_Generic_Replay_Nested_Cycle_Closure_Legality;
-   package Abstract_Consumers renames Editor.Ada_Abstract_State_Refined_State_Consumer_Integration_Legality;
+   package Abstract_Consumers renames Editor.Ada_Legality.Dataflow.Abstract_State_Refined_State_Integration_Legality;
    package Shared renames Editor.Ada_Volatile_Atomic_Shared_State_Legality;
    package Dispatching renames Editor.Ada_Dispatching_Global_Refinement_Legality;
-   package Closure renames Editor.Ada_Shared_State_Stabilized_Closure_Legality;
+   package Closure renames Editor.Ada_Legality.Dataflow.State_Stable_Closure_Legality;
 
    type Generic_Abstract_Replay_Row_Id is new Natural;
    No_Generic_Abstract_Replay_Row : constant Generic_Abstract_Replay_Row_Id := 0;

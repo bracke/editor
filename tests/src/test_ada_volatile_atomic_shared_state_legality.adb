@@ -3,10 +3,10 @@ with AUnit; use AUnit;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Editor.Ada_Abstract_State_Refined_State_Legality;
-with Editor.Ada_Final_Semantic_Stabilized_Closure_Legality;
+with Editor.Ada_Legality.Expressions.Semantic_Readiness_Stable_Closure_Legality;
 with Editor.Ada_Flow_Contract_Final_Proof_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Remediation.Protected_Deep_Edge;
+with Editor.Ada_Legality.Tasking.Repair_Protected_Deep_Edge;
 with Editor.Ada_Volatile_Atomic_Shared_State_Legality;
 
 package body Test_Ada_Volatile_Atomic_Shared_State_Legality is
@@ -38,7 +38,7 @@ package body Test_Ada_Volatile_Atomic_Shared_State_Legality is
    use type Flow.Flow_Contract_Proof_Context_Model;
    use type Flow.Flow_Contract_Proof_Set;
    use type Flow.Flow_Contract_Proof_Model;
-   package Stabilized renames Editor.Ada_Final_Semantic_Stabilized_Closure_Legality;
+   package Stabilized renames Editor.Ada_Legality.Expressions.Semantic_Readiness_Stable_Closure_Legality;
    use type Stabilized.Final_Blocker_Family;
    use type Stabilized.Final_Stabilization_Gate_Status;
    use type Stabilized.Final_Stabilization_Gate_Action;
@@ -48,7 +48,7 @@ package body Test_Ada_Volatile_Atomic_Shared_State_Legality is
    use type Stabilized.Final_Stabilized_Closure_Row;
    use type Stabilized.Final_Stabilized_Closure_Model;
    use type Stabilized.Final_Stabilized_Closure_Set;
-   package Tasking renames Editor.Ada_Tasking_Remediation.Protected_Deep_Edge;
+   package Tasking renames Editor.Ada_Legality.Tasking.Repair_Protected_Deep_Edge;
    use type Tasking.Deep_Tasking_Row_Id;
    use type Tasking.Deep_Tasking_Context_Kind;
    use type Tasking.Deep_Tasking_Status;

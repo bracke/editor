@@ -1,11 +1,11 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
-with Editor.Ada_Contract_Predicate_Dataflow_Consumer_Legality;
-with Editor.Ada_Cross_Unit_Final_Semantic_Closure_Legality;
-with Editor.Ada_Dataflow_Definite_Initialization_Consumer_Legality;
-with Editor.Ada_Flow_Refinement_Consumer_Legality;
+with Editor.Ada_Legality.Dataflow.Contract_Predicate_Dataflow_Legality;
+with Editor.Ada_Legality.Visibility.Cross_Unit_Semantic_Readiness_Closure_Legality;
+with Editor.Ada_Legality.Dataflow.Definite_Initialization_Legality;
+with Editor.Ada_Legality.Dataflow.Flow_Refinement_Integration_Legality;
 with Editor.Ada_Refined_Global_Depends_Conformance_Legality;
-with Editor.Ada_Representation_Freezing_Final_Hard_Cases_Legality;
+with Editor.Ada_Legality.Representation.Freezing_Final_Edge_Cases_Legality;
 with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Flow_Contract_Final_Proof_Legality is
@@ -22,12 +22,12 @@ package Editor.Ada_Flow_Contract_Final_Proof_Legality is
    --  mutation, command/keybinding/workspace/render mutation, compiler
    --  invocation, LSP use, or external parser generation.
 
-   package Contract_CPD renames Editor.Ada_Contract_Predicate_Dataflow_Consumer_Legality;
-   package Cross_Final renames Editor.Ada_Cross_Unit_Final_Semantic_Closure_Legality;
-   package Dataflow_Init renames Editor.Ada_Dataflow_Definite_Initialization_Consumer_Legality;
-   package Flow_Consumer renames Editor.Ada_Flow_Refinement_Consumer_Legality;
+   package Contract_CPD renames Editor.Ada_Legality.Dataflow.Contract_Predicate_Dataflow_Legality;
+   package Cross_Final renames Editor.Ada_Legality.Visibility.Cross_Unit_Semantic_Readiness_Closure_Legality;
+   package Dataflow_Init renames Editor.Ada_Legality.Dataflow.Definite_Initialization_Legality;
+   package Flow_Consumer renames Editor.Ada_Legality.Dataflow.Flow_Refinement_Integration_Legality;
    package Refined renames Editor.Ada_Refined_Global_Depends_Conformance_Legality;
-   package Rep_Final renames Editor.Ada_Representation_Freezing_Final_Hard_Cases_Legality;
+   package Rep_Final renames Editor.Ada_Legality.Representation.Freezing_Final_Edge_Cases_Legality;
 
    type Flow_Contract_Proof_Row_Id is new Natural;
    No_Flow_Contract_Proof_Row : constant Flow_Contract_Proof_Row_Id := 0;

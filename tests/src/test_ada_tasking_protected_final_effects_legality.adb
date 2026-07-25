@@ -2,18 +2,18 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with AUnit;
-with Editor.Ada_Accessibility_Master_Scope_Final_Consumer_Legality;
-with Editor.Ada_Discriminant_Variant_Consumer_Integration_Legality;
-with Editor.Ada_Elaboration_Graph_Final_Consumer_Legality;
-with Editor.Ada_Representation_Tasking_Contract_Predicate_Dataflow_Consumer_Legality;
+with Editor.Ada_Legality.Accessibility.Master_Scope_Final_Legality;
+with Editor.Ada_Legality.Representation.Discriminant_Variant_Integration_Legality;
+with Editor.Ada_Legality.Elaboration.Graph_Final_Legality;
+with Editor.Ada_Legality.Tasking.Representation_Tasking_Contract_Predicate_Dataflow_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Remediation.Contract_Predicate_Dataflow_Consumer;
-with Editor.Ada_Tasking_Remediation.Protected_Effects;
-with Editor.Ada_Tasking_Remediation.Protected_Final_Effects;
+with Editor.Ada_Legality.Tasking.Repair_Contract_Predicate_Dataflow;
+with Editor.Ada_Legality.Tasking.Repair_Protected_Effects;
+with Editor.Ada_Legality.Tasking.Repair_Protected_Final_Effects;
 
 package body Test_Ada_Tasking_Protected_Final_Effects_Legality is
 
-   package Final renames Editor.Ada_Tasking_Remediation.Protected_Final_Effects;
+   package Final renames Editor.Ada_Legality.Tasking.Repair_Protected_Final_Effects;
    use type Final.Final_Tasking_Row_Id;
    use type Final.Final_Tasking_Context_Kind;
    use type Final.Final_Tasking_Status;
@@ -22,7 +22,7 @@ package body Test_Ada_Tasking_Protected_Final_Effects_Legality is
    use type Final.Final_Tasking_Context_Model;
    use type Final.Final_Tasking_Set;
    use type Final.Final_Tasking_Model;
-   package Access_Final renames Editor.Ada_Accessibility_Master_Scope_Final_Consumer_Legality;
+   package Access_Final renames Editor.Ada_Legality.Accessibility.Master_Scope_Final_Legality;
    use type Access_Final.Master_Scope_Final_Row_Id;
    use type Access_Final.Master_Scope_Final_Context_Kind;
    use type Access_Final.Master_Scope_Final_Status;
@@ -31,7 +31,7 @@ package body Test_Ada_Tasking_Protected_Final_Effects_Legality is
    use type Access_Final.Master_Scope_Final_Context_Model;
    use type Access_Final.Master_Scope_Final_Set;
    use type Access_Final.Master_Scope_Final_Model;
-   package Disc renames Editor.Ada_Discriminant_Variant_Consumer_Integration_Legality;
+   package Disc renames Editor.Ada_Legality.Representation.Discriminant_Variant_Integration_Legality;
    use type Disc.Discriminant_Consumer_Row_Id;
    use type Disc.Discriminant_Consumer_Context_Kind;
    use type Disc.Discriminant_Consumer_Status;
@@ -40,7 +40,7 @@ package body Test_Ada_Tasking_Protected_Final_Effects_Legality is
    use type Disc.Discriminant_Consumer_Context_Model;
    use type Disc.Discriminant_Consumer_Set;
    use type Disc.Discriminant_Consumer_Model;
-   package Elab renames Editor.Ada_Elaboration_Graph_Final_Consumer_Legality;
+   package Elab renames Editor.Ada_Legality.Elaboration.Graph_Final_Legality;
    use type Elab.Final_Elaboration_Row_Id;
    use type Elab.Final_Elaboration_Context_Kind;
    use type Elab.Final_Elaboration_Status;
@@ -49,7 +49,7 @@ package body Test_Ada_Tasking_Protected_Final_Effects_Legality is
    use type Elab.Final_Elaboration_Context_Model;
    use type Elab.Final_Elaboration_Set;
    use type Elab.Final_Elaboration_Model;
-   package Rep renames Editor.Ada_Representation_Tasking_Contract_Predicate_Dataflow_Consumer_Legality;
+   package Rep renames Editor.Ada_Legality.Tasking.Representation_Tasking_Contract_Predicate_Dataflow_Legality;
    use type Rep.Representation_Tasking_CPD_Row_Id;
    use type Rep.Representation_Tasking_CPD_Context_Kind;
    use type Rep.Representation_Tasking_CPD_Status;
@@ -58,7 +58,7 @@ package body Test_Ada_Tasking_Protected_Final_Effects_Legality is
    use type Rep.Representation_Tasking_CPD_Context_Model;
    use type Rep.Representation_Tasking_CPD_Set;
    use type Rep.Representation_Tasking_CPD_Model;
-   package Task_CPD renames Editor.Ada_Tasking_Remediation.Contract_Predicate_Dataflow_Consumer;
+   package Task_CPD renames Editor.Ada_Legality.Tasking.Repair_Contract_Predicate_Dataflow;
    use type Task_CPD.Tasking_Contract_Predicate_Row_Id;
    use type Task_CPD.Tasking_Contract_Predicate_Context_Kind;
    use type Task_CPD.Tasking_Contract_Predicate_Status;
@@ -67,7 +67,7 @@ package body Test_Ada_Tasking_Protected_Final_Effects_Legality is
    use type Task_CPD.Tasking_Contract_Predicate_Context_Model;
    use type Task_CPD.Tasking_Contract_Predicate_Set;
    use type Task_CPD.Tasking_Contract_Predicate_Model;
-   package Effects renames Editor.Ada_Tasking_Remediation.Protected_Effects;
+   package Effects renames Editor.Ada_Legality.Tasking.Repair_Protected_Effects;
    use type Effects.Tasking_Effect_Id;
    use type Effects.Tasking_Effect_Context_Kind;
    use type Effects.Tasking_Effect_Status;
