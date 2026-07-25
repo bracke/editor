@@ -5,6 +5,13 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Ada_Call_Profile_Shapes;
 with Editor.Ada_Direct_Visibility;
 with Editor.Ada_Representation_Legality.Core_Utilities;
+with Editor.Ada_Representation_Legality.Clause_Classification;
+with Editor.Ada_Representation_Legality.Target_Compatibility;
+with Editor.Ada_Representation_Legality.Static_Value_Checks;
+with Editor.Ada_Representation_Legality.Enumeration_Checks;
+with Editor.Ada_Representation_Legality.Record_Component_Checks;
+with Editor.Ada_Representation_Legality.Interfacing_Checks;
+with Editor.Ada_Representation_Legality.Stream_Profile_Checks;
 
 package body Editor.Ada_Representation_Legality is
 
@@ -80,583 +87,281 @@ package body Editor.Ada_Representation_Legality is
      renames Editor.Ada_Representation_Legality.Core_Utilities.Clause_Kind;
 
    function Static_Value_Required
-     (Kind : Editor.Ada_Language_Model.Representation_Clause_Kind) return Boolean is
-   begin
-      return Kind in Editor.Ada_Language_Model.Representation_Size_Clause |
-                     Editor.Ada_Language_Model.Representation_Alignment_Clause |
-                     Editor.Ada_Language_Model.Representation_Component_Size_Clause |
-                     Editor.Ada_Language_Model.Representation_Object_Size_Clause |
-                     Editor.Ada_Language_Model.Representation_Value_Size_Clause |
-                     Editor.Ada_Language_Model.Representation_Storage_Size_Clause |
-                     Editor.Ada_Language_Model.Representation_Machine_Radix_Clause |
-                     Editor.Ada_Language_Model.Representation_Aft_Clause |
-                     Editor.Ada_Language_Model.Representation_Small_Clause;
-   end Static_Value_Required;
+     (Kind : Editor.Ada_Language_Model.Representation_Clause_Kind) return Boolean
+     renames Editor.Ada_Representation_Legality.Clause_Classification.Static_Value_Required;
 
    function Positive_Value_Required
-     (Kind : Editor.Ada_Language_Model.Representation_Clause_Kind) return Boolean is
-   begin
-      return Kind in Editor.Ada_Language_Model.Representation_Size_Clause |
-                     Editor.Ada_Language_Model.Representation_Alignment_Clause |
-                     Editor.Ada_Language_Model.Representation_Component_Size_Clause |
-                     Editor.Ada_Language_Model.Representation_Object_Size_Clause |
-                     Editor.Ada_Language_Model.Representation_Value_Size_Clause |
-                     Editor.Ada_Language_Model.Representation_Storage_Size_Clause |
-                     Editor.Ada_Language_Model.Representation_Machine_Radix_Clause |
-                     Editor.Ada_Language_Model.Representation_Aft_Clause;
-   end Positive_Value_Required;
+     (Kind : Editor.Ada_Language_Model.Representation_Clause_Kind) return Boolean
+     renames Editor.Ada_Representation_Legality.Clause_Classification.Positive_Value_Required;
+
+   function Integer_Value_Required
+     (Kind : Editor.Ada_Language_Model.Representation_Clause_Kind) return Boolean
+     renames Editor.Ada_Representation_Legality.Clause_Classification.Integer_Value_Required;
+
+   function Interfacing_Clause
+     (Kind : Editor.Ada_Language_Model.Representation_Clause_Kind) return Boolean
+     renames Editor.Ada_Representation_Legality.Clause_Classification.Interfacing_Clause;
+
+   function Stream_Attribute_Clause
+     (Kind : Editor.Ada_Language_Model.Representation_Clause_Kind) return Boolean
+     renames Editor.Ada_Representation_Legality.Clause_Classification.Stream_Attribute_Clause;
+
+   function Boolean_Operational_Clause
+     (Kind : Editor.Ada_Language_Model.Representation_Clause_Kind) return Boolean
+     renames Editor.Ada_Representation_Legality.Clause_Classification.Boolean_Operational_Clause;
+
+   function Order_Operational_Clause
+     (Kind : Editor.Ada_Language_Model.Representation_Clause_Kind) return Boolean
+     renames Editor.Ada_Representation_Legality.Clause_Classification.Order_Operational_Clause;
+
+   function Operational_Clause
+     (Kind : Editor.Ada_Language_Model.Representation_Clause_Kind) return Boolean
+     renames Editor.Ada_Representation_Legality.Clause_Classification.Operational_Clause;
+
+   function Aspect_Representation_Name (Name : String) return Boolean
+     renames Editor.Ada_Representation_Legality.Clause_Classification.Aspect_Representation_Name;
+
+   function Aspect_Default_Value (Name, Value : String) return String
+     renames Editor.Ada_Representation_Legality.Clause_Classification.Aspect_Default_Value;
 
    function Compatible_Target_Kind
      (Kind     : Editor.Ada_Language_Model.Representation_Clause_Kind;
-      Category : Editor.Ada_Type_Graph.Type_Category) return Boolean is
-   begin
-      case Kind is
-         when Editor.Ada_Language_Model.Representation_Record_Clause =>
-            return Category = Editor.Ada_Type_Graph.Type_Category_Record
-              or else Category = Editor.Ada_Type_Graph.Type_Category_Private
-              or else Category = Editor.Ada_Type_Graph.Type_Category_Unknown;
-         when Editor.Ada_Language_Model.Representation_Component_Size_Clause =>
-            return Category = Editor.Ada_Type_Graph.Type_Category_Array
-              or else Category = Editor.Ada_Type_Graph.Type_Category_Unknown;
-         when Editor.Ada_Language_Model.Representation_Small_Clause |
-              Editor.Ada_Language_Model.Representation_Aft_Clause =>
-            return Category = Editor.Ada_Type_Graph.Type_Category_Fixed
-              or else Category = Editor.Ada_Type_Graph.Type_Category_Unknown;
-         when Editor.Ada_Language_Model.Representation_Machine_Radix_Clause =>
-            return Category = Editor.Ada_Type_Graph.Type_Category_Floating
-              or else Category = Editor.Ada_Type_Graph.Type_Category_Unknown;
-         when others =>
-            return True;
-      end case;
-   end Compatible_Target_Kind;
+      Category : Editor.Ada_Type_Graph.Type_Category) return Boolean
+     renames Editor.Ada_Representation_Legality.Target_Compatibility.Compatible_Target_Kind;
 
    function Compatible_Address_Target
-     (Kind : Editor.Ada_Freezing_Points.Freezable_Kind) return Boolean is
-   begin
-      return Kind in Editor.Ada_Freezing_Points.Freezable_Object |
-                     Editor.Ada_Freezing_Points.Freezable_Subprogram |
-                     Editor.Ada_Freezing_Points.Freezable_Unknown;
-   end Compatible_Address_Target;
+     (Kind : Editor.Ada_Freezing_Points.Freezable_Kind) return Boolean
+     renames Editor.Ada_Representation_Legality.Target_Compatibility.Compatible_Address_Target;
 
    function Size_Target_Compatible
-     (Freezable : Editor.Ada_Freezing_Points.Freezable_Kind) return Boolean is
-   begin
-      return Freezable in Editor.Ada_Freezing_Points.Freezable_Type |
-                         Editor.Ada_Freezing_Points.Freezable_Subtype |
-                         Editor.Ada_Freezing_Points.Freezable_Object |
-                         Editor.Ada_Freezing_Points.Freezable_Unknown;
-   end Size_Target_Compatible;
+     (Freezable : Editor.Ada_Freezing_Points.Freezable_Kind) return Boolean
+     renames Editor.Ada_Representation_Legality.Target_Compatibility.Size_Target_Compatible;
 
    function Alignment_Target_Compatible
-     (Freezable : Editor.Ada_Freezing_Points.Freezable_Kind) return Boolean is
-   begin
-      return Freezable in Editor.Ada_Freezing_Points.Freezable_Type |
-                         Editor.Ada_Freezing_Points.Freezable_Subtype |
-                         Editor.Ada_Freezing_Points.Freezable_Object |
-                         Editor.Ada_Freezing_Points.Freezable_Unknown;
-   end Alignment_Target_Compatible;
+     (Freezable : Editor.Ada_Freezing_Points.Freezable_Kind) return Boolean
+     renames Editor.Ada_Representation_Legality.Target_Compatibility.Alignment_Target_Compatible;
 
    function Storage_Size_Target_Compatible
      (Freezable : Editor.Ada_Freezing_Points.Freezable_Kind;
-      Category  : Editor.Ada_Type_Graph.Type_Category) return Boolean is
-   begin
-      if Freezable not in Editor.Ada_Freezing_Points.Freezable_Type |
-                          Editor.Ada_Freezing_Points.Freezable_Subtype |
-                          Editor.Ada_Freezing_Points.Freezable_Unknown
-      then
-         return False;
-      end if;
-
-      return Category in Editor.Ada_Type_Graph.Type_Category_Access |
-                         Editor.Ada_Type_Graph.Type_Category_Private |
-                         Editor.Ada_Type_Graph.Type_Category_Unknown;
-   end Storage_Size_Target_Compatible;
-
-   function Integer_Value_Required
-     (Kind : Editor.Ada_Language_Model.Representation_Clause_Kind) return Boolean is
-   begin
-      return Kind in Editor.Ada_Language_Model.Representation_Size_Clause |
-                     Editor.Ada_Language_Model.Representation_Alignment_Clause |
-                     Editor.Ada_Language_Model.Representation_Component_Size_Clause |
-                     Editor.Ada_Language_Model.Representation_Object_Size_Clause |
-                     Editor.Ada_Language_Model.Representation_Value_Size_Clause |
-                     Editor.Ada_Language_Model.Representation_Storage_Size_Clause |
-                     Editor.Ada_Language_Model.Representation_Machine_Radix_Clause |
-                     Editor.Ada_Language_Model.Representation_Aft_Clause;
-   end Integer_Value_Required;
-
-   function Interfacing_Clause
-     (Kind : Editor.Ada_Language_Model.Representation_Clause_Kind) return Boolean is
-   begin
-      return Kind in Editor.Ada_Language_Model.Representation_Convention_Clause |
-                     Editor.Ada_Language_Model.Representation_Import_Clause |
-                     Editor.Ada_Language_Model.Representation_Export_Clause |
-                     Editor.Ada_Language_Model.Representation_External_Name_Clause |
-                     Editor.Ada_Language_Model.Representation_Link_Name_Clause;
-   end Interfacing_Clause;
-
-
-   function Stream_Attribute_Clause
-     (Kind : Editor.Ada_Language_Model.Representation_Clause_Kind) return Boolean is
-   begin
-      return Kind in Editor.Ada_Language_Model.Representation_Read_Clause |
-                     Editor.Ada_Language_Model.Representation_Write_Clause |
-                     Editor.Ada_Language_Model.Representation_Input_Clause |
-                     Editor.Ada_Language_Model.Representation_Output_Clause |
-                     Editor.Ada_Language_Model.Representation_Put_Image_Clause;
-   end Stream_Attribute_Clause;
+      Category  : Editor.Ada_Type_Graph.Type_Category) return Boolean
+     renames Editor.Ada_Representation_Legality.Target_Compatibility.Storage_Size_Target_Compatible;
 
    function Stream_Target_Compatible
-     (Freezable : Editor.Ada_Freezing_Points.Freezable_Kind) return Boolean is
-   begin
-      return Freezable in Editor.Ada_Freezing_Points.Freezable_Type |
-                         Editor.Ada_Freezing_Points.Freezable_Subtype |
-                         Editor.Ada_Freezing_Points.Freezable_Unknown;
-   end Stream_Target_Compatible;
-
-   function Boolean_Operational_Clause
-     (Kind : Editor.Ada_Language_Model.Representation_Clause_Kind) return Boolean is
-   begin
-      return Kind in Editor.Ada_Language_Model.Representation_Pack_Clause |
-                     Editor.Ada_Language_Model.Representation_Atomic_Clause |
-                     Editor.Ada_Language_Model.Representation_Volatile_Clause |
-                     Editor.Ada_Language_Model.Representation_Independent_Clause |
-                     Editor.Ada_Language_Model.Representation_Atomic_Components_Clause |
-                     Editor.Ada_Language_Model.Representation_Volatile_Components_Clause |
-                     Editor.Ada_Language_Model.Representation_Independent_Components_Clause |
-                     Editor.Ada_Language_Model.Representation_Suppress_Initialization_Clause;
-   end Boolean_Operational_Clause;
-
-   function Order_Operational_Clause
-     (Kind : Editor.Ada_Language_Model.Representation_Clause_Kind) return Boolean is
-   begin
-      return Kind in Editor.Ada_Language_Model.Representation_Bit_Order_Clause |
-                     Editor.Ada_Language_Model.Representation_Scalar_Storage_Order_Clause |
-                     Editor.Ada_Language_Model.Representation_Default_Scalar_Storage_Order_Clause;
-   end Order_Operational_Clause;
-
-   function Operational_Clause
-     (Kind : Editor.Ada_Language_Model.Representation_Clause_Kind) return Boolean is
-   begin
-      return Boolean_Operational_Clause (Kind) or else Order_Operational_Clause (Kind);
-   end Operational_Clause;
+     (Freezable : Editor.Ada_Freezing_Points.Freezable_Kind) return Boolean
+     renames Editor.Ada_Representation_Legality.Target_Compatibility.Stream_Target_Compatible;
 
    function Operational_Target_Compatible
      (Kind      : Editor.Ada_Language_Model.Representation_Clause_Kind;
       Freezable : Editor.Ada_Freezing_Points.Freezable_Kind;
-      Category  : Editor.Ada_Type_Graph.Type_Category) return Boolean is
-   begin
-      case Kind is
-         when Editor.Ada_Language_Model.Representation_Pack_Clause =>
-            return Freezable in Editor.Ada_Freezing_Points.Freezable_Type |
-                               Editor.Ada_Freezing_Points.Freezable_Subtype |
-                               Editor.Ada_Freezing_Points.Freezable_Unknown
-              and then Category in Editor.Ada_Type_Graph.Type_Category_Record |
-                                   Editor.Ada_Type_Graph.Type_Category_Array |
-                                   Editor.Ada_Type_Graph.Type_Category_Private |
-                                   Editor.Ada_Type_Graph.Type_Category_Unknown;
-         when Editor.Ada_Language_Model.Representation_Atomic_Components_Clause |
-              Editor.Ada_Language_Model.Representation_Volatile_Components_Clause |
-              Editor.Ada_Language_Model.Representation_Independent_Components_Clause =>
-            return Freezable in Editor.Ada_Freezing_Points.Freezable_Type |
-                               Editor.Ada_Freezing_Points.Freezable_Subtype |
-                               Editor.Ada_Freezing_Points.Freezable_Unknown
-              and then Category in Editor.Ada_Type_Graph.Type_Category_Array |
-                                   Editor.Ada_Type_Graph.Type_Category_Private |
-                                   Editor.Ada_Type_Graph.Type_Category_Unknown;
-         when Editor.Ada_Language_Model.Representation_Atomic_Clause |
-              Editor.Ada_Language_Model.Representation_Volatile_Clause |
-              Editor.Ada_Language_Model.Representation_Independent_Clause |
-              Editor.Ada_Language_Model.Representation_Suppress_Initialization_Clause =>
-            return Freezable in Editor.Ada_Freezing_Points.Freezable_Type |
-                               Editor.Ada_Freezing_Points.Freezable_Subtype |
-                               Editor.Ada_Freezing_Points.Freezable_Object |
-                               Editor.Ada_Freezing_Points.Freezable_Unknown;
-         when Editor.Ada_Language_Model.Representation_Bit_Order_Clause =>
-            return Freezable in Editor.Ada_Freezing_Points.Freezable_Type |
-                               Editor.Ada_Freezing_Points.Freezable_Subtype |
-                               Editor.Ada_Freezing_Points.Freezable_Unknown
-              and then Category in Editor.Ada_Type_Graph.Type_Category_Record |
-                                   Editor.Ada_Type_Graph.Type_Category_Private |
-                                   Editor.Ada_Type_Graph.Type_Category_Unknown;
-         when Editor.Ada_Language_Model.Representation_Scalar_Storage_Order_Clause |
-              Editor.Ada_Language_Model.Representation_Default_Scalar_Storage_Order_Clause =>
-            return Freezable in Editor.Ada_Freezing_Points.Freezable_Type |
-                               Editor.Ada_Freezing_Points.Freezable_Subtype |
-                               Editor.Ada_Freezing_Points.Freezable_Unknown
-              and then Category in Editor.Ada_Type_Graph.Type_Category_Record |
-                                   Editor.Ada_Type_Graph.Type_Category_Array |
-                                   Editor.Ada_Type_Graph.Type_Category_Private |
-                                   Editor.Ada_Type_Graph.Type_Category_Unknown;
-         when others =>
-            return True;
-      end case;
-   end Operational_Target_Compatible;
+      Category  : Editor.Ada_Type_Graph.Type_Category) return Boolean
+     renames Editor.Ada_Representation_Legality.Target_Compatibility.Operational_Target_Compatible;
 
    function Interfacing_Target_Compatible
      (Kind      : Editor.Ada_Language_Model.Representation_Clause_Kind;
-      Freezable : Editor.Ada_Freezing_Points.Freezable_Kind) return Boolean is
-   begin
-      case Kind is
-         when Editor.Ada_Language_Model.Representation_Convention_Clause =>
-            return Freezable in Editor.Ada_Freezing_Points.Freezable_Type |
-                               Editor.Ada_Freezing_Points.Freezable_Subtype |
-                               Editor.Ada_Freezing_Points.Freezable_Subprogram |
-                               Editor.Ada_Freezing_Points.Freezable_Object |
-                               Editor.Ada_Freezing_Points.Freezable_Unknown;
-         when Editor.Ada_Language_Model.Representation_Import_Clause |
-              Editor.Ada_Language_Model.Representation_Export_Clause =>
-            return Freezable in Editor.Ada_Freezing_Points.Freezable_Subprogram |
-                               Editor.Ada_Freezing_Points.Freezable_Object |
-                               Editor.Ada_Freezing_Points.Freezable_Unknown;
-         when Editor.Ada_Language_Model.Representation_External_Name_Clause |
-              Editor.Ada_Language_Model.Representation_Link_Name_Clause =>
-            return Freezable in Editor.Ada_Freezing_Points.Freezable_Subprogram |
-                               Editor.Ada_Freezing_Points.Freezable_Object |
-                               Editor.Ada_Freezing_Points.Freezable_Unknown;
-         when others =>
-            return True;
-      end case;
-   end Interfacing_Target_Compatible;
-
-   function Is_Known_Convention (Name : String) return Boolean is
-      N : constant String := Lower (Name);
-   begin
-      return N = "ada" or else N = "intrinsic" or else N = "c"
-        or else N = "c_pass_by_copy" or else N = "cobol"
-        or else N = "fortran" or else N = "assembler"
-        or else N = "stdcall" or else N = "win32" or else N = "cpp";
-   end Is_Known_Convention;
-
-   function Is_Identifier_Text (Text : String) return Boolean is
-      T : constant String := Trimmed (Text);
-   begin
-      if T = "" then
-         return False;
-      end if;
-      if not (T (T'First) in 'A' .. 'Z' or else T (T'First) in 'a' .. 'z') then
-         return False;
-      end if;
-      for I in T'First + 1 .. T'Last loop
-         if not (T (I) in 'A' .. 'Z' or else T (I) in 'a' .. 'z'
-                 or else T (I) in '0' .. '9' or else T (I) = '_') then
-            return False;
-         end if;
-      end loop;
-      return True;
-   end Is_Identifier_Text;
-
-   function Is_Static_String_Text (Text : String) return Boolean is
-      T : constant String := Trimmed (Text);
-   begin
-      return T'Length >= 2 and then T (T'First) = '"' and then T (T'Last) = '"';
-   end Is_Static_String_Text;
-
-   function Is_Static_Boolean_True (Text : String) return Boolean is
-      T : constant String := Lower (Text);
-   begin
-      return T = "true" or else T = "standard.true";
-   end Is_Static_Boolean_True;
-
-   function Is_Static_Boolean_False (Text : String) return Boolean is
-      T : constant String := Lower (Text);
-   begin
-      return T = "false" or else T = "standard.false";
-   end Is_Static_Boolean_False;
-
-   function Is_High_Order_First (Text : String) return Boolean is
-      T : constant String := Lower (Text);
-   begin
-      return T = "high_order_first" or else T = "system.high_order_first";
-   end Is_High_Order_First;
-
-   function Is_Low_Order_First (Text : String) return Boolean is
-      T : constant String := Lower (Text);
-   begin
-      return T = "low_order_first" or else T = "system.low_order_first";
-   end Is_Low_Order_First;
-
-   function Operational_Value_Status_For
-     (Kind : Editor.Ada_Language_Model.Representation_Clause_Kind;
-      Text : String) return Operational_Value_Status is
-      T : constant String := Trimmed (Text);
-   begin
-      if not Operational_Clause (Kind) then
-         return Operational_Value_Not_Operational_Clause;
-      elsif T = "" then
-         return Operational_Value_Malformed;
-      elsif Boolean_Operational_Clause (Kind) then
-         if Is_Static_Boolean_True (T) then
-            return Operational_Value_Static_Boolean_True;
-         elsif Is_Static_Boolean_False (T) then
-            return Operational_Value_Static_Boolean_False;
-         else
-            return Operational_Value_Malformed;
-         end if;
-      elsif Order_Operational_Clause (Kind) then
-         if Is_High_Order_First (T) then
-            return Operational_Value_Order_High_Order_First;
-         elsif Is_Low_Order_First (T) then
-            return Operational_Value_Order_Low_Order_First;
-         else
-            return Operational_Value_Malformed;
-         end if;
-      else
-         return Operational_Value_Not_Operational_Clause;
-      end if;
-   end Operational_Value_Status_For;
-
-   function Interfacing_Value_Status_For
-     (Kind : Editor.Ada_Language_Model.Representation_Clause_Kind;
-      Text : String) return Interfacing_Value_Status is
-      T : constant String := Trimmed (Text);
-   begin
-      if not Interfacing_Clause (Kind) then
-         return Interfacing_Value_Not_Interfacing_Clause;
-      elsif T = "" then
-         return Interfacing_Value_Malformed;
-      end if;
-
-      case Kind is
-         when Editor.Ada_Language_Model.Representation_Convention_Clause =>
-            if not Is_Identifier_Text (T) then
-               return Interfacing_Value_Malformed;
-            elsif Is_Known_Convention (T) then
-               return Interfacing_Value_Convention_Identifier;
-            else
-               return Interfacing_Value_Convention_Unknown_Identifier;
-            end if;
-         when Editor.Ada_Language_Model.Representation_Import_Clause |
-              Editor.Ada_Language_Model.Representation_Export_Clause =>
-            if Is_Static_Boolean_True (T) then
-               return Interfacing_Value_Static_Boolean_True;
-            elsif Is_Static_Boolean_False (T) then
-               return Interfacing_Value_Static_Boolean_False;
-            else
-               return Interfacing_Value_Malformed;
-            end if;
-         when Editor.Ada_Language_Model.Representation_External_Name_Clause |
-              Editor.Ada_Language_Model.Representation_Link_Name_Clause =>
-            if Is_Static_String_Text (T) then
-               return Interfacing_Value_Static_String;
-            else
-               return Interfacing_Value_Malformed;
-            end if;
-         when others =>
-            return Interfacing_Value_Not_Interfacing_Clause;
-      end case;
-   end Interfacing_Value_Status_For;
-
-
-   function Starts_With_Digit_Or_Sign (Text : String) return Boolean;
-
-   function Stream_Subprogram_Status_For
-     (Kind : Editor.Ada_Language_Model.Representation_Clause_Kind;
-      Text : String) return Stream_Subprogram_Status is
-      T : constant String := Trimmed (Text);
-      L : constant String := Lower (T);
-   begin
-      if not Stream_Attribute_Clause (Kind) then
-         return Stream_Subprogram_Not_Stream_Clause;
-      elsif T = "" then
-         return Stream_Subprogram_Malformed;
-      elsif Is_Static_String_Text (T) or else Starts_With_Digit_Or_Sign (T)
-        or else L = "null" or else L = "true" or else L = "false"
-      then
-         return Stream_Subprogram_Malformed;
-      elsif Ada.Strings.Fixed.Index (L, "(") /= 0
-        or else Ada.Strings.Fixed.Index (L, ";") /= 0
-      then
-         return Stream_Subprogram_Malformed;
-      elsif Is_Identifier_Text (T)
-        or else Ada.Strings.Fixed.Index (T, ".") /= 0
-      then
-         --  The parser-level model can prove that the representation item is
-         --  a callable designator.  Full profile matching is layered through
-         --  subsequent call/profile metadata and is therefore preserved as
-         --  unknown rather than silently accepted as profile-conformant.
-         return Stream_Subprogram_Profile_Unknown;
-      else
-         return Stream_Subprogram_Unknown;
-      end if;
-   end Stream_Subprogram_Status_For;
-
-   function Starts_With_Digit_Or_Sign (Text : String) return Boolean is
-      T : constant String := Trimmed (Text);
-   begin
-      if T = "" then
-         return False;
-      end if;
-
-      return T (T'First) in '0' .. '9'
-        or else T (T'First) = '+'
-        or else T (T'First) = '-';
-   end Starts_With_Digit_Or_Sign;
-
+      Freezable : Editor.Ada_Freezing_Points.Freezable_Kind) return Boolean
+     renames Editor.Ada_Representation_Legality.Target_Compatibility.Interfacing_Target_Compatible;
 
    function Deepest_Region_Containing_Line
      (Regions : Editor.Ada_Declarative_Regions.Region_Model;
-      Line    : Positive) return Editor.Ada_Declarative_Regions.Region_Id;
-
-   function Aspect_Representation_Name (Name : String) return Boolean is
-      N : constant String := Lower (Name);
-   begin
-      return N = "size" or else N = "alignment" or else N = "component_size"
-        or else N = "object_size" or else N = "value_size"
-        or else N = "storage_size" or else N = "small"
-        or else N = "machine_radix" or else N = "aft"
-        or else N = "bit_order" or else N = "scalar_storage_order"
-        or else N = "default_scalar_storage_order" or else N = "pack"
-        or else N = "atomic" or else N = "volatile"
-        or else N = "independent" or else N = "atomic_components"
-        or else N = "volatile_components"
-        or else N = "independent_components"
-        or else N = "suppress_initialization" or else N = "address"
-        or else N = "convention" or else N = "import" or else N = "export"
-        or else N = "external_name" or else N = "link_name"
-        or else N = "read" or else N = "write" or else N = "input"
-        or else N = "output" or else N = "put_image";
-   end Aspect_Representation_Name;
-
-   function Aspect_Default_Value (Name, Value : String) return String is
-      N : constant String := Lower (Name);
-      V : constant String := Trimmed (Value);
-      V_Norm : constant String := Lower (V);
-   begin
-      if N = "pack" or else N = "atomic" or else N = "volatile"
-        or else N = "independent" or else N = "atomic_components"
-        or else N = "volatile_components"
-        or else N = "independent_components"
-        or else N = "suppress_initialization" or else N = "import"
-        or else N = "export"
-      then
-         if V = "" or else V_Norm = N then
-            return "True";
-         else
-            return V;
-         end if;
-      elsif V /= "" then
-         return V;
-      else
-         return V;
-      end if;
-   end Aspect_Default_Value;
+      Line    : Positive) return Editor.Ada_Declarative_Regions.Region_Id
+     renames Editor.Ada_Representation_Legality.Target_Compatibility.Deepest_Region_Containing_Line;
 
    function Ancestor_Declaration_Target
      (Tree : Editor.Ada_Syntax_Tree.Tree_Type;
-      Node : Editor.Ada_Syntax_Tree.Node_Id) return String is
-      Cur : Editor.Ada_Syntax_Tree.Node_Id := Node;
-   begin
-      while Cur /= Editor.Ada_Syntax_Tree.No_Node loop
-         declare
-            N : constant Editor.Ada_Syntax_Tree.Node_Info :=
-              Editor.Ada_Syntax_Tree.Node (Tree, Cur);
-            Name : constant String := Declaration_Name (Tree, Cur);
-         begin
-            if Name /= "" then
-               return Name;
-            end if;
-            Cur := N.Parent;
-         end;
-      end loop;
-      return "";
-   end Ancestor_Declaration_Target;
+      Node : Editor.Ada_Syntax_Tree.Node_Id) return String
+     renames Editor.Ada_Representation_Legality.Target_Compatibility.Ancestor_Declaration_Target;
 
    function Freeze_Info_For_Target_At
      (Freezing : Editor.Ada_Freezing_Points.Freezing_Model;
       Regions  : Editor.Ada_Declarative_Regions.Region_Model;
       Line     : Positive;
-      Target   : String) return Editor.Ada_Freezing_Points.Representation_Freeze_Info is
-      Region : constant Editor.Ada_Declarative_Regions.Region_Id :=
-        Deepest_Region_Containing_Line (Regions, Line);
-      Id : constant Editor.Ada_Freezing_Points.Freezable_Id :=
-        Editor.Ada_Freezing_Points.Lookup_Freezable (Freezing, Region, Target);
-      Result : Editor.Ada_Freezing_Points.Representation_Freeze_Info;
-   begin
-      Result.Clause_Line := Line;
-      Result.Target_Name := To_Unbounded_String (Trimmed (Target));
-      Result.Normalized_Target := To_Unbounded_String (Normalized (Target));
-      Result.Target := Id;
-
-      if Id = Editor.Ada_Freezing_Points.No_Freezable then
-         Result.Status := Editor.Ada_Freezing_Points.Representation_Target_Unresolved;
-      else
-         declare
-            F : constant Editor.Ada_Freezing_Points.Freezable_Info :=
-              Editor.Ada_Freezing_Points.Freezable_Node (Freezing, Id);
-         begin
-            Result.Freeze_Line := F.First_Freeze_Line;
-            if F.Status = Editor.Ada_Freezing_Points.Freezing_Not_Frozen then
-               Result.Status := Editor.Ada_Freezing_Points.Representation_Target_Not_Frozen;
-            elsif Line < F.First_Freeze_Line then
-               Result.Status := Editor.Ada_Freezing_Points.Representation_Before_Freezing;
-            elsif Line = F.First_Freeze_Line then
-               Result.Status := Editor.Ada_Freezing_Points.Representation_At_Freezing_Point;
-            else
-               Result.Status := Editor.Ada_Freezing_Points.Representation_After_Freezing;
-            end if;
-         end;
-      end if;
-
-      Result.Fingerprint :=
-        Mix (Natural (Id), Mix (Line, Editor.Ada_Freezing_Points.Representation_Freezing_Status'Pos (Result.Status)));
-      return Result;
-   end Freeze_Info_For_Target_At;
-
-   function Address_Value_Status_For (Text : String) return Address_Value_Status is
-      T : constant String := Trimmed (Strip_Leading_At (Text));
-      L : constant String := Lower (T);
-   begin
-      if T = "" then
-         return Address_Value_Malformed;
-      elsif L = "null" then
-         return Address_Value_Null_Literal;
-      elsif Ada.Strings.Fixed.Index (L, "'address") /= 0
-        or else Ada.Strings.Fixed.Index (L, "to_address") /= 0
-      then
-         return Address_Value_Static_Address;
-      elsif Starts_With_Digit_Or_Sign (T) then
-         return Address_Value_Raw_Literal;
-      else
-         return Address_Value_Non_Static_Name;
-      end if;
-   end Address_Value_Status_For;
-
-   function Value_Status_For
-     (Value : Editor.Ada_Static_Expressions.Static_Value_Info) return Representation_Value_Status is
-   begin
-      case Value.Status is
-         when Editor.Ada_Static_Expressions.Static_Value_Integer |
-              Editor.Ada_Static_Expressions.Static_Value_Static_Attribute |
-              Editor.Ada_Static_Expressions.Static_Value_Modular_Integer =>
-            return Representation_Value_Static_Integer;
-         when Editor.Ada_Static_Expressions.Static_Value_Real |
-              Editor.Ada_Static_Expressions.Static_Value_Fixed_Point =>
-            return Representation_Value_Static_Real;
-         when Editor.Ada_Static_Expressions.Static_Value_Division_By_Zero =>
-            return Representation_Value_Division_By_Zero;
-         when Editor.Ada_Static_Expressions.Static_Value_Malformed =>
-            return Representation_Value_Malformed;
-         when Editor.Ada_Static_Expressions.Static_Value_Unresolved_Name =>
-            return Representation_Value_Unresolved;
-         when Editor.Ada_Static_Expressions.Static_Value_Unsupported_Attribute =>
-            return Representation_Value_Unsupported;
-         when others =>
-            return Representation_Value_Non_Static;
-      end case;
-   end Value_Status_For;
+      Target   : String) return Editor.Ada_Freezing_Points.Representation_Freeze_Info
+     renames Editor.Ada_Representation_Legality.Target_Compatibility.Freeze_Info_For_Target_At;
 
    function Type_Category_For_Target
      (Types   : Editor.Ada_Type_Graph.Type_Model;
       Target  : Editor.Ada_Freezing_Points.Freezable_Info)
-      return Editor.Ada_Type_Graph.Type_Category is
-   begin
-      if Target.Type_Node = Editor.Ada_Type_Graph.No_Type then
-         return Editor.Ada_Type_Graph.Type_Category_Unknown;
-      end if;
+      return Editor.Ada_Type_Graph.Type_Category
+     renames Editor.Ada_Representation_Legality.Target_Compatibility.Type_Category_For_Target;
 
-      return Editor.Ada_Type_Graph.Type_Node (Types, Target.Type_Node).Category;
-   end Type_Category_For_Target;
+   function Is_Known_Convention (Name : String) return Boolean
+     renames Editor.Ada_Representation_Legality.Static_Value_Checks.Is_Known_Convention;
+
+   function Is_Identifier_Text (Text : String) return Boolean
+     renames Editor.Ada_Representation_Legality.Static_Value_Checks.Is_Identifier_Text;
+
+   function Is_Static_String_Text (Text : String) return Boolean
+     renames Editor.Ada_Representation_Legality.Static_Value_Checks.Is_Static_String_Text;
+
+   function Is_Static_Boolean_True (Text : String) return Boolean
+     renames Editor.Ada_Representation_Legality.Static_Value_Checks.Is_Static_Boolean_True;
+
+   function Is_Static_Boolean_False (Text : String) return Boolean
+     renames Editor.Ada_Representation_Legality.Static_Value_Checks.Is_Static_Boolean_False;
+
+   function Is_High_Order_First (Text : String) return Boolean
+     renames Editor.Ada_Representation_Legality.Static_Value_Checks.Is_High_Order_First;
+
+   function Is_Low_Order_First (Text : String) return Boolean
+     renames Editor.Ada_Representation_Legality.Static_Value_Checks.Is_Low_Order_First;
+
+   function Operational_Value_Status_For
+     (Kind : Editor.Ada_Language_Model.Representation_Clause_Kind;
+      Text : String) return Operational_Value_Status
+     renames Editor.Ada_Representation_Legality.Static_Value_Checks.Operational_Value_Status_For;
+
+   function Interfacing_Value_Status_For
+     (Kind : Editor.Ada_Language_Model.Representation_Clause_Kind;
+      Text : String) return Interfacing_Value_Status
+     renames Editor.Ada_Representation_Legality.Static_Value_Checks.Interfacing_Value_Status_For;
+
+   function Starts_With_Digit_Or_Sign (Text : String) return Boolean
+     renames Editor.Ada_Representation_Legality.Static_Value_Checks.Starts_With_Digit_Or_Sign;
+
+   function Stream_Subprogram_Status_For
+     (Kind : Editor.Ada_Language_Model.Representation_Clause_Kind;
+      Text : String) return Stream_Subprogram_Status
+     renames Editor.Ada_Representation_Legality.Static_Value_Checks.Stream_Subprogram_Status_For;
+
+   function Address_Value_Status_For (Text : String) return Address_Value_Status
+     renames Editor.Ada_Representation_Legality.Static_Value_Checks.Address_Value_Status_For;
+
+   function Value_Status_For
+     (Value : Editor.Ada_Static_Expressions.Static_Value_Info) return Representation_Value_Status
+     renames Editor.Ada_Representation_Legality.Static_Value_Checks.Value_Status_For;
+
+   function Is_Enumeration_Type_Node
+     (Tree      : Editor.Ada_Syntax_Tree.Tree_Type;
+      Type_Node : Editor.Ada_Syntax_Tree.Node_Id) return Boolean
+     renames Editor.Ada_Representation_Legality.Enumeration_Checks.Is_Enumeration_Type_Node;
+
+   function Enumeration_Definition_Text
+     (Tree      : Editor.Ada_Syntax_Tree.Tree_Type;
+      Type_Node : Editor.Ada_Syntax_Tree.Node_Id) return String
+     renames Editor.Ada_Representation_Legality.Enumeration_Checks.Enumeration_Definition_Text;
+
+   function Enumeration_Definition_Count (Definition : String) return Natural
+     renames Editor.Ada_Representation_Legality.Enumeration_Checks.Enumeration_Definition_Count;
+
+   function Enumeration_Definition_Name_At
+     (Definition : String;
+      Position   : Positive) return String
+     renames Editor.Ada_Representation_Legality.Enumeration_Checks.Enumeration_Definition_Name_At;
+
+   function Enumeration_Literal_Count
+     (Tree      : Editor.Ada_Syntax_Tree.Tree_Type;
+      Type_Node : Editor.Ada_Syntax_Tree.Node_Id) return Natural
+     renames Editor.Ada_Representation_Legality.Enumeration_Checks.Enumeration_Literal_Count;
+
+   function Enumeration_Literal_Name_At
+     (Tree      : Editor.Ada_Syntax_Tree.Tree_Type;
+      Type_Node : Editor.Ada_Syntax_Tree.Node_Id;
+      Position  : Positive) return String
+     renames Editor.Ada_Representation_Legality.Enumeration_Checks.Enumeration_Literal_Name_At;
+
+   function Enumeration_Literal_Exists
+     (Tree      : Editor.Ada_Syntax_Tree.Tree_Type;
+      Type_Node : Editor.Ada_Syntax_Tree.Node_Id;
+      Name      : String) return Boolean
+     renames Editor.Ada_Representation_Legality.Enumeration_Checks.Enumeration_Literal_Exists;
+
+   function Enumeration_Literal_Position
+     (Tree      : Editor.Ada_Syntax_Tree.Tree_Type;
+      Type_Node : Editor.Ada_Syntax_Tree.Node_Id;
+      Name      : String) return Natural
+     renames Editor.Ada_Representation_Legality.Enumeration_Checks.Enumeration_Literal_Position;
+
+   function Enumeration_Literal_Duplicate
+     (Model         : Representation_Legality_Model;
+      Parent_Clause : Editor.Ada_Syntax_Tree.Node_Id;
+      Normalized_Name : String) return Boolean
+     renames Editor.Ada_Representation_Legality.Enumeration_Checks.Enumeration_Literal_Duplicate;
+
+   function Enumeration_Value_Duplicate
+     (Model         : Representation_Legality_Model;
+      Parent_Clause : Editor.Ada_Syntax_Tree.Node_Id;
+      Static_Value  : Long_Long_Integer) return Boolean
+     renames Editor.Ada_Representation_Legality.Enumeration_Checks.Enumeration_Value_Duplicate;
+
+   procedure Count_Enumeration_Result
+     (Model : in out Representation_Legality_Model;
+      Info  : Enumeration_Representation_Legality_Info)
+     renames Editor.Ada_Representation_Legality.Enumeration_Checks.Count_Enumeration_Result;
+
+   procedure Add_Enumeration_Check
+     (Model           : in out Representation_Legality_Model;
+      Tree            : Editor.Ada_Syntax_Tree.Tree_Type;
+      Static          : Editor.Ada_Static_Expressions.Static_Model;
+      Parent_Info     : Representation_Legality_Info;
+      Association     : Editor.Ada_Syntax_Tree.Node_Info;
+      Literal_Name    : String;
+      Value_Text      : String;
+      Expected_Pos    : Natural;
+      Target_Type_Node : Editor.Ada_Syntax_Tree.Node_Id)
+     renames Editor.Ada_Representation_Legality.Enumeration_Checks.Add_Enumeration_Check;
+
+   procedure Add_Enumeration_Incomplete_Check
+     (Model           : in out Representation_Legality_Model;
+      Parent_Info     : Representation_Legality_Info;
+      Missing_Literal  : String;
+      Source_Line      : Positive)
+     renames Editor.Ada_Representation_Legality.Enumeration_Checks.Add_Enumeration_Incomplete_Check;
+
+   procedure Add_Enumeration_Representation_Checks
+     (Model    : in out Representation_Legality_Model;
+      Tree     : Editor.Ada_Syntax_Tree.Tree_Type;
+      Types    : Editor.Ada_Type_Graph.Type_Model;
+      Static   : Editor.Ada_Static_Expressions.Static_Model;
+      Clause   : Editor.Ada_Syntax_Tree.Node_Info;
+      Parent_Info : Representation_Legality_Info)
+     renames Editor.Ada_Representation_Legality.Enumeration_Checks.Add_Enumeration_Representation_Checks;
+
+   function Component_Duplicate
+     (Model         : Representation_Legality_Model;
+      Parent_Clause : Editor.Ada_Syntax_Tree.Node_Id;
+      Normalized_Name : String) return Boolean
+     renames Editor.Ada_Representation_Legality.Record_Component_Checks.Component_Duplicate;
+
+   procedure Count_Component_Result
+     (Model : in out Representation_Legality_Model;
+      Info  : Record_Component_Legality_Info)
+     renames Editor.Ada_Representation_Legality.Record_Component_Checks.Count_Component_Result;
+
+   procedure Add_Record_Component_Check
+     (Model    : in out Representation_Legality_Model;
+      Tree     : Editor.Ada_Syntax_Tree.Tree_Type;
+      Types    : Editor.Ada_Type_Graph.Type_Model;
+      Static   : Editor.Ada_Static_Expressions.Static_Model;
+      Node     : Editor.Ada_Syntax_Tree.Node_Info)
+     renames Editor.Ada_Representation_Legality.Record_Component_Checks.Add_Record_Component_Check;
+
+   function Import_Export_Enabled_For_Target
+     (Model  : Representation_Legality_Model;
+      Target : String) return Boolean
+     renames Editor.Ada_Representation_Legality.Interfacing_Checks.Import_Export_Enabled_For_Target;
+
+   function Has_Opposite_Enabled_Import_Export
+     (Model : Representation_Legality_Model;
+      Info  : Representation_Legality_Info) return Boolean
+     renames Editor.Ada_Representation_Legality.Interfacing_Checks.Has_Opposite_Enabled_Import_Export;
+
+   procedure Finalize_Interfacing_Conflicts
+     (Model : in out Representation_Legality_Model)
+     renames Editor.Ada_Representation_Legality.Interfacing_Checks.Finalize_Interfacing_Conflicts;
+
+   function Stream_Profile_Conforms
+     (Kind    : Editor.Ada_Language_Model.Representation_Clause_Kind;
+      Profile : Editor.Ada_Call_Profile_Shapes.Callable_Profile_Info) return Boolean
+     renames Editor.Ada_Representation_Legality.Stream_Profile_Checks.Stream_Profile_Conforms;
+
+   function Unique_Visible_Declaration
+     (Visibility : Editor.Ada_Direct_Visibility.Visibility_Model;
+      Name       : String) return Editor.Ada_Direct_Visibility.Lookup_Result
+     renames Editor.Ada_Representation_Legality.Stream_Profile_Checks.Unique_Visible_Declaration;
+
+
+
+
 
    procedure Classify
      (Info : in out Representation_Legality_Info;
@@ -838,666 +543,25 @@ package body Editor.Ada_Representation_Legality is
 
 
 
-   function Is_Enumeration_Type_Node
-     (Tree      : Editor.Ada_Syntax_Tree.Tree_Type;
-      Type_Node : Editor.Ada_Syntax_Tree.Node_Id) return Boolean is
-   begin
-      if Type_Node = Editor.Ada_Syntax_Tree.No_Node then
-         return False;
-      end if;
 
-      for Index in 1 .. Editor.Ada_Syntax_Tree.Child_Count (Tree, Type_Node) loop
-         declare
-            Child : constant Editor.Ada_Syntax_Tree.Node_Info :=
-              Editor.Ada_Syntax_Tree.Node
-                (Tree, Editor.Ada_Syntax_Tree.Child_At (Tree, Type_Node, Index));
-         begin
-            if Child.Kind = Editor.Ada_Syntax_Tree.Node_Enumeration_Literal_Declaration then
-               return True;
-            end if;
-         end;
-      end loop;
 
-      declare
-         Def : constant String :=
-           Trimmed (Child_Label (Tree, Type_Node, Editor.Ada_Syntax_Tree.Node_Declaration_Subtype));
-      begin
-         return Def'Length >= 2
-           and then Def (Def'First) = '('
-           and then Def (Def'Last) = ')';
-      end;
-   end Is_Enumeration_Type_Node;
 
-   function Enumeration_Definition_Text
-     (Tree      : Editor.Ada_Syntax_Tree.Tree_Type;
-      Type_Node : Editor.Ada_Syntax_Tree.Node_Id) return String is
-      Def : constant String :=
-        Trimmed (Child_Label (Tree, Type_Node, Editor.Ada_Syntax_Tree.Node_Declaration_Subtype));
-   begin
-      if Def'Length >= 2
-        and then Def (Def'First) = '('
-        and then Def (Def'Last) = ')'
-      then
-         return Def (Def'First + 1 .. Def'Last - 1);
-      end if;
-      return "";
-   end Enumeration_Definition_Text;
 
-   function Enumeration_Definition_Count (Definition : String) return Natural is
-      Count : Natural := 0;
-      First : Natural := Definition'First;
-   begin
-      if Trimmed (Definition) = "" then
-         return 0;
-      end if;
 
-      for I in Definition'Range loop
-         if Definition (I) = ',' then
-            if Trimmed (Definition (First .. I - 1)) /= "" then
-               Count := Count + 1;
-            end if;
-            First := I + 1;
-         end if;
-      end loop;
-      if First <= Definition'Last and then Trimmed (Definition (First .. Definition'Last)) /= "" then
-         Count := Count + 1;
-      end if;
-      return Count;
-   end Enumeration_Definition_Count;
 
-   function Enumeration_Definition_Name_At
-     (Definition : String;
-      Position   : Positive) return String is
-      Count : Natural := 0;
-      First : Natural := Definition'First;
-   begin
-      for I in Definition'Range loop
-         if Definition (I) = ',' then
-            declare
-               Name : constant String := Trimmed (Definition (First .. I - 1));
-            begin
-               if Name /= "" then
-                  Count := Count + 1;
-                  if Count = Position then
-                     return Name;
-                  end if;
-               end if;
-            end;
-            First := I + 1;
-         end if;
-      end loop;
 
-      if First <= Definition'Last then
-         declare
-            Name : constant String := Trimmed (Definition (First .. Definition'Last));
-         begin
-            if Name /= "" then
-               Count := Count + 1;
-               if Count = Position then
-                  return Name;
-               end if;
-            end if;
-         end;
-      end if;
-      return "";
-   end Enumeration_Definition_Name_At;
 
-   function Enumeration_Literal_Count
-     (Tree      : Editor.Ada_Syntax_Tree.Tree_Type;
-      Type_Node : Editor.Ada_Syntax_Tree.Node_Id) return Natural is
-      Count : Natural := 0;
-   begin
-      if Type_Node = Editor.Ada_Syntax_Tree.No_Node then
-         return 0;
-      end if;
 
-      for Index in 1 .. Editor.Ada_Syntax_Tree.Child_Count (Tree, Type_Node) loop
-         declare
-            Child : constant Editor.Ada_Syntax_Tree.Node_Info :=
-              Editor.Ada_Syntax_Tree.Node
-                (Tree, Editor.Ada_Syntax_Tree.Child_At (Tree, Type_Node, Index));
-         begin
-            if Child.Kind = Editor.Ada_Syntax_Tree.Node_Enumeration_Literal_Declaration then
-               Count := Count + 1;
-            end if;
-         end;
-      end loop;
-      if Count /= 0 then
-         return Count;
-      end if;
-      return Enumeration_Definition_Count (Enumeration_Definition_Text (Tree, Type_Node));
-   end Enumeration_Literal_Count;
 
-   function Enumeration_Literal_Name_At
-     (Tree      : Editor.Ada_Syntax_Tree.Tree_Type;
-      Type_Node : Editor.Ada_Syntax_Tree.Node_Id;
-      Position  : Positive) return String is
-      Count : Natural := 0;
-   begin
-      if Type_Node = Editor.Ada_Syntax_Tree.No_Node then
-         return "";
-      end if;
 
-      for Index in 1 .. Editor.Ada_Syntax_Tree.Child_Count (Tree, Type_Node) loop
-         declare
-            Child : constant Editor.Ada_Syntax_Tree.Node_Info :=
-              Editor.Ada_Syntax_Tree.Node
-                (Tree, Editor.Ada_Syntax_Tree.Child_At (Tree, Type_Node, Index));
-         begin
-            if Child.Kind = Editor.Ada_Syntax_Tree.Node_Enumeration_Literal_Declaration then
-               Count := Count + 1;
-               if Count = Position then
-                  return Child_Label
-                    (Tree, Child.Id, Editor.Ada_Syntax_Tree.Node_Declaration_Name);
-               end if;
-            end if;
-         end;
-      end loop;
-      return Enumeration_Definition_Name_At
-        (Enumeration_Definition_Text (Tree, Type_Node), Position);
-   end Enumeration_Literal_Name_At;
 
-   function Enumeration_Literal_Exists
-     (Tree      : Editor.Ada_Syntax_Tree.Tree_Type;
-      Type_Node : Editor.Ada_Syntax_Tree.Node_Id;
-      Name      : String) return Boolean is
-      N : constant String := Lower (Name);
-   begin
-      if Type_Node = Editor.Ada_Syntax_Tree.No_Node or else N = "" then
-         return False;
-      end if;
 
-      for Index in 1 .. Editor.Ada_Syntax_Tree.Child_Count (Tree, Type_Node) loop
-         declare
-            Child : constant Editor.Ada_Syntax_Tree.Node_Info :=
-              Editor.Ada_Syntax_Tree.Node
-                (Tree, Editor.Ada_Syntax_Tree.Child_At (Tree, Type_Node, Index));
-         begin
-            if Child.Kind = Editor.Ada_Syntax_Tree.Node_Enumeration_Literal_Declaration
-              and then Lower (Child_Label (Tree, Child.Id, Editor.Ada_Syntax_Tree.Node_Declaration_Name)) = N
-            then
-               return True;
-            end if;
-         end;
-      end loop;
-      for Pos in 1 .. Enumeration_Definition_Count (Enumeration_Definition_Text (Tree, Type_Node)) loop
-         if Lower (Enumeration_Definition_Name_At
-                     (Enumeration_Definition_Text (Tree, Type_Node), Pos)) = N
-         then
-            return True;
-         end if;
-      end loop;
-      return False;
-   end Enumeration_Literal_Exists;
 
-   function Enumeration_Literal_Position
-     (Tree      : Editor.Ada_Syntax_Tree.Tree_Type;
-      Type_Node : Editor.Ada_Syntax_Tree.Node_Id;
-      Name      : String) return Natural is
-      N : constant String := Lower (Name);
-      Count : Natural := 0;
-   begin
-      if Type_Node = Editor.Ada_Syntax_Tree.No_Node or else N = "" then
-         return 0;
-      end if;
 
-      for Index in 1 .. Editor.Ada_Syntax_Tree.Child_Count (Tree, Type_Node) loop
-         declare
-            Child : constant Editor.Ada_Syntax_Tree.Node_Info :=
-              Editor.Ada_Syntax_Tree.Node
-                (Tree, Editor.Ada_Syntax_Tree.Child_At (Tree, Type_Node, Index));
-         begin
-            if Child.Kind = Editor.Ada_Syntax_Tree.Node_Enumeration_Literal_Declaration then
-               Count := Count + 1;
-               if Lower (Child_Label (Tree, Child.Id, Editor.Ada_Syntax_Tree.Node_Declaration_Name)) = N then
-                  return Count;
-               end if;
-            end if;
-         end;
-      end loop;
-      for Pos in 1 .. Enumeration_Definition_Count (Enumeration_Definition_Text (Tree, Type_Node)) loop
-         if Lower (Enumeration_Definition_Name_At
-                     (Enumeration_Definition_Text (Tree, Type_Node), Pos)) = N
-         then
-            return Pos;
-         end if;
-      end loop;
-      return 0;
-   end Enumeration_Literal_Position;
 
-   function Enumeration_Literal_Duplicate
-     (Model         : Representation_Legality_Model;
-      Parent_Clause : Editor.Ada_Syntax_Tree.Node_Id;
-      Normalized_Name : String) return Boolean is
-   begin
-      for Index in 1 .. Natural (Model.Enumeration_Checks.Length) loop
-         declare
-            Prior : constant Enumeration_Representation_Legality_Info :=
-              Model.Enumeration_Checks (Index);
-         begin
-            if Prior.Parent_Clause = Parent_Clause
-              and then To_String (Prior.Normalized_Literal) = Normalized_Name
-            then
-               return True;
-            end if;
-         end;
-      end loop;
-      return False;
-   end Enumeration_Literal_Duplicate;
 
-   function Enumeration_Value_Duplicate
-     (Model         : Representation_Legality_Model;
-      Parent_Clause : Editor.Ada_Syntax_Tree.Node_Id;
-      Static_Value  : Long_Long_Integer) return Boolean is
-   begin
-      for Index in 1 .. Natural (Model.Enumeration_Checks.Length) loop
-         declare
-            Prior : constant Enumeration_Representation_Legality_Info :=
-              Model.Enumeration_Checks (Index);
-         begin
-            if Prior.Parent_Clause = Parent_Clause
-              and then Prior.Value_Status = Representation_Value_Static_Integer
-              and then Prior.Static_Value = Static_Value
-            then
-               return True;
-            end if;
-         end;
-      end loop;
-      return False;
-   end Enumeration_Value_Duplicate;
 
-   procedure Count_Enumeration_Result
-     (Model : in out Representation_Legality_Model;
-      Info  : Enumeration_Representation_Legality_Info) is
-   begin
-      if Info.Status /= Representation_Legality_Ok then
-         Model.Enumeration_Error_Total := Model.Enumeration_Error_Total + 1;
-         if Info.Status = Representation_Legality_Enumeration_Literal_Duplicate then
-            Model.Enumeration_Duplicate_Literal_Total :=
-              Model.Enumeration_Duplicate_Literal_Total + 1;
-         elsif Info.Status = Representation_Legality_Enumeration_Value_Duplicate then
-            Model.Enumeration_Duplicate_Value_Total :=
-              Model.Enumeration_Duplicate_Value_Total + 1;
-         elsif Info.Status = Representation_Legality_Enumeration_Value_Static_Required then
-            Model.Enumeration_Static_Error_Total :=
-              Model.Enumeration_Static_Error_Total + 1;
-         elsif Info.Status = Representation_Legality_Enumeration_Incomplete then
-            Model.Enumeration_Incomplete_Total := Model.Enumeration_Incomplete_Total + 1;
-         end if;
-      end if;
-   end Count_Enumeration_Result;
 
-   procedure Add_Enumeration_Check
-     (Model           : in out Representation_Legality_Model;
-      Tree            : Editor.Ada_Syntax_Tree.Tree_Type;
-      Static          : Editor.Ada_Static_Expressions.Static_Model;
-      Parent_Info     : Representation_Legality_Info;
-      Association     : Editor.Ada_Syntax_Tree.Node_Info;
-      Literal_Name    : String;
-      Value_Text      : String;
-      Expected_Pos    : Natural;
-      Target_Type_Node : Editor.Ada_Syntax_Tree.Node_Id) is
-      Value : constant Editor.Ada_Static_Expressions.Static_Value_Info :=
-        Editor.Ada_Static_Expressions.Evaluate_Numeric_Expression
-          (Static, Editor.Ada_Declarative_Regions.No_Region, Value_Text);
-      Info : Enumeration_Representation_Legality_Info;
-      Literal_Pos : Natural := 0;
-   begin
-      Info.Clause_Node := Association.Id;
-      Info.Parent_Clause := Parent_Info.Clause_Node;
-      Info.Target_Name := Parent_Info.Target_Name;
-      Info.Literal_Name := To_Unbounded_String (Trimmed (Literal_Name));
-      Info.Normalized_Literal := To_Unbounded_String (Lower (Literal_Name));
-      Info.Value_Text := To_Unbounded_String (Trimmed (Value_Text));
-      Info.Value_Status := Value_Status_For (Value);
-      Info.Static_Value := Value.Integer_Value;
-      Info.Expected_Position := Expected_Pos;
-      Info.Source_Line := Association.Source_Span.Start_Line;
-
-      if not Is_Enumeration_Type_Node (Tree, Target_Type_Node) then
-         Info.Status := Representation_Legality_Enumeration_Target_Not_Enumeration;
-      elsif not Enumeration_Literal_Exists (Tree, Target_Type_Node, Literal_Name) then
-         Info.Status := Representation_Legality_Enumeration_Literal_Unresolved;
-      elsif Enumeration_Literal_Duplicate
-              (Model, Parent_Info.Clause_Node, To_String (Info.Normalized_Literal))
-      then
-         Info.Status := Representation_Legality_Enumeration_Literal_Duplicate;
-      elsif Info.Value_Status /= Representation_Value_Static_Integer then
-         Info.Status := Representation_Legality_Enumeration_Value_Static_Required;
-      elsif Enumeration_Value_Duplicate (Model, Parent_Info.Clause_Node, Info.Static_Value) then
-         Info.Status := Representation_Legality_Enumeration_Value_Duplicate;
-      else
-         Literal_Pos := Enumeration_Literal_Position (Tree, Target_Type_Node, Literal_Name);
-         if Literal_Pos > 1 then
-            for Index in 1 .. Natural (Model.Enumeration_Checks.Length) loop
-               declare
-                  Prior : constant Enumeration_Representation_Legality_Info :=
-                    Model.Enumeration_Checks (Index);
-               begin
-                  if Prior.Parent_Clause = Parent_Info.Clause_Node
-                    and then Prior.Value_Status = Representation_Value_Static_Integer
-                    and then Prior.Expected_Position < Literal_Pos
-                    and then Prior.Static_Value >= Info.Static_Value
-                  then
-                     Info.Status := Representation_Legality_Enumeration_Value_Order;
-                     exit;
-                  end if;
-               end;
-            end loop;
-         end if;
-
-         if Info.Status = Representation_Legality_Unknown then
-            Info.Status := Representation_Legality_Ok;
-         end if;
-      end if;
-
-      Info.Fingerprint :=
-        Mix (Natural (Info.Clause_Node),
-             Mix (Natural (Info.Parent_Clause),
-                  Mix (Info.Source_Line,
-                       Mix (Representation_Legality_Status'Pos (Info.Status),
-                            Natural (abs Info.Static_Value mod 2_147_483_647)))));
-      Model.Enumeration_Checks.Append (Info);
-      Model.Result_Fingerprint := Mix (Model.Result_Fingerprint, Info.Fingerprint);
-      Count_Enumeration_Result (Model, Info);
-   end Add_Enumeration_Check;
-
-   procedure Add_Enumeration_Incomplete_Check
-     (Model           : in out Representation_Legality_Model;
-      Parent_Info     : Representation_Legality_Info;
-      Missing_Literal  : String;
-      Source_Line      : Positive) is
-      Info : Enumeration_Representation_Legality_Info;
-   begin
-      Info.Parent_Clause := Parent_Info.Clause_Node;
-      Info.Target_Name := Parent_Info.Target_Name;
-      Info.Literal_Name := To_Unbounded_String (Missing_Literal);
-      Info.Normalized_Literal := To_Unbounded_String (Lower (Missing_Literal));
-      Info.Status := Representation_Legality_Enumeration_Incomplete;
-      Info.Source_Line := Source_Line;
-      Info.Fingerprint :=
-        Mix (Natural (Info.Parent_Clause),
-             Mix (Info.Source_Line,
-                  Representation_Legality_Status'Pos (Info.Status)));
-      Model.Enumeration_Checks.Append (Info);
-      Model.Result_Fingerprint := Mix (Model.Result_Fingerprint, Info.Fingerprint);
-      Count_Enumeration_Result (Model, Info);
-   end Add_Enumeration_Incomplete_Check;
-
-   procedure Add_Enumeration_Representation_Checks
-     (Model    : in out Representation_Legality_Model;
-      Tree     : Editor.Ada_Syntax_Tree.Tree_Type;
-      Types    : Editor.Ada_Type_Graph.Type_Model;
-      Static   : Editor.Ada_Static_Expressions.Static_Model;
-      Clause   : Editor.Ada_Syntax_Tree.Node_Info;
-      Parent_Info : Representation_Legality_Info) is
-      Target_Type_Node : Editor.Ada_Syntax_Tree.Node_Id := Editor.Ada_Syntax_Tree.No_Node;
-      Positional_Index : Positive := 1;
-   begin
-      if Parent_Info.Target_Type /= Editor.Ada_Type_Graph.No_Type then
-         Target_Type_Node := Editor.Ada_Type_Graph.Type_Node (Types, Parent_Info.Target_Type).Node;
-      end if;
-
-      for C in 1 .. Editor.Ada_Syntax_Tree.Child_Count (Tree, Clause.Id) loop
-         declare
-            Child_Id : constant Editor.Ada_Syntax_Tree.Node_Id :=
-              Editor.Ada_Syntax_Tree.Child_At (Tree, Clause.Id, C);
-            Child : constant Editor.Ada_Syntax_Tree.Node_Info :=
-              Editor.Ada_Syntax_Tree.Node (Tree, Child_Id);
-         begin
-            if Child.Kind = Editor.Ada_Syntax_Tree.Node_Named_Association then
-               declare
-                  Selector_Text : constant String :=
-                    Child_Label (Tree, Child.Id, Editor.Ada_Syntax_Tree.Node_Statement_Target);
-                  Action_Text : constant String :=
-                    Child_Label (Tree, Child.Id, Editor.Ada_Syntax_Tree.Node_Statement_Action);
-                  Is_Named : constant Boolean := Action_Text /= "";
-                  Literal_Name : constant String :=
-                    (if Is_Named then Selector_Text
-                     else Enumeration_Literal_Name_At (Tree, Target_Type_Node, Positional_Index));
-                  Value_Text : constant String :=
-                    (if Is_Named then Action_Text else Selector_Text);
-                  Expected_Pos : constant Natural :=
-                    (if Is_Named then Enumeration_Literal_Position (Tree, Target_Type_Node, Selector_Text)
-                     else Natural (Positional_Index));
-               begin
-                  Add_Enumeration_Check
-                    (Model, Tree, Static, Parent_Info, Child, Literal_Name,
-                     Value_Text, Expected_Pos, Target_Type_Node);
-                  if not Is_Named then
-                     Positional_Index := Positional_Index + 1;
-                  end if;
-               end;
-            end if;
-         end;
-      end loop;
-
-      if Is_Enumeration_Type_Node (Tree, Target_Type_Node) then
-         declare
-            Total : constant Natural := Enumeration_Literal_Count (Tree, Target_Type_Node);
-         begin
-            for Pos in 1 .. Total loop
-               declare
-                  Lit : constant String := Enumeration_Literal_Name_At (Tree, Target_Type_Node, Pos);
-               begin
-                  if not Enumeration_Literal_Duplicate
-                           (Model, Parent_Info.Clause_Node, Lower (Lit))
-                  then
-                     Add_Enumeration_Incomplete_Check
-                       (Model, Parent_Info, Lit, Clause.Source_Span.Start_Line);
-                  end if;
-               end;
-            end loop;
-         end;
-      end if;
-   end Add_Enumeration_Representation_Checks;
-
-   function Component_Duplicate
-     (Model         : Representation_Legality_Model;
-      Parent_Clause : Editor.Ada_Syntax_Tree.Node_Id;
-      Normalized_Name : String) return Boolean is
-   begin
-      for Index in 1 .. Natural (Model.Component_Checks.Length) loop
-         declare
-            Prior : constant Record_Component_Legality_Info := Model.Component_Checks (Index);
-         begin
-            if Prior.Parent_Clause = Parent_Clause
-              and then To_String (Prior.Normalized_Component) = Normalized_Name
-            then
-               return True;
-            end if;
-         end;
-      end loop;
-      return False;
-   end Component_Duplicate;
-
-   procedure Count_Component_Result
-     (Model : in out Representation_Legality_Model;
-      Info  : Record_Component_Legality_Info) is
-   begin
-      if Info.Status /= Representation_Legality_Ok then
-         Model.Component_Error_Total := Model.Component_Error_Total + 1;
-         if Info.Status = Representation_Legality_Record_Component_Duplicate then
-            Model.Component_Duplicate_Total := Model.Component_Duplicate_Total + 1;
-         elsif Info.Status in Representation_Legality_Record_Component_Static_Value_Required |
-                              Representation_Legality_Record_Component_Bit_Range_Reversed |
-                              Representation_Legality_Record_Component_Negative_Position
-         then
-            Model.Component_Static_Error_Total := Model.Component_Static_Error_Total + 1;
-         end if;
-      end if;
-   end Count_Component_Result;
-
-   procedure Add_Record_Component_Check
-     (Model    : in out Representation_Legality_Model;
-      Tree     : Editor.Ada_Syntax_Tree.Tree_Type;
-      Types    : Editor.Ada_Type_Graph.Type_Model;
-      Static   : Editor.Ada_Static_Expressions.Static_Model;
-      Node     : Editor.Ada_Syntax_Tree.Node_Info) is
-      Parent_Clause : constant Editor.Ada_Syntax_Tree.Node_Id :=
-        Ancestor_Representation_Clause (Tree, Node.Id);
-      Parent_Info : constant Representation_Legality_Info :=
-        Check_For_Clause (Model, Parent_Clause);
-      Component_Text : constant String :=
-        Child_Label (Tree, Node.Id, Editor.Ada_Syntax_Tree.Node_Representation_Target);
-      Storage_Text : constant String :=
-        Strip_Leading_At (Child_Label (Tree, Node.Id, Editor.Ada_Syntax_Tree.Node_Representation_Item));
-      Range_Text : constant String :=
-        Child_Label (Tree, Node.Id, Editor.Ada_Syntax_Tree.Node_Range_Expression);
-      First_Text : constant String := Range_First (Range_Text);
-      Last_Text  : constant String := Range_Last (Range_Text);
-      Storage_Value : constant Editor.Ada_Static_Expressions.Static_Value_Info :=
-        Editor.Ada_Static_Expressions.Evaluate_Numeric_Expression
-          (Static, Editor.Ada_Declarative_Regions.No_Region, Storage_Text);
-      First_Value : constant Editor.Ada_Static_Expressions.Static_Value_Info :=
-        Editor.Ada_Static_Expressions.Evaluate_Numeric_Expression
-          (Static, Editor.Ada_Declarative_Regions.No_Region, First_Text);
-      Last_Value : constant Editor.Ada_Static_Expressions.Static_Value_Info :=
-        Editor.Ada_Static_Expressions.Evaluate_Numeric_Expression
-          (Static, Editor.Ada_Declarative_Regions.No_Region, Last_Text);
-      Info : Record_Component_Legality_Info;
-      Target_Type_Node : Editor.Ada_Syntax_Tree.Node_Id := Editor.Ada_Syntax_Tree.No_Node;
-   begin
-      Info.Clause_Node := Node.Id;
-      Info.Parent_Clause := Parent_Clause;
-      Info.Target_Name := Parent_Info.Target_Name;
-      Info.Component_Name := To_Unbounded_String (Trimmed (Component_Text));
-      Info.Normalized_Component := To_Unbounded_String (Lower (Component_Text));
-      Info.Storage_Unit_Text := To_Unbounded_String (Storage_Text);
-      Info.First_Bit_Text := To_Unbounded_String (First_Text);
-      Info.Last_Bit_Text := To_Unbounded_String (Last_Text);
-      Info.Storage_Value_Status := Value_Status_For (Storage_Value);
-      Info.First_Bit_Value_Status := Value_Status_For (First_Value);
-      Info.Last_Bit_Value_Status := Value_Status_For (Last_Value);
-      Info.Static_Storage_Unit := Storage_Value.Integer_Value;
-      Info.Static_First_Bit := First_Value.Integer_Value;
-      Info.Static_Last_Bit := Last_Value.Integer_Value;
-      Info.Source_Line := Node.Source_Span.Start_Line;
-
-      if Parent_Info.Target_Type /= Editor.Ada_Type_Graph.No_Type then
-         Target_Type_Node := Editor.Ada_Type_Graph.Type_Node (Types, Parent_Info.Target_Type).Node;
-      end if;
-
-      if Parent_Info.Target_Category /= Editor.Ada_Type_Graph.Type_Category_Record
-        and then Parent_Info.Target_Category /= Editor.Ada_Type_Graph.Type_Category_Private
-        and then Parent_Info.Target_Category /= Editor.Ada_Type_Graph.Type_Category_Unknown
-      then
-         Info.Status := Representation_Legality_Target_Kind_Mismatch;
-      elsif not Has_Record_Component (Tree, Target_Type_Node, Component_Text) then
-         Info.Status := Representation_Legality_Record_Component_Unresolved;
-      elsif Component_Duplicate (Model, Parent_Clause, To_String (Info.Normalized_Component)) then
-         Info.Status := Representation_Legality_Record_Component_Duplicate;
-      elsif Info.Storage_Value_Status /= Representation_Value_Static_Integer
-        or else Info.First_Bit_Value_Status /= Representation_Value_Static_Integer
-        or else Info.Last_Bit_Value_Status /= Representation_Value_Static_Integer
-      then
-         Info.Status := Representation_Legality_Record_Component_Static_Value_Required;
-      elsif Info.Static_Storage_Unit < 0
-        or else Info.Static_First_Bit < 0
-        or else Info.Static_Last_Bit < 0
-      then
-         Info.Status := Representation_Legality_Record_Component_Negative_Position;
-      elsif Info.Static_Last_Bit < Info.Static_First_Bit then
-         Info.Status := Representation_Legality_Record_Component_Bit_Range_Reversed;
-      else
-         Info.Status := Representation_Legality_Ok;
-      end if;
-
-      Info.Fingerprint :=
-        Mix (Natural (Info.Clause_Node),
-             Mix (Natural (Info.Parent_Clause),
-                  Mix (Info.Source_Line,
-                       Mix (Representation_Legality_Status'Pos (Info.Status),
-                            Mix (Natural (abs Info.Static_Storage_Unit mod 2_147_483_647),
-                                 Natural (abs Info.Static_First_Bit mod 2_147_483_647))))));
-
-      Model.Component_Checks.Append (Info);
-      Model.Result_Fingerprint := Mix (Model.Result_Fingerprint, Info.Fingerprint);
-      Count_Component_Result (Model, Info);
-   end Add_Record_Component_Check;
-
-   function Import_Export_Enabled_For_Target
-     (Model  : Representation_Legality_Model;
-      Target : String) return Boolean is
-   begin
-      for Index in 1 .. Natural (Model.Checks.Length) loop
-         declare
-            Info : constant Representation_Legality_Info := Model.Checks (Index);
-         begin
-            if To_String (Info.Normalized_Target) = Target
-              and then Info.Status = Representation_Legality_Ok
-              and then Info.Clause_Kind in Editor.Ada_Language_Model.Representation_Import_Clause |
-                                           Editor.Ada_Language_Model.Representation_Export_Clause
-              and then Info.Interfacing_Status = Interfacing_Value_Static_Boolean_True
-            then
-               return True;
-            end if;
-         end;
-      end loop;
-      return False;
-   end Import_Export_Enabled_For_Target;
-
-   function Has_Opposite_Enabled_Import_Export
-     (Model : Representation_Legality_Model;
-      Info  : Representation_Legality_Info) return Boolean is
-      Target : constant String := To_String (Info.Normalized_Target);
-      Opposite : constant Editor.Ada_Language_Model.Representation_Clause_Kind :=
-        (if Info.Clause_Kind = Editor.Ada_Language_Model.Representation_Import_Clause
-         then Editor.Ada_Language_Model.Representation_Export_Clause
-         else Editor.Ada_Language_Model.Representation_Import_Clause);
-   begin
-      if Info.Clause_Kind not in Editor.Ada_Language_Model.Representation_Import_Clause |
-                                Editor.Ada_Language_Model.Representation_Export_Clause
-        or else Info.Interfacing_Status /= Interfacing_Value_Static_Boolean_True
-      then
-         return False;
-      end if;
-
-      for Index in 1 .. Natural (Model.Checks.Length) loop
-         declare
-            Other : constant Representation_Legality_Info := Model.Checks (Index);
-         begin
-            if Other.Clause_Node /= Info.Clause_Node
-              and then To_String (Other.Normalized_Target) = Target
-              and then Other.Clause_Kind = Opposite
-              and then Other.Status = Representation_Legality_Ok
-              and then Other.Interfacing_Status = Interfacing_Value_Static_Boolean_True
-            then
-               return True;
-            end if;
-         end;
-      end loop;
-      return False;
-   end Has_Opposite_Enabled_Import_Export;
-
-   procedure Finalize_Interfacing_Conflicts
-     (Model : in out Representation_Legality_Model) is
-   begin
-      for Index in 1 .. Natural (Model.Checks.Length) loop
-         declare
-            Info : Representation_Legality_Info := Model.Checks (Index);
-         begin
-            if Info.Status = Representation_Legality_Ok
-              and then Has_Opposite_Enabled_Import_Export (Model, Info)
-            then
-               Info.Status := Representation_Legality_Import_Export_Conflict;
-               Info.Fingerprint := Mix (Info.Fingerprint,
-                 Representation_Legality_Status'Pos (Info.Status));
-               Model.Checks.Replace_Element (Index, Info);
-            elsif Info.Status = Representation_Legality_Ok
-              and then Info.Clause_Kind in Editor.Ada_Language_Model.Representation_External_Name_Clause |
-                                           Editor.Ada_Language_Model.Representation_Link_Name_Clause
-              and then not Import_Export_Enabled_For_Target
-                (Model, To_String (Info.Normalized_Target))
-            then
-               Info.Status := Representation_Legality_Link_Name_Requires_Import_Export;
-               Info.Fingerprint := Mix (Info.Fingerprint,
-                 Representation_Legality_Status'Pos (Info.Status));
-               Model.Checks.Replace_Element (Index, Info);
-            end if;
-         end;
-      end loop;
-   end Finalize_Interfacing_Conflicts;
 
    procedure Recount (Model : in out Representation_Legality_Model) is
    begin
@@ -1956,89 +1020,8 @@ package body Editor.Ada_Representation_Legality is
    end Build;
 
 
-   function Deepest_Region_Containing_Line
-     (Regions : Editor.Ada_Declarative_Regions.Region_Model;
-      Line    : Positive) return Editor.Ada_Declarative_Regions.Region_Id is
-      Result : Editor.Ada_Declarative_Regions.Region_Id :=
-        Editor.Ada_Declarative_Regions.No_Region;
-      Depth  : Natural := 0;
-   begin
-      for Index in 1 .. Editor.Ada_Declarative_Regions.Region_Count (Regions) loop
-         declare
-            R : constant Editor.Ada_Declarative_Regions.Region_Info :=
-              Editor.Ada_Declarative_Regions.Region_At (Regions, Index);
-         begin
-            if R.Start_Line <= Line and then Line <= R.End_Line
-              and then (Result = Editor.Ada_Declarative_Regions.No_Region
-                        or else R.Depth >= Depth)
-            then
-               Result := R.Id;
-               Depth := R.Depth;
-            end if;
-         end;
-      end loop;
-      return Result;
-   end Deepest_Region_Containing_Line;
 
-   function Stream_Profile_Conforms
-     (Kind    : Editor.Ada_Language_Model.Representation_Clause_Kind;
-      Profile : Editor.Ada_Call_Profile_Shapes.Callable_Profile_Info) return Boolean is
-      use type Editor.Ada_Call_Profile_Shapes.Callable_Profile_Status;
-   begin
-      if Profile.Status /= Editor.Ada_Call_Profile_Shapes.Callable_Profile_Found then
-         return False;
-      end if;
 
-      case Kind is
-         when Editor.Ada_Language_Model.Representation_Read_Clause |
-              Editor.Ada_Language_Model.Representation_Write_Clause |
-              Editor.Ada_Language_Model.Representation_Output_Clause |
-              Editor.Ada_Language_Model.Representation_Put_Image_Clause =>
-            return (not Profile.Has_Result) and then Profile.Parameter_Count = 2;
-         when Editor.Ada_Language_Model.Representation_Input_Clause =>
-            return Profile.Has_Result and then Profile.Parameter_Count = 1;
-         when others =>
-            return False;
-      end case;
-   end Stream_Profile_Conforms;
-
-   function Unique_Visible_Declaration
-     (Visibility : Editor.Ada_Direct_Visibility.Visibility_Model;
-      Name       : String) return Editor.Ada_Direct_Visibility.Lookup_Result is
-      use type Editor.Ada_Direct_Visibility.Declaration_Id;
-      Wanted : constant String := Lower (Name);
-      Result : Editor.Ada_Direct_Visibility.Lookup_Result :=
-        (Status => Editor.Ada_Direct_Visibility.Lookup_Not_Found,
-         Declaration => Editor.Ada_Direct_Visibility.No_Declaration,
-         Region => Editor.Ada_Declarative_Regions.No_Region,
-         Match_Count => 0);
-   begin
-      if Wanted = "" then
-         return Result;
-      end if;
-
-      for Index in 1 .. Editor.Ada_Direct_Visibility.Declaration_Count (Visibility) loop
-         declare
-            Decl : constant Editor.Ada_Direct_Visibility.Declaration_Info :=
-              Editor.Ada_Direct_Visibility.Declaration_At (Visibility, Index);
-         begin
-            if To_String (Decl.Normalized) = Wanted then
-               Result.Match_Count := Result.Match_Count + 1;
-               if Result.Declaration = Editor.Ada_Direct_Visibility.No_Declaration then
-                  Result.Declaration := Decl.Id;
-                  Result.Region := Decl.Region;
-               end if;
-            end if;
-         end;
-      end loop;
-
-      if Result.Match_Count = 1 then
-         Result.Status := Editor.Ada_Direct_Visibility.Lookup_Found;
-      elsif Result.Match_Count > 1 then
-         Result.Status := Editor.Ada_Direct_Visibility.Lookup_Ambiguous;
-      end if;
-      return Result;
-   end Unique_Visible_Declaration;
 
    procedure Apply_Stream_Profile_Resolution
      (Model      : in out Representation_Legality_Model;
