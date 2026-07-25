@@ -1891,6 +1891,8 @@ editor-outline_audit.adb
 editor-outline_audit.ads
 editor-outline_extractor.adb
 editor-outline_extractor.ads
+editor-outline_extractor-scan_engine.adb
+editor-outline_extractor-scan_engine.ads
 editor-outline_extractor-detail_parsing.adb
 editor-outline_extractor-detail_parsing.ads
 editor-outline_extractor-line_analysis.adb
