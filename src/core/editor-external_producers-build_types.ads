@@ -1,13 +1,14 @@
 with Ada.Strings.Unbounded;
 with Editor.External_Producers.Diagnostic_Line_Parsing;
+with Editor.External_Producers.Diagnostic_Text_Lines;
 
 package Editor.External_Producers.Build_Types is
 
    package Diagnostic_Text_Line_Vectors renames
-     Editor.External_Producers.Diagnostic_Line_Parsing.Text_Line_Vectors;
+     Editor.External_Producers.Diagnostic_Text_Lines.Vectors;
 
    subtype Diagnostic_Text_Line_Array is
-     Editor.External_Producers.Diagnostic_Line_Parsing.Text_Line_Array;
+     Editor.External_Producers.Diagnostic_Text_Lines.Array_Type;
 
    subtype Diagnostic_Line_Command_Result is
      Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result;

@@ -23,6 +23,7 @@ with Editor.Ada_Tagged_Derived_Legality;
 with Editor.Ada_Tasking_Protected_Legality;
 with Editor.Ada_Wide_Semantic_Legality_Diagnostics;
 with Editor.External_Producers;
+with Editor.External_Producers.Diagnostic_Text_Lines;
 
 package body Test_Ada_Language_Service_Integration is
 
@@ -30,6 +31,7 @@ package body Test_Ada_Language_Service_Integration is
    package LS renames Editor.Ada_Language_Service;
    package PI renames Editor.Ada_Project_Index;
    package EP renames Editor.External_Producers;
+   package DTL renames Editor.External_Producers.Diagnostic_Text_Lines;
    package AL renames Editor.Ada_Assignment_Legality;
    package ET renames Editor.Ada_Expression_Types;
    package SC renames Editor.Ada_Semantic_Colour_Projection;
@@ -750,8 +752,8 @@ package body Test_Ada_Language_Service_Integration is
    is
       pragma Unreferenced (T);
       Service : LS.Service_State;
-      Clean_Lines : EP.Diagnostic_Text_Line_Array;
-      Lines   : EP.Diagnostic_Text_Line_Array;
+      Clean_Lines : DTL.Array_Type;
+      Lines   : DTL.Array_Type;
       Status  : LS.Compiler_Backend_Status;
       Path_Status : LS.Compiler_Backend_Status;
       Other_Path_Status : LS.Compiler_Backend_Status;
@@ -868,7 +870,7 @@ package body Test_Ada_Language_Service_Integration is
               "compiler backend freshness changes with compiler run fingerprint");
 
       declare
-         Absolute_Lines : EP.Diagnostic_Text_Line_Array;
+         Absolute_Lines : DTL.Array_Type;
       begin
          Absolute_Lines.Append
            (To_Unbounded_String
@@ -895,7 +897,7 @@ package body Test_Ada_Language_Service_Integration is
    is
       pragma Unreferenced (T);
       Service : LS.Service_State;
-      Lines   : EP.Diagnostic_Text_Line_Array;
+      Lines   : DTL.Array_Type;
       Status  : LS.Compiler_Backend_Status;
    begin
       for I in 1 .. LS.Max_Compiler_Diagnostics + 3 loop
@@ -931,7 +933,7 @@ package body Test_Ada_Language_Service_Integration is
       Service : LS.Service_State;
       Index   : PI.Index_State;
       Analysis : LM.Analysis_Result;
-      Lines   : EP.Diagnostic_Text_Line_Array;
+      Lines   : DTL.Array_Type;
       Ignored : LM.Symbol_Id;
       Status  : LS.Compiler_Backend_Status;
    begin

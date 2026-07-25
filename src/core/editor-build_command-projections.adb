@@ -106,19 +106,12 @@ package body Editor.Build_Command.Projections is
         Editor.External_Producers.Build_Requests.Diagnostic_Text_Line_Array :=
           Editor.External_Producers.Build_Requests
             .Extract_Diagnostic_Lines_From_Build_Result (Result);
-      Root_Lines : Editor.External_Producers.Diagnostic_Text_Line_Array;
    begin
-      if not Lines.Is_Empty then
-         for Index in Lines.First_Index .. Lines.Last_Index loop
-            Root_Lines.Append (Lines.Element (Index));
-         end loop;
-      end if;
-
       State.Language_Service :=
         Editor.Ada_Language_Service.From_Index (State.Language_Index);
       Editor.Ada_Language_Service.Put_Compiler_Diagnostic_Lines
         (State.Language_Service,
-         Root_Lines,
+         Lines,
          Tool_Name       => Compiler_Tool_Name (Request.Tool),
          Run_Fingerprint => Build_Run_Fingerprint (Result));
    end Feed_Language_Service_Compiler_Backend;

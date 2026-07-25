@@ -11,6 +11,7 @@ with Editor.Dirty_Guards;
 with Editor.Test_Helper;
 with Editor.Ada_Language_Service;
 with Editor.External_Producers;
+with Editor.External_Producers.Diagnostic_Text_Lines;
 with Text_Buffer;
 
 package body Editor.State.Tests is
@@ -87,7 +88,7 @@ package body Editor.State.Tests is
          others     => <>);
       Summary : constant Editor.Dirty_Guards.Dirty_Buffer_Summary :=
         (Dirty_Count => 1, Untitled_Count => 0, File_Backed_Count => 1);
-      Lines : Editor.External_Producers.Diagnostic_Text_Line_Array;
+      Lines : Editor.External_Producers.Diagnostic_Text_Lines.Array_Type;
    begin
       if Ada.Directories.Exists (Config_Dir) then
          Ada.Directories.Delete_Tree (Config_Dir);

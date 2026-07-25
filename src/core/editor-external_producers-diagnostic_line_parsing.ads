@@ -1,5 +1,5 @@
-with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
+with Editor.External_Producers.Diagnostic_Text_Lines;
 with Editor.External_Producers.Diagnostics;
 with Editor.State;
 
@@ -38,11 +38,11 @@ package Editor.External_Producers.Diagnostic_Line_Parsing is
       Diagnostic_Record : Editor.External_Producers.Diagnostics.Compiler_Record;
    end record;
 
-   package Text_Line_Vectors is new Ada.Containers.Vectors
-     (Index_Type   => Natural,
-      Element_Type => Ada.Strings.Unbounded.Unbounded_String);
+   package Text_Line_Vectors renames
+     Editor.External_Producers.Diagnostic_Text_Lines.Vectors;
 
-   subtype Text_Line_Array is Text_Line_Vectors.Vector;
+   subtype Text_Line_Array is
+     Editor.External_Producers.Diagnostic_Text_Lines.Array_Type;
 
    type Batch_Parse_Result is record
       Input_Count                  : Natural := 0;
@@ -128,14 +128,6 @@ package Editor.External_Producers.Diagnostic_Line_Parsing is
      (Result : Ingestion_Result) return String;
 
    function Empty_Diagnostic_Line_Command_Result return Command_Result;
-
-   function To_Root_Ingestion_Result
-     (Result : Ingestion_Result)
-      return Editor.External_Producers.Diagnostic_Line_Ingestion_Result;
-
-   function To_Root_Command_Result
-     (Result : Command_Result)
-      return Editor.External_Producers.Diagnostic_Line_Command_Result;
 
    function Ingest_Diagnostic_Lines_From_Command
      (S                : in out Editor.State.State_Type;

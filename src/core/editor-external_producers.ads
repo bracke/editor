@@ -84,12 +84,6 @@ package Editor.External_Producers is
       Compiler_Fatal,
       Compiler_Unknown);
 
-   package Diagnostic_Text_Line_Vectors is new Ada.Containers.Vectors
-     (Index_Type   => Natural,
-      Element_Type => Ada.Strings.Unbounded.Unbounded_String);
-
-   subtype Diagnostic_Text_Line_Array is Diagnostic_Text_Line_Vectors.Vector;
-
    type Buffer_Target_Resolution is record
       Found  : Boolean := False;
       Buffer : Natural := Editor.Feature_Diagnostics.No_Buffer;
@@ -111,37 +105,6 @@ package Editor.External_Producers is
       Evicted_Count       : Natural := 0;
       Projection_Changed  : Boolean := False;
    end record;
-
-   type Diagnostic_Line_Ingestion_Result is record
-      Parse_Input_Count                 : Natural := 0;
-      Parse_Accepted_Count              : Natural := 0;
-      Parse_Ignored_Blank_Count         : Natural := 0;
-      Parse_Ignored_Unrecognized_Count  : Natural := 0;
-      Parse_Rejected_Malformed_Count    : Natural := 0;
-      Normalized_Count                  : Natural := 0;
-      Parsed_Error_Count                : Natural := 0;
-      Parsed_Warning_Count              : Natural := 0;
-      Parsed_Info_Count                 : Natural := 0;
-      Parsed_Note_Count                 : Natural := 0;
-      Parsed_Unknown_Count              : Natural := 0;
-      Ingestion_Result                  : Producer_Batch_Result;
-   end record;
-
-   type Diagnostic_Line_Command_Outcome is
-     (Diagnostic_Line_Command_Succeeded,
-      Diagnostic_Line_Command_No_Input,
-      Diagnostic_Line_Command_No_Diagnostics,
-      Diagnostic_Line_Command_Malformed_Only);
-
-   type Diagnostic_Line_Command_Result is record
-      Ingestion       : Diagnostic_Line_Ingestion_Result;
-      Command_Message : Ada.Strings.Unbounded.Unbounded_String :=
-        Ada.Strings.Unbounded.Null_Unbounded_String;
-      Should_Show_Diagnostics : Boolean := False;
-      Outcome         : Diagnostic_Line_Command_Outcome :=
-        Diagnostic_Line_Command_No_Input;
-   end record;
-
 
    --  structured argument vector shared by build requests and
    --  process requests. Arguments are always caller-supplied tokens; they are

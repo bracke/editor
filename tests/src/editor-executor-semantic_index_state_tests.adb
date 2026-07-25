@@ -19,6 +19,7 @@ with Editor.Executor.File_Tree_Commands;
 with Editor.Executor.Project_File_Index_Commands;
 with Editor.Executor.Project_Lifecycle_Commands;
 with Editor.Executor.Test_Support; use Editor.Executor.Test_Support;
+with Editor.External_Producers.Diagnostic_Text_Lines;
 with Editor.Feature_Diagnostics;
 with Editor.Feature_Panel;
 with Editor.Feature_Panel_Controller;
@@ -550,7 +551,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       S      : Editor.State.State_Type;
       Result : Editor.Executor.Command_Execution_Result;
       Msg    : Unbounded_String;
-      Lines  : Editor.External_Producers.Diagnostic_Text_Line_Array;
+      Lines  : Editor.External_Producers.Diagnostic_Text_Lines.Array_Type;
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Remove_Tree_If_Exists (Root);

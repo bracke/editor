@@ -7,6 +7,7 @@ with Editor.Ada_Diagnostic_Quick_Fix_Skeleton;
 with Editor.Ada_Diagnostic_Status_Line;
 with Editor.Ada_Semantic_Diagnostic_Index;
 with Editor.External_Producers.Diagnostic_Line_Parsing;
+with Editor.External_Producers.Diagnostic_Text_Lines;
 with Editor.External_Producers.Diagnostics;
 with Editor.Syntax;
 
@@ -1144,7 +1145,7 @@ package body Editor.Ada_Language_Service is
 
    procedure Put_Compiler_Diagnostic_Lines
      (Service         : in out Service_State;
-      Lines           : Editor.External_Producers.Diagnostic_Text_Line_Array;
+      Lines           : Editor.External_Producers.Diagnostic_Text_Lines.Array_Type;
       Tool_Name       : String := "gnat";
       Run_Fingerprint : Natural := 0)
    is

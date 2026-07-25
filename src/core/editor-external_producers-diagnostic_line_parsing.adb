@@ -55,64 +55,6 @@ package body Editor.External_Producers.Diagnostic_Line_Parsing is
    function Empty_Diagnostic_Line_Command_Result return Command_Result
      renames Editor.External_Producers.Diagnostic_Line_Pipeline.Empty_Diagnostic_Line_Command_Result;
 
-   function To_Root_Ingestion_Result
-     (Result : Ingestion_Result)
-      return Editor.External_Producers.Diagnostic_Line_Ingestion_Result
-   is
-   begin
-      return
-        (Parse_Input_Count =>
-           Result.Parse_Input_Count,
-         Parse_Accepted_Count =>
-           Result.Parse_Accepted_Count,
-         Parse_Ignored_Blank_Count =>
-           Result.Parse_Ignored_Blank_Count,
-         Parse_Ignored_Unrecognized_Count =>
-           Result.Parse_Ignored_Unrecognized_Count,
-         Parse_Rejected_Malformed_Count =>
-           Result.Parse_Rejected_Malformed_Count,
-         Normalized_Count =>
-           Result.Normalized_Count,
-         Parsed_Error_Count =>
-           Result.Parsed_Error_Count,
-         Parsed_Warning_Count =>
-           Result.Parsed_Warning_Count,
-         Parsed_Info_Count =>
-           Result.Parsed_Info_Count,
-         Parsed_Note_Count =>
-           Result.Parsed_Note_Count,
-         Parsed_Unknown_Count =>
-           Result.Parsed_Unknown_Count,
-         Ingestion_Result =>
-           (Accepted_Count =>
-              Result.Ingestion_Result.Accepted_Count,
-            Accepted_Untargeted =>
-              Result.Ingestion_Result.Accepted_Untargeted,
-            Rejected_Count =>
-              Result.Ingestion_Result.Rejected_Count,
-            Evicted_Count =>
-              Result.Ingestion_Result.Evicted_Count,
-            Projection_Changed =>
-              Result.Ingestion_Result.Projection_Changed));
-   end To_Root_Ingestion_Result;
-
-   function To_Root_Command_Result
-     (Result : Command_Result)
-      return Editor.External_Producers.Diagnostic_Line_Command_Result
-   is
-   begin
-      return
-        (Ingestion =>
-           To_Root_Ingestion_Result (Result.Ingestion),
-         Command_Message =>
-           Result.Command_Message,
-         Should_Show_Diagnostics =>
-           Result.Should_Show_Diagnostics,
-         Outcome =>
-           Editor.External_Producers.Diagnostic_Line_Command_Outcome'Val
-             (Command_Outcome'Pos (Result.Outcome)));
-   end To_Root_Command_Result;
-
    function Ingest_Diagnostic_Lines_From_Command
      (S                : in out Editor.State.State_Type;
       Producer         : Producer_Source;
