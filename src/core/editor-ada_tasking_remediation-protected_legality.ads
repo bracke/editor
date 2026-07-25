@@ -3,7 +3,7 @@ with Ada.Strings.Unbounded;
 with Editor.Ada_Control_Flow_Legality;
 with Editor.Ada_Syntax_Tree;
 
-package Editor.Ada_Tasking_Protected_Legality is
+package Editor.Ada_Tasking_Remediation.Protected_Legality is
 
    --  Wide compiler-grade semantic legality building block for Case 1103.
    --  This package covers Ada tasking/protected declaration and body
@@ -244,4 +244,4 @@ private
       Fingerprint : Natural := 0;
    end record;
 
-end Editor.Ada_Tasking_Protected_Legality;
+end Editor.Ada_Tasking_Remediation.Protected_Legality;

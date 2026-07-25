@@ -5,7 +5,7 @@ with AUnit;
 with Editor.Ada_Representation_Freezing_Exact_Propagation_Legality;
 with Editor.Ada_Representation_Tasking_Contract_Predicate_Dataflow_Consumer_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Contract_Predicate_Dataflow_Consumer_Legality;
+with Editor.Ada_Tasking_Remediation.Contract_Predicate_Dataflow_Consumer;
 
 package body Test_Ada_Representation_Tasking_Contract_Predicate_Dataflow_Consumer_Legality is
 
@@ -27,7 +27,7 @@ package body Test_Ada_Representation_Tasking_Contract_Predicate_Dataflow_Consume
    use type Rep_Task_CPD.Representation_Tasking_CPD_Context_Model;
    use type Rep_Task_CPD.Representation_Tasking_CPD_Set;
    use type Rep_Task_CPD.Representation_Tasking_CPD_Model;
-   package Task_CPD renames Editor.Ada_Tasking_Contract_Predicate_Dataflow_Consumer_Legality;
+   package Task_CPD renames Editor.Ada_Tasking_Remediation.Contract_Predicate_Dataflow_Consumer;
    use type Task_CPD.Tasking_Contract_Predicate_Row_Id;
    use type Task_CPD.Tasking_Contract_Predicate_Context_Kind;
    use type Task_CPD.Tasking_Contract_Predicate_Status;

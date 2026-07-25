@@ -14,7 +14,7 @@ with Editor.Ada_Overload_Generic_Shared_State_RM_Edge_Completion_Legality;
 with Editor.Ada_Representation_Generic_Shared_State_RM_Hard_Case_Completion_Legality;
 with Editor.Ada_Semantic_Coverage_Gates;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Generic_Shared_State_RM_Hard_Case_Completion_Legality;
+with Editor.Ada_Tasking_Remediation.Generic_Shared_State_RM_Completion;
 
 package Editor.Ada_Coverage_Proven_RM_Completion_AST_Repair_Legality is
 
@@ -34,7 +34,7 @@ package Editor.Ada_Coverage_Proven_RM_Completion_AST_Repair_Legality is
    package Closure renames Editor.Ada_Generic_Shared_State_Remediation.Final_Closure;
    package Overload_Edges renames Editor.Ada_Overload_Generic_Shared_State_RM_Edge_Completion_Legality;
    package Representation_Hard_Cases renames Editor.Ada_Representation_Generic_Shared_State_RM_Hard_Case_Completion_Legality;
-   package Tasking_Hard_Cases renames Editor.Ada_Tasking_Generic_Shared_State_RM_Hard_Case_Completion_Legality;
+   package Tasking_Hard_Cases renames Editor.Ada_Tasking_Remediation.Generic_Shared_State_RM_Completion;
 
    package Cross_RM renames Editor.Ada_Cross_Unit_Generic_Shared_State_RM_Completion_Closure_Legality;
    package Elaboration_RM renames Editor.Ada_Elaboration_Generic_Shared_State_RM_Completion_Legality;

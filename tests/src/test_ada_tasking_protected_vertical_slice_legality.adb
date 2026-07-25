@@ -2,11 +2,11 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Protected_Vertical_Slice_Legality;
+with Editor.Ada_Tasking_Remediation.Protected_Vertical_Slice;
 
 package body Test_Ada_Tasking_Protected_Vertical_Slice_Legality is
 
-   package TP renames Editor.Ada_Tasking_Protected_Vertical_Slice_Legality;
+   package TP renames Editor.Ada_Tasking_Remediation.Protected_Vertical_Slice;
    use type TP.Entity_Id;
    use type TP.Operation_Id;
    use type TP.Event_Id;

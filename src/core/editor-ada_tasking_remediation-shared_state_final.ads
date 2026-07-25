@@ -4,10 +4,10 @@ with Editor.Ada_Abstract_State_Refined_State_Legality;
 with Editor.Ada_Overload_Shared_State_RM_Edge_Legality;
 with Editor.Ada_Representation_Shared_State_Final_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Protected_Deep_Edge_Legality;
+with Editor.Ada_Tasking_Remediation.Protected_Deep_Edge;
 with Editor.Ada_Volatile_Atomic_Shared_State_Legality;
 
-package Editor.Ada_Tasking_Shared_State_Final_Legality is
+package Editor.Ada_Tasking_Remediation.Shared_State_Final is
 
    --  Case 1215 tasking/shared-state final legality.
    --
@@ -24,7 +24,7 @@ package Editor.Ada_Tasking_Shared_State_Final_Legality is
    package Overload_State renames Editor.Ada_Overload_Shared_State_RM_Edge_Legality;
    package Rep_State renames Editor.Ada_Representation_Shared_State_Final_Legality;
    package Shared_State renames Editor.Ada_Volatile_Atomic_Shared_State_Legality;
-   package Tasking_Deep renames Editor.Ada_Tasking_Protected_Deep_Edge_Legality;
+   package Tasking_Deep renames Editor.Ada_Tasking_Remediation.Protected_Deep_Edge;
 
    type Tasking_Shared_State_Row_Id is new Natural;
    No_Tasking_Shared_State_Row : constant Tasking_Shared_State_Row_Id := 0;
@@ -209,4 +209,4 @@ private
       Rows : Row_Vectors.Vector;
    end record;
 
-end Editor.Ada_Tasking_Shared_State_Final_Legality;
+end Editor.Ada_Tasking_Remediation.Shared_State_Final;

@@ -64,7 +64,7 @@ with Editor.Ada_Static_Expressions;
 with Editor.Ada_Stream_Attribute_Profile_Conformance;
 with Editor.Ada_Syntax_Tree;
 with Editor.Ada_Tagged_Derived_Legality;
-with Editor.Ada_Tasking_Protected_Legality;
+with Editor.Ada_Tasking_Remediation.Protected_Legality;
 with Editor.Ada_Type_Graph;
 with Editor.Ada_Use_Type_Operators;
 with Editor.Ada_Use_Visibility;
@@ -317,12 +317,12 @@ package body Editor.Ada_Live_Semantic_Diagnostics is
         Editor.Ada_Control_Flow_Legality.Build
           (Flow_Contexts, Return_Legality);
       Tasking_Contexts : constant
-        Editor.Ada_Tasking_Protected_Legality.Tasking_Context_Model :=
-        Editor.Ada_Tasking_Protected_Legality.Build_Contexts_From_Syntax
+        Editor.Ada_Tasking_Remediation.Protected_Legality.Tasking_Context_Model :=
+        Editor.Ada_Tasking_Remediation.Protected_Legality.Build_Contexts_From_Syntax
           (Tree, Flow_Legality);
       Tasking_Legality : constant
-        Editor.Ada_Tasking_Protected_Legality.Tasking_Legality_Model :=
-        Editor.Ada_Tasking_Protected_Legality.Build
+        Editor.Ada_Tasking_Remediation.Protected_Legality.Tasking_Legality_Model :=
+        Editor.Ada_Tasking_Remediation.Protected_Legality.Build
           (Tasking_Contexts, Flow_Legality);
       Conversion_Contexts : constant
         Editor.Ada_Conversion_Access_Aggregate_Legality.Semantic_Context_Model :=

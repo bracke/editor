@@ -1,7 +1,7 @@
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
-package body Editor.Ada_Tasking_Protected_Deep_Edge_Legality is
+package body Editor.Ada_Tasking_Remediation.Protected_Deep_Edge is
 
    pragma Suppress (Overflow_Check);
 
@@ -496,4 +496,4 @@ package body Editor.Ada_Tasking_Protected_Deep_Edge_Legality is
       return not Is_Legal (Info.Status);
    end Has_Error;
 
-end Editor.Ada_Tasking_Protected_Deep_Edge_Legality;
+end Editor.Ada_Tasking_Remediation.Protected_Deep_Edge;

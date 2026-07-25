@@ -15,7 +15,7 @@ with Editor.Ada_Refined_Global_Depends_Conformance_Legality;
 with Editor.Ada_Renaming_Alias_Visibility_Legality;
 with Editor.Ada_Representation_Tasking_Contract_Predicate_Dataflow_Consumer_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Protected_Final_Effects_Legality;
+with Editor.Ada_Tasking_Remediation.Protected_Final_Effects;
 with Editor.Ada_Unit_Completion_Order_Legality;
 
 package body Test_Ada_Cross_Unit_Final_Semantic_Closure_Legality is
@@ -171,7 +171,7 @@ package body Test_Ada_Cross_Unit_Final_Semantic_Closure_Legality is
    use type Rep.Representation_Tasking_CPD_Context_Model;
    use type Rep.Representation_Tasking_CPD_Set;
    use type Rep.Representation_Tasking_CPD_Model;
-   package Tasking renames Editor.Ada_Tasking_Protected_Final_Effects_Legality;
+   package Tasking renames Editor.Ada_Tasking_Remediation.Protected_Final_Effects;
    use type Tasking.Final_Tasking_Row_Id;
    use type Tasking.Final_Tasking_Context_Kind;
    use type Tasking.Final_Tasking_Status;

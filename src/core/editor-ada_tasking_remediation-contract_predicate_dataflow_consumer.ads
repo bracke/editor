@@ -9,9 +9,9 @@ with Editor.Ada_Predicate_Dataflow_Initialization_Consumer_Legality;
 with Editor.Ada_Repaired_Coverage_Semantic_Feedback;
 with Editor.Ada_Elaboration_Contract_Predicate_Dataflow_Consumer_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Protected_Effects_Legality;
+with Editor.Ada_Tasking_Remediation.Protected_Effects;
 
-package Editor.Ada_Tasking_Contract_Predicate_Dataflow_Consumer_Legality is
+package Editor.Ada_Tasking_Remediation.Contract_Predicate_Dataflow_Consumer is
 
    --  Case 1169 compiler-grade tasking/protected elaboration contract predicate/dataflow
    --  consumer legality.
@@ -29,7 +29,7 @@ package Editor.Ada_Tasking_Contract_Predicate_Dataflow_Consumer_Legality is
    --  contract predicate/dataflow evidence is missing, blocked by predicate/dataflow/object-state errors,
    --  blocked by repaired coverage feedback, or indeterminate.
 
-   package Task_Effects renames Editor.Ada_Tasking_Protected_Effects_Legality;
+   package Task_Effects renames Editor.Ada_Tasking_Remediation.Protected_Effects;
    package Elab_Predicate renames Editor.Ada_Elaboration_Contract_Predicate_Dataflow_Consumer_Legality;
    package Contract_Predicate renames Editor.Ada_Contract_Predicate_Dataflow_Consumer_Legality;
    package Dataflow_Init renames Editor.Ada_Dataflow_Definite_Initialization_Consumer_Legality;
@@ -247,4 +247,4 @@ private
       Result_Fingerprint : Natural := 0;
    end record;
 
-end Editor.Ada_Tasking_Contract_Predicate_Dataflow_Consumer_Legality;
+end Editor.Ada_Tasking_Remediation.Contract_Predicate_Dataflow_Consumer;

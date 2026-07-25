@@ -8,7 +8,7 @@ with Editor.Ada_Generic_Replay_Nested_Cycle_Closure_Legality;
 with Editor.Ada_Representation_Operational_AST_Repair_Legality;
 with Editor.Ada_Representation_Tasking_Contract_Predicate_Dataflow_Consumer_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Protected_Final_Effects_Legality;
+with Editor.Ada_Tasking_Remediation.Protected_Final_Effects;
 
 package Editor.Ada_Representation_Freezing_Final_Hard_Cases_Legality is
 
@@ -28,7 +28,7 @@ package Editor.Ada_Representation_Freezing_Final_Hard_Cases_Legality is
    package Generic_Cycles renames Editor.Ada_Generic_Replay_Nested_Cycle_Closure_Legality;
    package Rep_AST renames Editor.Ada_Representation_Operational_AST_Repair_Legality;
    package Rep_CPD renames Editor.Ada_Representation_Tasking_Contract_Predicate_Dataflow_Consumer_Legality;
-   package Task_Final renames Editor.Ada_Tasking_Protected_Final_Effects_Legality;
+   package Task_Final renames Editor.Ada_Tasking_Remediation.Protected_Final_Effects;
 
    type Final_Representation_Row_Id is new Natural;
    No_Final_Representation_Row : constant Final_Representation_Row_Id := 0;

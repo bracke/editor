@@ -187,7 +187,7 @@ package body Test_Ada_RM_Coverage_Gap_Remediation_Audit is
                 Package_Name => "Editor.Ada_Access_Type_Access_Subprogram_Vertical_Slice_Legality");
       Add_Item (Input, 12, Matrix.Family_Tasking_Protected_Synchronized,
                 Matrix.Slice_Tasking_Protected,
-                Package_Name => "Editor.Ada_Tasking_Protected_Vertical_Slice_Legality");
+                Package_Name => "Editor.Ada_Tasking_Remediation.Protected_Vertical_Slice");
       Add_Item (Input, 13, Matrix.Family_Exceptions_Finalization,
                 Matrix.Slice_Exception_Finalization,
                 Package_Name => "Editor.Ada_Exception_Finalization_Vertical_Slice_Legality");

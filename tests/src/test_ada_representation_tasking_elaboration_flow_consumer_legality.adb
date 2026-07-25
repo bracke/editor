@@ -5,7 +5,7 @@ with AUnit;
 with Editor.Ada_Representation_Freezing_Exact_Propagation_Legality;
 with Editor.Ada_Representation_Tasking_Elaboration_Flow_Consumer_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Elaboration_Contract_Flow_Consumer_Legality;
+with Editor.Ada_Tasking_Remediation.Elaboration_Contract_Flow_Consumer;
 
 package body Test_Ada_Representation_Tasking_Elaboration_Flow_Consumer_Legality is
 
@@ -27,7 +27,7 @@ package body Test_Ada_Representation_Tasking_Elaboration_Flow_Consumer_Legality 
    use type Rep_Task.Representation_Tasking_Context_Model;
    use type Rep_Task.Representation_Tasking_Set;
    use type Rep_Task.Representation_Tasking_Model;
-   package Task_Flow renames Editor.Ada_Tasking_Elaboration_Contract_Flow_Consumer_Legality;
+   package Task_Flow renames Editor.Ada_Tasking_Remediation.Elaboration_Contract_Flow_Consumer;
    use type Task_Flow.Tasking_Elab_Contract_Row_Id;
    use type Task_Flow.Tasking_Elab_Contract_Context_Kind;
    use type Task_Flow.Tasking_Elab_Contract_Status;

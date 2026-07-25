@@ -1,10 +1,10 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
 with Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Closure;
-with Editor.Ada_Tasking_Generic_Shared_State_RM_Hard_Case_Completion_Legality;
+with Editor.Ada_Tasking_Remediation.Generic_Shared_State_RM_Completion;
 with Editor.Ada_Syntax_Tree;
 
-package Editor.Ada_Tasking_RM_Completion_Closure_Consumer_Legality is
+package Editor.Ada_Tasking_Remediation.RM_Completion_Closure_Consumer is
 
    --  Case 1266 tasking/protected RM-completion closure consumer legality.
    --
@@ -18,7 +18,7 @@ package Editor.Ada_Tasking_RM_Completion_Closure_Consumer_Legality is
    --  renaming/aliasing, predicates/invariants, multiple prerequisites, and
    --  indeterminate closure state.
 
-   package Prior renames Editor.Ada_Tasking_Generic_Shared_State_RM_Hard_Case_Completion_Legality;
+   package Prior renames Editor.Ada_Tasking_Remediation.Generic_Shared_State_RM_Completion;
    package Closure renames Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Closure;
 
    type Tasking_RM_Closure_Consumer_Id is new Natural;
@@ -191,4 +191,4 @@ private
       Rows : Row_Vectors.Vector;
    end record;
 
-end Editor.Ada_Tasking_RM_Completion_Closure_Consumer_Legality;
+end Editor.Ada_Tasking_Remediation.RM_Completion_Closure_Consumer;

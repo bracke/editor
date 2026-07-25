@@ -2,7 +2,7 @@ with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
 with Editor.Ada_Representation_Freezing_Exact_Propagation_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Elaboration_Contract_Flow_Consumer_Legality;
+with Editor.Ada_Tasking_Remediation.Elaboration_Contract_Flow_Consumer;
 
 package Editor.Ada_Representation_Tasking_Elaboration_Flow_Consumer_Legality is
 
@@ -17,7 +17,7 @@ package Editor.Ada_Representation_Tasking_Elaboration_Flow_Consumer_Legality is
    --  elaboration contract-flow facts are missing, blocked, or indeterminate.
 
    package Freezing renames Editor.Ada_Representation_Freezing_Exact_Propagation_Legality;
-   package Tasking_Flow renames Editor.Ada_Tasking_Elaboration_Contract_Flow_Consumer_Legality;
+   package Tasking_Flow renames Editor.Ada_Tasking_Remediation.Elaboration_Contract_Flow_Consumer;
 
    type Representation_Tasking_Row_Id is new Natural;
    No_Representation_Tasking_Row : constant Representation_Tasking_Row_Id := 0;

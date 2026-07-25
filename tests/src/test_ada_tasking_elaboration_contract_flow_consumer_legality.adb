@@ -4,8 +4,8 @@ with AUnit.Test_Cases;
 with AUnit;
 with Editor.Ada_Elaboration_Contract_Flow_Consumer_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Elaboration_Contract_Flow_Consumer_Legality;
-with Editor.Ada_Tasking_Protected_Effects_Legality;
+with Editor.Ada_Tasking_Remediation.Elaboration_Contract_Flow_Consumer;
+with Editor.Ada_Tasking_Remediation.Protected_Effects;
 
 package body Test_Ada_Tasking_Elaboration_Contract_Flow_Consumer_Legality is
 
@@ -18,7 +18,7 @@ package body Test_Ada_Tasking_Elaboration_Contract_Flow_Consumer_Legality is
    use type Elab_Contract.Elaboration_Contract_Flow_Context_Model;
    use type Elab_Contract.Elaboration_Contract_Flow_Set;
    use type Elab_Contract.Elaboration_Contract_Flow_Model;
-   package Task_Elab renames Editor.Ada_Tasking_Elaboration_Contract_Flow_Consumer_Legality;
+   package Task_Elab renames Editor.Ada_Tasking_Remediation.Elaboration_Contract_Flow_Consumer;
    use type Task_Elab.Tasking_Elab_Contract_Row_Id;
    use type Task_Elab.Tasking_Elab_Contract_Context_Kind;
    use type Task_Elab.Tasking_Elab_Contract_Status;
@@ -27,7 +27,7 @@ package body Test_Ada_Tasking_Elaboration_Contract_Flow_Consumer_Legality is
    use type Task_Elab.Tasking_Elab_Contract_Context_Model;
    use type Task_Elab.Tasking_Elab_Contract_Set;
    use type Task_Elab.Tasking_Elab_Contract_Model;
-   package Task_Effects renames Editor.Ada_Tasking_Protected_Effects_Legality;
+   package Task_Effects renames Editor.Ada_Tasking_Remediation.Protected_Effects;
    use type Task_Effects.Tasking_Effect_Id;
    use type Task_Effects.Tasking_Effect_Context_Kind;
    use type Task_Effects.Tasking_Effect_Status;

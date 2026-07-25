@@ -1,6 +1,6 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
-package body Editor.Ada_Tasking_Protected_Precision_Legality is
+package body Editor.Ada_Tasking_Remediation.Protected_Precision is
 
    pragma Suppress (Overflow_Check);
    use type Editor.Ada_Dataflow_Global_Depends_Legality.Dataflow_Legality_Status;
@@ -35,7 +35,7 @@ package body Editor.Ada_Tasking_Protected_Precision_Legality is
 
    function Base_Kind_Slot (Kind : Tasking_Context_Kind) return Natural is
    begin
-      return Editor.Ada_Tasking_Protected_Legality.Tasking_Context_Kind'Pos (Kind) + 1;
+      return Editor.Ada_Tasking_Remediation.Protected_Legality.Tasking_Context_Kind'Pos (Kind) + 1;
    end Base_Kind_Slot;
 
    function Is_Legal_Status (Status : Tasking_Precision_Status) return Boolean is
@@ -120,20 +120,20 @@ package body Editor.Ada_Tasking_Protected_Precision_Legality is
    function Base_Tasking_Error (Status : Tasking_Legality_Status) return Boolean is
    begin
       return Status not in
-        Editor.Ada_Tasking_Protected_Legality.Tasking_Legality_Not_Checked |
-        Editor.Ada_Tasking_Protected_Legality.Tasking_Legality_Legal_Task_Type |
-        Editor.Ada_Tasking_Protected_Legality.Tasking_Legality_Legal_Task_Body |
-        Editor.Ada_Tasking_Protected_Legality.Tasking_Legality_Legal_Protected_Type |
-        Editor.Ada_Tasking_Protected_Legality.Tasking_Legality_Legal_Protected_Body |
-        Editor.Ada_Tasking_Protected_Legality.Tasking_Legality_Legal_Entry_Declaration |
-        Editor.Ada_Tasking_Protected_Legality.Tasking_Legality_Legal_Entry_Body |
-        Editor.Ada_Tasking_Protected_Legality.Tasking_Legality_Legal_Entry_Family |
-        Editor.Ada_Tasking_Protected_Legality.Tasking_Legality_Legal_Accept |
-        Editor.Ada_Tasking_Protected_Legality.Tasking_Legality_Legal_Requeue |
-        Editor.Ada_Tasking_Protected_Legality.Tasking_Legality_Legal_Protected_Function |
-        Editor.Ada_Tasking_Protected_Legality.Tasking_Legality_Legal_Protected_Procedure |
-        Editor.Ada_Tasking_Protected_Legality.Tasking_Legality_Legal_Protected_Entry |
-        Editor.Ada_Tasking_Protected_Legality.Tasking_Legality_Legal_Select;
+        Editor.Ada_Tasking_Remediation.Protected_Legality.Tasking_Legality_Not_Checked |
+        Editor.Ada_Tasking_Remediation.Protected_Legality.Tasking_Legality_Legal_Task_Type |
+        Editor.Ada_Tasking_Remediation.Protected_Legality.Tasking_Legality_Legal_Task_Body |
+        Editor.Ada_Tasking_Remediation.Protected_Legality.Tasking_Legality_Legal_Protected_Type |
+        Editor.Ada_Tasking_Remediation.Protected_Legality.Tasking_Legality_Legal_Protected_Body |
+        Editor.Ada_Tasking_Remediation.Protected_Legality.Tasking_Legality_Legal_Entry_Declaration |
+        Editor.Ada_Tasking_Remediation.Protected_Legality.Tasking_Legality_Legal_Entry_Body |
+        Editor.Ada_Tasking_Remediation.Protected_Legality.Tasking_Legality_Legal_Entry_Family |
+        Editor.Ada_Tasking_Remediation.Protected_Legality.Tasking_Legality_Legal_Accept |
+        Editor.Ada_Tasking_Remediation.Protected_Legality.Tasking_Legality_Legal_Requeue |
+        Editor.Ada_Tasking_Remediation.Protected_Legality.Tasking_Legality_Legal_Protected_Function |
+        Editor.Ada_Tasking_Remediation.Protected_Legality.Tasking_Legality_Legal_Protected_Procedure |
+        Editor.Ada_Tasking_Remediation.Protected_Legality.Tasking_Legality_Legal_Protected_Entry |
+        Editor.Ada_Tasking_Remediation.Protected_Legality.Tasking_Legality_Legal_Select;
    end Base_Tasking_Error;
 
    function Dataflow_Error (Status : Dataflow_Legality_Status) return Boolean is
@@ -654,4 +654,4 @@ package body Editor.Ada_Tasking_Protected_Precision_Legality is
       return Info.Id /= No_Tasking_Precision_Legality;
    end Has_Legality;
 
-end Editor.Ada_Tasking_Protected_Precision_Legality;
+end Editor.Ada_Tasking_Remediation.Protected_Precision;

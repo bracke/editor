@@ -1,6 +1,6 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
-package body Editor.Ada_Tasking_Protected_Vertical_Slice_Legality is
+package body Editor.Ada_Tasking_Remediation.Protected_Vertical_Slice is
 
    pragma Suppress (Overflow_Check);
 
@@ -439,4 +439,4 @@ package body Editor.Ada_Tasking_Protected_Vertical_Slice_Legality is
       return Info.Id /= No_Result;
    end Has_Result;
 
-end Editor.Ada_Tasking_Protected_Vertical_Slice_Legality;
+end Editor.Ada_Tasking_Remediation.Protected_Vertical_Slice;

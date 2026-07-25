@@ -1,6 +1,6 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
-package body Editor.Ada_Tasking_Elaboration_Contract_Flow_Consumer_Legality is
+package body Editor.Ada_Tasking_Remediation.Elaboration_Contract_Flow_Consumer is
 
    pragma Suppress (Overflow_Check);
    use type Task_Effects.Tasking_Effect_Status;
@@ -471,4 +471,4 @@ package body Editor.Ada_Tasking_Elaboration_Contract_Flow_Consumer_Legality is
       return Model.Result_Fingerprint;
    end Fingerprint;
 
-end Editor.Ada_Tasking_Elaboration_Contract_Flow_Consumer_Legality;
+end Editor.Ada_Tasking_Remediation.Elaboration_Contract_Flow_Consumer;

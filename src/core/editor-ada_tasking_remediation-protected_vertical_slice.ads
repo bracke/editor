@@ -2,7 +2,7 @@ with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
 with Editor.Ada_Syntax_Tree;
 
-package Editor.Ada_Tasking_Protected_Vertical_Slice_Legality is
+package Editor.Ada_Tasking_Remediation.Protected_Vertical_Slice is
 
    --  Case 1302 vertical-slice tasking/protected legality.  This package
    --  performs concrete RM-facing tasking checks over source-shaped task,
@@ -252,4 +252,4 @@ private
       Result_Fingerprint : Natural := 0;
    end record;
 
-end Editor.Ada_Tasking_Protected_Vertical_Slice_Legality;
+end Editor.Ada_Tasking_Remediation.Protected_Vertical_Slice;

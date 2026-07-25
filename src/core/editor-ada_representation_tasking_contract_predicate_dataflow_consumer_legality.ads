@@ -2,7 +2,7 @@ with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
 with Editor.Ada_Representation_Freezing_Exact_Propagation_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Contract_Predicate_Dataflow_Consumer_Legality;
+with Editor.Ada_Tasking_Remediation.Contract_Predicate_Dataflow_Consumer;
 
 package Editor.Ada_Representation_Tasking_Contract_Predicate_Dataflow_Consumer_Legality is
 
@@ -19,7 +19,7 @@ package Editor.Ada_Representation_Tasking_Contract_Predicate_Dataflow_Consumer_L
    --  discriminant/variant, representation/freezing, or repaired coverage facts.
 
    package Freezing renames Editor.Ada_Representation_Freezing_Exact_Propagation_Legality;
-   package Tasking_CPD renames Editor.Ada_Tasking_Contract_Predicate_Dataflow_Consumer_Legality;
+   package Tasking_CPD renames Editor.Ada_Tasking_Remediation.Contract_Predicate_Dataflow_Consumer;
 
    type Representation_Tasking_CPD_Row_Id is new Natural;
    No_Representation_Tasking_CPD_Row : constant Representation_Tasking_CPD_Row_Id := 0;

@@ -5,10 +5,10 @@ with Editor.Ada_Elaboration_Graph_Closure_Legality;
 with Editor.Ada_Exception_Finalization_Legality;
 with Editor.Ada_Flow_Effect_Graph_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Protected_Precision_Legality;
+with Editor.Ada_Tasking_Remediation.Protected_Precision;
 with Editor.Ada_Widened_Legality_Coverage_Gate_Enforcement;
 
-package Editor.Ada_Tasking_Protected_Effects_Legality is
+package Editor.Ada_Tasking_Remediation.Protected_Effects is
 
    --  Case 1145 compiler-grade tasking/protected effects legality.
    --
@@ -22,7 +22,7 @@ package Editor.Ada_Tasking_Protected_Effects_Legality is
    --  keybinding, workspace, render, compiler, parser-generator, Python, or
    --  shell-script work.
 
-   package Precision renames Editor.Ada_Tasking_Protected_Precision_Legality;
+   package Precision renames Editor.Ada_Tasking_Remediation.Protected_Precision;
    package Flow renames Editor.Ada_Flow_Effect_Graph_Legality;
    package Elab renames Editor.Ada_Elaboration_Graph_Closure_Legality;
    package Scope renames Editor.Ada_Accessibility_Scope_Graph_Legality;
@@ -271,4 +271,4 @@ private
       Result_Fingerprint : Natural := 0;
    end record;
 
-end Editor.Ada_Tasking_Protected_Effects_Legality;
+end Editor.Ada_Tasking_Remediation.Protected_Effects;

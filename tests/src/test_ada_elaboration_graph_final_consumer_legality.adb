@@ -9,7 +9,7 @@ with Editor.Ada_Generic_Replay_Source_Instance_Backmapping_Legality;
 with Editor.Ada_Overload_Type_Edge_Precision_Legality;
 with Editor.Ada_Representation_Tasking_Contract_Predicate_Dataflow_Consumer_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Contract_Predicate_Dataflow_Consumer_Legality;
+with Editor.Ada_Tasking_Remediation.Contract_Predicate_Dataflow_Consumer;
 
 package body Test_Ada_Elaboration_Graph_Final_Consumer_Legality is
 
@@ -67,7 +67,7 @@ package body Test_Ada_Elaboration_Graph_Final_Consumer_Legality is
    use type Rep.Representation_Tasking_CPD_Context_Model;
    use type Rep.Representation_Tasking_CPD_Set;
    use type Rep.Representation_Tasking_CPD_Model;
-   package Tasking renames Editor.Ada_Tasking_Contract_Predicate_Dataflow_Consumer_Legality;
+   package Tasking renames Editor.Ada_Tasking_Remediation.Contract_Predicate_Dataflow_Consumer;
    use type Tasking.Tasking_Contract_Predicate_Row_Id;
    use type Tasking.Tasking_Contract_Predicate_Context_Kind;
    use type Tasking.Tasking_Contract_Predicate_Status;

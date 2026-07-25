@@ -8,7 +8,7 @@ package body Editor.Ada_Wide_Semantic_Legality_Diagnostics is
    use type Editor.Ada_Conversion_Access_Aggregate_Legality.Semantic_Legality_Status;
    use type Editor.Ada_Cross_Unit_Semantic_Closure.Cross_Unit_Semantic_Status;
    use type Editor.Ada_Control_Flow_Legality.Flow_Legality_Status;
-   use type Editor.Ada_Tasking_Protected_Legality.Tasking_Legality_Status;
+   use type Editor.Ada_Tasking_Remediation.Protected_Legality.Tasking_Legality_Status;
    use type Editor.Ada_Tagged_Derived_Legality.Tagged_Legality_Status;
    use type Editor.Ada_Generic_Instance_Freezing_Representation_Legality.Instance_Legality_Status;
    use type Editor.Ada_Syntax_Tree.Node_Id;
@@ -17,7 +17,7 @@ package body Editor.Ada_Wide_Semantic_Legality_Diagnostics is
    package RL renames Editor.Ada_Return_Legality;
    package EL renames Editor.Ada_Conversion_Access_Aggregate_Legality;
    package FL renames Editor.Ada_Control_Flow_Legality;
-   package TL renames Editor.Ada_Tasking_Protected_Legality;
+   package TL renames Editor.Ada_Tasking_Remediation.Protected_Legality;
    package TD renames Editor.Ada_Tagged_Derived_Legality;
    package GI renames Editor.Ada_Generic_Instance_Freezing_Representation_Legality;
    package CU renames Editor.Ada_Cross_Unit_Semantic_Closure;

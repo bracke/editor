@@ -57,7 +57,7 @@ with Editor.Ada_Wide_Semantic_Legality_Diagnostics;
 with Editor.Ada_Assignment_Legality;
 with Editor.Ada_Return_Legality;
 with Editor.Ada_Control_Flow_Legality;
-with Editor.Ada_Tasking_Protected_Legality;
+with Editor.Ada_Tasking_Remediation.Protected_Legality;
 with Editor.Ada_Tagged_Derived_Legality;
 with Editor.Ada_Generic_Instance_Freezing_Representation_Legality;
 with Editor.Ada_Conversion_Access_Aggregate_Legality;

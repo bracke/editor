@@ -5,12 +5,12 @@ with Editor.Ada_Accessibility_Precision_Legality;
 with Editor.Ada_Dataflow_Global_Depends_Legality;
 with Editor.Ada_Elaboration_Precision_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Protected_Legality;
-with Editor.Ada_Tasking_Protected_Precision_Legality;
+with Editor.Ada_Tasking_Remediation.Protected_Legality;
+with Editor.Ada_Tasking_Remediation.Protected_Precision;
 
 package body Test_Ada_Tasking_Protected_Precision_Legality is
 
-   package TPL renames Editor.Ada_Tasking_Protected_Precision_Legality;
+   package TPL renames Editor.Ada_Tasking_Remediation.Protected_Precision;
    use type TPL.Tasking_Legality_Status;
    use type TPL.Tasking_Context_Kind;
    use type TPL.Dataflow_Legality_Status;
@@ -25,7 +25,7 @@ package body Test_Ada_Tasking_Protected_Precision_Legality is
    use type TPL.Tasking_Precision_Context_Model;
    use type TPL.Tasking_Precision_Result_Set;
    use type TPL.Tasking_Precision_Legality_Model;
-   package BTL renames Editor.Ada_Tasking_Protected_Legality;
+   package BTL renames Editor.Ada_Tasking_Remediation.Protected_Legality;
    use type BTL.Tasking_Context_Id;
    use type BTL.Tasking_Legality_Id;
    use type BTL.Tasking_Context_Kind;

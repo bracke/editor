@@ -1,6 +1,6 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
-package body Editor.Ada_Tasking_RM_Completion_Closure_Consumer_Legality is
+package body Editor.Ada_Tasking_Remediation.RM_Completion_Closure_Consumer is
 
    pragma Suppress (Overflow_Check);
    use type Closure.RM_Completion_Stabilized_Closure_Status;
@@ -385,4 +385,4 @@ package body Editor.Ada_Tasking_RM_Completion_Closure_Consumer_Legality is
       return Model.Fingerprint;
    end Stable_Fingerprint;
 
-end Editor.Ada_Tasking_RM_Completion_Closure_Consumer_Legality;
+end Editor.Ada_Tasking_Remediation.RM_Completion_Closure_Consumer;

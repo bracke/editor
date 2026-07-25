@@ -3,9 +3,9 @@ with Ada.Strings.Unbounded;
 with Editor.Ada_Cross_Unit_Final_Semantic_Closure_Legality;
 with Editor.Ada_Flow_Contract_Final_Proof_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Protected_Final_Effects_Legality;
+with Editor.Ada_Tasking_Remediation.Protected_Final_Effects;
 
-package Editor.Ada_Tasking_Protected_Deep_Edge_Legality is
+package Editor.Ada_Tasking_Remediation.Protected_Deep_Edge is
 
    --  Case 1193 compiler-grade tasking/protected deep edge legality.
    --
@@ -23,7 +23,7 @@ package Editor.Ada_Tasking_Protected_Deep_Edge_Legality is
 
    package Cross_Final renames Editor.Ada_Cross_Unit_Final_Semantic_Closure_Legality;
    package Flow_Proof renames Editor.Ada_Flow_Contract_Final_Proof_Legality;
-   package Tasking_Final renames Editor.Ada_Tasking_Protected_Final_Effects_Legality;
+   package Tasking_Final renames Editor.Ada_Tasking_Remediation.Protected_Final_Effects;
 
    type Deep_Tasking_Row_Id is new Natural;
    No_Deep_Tasking_Row : constant Deep_Tasking_Row_Id := 0;
@@ -204,4 +204,4 @@ private
       Result_Fingerprint : Natural := 0;
    end record;
 
-end Editor.Ada_Tasking_Protected_Deep_Edge_Legality;
+end Editor.Ada_Tasking_Remediation.Protected_Deep_Edge;

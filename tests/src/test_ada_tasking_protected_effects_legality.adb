@@ -6,13 +6,13 @@ with Editor.Ada_Elaboration_Graph_Closure_Legality;
 with Editor.Ada_Exception_Finalization_Legality;
 with Editor.Ada_Flow_Effect_Graph_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Protected_Effects_Legality;
-with Editor.Ada_Tasking_Protected_Precision_Legality;
+with Editor.Ada_Tasking_Remediation.Protected_Effects;
+with Editor.Ada_Tasking_Remediation.Protected_Precision;
 with Editor.Ada_Widened_Legality_Coverage_Gate_Enforcement;
 
 package body Test_Ada_Tasking_Protected_Effects_Legality is
 
-   package E renames Editor.Ada_Tasking_Protected_Effects_Legality;
+   package E renames Editor.Ada_Tasking_Remediation.Protected_Effects;
    use type E.Tasking_Effect_Id;
    use type E.Tasking_Effect_Context_Kind;
    use type E.Tasking_Effect_Status;
@@ -21,7 +21,7 @@ package body Test_Ada_Tasking_Protected_Effects_Legality is
    use type E.Tasking_Effect_Context_Model;
    use type E.Tasking_Effect_Set;
    use type E.Tasking_Effect_Model;
-   package Precision renames Editor.Ada_Tasking_Protected_Precision_Legality;
+   package Precision renames Editor.Ada_Tasking_Remediation.Protected_Precision;
    use type Precision.Tasking_Legality_Status;
    use type Precision.Tasking_Context_Kind;
    use type Precision.Dataflow_Legality_Status;

@@ -2,9 +2,9 @@ with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
 with Editor.Ada_Elaboration_Contract_Flow_Consumer_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Protected_Effects_Legality;
+with Editor.Ada_Tasking_Remediation.Protected_Effects;
 
-package Editor.Ada_Tasking_Elaboration_Contract_Flow_Consumer_Legality is
+package Editor.Ada_Tasking_Remediation.Elaboration_Contract_Flow_Consumer is
 
    --  Case 1158 compiler-grade tasking/protected elaboration contract-flow
    --  consumer legality.
@@ -18,7 +18,7 @@ package Editor.Ada_Tasking_Elaboration_Contract_Flow_Consumer_Legality is
    --  contract-flow evidence is missing, blocked by refined-flow errors,
    --  blocked by repaired coverage feedback, or indeterminate.
 
-   package Task_Effects renames Editor.Ada_Tasking_Protected_Effects_Legality;
+   package Task_Effects renames Editor.Ada_Tasking_Remediation.Protected_Effects;
    package Elab_Contract renames Editor.Ada_Elaboration_Contract_Flow_Consumer_Legality;
 
    type Tasking_Elab_Contract_Row_Id is new Natural;
@@ -221,4 +221,4 @@ private
       Result_Fingerprint : Natural := 0;
    end record;
 
-end Editor.Ada_Tasking_Elaboration_Contract_Flow_Consumer_Legality;
+end Editor.Ada_Tasking_Remediation.Elaboration_Contract_Flow_Consumer;

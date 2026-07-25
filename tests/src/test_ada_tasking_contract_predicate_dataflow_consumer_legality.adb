@@ -4,8 +4,8 @@ with AUnit.Test_Cases;
 with AUnit;
 with Editor.Ada_Elaboration_Contract_Predicate_Dataflow_Consumer_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Contract_Predicate_Dataflow_Consumer_Legality;
-with Editor.Ada_Tasking_Protected_Effects_Legality;
+with Editor.Ada_Tasking_Remediation.Contract_Predicate_Dataflow_Consumer;
+with Editor.Ada_Tasking_Remediation.Protected_Effects;
 
 package body Test_Ada_Tasking_Contract_Predicate_Dataflow_Consumer_Legality is
 
@@ -18,7 +18,7 @@ package body Test_Ada_Tasking_Contract_Predicate_Dataflow_Consumer_Legality is
    use type Elab_Predicate.Elaboration_Contract_Predicate_Context_Model;
    use type Elab_Predicate.Elaboration_Contract_Predicate_Set;
    use type Elab_Predicate.Elaboration_Contract_Predicate_Model;
-   package Task_CPD renames Editor.Ada_Tasking_Contract_Predicate_Dataflow_Consumer_Legality;
+   package Task_CPD renames Editor.Ada_Tasking_Remediation.Contract_Predicate_Dataflow_Consumer;
    use type Task_CPD.Tasking_Contract_Predicate_Row_Id;
    use type Task_CPD.Tasking_Contract_Predicate_Context_Kind;
    use type Task_CPD.Tasking_Contract_Predicate_Status;
@@ -27,7 +27,7 @@ package body Test_Ada_Tasking_Contract_Predicate_Dataflow_Consumer_Legality is
    use type Task_CPD.Tasking_Contract_Predicate_Context_Model;
    use type Task_CPD.Tasking_Contract_Predicate_Set;
    use type Task_CPD.Tasking_Contract_Predicate_Model;
-   package Task_Effects renames Editor.Ada_Tasking_Protected_Effects_Legality;
+   package Task_Effects renames Editor.Ada_Tasking_Remediation.Protected_Effects;
    use type Task_Effects.Tasking_Effect_Id;
    use type Task_Effects.Tasking_Effect_Context_Kind;
    use type Task_Effects.Tasking_Effect_Status;

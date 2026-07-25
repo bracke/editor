@@ -9,7 +9,7 @@ with Editor.Ada_Generic_Replay_Nested_Cycle_Closure_Legality;
 with Editor.Ada_Overload_Type_Final_RM_Consumer_Legality;
 with Editor.Ada_Representation_Freezing_Final_Hard_Cases_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Protected_Deep_Edge_Legality;
+with Editor.Ada_Tasking_Remediation.Protected_Deep_Edge;
 
 package Editor.Ada_Final_Semantic_Diagnostic_Integration is
 
@@ -34,7 +34,7 @@ package Editor.Ada_Final_Semantic_Diagnostic_Integration is
    package Generic_Final renames Editor.Ada_Generic_Replay_Nested_Cycle_Closure_Legality;
    package Overload_Final renames Editor.Ada_Overload_Type_Final_RM_Consumer_Legality;
    package Representation_Final renames Editor.Ada_Representation_Freezing_Final_Hard_Cases_Legality;
-   package Tasking_Final renames Editor.Ada_Tasking_Protected_Deep_Edge_Legality;
+   package Tasking_Final renames Editor.Ada_Tasking_Remediation.Protected_Deep_Edge;
 
    type Final_Diagnostic_Id is new Natural;
    No_Final_Diagnostic : constant Final_Diagnostic_Id := 0;

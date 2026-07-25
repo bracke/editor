@@ -9,7 +9,7 @@ with Editor.Ada_Generic_Instance_Freezing_Representation_Legality;
 with Editor.Ada_Return_Legality;
 with Editor.Ada_Syntax_Tree;
 with Editor.Ada_Tagged_Derived_Legality;
-with Editor.Ada_Tasking_Protected_Legality;
+with Editor.Ada_Tasking_Remediation.Protected_Legality;
 
 package Editor.Ada_Cross_Unit_Semantic_Closure is
 
@@ -90,8 +90,8 @@ package Editor.Ada_Cross_Unit_Semantic_Closure is
         Editor.Ada_Conversion_Access_Aggregate_Legality.No_Semantic_Context;
       Linked_Flow        : Editor.Ada_Control_Flow_Legality.Flow_Context_Id :=
         Editor.Ada_Control_Flow_Legality.No_Flow_Context;
-      Linked_Tasking     : Editor.Ada_Tasking_Protected_Legality.Tasking_Context_Id :=
-        Editor.Ada_Tasking_Protected_Legality.No_Tasking_Context;
+      Linked_Tasking     : Editor.Ada_Tasking_Remediation.Protected_Legality.Tasking_Context_Id :=
+        Editor.Ada_Tasking_Remediation.Protected_Legality.No_Tasking_Context;
       Linked_Tagged      : Editor.Ada_Tagged_Derived_Legality.Tagged_Context_Id :=
         Editor.Ada_Tagged_Derived_Legality.No_Tagged_Context;
       Linked_Instance    : Editor.Ada_Generic_Instance_Freezing_Representation_Legality.Instance_Context_Id :=
@@ -126,8 +126,8 @@ package Editor.Ada_Cross_Unit_Semantic_Closure is
         Editor.Ada_Conversion_Access_Aggregate_Legality.Semantic_Legality_Not_Checked;
       Linked_Flow_Status : Editor.Ada_Control_Flow_Legality.Flow_Legality_Status :=
         Editor.Ada_Control_Flow_Legality.Flow_Legality_Not_Checked;
-      Linked_Tasking_Status : Editor.Ada_Tasking_Protected_Legality.Tasking_Legality_Status :=
-        Editor.Ada_Tasking_Protected_Legality.Tasking_Legality_Not_Checked;
+      Linked_Tasking_Status : Editor.Ada_Tasking_Remediation.Protected_Legality.Tasking_Legality_Status :=
+        Editor.Ada_Tasking_Remediation.Protected_Legality.Tasking_Legality_Not_Checked;
       Linked_Tagged_Status : Editor.Ada_Tagged_Derived_Legality.Tagged_Legality_Status :=
         Editor.Ada_Tagged_Derived_Legality.Tagged_Legality_Not_Checked;
       Linked_Instance_Status : Editor.Ada_Generic_Instance_Freezing_Representation_Legality.Instance_Legality_Status :=
@@ -163,7 +163,7 @@ package Editor.Ada_Cross_Unit_Semantic_Closure is
       Returns     : Editor.Ada_Return_Legality.Return_Legality_Model;
       Expressions : Editor.Ada_Conversion_Access_Aggregate_Legality.Semantic_Legality_Model;
       Flow        : Editor.Ada_Control_Flow_Legality.Flow_Legality_Model;
-      Tasking     : Editor.Ada_Tasking_Protected_Legality.Tasking_Legality_Model;
+      Tasking     : Editor.Ada_Tasking_Remediation.Protected_Legality.Tasking_Legality_Model;
       Tagged_Model      : Editor.Ada_Tagged_Derived_Legality.Tagged_Legality_Model;
       Instances   : Editor.Ada_Generic_Instance_Freezing_Representation_Legality.Instance_Legality_Model)
       return Cross_Unit_Semantic_Model;
@@ -174,7 +174,7 @@ package Editor.Ada_Cross_Unit_Semantic_Closure is
       Returns     : Editor.Ada_Return_Legality.Return_Legality_Model;
       Expressions : Editor.Ada_Conversion_Access_Aggregate_Legality.Semantic_Legality_Model;
       Flow        : Editor.Ada_Control_Flow_Legality.Flow_Legality_Model;
-      Tasking     : Editor.Ada_Tasking_Protected_Legality.Tasking_Legality_Model;
+      Tasking     : Editor.Ada_Tasking_Remediation.Protected_Legality.Tasking_Legality_Model;
       Tagged_Model      : Editor.Ada_Tagged_Derived_Legality.Tagged_Legality_Model;
       Instances   : Editor.Ada_Generic_Instance_Freezing_Representation_Legality.Instance_Legality_Model)
       return Cross_Unit_Semantic_Context_Model;

@@ -6,7 +6,7 @@ with Editor.Ada_AST_Coverage_Repair_Legality;
 with Editor.Ada_AST_Semantic_Coverage_Audit;
 with Editor.Ada_Semantic_Coverage_Gates;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Protected_AST_Repair_Legality;
+with Editor.Ada_Tasking_Remediation.Protected_AST_Repair;
 
 package body Test_Ada_Tasking_Protected_AST_Repair_Legality is
 
@@ -39,7 +39,7 @@ package body Test_Ada_Tasking_Protected_AST_Repair_Legality is
    use type Repair.Repair_Context_Model;
    use type Repair.Repair_Model;
    use type Repair.Repair_Result_Set;
-   package Task_AST renames Editor.Ada_Tasking_Protected_AST_Repair_Legality;
+   package Task_AST renames Editor.Ada_Tasking_Remediation.Protected_AST_Repair;
    use type Task_AST.Tasking_AST_Repair_Row_Id;
    use type Task_AST.Tasking_AST_Construct_Kind;
    use type Task_AST.Tasking_AST_Repair_Status;

@@ -16,7 +16,7 @@ with Editor.Ada_Refined_Global_Depends_Conformance_Legality;
 with Editor.Ada_Renaming_Alias_Visibility_Legality;
 with Editor.Ada_Representation_Tasking_Contract_Predicate_Dataflow_Consumer_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Protected_Final_Effects_Legality;
+with Editor.Ada_Tasking_Remediation.Protected_Final_Effects;
 with Editor.Ada_Unit_Completion_Order_Legality;
 
 package Editor.Ada_Cross_Unit_Final_Semantic_Closure_Legality is
@@ -50,7 +50,7 @@ package Editor.Ada_Cross_Unit_Final_Semantic_Closure_Legality is
    package Refined renames Editor.Ada_Refined_Global_Depends_Conformance_Legality;
    package Renaming renames Editor.Ada_Renaming_Alias_Visibility_Legality;
    package Rep_CPD renames Editor.Ada_Representation_Tasking_Contract_Predicate_Dataflow_Consumer_Legality;
-   package Tasking_Final renames Editor.Ada_Tasking_Protected_Final_Effects_Legality;
+   package Tasking_Final renames Editor.Ada_Tasking_Remediation.Protected_Final_Effects;
    package Completion renames Editor.Ada_Unit_Completion_Order_Legality;
 
    type Cross_Unit_Final_Row_Id is new Natural;

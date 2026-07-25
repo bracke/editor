@@ -6,7 +6,7 @@ with Editor.Ada_Generic_Shared_State_Remediation.Final_Closure;
 with Editor.Ada_Overload_Generic_Shared_State_RM_Edge_Completion_Legality;
 with Editor.Ada_Representation_Generic_Shared_State_RM_Hard_Case_Completion_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Generic_Shared_State_RM_Hard_Case_Completion_Legality;
+with Editor.Ada_Tasking_Remediation.Generic_Shared_State_RM_Completion;
 
 package Editor.Ada_Cross_Unit_Generic_Shared_State_RM_Completion_Closure_Legality is
 
@@ -25,7 +25,7 @@ package Editor.Ada_Cross_Unit_Generic_Shared_State_RM_Completion_Closure_Legalit
    package Stabilized renames Editor.Ada_Generic_Shared_State_Remediation.Final_Closure;
    package Overload_RM renames Editor.Ada_Overload_Generic_Shared_State_RM_Edge_Completion_Legality;
    package Representation_RM renames Editor.Ada_Representation_Generic_Shared_State_RM_Hard_Case_Completion_Legality;
-   package Tasking_RM renames Editor.Ada_Tasking_Generic_Shared_State_RM_Hard_Case_Completion_Legality;
+   package Tasking_RM renames Editor.Ada_Tasking_Remediation.Generic_Shared_State_RM_Completion;
    package AST_Repair renames Editor.Ada_Coverage_Proven_Generic_Shared_State_AST_Repair_Legality;
 
    type Cross_Unit_RM_Completion_Closure_Id is new Natural;

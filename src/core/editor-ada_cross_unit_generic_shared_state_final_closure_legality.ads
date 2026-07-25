@@ -7,7 +7,7 @@ with Editor.Ada_Overload_Generic_Shared_State_Final_Legality;
 with Editor.Ada_Representation_Generic_Shared_State_Final_Legality;
 with Editor.Ada_Shared_State_Stabilized_Closure_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Generic_Shared_State_Final_Legality;
+with Editor.Ada_Tasking_Remediation.Generic_Shared_State_Final;
 
 package Editor.Ada_Cross_Unit_Generic_Shared_State_Final_Closure_Legality is
 
@@ -28,7 +28,7 @@ package Editor.Ada_Cross_Unit_Generic_Shared_State_Final_Closure_Legality is
    package Overload_Generic renames Editor.Ada_Overload_Generic_Shared_State_Final_Legality;
    package Rep_Generic renames Editor.Ada_Representation_Generic_Shared_State_Final_Legality;
    package Closure renames Editor.Ada_Shared_State_Stabilized_Closure_Legality;
-   package Tasking_Generic renames Editor.Ada_Tasking_Generic_Shared_State_Final_Legality;
+   package Tasking_Generic renames Editor.Ada_Tasking_Remediation.Generic_Shared_State_Final;
 
    type Cross_Unit_Generic_Final_Row_Id is new Natural;
    No_Cross_Unit_Generic_Final_Row : constant Cross_Unit_Generic_Final_Row_Id := 0;

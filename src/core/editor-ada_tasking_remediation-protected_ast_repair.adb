@@ -1,6 +1,6 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
-package body Editor.Ada_Tasking_Protected_AST_Repair_Legality is
+package body Editor.Ada_Tasking_Remediation.Protected_AST_Repair is
 
    pragma Suppress (Overflow_Check);
    use type Editor.Ada_Syntax_Tree.Node_Id;
@@ -493,4 +493,4 @@ package body Editor.Ada_Tasking_Protected_AST_Repair_Legality is
       return Model.Result_Fingerprint;
    end Fingerprint;
 
-end Editor.Ada_Tasking_Protected_AST_Repair_Legality;
+end Editor.Ada_Tasking_Remediation.Protected_AST_Repair;

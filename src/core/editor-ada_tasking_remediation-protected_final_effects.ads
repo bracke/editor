@@ -5,10 +5,10 @@ with Editor.Ada_Discriminant_Variant_Consumer_Integration_Legality;
 with Editor.Ada_Elaboration_Graph_Final_Consumer_Legality;
 with Editor.Ada_Representation_Tasking_Contract_Predicate_Dataflow_Consumer_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Contract_Predicate_Dataflow_Consumer_Legality;
-with Editor.Ada_Tasking_Protected_Effects_Legality;
+with Editor.Ada_Tasking_Remediation.Contract_Predicate_Dataflow_Consumer;
+with Editor.Ada_Tasking_Remediation.Protected_Effects;
 
-package Editor.Ada_Tasking_Protected_Final_Effects_Legality is
+package Editor.Ada_Tasking_Remediation.Protected_Final_Effects is
 
    --  Case 1185 compiler-grade tasking/protected final effect legality.
    --
@@ -27,8 +27,8 @@ package Editor.Ada_Tasking_Protected_Final_Effects_Legality is
    package Disc_Consumer renames Editor.Ada_Discriminant_Variant_Consumer_Integration_Legality;
    package Elab_Final renames Editor.Ada_Elaboration_Graph_Final_Consumer_Legality;
    package Rep_CPD renames Editor.Ada_Representation_Tasking_Contract_Predicate_Dataflow_Consumer_Legality;
-   package Tasking_CPD renames Editor.Ada_Tasking_Contract_Predicate_Dataflow_Consumer_Legality;
-   package Task_Effects renames Editor.Ada_Tasking_Protected_Effects_Legality;
+   package Tasking_CPD renames Editor.Ada_Tasking_Remediation.Contract_Predicate_Dataflow_Consumer;
+   package Task_Effects renames Editor.Ada_Tasking_Remediation.Protected_Effects;
 
    type Final_Tasking_Row_Id is new Natural;
    No_Final_Tasking_Row : constant Final_Tasking_Row_Id := 0;
@@ -245,4 +245,4 @@ private
       Model_Fingerprint : Natural := 0;
    end record;
 
-end Editor.Ada_Tasking_Protected_Final_Effects_Legality;
+end Editor.Ada_Tasking_Remediation.Protected_Final_Effects;

@@ -8,7 +8,7 @@ with Editor.Ada_Representation_Freezing_Precision_Legality;
 with Editor.Ada_Representation_Legality;
 with Editor.Ada_Representation_Layout_Stream_Integration_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Protected_Precision_Legality;
+with Editor.Ada_Tasking_Remediation.Protected_Precision;
 
 package body Test_Ada_Representation_Freezing_Precision_Legality is
 
@@ -97,7 +97,7 @@ package body Test_Ada_Representation_Freezing_Precision_Legality is
    use type EPL.Elaboration_Precision_Context_Model;
    use type EPL.Elaboration_Precision_Result_Set;
    use type EPL.Elaboration_Precision_Legality_Model;
-   package TPL renames Editor.Ada_Tasking_Protected_Precision_Legality;
+   package TPL renames Editor.Ada_Tasking_Remediation.Protected_Precision;
    use type TPL.Tasking_Legality_Status;
    use type TPL.Tasking_Context_Kind;
    use type TPL.Dataflow_Legality_Status;

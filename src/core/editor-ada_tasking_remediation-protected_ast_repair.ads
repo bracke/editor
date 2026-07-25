@@ -4,7 +4,7 @@ with Editor.Ada_AST_Coverage_Repair_Legality;
 with Editor.Ada_AST_Semantic_Coverage_Audit;
 with Editor.Ada_Syntax_Tree;
 
-package Editor.Ada_Tasking_Protected_AST_Repair_Legality is
+package Editor.Ada_Tasking_Remediation.Protected_AST_Repair is
 
    --  Case 1173 task/protected/select parser-AST repair legality.
    --
@@ -186,4 +186,4 @@ private
       Result_Fingerprint : Natural := 0;
    end record;
 
-end Editor.Ada_Tasking_Protected_AST_Repair_Legality;
+end Editor.Ada_Tasking_Remediation.Protected_AST_Repair;

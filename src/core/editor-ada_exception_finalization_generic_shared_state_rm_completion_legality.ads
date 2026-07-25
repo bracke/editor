@@ -9,7 +9,7 @@ with Editor.Ada_Exception_Finalization_Generic_Shared_State_Final_Legality;
 with Editor.Ada_Overload_Generic_Shared_State_RM_Edge_Completion_Legality;
 with Editor.Ada_Representation_Generic_Shared_State_RM_Hard_Case_Completion_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Generic_Shared_State_RM_Hard_Case_Completion_Legality;
+with Editor.Ada_Tasking_Remediation.Generic_Shared_State_RM_Completion;
 
 package Editor.Ada_Exception_Finalization_Generic_Shared_State_RM_Completion_Legality is
 
@@ -35,7 +35,7 @@ package Editor.Ada_Exception_Finalization_Generic_Shared_State_RM_Completion_Leg
    package Accessibility_RM renames Editor.Ada_Accessibility_Generic_Shared_State_RM_Completion_Legality;
    package Overload_RM renames Editor.Ada_Overload_Generic_Shared_State_RM_Edge_Completion_Legality;
    package Representation_RM renames Editor.Ada_Representation_Generic_Shared_State_RM_Hard_Case_Completion_Legality;
-   package Tasking_RM renames Editor.Ada_Tasking_Generic_Shared_State_RM_Hard_Case_Completion_Legality;
+   package Tasking_RM renames Editor.Ada_Tasking_Remediation.Generic_Shared_State_RM_Completion;
    package AST_Repair renames Editor.Ada_Coverage_Proven_Generic_Shared_State_AST_Repair_Legality;
 
    type Exception_RM_Completion_Row_Id is new Natural;

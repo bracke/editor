@@ -4,9 +4,9 @@ with Editor.Ada_Generic_Shared_State_Remediation.Final_Closure;
 with Editor.Ada_Overload_Generic_Shared_State_RM_Edge_Completion_Legality;
 with Editor.Ada_Representation_Generic_Shared_State_RM_Hard_Case_Completion_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Generic_Shared_State_Final_Legality;
+with Editor.Ada_Tasking_Remediation.Generic_Shared_State_Final;
 
-package Editor.Ada_Tasking_Generic_Shared_State_RM_Hard_Case_Completion_Legality is
+package Editor.Ada_Tasking_Remediation.Generic_Shared_State_RM_Completion is
 
    --  Case 1248 tasking/protected RM hard-case completion legality.
    --
@@ -21,7 +21,7 @@ package Editor.Ada_Tasking_Generic_Shared_State_RM_Hard_Case_Completion_Legality
    --  task/protected bodies must agree before downstream consumers may trust
    --  the tasking conclusion.
 
-   package Previous renames Editor.Ada_Tasking_Generic_Shared_State_Final_Legality;
+   package Previous renames Editor.Ada_Tasking_Remediation.Generic_Shared_State_Final;
    package Representation_Hard_Cases renames Editor.Ada_Representation_Generic_Shared_State_RM_Hard_Case_Completion_Legality;
    package Overload_Edges renames Editor.Ada_Overload_Generic_Shared_State_RM_Edge_Completion_Legality;
    package Closure renames Editor.Ada_Generic_Shared_State_Remediation.Final_Closure;
@@ -210,4 +210,4 @@ private
    type Tasking_Generic_RM_Hard_Case_Set is record
       Rows : Row_Vectors.Vector;
    end record;
-end Editor.Ada_Tasking_Generic_Shared_State_RM_Hard_Case_Completion_Legality;
+end Editor.Ada_Tasking_Remediation.Generic_Shared_State_RM_Completion;

@@ -6,10 +6,10 @@ with Editor.Ada_Overload_Generic_Shared_State_Final_Legality;
 with Editor.Ada_Representation_Generic_Shared_State_Final_Legality;
 with Editor.Ada_Shared_State_Stabilized_Closure_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Protected_Deep_Edge_Legality;
-with Editor.Ada_Tasking_Shared_State_Final_Legality;
+with Editor.Ada_Tasking_Remediation.Protected_Deep_Edge;
+with Editor.Ada_Tasking_Remediation.Shared_State_Final;
 
-package Editor.Ada_Tasking_Generic_Shared_State_Final_Legality is
+package Editor.Ada_Tasking_Remediation.Generic_Shared_State_Final is
 
    --  Case 1230 tasking/generic/shared-state final legality.
    --
@@ -28,8 +28,8 @@ package Editor.Ada_Tasking_Generic_Shared_State_Final_Legality is
    package Overload_Generic renames Editor.Ada_Overload_Generic_Shared_State_Final_Legality;
    package Rep_Generic renames Editor.Ada_Representation_Generic_Shared_State_Final_Legality;
    package Closure renames Editor.Ada_Shared_State_Stabilized_Closure_Legality;
-   package Tasking_Deep renames Editor.Ada_Tasking_Protected_Deep_Edge_Legality;
-   package Tasking_Shared renames Editor.Ada_Tasking_Shared_State_Final_Legality;
+   package Tasking_Deep renames Editor.Ada_Tasking_Remediation.Protected_Deep_Edge;
+   package Tasking_Shared renames Editor.Ada_Tasking_Remediation.Shared_State_Final;
 
    type Tasking_Generic_Final_Row_Id is new Natural;
    No_Tasking_Generic_Final_Row : constant Tasking_Generic_Final_Row_Id := 0;
@@ -234,4 +234,4 @@ private
       Rows : Row_Vectors.Vector;
    end record;
 
-end Editor.Ada_Tasking_Generic_Shared_State_Final_Legality;
+end Editor.Ada_Tasking_Remediation.Generic_Shared_State_Final;

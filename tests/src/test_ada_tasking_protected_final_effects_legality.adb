@@ -7,13 +7,13 @@ with Editor.Ada_Discriminant_Variant_Consumer_Integration_Legality;
 with Editor.Ada_Elaboration_Graph_Final_Consumer_Legality;
 with Editor.Ada_Representation_Tasking_Contract_Predicate_Dataflow_Consumer_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Contract_Predicate_Dataflow_Consumer_Legality;
-with Editor.Ada_Tasking_Protected_Effects_Legality;
-with Editor.Ada_Tasking_Protected_Final_Effects_Legality;
+with Editor.Ada_Tasking_Remediation.Contract_Predicate_Dataflow_Consumer;
+with Editor.Ada_Tasking_Remediation.Protected_Effects;
+with Editor.Ada_Tasking_Remediation.Protected_Final_Effects;
 
 package body Test_Ada_Tasking_Protected_Final_Effects_Legality is
 
-   package Final renames Editor.Ada_Tasking_Protected_Final_Effects_Legality;
+   package Final renames Editor.Ada_Tasking_Remediation.Protected_Final_Effects;
    use type Final.Final_Tasking_Row_Id;
    use type Final.Final_Tasking_Context_Kind;
    use type Final.Final_Tasking_Status;
@@ -58,7 +58,7 @@ package body Test_Ada_Tasking_Protected_Final_Effects_Legality is
    use type Rep.Representation_Tasking_CPD_Context_Model;
    use type Rep.Representation_Tasking_CPD_Set;
    use type Rep.Representation_Tasking_CPD_Model;
-   package Task_CPD renames Editor.Ada_Tasking_Contract_Predicate_Dataflow_Consumer_Legality;
+   package Task_CPD renames Editor.Ada_Tasking_Remediation.Contract_Predicate_Dataflow_Consumer;
    use type Task_CPD.Tasking_Contract_Predicate_Row_Id;
    use type Task_CPD.Tasking_Contract_Predicate_Context_Kind;
    use type Task_CPD.Tasking_Contract_Predicate_Status;
@@ -67,7 +67,7 @@ package body Test_Ada_Tasking_Protected_Final_Effects_Legality is
    use type Task_CPD.Tasking_Contract_Predicate_Context_Model;
    use type Task_CPD.Tasking_Contract_Predicate_Set;
    use type Task_CPD.Tasking_Contract_Predicate_Model;
-   package Effects renames Editor.Ada_Tasking_Protected_Effects_Legality;
+   package Effects renames Editor.Ada_Tasking_Remediation.Protected_Effects;
    use type Effects.Tasking_Effect_Id;
    use type Effects.Tasking_Effect_Context_Kind;
    use type Effects.Tasking_Effect_Status;

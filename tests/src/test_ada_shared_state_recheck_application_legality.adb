@@ -11,7 +11,7 @@ with Editor.Ada_Shared_State_Recheck_Eligibility_Legality;
 with Editor.Ada_Shared_State_Remediation_Worklist_Legality;
 with Editor.Ada_Shared_State_Stabilized_Diagnostic_Integration;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Shared_State_Final_Legality;
+with Editor.Ada_Tasking_Remediation.Shared_State_Final;
 with Editor.Ada_Volatile_Atomic_Shared_State_Legality;
 
 package body Test_Ada_Shared_State_Recheck_Application_Legality is
@@ -71,7 +71,7 @@ package body Test_Ada_Shared_State_Recheck_Application_Legality is
    use type Rep.Representation_Shared_State_Context_Model;
    use type Rep.Representation_Shared_State_Model;
    use type Rep.Representation_Shared_State_Set;
-   package Tasking renames Editor.Ada_Tasking_Shared_State_Final_Legality;
+   package Tasking renames Editor.Ada_Tasking_Remediation.Shared_State_Final;
    use type Tasking.Tasking_Shared_State_Row_Id;
    use type Tasking.Tasking_Shared_State_Context_Kind;
    use type Tasking.Tasking_Shared_State_Status;

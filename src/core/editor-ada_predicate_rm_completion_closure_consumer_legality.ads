@@ -11,7 +11,7 @@ with Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Closure;
 with Editor.Ada_Overload_RM_Completion_Closure_Consumer_Legality;
 with Editor.Ada_Representation_RM_Completion_Closure_Consumer_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_RM_Completion_Closure_Consumer_Legality;
+with Editor.Ada_Tasking_Remediation.RM_Completion_Closure_Consumer;
 
 package Editor.Ada_Predicate_RM_Completion_Closure_Consumer_Legality is
 
@@ -37,7 +37,7 @@ package Editor.Ada_Predicate_RM_Completion_Closure_Consumer_Legality is
    package Exception_Finalization renames Editor.Ada_Exception_Finalization_RM_Completion_Closure_Consumer_Legality;
    package Overload renames Editor.Ada_Overload_RM_Completion_Closure_Consumer_Legality;
    package Representation renames Editor.Ada_Representation_RM_Completion_Closure_Consumer_Legality;
-   package Tasking renames Editor.Ada_Tasking_RM_Completion_Closure_Consumer_Legality;
+   package Tasking renames Editor.Ada_Tasking_Remediation.RM_Completion_Closure_Consumer;
    package Dataflow renames Editor.Ada_Dataflow_RM_Completion_Closure_Consumer_Legality;
 
    type Predicate_RM_Closure_Consumer_Id is new Natural;

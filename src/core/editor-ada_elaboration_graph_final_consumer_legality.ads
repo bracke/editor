@@ -6,7 +6,7 @@ with Editor.Ada_Generic_Replay_Source_Instance_Backmapping_Legality;
 with Editor.Ada_Overload_Type_Edge_Precision_Legality;
 with Editor.Ada_Representation_Tasking_Contract_Predicate_Dataflow_Consumer_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Contract_Predicate_Dataflow_Consumer_Legality;
+with Editor.Ada_Tasking_Remediation.Contract_Predicate_Dataflow_Consumer;
 
 package Editor.Ada_Elaboration_Graph_Final_Consumer_Legality is
 
@@ -26,7 +26,7 @@ package Editor.Ada_Elaboration_Graph_Final_Consumer_Legality is
    package Generic_Backmap renames Editor.Ada_Generic_Replay_Source_Instance_Backmapping_Legality;
    package Overload_Edge renames Editor.Ada_Overload_Type_Edge_Precision_Legality;
    package Representation_CPD renames Editor.Ada_Representation_Tasking_Contract_Predicate_Dataflow_Consumer_Legality;
-   package Tasking_CPD renames Editor.Ada_Tasking_Contract_Predicate_Dataflow_Consumer_Legality;
+   package Tasking_CPD renames Editor.Ada_Tasking_Remediation.Contract_Predicate_Dataflow_Consumer;
 
    type Final_Elaboration_Row_Id is new Natural;
    No_Final_Elaboration_Row : constant Final_Elaboration_Row_Id := 0;

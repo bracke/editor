@@ -1,6 +1,6 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
-package body Editor.Ada_Tasking_Generic_Shared_State_RM_Hard_Case_Completion_Legality is
+package body Editor.Ada_Tasking_Remediation.Generic_Shared_State_RM_Completion is
 
    pragma Suppress (Overflow_Check);
    use type Closure.Generic_Shared_State_Final_Stabilized_Closure_Status;
@@ -198,4 +198,4 @@ package body Editor.Ada_Tasking_Generic_Shared_State_RM_Hard_Case_Completion_Leg
    function Indeterminate_Count (Model : Tasking_Generic_RM_Hard_Case_Model) return Natural is N : Natural := 0; begin for Row of Model.Rows loop if Is_Indeterminate (Row.Status) then N := N + 1; end if; end loop; return N; end Indeterminate_Count;
    function Stable_Fingerprint (Model : Tasking_Generic_RM_Hard_Case_Model) return Natural is begin return Model.Fingerprint; end Stable_Fingerprint;
 
-end Editor.Ada_Tasking_Generic_Shared_State_RM_Hard_Case_Completion_Legality;
+end Editor.Ada_Tasking_Remediation.Generic_Shared_State_RM_Completion;

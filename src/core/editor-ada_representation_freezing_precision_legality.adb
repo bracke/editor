@@ -99,18 +99,18 @@ package body Editor.Ada_Representation_Freezing_Precision_Legality is
    function Tasking_Error (Status : Tasking_Precision_Status) return Boolean is
    begin
       return Status not in
-        Editor.Ada_Tasking_Protected_Precision_Legality.Tasking_Precision_Not_Checked |
-        Editor.Ada_Tasking_Protected_Precision_Legality.Tasking_Precision_Legal_Task_Activation |
-        Editor.Ada_Tasking_Protected_Precision_Legality.Tasking_Precision_Legal_Task_Body |
-        Editor.Ada_Tasking_Protected_Precision_Legality.Tasking_Precision_Legal_Protected_Function |
-        Editor.Ada_Tasking_Protected_Precision_Legality.Tasking_Precision_Legal_Protected_Procedure |
-        Editor.Ada_Tasking_Protected_Precision_Legality.Tasking_Precision_Legal_Protected_Entry |
-        Editor.Ada_Tasking_Protected_Precision_Legality.Tasking_Precision_Legal_Entry_Barrier |
-        Editor.Ada_Tasking_Protected_Precision_Legality.Tasking_Precision_Legal_Entry_Family_Index |
-        Editor.Ada_Tasking_Protected_Precision_Legality.Tasking_Precision_Legal_Accept |
-        Editor.Ada_Tasking_Protected_Precision_Legality.Tasking_Precision_Legal_Requeue |
-        Editor.Ada_Tasking_Protected_Precision_Legality.Tasking_Precision_Legal_Select_Alternative |
-        Editor.Ada_Tasking_Protected_Precision_Legality.Tasking_Precision_Legal_Queued_Entry_Call;
+        Editor.Ada_Tasking_Remediation.Protected_Precision.Tasking_Precision_Not_Checked |
+        Editor.Ada_Tasking_Remediation.Protected_Precision.Tasking_Precision_Legal_Task_Activation |
+        Editor.Ada_Tasking_Remediation.Protected_Precision.Tasking_Precision_Legal_Task_Body |
+        Editor.Ada_Tasking_Remediation.Protected_Precision.Tasking_Precision_Legal_Protected_Function |
+        Editor.Ada_Tasking_Remediation.Protected_Precision.Tasking_Precision_Legal_Protected_Procedure |
+        Editor.Ada_Tasking_Remediation.Protected_Precision.Tasking_Precision_Legal_Protected_Entry |
+        Editor.Ada_Tasking_Remediation.Protected_Precision.Tasking_Precision_Legal_Entry_Barrier |
+        Editor.Ada_Tasking_Remediation.Protected_Precision.Tasking_Precision_Legal_Entry_Family_Index |
+        Editor.Ada_Tasking_Remediation.Protected_Precision.Tasking_Precision_Legal_Accept |
+        Editor.Ada_Tasking_Remediation.Protected_Precision.Tasking_Precision_Legal_Requeue |
+        Editor.Ada_Tasking_Remediation.Protected_Precision.Tasking_Precision_Legal_Select_Alternative |
+        Editor.Ada_Tasking_Remediation.Protected_Precision.Tasking_Precision_Legal_Queued_Entry_Call;
    end Tasking_Error;
 
    function Is_Freezing_Error (Status : Representation_Freezing_Precision_Status) return Boolean is

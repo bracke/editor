@@ -6,7 +6,7 @@ with Editor.Ada_Overload_Shared_State_RM_Edge_Legality;
 with Editor.Ada_Representation_Shared_State_Final_Legality;
 with Editor.Ada_Shared_State_Stabilized_Closure_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Shared_State_Final_Legality;
+with Editor.Ada_Tasking_Remediation.Shared_State_Final;
 with Editor.Ada_Volatile_Atomic_Shared_State_Legality;
 
 package Editor.Ada_Abstract_State_Refined_State_Consumer_Integration_Legality is
@@ -26,7 +26,7 @@ package Editor.Ada_Abstract_State_Refined_State_Consumer_Integration_Legality is
    package Shared renames Editor.Ada_Volatile_Atomic_Shared_State_Legality;
    package Overload_State renames Editor.Ada_Overload_Shared_State_RM_Edge_Legality;
    package Rep_State renames Editor.Ada_Representation_Shared_State_Final_Legality;
-   package Tasking_State renames Editor.Ada_Tasking_Shared_State_Final_Legality;
+   package Tasking_State renames Editor.Ada_Tasking_Remediation.Shared_State_Final;
    package Cross_Unit_State renames Editor.Ada_Cross_Unit_Shared_State_Final_Closure_Legality;
    package Stabilized_State renames Editor.Ada_Shared_State_Stabilized_Closure_Legality;
 

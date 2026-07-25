@@ -13,7 +13,7 @@ with Editor.Ada_Renaming_Generic_Shared_State_Final_Legality;
 with Editor.Ada_Representation_Generic_Shared_State_Final_Legality;
 with Editor.Ada_Shared_State_Stabilized_Closure_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Generic_Shared_State_Final_Legality;
+with Editor.Ada_Tasking_Remediation.Generic_Shared_State_Final;
 
 package Editor.Ada_Predicate_Generic_Shared_State_Final_Legality is
 
@@ -36,7 +36,7 @@ package Editor.Ada_Predicate_Generic_Shared_State_Final_Legality is
    package Generic_Replay renames Editor.Ada_Generic_Abstract_State_Replay_Legality;
    package Overload_Generic renames Editor.Ada_Overload_Generic_Shared_State_Final_Legality;
    package Rep_Generic renames Editor.Ada_Representation_Generic_Shared_State_Final_Legality;
-   package Tasking_Generic renames Editor.Ada_Tasking_Generic_Shared_State_Final_Legality;
+   package Tasking_Generic renames Editor.Ada_Tasking_Remediation.Generic_Shared_State_Final;
    package Access_Generic renames Editor.Ada_Accessibility_Remediation.Generic_Shared_State_Final;
    package Disc_Generic renames Editor.Ada_Discriminant_Generic_Shared_State_Final_Legality;
    package Exception_Generic renames Editor.Ada_Exception_Finalization_Generic_Shared_State_Final_Legality;

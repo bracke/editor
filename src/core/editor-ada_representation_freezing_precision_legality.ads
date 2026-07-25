@@ -6,7 +6,7 @@ with Editor.Ada_Generic_Instance_Freezing_Representation_Legality;
 with Editor.Ada_Representation_Legality;
 with Editor.Ada_Representation_Layout_Stream_Integration_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Protected_Precision_Legality;
+with Editor.Ada_Tasking_Remediation.Protected_Precision;
 
 package Editor.Ada_Representation_Freezing_Precision_Legality is
 
@@ -30,7 +30,7 @@ package Editor.Ada_Representation_Freezing_Precision_Legality is
    subtype Elaboration_Precision_Status is
      Editor.Ada_Elaboration_Precision_Legality.Elaboration_Precision_Status;
    subtype Tasking_Precision_Status is
-     Editor.Ada_Tasking_Protected_Precision_Legality.Tasking_Precision_Status;
+     Editor.Ada_Tasking_Remediation.Protected_Precision.Tasking_Precision_Status;
 
    type Representation_Freezing_Precision_Context_Id is new Natural;
    No_Representation_Freezing_Precision_Context : constant Representation_Freezing_Precision_Context_Id := 0;
@@ -119,7 +119,7 @@ package Editor.Ada_Representation_Freezing_Precision_Legality is
       Elaboration           : Elaboration_Precision_Status :=
         Editor.Ada_Elaboration_Precision_Legality.Elaboration_Precision_Not_Checked;
       Tasking               : Tasking_Precision_Status :=
-        Editor.Ada_Tasking_Protected_Precision_Legality.Tasking_Precision_Not_Checked;
+        Editor.Ada_Tasking_Remediation.Protected_Precision.Tasking_Precision_Not_Checked;
       Representation_Line   : Positive := 1;
       Freeze_Line           : Positive := 1;
       Private_View_Barrier  : Boolean := False;
@@ -163,7 +163,7 @@ package Editor.Ada_Representation_Freezing_Precision_Legality is
       Elaboration           : Elaboration_Precision_Status :=
         Editor.Ada_Elaboration_Precision_Legality.Elaboration_Precision_Not_Checked;
       Tasking               : Tasking_Precision_Status :=
-        Editor.Ada_Tasking_Protected_Precision_Legality.Tasking_Precision_Not_Checked;
+        Editor.Ada_Tasking_Remediation.Protected_Precision.Tasking_Precision_Not_Checked;
       Representation_Line   : Positive := 1;
       Freeze_Line           : Positive := 1;
       Start_Line            : Positive := 1;

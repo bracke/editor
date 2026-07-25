@@ -11,7 +11,7 @@ with Editor.Ada_Expression_Types;
 with Editor.Ada_Generic_Instance_Freezing_Representation_Legality;
 with Editor.Ada_Return_Legality;
 with Editor.Ada_Tagged_Derived_Legality;
-with Editor.Ada_Tasking_Protected_Legality;
+with Editor.Ada_Tasking_Remediation.Protected_Legality;
 
 package body Test_Ada_Cross_Unit_Semantic_Closure is
 
@@ -86,7 +86,7 @@ package body Test_Ada_Cross_Unit_Semantic_Closure is
    use type FL.Flow_Context_Model;
    use type FL.Flow_Legality_Result_Set;
    use type FL.Flow_Legality_Model;
-   package TL renames Editor.Ada_Tasking_Protected_Legality;
+   package TL renames Editor.Ada_Tasking_Remediation.Protected_Legality;
    use type TL.Tasking_Context_Id;
    use type TL.Tasking_Legality_Id;
    use type TL.Tasking_Context_Kind;

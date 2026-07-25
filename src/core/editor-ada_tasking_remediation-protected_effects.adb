@@ -1,6 +1,6 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
-package body Editor.Ada_Tasking_Protected_Effects_Legality is
+package body Editor.Ada_Tasking_Remediation.Protected_Effects is
 
    pragma Suppress (Overflow_Check);
    use type Editor.Ada_Syntax_Tree.Node_Id;
@@ -645,4 +645,4 @@ package body Editor.Ada_Tasking_Protected_Effects_Legality is
         and then Info.Status /= Tasking_Effect_Indeterminate;
    end Has_Error;
 
-end Editor.Ada_Tasking_Protected_Effects_Legality;
+end Editor.Ada_Tasking_Remediation.Protected_Effects;

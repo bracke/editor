@@ -1,6 +1,6 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
-package body Editor.Ada_Tasking_Contract_Predicate_Dataflow_Consumer_Legality is
+package body Editor.Ada_Tasking_Remediation.Contract_Predicate_Dataflow_Consumer is
 
    pragma Suppress (Overflow_Check);
 
@@ -518,4 +518,4 @@ package body Editor.Ada_Tasking_Contract_Predicate_Dataflow_Consumer_Legality is
       return Model.Result_Fingerprint;
    end Fingerprint;
 
-end Editor.Ada_Tasking_Contract_Predicate_Dataflow_Consumer_Legality;
+end Editor.Ada_Tasking_Remediation.Contract_Predicate_Dataflow_Consumer;

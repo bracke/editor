@@ -1,6 +1,6 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
-package body Editor.Ada_Tasking_Generic_Shared_State_Final_Legality is
+package body Editor.Ada_Tasking_Remediation.Generic_Shared_State_Final is
 
    pragma Suppress (Overflow_Check);
    use type Closure.Shared_State_Stabilized_Closure_Status;
@@ -432,4 +432,4 @@ package body Editor.Ada_Tasking_Generic_Shared_State_Final_Legality is
       return Model.Fingerprint;
    end Stable_Fingerprint;
 
-end Editor.Ada_Tasking_Generic_Shared_State_Final_Legality;
+end Editor.Ada_Tasking_Remediation.Generic_Shared_State_Final;

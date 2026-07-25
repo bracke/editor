@@ -6,7 +6,7 @@ with Editor.Ada_Elaboration_Graph_Final_Consumer_Legality;
 with Editor.Ada_Generic_Abstract_State_Replay_Legality;
 with Editor.Ada_Representation_Generic_Shared_State_Final_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Generic_Shared_State_Final_Legality;
+with Editor.Ada_Tasking_Remediation.Generic_Shared_State_Final;
 
 package Editor.Ada_Elaboration_Generic_Shared_State_Final_Legality is
 
@@ -29,7 +29,7 @@ package Editor.Ada_Elaboration_Generic_Shared_State_Final_Legality is
    package Elaboration_Final renames Editor.Ada_Elaboration_Graph_Final_Consumer_Legality;
    package Generic_Replay renames Editor.Ada_Generic_Abstract_State_Replay_Legality;
    package Rep_Generic renames Editor.Ada_Representation_Generic_Shared_State_Final_Legality;
-   package Tasking_Generic renames Editor.Ada_Tasking_Generic_Shared_State_Final_Legality;
+   package Tasking_Generic renames Editor.Ada_Tasking_Remediation.Generic_Shared_State_Final;
 
    type Elaboration_Generic_Final_Row_Id is new Natural;
    No_Elaboration_Generic_Final_Row : constant Elaboration_Generic_Final_Row_Id := 0;

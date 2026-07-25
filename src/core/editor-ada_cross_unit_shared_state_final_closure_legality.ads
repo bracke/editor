@@ -5,7 +5,7 @@ with Editor.Ada_Cross_Unit_Final_Semantic_Closure_Legality;
 with Editor.Ada_Overload_Shared_State_RM_Edge_Legality;
 with Editor.Ada_Representation_Shared_State_Final_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Shared_State_Final_Legality;
+with Editor.Ada_Tasking_Remediation.Shared_State_Final;
 with Editor.Ada_Volatile_Atomic_Shared_State_Legality;
 
 package Editor.Ada_Cross_Unit_Shared_State_Final_Closure_Legality is
@@ -25,7 +25,7 @@ package Editor.Ada_Cross_Unit_Shared_State_Final_Closure_Legality is
    package Overload_State renames Editor.Ada_Overload_Shared_State_RM_Edge_Legality;
    package Rep_State renames Editor.Ada_Representation_Shared_State_Final_Legality;
    package Shared_State renames Editor.Ada_Volatile_Atomic_Shared_State_Legality;
-   package Tasking_State renames Editor.Ada_Tasking_Shared_State_Final_Legality;
+   package Tasking_State renames Editor.Ada_Tasking_Remediation.Shared_State_Final;
 
    type Cross_Unit_Shared_State_Row_Id is new Natural;
    No_Cross_Unit_Shared_State_Row : constant Cross_Unit_Shared_State_Row_Id := 0;

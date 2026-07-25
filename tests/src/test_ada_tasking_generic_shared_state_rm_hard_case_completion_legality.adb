@@ -2,11 +2,11 @@ with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Generic_Shared_State_RM_Hard_Case_Completion_Legality;
+with Editor.Ada_Tasking_Remediation.Generic_Shared_State_RM_Completion;
 
 package body Test_Ada_Tasking_Generic_Shared_State_RM_Hard_Case_Completion_Legality is
 
-   package T renames Editor.Ada_Tasking_Generic_Shared_State_RM_Hard_Case_Completion_Legality;
+   package T renames Editor.Ada_Tasking_Remediation.Generic_Shared_State_RM_Completion;
    use type T.Tasking_Generic_RM_Hard_Case_Id;
    use type T.Tasking_Generic_RM_Hard_Case_Kind;
    use type T.Tasking_Generic_RM_Hard_Case_Blocker_Family;

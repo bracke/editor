@@ -6,7 +6,7 @@ with Editor.Ada_Abstract_State_Refined_State_Legality;
 with Editor.Ada_Final_Semantic_Stabilized_Closure_Legality;
 with Editor.Ada_Flow_Contract_Final_Proof_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Protected_Deep_Edge_Legality;
+with Editor.Ada_Tasking_Remediation.Protected_Deep_Edge;
 with Editor.Ada_Volatile_Atomic_Shared_State_Legality;
 
 package body Test_Ada_Volatile_Atomic_Shared_State_Legality is
@@ -48,7 +48,7 @@ package body Test_Ada_Volatile_Atomic_Shared_State_Legality is
    use type Stabilized.Final_Stabilized_Closure_Row;
    use type Stabilized.Final_Stabilized_Closure_Model;
    use type Stabilized.Final_Stabilized_Closure_Set;
-   package Tasking renames Editor.Ada_Tasking_Protected_Deep_Edge_Legality;
+   package Tasking renames Editor.Ada_Tasking_Remediation.Protected_Deep_Edge;
    use type Tasking.Deep_Tasking_Row_Id;
    use type Tasking.Deep_Tasking_Context_Kind;
    use type Tasking.Deep_Tasking_Status;

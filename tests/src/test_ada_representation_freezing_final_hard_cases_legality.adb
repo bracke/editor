@@ -11,7 +11,7 @@ with Editor.Ada_Representation_Freezing_Final_Hard_Cases_Legality;
 with Editor.Ada_Representation_Operational_AST_Repair_Legality;
 with Editor.Ada_Representation_Tasking_Contract_Predicate_Dataflow_Consumer_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Protected_Final_Effects_Legality;
+with Editor.Ada_Tasking_Remediation.Protected_Final_Effects;
 
 package body Test_Ada_Representation_Freezing_Final_Hard_Cases_Legality is
 
@@ -88,7 +88,7 @@ package body Test_Ada_Representation_Freezing_Final_Hard_Cases_Legality is
    use type Rep_CPD.Representation_Tasking_CPD_Context_Model;
    use type Rep_CPD.Representation_Tasking_CPD_Set;
    use type Rep_CPD.Representation_Tasking_CPD_Model;
-   package Task_Final renames Editor.Ada_Tasking_Protected_Final_Effects_Legality;
+   package Task_Final renames Editor.Ada_Tasking_Remediation.Protected_Final_Effects;
    use type Task_Final.Final_Tasking_Row_Id;
    use type Task_Final.Final_Tasking_Context_Kind;
    use type Task_Final.Final_Tasking_Status;

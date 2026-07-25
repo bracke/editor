@@ -5,7 +5,7 @@ with Editor.Ada_Assignment_Legality;
 with Editor.Ada_Control_Flow_Legality;
 with Editor.Ada_Expression_Types;
 with Editor.Ada_Return_Legality;
-with Editor.Ada_Tasking_Protected_Legality;
+with Editor.Ada_Tasking_Remediation.Protected_Legality;
 
 package body Test_Ada_Tasking_Protected_Legality is
 
@@ -43,7 +43,7 @@ package body Test_Ada_Tasking_Protected_Legality is
    use type RL.Return_Context_Model;
    use type RL.Return_Legality_Result_Set;
    use type RL.Return_Legality_Model;
-   package TL renames Editor.Ada_Tasking_Protected_Legality;
+   package TL renames Editor.Ada_Tasking_Remediation.Protected_Legality;
    use type TL.Tasking_Context_Id;
    use type TL.Tasking_Legality_Id;
    use type TL.Tasking_Context_Kind;

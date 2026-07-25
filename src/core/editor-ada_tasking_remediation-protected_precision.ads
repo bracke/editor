@@ -4,9 +4,9 @@ with Editor.Ada_Accessibility_Precision_Legality;
 with Editor.Ada_Dataflow_Global_Depends_Legality;
 with Editor.Ada_Elaboration_Precision_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Protected_Legality;
+with Editor.Ada_Tasking_Remediation.Protected_Legality;
 
-package Editor.Ada_Tasking_Protected_Precision_Legality is
+package Editor.Ada_Tasking_Remediation.Protected_Precision is
 
    --  Case 1130 compiler-grade tasking/protected precision layer.
    --
@@ -18,9 +18,9 @@ package Editor.Ada_Tasking_Protected_Precision_Legality is
    --  editor mutation, command routing, workspace mutation, or rendering work.
 
    subtype Tasking_Legality_Status is
-     Editor.Ada_Tasking_Protected_Legality.Tasking_Legality_Status;
+     Editor.Ada_Tasking_Remediation.Protected_Legality.Tasking_Legality_Status;
    subtype Tasking_Context_Kind is
-     Editor.Ada_Tasking_Protected_Legality.Tasking_Context_Kind;
+     Editor.Ada_Tasking_Remediation.Protected_Legality.Tasking_Context_Kind;
    subtype Dataflow_Legality_Status is
      Editor.Ada_Dataflow_Global_Depends_Legality.Dataflow_Legality_Status;
    subtype Elaboration_Precision_Status is
@@ -94,7 +94,7 @@ package Editor.Ada_Tasking_Protected_Precision_Legality is
    type Tasking_Precision_Context_Info is record
       Id                         : Tasking_Precision_Context_Id := No_Tasking_Precision_Context;
       Kind                       : Tasking_Precision_Context_Kind := Tasking_Precision_Context_Unknown;
-      Base_Kind                  : Tasking_Context_Kind := Editor.Ada_Tasking_Protected_Legality.Tasking_Context_Unknown;
+      Base_Kind                  : Tasking_Context_Kind := Editor.Ada_Tasking_Remediation.Protected_Legality.Tasking_Context_Unknown;
       Node                       : Editor.Ada_Syntax_Tree.Node_Id := Editor.Ada_Syntax_Tree.No_Node;
       Task_Node                  : Editor.Ada_Syntax_Tree.Node_Id := Editor.Ada_Syntax_Tree.No_Node;
       Protected_Node             : Editor.Ada_Syntax_Tree.Node_Id := Editor.Ada_Syntax_Tree.No_Node;
@@ -102,7 +102,7 @@ package Editor.Ada_Tasking_Protected_Precision_Legality is
       Barrier_Node               : Editor.Ada_Syntax_Tree.Node_Id := Editor.Ada_Syntax_Tree.No_Node;
       Object_Name                : Ada.Strings.Unbounded.Unbounded_String;
       Entry_Name                 : Ada.Strings.Unbounded.Unbounded_String;
-      Base_Tasking_Status        : Tasking_Legality_Status := Editor.Ada_Tasking_Protected_Legality.Tasking_Legality_Not_Checked;
+      Base_Tasking_Status        : Tasking_Legality_Status := Editor.Ada_Tasking_Remediation.Protected_Legality.Tasking_Legality_Not_Checked;
       Dataflow_Status            : Dataflow_Legality_Status := Editor.Ada_Dataflow_Global_Depends_Legality.Dataflow_Legality_Not_Checked;
       Elaboration_Status         : Elaboration_Precision_Status := Editor.Ada_Elaboration_Precision_Legality.Elaboration_Precision_Not_Checked;
       Accessibility_Status       : Accessibility_Precision_Status := Editor.Ada_Accessibility_Precision_Legality.Accessibility_Precision_Not_Checked;
@@ -139,7 +139,7 @@ package Editor.Ada_Tasking_Protected_Precision_Legality is
       Id                         : Tasking_Precision_Legality_Id := No_Tasking_Precision_Legality;
       Context                    : Tasking_Precision_Context_Id := No_Tasking_Precision_Context;
       Kind                       : Tasking_Precision_Context_Kind := Tasking_Precision_Context_Unknown;
-      Base_Kind                  : Tasking_Context_Kind := Editor.Ada_Tasking_Protected_Legality.Tasking_Context_Unknown;
+      Base_Kind                  : Tasking_Context_Kind := Editor.Ada_Tasking_Remediation.Protected_Legality.Tasking_Context_Unknown;
       Node                       : Editor.Ada_Syntax_Tree.Node_Id := Editor.Ada_Syntax_Tree.No_Node;
       Task_Node                  : Editor.Ada_Syntax_Tree.Node_Id := Editor.Ada_Syntax_Tree.No_Node;
       Protected_Node             : Editor.Ada_Syntax_Tree.Node_Id := Editor.Ada_Syntax_Tree.No_Node;
@@ -150,7 +150,7 @@ package Editor.Ada_Tasking_Protected_Precision_Legality is
       Entry_Name                 : Ada.Strings.Unbounded.Unbounded_String;
       Message                    : Ada.Strings.Unbounded.Unbounded_String;
       Detail                     : Ada.Strings.Unbounded.Unbounded_String;
-      Base_Tasking_Status        : Tasking_Legality_Status := Editor.Ada_Tasking_Protected_Legality.Tasking_Legality_Not_Checked;
+      Base_Tasking_Status        : Tasking_Legality_Status := Editor.Ada_Tasking_Remediation.Protected_Legality.Tasking_Legality_Not_Checked;
       Dataflow_Status            : Dataflow_Legality_Status := Editor.Ada_Dataflow_Global_Depends_Legality.Dataflow_Legality_Not_Checked;
       Elaboration_Status         : Elaboration_Precision_Status := Editor.Ada_Elaboration_Precision_Legality.Elaboration_Precision_Not_Checked;
       Accessibility_Status       : Accessibility_Precision_Status := Editor.Ada_Accessibility_Precision_Legality.Accessibility_Precision_Not_Checked;
@@ -260,4 +260,4 @@ private
       Result_Fingerprint : Natural := 0;
    end record;
 
-end Editor.Ada_Tasking_Protected_Precision_Legality;
+end Editor.Ada_Tasking_Remediation.Protected_Precision;

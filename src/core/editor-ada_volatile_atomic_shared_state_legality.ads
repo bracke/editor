@@ -4,7 +4,7 @@ with Editor.Ada_Abstract_State_Refined_State_Legality;
 with Editor.Ada_Final_Semantic_Stabilized_Closure_Legality;
 with Editor.Ada_Flow_Contract_Final_Proof_Legality;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Tasking_Protected_Deep_Edge_Legality;
+with Editor.Ada_Tasking_Remediation.Protected_Deep_Edge;
 
 package Editor.Ada_Volatile_Atomic_Shared_State_Legality is
 
@@ -23,7 +23,7 @@ package Editor.Ada_Volatile_Atomic_Shared_State_Legality is
    package Abstract_States renames Editor.Ada_Abstract_State_Refined_State_Legality;
    package Flow_Proof renames Editor.Ada_Flow_Contract_Final_Proof_Legality;
    package Stabilized renames Editor.Ada_Final_Semantic_Stabilized_Closure_Legality;
-   package Tasking_Deep renames Editor.Ada_Tasking_Protected_Deep_Edge_Legality;
+   package Tasking_Deep renames Editor.Ada_Tasking_Remediation.Protected_Deep_Edge;
 
    type Shared_State_Row_Id is new Natural;
    No_Shared_State_Row : constant Shared_State_Row_Id := 0;

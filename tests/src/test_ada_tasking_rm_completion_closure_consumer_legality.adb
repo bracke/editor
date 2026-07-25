@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
-with Editor.Ada_Tasking_RM_Completion_Closure_Consumer_Legality;
+with Editor.Ada_Tasking_Remediation.RM_Completion_Closure_Consumer;
 with Editor.Ada_Syntax_Tree;
 
 package body Test_Ada_Tasking_RM_Completion_Closure_Consumer_Legality is
 
-   package R renames Editor.Ada_Tasking_RM_Completion_Closure_Consumer_Legality;
+   package R renames Editor.Ada_Tasking_Remediation.RM_Completion_Closure_Consumer;
    use type R.Tasking_RM_Closure_Consumer_Id;
    use type R.Tasking_RM_Kind;
    use type R.Tasking_RM_Closure_Consumer_Status;
