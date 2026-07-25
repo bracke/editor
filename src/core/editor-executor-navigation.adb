@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.State;
 with Editor.Commands;   use Editor.Commands;
 with Editor.Cursors;    use Editor.Cursors;
@@ -72,7 +73,7 @@ package body Editor.Executor.Navigation is
                    | Select_Page_Down;
    end Is_Select_Command;
 
-   function Extends_Selection (Cmd : Editor.Commands.Command) return Boolean is
+   function Extends_Selection (Cmd : Editor.Commands.Payloads.Command) return Boolean is
    begin
       return Cmd.Shift or else Is_Select_Command (Cmd.Kind);
    end Extends_Selection;
@@ -129,7 +130,7 @@ package body Editor.Executor.Navigation is
 
    procedure Move_All_To_Physical
      (S                    : in out Editor.State.State_Type;
-      Cmd                  : Editor.Commands.Command;
+      Cmd                  : Editor.Commands.Payloads.Command;
       New_Caret            : out Cursor_Index;
       New_Preferred_Column : out Natural)
    is
@@ -220,7 +221,7 @@ package body Editor.Executor.Navigation is
 
    procedure Move_All_Vertical
      (S                    : in out Editor.State.State_Type;
-      Cmd                  : Editor.Commands.Command;
+      Cmd                  : Editor.Commands.Payloads.Command;
       Delta_Rows           : Integer;
       New_Caret            : out Cursor_Index;
       New_Preferred_Column : out Natural)
@@ -421,7 +422,7 @@ package body Editor.Executor.Navigation is
    end Page_Move_Delta;
 
    function Collapses_Active_Selection
-     (Cmd : Editor.Commands.Command) return Boolean is
+     (Cmd : Editor.Commands.Payloads.Command) return Boolean is
    begin
       if Extends_Selection (Cmd) then
          return False;
@@ -446,7 +447,7 @@ package body Editor.Executor.Navigation is
 
    procedure Collapse_Selection_For_Move
      (S                    : in out Editor.State.State_Type;
-      Cmd                  : Editor.Commands.Command;
+      Cmd                  : Editor.Commands.Payloads.Command;
       Sel_Start            : Editor.Cursors.Cursor_Index;
       Old_Caret            : Editor.Cursors.Cursor_Index;
       New_Caret            : out Editor.Cursors.Cursor_Index;
@@ -505,7 +506,7 @@ package body Editor.Executor.Navigation is
 
    procedure Execute
      (S                    : in out Editor.State.State_Type;
-      Cmd                  : Editor.Commands.Command;
+      Cmd                  : Editor.Commands.Payloads.Command;
       Had_Selection        : Boolean;
       Sel_Start            : Editor.Cursors.Cursor_Index;
       Old_Caret            : Editor.Cursors.Cursor_Index;

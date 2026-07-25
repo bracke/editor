@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
@@ -254,7 +255,7 @@ package body Editor.Active_Find.Tests is
       pragma Unreferenced (T);
       S     : Editor.State.State_Type;
       After : Editor.State.State_Type;
-      Cmd   : Editor.Commands.Command;
+      Cmd   : Editor.Commands.Payloads.Command;
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "alpha beta alpha");
@@ -380,7 +381,7 @@ package body Editor.Active_Find.Tests is
    is
       pragma Unreferenced (T);
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "alpha beta alpha");
@@ -1052,7 +1053,7 @@ package body Editor.Active_Find.Tests is
       S        : Editor.State.State_Type;
       Original : Editor.Buffers.Buffer_Id;
       Snap     : Editor.Render_Model.Render_Snapshot;
-      Cmd      : Editor.Commands.Command;
+      Cmd      : Editor.Commands.Payloads.Command;
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
@@ -1099,7 +1100,7 @@ package body Editor.Active_Find.Tests is
       pragma Unreferenced (T);
       S     : Editor.State.State_Type;
       After : Editor.State.State_Type;
-      Cmd   : Editor.Commands.Command;
+      Cmd   : Editor.Commands.Payloads.Command;
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "abc abc");
@@ -1596,7 +1597,7 @@ package body Editor.Active_Find.Tests is
    is
       pragma Unreferenced (T);
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "Execute_Command execute_command Execute_Command");
@@ -1877,7 +1878,7 @@ package body Editor.Active_Find.Tests is
    is
       pragma Unreferenced (T);
       S     : Editor.State.State_Type;
-      Cmd   : Editor.Commands.Command;
+      Cmd   : Editor.Commands.Payloads.Command;
       After : Editor.State.State_Type;
    begin
       Editor.State.Init (S);
@@ -2162,7 +2163,7 @@ package body Editor.Active_Find.Tests is
       S        : Editor.State.State_Type;
       Original : Editor.Buffers.Buffer_Id;
       Snap     : Editor.Render_Model.Render_Snapshot;
-      Cmd      : Editor.Commands.Command;
+      Cmd      : Editor.Commands.Payloads.Command;
 
       procedure Set_Buffer_B_Text
         (B : in out Text_Buffer.Buffer_Type)
@@ -2467,7 +2468,7 @@ package body Editor.Active_Find.Tests is
       pragma Unreferenced (T);
       S              : Editor.State.State_Type;
       Snap           : Editor.Render_Model.Render_Snapshot;
-      Cmd            : Editor.Commands.Command;
+      Cmd            : Editor.Commands.Payloads.Command;
       Query_Before   : Unbounded_String;
       Message_Before : Unbounded_String;
    begin
@@ -3068,7 +3069,7 @@ package body Editor.Active_Find.Tests is
       S        : Editor.State.State_Type;
       Original : Editor.Buffers.Buffer_Id;
       Snap     : Editor.Render_Model.Render_Snapshot;
-      Cmd      : Editor.Commands.Command;
+      Cmd      : Editor.Commands.Payloads.Command;
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
@@ -3138,7 +3139,7 @@ package body Editor.Active_Find.Tests is
       pragma Unreferenced (T);
       S       : Editor.State.State_Type;
       After   : Editor.State.State_Type;
-      Cmd     : Editor.Commands.Command;
+      Cmd     : Editor.Commands.Payloads.Command;
       Go_Text : Unbounded_String;
       Quick_Text : Unbounded_String;
       Project_Text : Unbounded_String;

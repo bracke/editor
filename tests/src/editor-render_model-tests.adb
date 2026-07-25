@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -482,8 +483,8 @@ package body Editor.Render_Model.Tests is
       return Height;
    end Viewport_Height_For_Text_Rows;
 
-   function Paste (S : String) return Editor.Commands.Command is
-      Cmd : Editor.Commands.Command;
+   function Paste (S : String) return Editor.Commands.Payloads.Command is
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Cmd.Kind := Editor.Commands.Paste_Text;
       Cmd.Text := To_Unbounded_String (S);
@@ -715,7 +716,7 @@ package body Editor.Render_Model.Tests is
       S      : Editor.State.State_Type;
       Packet : Editor.Render_Packet.Render_Packet;
       Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
    begin
       Editor.State.Init (S);
 
@@ -3536,7 +3537,7 @@ package body Editor.Render_Model.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Editor.State.Init (S);
       Editor.Executor.Execute_No_Log (S, Paste ("abcdefghi"));
@@ -3860,7 +3861,7 @@ package body Editor.Render_Model.Tests is
       pragma Unreferenced (T);
 
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Editor.State.Init (S);
       Set_Render_State_For_Test (S);
@@ -4265,7 +4266,7 @@ package body Editor.Render_Model.Tests is
    is
       pragma Unreferenced (T);
       S      : Editor.State.State_Type;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
       Old    : constant Editor.Minimap.Minimap_Config := Editor.Minimap.Current;
       Config : constant Editor.Minimap.Minimap_Config :=
@@ -4308,7 +4309,7 @@ package body Editor.Render_Model.Tests is
    is
       pragma Unreferenced (T);
       S      : Editor.State.State_Type;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       Packet : Editor.Render_Packet.Render_Packet;
       Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
       Old    : constant Editor.Minimap.Minimap_Config := Editor.Minimap.Current;
@@ -4359,7 +4360,7 @@ package body Editor.Render_Model.Tests is
    is
       pragma Unreferenced (T);
       S       : Editor.State.State_Type;
-      Cmd     : Editor.Commands.Command;
+      Cmd     : Editor.Commands.Payloads.Command;
       Layout  : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
       Old     : constant Editor.Minimap.Minimap_Config := Editor.Minimap.Current;
       Config  : constant Editor.Minimap.Minimap_Config :=
@@ -4402,7 +4403,7 @@ package body Editor.Render_Model.Tests is
    is
       pragma Unreferenced (T);
       S      : Editor.State.State_Type;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       Snap   : Editor.Render_Model.Render_Snapshot;
       Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
       Old    : constant Editor.Minimap.Minimap_Config := Editor.Minimap.Current;
@@ -4447,7 +4448,7 @@ package body Editor.Render_Model.Tests is
    is
       pragma Unreferenced (T);
       S             : Editor.State.State_Type;
-      Cmd           : Editor.Commands.Command;
+      Cmd           : Editor.Commands.Payloads.Command;
       Layout        : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
       Old           : constant Editor.Minimap.Minimap_Config := Editor.Minimap.Current;
       Config        : constant Editor.Minimap.Minimap_Config :=

@@ -1,4 +1,5 @@
 with Editor.Commands; use Editor.Commands;
+with Editor.Commands.Payloads; use Editor.Commands.Payloads;
 
 package Editor.Test_Helper is
 

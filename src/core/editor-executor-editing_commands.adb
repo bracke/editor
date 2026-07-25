@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Ada.Containers;
 
 with Text_Buffer;
@@ -491,7 +492,7 @@ package body Editor.Executor.Editing_Commands is
       return Editor.Command_Execution.Command_Execution_Result
    is
       Before_Messages : constant Natural := Editor.Messages.Count (S.Messages);
-      Cmd             : Editor.Commands.Command;
+      Cmd             : Editor.Commands.Payloads.Command;
       Line_Status     : Editor.Executor.Edits.Line_Edit_Status;
 
       function Result_After_Command
@@ -521,7 +522,7 @@ package body Editor.Executor.Editing_Commands is
    begin
       case Id is
          when Editor.Commands.Command_Undo =>
-            Cmd := Editor.Commands.Command_For_Id (Id, Shift);
+            Cmd := Editor.Commands.Payloads.Command_For_Id (Id, Shift);
             Editor.Executor.History.Clear_Operation_Status;
             Editor.Executor.Execute_No_Log (S, Cmd);
             Editor.Buffers.Sync_Global_Active_From_State (S);
@@ -534,7 +535,7 @@ package body Editor.Executor.Editing_Commands is
             return Result_After_Command (Id);
 
          when Editor.Commands.Command_Redo =>
-            Cmd := Editor.Commands.Command_For_Id (Id, Shift);
+            Cmd := Editor.Commands.Payloads.Command_For_Id (Id, Shift);
             Editor.Executor.History.Clear_Operation_Status;
             Editor.Executor.Execute_No_Log (S, Cmd);
             Editor.Buffers.Sync_Global_Active_From_State (S);
@@ -558,7 +559,7 @@ package body Editor.Executor.Editing_Commands is
             | Editor.Commands.Command_Cut
             | Editor.Commands.Command_Paste
             | Editor.Commands.Command_Clipboard_Clear =>
-            Cmd := Editor.Commands.Command_For_Id (Id, Shift);
+            Cmd := Editor.Commands.Payloads.Command_For_Id (Id, Shift);
             Editor.Executor.Execute_No_Log (S, Cmd);
             if Id = Editor.Commands.Command_Cut
               or else Id = Editor.Commands.Command_Paste
@@ -577,7 +578,7 @@ package body Editor.Executor.Editing_Commands is
             | Editor.Commands.Command_Char_Delete_Next
             | Editor.Commands.Command_Word_Delete_Previous
             | Editor.Commands.Command_Word_Delete_Next =>
-            Cmd := Editor.Commands.Command_For_Id (Id, Shift);
+            Cmd := Editor.Commands.Payloads.Command_For_Id (Id, Shift);
             Editor.Executor.Execute_No_Log_With_Status (S, Cmd, Line_Status);
             Editor.Buffers.Sync_Global_Active_From_State (S);
             Report_Editing_Status (S, Id, Line_Status);

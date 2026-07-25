@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -206,7 +207,7 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       S              : Editor.State.State_Type;
       Path           : constant String := Temp_Path ("success_source.txt");
       Target         : constant String := Temp_Path ("success_target.txt");
-      Cmd            : Editor.Commands.Command;
+      Cmd            : Editor.Commands.Payloads.Command;
       Before_Text    : Unbounded_String;
       Before_Gen     : Natural;
       Before_Valid   : Boolean;
@@ -235,7 +236,7 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Before_Caret := S.Carets (0);
       Editor.Messages.Clear (S.Messages);
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Rename_Buffer_File);
       Cmd.Path := To_Unbounded_String (Target);
       Editor.Executor.Execute_No_Log (S, Cmd);

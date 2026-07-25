@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Text_Buffer;
 with Ada.Containers; use Ada.Containers;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -55,7 +56,7 @@ package body Editor.Executor.Format_Commands is
    procedure Perform_Trim_Trailing_Whitespace
      (S           : in out Editor.State.State_Type;
       New_Caret   : out Cursor_Index;
-      Forward_Cmd : out Editor.Commands.Command;
+      Forward_Cmd : out Editor.Commands.Payloads.Command;
       Changed     : out Boolean;
       Status      : out Line_Edit_Status)
    is

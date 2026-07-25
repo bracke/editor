@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Ada.Directories;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -168,8 +169,8 @@ package body Editor.Executor.File_Save_As_Commands is
    procedure Apply_Format_On_Save_If_Enabled
      (S : in out Editor.State.State_Type)
    is
-      Cmd : Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id (Editor.Commands.Command_Format_Buffer);
+      Cmd : Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Format_Buffer);
    begin
       if not Editor.Settings.Format_On_Save then
          return;

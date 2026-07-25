@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Cursors;
 with Editor.Diagnostics;
 with Editor.Dirty_Lines;
@@ -143,7 +144,7 @@ package body Editor.Input_Bridge.Gutter_Pointer_Handlers is
 
    function Handle_Gutter_Pointer
      (S   : in out Editor.State.State_Type;
-      Cmd : Editor.Commands.Command) return Boolean
+      Cmd : Editor.Commands.Payloads.Command) return Boolean
    is
       Layout    : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
       Doc_Count : constant Natural := Editor.State.Line_Count (S);

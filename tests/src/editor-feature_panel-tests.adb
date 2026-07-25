@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -1645,7 +1646,7 @@ package body Editor.Feature_Panel.Tests is
    is
       pragma Unreferenced (T);
       S      : Editor.State.State_Type;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       Path   : constant String := Temp_Path ("save_as.txt");
    begin
       Remove_If_Exists (Path);
@@ -5672,16 +5673,16 @@ package body Editor.Feature_Panel.Tests is
    end Test_Outline_Refresh_Preserves_Editor_Viewport;
 
 
-   function Paste_Command (Text : String) return Editor.Commands.Command is
-      Cmd : Editor.Commands.Command;
+   function Paste_Command (Text : String) return Editor.Commands.Payloads.Command is
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Cmd.Kind := Editor.Commands.Paste_Text;
       Cmd.Text := Ada.Strings.Unbounded.To_Unbounded_String (Text);
       return Cmd;
    end Paste_Command;
 
-   function Insert_Command (Ch : Character) return Editor.Commands.Command is
-      Cmd : Editor.Commands.Command;
+   function Insert_Command (Ch : Character) return Editor.Commands.Payloads.Command is
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Cmd.Kind := Editor.Commands.Insert_Text_Input;
       Cmd.Ch := Ch;
@@ -5691,9 +5692,9 @@ package body Editor.Feature_Panel.Tests is
    end Insert_Command;
 
    function Simple_Command
-     (Kind : Editor.Commands.Command_Kind) return Editor.Commands.Command
+     (Kind : Editor.Commands.Command_Kind) return Editor.Commands.Payloads.Command
    is
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Cmd.Kind := Kind;
       return Cmd;

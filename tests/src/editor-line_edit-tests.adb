@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -2580,7 +2581,7 @@ package body Editor.Line_Edit.Tests is
      (S       : in out Editor.State.State_Type;
       Payload : String)
    is
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Cmd.Kind := Editor.Commands.Insert_Text_Input;
       Cmd.Text := To_Unbounded_String (Payload);

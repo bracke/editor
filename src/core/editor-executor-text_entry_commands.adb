@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Text_Buffer;
 with Ada.Containers; use Ada.Containers;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -78,9 +79,9 @@ package body Editor.Executor.Text_Entry_Commands is
    end Collapse_All_Selections;
 
    function One_Line_Vector
-     (Text : Unbounded_String) return Editor.Commands.Text_Vectors.Vector
+     (Text : Unbounded_String) return Editor.Commands.Payloads.Text_Vectors.Vector
    is
-      Result : Editor.Commands.Text_Vectors.Vector;
+      Result : Editor.Commands.Payloads.Text_Vectors.Vector;
    begin
       Result.Append (Text);
       return Result;
@@ -188,9 +189,9 @@ package body Editor.Executor.Text_Entry_Commands is
 
    function Split_Lines
    (Text : Unbounded_String)
-      return Editor.Commands.Text_Vectors.Vector
+      return Editor.Commands.Payloads.Text_Vectors.Vector
    is
-      Result : Editor.Commands.Text_Vectors.Vector;
+      Result : Editor.Commands.Payloads.Text_Vectors.Vector;
       Line   : Unbounded_String := Null_Unbounded_String;
    begin
       for I in 1 .. Length (Text) loop
@@ -308,7 +309,7 @@ package body Editor.Executor.Text_Entry_Commands is
       Start_Pos   : Cursor_Index;
       End_Pos     : Cursor_Index;
       New_Caret   : out Cursor_Index;
-      Forward_Cmd : out Editor.Commands.Command)
+      Forward_Cmd : out Editor.Commands.Payloads.Command)
    is
       L    : constant Cursor_Index := Cursor_Index'Min (Start_Pos, End_Pos);
       H    : constant Cursor_Index := Cursor_Index'Max (Start_Pos, End_Pos);
@@ -327,7 +328,7 @@ package body Editor.Executor.Text_Entry_Commands is
      (S               : in out Editor.State.State_Type;
       Selection_Range : Canonical_Selection_Delete_Range;
       New_Caret       : out Cursor_Index;
-      Forward_Cmd     : out Editor.Commands.Command)
+      Forward_Cmd     : out Editor.Commands.Payloads.Command)
    is
    begin
       Apply_Canonical_Range_Delete_As_Undoable_Mutation
@@ -344,7 +345,7 @@ package body Editor.Executor.Text_Entry_Commands is
       Delete_Count : Natural;
       Insert_Text  : Unbounded_String;
       New_Caret    : out Cursor_Index;
-      Forward_Cmd  : out Editor.Commands.Command)
+      Forward_Cmd  : out Editor.Commands.Payloads.Command)
    is
       Insert_Len : constant Natural :=
         Text_Buffer.UTF8_Code_Point_Count (To_String (Insert_Text));
@@ -365,7 +366,7 @@ package body Editor.Executor.Text_Entry_Commands is
    procedure Perform_Delete_Selection
      (S           : in out Editor.State.State_Type;
       New_Caret   : out Cursor_Index;
-      Forward_Cmd : out Editor.Commands.Command;
+      Forward_Cmd : out Editor.Commands.Payloads.Command;
       Changed     : out Boolean;
       Status      : out Line_Edit_Status)
    is
@@ -423,7 +424,7 @@ package body Editor.Executor.Text_Entry_Commands is
    procedure Backspace_All_Carets
      (S           : in out Editor.State.State_Type;
       New_Caret   : out Cursor_Index;
-      Forward_Cmd : out Editor.Commands.Command)
+      Forward_Cmd : out Editor.Commands.Payloads.Command)
    is
       New_Carets : Cursors_Vector.Vector;
       Offset     : Natural := 0;
@@ -469,7 +470,7 @@ package body Editor.Executor.Text_Entry_Commands is
    procedure Delete_All_Carets
      (S           : in out Editor.State.State_Type;
       New_Caret   : out Cursor_Index;
-      Forward_Cmd : out Editor.Commands.Command)
+      Forward_Cmd : out Editor.Commands.Payloads.Command)
    is
       New_Carets   : Cursors_Vector.Vector;
       Old_Carets   : constant Cursors_Vector.Vector := S.Carets;
@@ -599,9 +600,9 @@ package body Editor.Executor.Text_Entry_Commands is
 
    procedure Replace_Selected_Carets
      (S           : in out Editor.State.State_Type;
-      Lines       : Editor.Commands.Text_Vectors.Vector;
+      Lines       : Editor.Commands.Payloads.Text_Vectors.Vector;
       New_Caret   : out Cursor_Index;
-      Forward_Cmd : out Editor.Commands.Command)
+      Forward_Cmd : out Editor.Commands.Payloads.Command)
    is
       Old_State  : constant Editor.State.State_Type := S;
       Old_Carets : constant Cursors_Vector.Vector := S.Carets;
@@ -739,7 +740,7 @@ package body Editor.Executor.Text_Entry_Commands is
 
    function Build_Column_Paste_Targets
    (S     : Editor.State.State_Type;
-      Lines : Editor.Commands.Text_Vectors.Vector)
+      Lines : Editor.Commands.Payloads.Text_Vectors.Vector)
       return Cursors_Vector.Vector
    is
       Result : Cursors_Vector.Vector;
@@ -830,7 +831,7 @@ package body Editor.Executor.Text_Entry_Commands is
       Command_Pos          : Cursor_Index;
       Command_Has_Position : Boolean;
       New_Caret            : out Cursor_Index;
-      Forward_Cmd          : out Editor.Commands.Command;
+      Forward_Cmd          : out Editor.Commands.Payloads.Command;
       Changed              : out Boolean;
       Status               : out Line_Edit_Status)
    is
@@ -918,13 +919,13 @@ package body Editor.Executor.Text_Entry_Commands is
 
    procedure Execute_Text_Entry_Command
      (S               : in out Editor.State.State_Type;
-      Cmd             : Editor.Commands.Command;
+      Cmd             : Editor.Commands.Payloads.Command;
       Had_Selection   : Boolean;
       Sel_Start       : Editor.Cursors.Cursor_Index;
       Sel_End         : Editor.Cursors.Cursor_Index;
       Old_Caret       : Editor.Cursors.Cursor_Index;
       New_Caret       : out Editor.Cursors.Cursor_Index;
-      Forward_Cmd     : out Editor.Commands.Command;
+      Forward_Cmd     : out Editor.Commands.Payloads.Command;
       Should_Log_Edit : out Boolean;
       Line_Status     : out Line_Edit_Status)
    is
@@ -1048,7 +1049,7 @@ package body Editor.Executor.Text_Entry_Commands is
                Paste_Text : constant Unbounded_String :=
                  Normalize_Paste_Text (Cmd.Text);
 
-               Lines : constant Editor.Commands.Text_Vectors.Vector :=
+               Lines : constant Editor.Commands.Payloads.Text_Vectors.Vector :=
                  Split_Lines (Paste_Text);
 
                Targets : constant Cursors_Vector.Vector :=

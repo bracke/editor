@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -727,7 +728,7 @@ package body Editor.Files.Save_Operation_Tests is
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       declare
-         Insert_Current : Editor.Commands.Command;
+         Insert_Current : Editor.Commands.Payloads.Command;
       begin
          Insert_Current.Kind := Editor.Commands.Insert_Text_Input;
          Insert_Current.Pos := 13;

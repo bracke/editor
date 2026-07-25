@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Containers; use Ada.Containers;
 with Text_Buffer;
@@ -287,7 +288,7 @@ package body Editor.Rectangle_Selection is
    end Rectangular_Copy_Text;
 
    procedure Append_Replace_Op
-     (Cmd          : in out Editor.Commands.Command;
+     (Cmd          : in out Editor.Commands.Payloads.Command;
       Pos          : Cursor_Index;
       Delete_Count : Natural;
       Insert_Text  : Unbounded_String) is
@@ -299,7 +300,7 @@ package body Editor.Rectangle_Selection is
 
    procedure Build_Delete_Command
      (S   : Editor.State.State_Type;
-      Cmd : out Editor.Commands.Command)
+      Cmd : out Editor.Commands.Payloads.Command)
    is
       L : Cursor_Index := 0;
       H : Cursor_Index := 0;

@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.State;
 with Editor.Commands;
 with Editor.Cursors;
@@ -6,7 +7,7 @@ package Editor.Executor.Navigation is
 
    procedure Execute
      (S                    : in out Editor.State.State_Type;
-      Cmd                  : Editor.Commands.Command;
+      Cmd                  : Editor.Commands.Payloads.Command;
       Had_Selection        : Boolean;
       Sel_Start            : Editor.Cursors.Cursor_Index;
       Old_Caret            : Editor.Cursors.Cursor_Index;

@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Text_Buffer;
 with Ada.Containers; use Ada.Containers;
 with Editor.State;
@@ -139,7 +140,7 @@ package body Editor.Executor.History is
    end Entry_Owns_Current_Buffer;
 
    procedure Append_Replace_Op
-     (Cmd          : in out Editor.Commands.Command;
+     (Cmd          : in out Editor.Commands.Payloads.Command;
       Pos          : Cursor_Index;
       Delete_Count : Natural;
       Insert_Text  : Unbounded_String) is
@@ -170,9 +171,9 @@ package body Editor.Executor.History is
 
    procedure Apply_Replace_Batch_Command
    (S   : in out Editor.State.State_Type;
-      Cmd : Editor.Commands.Command)
+      Cmd : Editor.Commands.Payloads.Command)
    is
-      Work    : Editor.Commands.Command := Cmd;
+      Work    : Editor.Commands.Payloads.Command := Cmd;
       Overlap : Boolean := False;
 
       procedure Swap_Ops (A, B : Natural) is
@@ -400,10 +401,10 @@ package body Editor.Executor.History is
 
    function Build_Inverse_Replace_Command
      (Before  : Editor.State.State_Type;
-      Forward : Editor.Commands.Command) return Editor.Commands.Command
+      Forward : Editor.Commands.Payloads.Command) return Editor.Commands.Payloads.Command
    is
-      Work    : Editor.Commands.Command := Forward;
-      Inverse : Editor.Commands.Command;
+      Work    : Editor.Commands.Payloads.Command := Forward;
+      Inverse : Editor.Commands.Payloads.Command;
       D       : Integer := 0;
 
       procedure Swap_Ops (A, B : Natural) is
@@ -471,7 +472,7 @@ package body Editor.Executor.History is
    end Build_Inverse_Replace_Command;
 
    function Is_Single_Char_Insert
-     (Forward : Editor.Commands.Command) return Boolean
+     (Forward : Editor.Commands.Payloads.Command) return Boolean
    is
       I : Natural;
    begin
@@ -493,7 +494,7 @@ package body Editor.Executor.History is
    function Is_Typing_Groupable
      (Before  : Editor.State.State_Type;
       After_S : Editor.State.State_Type;
-      Forward : Editor.Commands.Command) return Boolean
+      Forward : Editor.Commands.Payloads.Command) return Boolean
    is
    begin
       if not Is_Single_Char_Insert (Forward) then
@@ -554,9 +555,9 @@ package body Editor.Executor.History is
    end Can_Merge_Typing;
 
    function Build_Typing_Inverse
-     (Forward : Editor.Commands.Command) return Editor.Commands.Command
+     (Forward : Editor.Commands.Payloads.Command) return Editor.Commands.Payloads.Command
    is
-      Inverse : Editor.Commands.Command;
+      Inverse : Editor.Commands.Payloads.Command;
       I       : constant Natural := Forward.Positions.First_Index;
    begin
       Inverse.Kind := Apply_Replace_Batch;
@@ -604,7 +605,7 @@ package body Editor.Executor.History is
    procedure Log_Edit
      (Before  : Editor.State.State_Type;
       After_S : Editor.State.State_Type;
-      Forward : Editor.Commands.Command)
+      Forward : Editor.Commands.Payloads.Command)
    is
       E : Editor.History.History_Entry;
    begin
@@ -654,7 +655,7 @@ package body Editor.Executor.History is
 
    procedure Execute
      (S   : in out Editor.State.State_Type;
-      Cmd : Editor.Commands.Command) is
+      Cmd : Editor.Commands.Payloads.Command) is
    begin
       Last_Failed := False;
 

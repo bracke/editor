@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -461,8 +462,8 @@ package body Editor.Startup_Readiness.Tests is
         Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("startup.show-summary", Found);
       Descriptor : constant Editor.Commands.Descriptors.Command_Descriptor :=
         Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Startup_Show_Summary);
-      Command : constant Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id (Editor.Commands.Command_Startup_Show_Summary);
+      Command : constant Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Startup_Show_Summary);
    begin
       Assert (Found and then Id = Editor.Commands.Command_Startup_Show_Summary,
               "startup.show-summary must resolve to the startup summary command");

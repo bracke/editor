@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with Text_Buffer;
@@ -134,7 +135,7 @@ package body Editor.Executor.Semantic_Completion_Commands is
       End_Pos   : Natural;
       Caret     : Natural;
       Len       : Natural;
-      Cmd       : Editor.Commands.Command;
+      Cmd       : Editor.Commands.Payloads.Command;
       Before    : Editor.State.State_Type;
       Before_Text : Unbounded_String;
    begin

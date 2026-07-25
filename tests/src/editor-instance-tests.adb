@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with AUnit.Assertions; use AUnit.Assertions;
 
 with Editor.Commands; use Editor.Commands;
@@ -19,7 +20,7 @@ package body Editor.Instance.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       E   : Editor.Instance.Editor_Instance;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Editor.Instance.Init (E);
 
@@ -34,7 +35,7 @@ package body Editor.Instance.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       E   : Editor.Instance.Editor_Instance;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Editor.Instance.Init (E);
 
@@ -50,7 +51,7 @@ package body Editor.Instance.Tests is
       (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       E1, E2 : Editor.Instance.Editor_Instance;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
    begin
       Editor.Instance.Init (E1);
       Editor.Instance.Init (E2);

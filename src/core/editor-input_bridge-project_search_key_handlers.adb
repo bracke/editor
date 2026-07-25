@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Cursor;
 with Editor.Executor.Clipboard;
 with Editor.Overlay_Focus;
@@ -34,9 +35,9 @@ package body Editor.Input_Bridge.Project_Search_Key_Handlers is
       Execute         : not null access procedure
         (Id : Editor.Commands.Command_Id);
       Execute_Command : not null access procedure
-        (Command : Editor.Commands.Command)) return Boolean
+        (Command : Editor.Commands.Payloads.Command)) return Boolean
    is
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       if not Editor.Overlay_Focus.Is_Active
         (S.Overlay_Focus, Editor.Overlay_Focus.Project_Search_Bar_Overlay)

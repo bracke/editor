@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
@@ -844,11 +845,11 @@ package body Editor.Command_Surface.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Id  : Editor.Commands.Command_Id;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       for I in 1 .. Editor.Commands.Command_Count loop
          Id := Editor.Commands.Command_At (I);
-         Cmd := Editor.Commands.Command_For_Id (Id);
+         Cmd := Editor.Commands.Payloads.Command_For_Id (Id);
          if Cmd.Kind = Editor.Commands.Break_Group then
             Assert (Executor_Owns_Break_Group_Command (Id),
                     "Break_Group command id must be explicitly executor-owned: " &

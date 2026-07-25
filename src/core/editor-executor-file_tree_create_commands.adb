@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Ada.Directories;
 with Ada.IO_Exceptions;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -17,7 +18,7 @@ package body Editor.Executor.File_Tree_Create_Commands is
 
    procedure Execute_File_Tree_Create_File
      (S   : in out Editor.State.State_Type;
-      Cmd : Editor.Commands.Command)
+      Cmd : Editor.Commands.Payloads.Command)
    is
       Base_Found : Boolean := False;
       Base       : constant String :=
@@ -161,7 +162,7 @@ package body Editor.Executor.File_Tree_Create_Commands is
 
    procedure Execute_File_Tree_Create_Directory
      (S   : in out Editor.State.State_Type;
-      Cmd : Editor.Commands.Command)
+      Cmd : Editor.Commands.Payloads.Command)
    is
       Base_Found : Boolean := False;
       Base       : constant String :=

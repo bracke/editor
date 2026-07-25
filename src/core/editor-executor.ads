@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.State;
 with Editor.Commands;
@@ -68,11 +69,11 @@ package Editor.Executor is
 
    procedure Execute_No_Log
      (S   : in out Editor.State.State_Type;
-      Cmd : Editor.Commands.Command);
+      Cmd : Editor.Commands.Payloads.Command);
 
    procedure Execute_No_Log_With_Status
      (S           : in out Editor.State.State_Type;
-      Cmd         : Editor.Commands.Command;
+      Cmd         : Editor.Commands.Payloads.Command;
       Line_Status : out Editor.Executor_Edit_Status.Line_Edit_Status);
 
    --  Return advisory availability for a stable command id. Execution still
@@ -187,7 +188,7 @@ package Editor.Executor is
       Count  : Natural) return Unbounded_String;
 
    procedure Append_Replace_Op
-     (Cmd          : in out Editor.Commands.Command;
+     (Cmd          : in out Editor.Commands.Payloads.Command;
       Pos          : Editor.Cursors.Cursor_Index;
       Delete_Count : Natural;
       Insert_Text  : Unbounded_String);

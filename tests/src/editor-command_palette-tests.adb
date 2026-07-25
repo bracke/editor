@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -192,7 +193,7 @@ package body Editor.Command_Palette.Tests is
    procedure Test_Enter_Executes_Selected_Command
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
       S   : Editor.State.State_Type;
       Snap : Editor.Render_Model.Render_Snapshot;
    begin
@@ -225,7 +226,7 @@ package body Editor.Command_Palette.Tests is
    procedure Test_Palette_Input_Does_Not_Edit_Buffer
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
       S   : Editor.State.State_Type;
       Snap : Editor.Render_Model.Render_Snapshot;
    begin
@@ -249,7 +250,7 @@ package body Editor.Command_Palette.Tests is
    procedure Test_Render_Layers_When_Open_And_Closed
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
       S   : Editor.State.State_Type;
       Packet : Editor.Render_Packet.Render_Packet;
    begin
@@ -1003,7 +1004,7 @@ package body Editor.Command_Palette.Tests is
    procedure Test_Enter_Unavailable_Command_Keeps_Palette_Open
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
       S   : Editor.State.State_Type;
       After : Editor.State.State_Type;
    begin
@@ -3096,7 +3097,7 @@ package body Editor.Command_Palette.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Editor.Command_Palette.Reset;
       Cmd.Kind := Editor.Commands.Palette_Show_Command_Help;

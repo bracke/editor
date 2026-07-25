@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Executor.Clipboard;
 with Editor.Executor.Navigation_Commands;
@@ -11,13 +12,13 @@ package body Editor.Input_Bridge.Goto_Line_Handlers is
 
    function Handle_Goto_Line
      (S               : in out Editor.State.State_Type;
-      Cmd             : Editor.Commands.Command;
+      Cmd             : Editor.Commands.Payloads.Command;
       Execute         : not null access procedure
         (Id : Editor.Commands.Command_Id);
       Execute_Command : not null access procedure
-        (Command : Editor.Commands.Command)) return Boolean
+        (Command : Editor.Commands.Payloads.Command)) return Boolean
    is
-      Cmd2 : Editor.Commands.Command;
+      Cmd2 : Editor.Commands.Payloads.Command;
    begin
       if Cmd.Kind = Editor.Commands.Open_Goto_Line then
          Execute (Editor.Commands.Command_Goto_Line);

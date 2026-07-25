@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -1607,7 +1608,7 @@ procedure Test_Line_Comment_Command_Descriptors
       Id    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
       Found : Boolean := False;
       Desc  : Editor.Commands.Descriptors.Command_Descriptor;
-      Cmd   : Editor.Commands.Command;
+      Cmd   : Editor.Commands.Payloads.Command;
       S     : Editor.State.State_Type;
       Availability : Editor.Commands.Command_Availability;
       Before_Text  : Unbounded_String;
@@ -1637,7 +1638,7 @@ procedure Test_Line_Comment_Command_Descriptors
         (Editor.Commands.Is_Bindable_Command
            (Editor.Commands.Command_Line_Split_At_Caret),
          "split must be bindable");
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Line_Split_At_Caret);
       Assert (Cmd.Kind = Editor.Commands.Split_Current_Line_At_Caret,
               "split command must map to canonical edit kind");
@@ -1985,7 +1986,7 @@ procedure Test_Line_Comment_Command_Descriptors
         (Found and then Id = Editor.Commands.Command_Selection_Delete,
          "selection delete stable name must resolve to the command id");
       Assert
-        (Editor.Commands.Command_For_Id
+        (Editor.Commands.Payloads.Command_For_Id
            (Editor.Commands.Command_Selection_Delete).Kind =
          Editor.Commands.Delete_Selection_Range,
          "selection delete id must create the canonical edit command kind");

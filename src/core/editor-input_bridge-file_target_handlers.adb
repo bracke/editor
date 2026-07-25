@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Executor.Clipboard;
 with Editor.Executor.File_Target_Prompt_Commands;
@@ -10,7 +11,7 @@ package body Editor.Input_Bridge.File_Target_Handlers is
 
    function Handle_File_Target_Prompt
      (S   : in out Editor.State.State_Type;
-      Cmd : Editor.Commands.Command) return Boolean
+      Cmd : Editor.Commands.Payloads.Command) return Boolean
    is
    begin
       if not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S) then

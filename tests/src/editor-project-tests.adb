@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -734,8 +735,8 @@ package body Editor.Project.Tests is
    is
       pragma Unreferenced (T);
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id (Editor.Commands.Command_Open_Project);
+      Cmd : Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Open_Project);
    begin
       Editor.State.Init (S);
 

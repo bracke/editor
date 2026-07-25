@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with Editor.Commands; use Editor.Commands;
@@ -14,7 +15,7 @@ package body Editor.Executor.Command_Kind_Input_Commands is
 
    function Try_Execute_Input_Kind
      (S   : in out Editor.State.State_Type;
-      Cmd : Editor.Commands.Command) return Boolean
+      Cmd : Editor.Commands.Payloads.Command) return Boolean
    is
    begin
       case Cmd.Kind is

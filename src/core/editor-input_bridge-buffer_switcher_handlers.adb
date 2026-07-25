@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Buffer_Switcher;
 with Editor.Executor.Clipboard;
@@ -10,13 +11,13 @@ package body Editor.Input_Bridge.Buffer_Switcher_Handlers is
 
    function Handle_Buffer_Switcher
      (S               : in out Editor.State.State_Type;
-      Cmd             : Editor.Commands.Command;
+      Cmd             : Editor.Commands.Payloads.Command;
       Execute         : not null access procedure
         (Id : Editor.Commands.Command_Id);
       Execute_Command : not null access procedure
-        (Command : Editor.Commands.Command)) return Boolean
+        (Command : Editor.Commands.Payloads.Command)) return Boolean
    is
-      Cmd2 : Editor.Commands.Command;
+      Cmd2 : Editor.Commands.Payloads.Command;
    begin
       if Cmd.Kind = Editor.Commands.Open_Buffer_Switcher then
          Execute (Editor.Commands.Command_Open_Buffer_Switcher);

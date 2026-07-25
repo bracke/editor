@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Text_Buffer;
 with Ada.Containers; use Ada.Containers;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -216,7 +217,7 @@ package body Editor.Executor.Text_Delete_Commands is
      (S           : in out Editor.State.State_Type;
       Selection_Range       : Canonical_Word_Delete_Range;
       New_Caret   : out Cursor_Index;
-      Forward_Cmd : out Editor.Commands.Command)
+      Forward_Cmd : out Editor.Commands.Payloads.Command)
    is
    begin
       Forward_Cmd.Kind := Apply_Replace_Batch;
@@ -299,7 +300,7 @@ package body Editor.Executor.Text_Delete_Commands is
      (S           : in out Editor.State.State_Type;
       Selection_Range       : Canonical_Character_Delete_Range;
       New_Caret   : out Cursor_Index;
-      Forward_Cmd : out Editor.Commands.Command)
+      Forward_Cmd : out Editor.Commands.Payloads.Command)
    is
    begin
       Forward_Cmd.Kind := Apply_Replace_Batch;
@@ -317,7 +318,7 @@ package body Editor.Executor.Text_Delete_Commands is
    procedure Perform_Delete_Previous_Character
      (S           : in out Editor.State.State_Type;
       New_Caret   : out Cursor_Index;
-      Forward_Cmd : out Editor.Commands.Command;
+      Forward_Cmd : out Editor.Commands.Payloads.Command;
       Changed     : out Boolean;
       Status      : out Line_Edit_Status)
    is
@@ -374,7 +375,7 @@ package body Editor.Executor.Text_Delete_Commands is
    procedure Perform_Delete_Next_Character
      (S           : in out Editor.State.State_Type;
       New_Caret   : out Cursor_Index;
-      Forward_Cmd : out Editor.Commands.Command;
+      Forward_Cmd : out Editor.Commands.Payloads.Command;
       Changed     : out Boolean;
       Status      : out Line_Edit_Status)
    is
@@ -431,7 +432,7 @@ package body Editor.Executor.Text_Delete_Commands is
    procedure Perform_Delete_Previous_Word
      (S           : in out Editor.State.State_Type;
       New_Caret   : out Cursor_Index;
-      Forward_Cmd : out Editor.Commands.Command;
+      Forward_Cmd : out Editor.Commands.Payloads.Command;
       Changed     : out Boolean;
       Status      : out Line_Edit_Status)
    is
@@ -488,7 +489,7 @@ package body Editor.Executor.Text_Delete_Commands is
    procedure Perform_Delete_Next_Word
      (S           : in out Editor.State.State_Type;
       New_Caret   : out Cursor_Index;
-      Forward_Cmd : out Editor.Commands.Command;
+      Forward_Cmd : out Editor.Commands.Payloads.Command;
       Changed     : out Boolean;
       Status      : out Line_Edit_Status)
    is

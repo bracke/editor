@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Fixed; use Ada.Strings.Fixed;
@@ -408,7 +409,7 @@ package body Editor.Status_Bar.Tests is
    is
       pragma Unreferenced (T);
       Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       Before : Editor.Render_Model.Render_Snapshot;
       After  : Editor.Render_Model.Render_Snapshot;
    begin

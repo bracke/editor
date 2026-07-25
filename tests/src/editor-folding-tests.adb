@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -143,7 +144,7 @@ package body Editor.Folding.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
       Snap : Editor.Render_Model.Render_Snapshot;
       Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
    begin
@@ -221,7 +222,7 @@ package body Editor.Folding.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
       Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
    begin
       Editor.State.Init (S);

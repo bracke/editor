@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.State;
 with Editor.Commands;   use Editor.Commands;
 with Editor.Cursors;    use Editor.Cursors;
@@ -108,7 +109,7 @@ package body Editor.Executor.Rectangular is
 
    procedure Execute
      (S                    : in out Editor.State.State_Type;
-      Cmd                  : Editor.Commands.Command;
+      Cmd                  : Editor.Commands.Payloads.Command;
       New_Caret            : out Cursor_Index;
       New_Preferred_Column : out Natural) is
    begin

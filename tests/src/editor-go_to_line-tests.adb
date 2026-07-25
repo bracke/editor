@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -642,7 +643,7 @@ package body Editor.Go_To_Line.Tests is
    is
       pragma Unreferenced (T);
       S    : Editor.State.State_Type;
-      Cmd  : Editor.Commands.Command;
+      Cmd  : Editor.Commands.Payloads.Command;
       Snap : Editor.Render_Model.Render_Snapshot;
    begin
       Editor.State.Init (S);

@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Buffer_Switcher;
 with Editor.Buffers;
 with Editor.Command_Execution;
@@ -673,7 +674,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
 
          when others =>
             Execute_Buffer_Switcher_Pending_Mark_Kind
-              (S, Editor.Commands.Command_For_Id (Id).Kind);
+              (S, Editor.Commands.Payloads.Command_For_Id (Id).Kind);
       end case;
 
       Editor.Render_Cache.Invalidate_All;

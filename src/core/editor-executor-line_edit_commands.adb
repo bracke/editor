@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Ada.Containers; use Ada.Containers;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
@@ -492,7 +493,7 @@ package body Editor.Executor.Line_Edit_Commands is
    procedure Perform_Delete_Current_Line
      (S           : in out Editor.State.State_Type;
       New_Caret   : out Cursor_Index;
-      Forward_Cmd : out Editor.Commands.Command;
+      Forward_Cmd : out Editor.Commands.Payloads.Command;
       Changed     : out Boolean;
       Status      : out Editor.Executor.Edits.Line_Edit_Status)
    is
@@ -565,7 +566,7 @@ package body Editor.Executor.Line_Edit_Commands is
    procedure Perform_Duplicate_Current_Line
      (S           : in out Editor.State.State_Type;
       New_Caret   : out Cursor_Index;
-      Forward_Cmd : out Editor.Commands.Command;
+      Forward_Cmd : out Editor.Commands.Payloads.Command;
       Changed     : out Boolean;
       Status      : out Editor.Executor.Edits.Line_Edit_Status)
    is
@@ -624,7 +625,7 @@ package body Editor.Executor.Line_Edit_Commands is
      (S           : in out Editor.State.State_Type;
       Direction   : Integer;
       New_Caret   : out Cursor_Index;
-      Forward_Cmd : out Editor.Commands.Command;
+      Forward_Cmd : out Editor.Commands.Payloads.Command;
       Changed     : out Boolean;
       Status      : out Editor.Executor.Edits.Line_Edit_Status)
    is
@@ -719,7 +720,7 @@ package body Editor.Executor.Line_Edit_Commands is
    procedure Perform_Join_Current_Line_With_Next
      (S           : in out Editor.State.State_Type;
       New_Caret   : out Cursor_Index;
-      Forward_Cmd : out Editor.Commands.Command;
+      Forward_Cmd : out Editor.Commands.Payloads.Command;
       Changed     : out Boolean;
       Status      : out Editor.Executor.Edits.Line_Edit_Status)
    is
@@ -778,7 +779,7 @@ package body Editor.Executor.Line_Edit_Commands is
    procedure Perform_Split_Current_Line_At_Caret
      (S           : in out Editor.State.State_Type;
       New_Caret   : out Cursor_Index;
-      Forward_Cmd : out Editor.Commands.Command;
+      Forward_Cmd : out Editor.Commands.Payloads.Command;
       Changed     : out Boolean;
       Status      : out Editor.Executor.Edits.Line_Edit_Status)
    is
@@ -895,7 +896,7 @@ package body Editor.Executor.Line_Edit_Commands is
       return Editor.Command_Execution.Command_Execution_Result
    is
       Before_Messages : constant Natural := Editor.Messages.Count (S.Messages);
-      Cmd             : Editor.Commands.Command;
+      Cmd             : Editor.Commands.Payloads.Command;
       Line_Status     : Editor.Executor.Edits.Line_Edit_Status;
    begin
       case Id is
@@ -910,7 +911,7 @@ package body Editor.Executor.Line_Edit_Commands is
             | Editor.Commands.Command_Toggle_Line_Comment
             | Editor.Commands.Command_Line_Join_Next
             | Editor.Commands.Command_Line_Split_At_Caret =>
-            Cmd := Editor.Commands.Command_For_Id (Id, Shift);
+            Cmd := Editor.Commands.Payloads.Command_For_Id (Id, Shift);
             Editor.Executor.Execute_No_Log_With_Status
               (S, Cmd, Line_Status);
             Editor.Buffers.Sync_Global_Active_From_State (S);

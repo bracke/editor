@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Executor.Shared_Services;
 use Editor.Executor.Shared_Services;
 with Editor.Commands;
@@ -133,7 +134,7 @@ package body Editor.Executor.Project_Search_Surface_Commands is
 
    procedure Execute_Project_Search_Kind
      (S   : in out Editor.State.State_Type;
-      Cmd : Editor.Commands.Command)
+      Cmd : Editor.Commands.Payloads.Command)
       renames Editor.Executor.Search_Commands.Execute_Project_Search_Kind;
 
 end Editor.Executor.Project_Search_Surface_Commands;

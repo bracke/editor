@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Containers; use type Ada.Containers.Count_Type;
@@ -20,7 +21,7 @@ package body Editor.Input_Bridge.Command_Palette_Handlers is
 
    function Handle_Command_Palette
      (S              : in out Editor.State.State_Type;
-      Cmd            : Editor.Commands.Command;
+      Cmd            : Editor.Commands.Payloads.Command;
       Execute        : not null access procedure
         (Id : Editor.Commands.Command_Id);
       Report_Info    : not null access procedure (Message : String);

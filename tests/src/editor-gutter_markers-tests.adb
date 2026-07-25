@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Interfaces.C; use Interfaces.C;
@@ -78,7 +79,7 @@ package body Editor.Gutter_Markers.Tests is
      (X : Natural;
       Y : Natural)
    is
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Cmd.Kind := Editor.Commands.Move_To_Point;
       Cmd.Click_X := X;
@@ -90,7 +91,7 @@ package body Editor.Gutter_Markers.Tests is
      (X : Natural;
       Y : Natural)
    is
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Cmd.Kind := Editor.Commands.Pointer_Hover;
       Cmd.Click_X := X;

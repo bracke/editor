@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Commands;
 with Editor.State;
 
@@ -8,11 +9,11 @@ package Editor.Input_Bridge.Panel_Feature_Problems_Pointer_Handlers is
 
    function Handle_Feature_Panel_Pointer
      (S   : in out Editor.State.State_Type;
-      Cmd : Editor.Commands.Command) return Boolean;
+      Cmd : Editor.Commands.Payloads.Command) return Boolean;
 
    function Handle_Problems_Panel_Pointer
      (S       : in out Editor.State.State_Type;
-      Cmd     : Editor.Commands.Command;
+      Cmd     : Editor.Commands.Payloads.Command;
       Execute : Execute_Command_Access) return Boolean;
 
 end Editor.Input_Bridge.Panel_Feature_Problems_Pointer_Handlers;

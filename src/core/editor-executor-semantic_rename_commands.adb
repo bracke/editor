@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Ada.Containers;
 with Ada.Strings;
 with Ada.Strings.Fixed;
@@ -459,7 +460,7 @@ package body Editor.Executor.Semantic_Rename_Commands is
                              Editor.Buffers.No_Buffer;
                            Buffer_State : Editor.State.State_Type;
                            Open_Result : Editor.Files.File_Open_Result;
-                           Cmd : Editor.Commands.Command;
+                           Cmd : Editor.Commands.Payloads.Command;
                            Before_Text : Unbounded_String;
                            Replaced : Boolean := False;
                         begin

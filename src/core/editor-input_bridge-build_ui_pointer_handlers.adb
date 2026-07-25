@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Build_UI;
 with Editor.Build_UI_Actions;
@@ -20,7 +21,7 @@ package body Editor.Input_Bridge.Build_UI_Pointer_Handlers is
 
    function Handle_Build_UI_Panel_Pointer
      (S       : in out Editor.State.State_Type;
-      Cmd     : Editor.Commands.Command;
+      Cmd     : Editor.Commands.Payloads.Command;
       Execute : Execute_Command_Access;
       Report  : Report_Info_Access) return Boolean
    is

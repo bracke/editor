@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Input_Bridge;
 with Editor.Commands;
 with Editor.View;
@@ -10,7 +11,7 @@ with Editor.Keybindings;
 package body Editor.Bridge is
 
    procedure Send_Break_Group is
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Cmd.Kind := Editor.Commands.Break_Group;
       Editor.Input_Bridge.Handle (Cmd);
@@ -151,9 +152,9 @@ package body Editor.Bridge is
    end To_Character_Key_Chord;
 
    function To_Command
-     (Ev : Platform_Event) return Editor.Commands.Command
+     (Ev : Platform_Event) return Editor.Commands.Payloads.Command
    is
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Cmd.Shift := To_Bool (Ev.Shift);
       Cmd.Ctrl  := To_Bool (Ev.Ctrl);

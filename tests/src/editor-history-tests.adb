@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
 with Editor.State;
@@ -54,16 +55,16 @@ package body Editor.History.Tests is
       Editor.State.Normalize_Carets (S);
    end Set_Caret;
 
-   function Paste (S : String) return Editor.Commands.Command is
-      Cmd : Editor.Commands.Command;
+   function Paste (S : String) return Editor.Commands.Payloads.Command is
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Cmd.Kind := Editor.Commands.Paste_Text;
       Cmd.Text := To_Unbounded_String (S);
       return Cmd;
    end Paste;
 
-   function Forward_Delete return Editor.Commands.Command is
-      Cmd : Editor.Commands.Command;
+   function Forward_Delete return Editor.Commands.Payloads.Command is
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Cmd.Kind := Editor.Commands.Forward_Delete_Char;
       return Cmd;
@@ -356,7 +357,7 @@ package body Editor.History.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Editor.State.Init (S);
       Editor.Executor.Execute_No_Log (S, Paste ("abcdef"));
@@ -377,7 +378,7 @@ package body Editor.History.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Editor.State.Init (S);
       Editor.Executor.Execute_No_Log (S, Paste ("aa" & ASCII.LF & "bb" & ASCII.LF & "cc"));
@@ -536,7 +537,7 @@ package body Editor.History.Tests is
       pragma Unreferenced (T);
       S      : Editor.State.State_Type;
       Before : Editor.State.State_Type;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
    begin
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
@@ -893,7 +894,7 @@ package body Editor.History.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Editor.State.Init (S);
       Set_Buffer_Text (S, "A");

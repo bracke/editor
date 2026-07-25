@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
@@ -300,7 +301,7 @@ package body Editor.Executor.Find_Replace_Commands is
    end Report_Invalid_Replace_Text;
 
    procedure Append_Replace_Op
-     (Cmd          : in out Editor.Commands.Command;
+     (Cmd          : in out Editor.Commands.Payloads.Command;
       Pos          : Cursor_Index;
       Delete_Count : Natural;
       Insert_Text  : Unbounded_String) is
@@ -316,7 +317,7 @@ package body Editor.Executor.Find_Replace_Commands is
    end Image_Of;
 
    procedure Append_Find_Replacement_Op
-     (Cmd   : in out Editor.Commands.Command;
+     (Cmd   : in out Editor.Commands.Payloads.Command;
       Match : Editor.Search.Search_Match;
       Text  : Unbounded_String) is
    begin
@@ -419,7 +420,7 @@ package body Editor.Executor.Find_Replace_Commands is
       Ordinal : Natural := 0;
       Match : Editor.Search.Search_Match := Editor.Search.No_Match;
       Edit_Origin : Natural := 0;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Editor.Buffers.Ensure_Global_Registry (S);
       Before := S;
@@ -505,7 +506,7 @@ package body Editor.Executor.Find_Replace_Commands is
       Replacement : constant String := To_String (S.Active_Replace_Text);
       Count : Natural := 0;
       Edit_Origin : Natural := 0;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Editor.Buffers.Ensure_Global_Registry (S);
       Before := S;

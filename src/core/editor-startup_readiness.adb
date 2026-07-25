@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Directories;
 with Ada.Strings.Fixed;
@@ -1162,10 +1163,10 @@ package body Editor.Startup_Readiness is
         Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Startup_Show_Summary);
       Recovery_Descriptor : constant Editor.Commands.Descriptors.Command_Descriptor :=
         Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Configuration_Recover_Show);
-      Startup_Command : constant Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id (Editor.Commands.Command_Startup_Show_Summary);
-      Recovery_Command : constant Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id (Editor.Commands.Command_Configuration_Recover_Show);
+      Startup_Command : constant Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Startup_Show_Summary);
+      Recovery_Command : constant Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Configuration_Recover_Show);
    begin
       return Startup_Descriptor.Visibility = Editor.Commands.Descriptors.Palette_Command
         and then Recovery_Descriptor.Visibility = Editor.Commands.Descriptors.Palette_Command

@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with Editor.Commands; use Editor.Commands;
@@ -12,7 +13,7 @@ with Editor.State;
 package body Editor.Executor.Edits is
 
    procedure Append_Replace_Op
-     (Cmd          : in out Editor.Commands.Command;
+     (Cmd          : in out Editor.Commands.Payloads.Command;
       Pos          : Cursor_Index;
       Delete_Count : Natural;
       Insert_Text  : Unbounded_String) is
@@ -24,13 +25,13 @@ package body Editor.Executor.Edits is
 
    procedure Execute
      (S               : in out Editor.State.State_Type;
-      Cmd             : Editor.Commands.Command;
+      Cmd             : Editor.Commands.Payloads.Command;
       Had_Selection   : Boolean;
       Sel_Start       : Cursor_Index;
       Sel_End         : Cursor_Index;
       Old_Caret       : Cursor_Index;
       New_Caret       : out Cursor_Index;
-      Forward_Cmd     : out Editor.Commands.Command;
+      Forward_Cmd     : out Editor.Commands.Payloads.Command;
       Should_Log_Edit : out Boolean;
       Line_Status     : out Line_Edit_Status)
    is

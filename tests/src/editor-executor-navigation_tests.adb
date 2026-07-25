@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -588,7 +589,7 @@ package body Editor.Executor.Navigation_Tests is
    is
       pragma Unreferenced (T);
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Init_Executor_Test_State (S);
       Set_Buffer_Text (S, "alpha beta alpha");
@@ -612,7 +613,7 @@ package body Editor.Executor.Navigation_Tests is
    is
       pragma Unreferenced (T);
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Init_Executor_Test_State (S);
       Set_Buffer_Text (S, "abc");

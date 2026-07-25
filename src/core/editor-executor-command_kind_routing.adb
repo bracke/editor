@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with Editor.Executor.Bookmark_Commands;
@@ -59,7 +60,7 @@ package body Editor.Executor.Command_Kind_Routing is
 
    function Try_Execute_Non_Edit_Kind
      (S   : in out Editor.State.State_Type;
-      Cmd : Editor.Commands.Command) return Boolean
+      Cmd : Editor.Commands.Payloads.Command) return Boolean
    is
       use Editor.Commands;
 

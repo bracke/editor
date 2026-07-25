@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Diagnostics;
 with Editor.Executor.Diagnostics_Commands;
 with Editor.Executor.Diagnostics_Navigation_Commands;
@@ -42,7 +43,7 @@ package body Editor.Input_Bridge.Panel_Feature_Problems_Pointer_Handlers is
 
    function Handle_Feature_Panel_Pointer
      (S   : in out Editor.State.State_Type;
-      Cmd : Editor.Commands.Command) return Boolean
+      Cmd : Editor.Commands.Payloads.Command) return Boolean
    is
       Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
       Width  : constant Natural :=
@@ -185,7 +186,7 @@ package body Editor.Input_Bridge.Panel_Feature_Problems_Pointer_Handlers is
 
    function Handle_Problems_Panel_Pointer
      (S       : in out Editor.State.State_Type;
-      Cmd     : Editor.Commands.Command;
+      Cmd     : Editor.Commands.Payloads.Command;
       Execute : Execute_Command_Access) return Boolean
    is
       Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;

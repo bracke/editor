@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with Editor.Ada_Diagnostic_Action_Execution;
@@ -360,7 +361,7 @@ package body Editor.Executor.Diagnostics_Action_Commands is
                Delete_Count : Natural := 0;
                Pos : Natural := 0;
                End_Pos : Natural := 0;
-               Cmd : Editor.Commands.Command;
+               Cmd : Editor.Commands.Payloads.Command;
                Before : Editor.State.State_Type;
                Before_Text : Unbounded_String;
                Target_State : Editor.State.State_Type;

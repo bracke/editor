@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
@@ -175,7 +176,7 @@ package body Editor.Files.Tests is
       pragma Unreferenced (T);
       S      : Editor.State.State_Type;
       Path   : constant String := Temp_Path ("reset.txt");
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       Status : Editor.Files.File_Status;
    begin
       Remove_If_Exists (Path);
@@ -250,7 +251,7 @@ package body Editor.Files.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S     : Editor.State.State_Type;
-      Cmd   : Editor.Commands.Command;
+      Cmd   : Editor.Commands.Payloads.Command;
       Path  : constant String := Temp_Path ("execute_open.txt");
       Found : Boolean := False;
       M     : Editor.Messages.Editor_Message;

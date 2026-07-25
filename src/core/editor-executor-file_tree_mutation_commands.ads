@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded;
 with Editor.Commands;
 with Editor.File_Tree;
@@ -5,7 +6,7 @@ with Editor.State;
 
 package Editor.Executor.File_Tree_Mutation_Commands is
    function File_Tree_Input_Text
-     (Cmd : Editor.Commands.Command) return String;
+     (Cmd : Editor.Commands.Payloads.Command) return String;
 
    function Contains_Control_File_Tree_Input_Character
      (Value : String) return Boolean;

@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Executor.Clipboard;
 with Editor.Executor.Quick_Open_Commands;
@@ -14,11 +15,11 @@ package body Editor.Input_Bridge.Quick_Open_Handlers is
 
    function Handle_Quick_Open
      (S               : in out Editor.State.State_Type;
-      Cmd             : Editor.Commands.Command;
+      Cmd             : Editor.Commands.Payloads.Command;
       Execute         : not null access procedure
         (Id : Editor.Commands.Command_Id);
       Execute_Command : not null access procedure
-        (Command : Editor.Commands.Command)) return Boolean
+        (Command : Editor.Commands.Payloads.Command)) return Boolean
    is
       Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
       Message_Body   : constant Editor.Layout.Rect :=
@@ -26,7 +27,7 @@ package body Editor.Input_Bridge.Quick_Open_Handlers is
           (Layout, Editor.View.Viewport_Width, Editor.View.Viewport_Height);
       Config : constant Editor.Quick_Open.Quick_Open_Config := (others => <>);
       Hit    : Editor.Quick_Open.Quick_Open_Hit_Result;
-      Cmd2   : Editor.Commands.Command;
+      Cmd2   : Editor.Commands.Payloads.Command;
    begin
       if Cmd.Kind = Editor.Commands.Open_Quick_Open then
          Execute (Editor.Commands.Command_Open_Quick_Open);

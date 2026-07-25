@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded;
 
 with Editor.State;
@@ -34,6 +35,6 @@ package Editor.Executor.Clipboard is
 
    procedure Execute
      (S   : in out Editor.State.State_Type;
-      Cmd : Editor.Commands.Command);
+      Cmd : Editor.Commands.Payloads.Command);
 
 end Editor.Executor.Clipboard;

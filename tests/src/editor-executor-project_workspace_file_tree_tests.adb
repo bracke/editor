@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -337,7 +338,7 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
       S          : Editor.State.State_Type;
       Root       : constant String := Temp_Path ("recent_project");
       Config_Dir : constant String := Temp_Path ("recent_config");
-      Cmd        : Editor.Commands.Command;
+      Cmd        : Editor.Commands.Payloads.Command;
    begin
       Remove_Tree_If_Exists (Root);
       Remove_Tree_If_Exists (Config_Dir);
@@ -367,7 +368,7 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
       pragma Unreferenced (T);
       S       : Editor.State.State_Type;
       Missing : constant String := Temp_Path ("missing_recent_project");
-      Cmd     : Editor.Commands.Command;
+      Cmd     : Editor.Commands.Payloads.Command;
    begin
       Remove_Tree_If_Exists (Missing);
       Init_Executor_Test_State (S);
@@ -526,8 +527,8 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
       Renamed_Path : constant String :=
         Ada.Directories.Compose (Root, "notes-renamed.txt");
       S : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id
+      Cmd : Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id
           (Editor.Commands.Command_File_Tree_Rename_Selected);
       Result : Editor.Executor.Command_Execution_Result;
       Targets : Editor.Ada_Project_Index.Index_Resolution_Result;
@@ -595,8 +596,8 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
       New_Path : constant String := Ada.Directories.Compose (Root, "renamed.txt");
       S        : Editor.State.State_Type;
       Open_Res : Editor.Project.Project_Open_Result;
-      Cmd      : Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id
+      Cmd      : Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id
           (Editor.Commands.Command_File_Tree_Rename_Selected);
       Analysis : Editor.Ada_Language_Model.Analysis_Result;
       Ignored  : Editor.Ada_Language_Model.Symbol_Id;
@@ -687,8 +688,8 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
       Open_Res   : Editor.Project.Project_Open_Result;
       Candidates : Editor.Build_Candidates.Build_Candidate_Vector :=
         Editor.Build_Candidates.Empty_Candidates;
-      Cmd        : Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id
+      Cmd        : Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id
           (Editor.Commands.Command_File_Tree_Delete_Selected);
    begin
       Remove_Tree_If_Exists (Root);
@@ -746,8 +747,8 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
       Open_Res   : Editor.Project.Project_Open_Result;
       Candidates : Editor.Build_Candidates.Build_Candidate_Vector :=
         Editor.Build_Candidates.Empty_Candidates;
-      Cmd        : Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id
+      Cmd        : Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id
           (Editor.Commands.Command_File_Tree_Rename_Selected);
    begin
       Remove_Tree_If_Exists (Root);
@@ -807,8 +808,8 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
       New_Path : constant String := Ada.Directories.Compose (Root, "renamed.txt");
       S        : Editor.State.State_Type;
       Open_Res : Editor.Project.Project_Open_Result;
-      Cmd      : Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id
+      Cmd      : Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id
           (Editor.Commands.Command_File_Tree_Rename_Selected);
    begin
       Remove_Tree_If_Exists (Root);
@@ -873,8 +874,8 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
         Editor.Build_Candidates.Gprbuild_Candidate (Root, "demo.gpr");
       Candidates : Editor.Build_Candidates.Build_Candidate_Vector :=
         Editor.Build_Candidates.Empty_Candidates;
-      Cmd      : Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id
+      Cmd      : Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id
           (Editor.Commands.Command_File_Tree_Rename_Selected);
    begin
       Remove_Tree_If_Exists (Root);

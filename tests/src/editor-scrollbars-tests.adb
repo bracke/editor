@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -183,7 +184,7 @@ package body Editor.Scrollbars.Tests is
    is
       pragma Unreferenced (T);
       Geometry : Editor.Scrollbars.Scrollbar_Geometry;
-      Cmd      : Editor.Commands.Command;
+      Cmd      : Editor.Commands.Payloads.Command;
    begin
       Prepare_Lines (100);
       Geometry := Vertical_Geometry_For_Current_View;
@@ -208,7 +209,7 @@ package body Editor.Scrollbars.Tests is
    is
       pragma Unreferenced (T);
       Geometry : Editor.Scrollbars.Scrollbar_Geometry;
-      Cmd      : Editor.Commands.Command;
+      Cmd      : Editor.Commands.Payloads.Command;
    begin
       Prepare_Lines (100);
       Geometry := Vertical_Geometry_For_Current_View;

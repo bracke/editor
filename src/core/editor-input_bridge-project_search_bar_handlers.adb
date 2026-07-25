@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Executor;
 with Editor.Executor.Clipboard;
@@ -14,11 +15,11 @@ package body Editor.Input_Bridge.Project_Search_Bar_Handlers is
 
    function Handle_Project_Search_Bar
      (S               : in out Editor.State.State_Type;
-      Cmd             : Editor.Commands.Command;
+      Cmd             : Editor.Commands.Payloads.Command;
       Execute         : not null access procedure
         (Id : Editor.Commands.Command_Id);
       Execute_Command : not null access procedure
-        (Command : Editor.Commands.Command);
+        (Command : Editor.Commands.Payloads.Command);
       Sync_Replace_Mode : not null access procedure) return Boolean
    is
       Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
@@ -27,7 +28,7 @@ package body Editor.Input_Bridge.Project_Search_Bar_Handlers is
           (Layout, Editor.View.Viewport_Width, Editor.View.Viewport_Height);
       Config : constant Editor.Project_Search_Bar.Project_Search_Bar_Config := (others => <>);
       Hit    : Editor.Project_Search_Bar.Project_Search_Bar_Hit_Result;
-      Cmd2   : Editor.Commands.Command;
+      Cmd2   : Editor.Commands.Payloads.Command;
    begin
       if Cmd.Kind = Editor.Commands.Open_Project_Search_Bar then
          Execute (Editor.Commands.Command_Open_Project_Search_Bar);

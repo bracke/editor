@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Ada.Containers; use Ada.Containers;
 
 with Text_Buffer;
@@ -102,12 +103,12 @@ package body Editor.Executor.Selection_Commands is
 
    procedure Execute_No_Log
      (S   : in out Editor.State.State_Type;
-      Cmd : Editor.Commands.Command) renames Editor.Executor.Execute_No_Log;
+      Cmd : Editor.Commands.Payloads.Command) renames Editor.Executor.Execute_No_Log;
 
    procedure Execute_Select_Line
      (S : in out Editor.State.State_Type)
    is
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Cmd.Kind := Editor.Commands.Select_Line;
       Execute_No_Log (S, Cmd);
@@ -181,7 +182,7 @@ package body Editor.Executor.Selection_Commands is
    procedure Execute_Select_Word
      (S : in out Editor.State.State_Type)
    is
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Cmd.Kind := Editor.Commands.Select_Word;
       Execute_No_Log (S, Cmd);
@@ -370,7 +371,7 @@ package body Editor.Executor.Selection_Commands is
    procedure Execute_Start_Rectangular_Selection
      (S : in out Editor.State.State_Type)
    is
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Cmd.Kind := Editor.Commands.Start_Rectangle_At_Caret;
       Execute_No_Log (S, Cmd);
@@ -409,7 +410,7 @@ package body Editor.Executor.Selection_Commands is
    procedure Execute_Clear_Rectangular_Selection
      (S : in out Editor.State.State_Type)
    is
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Cmd.Kind := Editor.Commands.Clear_Rectangle_Selection;
       Execute_No_Log (S, Cmd);
@@ -499,7 +500,7 @@ package body Editor.Executor.Selection_Commands is
      (S         : in out Editor.State.State_Type;
       Direction : Editor.Navigation.Navigation_Direction)
    is
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       case Direction is
          when Editor.Navigation.Backward =>

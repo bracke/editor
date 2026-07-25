@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -422,7 +423,7 @@ package body Editor.Core_Editing_Workflow.Tests is
    is
       pragma Unreferenced (T);
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Init_Executor_Test_State (S);
       Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Dirty_Lines) = 0,
@@ -452,7 +453,7 @@ package body Editor.Core_Editing_Workflow.Tests is
    is
       pragma Unreferenced (T);
       S    : Editor.State.State_Type;
-      Cmd  : Editor.Commands.Command;
+      Cmd  : Editor.Commands.Payloads.Command;
       Path : constant String := Temp_Path ("save.txt");
    begin
       Remove_File_If_Exists (Path);
@@ -481,7 +482,7 @@ package body Editor.Core_Editing_Workflow.Tests is
    is
       pragma Unreferenced (T);
       S        : Editor.State.State_Type;
-      Cmd      : Editor.Commands.Command;
+      Cmd      : Editor.Commands.Payloads.Command;
       A_Id     : Editor.Buffers.Buffer_Id;
       B_Id     : Editor.Buffers.Buffer_Id;
    begin
@@ -524,7 +525,7 @@ package body Editor.Core_Editing_Workflow.Tests is
    is
       pragma Unreferenced (T);
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Init_Executor_Test_State (S);
       Editor.State.Load_Text (S, "base");
@@ -545,7 +546,7 @@ package body Editor.Core_Editing_Workflow.Tests is
    is
       pragma Unreferenced (T);
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Init_Executor_Test_State (S);
@@ -572,7 +573,7 @@ package body Editor.Core_Editing_Workflow.Tests is
    is
       pragma Unreferenced (T);
       S      : Editor.State.State_Type;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       A_Id   : Editor.Buffers.Buffer_Id;
       B_Id   : Editor.Buffers.Buffer_Id;
       A_Path : constant String := Temp_Path ("save_a_only.txt");
@@ -678,7 +679,7 @@ package body Editor.Core_Editing_Workflow.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Init_Executor_Test_State (S);
       Set_Buffer_Text (S, "ab");
@@ -714,7 +715,7 @@ package body Editor.Core_Editing_Workflow.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Init_Executor_Test_State (S);
       Set_Buffer_Text (S, "abcdef");
@@ -750,7 +751,7 @@ package body Editor.Core_Editing_Workflow.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S          : Editor.State.State_Type;
-      Cmd        : Editor.Commands.Command;
+      Cmd        : Editor.Commands.Payloads.Command;
       Revision_0 : Natural;
    begin
       Init_Executor_Test_State (S);
@@ -789,7 +790,7 @@ package body Editor.Core_Editing_Workflow.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Init_Executor_Test_State (S);
       Set_Buffer_Text (S, "one" & ASCII.LF & "two" & ASCII.LF & "three");
@@ -821,7 +822,7 @@ package body Editor.Core_Editing_Workflow.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S          : Editor.State.State_Type;
-      Cmd        : Editor.Commands.Command;
+      Cmd        : Editor.Commands.Payloads.Command;
       Revision_0 : Natural;
    begin
       Init_Executor_Test_State (S);
@@ -858,7 +859,7 @@ package body Editor.Core_Editing_Workflow.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Init_Executor_Test_State (S);
 
@@ -888,7 +889,7 @@ package body Editor.Core_Editing_Workflow.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Init_Executor_Test_State (S);
       Set_Buffer_Text (S, "abcdef");
@@ -920,7 +921,7 @@ package body Editor.Core_Editing_Workflow.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S          : Editor.State.State_Type;
-      Cmd        : Editor.Commands.Command;
+      Cmd        : Editor.Commands.Payloads.Command;
       Revision_0 : Natural;
    begin
       Init_Executor_Test_State (S);
@@ -956,7 +957,7 @@ package body Editor.Core_Editing_Workflow.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S      : Editor.State.State_Type;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       Result : Editor.Outline.Outline_Refresh_Result;
       pragma Unreferenced (Result);
    begin
@@ -1013,7 +1014,7 @@ package body Editor.Core_Editing_Workflow.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Init_Executor_Test_State (S);
 
@@ -1030,7 +1031,7 @@ package body Editor.Core_Editing_Workflow.Tests is
       pragma Unreferenced (T);
 
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Init_Executor_Test_State (S);
 
@@ -1077,7 +1078,7 @@ package body Editor.Core_Editing_Workflow.Tests is
       pragma Unreferenced (T);
 
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Init_Executor_Test_State (S);
 
@@ -1124,7 +1125,7 @@ package body Editor.Core_Editing_Workflow.Tests is
       pragma Unreferenced (T);
 
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Init_Executor_Test_State (S);
 
@@ -1181,7 +1182,7 @@ package body Editor.Core_Editing_Workflow.Tests is
       pragma Unreferenced (T);
 
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Init_Executor_Test_State (S);
 
@@ -1238,7 +1239,7 @@ package body Editor.Core_Editing_Workflow.Tests is
       pragma Unreferenced (T);
 
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Init_Executor_Test_State (S);
 
@@ -1295,7 +1296,7 @@ package body Editor.Core_Editing_Workflow.Tests is
       pragma Unreferenced (T);
 
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Init_Executor_Test_State (S);
 
@@ -1343,7 +1344,7 @@ package body Editor.Core_Editing_Workflow.Tests is
       pragma Unreferenced (T);
 
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Init_Executor_Test_State (S);
       Editor.State.Load_Text (S, "alpha  beta,++gamma");
@@ -1393,7 +1394,7 @@ package body Editor.Core_Editing_Workflow.Tests is
       pragma Unreferenced (T);
 
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Init_Executor_Test_State (S);
       Editor.State.Load_Text (S, "alpha beta");
@@ -1420,7 +1421,7 @@ package body Editor.Core_Editing_Workflow.Tests is
       pragma Unreferenced (T);
 
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Init_Executor_Test_State (S);
       Editor.State.Load_Text (S, "abc" & ASCII.LF & "def");
@@ -1454,7 +1455,7 @@ package body Editor.Core_Editing_Workflow.Tests is
       pragma Unreferenced (T);
 
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Init_Executor_Test_State (S);
       Editor.State.Load_Text
@@ -1488,7 +1489,7 @@ package body Editor.Core_Editing_Workflow.Tests is
       pragma Unreferenced (T);
 
       S      : Editor.State.State_Type;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
       X      : Natural;
    begin
@@ -1528,7 +1529,7 @@ package body Editor.Core_Editing_Workflow.Tests is
       pragma Unreferenced (T);
 
       S      : Editor.State.State_Type;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
    begin
       Init_Executor_Test_State (S);
@@ -1558,7 +1559,7 @@ package body Editor.Core_Editing_Workflow.Tests is
       pragma Unreferenced (T);
 
       S      : Editor.State.State_Type;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
       X      : Natural := Editor.Layout.Text_Origin_X (Layout, 1);
    begin
@@ -1589,7 +1590,7 @@ package body Editor.Core_Editing_Workflow.Tests is
       pragma Unreferenced (T);
 
       S      : Editor.State.State_Type;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
    begin
       Init_Executor_Test_State (S);
@@ -1626,7 +1627,7 @@ package body Editor.Core_Editing_Workflow.Tests is
       pragma Unreferenced (T);
 
       S      : Editor.State.State_Type;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
       X      : Natural := Editor.Layout.Text_Origin_X (Layout, 2);
    begin
@@ -1661,7 +1662,7 @@ package body Editor.Core_Editing_Workflow.Tests is
       pragma Unreferenced (T);
 
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Init_Executor_Test_State (S);
       Editor.State.Load_Text
@@ -1697,7 +1698,7 @@ package body Editor.Core_Editing_Workflow.Tests is
       pragma Unreferenced (T);
 
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Init_Executor_Test_State (S);
       Editor.State.Load_Text (S, "alpha beta gamma");
@@ -1736,7 +1737,7 @@ package body Editor.Core_Editing_Workflow.Tests is
       pragma Unreferenced (T);
 
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Init_Executor_Test_State (S);
       Editor.State.Load_Text (S, "abcdef");
@@ -1774,7 +1775,7 @@ package body Editor.Core_Editing_Workflow.Tests is
       pragma Unreferenced (T);
 
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Init_Executor_Test_State (S);
       Editor.State.Load_Text (S, "abcdef");
@@ -1812,7 +1813,7 @@ package body Editor.Core_Editing_Workflow.Tests is
       pragma Unreferenced (T);
 
       S      : Editor.State.State_Type;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       Before : constant String := "abc" & ASCII.LF & "def";
    begin
       Init_Executor_Test_State (S);
@@ -1851,7 +1852,7 @@ package body Editor.Core_Editing_Workflow.Tests is
       pragma Unreferenced (T);
 
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Init_Executor_Test_State (S);
 

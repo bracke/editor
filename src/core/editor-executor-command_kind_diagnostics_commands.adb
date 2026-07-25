@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Command_Execution;
 with Editor.Commands; use Editor.Commands;
 with Editor.Executor.Diagnostics_Commands;
@@ -23,7 +24,7 @@ package body Editor.Executor.Command_Kind_Diagnostics_Commands is
 
    function Try_Execute_Diagnostics_Kind
      (S   : in out Editor.State.State_Type;
-      Cmd : Editor.Commands.Command) return Boolean
+      Cmd : Editor.Commands.Payloads.Command) return Boolean
    is
       use type Editor.Commands.Command_Kind;
    begin

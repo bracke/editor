@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded;
 
 with Editor.Buffers;
@@ -800,7 +801,7 @@ package body Editor.Executor.Outline_Commands is
    function Execute_Filter_Outline
      (S   : in out Editor.State.State_Type;
       Id  : Editor.Commands.Command_Id;
-      Cmd : Editor.Commands.Command)
+      Cmd : Editor.Commands.Payloads.Command)
       return Editor.Command_Execution.Command_Execution_Result
    is
    begin
@@ -889,7 +890,7 @@ package body Editor.Executor.Outline_Commands is
    function Execute_Outline_Command
      (S  : in out Editor.State.State_Type;
       Id : Editor.Commands.Command_Id;
-      Cmd : Editor.Commands.Command)
+      Cmd : Editor.Commands.Payloads.Command)
       return Editor.Command_Execution.Command_Execution_Result
    is
    begin

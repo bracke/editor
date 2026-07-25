@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Executor.Clipboard;
 with Editor.Feature_Panel;
@@ -22,7 +23,7 @@ package body Editor.Input_Bridge.Outline_Filter_Handlers is
 
    function Handle_Outline_Filter_Input
      (S       : in out Editor.State.State_Type;
-      Cmd     : Editor.Commands.Command;
+      Cmd     : Editor.Commands.Payloads.Command;
       Execute : not null access procedure
         (Id : Editor.Commands.Command_Id)) return Boolean
    is

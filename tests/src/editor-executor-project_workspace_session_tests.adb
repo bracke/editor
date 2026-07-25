@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Executor.Command_Palette_Projection;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -586,7 +587,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status   : Editor.Workspace_Persistence.Workspace_Persistence_Status;
       Summary  : Editor.Workspace_Persistence.Workspace_Restore_Summary;
-      Cmd      : Editor.Commands.Command;
+      Cmd      : Editor.Commands.Payloads.Command;
       Result   : Editor.Executor.Command_Execution_Result;
       Reloaded : Editor.Files.File_Open_Result;
    begin
@@ -651,7 +652,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status   : Editor.Workspace_Persistence.Workspace_Persistence_Status;
       Summary  : Editor.Workspace_Persistence.Workspace_Restore_Summary;
-      Cmd      : Editor.Commands.Command;
+      Cmd      : Editor.Commands.Payloads.Command;
       Result   : Editor.Executor.Command_Execution_Result;
       Before   : Unbounded_String;
    begin
@@ -776,7 +777,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status   : Editor.Workspace_Persistence.Workspace_Persistence_Status;
       Result   : Editor.Executor.Command_Execution_Result;
-      Cmd      : Editor.Commands.Command;
+      Cmd      : Editor.Commands.Payloads.Command;
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Build_Fixture (Root);
@@ -1151,7 +1152,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
       pragma Unreferenced (T);
       Root   : constant String := Temp_Path ("save_after_cleanup_root");
       S      : Editor.State.State_Type;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       Result : Editor.Executor.Command_Execution_Result;
       Before : Natural := 0;
       Latest : Unbounded_String;
@@ -1269,7 +1270,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
       pragma Unreferenced (T);
       Root      : constant String := Temp_Path ("dirty_focus_root");
       S         : Editor.State.State_Type;
-      Cmd       : Editor.Commands.Command;
+      Cmd       : Editor.Commands.Payloads.Command;
       File_Path : constant String := Ada.Directories.Compose (Root, "a.txt");
       Node      : Editor.File_Tree.File_Tree_Node_Id := Editor.File_Tree.No_File_Tree_Node;
       Found     : Boolean := False;

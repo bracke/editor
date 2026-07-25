@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Command_Execution;
 with Editor.Commands;
 with Editor.State;
@@ -12,7 +13,7 @@ package Editor.Executor.Outline_Commands is
    function Execute_Outline_Command
      (S  : in out Editor.State.State_Type;
       Id : Editor.Commands.Command_Id;
-      Cmd : Editor.Commands.Command)
+      Cmd : Editor.Commands.Payloads.Command)
       return Editor.Command_Execution.Command_Execution_Result;
 
    function Execute_Outline_Row_Click

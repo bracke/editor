@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Text_Buffer;
 with Editor.State;
 use type Editor.State.Dirty_Close_Scope;
@@ -199,7 +200,7 @@ package body Editor.Executor.Command_Result_Commands is
       Shift : Boolean := False) return Command_Execution_Result
    is
       Availability : Editor.Commands.Command_Availability;
-      Cmd          : Editor.Commands.Command;
+      Cmd          : Editor.Commands.Payloads.Command;
       Before_Messages : Natural := 0;
       Before_Caret    : Editor.Cursors.Cursor_Index := 0;
       Before_Anchor   : Editor.Cursors.Cursor_Index := 0;
@@ -791,7 +792,7 @@ package body Editor.Executor.Command_Result_Commands is
             | Editor.Commands.Command_Semantic_Completion_Select_Previous
             | Editor.Commands.Command_Semantic_Completion_Accept
             | Editor.Commands.Command_Semantic_Popup_Dismiss =>
-            Cmd := Editor.Commands.Command_For_Id (Id, Shift);
+            Cmd := Editor.Commands.Payloads.Command_For_Id (Id, Shift);
             case Cmd.Kind is
                when Editor.Commands.Goto_Declaration =>
                   return Editor.Executor.Semantic_Commands.Execute_Semantic_Command
@@ -968,7 +969,7 @@ package body Editor.Executor.Command_Result_Commands is
       Before_Buffer := Editor.Buffers.Global_Active_Buffer;
       Before_File_Tree_Row :=
         Editor.File_Tree_View.Selected_Row_Index (S.File_Tree_View);
-      Cmd := Editor.Commands.Command_For_Id (Id, Shift);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Id, Shift);
       if Cmd.Kind = Editor.Commands.Insert_Text_Input then
          declare
             Line_Status : Editor.Executor.Edits.Line_Edit_Status;

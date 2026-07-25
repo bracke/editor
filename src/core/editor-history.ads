@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
 with Editor.Commands;
@@ -12,8 +13,8 @@ package Editor.History is
       Typing_Group);
 
    type History_Entry is record
-      Forward : Editor.Commands.Command;
-      Inverse : Editor.Commands.Command;
+      Forward : Editor.Commands.Payloads.Command;
+      Inverse : Editor.Commands.Payloads.Command;
 
       --  reliability: exact text snapshots are the authoritative
       --  undo/redo payload. Forward/Inverse remain available for command/span

@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Directories;
@@ -42,7 +43,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       C_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       Before_Recent : Natural := 0;
       Found  : Boolean := False;
    begin
@@ -64,13 +65,13 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, C_Path);
       C_Id := Editor.Buffers.Global_Active_Buffer;
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Preview_Show);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Preview_Show);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, A_Id);
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, B_Id);
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Review_Show);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Review_Show);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) = 2
               and then Editor.Buffer_Switcher.Row_At (S.Buffer_Switcher, 1).Id = A_Id,
@@ -78,7 +79,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
 
       Before_Recent := Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 1);
       Editor.Navigation_History.Clear (S.Navigation_History);
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Remove_Selected);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Remove_Selected);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       Assert (Editor.Buffer_Switcher.Pending_Marked_Target_Count (S.Buffer_Switcher) = 1
@@ -116,7 +117,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Assert (Latest_Message_Text (S) = "Removed alpha.adb from pending close; pending close now has 1 targets",
               "remove-selected reports pruned count");
 
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Confirm);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Confirm);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffers.Global_Contains (A_Id),
               "confirm must not close pruned targets");
@@ -147,7 +148,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       S      : Editor.State.State_Type;
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       Avail  : Editor.Commands.Command_Availability;
       Recent_Before : Natural := 0;
    begin
@@ -169,23 +170,23 @@ package body Editor.Executor.Buffer_Prune_Tests is
               "remove-selected is unavailable without pending marked action");
 
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, A_Id);
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Editor.Buffer_Switcher.Select_Buffer_Or_Row (S.Buffer_Switcher, B_Id, 1);
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Remove_Selected);
       Assert (Avail.Status = Editor.Commands.Command_Unavailable,
               "remove-selected is unavailable when selected row is not a pending target");
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Remove_Selected);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Remove_Selected);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Pending_Marked_Target_Count (S.Buffer_Switcher) = 1
               and then Editor.Buffer_Switcher.Pending_Marked_Target_At (S.Buffer_Switcher, 1) = A_Id,
               "deterministic no-op does not mutate pending targets for non-target selection");
 
       Editor.Buffer_Switcher.Select_Buffer_Or_Row (S.Buffer_Switcher, A_Id, 1);
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Review_Show);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Review_Show);
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Remove_Selected);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Remove_Selected);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) = Editor.Buffer_Switcher.No_Pending_Marked_Action
               and then not Editor.Buffer_Switcher.Has_Pending_Marked_Review (S.Buffer_Switcher),
@@ -197,7 +198,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
               "removing last target reports deterministic zero-target state");
 
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, A_Id);
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Pending_Marked_Target_Count (S.Buffer_Switcher) = 1
               and then Editor.Buffer_Switcher.Pending_Marked_Target_At (S.Buffer_Switcher, 1) = A_Id,
@@ -225,7 +226,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       C_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       Avail  : Editor.Commands.Command_Availability;
       Recent_Before : Natural := 0;
       Before_Recent : Natural := 0;
@@ -248,14 +249,14 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, C_Path);
       C_Id := Editor.Buffers.Global_Active_Buffer;
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Preview_Show);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Preview_Show);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, A_Id);
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, B_Id);
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, C_Id);
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Review_Show);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Review_Show);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       Avail := Editor.Executor.Command_Availability
@@ -264,7 +265,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
               "restore-last is unavailable before any pending target is pruned");
 
       Editor.Buffer_Switcher.Select_Buffer_Or_Row (S.Buffer_Switcher, B_Id, 1);
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Remove_Selected);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Remove_Selected);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Editor.Buffer_Switcher.Select_Buffer_Or_Row (S.Buffer_Switcher, C_Id, 1);
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -277,12 +278,12 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Before_Recent := Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 1);
       Editor.Navigation_History.Clear (S.Navigation_History);
       Editor.Buffer_Switcher.Clear_Mark (S.Buffer_Switcher, C_Id);
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Pruned_Summary);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Pruned_Summary);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Latest_Message_Text (S) = "Pruned pending close targets: 2; 2 still open",
               "pruned summary reports total and still-open pruned targets");
 
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Restore_Last_Pruned);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Restore_Last_Pruned);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Pending_Marked_Target_Count (S.Buffer_Switcher) = 2
               and then Editor.Buffer_Switcher.Pending_Marked_Target_At (S.Buffer_Switcher, 1) = A_Id
@@ -323,7 +324,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Editor.Buffer_Switcher.Clear_All_Marks (S.Buffer_Switcher);
       Assert (Editor.Buffer_Switcher.Pending_Marked_Target_Count (S.Buffer_Switcher) = 3,
               "clearing marks after restoration does not remove restored pending close targets");
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Confirm);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Confirm);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (not Editor.Buffers.Global_Contains (A_Id)
               and then not Editor.Buffers.Global_Contains (B_Id)
@@ -354,7 +355,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       S      : Editor.State.State_Type;
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       Closed : Boolean := False;
    begin
       Remove_Tree_If_Exists (Root);
@@ -370,15 +371,15 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, A_Id);
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, B_Id);
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Editor.Buffer_Switcher.Select_Buffer_Or_Row (S.Buffer_Switcher, B_Id, 1);
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Remove_Selected);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Remove_Selected);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       Editor.Buffers.Global_Close_Buffer (B_Id, Closed);
       Assert (Closed, "setup should close the pruned target before restore");
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Restore_Last_Pruned);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Restore_Last_Pruned);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Latest_Message_Text (S) = "Could not restore beta.adb; buffer is no longer open",
               "restore-last reports a closed last-pruned target explicitly");
@@ -387,14 +388,14 @@ package body Editor.Executor.Buffer_Prune_Tests is
               and then Editor.Buffer_Switcher.Pruned_Pending_Marked_Close_Target_Count (S.Buffer_Switcher) = 1,
               "closed-target restore failure leaves pending and pruned state unchanged");
 
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Pending_Marked_Target_Count (S.Buffer_Switcher) = 1
               and then Editor.Buffer_Switcher.Pending_Marked_Target_At (S.Buffer_Switcher, 1) = A_Id
               and then Editor.Buffer_Switcher.Pruned_Pending_Marked_Close_Target_Count (S.Buffer_Switcher) = 0,
               "preparing marked close again refreshes targets and clears old pruned history");
 
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Cancel);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Cancel);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) = Editor.Buffer_Switcher.No_Pending_Marked_Action
               and then Editor.Buffer_Switcher.Pruned_Pending_Marked_Close_Target_Count (S.Buffer_Switcher) = 0,
@@ -424,7 +425,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       C_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
    begin
       Remove_Tree_If_Exists (Root);
       Ada.Directories.Create_Directory (Root);
@@ -443,18 +444,18 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, A_Id);
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, B_Id);
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, C_Id);
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Review_Show);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Review_Show);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       Editor.Buffer_Switcher.Select_Buffer_Or_Row (S.Buffer_Switcher, B_Id, 1);
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Remove_Selected);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Remove_Selected);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Editor.Buffer_Switcher.Select_Buffer_Or_Row (S.Buffer_Switcher, C_Id, 1);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Pruned_Summary);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Pruned_Summary);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Latest_Message_Text (S) = "Pruned pending close targets: 2; 2 still open",
               "pruned summary reports total and still-open pruned target counts");
@@ -464,7 +465,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
               "pruned summary does not mutate active pending or pruned target state");
 
       Editor.Navigation_History.Clear (S.Navigation_History);
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Pruned_Review_Show);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Pruned_Review_Show);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Has_Pruned_Pending_Marked_Review (S.Buffer_Switcher)
               and then not Editor.Buffer_Switcher.Has_Pending_Marked_Review (S.Buffer_Switcher)
@@ -476,7 +477,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
               "pruned review narrows the switcher projection to still-open pruned targets");
 
       Editor.Buffer_Switcher.Select_Buffer_Or_Row (S.Buffer_Switcher, B_Id, 1);
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Pruned_Next);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Pruned_Next);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Selected_Row_Index (S.Buffer_Switcher) = 2
               and then Editor.Buffer_Switcher.Row_At (S.Buffer_Switcher, 2).Id = C_Id,
@@ -488,13 +489,13 @@ package body Editor.Executor.Buffer_Prune_Tests is
               and then Editor.Navigation_History.Back_Count (S.Navigation_History) = 0,
               "pruned navigation does not activate buffers or add navigation history");
 
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Pruned_Previous);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Pruned_Previous);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Selected_Row_Index (S.Buffer_Switcher) = 1
               and then Editor.Buffer_Switcher.Row_At (S.Buffer_Switcher, 1).Id = B_Id,
               "pruned-previous follows current pruned review order");
 
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Restore_Selected_Pruned);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Restore_Selected_Pruned);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Pending_Marked_Target_Count (S.Buffer_Switcher) = 2
               and then Editor.Buffer_Switcher.Pending_Marked_Target_At (S.Buffer_Switcher, 1) = A_Id
@@ -505,7 +506,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
               and then Editor.Buffers.Global_Active_Buffer = C_Id,
               "restore-selected-pruned does not mark, unmark, or activate buffers");
 
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Confirm);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Confirm);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (not Editor.Buffers.Global_Contains (A_Id)
               and then not Editor.Buffers.Global_Contains (B_Id)
@@ -535,7 +536,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       S      : Editor.State.State_Type;
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       Closed : Boolean := False;
    begin
       Remove_Tree_If_Exists (Root);
@@ -545,7 +546,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Init_Executor_Test_State (S);
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Pruned_Summary);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Pruned_Summary);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Latest_Message_Text (S) = "No pending marked action",
               "pruned summary reports deterministic no-pending state");
@@ -557,12 +558,12 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, A_Id);
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, B_Id);
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Review_Show);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Review_Show);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Editor.Buffer_Switcher.Select_Buffer_Or_Row (S.Buffer_Switcher, B_Id, 1);
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Remove_Selected);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Remove_Selected);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       Editor.Buffers.Global_Close_Buffer (B_Id, Closed);
@@ -574,12 +575,12 @@ package body Editor.Executor.Buffer_Prune_Tests is
          S.Recent_Buffers,
          Editor.Buffer_Switcher.Buffer_Switcher_Config'(others => <>));
 
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Pruned_Summary);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Pruned_Summary);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Latest_Message_Text (S) = "Pruned pending close targets: 1; 0 still open",
               "pruned summary distinguishes closed pruned targets from still-open pruned targets");
 
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Pruned_Next);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Pruned_Next);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Latest_Message_Text (S) = "No open pruned pending close targets",
               "pruned navigation reports deterministic no-open-pruned state");
@@ -588,7 +589,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
               and then Editor.Buffer_Switcher.Pruned_Pending_Marked_Close_Target_Count (S.Buffer_Switcher) = 1,
               "no-open-pruned navigation does not mutate pending or pruned state");
 
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Cancel);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Cancel);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) = Editor.Buffer_Switcher.No_Pending_Marked_Action
               and then Editor.Buffer_Switcher.Pruned_Pending_Marked_Close_Target_Count (S.Buffer_Switcher) = 0
@@ -618,7 +619,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       C_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
    begin
       Remove_Tree_If_Exists (Root);
       Ada.Directories.Create_Directory (Root);
@@ -645,17 +646,17 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, A_Id);
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, B_Id);
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, C_Id);
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Summary);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Summary);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Latest_Message_Text (S) = "Dirty pending close targets: 2 of 3",
               "dirty summary reports dirty active pending targets against still-open pending targets");
 
       Editor.Buffer_Switcher.Show_Preview (S.Buffer_Switcher);
       Editor.Navigation_History.Clear (S.Navigation_History);
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Next);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Next);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Latest_Message_Text (S) = "Selected next dirty pending close target",
               "dirty-next reports a deterministic primary message");
@@ -668,7 +669,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
               and then Editor.Navigation_History.Back_Count (S.Navigation_History) = 0,
               "dirty navigation does not activate buffers or add navigation history");
 
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Previous);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Previous);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Row_At
                 (S.Buffer_Switcher, Editor.Buffer_Switcher.Selected_Row_Index (S.Buffer_Switcher)).Id = C_Id,
@@ -701,7 +702,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       C_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       Avail  : Editor.Commands.Command_Availability;
       Recent_Before : Natural := 0;
    begin
@@ -731,14 +732,14 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, A_Id);
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, B_Id);
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, C_Id);
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Count_Badge_Text
                 (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI) =
               "Marked: 3 | Pending close: 3 | Dirty: 1",
               "setup has one dirty pending close target");
 
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Next);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Next);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Row_At
                 (S.Buffer_Switcher,
@@ -754,7 +755,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
               and then Editor.Buffer_Switcher.Is_Marked (S.Buffer_Switcher, B_Id),
               "availability does not mutate pending targets, pruned history, or marks");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Remove_Selected);
       Editor.Navigation_History.Clear (S.Navigation_History);
       Recent_Before := Editor.Recent_Buffers.Count (S.Recent_Buffers);
@@ -785,12 +786,12 @@ package body Editor.Executor.Buffer_Prune_Tests is
               and then Editor.Recent_Buffers.Count (S.Recent_Buffers) = Recent_Before,
               "dirty-remove-selected does not activate buffers, add navigation history, or update recent-buffer state");
 
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Next);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Next);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Latest_Message_Text (S) = "No dirty pending close targets",
               "pruned dirty target is removed from dirty pending navigation candidates");
 
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Restore_Last_Pruned);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Restore_Last_Pruned);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Is_Pending_Marked_Close_Target (S.Buffer_Switcher, B_Id)
               and then not Editor.Buffer_Switcher.Is_Pruned_Pending_Marked_Close_Target (S.Buffer_Switcher, B_Id)
@@ -803,7 +804,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       S.File_Info.Dirty := False;
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Buffer_Switcher.Select_Buffer_Or_Row (S.Buffer_Switcher, B_Id, 1);
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Remove_Selected);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Latest_Message_Text (S) = "Selected pending close target is not dirty",
@@ -814,12 +815,12 @@ package body Editor.Executor.Buffer_Prune_Tests is
 
       S.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Remove_Selected);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (not Editor.Buffer_Switcher.Is_Pending_Marked_Close_Target (S.Buffer_Switcher, B_Id),
               "setup reprunes restored dirty target before confirmation");
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Confirm);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Confirm);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffers.Global_Contains (B_Id)
               and then not Editor.Buffers.Global_Contains (A_Id)
@@ -847,7 +848,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       S      : Editor.State.State_Type;
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       C_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       Avail  : Editor.Commands.Command_Availability;
    begin
       Remove_Tree_If_Exists (Root);
@@ -869,7 +870,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
 
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
       Editor.Buffer_Switcher.Select_Buffer_Or_Row (S.Buffer_Switcher, C_Id, 1);
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Remove_Selected);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Latest_Message_Text (S) = "No pending marked action",
@@ -879,7 +880,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
               "no-pending rejection does not create pending or pruned state");
 
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, A_Id);
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Pending_Marked_Target_Count (S.Buffer_Switcher) = 1,
               "rejection setup captured one pending target");
@@ -890,7 +891,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Assert (Avail.Status = Editor.Commands.Command_Unavailable
               and then Avail.Reason = "Selected buffer is not a pending close target",
               "availability rejects a dirty selected buffer that is not active pending close");
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Remove_Selected);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Latest_Message_Text (S) = "Selected buffer is not a pending close target",
@@ -907,7 +908,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Assert (Avail.Status = Editor.Commands.Command_Unavailable
               and then Avail.Reason = "Selected pending close target is not dirty",
               "availability rejects a clean selected pending target");
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Remove_Selected);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Latest_Message_Text (S) = "Selected pending close target is not dirty",
@@ -941,7 +942,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       C_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       D_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       Avail  : Editor.Commands.Command_Availability;
       Recent_Before : Natural := 0;
    begin
@@ -968,7 +969,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, A_Id);
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, B_Id);
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, C_Id);
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Pending_Marked_Target_Count (S.Buffer_Switcher) = 3
               and then Editor.Buffer_Switcher.Pending_Marked_Open_Dirty_Count
@@ -980,7 +981,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Recent_Before := Editor.Recent_Buffers.Count (S.Recent_Buffers);
       Editor.Navigation_History.Clear (S.Navigation_History);
 
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Preview);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Preview);
       Avail := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Preview);
       Assert (Avail.Status = Editor.Commands.Command_Available,
               "dirty-prune preview is available when dirty active pending targets exist");
@@ -1010,12 +1011,12 @@ package body Editor.Executor.Buffer_Prune_Tests is
               "Marked: 3 | Pending close: 3 | Dirty: 2 | Dirty prune: 2 | Applicable: 2",
               "optional dirty-prune badge is snapshot-derived from captured preview state");
 
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Summary);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Summary);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Latest_Message_Text (S) = "Dirty prune preview targets: 2; 2 still applicable",
               "summary reports captured and still-applicable dirty pending counts");
 
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Cancel);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Cancel);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Latest_Message_Text (S) = "Dirty prune cancelled"
               and then not Editor.Buffer_Switcher.Has_Dirty_Pending_Marked_Close_Prune (S.Buffer_Switcher)
@@ -1023,7 +1024,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
               and then Editor.Buffer_Switcher.Pruned_Pending_Marked_Close_Target_Count (S.Buffer_Switcher) = 0,
               "cancel clears preview without mutating pending or pruned targets");
 
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Preview);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Preview);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Dirty_Pending_Marked_Close_Prune_Target_Count (S.Buffer_Switcher) = 2,
               "repeated preview refreshes the captured target set");
@@ -1035,12 +1036,12 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Set_Buffer_Text (S, "alpha became dirty after preview"); S.File_Info.Dirty := True; Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Buffers.Global_Set_Active_Buffer (D_Id); Editor.Buffers.Load_Global_Active_Into_State (S);
 
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Summary);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Summary);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Latest_Message_Text (S) = "Dirty prune preview targets: 2; 1 still applicable",
               "summary revalidates applicability without refreshing captured targets");
 
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Latest_Message_Text (S) = "Pruned 1 dirty pending close targets",
               "apply prunes only captured targets that remain open, pending, and dirty");
@@ -1059,7 +1060,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
               and then True,
               "apply does not close dirty-pruned buffers or create reopen entries");
 
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Restore_Last_Pruned);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Restore_Last_Pruned);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Is_Pending_Marked_Close_Target (S.Buffer_Switcher, C_Id)
               and then Editor.Buffer_Switcher.Pending_Marked_Open_Dirty_Count
@@ -1088,7 +1089,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       C_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       Found  : Boolean := False;
       Row    : Editor.Buffer_Switcher.Buffer_Switcher_Row;
       Recent_Before : Natural := 0;
@@ -1108,7 +1109,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Set_Buffer_Text (S, "dirty gamma"); S.File_Info.Dirty := True; Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Summary);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Latest_Message_Text (S) = "No pending dirty-prune action",
@@ -1117,7 +1118,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, A_Id);
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, B_Id);
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, C_Id);
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Pending_Marked_Target_Count (S.Buffer_Switcher) = 3
               and then Editor.Buffer_Switcher.Pending_Marked_Open_Dirty_Count
@@ -1127,19 +1128,19 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Recent_Before := Editor.Recent_Buffers.Count (S.Recent_Buffers);
       Editor.Navigation_History.Clear (S.Navigation_History);
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Preview);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Dirty_Pending_Marked_Close_Prune_Target_Count (S.Buffer_Switcher) = 2,
               "preview captures dirty pending target identities");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Summary);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Latest_Message_Text (S) = "Dirty prune preview targets: 2; 2 still applicable",
               "summary reports captured and still-applicable counts");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Review_Show);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Latest_Message_Text (S) = "Dirty-prune preview review shown"
@@ -1150,7 +1151,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Assert (Editor.Buffer_Switcher.Row_Is_Dirty_Prune_Target (S.Buffer_Switcher, Row.Id),
               "review rows are captured dirty-prune preview targets");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Next);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Row := Editor.Buffer_Switcher.Selected_Row (S.Buffer_Switcher, Found);
@@ -1162,7 +1163,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
               and then Editor.Recent_Buffers.Count (S.Recent_Buffers) = Recent_Before,
               "dirty-prune next selects a captured target without activation, navigation history, or recent-buffer mutation");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Previous);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Row := Editor.Buffer_Switcher.Selected_Row (S.Buffer_Switcher, Found);
@@ -1179,7 +1180,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
               and then Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) = 1,
               "dirty-prune review composes with the literal switcher query without changing captured targets");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Review_Hide);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Latest_Message_Text (S) = "Dirty-prune preview review hidden"
@@ -1187,14 +1188,14 @@ package body Editor.Executor.Buffer_Prune_Tests is
               and then Editor.Buffer_Switcher.Filter_Text (S.Buffer_Switcher) = "beta",
               "hiding dirty-prune review restores ordinary projection without clearing query state");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Review_Show);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Editor.Buffers.Global_Set_Active_Buffer (B_Id); Editor.Buffers.Load_Global_Active_Into_State (S);
       S.File_Info.Dirty := False; Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Buffers.Global_Set_Active_Buffer (C_Id); Editor.Buffers.Load_Global_Active_Into_State (S);
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Summary);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Latest_Message_Text (S) = "Dirty prune preview targets: 2; 1 still applicable"
@@ -1202,7 +1203,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
               and then Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) = 1,
               "summary revalidates applicability without refreshing the captured review target set");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (not Editor.Buffer_Switcher.Has_Dirty_Prune_Review (S.Buffer_Switcher)
@@ -1233,7 +1234,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       C_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       Avail  : Editor.Commands.Command_Availability;
       Found  : Boolean := False;
       Row    : Editor.Buffer_Switcher.Buffer_Switcher_Row;
@@ -1258,7 +1259,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Set_Buffer_Text (S, "dirty gamma"); S.File_Info.Dirty := True; Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Remove_Selected);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Latest_Message_Text (S) = "No pending dirty-prune action",
@@ -1267,9 +1268,9 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, A_Id);
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, B_Id);
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, C_Id);
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Preview);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Dirty_Pending_Marked_Close_Prune_Target_Count (S.Buffer_Switcher) = 2
@@ -1283,7 +1284,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Assert (Avail.Status = Editor.Commands.Command_Unavailable
               and then Avail.Reason = "Selected buffer is not a dirty-prune preview target",
               "availability rejects selected rows outside the captured preview set");
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Remove_Selected);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Latest_Message_Text (S) = "Selected buffer is not a dirty-prune preview target"
@@ -1304,7 +1305,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
               and then Editor.Buffer_Switcher.Row_Is_Dirty_Prune_Target (S.Buffer_Switcher, B_Id),
               "review selection uses buffer identity from the selected row");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Remove_Selected);
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Remove_Selected);
@@ -1337,7 +1338,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
               and then Editor.Buffer_Switcher.Preview_Target (S.Buffer_Switcher) = C_Id,
               "review rows and preview target normalize to the remaining captured target");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (not Editor.Buffer_Switcher.Has_Dirty_Pending_Marked_Close_Prune (S.Buffer_Switcher)
@@ -1347,14 +1348,14 @@ package body Editor.Executor.Buffer_Prune_Tests is
               and then not Editor.Buffer_Switcher.Is_Pending_Marked_Close_Target (S.Buffer_Switcher, C_Id),
               "apply prunes only remaining dirty-prune preview targets; removed preview targets remain pending and unpruned");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Preview);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Row_Is_Dirty_Prune_Target (S.Buffer_Switcher, B_Id)
               and then Editor.Buffer_Switcher.Dirty_Pending_Marked_Close_Prune_Target_Count (S.Buffer_Switcher) = 1,
               "preparing dirty-prune preview again recaptures still-dirty active pending targets previously removed from preview");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Remove_Selected);
       Editor.Buffer_Switcher.Select_Buffer_Or_Row (S.Buffer_Switcher, B_Id, 1);
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -1385,7 +1386,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       C_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       Avail  : Editor.Commands.Command_Availability;
       Found  : Boolean := False;
       Row    : Editor.Buffer_Switcher.Buffer_Switcher_Row;
@@ -1410,7 +1411,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Set_Buffer_Text (S, "dirty gamma"); S.File_Info.Dirty := True; Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Restore_Last_Removed);
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Restore_Last_Removed);
@@ -1424,15 +1425,15 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, A_Id);
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, B_Id);
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, C_Id);
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Preview);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Dirty_Pending_Marked_Close_Prune_Target_Count (S.Buffer_Switcher) = 2,
               "setup captures two dirty-prune preview targets");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Restore_Last_Removed);
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Restore_Last_Removed);
@@ -1451,7 +1452,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
         (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, (others => <>));
       Editor.Buffer_Switcher.Select_Buffer_Or_Row (S.Buffer_Switcher, B_Id, 1);
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Remove_Selected);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Dirty_Pending_Marked_Close_Prune_Target_Count (S.Buffer_Switcher) = 1
@@ -1462,13 +1463,13 @@ package body Editor.Executor.Buffer_Prune_Tests is
               and then Editor.Buffer_Switcher.Row_Is_Dirty_Prune_Target (S.Buffer_Switcher, C_Id),
               "remove-selected records removed dirty-prune preview identity without active preview membership");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Removed_Summary);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Latest_Message_Text (S) = "Removed dirty-prune preview targets: 1; 1 still open",
               "removed-summary reports removed and still-open preview targets");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Restore_Last_Removed);
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Restore_Last_Removed);
@@ -1500,13 +1501,13 @@ package body Editor.Executor.Buffer_Prune_Tests is
               "dirty-prune review candidate set reflects the restored preview target");
 
       Editor.Buffer_Switcher.Select_Buffer_Or_Row (S.Buffer_Switcher, B_Id, 1);
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Remove_Selected);
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Restore_Last_Removed);
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (not Editor.Buffer_Switcher.Has_Dirty_Pending_Marked_Close_Prune (S.Buffer_Switcher)
@@ -1517,7 +1518,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
               and then Editor.Buffer_Switcher.Last_Pruned_Pending_Marked_Close_Target_Name (S.Buffer_Switcher) = "gamma.adb",
               "apply prunes restored targets in deterministic original preview order");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Restore_Last_Pruned);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Is_Pending_Marked_Close_Target (S.Buffer_Switcher, C_Id)
@@ -1546,7 +1547,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       C_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       Found  : Boolean := False;
       Row    : Editor.Buffer_Switcher.Buffer_Switcher_Row;
       Recent_Before : Natural := 0;
@@ -1570,9 +1571,9 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, A_Id);
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, B_Id);
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, C_Id);
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Preview);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
@@ -1580,7 +1581,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Editor.Buffer_Switcher.Recompute_Rows
         (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, (others => <>));
       Editor.Buffer_Switcher.Select_Buffer_Or_Row (S.Buffer_Switcher, A_Id, 1);
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Remove_Selected);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Editor.Buffer_Switcher.Select_Buffer_Or_Row (S.Buffer_Switcher, C_Id, 1);
@@ -1598,7 +1599,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Recent_Before := Editor.Recent_Buffers.Count (S.Recent_Buffers);
       Editor.Navigation_History.Clear (S.Navigation_History);
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Removed_Summary);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Latest_Message_Text (S) = "Removed dirty-prune preview targets: 2; 2 still open"
@@ -1606,7 +1607,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
               and then Editor.Buffer_Switcher.Pending_Marked_Target_Count (S.Buffer_Switcher) = 3,
               "removed summary reports removed/open counts without mutating active preview or pending targets");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Removed_Next);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Row := Editor.Buffer_Switcher.Selected_Row (S.Buffer_Switcher, Found);
@@ -1621,7 +1622,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
               and then Editor.Navigation_History.Back_Count (S.Navigation_History) = 0,
               "removed-next selects a still-open removed target in effective order without restoring, pruning, activating, or history mutation");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Removed_Previous);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Row := Editor.Buffer_Switcher.Selected_Row (S.Buffer_Switcher, Found);
@@ -1632,7 +1633,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
               and then Editor.Buffer_Switcher.Is_Pending_Marked_Close_Target (S.Buffer_Switcher, A_Id),
               "removed-previous selects the previous still-open removed target without restoring it");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (not Editor.Buffer_Switcher.Is_Pruned_Pending_Marked_Close_Target (S.Buffer_Switcher, A_Id)
@@ -1663,7 +1664,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       C_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       Avail  : Editor.Commands.Command_Availability;
       Recent_Before : Natural := 0;
    begin
@@ -1685,9 +1686,9 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, A_Id);
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, B_Id);
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, C_Id);
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Preview);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Dirty_Pending_Marked_Close_Prune_Target_Count (S.Buffer_Switcher) = 2,
@@ -1703,7 +1704,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Recent_Before := Editor.Recent_Buffers.Count (S.Recent_Buffers);
       Editor.Navigation_History.Clear (S.Navigation_History);
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Stale_Summary);
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Stale_Summary);
@@ -1715,7 +1716,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Assert (Editor.Buffer_Switcher.Dirty_Pending_Marked_Close_Prune_Target_Count (S.Buffer_Switcher) = 2,
               "stale summary does not clear or refresh preview targets");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Clear_Stale);
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Clear_Stale);
@@ -1749,7 +1750,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
               and then Avail.Reason = "No stale dirty-prune preview targets",
               "clear-stale availability is deterministic when no stale targets remain");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Is_Pending_Marked_Close_Target (S.Buffer_Switcher, B_Id)
@@ -1760,7 +1761,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, B_Path);
       Set_Buffer_Text (S, "dirty beta again"); S.File_Info.Dirty := True; Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Preview);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Is_Dirty_Pending_Marked_Close_Prune_Target (S.Buffer_Switcher, B_Id),

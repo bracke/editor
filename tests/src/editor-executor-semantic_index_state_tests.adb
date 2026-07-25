@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Containers; use type Ada.Containers.Count_Type;
@@ -479,7 +480,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Ignored  : LM.Symbol_Id;
       Avail    : Editor.Commands.Command_Availability;
       Result   : Editor.Executor.Command_Execution_Result;
-      Cmd      : Editor.Commands.Command;
+      Cmd      : Editor.Commands.Payloads.Command;
    begin
       Init_Executor_Test_State (S);
       Editor.State.Load_Text

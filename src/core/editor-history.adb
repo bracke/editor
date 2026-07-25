@@ -1,5 +1,6 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Commands; use Editor.Commands;
+with Editor.Commands.Payloads; use Editor.Commands.Payloads;
 with Editor.Cursors; use Editor.Cursors;
 package body Editor.History is
 

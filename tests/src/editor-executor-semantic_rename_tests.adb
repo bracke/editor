@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Containers; use type Ada.Containers.Count_Type;
@@ -365,7 +366,7 @@ package body Editor.Executor.Semantic_Rename_Tests is
       S        : Editor.State.State_Type;
       Analysis : LM.Analysis_Result;
       Ignored  : LM.Symbol_Id;
-      Cmd      : Editor.Commands.Command;
+      Cmd      : Editor.Commands.Payloads.Command;
    begin
       Init_Executor_Test_State (S);
       Editor.State.Load_Text
@@ -373,7 +374,7 @@ package body Editor.Executor.Semantic_Rename_Tests is
          "@outline procedure Run" & ASCII.LF &
          "body line" & ASCII.LF);
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Refresh_Outline);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
@@ -397,7 +398,7 @@ package body Editor.Executor.Semantic_Rename_Tests is
          Lifecycle_Generation => S.Lifecycle_Generation,
          Analysis             => Analysis);
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Rename_Symbol_Preview);
       Cmd.Text := To_Unbounded_String ("Run_Custom");
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -405,7 +406,7 @@ package body Editor.Executor.Semantic_Rename_Tests is
               "rename: Run -> Run_Custom",
               "semantic rename preview must use the prompted target name");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Rename_Symbol_Apply);
       Cmd.Text := To_Unbounded_String ("Run_Custom");
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -429,7 +430,7 @@ package body Editor.Executor.Semantic_Rename_Tests is
       S        : Editor.State.State_Type;
       Analysis : LM.Analysis_Result;
       Ignored  : LM.Symbol_Id;
-      Cmd      : Editor.Commands.Command;
+      Cmd      : Editor.Commands.Payloads.Command;
    begin
       Init_Executor_Test_State (S);
       Editor.State.Load_Text
@@ -437,7 +438,7 @@ package body Editor.Executor.Semantic_Rename_Tests is
          "@outline procedure Run" & ASCII.LF &
          "body line" & ASCII.LF);
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Refresh_Outline);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
@@ -461,7 +462,7 @@ package body Editor.Executor.Semantic_Rename_Tests is
          Lifecycle_Generation => S.Lifecycle_Generation,
          Analysis             => Analysis);
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Rename_Symbol_Preview);
       Cmd.Text := To_Unbounded_String ("return");
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -471,7 +472,7 @@ package body Editor.Executor.Semantic_Rename_Tests is
       Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 0,
               "reserved prompted rename preview projects no stale rows");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Rename_Symbol_Apply);
       Cmd.Text := To_Unbounded_String ("return");
       Editor.Executor.Execute_No_Log (S, Cmd);

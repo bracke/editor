@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Commands;
 with Editor.State;
 
@@ -11,7 +12,7 @@ package Editor.Input_Bridge.Build_UI_Pointer_Handlers is
 
    function Handle_Build_UI_Panel_Pointer
      (S       : in out Editor.State.State_Type;
-      Cmd     : Editor.Commands.Command;
+      Cmd     : Editor.Commands.Payloads.Command;
       Execute : Execute_Command_Access;
       Report  : Report_Info_Access) return Boolean;
 

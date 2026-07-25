@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded;
 with Editor.Commands;
 with Editor.Cursors;
@@ -56,7 +57,7 @@ package Editor.Rectangle_Selection is
 
    procedure Build_Delete_Command
      (S   : Editor.State.State_Type;
-      Cmd : out Editor.Commands.Command);
+      Cmd : out Editor.Commands.Payloads.Command);
 
    procedure Collapse_After_Delete
      (S           : in out Editor.State.State_Type;

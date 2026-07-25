@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Buffers;
 with Editor.Executor.Buffer_Close_Commands;
 with Editor.Executor.File_Open_Commands;
@@ -27,7 +28,7 @@ package body Editor.Input_Bridge.Panel_Bars_Pointer_Handlers is
 
    function Handle_Pending_Transition_Bar_Pointer
      (S       : in out Editor.State.State_Type;
-      Cmd     : Editor.Commands.Command;
+      Cmd     : Editor.Commands.Payloads.Command;
       Execute : Execute_Command_Access) return Boolean
    is
       Layout_Config : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
@@ -86,7 +87,7 @@ package body Editor.Input_Bridge.Panel_Bars_Pointer_Handlers is
 
    function Handle_Tab_Bar_Pointer
      (S   : in out Editor.State.State_Type;
-      Cmd : Editor.Commands.Command) return Boolean
+      Cmd : Editor.Commands.Payloads.Command) return Boolean
    is
       Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
       Hit : Editor.Tab_Bar.Tab_Hit_Result;
@@ -168,7 +169,7 @@ package body Editor.Input_Bridge.Panel_Bars_Pointer_Handlers is
 
    function Handle_Status_Bar_Pointer
      (S   : in out Editor.State.State_Type;
-      Cmd : Editor.Commands.Command) return Boolean
+      Cmd : Editor.Commands.Payloads.Command) return Boolean
    is
       Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
    begin
@@ -197,7 +198,7 @@ package body Editor.Input_Bridge.Panel_Bars_Pointer_Handlers is
 
    function Handle_Panel_Splitter_Pointer
      (S   : in out Editor.State.State_Type;
-      Cmd : Editor.Commands.Command) return Boolean
+      Cmd : Editor.Commands.Payloads.Command) return Boolean
    is
       Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
 

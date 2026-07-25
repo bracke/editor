@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions;  use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -35,8 +36,8 @@ package body Editor.Selection.Tests is
       return AUnit.Format ("Editor.Selection");
    end Name;
 
-   function Paste (S : String) return Editor.Commands.Command is
-      Cmd : Editor.Commands.Command;
+   function Paste (S : String) return Editor.Commands.Payloads.Command is
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Cmd.Kind := Editor.Commands.Paste_Text;
       Cmd.Text := To_Unbounded_String (S);
@@ -424,9 +425,9 @@ package body Editor.Selection.Tests is
 
    function Command_With_Text
      (Kind : Editor.Commands.Command_Kind;
-      Text : String) return Editor.Commands.Command
+      Text : String) return Editor.Commands.Payloads.Command
    is
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Cmd.Kind := Kind;
       Cmd.Text := To_Unbounded_String (Text);
@@ -1181,7 +1182,7 @@ package body Editor.Selection.Tests is
       pragma Unreferenced (T);
 
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
       Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
    begin
       Editor.State.Init (S);
@@ -1312,7 +1313,7 @@ package body Editor.Selection.Tests is
       pragma Unreferenced (T);
 
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Editor.State.Init (S);
 
@@ -1538,7 +1539,7 @@ package body Editor.Selection.Tests is
       S.Preferred_Column := 5;
 
       declare
-         Cmd : Editor.Commands.Command;
+         Cmd : Editor.Commands.Payloads.Command;
       begin
          Cmd.Kind := Editor.Commands.Move_Down;
          Editor.Executor.Execute_No_Log (S, Cmd);
@@ -1556,7 +1557,7 @@ package body Editor.Selection.Tests is
       pragma Unreferenced (T);
 
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Editor.State.Init (S);
 
@@ -1589,7 +1590,7 @@ package body Editor.Selection.Tests is
       pragma Unreferenced (T);
 
       S : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Editor.State.Init (S);
 
@@ -1908,7 +1909,7 @@ package body Editor.Selection.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "abc" & ASCII.LF & "defg");
@@ -1963,7 +1964,7 @@ package body Editor.Selection.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "alpha beta");
@@ -2023,7 +2024,7 @@ package body Editor.Selection.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Editor.State.Init (S);
       Editor.Executor.Execute_No_Log (S, Paste ("abc" & ASCII.LF & "def"));
@@ -2049,7 +2050,7 @@ package body Editor.Selection.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Editor.State.Init (S);
       Editor.Executor.Execute_No_Log (S, Paste ("abc" & ASCII.LF & "def"));

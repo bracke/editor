@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
@@ -928,7 +929,7 @@ package body Editor.Buffers.Tests is
    is
       pragma Unreferenced (T);
       S          : Editor.State.State_Type;
-      Cmd        : Editor.Commands.Command;
+      Cmd        : Editor.Commands.Payloads.Command;
       Core_Path  : constant String := Editor.Test_Temp.Base & "/editor_core.txt";
       Test_Path  : constant String := Editor.Test_Temp.Base & "/editor_tests.txt";
       Pin_Path   : constant String := Editor.Test_Temp.Base & "/editor_pinned.txt";
@@ -1022,7 +1023,7 @@ package body Editor.Buffers.Tests is
    is
       pragma Unreferenced (T);
       S           : Editor.State.State_Type;
-      Cmd         : Editor.Commands.Command;
+      Cmd         : Editor.Commands.Payloads.Command;
       Availability : Editor.Commands.Command_Availability;
       Core_Path   : constant String := Editor.Test_Temp.Base & "/editor_core_dirty.txt";
       Dirty_Path  : constant String := Editor.Test_Temp.Base & "/editor_dirty_outside.txt";
@@ -1103,7 +1104,7 @@ package body Editor.Buffers.Tests is
    is
       pragma Unreferenced (T);
       S            : Editor.State.State_Type;
-      Cmd          : Editor.Commands.Command;
+      Cmd          : Editor.Commands.Payloads.Command;
       Id           : Editor.Buffers.Buffer_Id;
       Summary      : Editor.Buffers.Buffer_Summary;
       Availability : Editor.Commands.Command_Availability;
@@ -1189,7 +1190,7 @@ package body Editor.Buffers.Tests is
    is
       pragma Unreferenced (T);
       S             : Editor.State.State_Type;
-      Cmd           : Editor.Commands.Command;
+      Cmd           : Editor.Commands.Payloads.Command;
       Note_Path     : constant String := Editor.Test_Temp.Base & "/editor_note.txt";
       Pinned_Path   : constant String := Editor.Test_Temp.Base & "/editor_pinned_note.txt";
       Existing_Path : constant String := Editor.Test_Temp.Base & "/editor_existing_note.txt";
@@ -1301,7 +1302,7 @@ package body Editor.Buffers.Tests is
    is
       pragma Unreferenced (T);
       S            : Editor.State.State_Type;
-      Cmd          : Editor.Commands.Command;
+      Cmd          : Editor.Commands.Payloads.Command;
       Id           : Editor.Buffers.Buffer_Id;
       Summary      : Editor.Buffers.Buffer_Summary;
       Availability : Editor.Commands.Command_Availability;
@@ -1396,7 +1397,7 @@ package body Editor.Buffers.Tests is
    is
       pragma Unreferenced (T);
       S             : Editor.State.State_Type;
-      Cmd           : Editor.Commands.Command;
+      Cmd           : Editor.Commands.Payloads.Command;
       Label_Path    : constant String := Editor.Test_Temp.Base & "/editor_label.txt";
       Pinned_Path   : constant String := Editor.Test_Temp.Base & "/editor_pinned_label.txt";
       Existing_Path : constant String := Editor.Test_Temp.Base & "/editor_existing_label.txt";

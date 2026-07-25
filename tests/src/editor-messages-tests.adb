@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with Ada.Directories;
@@ -285,7 +286,7 @@ package body Editor.Messages.Tests is
       S : Editor.State.State_Type;
       Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
       Rect : Editor.Messages.Message_Rect;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
       Snap : Editor.Render_Model.Render_Snapshot;
    begin
       Prepare_State_With_Message (S);
@@ -315,7 +316,7 @@ package body Editor.Messages.Tests is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
       Rect : Editor.Messages.Message_Rect;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
       Snap : Editor.Render_Model.Render_Snapshot;
    begin
       Prepare_State_With_Message (S);
@@ -344,7 +345,7 @@ package body Editor.Messages.Tests is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
       Rect : Editor.Messages.Message_Rect;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Prepare_State_With_Message (S);
       Rect := Editor.Messages.Overlay_Rect
@@ -373,7 +374,7 @@ package body Editor.Messages.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
       Found : Boolean := False;
       M : Editor.Messages.Editor_Message;
       Path : constant String := Temp_Path ("save_success.txt");
@@ -402,7 +403,7 @@ package body Editor.Messages.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
       Found : Boolean := False;
       M : Editor.Messages.Editor_Message;
       Seed_Path : constant String := Temp_Path ("save_failure_seed.txt");

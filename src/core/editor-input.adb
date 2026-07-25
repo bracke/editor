@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Commands; use Editor.Commands;
 with Editor.Unicode;
 with Editor.UTF8;
@@ -7,9 +8,9 @@ package body Editor.Input is
 
    function To_Command
      (E   : Input_Event;
-      Pos : Natural) return Editor.Commands.Command is
+      Pos : Natural) return Editor.Commands.Payloads.Command is
 
-      C : Editor.Commands.Command;
+      C : Editor.Commands.Payloads.Command;
    begin
       C.Pos    := Pos;
       C.Has_Position := True;

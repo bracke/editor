@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Containers; use type Ada.Containers.Count_Type;
@@ -231,7 +232,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Project_A  : constant String := Ada.Directories.Compose (Root_A, "a.txt");
       Outside_F  : constant String := Temp_Path ("switch_outside.txt");
       S          : Editor.State.State_Type;
-      Cmd        : Editor.Commands.Command;
+      Cmd        : Editor.Commands.Payloads.Command;
       Found      : Boolean := False;
       Outside_Id : Editor.Buffers.Buffer_Id;
       Ignored_Id : Editor.Buffers.Buffer_Id;
@@ -291,7 +292,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Root_B      : constant String := Temp_Path ("switch_dirty_b");
       Project_A   : constant String := Ada.Directories.Compose (Root_A, "a.txt");
       S           : Editor.State.State_Type;
-      Cmd         : Editor.Commands.Command;
+      Cmd         : Editor.Commands.Payloads.Command;
       Before_Rows : Natural := 0;
       Found       : Boolean := False;
       Id          : Editor.Buffers.Buffer_Id;
@@ -347,7 +348,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Root_A  : constant String := Temp_Path ("switch_valid_a");
       Missing : constant String := Temp_Path ("switch_missing_target");
       S       : Editor.State.State_Type;
-      Cmd     : Editor.Commands.Command;
+      Cmd     : Editor.Commands.Payloads.Command;
       Rows    : Natural := 0;
    begin
       Editor.Buffers.Reset_Global_For_Test;
@@ -386,7 +387,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       pragma Unreferenced (T);
       Root : constant String := Temp_Path ("switch_requires_source");
       S    : Editor.State.State_Type;
-      Cmd  : Editor.Commands.Command;
+      Cmd  : Editor.Commands.Payloads.Command;
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Build_Fixture (Root);
@@ -424,7 +425,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Root      : constant String := Temp_Path ("switch_same_project");
       Project_A : constant String := Ada.Directories.Compose (Root, "a.txt");
       S         : Editor.State.State_Type;
-      Cmd       : Editor.Commands.Command;
+      Cmd       : Editor.Commands.Payloads.Command;
       Rows      : Natural := 0;
       Found     : Boolean := False;
       Id        : Editor.Buffers.Buffer_Id;
@@ -476,7 +477,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Root      : constant String := Temp_Path ("switch_same_missing");
       Project_A : constant String := Ada.Directories.Compose (Root, "a.txt");
       S         : Editor.State.State_Type;
-      Cmd       : Editor.Commands.Command;
+      Cmd       : Editor.Commands.Payloads.Command;
       Rows      : Natural := 0;
       Found     : Boolean := False;
       Id        : Editor.Buffers.Buffer_Id;
@@ -532,7 +533,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Root_C    : constant String := Temp_Path ("pending_switch_c");
       Project_A : constant String := Ada.Directories.Compose (Root_A, "a.txt");
       S         : Editor.State.State_Type;
-      Cmd       : Editor.Commands.Command;
+      Cmd       : Editor.Commands.Payloads.Command;
       Target    : Editor.Pending_Transitions.Pending_Transition_Target;
    begin
       Editor.Buffers.Reset_Global_For_Test;
@@ -594,7 +595,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Root_B    : constant String := Temp_Path ("pending_close_b");
       Project_A : constant String := Ada.Directories.Compose (Root_A, "a.txt");
       S         : Editor.State.State_Type;
-      Cmd       : Editor.Commands.Command;
+      Cmd       : Editor.Commands.Payloads.Command;
       Target    : Editor.Pending_Transitions.Pending_Transition_Target;
    begin
       Editor.Buffers.Reset_Global_For_Test;
@@ -703,7 +704,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Project_A  : constant String := Ada.Directories.Compose (Root_A, "a.txt");
       Outside_F  : constant String := Temp_Path ("retry_switch_outside.txt");
       S          : Editor.State.State_Type;
-      Cmd        : Editor.Commands.Command;
+      Cmd        : Editor.Commands.Payloads.Command;
       Found      : Boolean := False;
       Outside_Id : Editor.Buffers.Buffer_Id;
    begin
@@ -866,7 +867,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Root_B    : constant String := Temp_Path ("undo_switch_b");
       Outside_F : constant String := Temp_Path ("undo_switch_outside.txt");
       S         : Editor.State.State_Type;
-      Cmd       : Editor.Commands.Command;
+      Cmd       : Editor.Commands.Payloads.Command;
       Undo_Before : Natural := 0;
    begin
       Editor.Buffers.Reset_Global_For_Test;
@@ -958,7 +959,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Project_A  : constant String := Ada.Directories.Compose (Root_A, "a.txt");
       Outside_F  : constant String := Temp_Path ("recent_switch_outside.txt");
       S          : Editor.State.State_Type;
-      Cmd        : Editor.Commands.Command;
+      Cmd        : Editor.Commands.Payloads.Command;
       Found      : Boolean := False;
       Outside_Id : Editor.Buffers.Buffer_Id;
    begin
@@ -1063,7 +1064,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Project_A  : constant String := Ada.Directories.Compose (Root_A, "a.txt");
       Outside_F  : constant String := Temp_Path ("switch_sets_outside.txt");
       S          : Editor.State.State_Type;
-      Cmd        : Editor.Commands.Command;
+      Cmd        : Editor.Commands.Payloads.Command;
       Found      : Boolean := False;
       Ignored_Id : Editor.Buffers.Buffer_Id;
       pragma Unreferenced (Ignored_Id);
@@ -1149,8 +1150,8 @@ package body Editor.Executor.Project_Workspace_Tests is
       Before_Sets  : Editor.Buffers.Buffer_Project_Lifecycle_Sets;
       After_Sets   : Editor.Buffers.Buffer_Project_Lifecycle_Sets;
       Boundary     : Editor.Configuration_Audit.Buffer_Boundary_Audit_Summary;
-      Cmd          : constant Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id
+      Cmd          : constant Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id
           (Editor.Commands.Command_Buffer_Switcher_Selected_Close);
    begin
       Editor.Buffers.Reset_Global_For_Test;

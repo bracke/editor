@@ -1257,6 +1257,8 @@ editor-commands-availability_metadata.ads
 editor-commands-descriptors.adb
 editor-commands-descriptors.ads
 editor-commands-palette_model.ads
+editor-commands-payloads.adb
+editor-commands-payloads.ads
 editor-commands-audit_model.ads
 editor-commands-descriptor_metadata.adb
 editor-commands-descriptor_metadata.ads

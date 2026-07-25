@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Cursor;
 with Editor.Commands;
 with Editor.Guided_Prompts;
@@ -125,7 +126,7 @@ package body Editor.Input_Bridge.Keybinding_Handlers is
 
    function Consume_Keybinding_Text_Input
      (Prompt : Editor.Guided_Prompts.Prompt_State;
-      Cmd    : Editor.Commands.Command) return Boolean
+      Cmd    : Editor.Commands.Payloads.Command) return Boolean
    is
    begin
       return Is_Keybinding_Capture_Prompt (Prompt)

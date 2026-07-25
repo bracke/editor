@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -1411,7 +1412,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Session_A          : constant String :=
         Editor.Workspace_Persistence.Session_File_Path (Root_A);
       S                  : Editor.State.State_Type;
-      Cmd                : Editor.Commands.Command;
+      Cmd                : Editor.Commands.Payloads.Command;
       Search_Result      : Editor.Project_Search.Project_Search_Result;
       Extracted          : Editor.Outline_Extractor.Extraction_Result;
       Build_Refresh      : Editor.Build_Candidate_Refresh.Build_Candidate_Refresh_Result;
@@ -4054,7 +4055,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Dirty_Path  : constant String := Root_A & "/src/dogfood_demo.adb";
       Clean_Path  : constant String := Root_A & "/src/main.adb";
       S           : Editor.State.State_Type;
-      Cmd         : Editor.Commands.Command;
+      Cmd         : Editor.Commands.Payloads.Command;
       Dirty_Text  : Unbounded_String;
       Dirty_Id    : Editor.Buffers.Buffer_Id;
       Clean_Id    : Editor.Buffers.Buffer_Id;

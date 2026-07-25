@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Buffers;
 with Editor.Executor.File_Tree_Navigation_Commands;
 with Editor.Executor.Project_Search_Result_Commands;
@@ -39,7 +40,7 @@ package body Editor.Input_Bridge.Panel_Tree_Search_Pointer_Handlers is
 
    function Handle_File_Tree_Pointer
      (S   : in out Editor.State.State_Type;
-      Cmd : Editor.Commands.Command) return Boolean
+      Cmd : Editor.Commands.Payloads.Command) return Boolean
    is
       Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
       Panel_Rect : constant Editor.Layout.Rect :=
@@ -97,7 +98,7 @@ package body Editor.Input_Bridge.Panel_Tree_Search_Pointer_Handlers is
 
    function Handle_Search_Results_Panel_Pointer
      (S   : in out Editor.State.State_Type;
-      Cmd : Editor.Commands.Command) return Boolean
+      Cmd : Editor.Commands.Payloads.Command) return Boolean
    is
       Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
       Config : constant Editor.Search_Results.Search_Results_View_Config := (others => <>);

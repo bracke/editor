@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Ada.Containers; use Ada.Containers;
 with Editor.Commands; use Editor.Commands;
 with Editor.Cursors;  use Editor.Cursors;
@@ -8,7 +9,7 @@ package body Editor.State.Caret_Rules is
 
    function Transform_Carets
      (Carets : Cursors_Vector.Vector;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       Len    : Natural)
       return Cursors_Vector.Vector
    is

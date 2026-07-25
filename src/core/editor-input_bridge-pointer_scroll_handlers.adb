@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Folding;
 with Editor.Input_Bridge.Pointer_Routing;
 with Editor.Input_Bridge.Pointer_State;
@@ -90,7 +91,7 @@ package body Editor.Input_Bridge.Pointer_Scroll_Handlers is
 
    function Handle_Minimap_Pointer
      (S   : in out Editor.State.State_Type;
-      Cmd : Editor.Commands.Command) return Boolean
+      Cmd : Editor.Commands.Payloads.Command) return Boolean
    is
       Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
       Config : constant Editor.Minimap.Minimap_Config := Editor.Minimap.Current;
@@ -269,7 +270,7 @@ package body Editor.Input_Bridge.Pointer_Scroll_Handlers is
 
    function Handle_Scrollbar_Pointer
      (S                       : in out Editor.State.State_Type;
-      Cmd                     : Editor.Commands.Command;
+      Cmd                     : Editor.Commands.Payloads.Command;
       Max_Visible_Line_Length : Natural) return Boolean
    is
       Layout      : constant Editor.Layout.Layout_Config := Editor.Layout.Current;

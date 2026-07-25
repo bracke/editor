@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Ada.Directories;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
@@ -20,7 +21,7 @@ package body Editor.Executor.File_Tree_Delete_Commands is
 
    procedure Execute_File_Tree_Delete_Selected
      (S   : in out Editor.State.State_Type;
-      Cmd : Editor.Commands.Command)
+      Cmd : Editor.Commands.Payloads.Command)
    is
       Found   : Boolean := False;
       Summary : constant Editor.File_Tree.File_Tree_Node_Summary :=

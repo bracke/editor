@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Commands;
 with Editor.State;
 
@@ -13,6 +14,6 @@ package Editor.Executor.Search_Commands is
 
    procedure Execute_Project_Search_Kind
      (S   : in out Editor.State.State_Type;
-      Cmd : Editor.Commands.Command);
+      Cmd : Editor.Commands.Payloads.Command);
 
 end Editor.Executor.Search_Commands;

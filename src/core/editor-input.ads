@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Commands;
 with Editor.Unicode;
 
@@ -34,6 +35,6 @@ package Editor.Input is
 
    function To_Command
      (E   : Input_Event;
-      Pos : Natural) return Editor.Commands.Command;
+      Pos : Natural) return Editor.Commands.Payloads.Command;
 
 end Editor.Input;

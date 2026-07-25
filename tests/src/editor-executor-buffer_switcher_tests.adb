@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Directories;
@@ -44,7 +45,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       S      : Editor.State.State_Type;
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
    begin
       Remove_Tree_If_Exists (Root);
       Ada.Directories.Create_Directory (Root);
@@ -63,7 +64,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Editor.Buffers.Global_Set_Buffer_Label (B_Id, "test");
       Editor.Buffers.Global_Set_Buffer_Note (B_Id, "review parser changes");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Filter_Pinned);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Is_Open (S.Buffer_Switcher),
@@ -75,7 +76,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Assert (Editor.Buffer_Switcher.Row_At (S.Buffer_Switcher, 1).Id = A_Id,
               "pinned filter command keeps only pinned buffer");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Filter_Group);
       Cmd.Text := To_Unbounded_String ("core");
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -90,7 +91,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Assert (Editor.Buffers.Global_Buffer_Group (A_Id) = "core",
               "group switcher filter must not mutate group membership");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Filter_Label);
       Cmd.Text := To_Unbounded_String ("test");
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -103,7 +104,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Assert (Editor.Buffers.Global_Buffer_Label (B_Id) = "test",
               "label switcher filter must not mutate labels");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Filter_Noted);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Metadata_Filter_Description (S.Buffer_Switcher) = "noted",
@@ -113,7 +114,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Assert (Editor.Buffer_Switcher.Row_At (S.Buffer_Switcher, 1).Id = B_Id,
               "noted filter command keeps only noted buffers");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Filter_Clear);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (not Editor.Buffer_Switcher.Has_Metadata_Filter (S.Buffer_Switcher),
@@ -214,7 +215,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       S      : Editor.State.State_Type;
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
    begin
       Remove_Tree_If_Exists (Root);
       Ada.Directories.Create_Directory (Root);
@@ -235,7 +236,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Assert (Editor.Buffer_Switcher.Is_Open (S.Buffer_Switcher),
               "setup should open buffer switcher");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Sort_Pinned);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Sort_Mode (S.Buffer_Switcher) = Editor.Buffer_Switcher.Pinned_Sort,
@@ -245,7 +246,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Assert (not Editor.Buffer_Switcher.Has_Metadata_Filter (S.Buffer_Switcher),
               "sort command must not set a metadata filter");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Sort_Label);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Sort_Mode (S.Buffer_Switcher) = Editor.Buffer_Switcher.Label_Sort,
@@ -257,7 +258,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Assert (Editor.Buffers.Global_Is_Buffer_Pinned (B_Id),
               "label sort must not mutate pinned state");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Sort_Next);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Sort_Mode (S.Buffer_Switcher) = Editor.Buffer_Switcher.Default_Sort,
@@ -265,7 +266,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Assert (Editor.Buffer_Switcher.Row_At (S.Buffer_Switcher, 1).Id = A_Id,
               "default sort restores existing switcher order");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Sort_Previous);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Sort_Mode (S.Buffer_Switcher) = Editor.Buffer_Switcher.Label_Sort,
@@ -386,7 +387,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       S      : Editor.State.State_Type;
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       Found  : Boolean := False;
    begin
       Remove_Tree_If_Exists (Root);
@@ -412,7 +413,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
                  "setup should select a non-active switcher row");
       end;
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Selected_Pin);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffers.Global_Is_Buffer_Pinned (A_Id),
@@ -420,7 +421,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Assert (not Editor.Buffers.Global_Is_Buffer_Pinned (B_Id),
               "selected pin must not target active buffer");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Selected_Group_Assign);
       Cmd.Text := To_Unbounded_String ("work");
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -429,7 +430,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Assert (not Editor.Buffers.Global_Has_Buffer_Group (B_Id),
               "selected group assign must not mutate active buffer group");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Selected_Label_Set);
       Cmd.Text := To_Unbounded_String ("triage");
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -438,7 +439,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Assert (not Editor.Buffers.Global_Has_Buffer_Label (B_Id),
               "selected label set must not mutate active buffer label");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Selected_Note_Set);
       Cmd.Text := To_Unbounded_String ("review next");
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -473,7 +474,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       S      : Editor.State.State_Type;
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
    begin
       Remove_Tree_If_Exists (Root);
       Ada.Directories.Create_Directory (Root);
@@ -490,7 +491,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
 
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Buffer_Switcher_Previous_Result (S);
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Selected_Close);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
@@ -559,8 +560,8 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       S      : Editor.State.State_Type;
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Cmd    : constant Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id
+      Cmd    : constant Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id
           (Editor.Commands.Command_Buffer_Switcher_Selected_Close);
    begin
       Remove_Tree_If_Exists (Root);
@@ -677,8 +678,8 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Row    : Editor.Buffer_Switcher.Buffer_Switcher_Row;
       Found  : Boolean := False;
-      Cmd    : constant Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id
+      Cmd    : constant Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id
           (Editor.Commands.Command_Buffer_Switcher_Selected_Close);
    begin
       Remove_Tree_If_Exists (Root);
@@ -735,8 +736,8 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Row    : Editor.Buffer_Switcher.Buffer_Switcher_Row;
       Found  : Boolean := False;
       Result : Editor.Files.File_Open_Result;
-      Cmd    : constant Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id
+      Cmd    : constant Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id
           (Editor.Commands.Command_Buffer_Switcher_Selected_Close);
    begin
       Remove_Tree_If_Exists (Root);
@@ -806,8 +807,8 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Row    : Editor.Buffer_Switcher.Buffer_Switcher_Row;
       Found  : Boolean := False;
       Result : Editor.Files.File_Open_Result;
-      Cmd    : constant Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id
+      Cmd    : constant Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id
           (Editor.Commands.Command_Buffer_Switcher_Selected_Close);
    begin
       Remove_Tree_If_Exists (Root);
@@ -880,8 +881,8 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       S      : Editor.State.State_Type;
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Cmd    : constant Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id
+      Cmd    : constant Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id
           (Editor.Commands.Command_Buffer_Switcher_Selected_Close);
    begin
       Remove_Tree_If_Exists (Root);
@@ -1093,7 +1094,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       S      : Editor.State.State_Type;
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       Found  : Boolean := False;
       Before_Recent_1 : Natural := 0;
       Before_Recent_2 : Natural := 0;
@@ -1125,7 +1126,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
 
       Editor.Executor.Buffer_Switcher_Preview_Commands
         .Execute_Buffer_Switcher_Preview_Show (S);
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Mark_Set);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
@@ -1151,7 +1152,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
                  "marked row should expose compact row state");
       end;
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Mark_Toggle);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (not Editor.Buffer_Switcher.Is_Marked (S.Buffer_Switcher, A_Id),
@@ -1160,7 +1161,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Assert (Editor.Buffer_Switcher.Is_Marked (S.Buffer_Switcher, A_Id),
               "toggle must remark selected switcher row");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Mark_Clear);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (not Editor.Buffer_Switcher.Is_Marked (S.Buffer_Switcher, A_Id),
@@ -1187,7 +1188,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       C_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
    begin
       Remove_Tree_If_Exists (Root);
       Ada.Directories.Create_Directory (Root);
@@ -1218,7 +1219,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Assert (Editor.Buffer_Switcher.Is_Marked (S.Buffer_Switcher, B_Id),
               "hidden marked buffer should remain marked after filter recompute");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Mark_Invert_Visible);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Is_Marked (S.Buffer_Switcher, A_Id),
@@ -1236,7 +1237,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Assert (Editor.Buffer_Switcher.Is_Marked (S.Buffer_Switcher, B_Id),
               "second invert visible must still leave hidden beta marked");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Mark_Clear_All);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (not Editor.Buffer_Switcher.Has_Marks (S.Buffer_Switcher),
@@ -1263,7 +1264,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       C_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       Before_Recent_1 : Natural := 0;
       Before_Recent_2 : Natural := 0;
    begin
@@ -1295,7 +1296,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Before_Recent_2 := Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 2);
       Editor.Navigation_History.Clear (S.Navigation_History);
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Mark_Pin_Marked);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffers.Global_Is_Buffer_Pinned (A_Id),
@@ -1307,7 +1308,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Assert (Editor.Buffers.Global_Active_Buffer = C_Id,
               "pin marked must not activate marked buffers");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Mark_Clear_Metadata);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (not Editor.Buffers.Global_Has_Buffer_Group (A_Id),
@@ -1325,7 +1326,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Assert (Editor.Buffer_Switcher.Is_Marked (S.Buffer_Switcher, A_Id),
               "metadata clear must preserve marks for follow-up action");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Mark_Unpin_Marked);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (not Editor.Buffers.Global_Is_Buffer_Pinned (A_Id),
@@ -1436,7 +1437,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       C_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       Before_Recent_1 : Natural := 0;
       Before_Recent_2 : Natural := 0;
    begin
@@ -1469,7 +1470,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Before_Recent_2 := Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 2);
       Editor.Navigation_History.Clear (S.Navigation_History);
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Mark_Group_Assign);
       Cmd.Text := To_Unbounded_String ("core");
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -1480,7 +1481,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Assert (not Editor.Buffers.Global_Has_Buffer_Group (C_Id),
               "marked group assign must not touch unmarked gamma");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Mark_Label_Set);
       Cmd.Text := To_Unbounded_String ("test");
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -1491,7 +1492,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Assert (not Editor.Buffers.Global_Has_Buffer_Label (C_Id),
               "marked label set must not touch unmarked gamma");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Mark_Note_Set);
       Cmd.Text := To_Unbounded_String ("shared context");
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -1519,7 +1520,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 0,
               "marked metadata apply must not add navigation history");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Mark_Group_Clear);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (not Editor.Buffers.Global_Has_Buffer_Group (A_Id)
@@ -1527,14 +1528,14 @@ package body Editor.Executor.Buffer_Switcher_Tests is
               and then Editor.Buffers.Global_Buffer_Note (A_Id) = "shared context",
               "marked group clear must clear only groups");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Mark_Label_Clear);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (not Editor.Buffers.Global_Has_Buffer_Label (A_Id)
               and then Editor.Buffers.Global_Buffer_Note (A_Id) = "shared context",
               "marked label clear must clear only labels");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Mark_Note_Clear);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (not Editor.Buffers.Global_Has_Buffer_Note (A_Id),
@@ -1563,7 +1564,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       C_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       Before_Filter : Editor.Buffer_Switcher.Switcher_Metadata_Filter;
       Before_Sort   : Editor.Buffer_Switcher.Switcher_Sort_Mode;
       Config        : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
@@ -1598,7 +1599,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Assert (Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) = 2,
               "setup should show only label-filtered rows");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Mark_Label_Set);
       Cmd.Text := To_Unbounded_String ("review");
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -1641,7 +1642,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       A_Path    : constant String := Ada.Directories.Compose (Root, "alpha.adb");
       S         : Editor.State.State_Type;
       A_Id      : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Cmd       : Editor.Commands.Command;
+      Cmd       : Editor.Commands.Payloads.Command;
       Avail     : Editor.Commands.Command_Availability;
       Long_Note : constant String (1 .. Editor.Buffers.Max_Buffer_Note_Length + 1) := (others => 'n');
    begin
@@ -1671,21 +1672,21 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Editor.Buffers.Global_Set_Buffer_Label (A_Id, "keep");
       Editor.Buffers.Global_Set_Buffer_Note (A_Id, "keep");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Mark_Group_Assign);
       Cmd.Text := To_Unbounded_String ("   ");
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffers.Global_Buffer_Group (A_Id) = "keep",
               "blank group input must not mutate marked group");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Mark_Label_Set);
       Cmd.Text := To_Unbounded_String ("bad/label");
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffers.Global_Buffer_Label (A_Id) = "keep",
               "invalid label input must not mutate marked label");
 
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Mark_Note_Set);
       Cmd.Text := To_Unbounded_String (Long_Note);
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -1716,7 +1717,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       C_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       D_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       Before_Recent_1 : Natural := 0;
       Before_Recent_2 : Natural := 0;
       Before_Filter : Editor.Buffer_Switcher.Switcher_Metadata_Filter;
@@ -1796,10 +1797,10 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Editor.Executor.Buffer_Switcher_Mark_Commands
         .Execute_Buffer_Switcher_Mark_Kind
           (S, Editor.Commands.Buffer_Switcher_Mark_Pinned, "");
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Group);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Group);
       Cmd.Text := To_Unbounded_String (" core ");
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Label);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Label);
       Cmd.Text := To_Unbounded_String (" test ");
       Editor.Executor.Execute_No_Log (S, Cmd);
       Editor.Executor.Buffer_Switcher_Mark_Commands
@@ -1844,7 +1845,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
               and then Editor.Buffer_Switcher.Preview_Target (S.Buffer_Switcher) = Before_Preview,
               "mark presets preserve selection and preview when row remains visible");
 
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Label_Set);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Label_Set);
       Cmd.Text := To_Unbounded_String ("review");
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffers.Global_Buffer_Label (A_Id) = "review"
@@ -1870,7 +1871,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       A_Path : constant String := Ada.Directories.Compose (Root, "alpha.adb");
       S      : Editor.State.State_Type;
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       Avail  : Editor.Commands.Command_Availability;
       Recent_Before : Natural := 0;
    begin
@@ -1890,7 +1891,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Assert (not Editor.Buffer_Switcher.Has_Marks (S.Buffer_Switcher),
               "mark preset availability must not mutate marks");
 
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Group);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Group);
       Cmd.Text := To_Unbounded_String ("missing");
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (not Editor.Buffer_Switcher.Has_Marks (S.Buffer_Switcher),
@@ -1923,7 +1924,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       C_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       Found  : Boolean := False;
       Msg    : Editor.Messages.Editor_Message;
       Before_Filter : Editor.Buffer_Switcher.Switcher_Metadata_Filter;
@@ -1964,7 +1965,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Before_Recent_2 := Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 2);
       Editor.Navigation_History.Clear (S.Navigation_History);
 
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Review_Show);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Review_Show);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Has_Marked_Review (S.Buffer_Switcher),
               "show command enables marked review through Executor");
@@ -1975,7 +1976,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Assert (Editor.Buffer_Switcher.Row_At (S.Buffer_Switcher, 2).Id = B_Id,
               "marked review includes the second marked matching row");
 
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Next);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Next);
       Editor.Executor.Execute_No_Log (S, Cmd);
       declare
          Row : constant Editor.Buffer_Switcher.Buffer_Switcher_Row :=
@@ -1987,7 +1988,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
                  "preview follows marked-review selection movement");
       end;
 
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Previous);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Previous);
       Editor.Executor.Execute_No_Log (S, Cmd);
       declare
          Row : constant Editor.Buffer_Switcher.Buffer_Switcher_Row :=
@@ -1999,7 +2000,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
                  "preview follows previous marked selection movement");
       end;
 
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Summary);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Summary);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Msg := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then To_String (Msg.Text) = "Marked buffers: 2",
@@ -2030,7 +2031,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 0,
               "marked review commands must not add navigation history");
 
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Review_Hide);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Review_Hide);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (not Editor.Buffer_Switcher.Has_Marked_Review (S.Buffer_Switcher),
               "hide command disables only marked review state");
@@ -2145,7 +2146,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       C_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Reopened_Id : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
    begin
       Remove_Tree_If_Exists (Root);
       Ada.Directories.Create_Directory (Root);
@@ -2169,13 +2170,13 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, A_Id);
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, B_Id);
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) =
               Editor.Buffer_Switcher.Pending_Marked_Close,
               "marked close should prepare confirmation before mutation");
-      Cmd := Editor.Commands.Command_For_Id
+      Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Mark_Confirm);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
@@ -2216,7 +2217,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       C_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       Before_Recent_1 : Natural := 0;
    begin
       Remove_Tree_If_Exists (Root);
@@ -2240,7 +2241,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, B_Id);
       Before_Recent_1 := Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 1);
       Editor.Navigation_History.Clear (S.Navigation_History);
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) = Editor.Buffer_Switcher.Pending_Marked_Close,
               "marked close prepares a pending close action");
@@ -2272,7 +2273,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Assert (Editor.Buffer_Switcher.Pending_Marked_Target_At (S.Buffer_Switcher, 1) = A_Id
               and then Editor.Buffer_Switcher.Pending_Marked_Target_At (S.Buffer_Switcher, 2) = B_Id,
               "mark/filter/sort/review changes must not alter captured targets");
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Cancel);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Cancel);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) = Editor.Buffer_Switcher.No_Pending_Marked_Action,
               "cancel clears pending marked close");
@@ -2299,7 +2300,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       C_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       Closed : Boolean := False;
    begin
       Remove_Tree_If_Exists (Root);
@@ -2322,14 +2323,14 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, A_Id);
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, B_Id);
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, C_Id);
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Pending_Marked_Dirty_Count (S.Buffer_Switcher) = 1,
               "pending close records a dirty-count hint");
       Editor.Buffers.Global_Close_Buffer (A_Id, Closed);
       Assert (Closed, "setup should close one captured target before confirm");
       Editor.Buffer_Switcher.Clear_All_Marks (S.Buffer_Switcher);
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Confirm);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Confirm);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (not Editor.Buffers.Global_Contains (C_Id),
               "confirm closes captured clean buffers even after marks changed");
@@ -2360,7 +2361,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       S      : Editor.State.State_Type;
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       Avail  : Editor.Commands.Command_Availability;
       Recent_Before : Natural := 0;
    begin
@@ -2376,7 +2377,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       B_Id := Editor.Buffers.Global_Active_Buffer;
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, A_Id);
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Avail := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Buffer_Switcher_Mark_Confirm);
       Assert (Avail.Status = Editor.Commands.Command_Available,
@@ -2413,7 +2414,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       C_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       Before_Recent : Natural := 0;
       Found : Boolean := False;
    begin
@@ -2434,12 +2435,12 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, A_Id);
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, B_Id);
 
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Pending_Marked_Target_Count (S.Buffer_Switcher) = 2,
               "setup captures two pending close targets");
 
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Review_Show);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Review_Show);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Has_Pending_Marked_Review (S.Buffer_Switcher),
               "show enables pending marked review");
@@ -2451,7 +2452,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
 
       Editor.Buffer_Switcher.Clear_All_Marks (S.Buffer_Switcher);
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, C_Id);
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Summary);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Summary);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Latest_Message_Text (S) = "Pending marked close: 2 targets; 2 still open",
               "summary reports captured and still-open counts");
@@ -2463,7 +2464,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
 
       Before_Recent := Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 1);
       Editor.Navigation_History.Clear (S.Navigation_History);
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Next);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Next);
       Editor.Executor.Execute_No_Log (S, Cmd);
       declare
          Row : constant Editor.Buffer_Switcher.Buffer_Switcher_Row :=
@@ -2479,7 +2480,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 0,
               "pending navigation must not add navigation history");
 
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Selected_Close);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Selected_Close);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (not Editor.Buffers.Global_Contains (B_Id),
               "selected close acts on the selected pending-review row");
@@ -2489,23 +2490,23 @@ package body Editor.Executor.Buffer_Switcher_Tests is
               and then Editor.Buffer_Switcher.Row_At (S.Buffer_Switcher, 1).Id = A_Id,
               "closed pending targets disappear only from the open review candidates");
 
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Review_Show);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Review_Show);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Has_Marked_Review (S.Buffer_Switcher)
               and then not Editor.Buffer_Switcher.Has_Pending_Marked_Review (S.Buffer_Switcher),
               "marked review and pending marked review are mutually exclusive");
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Review_Show);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Review_Show);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Has_Pending_Marked_Review (S.Buffer_Switcher)
               and then not Editor.Buffer_Switcher.Has_Marked_Review (S.Buffer_Switcher),
               "showing pending review hides marked review deterministically");
 
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Summary);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Summary);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Latest_Message_Text (S) = "Pending marked close: 2 targets; 1 still open",
               "summary skips captured targets that are no longer open");
 
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Cancel);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Cancel);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) =
                 Editor.Buffer_Switcher.No_Pending_Marked_Action

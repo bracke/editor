@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Instance;
 with Editor.Input_Bridge.Active_Find_Handlers;
 with Editor.Input_Bridge.Buffer_Switcher_Handlers;
@@ -230,7 +231,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
    end Refresh_Or_Clear_Semantic_Completion_Popup;
 
    function Is_Text_Entry_Workflow_Event
-     (Cmd : Editor.Commands.Command) return Boolean
+     (Cmd : Editor.Commands.Payloads.Command) return Boolean
    is
    begin
       return Text_Entry_Routing.Is_Text_Entry_Workflow_Event (Cmd);
@@ -252,7 +253,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
    end Resolve_Text_Entry_Focus_Target;
 
    function Preview_Text_Entry_Route
-     (Cmd : Editor.Commands.Command) return Text_Entry_Route_Result
+     (Cmd : Editor.Commands.Payloads.Command) return Text_Entry_Route_Result
    is
    begin
       return Text_Entry_Routing.Preview_Text_Entry_Route
@@ -260,7 +261,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
    end Preview_Text_Entry_Route;
 
    function Canonical_Text_Entry_Command
-     (Cmd : Editor.Commands.Command) return Editor.Commands.Command
+     (Cmd : Editor.Commands.Payloads.Command) return Editor.Commands.Payloads.Command
    is
    begin
       return Text_Entry_Routing.Canonical_Text_Entry_Command
@@ -268,7 +269,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
    end Canonical_Text_Entry_Command;
 
    function Preview_Text_Entry_Command_Id
-     (Cmd : Editor.Commands.Command) return Editor.Commands.Command_Id
+     (Cmd : Editor.Commands.Payloads.Command) return Editor.Commands.Command_Id
    is
    begin
       return Text_Entry_Routing.Preview_Text_Entry_Command_Id
@@ -282,8 +283,8 @@ use type Editor.Guided_Prompts.Prompt_Kind;
      (Id    : Editor.Commands.Command_Id;
       Shift : Boolean := False)
    is
-      Cmd   : constant Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id (Id, Shift);
+      Cmd   : constant Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id (Id, Shift);
       Route : constant Text_Entry_Route_Result := Preview_Text_Entry_Route (Cmd);
    begin
       case Route is
@@ -476,7 +477,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
          --  immediate command object for existing subsystem APIs that already
          --  expect text/path/query data, and is cleared before execution.
          declare
-            Cmd : Editor.Commands.Command := Editor.Commands.Command_For_Id (Prompt_Id);
+            Cmd : Editor.Commands.Payloads.Command := Editor.Commands.Payloads.Command_For_Id (Prompt_Id);
          begin
             case The_Editor.State.Guided_Prompt.Kind is
                when Editor.Guided_Prompts.Project_Open_Prompt
@@ -555,7 +556,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
      (Id    : Editor.Commands.Command_Id;
       Shift : Boolean := False)
    is
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
       Cursor_Config : Editor.Cursor.Cursor_Config;
       Owner_Before : Editor.Focus_Management.Focus_Owner;
    begin
@@ -731,7 +732,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
          when Editor.Commands.Command_Close_Project
             | Editor.Commands.Command_Clear_Project =>
             declare
-               Cmd_Clear : Editor.Commands.Command;
+               Cmd_Clear : Editor.Commands.Payloads.Command;
             begin
                Cmd_Clear.Kind := Editor.Commands.Close_Project;
                Editor.Instance.Execute (The_Editor, Cmd_Clear);
@@ -892,7 +893,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
                Editor.Executor.Dismiss_Active_Overlay
                  (The_Editor.State, Editor.Overlay_Focus.Dismiss_Escape);
             else
-               Cmd := Editor.Commands.Command_For_Id (Id, Shift);
+               Cmd := Editor.Commands.Payloads.Command_For_Id (Id, Shift);
                Editor.Instance.Execute (The_Editor, Cmd);
             end if;
 
@@ -1140,7 +1141,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
             | Editor.Commands.Command_Diagnostics_Toggle_Unknown_Source
             | Editor.Commands.Command_Quick_Open_Query_Set
             | Editor.Commands.Command_Quick_Open_Scope_Set =>
-            Cmd := Editor.Commands.Command_For_Id (Id, Shift);
+            Cmd := Editor.Commands.Payloads.Command_For_Id (Id, Shift);
             Editor.Instance.Execute (The_Editor, Cmd);
 
          when Editor.Commands.Command_Save_Settings
@@ -1152,7 +1153,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
             | Editor.Commands.Command_Toggle_Scrollbars
             | Editor.Commands.Command_Toggle_Line_Number_Mode
             | Editor.Commands.Command_Toggle_Cursor_Blink =>
-            Cmd := Editor.Commands.Command_For_Id (Id, Shift);
+            Cmd := Editor.Commands.Payloads.Command_For_Id (Id, Shift);
             Editor.Instance.Execute (The_Editor, Cmd);
             Editor.Render_Cache.Invalidate_All;
 
@@ -1165,7 +1166,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
             Editor.Render_Cache.Invalidate_All;
 
          when Editor.Commands.Command_Toggle_Theme =>
-            Cmd := Editor.Commands.Command_For_Id (Id, Shift);
+            Cmd := Editor.Commands.Payloads.Command_For_Id (Id, Shift);
             Editor.Instance.Execute (The_Editor, Cmd);
             Editor.Render_Cache.Invalidate_All;
 
@@ -1237,14 +1238,14 @@ use type Editor.Guided_Prompts.Prompt_Kind;
    end Execute_Command_Id_No_Shift;
 
    procedure Execute_Instance_Command
-     (Command : Editor.Commands.Command)
+     (Command : Editor.Commands.Payloads.Command)
    is
    begin
       Editor.Instance.Execute (The_Editor, Command);
    end Execute_Instance_Command;
 
    function Handle_Command_Palette
-     (Cmd : Editor.Commands.Command) return Boolean
+     (Cmd : Editor.Commands.Payloads.Command) return Boolean
    is
    begin
       return Editor.Input_Bridge.Command_Palette_Handlers.Handle_Command_Palette
@@ -1254,7 +1255,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
 
 
    function Handle_Quick_Open
-     (Cmd : Editor.Commands.Command) return Boolean
+     (Cmd : Editor.Commands.Payloads.Command) return Boolean
    is
    begin
       return Editor.Input_Bridge.Quick_Open_Handlers.Handle_Quick_Open
@@ -1265,7 +1266,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
 
 
    function Handle_Buffer_Switcher
-     (Cmd : Editor.Commands.Command) return Boolean
+     (Cmd : Editor.Commands.Payloads.Command) return Boolean
    is
    begin
       return Editor.Input_Bridge.Buffer_Switcher_Handlers.Handle_Buffer_Switcher
@@ -1274,7 +1275,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
    end Handle_Buffer_Switcher;
 
    function Handle_Project_Search_Bar
-     (Cmd : Editor.Commands.Command) return Boolean
+     (Cmd : Editor.Commands.Payloads.Command) return Boolean
    is
    begin
       return Editor.Input_Bridge.Project_Search_Bar_Handlers
@@ -1287,7 +1288,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
 
 
    function Handle_Goto_Line
-     (Cmd : Editor.Commands.Command) return Boolean
+     (Cmd : Editor.Commands.Payloads.Command) return Boolean
    is
    begin
       return Editor.Input_Bridge.Goto_Line_Handlers.Handle_Goto_Line
@@ -1296,7 +1297,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
    end Handle_Goto_Line;
 
    function Handle_Active_Find_Input
-     (Cmd : Editor.Commands.Command) return Boolean
+     (Cmd : Editor.Commands.Payloads.Command) return Boolean
    is
    begin
       return Editor.Input_Bridge.Active_Find_Handlers.Handle_Active_Find_Input
@@ -1305,7 +1306,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
    end Handle_Active_Find_Input;
 
    function Handle_Outline_Filter_Input
-     (Cmd : Editor.Commands.Command) return Boolean
+     (Cmd : Editor.Commands.Payloads.Command) return Boolean
    is
    begin
       return Editor.Input_Bridge.Outline_Filter_Handlers
@@ -1314,7 +1315,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
    end Handle_Outline_Filter_Input;
 
    function Handle_File_Target_Prompt
-     (Cmd : Editor.Commands.Command) return Boolean
+     (Cmd : Editor.Commands.Payloads.Command) return Boolean
    is
    begin
       return Editor.Input_Bridge.File_Target_Handlers.Handle_File_Target_Prompt
@@ -1323,7 +1324,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
 
 
    function Handle_Search_Query_Input
-     (Cmd : Editor.Commands.Command) return Boolean
+     (Cmd : Editor.Commands.Payloads.Command) return Boolean
    is
    begin
       return Editor.Input_Bridge.Search_Query_Handlers.Handle_Search_Query_Input
@@ -1441,7 +1442,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
      (Chord : Editor.Keybindings.Key_Chord)
    is
       Id  : Editor.Commands.Command_Id;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
 
       procedure Execute_Command_Id_Default
         (Command_Id : Editor.Commands.Command_Id)
@@ -1451,7 +1452,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
       end Execute_Command_Id_Default;
 
       procedure Execute_Instance_Command_Default
-        (Command : Editor.Commands.Command)
+        (Command : Editor.Commands.Payloads.Command)
       is
       begin
          Editor.Instance.Execute (The_Editor, Command);
@@ -1499,7 +1500,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
       end if;
 
       if Editor.Keybindings.Resolve (Chord, Id) = Editor.Keybindings.Bound_Command then
-         Cmd := Editor.Commands.Command_For_Id (Id, Chord.Modifiers.Shift);
+         Cmd := Editor.Commands.Payloads.Command_For_Id (Id, Chord.Modifiers.Shift);
 
          if Editor.Overlay_Focus.Is_Active
            (The_Editor.State.Overlay_Focus,
@@ -1656,7 +1657,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
    end Handle_Wheel;
 
    procedure Handle
-     (Cmd : Editor.Commands.Command) is
+     (Cmd : Editor.Commands.Payloads.Command) is
    begin
       pragma Assert (Initialized,
          "Input_Bridge must be initialized before handling commands");

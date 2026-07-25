@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -524,8 +525,8 @@ package body Editor.File_Tree.Tests is
       Full  : constant String := Ada.Directories.Compose (Root, "a_dir");
       S     : Editor.State.State_Type;
       Opened : Editor.Project.Project_Open_Result;
-      Cmd   : Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id
+      Cmd   : Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id
           (Editor.Commands.Command_File_Tree_Delete_Selected);
    begin
       Build_Fixture (Root);
@@ -576,8 +577,8 @@ package body Editor.File_Tree.Tests is
         Editor.File_Tree.No_File_Tree_Node;
       Row       : Natural := 0;
       Msg       : Editor.Messages.Editor_Message;
-      Cmd       : Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id
+      Cmd       : Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id
           (Editor.Commands.Command_File_Tree_Delete_Selected);
    begin
       Build_Fixture (Root);
@@ -627,11 +628,11 @@ package body Editor.File_Tree.Tests is
       Node        : Editor.File_Tree.File_Tree_Node_Id :=
         Editor.File_Tree.No_File_Tree_Node;
       Row         : Natural := 0;
-      Rename_Cmd  : Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id
+      Rename_Cmd  : Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id
           (Editor.Commands.Command_File_Tree_Rename_Selected);
-      Delete_Cmd  : Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id
+      Delete_Cmd  : Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id
           (Editor.Commands.Command_File_Tree_Delete_Selected);
    begin
       Build_Fixture (Root);
@@ -698,11 +699,11 @@ package body Editor.File_Tree.Tests is
         Editor.File_Tree.No_File_Tree_Node;
       Row        : Natural := 0;
       Msg        : Editor.Messages.Editor_Message;
-      Delete_Cmd : Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id
+      Delete_Cmd : Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id
           (Editor.Commands.Command_File_Tree_Delete_Selected);
-      Rename_Cmd : Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id
+      Rename_Cmd : Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id
           (Editor.Commands.Command_File_Tree_Rename_Selected);
    begin
       Build_Fixture (Root);
@@ -759,11 +760,11 @@ package body Editor.File_Tree.Tests is
         Editor.File_Tree.No_File_Tree_Node;
       Row        : Natural := 0;
       Msg        : Editor.Messages.Editor_Message;
-      Delete_Cmd : Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id
+      Delete_Cmd : Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id
           (Editor.Commands.Command_File_Tree_Delete_Selected);
-      Rename_Cmd : Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id
+      Rename_Cmd : Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id
           (Editor.Commands.Command_File_Tree_Rename_Selected);
    begin
       Build_Fixture (Root);
@@ -812,11 +813,11 @@ package body Editor.File_Tree.Tests is
       Opened     : Editor.Project.Project_Open_Result;
       Msg_Found  : Boolean := False;
       Msg        : Editor.Messages.Editor_Message;
-      Create_File_Cmd : Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id
+      Create_File_Cmd : Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id
           (Editor.Commands.Command_File_Tree_Create_File);
-      Create_Dir_Cmd : Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id
+      Create_Dir_Cmd : Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id
           (Editor.Commands.Command_File_Tree_Create_Directory);
    begin
       Build_Fixture (Root);
@@ -869,11 +870,11 @@ package body Editor.File_Tree.Tests is
       Opened     : Editor.Project.Project_Open_Result;
       Msg_Found  : Boolean := False;
       Msg        : Editor.Messages.Editor_Message;
-      Create_File_Cmd : Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id
+      Create_File_Cmd : Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id
           (Editor.Commands.Command_File_Tree_Create_File);
-      Create_Dir_Cmd : Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id
+      Create_Dir_Cmd : Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id
           (Editor.Commands.Command_File_Tree_Create_Directory);
    begin
       Remove_File_If_Exists (Outside_File);
@@ -929,11 +930,11 @@ package body Editor.File_Tree.Tests is
       Opened     : Editor.Project.Project_Open_Result;
       Msg_Found  : Boolean := False;
       Msg        : Editor.Messages.Editor_Message;
-      Create_File_Cmd : Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id
+      Create_File_Cmd : Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id
           (Editor.Commands.Command_File_Tree_Create_File);
-      Create_Dir_Cmd : Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id
+      Create_Dir_Cmd : Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id
           (Editor.Commands.Command_File_Tree_Create_Directory);
    begin
       Build_Fixture (Root);
@@ -991,11 +992,11 @@ package body Editor.File_Tree.Tests is
         Editor.File_Tree.No_File_Tree_Node;
       Row        : Natural := 0;
       Msg        : Editor.Messages.Editor_Message;
-      Create_File_Cmd : Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id
+      Create_File_Cmd : Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id
           (Editor.Commands.Command_File_Tree_Create_File);
-      Create_Dir_Cmd : Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id
+      Create_Dir_Cmd : Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id
           (Editor.Commands.Command_File_Tree_Create_Directory);
    begin
       Build_Fixture (Root);
@@ -1092,17 +1093,17 @@ package body Editor.File_Tree.Tests is
         Editor.File_Tree.No_File_Tree_Node;
       Row         : Natural := 0;
       Msg         : Editor.Messages.Editor_Message;
-      Create_File_Cmd : Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id
+      Create_File_Cmd : Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id
           (Editor.Commands.Command_File_Tree_Create_File);
-      Create_Dir_Cmd : Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id
+      Create_Dir_Cmd : Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id
           (Editor.Commands.Command_File_Tree_Create_Directory);
-      Rename_Cmd : Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id
+      Rename_Cmd : Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id
           (Editor.Commands.Command_File_Tree_Rename_Selected);
-      Delete_Cmd : Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id
+      Delete_Cmd : Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id
           (Editor.Commands.Command_File_Tree_Delete_Selected);
    begin
       Build_Fixture (Root);
@@ -1183,11 +1184,11 @@ package body Editor.File_Tree.Tests is
         Editor.File_Tree.No_File_Tree_Node;
       Row        : Natural := 0;
       Msg        : Editor.Messages.Editor_Message;
-      Rename_Cmd : Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id
+      Rename_Cmd : Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id
           (Editor.Commands.Command_File_Tree_Rename_Selected);
-      Delete_Cmd : Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id
+      Delete_Cmd : Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id
           (Editor.Commands.Command_File_Tree_Delete_Selected);
    begin
       Build_Fixture (Root);
@@ -1264,8 +1265,8 @@ package body Editor.File_Tree.Tests is
       Node       : Editor.File_Tree.File_Tree_Node_Id :=
         Editor.File_Tree.No_File_Tree_Node;
       Row        : Natural := 0;
-      Rename_Cmd : Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id
+      Rename_Cmd : Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id
           (Editor.Commands.Command_File_Tree_Rename_Selected);
    begin
       Build_Fixture (Root);
@@ -1326,14 +1327,14 @@ package body Editor.File_Tree.Tests is
         Editor.File_Tree.No_File_Tree_Node;
       Row        : Natural := 0;
       Msg        : Editor.Messages.Editor_Message;
-      Create_File_Cmd : Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id
+      Create_File_Cmd : Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id
           (Editor.Commands.Command_File_Tree_Create_File);
-      Create_Dir_Cmd : Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id
+      Create_Dir_Cmd : Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id
           (Editor.Commands.Command_File_Tree_Create_Directory);
-      Rename_Cmd : Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id
+      Rename_Cmd : Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id
           (Editor.Commands.Command_File_Tree_Rename_Selected);
    begin
       Build_Fixture (Root);
@@ -1394,8 +1395,8 @@ package body Editor.File_Tree.Tests is
         Editor.File_Tree.No_File_Tree_Node;
       Row       : Natural := 0;
       Msg       : Editor.Messages.Editor_Message;
-      Rename_Cmd : Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id
+      Rename_Cmd : Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id
           (Editor.Commands.Command_File_Tree_Rename_Selected);
    begin
       Build_Fixture (Root);
@@ -1448,14 +1449,14 @@ package body Editor.File_Tree.Tests is
       Node      : Editor.File_Tree.File_Tree_Node_Id :=
         Editor.File_Tree.No_File_Tree_Node;
       Row       : Natural := 0;
-      Create_Cmd : Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id
+      Create_Cmd : Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id
           (Editor.Commands.Command_File_Tree_Create_File);
-      Rename_Cmd : Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id
+      Rename_Cmd : Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id
           (Editor.Commands.Command_File_Tree_Rename_Selected);
-      Delete_Cmd : Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id
+      Delete_Cmd : Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id
           (Editor.Commands.Command_File_Tree_Delete_Selected);
    begin
       Build_Fixture (Root);

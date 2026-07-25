@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Executor;
 with Editor.State;
 with Textrender; use Textrender;
@@ -39,7 +40,7 @@ package body Editor.Instance is
    ------------------------------------------------------------------------
    procedure Execute
      (E   : in out Editor_Instance;
-      Cmd : Editor.Commands.Command) is
+      Cmd : Editor.Commands.Payloads.Command) is
    begin
       E.Log.Append (Cmd);
       E.Position := Natural (E.Log.Length);

@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Executor.Shared_Services;
 use Editor.Executor.Shared_Services;
 with Ada.Directories;
@@ -234,7 +235,7 @@ package body Editor.Executor.Project_Search_Replace_Commands is
       Before      : Editor.State.State_Type;
       Before_Text : Unbounded_String := Null_Unbounded_String;
       Project_Search_Before_Edit : Editor.Project_Search.Project_Search_State;
-      Cmd         : Editor.Commands.Command;
+      Cmd         : Editor.Commands.Payloads.Command;
       Row         : Editor.Project_Search.Project_Replace_Preview_Row;
       Path        : Unbounded_String := Null_Unbounded_String;
       Pos         : Natural := 0;

@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Executor.Shared_Services;
 use Editor.Executor.Shared_Services;
 with Ada.Directories;
@@ -818,7 +819,7 @@ package body Editor.Executor.Configuration_Commands is
             | Command_Configuration_Save_Clean_Keybindings
             | Command_Configuration_Save_Clean_Workspace
             | Command_Configuration_Save_Clean_Recent_Projects =>
-            case Editor.Commands.Command_For_Id (Id).Kind is
+            case Editor.Commands.Payloads.Command_For_Id (Id).Kind is
                when Save_Settings =>
                   Execute_Save_Settings (S);
 

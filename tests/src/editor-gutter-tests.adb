@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Editor.Commands;
@@ -69,7 +70,7 @@ package body Editor.Gutter.Tests is
      (X : Natural;
       Y : Natural)
    is
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Cmd.Kind := Editor.Commands.Move_To_Point;
       Cmd.Click_X := X;
@@ -81,7 +82,7 @@ package body Editor.Gutter.Tests is
      (X : Natural;
       Y : Natural)
    is
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Cmd.Kind := Editor.Commands.Drag_To_Point;
       Cmd.Click_X := X;
@@ -94,7 +95,7 @@ package body Editor.Gutter.Tests is
      (X : Natural;
       Y : Natural)
    is
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Cmd.Kind := Editor.Commands.Select_Line_At_Point;
       Cmd.Click_X := X;

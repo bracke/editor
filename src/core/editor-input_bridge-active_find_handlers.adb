@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Executor.Clipboard;
 with Editor.Executor.Find_Replace_Commands;
@@ -12,13 +13,13 @@ package body Editor.Input_Bridge.Active_Find_Handlers is
 
    function Handle_Active_Find_Input
      (S               : in out Editor.State.State_Type;
-      Cmd             : Editor.Commands.Command;
+      Cmd             : Editor.Commands.Payloads.Command;
       Execute         : not null access procedure
         (Id : Editor.Commands.Command_Id);
       Execute_Command : not null access procedure
-        (Command : Editor.Commands.Command)) return Boolean
+        (Command : Editor.Commands.Payloads.Command)) return Boolean
    is
-      Cmd2 : Editor.Commands.Command;
+      Cmd2 : Editor.Commands.Payloads.Command;
    begin
       if not S.Active_Find_Prompt then
          return False;

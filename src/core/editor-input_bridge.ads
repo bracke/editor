@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Commands;
 with Editor.Keybindings;
 with Editor.Render_Model;
@@ -29,7 +30,7 @@ package Editor.Input_Bridge is
      (Path : String);
 
    procedure Handle
-     (Cmd : Editor.Commands.Command);
+     (Cmd : Editor.Commands.Payloads.Command);
 
    type Text_Entry_Focus_Target is
      (Text_Entry_Overlay_Input,
@@ -60,13 +61,13 @@ package Editor.Input_Bridge is
      return Text_Entry_Focus_Target;
 
    function Preview_Text_Entry_Route
-     (Cmd : Editor.Commands.Command) return Text_Entry_Route_Result;
+     (Cmd : Editor.Commands.Payloads.Command) return Text_Entry_Route_Result;
 
    --  Side-effect-free canonical command-id projection for text-entry
    --  workflow route audits. Ordinary text payloads intentionally return
    --  No_Command because they are not exposed as public command ids.
    function Preview_Text_Entry_Command_Id
-     (Cmd : Editor.Commands.Command) return Editor.Commands.Command_Id;
+     (Cmd : Editor.Commands.Payloads.Command) return Editor.Commands.Command_Id;
 
    --  Route mouse-wheel input by the current hit-tested surface. Positive
    --  Delta_Y scrolls up; negative Delta_Y scrolls down. Positive Delta_X

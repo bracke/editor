@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Directories;
@@ -513,7 +514,7 @@ package body Editor.Executor.Search_Tests is
       Root : constant String := Temp_Path ("dirty_preview_root");
       Path : constant String := Ada.Directories.Compose (Root, "dirty.txt");
       S    : Editor.State.State_Type;
-      Cmd  : Editor.Commands.Command;
+      Cmd  : Editor.Commands.Payloads.Command;
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Remove_File_If_Exists (Path);
@@ -1208,7 +1209,7 @@ package body Editor.Executor.Search_Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Init_Executor_Test_State (S);
       Set_Buffer_Text (S, "alpha beta alpha");
@@ -1235,7 +1236,7 @@ package body Editor.Executor.Search_Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Init_Executor_Test_State (S);
       Set_Buffer_Text (S, "one two one");
@@ -1261,7 +1262,7 @@ package body Editor.Executor.Search_Tests is
       B_Path : constant String := Ada.Directories.Compose (Root, "b.txt");
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       Closed : Boolean := False;
    begin
       Remove_Tree_If_Exists (Root);
@@ -1369,7 +1370,7 @@ package body Editor.Executor.Search_Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Init_Executor_Test_State (S);
       Set_Buffer_Text (S, "alpha beta alpha");
@@ -1476,7 +1477,7 @@ package body Editor.Executor.Search_Tests is
    is
       pragma Unreferenced (T);
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Init_Executor_Test_State (S);
       Set_Buffer_Text (S, "Run Run");
@@ -1515,7 +1516,7 @@ package body Editor.Executor.Search_Tests is
    is
       pragma Unreferenced (T);
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Init_Executor_Test_State (S);
       Set_Buffer_Text (S, "Run (Run) Run");
@@ -1554,7 +1555,7 @@ package body Editor.Executor.Search_Tests is
    is
       pragma Unreferenced (T);
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Init_Executor_Test_State (S);
       Set_Buffer_Text (S, "aaaa");
@@ -1577,7 +1578,7 @@ package body Editor.Executor.Search_Tests is
    is
       pragma Unreferenced (T);
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Init_Executor_Test_State (S);
       Set_Buffer_Text (S, "Run and Run");

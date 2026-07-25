@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
@@ -246,7 +247,7 @@ package body Editor.Keybindings.Tests is
    procedure Test_Plain_Printable_Still_Inserts_Text
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Cmd  : Editor.Commands.Command;
+      Cmd  : Editor.Commands.Payloads.Command;
       Snap : Editor.Render_Model.Render_Snapshot;
    begin
       Prepare_Text ("");
@@ -262,7 +263,7 @@ package body Editor.Keybindings.Tests is
    procedure Test_Palette_Key_Input_Does_Not_Edit_Buffer
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Cmd  : Editor.Commands.Command;
+      Cmd  : Editor.Commands.Payloads.Command;
       Snap : Editor.Render_Model.Render_Snapshot;
    begin
       Prepare_Text ("");
@@ -283,11 +284,11 @@ package body Editor.Keybindings.Tests is
    procedure Test_Shift_Left_Extends_Selection
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Cmd  : Editor.Commands.Command;
+      Cmd  : Editor.Commands.Payloads.Command;
       Snap : Editor.Render_Model.Render_Snapshot;
    begin
       Prepare_Text ("abc");
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Goto_End);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Goto_End);
       Editor.Input_Bridge.Handle (Cmd);
       Editor.Input_Bridge.Handle_Key_Chord
         (Chord (Editor.Keybindings.Key_Left, Shift => True));
@@ -301,11 +302,11 @@ package body Editor.Keybindings.Tests is
    procedure Test_Navigation_Key_Moves_Caret
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Cmd  : Editor.Commands.Command;
+      Cmd  : Editor.Commands.Payloads.Command;
       Snap : Editor.Render_Model.Render_Snapshot;
    begin
       Prepare_Text ("abc");
-      Cmd := Editor.Commands.Command_For_Id (Editor.Commands.Command_Goto_End);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Goto_End);
       Editor.Input_Bridge.Handle (Cmd);
       Editor.Input_Bridge.Handle_Key_Chord
         (Chord (Editor.Keybindings.Key_Left));
@@ -1798,7 +1799,7 @@ package body Editor.Keybindings.Tests is
       Assert
         (Editor.Input_Bridge.Keybinding_Handlers.Consume_Keybinding_Text_Input
            (Prompt,
-            Editor.Commands.Command'
+            Editor.Commands.Payloads.Command'
               (Kind => Editor.Commands.Insert_Text_Input,
                Text => To_Unbounded_String ("x"),
                others => <>)),

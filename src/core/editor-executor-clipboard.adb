@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Containers; use type Ada.Containers.Count_Type;
 
@@ -118,7 +119,7 @@ package body Editor.Executor.Clipboard is
       Status : constant Editor.Selection.Selection_Validation_Status :=
         Editor.Selection.Validate_Active_Selection_Range (S, Selection_Range);
       Text   : Unbounded_String := Null_Unbounded_String;
-      Del    : Editor.Commands.Command;
+      Del    : Editor.Commands.Payloads.Command;
       pragma Unreferenced (Selection_Range);
    begin
       case Status is
@@ -186,7 +187,7 @@ package body Editor.Executor.Clipboard is
      (S : in out Editor.State.State_Type)
    is
       Text : constant Unbounded_String := Editor.Clipboard.Get_Text;
-      P    : Editor.Commands.Command;
+      P    : Editor.Commands.Payloads.Command;
    begin
       if not Editor.State.Has_Active_Buffer (S) then
          Current_Status := Clipboard_No_Active_Buffer;
@@ -268,7 +269,7 @@ package body Editor.Executor.Clipboard is
 
    procedure Execute
      (S   : in out Editor.State.State_Type;
-      Cmd : Editor.Commands.Command) is
+      Cmd : Editor.Commands.Payloads.Command) is
    begin
       Clear_Status;
 

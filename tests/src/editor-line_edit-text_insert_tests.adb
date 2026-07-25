@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -373,7 +374,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
      (S       : in out Editor.State.State_Type;
       Payload : String)
    is
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Cmd.Kind := Editor.Commands.Insert_Text_Input;
       Cmd.Text := To_Unbounded_String (Payload);
@@ -412,7 +413,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
@@ -514,7 +515,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S          : Editor.State.State_Type;
-      Cmd        : Editor.Commands.Command;
+      Cmd        : Editor.Commands.Payloads.Command;
       Lambda     : constant Editor.Unicode.Code_Point :=
         Wide_Wide_Character'Val (16#03BB#);
       Found      : Boolean := False;
@@ -593,7 +594,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S          : Editor.State.State_Type;
-      Cmd        : Editor.Commands.Command;
+      Cmd        : Editor.Commands.Payloads.Command;
       Before_Back : Natural := 0;
       Before_Fwd  : Natural := 0;
    begin
@@ -639,7 +640,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S   : Editor.State.State_Type;
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
@@ -973,7 +974,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S              : Editor.State.State_Type;
-      Cmd            : Editor.Commands.Command;
+      Cmd            : Editor.Commands.Payloads.Command;
       A_Id           : Editor.Buffers.Buffer_Id;
       B_Id           : Editor.Buffers.Buffer_Id;
       Snap           : Editor.Render_Model.Render_Snapshot;
@@ -1319,7 +1320,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S              : Editor.State.State_Type;
-      Cmd            : Editor.Commands.Command;
+      Cmd            : Editor.Commands.Payloads.Command;
       A_Id           : Editor.Buffers.Buffer_Id;
       B_Id           : Editor.Buffers.Buffer_Id;
       Undo_Before    : Natural := 0;
@@ -1517,7 +1518,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
         (S  : in out Editor.State.State_Type;
          Ch : Character)
       is
-         Cmd : Editor.Commands.Command;
+         Cmd : Editor.Commands.Payloads.Command;
       begin
          Cmd.Kind := Editor.Commands.Insert_Text_Input;
          Cmd.Ch := Ch;
@@ -1682,7 +1683,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S           : Editor.State.State_Type;
-      Cmd         : Editor.Commands.Command;
+      Cmd         : Editor.Commands.Payloads.Command;
       Workspace   : Editor.Workspace_Persistence.Workspace_Snapshot;
       Summary     : Unbounded_String;
       Back_Before : Natural := 0;

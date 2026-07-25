@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Command_Execution;
 with Editor.Commands;
 with Editor.Cursors;
@@ -20,14 +21,14 @@ package Editor.Executor.Line_Edit_Commands is
    procedure Perform_Delete_Current_Line
      (S           : in out Editor.State.State_Type;
       New_Caret   : out Editor.Cursors.Cursor_Index;
-      Forward_Cmd : out Editor.Commands.Command;
+      Forward_Cmd : out Editor.Commands.Payloads.Command;
       Changed     : out Boolean;
       Status      : out Editor.Executor.Edits.Line_Edit_Status);
 
    procedure Perform_Duplicate_Current_Line
      (S           : in out Editor.State.State_Type;
       New_Caret   : out Editor.Cursors.Cursor_Index;
-      Forward_Cmd : out Editor.Commands.Command;
+      Forward_Cmd : out Editor.Commands.Payloads.Command;
       Changed     : out Boolean;
       Status      : out Editor.Executor.Edits.Line_Edit_Status);
 
@@ -35,21 +36,21 @@ package Editor.Executor.Line_Edit_Commands is
      (S           : in out Editor.State.State_Type;
       Direction   : Integer;
       New_Caret   : out Editor.Cursors.Cursor_Index;
-      Forward_Cmd : out Editor.Commands.Command;
+      Forward_Cmd : out Editor.Commands.Payloads.Command;
       Changed     : out Boolean;
       Status      : out Editor.Executor.Edits.Line_Edit_Status);
 
    procedure Perform_Join_Current_Line_With_Next
      (S           : in out Editor.State.State_Type;
       New_Caret   : out Editor.Cursors.Cursor_Index;
-      Forward_Cmd : out Editor.Commands.Command;
+      Forward_Cmd : out Editor.Commands.Payloads.Command;
       Changed     : out Boolean;
       Status      : out Editor.Executor.Edits.Line_Edit_Status);
 
    procedure Perform_Split_Current_Line_At_Caret
      (S           : in out Editor.State.State_Type;
       New_Caret   : out Editor.Cursors.Cursor_Index;
-      Forward_Cmd : out Editor.Commands.Command;
+      Forward_Cmd : out Editor.Commands.Payloads.Command;
       Changed     : out Boolean;
       Status      : out Editor.Executor.Edits.Line_Edit_Status);
 

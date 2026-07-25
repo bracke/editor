@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
@@ -63,8 +64,8 @@ package body Editor.Buffer_Switcher.Tests is
    function Command_Has_Payload
      (Id : Editor.Commands.Command_Id) return Boolean
    is
-      Cmd : constant Editor.Commands.Command :=
-        Editor.Commands.Command_For_Id (Id);
+      Cmd : constant Editor.Commands.Payloads.Command :=
+        Editor.Commands.Payloads.Command_For_Id (Id);
    begin
       return Cmd.Buffer_Id /= 0
         or else Length (Cmd.Text) /= 0
@@ -5137,16 +5138,16 @@ package body Editor.Buffer_Switcher.Tests is
               "Select Previous Buffer List Row",
               "previous-row descriptor uses buffer-list terminology");
       declare
-         Next_Cmd : constant Editor.Commands.Command :=
-           Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Next_Result);
-         Prev_Cmd : constant Editor.Commands.Command :=
-           Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Previous_Result);
-         Switch_Cmd : constant Editor.Commands.Command :=
-           Editor.Commands.Command_For_Id (Editor.Commands.Command_Accept_Buffer_Switcher);
-         Close_Cmd : constant Editor.Commands.Command :=
-           Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Selected_Close);
-         Clean_Cmd : constant Editor.Commands.Command :=
-           Editor.Commands.Command_For_Id (Editor.Commands.Command_Close_All_Clean_Buffers);
+         Next_Cmd : constant Editor.Commands.Payloads.Command :=
+           Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Next_Result);
+         Prev_Cmd : constant Editor.Commands.Payloads.Command :=
+           Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Previous_Result);
+         Switch_Cmd : constant Editor.Commands.Payloads.Command :=
+           Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Accept_Buffer_Switcher);
+         Close_Cmd : constant Editor.Commands.Payloads.Command :=
+           Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Selected_Close);
+         Clean_Cmd : constant Editor.Commands.Payloads.Command :=
+           Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Close_All_Clean_Buffers);
       begin
          Assert (Next_Cmd.Buffer_Id = 0 and then Prev_Cmd.Buffer_Id = 0
                    and then Switch_Cmd.Buffer_Id = 0 and then Close_Cmd.Buffer_Id = 0

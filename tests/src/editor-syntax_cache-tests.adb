@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -352,7 +353,7 @@ package body Editor.Syntax_Cache.Tests is
       pragma Unreferenced (T);
       S      : Editor.State.State_Type;
       Before : Natural;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
    begin
       Editor.State.Init (S);
       Editor.History.Undo_Stack.Clear;

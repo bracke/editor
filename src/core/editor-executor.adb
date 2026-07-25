@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads; use Editor.Commands.Payloads;
 with Text_Buffer;
 with Editor.State;
 use type Editor.State.Dirty_Close_Scope;
@@ -943,7 +944,7 @@ package body Editor.Executor is
       return Null_Unbounded_String;
    end Empty_Text;
    procedure Append_Replace_Op
-     (Cmd          : in out Editor.Commands.Command;
+     (Cmd          : in out Editor.Commands.Payloads.Command;
       Pos          : Cursor_Index;
       Delete_Count : Natural;
       Insert_Text  : Unbounded_String) is

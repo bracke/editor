@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -109,8 +110,8 @@ package body Editor.Input_Bridge.Tests is
 
 
 
-   function Text_Command (Text : String) return Editor.Commands.Command is
-      Cmd : Editor.Commands.Command;
+   function Text_Command (Text : String) return Editor.Commands.Payloads.Command is
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Cmd.Kind := Editor.Commands.Insert_Text_Input;
       Cmd.Text := To_Unbounded_String (Text);
@@ -121,9 +122,9 @@ package body Editor.Input_Bridge.Tests is
    end Text_Command;
 
    function Kind_Command
-     (Kind : Editor.Commands.Command_Kind) return Editor.Commands.Command
+     (Kind : Editor.Commands.Command_Kind) return Editor.Commands.Payloads.Command
    is
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Cmd.Kind := Kind;
       return Cmd;
@@ -184,7 +185,7 @@ package body Editor.Input_Bridge.Tests is
       Remove_Dir_If_Exists (Root);
    end Cleanup_Fixture;
 
-   function Pointer_Click (X, Y : Natural) return Editor.Commands.Command is
+   function Pointer_Click (X, Y : Natural) return Editor.Commands.Payloads.Command is
    begin
       return
         (Kind    => Editor.Commands.Move_To_Point,
@@ -193,7 +194,7 @@ package body Editor.Input_Bridge.Tests is
          others  => <>);
    end Pointer_Click;
 
-   function Select_Word_Click (X, Y : Natural) return Editor.Commands.Command is
+   function Select_Word_Click (X, Y : Natural) return Editor.Commands.Payloads.Command is
    begin
       return
         (Kind    => Editor.Commands.Select_Word_At_Point,
@@ -202,7 +203,7 @@ package body Editor.Input_Bridge.Tests is
          others  => <>);
    end Select_Word_Click;
 
-   function Pointer_Drag (X, Y : Natural) return Editor.Commands.Command is
+   function Pointer_Drag (X, Y : Natural) return Editor.Commands.Payloads.Command is
    begin
       return
         (Kind    => Editor.Commands.Drag_To_Point,
@@ -579,7 +580,7 @@ package body Editor.Input_Bridge.Tests is
       Start_Y : Natural;
       Text_X  : Natural;
       Text_Y  : Natural;
-      Release : Editor.Commands.Command :=
+      Release : Editor.Commands.Payloads.Command :=
         (Kind => Editor.Commands.Break_Group, others => <>);
    begin
       Editor.Buffers.Reset_Global_For_Test;
@@ -1378,7 +1379,7 @@ package body Editor.Input_Bridge.Tests is
       pragma Unreferenced (T);
       S      : Editor.State.State_Type;
       After  : Editor.State.State_Type;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       Snap   : Editor.Render_Model.Render_Snapshot;
    begin
       Editor.Buffers.Reset_Global_For_Test;
@@ -1411,7 +1412,7 @@ package body Editor.Input_Bridge.Tests is
       pragma Unreferenced (T);
       S      : Editor.State.State_Type;
       After  : Editor.State.State_Type;
-      Cmd    : Editor.Commands.Command;
+      Cmd    : Editor.Commands.Payloads.Command;
       Snap   : Editor.Render_Model.Render_Snapshot;
       Items  : constant Editor.Outline.Outline_Item_Array :=
         (1 =>
@@ -2237,7 +2238,7 @@ package body Editor.Input_Bridge.Tests is
 
 
    procedure Assert_Text_Entry_Workflow_Coherent
-     (Cmd              : Editor.Commands.Command;
+     (Cmd              : Editor.Commands.Payloads.Command;
       Expected_Route   : Editor.Input_Bridge.Text_Entry_Route_Result;
       Expected_Command : Editor.Commands.Command_Id;
       Message          : String)
@@ -3140,7 +3141,7 @@ package body Editor.Input_Bridge.Tests is
       A_Dir : constant String := Ada.Directories.Compose (Root, "a_dir");
       S     : Editor.State.State_Type;
       Found : Boolean := False;
-      Enter : Editor.Commands.Command;
+      Enter : Editor.Commands.Payloads.Command;
    begin
       Build_Fixture (Root);
       Editor.State.Init (S);

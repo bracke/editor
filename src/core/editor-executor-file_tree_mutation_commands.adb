@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Ada.Characters.Handling;
 with Ada.Directories;
 use type Ada.Directories.File_Kind;
@@ -36,7 +37,7 @@ with Editor.Syntax_Semantics;
 package body Editor.Executor.File_Tree_Mutation_Commands is
 
    function File_Tree_Input_Text
-     (Cmd : Editor.Commands.Command) return String
+     (Cmd : Editor.Commands.Payloads.Command) return String
    is
    begin
       --  File Tree project-explorer commands consume only explicit prompt text.

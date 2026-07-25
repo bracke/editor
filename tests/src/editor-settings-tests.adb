@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -271,7 +272,7 @@ package body Editor.Settings.Tests is
    procedure Test_Disabling_Minimap_Disables_Input_Routing
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
       Text : Unbounded_String := Null_Unbounded_String;
       Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
       Config : constant Editor.Minimap.Minimap_Config := Editor.Minimap.Current;
@@ -338,7 +339,7 @@ package body Editor.Settings.Tests is
    procedure Test_Command_Palette_Toggle_Changes_Setting
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Cmd : Editor.Commands.Command;
+      Cmd : Editor.Commands.Payloads.Command;
    begin
       Prepare_Text ("abc");
       Assert (Editor.Settings.Show_Diagnostics,

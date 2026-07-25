@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Ada.Containers.Vectors;
 with Editor.Commands;
 with Editor.State;
@@ -7,8 +8,8 @@ package Editor.Instance is
    package Command_Vector is
       new Ada.Containers.Vectors
         (Index_Type   => Natural,
-         Element_Type => Editor.Commands.Command,
-         "="          => Editor.Commands."=");
+         Element_Type => Editor.Commands.Payloads.Command,
+         "="          => Editor.Commands.Payloads."=");
 
    type Editor_Instance is record
       Log      : Command_Vector.Vector;
@@ -28,7 +29,7 @@ package Editor.Instance is
 
    procedure Execute
      (E   : in out Editor_Instance;
-      Cmd : Editor.Commands.Command);
+      Cmd : Editor.Commands.Payloads.Command);
 
    procedure Undo (E : in out Editor_Instance);
 

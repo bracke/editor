@@ -1,3 +1,4 @@
+with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Buffers;
 with Editor.Focus_Management;
@@ -9,7 +10,7 @@ package body Editor.Input_Bridge.Text_Entry_Routing is
    use type Editor.Buffers.Buffer_Id;
 
    function Is_Text_Entry_Workflow_Event
-     (Cmd : Editor.Commands.Command) return Boolean
+     (Cmd : Editor.Commands.Payloads.Command) return Boolean
    is
    begin
       case Cmd.Kind is
@@ -65,7 +66,7 @@ package body Editor.Input_Bridge.Text_Entry_Routing is
 
    function Preview_Text_Entry_Route
      (State : Editor.State.State_Type;
-      Cmd   : Editor.Commands.Command) return Text_Entry_Route_Result
+      Cmd   : Editor.Commands.Payloads.Command) return Text_Entry_Route_Result
    is
       Focus : constant Text_Entry_Focus_Target :=
         Resolve_Text_Entry_Focus_Target (State);
@@ -112,11 +113,11 @@ package body Editor.Input_Bridge.Text_Entry_Routing is
 
    function Canonical_Text_Entry_Command
      (State : Editor.State.State_Type;
-      Cmd   : Editor.Commands.Command) return Editor.Commands.Command
+      Cmd   : Editor.Commands.Payloads.Command) return Editor.Commands.Payloads.Command
    is
       Result : constant Text_Entry_Route_Result :=
         Preview_Text_Entry_Route (State, Cmd);
-      Routed : Editor.Commands.Command := Cmd;
+      Routed : Editor.Commands.Payloads.Command := Cmd;
    begin
       case Result is
          when Routed_To_Text_Insert =>
@@ -161,7 +162,7 @@ package body Editor.Input_Bridge.Text_Entry_Routing is
 
    function Preview_Text_Entry_Command_Id
      (State : Editor.State.State_Type;
-      Cmd   : Editor.Commands.Command) return Editor.Commands.Command_Id
+      Cmd   : Editor.Commands.Payloads.Command) return Editor.Commands.Command_Id
    is
    begin
       case Preview_Text_Entry_Route (State, Cmd) is
