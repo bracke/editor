@@ -1587,6 +1587,13 @@ editor-external_producers-build_runner_audits.adb
 editor-external_producers-build_runner_audits-execution_policy_audits.adb
 editor-external_producers-build_runner_audits-build_path_audits.adb
 editor-external_producers-build_command_execution.adb
+editor-external_producers-build_command_execution-output_capture.adb
+editor-external_producers-build_command_execution-diagnostics.adb
+editor-external_producers-build_command_execution-feedback.adb
+editor-external_producers-build_command_execution-preflight.adb
+editor-external_producers-build_command_execution-fixture_gates.adb
+editor-external_producers-build_command_execution-real_process.adb
+editor-external_producers-build_command_execution-results.adb
 editor-external_producers-request_policies.adb
 editor-external_producers-public_build_command_surface_audits.adb
 editor-external_producers-public_build_guardrail_audits.adb
@@ -1601,6 +1608,13 @@ editor-external_producers-build_runner_audits.ads
 editor-external_producers-build_runner_audits-execution_policy_audits.ads
 editor-external_producers-build_runner_audits-build_path_audits.ads
 editor-external_producers-build_command_execution.ads
+editor-external_producers-build_command_execution-output_capture.ads
+editor-external_producers-build_command_execution-diagnostics.ads
+editor-external_producers-build_command_execution-feedback.ads
+editor-external_producers-build_command_execution-preflight.ads
+editor-external_producers-build_command_execution-fixture_gates.ads
+editor-external_producers-build_command_execution-real_process.ads
+editor-external_producers-build_command_execution-results.ads
 editor-external_producers-diagnostic_text_lines.ads
 editor-external_producers-build_types.ads
 editor-external_producers-request_policies.ads
