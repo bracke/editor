@@ -1825,6 +1825,14 @@ editor-navigation_history.adb
 editor-navigation_history.ads
 editor-outline.adb
 editor-outline.ads
+editor-outline-activation.adb
+editor-outline-activation.ads
+editor-outline-filtering.adb
+editor-outline-filtering.ads
+editor-outline-projection.adb
+editor-outline-projection.ads
+editor-outline-selection.adb
+editor-outline-selection.ads
 editor-outline_audit.adb
 editor-outline_audit.ads
 editor-outline_extractor.adb
