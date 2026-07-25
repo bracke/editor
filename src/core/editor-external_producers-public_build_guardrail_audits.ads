@@ -1,3 +1,7 @@
+with Editor.State;
+
+with Editor.External_Producers.Public_Build_Types;
+use Editor.External_Producers.Public_Build_Types;
 package Editor.External_Producers.Public_Build_Guardrail_Audits is
 
    function Scan_Public_Build_Surface_Ids

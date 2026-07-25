@@ -14,6 +14,7 @@ with Editor.Build_Output_Details;
 with Editor.Build_Working_Context;
 with Editor.Ada_Diagnostic_Command_Projection;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Types;
 with Editor.External_Producers.Build_Requests;
 with Editor.Feature_Diagnostics;
 with Editor.Feature_Diagnostics.Fixtures; use Editor.Feature_Diagnostics.Fixtures;
@@ -33,8 +34,8 @@ use type Editor.Build_UI.Public_Build_Tool_Selection;
 use type Editor.Build_Working_Context.Build_Working_Context_Kind;
 use type Editor.Build_Working_Context.Build_Working_Context_Validation_Status;
 use type Editor.Build_Working_Context.Working_Context_Source_Kind;
-use type Editor.External_Producers.Build_Request_Provenance;
-use type Editor.External_Producers.Build_Tool_Kind;
+use type Editor.External_Producers.Build_Types.Build_Request_Provenance;
+use type Editor.External_Producers.Build_Types.Build_Tool_Kind;
 use type Editor.Commands.Command_Id;
 use type Editor.Command_Execution.Command_Execution_Status;
 use type Editor.Build_Candidate_Refresh.Build_Candidate_Refresh_Status;
@@ -364,9 +365,9 @@ package body Editor.Build_UI.Tests is
       Assert (C.Status = Editor.Build_UI.Build_UI_Valid,
               "complete consented UI validates");
       Assert (C.Request.Provenance =
-                Editor.External_Producers.Build_Request_From_User_Opt_In,
+                Editor.External_Producers.Build_Types.Build_Request_From_User_Opt_In,
               "conversion preserves user-opt-in provenance");
-      Assert (C.Request.Tool = Editor.External_Producers.GPRbuild_Tool,
+      Assert (C.Request.Tool = Editor.External_Producers.Build_Types.GPRbuild_Tool,
               "conversion preserves bounded tool selection");
       Assert (To_String (C.Request.Arguments)'Length = 0,
               "conversion does not create opaque shell arguments");

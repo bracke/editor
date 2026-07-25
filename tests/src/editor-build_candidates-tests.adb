@@ -18,6 +18,7 @@ with Editor.Build_Output_Details;
 with Editor.Build_UI;
 with Editor.Build_Working_Context;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Types;
 
 use type Editor.Build_Candidates.Build_Candidate_Kind;
 use type Editor.Build_Candidates.Build_Candidate_Source;
@@ -27,8 +28,8 @@ use type Editor.Build_Candidate_Refresh.Build_Candidate_Refresh_Status;
 use type Editor.Build_UI.Public_Build_UI_Validation_Status;
 use type Editor.Build_UI.Public_Build_Tool_Selection;
 use type Editor.Build_Working_Context.Build_Working_Context_Kind;
-use type Editor.External_Producers.Build_Tool_Kind;
-use type Editor.External_Producers.Build_Request_Provenance;
+use type Editor.External_Producers.Build_Types.Build_Tool_Kind;
+use type Editor.External_Producers.Build_Types.Build_Request_Provenance;
 
 package body Editor.Build_Candidates.Tests is
 
@@ -77,7 +78,7 @@ package body Editor.Build_Candidates.Tests is
               "alire candidate uses explicit kind");
       Assert (C.Discovery_Source = Editor.Build_Candidates.Build_Candidate_Source_Alire_Toml,
               "alire candidate records bounded source");
-      Assert (C.Tool_Kind = Editor.External_Producers.Alire_Build_Tool,
+      Assert (C.Tool_Kind = Editor.External_Producers.Build_Types.Alire_Build_Tool,
               "alire candidate maps to public build tool kind");
       Assert (Editor.Build_Candidates.Argument_Count (C) = 1,
               "alire candidate uses structured argv tokens");
@@ -201,9 +202,9 @@ package body Editor.Build_Candidates.Tests is
       Assert (Conversion.Status = Editor.Build_UI.Build_UI_Valid,
               "selected candidate converts after explicit consent");
       Assert (Conversion.Request.Provenance =
-                Editor.External_Producers.Build_Request_From_User_Opt_In,
+                Editor.External_Producers.Build_Types.Build_Request_From_User_Opt_In,
               "candidate conversion remains user opt-in provenance");
-      Assert (Conversion.Request.Tool = Editor.External_Producers.GPRbuild_Tool,
+      Assert (Conversion.Request.Tool = Editor.External_Producers.Build_Types.GPRbuild_Tool,
               "candidate conversion maps public build tool kind");
    end Test_Candidate_Selection_Populates_UI_And_Invalidates_Consent;
 
@@ -256,7 +257,7 @@ package body Editor.Build_Candidates.Tests is
       Conversion := Editor.Build_Public_Request.Build_Public_Request_From_UI_State (S);
       Assert (Conversion.Status = Editor.Build_UI.Build_UI_Valid,
               "candidate-derived request converts only after renewed consent");
-      Assert (Conversion.Request.Tool = Editor.External_Producers.Alire_Build_Tool,
+      Assert (Conversion.Request.Tool = Editor.External_Producers.Build_Types.Alire_Build_Tool,
               "candidate-derived conversion keeps bounded Alire tool kind");
       Assert (To_String (Conversion.Request.Arguments)'Length = 0,
               "candidate-derived conversion does not emit opaque shell arguments");

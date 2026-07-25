@@ -5,6 +5,7 @@ with Editor.Build_Candidates;
 with Editor.Build_UI;
 with Editor.Build_Working_Context;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Types;
 
 package body Editor.Build_Candidate_Refresh is
 
@@ -75,7 +76,7 @@ package body Editor.Build_Candidate_Refresh is
            (Candidate.Candidate_Kind));
    begin
       Append (Result, "|tool=");
-      Append (Result, Editor.External_Producers.Build_Tool_Kind'Image
+      Append (Result, Editor.External_Producers.Build_Types.Build_Tool_Kind'Image
         (Candidate.Tool_Kind));
       Append (Result, "|ctx=");
       Append (Result, Editor.Build_Working_Context.Request_Identity_Token

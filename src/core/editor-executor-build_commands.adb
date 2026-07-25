@@ -12,6 +12,7 @@ with Editor.Executor;
 with Editor.Executor.Shared_Services;
 use Editor.Executor.Shared_Services;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Types;
 with Editor.External_Producers.Build_Requests;
 with Editor.Project;
 with Editor.Render_Cache;
@@ -22,7 +23,7 @@ package body Editor.Executor.Build_Commands is
    use Ada.Strings.Unbounded;
    use type Editor.Build_Candidate_Refresh.Build_Candidate_Refresh_Status;
    use type Editor.Build_UI.Public_Build_Tool_Selection;
-   use type Editor.External_Producers.Build_Run_Status;
+   use type Editor.External_Producers.Build_Types.Build_Run_Status;
 
    function Build_Command_Availability
      (S  : Editor.State.State_Type;
@@ -253,11 +254,11 @@ package body Editor.Executor.Build_Commands is
                Report_Info (S, To_String (Result.Command_Message));
                Editor.Render_Cache.Invalidate_All;
                if Result.Build_Result.Status =
-                 Editor.External_Producers.Build_Run_Succeeded
+                 Editor.External_Producers.Build_Types.Build_Run_Succeeded
                then
                   return Editor.Command_Execution.Executed (Id);
                elsif Result.Build_Result.Status =
-                 Editor.External_Producers.Build_Run_Not_Available
+                 Editor.External_Producers.Build_Types.Build_Run_Not_Available
                then
                   return Editor.Command_Execution.Unavailable (Id);
                else
@@ -273,7 +274,7 @@ package body Editor.Executor.Build_Commands is
                Report_Info (S, To_String (Result.Command_Message));
                Editor.Render_Cache.Invalidate_All;
                if Result.Build_Result.Status =
-                 Editor.External_Producers.Build_Run_Cancelled
+                 Editor.External_Producers.Build_Types.Build_Run_Cancelled
                then
                   return Editor.Command_Execution.Executed (Id);
                else

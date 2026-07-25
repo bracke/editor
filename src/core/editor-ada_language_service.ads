@@ -5,7 +5,7 @@ with Editor.Ada_Diagnostic_Command_Projection;
 with Editor.Ada_Language_Model;
 with Editor.Ada_Project_Index;
 with Editor.Ada_Semantic_Diagnostic_Feed;
-with Editor.External_Producers;
+with Editor.External_Producers.Diagnostics_Types;
 with Editor.External_Producers.Diagnostic_Text_Lines;
 
 
@@ -203,11 +203,11 @@ package Editor.Ada_Language_Service is
    end record;
 
    subtype Compiler_Diagnostic_Severity is
-     Editor.External_Producers.Compiler_Diagnostic_Severity;
+     Editor.External_Producers.Diagnostics_Types.Compiler_Diagnostic_Severity;
 
    type Compiler_Diagnostic is record
       Severity     : Compiler_Diagnostic_Severity :=
-        Editor.External_Producers.Compiler_Unknown;
+        Editor.External_Producers.Diagnostics_Types.Compiler_Unknown;
       Message      : Ada.Strings.Unbounded.Unbounded_String;
       File_Label   : Ada.Strings.Unbounded.Unbounded_String;
       Has_Location : Boolean := False;

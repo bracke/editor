@@ -1,15 +1,16 @@
 with Ada.Strings.Unbounded;
 with Editor.External_Producers.Diagnostic_Text_Lines;
-with Editor.External_Producers.Diagnostics;
+with Editor.External_Producers.Diagnostics_Types;
 with Editor.State;
 
 package Editor.External_Producers.Diagnostic_Line_Parsing is
 
-   subtype Producer_Source is Editor.External_Producers.Diagnostics.Producer_Source;
+   subtype Producer_Source is
+     Editor.External_Producers.Diagnostics_Types.Producer_Source;
    subtype Compiler_Severity is
-     Editor.External_Producers.Diagnostics.Compiler_Severity;
+     Editor.External_Producers.Diagnostics_Types.Compiler_Severity;
    subtype Diagnostic_Record is
-     Editor.External_Producers.Diagnostics.Diagnostic_Record;
+     Editor.External_Producers.Diagnostics_Types.Diagnostic_Record;
 
    type Parse_Status is
      (Parse_Accepted,
@@ -35,7 +36,7 @@ package Editor.External_Producers.Diagnostic_Line_Parsing is
       Status     : Parse_Status := Parse_Ignored_Unrecognized;
       Reason     : Parse_Reason := Unrecognized_Format;
       Has_Record : Boolean := False;
-      Diagnostic_Record : Editor.External_Producers.Diagnostics.Compiler_Record;
+      Diagnostic_Record : Editor.External_Producers.Diagnostics_Types.Compiler_Record;
    end record;
 
    package Text_Line_Vectors renames
@@ -50,7 +51,7 @@ package Editor.External_Producers.Diagnostic_Line_Parsing is
       Ignored_Blank_Count          : Natural := 0;
       Ignored_Unrecognized_Count   : Natural := 0;
       Rejected_Malformed_Count     : Natural := 0;
-      Records                      : Editor.External_Producers.Diagnostics.Compiler_Record_Array;
+      Records                      : Editor.External_Producers.Diagnostics_Types.Compiler_Record_Array;
       Error_Count                  : Natural := 0;
       Warning_Count                : Natural := 0;
       Info_Count                   : Natural := 0;
@@ -71,7 +72,7 @@ package Editor.External_Producers.Diagnostic_Line_Parsing is
       Parsed_Note_Count                 : Natural := 0;
       Parsed_Unknown_Count              : Natural := 0;
       Ingestion_Result                  :
-        Editor.External_Producers.Diagnostics.Producer_Batch_Result;
+        Editor.External_Producers.Diagnostics_Types.Producer_Batch_Result;
    end record;
 
    type Command_Outcome is

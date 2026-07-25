@@ -95,15 +95,15 @@ package body Editor.Command_Extension_Readiness.Tests is
    begin
       Failures.Append
         (Editor.Commands.Audit_Model.Command_Audit_Failure'
-           (Kind => Editor.Commands.Missing_Stable_Name,
+           (Kind => Editor.Commands.Audit_Model.Missing_Stable_Name,
           Command => Editor.Commands.Command_Save_Keybindings));
       Failures.Append
         (Editor.Commands.Audit_Model.Command_Audit_Failure'
-           (Kind => Editor.Commands.Missing_Classification,
+           (Kind => Editor.Commands.Audit_Model.Missing_Classification,
           Command => Editor.Commands.Command_Reset_Settings_To_Defaults));
       Failures.Append
         (Editor.Commands.Audit_Model.Command_Audit_Failure'
-           (Kind => Editor.Commands.Route_Bypasses_Executor,
+           (Kind => Editor.Commands.Audit_Model.Route_Bypasses_Executor,
           Command => Editor.Commands.Command_Open_Project));
 
       Summary := To_Unbounded_String (Editor.Commands.Audits.Command_Audit_Summary (Failures));

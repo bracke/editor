@@ -10,9 +10,42 @@ with Editor.External_Producers.Execution_Policy;
 with Editor.External_Producers.Request_Policies;
 with Editor.State;
 
+with Editor.External_Producers.Build_Types; use Editor.External_Producers.Build_Types;
+
 package body Editor.External_Producers.Build_Runner_Audits.Build_Path_Audits is
 
    use type Ada.Containers.Count_Type;
+
+   subtype Process_Argument_Vector is
+     Editor.External_Producers.Build_Types.Process_Argument_Vector;
+   package Process_Argument_Vectors renames
+     Editor.External_Producers.Build_Types.Process_Argument_Vectors;
+   subtype Process_Run_Status is
+     Editor.External_Producers.Build_Types.Process_Run_Status;
+   subtype Process_Output_Capture_Mode is
+     Editor.External_Producers.Build_Types.Process_Output_Capture_Mode;
+   subtype Process_Run_Result is
+     Editor.External_Producers.Build_Types.Process_Run_Result;
+   subtype Build_Run_Request is
+     Editor.External_Producers.Build_Types.Build_Run_Request;
+   subtype Build_Request_Validation_Status is
+     Editor.External_Producers.Build_Types.Build_Request_Validation_Status;
+   subtype Build_Execution_Gate is
+     Editor.External_Producers.Build_Types.Build_Execution_Gate;
+   subtype Build_Preflight_Result is
+     Editor.External_Producers.Build_Types.Build_Preflight_Result;
+   subtype Build_Execution_Consent is
+     Editor.External_Producers.Build_Types.Build_Execution_Consent;
+   subtype Process_Execution_Policy is
+     Editor.External_Producers.Build_Types.Process_Execution_Policy;
+   subtype Process_Execution_Mode is
+     Editor.External_Producers.Build_Types.Process_Execution_Mode;
+   subtype Process_Fixture_Request is
+     Editor.External_Producers.Build_Types.Process_Fixture_Request;
+   subtype Process_Fixture_Validation_Status is
+     Editor.External_Producers.Build_Types.Process_Fixture_Validation_Status;
+   subtype Build_Command_Result is
+     Editor.External_Producers.Build_Command_Execution.Build_Command_Result;
 
    function Build_Process_Argument_Vector
      (First  : String := "";

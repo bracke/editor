@@ -4,6 +4,7 @@ with Editor.State;
 with Editor.External_Producers.Public_Build_Command_Surface_Audits;
 with Editor.External_Producers.Public_Build_Input_Validation;
 
+with Editor.External_Producers.Public_Build_Types;
 package body Editor.External_Producers.Public_Build_Guardrail_Audits is
 
    package Surface_Audits renames

@@ -3,11 +3,13 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Build_Working_Context;
 with Editor.External_Producers.Build_Requests;
 
+with Editor.External_Producers.Build_Types;
+with Editor.External_Producers.Public_Build_Types;
 package body Editor.Build_Public_Request is
 
    use type Editor.Build_UI.Public_Build_UI_Validation_Status;
    use type Editor.Build_Working_Context.Build_Working_Context_Validation_Status;
-   use type Editor.External_Producers.Build_Request_Provenance;
+   use type Editor.External_Producers.Build_Types.Build_Request_Provenance;
 
    function Trimmed (Text : Unbounded_String) return String is
    begin
@@ -16,18 +18,18 @@ package body Editor.Build_Public_Request is
 
    function Tool_To_Build_Tool
      (Tool : Editor.Build_UI.Public_Build_Tool_Selection)
-      return Editor.External_Producers.Build_Tool_Kind
+      return Editor.External_Producers.Build_Types.Build_Tool_Kind
    is
    begin
       case Tool is
          when Editor.Build_UI.Build_UI_No_Tool =>
-            return Editor.External_Producers.No_Build_Tool;
+            return Editor.External_Producers.Build_Types.No_Build_Tool;
          when Editor.Build_UI.Build_UI_GPRbuild =>
-            return Editor.External_Producers.GPRbuild_Tool;
+            return Editor.External_Producers.Build_Types.GPRbuild_Tool;
          when Editor.Build_UI.Build_UI_Alire =>
-            return Editor.External_Producers.Alire_Build_Tool;
+            return Editor.External_Producers.Build_Types.Alire_Build_Tool;
          when Editor.Build_UI.Build_UI_Custom_Disallowed_For_Now =>
-            return Editor.External_Producers.Custom_Build_Tool;
+            return Editor.External_Producers.Build_Types.Custom_Build_Tool;
       end case;
    end Tool_To_Build_Tool;
 
@@ -47,9 +49,9 @@ package body Editor.Build_Public_Request is
 
    function Convert_Arguments
      (Arguments : Editor.Build_UI.Build_UI_Argument_Vector)
-      return Editor.External_Producers.Process_Argument_Vector
+      return Editor.External_Producers.Build_Types.Process_Argument_Vector
    is
-      Result : Editor.External_Producers.Process_Argument_Vector :=
+      Result : Editor.External_Producers.Build_Types.Process_Argument_Vector :=
         Editor.External_Producers.Build_Requests.Empty_Process_Arguments;
    begin
       for Arg of Arguments loop
@@ -64,17 +66,17 @@ package body Editor.Build_Public_Request is
    is
       Status : constant Editor.Build_UI.Public_Build_UI_Validation_Status :=
         Editor.Build_UI.Validate_Build_UI_State (State);
-      Input : Editor.External_Producers.Public_Build_Command_Input;
-      Request : Editor.External_Producers.Build_Run_Request;
+      Input : Editor.External_Producers.Public_Build_Types.Public_Build_Command_Input;
+      Request : Editor.External_Producers.Build_Types.Build_Run_Request;
    begin
-      Input.Source := Editor.External_Producers.Public_Build_Input_User_Form;
+      Input.Source := Editor.External_Producers.Public_Build_Types.Public_Build_Input_User_Form;
       Input.Tool := Tool_To_Build_Tool (State.Selected_Build_Tool);
       Input.Program_Label := To_Unbounded_String
         (Program_Label_For (State.Selected_Build_Tool));
       Input.Working_Context := Editor.External_Producers.Build_Requests.Build_Explicit_Label_Working_Context
         (Trimmed (State.Selected_Working_Context.Canonical_Path_If_Available));
       Input.Working_Context_Model :=
-        (Source => Editor.External_Producers.Public_Build_Working_Context_User_Form_Label,
+        (Source => Editor.External_Producers.Public_Build_Types.Public_Build_Working_Context_User_Form_Label,
          Label => To_Unbounded_String
            (Editor.Build_Working_Context.Build_Working_Context_Display_Label
               (State.Selected_Working_Context)),
@@ -82,15 +84,15 @@ package body Editor.Build_Public_Request is
       Input.Arguments := Convert_Arguments (State.Structured_Arguments);
       Input.Consent :=
         (if State.Consent_Acknowledged then
-            Editor.External_Producers.Build_Consent_User_Confirmed
+            Editor.External_Producers.Build_Types.Build_Consent_User_Confirmed
          else
-            Editor.External_Producers.Build_Consent_Not_Provided);
+            Editor.External_Producers.Build_Types.Build_Consent_Not_Provided);
       Input.Consent_Model :=
         (Source =>
            (if State.Consent_Acknowledged then
-               Editor.External_Producers.Public_Build_Consent_User_Form_Acknowledged
+               Editor.External_Producers.Public_Build_Types.Public_Build_Consent_User_Form_Acknowledged
             else
-               Editor.External_Producers.Public_Build_Consent_None),
+               Editor.External_Producers.Public_Build_Types.Public_Build_Consent_None),
          User_Acknowledged_Execution => State.Consent_Acknowledged,
          User_Acknowledged_No_Shell => State.Consent_Acknowledged,
          User_Acknowledged_External_Process => State.Consent_Acknowledged,
@@ -102,12 +104,12 @@ package body Editor.Build_Public_Request is
            (Input);
       else
          Request :=
-           (Tool => Editor.External_Producers.No_Build_Tool,
-            Provenance => Editor.External_Producers.Build_Request_Unknown,
+           (Tool => Editor.External_Producers.Build_Types.No_Build_Tool,
+            Provenance => Editor.External_Producers.Build_Types.Build_Request_Unknown,
             Working_Label => Null_Unbounded_String,
             Command_Label => Null_Unbounded_String,
             Arguments => Null_Unbounded_String,
-            Structured_Arguments => Editor.External_Producers.Process_Argument_Vectors.Empty_Vector);
+            Structured_Arguments => Editor.External_Producers.Build_Types.Process_Argument_Vectors.Empty_Vector);
       end if;
 
       return (Status => Status, Request => Request, Input => Input);
@@ -122,7 +124,7 @@ package body Editor.Build_Public_Request is
       return Editor.Build_UI.Assert_Build_UI_State_Is_Transient (State)
         and then Conversion.Status = Editor.Build_UI.Build_UI_Valid
         and then Conversion.Request.Provenance =
-          Editor.External_Producers.Build_Request_From_User_Opt_In
+          Editor.External_Producers.Build_Types.Build_Request_From_User_Opt_In
         and then Editor.External_Producers.Build_Requests.Process_Argument_Count
           (Conversion.Request.Structured_Arguments) =
           Editor.Build_UI.Argument_Count (State.Structured_Arguments);
@@ -150,7 +152,7 @@ package body Editor.Build_Public_Request is
         and then Working_Status = Editor.Build_Working_Context.Build_Working_Context_Valid
         and then Conversion.Status = Editor.Build_UI.Build_UI_Valid
         and then Conversion.Request.Provenance =
-          Editor.External_Producers.Build_Request_From_User_Opt_In
+          Editor.External_Producers.Build_Types.Build_Request_From_User_Opt_In
         and then To_String (Conversion.Request.Arguments)'Length = 0
         and then Editor.External_Producers.Build_Requests.Process_Argument_Count
           (Conversion.Request.Structured_Arguments) =

@@ -1,6 +1,7 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Types;
 
 package Editor.Terminal_Tasks is
 
@@ -122,22 +123,22 @@ package Editor.Terminal_Tasks is
 
    procedure Run_Selected_With_Result
      (State  : in out Terminal_Task_State;
-      Result : Editor.External_Producers.Process_Run_Result);
+      Result : Editor.External_Producers.Build_Types.Process_Run_Result);
 
    procedure Rerun_Last_With_Result
      (State  : in out Terminal_Task_State;
-      Result : Editor.External_Producers.Process_Run_Result);
+      Result : Editor.External_Producers.Build_Types.Process_Run_Result);
 
    function Has_Selected_Task (State : Terminal_Task_State) return Boolean;
    function Can_Rerun_Last (State : Terminal_Task_State) return Boolean;
 
    function Selected_Task_Request
      (State : Terminal_Task_State)
-      return Editor.External_Producers.Process_Run_Request;
+      return Editor.External_Producers.Build_Types.Process_Run_Request;
 
    function Last_Task_Request
      (State : Terminal_Task_State)
-      return Editor.External_Producers.Process_Run_Request;
+      return Editor.External_Producers.Build_Types.Process_Run_Request;
 
    function Build_Render_Snapshot
      (State : Terminal_Task_State) return Terminal_Task_Render_Snapshot;

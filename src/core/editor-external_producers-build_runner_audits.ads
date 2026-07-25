@@ -1,14 +1,18 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.External_Producers.Build_Command_Execution;
 with Editor.External_Producers.Build_Types;
+with Editor.State;
 
 package Editor.External_Producers.Build_Runner_Audits is
 
    subtype Build_Command_Result is
-     Editor.External_Producers.Build_Types.Build_Command_Result;
+     Editor.External_Producers.Build_Command_Execution.Build_Command_Result;
    subtype Build_Run_Result is
      Editor.External_Producers.Build_Types.Build_Run_Result;
    subtype Diagnostic_Text_Line_Array is
      Editor.External_Producers.Build_Types.Diagnostic_Text_Line_Array;
+   subtype Build_Execution_Consent_Audit_Result is
+     Editor.External_Producers.Build_Types.Build_Execution_Consent_Audit_Result;
 
    function Gated_Build_Command_Result_Is_Consistent
      (Result : Build_Command_Result;

@@ -26,6 +26,7 @@ with Editor.Executor.Project_File_Index_Commands;
 with Editor.Executor.Project_Lifecycle_Commands;
 with Editor.Executor.Workspace_Commands;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Types;
 with Editor.External_Producers.Execution_Policy;
 with Editor.External_Producers.Build_Requests;
 with Editor.Feature_Diagnostics;
@@ -54,7 +55,7 @@ with Editor.Workspace_Persistence;
 
 procedure Editor_Product_Smoke is
 
-   use type Editor.External_Producers.Build_Run_Status;
+   use type Editor.External_Producers.Build_Types.Build_Run_Status;
    use type Editor.File_Tree.File_Tree_Node_Id;
    use type Editor.Focus_Management.Focus_Owner;
    use type Editor.Project.Project_File_Refresh_Status;
@@ -215,16 +216,16 @@ procedure Editor_Product_Smoke is
       return Scenario = Name;
    end Focused;
 
-   function Smoke_Request return Editor.External_Producers.Build_Run_Request is
-      Args : Editor.External_Producers.Process_Argument_Vector :=
+   function Smoke_Request return Editor.External_Producers.Build_Types.Build_Run_Request is
+      Args : Editor.External_Producers.Build_Types.Process_Argument_Vector :=
         Editor.External_Producers.Build_Requests.Empty_Process_Arguments;
    begin
       Editor.External_Producers.Build_Requests.Append_Process_Argument (Args, "-P");
       Editor.External_Producers.Build_Requests.Append_Process_Argument
         (Args, Root & "/smoke_project.gpr");
       return
-        (Tool => Editor.External_Producers.GPRbuild_Tool,
-         Provenance => Editor.External_Producers.Build_Request_From_User_Opt_In,
+        (Tool => Editor.External_Producers.Build_Types.GPRbuild_Tool,
+         Provenance => Editor.External_Producers.Build_Types.Build_Request_From_User_Opt_In,
          Working_Label => Null_Unbounded_String,
          Command_Label => To_Unbounded_String ("gprbuild -P smoke_project.gpr"),
          Arguments => Null_Unbounded_String,
@@ -239,8 +240,8 @@ procedure Editor_Product_Smoke is
    Unit_Token : Natural := 0;
    Target_Row_Selected : Boolean := False;
    Search_Result : Editor.Project_Search.Project_Search_Result;
-   Build_Context : Editor.External_Producers.User_Opt_In_Build_Command_Context;
-   Supplied_Process : Editor.External_Producers.Process_Run_Result;
+   Build_Context : Editor.External_Producers.Build_Types.User_Opt_In_Build_Command_Context;
+   Supplied_Process : Editor.External_Producers.Build_Types.Process_Run_Result;
    Build_Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    Workspace : Editor.Workspace_Persistence.Workspace_Snapshot;
    Loaded : Editor.Workspace_Persistence.Workspace_Snapshot;
@@ -1029,9 +1030,9 @@ begin
    Build_Context.Gate := Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate
      (Allow_Diagnostics_Ingestion => True,
       Show_Diagnostics            => True,
-      Consent                     => Editor.External_Producers.Build_Consent_User_Confirmed);
+      Consent                     => Editor.External_Producers.Build_Types.Build_Consent_User_Confirmed);
    Supplied_Process := Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-     (Status        => Editor.External_Producers.Process_Run_Failed,
+     (Status        => Editor.External_Producers.Build_Types.Process_Run_Failed,
       Exit_Code     => 1,
       Has_Exit_Code => True,
       Stdout_Text   => "smoke build stdout",
@@ -1039,7 +1040,7 @@ begin
    Build_Result := Editor.Executor.Execute_User_Opt_In_Build_Command
      (S, Build_Context, Supplied_Process);
    Check (Build_Result.Build_Result.Status =
-            Editor.External_Producers.Build_Run_Failed,
+            Editor.External_Producers.Build_Types.Build_Run_Failed,
           "build command did not publish the supplied failure result");
    Check (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) >= 1,
           "build diagnostic output was not ingested into Diagnostics");

@@ -4,6 +4,7 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Build_Output_Details;
 with Editor.Build_Result_Summary;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Types;
 with Editor.External_Producers.Build_Requests;
 with Editor.State;
 with Editor.Build_UI;
@@ -25,7 +26,7 @@ package body Editor.Build_Output_Details.Tests is
    use type Editor.Build_Output_Details.Build_Output_Stream_Selection;
    use type Editor.Commands.Command_Id;
    use type Editor.Build_Result_Summary.Build_Result_Summary_Kind;
-   use type Editor.External_Producers.Build_Run_Status;
+   use type Editor.External_Producers.Build_Types.Build_Run_Status;
    use type Editor.Build_Runner_Policy.Build_Execution_Policy;
    use type Editor.Command_Execution.Command_Execution_Status;
 
@@ -286,7 +287,7 @@ package body Editor.Build_Output_Details.Tests is
       Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Result := Editor.Build_Command.Execute_Public_Build_Run (S);
-      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Not_Available,
+      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Types.Build_Run_Not_Available,
               "incomplete public command remains unavailable before runner execution");
       Assert (S.Latest_Build_Result.Has_Result,
               "Executor updates latest compact summary");
@@ -765,7 +766,7 @@ package body Editor.Build_Output_Details.Tests is
       Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Result := Editor.Build_Command.Execute_Public_Build_Run (S);
-      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Not_Available,
+      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Types.Build_Run_Not_Available,
               "pre-run unavailable outcome is still represented through Executor path");
       Assert (S.Latest_Build_Output_Details.Has_Output_Details,
               "Executor path replaces latest output details even for unavailable outcome");
@@ -918,7 +919,7 @@ package body Editor.Build_Output_Details.Tests is
       Assert (Editor.Build_Command.Assert_Build_Run_Keybinding_Boundary,
               "keybinding boundary remains command-name-only");
       Result := Editor.Build_Command.Execute_Public_Build_Run (S);
-      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Not_Available,
+      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Types.Build_Run_Not_Available,
               "pre-run unavailable result is represented through Executor");
       Assert (Editor.Build_Output_Details.Assert_Public_Build_Output_Details_Final_Freeze_Coherent
                 (S.Latest_Build_Output_Details),

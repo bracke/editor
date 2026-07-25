@@ -4,68 +4,71 @@ with Editor.External_Producers.Public_Build_Guardrail_Audits;
 with Editor.External_Producers.Public_Build_Input_Validation;
 with Editor.State;
 
+with Editor.External_Producers.Build_Types; use Editor.External_Producers.Build_Types;
+with Editor.External_Producers.Public_Build_Types;
+
 package Editor.External_Producers.Public_Build is
 
-   subtype Consent_Model is Editor.External_Producers.Public_Build_Consent_Model;
+   subtype Consent_Model is Editor.External_Producers.Public_Build_Types.Public_Build_Consent_Model;
    subtype Consent_Validation_Status is
-     Editor.External_Producers.Public_Build_Consent_Validation_Status;
+     Editor.External_Producers.Public_Build_Types.Public_Build_Consent_Validation_Status;
    subtype Working_Context_Model is
-     Editor.External_Producers.Public_Build_Working_Context_Model;
+     Editor.External_Producers.Public_Build_Types.Public_Build_Working_Context_Model;
    subtype Working_Context_Validation_Status is
-     Editor.External_Producers.Public_Build_Working_Context_Validation_Status;
-   subtype Command_Input is Editor.External_Producers.Public_Build_Command_Input;
-   subtype Input_Source is Editor.External_Producers.Public_Build_Input_Source;
+     Editor.External_Producers.Public_Build_Types.Public_Build_Working_Context_Validation_Status;
+   subtype Command_Input is Editor.External_Producers.Public_Build_Types.Public_Build_Command_Input;
+   subtype Input_Source is Editor.External_Producers.Public_Build_Types.Public_Build_Input_Source;
    subtype Input_Validation_Status is
-     Editor.External_Producers.Public_Build_Input_Validation_Status;
-   subtype Input_Safety is Editor.External_Producers.Public_Build_Input_Safety;
+     Editor.External_Producers.Public_Build_Types.Public_Build_Input_Validation_Status;
+   subtype Input_Safety is Editor.External_Producers.Public_Build_Types.Public_Build_Input_Safety;
    subtype Command_Surface_Entry is
-     Editor.External_Producers.Public_Build_Command_Surface_Entry;
+     Editor.External_Producers.Public_Build_Types.Public_Build_Command_Surface_Entry;
    subtype Command_Surface_Status is
-     Editor.External_Producers.Public_Build_Command_Surface_Status;
+     Editor.External_Producers.Public_Build_Types.Public_Build_Command_Surface_Status;
    subtype Command_Surface_Array is
-     Editor.External_Producers.Public_Build_Command_Surface_Array;
+     Editor.External_Producers.Public_Build_Types.Public_Build_Command_Surface_Array;
    subtype Command_Promotion_Status is
-     Editor.External_Producers.Public_Build_Command_Promotion_Status;
-   subtype UX_Dependency is Editor.External_Producers.Public_Build_UX_Dependency;
+     Editor.External_Producers.Public_Build_Types.Public_Build_Command_Promotion_Status;
+   subtype UX_Dependency is Editor.External_Producers.Public_Build_Types.Public_Build_UX_Dependency;
    subtype UX_Dependency_Status is
-     Editor.External_Producers.Public_Build_UX_Dependency_Status;
+     Editor.External_Producers.Public_Build_Types.Public_Build_UX_Dependency_Status;
    subtype UX_Dependency_Matrix is
-     Editor.External_Producers.Public_Build_UX_Dependency_Matrix;
+     Editor.External_Producers.Public_Build_Types.Public_Build_UX_Dependency_Matrix;
    subtype UX_Dependency_Audit_Result is
-     Editor.External_Producers.Public_Build_Command_UX_Dependency_Audit_Result;
+     Editor.External_Producers.Public_Build_Types.Public_Build_Command_UX_Dependency_Audit_Result;
    subtype Readiness_Audit_Result is
-     Editor.External_Producers.Public_Build_Command_Readiness_Audit_Result;
+     Editor.External_Producers.Public_Build_Types.Public_Build_Command_Readiness_Audit_Result;
    subtype Blocker_Summary is
-     Editor.External_Producers.Public_Build_Blocker_Summary;
+     Editor.External_Producers.Public_Build_Types.Public_Build_Blocker_Summary;
    subtype Hard_Freeze_Audit_Result is
-     Editor.External_Producers.Public_Build_Command_Hard_Freeze_Audit_Result;
+     Editor.External_Producers.Public_Build_Types.Public_Build_Command_Hard_Freeze_Audit_Result;
    subtype Hard_Freeze_Baseline is
-     Editor.External_Producers.Public_Build_Hard_Freeze_Baseline;
+     Editor.External_Producers.Public_Build_Types.Public_Build_Hard_Freeze_Baseline;
    subtype Hard_Freeze_Drift_Result is
-     Editor.External_Producers.Public_Build_Hard_Freeze_Drift_Result;
+     Editor.External_Producers.Public_Build_Types.Public_Build_Hard_Freeze_Drift_Result;
    subtype Surface_Id_Scan_Result is
-     Editor.External_Producers.Public_Build_Surface_Id_Scan_Result;
+     Editor.External_Producers.Public_Build_Types.Public_Build_Surface_Id_Scan_Result;
    subtype Guardrail_Result is
-     Editor.External_Producers.Public_Build_Guardrail_Result;
+     Editor.External_Producers.Public_Build_Types.Public_Build_Guardrail_Result;
    subtype Guardrail_Health is
-     Editor.External_Producers.Public_Build_Guardrail_Health;
+     Editor.External_Producers.Public_Build_Types.Public_Build_Guardrail_Health;
    subtype Guardrail_Audit_Matrix is
-     Editor.External_Producers.Public_Build_Guardrail_Audit_Matrix;
+     Editor.External_Producers.Public_Build_Types.Public_Build_Guardrail_Audit_Matrix;
    subtype Guardrail_Audit_Trace is
-     Editor.External_Producers.Public_Build_Guardrail_Audit_Trace;
+     Editor.External_Producers.Public_Build_Types.Public_Build_Guardrail_Audit_Trace;
    subtype Guardrail_Contract_Mismatch is
-     Editor.External_Producers.Public_Build_Guardrail_Contract_Mismatch;
+     Editor.External_Producers.Public_Build_Types.Public_Build_Guardrail_Contract_Mismatch;
    subtype Guardrail_Failure_Detail is
-     Editor.External_Producers.Public_Build_Guardrail_Failure_Detail;
+     Editor.External_Producers.Public_Build_Types.Public_Build_Guardrail_Failure_Detail;
    subtype Guardrail_Failure_Detail_Vector is
-     Editor.External_Producers.Public_Build_Guardrail_Failure_Detail_Vector;
+     Editor.External_Producers.Public_Build_Types.Public_Build_Guardrail_Failure_Detail_Vector;
    subtype Guardrail_Regression_Manifest is
-     Editor.External_Producers.Public_Build_Guardrail_Regression_Manifest;
-   subtype Command_Id_Vector is Editor.External_Producers.Command_Id_Vector;
-   subtype Argument_Vector is Editor.External_Producers.Process_Argument_Vector;
-   subtype Working_Context is Editor.External_Producers.Build_Working_Context;
-   subtype Execution_Consent is Editor.External_Producers.Build_Execution_Consent;
-   subtype Build_Run_Request is Editor.External_Producers.Build_Run_Request;
+     Editor.External_Producers.Public_Build_Types.Public_Build_Guardrail_Regression_Manifest;
+   subtype Command_Id_Vector is Editor.External_Producers.Public_Build_Types.Command_Id_Vector;
+   subtype Argument_Vector is Editor.External_Producers.Build_Types.Process_Argument_Vector;
+   subtype Working_Context is Editor.External_Producers.Build_Types.Build_Working_Context;
+   subtype Execution_Consent is Editor.External_Producers.Build_Types.Build_Execution_Consent;
+   subtype Build_Run_Request is Editor.External_Producers.Build_Types.Build_Run_Request;
 
    function Build_Public_Build_Command_Surface return Command_Surface_Array
      renames Editor.External_Producers.Public_Build_Command_Surface_Audits.Build_Public_Build_Command_Surface;

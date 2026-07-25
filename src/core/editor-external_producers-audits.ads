@@ -4,11 +4,12 @@ with Editor.External_Producers.Diagnostic_Line_Pipeline;
 with Editor.External_Producers.Diagnostic_Normalization;
 with Editor.State;
 
+with Editor.External_Producers.Build_Types;
 package Editor.External_Producers.Audits is
 
    subtype Build_Command_Result is Editor.External_Producers.Build_Requests.Build_Command_Result;
    subtype Build_Execution_Consent_Audit_Result is
-     Editor.External_Producers.Build_Execution_Consent_Audit_Result;
+     Editor.External_Producers.Build_Types.Build_Execution_Consent_Audit_Result;
 
    function Compiler_Diagnostic_Normalization_Audit_Passes return Boolean
      renames Editor.External_Producers.Diagnostic_Normalization.Compiler_Diagnostic_Normalization_Audit_Passes;

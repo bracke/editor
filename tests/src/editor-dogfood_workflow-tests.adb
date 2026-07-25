@@ -34,7 +34,8 @@ with Editor.Executor.Quick_Open_Commands;
 with Editor.Executor.File_Tree_Commands;
 with Editor.Executor.Project_File_Index_Commands;
 with Editor.Executor.Project_Lifecycle_Commands;
-with Editor.External_Producers;
+with Editor.External_Producers.Diagnostics_Types;
+with Editor.External_Producers.Build_Types;
 with Editor.External_Producers.Build_Requests;
 with Editor.Feature_Diagnostics;
 with Editor.Feature_Panel;
@@ -70,7 +71,7 @@ package body Editor.Dogfood_Workflow.Tests is
    use type Editor.Commands.Command_Id;
    use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Ada_Language_Service.Compiler_Diagnostic_Severity;
-   use type Editor.External_Producers.Build_Run_Status;
+   use type Editor.External_Producers.Build_Types.Build_Run_Status;
    use type Editor.File_Tree.File_Tree_Node_Id;
    use type Editor.Focus_Management.Focus_Owner;
    use type Editor.Guided_Prompts.Prompt_Kind;
@@ -309,7 +310,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Context       : Editor.Build_Working_Context.Build_Working_Context_Record;
       Build_View    : Editor.Build_UI.Build_UI_Render_Snapshot;
       Build_Run     : Editor.Command_Execution.Command_Execution_Result;
-      Supplied_Process : Editor.External_Producers.Process_Run_Result;
+      Supplied_Process : Editor.External_Producers.Build_Types.Process_Run_Result;
       Build_Command_Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
       Compiler_Status : Editor.Ada_Language_Service.Compiler_Backend_Status;
       Compiler_Diagnostic : Editor.Ada_Language_Service.Compiler_Diagnostic;
@@ -736,7 +737,7 @@ package body Editor.Dogfood_Workflow.Tests is
               "build.run is available once project, candidate, policy, and consent agree");
 
       Supplied_Process := Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-        (Editor.External_Producers.Process_Run_Failed,
+        (Editor.External_Producers.Build_Types.Process_Run_Failed,
          Exit_Code => 1,
          Has_Exit_Code => True,
          Stdout_Text => "compiling dogfood_demo.adb",
@@ -745,7 +746,7 @@ package body Editor.Dogfood_Workflow.Tests is
         Editor.Build_Command.Execute_Public_Build_Run_With_Supplied_Result
           (S, Supplied_Process);
       Assert (Build_Command_Result.Build_Result.Status =
-                Editor.External_Producers.Build_Run_Failed,
+                Editor.External_Producers.Build_Types.Build_Run_Failed,
               "public build.run frontdoor consumes the deterministic bounded process result");
       Assert (Build_Command_Result.Diagnostic_Result.Ingestion.Ingestion_Result.Accepted_Count >= 1,
               "public build.run ingests diagnostics through the Diagnostics-owned seam");
@@ -759,7 +760,7 @@ package body Editor.Dogfood_Workflow.Tests is
         Editor.Ada_Language_Service.Compiler_Diagnostic_At
           (S.Language_Service, 1);
       Assert (Compiler_Diagnostic.Severity =
-                Editor.External_Producers.Compiler_Warning,
+                Editor.External_Producers.Diagnostics_Types.Compiler_Warning,
               "public build.run preserves compiler diagnostic severity");
       Assert (Compiler_Diagnostic.Has_Location
               and then Compiler_Diagnostic.Line = 2
@@ -2927,7 +2928,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Build_Run      : Editor.Command_Execution.Command_Execution_Result;
       Build_Refresh  : Editor.Build_Candidate_Refresh.Build_Candidate_Refresh_Result;
       Context        : Editor.Build_Working_Context.Build_Working_Context_Record;
-      Supplied_Process : Editor.External_Producers.Process_Run_Result;
+      Supplied_Process : Editor.External_Producers.Build_Types.Process_Run_Result;
       Build_Command_Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
       Diagnostic_Open : Editor.Command_Execution.Command_Execution_Result;
       Back_Result     : Editor.Command_Execution.Command_Execution_Result;
@@ -3046,7 +3047,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Build_Run.Status = Editor.Command_Execution.Command_Executed,
               "main workflow smoke acknowledges build consent");
       Supplied_Process := Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-        (Editor.External_Producers.Process_Run_Failed,
+        (Editor.External_Producers.Build_Types.Process_Run_Failed,
          Exit_Code => 1,
          Has_Exit_Code => True,
          Stdout_Text => "compiling dogfood_demo.adb",
@@ -3055,7 +3056,7 @@ package body Editor.Dogfood_Workflow.Tests is
         Editor.Build_Command.Execute_Public_Build_Run_With_Supplied_Result
           (S, Supplied_Process);
       Assert (Build_Command_Result.Build_Result.Status =
-                Editor.External_Producers.Build_Run_Failed,
+                Editor.External_Producers.Build_Types.Build_Run_Failed,
               "main workflow smoke records the build result");
       Assert (Length (Build_Command_Result.Command_Message) > 0,
               "main workflow smoke build result carries user-facing command feedback");
@@ -3116,7 +3117,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Build_Run     : Editor.Command_Execution.Command_Execution_Result;
       Build_Refresh : Editor.Build_Candidate_Refresh.Build_Candidate_Refresh_Result;
       Context       : Editor.Build_Working_Context.Build_Working_Context_Record;
-      Supplied_Process : Editor.External_Producers.Process_Run_Result;
+      Supplied_Process : Editor.External_Producers.Build_Types.Process_Run_Result;
       Build_Command_Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
       Diagnostic_Open : Editor.Command_Execution.Command_Execution_Result;
       Workspace_Save : Editor.Command_Execution.Command_Execution_Result;
@@ -3268,7 +3269,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Build_Run.Status = Editor.Command_Execution.Command_Executed,
               "daily loop acknowledges build consent");
       Supplied_Process := Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-        (Editor.External_Producers.Process_Run_Failed,
+        (Editor.External_Producers.Build_Types.Process_Run_Failed,
          Exit_Code => 1,
          Has_Exit_Code => True,
          Stdout_Text => "compiling dogfood_demo.adb",
@@ -3277,7 +3278,7 @@ package body Editor.Dogfood_Workflow.Tests is
         Editor.Build_Command.Execute_Public_Build_Run_With_Supplied_Result
           (S, Supplied_Process);
       Assert (Build_Command_Result.Build_Result.Status =
-                Editor.External_Producers.Build_Run_Failed,
+                Editor.External_Producers.Build_Types.Build_Run_Failed,
               "daily loop records a deterministic build result");
       Assert (S.Latest_Build_Output_Details.Has_Output_Details,
               "daily loop captures Build Output details");

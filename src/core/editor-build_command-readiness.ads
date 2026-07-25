@@ -1,5 +1,6 @@
 with Editor.Commands;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Types;
 with Editor.State;
 
 package Editor.Build_Command.Readiness is
@@ -27,6 +28,6 @@ package Editor.Build_Command.Readiness is
 
    function Build_Run_Execution_Gate
      (State : Editor.State.State_Type)
-      return Editor.External_Producers.Build_Execution_Gate;
+      return Editor.External_Producers.Build_Types.Build_Execution_Gate;
 
 end Editor.Build_Command.Readiness;

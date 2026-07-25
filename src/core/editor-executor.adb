@@ -90,9 +90,10 @@ with Editor.Dirty_Guards;
 with Editor.Command_Execution;
 use type Editor.Command_Execution.Command_Execution_Status;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Types;
 with Editor.External_Producers.Build_Requests;
-use type Editor.External_Producers.Build_Run_Status;
-use type Editor.External_Producers.Process_Run_Status;
+use type Editor.External_Producers.Build_Types.Build_Run_Status;
+use type Editor.External_Producers.Build_Types.Process_Run_Status;
 with Editor.Feature_Panel;
 with Editor.Focus_Management;
 with Editor.Feature_Panel_Controller;
@@ -698,10 +699,10 @@ package body Editor.Executor is
    end Execute_Command_With_Result;
    function Execute_User_Opt_In_Build_Command
      (S               : in out Editor.State.State_Type;
-      Context         : Editor.External_Producers.User_Opt_In_Build_Command_Context;
-      Supplied_Result : Editor.External_Producers.Process_Run_Result :=
-        (Status        => Editor.External_Producers.Process_Run_Not_Available,
-         Output_Capture_Mode => Editor.External_Producers.Process_Output_Capture_None,
+      Context         : Editor.External_Producers.Build_Types.User_Opt_In_Build_Command_Context;
+      Supplied_Result : Editor.External_Producers.Build_Types.Process_Run_Result :=
+        (Status        => Editor.External_Producers.Build_Types.Process_Run_Not_Available,
+         Output_Capture_Mode => Editor.External_Producers.Build_Types.Process_Output_Capture_None,
          Has_Exit_Code => False,
          Exit_Code     => 0,
          Stdout_Text   => Null_Unbounded_String,

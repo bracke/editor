@@ -6,6 +6,7 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Build_Candidates;
 with Editor.Build_Working_Context;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Types;
 with Editor.Image_Helpers;
 with Editor.Path_Helpers;
 with Editor.Text_Helpers;
@@ -16,7 +17,7 @@ package body Editor.Build_Candidate_Discovery is
    use type Ada.Directories.File_Kind;
    use type Editor.Build_Working_Context.Build_Working_Context_Kind;
    use type Editor.Build_Working_Context.Build_Working_Context_Validation_Status;
-   use type Editor.External_Producers.Build_Tool_Kind;
+   use type Editor.External_Producers.Build_Types.Build_Tool_Kind;
 
    Max_Directories_Visited : constant Natural := 128;
    Max_Files_Inspected    : constant Natural := 2048;
@@ -701,7 +702,7 @@ package body Editor.Build_Candidate_Discovery is
               or else Editor.Build_Candidates.Has_Raw_Shell_Command_Field (Candidate)
               or else Editor.Build_Candidates.Has_Process_State_Field (Candidate)
               or else Editor.Build_Candidates.Has_Remembered_Consent_Field (Candidate)
-              or else Candidate.Tool_Kind = Editor.External_Producers.Custom_Build_Tool
+              or else Candidate.Tool_Kind = Editor.External_Producers.Build_Types.Custom_Build_Tool
               or else To_String (Candidate.Candidate_Id)'Length = 0
               or else To_String (Candidate.Display_Label) = To_String (Candidate.Candidate_Id)
             then

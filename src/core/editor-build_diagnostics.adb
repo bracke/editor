@@ -5,6 +5,7 @@ with Editor.External_Producers.Diagnostic_Line_Parsing;
 with Editor.External_Producers.Diagnostics;
 with Editor.Feature_Diagnostics;
 
+with Editor.External_Producers.Build_Types;
 package body Editor.Build_Diagnostics is
 
    use type Build_Diagnostics_Ingestion_Policy;
@@ -17,13 +18,13 @@ package body Editor.Build_Diagnostics is
    is
    begin
       case Tool is
-         when Editor.External_Producers.GPRbuild_Tool =>
+         when Editor.External_Producers.Build_Types.GPRbuild_Tool =>
             return "gprbuild";
-         when Editor.External_Producers.Alire_Build_Tool =>
+         when Editor.External_Producers.Build_Types.Alire_Build_Tool =>
             return "alr";
-         when Editor.External_Producers.Custom_Build_Tool =>
+         when Editor.External_Producers.Build_Types.Custom_Build_Tool =>
             return "custom-build";
-         when Editor.External_Producers.No_Build_Tool =>
+         when Editor.External_Producers.Build_Types.No_Build_Tool =>
             return "build";
       end case;
    end Tool_Name;
@@ -70,13 +71,13 @@ package body Editor.Build_Diagnostics is
    is
    begin
       case Request.Tool is
-         when Editor.External_Producers.GPRbuild_Tool =>
+         when Editor.External_Producers.Build_Types.GPRbuild_Tool =>
             return "Build / gprbuild";
-         when Editor.External_Producers.Alire_Build_Tool =>
+         when Editor.External_Producers.Build_Types.Alire_Build_Tool =>
             return "Build / alr";
-         when Editor.External_Producers.Custom_Build_Tool =>
+         when Editor.External_Producers.Build_Types.Custom_Build_Tool =>
             return "Build / custom-build";
-         when Editor.External_Producers.No_Build_Tool =>
+         when Editor.External_Producers.Build_Types.No_Build_Tool =>
             return "Build";
       end case;
    end Build_Diagnostic_Source_Display_Label;
@@ -149,7 +150,7 @@ package body Editor.Build_Diagnostics is
       end loop;
 
       Result := Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-        (Editor.External_Producers.Build_Run_Failed,
+        (Editor.External_Producers.Build_Types.Build_Run_Failed,
          Diagnostic_Lines => Lines);
 
       return Natural (Bounded_Build_Output_Diagnostic_Lines (Result).Length) =
@@ -160,15 +161,15 @@ package body Editor.Build_Diagnostics is
    is
       S       : Editor.State.State_Type;
       Request : Editor.External_Producers.Build_Requests.Build_Run_Request :=
-        (Tool                 => Editor.External_Producers.GPRbuild_Tool,
-         Provenance           => Editor.External_Producers.Build_Request_From_User_Opt_In,
+        (Tool                 => Editor.External_Producers.Build_Types.GPRbuild_Tool,
+         Provenance           => Editor.External_Producers.Build_Types.Build_Request_From_User_Opt_In,
          Working_Label        => Null_Unbounded_String,
          Command_Label        => To_Unbounded_String ("gprbuild"),
          Arguments            => Null_Unbounded_String,
          Structured_Arguments => Editor.External_Producers.Build_Requests.Empty_Process_Arguments);
       Result  : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
         Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-          (Editor.External_Producers.Build_Run_Failed,
+          (Editor.External_Producers.Build_Types.Build_Run_Failed,
            Stderr_Text => "main.adb:1:1: error: diagnostics-owned");
       Command : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result;
    begin
@@ -202,22 +203,22 @@ package body Editor.Build_Diagnostics is
      return Boolean
    is
       GPR_Request : constant Editor.External_Producers.Build_Requests.Build_Run_Request :=
-        (Tool                 => Editor.External_Producers.GPRbuild_Tool,
-         Provenance           => Editor.External_Producers.Build_Request_From_User_Opt_In,
+        (Tool                 => Editor.External_Producers.Build_Types.GPRbuild_Tool,
+         Provenance           => Editor.External_Producers.Build_Types.Build_Request_From_User_Opt_In,
          Working_Label        => To_Unbounded_String ("/secret/project"),
          Command_Label        => To_Unbounded_String ("gprbuild"),
          Arguments            => To_Unbounded_String ("--long-rerun-payload"),
          Structured_Arguments => Editor.External_Producers.Build_Requests.Empty_Process_Arguments);
       Alr_Request : constant Editor.External_Producers.Build_Requests.Build_Run_Request :=
-        (Tool                 => Editor.External_Producers.Alire_Build_Tool,
-         Provenance           => Editor.External_Producers.Build_Request_From_User_Opt_In,
+        (Tool                 => Editor.External_Producers.Build_Types.Alire_Build_Tool,
+         Provenance           => Editor.External_Producers.Build_Types.Build_Request_From_User_Opt_In,
          Working_Label        => To_Unbounded_String ("/secret/project"),
          Command_Label        => To_Unbounded_String ("alr"),
          Arguments            => To_Unbounded_String ("build --rerun"),
          Structured_Arguments => Editor.External_Producers.Build_Requests.Empty_Process_Arguments);
       Unknown_Request : constant Editor.External_Producers.Build_Requests.Build_Run_Request :=
-        (Tool                 => Editor.External_Producers.No_Build_Tool,
-         Provenance           => Editor.External_Producers.Build_Request_Unknown,
+        (Tool                 => Editor.External_Producers.Build_Types.No_Build_Tool,
+         Provenance           => Editor.External_Producers.Build_Types.Build_Request_Unknown,
          Working_Label        => To_Unbounded_String ("/secret/project"),
          Command_Label        => To_Unbounded_String ("raw-shell-command"),
          Arguments            => To_Unbounded_String ("stdout stderr argv consent"),
@@ -403,15 +404,15 @@ package body Editor.Build_Diagnostics is
      return Boolean
    is
       Request : constant Editor.External_Producers.Build_Requests.Build_Run_Request :=
-        (Tool                 => Editor.External_Producers.GPRbuild_Tool,
-         Provenance           => Editor.External_Producers.Build_Request_From_User_Opt_In,
+        (Tool                 => Editor.External_Producers.Build_Types.GPRbuild_Tool,
+         Provenance           => Editor.External_Producers.Build_Types.Build_Request_From_User_Opt_In,
          Working_Label        => Null_Unbounded_String,
          Command_Label        => To_Unbounded_String ("gprbuild"),
          Arguments            => Null_Unbounded_String,
          Structured_Arguments => Editor.External_Producers.Build_Requests.Empty_Process_Arguments);
       Result : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
         Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-          (Editor.External_Producers.Build_Run_Failed,
+          (Editor.External_Producers.Build_Types.Build_Run_Failed,
            Stderr_Text => "main.adb:1:1: warning: coherent");
       Parsed : constant Editor.External_Producers.Diagnostic_Line_Parsing.Batch_Parse_Result :=
         Parse_Build_Output_Diagnostics (Request, Result);

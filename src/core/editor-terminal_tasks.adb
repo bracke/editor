@@ -3,10 +3,11 @@ with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.External_Producers.Build_Requests;
 
+with Editor.External_Producers.Build_Types;
 package body Editor.Terminal_Tasks is
 
    use type Ada.Containers.Count_Type;
-   use type Editor.External_Producers.Process_Run_Status;
+   use type Editor.External_Producers.Build_Types.Process_Run_Status;
 
    Max_Output_Rows : constant Natural := 500;
 
@@ -60,26 +61,26 @@ package body Editor.Terminal_Tasks is
    end Profile_Text;
 
    function Map_Status
-     (Status : Editor.External_Producers.Process_Run_Status)
+     (Status : Editor.External_Producers.Build_Types.Process_Run_Status)
       return Terminal_Task_Status
    is
    begin
       case Status is
-         when Editor.External_Producers.Process_Run_Succeeded =>
+         when Editor.External_Producers.Build_Types.Process_Run_Succeeded =>
             return Task_Succeeded;
-         when Editor.External_Producers.Process_Run_Failed
-            | Editor.External_Producers.Process_Run_Execution_Error
-            | Editor.External_Producers.Process_Run_Output_Truncated =>
+         when Editor.External_Producers.Build_Types.Process_Run_Failed
+            | Editor.External_Producers.Build_Types.Process_Run_Execution_Error
+            | Editor.External_Producers.Build_Types.Process_Run_Output_Truncated =>
             return Task_Failed;
-         when Editor.External_Producers.Process_Run_Not_Available =>
+         when Editor.External_Producers.Build_Types.Process_Run_Not_Available =>
             return Task_Not_Available;
-         when Editor.External_Producers.Process_Run_Rejected =>
+         when Editor.External_Producers.Build_Types.Process_Run_Rejected =>
             return Task_Rejected;
-         when Editor.External_Producers.Process_Run_Timed_Out =>
+         when Editor.External_Producers.Build_Types.Process_Run_Timed_Out =>
             return Task_Timed_Out;
-         when Editor.External_Producers.Process_Run_Cancelled =>
+         when Editor.External_Producers.Build_Types.Process_Run_Cancelled =>
             return Task_Cancelled;
-         when Editor.External_Producers.Process_Run_Cancellation_Unsupported =>
+         when Editor.External_Producers.Build_Types.Process_Run_Cancellation_Unsupported =>
             return Task_Not_Available;
       end case;
    end Map_Status;
@@ -409,7 +410,7 @@ package body Editor.Terminal_Tasks is
    procedure Apply_Result
      (State  : in out Terminal_Task_State;
       Index  : Natural;
-      Result : Editor.External_Producers.Process_Run_Result)
+      Result : Editor.External_Producers.Build_Types.Process_Run_Result)
    is
       Row : Terminal_Task_Row := State.Rows (Index);
    begin
@@ -439,7 +440,7 @@ package body Editor.Terminal_Tasks is
 
    procedure Run_Selected_With_Result
      (State  : in out Terminal_Task_State;
-      Result : Editor.External_Producers.Process_Run_Result)
+      Result : Editor.External_Producers.Build_Types.Process_Run_Result)
    is
    begin
       if Has_Selected_Task (State) then
@@ -449,7 +450,7 @@ package body Editor.Terminal_Tasks is
 
    procedure Rerun_Last_With_Result
      (State  : in out Terminal_Task_State;
-      Result : Editor.External_Producers.Process_Run_Result)
+      Result : Editor.External_Producers.Build_Types.Process_Run_Result)
    is
       Index : constant Natural := Index_For_Id (State, State.Last_Run_Id);
    begin
@@ -473,9 +474,9 @@ package body Editor.Terminal_Tasks is
 
    function Request_For_Row
      (Row : Terminal_Task_Row)
-      return Editor.External_Producers.Process_Run_Request
+      return Editor.External_Producers.Build_Types.Process_Run_Request
    is
-      Request : Editor.External_Producers.Process_Run_Request;
+      Request : Editor.External_Producers.Build_Types.Process_Run_Request;
    begin
       Request.Program_Label := Row.Program_Label;
       Request.Working_Label := Row.Working_Label;
@@ -488,7 +489,7 @@ package body Editor.Terminal_Tasks is
 
    function Selected_Task_Request
      (State : Terminal_Task_State)
-      return Editor.External_Producers.Process_Run_Request
+      return Editor.External_Producers.Build_Types.Process_Run_Request
    is
    begin
       if Has_Selected_Task (State) then
@@ -499,7 +500,7 @@ package body Editor.Terminal_Tasks is
 
    function Last_Task_Request
      (State : Terminal_Task_State)
-      return Editor.External_Producers.Process_Run_Request
+      return Editor.External_Producers.Build_Types.Process_Run_Request
    is
       Index : constant Natural := Index_For_Id (State, State.Last_Run_Id);
    begin

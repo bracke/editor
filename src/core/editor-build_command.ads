@@ -1,5 +1,6 @@
 with Editor.Commands;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Types;
 with Editor.External_Producers.Build_Requests;
 with Editor.Build_Output_Details;
 with Editor.Build_Process_Control;
@@ -93,7 +94,7 @@ package Editor.Build_Command is
 
    function Build_Run_Execution_Gate
      (State : Editor.State.State_Type)
-      return Editor.External_Producers.Build_Execution_Gate;
+      return Editor.External_Producers.Build_Types.Build_Execution_Gate;
 
    function Execute_Public_Build_Run
      (State : in out Editor.State.State_Type)
@@ -117,7 +118,7 @@ package Editor.Build_Command is
    --  without depending on host gprbuild/alr availability.
    function Execute_Public_Build_Run_With_Supplied_Result
      (State           : in out Editor.State.State_Type;
-      Supplied_Result : Editor.External_Producers.Process_Run_Result)
+      Supplied_Result : Editor.External_Producers.Build_Types.Process_Run_Result)
       return Editor.External_Producers.Build_Requests.Build_Command_Result;
 
    function Assert_Build_Run_Descriptor_Stable return Boolean;

@@ -7,6 +7,7 @@ with Editor.Build_Diagnostics;
 with Editor.Build_Runner_Policy;
 with Editor.Build_UI;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Types;
 with Editor.External_Producers.Execution_Policy;
 with Editor.External_Producers.Build_Requests;
 with Editor.External_Producers.Diagnostic_Line_Parsing;
@@ -16,7 +17,7 @@ with Editor.Feature_Panel_Controller;
 with Editor.State;
 
 use type Editor.Build_Diagnostics.Build_Diagnostics_Ingestion_Policy;
-use type Editor.External_Producers.Build_Run_Status;
+use type Editor.External_Producers.Build_Types.Build_Run_Status;
 use type Editor.External_Producers.Diagnostic_Line_Parsing.Command_Outcome;
 use type Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Status;
 use type Editor.Feature_Panel.Feature_Id;
@@ -31,12 +32,12 @@ package body Editor.Build_Diagnostics.Tests is
       return AUnit.Format ("Editor.Build_Diagnostics");
    end Name;
 
-   function Request return Editor.External_Producers.Build_Run_Request
+   function Request return Editor.External_Producers.Build_Types.Build_Run_Request
    is
    begin
       return
-        (Tool                 => Editor.External_Producers.GPRbuild_Tool,
-         Provenance           => Editor.External_Producers.Build_Request_From_User_Opt_In,
+        (Tool                 => Editor.External_Producers.Build_Types.GPRbuild_Tool,
+         Provenance           => Editor.External_Producers.Build_Types.Build_Request_From_User_Opt_In,
          Working_Label        => To_Unbounded_String ("current-project-root"),
          Command_Label        => To_Unbounded_String ("gprbuild"),
          Arguments            => Null_Unbounded_String,
@@ -48,7 +49,7 @@ package body Editor.Build_Diagnostics.Tests is
    is
    begin
       return Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-        (Editor.External_Producers.Build_Run_Failed,
+        (Editor.External_Producers.Build_Types.Build_Run_Failed,
          Exit_Code     => 1,
          Has_Exit_Code => True,
          Stderr_Text   => Text);
@@ -115,7 +116,7 @@ package body Editor.Build_Diagnostics.Tests is
       end loop;
 
       Result := Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-        (Editor.External_Producers.Build_Run_Failed,
+        (Editor.External_Producers.Build_Types.Build_Run_Failed,
          Diagnostic_Lines => Lines);
       Parsed := Parse_Build_Output_Diagnostics (Request, Result);
 
@@ -181,18 +182,18 @@ package body Editor.Build_Diagnostics.Tests is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
       S_Disabled : Editor.State.State_Type;
-      Command_Request : constant Editor.External_Producers.Build_Run_Request :=
-        (Tool                 => Editor.External_Producers.GPRbuild_Tool,
+      Command_Request : constant Editor.External_Producers.Build_Types.Build_Run_Request :=
+        (Tool                 => Editor.External_Producers.Build_Types.GPRbuild_Tool,
          Provenance           =>
-           Editor.External_Producers.Build_Request_From_Internal_Command,
+           Editor.External_Producers.Build_Types.Build_Request_From_Internal_Command,
          Working_Label        => To_Unbounded_String ("unit-test"),
          Command_Label        => To_Unbounded_String ("gprbuild"),
          Arguments            => Null_Unbounded_String,
          Structured_Arguments =>
            Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q"));
-      Captured_Output : constant Editor.External_Producers.Process_Run_Result :=
+      Captured_Output : constant Editor.External_Producers.Build_Types.Process_Run_Result :=
         Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-          (Editor.External_Producers.Process_Run_Failed,
+          (Editor.External_Producers.Build_Types.Process_Run_Failed,
            Exit_Code     => 1,
            Has_Exit_Code => True,
            Stderr_Text   =>
@@ -210,7 +211,7 @@ package body Editor.Build_Diagnostics.Tests is
 
       Assert
         (Command.Build_Result.Status =
-           Editor.External_Producers.Build_Run_Failed,
+           Editor.External_Producers.Build_Types.Build_Run_Failed,
          "build command returns the supplied runner status");
       Assert
         (Command.Diagnostic_Result.Ingestion.Parse_Input_Count = 2,
@@ -277,7 +278,7 @@ package body Editor.Build_Diagnostics.Tests is
    is
       pragma Unreferenced (T);
       S    : Editor.State.State_Type;
-      Gate : Editor.External_Producers.Build_Execution_Gate;
+      Gate : Editor.External_Producers.Build_Types.Build_Execution_Gate;
    begin
       Prepare_Public_Build_UI (S, Show_Diagnostics => False);
       Gate := Editor.Build_Command.Build_Run_Execution_Gate (S);

@@ -11,6 +11,7 @@ with Editor.Build_Working_Context;
 with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Types;
 with Editor.External_Producers.Execution_Policy;
 with Editor.External_Producers.Build_Requests;
 with Editor.External_Producers.Diagnostic_Line_Parsing;
@@ -24,12 +25,12 @@ package body Editor.Build_Milestone_Freeze is
    use type Editor.Build_UI.Public_Build_Tool_Selection;
    use type Editor.Build_Command.Build_Run_Readiness_Status;
    use type Editor.Build_Working_Context.Build_Working_Context_Kind;
-   use type Editor.External_Producers.Build_Run_Status;
-   use type Editor.External_Producers.Build_Tool_Kind;
-   use type Editor.External_Producers.Process_Run_Status;
-   use type Editor.External_Producers.Process_Execution_Mode;
-   use type Editor.External_Producers.Process_Request_Validation_Status;
-   use type Editor.External_Producers.Build_Request_Provenance;
+   use type Editor.External_Producers.Build_Types.Build_Run_Status;
+   use type Editor.External_Producers.Build_Types.Build_Tool_Kind;
+   use type Editor.External_Producers.Build_Types.Process_Run_Status;
+   use type Editor.External_Producers.Build_Types.Process_Execution_Mode;
+   use type Editor.External_Producers.Build_Types.Process_Request_Validation_Status;
+   use type Editor.External_Producers.Build_Types.Build_Request_Provenance;
 
 
    procedure Open_Fake_Project (State : in out Editor.State.State_Type)
@@ -109,9 +110,9 @@ package body Editor.Build_Milestone_Freeze is
         and then Editor.Build_UI.Validate_Build_UI_State (S) =
           Editor.Build_UI.Build_UI_Valid
         and then C.Status = Editor.Build_UI.Build_UI_Valid
-        and then C.Request.Tool = Editor.External_Producers.GPRbuild_Tool
+        and then C.Request.Tool = Editor.External_Producers.Build_Types.GPRbuild_Tool
         and then C.Request.Provenance =
-          Editor.External_Producers.Build_Request_From_User_Opt_In
+          Editor.External_Producers.Build_Types.Build_Request_From_User_Opt_In
         and then To_String (C.Request.Command_Label) = "gprbuild"
         and then To_String (C.Request.Arguments)'Length = 0
         and then Editor.External_Producers.Build_Requests.Process_Argument_Count
@@ -145,7 +146,7 @@ package body Editor.Build_Milestone_Freeze is
         and then Editor.Build_UI.Argument_Count (S.Structured_Arguments) = 1
         and then To_String (S.Candidate_Request_Preview)'Length > 0
         and then C.Status = Editor.Build_UI.Build_UI_Valid
-        and then C.Request.Tool = Editor.External_Producers.Alire_Build_Tool
+        and then C.Request.Tool = Editor.External_Producers.Build_Types.Alire_Build_Tool
         and then To_String (C.Request.Command_Label) = "alr"
         and then To_String (C.Request.Arguments)'Length = 0
         and then Editor.External_Producers.Build_Requests.Process_Argument_Count
@@ -230,28 +231,28 @@ package body Editor.Build_Milestone_Freeze is
       UI : constant Editor.Build_UI.Public_Build_UI_State := Ready_Manual_UI;
       C : constant Editor.Build_Public_Request.Public_Build_Request_Conversion_Result :=
         Request_From (UI);
-      Gate : Editor.External_Producers.Build_Execution_Gate :=
+      Gate : Editor.External_Producers.Build_Types.Build_Execution_Gate :=
         Editor.External_Producers.Execution_Policy.Build_Default_Execution_Gate;
-      Supplied : constant Editor.External_Producers.Process_Run_Result :=
+      Supplied : constant Editor.External_Producers.Build_Types.Process_Run_Result :=
         Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-          (Editor.External_Producers.Process_Run_Succeeded,
+          (Editor.External_Producers.Build_Types.Process_Run_Succeeded,
            Exit_Code => 0,
            Has_Exit_Code => True,
            Stdout_Text => "ok",
            Stderr_Text => "");
       Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
-      Preflight : Editor.External_Producers.Build_Preflight_Result;
-      Rejected : Editor.External_Producers.Process_Run_Result;
+      Preflight : Editor.External_Producers.Build_Types.Build_Preflight_Result;
+      Rejected : Editor.External_Producers.Build_Types.Process_Run_Result;
    begin
       Gate.Process_Policy :=
-        (Mode                     => Editor.External_Producers.Process_Execution_Test_Fixture,
+        (Mode                     => Editor.External_Producers.Build_Types.Process_Execution_Test_Fixture,
          Allow_Real_Execution     => False,
          Allow_Shell              => False,
          Max_Output_Bytes         => 16,
          Require_Absolute_Program => False,
          Timeout_Milliseconds     => 0);
       Gate.Allow_Build_Run := True;
-      Gate.Consent := Editor.External_Producers.Build_Consent_Test_Only;
+      Gate.Consent := Editor.External_Producers.Build_Types.Build_Consent_Test_Only;
       Gate.Allow_Diagnostics_Ingestion := False;
       Gate.Show_Diagnostics := False;
 
@@ -261,26 +262,26 @@ package body Editor.Build_Milestone_Freeze is
         (S, C.Request, Gate, Supplied);
       Rejected := Editor.External_Producers.Build_Requests.Enforce_Process_Output_Bounds
         (Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-           (Editor.External_Producers.Process_Run_Succeeded,
+           (Editor.External_Producers.Build_Types.Process_Run_Succeeded,
             Exit_Code => 0,
             Has_Exit_Code => True,
             Stdout_Text => "01234567890123456789"),
          Gate.Process_Policy);
 
       return Preflight.Process_Request_Status =
-          Editor.External_Producers.Process_Request_Valid
+          Editor.External_Producers.Build_Types.Process_Request_Valid
         and then To_String (Preflight.Process_Request.Program_Label) = "gprbuild"
         and then To_String (Preflight.Process_Request.Arguments)'Length = 0
         and then Editor.External_Producers.Build_Requests.Process_Argument_Count
           (Preflight.Process_Request.Structured_Arguments) = 2
         and then not Gate.Process_Policy.Allow_Shell
         and then Gate.Process_Policy.Mode =
-          Editor.External_Producers.Process_Execution_Test_Fixture
+          Editor.External_Producers.Build_Types.Process_Execution_Test_Fixture
         and then Result.Build_Result.Status =
-          Editor.External_Producers.Build_Run_Succeeded
+          Editor.External_Producers.Build_Types.Build_Run_Succeeded
         and then To_String (Result.Build_Result.Stdout_Text) = "ok"
         and then To_String (Result.Command_Message)'Length > 0
-        and then Rejected.Status = Editor.External_Producers.Process_Run_Execution_Error;
+        and then Rejected.Status = Editor.External_Producers.Build_Types.Process_Run_Execution_Error;
    end Assert_Public_Build_Runner_Boundary_Frozen;
 
    function Assert_Public_Build_Diagnostics_Boundary_Frozen return Boolean
@@ -297,7 +298,7 @@ package body Editor.Build_Milestone_Freeze is
    begin
       Lines.Append (To_Unbounded_String ("main.adb:1:1: error: frozen"));
       Build_Result := Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-        (Editor.External_Producers.Build_Run_Failed,
+        (Editor.External_Producers.Build_Types.Build_Run_Failed,
          Exit_Code => 1,
          Has_Exit_Code => True,
          Diagnostic_Lines => Lines);

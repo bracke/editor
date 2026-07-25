@@ -2,6 +2,7 @@ with Editor.Build_Output_Details;
 with Editor.Build_Result_Summary;
 with Editor.Command_Execution;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Types;
 with Editor.External_Producers.Diagnostic_Line_Parsing;
 with Editor.State;
 
@@ -27,7 +28,7 @@ package Editor.Build_Diagnostics_Review is
    end record;
 
    function Build_Diagnostic_Source_Label
-     (Request : Editor.External_Producers.Build_Run_Request) return String;
+     (Request : Editor.External_Producers.Build_Types.Build_Run_Request) return String;
 
    function Build_Diagnostics_Ingestion_Summary
      (Result : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result)
@@ -55,7 +56,7 @@ package Editor.Build_Diagnostics_Review is
 
 
    function Assert_Build_Diagnostics_Source_Metadata_Reliable
-     (Request : Editor.External_Producers.Build_Run_Request) return Boolean;
+     (Request : Editor.External_Producers.Build_Types.Build_Run_Request) return Boolean;
 
    function Assert_Build_Diagnostics_Zero_Output_Reliable
      (State  : Editor.State.State_Type;
@@ -124,7 +125,7 @@ package Editor.Build_Diagnostics_Review is
      (State : Editor.State.State_Type) return Boolean;
 
    function Assert_Build_Diagnostics_Final_Source_Metadata_Boundary
-     (Request : Editor.External_Producers.Build_Run_Request) return Boolean;
+     (Request : Editor.External_Producers.Build_Types.Build_Run_Request) return Boolean;
 
    function Assert_Build_Diagnostics_Final_Review_Boundary
      (State : Editor.State.State_Type) return Boolean;

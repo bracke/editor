@@ -20,6 +20,8 @@ with Editor.External_Producers.Public_Build_Input_Validation;
 with Editor.External_Producers.Request_Policies;
 with Editor.External_Producers.Source_Metadata;
 
+with Editor.External_Producers.Build_Types; use Editor.External_Producers.Build_Types;
+
 package body Editor.External_Producers.Build_Command_Execution is
 
    use type Ada.Containers.Count_Type;
@@ -1692,7 +1694,7 @@ package body Editor.External_Producers.Build_Command_Execution is
       Diagnostic_Result : Diagnostic_Line_Command_Result :=
         Editor.External_Producers.Diagnostic_Line_Parsing.Empty_Diagnostic_Line_Command_Result;
       Message : Unbounded_String;
-      Mode : Process_Execution_Mode;
+      Mode : Editor.External_Producers.Build_Types.Process_Execution_Mode;
       Process_Result : Process_Run_Result;
       Diagnostics_Used : Boolean := False;
    begin

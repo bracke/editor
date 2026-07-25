@@ -8,6 +8,7 @@ with Editor.Build_Output_Details;
 with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Types;
 
 package body Editor.Build_UI is
 
@@ -283,18 +284,18 @@ package body Editor.Build_UI is
    end Set_Show_Diagnostics_On_Result;
 
    function Tool_From_Candidate
-     (Tool : Editor.External_Producers.Build_Tool_Kind)
+     (Tool : Editor.External_Producers.Build_Types.Build_Tool_Kind)
       return Public_Build_Tool_Selection
    is
    begin
       case Tool is
-         when Editor.External_Producers.GPRbuild_Tool =>
+         when Editor.External_Producers.Build_Types.GPRbuild_Tool =>
             return Build_UI_GPRbuild;
-         when Editor.External_Producers.Alire_Build_Tool =>
+         when Editor.External_Producers.Build_Types.Alire_Build_Tool =>
             return Build_UI_Alire;
-         when Editor.External_Producers.Custom_Build_Tool =>
+         when Editor.External_Producers.Build_Types.Custom_Build_Tool =>
             return Build_UI_Custom_Disallowed_For_Now;
-         when Editor.External_Producers.No_Build_Tool =>
+         when Editor.External_Producers.Build_Types.No_Build_Tool =>
             return Build_UI_No_Tool;
       end case;
    end Tool_From_Candidate;
@@ -1075,7 +1076,7 @@ package body Editor.Build_UI is
    end Candidate_Kind_Label;
 
    function External_Tool_Label
-     (Tool : Editor.External_Producers.Build_Tool_Kind) return String
+     (Tool : Editor.External_Producers.Build_Types.Build_Tool_Kind) return String
    is
    begin
       return Tool_Label (Tool_From_Candidate (Tool));

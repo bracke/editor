@@ -10,16 +10,17 @@ with Editor.Commands.Name_Metadata;
 with Editor.External_Producers.Build_Requests;
 
 
+with Editor.External_Producers.Build_Types;
 package body Editor.Build_Execution_Workflow is
 
    use type Editor.Build_Command.Build_Run_Readiness_Status;
    use type Editor.Build_UI.Public_Build_UI_Validation_Status;
    use type Editor.Build_UI.Build_UI_Build_Mode;
    use type Editor.Build_UI.Build_UI_Output_Capture_Limit;
-   use type Editor.External_Producers.Build_Request_Provenance;
-   use type Editor.External_Producers.Build_Tool_Kind;
-   use type Editor.External_Producers.Build_Execution_Consent;
-   use type Editor.External_Producers.Build_Run_Status;
+   use type Editor.External_Producers.Build_Types.Build_Request_Provenance;
+   use type Editor.External_Producers.Build_Types.Build_Tool_Kind;
+   use type Editor.External_Producers.Build_Types.Build_Execution_Consent;
+   use type Editor.External_Producers.Build_Types.Build_Run_Status;
    use type Editor.Build_Result_Summary.Build_Result_Summary_Kind;
    use type Editor.Build_Output_Details.Build_Output_Details_Kind;
    use type Editor.Commands.Descriptors.Command_Visibility;
@@ -54,18 +55,18 @@ package body Editor.Build_Execution_Workflow is
    end Assert_Build_Run_Requires_Valid_Consented_Request;
 
    function Assert_Build_Run_Uses_Structured_Tokens
-     (Request : Editor.External_Producers.Build_Run_Request) return Boolean
+     (Request : Editor.External_Producers.Build_Types.Build_Run_Request) return Boolean
    is
    begin
-      return Request.Tool /= Editor.External_Producers.No_Build_Tool
+      return Request.Tool /= Editor.External_Producers.Build_Types.No_Build_Tool
         and then Request.Provenance =
-          Editor.External_Producers.Build_Request_From_User_Opt_In
+          Editor.External_Producers.Build_Types.Build_Request_From_User_Opt_In
         and then Length (Request.Arguments) = 0
         and then not Request.Structured_Arguments.Is_Empty;
    end Assert_Build_Run_Uses_Structured_Tokens;
 
    function Assert_Build_Run_Does_Not_Use_Shell_Text
-     (Request : Editor.External_Producers.Build_Run_Request) return Boolean
+     (Request : Editor.External_Producers.Build_Types.Build_Run_Request) return Boolean
    is
    begin
       if Length (Request.Arguments) /= 0 then
@@ -308,7 +309,7 @@ package body Editor.Build_Execution_Workflow is
      (Result : Editor.External_Producers.Build_Requests.Build_Command_Result) return Boolean
    is
    begin
-      return Result.Build_Result.Status = Editor.External_Producers.Build_Run_Not_Available
+      return Result.Build_Result.Status = Editor.External_Producers.Build_Types.Build_Run_Not_Available
         and then Result.Diagnostic_Result.Ingestion.Parse_Input_Count = 0
         and then Result.Diagnostic_Result.Ingestion.Ingestion_Result.Accepted_Count = 0
         and then not Result.Diagnostic_Result.Should_Show_Diagnostics;
@@ -370,14 +371,14 @@ package body Editor.Build_Execution_Workflow is
    is
       Status : constant Editor.Build_Command.Build_Run_Readiness_Status :=
         Editor.Build_Command.Validate_Build_Run_Invocation (State);
-      Gate : constant Editor.External_Producers.Build_Execution_Gate :=
+      Gate : constant Editor.External_Producers.Build_Types.Build_Execution_Gate :=
         Editor.Build_Command.Build_Run_Execution_Gate (State);
    begin
       if Status = Editor.Build_Command.Build_Run_Readiness_Ready then
-         return Gate.Consent = Editor.External_Producers.Build_Consent_User_Confirmed
+         return Gate.Consent = Editor.External_Producers.Build_Types.Build_Consent_User_Confirmed
            and then Editor.External_Producers.Build_Requests.Validate_Build_Execution_Gate (Gate);
       else
-         return Gate.Consent /= Editor.External_Producers.Build_Consent_User_Confirmed;
+         return Gate.Consent /= Editor.External_Producers.Build_Types.Build_Consent_User_Confirmed;
       end if;
    end Assert_Build_Run_Gate_Consent_Matches_Preflight;
 
@@ -387,7 +388,7 @@ package body Editor.Build_Execution_Workflow is
       Result : Editor.External_Producers.Build_Requests.Build_Command_Result) return Boolean
    is
    begin
-      return Result.Build_Result.Status = Editor.External_Producers.Build_Run_Not_Available
+      return Result.Build_Result.Status = Editor.External_Producers.Build_Types.Build_Run_Not_Available
         and then Before.Buffer_Revision = After.Buffer_Revision
         and then Before.Active_Buffer_Token = After.Active_Buffer_Token
         and then not After.Latest_Build_Output_Details.Stdout_Available

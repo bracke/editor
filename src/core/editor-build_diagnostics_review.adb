@@ -16,6 +16,7 @@ with Editor.Feature_Diagnostics;
 with Editor.Feature_Panel;
 
 
+with Editor.External_Producers.Build_Types;
 package body Editor.Build_Diagnostics_Review is
 
    use type Editor.Commands.Descriptors.Command_Category;
@@ -37,7 +38,7 @@ package body Editor.Build_Diagnostics_Review is
    end Contains;
 
    function Build_Diagnostic_Source_Label
-     (Request : Editor.External_Producers.Build_Run_Request) return String
+     (Request : Editor.External_Producers.Build_Types.Build_Run_Request) return String
    is
    begin
       return Editor.Build_Diagnostics.Build_Diagnostic_Source_Display_Label (Request);
@@ -181,7 +182,7 @@ package body Editor.Build_Diagnostics_Review is
 
 
    function Assert_Build_Diagnostics_Source_Metadata_Reliable
-     (Request : Editor.External_Producers.Build_Run_Request) return Boolean
+     (Request : Editor.External_Producers.Build_Types.Build_Run_Request) return Boolean
    is
       Source : constant Editor.External_Producers.Diagnostics.Producer_Source :=
         Editor.Build_Diagnostics.Build_Diagnostic_Source_Metadata (Request);
@@ -339,16 +340,16 @@ package body Editor.Build_Diagnostics_Review is
       S : Editor.State.State_Type := State;
       Before_Count : constant Natural :=
         Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics);
-      Request : constant Editor.External_Producers.Build_Run_Request :=
-        (Tool                 => Editor.External_Producers.GPRbuild_Tool,
-         Provenance           => Editor.External_Producers.Build_Request_From_User_Opt_In,
+      Request : constant Editor.External_Producers.Build_Types.Build_Run_Request :=
+        (Tool                 => Editor.External_Producers.Build_Types.GPRbuild_Tool,
+         Provenance           => Editor.External_Producers.Build_Types.Build_Request_From_User_Opt_In,
          Working_Label        => Null_Unbounded_String,
          Command_Label        => To_Unbounded_String ("gprbuild"),
          Arguments            => Null_Unbounded_String,
          Structured_Arguments => Editor.External_Producers.Build_Requests.Empty_Process_Arguments);
       Build_Result : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
         Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-          (Editor.External_Producers.Build_Run_Failed,
+          (Editor.External_Producers.Build_Types.Build_Run_Failed,
            Stderr_Text => "main.adb:9:1: error: canonical");
       Ingestion : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result;
    begin
@@ -410,16 +411,16 @@ package body Editor.Build_Diagnostics_Review is
      (State : Editor.State.State_Type) return Boolean
    is
       S : Editor.State.State_Type := State;
-      Request : constant Editor.External_Producers.Build_Run_Request :=
-        (Tool                 => Editor.External_Producers.GPRbuild_Tool,
-         Provenance           => Editor.External_Producers.Build_Request_From_User_Opt_In,
+      Request : constant Editor.External_Producers.Build_Types.Build_Run_Request :=
+        (Tool                 => Editor.External_Producers.Build_Types.GPRbuild_Tool,
+         Provenance           => Editor.External_Producers.Build_Types.Build_Request_From_User_Opt_In,
          Working_Label        => Null_Unbounded_String,
          Command_Label        => To_Unbounded_String ("gprbuild"),
          Arguments            => Null_Unbounded_String,
          Structured_Arguments => Editor.External_Producers.Build_Requests.Empty_Process_Arguments);
       Build_Result : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
         Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-          (Editor.External_Producers.Build_Run_Failed,
+          (Editor.External_Producers.Build_Types.Build_Run_Failed,
            Stderr_Text => "main.adb:1:1: error: reviewable");
       Ingestion : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result;
       Review    : Build_Diagnostics_Review_Result;
@@ -446,16 +447,16 @@ package body Editor.Build_Diagnostics_Review is
      (State : Editor.State.State_Type) return Boolean
    is
       S : Editor.State.State_Type := State;
-      Req : constant Editor.External_Producers.Build_Run_Request :=
-        (Tool                 => Editor.External_Producers.GPRbuild_Tool,
-         Provenance           => Editor.External_Producers.Build_Request_From_User_Opt_In,
+      Req : constant Editor.External_Producers.Build_Types.Build_Run_Request :=
+        (Tool                 => Editor.External_Producers.Build_Types.GPRbuild_Tool,
+         Provenance           => Editor.External_Producers.Build_Types.Build_Request_From_User_Opt_In,
          Working_Label        => To_Unbounded_String ("current-project-root"),
          Command_Label        => To_Unbounded_String ("gprbuild"),
          Arguments            => Null_Unbounded_String,
          Structured_Arguments => Editor.External_Producers.Build_Requests.Empty_Process_Arguments);
       Good : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
         Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-          (Editor.External_Producers.Build_Run_Failed,
+          (Editor.External_Producers.Build_Types.Build_Run_Failed,
            Stderr_Text => "main.adb:1:1: error: reliable");
       Command : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result;
       Review  : Build_Diagnostics_Review_Result;
@@ -517,7 +518,7 @@ package body Editor.Build_Diagnostics_Review is
    end Assert_Build_Diagnostics_Final_Ingestion_Only_Row_Creation;
 
    function Assert_Build_Diagnostics_Final_Source_Metadata_Boundary
-     (Request : Editor.External_Producers.Build_Run_Request) return Boolean
+     (Request : Editor.External_Producers.Build_Types.Build_Run_Request) return Boolean
    is
       Source : constant Editor.External_Producers.Diagnostics.Producer_Source :=
         Editor.Build_Diagnostics.Build_Diagnostic_Source_Metadata (Request);
@@ -806,16 +807,16 @@ package body Editor.Build_Diagnostics_Review is
      (State : Editor.State.State_Type) return Boolean
    is
       S : Editor.State.State_Type := State;
-      Request : constant Editor.External_Producers.Build_Run_Request :=
-        (Tool                 => Editor.External_Producers.GPRbuild_Tool,
-         Provenance           => Editor.External_Producers.Build_Request_From_User_Opt_In,
+      Request : constant Editor.External_Producers.Build_Types.Build_Run_Request :=
+        (Tool                 => Editor.External_Producers.Build_Types.GPRbuild_Tool,
+         Provenance           => Editor.External_Producers.Build_Types.Build_Request_From_User_Opt_In,
          Working_Label        => To_Unbounded_String ("current-project-root"),
          Command_Label        => To_Unbounded_String ("gprbuild"),
          Arguments            => Null_Unbounded_String,
          Structured_Arguments => Editor.External_Producers.Build_Requests.Empty_Process_Arguments);
       Result : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
         Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-          (Editor.External_Producers.Build_Run_Failed,
+          (Editor.External_Producers.Build_Types.Build_Run_Failed,
            Stderr_Text => "Untitled:2:1: error: navigate");
       Command : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result;
       Before_Reveal : Editor.State.State_Type;
@@ -855,16 +856,16 @@ package body Editor.Build_Diagnostics_Review is
      (State : Editor.State.State_Type) return Boolean
    is
       S : Editor.State.State_Type := State;
-      Request : constant Editor.External_Producers.Build_Run_Request :=
-        (Tool                 => Editor.External_Producers.GPRbuild_Tool,
-         Provenance           => Editor.External_Producers.Build_Request_From_User_Opt_In,
+      Request : constant Editor.External_Producers.Build_Types.Build_Run_Request :=
+        (Tool                 => Editor.External_Producers.Build_Types.GPRbuild_Tool,
+         Provenance           => Editor.External_Producers.Build_Types.Build_Request_From_User_Opt_In,
          Working_Label        => To_Unbounded_String ("current-project-root"),
          Command_Label        => To_Unbounded_String ("gprbuild"),
          Arguments            => Null_Unbounded_String,
          Structured_Arguments => Editor.External_Producers.Build_Requests.Empty_Process_Arguments);
       Result : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
         Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-          (Editor.External_Producers.Build_Run_Failed,
+          (Editor.External_Producers.Build_Types.Build_Run_Failed,
            Stderr_Text => "main.adb:21:1: error: final freeze");
       Command : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result;
       Review  : Build_Diagnostics_Review_Result;

@@ -7,6 +7,7 @@ with Editor.Feature_Diagnostics;
 with Editor.Feature_Panel;
 with Editor.Feature_Panel_Controller;
 with Editor.External_Producers.Diagnostic_Line_Parsing;
+with Editor.External_Producers.Diagnostics_Types;
 with Editor.External_Producers.Diagnostics;
 with Editor.External_Producers.Diagnostic_Normalization;
 with Editor.External_Producers.Source_Metadata;
@@ -14,6 +15,7 @@ with Editor.External_Producers.Source_Metadata;
 package body Editor.External_Producers.Diagnostic_Line_Pipeline is
 
    use type Editor.Feature_Panel.Feature_Id;
+   use type Editor.External_Producers.Diagnostics_Types.Compiler_Severity;
 
    subtype Diagnostic_Line_Parse_Status is
      Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Status;

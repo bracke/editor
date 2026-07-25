@@ -1559,10 +1559,12 @@ editor-external_producers-build_types.ads
 editor-external_producers-request_policies.ads
 editor-external_producers-public_build_command_surface_audits.ads
 editor-external_producers-public_build_guardrail_audits.ads
+editor-external_producers-public_build_types.ads
 editor-external_producers-public_build.ads
 editor-external_producers-diagnostic_line_pipeline.ads
 editor-external_producers-diagnostic_normalization.ads
 editor-external_producers-diagnostics.ads
+editor-external_producers-diagnostics_types.ads
 editor-external_producers-diagnostics.adb
 editor-external_producers-diagnostic_line_parsing.ads
 editor-external_producers-diagnostic_line_parsing.adb

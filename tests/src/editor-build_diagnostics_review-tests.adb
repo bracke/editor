@@ -14,6 +14,7 @@ with Editor.Commands.Name_Metadata;
 with Editor.Command_Execution;
 with Editor.Executor;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Types;
 with Editor.External_Producers.Build_Requests;
 with Editor.External_Producers.Diagnostic_Line_Parsing;
 with Editor.Feature_Diagnostics;
@@ -69,11 +70,11 @@ package body Editor.Build_Diagnostics_Review.Tests is
       return Col + 1;
    end Active_Caret_Column;
 
-   function Request return Editor.External_Producers.Build_Run_Request is
+   function Request return Editor.External_Producers.Build_Types.Build_Run_Request is
    begin
       return
-        (Tool                 => Editor.External_Producers.GPRbuild_Tool,
-         Provenance           => Editor.External_Producers.Build_Request_From_User_Opt_In,
+        (Tool                 => Editor.External_Producers.Build_Types.GPRbuild_Tool,
+         Provenance           => Editor.External_Producers.Build_Types.Build_Request_From_User_Opt_In,
          Working_Label        => To_Unbounded_String ("current-project-root"),
          Command_Label        => To_Unbounded_String ("gprbuild"),
          Arguments            => Null_Unbounded_String,
@@ -85,7 +86,7 @@ package body Editor.Build_Diagnostics_Review.Tests is
    is
    begin
       return Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-        (Editor.External_Producers.Build_Run_Failed,
+        (Editor.External_Producers.Build_Types.Build_Run_Failed,
          Exit_Code     => 1,
          Has_Exit_Code => True,
          Stderr_Text   => "main.adb:1:1: error: reviewable");
@@ -275,10 +276,10 @@ package body Editor.Build_Diagnostics_Review.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      GPR_Request : constant Editor.External_Producers.Build_Run_Request := Request;
-      Alire_Request : constant Editor.External_Producers.Build_Run_Request :=
-        (Tool                 => Editor.External_Producers.Alire_Build_Tool,
-         Provenance           => Editor.External_Producers.Build_Request_From_User_Opt_In,
+      GPR_Request : constant Editor.External_Producers.Build_Types.Build_Run_Request := Request;
+      Alire_Request : constant Editor.External_Producers.Build_Types.Build_Run_Request :=
+        (Tool                 => Editor.External_Producers.Build_Types.Alire_Build_Tool,
+         Provenance           => Editor.External_Producers.Build_Types.Build_Request_From_User_Opt_In,
          Working_Label        => To_Unbounded_String ("current-project-root"),
          Command_Label        => To_Unbounded_String ("alr"),
          Arguments            => To_Unbounded_String ("build"),
@@ -306,11 +307,11 @@ package body Editor.Build_Diagnostics_Review.Tests is
       S2 : Editor.State.State_Type;
       Success_Result : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
         Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-          (Editor.External_Producers.Build_Run_Succeeded,
+          (Editor.External_Producers.Build_Types.Build_Run_Succeeded,
            Stdout_Text => "main.adb:2:3: warning: success diagnostic");
       Failure_Result : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
         Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-          (Editor.External_Producers.Build_Run_Failed,
+          (Editor.External_Producers.Build_Types.Build_Run_Failed,
            Stderr_Text => "main.adb:4:5: error: failed diagnostic");
       Success_Command : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result;
       Failure_Command : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result;
@@ -347,7 +348,7 @@ package body Editor.Build_Diagnostics_Review.Tests is
       S : Editor.State.State_Type;
       Mixed_Result : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
         Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-          (Editor.External_Producers.Build_Run_Failed,
+          (Editor.External_Producers.Build_Types.Build_Run_Failed,
            Stdout_Text => "main.adb:7:1: warning: stdout diagnostic",
            Stderr_Text => "main.adb:8:1: error: stderr diagnostic");
       Command : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result;
@@ -377,11 +378,11 @@ package body Editor.Build_Diagnostics_Review.Tests is
       Disabled_State : Editor.State.State_Type;
       Zero_Result : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
         Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-          (Editor.External_Producers.Build_Run_Succeeded,
+          (Editor.External_Producers.Build_Types.Build_Run_Succeeded,
            Stdout_Text => "build completed without diagnostic rows");
       Malformed_Result : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
         Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-          (Editor.External_Producers.Build_Run_Failed,
+          (Editor.External_Producers.Build_Types.Build_Run_Failed,
            Stderr_Text => "main.adb:x:y: error: malformed location");
       Zero_Command : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result;
       Malformed_Command : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result;
@@ -433,7 +434,7 @@ package body Editor.Build_Diagnostics_Review.Tests is
       Truncated_Command := Editor.Build_Diagnostics.Ingest_Build_Diagnostics_Through_Diagnostics
         (Truncated_State, Request,
          Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-           (Editor.External_Producers.Build_Run_Output_Truncated,
+           (Editor.External_Producers.Build_Types.Build_Run_Output_Truncated,
             Stdout_Truncated => True,
             Diagnostic_Lines => Lines),
          Editor.Build_Diagnostics.Build_Diagnostics_Ingestion_On_Request,
@@ -441,7 +442,7 @@ package body Editor.Build_Diagnostics_Review.Tests is
       Timeout_Command := Editor.Build_Diagnostics.Ingest_Build_Diagnostics_Through_Diagnostics
         (Timeout_State, Request,
          Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-           (Editor.External_Producers.Build_Run_Timed_Out,
+           (Editor.External_Producers.Build_Types.Build_Run_Timed_Out,
             Stderr_Text => "main.adb:9:1: error: timeout partial",
             Output_Partial => True),
          Editor.Build_Diagnostics.Build_Diagnostics_Ingestion_On_Request,
@@ -449,7 +450,7 @@ package body Editor.Build_Diagnostics_Review.Tests is
       Cancelled_Command := Editor.Build_Diagnostics.Ingest_Build_Diagnostics_Through_Diagnostics
         (Cancelled_State, Request,
          Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-           (Editor.External_Producers.Build_Run_Cancelled,
+           (Editor.External_Producers.Build_Types.Build_Run_Cancelled,
             Stderr_Text => "main.adb:10:1: warning: cancellation partial",
             Output_Partial => True),
          Editor.Build_Diagnostics.Build_Diagnostics_Ingestion_On_Request,
@@ -730,7 +731,7 @@ package body Editor.Build_Diagnostics_Review.Tests is
       Result : Editor.Command_Execution.Command_Execution_Result;
       Build_Result : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
         Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-          (Editor.External_Producers.Build_Run_Failed,
+          (Editor.External_Producers.Build_Types.Build_Run_Failed,
            Stderr_Text => "Untitled:2:3: error: navigable");
    begin
       Editor.State.Init (S);
@@ -828,16 +829,16 @@ package body Editor.Build_Diagnostics_Review.Tests is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
       Command : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result;
-      Alr_Request : constant Editor.External_Producers.Build_Run_Request :=
-        (Tool                 => Editor.External_Producers.Alire_Build_Tool,
-         Provenance           => Editor.External_Producers.Build_Request_From_User_Opt_In,
+      Alr_Request : constant Editor.External_Producers.Build_Types.Build_Run_Request :=
+        (Tool                 => Editor.External_Producers.Build_Types.Alire_Build_Tool,
+         Provenance           => Editor.External_Producers.Build_Types.Build_Request_From_User_Opt_In,
          Working_Label        => To_Unbounded_String ("/private/project"),
          Command_Label        => To_Unbounded_String ("alr"),
          Arguments            => To_Unbounded_String ("build --raw-argv-forbidden"),
          Structured_Arguments => Editor.External_Producers.Build_Requests.Empty_Process_Arguments);
       Build_Result : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
         Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-          (Editor.External_Producers.Build_Run_Failed,
+          (Editor.External_Producers.Build_Types.Build_Run_Failed,
            Stderr_Text => "Untitled:1:1: error: alr label");
    begin
       Editor.State.Init (S);
@@ -891,7 +892,7 @@ package body Editor.Build_Diagnostics_Review.Tests is
       Command := Editor.Build_Diagnostics.Ingest_Build_Diagnostics_Through_Diagnostics
         (S, Request,
          Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-           (Editor.External_Producers.Build_Run_Failed,
+           (Editor.External_Producers.Build_Types.Build_Run_Failed,
             Stderr_Text => "Untitled:2:1: error: mixed build"),
          Editor.Build_Diagnostics.Build_Diagnostics_Ingestion_On_Request,
          Request_Show_Diagnostics => True);

@@ -1,6 +1,7 @@
 with Editor.Build_Output_Details;
 with Editor.Build_Result_Summary;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Types;
 with Editor.External_Producers.Build_Requests;
 with Editor.State;
 
@@ -18,10 +19,10 @@ package Editor.Build_Execution_Workflow is
      (State : Editor.State.State_Type) return Boolean;
 
    function Assert_Build_Run_Uses_Structured_Tokens
-     (Request : Editor.External_Producers.Build_Run_Request) return Boolean;
+     (Request : Editor.External_Producers.Build_Types.Build_Run_Request) return Boolean;
 
    function Assert_Build_Run_Does_Not_Use_Shell_Text
-     (Request : Editor.External_Producers.Build_Run_Request) return Boolean;
+     (Request : Editor.External_Producers.Build_Types.Build_Run_Request) return Boolean;
 
    function Assert_Build_Output_Is_Bounded
      (Details : Editor.Build_Output_Details.Latest_Build_Output_Details)

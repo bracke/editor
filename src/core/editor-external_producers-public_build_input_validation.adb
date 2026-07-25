@@ -6,6 +6,9 @@ with Editor.External_Producers.Public_Build_Input_Validation.Readiness_Audits;
 with Editor.External_Producers.Request_Policies;
 
 
+with Editor.External_Producers.Build_Types; use Editor.External_Producers.Build_Types;
+
+with Editor.External_Producers.Public_Build_Types;
 package body Editor.External_Producers.Public_Build_Input_Validation is
 
    use type Editor.Commands.Descriptors.Command_Visibility;

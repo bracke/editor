@@ -7,6 +7,7 @@ with Editor.Build_Result_Summary;
 with Editor.Build_Output_Details;
 with Editor.Build_UI;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Types;
 with Editor.External_Producers.Build_Requests;
 with Editor.External_Producers.Diagnostic_Line_Parsing;
 with Editor.External_Producers.Execution_Policy;
@@ -17,7 +18,7 @@ package body Editor.Build_Command.Projections is
 
    use type Editor.Build_Candidates.Build_Candidate_Validation_Status;
    use type Editor.Build_UI.Public_Build_UI_Validation_Status;
-   use type Editor.External_Producers.Build_Request_Validation_Status;
+   use type Editor.External_Producers.Build_Types.Build_Request_Validation_Status;
    use type Editor.External_Producers.Build_Requests.Build_Run_Status;
 
    function Summary_Kind_For
@@ -26,20 +27,20 @@ package body Editor.Build_Command.Projections is
    is
    begin
       case Status is
-         when Editor.External_Producers.Build_Run_Succeeded =>
+         when Editor.External_Producers.Build_Types.Build_Run_Succeeded =>
             return Editor.Build_Result_Summary.Build_Result_Summary_Succeeded;
-         when Editor.External_Producers.Build_Run_Failed
-            | Editor.External_Producers.Build_Run_Rejected
-            | Editor.External_Producers.Build_Run_Execution_Error =>
+         when Editor.External_Producers.Build_Types.Build_Run_Failed
+            | Editor.External_Producers.Build_Types.Build_Run_Rejected
+            | Editor.External_Producers.Build_Types.Build_Run_Execution_Error =>
             return Editor.Build_Result_Summary.Build_Result_Summary_Failed;
-         when Editor.External_Producers.Build_Run_Not_Available
-            | Editor.External_Producers.Build_Run_Cancellation_Unsupported =>
+         when Editor.External_Producers.Build_Types.Build_Run_Not_Available
+            | Editor.External_Producers.Build_Types.Build_Run_Cancellation_Unsupported =>
             return Editor.Build_Result_Summary.Build_Result_Summary_Unavailable;
-         when Editor.External_Producers.Build_Run_Timed_Out =>
+         when Editor.External_Producers.Build_Types.Build_Run_Timed_Out =>
             return Editor.Build_Result_Summary.Build_Result_Summary_Timed_Out;
-         when Editor.External_Producers.Build_Run_Cancelled =>
+         when Editor.External_Producers.Build_Types.Build_Run_Cancelled =>
             return Editor.Build_Result_Summary.Build_Result_Summary_Cancelled;
-         when Editor.External_Producers.Build_Run_Output_Truncated =>
+         when Editor.External_Producers.Build_Types.Build_Run_Output_Truncated =>
             return Editor.Build_Result_Summary.Build_Result_Summary_Output_Truncated;
       end case;
    end Summary_Kind_For;
@@ -50,13 +51,13 @@ package body Editor.Build_Command.Projections is
    is
    begin
       case Tool is
-         when Editor.External_Producers.GPRbuild_Tool =>
+         when Editor.External_Producers.Build_Types.GPRbuild_Tool =>
             return Editor.Build_Result_Summary.Build_Result_GPRbuild_Tool;
-         when Editor.External_Producers.Alire_Build_Tool =>
+         when Editor.External_Producers.Build_Types.Alire_Build_Tool =>
             return Editor.Build_Result_Summary.Build_Result_Alire_Tool;
-         when Editor.External_Producers.Custom_Build_Tool =>
+         when Editor.External_Producers.Build_Types.Custom_Build_Tool =>
             return Editor.Build_Result_Summary.Build_Result_Custom_Tool;
-         when Editor.External_Producers.No_Build_Tool =>
+         when Editor.External_Producers.Build_Types.No_Build_Tool =>
             return Editor.Build_Result_Summary.Build_Result_No_Tool;
       end case;
    end Summary_Tool_For;
@@ -66,13 +67,13 @@ package body Editor.Build_Command.Projections is
    is
    begin
       case Tool is
-         when Editor.External_Producers.GPRbuild_Tool =>
+         when Editor.External_Producers.Build_Types.GPRbuild_Tool =>
             return "gprbuild";
-         when Editor.External_Producers.Alire_Build_Tool =>
+         when Editor.External_Producers.Build_Types.Alire_Build_Tool =>
             return "alr";
-         when Editor.External_Producers.Custom_Build_Tool =>
+         when Editor.External_Producers.Build_Types.Custom_Build_Tool =>
             return "custom-build";
-         when Editor.External_Producers.No_Build_Tool =>
+         when Editor.External_Producers.Build_Types.No_Build_Tool =>
             return "build";
       end case;
    end Compiler_Tool_Name;
@@ -126,15 +127,15 @@ package body Editor.Build_Command.Projections is
       end if;
 
       case Request.Provenance is
-         when Editor.External_Producers.Build_Request_From_User_Opt_In =>
+         when Editor.External_Producers.Build_Types.Build_Request_From_User_Opt_In =>
             return Editor.Build_Result_Summary.Build_Result_Request_Manual;
-         when Editor.External_Producers.Build_Request_From_Implicit_Source =>
+         when Editor.External_Producers.Build_Types.Build_Request_From_Implicit_Source =>
             return Editor.Build_Result_Summary.Build_Result_Request_Candidate_Derived;
-         when Editor.External_Producers.Build_Request_From_Test
-            | Editor.External_Producers.Build_Request_From_Fixture
-            | Editor.External_Producers.Build_Request_From_Internal_Command =>
+         when Editor.External_Producers.Build_Types.Build_Request_From_Test
+            | Editor.External_Producers.Build_Types.Build_Request_From_Fixture
+            | Editor.External_Producers.Build_Types.Build_Request_From_Internal_Command =>
             return Editor.Build_Result_Summary.Build_Result_Request_Test_Or_Internal;
-         when Editor.External_Producers.Build_Request_Unknown =>
+         when Editor.External_Producers.Build_Types.Build_Request_Unknown =>
             return Editor.Build_Result_Summary.Build_Result_Request_None;
       end case;
    end Summary_Mode_For;
@@ -173,15 +174,15 @@ package body Editor.Build_Command.Projections is
    is
    begin
       case Status is
-         when Editor.External_Producers.Build_Run_Succeeded => return "succeeded";
-         when Editor.External_Producers.Build_Run_Failed => return "failed";
-         when Editor.External_Producers.Build_Run_Not_Available => return "not available";
-         when Editor.External_Producers.Build_Run_Rejected => return "rejected";
-         when Editor.External_Producers.Build_Run_Execution_Error => return "execution error";
-         when Editor.External_Producers.Build_Run_Timed_Out => return "timed out";
-         when Editor.External_Producers.Build_Run_Cancelled => return "cancelled";
-         when Editor.External_Producers.Build_Run_Cancellation_Unsupported => return "cancellation unsupported";
-         when Editor.External_Producers.Build_Run_Output_Truncated => return "output truncated";
+         when Editor.External_Producers.Build_Types.Build_Run_Succeeded => return "succeeded";
+         when Editor.External_Producers.Build_Types.Build_Run_Failed => return "failed";
+         when Editor.External_Producers.Build_Types.Build_Run_Not_Available => return "not available";
+         when Editor.External_Producers.Build_Types.Build_Run_Rejected => return "rejected";
+         when Editor.External_Producers.Build_Types.Build_Run_Execution_Error => return "execution error";
+         when Editor.External_Producers.Build_Types.Build_Run_Timed_Out => return "timed out";
+         when Editor.External_Producers.Build_Types.Build_Run_Cancelled => return "cancelled";
+         when Editor.External_Producers.Build_Types.Build_Run_Cancellation_Unsupported => return "cancellation unsupported";
+         when Editor.External_Producers.Build_Types.Build_Run_Output_Truncated => return "output truncated";
       end case;
    end Runner_Status_Label;
 
@@ -191,23 +192,23 @@ package body Editor.Build_Command.Projections is
    is
    begin
       case Status is
-         when Editor.External_Producers.Build_Run_Succeeded =>
+         when Editor.External_Producers.Build_Types.Build_Run_Succeeded =>
             return Editor.Build_Output_Details.Build_Output_Runner_Succeeded;
-         when Editor.External_Producers.Build_Run_Failed =>
+         when Editor.External_Producers.Build_Types.Build_Run_Failed =>
             return Editor.Build_Output_Details.Build_Output_Runner_Failed;
-         when Editor.External_Producers.Build_Run_Not_Available =>
+         when Editor.External_Producers.Build_Types.Build_Run_Not_Available =>
             return Editor.Build_Output_Details.Build_Output_Runner_Not_Available;
-         when Editor.External_Producers.Build_Run_Rejected =>
+         when Editor.External_Producers.Build_Types.Build_Run_Rejected =>
             return Editor.Build_Output_Details.Build_Output_Runner_Rejected;
-         when Editor.External_Producers.Build_Run_Execution_Error =>
+         when Editor.External_Producers.Build_Types.Build_Run_Execution_Error =>
             return Editor.Build_Output_Details.Build_Output_Runner_Execution_Error;
-         when Editor.External_Producers.Build_Run_Timed_Out =>
+         when Editor.External_Producers.Build_Types.Build_Run_Timed_Out =>
             return Editor.Build_Output_Details.Build_Output_Runner_Timed_Out;
-         when Editor.External_Producers.Build_Run_Cancelled =>
+         when Editor.External_Producers.Build_Types.Build_Run_Cancelled =>
             return Editor.Build_Output_Details.Build_Output_Runner_Cancelled;
-         when Editor.External_Producers.Build_Run_Cancellation_Unsupported =>
+         when Editor.External_Producers.Build_Types.Build_Run_Cancellation_Unsupported =>
             return Editor.Build_Output_Details.Build_Output_Runner_Cancellation_Unsupported;
-         when Editor.External_Producers.Build_Run_Output_Truncated =>
+         when Editor.External_Producers.Build_Types.Build_Run_Output_Truncated =>
             return Editor.Build_Output_Details.Build_Output_Runner_Output_Truncated;
       end case;
    end Output_Runner_Status_For;
@@ -228,11 +229,11 @@ package body Editor.Build_Command.Projections is
          Has_Exit_Code => Build.Has_Exit_Code,
          Output_Stream =>
            (case Editor.External_Producers.Execution_Policy.Build_Result_Output_Stream (Build) is
-              when Editor.External_Producers.Process_Output_Stdout =>
+              when Editor.External_Producers.Build_Types.Process_Output_Stdout =>
                  Editor.Build_Output_Details.Build_Output_Stream_Stdout,
-              when Editor.External_Producers.Process_Output_Stderr =>
+              when Editor.External_Producers.Build_Types.Process_Output_Stderr =>
                  Editor.Build_Output_Details.Build_Output_Stream_Stderr,
-              when Editor.External_Producers.Process_Output_Merged =>
+              when Editor.External_Producers.Build_Types.Process_Output_Merged =>
                  Editor.Build_Output_Details.Build_Output_Stream_Merged));
    end Output_Details_From_Result;
 
@@ -285,10 +286,10 @@ package body Editor.Build_Command.Projections is
          Primary_Message => To_String (Result.Command_Message),
          Exit_Code => Build.Exit_Code,
          Has_Exit_Code => Build.Has_Exit_Code,
-         Timed_Out => Build.Status = Editor.External_Producers.Build_Run_Timed_Out,
-         Cancelled => Build.Status = Editor.External_Producers.Build_Run_Cancelled,
+         Timed_Out => Build.Status = Editor.External_Producers.Build_Types.Build_Run_Timed_Out,
+         Cancelled => Build.Status = Editor.External_Producers.Build_Types.Build_Run_Cancelled,
          Cancellation_Unsupported =>
-           Build.Status = Editor.External_Producers.Build_Run_Cancellation_Unsupported,
+           Build.Status = Editor.External_Producers.Build_Types.Build_Run_Cancellation_Unsupported,
          Stdout_Truncated => Build.Stdout_Truncated,
          Stderr_Truncated => Build.Stderr_Truncated,
          Output_Partial => Build.Output_Partial,

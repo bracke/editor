@@ -1,69 +1,74 @@
 with Ada.Strings.Unbounded;
 with Editor.External_Producers.Build_Command_Execution;
-with Editor.External_Producers.Build_Types;
+with Editor.External_Producers.Build_Types; use Editor.External_Producers.Build_Types;
 with Editor.External_Producers.Diagnostics;
 with Editor.External_Producers.Execution_Policy;
 with Editor.External_Producers.Public_Build_Input_Validation;
 with Editor.External_Producers.Request_Policies;
 with Editor.State;
 
+with Editor.External_Producers.Public_Build_Types;
 package Editor.External_Producers.Build_Requests is
 
-   subtype Argument_Vector is Editor.External_Producers.Process_Argument_Vector;
-   subtype Build_Tool_Kind is Editor.External_Producers.Build_Tool_Kind;
+   subtype Argument_Vector is Editor.External_Producers.Build_Types.Process_Argument_Vector;
+   subtype Process_Argument_Vector is
+     Editor.External_Producers.Build_Types.Process_Argument_Vector;
+   subtype Build_Tool_Kind is Editor.External_Producers.Build_Types.Build_Tool_Kind;
    subtype Build_Request_Provenance is
-     Editor.External_Producers.Build_Request_Provenance;
-   subtype Build_Run_Request is Editor.External_Producers.Build_Run_Request;
+     Editor.External_Producers.Build_Types.Build_Request_Provenance;
+   subtype Build_Run_Request is Editor.External_Producers.Build_Types.Build_Run_Request;
    subtype User_Build_Command_Request is
-     Editor.External_Producers.User_Build_Command_Request;
+     Editor.External_Producers.Build_Types.User_Build_Command_Request;
    subtype Build_Request_Validation_Status is
-     Editor.External_Producers.Build_Request_Validation_Status;
-   subtype Build_Run_Status is Editor.External_Producers.Build_Run_Status;
+     Editor.External_Producers.Build_Types.Build_Request_Validation_Status;
+   subtype Build_Run_Status is Editor.External_Producers.Build_Types.Build_Run_Status;
    subtype Build_Working_Context is
-     Editor.External_Producers.Build_Working_Context;
+     Editor.External_Producers.Build_Types.Build_Working_Context;
+   subtype Build_Execution_Consent is
+     Editor.External_Producers.Build_Types.Build_Execution_Consent;
    subtype Public_Build_Command_Input is
-     Editor.External_Producers.Public_Build_Command_Input;
+     Editor.External_Producers.Public_Build_Types.Public_Build_Command_Input;
    subtype Public_Build_Input_Validation_Status is
-     Editor.External_Producers.Public_Build_Input_Validation_Status;
+     Editor.External_Producers.Public_Build_Types.Public_Build_Input_Validation_Status;
    subtype Public_Build_Input_Safety is
-     Editor.External_Producers.Public_Build_Input_Safety;
+     Editor.External_Producers.Public_Build_Types.Public_Build_Input_Safety;
    subtype Build_Preflight_Result is
-     Editor.External_Producers.Build_Preflight_Result;
+     Editor.External_Producers.Build_Types.Build_Preflight_Result;
    subtype Diagnostic_Text_Line_Array is
      Editor.External_Producers.Build_Types.Diagnostic_Text_Line_Array;
    package Diagnostic_Text_Line_Vectors renames
      Editor.External_Producers.Build_Types.Diagnostic_Text_Line_Vectors;
    subtype Diagnostic_Line_Command_Result is
-     Editor.External_Producers.Build_Types.Diagnostic_Line_Command_Result;
+     Editor.External_Producers.Build_Command_Execution.Diagnostic_Line_Command_Result;
    subtype Build_Run_Result is
      Editor.External_Producers.Build_Types.Build_Run_Result;
    subtype Build_Command_Result is
-     Editor.External_Producers.Build_Types.Build_Command_Result;
+     Editor.External_Producers.Build_Command_Execution.Build_Command_Result;
    subtype Process_Run_Request is
-     Editor.External_Producers.Process_Run_Request;
+     Editor.External_Producers.Build_Types.Process_Run_Request;
    subtype Process_Run_Result is
-     Editor.External_Producers.Process_Run_Result;
+     Editor.External_Producers.Build_Types.Process_Run_Result;
    subtype Process_Request_Validation_Status is
-     Editor.External_Producers.Process_Request_Validation_Status;
+     Editor.External_Producers.Build_Types.Process_Request_Validation_Status;
    subtype Process_Execution_Policy is
-     Editor.External_Producers.Process_Execution_Policy;
+     Editor.External_Producers.Build_Types.Process_Execution_Policy;
    subtype Build_Execution_Gate is
-     Editor.External_Producers.Build_Execution_Gate;
+     Editor.External_Producers.Build_Types.Build_Execution_Gate;
    subtype Process_Fixture_Request is
-     Editor.External_Producers.Process_Fixture_Request;
+     Editor.External_Producers.Build_Types.Process_Fixture_Request;
    subtype Process_Fixture_Validation_Status is
-     Editor.External_Producers.Process_Fixture_Validation_Status;
+     Editor.External_Producers.Build_Types.Process_Fixture_Validation_Status;
    subtype Real_Build_Tool_Fixture_Kind is
-     Editor.External_Producers.Real_Build_Tool_Fixture_Kind;
+     Editor.External_Producers.Build_Types.Real_Build_Tool_Fixture_Kind;
    subtype Real_Build_Tool_Fixture_Validation_Status is
-     Editor.External_Producers.Real_Build_Tool_Fixture_Validation_Status;
+     Editor.External_Producers.Build_Types.Real_Build_Tool_Fixture_Validation_Status;
    subtype User_Opt_In_Build_Command_Context is
-     Editor.External_Producers.User_Opt_In_Build_Command_Context;
+     Editor.External_Producers.Build_Types.User_Opt_In_Build_Command_Context;
    subtype User_Opt_In_Build_Command_Context_Status is
-     Editor.External_Producers.User_Opt_In_Build_Command_Context_Status;
+     Editor.External_Producers.Build_Types.User_Opt_In_Build_Command_Context_Status;
 
    package Argument_Vectors renames
-     Editor.External_Producers.Process_Argument_Vectors;
+     Editor.External_Producers.Build_Types.Process_Argument_Vectors;
 
    function Build_User_Opt_In_Request
      (Tool          : Build_Tool_Kind;
@@ -123,7 +128,7 @@ package Editor.External_Producers.Build_Requests is
 
    function Validate_Build_Working_Context
      (Request : Build_Run_Request;
-      Gate    : Build_Execution_Gate) return Editor.External_Producers.Process_Request_Validation_Status
+      Gate    : Build_Execution_Gate) return Editor.External_Producers.Build_Types.Process_Request_Validation_Status
      renames Editor.External_Producers.Request_Policies.Validate_Build_Working_Context;
 
    function Prepare_Process_Request
@@ -131,20 +136,20 @@ package Editor.External_Producers.Build_Requests is
      renames Editor.External_Producers.Request_Policies.Prepare_Process_Request;
 
    function Build_Process_Run_Result
-     (Status        : Editor.External_Producers.Process_Run_Status;
+     (Status        : Editor.External_Producers.Build_Types.Process_Run_Status;
       Exit_Code     : Integer := 0;
       Has_Exit_Code : Boolean := False;
       Stdout_Text   : String := "";
       Stderr_Text   : String := "";
       Stdout_Truncated : Boolean := False;
       Stderr_Truncated : Boolean := False;
-      Output_Capture_Mode : Editor.External_Producers.Process_Output_Capture_Mode :=
-        Editor.External_Producers.Process_Output_Capture_Separated)
+      Output_Capture_Mode : Editor.External_Producers.Build_Types.Process_Output_Capture_Mode :=
+        Editor.External_Producers.Build_Types.Process_Output_Capture_Separated)
       return Process_Run_Result
      renames Editor.External_Producers.Request_Policies.Build_Process_Run_Result;
 
    function Build_Build_Run_Result
-     (Status           : Editor.External_Producers.Build_Run_Status;
+     (Status           : Editor.External_Producers.Build_Types.Build_Run_Status;
       Exit_Code        : Integer := 0;
       Has_Exit_Code    : Boolean := False;
       Stdout_Text      : String := "";
@@ -152,8 +157,8 @@ package Editor.External_Producers.Build_Requests is
       Stdout_Truncated : Boolean := False;
       Stderr_Truncated : Boolean := False;
       Output_Partial   : Boolean := False;
-      Output_Capture_Mode : Editor.External_Producers.Process_Output_Capture_Mode :=
-        Editor.External_Producers.Process_Output_Capture_Separated;
+      Output_Capture_Mode : Editor.External_Producers.Build_Types.Process_Output_Capture_Mode :=
+        Editor.External_Producers.Build_Types.Process_Output_Capture_Separated;
       Diagnostic_Lines : Diagnostic_Text_Line_Array :=
         Diagnostic_Text_Line_Vectors.Empty_Vector)
       return Build_Run_Result
@@ -237,8 +242,8 @@ package Editor.External_Producers.Build_Requests is
      (Request         : Build_Run_Request;
       Policy          : Process_Execution_Policy;
       Supplied_Result : Process_Run_Result :=
-        (Status        => Editor.External_Producers.Process_Run_Not_Available,
-         Output_Capture_Mode => Editor.External_Producers.Process_Output_Capture_None,
+        (Status        => Editor.External_Producers.Build_Types.Process_Run_Not_Available,
+         Output_Capture_Mode => Editor.External_Producers.Build_Types.Process_Output_Capture_None,
          Has_Exit_Code => False,
          Exit_Code     => 0,
          Stdout_Text   => Ada.Strings.Unbounded.Null_Unbounded_String,
@@ -304,8 +309,8 @@ package Editor.External_Producers.Build_Requests is
       Request         : Build_Run_Request;
       Gate            : Build_Execution_Gate;
       Supplied_Result : Process_Run_Result :=
-        (Status        => Editor.External_Producers.Process_Run_Not_Available,
-         Output_Capture_Mode => Editor.External_Producers.Process_Output_Capture_None,
+        (Status        => Editor.External_Producers.Build_Types.Process_Run_Not_Available,
+         Output_Capture_Mode => Editor.External_Producers.Build_Types.Process_Output_Capture_None,
          Has_Exit_Code => False,
          Exit_Code     => 0,
          Stdout_Text   => Ada.Strings.Unbounded.Null_Unbounded_String,
@@ -320,8 +325,8 @@ package Editor.External_Producers.Build_Requests is
       Request          : Build_Run_Request;
       Policy           : Process_Execution_Policy;
       Supplied_Result  : Process_Run_Result :=
-        (Status        => Editor.External_Producers.Process_Run_Not_Available,
-         Output_Capture_Mode => Editor.External_Producers.Process_Output_Capture_None,
+        (Status        => Editor.External_Producers.Build_Types.Process_Run_Not_Available,
+         Output_Capture_Mode => Editor.External_Producers.Build_Types.Process_Output_Capture_None,
          Has_Exit_Code => False,
          Exit_Code     => 0,
          Stdout_Text   => Ada.Strings.Unbounded.Null_Unbounded_String,
@@ -349,8 +354,8 @@ package Editor.External_Producers.Build_Requests is
       Request         : Build_Run_Request;
       Gate            : Build_Execution_Gate;
       Supplied_Result : Process_Run_Result :=
-        (Status        => Editor.External_Producers.Process_Run_Not_Available,
-         Output_Capture_Mode => Editor.External_Producers.Process_Output_Capture_None,
+        (Status        => Editor.External_Producers.Build_Types.Process_Run_Not_Available,
+         Output_Capture_Mode => Editor.External_Producers.Build_Types.Process_Output_Capture_None,
          Has_Exit_Code => False,
          Exit_Code     => 0,
          Stdout_Text   => Ada.Strings.Unbounded.Null_Unbounded_String,
@@ -366,8 +371,8 @@ package Editor.External_Producers.Build_Requests is
       Fixture          : Real_Build_Tool_Fixture_Kind;
       Gate             : Build_Execution_Gate;
       Supplied_Result  : Process_Run_Result :=
-        (Status        => Editor.External_Producers.Process_Run_Not_Available,
-         Output_Capture_Mode => Editor.External_Producers.Process_Output_Capture_None,
+        (Status        => Editor.External_Producers.Build_Types.Process_Run_Not_Available,
+         Output_Capture_Mode => Editor.External_Producers.Build_Types.Process_Output_Capture_None,
          Has_Exit_Code => False,
          Exit_Code     => 0,
          Stdout_Text   => Ada.Strings.Unbounded.Null_Unbounded_String,
@@ -381,8 +386,8 @@ package Editor.External_Producers.Build_Requests is
      (S               : in out Editor.State.State_Type;
       Context         : User_Opt_In_Build_Command_Context;
       Supplied_Result : Process_Run_Result :=
-        (Status        => Editor.External_Producers.Process_Run_Not_Available,
-         Output_Capture_Mode => Editor.External_Producers.Process_Output_Capture_None,
+        (Status        => Editor.External_Producers.Build_Types.Process_Run_Not_Available,
+         Output_Capture_Mode => Editor.External_Producers.Build_Types.Process_Output_Capture_None,
          Has_Exit_Code => False,
          Exit_Code     => 0,
          Stdout_Text   => Ada.Strings.Unbounded.Null_Unbounded_String,
@@ -495,7 +500,7 @@ package Editor.External_Producers.Build_Requests is
      renames Editor.External_Producers.Build_Command_Execution.Validate_Real_Build_Tool_Fixture_Gate;
 
    function Build_Process_Fixture_Request
-     (Kind  : Editor.External_Producers.Process_Fixture_Kind;
+     (Kind  : Editor.External_Producers.Build_Types.Process_Fixture_Kind;
       First : String := "";
       Second : String := "";
       Third : String := "") return Process_Fixture_Request

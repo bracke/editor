@@ -6,6 +6,7 @@ with Editor.Build_Runner_Policy;
 with Editor.Build_UI;
 with Editor.Commands;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Types;
 with Editor.External_Producers.Execution_Policy;
 with Editor.External_Producers.Build_Requests;
 with Editor.Project;
@@ -16,7 +17,7 @@ package body Editor.Build_Command.Readiness is
    use type Build_Run_Readiness_Status;
    use type Editor.Build_Runner_Policy.Build_Execution_Policy;
    use type Editor.Build_UI.Public_Build_UI_Validation_Status;
-   use type Editor.External_Producers.Build_Request_Validation_Status;
+   use type Editor.External_Producers.Build_Types.Build_Request_Validation_Status;
 
    function Build_Run_Readiness
      (State : Editor.State.State_Type) return Build_Run_Readiness_Status
@@ -196,7 +197,7 @@ package body Editor.Build_Command.Readiness is
       end;
 
       if Editor.External_Producers.Build_Requests.Validate_Build_Run_Request_Status
-        (Conversion.Request) /= Editor.External_Producers.Build_Request_Valid
+        (Conversion.Request) /= Editor.External_Producers.Build_Types.Build_Request_Valid
       then
          return Build_Run_Readiness_Request_Incomplete;
       end if;
@@ -206,14 +207,14 @@ package body Editor.Build_Command.Readiness is
 
    function Build_Run_Execution_Gate
      (State : Editor.State.State_Type)
-      return Editor.External_Producers.Build_Execution_Gate
+      return Editor.External_Producers.Build_Types.Build_Execution_Gate
    is
       Ready_To_Run : constant Boolean :=
         Validate_Build_Run_Invocation (State) = Build_Run_Readiness_Ready;
-      Consent : constant Editor.External_Producers.Build_Execution_Consent :=
+      Consent : constant Editor.External_Producers.Build_Types.Build_Execution_Consent :=
         (if Ready_To_Run
-         then Editor.External_Producers.Build_Consent_User_Confirmed
-         else Editor.External_Producers.Build_Consent_Not_Provided);
+         then Editor.External_Producers.Build_Types.Build_Consent_User_Confirmed
+         else Editor.External_Producers.Build_Types.Build_Consent_Not_Provided);
    begin
       case State.Public_Build_Execution_Policy is
          when Editor.Build_Runner_Policy.Build_Execution_Disabled |

@@ -4,6 +4,7 @@ with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Build_Result_Summary;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Types;
 with Editor.External_Producers.Build_Requests;
 with Editor.External_Producers.Diagnostic_Line_Parsing;
 with Editor.State;
@@ -16,7 +17,7 @@ package body Editor.Build_Result_Summary.Tests is
    use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
    use type Editor.Build_Result_Summary.Build_Result_Request_Mode;
    use type Editor.Build_Result_Summary.Build_Result_Tool_Kind;
-   use type Editor.External_Producers.Build_Run_Status;
+   use type Editor.External_Producers.Build_Types.Build_Run_Status;
 
    overriding function Name
      (T : Build_Result_Summary_Test_Case) return AUnit.Message_String
@@ -26,11 +27,11 @@ package body Editor.Build_Result_Summary.Tests is
       return AUnit.Format ("Editor.Build_Result_Summary");
    end Name;
 
-   function Request return Editor.External_Producers.Build_Run_Request is
+   function Request return Editor.External_Producers.Build_Types.Build_Run_Request is
    begin
       return
-        (Tool => Editor.External_Producers.GPRbuild_Tool,
-         Provenance => Editor.External_Producers.Build_Request_From_User_Opt_In,
+        (Tool => Editor.External_Producers.Build_Types.GPRbuild_Tool,
+         Provenance => Editor.External_Producers.Build_Types.Build_Request_From_User_Opt_In,
          Working_Label => To_Unbounded_String ("current project root"),
          Command_Label => Null_Unbounded_String,
          Arguments => Null_Unbounded_String,
@@ -38,7 +39,7 @@ package body Editor.Build_Result_Summary.Tests is
    end Request;
 
    function Command_Result
-     (Status : Editor.External_Producers.Build_Run_Status;
+     (Status : Editor.External_Producers.Build_Types.Build_Run_Status;
       Exit_Code : Integer := 0;
       Has_Exit_Code : Boolean := False;
       Stdout_Truncated : Boolean := False;
@@ -223,7 +224,7 @@ package body Editor.Build_Result_Summary.Tests is
    begin
       Result := Editor.Build_Command.Execute_Public_Build_Run (S);
       Assert (Result.Build_Result.Status =
-                Editor.External_Producers.Build_Run_Not_Available,
+                Editor.External_Producers.Build_Types.Build_Run_Not_Available,
               "unavailable public build remains unavailable");
       Assert (S.Latest_Build_Result.Has_Result,
               "Executor/build path records unavailable latest summary");
@@ -709,7 +710,7 @@ package body Editor.Build_Result_Summary.Tests is
               "fresh runtime state has no restored latest result");
       Result := Editor.Build_Command.Execute_Public_Build_Run (State);
       Assert (Result.Build_Result.Status =
-                Editor.External_Producers.Build_Run_Not_Available,
+                Editor.External_Producers.Build_Types.Build_Run_Not_Available,
               "test exercises pre-run unavailable Executor/build outcome");
       Assert (State.Latest_Build_Result.Has_Result,
               "Executor/build outcome path creates latest summary");

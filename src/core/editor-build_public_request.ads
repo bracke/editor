@@ -1,5 +1,7 @@
 with Editor.Build_UI;
 with Editor.External_Producers;
+with Editor.External_Producers.Public_Build_Types;
+with Editor.External_Producers.Build_Types;
 with Editor.Build_Working_Context;
 
 package Editor.Build_Public_Request is
@@ -7,8 +9,8 @@ package Editor.Build_Public_Request is
    type Public_Build_Request_Conversion_Result is record
       Status  : Editor.Build_UI.Public_Build_UI_Validation_Status :=
         Editor.Build_UI.Build_UI_Rejected_Not_Visible;
-      Request : Editor.External_Producers.Build_Run_Request;
-      Input   : Editor.External_Producers.Public_Build_Command_Input;
+      Request : Editor.External_Producers.Build_Types.Build_Run_Request;
+      Input   : Editor.External_Producers.Public_Build_Types.Public_Build_Command_Input;
    end record;
 
    function Build_Public_Request_From_UI_State

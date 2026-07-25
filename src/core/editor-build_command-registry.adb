@@ -1,5 +1,6 @@
 with Editor.Build_Process_Control;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Types;
 with Editor.External_Producers.Build_Requests;
 with Editor.Build_Runner_Policy;
 with Editor.State;
@@ -54,9 +55,9 @@ package body Editor.Build_Command.Registry is
       procedure Store_Queued
         (Slot_Id        : Natural;
          State_Snapshot : Editor.State.State_Type;
-         Request        : Editor.External_Producers.Build_Run_Request;
-         Runner_Gate    : Editor.External_Producers.Build_Execution_Gate;
-         Result_Gate    : Editor.External_Producers.Build_Execution_Gate;
+         Request        : Editor.External_Producers.Build_Types.Build_Run_Request;
+         Runner_Gate    : Editor.External_Producers.Build_Types.Build_Execution_Gate;
+         Result_Gate    : Editor.External_Producers.Build_Types.Build_Execution_Gate;
          Job_Id         : Natural)
       is
          Index : constant Public_Build_Async_Slot_Index := Slot_Index_For (Slot_Id);
@@ -79,8 +80,8 @@ package body Editor.Build_Command.Registry is
       procedure Worker_Input
         (Slot_Id        : Natural;
          State_Snapshot : out Editor.State.State_Type;
-         Request        : out Editor.External_Producers.Build_Run_Request;
-         Runner_Gate    : out Editor.External_Producers.Build_Execution_Gate)
+         Request        : out Editor.External_Producers.Build_Types.Build_Run_Request;
+         Runner_Gate    : out Editor.External_Producers.Build_Types.Build_Execution_Gate)
       is
          Index : constant Public_Build_Async_Slot_Index := Slot_Index_For (Slot_Id);
       begin
@@ -175,8 +176,8 @@ package body Editor.Build_Command.Registry is
       procedure Final_Result
         (Slot_Id        : Natural;
          State_Snapshot : out Editor.State.State_Type;
-         Request        : out Editor.External_Producers.Build_Run_Request;
-         Result_Gate    : out Editor.External_Producers.Build_Execution_Gate;
+         Request        : out Editor.External_Producers.Build_Types.Build_Run_Request;
+         Result_Gate    : out Editor.External_Producers.Build_Types.Build_Execution_Gate;
          Result         : out Editor.External_Producers.Build_Requests.Build_Command_Result)
       is
          Index : constant Public_Build_Async_Slot_Index := Slot_Index_For (Slot_Id);
@@ -192,8 +193,8 @@ package body Editor.Build_Command.Registry is
 
    task body Public_Build_Worker is
       Worker_State : Editor.State.State_Type;
-      Worker_Request : Editor.External_Producers.Build_Run_Request;
-      Worker_Runner_Gate : Editor.External_Producers.Build_Execution_Gate;
+      Worker_Request : Editor.External_Producers.Build_Types.Build_Run_Request;
+      Worker_Runner_Gate : Editor.External_Producers.Build_Types.Build_Execution_Gate;
       Worker_Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
       Worker_Slot_Id : Natural := 0;
    begin

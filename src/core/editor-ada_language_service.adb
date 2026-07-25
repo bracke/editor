@@ -9,7 +9,7 @@ with Editor.Ada_Diagnostic_Status_Line;
 with Editor.Ada_Semantic_Diagnostic_Index;
 with Editor.External_Producers.Diagnostic_Line_Parsing;
 with Editor.External_Producers.Diagnostic_Text_Lines;
-with Editor.External_Producers.Diagnostics;
+with Editor.External_Producers.Diagnostics_Types;
 with Editor.Syntax;
 
 
@@ -44,7 +44,7 @@ package body Editor.Ada_Language_Service is
    begin
       Result := Mix
         (Result,
-         Editor.External_Producers.Compiler_Diagnostic_Severity'Pos
+         Editor.External_Producers.Diagnostics_Types.Compiler_Diagnostic_Severity'Pos
            (Diagnostic.Severity) + 1);
       Result := Mix (Result, Text_Fingerprint (To_String (Diagnostic.File_Label)));
       Result := Mix (Result, Text_Fingerprint (To_String (Diagnostic.Message)));
@@ -154,16 +154,16 @@ package body Editor.Ada_Language_Service is
    is
    begin
       case Severity is
-         when Editor.External_Producers.Compiler_Error
-            | Editor.External_Producers.Compiler_Fatal =>
+         when Editor.External_Producers.Diagnostics_Types.Compiler_Error
+            | Editor.External_Producers.Diagnostics_Types.Compiler_Fatal =>
             Status.Error_Count := Status.Error_Count + 1;
-         when Editor.External_Producers.Compiler_Warning =>
+         when Editor.External_Producers.Diagnostics_Types.Compiler_Warning =>
             Status.Warning_Count := Status.Warning_Count + 1;
-         when Editor.External_Producers.Compiler_Info =>
+         when Editor.External_Producers.Diagnostics_Types.Compiler_Info =>
             Status.Info_Count := Status.Info_Count + 1;
-         when Editor.External_Producers.Compiler_Note =>
+         when Editor.External_Producers.Diagnostics_Types.Compiler_Note =>
             Status.Note_Count := Status.Note_Count + 1;
-         when Editor.External_Producers.Compiler_Unknown =>
+         when Editor.External_Producers.Diagnostics_Types.Compiler_Unknown =>
             Status.Unknown_Count := Status.Unknown_Count + 1;
       end case;
    end Count_Compiler_Severity;
@@ -1183,7 +1183,7 @@ package body Editor.Ada_Language_Service is
             Diagnostic : constant Compiler_Diagnostic :=
               (Severity     =>
                  Compiler_Diagnostic_Severity'Val
-                   (Editor.External_Producers.Diagnostics.Compiler_Severity'Pos
+                   (Editor.External_Producers.Diagnostics_Types.Compiler_Severity'Pos
                       (R.Severity)),
                Message      => R.Message,
                File_Label   => R.File_Label,

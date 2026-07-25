@@ -15,6 +15,8 @@ with Editor.External_Producers.Execution_Policy;
 with Editor.External_Producers.Request_Policies;
 
 
+with Editor.External_Producers.Build_Types; use Editor.External_Producers.Build_Types;
+
 package body Editor.External_Producers.Build_Runner_Audits is
 
    use type Ada.Containers.Count_Type;

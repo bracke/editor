@@ -22,6 +22,8 @@ with Editor.Executor.Command_Palette_Projection;
 with Editor.File_Tree;
 with Editor.File_Tree_View;
 with Editor.External_Producers;
+with Editor.External_Producers.Public_Build_Types;
+with Editor.External_Producers.Build_Types;
 with Editor.External_Producers.Build_Requests;
 with Editor.External_Producers.Public_Build;
 with Editor.Messages;
@@ -45,6 +47,9 @@ with Editor.Panel_Focus;
 
 package body Editor.Command_Surface.Public_Build_Input_Tests is
 
+   use Editor.External_Producers.Build_Types;
+   use Editor.External_Producers.Public_Build_Types;
+
    use type Editor.Commands.Command_Id;
    use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Commands.Descriptors.Command_Category;
@@ -61,30 +66,30 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
    use type Editor.Command_Execution.Command_Execution_Status;
    use type Editor.Command_Surface.Command_Surface_Review;
    use type Editor.Messages.Message_Severity;
-   use type Editor.External_Producers.Build_Run_Status;
-   use type Editor.External_Producers.Build_Tool_Kind;
-   use type Editor.External_Producers.Build_Request_Provenance;
-   use type Editor.External_Producers.Build_Request_Validation_Status;
-   use type Editor.External_Producers.Build_Working_Context_Kind;
-   use type Editor.External_Producers.Public_Build_Input_Validation_Status;
-   use type Editor.External_Producers.Public_Build_Consent_Validation_Status;
-   use type Editor.External_Producers.Public_Build_Working_Context_Validation_Status;
-   use type Editor.External_Producers.Public_Build_Input_Safety;
-   use type Editor.External_Producers.Public_Build_Command_Surface_Status;
-   use type Editor.External_Producers.Public_Build_Command_Promotion_Status;
-   use type Editor.External_Producers.Public_Build_UX_Dependency;
-   use type Editor.External_Producers.Public_Build_UX_Dependency_Status;
-   use type Editor.External_Producers.Public_Build_Hard_Freeze_Baseline;
-   use type Editor.External_Producers.Public_Build_Guardrail_Status;
-   use type Editor.External_Producers.Public_Build_Guardrail_Result;
-   use type Editor.External_Producers.Public_Build_Guardrail_Contract_Mismatch;
-   use type Editor.External_Producers.Public_Build_Guardrail_Failure_Kind;
-   use type Editor.External_Producers.Public_Build_Guardrail_Failure_Detail;
-   use type Editor.External_Producers.Public_Build_Surface_Id_Scan_Result;
-   use type Editor.External_Producers.Public_Build_Guardrail_Health;
+   use type Editor.External_Producers.Build_Types.Build_Run_Status;
+   use type Editor.External_Producers.Build_Types.Build_Tool_Kind;
+   use type Editor.External_Producers.Build_Types.Build_Request_Provenance;
+   use type Editor.External_Producers.Build_Types.Build_Request_Validation_Status;
+   use type Editor.External_Producers.Build_Types.Build_Working_Context_Kind;
+   use type Editor.External_Producers.Public_Build_Types.Public_Build_Input_Validation_Status;
+   use type Editor.External_Producers.Public_Build_Types.Public_Build_Consent_Validation_Status;
+   use type Editor.External_Producers.Public_Build_Types.Public_Build_Working_Context_Validation_Status;
+   use type Editor.External_Producers.Public_Build_Types.Public_Build_Input_Safety;
+   use type Editor.External_Producers.Public_Build_Types.Public_Build_Command_Surface_Status;
+   use type Editor.External_Producers.Public_Build_Types.Public_Build_Command_Promotion_Status;
+   use type Editor.External_Producers.Public_Build_Types.Public_Build_UX_Dependency;
+   use type Editor.External_Producers.Public_Build_Types.Public_Build_UX_Dependency_Status;
+   use type Editor.External_Producers.Public_Build_Types.Public_Build_Hard_Freeze_Baseline;
+   use type Editor.External_Producers.Public_Build_Types.Public_Build_Guardrail_Status;
+   use type Editor.External_Producers.Public_Build_Types.Public_Build_Guardrail_Result;
+   use type Editor.External_Producers.Public_Build_Types.Public_Build_Guardrail_Contract_Mismatch;
+   use type Editor.External_Producers.Public_Build_Types.Public_Build_Guardrail_Failure_Kind;
+   use type Editor.External_Producers.Public_Build_Types.Public_Build_Guardrail_Failure_Detail;
+   use type Editor.External_Producers.Public_Build_Types.Public_Build_Surface_Id_Scan_Result;
+   use type Editor.External_Producers.Public_Build_Types.Public_Build_Guardrail_Health;
    use Editor.External_Producers;
-   use type Editor.External_Producers.Public_Build_Guardrail_Regression_Manifest;
-   use type Editor.External_Producers.Public_Build_Guardrail_Audit_Matrix;
+   use type Editor.External_Producers.Public_Build_Types.Public_Build_Guardrail_Regression_Manifest;
+   use type Editor.External_Producers.Public_Build_Types.Public_Build_Guardrail_Audit_Matrix;
    use type Editor.Build_Command.Build_Run_Readiness_Status;
 
 
@@ -214,24 +219,24 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
    end Assert_Public_Build_Name_Not_Registered;
 
    function Valid_Public_Input
-      return Editor.External_Producers.Public_Build_Command_Input
+      return Editor.External_Producers.Public_Build_Types.Public_Build_Command_Input
    is
    begin
       return
-        (Source           => Editor.External_Producers.Public_Build_Input_Test_Context,
-         Tool             => Editor.External_Producers.GPRbuild_Tool,
+        (Source           => Editor.External_Producers.Public_Build_Types.Public_Build_Input_Test_Context,
+         Tool             => Editor.External_Producers.Build_Types.GPRbuild_Tool,
          Program_Label    => To_Unbounded_String ("gprbuild"),
          Working_Context  =>
            Editor.External_Producers.Build_Requests.Build_Inherited_Test_Working_Context,
          Working_Context_Model =>
-           (Source => Editor.External_Producers.Public_Build_Working_Context_Test_Context,
+           (Source => Editor.External_Producers.Public_Build_Types.Public_Build_Working_Context_Test_Context,
             Label  => Null_Unbounded_String,
             User_Acknowledged_Context => True),
          Arguments        =>
            Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q"),
-         Consent          => Editor.External_Producers.Build_Consent_User_Confirmed,
+         Consent          => Editor.External_Producers.Build_Types.Build_Consent_User_Confirmed,
          Consent_Model    =>
-           (Source => Editor.External_Producers.Public_Build_Consent_Test_Context,
+           (Source => Editor.External_Producers.Public_Build_Types.Public_Build_Consent_Test_Context,
             User_Acknowledged_Execution => True,
             User_Acknowledged_No_Shell => True,
             User_Acknowledged_External_Process => True,
@@ -240,11 +245,11 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
    end Valid_Public_Input;
 
    function Valid_Test_Consent
-      return Editor.External_Producers.Public_Build_Consent_Model
+      return Editor.External_Producers.Public_Build_Types.Public_Build_Consent_Model
    is
    begin
       return
-        (Source => Editor.External_Producers.Public_Build_Consent_Test_Context,
+        (Source => Editor.External_Producers.Public_Build_Types.Public_Build_Consent_Test_Context,
          User_Acknowledged_Execution => True,
          User_Acknowledged_No_Shell => True,
          User_Acknowledged_External_Process => True,
@@ -252,11 +257,11 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
    end Valid_Test_Consent;
 
    function Valid_User_Form_Consent
-      return Editor.External_Producers.Public_Build_Consent_Model
+      return Editor.External_Producers.Public_Build_Types.Public_Build_Consent_Model
    is
    begin
       return
-        (Source => Editor.External_Producers.Public_Build_Consent_User_Form_Acknowledged,
+        (Source => Editor.External_Producers.Public_Build_Types.Public_Build_Consent_User_Form_Acknowledged,
          User_Acknowledged_Execution => True,
          User_Acknowledged_No_Shell => True,
          User_Acknowledged_External_Process => True,
@@ -264,28 +269,28 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
    end Valid_User_Form_Consent;
 
    function Valid_Test_Working_Context
-      return Editor.External_Producers.Public_Build_Working_Context_Model
+      return Editor.External_Producers.Public_Build_Types.Public_Build_Working_Context_Model
    is
    begin
       return
-        (Source => Editor.External_Producers.Public_Build_Working_Context_Test_Context,
+        (Source => Editor.External_Producers.Public_Build_Types.Public_Build_Working_Context_Test_Context,
          Label  => Null_Unbounded_String,
          User_Acknowledged_Context => True);
    end Valid_Test_Working_Context;
 
    function Valid_User_Form_Working_Context
-      return Editor.External_Producers.Public_Build_Working_Context_Model
+      return Editor.External_Producers.Public_Build_Types.Public_Build_Working_Context_Model
    is
    begin
       return
-        (Source => Editor.External_Producers.Public_Build_Working_Context_User_Form_Label,
+        (Source => Editor.External_Producers.Public_Build_Types.Public_Build_Working_Context_User_Form_Label,
          Label  => To_Unbounded_String ("current-project-root"),
          User_Acknowledged_Context => True);
    end Valid_User_Form_Working_Context;
 
    procedure Assert_Public_Build_Input_Conversion_Consistent
-     (Input   : Editor.External_Producers.Public_Build_Command_Input;
-      Request : Editor.External_Producers.Build_Run_Request)
+     (Input   : Editor.External_Producers.Public_Build_Types.Public_Build_Command_Input;
+      Request : Editor.External_Producers.Build_Types.Build_Run_Request)
    is
       use Editor.External_Producers;
    begin
@@ -304,7 +309,7 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
               "conversion must not create a real working directory label");
    end Assert_Public_Build_Input_Conversion_Consistent;
 
-   function Default_Result return Editor.External_Producers.Public_Build_Guardrail_Result
+   function Default_Result return Editor.External_Producers.Public_Build_Types.Public_Build_Guardrail_Result
    is
       use Editor.External_Producers;
       S : Editor.State.State_Type;
@@ -587,14 +592,14 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
       S : Editor.State.State_Type;
       Before_Messages : Natural;
       Before_Focus : Editor.Panel_Focus.Focus_Target;
-      Status : Editor.External_Producers.Public_Build_Consent_Validation_Status;
+      Status : Editor.External_Producers.Public_Build_Types.Public_Build_Consent_Validation_Status;
    begin
       Editor.State.Init (S);
       Before_Messages := Editor.Messages.Count (S.Messages);
       Before_Focus := Editor.Panel_Focus.Target (S.Panel_Focus);
       Status := Editor.External_Producers.Public_Build.Validate_Public_Build_Consent
         (Valid_Test_Consent);
-      Assert (Status = Editor.External_Producers.Public_Build_Consent_Valid_For_Internal_Test,
+      Assert (Status = Editor.External_Producers.Public_Build_Types.Public_Build_Consent_Valid_For_Internal_Test,
               "valid test-context consent must validate without side effects");
       Assert (Editor.Messages.Count (S.Messages) = Before_Messages,
               "consent validation must not post messages");
@@ -700,14 +705,14 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
       S : Editor.State.State_Type;
       Before_Messages : Natural;
       Before_Focus : Editor.Panel_Focus.Focus_Target;
-      Status : Editor.External_Producers.Public_Build_Input_Validation_Status;
+      Status : Editor.External_Producers.Public_Build_Types.Public_Build_Input_Validation_Status;
    begin
       Editor.State.Init (S);
       Before_Messages := Editor.Messages.Count (S.Messages);
       Before_Focus := Editor.Panel_Focus.Target (S.Panel_Focus);
       Status := Editor.External_Producers.Build_Requests.Validate_Public_Build_Command_Input
         (Valid_Public_Input);
-      Assert (Status = Editor.External_Producers.Public_Build_Input_Valid,
+      Assert (Status = Editor.External_Producers.Public_Build_Types.Public_Build_Input_Valid,
               "valid public input DTO must validate without side effects");
       Assert (Editor.Messages.Count (S.Messages) = Before_Messages,
               "public input validation must not post messages");
@@ -796,11 +801,11 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Status : constant Editor.External_Producers.Public_Build_Input_Validation_Status :=
+      Status : constant Editor.External_Producers.Public_Build_Types.Public_Build_Input_Validation_Status :=
         Editor.External_Producers.Build_Requests.Validate_Public_Build_Command_Input
           (Valid_Public_Input);
    begin
-      Assert (Status = Editor.External_Producers.Public_Build_Input_Valid,
+      Assert (Status = Editor.External_Producers.Public_Build_Types.Public_Build_Input_Valid,
               "structured public build argv should validate in the test context model");
    end Test_Public_Build_Input_Validates_Structured_Argv;
 
@@ -1068,7 +1073,7 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Request : constant Editor.External_Producers.Build_Run_Request :=
+      Request : constant Editor.External_Producers.Build_Types.Build_Run_Request :=
         Editor.External_Producers.Build_Requests.Build_User_Opt_In_Request_From_Public_Input
           (Valid_Public_Input);
       pragma Unreferenced (Request);
@@ -1088,14 +1093,14 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
       S : Editor.State.State_Type;
       Before_Messages : Natural;
       Before_Focus : Editor.Panel_Focus.Focus_Target;
-      Status : Editor.External_Producers.Public_Build_Working_Context_Validation_Status;
+      Status : Editor.External_Producers.Public_Build_Types.Public_Build_Working_Context_Validation_Status;
    begin
       Editor.State.Init (S);
       Before_Messages := Editor.Messages.Count (S.Messages);
       Before_Focus := Editor.Panel_Focus.Target (S.Panel_Focus);
       Status := Editor.External_Producers.Public_Build.Validate_Public_Build_Working_Context
         (Valid_Test_Working_Context);
-      Assert (Status = Editor.External_Producers.Public_Build_Working_Context_Valid_For_Internal_Test,
+      Assert (Status = Editor.External_Producers.Public_Build_Types.Public_Build_Working_Context_Valid_For_Internal_Test,
               "test working context must validate without side effects");
       Assert (Editor.Messages.Count (S.Messages) = Before_Messages,
               "working-context validation must not post messages");
@@ -1157,7 +1162,7 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
       use Editor.External_Producers;
       Context : constant Public_Build_Working_Context_Model :=
         Valid_Test_Working_Context;
-      Converted : constant Editor.External_Producers.Build_Working_Context :=
+      Converted : constant Editor.External_Producers.Build_Types.Build_Working_Context :=
         Editor.External_Producers.Public_Build.Build_Working_Context_From_Public_Model (Context);
    begin
       Assert (Editor.External_Producers.Public_Build.Validate_Public_Build_Working_Context (Context) =
@@ -1180,7 +1185,7 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
       use Editor.External_Producers;
       Context : constant Public_Build_Working_Context_Model :=
         Valid_User_Form_Working_Context;
-      Converted : constant Editor.External_Producers.Build_Working_Context :=
+      Converted : constant Editor.External_Producers.Build_Types.Build_Working_Context :=
         Editor.External_Producers.Public_Build.Build_Working_Context_From_Public_Model (Context);
    begin
       Assert (Editor.External_Producers.Public_Build.Validate_Public_Build_Working_Context (Context) =
@@ -1239,7 +1244,7 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
       pragma Unreferenced (T);
       use Editor.External_Producers;
       Input : constant Public_Build_Command_Input := Valid_Public_Input;
-      Converted : constant Editor.External_Producers.Build_Working_Context :=
+      Converted : constant Editor.External_Producers.Build_Types.Build_Working_Context :=
         Editor.External_Producers.Public_Build.Build_Working_Context_From_Public_Model (Input.Working_Context_Model);
       Request : constant Build_Run_Request :=
         Editor.External_Producers.Build_Requests.Build_User_Opt_In_Request_From_Public_Input (Input);
@@ -1276,7 +1281,7 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Status : constant Editor.External_Producers.Public_Build_Working_Context_Validation_Status :=
+      Status : constant Editor.External_Producers.Public_Build_Types.Public_Build_Working_Context_Validation_Status :=
         Editor.External_Producers.Public_Build.Validate_Public_Build_Working_Context
           (Valid_User_Form_Working_Context);
       pragma Unreferenced (Status);

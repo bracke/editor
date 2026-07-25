@@ -5,13 +5,14 @@ with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Build_Working_Context;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Types;
 with Editor.Path_Helpers;
 with Editor.Text_Helpers;
 
 package body Editor.Build_Candidates is
 
    use type Ada.Containers.Count_Type;
-   use type Editor.External_Producers.Build_Tool_Kind;
+   use type Editor.External_Producers.Build_Types.Build_Tool_Kind;
    use type Ada.Directories.File_Kind;
    use type Editor.Build_Working_Context.Build_Working_Context_Validation_Status;
 
@@ -173,7 +174,7 @@ package body Editor.Build_Candidates is
      (Project_Root : String) return Build_Candidate_Record
    is
       Args : Build_Candidate_Argument_Vector :=
-        Editor.External_Producers.Process_Argument_Vectors.Empty_Vector;
+        Editor.External_Producers.Build_Types.Process_Argument_Vectors.Empty_Vector;
       Context : constant Editor.Build_Working_Context.Build_Working_Context_Record :=
         Editor.Build_Working_Context.Current_Project_Root (Project_Root);
    begin
@@ -182,7 +183,7 @@ package body Editor.Build_Candidates is
         (Candidate_Id => To_Unbounded_String (Candidate_Id_For_Alire (Project_Root)),
          Candidate_Kind => Build_Candidate_Alire_Project,
          Display_Label => To_Unbounded_String ("Alire project: " & Base_Name (Project_Root)),
-         Tool_Kind => Editor.External_Producers.Alire_Build_Tool,
+         Tool_Kind => Editor.External_Producers.Build_Types.Alire_Build_Tool,
          Structured_Arguments => Args,
          Working_Context => Context,
          Source_Path_If_Represented => To_Unbounded_String (Project_Root & "/alire.toml"),
@@ -196,7 +197,7 @@ package body Editor.Build_Candidates is
       Project_Relative_Gpr_Path : String) return Build_Candidate_Record
    is
       Args : Build_Candidate_Argument_Vector :=
-        Editor.External_Producers.Process_Argument_Vectors.Empty_Vector;
+        Editor.External_Producers.Build_Types.Process_Argument_Vectors.Empty_Vector;
       Context : constant Editor.Build_Working_Context.Build_Working_Context_Record :=
         Editor.Build_Working_Context.Current_Project_Root (Project_Root);
    begin
@@ -206,7 +207,7 @@ package body Editor.Build_Candidates is
         (Candidate_Id => To_Unbounded_String (Candidate_Id_For_Gpr (Project_Root, Project_Relative_Gpr_Path)),
          Candidate_Kind => Build_Candidate_Gpr_Project,
          Display_Label => To_Unbounded_String ("GPR: " & Project_Relative_Gpr_Path),
-         Tool_Kind => Editor.External_Producers.GPRbuild_Tool,
+         Tool_Kind => Editor.External_Producers.Build_Types.GPRbuild_Tool,
          Structured_Arguments => Args,
          Working_Context => Context,
          Source_Path_If_Represented => To_Unbounded_String (Project_Root & "/" & Project_Relative_Gpr_Path),
@@ -221,8 +222,8 @@ package body Editor.Build_Candidates is
         (Candidate_Id => To_Unbounded_String ("manual"),
          Candidate_Kind => Build_Candidate_Manual_Request,
          Display_Label => To_Unbounded_String ("Manual build request"),
-         Tool_Kind => Editor.External_Producers.No_Build_Tool,
-         Structured_Arguments => Editor.External_Producers.Process_Argument_Vectors.Empty_Vector,
+         Tool_Kind => Editor.External_Producers.Build_Types.No_Build_Tool,
+         Structured_Arguments => Editor.External_Producers.Build_Types.Process_Argument_Vectors.Empty_Vector,
          Working_Context => Editor.Build_Working_Context.None,
          Source_Path_If_Represented => Null_Unbounded_String,
          Discovery_Source => Build_Candidate_Source_Manual_UI,
@@ -295,7 +296,7 @@ package body Editor.Build_Candidates is
         or else Candidate.Discovery_Source = Build_Candidate_Source_Manual_UI
       then
          return Build_Candidate_Rejected_Unstructured;
-      elsif Candidate.Tool_Kind = Editor.External_Producers.Custom_Build_Tool then
+      elsif Candidate.Tool_Kind = Editor.External_Producers.Build_Types.Custom_Build_Tool then
          return Build_Candidate_Rejected_Unstructured;
       elsif Candidate.Discovery_Source not in
         Build_Candidate_Source_Alire_Toml |
@@ -489,7 +490,7 @@ package body Editor.Build_Candidates is
    begin
       return Validate_Candidate (Candidate) = Build_Candidate_Valid
         and then not Has_Raw_Shell_Command_Field (Candidate)
-        and then Candidate.Tool_Kind /= Editor.External_Producers.Custom_Build_Tool
+        and then Candidate.Tool_Kind /= Editor.External_Producers.Build_Types.Custom_Build_Tool
         and then To_String (Candidate.Candidate_Id)'Length > 0
         and then To_String (Candidate.Display_Label) /= To_String (Candidate.Candidate_Id);
    end Assert_Build_Candidate_Is_Structured;

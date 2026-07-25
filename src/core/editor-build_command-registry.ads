@@ -1,5 +1,6 @@
 with Editor.Build_Process_Control;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Types;
 with Editor.External_Producers.Build_Requests;
 with Editor.State;
 
@@ -13,8 +14,8 @@ package Editor.Build_Command.Registry is
    type Boolean_By_Public_Build_Slot is array (Public_Build_Async_Slot_Index) of Boolean;
    type Natural_By_Public_Build_Slot is array (Public_Build_Async_Slot_Index) of Natural;
    type State_By_Public_Build_Slot is array (Public_Build_Async_Slot_Index) of Editor.State.State_Type;
-   type Build_Request_By_Public_Build_Slot is array (Public_Build_Async_Slot_Index) of Editor.External_Producers.Build_Run_Request;
-   type Build_Gate_By_Public_Build_Slot is array (Public_Build_Async_Slot_Index) of Editor.External_Producers.Build_Execution_Gate;
+   type Build_Request_By_Public_Build_Slot is array (Public_Build_Async_Slot_Index) of Editor.External_Producers.Build_Types.Build_Run_Request;
+   type Build_Gate_By_Public_Build_Slot is array (Public_Build_Async_Slot_Index) of Editor.External_Producers.Build_Types.Build_Execution_Gate;
    type Build_Result_By_Public_Build_Slot is array (Public_Build_Async_Slot_Index) of Editor.External_Producers.Build_Requests.Build_Command_Result;
 
    protected Public_Build_Slot_Allocator is
@@ -37,16 +38,16 @@ package Editor.Build_Command.Registry is
       procedure Store_Queued
         (Slot_Id        : Natural;
          State_Snapshot : Editor.State.State_Type;
-         Request        : Editor.External_Producers.Build_Run_Request;
-         Runner_Gate    : Editor.External_Producers.Build_Execution_Gate;
-         Result_Gate    : Editor.External_Producers.Build_Execution_Gate;
+         Request        : Editor.External_Producers.Build_Types.Build_Run_Request;
+         Runner_Gate    : Editor.External_Producers.Build_Types.Build_Execution_Gate;
+         Result_Gate    : Editor.External_Producers.Build_Types.Build_Execution_Gate;
          Job_Id         : Natural);
 
       procedure Worker_Input
         (Slot_Id        : Natural;
          State_Snapshot : out Editor.State.State_Type;
-         Request        : out Editor.External_Producers.Build_Run_Request;
-         Runner_Gate    : out Editor.External_Producers.Build_Execution_Gate);
+         Request        : out Editor.External_Producers.Build_Types.Build_Run_Request;
+         Runner_Gate    : out Editor.External_Producers.Build_Types.Build_Execution_Gate);
 
       procedure Store_Worker_Result
         (Slot_Id        : Natural;
@@ -69,8 +70,8 @@ package Editor.Build_Command.Registry is
       procedure Final_Result
         (Slot_Id        : Natural;
          State_Snapshot : out Editor.State.State_Type;
-         Request        : out Editor.External_Producers.Build_Run_Request;
-         Result_Gate    : out Editor.External_Producers.Build_Execution_Gate;
+         Request        : out Editor.External_Producers.Build_Types.Build_Run_Request;
+         Result_Gate    : out Editor.External_Producers.Build_Types.Build_Execution_Gate;
          Result         : out Editor.External_Producers.Build_Requests.Build_Command_Result);
    private
       Occupied      : Boolean_By_Public_Build_Slot := (others => False);

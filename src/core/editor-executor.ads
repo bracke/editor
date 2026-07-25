@@ -18,6 +18,7 @@ with Editor.Dirty_Guards;
 with Editor.Command_Execution;
 with Editor.Executor_Edit_Status;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Types;
 with Editor.External_Producers.Build_Requests;
 with Editor.Navigation_History;
 with Editor.Pending_Transitions;
@@ -125,10 +126,10 @@ package Editor.Executor is
    --  public command route has no free-form payload path for this command.
    function Execute_User_Opt_In_Build_Command
      (S               : in out Editor.State.State_Type;
-      Context         : Editor.External_Producers.User_Opt_In_Build_Command_Context;
-      Supplied_Result : Editor.External_Producers.Process_Run_Result :=
-        (Status        => Editor.External_Producers.Process_Run_Not_Available,
-         Output_Capture_Mode => Editor.External_Producers.Process_Output_Capture_None,
+      Context         : Editor.External_Producers.Build_Types.User_Opt_In_Build_Command_Context;
+      Supplied_Result : Editor.External_Producers.Build_Types.Process_Run_Result :=
+        (Status        => Editor.External_Producers.Build_Types.Process_Run_Not_Available,
+         Output_Capture_Mode => Editor.External_Producers.Build_Types.Process_Output_Capture_None,
          Has_Exit_Code => False,
          Exit_Code     => 0,
          Stdout_Text   => Null_Unbounded_String,

@@ -1,6 +1,7 @@
 with Editor.Command_Execution;
 with Editor.Commands;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Types;
 with Editor.State;
 
 package Editor.Executor.Terminal_Commands is
@@ -14,7 +15,7 @@ package Editor.Executor.Terminal_Commands is
      (S : in out Editor.State.State_Type);
 
    function Terminal_Process_Status_Message
-     (Status : Editor.External_Producers.Process_Run_Status) return String;
+     (Status : Editor.External_Producers.Build_Types.Process_Run_Status) return String;
 
    function Execute_Project_Task_Command
      (S  : in out Editor.State.State_Type;

@@ -1,6 +1,33 @@
 with Editor.Build_Working_Context;
 
+with Editor.External_Producers.Build_Types; use Editor.External_Producers.Build_Types;
+
 package Editor.External_Producers.Request_Policies is
+
+   subtype Build_Tool_Kind is Editor.External_Producers.Build_Types.Build_Tool_Kind;
+   subtype Build_Run_Request is Editor.External_Producers.Build_Types.Build_Run_Request;
+   subtype Build_Request_Validation_Status is
+     Editor.External_Producers.Build_Types.Build_Request_Validation_Status;
+   subtype Process_Argument_Vector is
+     Editor.External_Producers.Build_Types.Process_Argument_Vector;
+   package Process_Argument_Vectors renames
+     Editor.External_Producers.Build_Types.Process_Argument_Vectors;
+   subtype Build_Working_Context is
+     Editor.External_Producers.Build_Types.Build_Working_Context;
+   subtype Build_Execution_Gate is
+     Editor.External_Producers.Build_Types.Build_Execution_Gate;
+   subtype Process_Request_Validation_Status is
+     Editor.External_Producers.Build_Types.Process_Request_Validation_Status;
+   subtype Process_Run_Request is
+     Editor.External_Producers.Build_Types.Process_Run_Request;
+   subtype Process_Run_Status is
+     Editor.External_Producers.Build_Types.Process_Run_Status;
+   subtype Process_Output_Capture_Mode is
+     Editor.External_Producers.Build_Types.Process_Output_Capture_Mode;
+   subtype Process_Run_Result is
+     Editor.External_Producers.Build_Types.Process_Run_Result;
+   subtype Process_Execution_Policy is
+     Editor.External_Producers.Build_Types.Process_Execution_Policy;
 
    function Build_User_Opt_In_Request
      (Tool          : Build_Tool_Kind;

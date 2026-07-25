@@ -1,6 +1,20 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
+with Editor.External_Producers.Build_Types; use Editor.External_Producers.Build_Types;
+with Editor.State;
+
+with Editor.External_Producers.Public_Build_Types;
+use Editor.External_Producers.Public_Build_Types;
 package Editor.External_Producers.Public_Build_Input_Validation is
+
+   subtype Build_Run_Request is
+     Editor.External_Producers.Build_Types.Build_Run_Request;
+   subtype Process_Argument_Vector is
+     Editor.External_Producers.Build_Types.Process_Argument_Vector;
+   subtype Build_Execution_Consent is
+     Editor.External_Producers.Build_Types.Build_Execution_Consent;
+   subtype Build_Working_Context is
+     Editor.External_Producers.Build_Types.Build_Working_Context;
 
    function Contains_Control_Character (Value : String) return Boolean;
 

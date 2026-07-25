@@ -1,7 +1,7 @@
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Hostkit.Process;
-with Editor.External_Producers.Build_Types;
+with Editor.External_Producers.Build_Types; use Editor.External_Producers.Build_Types;
 with Editor.External_Producers.Request_Policies;
 
 package body Editor.External_Producers.Execution_Policy is
@@ -23,7 +23,7 @@ package body Editor.External_Producers.Execution_Policy is
    end Build_Timeout_Policy_Is_Bounded;
 
    function Build_Default_Execution_Gate
-     return Editor.External_Producers.Build_Execution_Gate
+     return Editor.External_Producers.Build_Types.Build_Execution_Gate
    is
    begin
       return
@@ -47,7 +47,7 @@ package body Editor.External_Producers.Execution_Policy is
       Show_Diagnostics            : Boolean := False;
       Max_Output_Bytes            : Natural := 262_144;
       Consent                     : Build_Execution_Consent :=
-        Build_Consent_Test_Only) return Editor.External_Producers.Build_Execution_Gate
+        Build_Consent_Test_Only) return Editor.External_Producers.Build_Types.Build_Execution_Gate
    is
    begin
       return
@@ -71,7 +71,7 @@ package body Editor.External_Producers.Execution_Policy is
       Show_Diagnostics            : Boolean := False;
       Max_Output_Bytes            : Natural := 262_144;
       Consent                     : Build_Execution_Consent :=
-        Build_Consent_Test_Only) return Editor.External_Producers.Build_Execution_Gate
+        Build_Consent_Test_Only) return Editor.External_Producers.Build_Types.Build_Execution_Gate
    is
    begin
       return
@@ -96,7 +96,7 @@ package body Editor.External_Producers.Execution_Policy is
       Require_Absolute_Program    : Boolean := False;
       Max_Output_Bytes            : Natural := 262_144;
       Consent                     : Build_Execution_Consent :=
-        Build_Consent_Not_Provided) return Editor.External_Producers.Build_Execution_Gate
+        Build_Consent_Not_Provided) return Editor.External_Producers.Build_Types.Build_Execution_Gate
    is
    begin
       return
@@ -116,7 +116,7 @@ package body Editor.External_Producers.Execution_Policy is
    end Build_Real_Execution_Gate;
 
    function Validate_Build_Execution_Consent
-     (Gate : Editor.External_Producers.Build_Execution_Gate) return Boolean
+     (Gate : Editor.External_Producers.Build_Types.Build_Execution_Gate) return Boolean
    is
    begin
       case Gate.Process_Policy.Mode is
@@ -131,7 +131,7 @@ package body Editor.External_Producers.Execution_Policy is
    end Validate_Build_Execution_Consent;
 
    function Validate_Build_Execution_Gate
-     (Gate : Editor.External_Producers.Build_Execution_Gate) return Boolean
+     (Gate : Editor.External_Producers.Build_Types.Build_Execution_Gate) return Boolean
    is
    begin
       if Gate.Process_Policy.Allow_Shell then
@@ -177,14 +177,14 @@ package body Editor.External_Producers.Execution_Policy is
    end Validate_Build_Execution_Gate;
 
    function Assert_Build_Execution_Gate_Consistent
-     (Gate : Editor.External_Producers.Build_Execution_Gate) return Boolean
+     (Gate : Editor.External_Producers.Build_Types.Build_Execution_Gate) return Boolean
    is
    begin
       return Validate_Build_Execution_Gate (Gate);
    end Assert_Build_Execution_Gate_Consistent;
 
    function Select_Process_Runner_Mode
-     (Gate   : Editor.External_Producers.Build_Execution_Gate;
+     (Gate   : Editor.External_Producers.Build_Types.Build_Execution_Gate;
       Policy : Process_Execution_Policy) return Process_Execution_Mode
    is
    begin
@@ -207,7 +207,7 @@ package body Editor.External_Producers.Execution_Policy is
    end Select_Process_Runner_Mode;
 
    function Build_Cancellation_Unsupported_Process_Result
-     return Editor.External_Producers.Process_Run_Result
+     return Editor.External_Producers.Build_Types.Process_Run_Result
    is
    begin
       return Editor.External_Producers.Request_Policies.Build_Process_Run_Result
@@ -215,7 +215,7 @@ package body Editor.External_Producers.Execution_Policy is
    end Build_Cancellation_Unsupported_Process_Result;
 
    function Current_Native_Process_Control_Backend
-     return Editor.External_Producers.Native_Process_Control_Backend
+     return Editor.External_Producers.Build_Types.Native_Process_Control_Backend
    is
    begin
       if Hostkit.Process.Native_Backend_Label = "Windows/CreateProcess-TerminateProcess" then
@@ -246,15 +246,15 @@ package body Editor.External_Producers.Execution_Policy is
    end Native_Process_Control_Platform_Audit_Passes;
 
    function Real_Process_Runner_Output_Capture_Mode
-     return Editor.External_Producers.Process_Output_Capture_Mode
+     return Editor.External_Producers.Build_Types.Process_Output_Capture_Mode
    is
    begin
       return Process_Output_Capture_Separated;
    end Real_Process_Runner_Output_Capture_Mode;
 
    function Diagnostic_Stream_Preference
-     (Result : Editor.External_Producers.Process_Run_Result)
-      return Editor.External_Producers.Process_Diagnostic_Stream_Preference
+     (Result : Editor.External_Producers.Build_Types.Process_Run_Result)
+      return Editor.External_Producers.Build_Types.Process_Diagnostic_Stream_Preference
    is
    begin
       if Length (Result.Stderr_Text) > 0 then
@@ -265,8 +265,8 @@ package body Editor.External_Producers.Execution_Policy is
    end Diagnostic_Stream_Preference;
 
    function Process_Result_Output_Stream
-     (Result : Editor.External_Producers.Process_Run_Result)
-      return Editor.External_Producers.Process_Output_Stream
+     (Result : Editor.External_Producers.Build_Types.Process_Run_Result)
+      return Editor.External_Producers.Build_Types.Process_Output_Stream
    is
    begin
       if Result.Output_Capture_Mode = Process_Output_Capture_Merged_Stdout_Stderr
@@ -283,7 +283,7 @@ package body Editor.External_Producers.Execution_Policy is
 
    function Build_Result_Output_Stream
      (Result : Editor.External_Producers.Build_Types.Build_Run_Result)
-      return Editor.External_Producers.Process_Output_Stream
+      return Editor.External_Producers.Build_Types.Process_Output_Stream
    is
    begin
       if Result.Output_Capture_Mode = Process_Output_Capture_Merged_Stdout_Stderr
@@ -300,7 +300,7 @@ package body Editor.External_Producers.Execution_Policy is
 
    function Build_Run_Diagnostic_Stream_Preference
      (Result : Editor.External_Producers.Build_Types.Build_Run_Result)
-      return Editor.External_Producers.Process_Diagnostic_Stream_Preference
+      return Editor.External_Producers.Build_Types.Process_Diagnostic_Stream_Preference
    is
    begin
       if Length (Result.Stderr_Text) > 0 then

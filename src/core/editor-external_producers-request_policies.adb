@@ -4,6 +4,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Build_Working_Context;
 with Editor.External_Producers.Public_Build_Input_Validation;
 
+with Editor.External_Producers.Build_Types; use Editor.External_Producers.Build_Types;
+
 package body Editor.External_Producers.Request_Policies is
 
    use Editor.Build_Working_Context;

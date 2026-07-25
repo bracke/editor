@@ -11,6 +11,9 @@ with Editor.External_Producers.Public_Build_Input_Validation;
 use Editor.External_Producers.Diagnostic_Line_Pipeline;
 
 
+with Editor.External_Producers.Build_Types; use Editor.External_Producers.Build_Types;
+
+with Editor.External_Producers.Public_Build_Types;
 package body Editor.External_Producers.Public_Build_Command_Surface_Audits is
 
    package Guardrail_Audits renames

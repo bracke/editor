@@ -1,10 +1,11 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.External_Producers.Build_Command_Execution;
 with Editor.External_Producers.Build_Types;
 
 package Editor.External_Producers.Build_Runner_Audits.Execution_Policy_Audits is
 
    subtype Build_Command_Result is
-     Editor.External_Producers.Build_Types.Build_Command_Result;
+     Editor.External_Producers.Build_Command_Execution.Build_Command_Result;
    subtype Build_Run_Result is
      Editor.External_Producers.Build_Types.Build_Run_Result;
    subtype Diagnostic_Text_Line_Array is

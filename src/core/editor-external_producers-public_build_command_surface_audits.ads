@@ -1,5 +1,10 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
+with Editor.External_Producers.Build_Types; use Editor.External_Producers.Build_Types;
+with Editor.State;
+
+with Editor.External_Producers.Public_Build_Types;
+use Editor.External_Producers.Public_Build_Types;
 package Editor.External_Producers.Public_Build_Command_Surface_Audits is
 
    function Build_Status_Label (Status : Build_Run_Status) return String;

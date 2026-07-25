@@ -10,6 +10,7 @@ with Editor.Commands.Name_Metadata;
 with Editor.Executor;
 with Editor.Executor.Project_Lifecycle_Commands;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Types;
 with Editor.External_Producers.Build_Requests;
 with Editor.Input_Bridge;
 with Editor.Keybindings;
@@ -20,7 +21,7 @@ with Editor.Terminal_Tasks;
 
 use type Editor.Command_Execution.Command_Execution_Status;
 use type Editor.Commands.Command_Id;
-use type Editor.External_Producers.Process_Run_Status;
+use type Editor.External_Producers.Build_Types.Process_Run_Status;
 use type Editor.Terminal_Tasks.Terminal_Task_Status;
 use type Ada.Containers.Count_Type;
 
@@ -51,7 +52,7 @@ package body Editor.Terminal_Tasks.Tests is
       S : Editor.Terminal_Tasks.Terminal_Task_State;
       First : Natural;
       Second : Natural;
-      Request : Editor.External_Producers.Process_Run_Request;
+      Request : Editor.External_Producers.Build_Types.Process_Run_Request;
       Snapshot : Editor.Terminal_Tasks.Terminal_Task_Render_Snapshot;
    begin
       Editor.Terminal_Tasks.Focus (S);
@@ -95,7 +96,7 @@ package body Editor.Terminal_Tasks.Tests is
       Editor.Terminal_Tasks.Append_Argument (S, Id, "hello");
       Editor.Terminal_Tasks.Run_Selected_With_Result
         (S, Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-          (Editor.External_Producers.Process_Run_Succeeded,
+          (Editor.External_Producers.Build_Types.Process_Run_Succeeded,
            Exit_Code => 0,
            Has_Exit_Code => True,
            Stdout_Text => "hello" & ASCII.LF));
@@ -110,7 +111,7 @@ package body Editor.Terminal_Tasks.Tests is
 
       Editor.Terminal_Tasks.Rerun_Last_With_Result
         (S, Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-          (Editor.External_Producers.Process_Run_Failed,
+          (Editor.External_Producers.Build_Types.Process_Run_Failed,
            Exit_Code => 2,
            Has_Exit_Code => True,
            Stderr_Text => "failed" & ASCII.LF));
@@ -138,7 +139,7 @@ package body Editor.Terminal_Tasks.Tests is
       Editor.Terminal_Tasks.Run_Selected_With_Result
         (S.Terminal_Tasks,
          Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-           (Editor.External_Producers.Process_Run_Succeeded,
+           (Editor.External_Producers.Build_Types.Process_Run_Succeeded,
             Stdout_Text => "1.0" & ASCII.LF));
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snapshot);
@@ -377,7 +378,7 @@ package body Editor.Terminal_Tasks.Tests is
       pragma Unreferenced (T);
       Root : constant String := Editor.Test_Temp.Base & "/editor-terminal-tasks-profile-project";
       S : Editor.Terminal_Tasks.Terminal_Task_State;
-      Request : Editor.External_Producers.Process_Run_Request;
+      Request : Editor.External_Producers.Build_Types.Process_Run_Request;
    begin
       Editor.Terminal_Tasks.Ensure_Project_Default_Tasks (S, Root);
 

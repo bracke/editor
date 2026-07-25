@@ -10,9 +10,36 @@ with Editor.External_Producers.Execution_Policy;
 with Editor.External_Producers.Request_Policies;
 with Editor.State;
 
+with Editor.External_Producers.Build_Types; use Editor.External_Producers.Build_Types;
+
 package body Editor.External_Producers.Build_Runner_Audits.Execution_Policy_Audits is
 
    use type Ada.Containers.Count_Type;
+
+   subtype Build_Execution_Consent is
+     Editor.External_Producers.Build_Types.Build_Execution_Consent;
+   subtype Build_Execution_Gate is
+     Editor.External_Producers.Build_Types.Build_Execution_Gate;
+   subtype Process_Run_Result is
+     Editor.External_Producers.Build_Types.Process_Run_Result;
+   subtype Process_Output_Capture_Mode is
+     Editor.External_Producers.Build_Types.Process_Output_Capture_Mode;
+   subtype Build_Preflight_Result is
+     Editor.External_Producers.Build_Types.Build_Preflight_Result;
+   subtype Process_Diagnostic_Stream_Preference is
+     Editor.External_Producers.Build_Types.Process_Diagnostic_Stream_Preference;
+   subtype Process_Argument_Vector is
+     Editor.External_Producers.Build_Types.Process_Argument_Vector;
+   subtype Build_Run_Request is
+     Editor.External_Producers.Build_Types.Build_Run_Request;
+   subtype Process_Run_Request is
+     Editor.External_Producers.Build_Types.Process_Run_Request;
+   subtype Process_Run_Status is
+     Editor.External_Producers.Build_Types.Process_Run_Status;
+   subtype Build_Request_Validation_Status is
+     Editor.External_Producers.Build_Types.Build_Request_Validation_Status;
+   subtype Process_Execution_Policy is
+     Editor.External_Producers.Build_Types.Process_Execution_Policy;
 
    function Diagnostic_Line_Layering_Audit_Passes return Boolean
      renames Editor.External_Producers.Diagnostic_Line_Pipeline.Diagnostic_Line_Layering_Audit_Passes;

@@ -2,6 +2,7 @@ with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
 with Editor.Build_Working_Context;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Types;
 
 package Editor.Build_Candidates is
 
@@ -31,7 +32,7 @@ package Editor.Build_Candidates is
       Build_Candidate_Rejected_Persisted_State);
 
    subtype Build_Candidate_Argument_Vector is
-     Editor.External_Producers.Process_Argument_Vector;
+     Editor.External_Producers.Build_Types.Process_Argument_Vector;
 
    type Build_Candidate_Record is record
       Candidate_Id : Ada.Strings.Unbounded.Unbounded_String :=
@@ -39,10 +40,10 @@ package Editor.Build_Candidates is
       Candidate_Kind : Build_Candidate_Kind := Build_Candidate_None;
       Display_Label : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
-      Tool_Kind : Editor.External_Producers.Build_Tool_Kind :=
-        Editor.External_Producers.No_Build_Tool;
+      Tool_Kind : Editor.External_Producers.Build_Types.Build_Tool_Kind :=
+        Editor.External_Producers.Build_Types.No_Build_Tool;
       Structured_Arguments : Build_Candidate_Argument_Vector :=
-        Editor.External_Producers.Process_Argument_Vectors.Empty_Vector;
+        Editor.External_Producers.Build_Types.Process_Argument_Vectors.Empty_Vector;
       Working_Context : Editor.Build_Working_Context.Build_Working_Context_Record :=
         Editor.Build_Working_Context.None;
       Source_Path_If_Represented : Ada.Strings.Unbounded.Unbounded_String :=

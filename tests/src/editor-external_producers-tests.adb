@@ -6,6 +6,7 @@ with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Editor.Buffers;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Types;
 with Editor.External_Producers.Execution_Policy;
 with Editor.External_Producers.Audits;
 with Editor.External_Producers.Build_Requests;
@@ -27,20 +28,23 @@ use type Editor.External_Producers.Diagnostics.Compiler_Severity;
 use type Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Status;
 use type Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Reason;
 use type Editor.External_Producers.Diagnostic_Line_Parsing.Command_Outcome;
-use type Editor.External_Producers.Build_Run_Status;
-use type Editor.External_Producers.Process_Run_Status;
-use type Editor.External_Producers.Process_Execution_Mode;
-use type Editor.External_Producers.Process_Output_Capture_Mode;
-use type Editor.External_Producers.Process_Diagnostic_Stream_Preference;
-use type Editor.External_Producers.Process_Output_Stream;
-use type Editor.External_Producers.Process_Fixture_Kind;
-use type Editor.External_Producers.Process_Fixture_Validation_Status;
-use type Editor.External_Producers.Real_Build_Tool_Fixture_Validation_Status;
-use type Editor.External_Producers.Real_Build_Tool_Fixture_Kind;
-use type Editor.External_Producers.Build_Request_Validation_Status;
-use type Editor.External_Producers.Process_Request_Validation_Status;
-use type Editor.External_Producers.User_Opt_In_Build_Command_Context_Status;
-use type Editor.External_Producers.Build_Tool_Kind;
+use type Editor.External_Producers.Build_Types.Build_Run_Status;
+use type Editor.External_Producers.Build_Types.Build_Request_Provenance;
+use type Editor.External_Producers.Build_Types.Build_Execution_Consent;
+use type Editor.External_Producers.Build_Types.Process_Run_Status;
+use type Editor.External_Producers.Build_Types.Process_Execution_Mode;
+use type Editor.External_Producers.Build_Types.Process_Output_Capture_Mode;
+use type Editor.External_Producers.Build_Types.Process_Diagnostic_Stream_Preference;
+use type Editor.External_Producers.Build_Types.Process_Output_Stream;
+use type Editor.External_Producers.Build_Types.Process_Fixture_Kind;
+use type Editor.External_Producers.Build_Types.Process_Fixture_Validation_Status;
+use type Editor.External_Producers.Build_Types.Real_Build_Tool_Fixture_Validation_Status;
+use type Editor.External_Producers.Build_Types.Real_Build_Tool_Fixture_Kind;
+use type Editor.External_Producers.Build_Types.User_Opt_In_Build_Command_Context_Status;
+use type Editor.External_Producers.Build_Types.Build_Request_Validation_Status;
+use type Editor.External_Producers.Build_Types.Process_Request_Validation_Status;
+use type Editor.External_Producers.Build_Types.User_Opt_In_Build_Command_Context_Status;
+use type Editor.External_Producers.Build_Types.Build_Tool_Kind;
 use type Editor.Feature_Diagnostics.Diagnostic_Source_Kind;
 use type Editor.Feature_Diagnostics.Diagnostic_Severity;
 use type Editor.Feature_Panel.Feature_Id;
@@ -1842,12 +1846,12 @@ package body Editor.External_Producers.Tests is
    end Test_Producer_Audit_Covers_Diagnostic_Line_Parser;
 
    function Build_Request
-     (Tool : Editor.External_Producers.Build_Tool_Kind :=
-        Editor.External_Producers.GPRbuild_Tool;
+     (Tool : Editor.External_Producers.Build_Types.Build_Tool_Kind :=
+        Editor.External_Producers.Build_Types.GPRbuild_Tool;
       Command : String := "gprbuild";
-      Provenance : Editor.External_Producers.Build_Request_Provenance :=
-        Editor.External_Producers.Build_Request_From_Internal_Command)
-      return Editor.External_Producers.Build_Run_Request
+      Provenance : Editor.External_Producers.Build_Types.Build_Request_Provenance :=
+        Editor.External_Producers.Build_Types.Build_Request_From_Internal_Command)
+      return Editor.External_Producers.Build_Types.Build_Run_Request
    is
    begin
       return
@@ -1865,18 +1869,18 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Default_Gate : constant Editor.External_Producers.Build_Execution_Gate :=
+      Default_Gate : constant Editor.External_Producers.Build_Types.Build_Execution_Gate :=
         Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate
-          (Consent => Editor.External_Producers.Build_Consent_User_Confirmed);
-      Disabled_Policy : constant Editor.External_Producers.Process_Execution_Policy :=
-        (Mode                     => Editor.External_Producers.Process_Execution_Disabled,
+          (Consent => Editor.External_Producers.Build_Types.Build_Consent_User_Confirmed);
+      Disabled_Policy : constant Editor.External_Producers.Build_Types.Process_Execution_Policy :=
+        (Mode                     => Editor.External_Producers.Build_Types.Process_Execution_Disabled,
          Allow_Real_Execution     => False,
          Allow_Shell              => False,
          Max_Output_Bytes         => 262_144,
          Require_Absolute_Program => False,
          Timeout_Milliseconds     => 0);
-      Unbounded_Policy : constant Editor.External_Producers.Process_Execution_Policy :=
-        (Mode                     => Editor.External_Producers.Process_Execution_Real_Allowed,
+      Unbounded_Policy : constant Editor.External_Producers.Build_Types.Process_Execution_Policy :=
+        (Mode                     => Editor.External_Producers.Build_Types.Process_Execution_Real_Allowed,
          Allow_Real_Execution     => True,
          Allow_Shell              => False,
          Max_Output_Bytes         => 262_144,
@@ -1909,9 +1913,9 @@ package body Editor.External_Producers.Tests is
         (S, Build_Request,
          Editor.External_Producers.Execution_Policy.Build_Test_Fixture_Execution_Gate,
          Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-           (Editor.External_Producers.Process_Run_Timed_Out,
+           (Editor.External_Producers.Build_Types.Process_Run_Timed_Out,
             Stderr_Text => "main.adb:1:1: error: partial before timeout"));
-      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Timed_Out,
+      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Types.Build_Run_Timed_Out,
               "process timeout maps to canonical build timeout status");
       Assert (To_String (Result.Command_Message) = "Build failed: timed out",
               "timeout produces exactly one canonical primary message");
@@ -1934,17 +1938,17 @@ package body Editor.External_Producers.Tests is
         (S, Build_Request,
          Editor.External_Producers.Execution_Policy.Build_Test_Fixture_Execution_Gate,
          Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-           (Editor.External_Producers.Process_Run_Cancelled));
+           (Editor.External_Producers.Build_Types.Process_Run_Cancelled));
       Unsupported := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Gate
         (S, Build_Request,
          Editor.External_Producers.Execution_Policy.Build_Test_Fixture_Execution_Gate,
          Editor.External_Producers.Execution_Policy.Build_Cancellation_Unsupported_Process_Result);
-      Assert (Cancelled.Build_Result.Status = Editor.External_Producers.Build_Run_Cancelled,
+      Assert (Cancelled.Build_Result.Status = Editor.External_Producers.Build_Types.Build_Run_Cancelled,
               "process cancellation maps to canonical build cancelled status");
       Assert (To_String (Cancelled.Command_Message) = "Build cancelled",
               "cancelled build produces one canonical primary message");
       Assert (Unsupported.Build_Result.Status =
-                Editor.External_Producers.Build_Run_Cancellation_Unsupported,
+                Editor.External_Producers.Build_Types.Build_Run_Cancellation_Unsupported,
               "unsupported cancellation maps to canonical unavailable status");
       Assert (To_String (Unsupported.Command_Message) =
                 "Build unavailable: cancellation unsupported",
@@ -1957,7 +1961,7 @@ package body Editor.External_Producers.Tests is
       pragma Unreferenced (T);
    begin
       Assert (not Editor.External_Producers.Build_Requests.Validate_Build_Run_Request
-                (Build_Request (Tool => Editor.External_Producers.No_Build_Tool)),
+                (Build_Request (Tool => Editor.External_Producers.Build_Types.No_Build_Tool)),
               "build request rejects No_Build_Tool deterministically");
    end Test_Build_Request_Rejects_No_Tool;
 
@@ -1977,15 +1981,15 @@ package body Editor.External_Producers.Tests is
       pragma Unreferenced (T);
    begin
       Assert (Editor.External_Producers.Build_Requests.Validate_Build_Run_Request_Status
-                (Build_Request) = Editor.External_Producers.Build_Request_Valid,
+                (Build_Request) = Editor.External_Producers.Build_Types.Build_Request_Valid,
               "supported build tool with command label validates");
       Assert (Editor.External_Producers.Build_Requests.Validate_Build_Run_Request_Status
-                (Build_Request (Tool => Editor.External_Producers.No_Build_Tool)) =
-              Editor.External_Producers.Build_Request_Rejected_No_Tool,
+                (Build_Request (Tool => Editor.External_Producers.Build_Types.No_Build_Tool)) =
+              Editor.External_Producers.Build_Types.Build_Request_Rejected_No_Tool,
               "No_Build_Tool has a specific rejection status");
       Assert (Editor.External_Producers.Build_Requests.Validate_Build_Run_Request_Status
                 (Build_Request (Command => "")) =
-              Editor.External_Producers.Build_Request_Rejected_Empty_Command,
+              Editor.External_Producers.Build_Types.Build_Request_Rejected_Empty_Command,
               "blank command label has a specific rejection status");
    end Test_Build_Request_Validation_Status_Is_Deterministic;
 
@@ -1995,13 +1999,13 @@ package body Editor.External_Producers.Tests is
       pragma Unreferenced (T);
    begin
       Assert (Editor.External_Producers.Build_Requests.Validate_Build_Run_Request
-                (Build_Request (Tool => Editor.External_Producers.GPRbuild_Tool)),
+                (Build_Request (Tool => Editor.External_Producers.Build_Types.GPRbuild_Tool)),
               "gprbuild request validates");
       Assert (Editor.External_Producers.Build_Requests.Validate_Build_Run_Request
-                (Build_Request (Tool => Editor.External_Producers.Alire_Build_Tool)),
+                (Build_Request (Tool => Editor.External_Producers.Build_Types.Alire_Build_Tool)),
               "alire build request validates");
       Assert (not Editor.External_Producers.Build_Requests.Validate_Build_Run_Request
-                (Build_Request (Tool => Editor.External_Producers.Custom_Build_Tool)),
+                (Build_Request (Tool => Editor.External_Producers.Build_Types.Custom_Build_Tool)),
               "custom build request remains rejected until structured command configuration exists");
    end Test_Build_Request_Accepts_Supported_Tools;
 
@@ -2009,14 +2013,14 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Request : constant Editor.External_Producers.Build_Run_Request :=
-        (Tool          => Editor.External_Producers.GPRbuild_Tool,
-        Provenance    => Editor.External_Producers.Build_Request_From_Internal_Command,
+      Request : constant Editor.External_Producers.Build_Types.Build_Run_Request :=
+        (Tool          => Editor.External_Producers.Build_Types.GPRbuild_Tool,
+        Provenance    => Editor.External_Producers.Build_Types.Build_Request_From_Internal_Command,
          Working_Label => To_Unbounded_String ("unit-test"),
          Command_Label => To_Unbounded_String ("gprbuild"),
          Arguments     => To_Unbounded_String ("-q"),
          Structured_Arguments => Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("build"));
-      Process : constant Editor.External_Producers.Process_Run_Request :=
+      Process : constant Editor.External_Producers.Build_Types.Process_Run_Request :=
         Editor.External_Producers.Build_Requests.Prepare_Process_Request (Request);
    begin
       Assert (Editor.External_Producers.Build_Requests.Validate_Build_Run_Request (Request),
@@ -2033,14 +2037,14 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Request : constant Editor.External_Producers.Build_Run_Request :=
-        (Tool          => Editor.External_Producers.Alire_Build_Tool,
-        Provenance    => Editor.External_Producers.Build_Request_From_Internal_Command,
+      Request : constant Editor.External_Producers.Build_Types.Build_Run_Request :=
+        (Tool          => Editor.External_Producers.Build_Types.Alire_Build_Tool,
+        Provenance    => Editor.External_Producers.Build_Types.Build_Request_From_Internal_Command,
          Working_Label => To_Unbounded_String ("unit-test"),
          Command_Label => To_Unbounded_String ("alr build"),
          Arguments     => Null_Unbounded_String,
          Structured_Arguments => Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("build"));
-      Process : constant Editor.External_Producers.Process_Run_Request :=
+      Process : constant Editor.External_Producers.Build_Types.Process_Run_Request :=
         Editor.External_Producers.Build_Requests.Prepare_Process_Request (Request);
    begin
       Assert (Editor.External_Producers.Build_Requests.Validate_Build_Run_Request (Request),
@@ -2060,8 +2064,8 @@ package body Editor.External_Producers.Tests is
       pragma Unreferenced (T);
    begin
       Assert (Editor.External_Producers.Build_Requests.Validate_Build_Run_Request_Status
-                (Build_Request (Tool => Editor.External_Producers.Custom_Build_Tool)) =
-              Editor.External_Producers.Build_Request_Rejected_Unsupported_Tool,
+                (Build_Request (Tool => Editor.External_Producers.Build_Types.Custom_Build_Tool)) =
+              Editor.External_Producers.Build_Types.Build_Request_Rejected_Unsupported_Tool,
               "custom build tool is rejected before process preparation without structured configuration");
    end Test_Process_Request_Preparation_Rejects_Custom_Without_Config;
 
@@ -2069,12 +2073,12 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Process : constant Editor.External_Producers.Process_Run_Request :=
+      Process : constant Editor.External_Producers.Build_Types.Process_Run_Request :=
         Editor.External_Producers.Build_Requests.Prepare_Process_Request (Build_Request);
-      Result : constant Editor.External_Producers.Process_Run_Result :=
+      Result : constant Editor.External_Producers.Build_Types.Process_Run_Result :=
         Editor.External_Producers.Build_Requests.Execute_Process_Request_Default (Process);
    begin
-      Assert (Result.Status = Editor.External_Producers.Process_Run_Not_Available,
+      Assert (Result.Status = Editor.External_Producers.Build_Types.Process_Run_Not_Available,
               "default process runner remains non-executing and unavailable");
       Assert (not Result.Has_Exit_Code,
               "default process runner does not synthesize an exit code");
@@ -2087,18 +2091,18 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Process : constant Editor.External_Producers.Process_Run_Request :=
+      Process : constant Editor.External_Producers.Build_Types.Process_Run_Request :=
         Editor.External_Producers.Build_Requests.Prepare_Process_Request (Build_Request);
-      Supplied : constant Editor.External_Producers.Process_Run_Result :=
+      Supplied : constant Editor.External_Producers.Build_Types.Process_Run_Result :=
         Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-          (Editor.External_Producers.Process_Run_Failed,
+          (Editor.External_Producers.Build_Types.Process_Run_Failed,
            Exit_Code => 3, Has_Exit_Code => True,
            Stderr_Text => "main.adb:1:1: error: process");
-      Result : constant Editor.External_Producers.Process_Run_Result :=
+      Result : constant Editor.External_Producers.Build_Types.Process_Run_Result :=
         Editor.External_Producers.Build_Requests.Execute_Test_Fed_Process_Request
           (Process, Supplied);
    begin
-      Assert (Result.Status = Editor.External_Producers.Process_Run_Failed,
+      Assert (Result.Status = Editor.External_Producers.Build_Types.Process_Run_Failed,
               "test-fed process runner returns supplied status");
       Assert (Result.Has_Exit_Code and then Result.Exit_Code = 3,
               "test-fed process runner returns supplied exit code");
@@ -2110,46 +2114,46 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Request : constant Editor.External_Producers.Build_Run_Request := Build_Request;
+      Request : constant Editor.External_Producers.Build_Types.Build_Run_Request := Build_Request;
    begin
       Assert (Editor.External_Producers.Build_Requests.Build_Result_From_Process_Result
                 (Request, Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-                   (Editor.External_Producers.Process_Run_Succeeded)).Status =
-              Editor.External_Producers.Build_Run_Succeeded,
+                   (Editor.External_Producers.Build_Types.Process_Run_Succeeded)).Status =
+              Editor.External_Producers.Build_Types.Build_Run_Succeeded,
               "process success maps to build success");
       Assert (Editor.External_Producers.Build_Requests.Build_Result_From_Process_Result
                 (Request, Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-                   (Editor.External_Producers.Process_Run_Failed)).Status =
-              Editor.External_Producers.Build_Run_Failed,
+                   (Editor.External_Producers.Build_Types.Process_Run_Failed)).Status =
+              Editor.External_Producers.Build_Types.Build_Run_Failed,
               "process failure maps to build failure");
       Assert (Editor.External_Producers.Build_Requests.Build_Result_From_Process_Result
                 (Request, Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-                   (Editor.External_Producers.Process_Run_Not_Available)).Status =
-              Editor.External_Producers.Build_Run_Not_Available,
+                   (Editor.External_Producers.Build_Types.Process_Run_Not_Available)).Status =
+              Editor.External_Producers.Build_Types.Build_Run_Not_Available,
               "process not available maps to build not available");
       Assert (Editor.External_Producers.Build_Requests.Build_Result_From_Process_Result
                 (Request, Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-                   (Editor.External_Producers.Process_Run_Rejected)).Status =
-              Editor.External_Producers.Build_Run_Rejected,
+                   (Editor.External_Producers.Build_Types.Process_Run_Rejected)).Status =
+              Editor.External_Producers.Build_Types.Build_Run_Rejected,
               "process rejected maps to build rejected");
       Assert (Editor.External_Producers.Build_Requests.Build_Result_From_Process_Result
                 (Request, Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-                   (Editor.External_Producers.Process_Run_Execution_Error)).Status =
-              Editor.External_Producers.Build_Run_Execution_Error,
+                   (Editor.External_Producers.Build_Types.Process_Run_Execution_Error)).Status =
+              Editor.External_Producers.Build_Types.Build_Run_Execution_Error,
               "process execution error maps to build execution error");
       Assert (Editor.External_Producers.Build_Requests.Build_Result_From_Process_Result
                 (Request, Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-                   (Editor.External_Producers.Process_Run_Timed_Out)).Status =
-              Editor.External_Producers.Build_Run_Timed_Out,
+                   (Editor.External_Producers.Build_Types.Process_Run_Timed_Out)).Status =
+              Editor.External_Producers.Build_Types.Build_Run_Timed_Out,
               "process timeout maps to build timeout");
       Assert (Editor.External_Producers.Build_Requests.Build_Result_From_Process_Result
                 (Request, Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-                   (Editor.External_Producers.Process_Run_Cancelled)).Status =
-              Editor.External_Producers.Build_Run_Cancelled,
+                   (Editor.External_Producers.Build_Types.Process_Run_Cancelled)).Status =
+              Editor.External_Producers.Build_Types.Build_Run_Cancelled,
               "process cancellation maps to build cancelled");
       Assert (Editor.External_Producers.Build_Requests.Build_Result_From_Process_Result
                 (Request, Editor.External_Producers.Execution_Policy.Build_Cancellation_Unsupported_Process_Result).Status =
-              Editor.External_Producers.Build_Run_Cancellation_Unsupported,
+              Editor.External_Producers.Build_Types.Build_Run_Cancellation_Unsupported,
               "unsupported cancellation maps to build cancellation unsupported");
 
       declare
@@ -2157,14 +2161,14 @@ package body Editor.External_Producers.Tests is
            Editor.External_Producers.Build_Requests.Build_Result_From_Process_Result
              (Request,
               Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-                (Editor.External_Producers.Process_Run_Output_Truncated,
+                (Editor.External_Producers.Build_Types.Process_Run_Output_Truncated,
                  Stdout_Text => "bounded",
                  Stdout_Truncated => True));
          Timed_Out : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
            Editor.External_Producers.Build_Requests.Build_Result_From_Process_Result
              (Request,
               Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-                (Editor.External_Producers.Process_Run_Timed_Out,
+                (Editor.External_Producers.Build_Types.Process_Run_Timed_Out,
                  Stdout_Text => "partial"));
       begin
          Assert (Truncated.Stdout_Truncated and then not Truncated.Output_Partial,
@@ -2178,9 +2182,9 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Process : constant Editor.External_Producers.Process_Run_Result :=
+      Process : constant Editor.External_Producers.Build_Types.Process_Run_Result :=
         Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-          (Editor.External_Producers.Process_Run_Failed,
+          (Editor.External_Producers.Build_Types.Process_Run_Failed,
            Stdout_Text => "main.adb:3:1: warning: stdout",
            Stderr_Text => "main.adb:1:1: error: stderr");
       Build : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
@@ -2201,20 +2205,20 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Separated : constant Editor.External_Producers.Process_Run_Result :=
+      Separated : constant Editor.External_Producers.Build_Types.Process_Run_Result :=
         Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-          (Editor.External_Producers.Process_Run_Failed,
+          (Editor.External_Producers.Build_Types.Process_Run_Failed,
            Stdout_Text => "main.adb:3:1: warning: stdout",
            Stderr_Text => "main.adb:1:1: error: stderr");
-      Merged : constant Editor.External_Producers.Process_Run_Result :=
+      Merged : constant Editor.External_Producers.Build_Types.Process_Run_Result :=
         Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-          (Editor.External_Producers.Process_Run_Failed,
+          (Editor.External_Producers.Build_Types.Process_Run_Failed,
            Stdout_Text => "main.adb:1:1: error: merged",
            Output_Capture_Mode =>
-             Editor.External_Producers.Process_Output_Capture_Merged_Stdout_Stderr);
-      Stdout_Only : constant Editor.External_Producers.Process_Run_Result :=
+             Editor.External_Producers.Build_Types.Process_Output_Capture_Merged_Stdout_Stderr);
+      Stdout_Only : constant Editor.External_Producers.Build_Types.Process_Run_Result :=
         Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-          (Editor.External_Producers.Process_Run_Succeeded,
+          (Editor.External_Producers.Build_Types.Process_Run_Succeeded,
            Stdout_Text => "plain supplied stdout");
       Separated_Build : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
         Editor.External_Producers.Build_Requests.Build_Result_From_Process_Result
@@ -2227,46 +2231,46 @@ package body Editor.External_Producers.Tests is
           (Build_Request, Stdout_Only);
    begin
       Assert (Editor.External_Producers.Execution_Policy.Real_Process_Runner_Output_Capture_Mode =
-                Editor.External_Producers.Process_Output_Capture_Separated,
+                Editor.External_Producers.Build_Types.Process_Output_Capture_Separated,
               "real process runner advertises separated stdout/stderr capture");
       Assert (Editor.External_Producers.Execution_Policy.Diagnostic_Stream_Preference (Separated) =
-                Editor.External_Producers.Process_Diagnostics_Prefer_Stderr,
+                Editor.External_Producers.Build_Types.Process_Diagnostics_Prefer_Stderr,
               "separated fixture/process results prefer stderr diagnostics");
       Assert (Editor.External_Producers.Execution_Policy.Diagnostic_Stream_Preference (Merged) =
-                Editor.External_Producers.Process_Diagnostics_Merged_Output_Fallback,
+                Editor.External_Producers.Build_Types.Process_Diagnostics_Merged_Output_Fallback,
               "supplied merged results parse captured stdout fallback");
       Assert (Editor.External_Producers.Execution_Policy.Build_Run_Diagnostic_Stream_Preference
                 (Separated_Build) =
-                Editor.External_Producers.Process_Diagnostics_Prefer_Stderr,
+                Editor.External_Producers.Build_Types.Process_Diagnostics_Prefer_Stderr,
               "build result preserves stderr preference when stderr exists");
       Assert (Editor.External_Producers.Execution_Policy.Build_Run_Diagnostic_Stream_Preference
                 (Merged_Build) =
-                Editor.External_Producers.Process_Diagnostics_Merged_Output_Fallback,
+                Editor.External_Producers.Build_Types.Process_Diagnostics_Merged_Output_Fallback,
               "build result exposes merged-output fallback for supplied merged results");
       Assert (Editor.External_Producers.Execution_Policy.Process_Result_Output_Stream (Merged) =
-                Editor.External_Producers.Process_Output_Merged,
+                Editor.External_Producers.Build_Types.Process_Output_Merged,
               "supplied merged result exposes merged stream provenance");
       Assert (Editor.External_Producers.Execution_Policy.Process_Result_Output_Stream (Separated) =
-                Editor.External_Producers.Process_Output_Stderr,
+                Editor.External_Producers.Build_Types.Process_Output_Stderr,
               "separated supplied result exposes stderr provenance for diagnostics");
       Assert (Editor.External_Producers.Execution_Policy.Build_Result_Output_Stream (Merged_Build) =
-                Editor.External_Producers.Process_Output_Merged,
+                Editor.External_Producers.Build_Types.Process_Output_Merged,
               "build result carries merged stream provenance when stderr is absent");
       Assert (Editor.External_Producers.Execution_Policy.Process_Result_Output_Stream (Stdout_Only) =
-                Editor.External_Producers.Process_Output_Stdout,
+                Editor.External_Producers.Build_Types.Process_Output_Stdout,
               "supplied stdout-only result remains stdout, not merged fallback");
       Assert (Editor.External_Producers.Execution_Policy.Build_Result_Output_Stream (Stdout_Only_Build) =
-                Editor.External_Producers.Process_Output_Stdout,
+                Editor.External_Producers.Build_Types.Process_Output_Stdout,
               "build result preserves supplied stdout-only stream provenance");
       Assert (Editor.External_Producers.Audits.Audit_Build_Runner_Output_Stream_Capture,
               "stream-capture audit covers real separated capture and supplied merged extraction");
    end Test_Build_Output_Stream_Capture_Mode_Is_Explicit;
 
-   function Disabled_Process_Policy return Editor.External_Producers.Process_Execution_Policy
+   function Disabled_Process_Policy return Editor.External_Producers.Build_Types.Process_Execution_Policy
    is
    begin
       return
-        (Mode                     => Editor.External_Producers.Process_Execution_Disabled,
+        (Mode                     => Editor.External_Producers.Build_Types.Process_Execution_Disabled,
          Allow_Real_Execution     => False,
          Allow_Shell              => False,
          Max_Output_Bytes         => 262_144,
@@ -2276,11 +2280,11 @@ package body Editor.External_Producers.Tests is
 
    function Fixture_Process_Policy
      (Max_Output_Bytes : Natural := 262_144)
-      return Editor.External_Producers.Process_Execution_Policy
+      return Editor.External_Producers.Build_Types.Process_Execution_Policy
    is
    begin
       return
-        (Mode                     => Editor.External_Producers.Process_Execution_Test_Fixture,
+        (Mode                     => Editor.External_Producers.Build_Types.Process_Execution_Test_Fixture,
          Allow_Real_Execution     => False,
          Allow_Shell              => False,
          Max_Output_Bytes         => Max_Output_Bytes,
@@ -2292,11 +2296,11 @@ package body Editor.External_Producers.Tests is
      (Allow_Shell              : Boolean := False;
       Timeout_Milliseconds     : Natural := 0;
       Require_Absolute_Program : Boolean := False)
-      return Editor.External_Producers.Process_Execution_Policy
+      return Editor.External_Producers.Build_Types.Process_Execution_Policy
    is
    begin
       return
-        (Mode                     => Editor.External_Producers.Process_Execution_Real_Allowed,
+        (Mode                     => Editor.External_Producers.Build_Types.Process_Execution_Real_Allowed,
          Allow_Real_Execution     => True,
          Allow_Shell              => Allow_Shell,
          Max_Output_Bytes         => 262_144,
@@ -2308,11 +2312,11 @@ package body Editor.External_Producers.Tests is
      (Allow_Shell          : Boolean := False;
       Max_Output_Bytes     : Natural := 262_144;
       Timeout_Milliseconds : Natural := 0)
-      return Editor.External_Producers.Process_Execution_Policy
+      return Editor.External_Producers.Build_Types.Process_Execution_Policy
    is
    begin
       return
-        (Mode                     => Editor.External_Producers.Process_Execution_Real_Fixture_Allowed,
+        (Mode                     => Editor.External_Producers.Build_Types.Process_Execution_Real_Fixture_Allowed,
          Allow_Real_Execution     => True,
          Allow_Shell              => Allow_Shell,
          Max_Output_Bytes         => Max_Output_Bytes,
@@ -2321,12 +2325,12 @@ package body Editor.External_Producers.Tests is
    end Real_Fixture_Process_Policy;
 
    function Fixture_Request
-     (Kind  : Editor.External_Producers.Process_Fixture_Kind :=
-        Editor.External_Producers.Echo_Diagnostic_Fixture;
+     (Kind  : Editor.External_Producers.Build_Types.Process_Fixture_Kind :=
+        Editor.External_Producers.Build_Types.Echo_Diagnostic_Fixture;
       First : String := "stdout";
       Second : String := "main.adb:1:1: error: fixture";
       Third : String := "")
-      return Editor.External_Producers.Process_Fixture_Request
+      return Editor.External_Producers.Build_Types.Process_Fixture_Request
    is
    begin
       return Editor.External_Producers.Build_Requests.Build_Process_Fixture_Request
@@ -2337,12 +2341,12 @@ package body Editor.External_Producers.Tests is
      (Allow_Diagnostics_Ingestion : Boolean := True;
       Show_Diagnostics            : Boolean := False;
       Max_Output_Bytes            : Natural := 262_144)
-      return Editor.External_Producers.Build_Execution_Gate
+      return Editor.External_Producers.Build_Types.Build_Execution_Gate
    is
    begin
       return
         (Process_Policy              =>
-           (Mode                     => Editor.External_Producers.Process_Execution_Real_Fixture_Allowed,
+           (Mode                     => Editor.External_Producers.Build_Types.Process_Execution_Real_Fixture_Allowed,
             Allow_Real_Execution     => True,
             Allow_Shell              => False,
             Max_Output_Bytes         => Max_Output_Bytes,
@@ -2351,18 +2355,18 @@ package body Editor.External_Producers.Tests is
          Allow_Build_Run             => True,
          Allow_Real_Build_Tool_Execution => False,
          Allow_Real_Build_Tool_Fixture   => True,
-         Consent                     => Editor.External_Producers.Build_Consent_Test_Only,
+         Consent                     => Editor.External_Producers.Build_Types.Build_Consent_Test_Only,
          Allow_Diagnostics_Ingestion => Allow_Diagnostics_Ingestion,
          Show_Diagnostics            => Show_Diagnostics);
    end Real_Build_Tool_Fixture_Gate;
 
    function Real_Build_Tool_Fixture_Request
-     (Tool : Editor.External_Producers.Build_Tool_Kind :=
-        Editor.External_Producers.GPRbuild_Tool;
-      Provenance : Editor.External_Producers.Build_Request_Provenance :=
-        Editor.External_Producers.Build_Request_From_User_Opt_In;
+     (Tool : Editor.External_Producers.Build_Types.Build_Tool_Kind :=
+        Editor.External_Producers.Build_Types.GPRbuild_Tool;
+      Provenance : Editor.External_Producers.Build_Types.Build_Request_Provenance :=
+        Editor.External_Producers.Build_Types.Build_Request_From_User_Opt_In;
       Working_Label : String := "")
-      return Editor.External_Producers.Build_Run_Request
+      return Editor.External_Producers.Build_Types.Build_Run_Request
    is
    begin
       return
@@ -2378,14 +2382,14 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Preflight : constant Editor.External_Producers.Build_Preflight_Result :=
+      Preflight : constant Editor.External_Producers.Build_Types.Build_Preflight_Result :=
         Editor.External_Producers.Build_Requests.Preflight_Real_Build_Tool_Fixture
           (Real_Build_Tool_Fixture_Request,
-           Editor.External_Producers.GPRbuild_Version_Fixture,
+           Editor.External_Producers.Build_Types.GPRbuild_Version_Fixture,
            Editor.External_Producers.Execution_Policy.Build_Default_Execution_Gate);
    begin
       Assert (Preflight.Process_Request_Status =
-                Editor.External_Producers.Process_Request_Rejected_Execution_Disabled,
+                Editor.External_Producers.Build_Types.Process_Request_Rejected_Execution_Disabled,
               "default gate disables real build-tool fixture execution");
       Assert (not Preflight.Has_Process_Request,
               "disabled fixture preflight prepares no process request");
@@ -2400,7 +2404,7 @@ package body Editor.External_Producers.Tests is
                 (Real_Build_Tool_Fixture_Gate),
               "explicit real build-tool fixture gate validates");
       Assert (not Editor.External_Producers.Build_Requests.Validate_Real_Build_Tool_Fixture_Gate
-                (Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed)),
+                (Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Types.Build_Consent_User_Confirmed)),
               "general real build gate is not a real build-tool fixture gate");
    end Test_Real_Build_Tool_Fixture_Requires_Explicit_Gate;
 
@@ -2408,14 +2412,14 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Preflight : constant Editor.External_Producers.Build_Preflight_Result :=
+      Preflight : constant Editor.External_Producers.Build_Types.Build_Preflight_Result :=
         Editor.External_Producers.Build_Requests.Preflight_Real_Build_Tool_Fixture
           (Real_Build_Tool_Fixture_Request,
-           Editor.External_Producers.No_Real_Build_Tool_Fixture,
+           Editor.External_Producers.Build_Types.No_Real_Build_Tool_Fixture,
            Real_Build_Tool_Fixture_Gate);
    begin
       Assert (Preflight.Process_Request_Status =
-                Editor.External_Producers.Process_Request_Rejected_Empty_Program,
+                Editor.External_Producers.Build_Types.Process_Request_Rejected_Empty_Program,
               "unknown real build-tool fixture kind is rejected deterministically");
       Assert (not Preflight.Has_Process_Request,
               "unknown fixture prepares no process request");
@@ -2425,15 +2429,15 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Preflight : constant Editor.External_Producers.Build_Preflight_Result :=
+      Preflight : constant Editor.External_Producers.Build_Types.Build_Preflight_Result :=
         Editor.External_Producers.Build_Requests.Preflight_Real_Build_Tool_Fixture
           (Real_Build_Tool_Fixture_Request
-             (Provenance => Editor.External_Producers.Build_Request_From_Implicit_Source),
-           Editor.External_Producers.GPRbuild_Version_Fixture,
+             (Provenance => Editor.External_Producers.Build_Types.Build_Request_From_Implicit_Source),
+           Editor.External_Producers.Build_Types.GPRbuild_Version_Fixture,
            Real_Build_Tool_Fixture_Gate);
    begin
       Assert (Preflight.Build_Request_Status =
-                Editor.External_Producers.Build_Request_Rejected_Implicit_Source,
+                Editor.External_Producers.Build_Types.Build_Request_Rejected_Implicit_Source,
               "implicit build source provenance remains unsupported for real build-tool fixtures");
       Assert (not Preflight.Has_Process_Request,
               "implicit build source rejection prepares no process request");
@@ -2443,15 +2447,15 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Preflight : constant Editor.External_Producers.Build_Preflight_Result :=
+      Preflight : constant Editor.External_Producers.Build_Types.Build_Preflight_Result :=
         Editor.External_Producers.Build_Requests.Preflight_Real_Build_Tool_Fixture
           (Real_Build_Tool_Fixture_Request,
-           Editor.External_Producers.GPRbuild_Version_Fixture,
+           Editor.External_Producers.Build_Types.GPRbuild_Version_Fixture,
            Real_Build_Tool_Fixture_Gate);
    begin
-      Assert (Preflight.Build_Request_Status = Editor.External_Producers.Build_Request_Valid,
+      Assert (Preflight.Build_Request_Status = Editor.External_Producers.Build_Types.Build_Request_Valid,
               "user opt-in provenance is accepted only with explicit fixture gate");
-      Assert (Preflight.Process_Request_Status = Editor.External_Producers.Process_Request_Valid,
+      Assert (Preflight.Process_Request_Status = Editor.External_Producers.Build_Types.Process_Request_Valid,
               "explicit fixture gate validates the prepared process request");
       Assert (To_String (Preflight.Process_Request.Program_Label) = "gprbuild",
               "gprbuild version fixture maps to explicit program metadata");
@@ -2464,14 +2468,14 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Preflight : constant Editor.External_Producers.Build_Preflight_Result :=
+      Preflight : constant Editor.External_Producers.Build_Types.Build_Preflight_Result :=
         Editor.External_Producers.Build_Requests.Preflight_Real_Build_Tool_Fixture
           (Real_Build_Tool_Fixture_Request
-             (Tool => Editor.External_Producers.Alire_Build_Tool),
-           Editor.External_Producers.Alire_Version_Fixture,
+             (Tool => Editor.External_Producers.Build_Types.Alire_Build_Tool),
+           Editor.External_Producers.Build_Types.Alire_Version_Fixture,
            Real_Build_Tool_Fixture_Gate);
    begin
-      Assert (Preflight.Process_Request_Status = Editor.External_Producers.Process_Request_Valid,
+      Assert (Preflight.Process_Request_Status = Editor.External_Producers.Build_Types.Process_Request_Valid,
               "alire version fixture validates with explicit gate");
       Assert (To_String (Preflight.Process_Request.Program_Label) = "alr",
               "alire version fixture maps to alr program metadata");
@@ -2484,14 +2488,14 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Preflight : constant Editor.External_Producers.Build_Preflight_Result :=
+      Preflight : constant Editor.External_Producers.Build_Types.Build_Preflight_Result :=
         Editor.External_Producers.Build_Requests.Preflight_Real_Build_Tool_Fixture
           (Real_Build_Tool_Fixture_Request (Working_Label => "project-root"),
-           Editor.External_Producers.GPRbuild_Version_Fixture,
+           Editor.External_Producers.Build_Types.GPRbuild_Version_Fixture,
            Real_Build_Tool_Fixture_Gate);
    begin
       Assert (Preflight.Process_Request_Status =
-                Editor.External_Producers.Process_Request_Rejected_Unsupported_Working_Directory,
+                Editor.External_Producers.Build_Types.Process_Request_Rejected_Unsupported_Working_Directory,
               "project-derived working context is rejected for real build-tool fixture preflight");
       Assert (not Preflight.Has_Process_Request,
               "working-context rejection prepares no process request");
@@ -2507,13 +2511,13 @@ package body Editor.External_Producers.Tests is
       Prepare_State (S);
       Result := Editor.External_Producers.Build_Requests.Run_Real_Build_Tool_Fixture_With_Gate
         (S, Real_Build_Tool_Fixture_Request,
-         Editor.External_Producers.Diagnostic_Output_Fixture,
+         Editor.External_Producers.Build_Types.Diagnostic_Output_Fixture,
          Real_Build_Tool_Fixture_Gate,
          Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-           (Editor.External_Producers.Process_Run_Succeeded,
+           (Editor.External_Producers.Build_Types.Process_Run_Succeeded,
             Exit_Code => 0, Has_Exit_Code => True,
             Stderr_Text => "main.adb:1:1: error: fixture"));
-      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Succeeded,
+      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Types.Build_Run_Succeeded,
               "real build-tool diagnostic fixture can return supplied process success");
       Assert (Result.Diagnostic_Result.Ingestion.Ingestion_Result.Accepted_Count = 1,
               "fixture output routes through existing diagnostic-line ingestion pipeline");
@@ -2531,10 +2535,10 @@ package body Editor.External_Producers.Tests is
       Prepare_State (S);
       Result := Editor.External_Producers.Build_Requests.Run_Real_Build_Tool_Fixture_With_Gate
         (S, Real_Build_Tool_Fixture_Request,
-         Editor.External_Producers.GPRbuild_Version_Fixture,
+         Editor.External_Producers.Build_Types.GPRbuild_Version_Fixture,
          Real_Build_Tool_Fixture_Gate,
          Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-           (Editor.External_Producers.Process_Run_Succeeded,
+           (Editor.External_Producers.Build_Types.Process_Run_Succeeded,
             Exit_Code => 0, Has_Exit_Code => True,
             Stdout_Text => "GPRBUILD Pro 0.0"));
       Assert (Result.Diagnostic_Result.Ingestion.Parse_Input_Count = 1,
@@ -2572,7 +2576,7 @@ package body Editor.External_Producers.Tests is
       S : Editor.State.State_Type;
       Before : Editor.Feature_Panel.Feature_Panel_Fingerprint;
       After : Editor.Feature_Panel.Feature_Panel_Fingerprint;
-      Status : Editor.External_Producers.Real_Build_Tool_Fixture_Validation_Status;
+      Status : Editor.External_Producers.Build_Types.Real_Build_Tool_Fixture_Validation_Status;
    begin
       Prepare_State (S);
       Editor.Feature_Diagnostics.Set_Filter_Text (S.Feature_Diagnostics, "warning");
@@ -2582,10 +2586,10 @@ package body Editor.External_Producers.Tests is
       Before := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
       Status := Editor.External_Producers.Build_Requests.Validate_Real_Build_Tool_Fixture_Request
         (Real_Build_Tool_Fixture_Request,
-         Editor.External_Producers.GPRbuild_Version_Fixture,
+         Editor.External_Producers.Build_Types.GPRbuild_Version_Fixture,
          Real_Build_Tool_Fixture_Gate);
       After := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
-      Assert (Status = Editor.External_Producers.Real_Build_Fixture_Valid,
+      Assert (Status = Editor.External_Producers.Build_Types.Real_Build_Fixture_Valid,
               "central real build-tool fixture validation accepts explicit opt-in fixture");
       Assert (Before = After,
               "real build-tool fixture validation does not switch or rebuild features");
@@ -2605,13 +2609,13 @@ package body Editor.External_Producers.Tests is
       Prepare_State (S);
       Result := Editor.External_Producers.Build_Requests.Run_Real_Build_Tool_Fixture_With_Gate
         (S, Real_Build_Tool_Fixture_Request,
-         Editor.External_Producers.No_Real_Build_Tool_Fixture,
+         Editor.External_Producers.Build_Types.No_Real_Build_Tool_Fixture,
          Real_Build_Tool_Fixture_Gate,
          Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-           (Editor.External_Producers.Process_Run_Succeeded,
+           (Editor.External_Producers.Build_Types.Process_Run_Succeeded,
             Exit_Code => 0, Has_Exit_Code => True,
             Stderr_Text => "main.adb:1:1: error: must not run"));
-      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Rejected,
+      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Types.Build_Run_Rejected,
               "unknown fixture request is rejected before runner output can be consumed");
       Assert (Result.Diagnostic_Result.Ingestion.Ingestion_Result.Accepted_Count = 0,
               "rejected real build-tool fixture does not ingest supplied runner diagnostics");
@@ -2625,10 +2629,10 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Preflight : constant Editor.External_Producers.Build_Preflight_Result :=
+      Preflight : constant Editor.External_Producers.Build_Types.Build_Preflight_Result :=
         Editor.External_Producers.Build_Requests.Preflight_Real_Build_Tool_Fixture
           (Real_Build_Tool_Fixture_Request,
-           Editor.External_Producers.GPRbuild_Version_Fixture,
+           Editor.External_Producers.Build_Types.GPRbuild_Version_Fixture,
            Real_Build_Tool_Fixture_Gate);
    begin
       Assert (Editor.External_Producers.Build_Requests.Real_Build_Tool_Fixture_Preflight_Is_Consistent
@@ -2640,11 +2644,11 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Preflight : constant Editor.External_Producers.Build_Preflight_Result :=
+      Preflight : constant Editor.External_Producers.Build_Types.Build_Preflight_Result :=
         Editor.External_Producers.Build_Requests.Preflight_Real_Build_Tool_Fixture
           (Real_Build_Tool_Fixture_Request
-             (Provenance => Editor.External_Producers.Build_Request_From_Implicit_Source),
-           Editor.External_Producers.GPRbuild_Version_Fixture,
+             (Provenance => Editor.External_Producers.Build_Types.Build_Request_From_Implicit_Source),
+           Editor.External_Producers.Build_Types.GPRbuild_Version_Fixture,
            Real_Build_Tool_Fixture_Gate);
    begin
       Assert (Editor.External_Producers.Build_Requests.Real_Build_Tool_Fixture_Preflight_Is_Consistent
@@ -2662,10 +2666,10 @@ package body Editor.External_Producers.Tests is
       Prepare_State (S);
       Result := Editor.External_Producers.Build_Requests.Run_Real_Build_Tool_Fixture_With_Gate
         (S, Real_Build_Tool_Fixture_Request,
-         Editor.External_Producers.GPRbuild_Version_Fixture,
+         Editor.External_Producers.Build_Types.GPRbuild_Version_Fixture,
          Real_Build_Tool_Fixture_Gate,
          Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-           (Editor.External_Producers.Process_Run_Succeeded,
+           (Editor.External_Producers.Build_Types.Process_Run_Succeeded,
             Exit_Code => 0, Has_Exit_Code => True,
             Stdout_Text => "GPRBUILD Pro 0.0"));
       Assert (Editor.External_Producers.Build_Requests.Real_Build_Tool_Fixture_Command_Result_Is_Consistent
@@ -2683,10 +2687,10 @@ package body Editor.External_Producers.Tests is
       Prepare_State (S);
       Result := Editor.External_Producers.Build_Requests.Run_Real_Build_Tool_Fixture_With_Gate
         (S, Real_Build_Tool_Fixture_Request,
-         Editor.External_Producers.Diagnostic_Output_Fixture,
+         Editor.External_Producers.Build_Types.Diagnostic_Output_Fixture,
          Real_Build_Tool_Fixture_Gate,
          Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-           (Editor.External_Producers.Process_Run_Failed,
+           (Editor.External_Producers.Build_Types.Process_Run_Failed,
             Exit_Code => 1, Has_Exit_Code => True,
             Stderr_Text => "main.adb:1:1: error: fixture"));
       Assert (Editor.External_Producers.Build_Requests.Real_Build_Tool_Fixture_Command_Result_Is_Consistent
@@ -2706,11 +2710,11 @@ package body Editor.External_Producers.Tests is
       Prepare_State (S);
       Result := Editor.External_Producers.Build_Requests.Run_Real_Build_Tool_Fixture_With_Gate
         (S, Real_Build_Tool_Fixture_Request,
-         Editor.External_Producers.GPRbuild_Version_Fixture,
+         Editor.External_Producers.Build_Types.GPRbuild_Version_Fixture,
          Real_Build_Tool_Fixture_Gate,
          Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-           (Editor.External_Producers.Process_Run_Not_Available));
-      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Not_Available,
+           (Editor.External_Producers.Build_Types.Process_Run_Not_Available));
+      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Types.Build_Run_Not_Available,
               "unavailable tool maps to deterministic build fixture unavailable");
       Assert (Editor.External_Producers.Build_Requests.Real_Build_Tool_Fixture_Command_Result_Is_Consistent
                 (Result),
@@ -2729,10 +2733,10 @@ package body Editor.External_Producers.Tests is
       Prepare_State (S);
       Result := Editor.External_Producers.Build_Requests.Run_Real_Build_Tool_Fixture_With_Gate
         (S, Real_Build_Tool_Fixture_Request,
-         Editor.External_Producers.Diagnostic_Output_Fixture,
+         Editor.External_Producers.Build_Types.Diagnostic_Output_Fixture,
          Real_Build_Tool_Fixture_Gate (Allow_Diagnostics_Ingestion => False),
          Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-           (Editor.External_Producers.Process_Run_Succeeded,
+           (Editor.External_Producers.Build_Types.Process_Run_Succeeded,
             Exit_Code => 0, Has_Exit_Code => True,
             Stderr_Text => "main.adb:1:1: error: fixture"));
       Assert (Result.Diagnostic_Result.Ingestion.Ingestion_Result.Accepted_Count = 0,
@@ -2757,13 +2761,13 @@ package body Editor.External_Producers.Tests is
          pragma Unreferenced (I);
          Result := Editor.External_Producers.Build_Requests.Run_Real_Build_Tool_Fixture_With_Gate
            (S, Real_Build_Tool_Fixture_Request,
-            Editor.External_Producers.Diagnostic_Output_Fixture,
+            Editor.External_Producers.Build_Types.Diagnostic_Output_Fixture,
             Real_Build_Tool_Fixture_Gate,
             Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-              (Editor.External_Producers.Process_Run_Succeeded,
+              (Editor.External_Producers.Build_Types.Process_Run_Succeeded,
                Exit_Code => 0, Has_Exit_Code => True,
                Stderr_Text => "main.adb:1:1: warning: fixture"));
-         Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Succeeded,
+         Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Types.Build_Run_Succeeded,
                  "repeated real build-tool fixture run succeeds deterministically");
       end loop;
       Assert (Editor.Feature_Diagnostics.Filter_Text (S.Feature_Diagnostics) = "warning",
@@ -2786,10 +2790,10 @@ package body Editor.External_Producers.Tests is
         "feature panel show feature succeeds");
       Result := Editor.External_Producers.Build_Requests.Run_Real_Build_Tool_Fixture_With_Gate
         (S, Real_Build_Tool_Fixture_Request,
-         Editor.External_Producers.Diagnostic_Output_Fixture,
+         Editor.External_Producers.Build_Types.Diagnostic_Output_Fixture,
          Real_Build_Tool_Fixture_Gate (Show_Diagnostics => True),
          Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-           (Editor.External_Producers.Process_Run_Succeeded,
+           (Editor.External_Producers.Build_Types.Process_Run_Succeeded,
             Exit_Code => 0, Has_Exit_Code => True,
             Stderr_Text => "main.adb:1:1: warning: fixture"));
       Assert (Result.Diagnostic_Result.Should_Show_Diagnostics,
@@ -2811,23 +2815,23 @@ package body Editor.External_Producers.Tests is
          pragma Unreferenced (I);
          Result := Editor.External_Producers.Build_Requests.Run_Real_Build_Tool_Fixture_With_Gate
            (S, Real_Build_Tool_Fixture_Request,
-            Editor.External_Producers.GPRbuild_Version_Fixture,
+            Editor.External_Producers.Build_Types.GPRbuild_Version_Fixture,
             Real_Build_Tool_Fixture_Gate,
             Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-              (Editor.External_Producers.Process_Run_Not_Available));
-         Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Not_Available,
+              (Editor.External_Producers.Build_Types.Process_Run_Not_Available));
+         Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Types.Build_Run_Not_Available,
                  "repeated unavailable fixture attempts remain deterministic");
       end loop;
       Editor.External_Producers.Build_Requests.Reset_Build_Run_State_For_Workspace_Close (S);
       Result := Editor.External_Producers.Build_Requests.Run_Real_Build_Tool_Fixture_With_Gate
         (S, Real_Build_Tool_Fixture_Request,
-         Editor.External_Producers.GPRbuild_Version_Fixture,
+         Editor.External_Producers.Build_Types.GPRbuild_Version_Fixture,
          Editor.External_Producers.Execution_Policy.Build_Default_Execution_Gate,
          Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-           (Editor.External_Producers.Process_Run_Succeeded,
+           (Editor.External_Producers.Build_Types.Process_Run_Succeeded,
             Exit_Code => 0, Has_Exit_Code => True,
             Stderr_Text => "main.adb:1:1: error: must not run"));
-      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Not_Available,
+      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Types.Build_Run_Not_Available,
               "disabled gate after workspace close cannot consume supplied runner output");
       Assert (Editor.External_Producers.Audits.Audit_Real_Build_Tool_Fixture_Gates,
               "real build-tool fixture audit passes after repeated attempts");
@@ -2837,11 +2841,11 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Result : constant Editor.External_Producers.Process_Run_Result :=
+      Result : constant Editor.External_Producers.Build_Types.Process_Run_Result :=
         Editor.External_Producers.Build_Requests.Execute_Process_Request_Real_Fixture
           (Fixture_Request, Disabled_Process_Policy);
    begin
-      Assert (Result.Status = Editor.External_Producers.Process_Run_Not_Available,
+      Assert (Result.Status = Editor.External_Producers.Build_Types.Process_Run_Not_Available,
               "default disabled policy cannot execute a real fixture");
       Assert (Length (Result.Stdout_Text) = 0 and then Length (Result.Stderr_Text) = 0,
               "disabled fixture execution captures no output");
@@ -2851,7 +2855,7 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Result : constant Editor.External_Producers.Process_Run_Result :=
+      Result : constant Editor.External_Producers.Build_Types.Process_Run_Result :=
         Editor.External_Producers.Build_Requests.Execute_Process_Request_Gated
           ((Program_Label => To_Unbounded_String ("fixture"),
             Working_Label => Null_Unbounded_String,
@@ -2859,9 +2863,9 @@ package body Editor.External_Producers.Tests is
             Structured_Arguments => Editor.External_Producers.Build_Requests.Empty_Process_Arguments),
            Real_Fixture_Process_Policy,
            Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-             (Editor.External_Producers.Process_Run_Succeeded));
+             (Editor.External_Producers.Build_Types.Process_Run_Succeeded));
    begin
-      Assert (Result.Status = Editor.External_Producers.Process_Run_Rejected,
+      Assert (Result.Status = Editor.External_Producers.Build_Types.Process_Run_Rejected,
               "ordinary process requests cannot enter fixture real-runner mode");
    end Test_Process_Fixture_Requires_Explicit_Gate;
 
@@ -2873,10 +2877,10 @@ package body Editor.External_Producers.Tests is
         Editor.External_Producers.Build_Requests.Execute_Build_Request_With_Process_Policy
           (Build_Request, Real_Fixture_Process_Policy,
            Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-             (Editor.External_Producers.Process_Run_Succeeded,
+             (Editor.External_Producers.Build_Types.Process_Run_Succeeded,
               Stdout_Text => "main.adb:1:1: error: should-not-run"));
    begin
-      Assert (Result.Status = Editor.External_Producers.Build_Run_Not_Available,
+      Assert (Result.Status = Editor.External_Producers.Build_Types.Build_Run_Not_Available,
               "normal build request cannot silently become a fixture request");
       Assert (Length (Result.Stdout_Text) = 0 and then Length (Result.Stderr_Text) = 0,
               "normal build path ignores supplied fixture output under real-fixture mode");
@@ -2886,12 +2890,12 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Result : constant Editor.External_Producers.Process_Run_Result :=
+      Result : constant Editor.External_Producers.Build_Types.Process_Run_Result :=
         Editor.External_Producers.Build_Requests.Execute_Process_Request_Real_Fixture
-          (Fixture_Request (Kind => Editor.External_Producers.No_Process_Fixture),
+          (Fixture_Request (Kind => Editor.External_Producers.Build_Types.No_Process_Fixture),
            Real_Fixture_Process_Policy);
    begin
-      Assert (Result.Status = Editor.External_Producers.Process_Run_Rejected,
+      Assert (Result.Status = Editor.External_Producers.Build_Types.Process_Run_Rejected,
               "unknown fixture identity is rejected deterministically");
    end Test_Process_Fixture_Rejects_Unknown_Fixture;
 
@@ -2899,11 +2903,11 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Status : constant Editor.External_Producers.Process_Request_Validation_Status :=
+      Status : constant Editor.External_Producers.Build_Types.Process_Request_Validation_Status :=
         Editor.External_Producers.Build_Requests.Validate_Process_Fixture_Request_Status
           (Fixture_Request, Real_Fixture_Process_Policy (Allow_Shell => True));
    begin
-      Assert (Status = Editor.External_Producers.Process_Request_Rejected_Shell_Disallowed,
+      Assert (Status = Editor.External_Producers.Build_Types.Process_Request_Rejected_Shell_Disallowed,
               "fixture validation rejects shell-enabled policy before execution");
    end Test_Process_Fixture_Rejects_Shell_Mode;
 
@@ -2911,7 +2915,7 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Result : constant Editor.External_Producers.Process_Run_Result :=
+      Result : constant Editor.External_Producers.Build_Types.Process_Run_Result :=
         Editor.External_Producers.Build_Requests.Execute_Process_Request_Real_Fixture
           (Fixture_Request
              (First => "stdout",
@@ -2919,7 +2923,7 @@ package body Editor.External_Producers.Tests is
               Third => """quoted"" ; not interpreted"),
            Real_Fixture_Process_Policy);
    begin
-      Assert (Result.Status = Editor.External_Producers.Process_Run_Succeeded,
+      Assert (Result.Status = Editor.External_Producers.Build_Types.Process_Run_Succeeded,
               "approved echo fixture succeeds under explicit real-fixture gate");
       Assert (To_String (Result.Stdout_Text) =
                 "two words" & ASCII.LF & """quoted"" ; not interpreted",
@@ -2930,22 +2934,22 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Echo : constant Editor.External_Producers.Process_Run_Result :=
+      Echo : constant Editor.External_Producers.Build_Types.Process_Run_Result :=
         Editor.External_Producers.Build_Requests.Execute_Process_Request_Real_Fixture
           (Fixture_Request (First => "stderr", Second => "main.adb:1:1: error: stderr"),
            Real_Fixture_Process_Policy);
-      Exit_Result : constant Editor.External_Producers.Process_Run_Result :=
+      Exit_Result : constant Editor.External_Producers.Build_Types.Process_Run_Result :=
         Editor.External_Producers.Build_Requests.Execute_Process_Request_Real_Fixture
           (Fixture_Request
-             (Kind => Editor.External_Producers.Exit_Code_Fixture,
+             (Kind => Editor.External_Producers.Build_Types.Exit_Code_Fixture,
               First => "7", Second => "main.adb:2:1: error: failed"),
            Real_Fixture_Process_Policy);
    begin
-      Assert (Echo.Status = Editor.External_Producers.Process_Run_Succeeded,
+      Assert (Echo.Status = Editor.External_Producers.Build_Types.Process_Run_Succeeded,
               "stderr echo fixture succeeds");
       Assert (To_String (Echo.Stderr_Text) = "main.adb:1:1: error: stderr",
               "stderr fixture captures bounded stderr text");
-      Assert (Exit_Result.Status = Editor.External_Producers.Process_Run_Failed,
+      Assert (Exit_Result.Status = Editor.External_Producers.Build_Types.Process_Run_Failed,
               "nonzero fixture exit maps to process failure");
       Assert (Exit_Result.Has_Exit_Code and then Exit_Result.Exit_Code = 7,
               "exit-code fixture preserves explicit exit code");
@@ -2955,12 +2959,12 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Result : constant Editor.External_Producers.Process_Run_Result :=
+      Result : constant Editor.External_Producers.Build_Types.Process_Run_Result :=
         Editor.External_Producers.Build_Requests.Execute_Process_Request_Real_Fixture
           (Fixture_Request (First => "stdout", Second => "12345"),
            Real_Fixture_Process_Policy (Max_Output_Bytes => 4));
    begin
-      Assert (Result.Status = Editor.External_Producers.Process_Run_Execution_Error,
+      Assert (Result.Status = Editor.External_Producers.Build_Types.Process_Run_Execution_Error,
               "real fixture output over the bound is rejected");
       Assert (Length (Result.Stdout_Text) = 0,
               "oversized fixture output is dropped before diagnostic ingestion");
@@ -2981,7 +2985,7 @@ package body Editor.External_Producers.Tests is
             Second => "main.adb:1:1: error: fixture",
             Third => "not a diagnostic"),
          Editor.External_Producers.Execution_Policy.Build_Real_Fixture_Execution_Gate);
-      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Succeeded,
+      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Types.Build_Run_Succeeded,
               "fixture command maps process success to build success");
       Assert (Result.Diagnostic_Result.Ingestion.Parse_Input_Count = 2,
               "fixture output is extracted as diagnostic text lines");
@@ -3141,14 +3145,14 @@ package body Editor.External_Producers.Tests is
       S : Editor.State.State_Type;
       Before : Editor.Feature_Panel.Feature_Panel_Fingerprint;
       After : Editor.Feature_Panel.Feature_Panel_Fingerprint;
-      Status : Editor.External_Producers.Process_Fixture_Validation_Status;
+      Status : Editor.External_Producers.Build_Types.Process_Fixture_Validation_Status;
    begin
       Prepare_State (S);
       Before := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
       Status := Editor.External_Producers.Build_Requests.Validate_Process_Fixture_Request
         (Fixture_Request, Real_Fixture_Process_Policy);
       After := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
-      Assert (Status = Editor.External_Producers.Fixture_Request_Valid,
+      Assert (Status = Editor.External_Producers.Build_Types.Fixture_Request_Valid,
               "fixture validation accepts an explicit approved fixture request");
       Assert (Before = After,
               "fixture validation does not mutate feature-panel state");
@@ -3166,9 +3170,9 @@ package body Editor.External_Producers.Tests is
       Prepare_State (S);
       Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Fixture_Gate
         (S, Build_Request,
-         Fixture_Request (Kind => Editor.External_Producers.No_Process_Fixture),
+         Fixture_Request (Kind => Editor.External_Producers.Build_Types.No_Process_Fixture),
          Editor.External_Producers.Execution_Policy.Build_Real_Fixture_Execution_Gate);
-      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Rejected,
+      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Types.Build_Run_Rejected,
               "unknown fixture request is rejected before runner execution");
       Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
               "rejected fixture request does not ingest supplied or fabricated diagnostics");
@@ -3190,7 +3194,7 @@ package body Editor.External_Producers.Tests is
            (First => "stdout", Second => "main.adb:1:1: error: too-long"),
          Editor.External_Producers.Execution_Policy.Build_Real_Fixture_Execution_Gate
            (Max_Output_Bytes => 8));
-      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Execution_Error,
+      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Types.Build_Run_Execution_Error,
               "fixture output beyond the bound maps to execution error");
       Assert (Result.Diagnostic_Result.Ingestion.Parse_Input_Count = 0,
               "oversized fixture output is dropped before diagnostic parsing");
@@ -3209,10 +3213,10 @@ package body Editor.External_Producers.Tests is
       Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Fixture_Gate
         (S, Build_Request,
          Fixture_Request
-           (Kind => Editor.External_Producers.Exit_Code_Fixture,
+           (Kind => Editor.External_Producers.Build_Types.Exit_Code_Fixture,
             First => "4", Second => "main.adb:1:1: error: failed"),
          Editor.External_Producers.Execution_Policy.Build_Real_Fixture_Execution_Gate);
-      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Failed,
+      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Types.Build_Run_Failed,
               "nonzero fixture exit maps to failed build result");
       Assert (Result.Build_Result.Has_Exit_Code and then Result.Build_Result.Exit_Code = 4,
               "fixture failed build preserves explicit exit code");
@@ -3232,7 +3236,7 @@ package body Editor.External_Producers.Tests is
         (S, Build_Request, Fixture_Request,
          Editor.External_Producers.Execution_Policy.Build_Real_Fixture_Execution_Gate
            (Allow_Diagnostics_Ingestion => False));
-      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Succeeded,
+      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Types.Build_Run_Succeeded,
               "fixture execution can succeed while diagnostics ingestion is disabled");
       Assert (Result.Diagnostic_Result.Ingestion.Parse_Input_Count = 0,
               "diagnostics-disabled fixture command reports no parse/input count");
@@ -3247,7 +3251,7 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Result : constant Editor.External_Producers.Process_Run_Result :=
+      Result : constant Editor.External_Producers.Build_Types.Process_Run_Result :=
         Editor.External_Producers.Build_Requests.Execute_Process_Request_Real_Fixture
           (Fixture_Request, Real_Fixture_Process_Policy);
    begin
@@ -3261,10 +3265,10 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Result : constant Editor.External_Producers.Process_Run_Result :=
+      Result : constant Editor.External_Producers.Build_Types.Process_Run_Result :=
         Editor.External_Producers.Build_Requests.Execute_Process_Request_Real_Fixture
           (Fixture_Request
-             (Kind => Editor.External_Producers.Exit_Code_Fixture,
+             (Kind => Editor.External_Producers.Build_Types.Exit_Code_Fixture,
               First => "2", Second => "main.adb:1:1: error: failed"),
            Real_Fixture_Process_Policy);
    begin
@@ -3277,7 +3281,7 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Result : constant Editor.External_Producers.Process_Run_Result :=
+      Result : constant Editor.External_Producers.Build_Types.Process_Run_Result :=
         Editor.External_Producers.Build_Requests.Execute_Process_Request_Real_Fixture
           (Fixture_Request, Disabled_Process_Policy);
    begin
@@ -3290,7 +3294,7 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Result : constant Editor.External_Producers.Process_Run_Result :=
+      Result : constant Editor.External_Producers.Build_Types.Process_Run_Result :=
         Editor.External_Producers.Build_Requests.Execute_Process_Request_Real_Fixture
           (Fixture_Request (First => "stdout", Second => "12345"),
            Real_Fixture_Process_Policy (Max_Output_Bytes => 4));
@@ -3336,7 +3340,7 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Policy : constant Editor.External_Producers.Process_Execution_Policy :=
+      Policy : constant Editor.External_Producers.Build_Types.Process_Execution_Policy :=
         Disabled_Process_Policy;
    begin
       Assert (Editor.External_Producers.Build_Requests.Validate_Process_Execution_Policy (Policy),
@@ -3351,7 +3355,7 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Result : constant Editor.External_Producers.Process_Run_Result :=
+      Result : constant Editor.External_Producers.Build_Types.Process_Run_Result :=
         Editor.External_Producers.Build_Requests.Execute_Process_Request_Gated
           ((Program_Label => To_Unbounded_String ("gprbuild"),
             Working_Label => Null_Unbounded_String,
@@ -3359,9 +3363,9 @@ package body Editor.External_Producers.Tests is
             Structured_Arguments => Editor.External_Producers.Build_Requests.Empty_Process_Arguments),
            Disabled_Process_Policy,
            Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-             (Editor.External_Producers.Process_Run_Succeeded));
+             (Editor.External_Producers.Build_Types.Process_Run_Succeeded));
    begin
-      Assert (Result.Status = Editor.External_Producers.Process_Run_Not_Available,
+      Assert (Result.Status = Editor.External_Producers.Build_Types.Process_Run_Not_Available,
               "disabled policy returns not-available and ignores supplied success");
    end Test_Process_Execution_Disabled_Mode_Does_Not_Run;
 
@@ -3369,8 +3373,8 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Bad : constant Editor.External_Producers.Process_Execution_Policy :=
-        (Mode                     => Editor.External_Producers.Process_Execution_Real_Allowed,
+      Bad : constant Editor.External_Producers.Build_Types.Process_Execution_Policy :=
+        (Mode                     => Editor.External_Producers.Build_Types.Process_Execution_Real_Allowed,
          Allow_Real_Execution     => False,
          Allow_Shell              => False,
          Max_Output_Bytes         => 262_144,
@@ -3385,7 +3389,7 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Result : constant Editor.External_Producers.Process_Run_Result :=
+      Result : constant Editor.External_Producers.Build_Types.Process_Run_Result :=
         Editor.External_Producers.Build_Requests.Execute_Process_Request_Real_Gated
           ((Program_Label => To_Unbounded_String ("/bin/sh"),
             Working_Label => Null_Unbounded_String,
@@ -3393,7 +3397,7 @@ package body Editor.External_Producers.Tests is
             Structured_Arguments => Editor.External_Producers.Build_Requests.Empty_Process_Arguments),
            Real_Process_Policy (Allow_Shell => True));
    begin
-      Assert (Result.Status = Editor.External_Producers.Process_Run_Rejected,
+      Assert (Result.Status = Editor.External_Producers.Build_Types.Process_Run_Rejected,
               "shell-enabled policy is rejected before execution");
    end Test_Process_Execution_Rejects_Shell_Mode;
 
@@ -3401,7 +3405,7 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Result : constant Editor.External_Producers.Process_Run_Result :=
+      Result : constant Editor.External_Producers.Build_Types.Process_Run_Result :=
         Editor.External_Producers.Build_Requests.Execute_Process_Request_Real_Gated
           ((Program_Label => To_Unbounded_String ("gprbuild"),
             Working_Label => Null_Unbounded_String,
@@ -3409,7 +3413,7 @@ package body Editor.External_Producers.Tests is
             Structured_Arguments => Editor.External_Producers.Build_Requests.Empty_Process_Arguments),
            Real_Process_Policy);
    begin
-      Assert (Result.Status = Editor.External_Producers.Process_Run_Rejected,
+      Assert (Result.Status = Editor.External_Producers.Build_Types.Process_Run_Rejected,
               "real runner rejects opaque argument strings instead of shell-parsing them");
    end Test_Process_Execution_Rejects_Opaque_Arguments_For_Real_Run;
 
@@ -3417,7 +3421,7 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Args : constant Editor.External_Producers.Process_Argument_Vector :=
+      Args : constant Editor.External_Producers.Build_Types.Process_Argument_Vector :=
         Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector
           ("first", "", "third");
    begin
@@ -3437,17 +3441,17 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Request : constant Editor.External_Producers.Process_Run_Request :=
+      Request : constant Editor.External_Producers.Build_Types.Process_Run_Request :=
         (Program_Label => To_Unbounded_String ("gprbuild"),
          Working_Label => Null_Unbounded_String,
          Arguments     => Null_Unbounded_String,
          Structured_Arguments => Editor.External_Producers.Build_Requests.Empty_Process_Arguments);
-      Status : constant Editor.External_Producers.Process_Request_Validation_Status :=
+      Status : constant Editor.External_Producers.Build_Types.Process_Request_Validation_Status :=
         Editor.External_Producers.Build_Requests.Validate_Process_Run_Request_For_Real_Execution_Status
           (Request,
            Real_Process_Policy (Require_Absolute_Program => True));
    begin
-      Assert (Status = Editor.External_Producers.Process_Request_Rejected_Relative_Program,
+      Assert (Status = Editor.External_Producers.Build_Types.Process_Request_Rejected_Relative_Program,
               "real execution validation rejects relative program labels when required");
    end Test_Process_Request_Real_Validation_Rejects_Relative_Program_When_Required;
 
@@ -3455,14 +3459,14 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Request : constant Editor.External_Producers.Build_Run_Request :=
-        (Tool          => Editor.External_Producers.GPRbuild_Tool,
-        Provenance    => Editor.External_Producers.Build_Request_From_Internal_Command,
+      Request : constant Editor.External_Producers.Build_Types.Build_Run_Request :=
+        (Tool          => Editor.External_Producers.Build_Types.GPRbuild_Tool,
+        Provenance    => Editor.External_Producers.Build_Types.Build_Request_From_Internal_Command,
          Working_Label => To_Unbounded_String ("unit-test"),
          Command_Label => To_Unbounded_String ("gprbuild"),
          Arguments     => To_Unbounded_String ("-q --RTS=two words ; ignored"),
          Structured_Arguments => Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q"));
-      Process : constant Editor.External_Producers.Process_Run_Request :=
+      Process : constant Editor.External_Producers.Build_Types.Process_Run_Request :=
         Editor.External_Producers.Build_Requests.Prepare_Process_Request (Request);
    begin
       Assert (To_String (Process.Arguments) = "-q --RTS=two words ; ignored",
@@ -3476,23 +3480,23 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Request : constant Editor.External_Producers.Build_Run_Request :=
-        (Tool          => Editor.External_Producers.GPRbuild_Tool,
-        Provenance    => Editor.External_Producers.Build_Request_From_Internal_Command,
+      Request : constant Editor.External_Producers.Build_Types.Build_Run_Request :=
+        (Tool          => Editor.External_Producers.Build_Types.GPRbuild_Tool,
+        Provenance    => Editor.External_Producers.Build_Types.Build_Request_From_Internal_Command,
          Working_Label => To_Unbounded_String ("unit-test"),
          Command_Label => To_Unbounded_String ("gprbuild"),
          Arguments     => To_Unbounded_String ("-q"),
          Structured_Arguments => Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q"));
-      Result : constant Editor.External_Producers.Build_Preflight_Result :=
+      Result : constant Editor.External_Producers.Build_Types.Build_Preflight_Result :=
         Editor.External_Producers.Build_Requests.Preflight_Build_Run_Request
           (Request, Real_Process_Policy);
    begin
       Assert (Editor.External_Producers.Build_Requests.Build_Preflight_Result_Is_Consistent (Result),
               "preflight result remains internally consistent");
-      Assert (Result.Build_Request_Status = Editor.External_Producers.Build_Request_Valid,
+      Assert (Result.Build_Request_Status = Editor.External_Producers.Build_Types.Build_Request_Valid,
               "preflight validates the build request before process validation");
       Assert (Result.Process_Request_Status =
-              Editor.External_Producers.Process_Request_Rejected_Opaque_Arguments,
+              Editor.External_Producers.Build_Types.Process_Request_Rejected_Opaque_Arguments,
               "preflight rejects opaque process arguments for real execution");
       Assert (not Result.Has_Process_Request,
               "rejected preflight does not expose an executable process request");
@@ -3503,9 +3507,9 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Request : constant Editor.External_Producers.Build_Run_Request :=
-        (Tool          => Editor.External_Producers.GPRbuild_Tool,
-        Provenance    => Editor.External_Producers.Build_Request_From_Internal_Command,
+      Request : constant Editor.External_Producers.Build_Types.Build_Run_Request :=
+        (Tool          => Editor.External_Producers.Build_Types.GPRbuild_Tool,
+        Provenance    => Editor.External_Producers.Build_Types.Build_Request_From_Internal_Command,
          Working_Label => To_Unbounded_String ("unit-test"),
          Command_Label => To_Unbounded_String ("gprbuild"),
          Arguments     => To_Unbounded_String ("-q"),
@@ -3516,9 +3520,9 @@ package body Editor.External_Producers.Tests is
       Result := Editor.External_Producers.Build_Requests.Run_Build_Command_Test_Seam_With_Runner
         (S, Request, Real_Process_Policy,
          Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-           (Editor.External_Producers.Process_Run_Succeeded,
+           (Editor.External_Producers.Build_Types.Process_Run_Succeeded,
             Stdout_Text => "main.adb:1:1: error: should-not-run"));
-      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Rejected,
+      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Types.Build_Run_Rejected,
               "invalid preflight rejects before supplied runner output can succeed");
       Assert (To_String (Result.Command_Message) = "Build: structured arguments required",
               "command feedback reports structured argv requirement without raw command text");
@@ -3530,7 +3534,7 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Result : constant Editor.External_Producers.Process_Run_Result :=
+      Result : constant Editor.External_Producers.Build_Types.Process_Run_Result :=
         Editor.External_Producers.Build_Requests.Execute_Process_Request_Gated
           ((Program_Label => To_Unbounded_String ("fixture"),
             Working_Label => Null_Unbounded_String,
@@ -3538,10 +3542,10 @@ package body Editor.External_Producers.Tests is
             Structured_Arguments => Editor.External_Producers.Build_Requests.Empty_Process_Arguments),
            Fixture_Process_Policy (Max_Output_Bytes => 4),
            Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-             (Editor.External_Producers.Process_Run_Succeeded,
+             (Editor.External_Producers.Build_Types.Process_Run_Succeeded,
               Stdout_Text => "12345"));
    begin
-      Assert (Result.Status = Editor.External_Producers.Process_Run_Execution_Error,
+      Assert (Result.Status = Editor.External_Producers.Build_Types.Process_Run_Execution_Error,
               "fixture output above the policy byte bound is rejected deterministically");
       Assert (Length (Result.Stdout_Text) = 0,
               "oversized output is not forwarded to diagnostics");
@@ -3551,7 +3555,7 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Result : constant Editor.External_Producers.Process_Run_Result :=
+      Result : constant Editor.External_Producers.Build_Types.Process_Run_Result :=
         Editor.External_Producers.Build_Requests.Execute_Process_Request_Real_Gated
           ((Program_Label => To_Unbounded_String ("/bin/echo"),
             Working_Label => To_Unbounded_String ("/"),
@@ -3561,9 +3565,9 @@ package body Editor.External_Producers.Tests is
            Real_Process_Policy (Timeout_Milliseconds => 1));
    begin
       Assert (Result.Status =
-                Editor.External_Producers.Process_Run_Succeeded
+                Editor.External_Producers.Build_Types.Process_Run_Succeeded
               or else Result.Status =
-                Editor.External_Producers.Process_Run_Timed_Out,
+                Editor.External_Producers.Build_Types.Process_Run_Timed_Out,
               "nonzero timeout is handled by the native runner supervisor");
    end Test_Process_Execution_Timeout_Field_Uses_Native_Supervisor;
 
@@ -3571,7 +3575,7 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Result : constant Editor.External_Producers.Process_Run_Result :=
+      Result : constant Editor.External_Producers.Build_Types.Process_Run_Result :=
         Editor.External_Producers.Build_Requests.Execute_Process_Request_Real_Gated
           ((Program_Label => To_Unbounded_String ("gprbuild"),
             Working_Label => Null_Unbounded_String,
@@ -3579,7 +3583,7 @@ package body Editor.External_Producers.Tests is
             Structured_Arguments => Editor.External_Producers.Build_Requests.Empty_Process_Arguments),
            Real_Process_Policy);
    begin
-      Assert (Result.Status = Editor.External_Producers.Process_Run_Rejected,
+      Assert (Result.Status = Editor.External_Producers.Build_Types.Process_Run_Rejected,
               "real runner rejects requests without structured argv before any platform spawn attempt");
    end Test_Gated_Real_Runner_Not_Available_When_Platform_Runner_Missing;
 
@@ -3592,11 +3596,11 @@ package body Editor.External_Producers.Tests is
           (Build_Request,
            Fixture_Process_Policy,
            Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-             (Editor.External_Producers.Process_Run_Failed,
+             (Editor.External_Producers.Build_Types.Process_Run_Failed,
               Exit_Code => 9, Has_Exit_Code => True,
               Stderr_Text => "main.adb:1:1: error: fixture"));
    begin
-      Assert (Result.Status = Editor.External_Producers.Build_Run_Failed,
+      Assert (Result.Status = Editor.External_Producers.Build_Types.Build_Run_Failed,
               "build test seam can select test-fed process runner explicitly");
       Assert (Result.Has_Exit_Code and then Result.Exit_Code = 9,
               "test-fed process result maps through build result conversion");
@@ -3609,7 +3613,7 @@ package body Editor.External_Producers.Tests is
       Result : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
         Editor.External_Producers.Build_Requests.Execute_Build_Request (Build_Request);
    begin
-      Assert (Result.Status = Editor.External_Producers.Build_Run_Not_Available,
+      Assert (Result.Status = Editor.External_Producers.Build_Types.Build_Run_Not_Available,
               "default build request still selects the disabled runner");
    end Test_Build_Command_Selects_Default_Non_Executing_Runner_By_Default;
 
@@ -3619,12 +3623,12 @@ package body Editor.External_Producers.Tests is
       pragma Unreferenced (T);
       Result : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
         Editor.External_Producers.Build_Requests.Execute_Build_Request_With_Process_Policy
-          (Build_Request (Tool => Editor.External_Producers.No_Build_Tool),
+          (Build_Request (Tool => Editor.External_Producers.Build_Types.No_Build_Tool),
            Fixture_Process_Policy,
            Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-             (Editor.External_Producers.Process_Run_Succeeded));
+             (Editor.External_Producers.Build_Types.Process_Run_Succeeded));
    begin
-      Assert (Result.Status = Editor.External_Producers.Build_Run_Rejected,
+      Assert (Result.Status = Editor.External_Producers.Build_Types.Build_Run_Rejected,
               "invalid build request is rejected before the selected runner can supply success");
    end Test_Build_Command_Does_Not_Call_Runner_For_Invalid_Request;
 
@@ -3638,7 +3642,7 @@ package body Editor.External_Producers.Tests is
           (Build_Request,
            Fixture_Process_Policy,
            Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-             (Editor.External_Producers.Process_Run_Failed,
+             (Editor.External_Producers.Build_Types.Process_Run_Failed,
               Stderr_Text => "main.adb:1:1: error: gated fixture"));
       Command : Editor.External_Producers.Build_Requests.Diagnostic_Line_Command_Result;
    begin
@@ -3655,14 +3659,14 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Gate : constant Editor.External_Producers.Build_Execution_Gate :=
+      Gate : constant Editor.External_Producers.Build_Types.Build_Execution_Gate :=
         Editor.External_Producers.Execution_Policy.Build_Default_Execution_Gate;
    begin
       Assert (Editor.External_Producers.Build_Requests.Validate_Build_Execution_Gate (Gate),
               "default build execution gate is internally consistent");
       Assert (not Gate.Allow_Build_Run,
               "default build execution gate does not allow build execution");
-      Assert (Gate.Process_Policy.Mode = Editor.External_Producers.Process_Execution_Disabled,
+      Assert (Gate.Process_Policy.Mode = Editor.External_Producers.Build_Types.Process_Execution_Disabled,
               "default build execution gate carries disabled process policy");
    end Test_Build_Gate_Default_Disables_Execution;
 
@@ -3677,9 +3681,9 @@ package body Editor.External_Producers.Tests is
       Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Gate
         (S, Build_Request, Editor.External_Producers.Execution_Policy.Build_Default_Execution_Gate,
          Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-           (Editor.External_Producers.Process_Run_Succeeded,
+           (Editor.External_Producers.Build_Types.Process_Run_Succeeded,
             Stderr_Text => "main.adb:1:1: error: must-not-run"));
-      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Not_Available,
+      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Types.Build_Run_Not_Available,
               "disabled gate ignores supplied runner success");
       Assert (To_String (Result.Command_Message) = "Build: execution disabled",
               "disabled gate emits execution-disabled feedback");
@@ -3691,11 +3695,11 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Gate : constant Editor.External_Producers.Build_Execution_Gate :=
+      Gate : constant Editor.External_Producers.Build_Types.Build_Execution_Gate :=
         Editor.External_Producers.Execution_Policy.Build_Test_Fixture_Execution_Gate;
    begin
       Assert (Editor.External_Producers.Execution_Policy.Select_Process_Runner_Mode
-                (Gate, Gate.Process_Policy) = Editor.External_Producers.Process_Execution_Test_Fixture,
+                (Gate, Gate.Process_Policy) = Editor.External_Producers.Build_Types.Process_Execution_Test_Fixture,
               "test fixture gate selects only the test-fed runner");
    end Test_Build_Gate_Test_Fixture_Selects_Test_Runner;
 
@@ -3703,13 +3707,13 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Gate : constant Editor.External_Producers.Build_Execution_Gate :=
+      Gate : constant Editor.External_Producers.Build_Types.Build_Execution_Gate :=
         Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate;
    begin
       Assert (Gate.Allow_Build_Run and then Gate.Process_Policy.Allow_Real_Execution,
               "real gate requires explicit command and process opt-in");
       Assert (Editor.External_Producers.Execution_Policy.Select_Process_Runner_Mode
-                (Gate, Gate.Process_Policy) = Editor.External_Producers.Process_Execution_Real_Allowed,
+                (Gate, Gate.Process_Policy) = Editor.External_Producers.Build_Types.Process_Execution_Real_Allowed,
               "explicit real gate selects real runner mode");
    end Test_Build_Gate_Real_Mode_Must_Be_Explicit;
 
@@ -3717,9 +3721,9 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Gate : constant Editor.External_Producers.Build_Execution_Gate :=
+      Gate : constant Editor.External_Producers.Build_Types.Build_Execution_Gate :=
         (Process_Policy              =>
-           (Mode                     => Editor.External_Producers.Process_Execution_Test_Fixture,
+           (Mode                     => Editor.External_Producers.Build_Types.Process_Execution_Test_Fixture,
             Allow_Real_Execution     => True,
             Allow_Shell              => False,
             Max_Output_Bytes         => 262_144,
@@ -3728,14 +3732,14 @@ package body Editor.External_Producers.Tests is
          Allow_Build_Run             => True,
          Allow_Real_Build_Tool_Execution => False,
          Allow_Real_Build_Tool_Fixture   => False,
-         Consent                     => Editor.External_Producers.Build_Consent_Not_Provided,
+         Consent                     => Editor.External_Producers.Build_Types.Build_Consent_Not_Provided,
          Allow_Diagnostics_Ingestion => True,
          Show_Diagnostics            => False);
    begin
       Assert (not Editor.External_Producers.Build_Requests.Validate_Build_Execution_Gate (Gate),
               "test-fed and real execution cannot be active ambiguously");
       Assert (Editor.External_Producers.Execution_Policy.Select_Process_Runner_Mode
-                (Gate, Gate.Process_Policy) = Editor.External_Producers.Process_Execution_Disabled,
+                (Gate, Gate.Process_Policy) = Editor.External_Producers.Build_Types.Process_Execution_Disabled,
               "ambiguous gate deterministically selects no runner");
    end Test_Build_Gate_Rejects_Ambiguous_Test_And_Real_Mode;
 
@@ -3743,12 +3747,12 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Gate : constant Editor.External_Producers.Build_Execution_Gate :=
+      Gate : constant Editor.External_Producers.Build_Types.Build_Execution_Gate :=
         (Process_Policy              => Real_Process_Policy (Allow_Shell => True),
          Allow_Build_Run             => True,
          Allow_Real_Build_Tool_Execution => False,
          Allow_Real_Build_Tool_Fixture   => False,
-         Consent                     => Editor.External_Producers.Build_Consent_Not_Provided,
+         Consent                     => Editor.External_Producers.Build_Types.Build_Consent_Not_Provided,
          Allow_Diagnostics_Ingestion => True,
          Show_Diagnostics            => False);
    begin
@@ -3761,9 +3765,9 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Request : constant Editor.External_Producers.Build_Run_Request :=
-        (Tool          => Editor.External_Producers.GPRbuild_Tool,
-         Provenance    => Editor.External_Producers.Build_Request_From_User_Opt_In,
+      Request : constant Editor.External_Producers.Build_Types.Build_Run_Request :=
+        (Tool          => Editor.External_Producers.Build_Types.GPRbuild_Tool,
+         Provenance    => Editor.External_Producers.Build_Types.Build_Request_From_User_Opt_In,
          Working_Label => Null_Unbounded_String,
          Command_Label => To_Unbounded_String ("gprbuild"),
          Arguments     => To_Unbounded_String ("-q --not-split"),
@@ -3772,9 +3776,9 @@ package body Editor.External_Producers.Tests is
    begin
       Prepare_State (S);
       Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Gate
-        (S, Request, Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed),
-         Editor.External_Producers.Build_Requests.Build_Process_Run_Result (Editor.External_Producers.Process_Run_Succeeded));
-      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Rejected,
+        (S, Request, Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Types.Build_Consent_User_Confirmed),
+         Editor.External_Producers.Build_Requests.Build_Process_Run_Result (Editor.External_Producers.Build_Types.Process_Run_Succeeded));
+      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Types.Build_Run_Rejected,
               "real gate rejects opaque arguments before runner selection");
       Assert (To_String (Result.Command_Message) = "Build: structured arguments required",
               "opaque argument rejection does not expose shell quoting");
@@ -3789,12 +3793,12 @@ package body Editor.External_Producers.Tests is
    begin
       Prepare_State (S);
       Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Gate
-        (S, Build_Request (Tool => Editor.External_Producers.No_Build_Tool),
+        (S, Build_Request (Tool => Editor.External_Producers.Build_Types.No_Build_Tool),
          Editor.External_Producers.Execution_Policy.Build_Test_Fixture_Execution_Gate,
          Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-           (Editor.External_Producers.Process_Run_Succeeded,
+           (Editor.External_Producers.Build_Types.Process_Run_Succeeded,
             Stderr_Text => "main.adb:1:1: error: must-not-run"));
-      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Rejected,
+      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Types.Build_Run_Rejected,
               "invalid build request rejects before supplied runner result");
       Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
               "invalid build request cannot ingest supplied output");
@@ -3811,8 +3815,8 @@ package body Editor.External_Producers.Tests is
       Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Gate
         (S, Build_Request (Command => ""),
          Editor.External_Producers.Execution_Policy.Build_Test_Fixture_Execution_Gate,
-         Editor.External_Producers.Build_Requests.Build_Process_Run_Result (Editor.External_Producers.Process_Run_Succeeded));
-      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Rejected,
+         Editor.External_Producers.Build_Requests.Build_Process_Run_Result (Editor.External_Producers.Build_Types.Process_Run_Succeeded));
+      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Types.Build_Run_Rejected,
               "invalid process-preparation input rejects before supplied runner result");
       Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
               "invalid process request cannot mutate Diagnostics");
@@ -3829,10 +3833,10 @@ package body Editor.External_Producers.Tests is
       Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Gate
         (S, Build_Request, Editor.External_Producers.Execution_Policy.Build_Test_Fixture_Execution_Gate,
          Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-           (Editor.External_Producers.Process_Run_Failed,
+           (Editor.External_Producers.Build_Types.Process_Run_Failed,
             Exit_Code => 2, Has_Exit_Code => True,
             Stderr_Text => "main.adb:1:1: error: explicit fixture"));
-      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Failed,
+      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Types.Build_Run_Failed,
               "explicit test gate maps supplied process failure");
       Assert (Result.Diagnostic_Result.Ingestion.Ingestion_Result.Accepted_Count = 1,
               "explicit test gate routes output through diagnostics ingestion");
@@ -3848,16 +3852,16 @@ package body Editor.External_Producers.Tests is
       Prepare_State (S);
       Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Gate
         (S,
-         (Tool          => Editor.External_Producers.GPRbuild_Tool,
-          Provenance    => Editor.External_Producers.Build_Request_From_User_Opt_In,
+         (Tool          => Editor.External_Producers.Build_Types.GPRbuild_Tool,
+          Provenance    => Editor.External_Producers.Build_Types.Build_Request_From_User_Opt_In,
           Working_Label => Null_Unbounded_String,
           Command_Label => To_Unbounded_String ("gprbuild --version"),
           Arguments     => Null_Unbounded_String,
           Structured_Arguments =>
             Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("--version")),
-         Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed),
-         Editor.External_Producers.Build_Requests.Build_Process_Run_Result (Editor.External_Producers.Process_Run_Succeeded));
-      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Succeeded,
+         Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Types.Build_Consent_User_Confirmed),
+         Editor.External_Producers.Build_Requests.Build_Process_Run_Result (Editor.External_Producers.Build_Types.Process_Run_Succeeded));
+      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Types.Build_Run_Succeeded,
               "validated real gate executes a bounded version command");
       Assert (Result.Build_Result.Has_Exit_Code
               and then Result.Build_Result.Exit_Code = 0,
@@ -3879,9 +3883,9 @@ package body Editor.External_Producers.Tests is
         (S, Build_Request,
          Editor.External_Producers.Execution_Policy.Build_Test_Fixture_Execution_Gate (Allow_Diagnostics_Ingestion => False),
          Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-           (Editor.External_Producers.Process_Run_Failed,
+           (Editor.External_Producers.Build_Types.Process_Run_Failed,
             Stderr_Text => "main.adb:1:1: error: not-ingested"));
-      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Failed,
+      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Types.Build_Run_Failed,
               "disabling ingestion does not alter build status");
       Assert (Result.Diagnostic_Result.Ingestion.Parse_Input_Count = 0,
               "disabled ingestion does not parse process output");
@@ -3902,7 +3906,7 @@ package body Editor.External_Producers.Tests is
       Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Gate
         (S, Build_Request, Editor.External_Producers.Execution_Policy.Build_Test_Fixture_Execution_Gate,
          Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-           (Editor.External_Producers.Process_Run_Failed,
+           (Editor.External_Producers.Build_Types.Process_Run_Failed,
             Stderr_Text => "main.adb:1:1: error: ingested"));
       Assert (Result.Diagnostic_Result.Ingestion.Parse_Accepted_Count = 1,
               "enabled ingestion uses diagnostic-line parser");
@@ -3926,7 +3930,7 @@ package body Editor.External_Producers.Tests is
       Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Gate
         (S, Build_Request, Editor.External_Producers.Execution_Policy.Build_Test_Fixture_Execution_Gate,
          Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-           (Editor.External_Producers.Process_Run_Failed,
+           (Editor.External_Producers.Build_Types.Process_Run_Failed,
             Stderr_Text => "main.adb:1:1: error: hidden"));
       After := Editor.Feature_Panel.Active_Feature (S.Feature_Panel);
       Assert (Result.Diagnostic_Result.Ingestion.Ingestion_Result.Accepted_Count = 1,
@@ -3949,7 +3953,7 @@ package body Editor.External_Producers.Tests is
         (S, Build_Request,
          Editor.External_Producers.Execution_Policy.Build_Test_Fixture_Execution_Gate (Show_Diagnostics => True),
          Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-           (Editor.External_Producers.Process_Run_Failed,
+           (Editor.External_Producers.Build_Types.Process_Run_Failed,
             Stderr_Text => "main.adb:1:1: error: visible"));
       Assert (Result.Diagnostic_Result.Should_Show_Diagnostics,
               "explicit show flag is reflected in command result");
@@ -4025,14 +4029,14 @@ package body Editor.External_Producers.Tests is
       pragma Unreferenced (T);
       Supplied : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
         Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-          (Editor.External_Producers.Build_Run_Failed,
+          (Editor.External_Producers.Build_Types.Build_Run_Failed,
            Exit_Code => 2, Has_Exit_Code => True,
            Stderr_Text => "main.adb:1:1: error: supplied");
       Result : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
         Editor.External_Producers.Build_Requests.Execute_Test_Fed_Build_Request
           (Build_Request, Supplied);
    begin
-      Assert (Result.Status = Editor.External_Producers.Build_Run_Failed,
+      Assert (Result.Status = Editor.External_Producers.Build_Types.Build_Run_Failed,
               "test-fed executor returns the supplied status");
       Assert (Result.Has_Exit_Code and then Result.Exit_Code = 2,
               "test-fed executor returns the supplied exit code");
@@ -4046,14 +4050,14 @@ package body Editor.External_Producers.Tests is
       pragma Unreferenced (T);
       Supplied : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
         Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-          (Editor.External_Producers.Build_Run_Succeeded,
+          (Editor.External_Producers.Build_Types.Build_Run_Succeeded,
            Stdout_Text => "main.adb:1:1: warning: should-not-appear");
       Result : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
         Editor.External_Producers.Build_Requests.Execute_Test_Fed_Build_Request
-          (Build_Request (Tool => Editor.External_Producers.No_Build_Tool),
+          (Build_Request (Tool => Editor.External_Producers.Build_Types.No_Build_Tool),
            Supplied);
    begin
-      Assert (Result.Status = Editor.External_Producers.Build_Run_Rejected,
+      Assert (Result.Status = Editor.External_Producers.Build_Types.Build_Run_Rejected,
               "invalid request is rejected before the test-fed executor result is used");
       Assert (To_String (Result.Stdout_Text)'Length = 0,
               "invalid request does not expose supplied stdout diagnostics");
@@ -4065,11 +4069,11 @@ package body Editor.External_Producers.Tests is
       pragma Unreferenced (T);
       Result : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
         Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-          (Editor.External_Producers.Build_Run_Succeeded);
+          (Editor.External_Producers.Build_Types.Build_Run_Succeeded);
       Lines : constant Editor.External_Producers.Build_Requests.Diagnostic_Text_Line_Array :=
         Editor.External_Producers.Build_Requests.Extract_Diagnostic_Lines_From_Build_Result (Result);
    begin
-      Assert (Result.Status = Editor.External_Producers.Build_Run_Succeeded,
+      Assert (Result.Status = Editor.External_Producers.Build_Types.Build_Run_Succeeded,
               "build result stores the requested status");
       Assert (not Result.Has_Exit_Code,
               "empty result has no synthetic exit code");
@@ -4087,7 +4091,7 @@ package body Editor.External_Producers.Tests is
    begin
       Explicit.Append (To_Unbounded_String ("main.adb:1:1: error: explicit"));
       Result := Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-        (Editor.External_Producers.Build_Run_Failed,
+        (Editor.External_Producers.Build_Types.Build_Run_Failed,
          Exit_Code => 1, Has_Exit_Code => True,
          Stderr_Text => "main.adb:2:1: warning: stderr",
          Diagnostic_Lines => Explicit);
@@ -4104,7 +4108,7 @@ package body Editor.External_Producers.Tests is
       pragma Unreferenced (T);
       Result : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
         Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-          (Editor.External_Producers.Build_Run_Failed,
+          (Editor.External_Producers.Build_Types.Build_Run_Failed,
            Stdout_Text => "stdout.adb:2:1: warning: stdout" & ASCII.LF,
            Stderr_Text => "stderr.adb:1:1: error: stderr" & ASCII.LF);
       Lines : constant Editor.External_Producers.Build_Requests.Diagnostic_Text_Line_Array :=
@@ -4124,7 +4128,7 @@ package body Editor.External_Producers.Tests is
       pragma Unreferenced (T);
       Result : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
         Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-          (Editor.External_Producers.Build_Run_Execution_Error,
+          (Editor.External_Producers.Build_Types.Build_Run_Execution_Error,
            Stderr_Text => "main.adb:1:1: error: execution diagnostic");
       Lines : constant Editor.External_Producers.Build_Requests.Diagnostic_Text_Line_Array :=
         Editor.External_Producers.Build_Requests.Extract_Diagnostic_Lines_From_Build_Result (Result);
@@ -4143,7 +4147,7 @@ package body Editor.External_Producers.Tests is
       Result : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
         Editor.External_Producers.Build_Requests.Execute_Build_Request (Build_Request);
    begin
-      Assert (Result.Status = Editor.External_Producers.Build_Run_Not_Available,
+      Assert (Result.Status = Editor.External_Producers.Build_Types.Build_Run_Not_Available,
               "default build executor seam does not run an external tool");
       Assert (Result.Diagnostic_Lines.Length = 0,
               "default not-available result carries no diagnostics");
@@ -4159,7 +4163,7 @@ package body Editor.External_Producers.Tests is
    begin
       Prepare_State (S);
       Result := Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-        (Editor.External_Producers.Build_Run_Failed,
+        (Editor.External_Producers.Build_Types.Build_Run_Failed,
          Exit_Code => 1, Has_Exit_Code => True,
          Stderr_Text => "main.adb:1:1: error: build failed");
       Command := Editor.External_Producers.Build_Requests.Ingest_Build_Run_Diagnostics
@@ -4181,7 +4185,7 @@ package body Editor.External_Producers.Tests is
       Prepare_State (S);
       Editor.Feature_Diagnostics.Set_Filter_Text (S.Feature_Diagnostics, "warning");
       Result := Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-        (Editor.External_Producers.Build_Run_Succeeded,
+        (Editor.External_Producers.Build_Types.Build_Run_Succeeded,
          Stdout_Text => "main.adb:1:1: warning: preserved filter");
       Command := Editor.External_Producers.Build_Requests.Ingest_Build_Run_Diagnostics
         (S, Build_Source, Result);
@@ -4203,7 +4207,7 @@ package body Editor.External_Producers.Tests is
       Editor.Feature_Diagnostics.Toggle_Warnings_Visible
         (S.Feature_Diagnostics);
       Result := Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-        (Editor.External_Producers.Build_Run_Succeeded,
+        (Editor.External_Producers.Build_Types.Build_Run_Succeeded,
          Stderr_Text => "main.adb:1:1: warning: hidden severity remains hidden");
       Command := Editor.External_Producers.Build_Requests.Ingest_Build_Run_Diagnostics
         (S, Build_Source, Result);
@@ -4226,7 +4230,7 @@ package body Editor.External_Producers.Tests is
       Editor.Feature_Diagnostics.Toggle_Source_Visible
         (S.Feature_Diagnostics, Editor.Feature_Diagnostics.External_Diagnostic_Source);
       Result := Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-        (Editor.External_Producers.Build_Run_Succeeded,
+        (Editor.External_Producers.Build_Types.Build_Run_Succeeded,
          Stderr_Text => "main.adb:1:1: warning: hidden source remains hidden");
       Command := Editor.External_Producers.Build_Requests.Ingest_Build_Run_Diagnostics
         (S, Build_Source, Result);
@@ -4250,7 +4254,7 @@ package body Editor.External_Producers.Tests is
                 (S, Editor.Feature_Panel.Messages_Feature),
               "test can activate Messages");
       Result := Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-        (Editor.External_Producers.Build_Run_Failed,
+        (Editor.External_Producers.Build_Types.Build_Run_Failed,
          Stderr_Text => "main.adb:1:1: error: no switch");
       Command := Editor.External_Producers.Build_Requests.Ingest_Build_Run_Diagnostics
         (S, Build_Source, Result);
@@ -4274,7 +4278,7 @@ package body Editor.External_Producers.Tests is
                 (S, Editor.Feature_Panel.Search_Results_Feature),
               "test can activate Search Results");
       Result := Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-        (Editor.External_Producers.Build_Run_Succeeded,
+        (Editor.External_Producers.Build_Types.Build_Run_Succeeded,
          Stdout_Text => "main.adb:1:1: warning: explicit show");
       Command := Editor.External_Producers.Build_Requests.Ingest_Build_Run_Diagnostics
         (S, Build_Source, Result, Show_Diagnostics => True);
@@ -4301,7 +4305,7 @@ package body Editor.External_Producers.Tests is
       Messages_Before := Editor.Feature_Messages.Row_Count (S.Feature_Messages);
       Search_Before := Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results);
       Result := Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-        (Editor.External_Producers.Build_Run_Failed,
+        (Editor.External_Producers.Build_Types.Build_Run_Failed,
          Stderr_Text => "main.adb:1:1: error: unrelated stable");
       Command := Editor.External_Producers.Build_Requests.Ingest_Build_Run_Diagnostics
         (S, Build_Source, Result);
@@ -4327,7 +4331,7 @@ package body Editor.External_Producers.Tests is
       Diag.Ingestion.Ingestion_Result.Accepted_Count := 1;
       Assert (Editor.External_Producers.Build_Requests.Build_Build_Command_Feedback
                 (Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-                   (Editor.External_Producers.Build_Run_Succeeded), Diag) =
+                   (Editor.External_Producers.Build_Types.Build_Run_Succeeded), Diag) =
                 "Build: succeeded, ingested 1 diagnostics",
               "successful build feedback appends diagnostic count compactly");
    end Test_Build_Command_Feedback_Succeeded_With_Diagnostics;
@@ -4344,7 +4348,7 @@ package body Editor.External_Producers.Tests is
       Diag.Ingestion.Ingestion_Result.Accepted_Count := 2;
       Assert (Editor.External_Producers.Build_Requests.Build_Build_Command_Feedback
                 (Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-                   (Editor.External_Producers.Build_Run_Failed,
+                   (Editor.External_Producers.Build_Types.Build_Run_Failed,
                     Exit_Code => 1, Has_Exit_Code => True), Diag) =
                 "Build: failed, ingested 2 diagnostics",
               "failed build feedback appends diagnostic count compactly");
@@ -4359,7 +4363,7 @@ package body Editor.External_Producers.Tests is
       Diag.Ingestion.Parse_Input_Count := 1;
       Assert (Editor.External_Producers.Build_Requests.Build_Build_Command_Feedback
                 (Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-                   (Editor.External_Producers.Build_Run_Succeeded), Diag) =
+                   (Editor.External_Producers.Build_Types.Build_Run_Succeeded), Diag) =
                 "Build: succeeded, no diagnostics parsed",
               "build feedback reports no parsed diagnostics for non-empty unparsed output");
    end Test_Build_Command_Feedback_No_Diagnostics_Parsed;
@@ -4372,7 +4376,7 @@ package body Editor.External_Producers.Tests is
    begin
       Assert (Editor.External_Producers.Build_Requests.Build_Build_Command_Feedback
                 (Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-                   (Editor.External_Producers.Build_Run_Execution_Error), Diag) =
+                   (Editor.External_Producers.Build_Types.Build_Run_Execution_Error), Diag) =
                 "Build: execution error",
               "execution-error feedback is compact when no diagnostics are ingested");
       Diag.Ingestion.Parse_Input_Count := 1;
@@ -4381,7 +4385,7 @@ package body Editor.External_Producers.Tests is
       Diag.Ingestion.Ingestion_Result.Accepted_Count := 1;
       Assert (Editor.External_Producers.Build_Requests.Build_Build_Command_Feedback
                 (Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-                   (Editor.External_Producers.Build_Run_Execution_Error), Diag) =
+                   (Editor.External_Producers.Build_Types.Build_Run_Execution_Error), Diag) =
                 "Build: execution error, ingested 1 diagnostics",
               "execution-error feedback can append diagnostic ingestion count");
    end Test_Build_Command_Feedback_Execution_Error;
@@ -4395,8 +4399,8 @@ package body Editor.External_Producers.Tests is
    begin
       Prepare_State (S);
       Result := Editor.External_Producers.Build_Requests.Run_Build_Command_Test_Seam
-        (S, Build_Request (Tool => Editor.External_Producers.No_Build_Tool));
-      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Rejected,
+        (S, Build_Request (Tool => Editor.External_Producers.Build_Types.No_Build_Tool));
+      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Types.Build_Run_Rejected,
               "invalid build command test seam request is rejected safely");
       Assert (To_String (Result.Command_Message) = "Build: rejected",
               "rejected build test-seam command emits one compact primary message");
@@ -4431,12 +4435,12 @@ package body Editor.External_Producers.Tests is
    end Test_Producer_Audit_Covers_Build_Output_Ingestion_Seam;
 
    function User_Request
-     (Tool : Editor.External_Producers.Build_Tool_Kind :=
-        Editor.External_Producers.GPRbuild_Tool;
+     (Tool : Editor.External_Producers.Build_Types.Build_Tool_Kind :=
+        Editor.External_Producers.Build_Types.GPRbuild_Tool;
       Program : String := "gprbuild";
       Working : String := "";
       Arg : String := "-q")
-      return Editor.External_Producers.Build_Run_Request
+      return Editor.External_Producers.Build_Types.Build_Run_Request
    is
    begin
       if Arg'Length = 0 then
@@ -4454,17 +4458,17 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Result : constant Editor.External_Producers.Build_Preflight_Result :=
+      Result : constant Editor.External_Producers.Build_Types.Build_Preflight_Result :=
         Editor.External_Producers.Build_Requests.Preflight_User_Opt_In_Build_Request
           (User_Request, Editor.External_Producers.Execution_Policy.Build_Default_Execution_Gate);
    begin
       Assert (Result.Process_Request_Status =
-                Editor.External_Producers.Process_Request_Rejected_Execution_Disabled,
+                Editor.External_Producers.Build_Types.Process_Request_Rejected_Execution_Disabled,
               "default gate rejects user opt-in build execution");
       Assert (not Result.Has_Process_Request,
               "disabled user opt-in preflight exposes no process request");
       Assert (Result.Build_Request_Status =
-                Editor.External_Producers.Build_Request_Rejected_Consent,
+                Editor.External_Producers.Build_Types.Build_Request_Rejected_Consent,
               "default user opt-in gate lacks execution consent");
       Assert (Editor.External_Producers.Build_Requests.Build_User_Opt_In_Build_Feedback (Result) =
                 "Build: execution consent required",
@@ -4475,17 +4479,17 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Missing : constant Editor.External_Producers.Build_Preflight_Result :=
+      Missing : constant Editor.External_Producers.Build_Types.Build_Preflight_Result :=
         Editor.External_Producers.Build_Requests.Preflight_User_Opt_In_Build_Request
           (User_Request, Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate);
-      Test_Only : constant Editor.External_Producers.Build_Preflight_Result :=
+      Test_Only : constant Editor.External_Producers.Build_Types.Build_Preflight_Result :=
         Editor.External_Producers.Build_Requests.Preflight_User_Opt_In_Build_Request
           (User_Request,
            Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate
-             (Consent => Editor.External_Producers.Build_Consent_Test_Only));
+             (Consent => Editor.External_Producers.Build_Types.Build_Consent_Test_Only));
    begin
       Assert (Missing.Build_Request_Status =
-                Editor.External_Producers.Build_Request_Rejected_Consent,
+                Editor.External_Producers.Build_Types.Build_Request_Rejected_Consent,
               "missing execution consent rejects user opt-in build preflight");
       Assert (not Missing.Has_Process_Request,
               "missing consent prepares no process request");
@@ -4493,7 +4497,7 @@ package body Editor.External_Producers.Tests is
                 "Build: execution consent required",
               "missing consent feedback is deterministic");
       Assert (Test_Only.Build_Request_Status =
-                Editor.External_Producers.Build_Request_Rejected_Consent,
+                Editor.External_Producers.Build_Types.Build_Request_Rejected_Consent,
               "test-only consent cannot satisfy user opt-in real build preflight");
       Assert (not Test_Only.Has_Process_Request,
               "test-only consent prepares no user-build process request");
@@ -4503,13 +4507,13 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Result : constant Editor.External_Producers.Build_Preflight_Result :=
+      Result : constant Editor.External_Producers.Build_Types.Build_Preflight_Result :=
         Editor.External_Producers.Build_Requests.Preflight_User_Opt_In_Build_Request
-          (User_Request, Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed));
+          (User_Request, Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Types.Build_Consent_User_Confirmed));
    begin
-      Assert (Result.Build_Request_Status = Editor.External_Producers.Build_Request_Valid,
+      Assert (Result.Build_Request_Status = Editor.External_Producers.Build_Types.Build_Request_Valid,
               "user opt-in provenance validates under explicit real gate");
-      Assert (Result.Process_Request_Status = Editor.External_Producers.Process_Request_Valid,
+      Assert (Result.Process_Request_Status = Editor.External_Producers.Build_Types.Process_Request_Valid,
               "structured user opt-in process request validates");
       Assert (Result.Has_Process_Request,
               "valid user opt-in preflight returns a process request");
@@ -4523,20 +4527,20 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Request : constant Editor.External_Producers.Build_Run_Request :=
-        (Tool          => Editor.External_Producers.GPRbuild_Tool,
-         Provenance    => Editor.External_Producers.Build_Request_From_Internal_Command,
+      Request : constant Editor.External_Producers.Build_Types.Build_Run_Request :=
+        (Tool          => Editor.External_Producers.Build_Types.GPRbuild_Tool,
+         Provenance    => Editor.External_Producers.Build_Types.Build_Request_From_Internal_Command,
          Working_Label => Null_Unbounded_String,
          Command_Label => To_Unbounded_String ("gprbuild"),
          Arguments     => Null_Unbounded_String,
          Structured_Arguments =>
            Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q"));
-      Result : constant Editor.External_Producers.Build_Preflight_Result :=
+      Result : constant Editor.External_Producers.Build_Types.Build_Preflight_Result :=
         Editor.External_Producers.Build_Requests.Preflight_User_Opt_In_Build_Request
-          (Request, Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed));
+          (Request, Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Types.Build_Consent_User_Confirmed));
    begin
       Assert (Result.Build_Request_Status =
-                Editor.External_Producers.Build_Request_Rejected_Provenance,
+                Editor.External_Producers.Build_Types.Build_Request_Rejected_Provenance,
               "internal command provenance cannot satisfy user opt-in preflight");
       Assert (Editor.External_Producers.Build_Requests.Build_User_Opt_In_Build_Feedback (Result) =
                 "Build: user opt-in required",
@@ -4547,20 +4551,20 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Request : constant Editor.External_Producers.Build_Run_Request :=
-        (Tool          => Editor.External_Producers.Alire_Build_Tool,
-         Provenance    => Editor.External_Producers.Build_Request_From_Implicit_Source,
+      Request : constant Editor.External_Producers.Build_Types.Build_Run_Request :=
+        (Tool          => Editor.External_Producers.Build_Types.Alire_Build_Tool,
+         Provenance    => Editor.External_Producers.Build_Types.Build_Request_From_Implicit_Source,
          Working_Label => Null_Unbounded_String,
          Command_Label => To_Unbounded_String ("alr"),
          Arguments     => Null_Unbounded_String,
          Structured_Arguments =>
            Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("build"));
-      Result : constant Editor.External_Producers.Build_Preflight_Result :=
+      Result : constant Editor.External_Producers.Build_Types.Build_Preflight_Result :=
         Editor.External_Producers.Build_Requests.Preflight_User_Opt_In_Build_Request
-          (Request, Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed));
+          (Request, Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Types.Build_Consent_User_Confirmed));
    begin
       Assert (Result.Build_Request_Status =
-                Editor.External_Producers.Build_Request_Rejected_Implicit_Source,
+                Editor.External_Producers.Build_Types.Build_Request_Rejected_Implicit_Source,
               "implicit build source provenance remains rejected");
       Assert (Editor.External_Producers.Build_Requests.Build_User_Opt_In_Build_Feedback (Result) =
                 "Build: explicit build request required",
@@ -4571,20 +4575,20 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Request : constant Editor.External_Producers.Build_Run_Request :=
-        (Tool          => Editor.External_Producers.GPRbuild_Tool,
-         Provenance    => Editor.External_Producers.Build_Request_Unknown,
+      Request : constant Editor.External_Producers.Build_Types.Build_Run_Request :=
+        (Tool          => Editor.External_Producers.Build_Types.GPRbuild_Tool,
+         Provenance    => Editor.External_Producers.Build_Types.Build_Request_Unknown,
          Working_Label => Null_Unbounded_String,
          Command_Label => To_Unbounded_String ("gprbuild"),
          Arguments     => Null_Unbounded_String,
          Structured_Arguments =>
            Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q"));
-      Result : constant Editor.External_Producers.Build_Preflight_Result :=
+      Result : constant Editor.External_Producers.Build_Types.Build_Preflight_Result :=
         Editor.External_Producers.Build_Requests.Preflight_User_Opt_In_Build_Request
-          (Request, Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed));
+          (Request, Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Types.Build_Consent_User_Confirmed));
    begin
       Assert (Result.Build_Request_Status =
-                Editor.External_Producers.Build_Request_Rejected_Unknown_Provenance,
+                Editor.External_Producers.Build_Types.Build_Request_Rejected_Unknown_Provenance,
               "unknown provenance is rejected for user opt-in builds");
    end Test_User_Opt_In_Build_Rejects_Unknown_Provenance;
 
@@ -4592,20 +4596,20 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Request : constant Editor.External_Producers.Build_Run_Request :=
-        (Tool          => Editor.External_Producers.GPRbuild_Tool,
-         Provenance    => Editor.External_Producers.Build_Request_From_Fixture,
+      Request : constant Editor.External_Producers.Build_Types.Build_Run_Request :=
+        (Tool          => Editor.External_Producers.Build_Types.GPRbuild_Tool,
+         Provenance    => Editor.External_Producers.Build_Types.Build_Request_From_Fixture,
          Working_Label => Null_Unbounded_String,
          Command_Label => To_Unbounded_String ("gprbuild"),
          Arguments     => Null_Unbounded_String,
          Structured_Arguments =>
            Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q"));
-      Result : constant Editor.External_Producers.Build_Preflight_Result :=
+      Result : constant Editor.External_Producers.Build_Types.Build_Preflight_Result :=
         Editor.External_Producers.Build_Requests.Preflight_User_Opt_In_Build_Request
-          (Request, Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed));
+          (Request, Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Types.Build_Consent_User_Confirmed));
    begin
       Assert (Result.Build_Request_Status =
-                Editor.External_Producers.Build_Request_Rejected_Provenance,
+                Editor.External_Producers.Build_Types.Build_Request_Rejected_Provenance,
               "fixture provenance cannot satisfy user opt-in real gate");
    end Test_User_Opt_In_Build_Rejects_Fixture_Provenance_Under_Real_Gate;
 
@@ -4613,25 +4617,25 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Custom : constant Editor.External_Producers.Build_Preflight_Result :=
+      Custom : constant Editor.External_Producers.Build_Types.Build_Preflight_Result :=
         Editor.External_Producers.Build_Requests.Preflight_User_Opt_In_Build_Request
-          (User_Request (Tool => Editor.External_Producers.Custom_Build_Tool,
+          (User_Request (Tool => Editor.External_Producers.Build_Types.Custom_Build_Tool,
                          Program => "custom", Arg => "build"),
-           Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed));
-      None : constant Editor.External_Producers.Build_Preflight_Result :=
+           Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Types.Build_Consent_User_Confirmed));
+      None : constant Editor.External_Producers.Build_Types.Build_Preflight_Result :=
         Editor.External_Producers.Build_Requests.Preflight_User_Opt_In_Build_Request
-          (User_Request (Tool => Editor.External_Producers.No_Build_Tool,
+          (User_Request (Tool => Editor.External_Producers.Build_Types.No_Build_Tool,
                          Program => "", Arg => ""),
-           Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed));
+           Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Types.Build_Consent_User_Confirmed));
    begin
       Assert (Custom.Build_Request_Status =
-                Editor.External_Producers.Build_Request_Rejected_Unsupported_Tool,
+                Editor.External_Producers.Build_Types.Build_Request_Rejected_Unsupported_Tool,
               "custom build tool remains unsupported without structured configuration");
       Assert (Editor.External_Producers.Build_Requests.Build_User_Opt_In_Build_Feedback (Custom) =
                 "Build: custom build tool not supported",
               "custom tool feedback is deterministic");
       Assert (None.Build_Request_Status =
-                Editor.External_Producers.Build_Request_Rejected_No_Tool,
+                Editor.External_Producers.Build_Types.Build_Request_Rejected_No_Tool,
               "No_Build_Tool remains rejected");
    end Test_User_Opt_In_Build_Rejects_Custom_And_No_Tool;
 
@@ -4639,44 +4643,44 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Shell_Gate : constant Editor.External_Producers.Build_Execution_Gate :=
+      Shell_Gate : constant Editor.External_Producers.Build_Types.Build_Execution_Gate :=
         (Process_Policy              => Real_Process_Policy (Allow_Shell => True),
          Allow_Build_Run             => True,
          Allow_Real_Build_Tool_Execution => True,
          Allow_Real_Build_Tool_Fixture   => False,
-         Consent                     => Editor.External_Producers.Build_Consent_User_Confirmed,
+         Consent                     => Editor.External_Producers.Build_Types.Build_Consent_User_Confirmed,
          Allow_Diagnostics_Ingestion => True,
          Show_Diagnostics            => False);
-      Opaque_Request : constant Editor.External_Producers.Build_Run_Request :=
-        (Tool          => Editor.External_Producers.GPRbuild_Tool,
-         Provenance    => Editor.External_Producers.Build_Request_From_User_Opt_In,
+      Opaque_Request : constant Editor.External_Producers.Build_Types.Build_Run_Request :=
+        (Tool          => Editor.External_Producers.Build_Types.GPRbuild_Tool,
+         Provenance    => Editor.External_Producers.Build_Types.Build_Request_From_User_Opt_In,
          Working_Label => Null_Unbounded_String,
          Command_Label => To_Unbounded_String ("gprbuild"),
          Arguments     => To_Unbounded_String ("-q --not-split"),
          Structured_Arguments =>
            Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q"));
-      Shell : constant Editor.External_Producers.Build_Preflight_Result :=
+      Shell : constant Editor.External_Producers.Build_Types.Build_Preflight_Result :=
         Editor.External_Producers.Build_Requests.Preflight_User_Opt_In_Build_Request
           (User_Request, Shell_Gate);
-      Opaque : constant Editor.External_Producers.Build_Preflight_Result :=
+      Opaque : constant Editor.External_Producers.Build_Types.Build_Preflight_Result :=
         Editor.External_Producers.Build_Requests.Preflight_User_Opt_In_Build_Request
-          (Opaque_Request, Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed));
-      Working : constant Editor.External_Producers.Build_Preflight_Result :=
+          (Opaque_Request, Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Types.Build_Consent_User_Confirmed));
+      Working : constant Editor.External_Producers.Build_Types.Build_Preflight_Result :=
         Editor.External_Producers.Build_Requests.Preflight_User_Opt_In_Build_Request
           (User_Request (Working => "project-root"),
-           Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed));
+           Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Types.Build_Consent_User_Confirmed));
    begin
       Assert (Shell.Process_Request_Status =
-                Editor.External_Producers.Process_Request_Rejected_Execution_Disabled,
+                Editor.External_Producers.Build_Types.Process_Request_Rejected_Execution_Disabled,
               "shell-enabled gates do not pass user opt-in preflight");
       Assert (Opaque.Process_Request_Status =
-                Editor.External_Producers.Process_Request_Rejected_Opaque_Arguments,
+                Editor.External_Producers.Build_Types.Process_Request_Rejected_Opaque_Arguments,
               "opaque argument text remains rejected");
       Assert (Editor.External_Producers.Build_Requests.Build_User_Opt_In_Build_Feedback (Opaque) =
                 "Build: structured arguments required",
               "opaque argument rejection does not expose argv or shell text");
       Assert (Working.Process_Request_Status =
-                Editor.External_Producers.Process_Request_Rejected_Unsupported_Working_Directory,
+                Editor.External_Producers.Build_Types.Process_Request_Rejected_Unsupported_Working_Directory,
               "unsupported working context rejects execution");
    end Test_User_Opt_In_Build_Rejects_Shell_Opaque_And_Working_Context;
 
@@ -4687,12 +4691,12 @@ package body Editor.External_Producers.Tests is
       S : Editor.State.State_Type;
       Before : Editor.Feature_Panel.Feature_Panel_Fingerprint;
       After : Editor.Feature_Panel.Feature_Panel_Fingerprint;
-      Result : Editor.External_Producers.Build_Preflight_Result;
+      Result : Editor.External_Producers.Build_Types.Build_Preflight_Result;
    begin
       Prepare_State (S);
       Before := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
       Result := Editor.External_Producers.Build_Requests.Preflight_User_Opt_In_Build_Request
-        (User_Request, Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed));
+        (User_Request, Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Types.Build_Consent_User_Confirmed));
       After := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
       Assert (Editor.External_Producers.Build_Requests.User_Opt_In_Build_Preflight_Is_Consistent (Result),
               "user opt-in preflight consistency check passes");
@@ -4712,11 +4716,11 @@ package body Editor.External_Producers.Tests is
       Prepare_State (S);
       Result := Editor.External_Producers.Build_Requests.Run_User_Opt_In_Build_Command_Test_Seam
         (S, User_Request (Working => "project-root"),
-         Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed),
+         Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Types.Build_Consent_User_Confirmed),
          Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-           (Editor.External_Producers.Process_Run_Succeeded,
+           (Editor.External_Producers.Build_Types.Process_Run_Succeeded,
             Stderr_Text => "main.adb:1:1: error: must-not-run"));
-      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Rejected,
+      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Types.Build_Run_Rejected,
               "invalid user opt-in preflight rejects before supplied runner result");
       Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
               "rejected user opt-in command cannot ingest supplied output");
@@ -4731,12 +4735,12 @@ package body Editor.External_Producers.Tests is
    begin
       Prepare_State (S);
       Result := Editor.External_Producers.Build_Requests.Run_User_Opt_In_Build_Command_Test_Seam
-        (S, User_Request, Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed),
+        (S, User_Request, Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Types.Build_Consent_User_Confirmed),
          Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-           (Editor.External_Producers.Process_Run_Failed,
+           (Editor.External_Producers.Build_Types.Process_Run_Failed,
             Exit_Code => 1, Has_Exit_Code => True,
             Stderr_Text => "main.adb:1:1: error: user opt-in diagnostic"));
-      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Failed,
+      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Types.Build_Run_Failed,
               "test-supplied user opt-in process failure maps to build failure");
       Assert (Result.Diagnostic_Result.Ingestion.Parse_Input_Count = 1,
               "user opt-in output is parsed through diagnostic-line parser");
@@ -4755,9 +4759,9 @@ package body Editor.External_Producers.Tests is
       Prepare_State (S);
       Active_Before := Editor.Feature_Panel.Active_Feature (S.Feature_Panel);
       Result := Editor.External_Producers.Build_Requests.Run_User_Opt_In_Build_Command_Test_Seam
-        (S, User_Request, Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed),
+        (S, User_Request, Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Types.Build_Consent_User_Confirmed),
          Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-           (Editor.External_Producers.Process_Run_Failed,
+           (Editor.External_Producers.Build_Types.Process_Run_Failed,
             Exit_Code => 1, Has_Exit_Code => True,
             Stderr_Text => "main.adb:1:1: warning: user opt-in"));
       Assert (Result.Diagnostic_Result.Ingestion.Ingestion_Result.Accepted_Count = 1,
@@ -4795,32 +4799,32 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Context : constant Editor.External_Producers.User_Opt_In_Build_Command_Context :=
+      Context : constant Editor.External_Producers.Build_Types.User_Opt_In_Build_Command_Context :=
         Editor.External_Producers.Build_Requests.Build_User_Opt_In_Command_Context
-          (Tool              => Editor.External_Producers.GPRbuild_Tool,
+          (Tool              => Editor.External_Producers.Build_Types.GPRbuild_Tool,
            Program_Label     => "gprbuild",
            Working_Label     => "",
            Arguments         => Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q"),
-           Consent           => Editor.External_Producers.Build_Consent_User_Confirmed,
+           Consent           => Editor.External_Producers.Build_Types.Build_Consent_User_Confirmed,
            Allow_Diagnostics => True,
            Show_Diagnostics  => False);
-      Status : constant Editor.External_Producers.User_Opt_In_Build_Command_Context_Status :=
+      Status : constant Editor.External_Producers.Build_Types.User_Opt_In_Build_Command_Context_Status :=
         Editor.External_Producers.Build_Requests.Validate_User_Opt_In_Build_Command_Context
           (Context);
    begin
       Assert (Context.Has_Request,
               "user opt-in build command context records explicit structured request");
       Assert (Context.Request.Provenance =
-                Editor.External_Producers.Build_Request_From_User_Opt_In,
+                Editor.External_Producers.Build_Types.Build_Request_From_User_Opt_In,
               "command context sets explicit user opt-in provenance");
       Assert (Context.Gate.Consent =
-                Editor.External_Producers.Build_Consent_User_Confirmed,
+                Editor.External_Producers.Build_Types.Build_Consent_User_Confirmed,
               "command context stores explicit user-confirmed consent");
       Assert (Length (Context.Request.Arguments) = 0,
               "command context stores no opaque shell arguments");
       Assert (Context.Request.Structured_Arguments.Length = 1,
               "command context preserves structured argv");
-      Assert (Status = Editor.External_Producers.User_Build_Context_Valid,
+      Assert (Status = Editor.External_Producers.Build_Types.User_Build_Context_Valid,
               "command context validates through user opt-in command context classifier");
    end Test_User_Opt_In_Build_Command_Context_Constructs_Structured_Request;
 
@@ -4835,11 +4839,11 @@ package body Editor.External_Producers.Tests is
       Result := Editor.External_Producers.Build_Requests.Execute_User_Opt_In_Build_Command
         (S, Editor.External_Producers.Build_Requests.Empty_User_Opt_In_Build_Command_Context,
          Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-           (Editor.External_Producers.Process_Run_Succeeded,
+           (Editor.External_Producers.Build_Types.Process_Run_Succeeded,
             Stderr_Text => "main.adb:1:1: error: must-not-run"));
       Editor.External_Producers.Build_Requests.Assert_User_Opt_In_Build_Command_Result_Consistent
         (Result);
-      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Rejected,
+      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Types.Build_Run_Rejected,
               "missing user opt-in command context rejects before runner result");
       Assert (To_String (Result.Command_Message) = "Build: user opt-in required",
               "missing context uses deterministic user opt-in feedback");
@@ -4851,104 +4855,104 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Valid : constant Editor.External_Producers.User_Opt_In_Build_Command_Context :=
+      Valid : constant Editor.External_Producers.Build_Types.User_Opt_In_Build_Command_Context :=
         Editor.External_Producers.Build_Requests.Build_User_Opt_In_Command_Context
-          (Tool              => Editor.External_Producers.GPRbuild_Tool,
+          (Tool              => Editor.External_Producers.Build_Types.GPRbuild_Tool,
            Program_Label     => "gprbuild",
            Working_Label     => "",
            Arguments         => Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q"),
-           Consent           => Editor.External_Producers.Build_Consent_User_Confirmed,
+           Consent           => Editor.External_Producers.Build_Types.Build_Consent_User_Confirmed,
            Allow_Diagnostics => True,
            Show_Diagnostics  => False);
-      Missing_Request : constant Editor.External_Producers.User_Opt_In_Build_Command_Context :=
+      Missing_Request : constant Editor.External_Producers.Build_Types.User_Opt_In_Build_Command_Context :=
         (Has_Request => True,
          Request     =>
-           (Tool                 => Editor.External_Producers.No_Build_Tool,
-            Provenance           => Editor.External_Producers.Build_Request_Unknown,
+           (Tool                 => Editor.External_Producers.Build_Types.No_Build_Tool,
+            Provenance           => Editor.External_Producers.Build_Types.Build_Request_Unknown,
             Working_Label        => Null_Unbounded_String,
             Command_Label        => Null_Unbounded_String,
             Arguments            => Null_Unbounded_String,
             Structured_Arguments => Editor.External_Producers.Build_Requests.Empty_Process_Arguments),
          Gate        => Valid.Gate);
-      Missing_Gate : constant Editor.External_Producers.User_Opt_In_Build_Command_Context :=
+      Missing_Gate : constant Editor.External_Producers.Build_Types.User_Opt_In_Build_Command_Context :=
         (Has_Request => True,
          Request     => Valid.Request,
          Gate        => Editor.External_Producers.Execution_Policy.Build_Default_Execution_Gate);
-      Missing_Consent : constant Editor.External_Producers.User_Opt_In_Build_Command_Context :=
+      Missing_Consent : constant Editor.External_Producers.Build_Types.User_Opt_In_Build_Command_Context :=
         (Has_Request => True,
          Request     => Valid.Request,
          Gate        => Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate
-           (Consent => Editor.External_Producers.Build_Consent_Not_Provided));
-      Test_Only_Consent : constant Editor.External_Producers.User_Opt_In_Build_Command_Context :=
+           (Consent => Editor.External_Producers.Build_Types.Build_Consent_Not_Provided));
+      Test_Only_Consent : constant Editor.External_Producers.Build_Types.User_Opt_In_Build_Command_Context :=
         (Has_Request => True,
          Request     => Valid.Request,
          Gate        => Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate
-           (Consent => Editor.External_Producers.Build_Consent_Test_Only));
-      Project_Request : constant Editor.External_Producers.User_Opt_In_Build_Command_Context :=
+           (Consent => Editor.External_Producers.Build_Types.Build_Consent_Test_Only));
+      Project_Request : constant Editor.External_Producers.Build_Types.User_Opt_In_Build_Command_Context :=
         (Has_Request => True,
          Request     =>
-           (Tool                 => Editor.External_Producers.GPRbuild_Tool,
-            Provenance           => Editor.External_Producers.Build_Request_From_Implicit_Source,
+           (Tool                 => Editor.External_Producers.Build_Types.GPRbuild_Tool,
+            Provenance           => Editor.External_Producers.Build_Types.Build_Request_From_Implicit_Source,
             Working_Label        => Null_Unbounded_String,
             Command_Label        => To_Unbounded_String ("gprbuild"),
             Arguments            => Null_Unbounded_String,
             Structured_Arguments => Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q")),
          Gate        => Valid.Gate);
-      Fixture_Request : constant Editor.External_Producers.User_Opt_In_Build_Command_Context :=
+      Fixture_Request : constant Editor.External_Producers.Build_Types.User_Opt_In_Build_Command_Context :=
         (Has_Request => True,
          Request     =>
-           (Tool                 => Editor.External_Producers.GPRbuild_Tool,
-            Provenance           => Editor.External_Producers.Build_Request_From_Fixture,
+           (Tool                 => Editor.External_Producers.Build_Types.GPRbuild_Tool,
+            Provenance           => Editor.External_Producers.Build_Types.Build_Request_From_Fixture,
             Working_Label        => Null_Unbounded_String,
             Command_Label        => To_Unbounded_String ("gprbuild"),
             Arguments            => Null_Unbounded_String,
             Structured_Arguments => Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q")),
          Gate        => Valid.Gate);
-      Test_Request : constant Editor.External_Producers.User_Opt_In_Build_Command_Context :=
+      Test_Request : constant Editor.External_Producers.Build_Types.User_Opt_In_Build_Command_Context :=
         (Has_Request => True,
          Request     =>
-           (Tool                 => Editor.External_Producers.GPRbuild_Tool,
-            Provenance           => Editor.External_Producers.Build_Request_From_Test,
+           (Tool                 => Editor.External_Producers.Build_Types.GPRbuild_Tool,
+            Provenance           => Editor.External_Producers.Build_Types.Build_Request_From_Test,
             Working_Label        => Null_Unbounded_String,
             Command_Label        => To_Unbounded_String ("gprbuild"),
             Arguments            => Null_Unbounded_String,
             Structured_Arguments => Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q")),
          Gate        => Valid.Gate);
-      Custom_Tool : constant Editor.External_Producers.User_Opt_In_Build_Command_Context :=
+      Custom_Tool : constant Editor.External_Producers.Build_Types.User_Opt_In_Build_Command_Context :=
         (Has_Request => True,
          Request     =>
-           (Tool                 => Editor.External_Producers.Custom_Build_Tool,
-            Provenance           => Editor.External_Producers.Build_Request_From_User_Opt_In,
+           (Tool                 => Editor.External_Producers.Build_Types.Custom_Build_Tool,
+            Provenance           => Editor.External_Producers.Build_Types.Build_Request_From_User_Opt_In,
             Working_Label        => Null_Unbounded_String,
             Command_Label        => To_Unbounded_String ("custom"),
             Arguments            => Null_Unbounded_String,
             Structured_Arguments => Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q")),
          Gate        => Valid.Gate);
-      No_Tool : constant Editor.External_Producers.User_Opt_In_Build_Command_Context :=
+      No_Tool : constant Editor.External_Producers.Build_Types.User_Opt_In_Build_Command_Context :=
         (Has_Request => True,
          Request     =>
-           (Tool                 => Editor.External_Producers.No_Build_Tool,
-            Provenance           => Editor.External_Producers.Build_Request_From_User_Opt_In,
+           (Tool                 => Editor.External_Producers.Build_Types.No_Build_Tool,
+            Provenance           => Editor.External_Producers.Build_Types.Build_Request_From_User_Opt_In,
             Working_Label        => Null_Unbounded_String,
             Command_Label        => To_Unbounded_String ("gprbuild"),
             Arguments            => Null_Unbounded_String,
             Structured_Arguments => Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q")),
          Gate        => Valid.Gate);
-      Opaque : constant Editor.External_Producers.User_Opt_In_Build_Command_Context :=
+      Opaque : constant Editor.External_Producers.Build_Types.User_Opt_In_Build_Command_Context :=
         (Has_Request => True,
          Request     =>
-           (Tool                 => Editor.External_Producers.GPRbuild_Tool,
-            Provenance           => Editor.External_Producers.Build_Request_From_User_Opt_In,
+           (Tool                 => Editor.External_Producers.Build_Types.GPRbuild_Tool,
+            Provenance           => Editor.External_Producers.Build_Types.Build_Request_From_User_Opt_In,
             Working_Label        => Null_Unbounded_String,
             Command_Label        => To_Unbounded_String ("gprbuild"),
             Arguments            => To_Unbounded_String ("-q"),
             Structured_Arguments => Editor.External_Producers.Build_Requests.Empty_Process_Arguments),
          Gate        => Valid.Gate);
-      Working : constant Editor.External_Producers.User_Opt_In_Build_Command_Context :=
+      Working : constant Editor.External_Producers.Build_Types.User_Opt_In_Build_Command_Context :=
         (Has_Request => True,
          Request     =>
-           (Tool                 => Editor.External_Producers.GPRbuild_Tool,
-            Provenance           => Editor.External_Producers.Build_Request_From_User_Opt_In,
+           (Tool                 => Editor.External_Producers.Build_Types.GPRbuild_Tool,
+            Provenance           => Editor.External_Producers.Build_Types.Build_Request_From_User_Opt_In,
             Working_Label        => To_Unbounded_String ("project-root"),
             Command_Label        => To_Unbounded_String ("gprbuild"),
             Arguments            => Null_Unbounded_String,
@@ -4957,40 +4961,40 @@ package body Editor.External_Producers.Tests is
    begin
       Assert (Editor.External_Producers.Build_Requests.Validate_User_Opt_In_Build_Command_Context
                 (Editor.External_Producers.Build_Requests.Empty_User_Opt_In_Build_Command_Context) =
-              Editor.External_Producers.User_Build_Context_Rejected_Missing_Context,
+              Editor.External_Producers.Build_Types.User_Build_Context_Rejected_Missing_Context,
               "missing context rejects before preflight");
       Assert (Editor.External_Producers.Build_Requests.Validate_User_Opt_In_Build_Command_Context
-                (Missing_Request) = Editor.External_Producers.User_Build_Context_Rejected_Missing_Request,
+                (Missing_Request) = Editor.External_Producers.Build_Types.User_Build_Context_Rejected_Missing_Request,
               "missing request rejects before preflight");
       Assert (Editor.External_Producers.Build_Requests.Validate_User_Opt_In_Build_Command_Context
-                (Missing_Gate) = Editor.External_Producers.User_Build_Context_Rejected_Missing_Gate,
+                (Missing_Gate) = Editor.External_Producers.Build_Types.User_Build_Context_Rejected_Missing_Gate,
               "missing gate rejects before runner selection");
       Assert (Editor.External_Producers.Build_Requests.Validate_User_Opt_In_Build_Command_Context
-                (Missing_Consent) = Editor.External_Producers.User_Build_Context_Rejected_Missing_Consent,
+                (Missing_Consent) = Editor.External_Producers.Build_Types.User_Build_Context_Rejected_Missing_Consent,
               "missing consent rejects before runner selection");
       Assert (Editor.External_Producers.Build_Requests.Validate_User_Opt_In_Build_Command_Context
-                (Test_Only_Consent) = Editor.External_Producers.User_Build_Context_Rejected_Missing_Consent,
+                (Test_Only_Consent) = Editor.External_Producers.Build_Types.User_Build_Context_Rejected_Missing_Consent,
               "test-only consent is not user-confirmed consent");
       Assert (Editor.External_Producers.Build_Requests.Validate_User_Opt_In_Build_Command_Context
-                (Project_Request) = Editor.External_Producers.User_Build_Context_Rejected_Implicit_Source,
+                (Project_Request) = Editor.External_Producers.Build_Types.User_Build_Context_Rejected_Implicit_Source,
               "implicit build source remains unreachable from command test seam");
       Assert (Editor.External_Producers.Build_Requests.Validate_User_Opt_In_Build_Command_Context
-                (Fixture_Request) = Editor.External_Producers.User_Build_Context_Rejected_Provenance,
+                (Fixture_Request) = Editor.External_Producers.Build_Types.User_Build_Context_Rejected_Provenance,
               "fixture provenance cannot substitute for user opt-in provenance");
       Assert (Editor.External_Producers.Build_Requests.Validate_User_Opt_In_Build_Command_Context
-                (Test_Request) = Editor.External_Producers.User_Build_Context_Rejected_Provenance,
+                (Test_Request) = Editor.External_Producers.Build_Types.User_Build_Context_Rejected_Provenance,
               "test provenance cannot substitute for user opt-in provenance");
       Assert (Editor.External_Producers.Build_Requests.Validate_User_Opt_In_Build_Command_Context
-                (Custom_Tool) = Editor.External_Producers.User_Build_Context_Rejected_Custom_Tool,
+                (Custom_Tool) = Editor.External_Producers.Build_Types.User_Build_Context_Rejected_Custom_Tool,
               "custom build tool remains rejected");
       Assert (Editor.External_Producers.Build_Requests.Validate_User_Opt_In_Build_Command_Context
-                (No_Tool) = Editor.External_Producers.User_Build_Context_Rejected_Custom_Tool,
+                (No_Tool) = Editor.External_Producers.Build_Types.User_Build_Context_Rejected_Custom_Tool,
               "missing concrete build tool remains rejected");
       Assert (Editor.External_Producers.Build_Requests.Validate_User_Opt_In_Build_Command_Context
-                (Opaque) = Editor.External_Producers.User_Build_Context_Rejected_Opaque_Arguments,
+                (Opaque) = Editor.External_Producers.Build_Types.User_Build_Context_Rejected_Opaque_Arguments,
               "opaque arguments remain rejected");
       Assert (Editor.External_Producers.Build_Requests.Validate_User_Opt_In_Build_Command_Context
-                (Working) = Editor.External_Producers.User_Build_Context_Rejected_Working_Context,
+                (Working) = Editor.External_Producers.Build_Types.User_Build_Context_Rejected_Working_Context,
               "project-derived working context remains rejected");
    end Test_User_Opt_In_Build_Command_Context_Rejection_Matrix;
 
@@ -5008,14 +5012,14 @@ package body Editor.External_Producers.Tests is
       Result := Editor.External_Producers.Build_Requests.Execute_User_Opt_In_Build_Command
         (S, Editor.External_Producers.Build_Requests.Empty_User_Opt_In_Build_Command_Context,
          Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-           (Editor.External_Producers.Process_Run_Succeeded,
+           (Editor.External_Producers.Build_Types.Process_Run_Succeeded,
             Has_Exit_Code => True,
             Exit_Code     => 0,
             Stderr_Text   => "main.adb:1:1: error: must-not-ingest"));
       After := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
       Editor.External_Producers.Build_Requests.Assert_User_Opt_In_Build_Command_Result_Consistent
         (Result);
-      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Rejected,
+      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Types.Build_Run_Rejected,
               "invalid context returns a rejected command result");
       Assert (Result.Diagnostic_Result.Ingestion.Ingestion_Result.Accepted_Count = 0,
               "invalid context does not ingest supplied output");
@@ -5031,25 +5035,25 @@ package body Editor.External_Producers.Tests is
       pragma Unreferenced (T);
       Empty_Result : constant Editor.External_Producers.Build_Requests.Build_Command_Result :=
         (Build_Result      => Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-           (Editor.External_Producers.Build_Run_Rejected),
+           (Editor.External_Producers.Build_Types.Build_Run_Rejected),
          Diagnostic_Result =>
            Editor.External_Producers.Diagnostic_Line_Parsing.Empty_Diagnostic_Line_Command_Result,
          Command_Message   => Null_Unbounded_String);
    begin
       Assert (Editor.External_Producers.Build_Requests.Build_User_Opt_In_Command_Feedback
-                (Editor.External_Producers.User_Build_Context_Rejected_Missing_Context,
+                (Editor.External_Producers.Build_Types.User_Build_Context_Rejected_Missing_Context,
                  Empty_Result) = "Build: user opt-in required",
               "missing context feedback is stable");
       Assert (Editor.External_Producers.Build_Requests.Build_User_Opt_In_Command_Feedback
-                (Editor.External_Producers.User_Build_Context_Rejected_Missing_Consent,
+                (Editor.External_Producers.Build_Types.User_Build_Context_Rejected_Missing_Consent,
                  Empty_Result) = "Build: execution consent required",
               "missing consent feedback is stable");
       Assert (Editor.External_Producers.Build_Requests.Build_User_Opt_In_Command_Feedback
-                (Editor.External_Producers.User_Build_Context_Rejected_Opaque_Arguments,
+                (Editor.External_Producers.Build_Types.User_Build_Context_Rejected_Opaque_Arguments,
                  Empty_Result) = "Build: structured arguments required",
               "opaque argument feedback does not expose argv");
       Assert (Editor.External_Producers.Build_Requests.Build_User_Opt_In_Command_Feedback
-                (Editor.External_Producers.User_Build_Context_Rejected_Working_Context,
+                (Editor.External_Producers.Build_Types.User_Build_Context_Rejected_Working_Context,
                  Empty_Result) = "Build: working directory unsupported",
               "working-context feedback does not expose paths");
    end Test_User_Opt_In_Build_Command_Feedback_Is_Deterministic;
@@ -5059,7 +5063,7 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Execution_Consent_Audit_Result;
+      Result : Editor.External_Producers.Build_Types.Build_Execution_Consent_Audit_Result;
    begin
       Prepare_State (S);
       Result := Editor.External_Producers.Audits.Run_Build_Execution_Consent_Audit (S);
@@ -5100,7 +5104,7 @@ package body Editor.External_Producers.Tests is
       After_Diagnostics  : Natural;
       Before_Messages : Natural;
       After_Messages  : Natural;
-      Result : Editor.External_Producers.Build_Execution_Consent_Audit_Result;
+      Result : Editor.External_Producers.Build_Types.Build_Execution_Consent_Audit_Result;
    begin
       Prepare_State (S);
       Before_Panel := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);

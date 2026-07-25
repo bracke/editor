@@ -1,5 +1,5 @@
 with Ada.Containers.Vectors;
-with Ada.Strings.Unbounded;
+with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package Editor.External_Producers.Diagnostic_Text_Lines is
 

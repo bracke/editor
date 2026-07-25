@@ -12,6 +12,7 @@ with Editor.Build_Working_Context;
 with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Types;
 with Editor.External_Producers.Execution_Policy;
 with Editor.External_Producers.Build_Requests;
 with Editor.External_Producers.Diagnostic_Line_Parsing;
@@ -24,11 +25,11 @@ package body Editor.Build_Milestone_Freeze.Tests is
    use type Editor.Build_Command.Build_Run_Readiness_Status;
    use type Editor.Build_UI.Public_Build_Tool_Selection;
    use type Editor.Build_UI.Public_Build_UI_Validation_Status;
-   use type Editor.External_Producers.Build_Run_Status;
-   use type Editor.External_Producers.Build_Tool_Kind;
-   use type Editor.External_Producers.Process_Run_Status;
-   use type Editor.External_Producers.Process_Request_Validation_Status;
-   use type Editor.External_Producers.Build_Request_Provenance;
+   use type Editor.External_Producers.Build_Types.Build_Run_Status;
+   use type Editor.External_Producers.Build_Types.Build_Tool_Kind;
+   use type Editor.External_Producers.Build_Types.Process_Run_Status;
+   use type Editor.External_Producers.Build_Types.Process_Request_Validation_Status;
+   use type Editor.External_Producers.Build_Types.Build_Request_Provenance;
 
    overriding function Name
      (T : Build_Milestone_Freeze_Test_Case) return AUnit.Message_String
@@ -95,7 +96,7 @@ package body Editor.Build_Milestone_Freeze.Tests is
               "manual workflow requires explicit request-specific consent");
       Assert (C.Status = Editor.Build_UI.Build_UI_Valid,
               "manual workflow converts only after validation");
-      Assert (C.Request.Tool = Editor.External_Producers.GPRbuild_Tool,
+      Assert (C.Request.Tool = Editor.External_Producers.Build_Types.GPRbuild_Tool,
               "manual workflow preserves bounded tool kind");
       Assert (To_String (C.Request.Arguments)'Length = 0,
               "manual workflow does not create opaque shell text");
@@ -127,7 +128,7 @@ package body Editor.Build_Milestone_Freeze.Tests is
       C := Editor.Build_Public_Request.Build_Public_Request_From_UI_State (S);
       Assert (C.Status = Editor.Build_UI.Build_UI_Valid,
               "candidate-derived request converts after renewed consent");
-      Assert (C.Request.Tool = Editor.External_Producers.Alire_Build_Tool,
+      Assert (C.Request.Tool = Editor.External_Producers.Build_Types.Alire_Build_Tool,
               "candidate-derived request preserves alire tool kind");
       Assert (To_String (C.Request.Command_Label) = "alr",
               "candidate-derived request preserves executable token");
@@ -207,27 +208,27 @@ package body Editor.Build_Milestone_Freeze.Tests is
       S : Editor.State.State_Type;
       C : constant Editor.Build_Public_Request.Public_Build_Request_Conversion_Result :=
         Editor.Build_Public_Request.Build_Public_Request_From_UI_State (Manual_UI);
-      Gate : Editor.External_Producers.Build_Execution_Gate :=
+      Gate : Editor.External_Producers.Build_Types.Build_Execution_Gate :=
         Editor.External_Producers.Execution_Policy.Build_Default_Execution_Gate;
-      Supplied : constant Editor.External_Producers.Process_Run_Result :=
+      Supplied : constant Editor.External_Producers.Build_Types.Process_Run_Result :=
         Editor.External_Producers.Build_Requests.Build_Process_Run_Result
-          (Editor.External_Producers.Process_Run_Failed,
+          (Editor.External_Producers.Build_Types.Process_Run_Failed,
            Exit_Code => 2,
            Has_Exit_Code => True,
            Stdout_Text => "",
            Stderr_Text => "main.adb:1:1: error: failed");
-      Preflight : Editor.External_Producers.Build_Preflight_Result;
+      Preflight : Editor.External_Producers.Build_Types.Build_Preflight_Result;
       Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Gate.Process_Policy :=
-        (Mode                     => Editor.External_Producers.Process_Execution_Test_Fixture,
+        (Mode                     => Editor.External_Producers.Build_Types.Process_Execution_Test_Fixture,
          Allow_Real_Execution     => False,
          Allow_Shell              => False,
          Max_Output_Bytes         => 262_144,
          Require_Absolute_Program => False,
          Timeout_Milliseconds     => 0);
       Gate.Allow_Build_Run := True;
-      Gate.Consent := Editor.External_Producers.Build_Consent_Test_Only;
+      Gate.Consent := Editor.External_Producers.Build_Types.Build_Consent_Test_Only;
       Gate.Allow_Diagnostics_Ingestion := False;
       Gate.Show_Diagnostics := False;
       Preflight := Editor.External_Producers.Build_Requests.Preflight_Build_Run_Request
@@ -235,7 +236,7 @@ package body Editor.Build_Milestone_Freeze.Tests is
       Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Gate
         (S, C.Request, Gate, Supplied);
       Assert (Preflight.Process_Request_Status =
-                Editor.External_Producers.Process_Request_Valid,
+                Editor.External_Producers.Build_Types.Process_Request_Valid,
               "runner receives a valid structured process request");
       Assert (To_String (Preflight.Process_Request.Program_Label) = "gprbuild",
               "runner receives executable token only");
@@ -243,7 +244,7 @@ package body Editor.Build_Milestone_Freeze.Tests is
               "runner receives no shell command string");
       Assert (not Gate.Process_Policy.Allow_Shell,
               "runner policy forbids shell execution");
-      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Failed,
+      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Types.Build_Run_Failed,
               "process failure maps deterministically to build failure");
       Assert (Result.Build_Result.Exit_Code = 2,
               "runner exit code is preserved in bounded result");
@@ -265,7 +266,7 @@ package body Editor.Build_Milestone_Freeze.Tests is
    begin
       Lines.Append (To_Unbounded_String ("main.adb:1:1: warning: owned"));
       Build_Result := Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-        (Editor.External_Producers.Build_Run_Failed,
+        (Editor.External_Producers.Build_Types.Build_Run_Failed,
          Diagnostic_Lines => Lines);
       Command := Editor.Build_Diagnostics.Ingest_Build_Diagnostics_Through_Diagnostics
         (S, C.Request, Build_Result,

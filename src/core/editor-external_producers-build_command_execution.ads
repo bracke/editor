@@ -1,6 +1,8 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.External_Producers.Build_Types;
+with Editor.External_Producers.Build_Types; use Editor.External_Producers.Build_Types;
+with Editor.External_Producers.Diagnostic_Line_Parsing;
 with Editor.External_Producers.Diagnostics;
+with Editor.State;
 
 package Editor.External_Producers.Build_Command_Execution is
 
@@ -9,11 +11,58 @@ package Editor.External_Producers.Build_Command_Execution is
    package Diagnostic_Text_Line_Vectors renames
      Editor.External_Producers.Build_Types.Diagnostic_Text_Line_Vectors;
    subtype Diagnostic_Line_Command_Result is
-     Editor.External_Producers.Build_Types.Diagnostic_Line_Command_Result;
+     Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result;
    subtype Build_Run_Result is
      Editor.External_Producers.Build_Types.Build_Run_Result;
-   subtype Build_Command_Result is
-     Editor.External_Producers.Build_Types.Build_Command_Result;
+   subtype Build_Run_Status is
+     Editor.External_Producers.Build_Types.Build_Run_Status;
+   subtype Build_Run_Request is
+     Editor.External_Producers.Build_Types.Build_Run_Request;
+   subtype Build_Tool_Kind is
+     Editor.External_Producers.Build_Types.Build_Tool_Kind;
+   subtype Process_Execution_Policy is
+     Editor.External_Producers.Build_Types.Process_Execution_Policy;
+   subtype Process_Run_Result is
+     Editor.External_Producers.Build_Types.Process_Run_Result;
+   subtype Process_Run_Request is
+     Editor.External_Producers.Build_Types.Process_Run_Request;
+   subtype Process_Run_Status is
+     Editor.External_Producers.Build_Types.Process_Run_Status;
+   subtype Process_Output_Capture_Mode is
+     Editor.External_Producers.Build_Types.Process_Output_Capture_Mode;
+   subtype Build_Preflight_Result is
+     Editor.External_Producers.Build_Types.Build_Preflight_Result;
+   subtype Build_Execution_Gate is
+     Editor.External_Producers.Build_Types.Build_Execution_Gate;
+   subtype Build_Execution_Consent is
+     Editor.External_Producers.Build_Types.Build_Execution_Consent;
+   subtype Process_Argument_Vector is
+     Editor.External_Producers.Build_Types.Process_Argument_Vector;
+   subtype User_Opt_In_Build_Command_Context is
+     Editor.External_Producers.Build_Types.User_Opt_In_Build_Command_Context;
+   subtype User_Opt_In_Build_Command_Context_Status is
+     Editor.External_Producers.Build_Types.User_Opt_In_Build_Command_Context_Status;
+   subtype Real_Build_Tool_Fixture_Kind is
+     Editor.External_Producers.Build_Types.Real_Build_Tool_Fixture_Kind;
+   subtype Real_Build_Tool_Fixture_Validation_Status is
+     Editor.External_Producers.Build_Types.Real_Build_Tool_Fixture_Validation_Status;
+   subtype Build_Request_Validation_Status is
+     Editor.External_Producers.Build_Types.Build_Request_Validation_Status;
+   subtype Process_Request_Validation_Status is
+     Editor.External_Producers.Build_Types.Process_Request_Validation_Status;
+   subtype Process_Fixture_Validation_Status is
+     Editor.External_Producers.Build_Types.Process_Fixture_Validation_Status;
+   subtype Process_Fixture_Kind is
+     Editor.External_Producers.Build_Types.Process_Fixture_Kind;
+   subtype Process_Fixture_Request is
+     Editor.External_Producers.Build_Types.Process_Fixture_Request;
+
+   type Build_Command_Result is record
+      Build_Result      : Build_Run_Result;
+      Diagnostic_Result : Diagnostic_Line_Command_Result;
+      Command_Message   : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+   end record;
 
    procedure Append_Output_Text_Lines
      (Text  : String;

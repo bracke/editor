@@ -4,6 +4,7 @@ with Editor.Executor;
 with Editor.Executor.Shared_Services;
 use Editor.Executor.Shared_Services;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Types;
 with Editor.External_Producers.Build_Requests;
 with Editor.Project;
 with Editor.Render_Cache;
@@ -13,7 +14,7 @@ with Editor.Terminal_Tasks;
 package body Editor.Executor.Terminal_Commands is
 
    use type Editor.Commands.Command_Id;
-   use type Editor.External_Producers.Process_Run_Status;
+   use type Editor.External_Producers.Build_Types.Process_Run_Status;
 
    function Terminal_Command_Availability
      (S  : Editor.State.State_Type;
@@ -79,36 +80,36 @@ package body Editor.Executor.Terminal_Commands is
    end Ensure_Terminal_Project_Tasks;
 
    function Terminal_Process_Status_Message
-     (Status : Editor.External_Producers.Process_Run_Status) return String
+     (Status : Editor.External_Producers.Build_Types.Process_Run_Status) return String
    is
    begin
       case Status is
-         when Editor.External_Producers.Process_Run_Succeeded =>
+         when Editor.External_Producers.Build_Types.Process_Run_Succeeded =>
             return "Terminal task succeeded.";
-         when Editor.External_Producers.Process_Run_Failed
-            | Editor.External_Producers.Process_Run_Execution_Error
-            | Editor.External_Producers.Process_Run_Output_Truncated =>
+         when Editor.External_Producers.Build_Types.Process_Run_Failed
+            | Editor.External_Producers.Build_Types.Process_Run_Execution_Error
+            | Editor.External_Producers.Build_Types.Process_Run_Output_Truncated =>
             return "Terminal task failed.";
-         when Editor.External_Producers.Process_Run_Not_Available =>
+         when Editor.External_Producers.Build_Types.Process_Run_Not_Available =>
             return "Terminal task is not available.";
-         when Editor.External_Producers.Process_Run_Rejected =>
+         when Editor.External_Producers.Build_Types.Process_Run_Rejected =>
             return "Terminal task rejected.";
-         when Editor.External_Producers.Process_Run_Timed_Out =>
+         when Editor.External_Producers.Build_Types.Process_Run_Timed_Out =>
             return "Terminal task timed out.";
-         when Editor.External_Producers.Process_Run_Cancelled =>
+         when Editor.External_Producers.Build_Types.Process_Run_Cancelled =>
             return "Terminal task cancelled.";
-         when Editor.External_Producers.Process_Run_Cancellation_Unsupported =>
+         when Editor.External_Producers.Build_Types.Process_Run_Cancellation_Unsupported =>
             return "Terminal task cancellation is not supported.";
       end case;
    end Terminal_Process_Status_Message;
 
    function Terminal_Process_Policy
-      return Editor.External_Producers.Process_Execution_Policy
+      return Editor.External_Producers.Build_Types.Process_Execution_Policy
    is
    begin
       return
         (Mode                     =>
-           Editor.External_Producers.Process_Execution_Real_Allowed,
+           Editor.External_Producers.Build_Types.Process_Execution_Real_Allowed,
          Allow_Real_Execution     => True,
          Allow_Shell              => False,
          Max_Output_Bytes         => 262_144,
@@ -118,13 +119,13 @@ package body Editor.Executor.Terminal_Commands is
 
    function Result_For_Process_Status
      (Id     : Editor.Commands.Command_Id;
-      Status : Editor.External_Producers.Process_Run_Status)
+      Status : Editor.External_Producers.Build_Types.Process_Run_Status)
       return Editor.Command_Execution.Command_Execution_Result
    is
    begin
-      if Status = Editor.External_Producers.Process_Run_Succeeded then
+      if Status = Editor.External_Producers.Build_Types.Process_Run_Succeeded then
          return Editor.Command_Execution.Executed (Id);
-      elsif Status = Editor.External_Producers.Process_Run_Not_Available then
+      elsif Status = Editor.External_Producers.Build_Types.Process_Run_Not_Available then
          return Editor.Command_Execution.Unavailable (Id);
       else
          return Editor.Command_Execution.Failed (Id);
@@ -141,7 +142,7 @@ package body Editor.Executor.Terminal_Commands is
          then Editor.Terminal_Tasks.Task_Profile_Run
          else Editor.Terminal_Tasks.Task_Profile_Test);
       Selected : Boolean := False;
-      Result   : Editor.External_Producers.Process_Run_Result;
+      Result   : Editor.External_Producers.Build_Types.Process_Run_Result;
    begin
       Ensure_Terminal_Project_Tasks (S);
       Selected :=
@@ -222,7 +223,7 @@ package body Editor.Executor.Terminal_Commands is
 
          when Editor.Commands.Command_Terminal_Run_Selected_Task =>
             declare
-               Result : constant Editor.External_Producers.Process_Run_Result :=
+               Result : constant Editor.External_Producers.Build_Types.Process_Run_Result :=
                  Editor.External_Producers.Build_Requests.Execute_Process_Request_Real_Gated
                    (Editor.Terminal_Tasks.Selected_Task_Request
                       (S.Terminal_Tasks),
@@ -237,7 +238,7 @@ package body Editor.Executor.Terminal_Commands is
 
          when Editor.Commands.Command_Terminal_Rerun_Last_Task =>
             declare
-               Result : constant Editor.External_Producers.Process_Run_Result :=
+               Result : constant Editor.External_Producers.Build_Types.Process_Run_Result :=
                  Editor.External_Producers.Build_Requests.Execute_Process_Request_Real_Gated
                    (Editor.Terminal_Tasks.Last_Task_Request
                       (S.Terminal_Tasks),

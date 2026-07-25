@@ -11,6 +11,7 @@ with Editor.Project;
 with Editor.State;
 with Editor.External_Producers.Diagnostics;
 use Editor.External_Producers.Diagnostics;
+with Editor.External_Producers.Diagnostics_Types;
 with Editor.External_Producers.Build_Runner_Audits;
 with Editor.External_Producers.Diagnostic_Line_Pipeline;
 with Editor.External_Producers.Source_Metadata;
@@ -18,6 +19,7 @@ with Editor.External_Producers.Source_Metadata;
 package body Editor.External_Producers.Diagnostic_Normalization is
 
    use type Editor.Buffers.Buffer_Id;
+   use type Editor.External_Producers.Diagnostics_Types.Producer_Kind;
    use type Editor.Feature_Panel.Feature_Id;
    use type Editor.Feature_Diagnostics.Diagnostic_Severity;
    use type Editor.Feature_Diagnostics.Diagnostic_Source_Kind;

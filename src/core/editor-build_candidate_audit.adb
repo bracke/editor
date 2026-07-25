@@ -3,10 +3,11 @@ with Editor.Build_Candidate_Discovery;
 with Editor.Build_Candidates;
 with Editor.Build_UI;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Types;
 
 package body Editor.Build_Candidate_Audit is
 
-   use type Editor.External_Producers.Build_Tool_Kind;
+   use type Editor.External_Producers.Build_Types.Build_Tool_Kind;
 
    function Run_Public_Build_Candidate_Discovery_Audit
      (UI_State : Editor.Build_UI.Public_Build_UI_State;
@@ -27,8 +28,8 @@ package body Editor.Build_Candidate_Audit is
             Result.Alire_And_Gpr_Candidates_Structured := False;
          end if;
          if Candidate.Tool_Kind not in
-           Editor.External_Producers.GPRbuild_Tool |
-           Editor.External_Producers.Alire_Build_Tool
+           Editor.External_Producers.Build_Types.GPRbuild_Tool |
+           Editor.External_Producers.Build_Types.Alire_Build_Tool
            or else Editor.Build_Candidates.Argument_Count (Candidate) = 0
          then
             Result.Candidates_Map_To_Public_Tool_And_Argv := False;

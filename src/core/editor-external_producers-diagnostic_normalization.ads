@@ -1,4 +1,6 @@
 with Editor.External_Producers.Diagnostics;
+with Editor.Producer_Contracts;
+with Editor.State;
 
 package Editor.External_Producers.Diagnostic_Normalization is
 

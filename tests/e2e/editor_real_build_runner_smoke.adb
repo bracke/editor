@@ -8,6 +8,7 @@ with Ada.Text_IO;
 
 with Editor.Build_Output_Details;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Types;
 with Editor.External_Producers.Execution_Policy;
 with Editor.External_Producers.Build_Requests;
 with Editor.Feature_Diagnostics;
@@ -17,10 +18,10 @@ procedure Editor_Real_Build_Runner_Smoke is
 
    use type Editor.Build_Output_Details.Build_Output_Details_Kind;
    use type Editor.Build_Output_Details.Build_Output_Stream_Selection;
-   use type Editor.External_Producers.Build_Run_Status;
-   use type Editor.External_Producers.Process_Output_Capture_Mode;
-   use type Editor.External_Producers.Process_Output_Stream;
-   use type Editor.External_Producers.Process_Run_Status;
+   use type Editor.External_Producers.Build_Types.Build_Run_Status;
+   use type Editor.External_Producers.Build_Types.Process_Output_Capture_Mode;
+   use type Editor.External_Producers.Build_Types.Process_Output_Stream;
+   use type Editor.External_Producers.Build_Types.Process_Run_Status;
 
    package Stream_IO renames Ada.Streams.Stream_IO;
 
@@ -100,16 +101,16 @@ procedure Editor_Real_Build_Runner_Smoke is
       end if;
    end Build_Fixture;
 
-   function Smoke_Request return Editor.External_Producers.Build_Run_Request is
-      Args : Editor.External_Producers.Process_Argument_Vector :=
+   function Smoke_Request return Editor.External_Producers.Build_Types.Build_Run_Request is
+      Args : Editor.External_Producers.Build_Types.Process_Argument_Vector :=
         Editor.External_Producers.Build_Requests.Empty_Process_Arguments;
    begin
       Editor.External_Producers.Build_Requests.Append_Process_Argument (Args, "-q");
       Editor.External_Producers.Build_Requests.Append_Process_Argument (Args, "-P");
       Editor.External_Producers.Build_Requests.Append_Process_Argument (Args, Project_Path);
       return
-        (Tool => Editor.External_Producers.GPRbuild_Tool,
-         Provenance => Editor.External_Producers.Build_Request_From_User_Opt_In,
+        (Tool => Editor.External_Producers.Build_Types.GPRbuild_Tool,
+         Provenance => Editor.External_Producers.Build_Types.Build_Request_From_User_Opt_In,
          Working_Label => Null_Unbounded_String,
          Command_Label => To_Unbounded_String ("gprbuild -q -P smoke_project.gpr"),
          Arguments => Null_Unbounded_String,
@@ -117,28 +118,28 @@ procedure Editor_Real_Build_Runner_Smoke is
    end Smoke_Request;
 
    function Runner_Status_For
-     (Status : Editor.External_Producers.Build_Run_Status)
+     (Status : Editor.External_Producers.Build_Types.Build_Run_Status)
       return Editor.Build_Output_Details.Build_Output_Runner_Status
    is
    begin
       case Status is
-         when Editor.External_Producers.Build_Run_Succeeded =>
+         when Editor.External_Producers.Build_Types.Build_Run_Succeeded =>
             return Editor.Build_Output_Details.Build_Output_Runner_Succeeded;
-         when Editor.External_Producers.Build_Run_Failed =>
+         when Editor.External_Producers.Build_Types.Build_Run_Failed =>
             return Editor.Build_Output_Details.Build_Output_Runner_Failed;
-         when Editor.External_Producers.Build_Run_Not_Available =>
+         when Editor.External_Producers.Build_Types.Build_Run_Not_Available =>
             return Editor.Build_Output_Details.Build_Output_Runner_Not_Available;
-         when Editor.External_Producers.Build_Run_Rejected =>
+         when Editor.External_Producers.Build_Types.Build_Run_Rejected =>
             return Editor.Build_Output_Details.Build_Output_Runner_Rejected;
-         when Editor.External_Producers.Build_Run_Execution_Error =>
+         when Editor.External_Producers.Build_Types.Build_Run_Execution_Error =>
             return Editor.Build_Output_Details.Build_Output_Runner_Execution_Error;
-         when Editor.External_Producers.Build_Run_Timed_Out =>
+         when Editor.External_Producers.Build_Types.Build_Run_Timed_Out =>
             return Editor.Build_Output_Details.Build_Output_Runner_Timed_Out;
-         when Editor.External_Producers.Build_Run_Cancelled =>
+         when Editor.External_Producers.Build_Types.Build_Run_Cancelled =>
             return Editor.Build_Output_Details.Build_Output_Runner_Cancelled;
-         when Editor.External_Producers.Build_Run_Cancellation_Unsupported =>
+         when Editor.External_Producers.Build_Types.Build_Run_Cancellation_Unsupported =>
             return Editor.Build_Output_Details.Build_Output_Runner_Cancellation_Unsupported;
-         when Editor.External_Producers.Build_Run_Output_Truncated =>
+         when Editor.External_Producers.Build_Types.Build_Run_Output_Truncated =>
             return Editor.Build_Output_Details.Build_Output_Runner_Output_Truncated;
       end case;
    end Runner_Status_For;
@@ -150,10 +151,10 @@ procedure Editor_Real_Build_Runner_Smoke is
    is
       Expected_Stream : constant Editor.Build_Output_Details.Build_Output_Stream_Selection :=
         (if Editor.External_Producers.Execution_Policy.Build_Result_Output_Stream (Result) =
-            Editor.External_Producers.Process_Output_Merged
+            Editor.External_Producers.Build_Types.Process_Output_Merged
          then Editor.Build_Output_Details.Build_Output_Stream_Merged
          elsif Editor.External_Producers.Execution_Policy.Build_Result_Output_Stream (Result) =
-            Editor.External_Producers.Process_Output_Stderr
+            Editor.External_Producers.Build_Types.Process_Output_Stderr
          then Editor.Build_Output_Details.Build_Output_Stream_Stderr
          else Editor.Build_Output_Details.Build_Output_Stream_Stdout);
       Details : Editor.Build_Output_Details.Latest_Build_Output_Details :=
@@ -191,17 +192,17 @@ procedure Editor_Real_Build_Runner_Smoke is
    end Check_Build_Output_Details;
 
    procedure Check_Timeout_If_Available is
-      Args : Editor.External_Producers.Process_Argument_Vector :=
+      Args : Editor.External_Producers.Build_Types.Process_Argument_Vector :=
         Editor.External_Producers.Build_Requests.Empty_Process_Arguments;
-      Request : Editor.External_Producers.Process_Run_Request;
-      Policy  : constant Editor.External_Producers.Process_Execution_Policy :=
-        (Mode                     => Editor.External_Producers.Process_Execution_Real_Allowed,
+      Request : Editor.External_Producers.Build_Types.Process_Run_Request;
+      Policy  : constant Editor.External_Producers.Build_Types.Process_Execution_Policy :=
+        (Mode                     => Editor.External_Producers.Build_Types.Process_Execution_Real_Allowed,
          Allow_Real_Execution     => True,
          Allow_Shell              => False,
          Max_Output_Bytes         => 4_096,
          Require_Absolute_Program => True,
          Timeout_Milliseconds     => 1);
-      Result : Editor.External_Producers.Process_Run_Result;
+      Result : Editor.External_Producers.Build_Types.Process_Run_Result;
    begin
       if not Ada.Directories.Exists ("/bin/sleep") then
          Ada.Text_IO.Put_Line
@@ -217,21 +218,21 @@ procedure Editor_Real_Build_Runner_Smoke is
          Structured_Arguments => Args);
       Result := Editor.External_Producers.Build_Requests.Execute_Process_Request_Real_Gated
         (Request, Policy);
-      Check (Result.Status = Editor.External_Producers.Process_Run_Timed_Out,
+      Check (Result.Status = Editor.External_Producers.Build_Types.Process_Run_Timed_Out,
              "real process timeout did not map through the native runner supervisor");
       Check (Result.Has_Exit_Code and then Result.Exit_Code = 124,
              "timeout result did not preserve the canonical timeout exit code");
       Check (Result.Output_Capture_Mode =
-               Editor.External_Producers.Process_Output_Capture_Separated,
+               Editor.External_Producers.Build_Types.Process_Output_Capture_Separated,
              "timeout result did not retain separated stdout/stderr provenance");
    end Check_Timeout_If_Available;
 
    S : Editor.State.State_Type;
-   Gate : constant Editor.External_Producers.Build_Execution_Gate :=
+   Gate : constant Editor.External_Producers.Build_Types.Build_Execution_Gate :=
      Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate
        (Allow_Diagnostics_Ingestion => True,
         Show_Diagnostics            => False,
-        Consent                     => Editor.External_Producers.Build_Consent_User_Confirmed);
+        Consent                     => Editor.External_Producers.Build_Types.Build_Consent_User_Confirmed);
    Success_Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    Failure_Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
 
@@ -242,12 +243,12 @@ begin
    Success_Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Gate
      (S, Smoke_Request, Gate);
    if Success_Result.Build_Result.Status /=
-     Editor.External_Producers.Build_Run_Succeeded
+     Editor.External_Producers.Build_Types.Build_Run_Succeeded
    then
       Ada.Text_IO.Put_Line
         (Ada.Text_IO.Standard_Error,
          "editor_real_build_runner_smoke: valid fixture status="
-         & Editor.External_Producers.Build_Run_Status'Image
+         & Editor.External_Producers.Build_Types.Build_Run_Status'Image
              (Success_Result.Build_Result.Status)
          & " message=" & To_String (Success_Result.Command_Message));
       if Length (Success_Result.Build_Result.Stdout_Text) > 0 then
@@ -264,13 +265,13 @@ begin
       end if;
    end if;
    Check (Success_Result.Build_Result.Status =
-            Editor.External_Producers.Build_Run_Succeeded,
+            Editor.External_Producers.Build_Types.Build_Run_Succeeded,
           "real gprbuild runner did not report success for a valid fixture");
    Check (Success_Result.Build_Result.Has_Exit_Code
           and then Success_Result.Build_Result.Exit_Code = 0,
           "real gprbuild runner did not expose a zero exit code");
    Check (Success_Result.Build_Result.Output_Capture_Mode =
-            Editor.External_Producers.Process_Output_Capture_Separated,
+            Editor.External_Producers.Build_Types.Process_Output_Capture_Separated,
           "successful real gprbuild runner did not report separated capture provenance");
    Check_Build_Output_Details
      (Success_Result.Build_Result,
@@ -282,7 +283,7 @@ begin
    Failure_Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Gate
      (S, Smoke_Request, Gate);
    Check (Failure_Result.Build_Result.Status =
-            Editor.External_Producers.Build_Run_Failed,
+            Editor.External_Producers.Build_Types.Build_Run_Failed,
           "real gprbuild runner did not report failure for an invalid fixture");
    Check (Failure_Result.Build_Result.Has_Exit_Code
           and then Failure_Result.Build_Result.Exit_Code /= 0,
@@ -291,7 +292,7 @@ begin
           or else Length (Failure_Result.Build_Result.Stderr_Text) > 0,
           "real gprbuild runner did not capture compiler output");
    Check (Failure_Result.Build_Result.Output_Capture_Mode =
-            Editor.External_Producers.Process_Output_Capture_Separated,
+            Editor.External_Producers.Build_Types.Process_Output_Capture_Separated,
           "failing real gprbuild runner did not report separated capture provenance");
    Check_Build_Output_Details
      (Failure_Result.Build_Result,

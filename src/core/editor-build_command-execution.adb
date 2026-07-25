@@ -10,6 +10,7 @@ with Editor.Build_Runner_Policy;
 with Editor.Build_Process_Control;
 with Editor.Build_Command.Registry;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Types;
 with Editor.External_Producers.Execution_Policy;
 with Editor.External_Producers.Build_Requests;
 with Editor.External_Producers.Diagnostic_Line_Parsing;
@@ -57,30 +58,30 @@ package body Editor.Build_Command.Execution is
             end if;
             return
               (Build_Result      => Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-                 (Editor.External_Producers.Build_Run_Not_Available),
+                 (Editor.External_Producers.Build_Types.Build_Run_Not_Available),
                Diagnostic_Result => Empty_Diagnostics,
                Command_Message   => To_Unbounded_String (Message));
          end;
       elsif Public_Build_Worker_Lifecycle.Stop_Requested then
          return
            (Build_Result      => Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-              (Editor.External_Producers.Build_Run_Not_Available),
+              (Editor.External_Producers.Build_Types.Build_Run_Not_Available),
             Diagnostic_Result => Empty_Diagnostics,
             Command_Message   => To_Unbounded_String
               ("Build unavailable: async build worker pool is stopping."));
       elsif State.Public_Build_Job_Active then
          return
            (Build_Result      => Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-              (Editor.External_Producers.Build_Run_Not_Available),
+              (Editor.External_Producers.Build_Types.Build_Run_Not_Available),
             Diagnostic_Result => Empty_Diagnostics,
             Command_Message   => To_Unbounded_String
               ("Build unavailable: another build job is active."));
       end if;
 
       declare
-         Gate : constant Editor.External_Producers.Build_Execution_Gate :=
+         Gate : constant Editor.External_Producers.Build_Types.Build_Execution_Gate :=
            Build_Run_Execution_Gate (State);
-         Runner_Only_Gate : constant Editor.External_Producers.Build_Execution_Gate :=
+         Runner_Only_Gate : constant Editor.External_Producers.Build_Types.Build_Execution_Gate :=
            (Process_Policy                  => Gate.Process_Policy,
             Allow_Build_Run                 => Gate.Allow_Build_Run,
             Allow_Real_Build_Tool_Execution => Gate.Allow_Real_Build_Tool_Execution,
@@ -98,7 +99,7 @@ package body Editor.Build_Command.Execution is
             Complete_Public_Build_Job (State);
             return
               (Build_Result      => Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-                 (Editor.External_Producers.Build_Run_Not_Available),
+                 (Editor.External_Producers.Build_Types.Build_Run_Not_Available),
                Diagnostic_Result => Empty_Diagnostics,
                Command_Message   => To_Unbounded_String
                  ("Build unavailable: async build slot pool exhausted."));
@@ -123,7 +124,7 @@ package body Editor.Build_Command.Execution is
 
          return
            (Build_Result      => Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-              (Editor.External_Producers.Build_Run_Succeeded,
+              (Editor.External_Producers.Build_Types.Build_Run_Succeeded,
                Output_Partial => True),
             Diagnostic_Result => Empty_Diagnostics,
             Command_Message   => To_Unbounded_String ("Build started."));
@@ -142,14 +143,14 @@ package body Editor.Build_Command.Execution is
       Worker_State : Editor.State.State_Type;
       Active_Stream : Editor.Build_Output_Details.Build_Output_Stream_State;
       Active_Stream_Available : Boolean := False;
-      Completed_Request : Editor.External_Producers.Build_Run_Request;
-      Result_Gate : Editor.External_Producers.Build_Execution_Gate;
+      Completed_Request : Editor.External_Producers.Build_Types.Build_Run_Request;
+      Result_Gate : Editor.External_Producers.Build_Types.Build_Execution_Gate;
       Duration_MS : Natural := 0;
    begin
       if not Has_Queued_Public_Build_Job (State) then
          Result :=
            (Build_Result      => Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-              (Editor.External_Producers.Build_Run_Not_Available),
+              (Editor.External_Producers.Build_Types.Build_Run_Not_Available),
             Diagnostic_Result => Empty_Diagnostics,
             Command_Message   => To_Unbounded_String ("No queued build job."));
          return False;
@@ -175,7 +176,7 @@ package body Editor.Build_Command.Execution is
               Output_Partial => True);
          Result :=
            (Build_Result      => Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-              (Editor.External_Producers.Build_Run_Succeeded,
+              (Editor.External_Producers.Build_Types.Build_Run_Succeeded,
                Output_Partial => True),
             Diagnostic_Result => Empty_Diagnostics,
             Command_Message   => To_Unbounded_String ("Build still running."));
@@ -247,7 +248,7 @@ package body Editor.Build_Command.Execution is
          begin
             Result :=
               (Build_Result      => Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-                 (Editor.External_Producers.Build_Run_Not_Available),
+                 (Editor.External_Producers.Build_Types.Build_Run_Not_Available),
                Diagnostic_Result => Empty_Diagnostics,
                Command_Message   => To_Unbounded_String (Message));
             if Editor.Build_Result_Summary.Retain_Pre_Run_Unavailable_Summary then
@@ -267,9 +268,9 @@ package body Editor.Build_Command.Execution is
       end if;
 
       declare
-         Gate : constant Editor.External_Producers.Build_Execution_Gate :=
+         Gate : constant Editor.External_Producers.Build_Types.Build_Execution_Gate :=
            Build_Run_Execution_Gate (State);
-         Runner_Only_Gate : constant Editor.External_Producers.Build_Execution_Gate :=
+         Runner_Only_Gate : constant Editor.External_Producers.Build_Types.Build_Execution_Gate :=
            (Process_Policy                  => Gate.Process_Policy,
             Allow_Build_Run                 => Gate.Allow_Build_Run,
             Allow_Real_Build_Tool_Execution => Gate.Allow_Real_Build_Tool_Execution,
@@ -324,7 +325,7 @@ package body Editor.Build_Command.Execution is
 
    function Execute_Public_Build_Run_With_Supplied_Result
      (State           : in out Editor.State.State_Type;
-      Supplied_Result : Editor.External_Producers.Process_Run_Result)
+      Supplied_Result : Editor.External_Producers.Build_Types.Process_Run_Result)
       return Editor.External_Producers.Build_Requests.Build_Command_Result
    is
       Conversion : constant Editor.Build_Public_Request.Public_Build_Request_Conversion_Result :=
@@ -341,7 +342,7 @@ package body Editor.Build_Command.Execution is
          begin
             Result :=
               (Build_Result      => Editor.External_Producers.Build_Requests.Build_Build_Run_Result
-                 (Editor.External_Producers.Build_Run_Not_Available),
+                 (Editor.External_Producers.Build_Types.Build_Run_Not_Available),
                Diagnostic_Result => Empty_Diagnostics,
                Command_Message   => To_Unbounded_String (Message));
             if Editor.Build_Result_Summary.Retain_Pre_Run_Unavailable_Summary then
@@ -361,15 +362,15 @@ package body Editor.Build_Command.Execution is
       end if;
 
       declare
-         Gate : constant Editor.External_Producers.Build_Execution_Gate :=
+         Gate : constant Editor.External_Producers.Build_Types.Build_Execution_Gate :=
            Build_Run_Execution_Gate (State);
-         Runner_Only_Gate : constant Editor.External_Producers.Build_Execution_Gate :=
+         Runner_Only_Gate : constant Editor.External_Producers.Build_Types.Build_Execution_Gate :=
            Editor.External_Producers.Execution_Policy.Build_Test_Fixture_Execution_Gate
              (Allow_Diagnostics_Ingestion => False,
               Show_Diagnostics            => False,
               Max_Output_Bytes            => Gate.Process_Policy.Max_Output_Bytes,
               Consent                     =>
-                Editor.External_Producers.Build_Consent_Test_Only);
+                Editor.External_Producers.Build_Types.Build_Consent_Test_Only);
          Ingestion : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result :=
            Editor.External_Producers.Diagnostic_Line_Parsing.
              Empty_Diagnostic_Line_Command_Result;
