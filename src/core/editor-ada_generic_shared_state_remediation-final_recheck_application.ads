@@ -1,9 +1,9 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
-with Editor.Ada_Generic_Shared_State_Final_Recheck_Eligibility_Legality;
+with Editor.Ada_Generic_Shared_State_Remediation.Final_Recheck_Eligibility;
 with Editor.Ada_Syntax_Tree;
 
-package Editor.Ada_Generic_Shared_State_Final_Recheck_Application_Legality is
+package Editor.Ada_Generic_Shared_State_Remediation.Final_Recheck_Application is
 
    --  Case 1242 generic/shared-state final recheck application legality.
    --
@@ -19,7 +19,7 @@ package Editor.Ada_Generic_Shared_State_Final_Recheck_Application_Legality is
    --  dataflow evidence can be trusted together.  Blocker-family identity is
    --  preserved for later convergence and stabilization passes.
 
-   package Recheck renames Editor.Ada_Generic_Shared_State_Final_Recheck_Eligibility_Legality;
+   package Recheck renames Editor.Ada_Generic_Shared_State_Remediation.Final_Recheck_Eligibility;
 
    subtype Generic_Shared_State_Final_Application_Family is
      Recheck.Generic_Shared_State_Final_Recheck_Family;
@@ -190,4 +190,4 @@ private
       Fingerprint         : Natural := 0;
    end record;
 
-end Editor.Ada_Generic_Shared_State_Final_Recheck_Application_Legality;
+end Editor.Ada_Generic_Shared_State_Remediation.Final_Recheck_Application;

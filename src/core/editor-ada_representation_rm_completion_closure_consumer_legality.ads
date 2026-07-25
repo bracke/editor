@@ -1,6 +1,6 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
-with Editor.Ada_Generic_Shared_State_RM_Completion_Stabilized_Closure_Legality;
+with Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Closure;
 with Editor.Ada_Representation_Generic_Shared_State_RM_Hard_Case_Completion_Legality;
 with Editor.Ada_Syntax_Tree;
 
@@ -19,7 +19,7 @@ package Editor.Ada_Representation_RM_Completion_Closure_Consumer_Legality is
    --  indeterminate closure state.
 
    package Prior renames Editor.Ada_Representation_Generic_Shared_State_RM_Hard_Case_Completion_Legality;
-   package Closure renames Editor.Ada_Generic_Shared_State_RM_Completion_Stabilized_Closure_Legality;
+   package Closure renames Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Closure;
 
    type Representation_RM_Closure_Consumer_Id is new Natural;
    No_Representation_RM_Closure_Consumer : constant Representation_RM_Closure_Consumer_Id := 0;

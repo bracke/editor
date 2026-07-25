@@ -3,7 +3,7 @@ with Ada.Strings.Unbounded;
 with Editor.Ada_Dataflow_Generic_Shared_State_RM_Completion_Legality;
 with Editor.Ada_Syntax_Tree;
 
-package Editor.Ada_Generic_Shared_State_RM_Completion_Diagnostic_Integration is
+package Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics is
 
    --  Case 1256 diagnostic integration for the RM-completed
    --  generic/shared-state semantic chain.
@@ -187,4 +187,4 @@ private
       Fingerprint            : Natural := 0;
    end record;
 
-end Editor.Ada_Generic_Shared_State_RM_Completion_Diagnostic_Integration;
+end Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics;

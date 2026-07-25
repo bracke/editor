@@ -1,9 +1,9 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
-with Editor.Ada_Generic_Shared_State_Final_Recheck_Application_Legality;
+with Editor.Ada_Generic_Shared_State_Remediation.Final_Recheck_Application;
 with Editor.Ada_Syntax_Tree;
 
-package Editor.Ada_Generic_Shared_State_Final_Recheck_Convergence_Legality is
+package Editor.Ada_Generic_Shared_State_Remediation.Final_Recheck_Convergence is
 
    --  Case 1243 generic/shared-state final recheck convergence legality.
    --
@@ -19,7 +19,7 @@ package Editor.Ada_Generic_Shared_State_Final_Recheck_Convergence_Legality is
    --  exception/finalization, renaming/alias, predicate/invariant, dataflow,
    --  cross-unit, and AST/coverage evidence.
 
-   package Apply renames Editor.Ada_Generic_Shared_State_Final_Recheck_Application_Legality;
+   package Apply renames Editor.Ada_Generic_Shared_State_Remediation.Final_Recheck_Application;
 
    subtype Generic_Shared_State_Final_Application_Status is Apply.Generic_Shared_State_Final_Application_Status;
    subtype Generic_Shared_State_Final_Application_Action is Apply.Generic_Shared_State_Final_Application_Action;
@@ -190,4 +190,4 @@ private
       Fingerprint           : Natural := 0;
    end record;
 
-end Editor.Ada_Generic_Shared_State_Final_Recheck_Convergence_Legality;
+end Editor.Ada_Generic_Shared_State_Remediation.Final_Recheck_Convergence;

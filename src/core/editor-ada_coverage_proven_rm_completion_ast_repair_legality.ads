@@ -1,6 +1,6 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
-with Editor.Ada_Generic_Shared_State_Final_Stabilized_Closure_Legality;
+with Editor.Ada_Generic_Shared_State_Remediation.Final_Closure;
 with Editor.Ada_Cross_Unit_Generic_Shared_State_RM_Completion_Closure_Legality;
 with Editor.Ada_Elaboration_Generic_Shared_State_RM_Completion_Legality;
 with Editor.Ada_Accessibility_Remediation;
@@ -8,8 +8,8 @@ with Editor.Ada_Accessibility_Generic_Shared_State_RM_Completion_Legality;
 with Editor.Ada_Exception_Finalization_Generic_Shared_State_RM_Completion_Legality;
 with Editor.Ada_Predicate_Generic_Shared_State_RM_Completion_Legality;
 with Editor.Ada_Dataflow_Generic_Shared_State_RM_Completion_Legality;
-with Editor.Ada_Generic_Shared_State_RM_Completion_Diagnostic_Integration;
-with Editor.Ada_Generic_Shared_State_RM_Completion_Remediation_Worklist_Legality;
+with Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics;
+with Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Worklist;
 with Editor.Ada_Overload_Generic_Shared_State_RM_Edge_Completion_Legality;
 with Editor.Ada_Representation_Generic_Shared_State_RM_Hard_Case_Completion_Legality;
 with Editor.Ada_Semantic_Coverage_Gates;
@@ -31,7 +31,7 @@ package Editor.Ada_Coverage_Proven_RM_Completion_AST_Repair_Legality is
    --  tasking/protected RM hard-case consumers to agree before the repaired conclusion can be trusted.
 
    package Gates renames Editor.Ada_Semantic_Coverage_Gates;
-   package Closure renames Editor.Ada_Generic_Shared_State_Final_Stabilized_Closure_Legality;
+   package Closure renames Editor.Ada_Generic_Shared_State_Remediation.Final_Closure;
    package Overload_Edges renames Editor.Ada_Overload_Generic_Shared_State_RM_Edge_Completion_Legality;
    package Representation_Hard_Cases renames Editor.Ada_Representation_Generic_Shared_State_RM_Hard_Case_Completion_Legality;
    package Tasking_Hard_Cases renames Editor.Ada_Tasking_Generic_Shared_State_RM_Hard_Case_Completion_Legality;
@@ -42,8 +42,8 @@ package Editor.Ada_Coverage_Proven_RM_Completion_AST_Repair_Legality is
    package Exception_RM renames Editor.Ada_Exception_Finalization_Generic_Shared_State_RM_Completion_Legality;
    package Predicate_RM renames Editor.Ada_Predicate_Generic_Shared_State_RM_Completion_Legality;
    package Dataflow_RM renames Editor.Ada_Dataflow_Generic_Shared_State_RM_Completion_Legality;
-   package RM_Diagnostics renames Editor.Ada_Generic_Shared_State_RM_Completion_Diagnostic_Integration;
-   package RM_Worklist renames Editor.Ada_Generic_Shared_State_RM_Completion_Remediation_Worklist_Legality;
+   package RM_Diagnostics renames Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics;
+   package RM_Worklist renames Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Worklist;
 
    type Coverage_Proven_AST_Repair_Id is new Natural;
    No_Coverage_Proven_AST_Repair : constant Coverage_Proven_AST_Repair_Id := 0;

@@ -1,6 +1,6 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
-package body Editor.Ada_Generic_Shared_State_RM_Completion_Recheck_Application_Legality is
+package body Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Recheck_Application is
 
    pragma Suppress (Overflow_Check);
    use type RM_Completion_Application_Family;
@@ -392,4 +392,4 @@ package body Editor.Ada_Generic_Shared_State_RM_Completion_Recheck_Application_L
       return Model.Fingerprint;
    end Stable_Fingerprint;
 
-end Editor.Ada_Generic_Shared_State_RM_Completion_Recheck_Application_Legality;
+end Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Recheck_Application;

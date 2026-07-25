@@ -1,0 +1,2 @@
+package Editor.Ada_Generic_Shared_State_Remediation is
+end Editor.Ada_Generic_Shared_State_Remediation;

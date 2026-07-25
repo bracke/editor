@@ -5,8 +5,8 @@ with Editor.Ada_Integrated_Semantic_Closure;
 with Editor.Ada_Final_Semantic_Diagnostic_Integration;
 with Editor.Ada_Final_Semantic_Remediation_Diagnostic_Integration;
 with Editor.Ada_Final_Semantic_Stabilized_Diagnostic_Integration;
-with Editor.Ada_Generic_Shared_State_Final_Diagnostic_Integration;
-with Editor.Ada_Generic_Shared_State_RM_Completion_Diagnostic_Integration;
+with Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics;
+with Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics;
 with Editor.Ada_RM_Completion_Closure_Consumer_Diagnostic_Integration;
 with Editor.Ada_RM_Completion_Closure_Consumer_Stabilized_Diagnostic_Integration;
 with Editor.Ada_Remaining_RM_Edge_Stabilized_Diagnostic_Integration;
@@ -268,15 +268,15 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
 
 
    function Severity_Of
-     (Severity : Editor.Ada_Generic_Shared_State_Final_Diagnostic_Integration.Generic_Shared_State_Final_Diagnostic_Severity)
+     (Severity : Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics.Generic_Shared_State_Final_Diagnostic_Severity)
       return Semantic_Diagnostic_Feed_Severity is
    begin
       case Severity is
-         when Editor.Ada_Generic_Shared_State_Final_Diagnostic_Integration.Generic_Shared_State_Final_Diagnostic_Error =>
+         when Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics.Generic_Shared_State_Final_Diagnostic_Error =>
             return Semantic_Diagnostic_Feed_Error;
-         when Editor.Ada_Generic_Shared_State_Final_Diagnostic_Integration.Generic_Shared_State_Final_Diagnostic_Warning =>
+         when Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics.Generic_Shared_State_Final_Diagnostic_Warning =>
             return Semantic_Diagnostic_Feed_Warning;
-         when Editor.Ada_Generic_Shared_State_Final_Diagnostic_Integration.Generic_Shared_State_Final_Diagnostic_Info =>
+         when Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics.Generic_Shared_State_Final_Diagnostic_Info =>
             return Semantic_Diagnostic_Feed_Info;
       end case;
    end Severity_Of;
@@ -337,16 +337,16 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
 
 
    function Source_Of
-     (Family : Editor.Ada_Generic_Shared_State_Final_Diagnostic_Integration.Generic_Shared_State_Final_Diagnostic_Family)
+     (Family : Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics.Generic_Shared_State_Final_Diagnostic_Family)
       return Semantic_Diagnostic_Feed_Source is
    begin
       case Family is
-         when Editor.Ada_Generic_Shared_State_Final_Diagnostic_Integration.Generic_Shared_State_Final_Diagnostic_Generic_Abstract_Replay =>
+         when Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics.Generic_Shared_State_Final_Diagnostic_Generic_Abstract_Replay =>
             return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Generic_Contract;
-         when Editor.Ada_Generic_Shared_State_Final_Diagnostic_Integration.Generic_Shared_State_Final_Diagnostic_Representation_Generic_Shared_State |
-              Editor.Ada_Generic_Shared_State_Final_Diagnostic_Integration.Generic_Shared_State_Final_Diagnostic_Volatile_Atomic_Representation =>
+         when Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics.Generic_Shared_State_Final_Diagnostic_Representation_Generic_Shared_State |
+              Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics.Generic_Shared_State_Final_Diagnostic_Volatile_Atomic_Representation =>
             return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Representation;
-         when Editor.Ada_Generic_Shared_State_Final_Diagnostic_Integration.Generic_Shared_State_Final_Diagnostic_Stabilized_Shared_State_Closure =>
+         when Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics.Generic_Shared_State_Final_Diagnostic_Stabilized_Shared_State_Closure =>
             return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Cross_Unit;
          when others =>
             return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Expression;
@@ -356,30 +356,30 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
 
 
    function Severity_Of
-     (Severity : Editor.Ada_Generic_Shared_State_RM_Completion_Diagnostic_Integration.RM_Completion_Diagnostic_Severity)
+     (Severity : Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics.RM_Completion_Diagnostic_Severity)
       return Semantic_Diagnostic_Feed_Severity is
    begin
       case Severity is
-         when Editor.Ada_Generic_Shared_State_RM_Completion_Diagnostic_Integration.RM_Completion_Diagnostic_Error =>
+         when Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics.RM_Completion_Diagnostic_Error =>
             return Semantic_Diagnostic_Feed_Error;
-         when Editor.Ada_Generic_Shared_State_RM_Completion_Diagnostic_Integration.RM_Completion_Diagnostic_Warning =>
+         when Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics.RM_Completion_Diagnostic_Warning =>
             return Semantic_Diagnostic_Feed_Warning;
-         when Editor.Ada_Generic_Shared_State_RM_Completion_Diagnostic_Integration.RM_Completion_Diagnostic_Info =>
+         when Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics.RM_Completion_Diagnostic_Info =>
             return Semantic_Diagnostic_Feed_Info;
       end case;
    end Severity_Of;
 
    function Source_Of
-     (Family : Editor.Ada_Generic_Shared_State_RM_Completion_Diagnostic_Integration.RM_Completion_Diagnostic_Family)
+     (Family : Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics.RM_Completion_Diagnostic_Family)
       return Semantic_Diagnostic_Feed_Source is
    begin
       case Family is
-         when Editor.Ada_Generic_Shared_State_RM_Completion_Diagnostic_Integration.RM_Completion_Diagnostic_Cross_Unit_RM_Completion =>
+         when Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics.RM_Completion_Diagnostic_Cross_Unit_RM_Completion =>
             return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Cross_Unit;
-         when Editor.Ada_Generic_Shared_State_RM_Completion_Diagnostic_Integration.RM_Completion_Diagnostic_Representation_RM_Completion |
-              Editor.Ada_Generic_Shared_State_RM_Completion_Diagnostic_Integration.RM_Completion_Diagnostic_Volatile_Atomic_Effect =>
+         when Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics.RM_Completion_Diagnostic_Representation_RM_Completion |
+              Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics.RM_Completion_Diagnostic_Volatile_Atomic_Effect =>
             return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Representation;
-         when Editor.Ada_Generic_Shared_State_RM_Completion_Diagnostic_Integration.RM_Completion_Diagnostic_Generic_Substitution =>
+         when Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics.RM_Completion_Diagnostic_Generic_Substitution =>
             return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Generic_Contract;
          when others =>
             return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Expression;
@@ -1105,7 +1105,7 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
 
    function Build_With_Generic_Shared_State_Final_Diagnostics
      (Guarded : Editor.Ada_Semantic_Diagnostic_Snapshot_Guards.Guarded_Semantic_Diagnostic_Model;
-      Final   : Editor.Ada_Generic_Shared_State_Final_Diagnostic_Integration.Generic_Shared_State_Final_Diagnostic_Model;
+      Final   : Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics.Generic_Shared_State_Final_Diagnostic_Model;
       Final_Input_Current : Boolean := True;
       Final_Rejected_Count : Natural := 0)
       return Semantic_Diagnostic_Feed_Model
@@ -1117,7 +1117,7 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
          Model.Feed_Status := Semantic_Diagnostic_Feed_Rejected_Stale;
          Model.Rejected_Total := Final_Rejected_Count;
          Model.Result_Fingerprint :=
-           Mix (Editor.Ada_Generic_Shared_State_Final_Diagnostic_Integration.Fingerprint (Final),
+           Mix (Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics.Fingerprint (Final),
                 Final_Rejected_Count + 1);
          return Model;
       end if;
@@ -1126,17 +1126,17 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
          Model.Rejected_Total := Model.Rejected_Total + Final_Rejected_Count;
          Model.Result_Fingerprint :=
            Mix (Model.Result_Fingerprint,
-                Editor.Ada_Generic_Shared_State_Final_Diagnostic_Integration.Fingerprint (Final));
+                Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics.Fingerprint (Final));
          return Model;
       end if;
 
-      for Index in 1 .. Editor.Ada_Generic_Shared_State_Final_Diagnostic_Integration.Row_Count (Final) loop
+      for Index in 1 .. Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics.Row_Count (Final) loop
          declare
-            Final_Row : constant Editor.Ada_Generic_Shared_State_Final_Diagnostic_Integration.Generic_Shared_State_Final_Diagnostic_Row :=
-              Editor.Ada_Generic_Shared_State_Final_Diagnostic_Integration.Row_At (Final, Index);
+            Final_Row : constant Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics.Generic_Shared_State_Final_Diagnostic_Row :=
+              Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics.Row_At (Final, Index);
             Feed_Item : Semantic_Diagnostic_Feed_Entry;
          begin
-            if Editor.Ada_Generic_Shared_State_Final_Diagnostic_Integration.Is_Emitted (Final_Row.Status) then
+            if Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics.Is_Emitted (Final_Row.Status) then
                Feed_Item.Id := Semantic_Diagnostic_Feed_Id (Natural (Model.Entries.Length) + 1);
                Feed_Item.Source := Source_Of (Final_Row.Family);
                Feed_Item.Severity := Severity_Of (Final_Row.Severity);
@@ -1166,14 +1166,14 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
 
       Model.Result_Fingerprint :=
         Mix (Model.Result_Fingerprint,
-             Editor.Ada_Generic_Shared_State_Final_Diagnostic_Integration.Fingerprint (Final));
+             Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics.Fingerprint (Final));
       return Model;
    end Build_With_Generic_Shared_State_Final_Diagnostics;
 
 
    function Build_With_Generic_Shared_State_RM_Completion_Diagnostics
      (Guarded : Editor.Ada_Semantic_Diagnostic_Snapshot_Guards.Guarded_Semantic_Diagnostic_Model;
-      Final   : Editor.Ada_Generic_Shared_State_RM_Completion_Diagnostic_Integration.RM_Completion_Diagnostic_Model;
+      Final   : Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics.RM_Completion_Diagnostic_Model;
       Final_Input_Current : Boolean := True;
       Final_Rejected_Count : Natural := 0)
       return Semantic_Diagnostic_Feed_Model
@@ -1185,7 +1185,7 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
          Model.Feed_Status := Semantic_Diagnostic_Feed_Rejected_Stale;
          Model.Rejected_Total := Final_Rejected_Count;
          Model.Result_Fingerprint :=
-           Mix (Editor.Ada_Generic_Shared_State_RM_Completion_Diagnostic_Integration.Fingerprint (Final),
+           Mix (Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics.Fingerprint (Final),
                 Final_Rejected_Count + 1);
          return Model;
       end if;
@@ -1194,17 +1194,17 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
          Model.Rejected_Total := Model.Rejected_Total + Final_Rejected_Count;
          Model.Result_Fingerprint :=
            Mix (Model.Result_Fingerprint,
-                Editor.Ada_Generic_Shared_State_RM_Completion_Diagnostic_Integration.Fingerprint (Final));
+                Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics.Fingerprint (Final));
          return Model;
       end if;
 
-      for Index in 1 .. Editor.Ada_Generic_Shared_State_RM_Completion_Diagnostic_Integration.Row_Count (Final) loop
+      for Index in 1 .. Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics.Row_Count (Final) loop
          declare
-            Final_Row : constant Editor.Ada_Generic_Shared_State_RM_Completion_Diagnostic_Integration.RM_Completion_Diagnostic_Row :=
-              Editor.Ada_Generic_Shared_State_RM_Completion_Diagnostic_Integration.Row_At (Final, Index);
+            Final_Row : constant Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics.RM_Completion_Diagnostic_Row :=
+              Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics.Row_At (Final, Index);
             Feed_Item : Semantic_Diagnostic_Feed_Entry;
          begin
-            if Editor.Ada_Generic_Shared_State_RM_Completion_Diagnostic_Integration.Is_Emitted (Final_Row.Status) then
+            if Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics.Is_Emitted (Final_Row.Status) then
                Feed_Item.Id := Semantic_Diagnostic_Feed_Id (Natural (Model.Entries.Length) + 1);
                Feed_Item.Source := Source_Of (Final_Row.Family);
                Feed_Item.Severity := Severity_Of (Final_Row.Severity);
@@ -1234,7 +1234,7 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
 
       Model.Result_Fingerprint :=
         Mix (Model.Result_Fingerprint,
-             Editor.Ada_Generic_Shared_State_RM_Completion_Diagnostic_Integration.Fingerprint (Final));
+             Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics.Fingerprint (Final));
       return Model;
    end Build_With_Generic_Shared_State_RM_Completion_Diagnostics;
 

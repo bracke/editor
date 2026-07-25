@@ -1,6 +1,6 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
-package body Editor.Ada_Generic_Shared_State_Final_Remediation_Worklist_Legality is
+package body Editor.Ada_Generic_Shared_State_Remediation.Final_Worklist is
 
    pragma Suppress (Overflow_Check);
    use type Generic_Shared_State_Final_Worklist_Family;
@@ -407,4 +407,4 @@ package body Editor.Ada_Generic_Shared_State_Final_Remediation_Worklist_Legality
       return Model.Stable_Fingerprint_Value;
    end Stable_Fingerprint;
 
-end Editor.Ada_Generic_Shared_State_Final_Remediation_Worklist_Legality;
+end Editor.Ada_Generic_Shared_State_Remediation.Final_Worklist;

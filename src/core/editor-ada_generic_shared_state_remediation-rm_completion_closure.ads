@@ -1,9 +1,9 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
-with Editor.Ada_Generic_Shared_State_RM_Completion_Stabilization_Gate_Legality;
+with Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Stabilization;
 with Editor.Ada_Syntax_Tree;
 
-package Editor.Ada_Generic_Shared_State_RM_Completion_Stabilized_Closure_Legality is
+package Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Closure is
 
    --  Case 1263 generic/shared-state RM-completion stabilized closure legality.
    --
@@ -17,7 +17,7 @@ package Editor.Ada_Generic_Shared_State_RM_Completion_Stabilized_Closure_Legalit
    --  discriminant, exception/finalization, renaming, predicate, or dataflow
    --  evidence.
 
-   package Gate renames Editor.Ada_Generic_Shared_State_RM_Completion_Stabilization_Gate_Legality;
+   package Gate renames Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Stabilization;
 
    subtype RM_Completion_Stabilization_Status is Gate.RM_Completion_Stabilization_Gate_Status;
    subtype RM_Completion_Stabilization_Action is Gate.RM_Completion_Stabilization_Gate_Action;
@@ -189,4 +189,4 @@ private
       Fingerprint         : Natural := 0;
    end record;
 
-end Editor.Ada_Generic_Shared_State_RM_Completion_Stabilized_Closure_Legality;
+end Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Closure;

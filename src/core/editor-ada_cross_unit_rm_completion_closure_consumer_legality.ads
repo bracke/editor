@@ -1,7 +1,7 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
 with Editor.Ada_Cross_Unit_Generic_Shared_State_RM_Completion_Closure_Legality;
-with Editor.Ada_Generic_Shared_State_RM_Completion_Stabilized_Closure_Legality;
+with Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Closure;
 with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Cross_Unit_RM_Completion_Closure_Consumer_Legality is
@@ -19,7 +19,7 @@ package Editor.Ada_Cross_Unit_RM_Completion_Closure_Consumer_Legality is
    --  children, separate bodies, generic bodies, and generic instances.
 
    package Prior renames Editor.Ada_Cross_Unit_Generic_Shared_State_RM_Completion_Closure_Legality;
-   package Closure renames Editor.Ada_Generic_Shared_State_RM_Completion_Stabilized_Closure_Legality;
+   package Closure renames Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Closure;
 
    type Cross_Unit_RM_Closure_Consumer_Id is new Natural;
    No_Cross_Unit_RM_Closure_Consumer : constant Cross_Unit_RM_Closure_Consumer_Id := 0;

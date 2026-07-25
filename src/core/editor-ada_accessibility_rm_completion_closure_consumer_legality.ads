@@ -5,7 +5,7 @@ with Editor.Ada_Elaboration_RM_Completion_Closure_Consumer_Legality;
 with Editor.Ada_Dataflow_RM_Completion_Closure_Consumer_Legality;
 with Editor.Ada_Accessibility_Remediation;
 with Editor.Ada_Accessibility_Generic_Shared_State_RM_Completion_Legality;
-with Editor.Ada_Generic_Shared_State_RM_Completion_Stabilized_Closure_Legality;
+with Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Closure;
 with Editor.Ada_Overload_RM_Completion_Closure_Consumer_Legality;
 with Editor.Ada_Representation_RM_Completion_Closure_Consumer_Legality;
 with Editor.Ada_Syntax_Tree;
@@ -25,7 +25,7 @@ package Editor.Ada_Accessibility_RM_Completion_Closure_Consumer_Legality is
    --  from bypassing stabilized RM-completion evidence.
 
    package Prior renames Editor.Ada_Accessibility_Generic_Shared_State_RM_Completion_Legality;
-   package Closure renames Editor.Ada_Generic_Shared_State_RM_Completion_Stabilized_Closure_Legality;
+   package Closure renames Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Closure;
    package Cross_Unit renames Editor.Ada_Cross_Unit_RM_Completion_Closure_Consumer_Legality;
    package Elaboration renames Editor.Ada_Elaboration_RM_Completion_Closure_Consumer_Legality;
    package Overload renames Editor.Ada_Overload_RM_Completion_Closure_Consumer_Legality;

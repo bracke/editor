@@ -1,9 +1,9 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
-with Editor.Ada_Generic_Shared_State_RM_Completion_Recheck_Convergence_Legality;
+with Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Recheck_Convergence;
 with Editor.Ada_Syntax_Tree;
 
-package Editor.Ada_Generic_Shared_State_RM_Completion_Stabilization_Gate_Legality is
+package Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Stabilization is
 
    --  Case 1262 generic/shared-state RM-completion stabilization gate legality.
    --
@@ -15,7 +15,7 @@ package Editor.Ada_Generic_Shared_State_RM_Completion_Stabilization_Gate_Legalit
    --  family, changed rows require another bounded recheck, and indeterminate
    --  rows remain degraded instead of becoming confident legality evidence.
 
-   package Conv renames Editor.Ada_Generic_Shared_State_RM_Completion_Recheck_Convergence_Legality;
+   package Conv renames Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Recheck_Convergence;
 
    subtype RM_Completion_Convergence_Status is Conv.RM_Completion_Convergence_Status;
    subtype RM_Completion_Convergence_Action is Conv.RM_Completion_Convergence_Action;
@@ -185,4 +185,4 @@ private
       Fingerprint         : Natural := 0;
    end record;
 
-end Editor.Ada_Generic_Shared_State_RM_Completion_Stabilization_Gate_Legality;
+end Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Stabilization;

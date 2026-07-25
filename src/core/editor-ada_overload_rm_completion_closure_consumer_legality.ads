@@ -1,6 +1,6 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
-with Editor.Ada_Generic_Shared_State_RM_Completion_Stabilized_Closure_Legality;
+with Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Closure;
 with Editor.Ada_Overload_Generic_Shared_State_RM_Edge_Completion_Legality;
 with Editor.Ada_Syntax_Tree;
 
@@ -19,7 +19,7 @@ package Editor.Ada_Overload_RM_Completion_Closure_Consumer_Legality is
    --  indeterminate closure state.
 
    package Prior renames Editor.Ada_Overload_Generic_Shared_State_RM_Edge_Completion_Legality;
-   package Closure renames Editor.Ada_Generic_Shared_State_RM_Completion_Stabilized_Closure_Legality;
+   package Closure renames Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Closure;
 
    type Overload_RM_Closure_Consumer_Id is new Natural;
    No_Overload_RM_Closure_Consumer : constant Overload_RM_Closure_Consumer_Id := 0;

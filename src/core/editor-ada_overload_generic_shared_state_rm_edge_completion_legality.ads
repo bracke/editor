@@ -1,6 +1,6 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
-with Editor.Ada_Generic_Shared_State_Final_Stabilized_Closure_Legality;
+with Editor.Ada_Generic_Shared_State_Remediation.Final_Closure;
 with Editor.Ada_Overload_Generic_Shared_State_Final_Legality;
 with Editor.Ada_Syntax_Tree;
 
@@ -20,7 +20,7 @@ package Editor.Ada_Overload_Generic_Shared_State_RM_Edge_Completion_Legality is
    --  generic/shared-state closure evidence.
 
    package Previous renames Editor.Ada_Overload_Generic_Shared_State_Final_Legality;
-   package Closure renames Editor.Ada_Generic_Shared_State_Final_Stabilized_Closure_Legality;
+   package Closure renames Editor.Ada_Generic_Shared_State_Remediation.Final_Closure;
 
    type Overload_Generic_RM_Edge_Completion_Id is new Natural;
    No_Overload_Generic_RM_Edge_Completion : constant Overload_Generic_RM_Edge_Completion_Id := 0;

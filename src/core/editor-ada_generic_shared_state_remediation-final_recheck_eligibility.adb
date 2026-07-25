@@ -1,6 +1,6 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
-package body Editor.Ada_Generic_Shared_State_Final_Recheck_Eligibility_Legality is
+package body Editor.Ada_Generic_Shared_State_Remediation.Final_Recheck_Eligibility is
 
    pragma Suppress (Overflow_Check);
    use type Generic_Shared_State_Final_Recheck_Family;
@@ -543,4 +543,4 @@ package body Editor.Ada_Generic_Shared_State_Final_Recheck_Eligibility_Legality 
       return Model.Fingerprint;
    end Fingerprint;
 
-end Editor.Ada_Generic_Shared_State_Final_Recheck_Eligibility_Legality;
+end Editor.Ada_Generic_Shared_State_Remediation.Final_Recheck_Eligibility;

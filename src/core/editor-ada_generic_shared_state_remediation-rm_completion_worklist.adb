@@ -1,4 +1,4 @@
-package body Editor.Ada_Generic_Shared_State_RM_Completion_Remediation_Worklist_Legality is
+package body Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Worklist is
 
    pragma Suppress (Overflow_Check);
    use type RM_Completion_Worklist_Family;
@@ -359,4 +359,4 @@ package body Editor.Ada_Generic_Shared_State_RM_Completion_Remediation_Worklist_
       return Model.Stable_Fingerprint_Value;
    end Stable_Fingerprint;
 
-end Editor.Ada_Generic_Shared_State_RM_Completion_Remediation_Worklist_Legality;
+end Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Worklist;

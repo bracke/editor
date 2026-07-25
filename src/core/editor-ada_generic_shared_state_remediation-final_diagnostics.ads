@@ -3,7 +3,7 @@ with Ada.Strings.Unbounded;
 with Editor.Ada_Dataflow_Generic_Shared_State_Final_Legality;
 with Editor.Ada_Syntax_Tree;
 
-package Editor.Ada_Generic_Shared_State_Final_Diagnostic_Integration is
+package Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics is
 
    --  Case 1239 generic/shared-state final diagnostic integration.
    --
@@ -173,4 +173,4 @@ private
       Fingerprint            : Natural := 0;
    end record;
 
-end Editor.Ada_Generic_Shared_State_Final_Diagnostic_Integration;
+end Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics;

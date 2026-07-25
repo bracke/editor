@@ -1,8 +1,8 @@
 with Ada.Containers.Vectors;
-with Editor.Ada_Generic_Shared_State_RM_Completion_Diagnostic_Integration;
+with Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics;
 with Editor.Ada_Syntax_Tree;
 
-package Editor.Ada_Generic_Shared_State_RM_Completion_Remediation_Worklist_Legality is
+package Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Worklist is
 
    --  Case 1257 remediation worklist for the RM-completed generic/shared-state
    --  semantic chain.
@@ -16,7 +16,7 @@ package Editor.Ada_Generic_Shared_State_RM_Completion_Remediation_Worklist_Legal
    --  representation/freezing, tasking/protected, AST repair, dataflow,
    --  view-barrier, fingerprint, multiple-blocker, and indeterminate families.
 
-   package Diagnostics renames Editor.Ada_Generic_Shared_State_RM_Completion_Diagnostic_Integration;
+   package Diagnostics renames Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics;
 
    type RM_Completion_Worklist_Id is new Natural;
    No_RM_Completion_Worklist_Item : constant RM_Completion_Worklist_Id := 0;
@@ -175,4 +175,4 @@ private
       Stable_Fingerprint_Value   : Natural := 0;
    end record;
 
-end Editor.Ada_Generic_Shared_State_RM_Completion_Remediation_Worklist_Legality;
+end Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Worklist;

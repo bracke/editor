@@ -1,6 +1,6 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
-package body Editor.Ada_Generic_Shared_State_RM_Completion_Diagnostic_Integration is
+package body Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics is
 
    pragma Suppress (Overflow_Check);
    use type Editor.Ada_Syntax_Tree.Node_Id;
@@ -348,4 +348,4 @@ package body Editor.Ada_Generic_Shared_State_RM_Completion_Diagnostic_Integratio
       return Model.Fingerprint;
    end Fingerprint;
 
-end Editor.Ada_Generic_Shared_State_RM_Completion_Diagnostic_Integration;
+end Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics;

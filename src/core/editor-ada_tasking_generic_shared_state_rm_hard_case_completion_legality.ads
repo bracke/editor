@@ -1,6 +1,6 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
-with Editor.Ada_Generic_Shared_State_Final_Stabilized_Closure_Legality;
+with Editor.Ada_Generic_Shared_State_Remediation.Final_Closure;
 with Editor.Ada_Overload_Generic_Shared_State_RM_Edge_Completion_Legality;
 with Editor.Ada_Representation_Generic_Shared_State_RM_Hard_Case_Completion_Legality;
 with Editor.Ada_Syntax_Tree;
@@ -24,7 +24,7 @@ package Editor.Ada_Tasking_Generic_Shared_State_RM_Hard_Case_Completion_Legality
    package Previous renames Editor.Ada_Tasking_Generic_Shared_State_Final_Legality;
    package Representation_Hard_Cases renames Editor.Ada_Representation_Generic_Shared_State_RM_Hard_Case_Completion_Legality;
    package Overload_Edges renames Editor.Ada_Overload_Generic_Shared_State_RM_Edge_Completion_Legality;
-   package Closure renames Editor.Ada_Generic_Shared_State_Final_Stabilized_Closure_Legality;
+   package Closure renames Editor.Ada_Generic_Shared_State_Remediation.Final_Closure;
 
    type Tasking_Generic_RM_Hard_Case_Id is new Natural;
    No_Tasking_Generic_RM_Hard_Case : constant Tasking_Generic_RM_Hard_Case_Id := 0;

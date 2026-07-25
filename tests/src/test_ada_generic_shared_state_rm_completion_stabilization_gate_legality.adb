@@ -1,12 +1,12 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Editor.Ada_Dataflow_Generic_Shared_State_RM_Completion_Legality;
-with Editor.Ada_Generic_Shared_State_RM_Completion_Diagnostic_Integration;
-with Editor.Ada_Generic_Shared_State_RM_Completion_Remediation_Worklist_Legality;
-with Editor.Ada_Generic_Shared_State_RM_Completion_Recheck_Eligibility_Legality;
-with Editor.Ada_Generic_Shared_State_RM_Completion_Recheck_Application_Legality;
-with Editor.Ada_Generic_Shared_State_RM_Completion_Recheck_Convergence_Legality;
-with Editor.Ada_Generic_Shared_State_RM_Completion_Stabilization_Gate_Legality;
+with Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics;
+with Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Worklist;
+with Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Recheck_Eligibility;
+with Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Recheck_Application;
+with Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Recheck_Convergence;
+with Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Stabilization;
 with Editor.Ada_Syntax_Tree;
 
 package body Test_Ada_Generic_Shared_State_RM_Completion_Stabilization_Gate_Legality is
@@ -21,7 +21,7 @@ package body Test_Ada_Generic_Shared_State_RM_Completion_Stabilization_Gate_Lega
    use type D.Dataflow_RM_Completion_Context_Model;
    use type D.Dataflow_RM_Completion_Model;
    use type D.Query_Result;
-   package Diag renames Editor.Ada_Generic_Shared_State_RM_Completion_Diagnostic_Integration;
+   package Diag renames Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics;
    use type Diag.RM_Completion_Diagnostic_Id;
    use type Diag.RM_Completion_Diagnostic_Family;
    use type Diag.RM_Completion_Diagnostic_Severity;
@@ -29,7 +29,7 @@ package body Test_Ada_Generic_Shared_State_RM_Completion_Stabilization_Gate_Lega
    use type Diag.RM_Completion_Diagnostic_Row;
    use type Diag.RM_Completion_Diagnostic_Set;
    use type Diag.RM_Completion_Diagnostic_Model;
-   package W renames Editor.Ada_Generic_Shared_State_RM_Completion_Remediation_Worklist_Legality;
+   package W renames Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Worklist;
    use type W.RM_Completion_Worklist_Id;
    use type W.RM_Completion_Worklist_Family;
    use type W.RM_Completion_Worklist_Diagnostic_Status;
@@ -38,7 +38,7 @@ package body Test_Ada_Generic_Shared_State_RM_Completion_Stabilization_Gate_Lega
    use type W.RM_Completion_Worklist_Item;
    use type W.RM_Completion_Worklist_Model;
    use type W.RM_Completion_Worklist_Set;
-   package R renames Editor.Ada_Generic_Shared_State_RM_Completion_Recheck_Eligibility_Legality;
+   package R renames Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Recheck_Eligibility;
    use type R.RM_Completion_Recheck_Family;
    use type R.RM_Completion_Recheck_Work_Action;
    use type R.RM_Completion_Recheck_Work_Priority;
@@ -48,7 +48,7 @@ package body Test_Ada_Generic_Shared_State_RM_Completion_Stabilization_Gate_Lega
    use type R.RM_Completion_Recheck_Row;
    use type R.RM_Completion_Recheck_Model;
    use type R.RM_Completion_Recheck_Set;
-   package A renames Editor.Ada_Generic_Shared_State_RM_Completion_Recheck_Application_Legality;
+   package A renames Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Recheck_Application;
    use type A.RM_Completion_Application_Family;
    use type A.RM_Completion_Eligibility_Status;
    use type A.RM_Completion_Eligibility_Action;
@@ -58,7 +58,7 @@ package body Test_Ada_Generic_Shared_State_RM_Completion_Stabilization_Gate_Lega
    use type A.RM_Completion_Application_Row;
    use type A.RM_Completion_Application_Model;
    use type A.RM_Completion_Application_Set;
-   package C renames Editor.Ada_Generic_Shared_State_RM_Completion_Recheck_Convergence_Legality;
+   package C renames Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Recheck_Convergence;
    use type C.RM_Completion_Application_Status;
    use type C.RM_Completion_Application_Action;
    use type C.RM_Completion_Convergence_Family;
@@ -68,7 +68,7 @@ package body Test_Ada_Generic_Shared_State_RM_Completion_Stabilization_Gate_Lega
    use type C.RM_Completion_Convergence_Row;
    use type C.RM_Completion_Convergence_Model;
    use type C.RM_Completion_Convergence_Set;
-   package S renames Editor.Ada_Generic_Shared_State_RM_Completion_Stabilization_Gate_Legality;
+   package S renames Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Stabilization;
    use type S.RM_Completion_Convergence_Status;
    use type S.RM_Completion_Convergence_Action;
    use type S.RM_Completion_Stabilization_Family;

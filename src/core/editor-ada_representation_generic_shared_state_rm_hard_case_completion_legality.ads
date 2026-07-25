@@ -1,6 +1,6 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
-with Editor.Ada_Generic_Shared_State_Final_Stabilized_Closure_Legality;
+with Editor.Ada_Generic_Shared_State_Remediation.Final_Closure;
 with Editor.Ada_Overload_Generic_Shared_State_RM_Edge_Completion_Legality;
 with Editor.Ada_Representation_Generic_Shared_State_Final_Legality;
 with Editor.Ada_Syntax_Tree;
@@ -22,7 +22,7 @@ package Editor.Ada_Representation_Generic_Shared_State_RM_Hard_Case_Completion_L
 
    package Previous renames Editor.Ada_Representation_Generic_Shared_State_Final_Legality;
    package Overload_Edges renames Editor.Ada_Overload_Generic_Shared_State_RM_Edge_Completion_Legality;
-   package Closure renames Editor.Ada_Generic_Shared_State_Final_Stabilized_Closure_Legality;
+   package Closure renames Editor.Ada_Generic_Shared_State_Remediation.Final_Closure;
 
    type Representation_Generic_RM_Hard_Case_Id is new Natural;
    No_Representation_Generic_RM_Hard_Case : constant Representation_Generic_RM_Hard_Case_Id := 0;

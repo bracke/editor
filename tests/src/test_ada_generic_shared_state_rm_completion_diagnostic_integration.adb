@@ -1,7 +1,7 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Editor.Ada_Dataflow_Generic_Shared_State_RM_Completion_Legality;
-with Editor.Ada_Generic_Shared_State_RM_Completion_Diagnostic_Integration;
+with Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics;
 with Editor.Ada_Semantic_Diagnostic_Feed;
 with Editor.Ada_Semantic_Diagnostic_Snapshot_Guards;
 with Editor.Ada_Syntax_Tree;
@@ -18,7 +18,7 @@ package body Test_Ada_Generic_Shared_State_RM_Completion_Diagnostic_Integration 
    use type D.Dataflow_RM_Completion_Context_Model;
    use type D.Dataflow_RM_Completion_Model;
    use type D.Query_Result;
-   package I renames Editor.Ada_Generic_Shared_State_RM_Completion_Diagnostic_Integration;
+   package I renames Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics;
    use type I.RM_Completion_Diagnostic_Id;
    use type I.RM_Completion_Diagnostic_Family;
    use type I.RM_Completion_Diagnostic_Severity;

@@ -2,9 +2,9 @@ with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Ada_Dataflow_Generic_Shared_State_Final_Legality;
-with Editor.Ada_Generic_Shared_State_Final_Diagnostic_Integration;
-with Editor.Ada_Generic_Shared_State_Final_Remediation_Worklist_Legality;
-with Editor.Ada_Generic_Shared_State_Final_Recheck_Eligibility_Legality;
+with Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics;
+with Editor.Ada_Generic_Shared_State_Remediation.Final_Worklist;
+with Editor.Ada_Generic_Shared_State_Remediation.Final_Recheck_Eligibility;
 with Editor.Ada_Syntax_Tree;
 
 package body Test_Ada_Generic_Shared_State_Final_Recheck_Eligibility_Legality is
@@ -19,7 +19,7 @@ package body Test_Ada_Generic_Shared_State_Final_Recheck_Eligibility_Legality is
    use type D.Dataflow_Generic_Final_Context_Model;
    use type D.Dataflow_Generic_Final_Model;
    use type D.Dataflow_Generic_Final_Set;
-   package Diag renames Editor.Ada_Generic_Shared_State_Final_Diagnostic_Integration;
+   package Diag renames Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics;
    use type Diag.Generic_Shared_State_Final_Diagnostic_Id;
    use type Diag.Generic_Shared_State_Final_Diagnostic_Family;
    use type Diag.Generic_Shared_State_Final_Diagnostic_Severity;
@@ -27,7 +27,7 @@ package body Test_Ada_Generic_Shared_State_Final_Recheck_Eligibility_Legality is
    use type Diag.Generic_Shared_State_Final_Diagnostic_Row;
    use type Diag.Generic_Shared_State_Final_Diagnostic_Set;
    use type Diag.Generic_Shared_State_Final_Diagnostic_Model;
-   package W renames Editor.Ada_Generic_Shared_State_Final_Remediation_Worklist_Legality;
+   package W renames Editor.Ada_Generic_Shared_State_Remediation.Final_Worklist;
    use type W.Generic_Shared_State_Final_Worklist_Id;
    use type W.Generic_Shared_State_Final_Worklist_Family;
    use type W.Generic_Shared_State_Final_Worklist_Diagnostic_Status;
@@ -36,7 +36,7 @@ package body Test_Ada_Generic_Shared_State_Final_Recheck_Eligibility_Legality is
    use type W.Generic_Shared_State_Final_Worklist_Item;
    use type W.Generic_Shared_State_Final_Worklist_Model;
    use type W.Generic_Shared_State_Final_Worklist_Set;
-   package R renames Editor.Ada_Generic_Shared_State_Final_Recheck_Eligibility_Legality;
+   package R renames Editor.Ada_Generic_Shared_State_Remediation.Final_Recheck_Eligibility;
    use type R.Generic_Shared_State_Final_Recheck_Family;
    use type R.Generic_Shared_State_Final_Recheck_Work_Action;
    use type R.Generic_Shared_State_Final_Recheck_Work_Priority;

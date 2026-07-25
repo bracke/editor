@@ -7,8 +7,8 @@ with Editor.Ada_Overload_Preference_Legality;
 limited with Editor.Ada_Final_Semantic_Diagnostic_Integration;
 limited with Editor.Ada_Final_Semantic_Remediation_Diagnostic_Integration;
 limited with Editor.Ada_Final_Semantic_Stabilized_Diagnostic_Integration;
-limited with Editor.Ada_Generic_Shared_State_Final_Diagnostic_Integration;
-limited with Editor.Ada_Generic_Shared_State_RM_Completion_Diagnostic_Integration;
+limited with Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics;
+limited with Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics;
 limited with Editor.Ada_RM_Completion_Closure_Consumer_Diagnostic_Integration;
 limited with Editor.Ada_RM_Completion_Closure_Consumer_Stabilized_Diagnostic_Integration;
 limited with Editor.Ada_Remaining_RM_Edge_Stabilized_Diagnostic_Integration;
@@ -117,14 +117,14 @@ package Editor.Ada_Semantic_Diagnostic_Feed is
 
    function Build_With_Generic_Shared_State_Final_Diagnostics
      (Guarded : Editor.Ada_Semantic_Diagnostic_Snapshot_Guards.Guarded_Semantic_Diagnostic_Model;
-      Final   : Editor.Ada_Generic_Shared_State_Final_Diagnostic_Integration.Generic_Shared_State_Final_Diagnostic_Model;
+      Final   : Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics.Generic_Shared_State_Final_Diagnostic_Model;
       Final_Input_Current : Boolean := True;
       Final_Rejected_Count : Natural := 0)
       return Semantic_Diagnostic_Feed_Model;
 
    function Build_With_Generic_Shared_State_RM_Completion_Diagnostics
      (Guarded : Editor.Ada_Semantic_Diagnostic_Snapshot_Guards.Guarded_Semantic_Diagnostic_Model;
-      Final   : Editor.Ada_Generic_Shared_State_RM_Completion_Diagnostic_Integration.RM_Completion_Diagnostic_Model;
+      Final   : Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Diagnostics.RM_Completion_Diagnostic_Model;
       Final_Input_Current : Boolean := True;
       Final_Rejected_Count : Natural := 0)
       return Semantic_Diagnostic_Feed_Model;

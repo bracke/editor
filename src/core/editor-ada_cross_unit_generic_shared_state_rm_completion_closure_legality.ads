@@ -2,7 +2,7 @@ with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
 with Editor.Ada_Coverage_Proven_Generic_Shared_State_AST_Repair_Legality;
 with Editor.Ada_Cross_Unit_Generic_Shared_State_Final_Closure_Legality;
-with Editor.Ada_Generic_Shared_State_Final_Stabilized_Closure_Legality;
+with Editor.Ada_Generic_Shared_State_Remediation.Final_Closure;
 with Editor.Ada_Overload_Generic_Shared_State_RM_Edge_Completion_Legality;
 with Editor.Ada_Representation_Generic_Shared_State_RM_Hard_Case_Completion_Legality;
 with Editor.Ada_Syntax_Tree;
@@ -22,7 +22,7 @@ package Editor.Ada_Cross_Unit_Generic_Shared_State_RM_Completion_Closure_Legalit
    --  blockers are preserved as first-class downstream blockers.
 
    package Prior_Cross renames Editor.Ada_Cross_Unit_Generic_Shared_State_Final_Closure_Legality;
-   package Stabilized renames Editor.Ada_Generic_Shared_State_Final_Stabilized_Closure_Legality;
+   package Stabilized renames Editor.Ada_Generic_Shared_State_Remediation.Final_Closure;
    package Overload_RM renames Editor.Ada_Overload_Generic_Shared_State_RM_Edge_Completion_Legality;
    package Representation_RM renames Editor.Ada_Representation_Generic_Shared_State_RM_Hard_Case_Completion_Legality;
    package Tasking_RM renames Editor.Ada_Tasking_Generic_Shared_State_RM_Hard_Case_Completion_Legality;

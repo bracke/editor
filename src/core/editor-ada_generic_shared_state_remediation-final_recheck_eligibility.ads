@@ -1,9 +1,9 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
-with Editor.Ada_Generic_Shared_State_Final_Remediation_Worklist_Legality;
+with Editor.Ada_Generic_Shared_State_Remediation.Final_Worklist;
 with Editor.Ada_Syntax_Tree;
 
-package Editor.Ada_Generic_Shared_State_Final_Recheck_Eligibility_Legality is
+package Editor.Ada_Generic_Shared_State_Remediation.Final_Recheck_Eligibility is
 
    --  Case 1241 generic/shared-state final recheck eligibility legality.
    --
@@ -18,7 +18,7 @@ package Editor.Ada_Generic_Shared_State_Final_Recheck_Eligibility_Legality is
    --  dataflow, source/substitution fingerprints, multiple blockers, and
    --  indeterminate evidence.
 
-   package Worklist renames Editor.Ada_Generic_Shared_State_Final_Remediation_Worklist_Legality;
+   package Worklist renames Editor.Ada_Generic_Shared_State_Remediation.Final_Worklist;
 
    subtype Generic_Shared_State_Final_Recheck_Family is
      Worklist.Generic_Shared_State_Final_Worklist_Family;
@@ -208,4 +208,4 @@ private
       Fingerprint            : Natural := 0;
    end record;
 
-end Editor.Ada_Generic_Shared_State_Final_Recheck_Eligibility_Legality;
+end Editor.Ada_Generic_Shared_State_Remediation.Final_Recheck_Eligibility;

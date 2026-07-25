@@ -1,7 +1,7 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
 with Editor.Ada_Final_Semantic_Stabilized_Closure_Legality;
-with Editor.Ada_Generic_Shared_State_RM_Completion_Stabilized_Closure_Legality;
+with Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Closure;
 with Editor.Ada_Remaining_RM_Edge_Coverage_Proven_AST_Repair_Legality;
 with Editor.Ada_Remaining_RM_Edge_Stabilized_Closure_Legality;
 with Editor.Ada_RM_Completion_Closure_Consumer_Stabilized_Closure_Legality;
@@ -20,7 +20,7 @@ package Editor.Ada_Final_RM_Integrated_Semantic_Closure_Legality is
    --  and recheck passes cannot flatten or bypass the real semantic cause.
 
    package Final_Base renames Editor.Ada_Final_Semantic_Stabilized_Closure_Legality;
-   package RM_Completion renames Editor.Ada_Generic_Shared_State_RM_Completion_Stabilized_Closure_Legality;
+   package RM_Completion renames Editor.Ada_Generic_Shared_State_Remediation.RM_Completion_Closure;
    package Consumers renames Editor.Ada_RM_Completion_Closure_Consumer_Stabilized_Closure_Legality;
    package Remaining_Edge renames Editor.Ada_Remaining_RM_Edge_Stabilized_Closure_Legality;
    package AST_Repair renames Editor.Ada_Remaining_RM_Edge_Coverage_Proven_AST_Repair_Legality;

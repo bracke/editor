@@ -1,9 +1,9 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
-with Editor.Ada_Generic_Shared_State_Final_Diagnostic_Integration;
+with Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics;
 with Editor.Ada_Syntax_Tree;
 
-package Editor.Ada_Generic_Shared_State_Final_Remediation_Worklist_Legality is
+package Editor.Ada_Generic_Shared_State_Remediation.Final_Worklist is
 
    --  Case 1240 generic/shared-state final remediation worklist legality.
    --
@@ -19,7 +19,7 @@ package Editor.Ada_Generic_Shared_State_Final_Remediation_Worklist_Legality is
    --  indeterminate states before bounded re-analysis may trust downstream
    --  generic/shared-state conclusions.
 
-   package Diagnostics renames Editor.Ada_Generic_Shared_State_Final_Diagnostic_Integration;
+   package Diagnostics renames Editor.Ada_Generic_Shared_State_Remediation.Final_Diagnostics;
 
    type Generic_Shared_State_Final_Worklist_Id is new Natural;
    No_Generic_Shared_State_Final_Worklist_Item : constant Generic_Shared_State_Final_Worklist_Id := 0;
@@ -181,4 +181,4 @@ private
       Stable_Fingerprint_Value   : Natural := 0;
    end record;
 
-end Editor.Ada_Generic_Shared_State_Final_Remediation_Worklist_Legality;
+end Editor.Ada_Generic_Shared_State_Remediation.Final_Worklist;
