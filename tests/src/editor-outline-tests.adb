@@ -1974,24 +1974,24 @@ package body Editor.Outline.Tests is
               "select-current stable alias routes without payload");
       Id := Editor.Commands.Command_Id_From_Stable_Name
         ("select-current-outline-symbol", Found);
-      Assert (Found and then Id = Editor.Commands.Command_Select_Current_Outline_Symbol,
-              "legacy select-current alias remains loadable");
+      Assert (not Found and then Id = Editor.Commands.No_Command,
+              "legacy select-current alias is not loadable");
       Id := Editor.Commands.Command_Id_From_Stable_Name
         ("outline.select-next", Found);
       Assert (Found and then Id = Editor.Commands.Command_Select_Next_Outline_Item,
               "select-next stable alias routes without payload");
       Id := Editor.Commands.Command_Id_From_Stable_Name
         ("select-next-outline-item", Found);
-      Assert (Found and then Id = Editor.Commands.Command_Select_Next_Outline_Item,
-              "legacy select-next alias remains loadable");
+      Assert (not Found and then Id = Editor.Commands.No_Command,
+              "legacy select-next alias is not loadable");
       Id := Editor.Commands.Command_Id_From_Stable_Name
         ("outline.select-previous", Found);
       Assert (Found and then Id = Editor.Commands.Command_Select_Previous_Outline_Item,
               "select-previous stable alias routes without payload");
       Id := Editor.Commands.Command_Id_From_Stable_Name
         ("select-previous-outline-item", Found);
-      Assert (Found and then Id = Editor.Commands.Command_Select_Previous_Outline_Item,
-              "legacy select-previous alias remains loadable");
+      Assert (not Found and then Id = Editor.Commands.No_Command,
+              "legacy select-previous alias is not loadable");
       Id := Editor.Commands.Command_Id_From_Stable_Name
         ("outline.filter.next-match", Found);
       Assert (Found and then Id = Editor.Commands.Command_Select_Next_Outline_Item,

@@ -1058,9 +1058,8 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
               "diagnostic selected action command exposes canonical stable id");
       Round := Editor.Commands.Command_Id_From_Stable_Name
         ("diagnostics.code-action", Found);
-      Assert (Found and then Round =
-              Editor.Commands.Command_Diagnostics_Execute_Selected_Action,
-              "diagnostic selected action command keeps code-action alias");
+      Assert (not Found and then Round = Editor.Commands.No_Command,
+              "diagnostic code-action alias is not loadable");
       Assert (Editor.External_Producers.Public_Build.Run_Public_Build_Command_Hard_Freeze_Audit (S).Passed,
               "unrelated public commands must not affect build hard-freeze");
    end Test_Public_Build_Unrelated_Public_Command_Does_Not_Affect_Freeze;

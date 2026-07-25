@@ -992,7 +992,7 @@ package body Editor.Commands.Name_Metadata is
       then
          Found := True;
          return Command_Palette_Show_Command_Help;
-      elsif N = "project.open" or else N = "open-project" then
+      elsif N = "project.open" then
          Found := True;
          return Command_Open_Project;
       elsif N = "project.close" then
@@ -1005,7 +1005,7 @@ package body Editor.Commands.Name_Metadata is
       then
          Found := True;
          return Command_Open_Selected_Recent_Project;
-      elsif N = "file.open" or else N = "open-file" then
+      elsif N = "file.open" then
          Found := True;
          return Command_Open_File;
       elsif N = "file.save" then
@@ -1015,12 +1015,6 @@ package body Editor.Commands.Name_Metadata is
       then
          Found := True;
          return Command_Save_File_As;
-      elsif N = "file.reload" then
-         Found := True;
-         return Command_Reload_Active_Buffer;
-      elsif N = "file.revert" then
-         Found := True;
-         return Command_Revert_Active_Buffer;
       elsif N = "file-tree.refresh"
       then
          Found := True;
@@ -1029,14 +1023,6 @@ package body Editor.Commands.Name_Metadata is
       then
          Found := True;
          return Command_File_Tree_Open_Selected;
-      elsif N = "file-tree.rename"
-      then
-         Found := True;
-         return Command_File_Tree_Rename_Selected;
-      elsif N = "file-tree.delete"
-      then
-         Found := True;
-         return Command_File_Tree_Delete_Selected;
       elsif N = "file-tree.create-file"
       then
          Found := True;
@@ -1053,13 +1039,6 @@ package body Editor.Commands.Name_Metadata is
       then
          Found := True;
          return Command_Accept_Quick_Open;
-      elsif N = "search.project" then
-         Found := True;
-         return Command_Run_Project_Search;
-      elsif N = "search.open-selected"
-      then
-         Found := True;
-         return Command_Open_Selected_Project_Search_Result;
       elsif N = "outline.refresh" then
          Found := True;
          return Command_Refresh_Outline;
@@ -1078,10 +1057,7 @@ package body Editor.Commands.Name_Metadata is
       elsif N = "semantic.find-references" then
          Found := True;
          return Command_Find_References;
-      elsif N = "semantic.workspace-symbols"
-        or else N = "workspace.symbols"
-        or else N = "workspace-symbols"
-      then
+      elsif N = "semantic.workspace-symbols" then
          Found := True;
          return Command_Workspace_Symbols;
       elsif N = "semantic.show-hover" then
@@ -1102,15 +1078,10 @@ package body Editor.Commands.Name_Metadata is
       elsif N = "semantic.popup.dismiss" then
          Found := True;
          return Command_Semantic_Popup_Dismiss;
-      elsif N = "semantic.rename-symbol-preview"
-        or else N = "refactor.rename-symbol-preview"
-        or else N = "refactor.rename-symbol"
-      then
+      elsif N = "semantic.rename-symbol-preview" then
          Found := True;
          return Command_Rename_Symbol_Preview;
-      elsif N = "semantic.rename-symbol-apply"
-        or else N = "refactor.rename-symbol-apply"
-      then
+      elsif N = "semantic.rename-symbol-apply" then
          Found := True;
          return Command_Rename_Symbol_Apply;
       elsif N = "semantic.refresh-buffer" then
@@ -1138,33 +1109,15 @@ package body Editor.Commands.Name_Metadata is
       then
          Found := True;
          return Command_Open_Selected_Outline_Item;
-      elsif N = "outline.select-current-symbol"
-        or else N = "select-current-outline-symbol"
-      then
+      elsif N = "outline.select-current-symbol" then
          Found := True;
          return Command_Select_Current_Outline_Symbol;
-      elsif N = "outline.select-next"
-        or else N = "select-next-outline-item"
-      then
+      elsif N = "outline.select-next" then
          Found := True;
          return Command_Select_Next_Outline_Item;
-      elsif N = "outline.select-previous"
-        or else N = "select-previous-outline-item"
-      then
+      elsif N = "outline.select-previous" then
          Found := True;
          return Command_Select_Previous_Outline_Item;
-      elsif N = "build.output.show" then
-         Found := True;
-         return Command_Build_UI_Show;
-      elsif N = "build.output.toggle" then
-         Found := True;
-         return Command_Build_UI_Toggle;
-      elsif N = "build.output.hide" then
-         Found := True;
-         return Command_Build_UI_Hide;
-      elsif N = "build.output.focus" then
-         Found := True;
-         return Command_Build_UI_Focus;
       elsif N = "buffer.switch-next"
       then
          Found := True;
@@ -1173,10 +1126,6 @@ package body Editor.Commands.Name_Metadata is
       then
          Found := True;
          return Command_Previous_Buffer;
-      elsif N = "buffer.close-all-clean"
-      then
-         Found := True;
-         return Command_Close_All_Clean_Buffers;
       elsif N = "workspace.save" then
          Found := True;
          return Command_Save_Workspace_State;
@@ -1189,7 +1138,7 @@ package body Editor.Commands.Name_Metadata is
       elsif N = "project.run" then
          Found := True;
          return Command_Run_Project;
-      elsif N = "project.test" or else N = "test.run" then
+      elsif N = "project.test" then
          Found := True;
          return Command_Run_Tests;
       elsif N = "terminal.toggle" then
@@ -1306,7 +1255,7 @@ package body Editor.Commands.Name_Metadata is
       elsif N = "build.run-user-opt-in-test-seam" then
          Found := True;
          return Command_Build_Run_User_Opt_In_Test_Seam;
-      elsif N = "diagnostics.show" or else N = "diagnostics-show" then
+      elsif N = "diagnostics.show" then
          Found := True;
          return Command_Diagnostics_Show;
       elsif N = "diagnostics.hide" then
@@ -1354,9 +1303,7 @@ package body Editor.Commands.Name_Metadata is
       elsif N = "ada.diagnostic.apply-quick-fix" then
          Found := True;
          return Command_Diagnostic_Apply_Quick_Fix;
-      elsif N = "diagnostics.execute-selected-action"
-        or else N = "diagnostics.code-action"
-      then
+      elsif N = "diagnostics.execute-selected-action" then
          Found := True;
          return Command_Diagnostics_Execute_Selected_Action;
       elsif N = "diagnostics.filter-all" then
@@ -1383,7 +1330,7 @@ package body Editor.Commands.Name_Metadata is
       elsif N = "diagnostics.clear-build" then
          Found := True;
          return Command_Diagnostics_Clear_Build;
-      elsif N = "navigation.goto-line.show" or else N = "navigation.goto-line" then
+      elsif N = "navigation.goto-line.show" then
          Found := True;
          return Command_Goto_Line;
       elsif N = "navigation.goto-line.toggle" then
@@ -1491,10 +1438,10 @@ package body Editor.Commands.Name_Metadata is
       elsif N = "edit.clipboard.clear" then
          Found := True;
          return Command_Clipboard_Clear;
-      elsif N = "selection.select-all" or else N = "edit.select-all" then
+      elsif N = "selection.select-all" then
          Found := True;
          return Command_Select_All;
-      elsif N = "selection.clear" or else N = "edit.selection.clear" then
+      elsif N = "selection.clear" then
          Found := True;
          return Command_Selection_Clear;
       elsif N = "selection.delete" then
@@ -1536,20 +1483,13 @@ package body Editor.Commands.Name_Metadata is
       elsif N = "edit.trim-trailing-whitespace" then
          Found := True;
          return Command_Trim_Trailing_Whitespace;
-      elsif N = "edit.format-buffer"
-        or else N = "edit.format.document"
-        or else N = "format-buffer"
-      then
+      elsif N = "edit.format-buffer" then
          Found := True;
          return Command_Format_Buffer;
-      elsif N = "edit.format.selection"
-        or else N = "format-selection"
-      then
+      elsif N = "edit.format.selection" then
          Found := True;
          return Command_Format_Selected_Text;
-      elsif N = "file.format-on-save"
-        or else N = "edit.format.on-save"
-      then
+      elsif N = "file.format-on-save" then
          Found := True;
          return Command_Toggle_Format_On_Save;
       elsif N = "edit.char.delete-previous" then
@@ -1567,7 +1507,7 @@ package body Editor.Commands.Name_Metadata is
       elsif N = "file.save-all" then
          Found := True;
          return Command_Save_All;
-      elsif N = "file.reload-from-disk" or else N = "file.reload-buffer" then
+      elsif N = "file.reload-buffer" then
          Found := True;
          return Command_Reload_Active_Buffer;
       elsif N = "file.revert-buffer" then
@@ -1597,14 +1537,10 @@ package body Editor.Commands.Name_Metadata is
       elsif N = "file.move-buffer-file" then
          Found := True;
          return Command_Move_Buffer_File;
-      elsif N = "file.close-buffer"
-        or else N = "buffer.close-active"
-      then
+      elsif N = "file.close-buffer" then
          Found := True;
          return Command_Close_Active_Buffer;
-      elsif N = "file.close-all-buffers"
-        or else N = "buffer.close-all"
-      then
+      elsif N = "file.close-all-buffers" then
          Found := True;
          return Command_Close_All_Buffers;
       elsif N = "buffer.confirm-close-save" then
@@ -1616,33 +1552,22 @@ package body Editor.Commands.Name_Metadata is
       elsif N = "buffer.cancel-close" then
          Found := True;
          return Command_Cancel_Close;
-      elsif N = "file.close-other-buffers"
-        or else N = "buffer.close-other"
-      then
+      elsif N = "file.close-other-buffers" then
          Found := True;
          return Command_Close_Other_Buffers;
-      elsif N = "file.close-clean-buffers"
-        or else N = "buffer.close-clean"
-        or else N = "buffer-list.close-clean"
-        or else N = "buffer.list.close-clean"
-      then
+      elsif N = "file.close-clean-buffers" then
          Found := True;
          return Command_Close_All_Clean_Buffers;
       elsif N = "file.reopen-closed-buffer" then
          Found := True;
          return Command_Reopen_Closed_Buffer;
-      elsif N = "buffer.close-selected"
-        or else N = "buffer-list.close-selected"
-        or else N = "buffers.switcher.selected.close"
-      then
+      elsif N = "buffers.switcher.selected.close" then
          Found := True;
          return Command_Buffer_Switcher_Selected_Close;
       elsif N = "lifecycle.pending.discard" then
          Found := True;
          return Command_Discard_Pending_Transition;
-      elsif N = "file.reveal-active-in-tree"
-        or else N = "file-tree.reveal-active-file"
-      then
+      elsif N = "file-tree.reveal-active-file" then
          Found := True;
          return Command_Reveal_Active_File_In_Tree;
       elsif N = "file-tree.focus" then
@@ -1681,21 +1606,13 @@ package body Editor.Commands.Name_Metadata is
       elsif N = "file-tree.expand-to-active-file" then
          Found := True;
          return Command_File_Tree_Expand_To_Active_File;
-      elsif N = "buffer.list.show" or else N = "buffer.list.focus"
-        or else N = "buffer-list.show" or else N = "buffer-list.focus"
-        or else N = "buffer.list.toggle" or else N = "buffer-list.toggle"
-        or else N = "buffers.switcher.open" then
-         --  canonical open-buffer list names.  Preserve the
-         --  historical buffers.switcher.* stable names while allowing the
-         --  multi-buffer navigation command surface to use buffer.list.*.
+      elsif N = "buffers.switcher.open" then
          Found := True;
          return Command_Open_Buffer_Switcher;
-      elsif N = "buffer.list.hide" or else N = "buffer-list.hide"
-        or else N = "buffers.switcher.close" then
+      elsif N = "buffers.switcher.close" then
          Found := True;
          return Command_Close_Buffer_Switcher;
-      elsif N = "buffer.switch-selected" or else N = "buffer-list.switch-selected"
-        or else N = "buffers.switcher.accept" then
+      elsif N = "buffers.switcher.accept" then
          Found := True;
          return Command_Accept_Buffer_Switcher;
       elsif N = "buffer.next" then
@@ -1704,16 +1621,10 @@ package body Editor.Commands.Name_Metadata is
       elsif N = "buffer.previous" then
          Found := True;
          return Command_Previous_Buffer;
-      elsif N = "buffer-list.select-next"
-        or else N = "buffer.list.select-next"
-        or else N = "buffers.switcher.next"
-      then
+      elsif N = "buffers.switcher.next" then
          Found := True;
          return Command_Buffer_Switcher_Next_Result;
-      elsif N = "buffer-list.select-previous"
-        or else N = "buffer.list.select-previous"
-        or else N = "buffers.switcher.previous"
-      then
+      elsif N = "buffers.switcher.previous" then
          Found := True;
          return Command_Buffer_Switcher_Previous_Result;
       elsif N = "edit.find.show" then
@@ -1971,23 +1882,19 @@ package body Editor.Commands.Name_Metadata is
       elsif N = "outline.reveal-current-symbol" then
          Found := True;
          return Command_Reveal_Current_Outline_Symbol;
-      elsif N = "outline.filter.focus" or else N = "focus-outline-filter" then
+      elsif N = "outline.filter.focus" then
          Found := True;
          return Command_Focus_Outline_Filter;
-      elsif N = "outline.filter.clear" or else N = "clear-outline-filter" then
+      elsif N = "outline.filter.clear" then
          Found := True;
          return Command_Clear_Outline_Filter;
-      elsif N = "outline.filter.toggle" or else N = "toggle-outline-filter" then
+      elsif N = "outline.filter.toggle" then
          Found := True;
          return Command_Toggle_Outline_Filter;
-      elsif N = "outline.filter.history.previous"
-        or else N = "outline-filter-history-previous"
-      then
+      elsif N = "outline.filter.history.previous" then
          Found := True;
          return Command_Outline_Filter_History_Previous;
-      elsif N = "outline.filter.history.next"
-        or else N = "outline-filter-history-next"
-      then
+      elsif N = "outline.filter.history.next" then
          Found := True;
          return Command_Outline_Filter_History_Next;
       elsif N = "outline.filter.next-match" then
@@ -1996,77 +1903,67 @@ package body Editor.Commands.Name_Metadata is
       elsif N = "outline.filter.previous-match" then
          Found := True;
          return Command_Select_Previous_Outline_Item;
-      elsif N = "open-quick-open" or else N = "project.quick-open.show" then
+      elsif N = "quick-open.show" then
          Found := True;
          return Command_Open_Quick_Open;
-      elsif N = "close-quick-open" or else N = "project.quick-open.hide" then
+      elsif N = "project.quick-open.hide" then
          Found := True;
          return Command_Close_Quick_Open;
-      elsif N = "toggle-quick-open" or else N = "project.quick-open.toggle" then
+      elsif N = "project.quick-open.toggle" then
          Found := True;
          return Command_Toggle_Quick_Open;
-      elsif N = "accept-quick-open" or else N = "project.quick-open.open-selected" then
+      elsif N = "quick-open.open-selected" then
          Found := True;
          return Command_Accept_Quick_Open;
-      elsif N = "quick-open-next-result" or else N = "project.quick-open.next" then
+      elsif N = "project.quick-open.next" then
          Found := True;
          return Command_Quick_Open_Next_Result;
-      elsif N = "quick-open-previous-result" or else N = "project.quick-open.previous" then
+      elsif N = "project.quick-open.previous" then
          Found := True;
          return Command_Quick_Open_Previous_Result;
-      elsif N = "quick-open-query-set" or else N = "project.quick-open.query.set" then
+      elsif N = "project.quick-open.query.set" then
          Found := True;
          return Command_Quick_Open_Query_Set;
-      elsif N = "quick-open-query-clear" or else N = "project.quick-open.query.clear" then
+      elsif N = "project.quick-open.query.clear" then
          Found := True;
          return Command_Quick_Open_Query_Clear;
-      elsif N = "quick-open-kind-next" or else N = "project.quick-open.kind.next" then
+      elsif N = "project.quick-open.kind.next" then
          Found := True;
          return Command_Quick_Open_Kind_Next;
-      elsif N = "quick-open-kind-previous" or else N = "project.quick-open.kind.previous" then
+      elsif N = "project.quick-open.kind.previous" then
          Found := True;
          return Command_Quick_Open_Kind_Previous;
-      elsif N = "quick-open-kind-clear" or else N = "project.quick-open.kind.clear" then
+      elsif N = "project.quick-open.kind.clear" then
          Found := True;
          return Command_Quick_Open_Kind_Clear;
-      elsif N = "quick-open-scope-set" or else N = "project.quick-open.scope.set" then
+      elsif N = "project.quick-open.scope.set" then
          Found := True;
          return Command_Quick_Open_Scope_Set;
-      elsif N = "quick-open-scope-clear" or else N = "project.quick-open.scope.clear" then
+      elsif N = "project.quick-open.scope.clear" then
          Found := True;
          return Command_Quick_Open_Scope_Clear;
-      elsif N = "quick-open-scope-from-selected" or else N = "project.quick-open.scope.from-selected" then
+      elsif N = "project.quick-open.scope.from-selected" then
          Found := True;
          return Command_Quick_Open_Scope_From_Selected;
-      elsif N = "quick-open-scope-parent" or else N = "project.quick-open.scope.parent" then
+      elsif N = "project.quick-open.scope.parent" then
          Found := True;
          return Command_Quick_Open_Scope_Parent;
-      elsif N = "quick-open-reveal-active" or else N = "project.quick-open.reveal-active" then
+      elsif N = "project.quick-open.reveal-active" then
          Found := True;
          return Command_Quick_Open_Reveal_Active;
-      elsif N = "quick-open-scope-active-directory"
-        or else N = "project.quick-open.scope.active-directory"
-      then
+      elsif N = "project.quick-open.scope.active-directory" then
          Found := True;
          return Command_Quick_Open_Scope_Active_Directory;
-      elsif N = "quick-open-create-from-query"
-        or else N = "project.quick-open.create-from-query"
-      then
+      elsif N = "project.quick-open.create-from-query" then
          Found := True;
          return Command_Quick_Open_Create_From_Query;
-      elsif N = "quick-open-create-with-parents-from-query"
-        or else N = "project.quick-open.create-with-parents-from-query"
-      then
+      elsif N = "project.quick-open.create-with-parents-from-query" then
          Found := True;
          return Command_Quick_Open_Create_With_Parents_From_Query;
-      elsif N = "quick-open-priority-toggle"
-        or else N = "project.quick-open.priority.toggle"
-      then
+      elsif N = "project.quick-open.priority.toggle" then
          Found := True;
          return Command_Quick_Open_Priority_Toggle;
-      elsif N = "quick-open-priority-clear"
-        or else N = "project.quick-open.priority.clear"
-      then
+      elsif N = "project.quick-open.priority.clear" then
          Found := True;
          return Command_Quick_Open_Priority_Clear;
       end if;

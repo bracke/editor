@@ -3595,15 +3595,13 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert_Resolves ("file-tree.rename-selected",
                        Editor.Commands.Command_File_Tree_Rename_Selected,
                        "file-tree.rename-selected");
-      Assert_Resolves ("file-tree.rename",
-                       Editor.Commands.Command_File_Tree_Rename_Selected,
-                       "file-tree.rename compatibility alias");
+      Assert_Removed_Name_Rejected ("file-tree.rename",
+                                    "file-tree.rename compatibility alias");
       Assert_Resolves ("file-tree.delete-selected",
                        Editor.Commands.Command_File_Tree_Delete_Selected,
                        "file-tree.delete-selected");
-      Assert_Resolves ("file-tree.delete",
-                       Editor.Commands.Command_File_Tree_Delete_Selected,
-                       "file-tree.delete compatibility alias");
+      Assert_Removed_Name_Rejected ("file-tree.delete",
+                                    "file-tree.delete compatibility alias");
       Assert_Resolves ("quick-open.show",
                        Editor.Commands.Command_Open_Quick_Open,
                        "quick-open.show");
@@ -3613,15 +3611,13 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert_Resolves ("project.search.run",
                        Editor.Commands.Command_Run_Project_Search,
                        "project.search.run");
-      Assert_Resolves ("search.project",
-                       Editor.Commands.Command_Run_Project_Search,
-                       "search.project compatibility alias");
+      Assert_Removed_Name_Rejected ("search.project",
+                                    "search.project compatibility alias");
       Assert_Resolves ("project.search.open-selected",
                        Editor.Commands.Command_Open_Selected_Project_Search_Result,
                        "project.search.open-selected");
-      Assert_Resolves ("search.open-selected",
-                       Editor.Commands.Command_Open_Selected_Project_Search_Result,
-                       "search.open-selected compatibility alias");
+      Assert_Removed_Name_Rejected ("search.open-selected",
+                                    "search.open-selected compatibility alias");
       Assert_Resolves ("outline.show",
                        Editor.Commands.Command_Show_Outline,
                        "outline.show");
@@ -3631,27 +3627,23 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert_Resolves ("build.ui.show",
                        Editor.Commands.Command_Build_UI_Show,
                        "build.ui.show");
-      Assert_Resolves ("build.output.show",
-                       Editor.Commands.Command_Build_UI_Show,
-                       "build.output.show compatibility alias");
+      Assert_Removed_Name_Rejected ("build.output.show",
+                                    "build.output.show compatibility alias");
       Assert_Resolves ("build.ui.toggle",
                        Editor.Commands.Command_Build_UI_Toggle,
                        "build.ui.toggle");
-      Assert_Resolves ("build.output.toggle",
-                       Editor.Commands.Command_Build_UI_Toggle,
-                       "build.output.toggle compatibility alias");
+      Assert_Removed_Name_Rejected ("build.output.toggle",
+                                    "build.output.toggle compatibility alias");
       Assert_Resolves ("build.ui.hide",
                        Editor.Commands.Command_Build_UI_Hide,
                        "build.ui.hide");
-      Assert_Resolves ("build.output.hide",
-                       Editor.Commands.Command_Build_UI_Hide,
-                       "build.output.hide compatibility alias");
+      Assert_Removed_Name_Rejected ("build.output.hide",
+                                    "build.output.hide compatibility alias");
       Assert_Resolves ("build.ui.focus",
                        Editor.Commands.Command_Build_UI_Focus,
                        "build.ui.focus");
-      Assert_Resolves ("build.output.focus",
-                       Editor.Commands.Command_Build_UI_Focus,
-                       "build.output.focus compatibility alias");
+      Assert_Removed_Name_Rejected ("build.output.focus",
+                                    "build.output.focus compatibility alias");
       Assert_Resolves ("diagnostics.show",
                        Editor.Commands.Command_Diagnostics_Show,
                        "diagnostics.show");
@@ -3667,9 +3659,8 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert_Resolves ("file.close-clean-buffers",
                        Editor.Commands.Command_Close_All_Clean_Buffers,
                        "file.close-clean-buffers");
-      Assert_Resolves ("buffer.close-all-clean",
-                       Editor.Commands.Command_Close_All_Clean_Buffers,
-                       "buffer.close-all-clean compatibility alias");
+      Assert_Removed_Name_Rejected ("buffer.close-all-clean",
+                                    "buffer.close-all-clean compatibility alias");
       Assert_Resolves ("workspace.restore",
                        Editor.Commands.Command_Restore_Workspace_State,
                        "workspace.restore");

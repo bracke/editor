@@ -529,11 +529,11 @@ package body Editor.Outline.Filter_Tests is
                 "Clear Outline Filter",
               "clear filter has concise palette label");
       Id := Editor.Commands.Command_Id_From_Stable_Name
-        ("focus-outline-filter", Found);
+        ("outline.filter.focus", Found);
       Assert (Found and then Id = Editor.Commands.Command_Focus_Outline_Filter,
               "focus filter stable command name round trips");
       Id := Editor.Commands.Command_Id_From_Stable_Name
-        ("toggle-outline-filter", Found);
+        ("outline.filter.toggle", Found);
       Assert (Found and then Id = Editor.Commands.Command_Toggle_Outline_Filter,
               "toggle filter stable command name round trips");
       Assert (Editor.Commands.Label
@@ -541,7 +541,7 @@ package body Editor.Outline.Filter_Tests is
                 "Outline: Previous Filter",
               "previous filter history command has concise palette label");
       Id := Editor.Commands.Command_Id_From_Stable_Name
-        ("outline-filter-history-previous", Found);
+        ("outline.filter.history.previous", Found);
       Assert
         (Found and then
            Id = Editor.Commands.Command_Outline_Filter_History_Previous,

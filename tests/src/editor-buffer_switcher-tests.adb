@@ -4134,31 +4134,31 @@ package body Editor.Buffer_Switcher.Tests is
               "marker text includes reload/revert and external-change recovery state deterministically");
    end Test_Row_State_Markers_Are_Snapshot_Only;
 
-   procedure Test_Command_Aliases_Map_To_Executor_Routed_Commands
+   procedure Test_Command_Names_Map_To_Executor_Routed_Commands
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
       Found : Boolean := False;
    begin
-      Assert (Editor.Commands.Command_Id_From_Stable_Name ("buffer.list.show", Found) =
+      Assert (Editor.Commands.Command_Id_From_Stable_Name ("buffers.switcher.open", Found) =
                 Editor.Commands.Command_Open_Buffer_Switcher and then Found,
-              "buffer.list.show maps to the open-buffer list command");
+              "buffers.switcher.open maps to the open-buffer list command");
       Assert (Editor.Commands.Command_Id_From_Stable_Name ("buffer.list.focus", Found) =
-                Editor.Commands.Command_Open_Buffer_Switcher and then Found,
-              "buffer.list.focus maps to the same Executor command path");
-      Assert (Editor.Commands.Command_Id_From_Stable_Name ("buffer.list.hide", Found) =
+                Editor.Commands.No_Command and then not Found,
+              "buffer.list.focus alias is not loadable");
+      Assert (Editor.Commands.Command_Id_From_Stable_Name ("buffers.switcher.close", Found) =
                 Editor.Commands.Command_Close_Buffer_Switcher and then Found,
-              "buffer.list.hide maps to the switcher close command");
-      Assert (Editor.Commands.Command_Id_From_Stable_Name ("buffer.switch-selected", Found) =
+              "buffers.switcher.close maps to the switcher close command");
+      Assert (Editor.Commands.Command_Id_From_Stable_Name ("buffers.switcher.accept", Found) =
                 Editor.Commands.Command_Accept_Buffer_Switcher and then Found,
-              "buffer.switch-selected aliases selected row activation");
+              "buffers.switcher.accept maps to selected row activation");
       Assert (Editor.Commands.Command_Id_From_Stable_Name ("buffer.next", Found) =
                 Editor.Commands.Command_Next_Buffer and then Found,
               "buffer.next aliases deterministic next-buffer navigation");
       Assert (Editor.Commands.Command_Id_From_Stable_Name ("buffer.previous", Found) =
                 Editor.Commands.Command_Previous_Buffer and then Found,
               "buffer.previous aliases deterministic previous-buffer navigation");
-   end Test_Command_Aliases_Map_To_Executor_Routed_Commands;
+   end Test_Command_Names_Map_To_Executor_Routed_Commands;
 
    procedure Test_Empty_State_And_Next_Previous_Availability
      (T : in out AUnit.Test_Cases.Test_Case'Class)
@@ -5099,30 +5099,30 @@ package body Editor.Buffer_Switcher.Tests is
          raise;
    end Test_Render_Does_Not_Save_Reload_Revert_Probe_Or_Clear_File_State;
 
-   procedure Test_Canonical_Buffer_List_Aliases_Are_No_Payload_Commands
+   procedure Test_Canonical_Buffer_Switcher_Names_Are_No_Payload_Commands
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
       Found : Boolean := False;
    begin
-      Assert (Editor.Commands.Command_Id_From_Stable_Name ("buffer-list.select-next", Found) =
+      Assert (Editor.Commands.Command_Id_From_Stable_Name ("buffers.switcher.next", Found) =
                 Editor.Commands.Command_Buffer_Switcher_Next_Result and then Found,
-              "buffer-list.select-next aliases transient row selection without payloads");
-      Assert (Editor.Commands.Command_Id_From_Stable_Name ("buffer-list.select-previous", Found) =
+              "buffers.switcher.next resolves transient row selection without payloads");
+      Assert (Editor.Commands.Command_Id_From_Stable_Name ("buffers.switcher.previous", Found) =
                 Editor.Commands.Command_Buffer_Switcher_Previous_Result and then Found,
-              "buffer-list.select-previous aliases transient row selection without payloads");
-      Assert (Editor.Commands.Command_Id_From_Stable_Name ("buffer-list.close-selected", Found) =
+              "buffers.switcher.previous resolves transient row selection without payloads");
+      Assert (Editor.Commands.Command_Id_From_Stable_Name ("buffers.switcher.selected.close", Found) =
                 Editor.Commands.Command_Buffer_Switcher_Selected_Close and then Found,
-              "buffer-list.close-selected resolves to the Executor-routed selected close command");
+              "buffers.switcher.selected.close resolves to the Executor-routed selected close command");
       Assert (Editor.Commands.Command_Id_From_Stable_Name ("buffer-list.switch-selected", Found) =
-                Editor.Commands.Command_Accept_Buffer_Switcher and then Found,
-              "buffer-list.switch-selected resolves without embedding a buffer id");
+                Editor.Commands.No_Command and then not Found,
+              "buffer-list.switch-selected alias is not loadable");
       Assert (Editor.Commands.Command_Id_From_Stable_Name ("buffer-list.close-clean", Found) =
-                Editor.Commands.Command_Close_All_Clean_Buffers and then Found,
-              "buffer-list.close-clean resolves to the existing safe close-clean workflow without payloads");
+                Editor.Commands.No_Command and then not Found,
+              "buffer-list.close-clean alias is not loadable");
       Assert (Editor.Commands.Command_Id_From_Stable_Name ("buffer-list.toggle", Found) =
-                Editor.Commands.Command_Open_Buffer_Switcher and then Found,
-              "buffer-list.toggle remains a no-payload stable command alias for the list surface");
+                Editor.Commands.No_Command and then not Found,
+              "buffer-list.toggle alias is not loadable");
       Assert (To_String (Editor.Commands.Descriptor
                 (Editor.Commands.Command_Buffer_Switcher_Next_Result).Name) =
               "Select Next Buffer List Row",
@@ -5156,7 +5156,7 @@ package body Editor.Buffer_Switcher.Tests is
                    and then Length (Clean_Cmd.Path) = 0,
                  "buffer-list commands carry no path payloads");
       end;
-   end Test_Canonical_Buffer_List_Aliases_Are_No_Payload_Commands;
+   end Test_Canonical_Buffer_Switcher_Names_Are_No_Payload_Commands;
 
 
    procedure Test_Buffer_List_Routes_Keybindings_And_Availability_Are_No_Payload_And_Side_Effect_Free
@@ -5685,16 +5685,16 @@ package body Editor.Buffer_Switcher.Tests is
       Found : Boolean := False;
       Row   : Editor.Buffer_Switcher.Buffer_Switcher_Row;
 
-      procedure Assert_Alias_No_Payload (Name : String; Expected : Editor.Commands.Command_Id) is
+      procedure Assert_Name_No_Payload (Name : String; Expected : Editor.Commands.Command_Id) is
          Alias_Found : Boolean := False;
          Id : constant Editor.Commands.Command_Id :=
            Editor.Commands.Command_Id_From_Stable_Name (Name, Alias_Found);
       begin
          Assert (Alias_Found and then Id = Expected,
-                 "final audit maps Buffer List alias " & Name & " to the canonical command id");
+                 "final audit maps Buffer Switcher command " & Name & " to the canonical command id");
          Assert (not Command_Has_Payload (Id),
-                 "final audit keeps Buffer List alias " & Name & " payload-free");
-      end Assert_Alias_No_Payload;
+                 "final audit keeps Buffer Switcher command " & Name & " payload-free");
+      end Assert_Name_No_Payload;
    begin
       Editor.Project.Apply_Open_Result
         (Project,
@@ -5802,12 +5802,12 @@ package body Editor.Buffer_Switcher.Tests is
                 and then Editor.Buffers.Buffer_Access (Registry, Outside_Conflict).File_Info.External_Change_Surfaced,
               "final audit filters do not close, switch, save, clean, or clear lifecycle markers");
 
-      Assert_Alias_No_Payload ("buffer-list.toggle", Editor.Commands.Command_Open_Buffer_Switcher);
-      Assert_Alias_No_Payload ("buffer-list.switch-selected", Editor.Commands.Command_Accept_Buffer_Switcher);
-      Assert_Alias_No_Payload ("buffer-list.close-selected", Editor.Commands.Command_Buffer_Switcher_Selected_Close);
-      Assert_Alias_No_Payload ("buffer-list.close-clean", Editor.Commands.Command_Close_All_Clean_Buffers);
-      Assert_Alias_No_Payload ("buffer.next", Editor.Commands.Command_Next_Buffer);
-      Assert_Alias_No_Payload ("buffer.previous", Editor.Commands.Command_Previous_Buffer);
+      Assert_Name_No_Payload ("buffers.switcher.open", Editor.Commands.Command_Open_Buffer_Switcher);
+      Assert_Name_No_Payload ("buffers.switcher.accept", Editor.Commands.Command_Accept_Buffer_Switcher);
+      Assert_Name_No_Payload ("buffers.switcher.selected.close", Editor.Commands.Command_Buffer_Switcher_Selected_Close);
+      Assert_Name_No_Payload ("file.close-clean-buffers", Editor.Commands.Command_Close_All_Clean_Buffers);
+      Assert_Name_No_Payload ("buffer.next", Editor.Commands.Command_Next_Buffer);
+      Assert_Name_No_Payload ("buffer.previous", Editor.Commands.Command_Previous_Buffer);
    end Test_Final_Multi_Buffer_Management_Completion_Audit;
 
    procedure Test_Buffer_List_Rows_Use_Metadata_Snapshot_As_Canonical_Source
@@ -6188,8 +6188,8 @@ package body Editor.Buffer_Switcher.Tests is
                         "snapshot render audit persistence absence final freeze");
       Register_Routine (T, Test_Row_State_Markers_Are_Snapshot_Only'Access,
                         "buffer list row markers are snapshot-only");
-      Register_Routine (T, Test_Command_Aliases_Map_To_Executor_Routed_Commands'Access,
-                        "canonical buffer navigation alternate names route to Executor commands");
+      Register_Routine (T, Test_Command_Names_Map_To_Executor_Routed_Commands'Access,
+                        "canonical buffer navigation names route to Executor commands");
       Register_Routine (T, Test_Empty_State_And_Next_Previous_Availability'Access,
                         "empty state and next/previous availability are deterministic");
       Register_Routine (T, Test_Project_Ownership_Markers_Are_Projection_Only'Access,
@@ -6218,8 +6218,8 @@ package body Editor.Buffer_Switcher.Tests is
                         "render snapshot does not mutate buffer list or buffers");
       Register_Routine (T, Test_Render_Does_Not_Save_Reload_Revert_Probe_Or_Clear_File_State'Access,
                         "render does not save reload revert probe or clear file state");
-      Register_Routine (T, Test_Canonical_Buffer_List_Aliases_Are_No_Payload_Commands'Access,
-                        "canonical buffer list alternate names remain no-payload commands");
+      Register_Routine (T, Test_Canonical_Buffer_Switcher_Names_Are_No_Payload_Commands'Access,
+                        "canonical buffer switcher names remain no-payload commands");
       Register_Routine (T, Test_Buffer_List_Routes_Keybindings_And_Availability_Are_No_Payload_And_Side_Effect_Free'Access,
                         "buffer list command palette/keybinding routes and availability are no-payload and side-effect-free");
       Register_Routine (T, Test_Settings_And_Recent_Project_Saves_Exclude_Buffer_List_Runtime_State'Access,

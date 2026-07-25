@@ -930,8 +930,8 @@ package body Editor.Line_Edit.Tests is
               "selected-line indentation command must remain absent");
       Id := Editor.Commands.Command_Id_From_Stable_Name
         ("edit.format.document", Found);
-      Assert (Found and then Id = Editor.Commands.Command_Format_Buffer,
-              "format-document must resolve to the explicit buffer formatter");
+      Assert (not Found and then Id = Editor.Commands.No_Command,
+              "format-document alias must remain absent");
       Id := Editor.Commands.Command_Id_From_Stable_Name
         ("edit.tabs.convert-to-spaces", Found);
       Assert (not Found and then Id = Editor.Commands.No_Command,
@@ -1843,9 +1843,9 @@ package body Editor.Line_Edit.Tests is
       Assert
         (Editor.Commands.Command_Id_From_Stable_Name
            ("edit.format.on-save", Found) =
-         Editor.Commands.Command_Toggle_Format_On_Save
-         and then Found,
-         "format-on-save alias should resolve to the persisted save formatter command");
+         Editor.Commands.No_Command
+         and then not Found,
+         "format-on-save alias must remain absent");
    end Test_Read_Only_Routes_Feature_Independence_And_Persistence;
 
 
@@ -2712,7 +2712,6 @@ package body Editor.Line_Edit.Tests is
       Assert_Resolves ("edit.split-line", Editor.Commands.Command_Line_Split_At_Caret);
       Assert_Resolves ("edit.trim-trailing-whitespace", Editor.Commands.Command_Trim_Trailing_Whitespace);
       Assert_Resolves ("edit.format-buffer", Editor.Commands.Command_Format_Buffer);
-      Assert_Resolves ("edit.format.document", Editor.Commands.Command_Format_Buffer);
       Assert_Resolves ("edit.format.selection", Editor.Commands.Command_Format_Selected_Text);
    end Test_Expected_Command_Names_Resolve;
 

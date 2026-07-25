@@ -612,24 +612,24 @@ package body Editor.Keybindings.Tests is
          "open-file command exports canonical stable name");
       Id := Editor.Commands.Command_Id_From_Stable_Name ("open-file", Found);
       Assert
-        (Found and then Id = Editor.Commands.Command_Open_File,
-         "legacy open-file keybinding name remains loadable");
+        (not Found and then Id = Editor.Commands.No_Command,
+         "legacy open-file keybinding name is not loadable");
       Assert
         (Editor.Commands.Stable_Command_Name
            (Editor.Commands.Command_Diagnostics_Show) = "diagnostics.show",
          "diagnostics command exports canonical stable name");
       Id := Editor.Commands.Command_Id_From_Stable_Name ("diagnostics-show", Found);
       Assert
-        (Found and then Id = Editor.Commands.Command_Diagnostics_Show,
-         "legacy diagnostics-show keybinding name remains loadable");
+        (not Found and then Id = Editor.Commands.No_Command,
+         "legacy diagnostics-show keybinding name is not loadable");
       Assert
         (Editor.Commands.Stable_Command_Name
            (Editor.Commands.Command_Open_Quick_Open) = "quick-open.show",
          "quick-open command exports canonical stable name");
       Id := Editor.Commands.Command_Id_From_Stable_Name ("project.quick-open.show", Found);
       Assert
-        (Found and then Id = Editor.Commands.Command_Open_Quick_Open,
-         "legacy project.quick-open.show keybinding name remains loadable");
+        (not Found and then Id = Editor.Commands.No_Command,
+         "legacy project.quick-open.show keybinding name is not loadable");
       Assert
         (Editor.Commands.Stable_Command_Name
            (Editor.Commands.Command_Accept_Quick_Open) = "quick-open.open-selected",
@@ -637,8 +637,8 @@ package body Editor.Keybindings.Tests is
       Id := Editor.Commands.Command_Id_From_Stable_Name
         ("project.quick-open.open-selected", Found);
       Assert
-        (Found and then Id = Editor.Commands.Command_Accept_Quick_Open,
-         "legacy project.quick-open.open-selected keybinding name remains loadable");
+        (not Found and then Id = Editor.Commands.No_Command,
+         "legacy project.quick-open.open-selected keybinding name is not loadable");
       Assert
         (Editor.Commands.Is_Bindable_Command (Editor.Commands.Command_Save_Keybindings),
          "keybinding commands must be bindable concrete commands");

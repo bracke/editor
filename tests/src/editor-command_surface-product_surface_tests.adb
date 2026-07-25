@@ -869,16 +869,16 @@ package body Editor.Command_Surface.Product_Surface_Tests is
 
       Round := Editor.Commands.Command_Id_From_Stable_Name
         ("refactor.rename-symbol", Found);
-      Assert (Found and then Round = Editor.Commands.Command_Rename_Symbol_Preview,
-              "Refactor rename alias should resolve to semantic rename preview");
+      Assert (not Found and then Round = Editor.Commands.No_Command,
+              "Refactor rename alias is not loadable");
       Round := Editor.Commands.Command_Id_From_Stable_Name
         ("refactor.rename-symbol-preview", Found);
-      Assert (Found and then Round = Editor.Commands.Command_Rename_Symbol_Preview,
-              "Refactor rename preview alias should resolve to semantic rename preview");
+      Assert (not Found and then Round = Editor.Commands.No_Command,
+              "Refactor rename preview alias is not loadable");
       Round := Editor.Commands.Command_Id_From_Stable_Name
         ("refactor.rename-symbol-apply", Found);
-      Assert (Found and then Round = Editor.Commands.Command_Rename_Symbol_Apply,
-              "Refactor rename apply alias should resolve to semantic rename apply");
+      Assert (not Found and then Round = Editor.Commands.No_Command,
+              "Refactor rename apply alias is not loadable");
 
       declare
          Hidden_Expected : constant Expected_Command_Array :=
