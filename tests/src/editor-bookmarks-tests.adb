@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -9,6 +10,7 @@ with Ada.Strings.Fixed; use Ada.Strings.Fixed;
 with Editor.Bookmarks;
 with Editor.Buffers;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Command_Execution;
 with Editor.Executor;
 with Editor.Executor.File_Save_Commands;
@@ -24,11 +26,12 @@ with Editor.Render_Model;
 with Editor.Gutter_Markers;
 with Editor.Workspace_Persistence;
 
+
 package body Editor.Bookmarks.Tests is
 
    use type Ada.Containers.Count_Type;
    use type Editor.Commands.Command_Id;
-   use type Editor.Commands.Command_Category;
+   use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Command_Execution.Command_Execution_Status;
 
    function Name
@@ -266,7 +269,7 @@ package body Editor.Bookmarks.Tests is
       Found : Boolean := True;
       Id    : Editor.Commands.Command_Id;
    begin
-      Id := Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
       Assert (not Found and then Id = Editor.Commands.No_Command,
               "optional/rejected bookmark command must not be exposed: " & Name);
    end Assert_Optional_Bookmark_Command_Absent;
@@ -1963,45 +1966,45 @@ package body Editor.Bookmarks.Tests is
    is
       pragma Unreferenced (T);
    begin
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Bookmark_Toggle_Current_Location) =
               "bookmark.toggle-current-location", "toggle command stable name");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Bookmark_Clear_All) =
               "bookmark.clear-all", "clear-all command stable name");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Bookmark_Next) =
               "bookmark.next", "next command stable name");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Bookmark_Previous) =
               "bookmark.previous", "previous command stable name");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Bookmark_Goto_Next) =
               "bookmark.goto-next", "goto next command stable name");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Bookmark_Goto_Previous) =
               "bookmark.goto-previous", "goto previous command stable name");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Bookmark_Open_Selected) =
               "bookmark.open-selected", "open-selected command stable name");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Bookmark_Reveal_Current) =
               "bookmark.reveal-current", "reveal-current command stable name");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Bookmark_Remove_Selected) =
               "bookmark.remove-selected", "remove-selected command stable name");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Bookmark_Show) =
               "bookmark.show", "show command stable name");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Bookmark_Hide) =
               "bookmark.hide", "hide command stable name");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Bookmark_Toggle) =
               "bookmark.toggle", "toggle surface command stable name");
-      Assert (Editor.Commands.Descriptor
+      Assert (Editor.Commands.Descriptors.Descriptor
                 (Editor.Commands.Command_Bookmark_Next).Category =
-              Editor.Commands.Bookmarks_Category, "bookmark commands use bookmark category");
+              Editor.Commands.Descriptors.Bookmarks_Category, "bookmark commands use bookmark category");
       Assert (Editor.Commands.Is_Bindable_Command
                 (Editor.Commands.Command_Bookmark_Goto_Next),
               "goto next should be bindable");

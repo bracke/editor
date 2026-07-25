@@ -1,5 +1,6 @@
 with Ada.Strings.Fixed;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Command_Surface;
 with Editor.Ada_Syntax_Core;
 with Editor.External_Producers;
@@ -10,6 +11,9 @@ with Editor.Feature_Panel_Audit;
 with Editor.Outline;
 with Editor.Outline_Extractor;
 with Editor.State;
+
+with Editor.Commands.Audits;
+
 
 package body Editor.Outline_Audit is
 
@@ -27,7 +31,7 @@ package body Editor.Outline_Audit is
       Found : Boolean := False;
       Id    : Editor.Commands.Command_Id;
    begin
-      Id := Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
       return Found and then Id = Expected;
    end Stable_Name_Routes;
 
@@ -37,8 +41,8 @@ package body Editor.Outline_Audit is
    is
    begin
       return Stable_Name_Routes (Name, Expected)
-        and then Editor.Commands.Stable_Command_Name (Expected) = Name
-        and then Editor.Commands.Descriptor_Is_Complete (Expected)
+        and then Editor.Commands.Name_Metadata.Stable_Command_Name (Expected) = Name
+        and then Editor.Commands.Audits.Descriptor_Is_Complete (Expected)
         and then Editor.Commands.Has_Availability_Handler (Expected)
         and then Editor.Commands.Is_Bindable_Command (Expected);
    end Canonical_Stable_Name_Routes;

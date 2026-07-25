@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
 with Ada.Characters.Handling;
 
+with Editor.Commands.Name_Metadata;
+
 package body Editor.Keybindings is
 
    use type Editor.Commands.Command_Id;
@@ -520,8 +522,8 @@ package body Editor.Keybindings is
      (Left, Right : Editor.Commands.Command_Id) return Boolean
    is
    begin
-      return Editor.Commands.Stable_Command_Name (Left)
-        < Editor.Commands.Stable_Command_Name (Right);
+      return Editor.Commands.Name_Metadata.Stable_Command_Name (Left)
+        < Editor.Commands.Name_Metadata.Stable_Command_Name (Right);
    end Command_Name_Less;
 
    function Has_Any_Binding

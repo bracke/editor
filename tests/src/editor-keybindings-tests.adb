@@ -1,3 +1,5 @@
+with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -7,6 +9,7 @@ with Ada.Strings.Fixed;
 with Ada.Text_IO;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Command_Route_Audit;
 with Editor.Command_Palette;
 with Editor.Cursors;
@@ -31,6 +34,8 @@ use type Editor.Keybinding_Config.Keybinding_Config_Status;
 use type Editor.Keybinding_Management.Keybinding_Action_Status;
 use type Editor.Keybinding_Management.Keybinding_Capture_State;
 use type Editor.Keybinding_Management.Keybinding_Filter;
+
+
 
 package body Editor.Keybindings.Tests is
 
@@ -341,8 +346,8 @@ package body Editor.Keybindings.Tests is
       pragma Unreferenced (T);
       Bound : Editor.Commands.Command_Id;
       Seen  : Boolean := False;
-      Descs : Editor.Commands.Command_Descriptor_Vectors.Vector :=
-        Editor.Commands.Palette_Commands;
+      Descs : Editor.Commands.Descriptors.Command_Descriptor_Vectors.Vector :=
+        Editor.Commands.Descriptors.Palette_Commands;
    begin
       Assert
         (Editor.Keybindings.Resolve
@@ -599,42 +604,42 @@ package body Editor.Keybindings.Tests is
       Id    : Editor.Commands.Command_Id;
    begin
       Assert
-        (Editor.Commands.Stable_Command_Name (Editor.Commands.Command_Save_File)
+        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Save_File)
          = "file.save",
          "stable command name must not be the user-facing label");
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("file.save", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("file.save", Found);
       Assert
         (Found and then Id = Editor.Commands.Command_Save_File,
          "stable command name must resolve to its command id");
       Assert
-        (Editor.Commands.Stable_Command_Name (Editor.Commands.Command_Open_File)
+        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Open_File)
          = "file.open",
          "open-file command exports canonical stable name");
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("open-file", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("open-file", Found);
       Assert
         (not Found and then Id = Editor.Commands.No_Command,
          "legacy open-file keybinding name is not loadable");
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Diagnostics_Show) = "diagnostics.show",
          "diagnostics command exports canonical stable name");
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("diagnostics-show", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("diagnostics-show", Found);
       Assert
         (not Found and then Id = Editor.Commands.No_Command,
          "legacy diagnostics-show keybinding name is not loadable");
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Open_Quick_Open) = "quick-open.show",
          "quick-open command exports canonical stable name");
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("project.quick-open.show", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("project.quick-open.show", Found);
       Assert
         (not Found and then Id = Editor.Commands.No_Command,
          "legacy project.quick-open.show keybinding name is not loadable");
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Accept_Quick_Open) = "quick-open.open-selected",
          "quick-open accept command exports canonical stable name");
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("project.quick-open.open-selected", Found);
       Assert
         (not Found and then Id = Editor.Commands.No_Command,
@@ -661,7 +666,7 @@ package body Editor.Keybindings.Tests is
       for Id in Editor.Commands.Command_Id loop
          if Editor.Commands.Is_Bindable_Command (Id) then
             declare
-               Name : constant String := Editor.Commands.Stable_Command_Name (Id);
+               Name : constant String := Editor.Commands.Name_Metadata.Stable_Command_Name (Id);
             begin
                Assert (Name'Length > 0, "Bindable command must have a stable name");
                Assert
@@ -673,7 +678,7 @@ package body Editor.Keybindings.Tests is
                      "Stable command names must not contain whitespace: " & Name);
                end loop;
 
-               Round := Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
+               Round := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
                Assert
                  (Found and then Round = Id,
                   "Stable command names must round-trip: " & Name);
@@ -681,7 +686,7 @@ package body Editor.Keybindings.Tests is
                for Other in Editor.Commands.Command_Id loop
                   if Other /= Id and then Editor.Commands.Is_Bindable_Command (Other) then
                      Assert
-                       (Editor.Commands.Stable_Command_Name (Other) /= Name,
+                       (Editor.Commands.Name_Metadata.Stable_Command_Name (Other) /= Name,
                         "Stable command names must be unique: " & Name);
                   end if;
                end loop;
@@ -890,7 +895,7 @@ package body Editor.Keybindings.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S          : Editor.State.State_Type;
-      Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Config     : Editor.Keybinding_Config.Keybinding_Config_Model;
       Seen       : Boolean := False;
    begin
@@ -1054,10 +1059,10 @@ package body Editor.Keybindings.Tests is
 
       for Id in Editor.Commands.Command_Id loop
          if Editor.Commands.Is_Bindable_Command (Id) then
-            Name := To_Unbounded_String (Editor.Commands.Stable_Command_Name (Id));
+            Name := To_Unbounded_String (Editor.Commands.Name_Metadata.Stable_Command_Name (Id));
             Assert (Length (Name) > 0, "Bindable command lacks stable name");
             Assert
-              (To_String (Name) /= Editor.Commands.Label (Id),
+              (To_String (Name) /= Editor.Commands.Descriptors.Label (Id),
                "Stable command names must not be derived from labels at runtime: " &
                To_String (Name));
          end if;
@@ -1257,7 +1262,7 @@ package body Editor.Keybindings.Tests is
          Assert
            (Info.Has_Binding and then Length (Info.Display) > 0,
             "bound display rows must carry user-facing chord text");
-         Current_Name := To_Unbounded_String (Editor.Commands.Stable_Command_Name (Id));
+         Current_Name := To_Unbounded_String (Editor.Commands.Name_Metadata.Stable_Command_Name (Id));
          if I > 1 then
             Assert
               (To_String (Previous_Name) < To_String (Current_Name),
@@ -2315,38 +2320,38 @@ package body Editor.Keybindings.Tests is
       Editor.Keybinding_Management.Reset_Transient_State;
 
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Save_Keybindings) = "keybindings.save",
          "save command must have keybindings.save stable name");
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Reload_Keybindings) = "keybindings.load",
          "load command must have keybindings.load stable name");
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Keybindings_Show) = "keybindings.show",
          "show command must have stable name");
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Keybindings_Assign_Selected) =
          "keybindings.assign-selected",
          "assign command must have stable name");
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Keybindings_Remove_Selected) =
          "keybindings.remove-selected",
          "remove command must have stable name");
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Keybindings_Reset_To_Defaults) =
          "keybindings.reset-to-defaults",
          "reset command must have stable name");
       Assert
-        (Editor.Commands.Discoverability_Category_Label
+        (Editor.Commands.Descriptors.Discoverability_Category_Label
            (Editor.Commands.Command_Keybindings_Show) = "Keybindings",
          "commands must group under Keybindings discoverability");
       Assert
-        (Editor.Commands.Discoverability_Category_Label
+        (Editor.Commands.Descriptors.Discoverability_Category_Label
            (Editor.Commands.Command_Save_Keybindings) = "Keybindings",
          "save/load keybinding commands must group under Keybindings discoverability");
 
@@ -2511,19 +2516,19 @@ package body Editor.Keybindings.Tests is
          "partial load must install at least one valid normalized binding");
 
       declare
-         Candidate : Editor.Commands.Command_Palette_Candidate :=
+         Candidate : Editor.Commands.Palette_Model.Command_Palette_Candidate :=
            (Id                  => Editor.Commands.Command_Find_Show,
             Label               => To_Unbounded_String ("Show Find"),
             Description         => To_Unbounded_String ("Show find input."),
-            Category            => Editor.Commands.Search_Category,
+            Category            => Editor.Commands.Descriptors.Search_Category,
             Category_Label      => To_Unbounded_String ("Search"),
             Available           => True,
             Reason              => Null_Unbounded_String,
             Has_Keybinding      => True,
             Keybinding_Display  => To_Unbounded_String ("Ctrl+Alt+L"),
             Reference_Summary   => Null_Unbounded_String,
-            Family              => Editor.Commands.No_Command_Family,
-            Effect_Classification => Editor.Commands.No_Command_Effect,
+            Family              => Editor.Commands.Descriptors.No_Command_Family,
+            Effect_Classification => Editor.Commands.Descriptors.No_Command_Effect,
             Match_Score         => 0,
             Registry_Order      => 0);
          Help : Editor.Command_Palette.Command_Help_Snapshot;

@@ -1,5 +1,7 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Commands.Descriptor_Display_Panels;
 with Editor.Commands.Descriptor_Modal_Switcher;
+
 
 package body Editor.Commands.Descriptor_UI_Panels is
 

@@ -1,4 +1,7 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.Commands.Reference_Metadata;
+
 
 package body Editor.Commands.Descriptor_Factory is
 
@@ -27,17 +30,17 @@ package body Editor.Commands.Descriptor_Factory is
          Destructive   => Destructive,
          Lifecycle     => Lifecycle,
          Configuration => Configuration,
-         Summary       => To_Unbounded_String (Command_Summary (Id)),
-         Availability_Summary => To_Unbounded_String (Command_Availability_Summary (Id)),
-         Mutation_Summary => To_Unbounded_String (Command_Mutation_Summary (Id)),
-         Filesystem_Effect_Summary => To_Unbounded_String (Command_Filesystem_Effect_Summary (Id)),
-         State_Preservation_Summary => To_Unbounded_String (Command_State_Preservation_Summary (Id)),
-         Non_Goal_Summary => To_Unbounded_String (Command_Non_Goal_Summary (Id)),
-         Requires_Explicit_Target => Command_Requires_Explicit_Target (Id),
-         Target_Prompt_Capable => Command_Is_Target_Prompt_Capable (Id),
-         Target_Prompt_Label => To_Unbounded_String (Command_Target_Prompt_Label (Id)),
-         Family        => Command_Family (Id),
-         Effect_Classification => Command_Effect_Classification (Id));
+         Summary       => To_Unbounded_String (Reference_Metadata.Command_Summary (Id)),
+         Availability_Summary => To_Unbounded_String (Reference_Metadata.Command_Availability_Summary (Id)),
+         Mutation_Summary => To_Unbounded_String (Reference_Metadata.Command_Mutation_Summary (Id)),
+         Filesystem_Effect_Summary => To_Unbounded_String (Reference_Metadata.Command_Filesystem_Effect_Summary (Id)),
+         State_Preservation_Summary => To_Unbounded_String (Reference_Metadata.Command_State_Preservation_Summary (Id)),
+         Non_Goal_Summary => To_Unbounded_String (Reference_Metadata.Command_Non_Goal_Summary (Id)),
+         Requires_Explicit_Target => Reference_Metadata.Command_Requires_Explicit_Target (Id),
+         Target_Prompt_Capable => Reference_Metadata.Command_Is_Target_Prompt_Capable (Id),
+         Target_Prompt_Label => To_Unbounded_String (Reference_Metadata.Command_Target_Prompt_Label (Id)),
+         Family        => Reference_Metadata.Command_Family (Id),
+         Effect_Classification => Reference_Metadata.Command_Effect_Classification (Id));
    end Make_Command_Descriptor;
 
 

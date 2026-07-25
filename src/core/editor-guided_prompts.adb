@@ -1,5 +1,6 @@
 with Ada.Directories;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Keybindings;
 with Editor.Text_Helpers;
 use type Editor.Commands.Command_Id;
@@ -719,7 +720,7 @@ package body Editor.Guided_Prompts is
       S.Title := Prompt.Title;
       S.Description := Prompt.Description;
       S.Owning_Command_Name := To_Unbounded_String
-        (Editor.Commands.Stable_Command_Name (Prompt.Owning_Command));
+        (Editor.Commands.Name_Metadata.Stable_Command_Name (Prompt.Owning_Command));
       S.Input_Text := To_Unbounded_String (Editor.Input_Field.Text (Prompt.Input));
       S.Has_Captured_Chord := Prompt.Has_Captured_Chord;
       S.Captured_Chord_Label := To_Unbounded_String

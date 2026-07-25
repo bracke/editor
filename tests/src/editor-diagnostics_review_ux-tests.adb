@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -8,6 +9,7 @@ with Editor.Ada_Semantic_Diagnostic_Feed;
 with Editor.Ada_Semantic_Diagnostic_Index;
 with Editor.Build_Diagnostics;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Diagnostics_Review_UX;
 with Editor.External_Producers;
 with Editor.External_Producers.Diagnostics;
@@ -19,10 +21,11 @@ with Editor.Producer_Contracts;
 with Editor.State;
 with Editor.Workspace_Persistence;
 
+
 package body Editor.Diagnostics_Review_UX.Tests is
 
    use type Editor.Commands.Command_Id;
-   use type Editor.Commands.Command_Category;
+   use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Feature_Diagnostics.Diagnostic_Quick_Fix_Action_Model;
 
    overriding function Name
@@ -305,24 +308,24 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Assert (Editor.Commands.Has_Descriptor
                 (Editor.Commands.Command_Diagnostics_Filter_Errors),
               "filter-errors command has a descriptor");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Diagnostics_Filter_Errors) =
               "diagnostics.filter-errors",
               "filter-errors uses the canonical stable name");
       Assert (Editor.Commands.Has_Descriptor
                 (Editor.Commands.Command_Diagnostics_Filter_Source),
               "filter-source command has a descriptor");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Diagnostics_Filter_Source) =
               "diagnostics.filter-source",
               "filter-source uses a canonical no-payload stable name");
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("diagnostics.clear-build", Found);
       Assert (Found and then Id = Editor.Commands.Command_Diagnostics_Clear_Build,
               "clear-build stable name resolves to the Diagnostics command");
-      Assert (Editor.Commands.Descriptor
+      Assert (Editor.Commands.Descriptors.Descriptor
                 (Editor.Commands.Command_Diagnostics_Clear_Build).Category =
-              Editor.Commands.Panel_Category,
+              Editor.Commands.Descriptors.Panel_Category,
               "clear-build is routed as a panel/Diagnostics command");
    end Test_Filter_And_Clear_Build_Commands_Are_Descriptor_Backed;
 

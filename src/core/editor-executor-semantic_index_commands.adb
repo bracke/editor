@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Characters.Handling;
 with Ada.Strings;
 with Ada.Strings.Fixed;
@@ -21,6 +22,7 @@ with Editor.Project;
 with Editor.Render_Cache;
 with Editor.State;
 with Editor.Syntax_Semantics;
+
 
 package body Editor.Executor.Semantic_Index_Commands is
 

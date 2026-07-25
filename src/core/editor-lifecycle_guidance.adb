@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Commands;
 with Editor.Executor;
@@ -8,9 +9,10 @@ with Editor.File_Tree_View;
 with Editor.File_Tree;
 with Editor.Buffers;
 
+
 package body Editor.Lifecycle_Guidance is
 
-   use type Editor.Commands.Command_Visibility;
+   use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.File_Tree.File_Tree_Node_Kind;
    use type Editor.Buffers.Buffer_Id;
    use type Editor.File_Tree.File_Tree_Node_Id;
@@ -80,9 +82,9 @@ package body Editor.Lifecycle_Guidance is
 
    function Save_As_Supported return Boolean is
    begin
-      return Editor.Commands.Descriptor
+      return Editor.Commands.Descriptors.Descriptor
         (Editor.Commands.Command_Save_File_As).Visibility =
-          Editor.Commands.Palette_Command;
+          Editor.Commands.Descriptors.Palette_Command;
    end Save_As_Supported;
 
    function Status_Bar_Hint

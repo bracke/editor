@@ -1,3 +1,5 @@
+with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
 with Ada.Containers; use type Ada.Containers.Count_Type;
 with AUnit.Test_Cases;
@@ -9,10 +11,11 @@ with Editor.Command_Palette;
 with Editor.Executor;
 with Editor.Executor.Command_Palette_Projection;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Ada_Diagnostic_Command_Projection;
 use type Editor.Commands.Command_Id;
-use type Editor.Commands.Command_Category;
-use type Editor.Commands.Command_Visibility;
+use type Editor.Commands.Descriptors.Command_Category;
+use type Editor.Commands.Descriptors.Command_Visibility;
 use type Editor.Commands.Command_Availability_Status;
 use type Editor.Command_Palette.Command_Palette_Row_Kind;
 use type Editor.Command_Palette.Command_Palette_Availability_Filter;
@@ -40,6 +43,11 @@ with Text_Buffer;
 use type Editor.Buffers.Buffer_Id;
 use type Editor.Keybindings.Keybinding_Change_Status;
 
+
+
+with Editor.Commands.Audits;
+
+
 package body Editor.Command_Palette.Tests is
 
 
@@ -47,8 +55,8 @@ package body Editor.Command_Palette.Tests is
    function Descriptor_Exists
      (Id : Editor.Commands.Command_Id) return Boolean
    is
-      Descriptors : constant Editor.Commands.Command_Descriptor_Vectors.Vector :=
-        Editor.Commands.Palette_Commands;
+      Descriptors : constant Editor.Commands.Descriptors.Command_Descriptor_Vectors.Vector :=
+        Editor.Commands.Descriptors.Palette_Commands;
    begin
       for Descriptor of Descriptors loop
          if Descriptor.Id = Id then
@@ -79,7 +87,7 @@ package body Editor.Command_Palette.Tests is
    is
       Found : Boolean := False;
       Id    : constant Editor.Commands.Command_Id :=
-        Editor.Commands.Command_Id_From_Stable_Name
+        Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
           (To_String (Stable_Name), Found);
    begin
       Assert (Found, "status surface command must resolve: " & To_String (Stable_Name));
@@ -149,7 +157,7 @@ package body Editor.Command_Palette.Tests is
    procedure Test_Typing_Backspace_Filtering
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Filtered : Editor.Commands.Command_Descriptor_Vectors.Vector;
+      Filtered : Editor.Commands.Descriptors.Command_Descriptor_Vectors.Vector;
    begin
       Editor.Command_Palette.Reset;
       Editor.Command_Palette.Open;
@@ -272,8 +280,8 @@ package body Editor.Command_Palette.Tests is
    function Palette_Contains
      (Id : Editor.Commands.Command_Id) return Boolean
    is
-      Descriptors : constant Editor.Commands.Command_Descriptor_Vectors.Vector :=
-        Editor.Commands.Palette_Commands;
+      Descriptors : constant Editor.Commands.Descriptors.Command_Descriptor_Vectors.Vector :=
+        Editor.Commands.Descriptors.Palette_Commands;
    begin
       for Descriptor of Descriptors loop
          if Descriptor.Id = Id then
@@ -288,7 +296,7 @@ package body Editor.Command_Palette.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Seen : array (Editor.Commands.Command_Id) of Boolean := (others => False);
-      D    : Editor.Commands.Command_Descriptor;
+      D    : Editor.Commands.Descriptors.Command_Descriptor;
    begin
       Assert (Editor.Commands.Command_Count =
                 Editor.Commands.Command_Id'Pos (Editor.Commands.Command_Id'Last) -
@@ -303,19 +311,19 @@ package body Editor.Command_Palette.Tests is
                     "Command_At must not return duplicate command ids");
             Seen (Id) := True;
 
-            D := Editor.Commands.Descriptor (Id);
+            D := Editor.Commands.Descriptors.Descriptor (Id);
             Assert (D.Id = Id,
                     "Descriptor must preserve the requested command id");
             Assert (Length (D.Name) > 0,
                     "Every command descriptor must have a stable label");
 
             if Id = Editor.Commands.No_Command then
-               Assert (D.Visibility = Editor.Commands.Hidden_Command,
+               Assert (D.Visibility = Editor.Commands.Descriptors.Hidden_Command,
                        "No_Command must be hidden");
-            elsif D.Visibility = Editor.Commands.Palette_Command then
+            elsif D.Visibility = Editor.Commands.Descriptors.Palette_Command then
                Assert (Length (D.Description) > 0,
                        "Palette-visible commands must have descriptions");
-               Assert (D.Category /= Editor.Commands.Internal_Category,
+               Assert (D.Category /= Editor.Commands.Descriptors.Internal_Category,
                        "Palette-visible commands must not use Internal category");
             end if;
          end;
@@ -341,8 +349,8 @@ package body Editor.Command_Palette.Tests is
               "Raw movement commands should be hidden from the palette");
       Assert (not Palette_Contains (Editor.Commands.Command_Move_Left),
               "Palette candidates must exclude hidden raw movement commands");
-      Assert (Editor.Commands.Label (Editor.Commands.Command_Save_File) =
-                To_String (Editor.Commands.Descriptor
+      Assert (Editor.Commands.Descriptors.Label (Editor.Commands.Command_Save_File) =
+                To_String (Editor.Commands.Descriptors.Descriptor
                   (Editor.Commands.Command_Save_File).Name),
               "Label helper must read from the centralized descriptor");
    end Test_Palette_Uses_Descriptor_Visibility;
@@ -367,8 +375,8 @@ package body Editor.Command_Palette.Tests is
               "Save descriptor must exist");
       Assert (Descriptor_Exists (Editor.Commands.Command_Save_File_As),
               "Save As descriptor must be projected after target acquisition is canonical");
-      Assert (Editor.Commands.Descriptor (Editor.Commands.Command_Save_File_As).Visibility =
-                Editor.Commands.Palette_Command,
+      Assert (Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Save_File_As).Visibility =
+                Editor.Commands.Descriptors.Palette_Command,
               "canonical Save As descriptor is palette-visible through the target prompt route");
       Assert (Descriptor_Exists (Editor.Commands.Command_Toggle_Problems_Panel),
               "Toggle Problems descriptor must exist");
@@ -438,119 +446,119 @@ package body Editor.Command_Palette.Tests is
               "Buffer Switcher Preview Previous Line descriptor must exist");
       Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Preview_Center_Cursor),
               "Buffer Switcher Preview Center Cursor descriptor must exist");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Filter_Clear) =
               "buffers.switcher.filter.clear",
               "clear switcher filter stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Filter_Pinned) =
               "buffers.switcher.filter.pinned",
               "pinned switcher filter stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Filter_Group) =
               "buffers.switcher.filter.group",
               "group switcher filter stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Filter_Label) =
               "buffers.switcher.filter.label",
               "label switcher filter stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Filter_Noted) =
               "buffers.switcher.filter.noted",
               "noted switcher filter stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Sort_Default) =
               "buffers.switcher.sort.default",
               "default switcher sort stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Sort_Recent) =
               "buffers.switcher.sort.recent",
               "recent switcher sort stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Sort_Name) =
               "buffers.switcher.sort.name",
               "name switcher sort stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Sort_Pinned) =
               "buffers.switcher.sort.pinned",
               "pinned switcher sort stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Sort_Group) =
               "buffers.switcher.sort.group",
               "group switcher sort stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Sort_Label) =
               "buffers.switcher.sort.label",
               "label switcher sort stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Sort_Next) =
               "buffers.switcher.sort.next",
               "next switcher sort stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Sort_Previous) =
               "buffers.switcher.sort.previous",
               "previous switcher sort stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Selected_Close) =
               "buffers.switcher.selected.close",
               "selected switcher close stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Selected_Pin) =
               "buffers.switcher.selected.pin",
               "selected switcher pin stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Selected_Unpin) =
               "buffers.switcher.selected.unpin",
               "selected switcher unpin stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Selected_Toggle_Pin) =
               "buffers.switcher.selected.toggle-pin",
               "selected switcher toggle pin stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Selected_Group_Assign) =
               "buffers.switcher.selected.group.assign",
               "selected switcher assign group stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Selected_Group_Clear) =
               "buffers.switcher.selected.group.clear",
               "selected switcher clear group stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Selected_Label_Set) =
               "buffers.switcher.selected.label.set",
               "selected switcher set label stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Selected_Label_Clear) =
               "buffers.switcher.selected.label.clear",
               "selected switcher clear label stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Selected_Note_Set) =
               "buffers.switcher.selected.note.set",
               "selected switcher set note stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Selected_Note_Clear) =
               "buffers.switcher.selected.note.clear",
               "selected switcher clear note stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Preview_Toggle) =
               "buffers.switcher.preview.toggle",
               "switcher preview toggle stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Preview_Show) =
               "buffers.switcher.preview.show",
               "switcher preview show stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Preview_Hide) =
               "buffers.switcher.preview.hide",
               "switcher preview hide stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Preview_Next_Line) =
               "buffers.switcher.preview.next-line",
               "switcher preview next line stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Preview_Previous_Line) =
               "buffers.switcher.preview.previous-line",
               "switcher preview previous line stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Preview_Center_Cursor) =
               "buffers.switcher.preview.center-cursor",
               "switcher preview center cursor stable name must be persisted-command safe");
@@ -566,27 +574,27 @@ package body Editor.Command_Palette.Tests is
               "mark label descriptor must exist");
       Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Noted),
               "mark noted descriptor must exist");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Mark_Visible) =
               "buffers.switcher.mark.visible",
               "mark visible stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Mark_Clear_Visible) =
               "buffers.switcher.mark.clear-visible",
               "clear visible stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Mark_Pinned) =
               "buffers.switcher.mark.pinned",
               "mark pinned stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Mark_Group) =
               "buffers.switcher.mark.group",
               "mark group stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Mark_Label) =
               "buffers.switcher.mark.label",
               "mark label stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Mark_Noted) =
               "buffers.switcher.mark.noted",
               "mark noted stable name must be persisted-command safe");
@@ -602,27 +610,27 @@ package body Editor.Command_Palette.Tests is
               "marked note set descriptor must exist");
       Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Note_Clear),
               "marked note clear descriptor must exist");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Mark_Group_Assign) =
               "buffers.switcher.mark.group.assign",
               "marked group assign stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Mark_Group_Clear) =
               "buffers.switcher.mark.group.clear",
               "marked group clear stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Mark_Label_Set) =
               "buffers.switcher.mark.label.set",
               "marked label set stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Mark_Label_Clear) =
               "buffers.switcher.mark.label.clear",
               "marked label clear stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Mark_Note_Set) =
               "buffers.switcher.mark.note.set",
               "marked note set stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Mark_Note_Clear) =
               "buffers.switcher.mark.note.clear",
               "marked note clear stable name must be persisted-command safe");
@@ -630,11 +638,11 @@ package body Editor.Command_Palette.Tests is
               "marked confirm descriptor must exist");
       Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Cancel),
               "marked cancel descriptor must exist");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Mark_Confirm) =
               "buffers.switcher.mark.confirm",
               "marked confirm stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Mark_Cancel) =
               "buffers.switcher.mark.cancel",
               "marked cancel stable name must be persisted-command safe");
@@ -650,27 +658,27 @@ package body Editor.Command_Palette.Tests is
               "marked previous descriptor must exist");
       Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Summary),
               "marked summary descriptor must exist");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Mark_Review_Toggle) =
               "buffers.switcher.mark.review.toggle",
               "marked review toggle stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Mark_Review_Show) =
               "buffers.switcher.mark.review.show",
               "marked review show stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Mark_Review_Hide) =
               "buffers.switcher.mark.review.hide",
               "marked review hide stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Mark_Next) =
               "buffers.switcher.mark.next",
               "marked next stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Mark_Previous) =
               "buffers.switcher.mark.previous",
               "marked previous stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Mark_Summary) =
               "buffers.switcher.mark.summary",
               "marked summary stable name must be persisted-command safe");
@@ -686,27 +694,27 @@ package body Editor.Command_Palette.Tests is
               "pending marked previous descriptor must exist");
       Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Summary),
               "pending marked summary descriptor must exist");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Review_Toggle) =
               "buffers.switcher.pending-mark.review.toggle",
               "pending marked review toggle stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Review_Show) =
               "buffers.switcher.pending-mark.review.show",
               "pending marked review show stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Review_Hide) =
               "buffers.switcher.pending-mark.review.hide",
               "pending marked review hide stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Next) =
               "buffers.switcher.pending-mark.next",
               "pending marked next stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Previous) =
               "buffers.switcher.pending-mark.previous",
               "pending marked previous stable name must be persisted-command safe");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Summary) =
               "buffers.switcher.pending-mark.summary",
               "pending marked summary stable name must be persisted-command safe");
@@ -938,7 +946,7 @@ package body Editor.Command_Palette.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Found : Boolean := False;
    begin
       Editor.State.Init (S);
@@ -1031,11 +1039,11 @@ package body Editor.Command_Palette.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
    begin
-      Assert (Editor.Commands.Category_Label (Editor.Commands.File_Category) = "File",
+      Assert (Editor.Commands.Descriptors.Category_Label (Editor.Commands.Descriptors.File_Category) = "File",
               "File category must have centralized palette label");
-      Assert (Editor.Commands.Category_Label (Editor.Commands.Panel_Category) = "Panels",
+      Assert (Editor.Commands.Descriptors.Category_Label (Editor.Commands.Descriptors.Panel_Category) = "Panels",
               "Panel category must use user-facing plural label");
-      Assert (Editor.Commands.Category_Label (Editor.Commands.Internal_Category) = "Internal",
+      Assert (Editor.Commands.Descriptors.Category_Label (Editor.Commands.Descriptors.Internal_Category) = "Internal",
               "Internal category must have a centralized debug label");
    end Test_Category_Labels;
 
@@ -1066,7 +1074,7 @@ package body Editor.Command_Palette.Tests is
    procedure Test_Grouped_Snapshot_Rows
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Config     : constant Editor.Command_Palette.Command_Palette_Config :=
         (Group_Empty_Query_By_Category => True, others => <>);
       Snapshot   : Editor.Command_Palette.Command_Palette_Snapshot;
@@ -1076,35 +1084,35 @@ package body Editor.Command_Palette.Tests is
       Editor.Command_Palette.Reset;
       Editor.Command_Palette.Open;
       Candidates.Append
-        (Editor.Commands.Command_Palette_Candidate'
+        (Editor.Commands.Palette_Model.Command_Palette_Candidate'
            (Id             => Editor.Commands.Command_Save_File,
           Label          => To_Unbounded_String ("Save File"),
           Description    => To_Unbounded_String ("Save the active buffer"),
-          Category       => Editor.Commands.File_Category,
+          Category       => Editor.Commands.Descriptors.File_Category,
           Category_Label => To_Unbounded_String ("File"),
           Available      => True,
           Reason         => Null_Unbounded_String,
           Has_Keybinding => False,
           Keybinding_Display => Null_Unbounded_String,
           Reference_Summary => Null_Unbounded_String,
-          Family => Editor.Commands.No_Command_Family,
-          Effect_Classification => Editor.Commands.No_Command_Effect,
+          Family => Editor.Commands.Descriptors.No_Command_Family,
+          Effect_Classification => Editor.Commands.Descriptors.No_Command_Effect,
           Match_Score    => 1,
           Registry_Order => 1));
       Candidates.Append
-        (Editor.Commands.Command_Palette_Candidate'
+        (Editor.Commands.Palette_Model.Command_Palette_Candidate'
            (Id             => Editor.Commands.Command_Active_Find_Next,
           Label          => To_Unbounded_String ("Find Next"),
           Description    => To_Unbounded_String ("Move to next match"),
-          Category       => Editor.Commands.Search_Category,
+          Category       => Editor.Commands.Descriptors.Search_Category,
           Category_Label => To_Unbounded_String ("Search"),
           Available      => False,
           Reason         => To_Unbounded_String ("No active Find matches"),
           Has_Keybinding => False,
           Keybinding_Display => Null_Unbounded_String,
           Reference_Summary => Null_Unbounded_String,
-          Family => Editor.Commands.No_Command_Family,
-          Effect_Classification => Editor.Commands.No_Command_Effect,
+          Family => Editor.Commands.Descriptors.No_Command_Family,
+          Effect_Classification => Editor.Commands.Descriptors.No_Command_Effect,
           Match_Score    => 1,
           Registry_Order => 2));
 
@@ -1131,7 +1139,7 @@ package body Editor.Command_Palette.Tests is
    procedure Test_Empty_Query_Sort_Keeps_Category_Runs
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Config     : constant Editor.Command_Palette.Command_Palette_Config :=
         (Group_Empty_Query_By_Category => True, others => <>);
       Snapshot   : Editor.Command_Palette.Command_Palette_Snapshot;
@@ -1139,51 +1147,51 @@ package body Editor.Command_Palette.Tests is
       Editor.Command_Palette.Reset;
       Editor.Command_Palette.Open;
       Candidates.Append
-        (Editor.Commands.Command_Palette_Candidate'
+        (Editor.Commands.Palette_Model.Command_Palette_Candidate'
            (Id             => Editor.Commands.Command_Active_Find_Next,
           Label          => To_Unbounded_String ("Find Next"),
           Description    => To_Unbounded_String ("Move to next match"),
-          Category       => Editor.Commands.Search_Category,
+          Category       => Editor.Commands.Descriptors.Search_Category,
           Category_Label => To_Unbounded_String ("Search"),
           Available      => True,
           Reason         => Null_Unbounded_String,
           Has_Keybinding => False,
           Keybinding_Display => Null_Unbounded_String,
           Reference_Summary => Null_Unbounded_String,
-          Family => Editor.Commands.No_Command_Family,
-          Effect_Classification => Editor.Commands.No_Command_Effect,
+          Family => Editor.Commands.Descriptors.No_Command_Family,
+          Effect_Classification => Editor.Commands.Descriptors.No_Command_Effect,
           Match_Score    => 1,
           Registry_Order => 20));
       Candidates.Append
-        (Editor.Commands.Command_Palette_Candidate'
+        (Editor.Commands.Palette_Model.Command_Palette_Candidate'
            (Id             => Editor.Commands.Command_Save_File,
           Label          => To_Unbounded_String ("Save File"),
           Description    => To_Unbounded_String ("Save the active buffer"),
-          Category       => Editor.Commands.File_Category,
+          Category       => Editor.Commands.Descriptors.File_Category,
           Category_Label => To_Unbounded_String ("File"),
           Available      => False,
           Reason         => To_Unbounded_String ("No active buffer."),
           Has_Keybinding => False,
           Keybinding_Display => Null_Unbounded_String,
           Reference_Summary => Null_Unbounded_String,
-          Family => Editor.Commands.No_Command_Family,
-          Effect_Classification => Editor.Commands.No_Command_Effect,
+          Family => Editor.Commands.Descriptors.No_Command_Family,
+          Effect_Classification => Editor.Commands.Descriptors.No_Command_Effect,
           Match_Score    => 1,
           Registry_Order => 10));
       Candidates.Append
-        (Editor.Commands.Command_Palette_Candidate'
+        (Editor.Commands.Palette_Model.Command_Palette_Candidate'
            (Id             => Editor.Commands.Command_Save_File_As,
           Label          => To_Unbounded_String ("Save As"),
           Description    => To_Unbounded_String ("Save the active buffer to a path"),
-          Category       => Editor.Commands.File_Category,
+          Category       => Editor.Commands.Descriptors.File_Category,
           Category_Label => To_Unbounded_String ("File"),
           Available      => True,
           Reason         => Null_Unbounded_String,
           Has_Keybinding => False,
           Keybinding_Display => Null_Unbounded_String,
           Reference_Summary => Null_Unbounded_String,
-          Family => Editor.Commands.No_Command_Family,
-          Effect_Classification => Editor.Commands.No_Command_Effect,
+          Family => Editor.Commands.Descriptors.No_Command_Family,
+          Effect_Classification => Editor.Commands.Descriptors.No_Command_Effect,
           Match_Score    => 1,
           Registry_Order => 11));
 
@@ -1207,7 +1215,7 @@ package body Editor.Command_Palette.Tests is
    procedure Test_Nonempty_Query_Builds_Flat_Rows
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Config     : constant Editor.Command_Palette.Command_Palette_Config :=
         (Group_Empty_Query_By_Category => False, others => <>);
       Snapshot   : Editor.Command_Palette.Command_Palette_Snapshot;
@@ -1216,35 +1224,35 @@ package body Editor.Command_Palette.Tests is
       Editor.Command_Palette.Open;
       Editor.Command_Palette.Insert_Text ("save");
       Candidates.Append
-        (Editor.Commands.Command_Palette_Candidate'
+        (Editor.Commands.Palette_Model.Command_Palette_Candidate'
            (Id             => Editor.Commands.Command_Save_File,
           Label          => To_Unbounded_String ("Save File"),
           Description    => To_Unbounded_String ("Save the active buffer"),
-          Category       => Editor.Commands.File_Category,
+          Category       => Editor.Commands.Descriptors.File_Category,
           Category_Label => To_Unbounded_String ("File"),
           Available      => True,
           Reason         => Null_Unbounded_String,
           Has_Keybinding => False,
           Keybinding_Display => Null_Unbounded_String,
           Reference_Summary => Null_Unbounded_String,
-          Family => Editor.Commands.No_Command_Family,
-          Effect_Classification => Editor.Commands.No_Command_Effect,
+          Family => Editor.Commands.Descriptors.No_Command_Family,
+          Effect_Classification => Editor.Commands.Descriptors.No_Command_Effect,
           Match_Score    => 500,
           Registry_Order => 10));
       Candidates.Append
-        (Editor.Commands.Command_Palette_Candidate'
+        (Editor.Commands.Palette_Model.Command_Palette_Candidate'
            (Id             => Editor.Commands.Command_Save_File_As,
           Label          => To_Unbounded_String ("Save As"),
           Description    => To_Unbounded_String ("Save the active buffer to a path"),
-          Category       => Editor.Commands.File_Category,
+          Category       => Editor.Commands.Descriptors.File_Category,
           Category_Label => To_Unbounded_String ("File"),
           Available      => True,
           Reason         => Null_Unbounded_String,
           Has_Keybinding => False,
           Keybinding_Display => Null_Unbounded_String,
           Reference_Summary => Null_Unbounded_String,
-          Family => Editor.Commands.No_Command_Family,
-          Effect_Classification => Editor.Commands.No_Command_Effect,
+          Family => Editor.Commands.Descriptors.No_Command_Family,
+          Effect_Classification => Editor.Commands.Descriptors.No_Command_Effect,
           Match_Score    => 500,
           Registry_Order => 11));
 
@@ -1262,42 +1270,42 @@ package body Editor.Command_Palette.Tests is
    procedure Test_Ensure_Selected_Row_Visible
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Config     : constant Editor.Command_Palette.Command_Palette_Config := (others => <>);
       Snapshot   : Editor.Command_Palette.Command_Palette_Snapshot;
    begin
       Editor.Command_Palette.Reset;
       Editor.Command_Palette.Open;
       Candidates.Append
-        (Editor.Commands.Command_Palette_Candidate'
+        (Editor.Commands.Palette_Model.Command_Palette_Candidate'
            (Id             => Editor.Commands.Command_Save_File,
           Label          => To_Unbounded_String ("Save File"),
           Description    => To_Unbounded_String ("Save the active buffer"),
-          Category       => Editor.Commands.File_Category,
+          Category       => Editor.Commands.Descriptors.File_Category,
           Category_Label => To_Unbounded_String ("File"),
           Available      => True,
           Reason         => Null_Unbounded_String,
           Has_Keybinding => False,
           Keybinding_Display => Null_Unbounded_String,
           Reference_Summary => Null_Unbounded_String,
-          Family => Editor.Commands.No_Command_Family,
-          Effect_Classification => Editor.Commands.No_Command_Effect,
+          Family => Editor.Commands.Descriptors.No_Command_Family,
+          Effect_Classification => Editor.Commands.Descriptors.No_Command_Effect,
           Match_Score    => 1,
           Registry_Order => 10));
       Candidates.Append
-        (Editor.Commands.Command_Palette_Candidate'
+        (Editor.Commands.Palette_Model.Command_Palette_Candidate'
            (Id             => Editor.Commands.Command_Active_Find_Next,
           Label          => To_Unbounded_String ("Find Next"),
           Description    => To_Unbounded_String ("Move to next match"),
-          Category       => Editor.Commands.Search_Category,
+          Category       => Editor.Commands.Descriptors.Search_Category,
           Category_Label => To_Unbounded_String ("Search"),
           Available      => True,
           Reason         => Null_Unbounded_String,
           Has_Keybinding => False,
           Keybinding_Display => Null_Unbounded_String,
           Reference_Summary => Null_Unbounded_String,
-          Family => Editor.Commands.No_Command_Family,
-          Effect_Classification => Editor.Commands.No_Command_Effect,
+          Family => Editor.Commands.Descriptors.No_Command_Family,
+          Effect_Classification => Editor.Commands.Descriptors.No_Command_Effect,
           Match_Score    => 1,
           Registry_Order => 20));
 
@@ -1315,24 +1323,24 @@ package body Editor.Command_Palette.Tests is
    procedure Test_Reconcile_Selects_Only_Unavailable_Match
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
    begin
       Editor.Command_Palette.Reset;
       Editor.Command_Palette.Open;
       Candidates.Append
-        (Editor.Commands.Command_Palette_Candidate'
+        (Editor.Commands.Palette_Model.Command_Palette_Candidate'
            (Id             => Editor.Commands.Command_Save_File,
           Label          => To_Unbounded_String ("Save File"),
           Description    => To_Unbounded_String ("Save the active buffer"),
-          Category       => Editor.Commands.File_Category,
+          Category       => Editor.Commands.Descriptors.File_Category,
           Category_Label => To_Unbounded_String ("File"),
           Available      => False,
           Reason         => To_Unbounded_String ("No active buffer."),
           Has_Keybinding => False,
           Keybinding_Display => Null_Unbounded_String,
           Reference_Summary => Null_Unbounded_String,
-          Family => Editor.Commands.No_Command_Family,
-          Effect_Classification => Editor.Commands.No_Command_Effect,
+          Family => Editor.Commands.Descriptors.No_Command_Family,
+          Effect_Classification => Editor.Commands.Descriptors.No_Command_Effect,
           Match_Score    => 500,
           Registry_Order => 10));
 
@@ -1347,7 +1355,7 @@ package body Editor.Command_Palette.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Found : Boolean := False;
    begin
       Editor.State.Init (S);
@@ -1375,7 +1383,7 @@ package body Editor.Command_Palette.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Found : Boolean := False;
    begin
       Editor.State.Init (S);
@@ -1408,10 +1416,10 @@ package body Editor.Command_Palette.Tests is
         (Id          : Editor.Commands.Command_Id;
          Label       : String;
          Description : String;
-         Category    : Editor.Commands.Command_Category)
+         Category    : Editor.Commands.Descriptors.Command_Category)
       is
-         D : constant Editor.Commands.Command_Descriptor :=
-           Editor.Commands.Descriptor (Id);
+         D : constant Editor.Commands.Descriptors.Command_Descriptor :=
+           Editor.Commands.Descriptors.Descriptor (Id);
       begin
          Assert (To_String (D.Name) = Label,
                  "workflow command label must be explicit for " &
@@ -1421,25 +1429,25 @@ package body Editor.Command_Palette.Tests is
             "workflow command description must include '" & Description & "'");
          Assert (D.Category = Category,
                  "workflow command category must match its palette surface");
-         Assert (D.Visibility = Editor.Commands.Palette_Command,
+         Assert (D.Visibility = Editor.Commands.Descriptors.Palette_Command,
                  "workflow command must be visible in the command palette");
       end Expect_Descriptor;
    begin
       Expect_Descriptor
         (Editor.Commands.Command_Build_Run,
-         "Run Build", "selected build request", Editor.Commands.Project_Category);
+         "Run Build", "selected build request", Editor.Commands.Descriptors.Project_Category);
       Expect_Descriptor
         (Editor.Commands.Command_Diagnostics_Show,
-         "Show Diagnostics", "Diagnostics panel", Editor.Commands.Panel_Category);
+         "Show Diagnostics", "Diagnostics panel", Editor.Commands.Descriptors.Panel_Category);
       Expect_Descriptor
         (Editor.Commands.Command_Retry_Pending_Transition,
-         "Retry Pending Transition", "blocked operation", Editor.Commands.Project_Category);
+         "Retry Pending Transition", "blocked operation", Editor.Commands.Descriptors.Project_Category);
       Expect_Descriptor
         (Editor.Commands.Command_Navigation_Back,
-         "Navigation Back", "previous editor navigation location", Editor.Commands.Navigation_Category);
+         "Navigation Back", "previous editor navigation location", Editor.Commands.Descriptors.Navigation_Category);
       Expect_Descriptor
         (Editor.Commands.Command_Navigation_Forward,
-         "Navigation Forward", "next editor navigation location", Editor.Commands.Navigation_Category);
+         "Navigation Forward", "next editor navigation location", Editor.Commands.Descriptors.Navigation_Category);
    end Test_Editor_Workflow_Command_Descriptors_Are_Discoverable;
 
    procedure Test_Problems_And_Build_Command_Families_Are_Audited
@@ -1450,17 +1458,17 @@ package body Editor.Command_Palette.Tests is
       procedure Expect_Command
         (Id          : Editor.Commands.Command_Id;
          Stable_Name : String;
-         Category    : Editor.Commands.Command_Category)
+         Category    : Editor.Commands.Descriptors.Command_Category)
       is
          Found     : Boolean := False;
          Roundtrip : Editor.Commands.Command_Id := Editor.Commands.No_Command;
-         D         : constant Editor.Commands.Command_Descriptor :=
-           Editor.Commands.Descriptor (Id);
+         D         : constant Editor.Commands.Descriptors.Command_Descriptor :=
+           Editor.Commands.Descriptors.Descriptor (Id);
       begin
          Assert
-           (Editor.Commands.Stable_Command_Name (Id) = Stable_Name,
+           (Editor.Commands.Name_Metadata.Stable_Command_Name (Id) = Stable_Name,
             "audited command stable name changed: " & Stable_Name);
-         Roundtrip := Editor.Commands.Command_Id_From_Stable_Name
+         Roundtrip := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
            (Stable_Name, Found);
          Assert
            (Found and then Roundtrip = Id,
@@ -1469,7 +1477,7 @@ package body Editor.Command_Palette.Tests is
            (D.Category = Category,
             "audited command category changed: " & Stable_Name);
          Assert
-           (D.Visibility = Editor.Commands.Palette_Command,
+           (D.Visibility = Editor.Commands.Descriptors.Palette_Command,
             "audited command must stay visible in the palette: " & Stable_Name);
          Assert
            (To_String (D.Name)'Length > 0
@@ -1479,45 +1487,45 @@ package body Editor.Command_Palette.Tests is
    begin
       Expect_Command
         (Editor.Commands.Command_Focus_Problems,
-         "problems.focus", Editor.Commands.Panel_Category);
+         "problems.focus", Editor.Commands.Descriptors.Panel_Category);
       Expect_Command
         (Editor.Commands.Command_Problems_Open_Selected,
-         "problems.open-selected", Editor.Commands.Selection_Category);
+         "problems.open-selected", Editor.Commands.Descriptors.Selection_Category);
       Expect_Command
         (Editor.Commands.Command_Problems_Filter_All,
-         "problems.filter.all", Editor.Commands.Diagnostics_Category);
+         "problems.filter.all", Editor.Commands.Descriptors.Diagnostics_Category);
       Expect_Command
         (Editor.Commands.Command_Problems_Filter_Errors,
-         "problems.filter.errors", Editor.Commands.Diagnostics_Category);
+         "problems.filter.errors", Editor.Commands.Descriptors.Diagnostics_Category);
       Expect_Command
         (Editor.Commands.Command_Problems_Filter_Warnings,
-         "problems.filter.warnings", Editor.Commands.Diagnostics_Category);
+         "problems.filter.warnings", Editor.Commands.Descriptors.Diagnostics_Category);
       Expect_Command
         (Editor.Commands.Command_Problems_Filter_Info,
-         "problems.filter.info", Editor.Commands.Diagnostics_Category);
+         "problems.filter.info", Editor.Commands.Descriptors.Diagnostics_Category);
       Expect_Command
         (Editor.Commands.Command_Problems_Filter_Hints,
-         "problems.filter.hints", Editor.Commands.Diagnostics_Category);
+         "problems.filter.hints", Editor.Commands.Descriptors.Diagnostics_Category);
 
       Expect_Command
         (Editor.Commands.Command_Build_Refresh_Candidates,
-         "build.refresh-candidates", Editor.Commands.Project_Category);
+         "build.refresh-candidates", Editor.Commands.Descriptors.Project_Category);
       Expect_Command
         (Editor.Commands.Command_Build_Select_First_Candidate,
-         "build.select-first-candidate", Editor.Commands.Project_Category);
+         "build.select-first-candidate", Editor.Commands.Descriptors.Project_Category);
       Expect_Command
         (Editor.Commands.Command_Build_Select_Next_Candidate,
-         "build.select-next-candidate", Editor.Commands.Project_Category);
+         "build.select-next-candidate", Editor.Commands.Descriptors.Project_Category);
       Expect_Command
         (Editor.Commands.Command_Build_Select_Previous_Candidate,
-         "build.select-previous-candidate", Editor.Commands.Project_Category);
+         "build.select-previous-candidate", Editor.Commands.Descriptors.Project_Category);
    end Test_Problems_And_Build_Command_Families_Are_Audited;
 
    procedure Test_Unavailable_Candidate_Still_Shows_Keybinding
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Found : Boolean := False;
    begin
       Editor.State.Init (S);
@@ -1547,7 +1555,7 @@ package body Editor.Command_Palette.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
    begin
       Editor.State.Init (S);
       Editor.Keybindings.Reset_To_Defaults;
@@ -1576,8 +1584,8 @@ package body Editor.Command_Palette.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
-      Results : Editor.Commands.Command_Descriptor_Vectors.Vector;
+      Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
+      Results : Editor.Commands.Descriptors.Command_Descriptor_Vectors.Vector;
       Found_Save : Boolean := False;
       Config : Editor.Command_Palette.Command_Palette_Config;
    begin
@@ -1622,22 +1630,22 @@ package body Editor.Command_Palette.Tests is
       Available   : Boolean := True;
       Description : String := "Save the active buffer";
       Reason      : String := "No active buffer.")
-      return Editor.Commands.Command_Palette_Candidate
+      return Editor.Commands.Palette_Model.Command_Palette_Candidate
    is
    begin
       return
         (Id                 => Editor.Commands.Command_Save_File,
          Label              => To_Unbounded_String (Label),
          Description        => To_Unbounded_String (Description),
-         Category           => Editor.Commands.File_Category,
+         Category           => Editor.Commands.Descriptors.File_Category,
          Category_Label     => To_Unbounded_String ("File"),
          Available          => Available,
          Reason             => To_Unbounded_String (Reason),
          Has_Keybinding     => Binding'Length > 0,
          Keybinding_Display => To_Unbounded_String (Binding),
          Reference_Summary  => Null_Unbounded_String,
-         Family             => Editor.Commands.No_Command_Family,
-         Effect_Classification => Editor.Commands.No_Command_Effect,
+         Family             => Editor.Commands.Descriptors.No_Command_Family,
+         Effect_Classification => Editor.Commands.Descriptors.No_Command_Effect,
          Match_Score        => 1,
          Registry_Order     => 1);
    end Layout_Candidate;
@@ -1781,7 +1789,7 @@ package body Editor.Command_Palette.Tests is
    procedure Test_Selected_Available_Row_Includes_Description
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Config     : constant Editor.Command_Palette.Command_Palette_Config :=
         (Group_Empty_Query_By_Category => False, others => <>);
       Snapshot   : Editor.Command_Palette.Command_Palette_Snapshot;
@@ -1813,7 +1821,7 @@ package body Editor.Command_Palette.Tests is
    procedure Test_Selected_Unavailable_Row_Includes_Reason
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Config     : constant Editor.Command_Palette.Command_Palette_Config :=
         (Group_Empty_Query_By_Category => False, others => <>);
       Snapshot   : Editor.Command_Palette.Command_Palette_Snapshot;
@@ -1841,7 +1849,7 @@ package body Editor.Command_Palette.Tests is
    procedure Test_Unselected_Row_Omits_Secondary
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Config     : constant Editor.Command_Palette.Command_Palette_Config :=
         (Group_Empty_Query_By_Category => False, others => <>);
       Snapshot   : Editor.Command_Palette.Command_Palette_Snapshot;
@@ -1868,7 +1876,7 @@ package body Editor.Command_Palette.Tests is
    procedure Test_Header_Empty_And_Help_Rows_Are_Non_Keybinding
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Config     : constant Editor.Command_Palette.Command_Palette_Config :=
         (Max_Visible_Rows              => 12,
          Overlay_Width_In_Columns      => 72,
@@ -1932,9 +1940,9 @@ package body Editor.Command_Palette.Tests is
    procedure Test_Stable_Command_Id_Filtering
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Filtered : Editor.Commands.Command_Descriptor_Vectors.Vector;
+      Filtered : Editor.Commands.Descriptors.Command_Descriptor_Vectors.Vector;
       S        : Editor.State.State_Type;
-      Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Found_In_Executor : Boolean := False;
    begin
       Editor.State.Init (S);
@@ -1978,7 +1986,7 @@ package body Editor.Command_Palette.Tests is
    procedure Test_Hidden_Unavailable_Rows_Produce_Empty_State
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Config     : constant Editor.Command_Palette.Command_Palette_Config :=
         (Max_Visible_Rows              => 12,
          Overlay_Width_In_Columns      => 72,
@@ -1993,19 +2001,19 @@ package body Editor.Command_Palette.Tests is
       Editor.Command_Palette.Reset;
       Editor.Command_Palette.Open;
       Candidates.Append
-        (Editor.Commands.Command_Palette_Candidate'
+        (Editor.Commands.Palette_Model.Command_Palette_Candidate'
            (Id                 => Editor.Commands.Command_Save_File,
           Label              => To_Unbounded_String ("Save File"),
           Description        => To_Unbounded_String ("Save the active buffer"),
-          Category           => Editor.Commands.File_Category,
+          Category           => Editor.Commands.Descriptors.File_Category,
           Category_Label     => To_Unbounded_String ("File"),
           Available          => False,
           Reason             => To_Unbounded_String ("No active buffer."),
           Has_Keybinding     => True,
           Keybinding_Display => To_Unbounded_String ("Ctrl+S"),
           Reference_Summary  => Null_Unbounded_String,
-          Family             => Editor.Commands.No_Command_Family,
-          Effect_Classification => Editor.Commands.No_Command_Effect,
+          Family             => Editor.Commands.Descriptors.No_Command_Family,
+          Effect_Classification => Editor.Commands.Descriptors.No_Command_Effect,
           Match_Score        => 1,
           Registry_Order     => 10));
 
@@ -2023,9 +2031,9 @@ package body Editor.Command_Palette.Tests is
    procedure Test_Palette_Query_Does_Not_Expose_Public_Build
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Filtered : Editor.Commands.Command_Descriptor_Vectors.Vector;
+      Filtered : Editor.Commands.Descriptors.Command_Descriptor_Vectors.Vector;
       S        : Editor.State.State_Type;
-      Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
    begin
       Editor.State.Init (S);
       Editor.Command_Palette.Reset;
@@ -2050,7 +2058,7 @@ package body Editor.Command_Palette.Tests is
    procedure Test_No_Match_Row_Carries_Clear_Query_Hint
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Config     : constant Editor.Command_Palette.Command_Palette_Config := (others => <>);
       Snapshot   : Editor.Command_Palette.Command_Palette_Snapshot;
    begin
@@ -2078,7 +2086,7 @@ package body Editor.Command_Palette.Tests is
    procedure Test_Hiding_Keybindings_Removes_Row_Shortcut
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Config     : constant Editor.Command_Palette.Command_Palette_Config :=
         (Max_Visible_Rows              => 12,
          Overlay_Width_In_Columns      => 72,
@@ -2111,7 +2119,7 @@ package body Editor.Command_Palette.Tests is
    procedure Test_Help_Row_Hides_Keybinding_When_Display_Disabled
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Config     : constant Editor.Command_Palette.Command_Palette_Config :=
         (Max_Visible_Rows              => 12,
          Overlay_Width_In_Columns      => 72,
@@ -2163,7 +2171,7 @@ package body Editor.Command_Palette.Tests is
    procedure Test_Build_Command_Help_Obeys_Keybinding_Display_Setting
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Candidate : Editor.Commands.Command_Palette_Candidate :=
+      Candidate : Editor.Commands.Palette_Model.Command_Palette_Candidate :=
         Layout_Candidate
           (Label       => "Save File",
            Binding     => "Ctrl+S",
@@ -2223,7 +2231,7 @@ package body Editor.Command_Palette.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Status : Editor.Keybindings.Keybinding_Change_Status;
 
       function Save_Binding return String is
@@ -2274,13 +2282,13 @@ package body Editor.Command_Palette.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
    begin
-      Assert (Editor.Commands.Discoverability_Category_Label
+      Assert (Editor.Commands.Descriptors.Discoverability_Category_Label
                 (Editor.Commands.Command_Build_Run) = "Build",
               "Build commands must present a Build discoverability category");
-      Assert (Editor.Commands.Discoverability_Category_Label
+      Assert (Editor.Commands.Descriptors.Discoverability_Category_Label
                 (Editor.Commands.Command_Show_Recent_Projects) = "Recent Projects",
               "Recent Project commands must present a Recent Projects category");
-      Assert (Editor.Commands.Discoverability_Category_Label
+      Assert (Editor.Commands.Descriptors.Discoverability_Category_Label
                 (Editor.Commands.Command_Open_Command_Palette) = "Command Palette",
               "Command palette commands must present a Command Palette category");
    end Test_Discoverability_Category_Refinements;
@@ -2289,7 +2297,7 @@ package body Editor.Command_Palette.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Found_Build_Run : Boolean := False;
    begin
       Editor.State.Init (S);
@@ -2315,7 +2323,7 @@ package body Editor.Command_Palette.Tests is
    procedure Test_Command_Help_Is_Metadata_Only
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Candidate : Editor.Commands.Command_Palette_Candidate :=
+      Candidate : Editor.Commands.Palette_Model.Command_Palette_Candidate :=
         Layout_Candidate
           (Label       => "Run Build",
            Binding     => "",
@@ -2348,7 +2356,7 @@ package body Editor.Command_Palette.Tests is
    procedure Test_Related_Command_Help_Is_Bounded_And_Payload_Free
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Candidate : Editor.Commands.Command_Palette_Candidate :=
+      Candidate : Editor.Commands.Palette_Model.Command_Palette_Candidate :=
         Layout_Candidate
           (Label       => "Run Build",
            Binding     => "",
@@ -2384,7 +2392,7 @@ package body Editor.Command_Palette.Tests is
         (Command : Editor.Commands.Command_Id;
          Label   : String) return Editor.Command_Palette.Command_Help_Snapshot
       is
-         Candidate : Editor.Commands.Command_Palette_Candidate :=
+         Candidate : Editor.Commands.Palette_Model.Command_Palette_Candidate :=
            Layout_Candidate
              (Label       => Label,
               Binding     => "",
@@ -2449,7 +2457,7 @@ package body Editor.Command_Palette.Tests is
       Item : Editor.Command_Palette.Related_Command_Help_Item :=
         (Command         => Editor.Commands.Command_Open_Project,
          Stable_Name     => To_Unbounded_String ("project.open:/tmp/project"),
-         Title           => Editor.Commands.Descriptor
+         Title           => Editor.Commands.Descriptors.Descriptor
                               (Editor.Commands.Command_Open_Project).Name,
          Visible         => True,
          Carries_Payload => False);
@@ -2465,7 +2473,7 @@ package body Editor.Command_Palette.Tests is
    procedure Test_Related_Command_Help_Uses_Canonical_Projection
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Candidate : Editor.Commands.Command_Palette_Candidate :=
+      Candidate : Editor.Commands.Palette_Model.Command_Palette_Candidate :=
         Layout_Candidate
           (Label       => "Project: Open",
            Binding     => "",
@@ -2489,7 +2497,7 @@ package body Editor.Command_Palette.Tests is
    procedure Test_Related_Command_Help_Rejects_Duplicates_And_Tail_State
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Candidate : Editor.Commands.Command_Palette_Candidate :=
+      Candidate : Editor.Commands.Palette_Model.Command_Palette_Candidate :=
         Layout_Candidate
           (Label       => "Run Build",
            Binding     => "",
@@ -2526,7 +2534,7 @@ package body Editor.Command_Palette.Tests is
       Snapshot : Editor.Status_Bar.Status_Bar_Snapshot;
       Outline_Surface : Editor.Status_Bar.Outline_Status_Surface;
       Workspace_Surface : Editor.Status_Bar.Workspace_Status_Surface;
-      Candidate : Editor.Commands.Command_Palette_Candidate :=
+      Candidate : Editor.Commands.Palette_Model.Command_Palette_Candidate :=
         Layout_Candidate
           (Label       => "Refresh Outline",
            Binding     => "",
@@ -2567,12 +2575,12 @@ package body Editor.Command_Palette.Tests is
    procedure Test_Selected_Help_Row_Is_Display_Only
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Config : Editor.Command_Palette.Command_Palette_Config := (others => <>);
       Snapshot : Editor.Command_Palette.Command_Palette_Snapshot;
       Found_Help : Boolean := False;
       Found_State_Context : Boolean := False;
-      Candidate : Editor.Commands.Command_Palette_Candidate :=
+      Candidate : Editor.Commands.Palette_Model.Command_Palette_Candidate :=
         Layout_Candidate
           (Label       => "Run Build",
            Binding     => "",
@@ -2635,9 +2643,9 @@ package body Editor.Command_Palette.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
    begin
-      Assert (Editor.Commands.Command_Discoverability_Coherent,
+      Assert (Editor.Commands.Audits.Command_Discoverability_Coherent,
               "command discoverability metadata must be coherent");
-      Assert (Editor.Commands.Has_Discoverability_Metadata
+      Assert (Editor.Commands.Audits.Has_Discoverability_Metadata
                 (Editor.Commands.Command_Build_Run),
               "Build Run must have complete discoverability metadata");
       Assert (not Editor.Commands.Visible_In_Command_Palette
@@ -2649,7 +2657,7 @@ package body Editor.Command_Palette.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Status : Editor.Keybindings.Keybinding_Change_Status;
-      Results : Editor.Commands.Command_Descriptor_Vectors.Vector;
+      Results : Editor.Commands.Descriptors.Command_Descriptor_Vectors.Vector;
       Found_Save : Boolean := False;
    begin
       Editor.Command_Palette.Reset;
@@ -2751,7 +2759,7 @@ package body Editor.Command_Palette.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Found : Boolean := False;
       Before : Editor.Command_Palette.Command_Palette_Config;
       After : Editor.Command_Palette.Command_Palette_Config;
@@ -2774,7 +2782,7 @@ package body Editor.Command_Palette.Tests is
 
       Assert (Found,
               "Stable command name search must find command-palette.show-command-help");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Palette_Show_Command_Help) =
               "command-palette.show-command-help",
               "Help command must have the requested stable command name");
@@ -2827,22 +2835,22 @@ package body Editor.Command_Palette.Tests is
    procedure Test_Keyboard_Selection_Uses_Visible_Candidates
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
-      Hidden_Unavailable : Editor.Commands.Command_Palette_Candidate :=
+      Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
+      Hidden_Unavailable : Editor.Commands.Palette_Model.Command_Palette_Candidate :=
         Layout_Candidate
           (Label       => "Save File",
            Binding     => "Ctrl+S",
            Available   => False,
            Description => "Save the active buffer",
            Reason      => "No active buffer.");
-      First_Visible : Editor.Commands.Command_Palette_Candidate :=
+      First_Visible : Editor.Commands.Palette_Model.Command_Palette_Candidate :=
         Layout_Candidate
           (Label       => "Open Command Palette",
            Binding     => "Ctrl+Shift+P",
            Available   => True,
            Description => "Open the Command Palette",
            Reason      => "");
-      Second_Visible : Editor.Commands.Command_Palette_Candidate :=
+      Second_Visible : Editor.Commands.Palette_Model.Command_Palette_Candidate :=
         Layout_Candidate
           (Label       => "Show Command Help",
            Binding     => "F1",
@@ -2876,7 +2884,7 @@ package body Editor.Command_Palette.Tests is
    procedure Test_Surface_And_Guard_Help_Metadata
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Candidate : Editor.Commands.Command_Palette_Candidate :=
+      Candidate : Editor.Commands.Palette_Model.Command_Palette_Candidate :=
         Layout_Candidate
           (Label       => "Delete Selected File Tree Feed_Item",
            Binding     => "",
@@ -2921,18 +2929,18 @@ package body Editor.Command_Palette.Tests is
    procedure Test_Visibility_Filter_Controls_Selection_And_Snapshot
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
-      Visible : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
+      Visible : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Config : Editor.Command_Palette.Command_Palette_Config := (others => <>);
       Snapshot : Editor.Command_Palette.Command_Palette_Snapshot;
-      Available_Candidate : Editor.Commands.Command_Palette_Candidate :=
+      Available_Candidate : Editor.Commands.Palette_Model.Command_Palette_Candidate :=
         Layout_Candidate
           (Label       => "Save File",
            Binding     => "Ctrl+S",
            Available   => True,
            Description => "Save the active file.",
            Reason      => "");
-      Unavailable_Candidate : Editor.Commands.Command_Palette_Candidate :=
+      Unavailable_Candidate : Editor.Commands.Palette_Model.Command_Palette_Candidate :=
         Layout_Candidate
           (Label       => "Run Build",
            Binding     => "",
@@ -2978,17 +2986,17 @@ package body Editor.Command_Palette.Tests is
    procedure Test_Snapshot_Selection_Clamps_To_Visible_Candidates
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Config : Editor.Command_Palette.Command_Palette_Config := (others => <>);
       Snapshot : Editor.Command_Palette.Command_Palette_Snapshot;
-      Save_Candidate : Editor.Commands.Command_Palette_Candidate :=
+      Save_Candidate : Editor.Commands.Palette_Model.Command_Palette_Candidate :=
         Layout_Candidate
           (Label       => "Save File",
            Binding     => "Ctrl+S",
            Available   => True,
            Description => "Save the active file.",
            Reason      => "");
-      Build_Candidate : Editor.Commands.Command_Palette_Candidate :=
+      Build_Candidate : Editor.Commands.Palette_Model.Command_Palette_Candidate :=
         Layout_Candidate
           (Label       => "Run Build",
            Binding     => "",
@@ -3049,7 +3057,7 @@ package body Editor.Command_Palette.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
    begin
       Editor.Command_Palette.Reset;
       Editor.Command_Palette.Open;
@@ -3063,7 +3071,7 @@ package body Editor.Command_Palette.Tests is
       Assert (Candidates.Length > 0,
               "Command Palette must project candidates for relevance ranking");
       Assert (Ada.Strings.Fixed.Index
-                (Editor.Commands.Stable_Command_Name (Candidates.Element (0).Id),
+                (Editor.Commands.Name_Metadata.Stable_Command_Name (Candidates.Element (0).Id),
                  "file-tree.") = 1,
               "File Tree previous focus must rank File Tree commands first without hiding other commands");
       Editor.Command_Palette.Reset;
@@ -3073,13 +3081,13 @@ package body Editor.Command_Palette.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
    begin
-      Assert (Editor.Commands.Has_Discoverability_Metadata
+      Assert (Editor.Commands.Audits.Has_Discoverability_Metadata
                 (Editor.Commands.Command_Open_Command_Palette),
               "Hidden command descriptors may be minimal but must retain stable audit identity");
       Assert (not Editor.Commands.Visible_In_Command_Palette
                 (Editor.Commands.Command_Open_Command_Palette),
               "Hidden command descriptors must not leak into normal palette discovery");
-      Assert (Editor.Commands.Command_Discoverability_Coherent,
+      Assert (Editor.Commands.Audits.Command_Discoverability_Coherent,
               "Discovery coherence must validate visible metadata and hidden exclusion together");
    end Test_Hidden_Minimal_Descriptors_Do_Not_Break_Discovery_Audit;
 
@@ -3112,7 +3120,7 @@ package body Editor.Command_Palette.Tests is
       pragma Unreferenced (T);
 
       function Result_Contains
-        (Results : Editor.Commands.Command_Descriptor_Vectors.Vector;
+        (Results : Editor.Commands.Descriptors.Command_Descriptor_Vectors.Vector;
          Id      : Editor.Commands.Command_Id) return Boolean
       is
       begin
@@ -3129,7 +3137,7 @@ package body Editor.Command_Palette.Tests is
          Id    : Editor.Commands.Command_Id;
          Label : String)
       is
-         Results : Editor.Commands.Command_Descriptor_Vectors.Vector;
+         Results : Editor.Commands.Descriptors.Command_Descriptor_Vectors.Vector;
       begin
          Editor.Command_Palette.Reset;
          Editor.Command_Palette.Open;
@@ -3209,12 +3217,12 @@ package body Editor.Command_Palette.Tests is
          Label : String)
       is
          S : Editor.State.State_Type;
-         Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
-         Stable : constant String := Editor.Commands.Stable_Command_Name (Id);
+         Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
+         Stable : constant String := Editor.Commands.Name_Metadata.Stable_Command_Name (Id);
          Found : Boolean := False;
          Roundtrip : Editor.Commands.Command_Id := Editor.Commands.No_Command;
       begin
-         Roundtrip := Editor.Commands.Command_Id_From_Stable_Name (Stable, Found);
+         Roundtrip := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Stable, Found);
          Assert (Found and then Roundtrip = Id,
                  "common-term ranking command must round-trip stable name: "
                  & Stable);
@@ -3269,7 +3277,7 @@ package body Editor.Command_Palette.Tests is
          Label : String)
       is
          S : Editor.State.State_Type;
-         Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+         Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       begin
          Editor.State.Init (S);
          Editor.Command_Palette.Reset;
@@ -3332,7 +3340,7 @@ package body Editor.Command_Palette.Tests is
          Label : String)
       is
          S : Editor.State.State_Type;
-         Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+         Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
          Limit : Natural := 0;
          Found : Boolean := False;
       begin
@@ -3437,7 +3445,7 @@ package body Editor.Command_Palette.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Availability : Editor.Commands.Command_Availability;
       Help : Editor.Command_Palette.Command_Help_Snapshot;
       Found : Boolean := False;
@@ -3456,17 +3464,17 @@ package body Editor.Command_Palette.Tests is
             Help := Editor.Command_Palette.Build_Command_Help (C);
 
             Assert (To_String (Help.Title) =
-                      To_String (Editor.Commands.Descriptor
+                      To_String (Editor.Commands.Descriptors.Descriptor
                         (Editor.Commands.Command_Save_File).Name),
                     "Command help title must come from descriptor metadata");
             Assert (To_String (Help.Stable_Name) = "file.save",
                     "Command help must show the stable command name");
             Assert (To_String (Help.Category_Label) =
-                      Editor.Commands.Discoverability_Category_Label
+                      Editor.Commands.Descriptors.Discoverability_Category_Label
                         (Editor.Commands.Command_Save_File),
                     "Command help must show the same discoverability category as palette rows");
             Assert (To_String (Help.Description) =
-                      To_String (Editor.Commands.Descriptor
+                      To_String (Editor.Commands.Descriptors.Descriptor
                         (Editor.Commands.Command_Save_File).Description),
                     "Command help must show descriptor description metadata");
             Assert (Length (Help.Keybinding_Label) > 0,
@@ -3488,7 +3496,7 @@ package body Editor.Command_Palette.Tests is
    procedure Test_Command_Discovery_Hides_Internal_Commands
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Results : Editor.Commands.Command_Descriptor_Vectors.Vector;
+      Results : Editor.Commands.Descriptors.Command_Descriptor_Vectors.Vector;
    begin
       Editor.Command_Palette.Reset;
       Editor.Command_Palette.Open;
@@ -3496,7 +3504,7 @@ package body Editor.Command_Palette.Tests is
       Editor.Command_Palette.Filtered_Commands (Results);
 
       for D of Results loop
-         Assert (D.Visibility = Editor.Commands.Palette_Command,
+         Assert (D.Visibility = Editor.Commands.Descriptors.Palette_Command,
                  "Command discovery must only project visible palette commands");
          Assert (D.Id /= Editor.Commands.Command_Dismiss_Latest_Message,
                  "Hidden/internal message-dismiss commands must not leak into palette discovery");
@@ -3524,7 +3532,7 @@ package body Editor.Command_Palette.Tests is
       Assert (not Suggestion.Carries_Payload,
               "Guided suggestions must remain stable-command-name only");
       Assert (To_String (Suggestion.Title) =
-                To_String (Editor.Commands.Descriptor
+                To_String (Editor.Commands.Descriptors.Descriptor
                   (Editor.Commands.Command_Save_File).Name),
               "Suggested action label must match the Command Palette title");
       Assert (To_String (Suggestion.Stable_Name) = "file.save",

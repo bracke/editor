@@ -1,9 +1,13 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+
+with Editor.Commands.Name_Metadata;
+
 
 package body Editor.Feature_Integration is
 
    use type Editor.Commands.Command_Id;
-   use type Editor.Commands.Command_Category;
+   use type Editor.Commands.Descriptors.Command_Category;
 
    procedure Append_Failure
      (Result  : in out Feature_Integration_Result;
@@ -216,8 +220,8 @@ package body Editor.Feature_Integration is
             Add_Failure (Result, Id, "Feature_Panel: missing availability handler");
          end if;
 
-         Round := Editor.Commands.Command_Id_From_Stable_Name
-           (Editor.Commands.Stable_Command_Name (Id), Found);
+         Round := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
+           (Editor.Commands.Name_Metadata.Stable_Command_Name (Id), Found);
          if not Found or else Round /= Id then
             Add_Failure (Result, Id,
                          "Feature_Panel: stable command name does not round-trip");
@@ -228,7 +232,7 @@ package body Editor.Feature_Integration is
          Removed_Found : Boolean := True;
          Removed_Id    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
       begin
-         Removed_Id := Editor.Commands.Command_Id_From_Stable_Name
+         Removed_Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
            ("populate-feature-panel-placeholder", Removed_Found);
          if Removed_Found or else Removed_Id /= Editor.Commands.No_Command then
             Add_Failure
@@ -265,14 +269,14 @@ package body Editor.Feature_Integration is
             Add_Failure (Result, Id, "Outline: missing availability handler");
          end if;
 
-         Round := Editor.Commands.Command_Id_From_Stable_Name
-           (Editor.Commands.Stable_Command_Name (Id), Found);
+         Round := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
+           (Editor.Commands.Name_Metadata.Stable_Command_Name (Id), Found);
          if not Found or else Round /= Id then
             Add_Failure (Result, Id,
                          "Outline: stable command name does not round-trip");
          end if;
 
-         if Editor.Commands.Category (Id) /= Editor.Commands.Panel_Category then
+         if Editor.Commands.Descriptors.Category (Id) /= Editor.Commands.Descriptors.Panel_Category then
             Add_Failure (Result, Id, "Outline: command must remain in Panels category");
          end if;
 

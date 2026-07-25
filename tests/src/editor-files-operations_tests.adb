@@ -1,9 +1,12 @@
+with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
 with Ada.Containers;
 with Ada.Directories;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Command_Palette;
 with Editor.Command_Route_Audit;
 with Editor.Configuration_Audit;
@@ -53,6 +56,8 @@ with Editor.View;
 with Editor.Workspace_Persistence;
 with Text_Buffer;
 
+
+
 package body Editor.Files.Operations_Tests is
 
    use type Editor.Files.File_Status;
@@ -60,11 +65,11 @@ package body Editor.Files.Operations_Tests is
    use type Editor.Files.File_Save_Status;
    use type Editor.Files.File_Move_Status;
    use type Editor.Commands.Command_Id;
-   use type Editor.Commands.Command_Category;
-   use type Editor.Commands.Command_Visibility;
+   use type Editor.Commands.Descriptors.Command_Category;
+   use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Command_Palette.Command_Palette_Row_Kind;
-   use type Editor.Commands.Command_Family_Id;
-   use type Editor.Commands.Command_Effect_Classification_Id;
+   use type Editor.Commands.Descriptors.Command_Family_Id;
+   use type Editor.Commands.Descriptors.Command_Effect_Classification_Id;
    use type Editor.Keybindings.Keybinding_Validation_Status;
    use type Editor.Buffers.Buffer_Id;
    use type Editor.Messages.Message_Severity;
@@ -89,22 +94,22 @@ package body Editor.Files.Operations_Tests is
       Existing     : constant String := Temp_Path ("p457_surface_existing.txt");
       Cmd_Id       : Editor.Commands.Command_Id;
       Found        : Boolean := False;
-      Descriptor   : Editor.Commands.Command_Descriptor;
+      Descriptor   : Editor.Commands.Descriptors.Command_Descriptor;
       Availability : Editor.Commands.Command_Availability;
       M            : Editor.Messages.Editor_Message;
    begin
-      Cmd_Id := Editor.Commands.Command_Id_From_Stable_Name
+      Cmd_Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("file.move-buffer-file", Found);
       Assert (Found and then Cmd_Id = Editor.Commands.Command_Move_Buffer_File,
         "file.move-buffer-file must resolve to canonical command id");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
         (Editor.Commands.Command_Move_Buffer_File) = "file.move-buffer-file",
         "move must expose canonical stable command name");
 
-      Descriptor := Editor.Commands.Descriptor
+      Descriptor := Editor.Commands.Descriptors.Descriptor
         (Editor.Commands.Command_Move_Buffer_File);
-      Assert (Descriptor.Category = Editor.Commands.File_Category
-        and then Descriptor.Visibility = Editor.Commands.Palette_Command
+      Assert (Descriptor.Category = Editor.Commands.Descriptors.File_Category
+        and then Descriptor.Visibility = Editor.Commands.Descriptors.Palette_Command
         and then Descriptor.Bindable
         and then not Descriptor.Destructive
         and then Descriptor.Lifecycle,
@@ -445,7 +450,7 @@ package body Editor.Files.Operations_Tests is
       Workspace    : Editor.Workspace_Persistence.Workspace_Snapshot;
       Summary      : Unbounded_String;
       Availability : Editor.Commands.Command_Availability;
-      Candidates   : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates   : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Before_Text  : Unbounded_String;
       Before_Path  : Unbounded_String;
       Before_Base  : Natural;
@@ -1012,7 +1017,7 @@ package body Editor.Files.Operations_Tests is
       Before_Undo  : Ada.Containers.Count_Type;
       Before_Redo  : Ada.Containers.Count_Type;
       Availability : Editor.Commands.Command_Availability;
-      Candidates   : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates   : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Workspace    : Editor.Workspace_Persistence.Workspace_Snapshot;
       Summary      : Unbounded_String;
       Move_Rows    : Natural := 0;
@@ -1021,7 +1026,7 @@ package body Editor.Files.Operations_Tests is
 
       procedure Assert_Absent (Name : String) is
       begin
-         Cmd_Id := Editor.Commands.Command_Id_From_Stable_Name (Name, Has_Name);
+         Cmd_Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Has_Name);
          Assert (not Has_Name and then Cmd_Id = Editor.Commands.No_Command,
            "non-goal command must be absent: " & Name);
       end Assert_Absent;

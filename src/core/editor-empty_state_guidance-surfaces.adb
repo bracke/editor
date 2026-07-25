@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Project;
 with Editor.File_Tree;
@@ -21,11 +22,12 @@ with Editor.Keybindings;
 with Editor.Messages;
 with Editor.State;
 
+
 package body Editor.Empty_State_Guidance.Surfaces is
 
    use type Editor.File_Tree.File_Tree_Node_Id;
    use type Editor.Commands.Command_Id;
-   use type Editor.Commands.Command_Visibility;
+   use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Executor.Command_Execution_Status;
    use type Editor.File_Tree.File_Tree_Scan_Status;
    use type Editor.Project_Search.Project_Search_Status;

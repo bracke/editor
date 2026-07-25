@@ -10,6 +10,7 @@ with Editor.Build_Runner_Policy;
 with Editor.Build_UI;
 with Editor.Build_Working_Context;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.External_Producers;
 with Editor.External_Producers.Execution_Policy;
 with Editor.External_Producers.Build_Requests;
@@ -185,7 +186,7 @@ package body Editor.Build_Milestone_Freeze.Tests is
       S.Public_Build_Execution_Policy :=
         Editor.Build_Runner_Policy.Build_Execution_Disabled;
       Editor.Project.Apply_Open_Result (S.Project, Project_Result);
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Build_Run) = "build.run",
               "build.run stable command name is frozen");
       Assert (Editor.Build_Command.Build_Run_Readiness (S) =

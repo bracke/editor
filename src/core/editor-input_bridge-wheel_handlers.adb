@@ -1,3 +1,4 @@
+with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Buffers;
 with Editor.Build_UI;
 with Editor.Build_UI_Panel_Layout;
@@ -19,6 +20,7 @@ with Editor.Theme;
 with Editor.View;
 with Editor.Input_Bridge.Build_UI_Projection;
 with Text_Buffer;
+
 
 package body Editor.Input_Bridge.Wheel_Handlers is
 
@@ -126,7 +128,7 @@ package body Editor.Input_Bridge.Wheel_Handlers is
       Palette : constant Editor.Command_Palette.Palette_State :=
         Editor.Command_Palette.Current;
       Layout  : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
-      Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Config : constant Editor.Command_Palette.Command_Palette_Config :=
         Editor.Command_Palette.Current_Config;
       Snapshot : Editor.Command_Palette.Command_Palette_Snapshot;

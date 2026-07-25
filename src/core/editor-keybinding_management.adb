@@ -1,13 +1,17 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Characters.Handling;
 with Ada.Containers.Vectors;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Keybinding_Config;
 
+with Editor.Commands.Name_Metadata;
+
+
 package body Editor.Keybinding_Management is
 
    use type Editor.Commands.Command_Id;
-   use type Editor.Commands.Command_Visibility;
+   use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Keybindings.Binding_Result;
    use type Editor.Keybindings.Keybinding_Validation_Status;
    use type Editor.Keybinding_Config.Keybinding_Config_Status;
@@ -82,26 +86,26 @@ package body Editor.Keybinding_Management is
    end Contains;
 
    function Category_Label
-     (Category : Editor.Commands.Command_Category) return String
+     (Category : Editor.Commands.Descriptors.Command_Category) return String
    is
    begin
       case Category is
-         when Editor.Commands.File_Category        => return "File";
-         when Editor.Commands.Edit_Category        => return "Edit";
-         when Editor.Commands.Selection_Category   => return "Selection";
-         when Editor.Commands.Navigation_Category  => return "Navigation";
-         when Editor.Commands.Search_Category      => return "Search";
-         when Editor.Commands.Project_Category     => return "Project";
-         when Editor.Commands.Panel_Category       => return "Panel";
-         when Editor.Commands.View_Category        => return "View";
-         when Editor.Commands.Diagnostics_Category => return "Diagnostics";
-         when Editor.Commands.Bookmarks_Category   => return "Bookmarks";
-         when Editor.Commands.Overlay_Category     => return "Overlay";
-         when Editor.Commands.Message_Category     => return "Message";
-         when Editor.Commands.Theme_Category       => return "Theme";
-         when Editor.Commands.Settings_Category    => return "Settings";
-         when Editor.Commands.Workspace_Category   => return "Workspace";
-         when Editor.Commands.Internal_Category    => return "Internal";
+         when Editor.Commands.Descriptors.File_Category        => return "File";
+         when Editor.Commands.Descriptors.Edit_Category        => return "Edit";
+         when Editor.Commands.Descriptors.Selection_Category   => return "Selection";
+         when Editor.Commands.Descriptors.Navigation_Category  => return "Navigation";
+         when Editor.Commands.Descriptors.Search_Category      => return "Search";
+         when Editor.Commands.Descriptors.Project_Category     => return "Project";
+         when Editor.Commands.Descriptors.Panel_Category       => return "Panel";
+         when Editor.Commands.Descriptors.View_Category        => return "View";
+         when Editor.Commands.Descriptors.Diagnostics_Category => return "Diagnostics";
+         when Editor.Commands.Descriptors.Bookmarks_Category   => return "Bookmarks";
+         when Editor.Commands.Descriptors.Overlay_Category     => return "Overlay";
+         when Editor.Commands.Descriptors.Message_Category     => return "Message";
+         when Editor.Commands.Descriptors.Theme_Category       => return "Theme";
+         when Editor.Commands.Descriptors.Settings_Category    => return "Settings";
+         when Editor.Commands.Descriptors.Workspace_Category   => return "Workspace";
+         when Editor.Commands.Descriptors.Internal_Category    => return "Internal";
       end case;
    end Category_Label;
 
@@ -176,8 +180,8 @@ package body Editor.Keybinding_Management is
    function Row_For
      (Command : Editor.Commands.Command_Id) return Keybinding_Row_Snapshot
    is
-      D             : constant Editor.Commands.Command_Descriptor :=
-        Editor.Commands.Descriptor (Command);
+      D             : constant Editor.Commands.Descriptors.Command_Descriptor :=
+        Editor.Commands.Descriptors.Descriptor (Command);
       Has_Active    : Boolean := False;
       Has_Default   : Boolean := False;
       Active        : constant Editor.Keybindings.Key_Chord :=
@@ -185,14 +189,14 @@ package body Editor.Keybinding_Management is
       Default       : constant Editor.Keybindings.Key_Chord :=
         Default_Chord_For (Command, Has_Default);
       Assignable    : constant Boolean :=
-        D.Visibility = Editor.Commands.Palette_Command
+        D.Visibility = Editor.Commands.Descriptors.Palette_Command
         and then Editor.Keybindings.Is_Normal_Assignable_Command (Command);
       R             : Keybinding_Row_Snapshot;
    begin
       R.Command := Command;
       R.Command_Title := D.Name;
       R.Stable_Command_Name :=
-        To_Unbounded_String (Editor.Commands.Stable_Command_Name (Command));
+        To_Unbounded_String (Editor.Commands.Name_Metadata.Stable_Command_Name (Command));
       R.Category_Label := To_Unbounded_String (Category_Label (D.Category));
       R.Description := D.Description;
       R.Has_Active_Chord := Has_Active;
@@ -257,14 +261,14 @@ package body Editor.Keybinding_Management is
    end Matches_Filter;
 
    function Include_Command (Command : Editor.Commands.Command_Id) return Boolean is
-      D : constant Editor.Commands.Command_Descriptor :=
-        Editor.Commands.Descriptor (Command);
+      D : constant Editor.Commands.Descriptors.Command_Descriptor :=
+        Editor.Commands.Descriptors.Descriptor (Command);
    begin
       if not Editor.Commands.Is_Concrete_Command (Command) then
          return False;
       end if;
 
-      if D.Visibility = Editor.Commands.Hidden_Command then
+      if D.Visibility = Editor.Commands.Descriptors.Hidden_Command then
          return False;
       end if;
 
@@ -275,8 +279,8 @@ package body Editor.Keybinding_Management is
      (Command : Editor.Commands.Command_Id;
       Chord   : Editor.Keybindings.Key_Chord) return Keybinding_Chord_Row_Snapshot
    is
-      D : constant Editor.Commands.Command_Descriptor :=
-        Editor.Commands.Descriptor (Command);
+      D : constant Editor.Commands.Descriptors.Command_Descriptor :=
+        Editor.Commands.Descriptors.Descriptor (Command);
       R : Keybinding_Chord_Row_Snapshot;
       Existing : Editor.Commands.Command_Id := Editor.Commands.No_Command;
       Resolved : constant Editor.Keybindings.Binding_Result :=
@@ -286,7 +290,7 @@ package body Editor.Keybinding_Management is
       R.Command := Command;
       R.Command_Title := D.Name;
       R.Stable_Command_Name :=
-        To_Unbounded_String (Editor.Commands.Stable_Command_Name (Command));
+        To_Unbounded_String (Editor.Commands.Name_Metadata.Stable_Command_Name (Command));
       R.Category_Label := To_Unbounded_String (Category_Label (D.Category));
       R.Default_Chord := Is_Default_Chord (Command, Chord);
       R.User_Override := not R.Default_Chord;

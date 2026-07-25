@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Containers;
 with Ada.Strings; use Ada.Strings;
 with Ada.Strings.Fixed;
@@ -13,11 +14,12 @@ with Editor.External_Producers.Diagnostic_Line_Pipeline;
 with Editor.External_Producers.Execution_Policy;
 with Editor.External_Producers.Request_Policies;
 
+
 package body Editor.External_Producers.Build_Runner_Audits is
 
    use type Ada.Containers.Count_Type;
-   use type Editor.Commands.Command_Category;
-   use type Editor.Commands.Command_Visibility;
+   use type Editor.Commands.Descriptors.Command_Category;
+   use type Editor.Commands.Descriptors.Command_Visibility;
 
    function Build_Process_Argument_Vector
      (First  : String := "";
@@ -681,8 +683,8 @@ package body Editor.External_Producers.Build_Runner_Audits is
            Build_Real_Execution_Gate
              (Consent => Build_Consent_Not_Provided));
       Result : Build_Execution_Consent_Audit_Result;
-      D : constant Editor.Commands.Command_Descriptor :=
-        Editor.Commands.Descriptor
+      D : constant Editor.Commands.Descriptors.Command_Descriptor :=
+        Editor.Commands.Descriptors.Descriptor
           (Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam);
    begin
       Result.Has_Public_Build_Command :=
@@ -692,8 +694,8 @@ package body Editor.External_Producers.Build_Runner_Audits is
         Editor.Keybindings.Primary_Binding_For_Command
           (Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam).Has_Binding;
       Result.Internal_Command_Requires_Context :=
-        D.Category = Editor.Commands.Internal_Category
-        and then D.Visibility = Editor.Commands.Hidden_Command
+        D.Category = Editor.Commands.Descriptors.Internal_Category
+        and then D.Visibility = Editor.Commands.Descriptors.Hidden_Command
         and then not D.Bindable
         and then Editor.Commands.Requires_Context
           (Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam)

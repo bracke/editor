@@ -1,9 +1,12 @@
+with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
 with Ada.Containers;
 with Ada.Directories;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Command_Palette;
 with Editor.Command_Route_Audit;
 with Editor.Configuration_Audit;
@@ -54,6 +57,8 @@ with Editor.View;
 with Editor.Workspace_Persistence;
 with Text_Buffer;
 
+
+
 package body Editor.Files.Rename_Delete_Operation_Tests is
 
    use type Editor.Files.File_Status;
@@ -61,11 +66,11 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
    use type Editor.Files.File_Save_Status;
    use type Editor.Files.File_Move_Status;
    use type Editor.Commands.Command_Id;
-   use type Editor.Commands.Command_Category;
-   use type Editor.Commands.Command_Visibility;
+   use type Editor.Commands.Descriptors.Command_Category;
+   use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Command_Palette.Command_Palette_Row_Kind;
-   use type Editor.Commands.Command_Family_Id;
-   use type Editor.Commands.Command_Effect_Classification_Id;
+   use type Editor.Commands.Descriptors.Command_Family_Id;
+   use type Editor.Commands.Descriptors.Command_Effect_Classification_Id;
    use type Editor.Keybindings.Keybinding_Validation_Status;
    use type Editor.Buffers.Buffer_Id;
    use type Editor.Messages.Message_Severity;
@@ -88,7 +93,7 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Existing     : constant String := Temp_Path ("surface_existing.txt");
       Id           : Editor.Commands.Command_Id;
       Found_Id     : Boolean := False;
-      Descriptor   : Editor.Commands.Command_Descriptor;
+      Descriptor   : Editor.Commands.Descriptors.Command_Descriptor;
       Availability : Editor.Commands.Command_Availability;
       M            : Editor.Messages.Editor_Message;
       Found        : Boolean := False;
@@ -105,7 +110,7 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       procedure Assert_Absent (Name : String) is
          Missing : Boolean := False;
          Cmd     : constant Editor.Commands.Command_Id :=
-           Editor.Commands.Command_Id_From_Stable_Name (Name, Missing);
+           Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Missing);
       begin
          Assert (not Missing and then Cmd = Editor.Commands.No_Command,
            "non-goal rename command must not be exposed: " & Name);
@@ -118,19 +123,19 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Write_Bytes (Existing, "existing target");
       Editor.Buffers.Reset_Global_For_Test;
 
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("file.rename-buffer-file", Found_Id);
       Assert (Found_Id and then Id = Editor.Commands.Command_Rename_Buffer_File,
         "file.rename-buffer-file must resolve to canonical command id");
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Rename_Buffer_File) = "file.rename-buffer-file",
          "rename must expose the canonical stable name");
 
-      Descriptor := Editor.Commands.Descriptor
+      Descriptor := Editor.Commands.Descriptors.Descriptor
         (Editor.Commands.Command_Rename_Buffer_File);
-      Assert (Descriptor.Category = Editor.Commands.File_Category
-        and then Descriptor.Visibility = Editor.Commands.Palette_Command
+      Assert (Descriptor.Category = Editor.Commands.Descriptors.File_Category
+        and then Descriptor.Visibility = Editor.Commands.Descriptors.Palette_Command
         and then Descriptor.Bindable
         and then Descriptor.Lifecycle,
         "rename must be a visible bindable File lifecycle command");
@@ -755,7 +760,7 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Target       : constant String := Temp_Path ("read_only_target.txt");
       Snap         : Editor.Render_Model.Render_Snapshot;
       Availability : Editor.Commands.Command_Availability;
-      Candidates   : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates   : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Rows         : Natural := 0;
       Before_Text  : Unbounded_String;
       Before_Path  : Unbounded_String;
@@ -1321,7 +1326,7 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Target        : constant String := Temp_Path ("boundary_target.txt");
       Snap          : Editor.Render_Model.Render_Snapshot;
       Availability  : Editor.Commands.Command_Availability;
-      Candidates    : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates    : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Workspace     : Editor.Workspace_Persistence.Workspace_Snapshot;
       Summary       : Unbounded_String;
       Before_Text   : Unbounded_String;
@@ -1435,7 +1440,7 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
 
       procedure Assert_Absent (Name : String) is
       begin
-         Cmd := Editor.Commands.Command_Id_From_Stable_Name (Name, Found_Name);
+         Cmd := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found_Name);
          Assert (not Found_Name and then Cmd = Editor.Commands.No_Command,
            "surface: non-goal command must remain absent: " & Name);
       end Assert_Absent;
@@ -1504,22 +1509,22 @@ procedure Test_Delete_Command_Surface_And_Validation
       Path         : constant String := Temp_Path ("p449_surface.txt");
       Cmd_Id       : Editor.Commands.Command_Id;
       Found        : Boolean := False;
-      Descriptor   : Editor.Commands.Command_Descriptor;
+      Descriptor   : Editor.Commands.Descriptors.Command_Descriptor;
       Availability : Editor.Commands.Command_Availability;
       M            : Editor.Messages.Editor_Message;
    begin
-      Cmd_Id := Editor.Commands.Command_Id_From_Stable_Name
+      Cmd_Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("file.delete-buffer-file", Found);
       Assert (Found and then Cmd_Id = Editor.Commands.Command_Delete_Buffer_File,
         "file.delete-buffer-file must resolve to canonical command id");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
         (Editor.Commands.Command_Delete_Buffer_File) = "file.delete-buffer-file",
         "delete must expose canonical stable command name");
 
-      Descriptor := Editor.Commands.Descriptor
+      Descriptor := Editor.Commands.Descriptors.Descriptor
         (Editor.Commands.Command_Delete_Buffer_File);
-      Assert (Descriptor.Category = Editor.Commands.File_Category
-        and then Descriptor.Visibility = Editor.Commands.Palette_Command
+      Assert (Descriptor.Category = Editor.Commands.Descriptors.File_Category
+        and then Descriptor.Visibility = Editor.Commands.Descriptors.Palette_Command
         and then Descriptor.Bindable
         and then Descriptor.Destructive
         and then Descriptor.Lifecycle,
@@ -2275,7 +2280,7 @@ procedure Test_Delete_Validation_Order_And_Active_Source
       Before_Back   : Ada.Containers.Count_Type;
       Before_Fwd    : Ada.Containers.Count_Type;
       Availability  : Editor.Commands.Command_Availability;
-      Candidates    : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates    : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Workspace     : Editor.Workspace_Persistence.Workspace_Snapshot;
       Summary       : Unbounded_String;
       Found         : Boolean := False;
@@ -2287,7 +2292,7 @@ procedure Test_Delete_Validation_Order_And_Active_Source
 
       procedure Assert_Absent (Name : String) is
       begin
-         Cmd_Id := Editor.Commands.Command_Id_From_Stable_Name (Name, Has_Name);
+         Cmd_Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Has_Name);
          Assert (not Has_Name and then Cmd_Id = Editor.Commands.No_Command,
            "non-goal command must be absent: " & Name);
       end Assert_Absent;

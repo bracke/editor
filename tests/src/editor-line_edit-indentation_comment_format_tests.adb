@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Directories;
@@ -7,6 +8,7 @@ with Ada.Text_IO;
 with Editor.Clipboard;
 with Editor.Command_Palette;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Buffers;
 with Editor.Cursors; use Editor.Cursors;
 with Editor.Executor;
@@ -27,12 +29,13 @@ with Editor.UTF8;
 with Editor.Workspace_Persistence;
 with Text_Buffer;
 
+
 package body Editor.Line_Edit.Indentation_Comment_Format_Tests is
 
    use type Editor.Keybinding_Config.Keybinding_Config_Status;
    use type Editor.Commands.Command_Id;
-   use type Editor.Commands.Command_Category;
-   use type Editor.Commands.Command_Visibility;
+   use type Editor.Commands.Descriptors.Command_Category;
+   use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Commands.Command_Availability_Status;
    use type Editor.Commands.Command_Kind;
    use type Editor.Keybindings.Keybinding_Validation_Status;
@@ -1480,14 +1483,14 @@ procedure Test_Canonical_Line_Comment_Path_And_Persistence_Exclusion
       Id    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
    begin
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Trim_Trailing_Whitespace) =
          "edit.trim-trailing-whitespace",
          "trim trailing whitespace stable name mismatch");
       Assert
-        (Editor.Commands.Descriptor
+        (Editor.Commands.Descriptors.Descriptor
            (Editor.Commands.Command_Trim_Trailing_Whitespace).Category =
-         Editor.Commands.Edit_Category,
+         Editor.Commands.Descriptors.Edit_Category,
          "trim trailing whitespace must be an Edit command");
       Assert
         (Editor.Commands.Is_Bindable_Command
@@ -1498,14 +1501,14 @@ procedure Test_Canonical_Line_Comment_Path_And_Persistence_Exclusion
            (Editor.Commands.Command_Trim_Trailing_Whitespace),
          "trim trailing whitespace must be classified as text editing");
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Format_Buffer) =
          "edit.format-buffer",
          "format buffer stable name mismatch");
       Assert
-        (Editor.Commands.Descriptor
+        (Editor.Commands.Descriptors.Descriptor
            (Editor.Commands.Command_Format_Buffer).Category =
-         Editor.Commands.Edit_Category,
+         Editor.Commands.Descriptors.Edit_Category,
          "format buffer must be an Edit command");
       Assert
         (Editor.Commands.Is_Bindable_Command
@@ -1516,14 +1519,14 @@ procedure Test_Canonical_Line_Comment_Path_And_Persistence_Exclusion
            (Editor.Commands.Command_Format_Buffer),
          "format buffer must be classified as text editing");
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Format_Selected_Text) =
          "edit.format.selection",
          "format selection stable name mismatch");
       Assert
-        (Editor.Commands.Descriptor
+        (Editor.Commands.Descriptors.Descriptor
            (Editor.Commands.Command_Format_Selected_Text).Category =
-         Editor.Commands.Edit_Category,
+         Editor.Commands.Descriptors.Edit_Category,
          "format selection must be an Edit command");
       Assert
         (Editor.Commands.Is_Bindable_Command
@@ -1533,19 +1536,19 @@ procedure Test_Canonical_Line_Comment_Path_And_Persistence_Exclusion
         (Editor.Commands.Is_Text_Editing_Command
            (Editor.Commands.Command_Format_Selected_Text),
          "format selection must be classified as text editing");
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.trim-trailing-whitespace", Found);
       Assert (Found, "trim trailing whitespace stable name must resolve");
       Assert
         (Id = Editor.Commands.Command_Trim_Trailing_Whitespace,
          "trim trailing whitespace stable name resolves wrong command");
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.format-buffer", Found);
       Assert (Found, "format buffer stable name must resolve");
       Assert
         (Id = Editor.Commands.Command_Format_Buffer,
          "format buffer stable name resolves wrong command");
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.format.selection", Found);
       Assert (Found, "format selection stable name must resolve");
       Assert
@@ -1596,7 +1599,7 @@ procedure Test_Canonical_Line_Comment_Path_And_Persistence_Exclusion
             "end P;",
          "format buffer undo should restore original text");
 
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("file.format-on-save", Found);
       Assert (Found and then Id = Editor.Commands.Command_Toggle_Format_On_Save,
               "format buffer command surface should expose format-on-save toggle");
@@ -1936,27 +1939,27 @@ procedure Test_Canonical_Line_Comment_Path_And_Persistence_Exclusion
 
       procedure Assert_Not_Exposed (Name : String) is
       begin
-         Id := Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
+         Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
          Assert (not Found, Name & " must not be exposed in ");
       end Assert_Not_Exposed;
    begin
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Indent_Increase) = "edit.indent.increase",
          "indent increase stable name mismatch");
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Indent_Decrease) = "edit.indent.decrease",
          "indent decrease stable name mismatch");
       Assert
-        (Editor.Commands.Descriptor
+        (Editor.Commands.Descriptors.Descriptor
            (Editor.Commands.Command_Indent_Increase).Category =
-         Editor.Commands.Edit_Category,
+         Editor.Commands.Descriptors.Edit_Category,
          "indent increase must be an Edit command");
       Assert
-        (Editor.Commands.Descriptor
+        (Editor.Commands.Descriptors.Descriptor
            (Editor.Commands.Command_Indent_Decrease).Category =
-         Editor.Commands.Edit_Category,
+         Editor.Commands.Descriptors.Edit_Category,
          "indent decrease must be an Edit command");
       Assert
         (Editor.Commands.Is_Bindable_Command

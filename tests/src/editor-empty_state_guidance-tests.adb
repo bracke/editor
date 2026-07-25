@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -5,6 +6,7 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Build_Result_Summary;
 with Editor.Build_UI;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Configuration_Recovery;
 with Editor.Command_Palette;
 with Editor.Command_Route_Audit;
@@ -20,6 +22,7 @@ with Editor.Render_Model;
 with Editor.Messages;
 with Editor.State;
 with Editor.Empty_State_Guidance.Surfaces; use Editor.Empty_State_Guidance.Surfaces;
+
 
 package body Editor.Empty_State_Guidance.Tests is
 
@@ -587,10 +590,10 @@ package body Editor.Empty_State_Guidance.Tests is
       Snapshot.Suggestions (1).Command := Editor.Commands.Command_Move_Left;
       Snapshot.Suggestions (1).Stable_Name :=
         To_Unbounded_String
-          (Editor.Commands.Stable_Command_Name
+          (Editor.Commands.Name_Metadata.Stable_Command_Name
              (Editor.Commands.Command_Move_Left));
       Snapshot.Suggestions (1).Title :=
-        Editor.Commands.Descriptor
+        Editor.Commands.Descriptors.Descriptor
           (Editor.Commands.Command_Move_Left).Name;
       Assert (not Suggestion_Is_Activation_Safe (Snapshot.Suggestions (1)),
               "hidden command metadata must not be activation-safe guidance");

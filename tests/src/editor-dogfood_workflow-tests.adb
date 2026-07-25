@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -21,6 +22,7 @@ with Editor.Command_Palette;
 with Editor.Command_Route_Audit;
 with Editor.Command_Execution;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Configuration_Audit;
 with Editor.Executor;
 with Editor.Executor.File_Save_Commands;
@@ -56,6 +58,7 @@ with Editor.Status_Bar;
 with Editor.Test_Helper;
 with Editor.Workspace_Persistence;
 
+
 package body Editor.Dogfood_Workflow.Tests is
 
    use type Editor.Build_Candidate_Refresh.Build_Candidate_Refresh_Status;
@@ -64,7 +67,7 @@ package body Editor.Dogfood_Workflow.Tests is
    use type Editor.Command_Execution.Command_Execution_Status;
    use type Editor.Commands.Command_Availability_Status;
    use type Editor.Commands.Command_Id;
-   use type Editor.Commands.Command_Visibility;
+   use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Ada_Language_Service.Compiler_Diagnostic_Severity;
    use type Editor.External_Producers.Build_Run_Status;
    use type Editor.File_Tree.File_Tree_Node_Id;
@@ -2538,35 +2541,35 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Editor.Commands.Normalize_Workflow_Message ("Outline focused") =
               "Outline focused.",
               "normalizes old unpunctuated Outline focus wording");
-      Assert (Editor.Commands.Descriptor
+      Assert (Editor.Commands.Descriptors.Descriptor
                 (Editor.Commands.Command_Refresh_Outline).Name =
               "Refresh Outline",
               "Outline refresh label is product-facing");
-      Assert (Editor.Commands.Descriptor
+      Assert (Editor.Commands.Descriptors.Descriptor
                 (Editor.Commands.Command_Open_Selected_Outline_Item).Description =
               "Open the selected Outline item.",
               "Outline activation description avoids implementation metadata wording");
-      Assert (Editor.Commands.Descriptor
+      Assert (Editor.Commands.Descriptors.Descriptor
                 (Editor.Commands.Command_Select_Current_Outline_Symbol).Name =
               "Select Current Outline Symbol",
               "current-symbol Outline command label is product-facing");
-      Assert (Editor.Commands.Descriptor
+      Assert (Editor.Commands.Descriptors.Descriptor
                 (Editor.Commands.Command_Reveal_Current_Outline_Symbol).Name =
               "Reveal Current Outline Symbol",
               "reveal-current Outline command label is product-facing");
-      Assert (Editor.Commands.Descriptor
+      Assert (Editor.Commands.Descriptors.Descriptor
                 (Editor.Commands.Command_Next_Outline_Symbol).Name =
               "Next Outline Symbol",
               "next-symbol Outline command label is product-facing");
-      Assert (Editor.Commands.Descriptor
+      Assert (Editor.Commands.Descriptors.Descriptor
                 (Editor.Commands.Command_Previous_Outline_Symbol).Name =
               "Previous Outline Symbol",
               "previous-symbol Outline command label is product-facing");
-      Assert (Editor.Commands.Descriptor
+      Assert (Editor.Commands.Descriptors.Descriptor
                 (Editor.Commands.Command_Focus_Outline_Filter).Name =
               "Focus Outline Filter",
               "Outline filter focus label is product-facing");
-      Assert (Editor.Commands.Descriptor
+      Assert (Editor.Commands.Descriptors.Descriptor
                 (Editor.Commands.Command_Clear_Outline_Filter).Name =
               "Clear Outline Filter",
               "Outline filter clear label is product-facing");
@@ -3532,7 +3535,7 @@ package body Editor.Dogfood_Workflow.Tests is
          Message  : String)
       is
          Actual : constant Editor.Commands.Command_Id :=
-           Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
+           Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
       begin
          Assert (Found, Message & " is accepted as a product command name");
          Assert (Actual = Expected, Message & " resolves to the existing command implementation");
@@ -3543,7 +3546,7 @@ package body Editor.Dogfood_Workflow.Tests is
          Message : String)
       is
          Actual : constant Editor.Commands.Command_Id :=
-           Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
+           Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
       begin
          Assert (not Found, Message & " must not resolve");
          Assert (Actual = Editor.Commands.No_Command,
@@ -3714,14 +3717,14 @@ package body Editor.Dogfood_Workflow.Tests is
                Name : constant String :=
                  Editor.Dogfood_Workflow.Product_Workflow_Command (Step);
                Id : constant Editor.Commands.Command_Id :=
-                 Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
-               D  : Editor.Commands.Command_Descriptor;
+                 Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
+               D  : Editor.Commands.Descriptors.Command_Descriptor;
             begin
                Assert (Found,
                        "documented product command resolves: " & Name);
                Assert (Id /= Editor.Commands.No_Command,
                        "documented product command has an implementation: " & Name);
-               D := Editor.Commands.Descriptor (Id);
+               D := Editor.Commands.Descriptors.Descriptor (Id);
                Assert
                  (To_String (D.Name) =
                     Editor.Dogfood_Workflow.Product_Workflow_Label (Step),
@@ -3745,13 +3748,13 @@ package body Editor.Dogfood_Workflow.Tests is
       is
          Found : Boolean := False;
          Id    : constant Editor.Commands.Command_Id :=
-           Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
-         D     : Editor.Commands.Command_Descriptor;
+           Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
+         D     : Editor.Commands.Descriptors.Command_Descriptor;
       begin
          Assert (Found, Name & " resolves as a product command name");
          Assert (Id /= Editor.Commands.No_Command,
                  Name & " resolves to a real command");
-         D := Editor.Commands.Descriptor (Id);
+         D := Editor.Commands.Descriptors.Descriptor (Id);
          Assert (To_String (D.Name)'Length > 0,
                  Name & " has a non-empty command palette label");
          Assert (To_String (D.Name) = Expected_Label,
@@ -3763,10 +3766,10 @@ package body Editor.Dogfood_Workflow.Tests is
                    (To_String (D.Description)) = False,
                  Name & " description does not expose internal terminology");
          if Expected_Visible then
-            Assert (D.Visibility = Editor.Commands.Palette_Command,
+            Assert (D.Visibility = Editor.Commands.Descriptors.Palette_Command,
                     Name & " is discoverable in the normal command palette");
          else
-            Assert (D.Visibility = Editor.Commands.Hidden_Command,
+            Assert (D.Visibility = Editor.Commands.Descriptors.Hidden_Command,
                     Name & " remains intentionally hidden from normal command discovery");
          end if;
       end Check;
@@ -3806,10 +3809,10 @@ package body Editor.Dogfood_Workflow.Tests is
 
       for Id in Editor.Commands.Command_Id loop
          declare
-            D : constant Editor.Commands.Command_Descriptor :=
-              Editor.Commands.Descriptor (Id);
+            D : constant Editor.Commands.Descriptors.Command_Descriptor :=
+              Editor.Commands.Descriptors.Descriptor (Id);
          begin
-            if D.Visibility = Editor.Commands.Palette_Command then
+            if D.Visibility = Editor.Commands.Descriptors.Palette_Command then
                Assert (Editor.Dogfood_Workflow.Product_Label_Contains_Internal_Term
                          (To_String (D.Name)) = False,
                        "palette-visible command label avoids internal terms: " &
@@ -3834,8 +3837,8 @@ package body Editor.Dogfood_Workflow.Tests is
          Expected : String;
          Message  : String)
       is
-         D : constant Editor.Commands.Command_Descriptor :=
-           Editor.Commands.Descriptor (Id);
+         D : constant Editor.Commands.Descriptors.Command_Descriptor :=
+           Editor.Commands.Descriptors.Descriptor (Id);
       begin
          Assert (To_String (D.Name) = Expected, Message);
          Assert (Editor.Dogfood_Workflow.Product_Label_Contains_Internal_Term
@@ -3915,8 +3918,8 @@ package body Editor.Dogfood_Workflow.Tests is
          Expected : String;
          Message  : String)
       is
-         D    : constant Editor.Commands.Command_Descriptor :=
-           Editor.Commands.Descriptor (Id);
+         D    : constant Editor.Commands.Descriptors.Command_Descriptor :=
+           Editor.Commands.Descriptors.Descriptor (Id);
          Name : constant String := To_String (D.Name);
          Desc : constant String := To_String (D.Description);
       begin
@@ -3995,8 +3998,8 @@ package body Editor.Dogfood_Workflow.Tests is
          Expected : String;
          Message  : String)
       is
-         D    : constant Editor.Commands.Command_Descriptor :=
-           Editor.Commands.Descriptor (Id);
+         D    : constant Editor.Commands.Descriptors.Command_Descriptor :=
+           Editor.Commands.Descriptors.Descriptor (Id);
          Name : constant String := To_String (D.Name);
          Desc : constant String := To_String (D.Description);
       begin

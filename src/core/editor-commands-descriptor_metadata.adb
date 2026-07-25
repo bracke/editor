@@ -1,5 +1,7 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Commands.Descriptor_Factory;
 with Editor.Commands.Descriptor_Table;
+
 
 package body Editor.Commands.Descriptor_Metadata is
 

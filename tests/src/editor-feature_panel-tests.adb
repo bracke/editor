@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -10,6 +11,7 @@ with Editor.Dirty_Guards;
 with Ada.Text_IO;
 with Ada.Directories;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Cursors;
 with Editor.Clipboard;
 with Editor.Executor;
@@ -37,13 +39,14 @@ with Editor.View;
 with Editor.Layout;
 with Text_Buffer;
 
+
 package body Editor.Feature_Panel.Tests is
 
    use type Editor.Commands.Command_Id;
-   use type Editor.Commands.Command_Category;
+   use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Executor.Command_Execution_Status;
    use type Editor.Keybindings.Binding_Result;
-   use type Editor.Commands.Command_Visibility;
+   use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Buffers.Buffer_Id;
    use type Editor.Workspace_Persistence.Workspace_Persistence_Status;
    use type Editor.Feature_Messages.Message_Id;
@@ -101,21 +104,21 @@ package body Editor.Feature_Panel.Tests is
       Found : Boolean := False;
       Id    : Editor.Commands.Command_Id;
    begin
-      Assert (Editor.Commands.Category (Editor.Commands.Command_Toggle_Feature_Panel) =
-                Editor.Commands.Panel_Category,
+      Assert (Editor.Commands.Descriptors.Category (Editor.Commands.Command_Toggle_Feature_Panel) =
+                Editor.Commands.Descriptors.Panel_Category,
               "toggle feature panel must be in Panels category");
       Assert (Editor.Commands.Is_Visible_In_Palette
                 (Editor.Commands.Command_Toggle_Feature_Panel),
               "toggle feature panel is command-palette visible");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Toggle_Feature_Panel) =
                 "toggle-feature-panel",
               "feature stable name is lowercase kebab-case");
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("toggle-feature-panel", Found);
       Assert (Found and then Id = Editor.Commands.Command_Toggle_Feature_Panel,
               "feature stable name round trips");
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("populate-feature-panel-placeholder", Found);
       Assert (not Found and then Id = Editor.Commands.No_Command,
               "removed placeholder population command is removed");
@@ -206,7 +209,7 @@ package body Editor.Feature_Panel.Tests is
          Removed_Found : Boolean := True;
          Removed_Id    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
       begin
-         Removed_Id := Editor.Commands.Command_Id_From_Stable_Name
+         Removed_Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
            ("populate-feature-panel-placeholder", Removed_Found);
          Assert (not Removed_Found and then Removed_Id = Editor.Commands.No_Command,
                  "removed placeholder command cannot be keybound because it is removed");
@@ -592,19 +595,19 @@ package body Editor.Feature_Panel.Tests is
          Editor.Commands.Command_Feature_Panel_Open_Selected);
       Found : Boolean := False;
       Round : Editor.Commands.Command_Id;
-      D     : Editor.Commands.Command_Descriptor;
+      D     : Editor.Commands.Descriptors.Command_Descriptor;
    begin
       for Id of Feature_Commands loop
-         D := Editor.Commands.Descriptor (Id);
+         D := Editor.Commands.Descriptors.Descriptor (Id);
          Assert (D.Id = Id, "feature-panel descriptor id must match");
-         Assert (D.Category = Editor.Commands.Panel_Category,
+         Assert (D.Category = Editor.Commands.Descriptors.Panel_Category,
                  "feature-panel command category policy is frozen");
          Assert (Editor.Commands.Has_Availability_Handler (Id),
                  "feature-panel command must have availability handler");
-         Assert (Editor.Commands.Stable_Command_Name (Id)'Length > 0,
+         Assert (Editor.Commands.Name_Metadata.Stable_Command_Name (Id)'Length > 0,
                  "feature-panel stable name must exist");
-         Round := Editor.Commands.Command_Id_From_Stable_Name
-           (Editor.Commands.Stable_Command_Name (Id), Found);
+         Round := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
+           (Editor.Commands.Name_Metadata.Stable_Command_Name (Id), Found);
          Assert (Found and then Round = Id,
                  "feature-panel stable name must round-trip");
       end loop;
@@ -613,7 +616,7 @@ package body Editor.Feature_Panel.Tests is
          Removed_Found : Boolean := True;
          Removed_Id    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
       begin
-         Removed_Id := Editor.Commands.Command_Id_From_Stable_Name
+         Removed_Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
            ("populate-feature-panel-placeholder", Removed_Found);
          Assert (not Removed_Found and then Removed_Id = Editor.Commands.No_Command,
                  "removed placeholder population command is removed");
@@ -1276,7 +1279,7 @@ package body Editor.Feature_Panel.Tests is
       Found : Boolean := False;
       Id    : Editor.Commands.Command_Id;
    begin
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
         (Editor.Commands.Command_Show_Messages) = "show-messages",
         "messages.show stable command id remains kebab-case");
       Assert (Editor.Commands.Is_Visible_In_Palette
@@ -1304,16 +1307,16 @@ package body Editor.Feature_Panel.Tests is
       Assert (not Editor.Keybindings.Primary_Binding_For_Command
         (Editor.Commands.Command_Show_Messages).Has_Binding,
         "messages.show has no default keybinding in the scaffold phase");
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("clear-messages", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("clear-messages", Found);
       Assert (Found and then Id = Editor.Commands.Command_Clear_Messages,
               "messages.clear stable name round trips through command registry");
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("toggle-message-info", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("toggle-message-info", Found);
       Assert (Found and then Id = Editor.Commands.Command_Toggle_Message_Info,
               "messages.toggle-info stable name round trips through command registry");
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("show-all-messages", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("show-all-messages", Found);
       Assert (Found and then Id = Editor.Commands.Command_Show_All_Messages,
               "messages.show-all stable name round trips through command registry");
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("clear-message-filter", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("clear-message-filter", Found);
       Assert (Found and then Id = Editor.Commands.Command_Clear_Message_Filter,
               "messages.clear-filter stable name round trips through command registry");
    end Test_Messages_Command_Metadata;
@@ -2879,24 +2882,24 @@ package body Editor.Feature_Panel.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      D : Editor.Commands.Command_Descriptor;
+      D : Editor.Commands.Descriptors.Command_Descriptor;
    begin
       Editor.State.Init (S);
       Editor.Feature_Panel_Controller.Reset_All_Features_For_Workspace_Close (S);
 
-      D := Editor.Commands.Descriptor (Editor.Commands.Command_Show_Outline);
+      D := Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Show_Outline);
       Assert (D.Id = Editor.Commands.Command_Show_Outline,
               "workspace close preserves Outline command registration");
-      D := Editor.Commands.Descriptor (Editor.Commands.Command_Show_Messages);
+      D := Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Show_Messages);
       Assert (D.Id = Editor.Commands.Command_Show_Messages,
               "workspace close preserves Messages command registration");
-      D := Editor.Commands.Descriptor (Editor.Commands.Command_Show_Search_Results_Feature);
+      D := Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Show_Search_Results_Feature);
       Assert (D.Id = Editor.Commands.Command_Show_Search_Results_Feature,
               "workspace close preserves Search Results command registration");
-      D := Editor.Commands.Descriptor (Editor.Commands.Command_Diagnostics_Show);
+      D := Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Diagnostics_Show);
       Assert (D.Id = Editor.Commands.Command_Diagnostics_Show,
               "workspace close preserves Diagnostics command registration");
-      D := Editor.Commands.Descriptor (Editor.Commands.Command_Feature_Panel_Open_Selected);
+      D := Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Feature_Panel_Open_Selected);
       Assert (D.Id = Editor.Commands.Command_Feature_Panel_Open_Selected,
               "workspace close preserves generic feature-panel command registration");
    end Test_Feature_Workspace_Close_Preserves_Command_Registrations;

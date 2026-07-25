@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with Ada.Characters.Handling;
 with Editor.Test_Helper;
@@ -14,6 +15,7 @@ with AUnit.Test_Cases;
 with Editor.Outline.Fixtures; use Editor.Outline.Fixtures;
 with Editor.Ada_Syntax_Core;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Cursors;
 with Editor.Executor;
 with Editor.Executor.File_Save_Commands;
@@ -32,10 +34,11 @@ with Editor.State;
 with Editor.Render_Model;
 with Editor.Workspace_Persistence;
 
+
 package body Editor.Outline.Lexical_Tests is
 
    use type Editor.Commands.Command_Id;
-   use type Editor.Commands.Command_Category;
+   use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Executor.Command_Execution_Status;
    use type Editor.Outline.Outline_Item_Kind;
    use type Editor.Outline.Outline_Target_Kind;
@@ -601,15 +604,15 @@ package body Editor.Outline.Lexical_Tests is
          Editor.Commands.Command_Next_Outline_Symbol,
          Editor.Commands.Command_Previous_Outline_Symbol,
          Editor.Commands.Command_Reveal_Current_Outline_Symbol);
-      D    : Editor.Commands.Command_Descriptor;
+      D    : Editor.Commands.Descriptors.Command_Descriptor;
       Bind : Editor.Keybindings.Command_Keybinding_Info;
       Name : Unbounded_String := Null_Unbounded_String;
    begin
       Editor.Keybindings.Reset_To_Defaults;
 
       for Id of Covered loop
-         D := Editor.Commands.Descriptor (Id);
-         Name := To_Unbounded_String (Editor.Commands.Stable_Command_Name (Id));
+         D := Editor.Commands.Descriptors.Descriptor (Id);
+         Name := To_Unbounded_String (Editor.Commands.Name_Metadata.Stable_Command_Name (Id));
          Assert (D.Id = Id,
                  "descriptor keeps canonical outline command id");
          Assert (Editor.Commands.Is_Visible_In_Palette (Id),

@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Ada_Aspect_Inheritance_Rules;
 with Editor.Ada_Body_Spec_Conformance;
@@ -70,6 +71,7 @@ with Editor.Ada_Use_Visibility;
 with Editor.Ada_View_Aware_Compatibility;
 with Editor.Ada_Wide_Semantic_Legality_Diagnostics;
 with Editor.Ada_Wide_Semantic_Legality_Diagnostics.Accessibility;
+
 
 package body Editor.Ada_Live_Semantic_Diagnostics is
 

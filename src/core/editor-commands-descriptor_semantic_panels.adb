@@ -1,4 +1,9 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Commands.Descriptor_Factory;
+
+with Editor.Commands.Name_Metadata;
+
+
 
 package body Editor.Commands.Descriptor_Semantic_Panels is
 
@@ -16,7 +21,7 @@ package body Editor.Commands.Descriptor_Semantic_Panels is
    begin
       return Descriptor_Factory.Make_Command_Descriptor
         (Id            => Id,
-         Stable_Name   => Stable_Command_Name (Id),
+         Stable_Name   => Name_Metadata.Stable_Command_Name (Id),
          Label         => Name,
          Description   => Effective_Description,
          Category      => Category,

@@ -1,13 +1,19 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Containers;
 with Ada.Strings;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Executor;
 with Editor.External_Producers;
 with Editor.External_Producers.Public_Build;
 with Editor.Keybindings;
 with Editor.State;
+
+
+with Editor.Commands.Audits;
+
 
 package body Editor.Command_Surface is
 
@@ -48,14 +54,14 @@ package body Editor.Command_Surface is
          declare
             Id   : constant Editor.Commands.Command_Id :=
               Editor.Commands.Command_At (I);
-            Name : constant String := Editor.Commands.Stable_Command_Name (Id);
+            Name : constant String := Editor.Commands.Name_Metadata.Stable_Command_Name (Id);
          begin
             if Editor.Commands.Is_Concrete_Command (Id) then
                if not Name_Is_Lower_Kebab (Name) then
                   return False;
                end if;
 
-               Round := Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
+               Round := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
                if not Found or else Round /= Id or else Seen (Round) then
                   return False;
                end if;
@@ -67,12 +73,12 @@ package body Editor.Command_Surface is
    end Stable_Ids_Are_Unique;
 
    function Display_Names_Are_Present return Boolean is
-      D : Editor.Commands.Command_Descriptor;
-      use type Editor.Commands.Command_Visibility;
+      D : Editor.Commands.Descriptors.Command_Descriptor;
+      use type Editor.Commands.Descriptors.Command_Visibility;
    begin
       for I in 1 .. Editor.Commands.Command_Count loop
-         D := Editor.Commands.Descriptor (Editor.Commands.Command_At (I));
-         if D.Visibility = Editor.Commands.Palette_Command then
+         D := Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_At (I));
+         if D.Visibility = Editor.Commands.Descriptors.Palette_Command then
             declare
                Name : constant String := To_String (D.Name);
             begin
@@ -86,22 +92,22 @@ package body Editor.Command_Surface is
    end Display_Names_Are_Present;
 
    function Categories_Are_Valid return Boolean is
-      D : Editor.Commands.Command_Descriptor;
-      use type Editor.Commands.Command_Visibility;
-      use type Editor.Commands.Command_Category;
+      D : Editor.Commands.Descriptors.Command_Descriptor;
+      use type Editor.Commands.Descriptors.Command_Visibility;
+      use type Editor.Commands.Descriptors.Command_Category;
    begin
       for I in 1 .. Editor.Commands.Command_Count loop
-         D := Editor.Commands.Descriptor (Editor.Commands.Command_At (I));
+         D := Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_At (I));
          declare
-            Label : constant String := Editor.Commands.Category_Label (D.Category);
+            Label : constant String := Editor.Commands.Descriptors.Category_Label (D.Category);
          begin
             if Label'Length = 0 or else Trimmed (Label) /= Label then
                return False;
             end if;
          end;
 
-         if D.Visibility = Editor.Commands.Palette_Command
-           and then D.Category = Editor.Commands.Internal_Category
+         if D.Visibility = Editor.Commands.Descriptors.Palette_Command
+           and then D.Category = Editor.Commands.Descriptors.Internal_Category
          then
             return False;
          end if;
@@ -111,23 +117,23 @@ package body Editor.Command_Surface is
 
    function Visibility_Is_Consistent return Boolean is
       Id : Editor.Commands.Command_Id;
-      D  : Editor.Commands.Command_Descriptor;
-      use type Editor.Commands.Command_Visibility;
-      use type Editor.Commands.Command_Category;
+      D  : Editor.Commands.Descriptors.Command_Descriptor;
+      use type Editor.Commands.Descriptors.Command_Visibility;
+      use type Editor.Commands.Descriptors.Command_Category;
    begin
       for I in 1 .. Editor.Commands.Command_Count loop
          Id := Editor.Commands.Command_At (I);
-         D := Editor.Commands.Descriptor (Id);
+         D := Editor.Commands.Descriptors.Descriptor (Id);
 
          if Editor.Commands.Visible_In_Command_Palette (Id) /=
-            (D.Visibility = Editor.Commands.Palette_Command)
+            (D.Visibility = Editor.Commands.Descriptors.Palette_Command)
          then
             return False;
          end if;
 
          if Editor.Commands.Is_Internal_Build_Test_Seam_Command (Id)
-           and then (D.Visibility /= Editor.Commands.Hidden_Command
-                     or else D.Category /= Editor.Commands.Internal_Category)
+           and then (D.Visibility /= Editor.Commands.Descriptors.Hidden_Command
+                     or else D.Category /= Editor.Commands.Descriptors.Internal_Category)
          then
             return False;
          end if;
@@ -138,11 +144,11 @@ package body Editor.Command_Surface is
 
    function Bindability_Is_Consistent return Boolean is
       Id : Editor.Commands.Command_Id;
-      D  : Editor.Commands.Command_Descriptor;
+      D  : Editor.Commands.Descriptors.Command_Descriptor;
    begin
       for I in 1 .. Editor.Commands.Command_Count loop
          Id := Editor.Commands.Command_At (I);
-         D := Editor.Commands.Descriptor (Id);
+         D := Editor.Commands.Descriptors.Descriptor (Id);
          if D.Bindable /= Editor.Commands.Is_Bindable_Command (Id) then
             return False;
          end if;
@@ -209,11 +215,11 @@ package body Editor.Command_Surface is
    end Availability_Reasons_Are_Deterministic;
 
    function Palette_Projection_Is_Consistent return Boolean is
-      Palette : constant Editor.Commands.Command_Descriptor_Vectors.Vector :=
-        Editor.Commands.Palette_Commands;
+      Palette : constant Editor.Commands.Descriptors.Command_Descriptor_Vectors.Vector :=
+        Editor.Commands.Descriptors.Palette_Commands;
       Seen : array (Editor.Commands.Command_Id) of Boolean := (others => False);
       use type Ada.Containers.Count_Type;
-      use type Editor.Commands.Command_Category;
+      use type Editor.Commands.Descriptors.Command_Category;
       use type Editor.Commands.Command_Id;
    begin
       if Natural (Palette.Length) /= Editor.Commands.Palette_Command_Count then
@@ -222,7 +228,7 @@ package body Editor.Command_Surface is
 
       for D of Palette loop
          if not Editor.Commands.Visible_In_Command_Palette (D.Id)
-           or else D.Category = Editor.Commands.Internal_Category
+           or else D.Category = Editor.Commands.Descriptors.Internal_Category
            or else Editor.Commands.Is_Internal_Build_Test_Seam_Command (D.Id)
            or else Seen (D.Id)
          then
@@ -282,7 +288,7 @@ package body Editor.Command_Surface is
          declare
             Id : constant Editor.Commands.Command_Id := Editor.Commands.Command_At (I);
          begin
-            if not Editor.Commands.Descriptor_Is_Complete (Id) then
+            if not Editor.Commands.Audits.Descriptor_Is_Complete (Id) then
                return False;
             end if;
          end;
@@ -311,7 +317,7 @@ package body Editor.Command_Surface is
         Availability_Reasons_Are_Deterministic (State);
       Review.Palette_Projection_Consistent := Palette_Projection_Is_Consistent;
       Review.Discoverability_Metadata_Coherent :=
-        Editor.Commands.Command_Discoverability_Coherent;
+        Editor.Commands.Audits.Command_Discoverability_Coherent;
       Review.Keybinding_Targets_Valid := Keybinding_Targets_Are_Valid;
       Review.Persistence_Clean := Manifest.Persistence_Exclusion_Clean;
       Review.Public_Build_Guardrail_Intact := Manifest.Manifest_Healthy;

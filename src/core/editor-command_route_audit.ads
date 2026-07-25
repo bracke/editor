@@ -1,7 +1,9 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Strings.Unbounded;
 with Editor.Buffer_Switcher;
 with Editor.Command_Palette;
 with Editor.Commands;
+
 
 package Editor.Command_Route_Audit is
 
@@ -124,7 +126,7 @@ package Editor.Command_Route_Audit is
    procedure Inspect_Command_Descriptor_No_Buffer_Payload
      (Result     : in out Route_Audit_Result;
       Source     : Route_Source;
-      Descriptor : Editor.Commands.Command_Descriptor);
+      Descriptor : Editor.Commands.Descriptors.Command_Descriptor);
 
    --  Inspect a command-palette row/candidate snapshot directly rather than
    --  trusting a caller-provided payload boolean.

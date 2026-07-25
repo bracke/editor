@@ -12,13 +12,16 @@ with Editor.Overlay_Focus;
 with Editor.Render_Cache;
 with Editor.State;
 
+with Editor.Commands.Reference_Metadata;
+
+
 package body Editor.Executor.File_Target_Prompt_Commands is
 
    function Command_Requires_File_Target_Prompt
      (Id : Editor.Commands.Command_Id) return Boolean
    is
    begin
-      return Editor.Commands.Command_Is_Target_Prompt_Capable (Id);
+      return Editor.Commands.Reference_Metadata.Command_Is_Target_Prompt_Capable (Id);
    end Command_Requires_File_Target_Prompt;
 
    function File_Target_Prompt_Is_Active
@@ -54,7 +57,7 @@ package body Editor.Executor.File_Target_Prompt_Commands is
      (Id : Editor.Commands.Command_Id) return String
    is
    begin
-      return Editor.Commands.Command_Target_Prompt_Label (Id);
+      return Editor.Commands.Reference_Metadata.Command_Target_Prompt_Label (Id);
    end Prompt_Label_For_File_Target_Command;
 
    procedure Open_File_Target_Prompt

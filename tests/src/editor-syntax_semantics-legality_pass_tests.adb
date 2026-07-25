@@ -1,3 +1,4 @@
+with Editor.Commands.Audit_Model; use Editor.Commands.Audit_Model;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Editor.Syntax;
@@ -246,6 +247,7 @@ use type Editor.Outline_Extractor.Extraction_Status;
 use type Editor.Outline_Extractor.Extraction_Failure_Kind;
 use type Editor.Outline_Extractor.Buffer_Text_Snapshot;
 use type Editor.Outline_Extractor.Extraction_Result;
+
 
 package body Editor.Syntax_Semantics.Legality_Pass_Tests is
 

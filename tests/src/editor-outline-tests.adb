@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with Ada.Characters.Handling;
 with Editor.Test_Helper;
@@ -14,6 +15,7 @@ with AUnit.Test_Cases;
 with Editor.Outline.Fixtures; use Editor.Outline.Fixtures;
 with Editor.Ada_Syntax_Core;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Cursors;
 with Editor.Executor;
 with Editor.Executor.File_Save_Commands;
@@ -32,10 +34,11 @@ with Editor.State;
 with Editor.Render_Model;
 with Editor.Workspace_Persistence;
 
+
 package body Editor.Outline.Tests is
 
    use type Editor.Commands.Command_Id;
-   use type Editor.Commands.Command_Category;
+   use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Executor.Command_Execution_Status;
    use type Editor.Outline.Outline_Item_Kind;
    use type Editor.Outline.Outline_Target_Kind;
@@ -233,26 +236,26 @@ package body Editor.Outline.Tests is
       Found : Boolean := False;
       Id    : Editor.Commands.Command_Id;
    begin
-      Assert (Editor.Commands.Category (Editor.Commands.Command_Refresh_Outline) =
-                Editor.Commands.Panel_Category,
+      Assert (Editor.Commands.Descriptors.Category (Editor.Commands.Command_Refresh_Outline) =
+                Editor.Commands.Descriptors.Panel_Category,
               "refresh outline is a panel command");
       Assert (Editor.Commands.Is_Visible_In_Palette (Editor.Commands.Command_Refresh_Outline),
               "refresh outline appears in command palette");
-      Assert (Editor.Commands.Stable_Command_Name (Editor.Commands.Command_Refresh_Outline) =
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Refresh_Outline) =
                 "outline.refresh",
               "refresh outline stable name is canonical dot form");
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("outline.open-selected", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("outline.open-selected", Found);
       Assert (Found and then Id = Editor.Commands.Command_Open_Selected_Outline_Item,
               "open selected outline canonical stable name round trips");
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("refresh-outline", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("refresh-outline", Found);
       Assert (not Found, "old refresh-outline spelling is not a stable command");
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("clear-outline", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("clear-outline", Found);
       Assert (not Found, "old clear-outline spelling is not a stable command");
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("show-outline", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("show-outline", Found);
       Assert (not Found, "old show-outline spelling is not a stable command");
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("focus-outline", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("focus-outline", Found);
       Assert (not Found, "old focus-outline spelling is not a stable command");
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("open-selected-outline-item", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("open-selected-outline-item", Found);
       Assert (not Found, "old open-selected-outline-item spelling is not a stable command");
       Assert (Editor.Commands.Is_Bindable_Command (Editor.Commands.Command_Show_Outline),
               "show outline is bindable without a default chord");
@@ -1094,7 +1097,7 @@ package body Editor.Outline.Tests is
       Assert (Editor.Commands.Is_Visible_In_Palette
                 (Editor.Commands.Command_Reveal_Current_Outline_Symbol),
               "reveal current outline symbol is discoverable in the command palette");
-      Assert (Editor.Commands.Label
+      Assert (Editor.Commands.Descriptors.Label
                 (Editor.Commands.Command_Reveal_Current_Outline_Symbol) =
               "Reveal Current Outline Symbol",
               "reveal current symbol has a concise palette label");
@@ -1382,14 +1385,14 @@ package body Editor.Outline.Tests is
                  "outline command has descriptor metadata");
          Assert (Editor.Commands.Has_Stable_Name (Outline_Commands (I)),
                  "outline command has stable persisted name");
-         Round_Trip := Editor.Commands.Command_Id_From_Stable_Name
-           (Editor.Commands.Stable_Command_Name (Outline_Commands (I)), Found);
+         Round_Trip := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
+           (Editor.Commands.Name_Metadata.Stable_Command_Name (Outline_Commands (I)), Found);
          Assert (Found and then Round_Trip = Outline_Commands (I),
                  "outline command stable name round-trips");
 
          for J in I + 1 .. Outline_Commands'Last loop
-            Assert (Editor.Commands.Stable_Command_Name (Outline_Commands (I)) /=
-                    Editor.Commands.Stable_Command_Name (Outline_Commands (J)),
+            Assert (Editor.Commands.Name_Metadata.Stable_Command_Name (Outline_Commands (I)) /=
+                    Editor.Commands.Name_Metadata.Stable_Command_Name (Outline_Commands (J)),
                     "outline command stable names are unique");
          end loop;
       end loop;
@@ -1517,12 +1520,12 @@ package body Editor.Outline.Tests is
                  "public outline command remains bindable");
          for J in I + 1 .. Outline_Commands'Last loop
             Assert
-              (Editor.Commands.Stable_Command_Name (Outline_Commands (I)) /=
-               Editor.Commands.Stable_Command_Name (Outline_Commands (J)),
+              (Editor.Commands.Name_Metadata.Stable_Command_Name (Outline_Commands (I)) /=
+               Editor.Commands.Name_Metadata.Stable_Command_Name (Outline_Commands (J)),
                "duplicate outline command id/stable name rejected by audit");
             Assert
-              (Editor.Commands.Label (Outline_Commands (I)) /=
-               Editor.Commands.Label (Outline_Commands (J)),
+              (Editor.Commands.Descriptors.Label (Outline_Commands (I)) /=
+               Editor.Commands.Descriptors.Label (Outline_Commands (J)),
                "duplicate outline command-palette label rejected by audit");
          end loop;
       end loop;
@@ -1581,7 +1584,7 @@ package body Editor.Outline.Tests is
          Assert
            (Result.Status /= Editor.Executor.Command_Failed,
             "outline command must not fail without active buffer: " &
-            Editor.Commands.Stable_Command_Name (Id));
+            Editor.Commands.Name_Metadata.Stable_Command_Name (Id));
          Assert (Invariant_Holds (S.Outline),
                  "no-active-buffer command keeps outline state consistent");
          Assert (Item_Count (S.Outline) = 0,
@@ -1639,7 +1642,7 @@ package body Editor.Outline.Tests is
          Assert
            (Result.Status /= Editor.Executor.Command_Failed,
             "closed-project outline command must not fail: " &
-            Editor.Commands.Stable_Command_Name (Id));
+            Editor.Commands.Name_Metadata.Stable_Command_Name (Id));
          Assert (Invariant_Holds (S.Outline),
                  "closed-project command keeps outline state consistent");
          Assert (Filter_History_Count (S.Outline) = 0,
@@ -1920,91 +1923,91 @@ package body Editor.Outline.Tests is
       Found : Boolean := False;
       Id    : Editor.Commands.Command_Id;
    begin
-      Assert (Editor.Commands.Label (Editor.Commands.Command_Next_Outline_Symbol) =
+      Assert (Editor.Commands.Descriptors.Label (Editor.Commands.Command_Next_Outline_Symbol) =
                 "Next Outline Symbol",
               "next symbol command has a palette label");
-      Assert (Editor.Commands.Label (Editor.Commands.Command_Previous_Outline_Symbol) =
+      Assert (Editor.Commands.Descriptors.Label (Editor.Commands.Command_Previous_Outline_Symbol) =
                 "Previous Outline Symbol",
               "previous symbol command has a palette label");
-      Assert (Editor.Commands.Category (Editor.Commands.Command_Next_Outline_Symbol) =
-                Editor.Commands.Navigation_Category,
+      Assert (Editor.Commands.Descriptors.Category (Editor.Commands.Command_Next_Outline_Symbol) =
+                Editor.Commands.Descriptors.Navigation_Category,
               "next symbol is categorized as navigation");
-      Assert (Editor.Commands.Category (Editor.Commands.Command_Previous_Outline_Symbol) =
-                Editor.Commands.Navigation_Category,
+      Assert (Editor.Commands.Descriptors.Category (Editor.Commands.Command_Previous_Outline_Symbol) =
+                Editor.Commands.Descriptors.Navigation_Category,
               "previous symbol is categorized as navigation");
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("outline.next-symbol", Found);
       Assert (Found and then Id = Editor.Commands.Command_Next_Outline_Symbol,
               "next symbol stable name round trips without payload");
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("outline.previous-symbol", Found);
       Assert (Found and then Id = Editor.Commands.Command_Previous_Outline_Symbol,
               "previous symbol stable name round trips without payload");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Reveal_Current_Outline_Symbol) =
                 "outline.reveal-current-symbol",
               "reveal-current command has canonical no-payload stable name");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Select_Current_Outline_Symbol) =
                 "outline.select-current-symbol",
               "select-current command has canonical no-payload stable name");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Select_Next_Outline_Item) =
                 "outline.select-next",
               "select-next command has canonical no-payload stable name");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Select_Previous_Outline_Item) =
                 "outline.select-previous",
               "select-previous command has canonical no-payload stable name");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Focus_Outline_Filter) =
                 "outline.filter.focus",
               "focus filter command has canonical no-payload stable name");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Clear_Outline_Filter) =
                 "outline.filter.clear",
               "clear filter command has canonical no-payload stable name");
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("outline.reveal-current-symbol", Found);
       Assert (Found and then Id = Editor.Commands.Command_Reveal_Current_Outline_Symbol,
               "reveal-current stable alias routes without payload");
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("outline.select-current-symbol", Found);
       Assert (Found and then Id = Editor.Commands.Command_Select_Current_Outline_Symbol,
               "select-current stable alias routes without payload");
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("select-current-outline-symbol", Found);
       Assert (not Found and then Id = Editor.Commands.No_Command,
               "legacy select-current alias is not loadable");
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("outline.select-next", Found);
       Assert (Found and then Id = Editor.Commands.Command_Select_Next_Outline_Item,
               "select-next stable alias routes without payload");
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("select-next-outline-item", Found);
       Assert (not Found and then Id = Editor.Commands.No_Command,
               "legacy select-next alias is not loadable");
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("outline.select-previous", Found);
       Assert (Found and then Id = Editor.Commands.Command_Select_Previous_Outline_Item,
               "select-previous stable alias routes without payload");
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("select-previous-outline-item", Found);
       Assert (not Found and then Id = Editor.Commands.No_Command,
               "legacy select-previous alias is not loadable");
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("outline.filter.next-match", Found);
       Assert (Found and then Id = Editor.Commands.Command_Select_Next_Outline_Item,
               "filter next-match alias routes to existing filtered selection command");
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("outline.filter.previous-match", Found);
       Assert (Found and then Id = Editor.Commands.Command_Select_Previous_Outline_Item,
               "filter previous-match alias routes to existing filtered selection command");
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("outline.filter.focus", Found);
       Assert (Found and then Id = Editor.Commands.Command_Focus_Outline_Filter,
               "filter focus alias routes without payload");
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("outline.filter.clear", Found);
       Assert (Found and then Id = Editor.Commands.Command_Clear_Outline_Filter,
               "filter clear alias routes without payload");

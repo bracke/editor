@@ -1,3 +1,4 @@
+with Editor.Commands.Audit_Model; use Editor.Commands.Audit_Model;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -5,6 +6,7 @@ with Editor.Ada_Assignment_Legality;
 with Editor.Ada_Control_Flow_Legality;
 with Editor.Ada_Expression_Types;
 with Editor.Ada_Return_Legality;
+
 
 package body Test_Ada_Control_Flow_Legality is
 

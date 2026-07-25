@@ -1,6 +1,11 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Commands.Workflow_Messages;
+
+with Editor.Commands.Name_Metadata;
+
+
 
 package body Editor.Commands.Reference_Metadata is
 
@@ -159,6 +164,34 @@ package body Editor.Commands.Reference_Metadata is
             return Empty_Command_Reference_Metadata;
       end case;
    end Canonical_Command_Reference_Metadata;
+
+   function Is_File_Lifecycle_Command
+     (Id : Command_Id) return Boolean
+   is
+   begin
+      case Id is
+         when Command_Save_File
+            | Command_Save_File_As
+            | Command_Close_Active_Buffer
+            | Command_Confirm_Close_Save
+            | Command_Confirm_Close_Discard
+            | Command_Cancel_Close
+            | Command_Reopen_Closed_Buffer
+            | Command_Reload_Active_Buffer
+            | Command_Revert_Active_Buffer
+            | Command_File_Conflict_Keep_Buffer
+            | Command_File_Conflict_Reload_From_Disk
+            | Command_File_Conflict_Overwrite_Disk
+            | Command_File_Conflict_Cancel
+            | Command_Rename_Buffer_File
+            | Command_Delete_Buffer_File
+            | Command_Copy_Buffer_File
+            | Command_Move_Buffer_File =>
+            return True;
+         when others =>
+            return False;
+      end case;
+   end Is_File_Lifecycle_Command;
 
    function Reference_Summary
      (Id : Command_Id) return String
@@ -458,7 +491,7 @@ package body Editor.Commands.Reference_Metadata is
          Found : Boolean := False;
          Id    : Command_Id := No_Command;
       begin
-         Id := Command_Id_From_Stable_Name (Name, Found);
+         Id := Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
          return (not Found) and then Id = No_Command;
       end Prompted_Name_Absent;
    begin
@@ -471,7 +504,7 @@ package body Editor.Commands.Reference_Metadata is
             D : constant Command_Descriptor := Descriptor (E.Id);
          begin
             if D.Id /= E.Id
-              or else Stable_Command_Name (E.Id) /= To_String (E.Name)
+              or else Name_Metadata.Stable_Command_Name (E.Id) /= To_String (E.Name)
               or else D.Requires_Explicit_Target /= E.Required
               or else D.Target_Prompt_Capable /= E.Capable
               or else To_String (D.Target_Prompt_Label) /= To_String (E.Label)

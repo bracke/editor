@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Directories;
@@ -7,6 +8,7 @@ with Ada.Text_IO;
 with Editor.Clipboard;
 with Editor.Command_Palette;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Buffers;
 with Editor.Cursors; use Editor.Cursors;
 with Editor.Executor;
@@ -27,12 +29,13 @@ with Editor.UTF8;
 with Editor.Workspace_Persistence;
 with Text_Buffer;
 
+
 package body Editor.Line_Edit.Line_Join_Split_Tests is
 
    use type Editor.Keybinding_Config.Keybinding_Config_Status;
    use type Editor.Commands.Command_Id;
-   use type Editor.Commands.Command_Category;
-   use type Editor.Commands.Command_Visibility;
+   use type Editor.Commands.Descriptors.Command_Category;
+   use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Commands.Command_Availability_Status;
    use type Editor.Commands.Command_Kind;
    use type Editor.Keybindings.Keybinding_Validation_Status;
@@ -471,17 +474,17 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
       Snap  : Editor.Workspace_Persistence.Workspace_Snapshot;
       Text  : Unbounded_String;
    begin
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.line.join-selection", Found);
       Assert (not Found and then Id = Editor.Commands.No_Command,
               "must not add selected-line join command aliases");
 
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.join.smart", Found);
       Assert (not Found and then Id = Editor.Commands.No_Command,
               "must not add smart/language-aware join aliases");
 
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.paragraph.reflow", Found);
       Assert (not Found and then Id = Editor.Commands.No_Command,
               "must not add paragraph reflow aliases");
@@ -1042,7 +1045,7 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
       S              : Editor.State.State_Type;
       A_Id           : Editor.Buffers.Buffer_Id;
       B_Id           : Editor.Buffers.Buffer_Id;
-      Candidates     : Editor.Commands.Command_Descriptor_Vectors.Vector;
+      Candidates     : Editor.Commands.Descriptors.Command_Descriptor_Vectors.Vector;
       Join_Count     : Natural := 0;
       Found          : Boolean := False;
       Id             : Editor.Commands.Command_Id := Editor.Commands.No_Command;
@@ -1054,7 +1057,7 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
 
       procedure Assert_Not_Exposed (Name : String) is
       begin
-         Id := Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
+         Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
          Assert ((not Found) and then Id = Editor.Commands.No_Command,
                  "non-goal command must not be exposed: " & Name);
       end Assert_Not_Exposed;
@@ -2035,7 +2038,7 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
       S              : Editor.State.State_Type;
       A_Id           : Editor.Buffers.Buffer_Id;
       B_Id           : Editor.Buffers.Buffer_Id;
-      Candidates     : Editor.Commands.Command_Descriptor_Vectors.Vector;
+      Candidates     : Editor.Commands.Descriptors.Command_Descriptor_Vectors.Vector;
       Split_Count    : Natural := 0;
       Workspace_Snap : Editor.Workspace_Persistence.Workspace_Snapshot;
       Summary        : Unbounded_String;
@@ -2049,7 +2052,7 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
 
       procedure Assert_Not_Exposed (Name : String) is
       begin
-         Id := Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
+         Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
          Assert ((not Found) and then Id = Editor.Commands.No_Command,
                  "non-goal Line Split command must not be exposed: " & Name);
       end Assert_Not_Exposed;

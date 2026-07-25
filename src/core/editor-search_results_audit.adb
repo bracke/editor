@@ -1,6 +1,7 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Command_Surface;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.External_Producers;
 with Editor.External_Producers.Audits;
 with Editor.External_Producers.Public_Build;
@@ -54,20 +55,20 @@ package body Editor.Search_Results_Audit is
 
    function Search_Command_Owned_Check return Boolean is
    begin
-      return Editor.Commands.Stable_Command_Name
+      return Editor.Commands.Name_Metadata.Stable_Command_Name
           (Editor.Commands.Command_Search_Results_Search_Active_Buffer) =
             "search-results-search-active-buffer"
         and then Editor.Commands.Is_Bindable_Command
           (Editor.Commands.Command_Search_Results_Search_Active_Buffer)
-        and then Editor.Commands.Stable_Command_Name
+        and then Editor.Commands.Name_Metadata.Stable_Command_Name
           (Editor.Commands.Command_Search_Results_Repeat_Active_Buffer) =
             "search-results-repeat-active-buffer"
         and then Editor.Commands.Is_Bindable_Command
           (Editor.Commands.Command_Search_Results_Repeat_Active_Buffer)
-        and then Editor.Commands.Stable_Command_Name
+        and then Editor.Commands.Name_Metadata.Stable_Command_Name
           (Editor.Commands.Command_Search_Results_Focus_Query) =
             "search-results-focus-query"
-        and then Editor.Commands.Stable_Command_Name
+        and then Editor.Commands.Name_Metadata.Stable_Command_Name
           (Editor.Commands.Command_Search_Results_Open_Selected) =
             "search-results-open-selected";
    end Search_Command_Owned_Check;

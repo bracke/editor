@@ -1,3 +1,6 @@
+with Editor.Commands.Audit_Model; use Editor.Commands.Audit_Model;
+with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -14,6 +17,7 @@ with Editor.Command_Execution;
 with Editor.Command_Route_Audit;
 with Editor.Command_Surface;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Executor;
 with Editor.Executor.Command_Palette_Projection;
 with Editor.File_Tree;
@@ -38,13 +42,19 @@ with Editor.State;
 with Editor.Overlay_Focus;
 with Editor.Panel_Focus;
 
+
+
+
+with Editor.Commands.Audits;
+
+
 package body Editor.Command_Surface.Route_Audit_Tests is
 
    use type Editor.Commands.Command_Id;
-   use type Editor.Commands.Command_Visibility;
-   use type Editor.Commands.Command_Category;
-   use type Editor.Commands.Command_Family_Id;
-   use type Editor.Commands.Command_Effect_Classification_Id;
+   use type Editor.Commands.Descriptors.Command_Visibility;
+   use type Editor.Commands.Descriptors.Command_Category;
+   use type Editor.Commands.Descriptors.Command_Family_Id;
+   use type Editor.Commands.Descriptors.Command_Effect_Classification_Id;
    use type Editor.Commands.Command_Kind;
    use type Editor.Keybindings.Keybinding_Validation_Status;
    use type Editor.Overlay_Focus.Overlay_Target;
@@ -98,8 +108,8 @@ package body Editor.Command_Surface.Route_Audit_Tests is
    end Trimmed;
 
    procedure Assert_Candidate_Vectors_Equal
-     (Left  : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
-      Right : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+     (Left  : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
+      Right : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Msg   : String)
    is
    begin
@@ -110,8 +120,8 @@ package body Editor.Command_Surface.Route_Audit_Tests is
 
       for I in 0 .. Natural (Left.Length) - 1 loop
          declare
-            L : constant Editor.Commands.Command_Palette_Candidate := Left.Element (I);
-            R : constant Editor.Commands.Command_Palette_Candidate := Right.Element (I);
+            L : constant Editor.Commands.Palette_Model.Command_Palette_Candidate := Left.Element (I);
+            R : constant Editor.Commands.Palette_Model.Command_Palette_Candidate := Right.Element (I);
          begin
             Assert (L.Id = R.Id, Msg & ": candidate id differs");
             Assert (To_String (L.Label) = To_String (R.Label), Msg & ": label differs");
@@ -197,7 +207,7 @@ package body Editor.Command_Surface.Route_Audit_Tests is
    is
       Found : Boolean;
       Id    : constant Editor.Commands.Command_Id :=
-        Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
+        Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
    begin
       if Name = "build.run" then
          Assert (Found and then Id = Editor.Commands.Command_Build_Run,
@@ -370,7 +380,7 @@ package body Editor.Command_Surface.Route_Audit_Tests is
    function Switcher_Command_Is_In_Reference
      (Id : Editor.Commands.Command_Id) return Boolean
    is
-      Stable : constant String := Editor.Commands.Stable_Command_Name (Id);
+      Stable : constant String := Editor.Commands.Name_Metadata.Stable_Command_Name (Id);
    begin
       return Starts_With (Stable, "buffers.switcher.")
         or else Stable = "buffers.recent.previous"
@@ -381,7 +391,7 @@ package body Editor.Command_Surface.Route_Audit_Tests is
    end Switcher_Command_Is_In_Reference;
 
    function Classification_Label
-     (D : Editor.Commands.Command_Descriptor) return String
+     (D : Editor.Commands.Descriptors.Command_Descriptor) return String
    is
    begin
       if D.Destructive and then D.Lifecycle and then D.Configuration then
@@ -513,23 +523,23 @@ package body Editor.Command_Surface.Route_Audit_Tests is
       Stable : constant String := Cell (Line, 1);
       Found  : Boolean := False;
       Id     : Editor.Commands.Command_Id := Editor.Commands.No_Command;
-      D      : Editor.Commands.Command_Descriptor;
+      D      : Editor.Commands.Descriptors.Command_Descriptor;
    begin
-      Id := Editor.Commands.Command_Id_From_Stable_Name (Stable, Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Stable, Found);
       Assert (Found,
               "documented switcher command must resolve to descriptor: " & Stable);
       Assert (Switcher_Command_Is_In_Reference (Id),
               "documented command must be part of switcher reference: " & Stable);
-      D := Editor.Commands.Descriptor (Id);
+      D := Editor.Commands.Descriptors.Descriptor (Id);
       Assert (Cell (Line, 2) = To_String (D.Description),
               "documented description must match descriptor for " & Stable);
-      Assert (Cell (Line, 3) = Editor.Commands.Category_Label (D.Category),
+      Assert (Cell (Line, 3) = Editor.Commands.Descriptors.Category_Label (D.Category),
               "documented category must match descriptor for " & Stable);
       Assert (Cell (Line, 4) = Classification_Label (D),
               "documented classification must match descriptor for " & Stable);
       Assert (Cell (Line, 5) = Yes_No (D.Bindable),
               "documented bindability must match descriptor for " & Stable);
-      Assert (Cell (Line, 6) = Yes_No (D.Visibility = Editor.Commands.Palette_Command),
+      Assert (Cell (Line, 6) = Yes_No (D.Visibility = Editor.Commands.Descriptors.Palette_Command),
               "documented palette visibility must match descriptor for " & Stable);
       Assert (Cell (Line, 7) = Hint_Label (Id),
               "documented hint eligibility must match hint baseline for " & Stable);
@@ -676,16 +686,16 @@ package body Editor.Command_Surface.Route_Audit_Tests is
       pragma Unreferenced (T);
       Seen : array (Editor.Commands.Command_Id) of Boolean := (others => False);
       Id   : Editor.Commands.Command_Id;
-      D    : Editor.Commands.Command_Descriptor;
+      D    : Editor.Commands.Descriptors.Command_Descriptor;
    begin
       Assert
         (Editor.Commands.Palette_Command_Count =
-           Natural (Editor.Commands.Palette_Commands.Length),
+           Natural (Editor.Commands.Descriptors.Palette_Commands.Length),
          "palette traversal count must match descriptor vector count");
 
       for I in 1 .. Editor.Commands.Palette_Command_Count loop
          Id := Editor.Commands.Palette_Command_At (I);
-         D := Editor.Commands.Descriptor (Id);
+         D := Editor.Commands.Descriptors.Descriptor (Id);
 
          Assert
            (Editor.Commands.Visible_In_Command_Palette (Id),
@@ -701,7 +711,7 @@ package body Editor.Command_Surface.Route_Audit_Tests is
            (Length (D.Description) > 0,
             "palette-visible commands must have descriptions");
          Assert
-           (D.Category /= Editor.Commands.Internal_Category,
+           (D.Category /= Editor.Commands.Descriptors.Internal_Category,
             "palette-visible commands must not use Internal category");
       end loop;
 
@@ -788,9 +798,9 @@ package body Editor.Command_Surface.Route_Audit_Tests is
    procedure Test_Command_Audit_Registry_Is_Actionable
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Failures : constant Editor.Commands.Command_Audit_Failure_Vectors.Vector :=
-        Editor.Commands.Audit_Command_Registry;
-      Summary  : constant String := Editor.Commands.Command_Audit_Summary (Failures);
+      Failures : constant Editor.Commands.Audit_Model.Command_Audit_Failure_Vectors.Vector :=
+        Editor.Commands.Audits.Audit_Command_Registry;
+      Summary  : constant String := Editor.Commands.Audits.Command_Audit_Summary (Failures);
    begin
       Assert
         (Failures.Length = 0,
@@ -800,13 +810,13 @@ package body Editor.Command_Surface.Route_Audit_Tests is
    procedure Test_Command_Descriptor_Construction_Helper
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      D : constant Editor.Commands.Command_Descriptor :=
-        Editor.Commands.Make_Command_Descriptor
+      D : constant Editor.Commands.Descriptors.Command_Descriptor :=
+        Editor.Commands.Descriptors.Make_Command_Descriptor
           (Id            => Editor.Commands.Command_Save_Settings,
            Stable_Name   => "save-settings",
            Label         => "Save Settings",
            Description   => "Write global editor preferences.",
-           Category      => Editor.Commands.Settings_Category,
+           Category      => Editor.Commands.Descriptors.Settings_Category,
            Visible       => True,
            Bindable      => True,
            Destructive   => False,
@@ -819,9 +829,9 @@ package body Editor.Command_Surface.Route_Audit_Tests is
               "descriptor helper must preserve explicit label");
       Assert (To_String (D.Description) = "Write global editor preferences.",
               "descriptor helper must preserve explicit description");
-      Assert (D.Category = Editor.Commands.Settings_Category,
+      Assert (D.Category = Editor.Commands.Descriptors.Settings_Category,
               "descriptor helper must preserve explicit category");
-      Assert (D.Visibility = Editor.Commands.Palette_Command,
+      Assert (D.Visibility = Editor.Commands.Descriptors.Palette_Command,
               "descriptor helper must use explicit visibility");
       Assert (D.Bindable and then D.Configuration,
               "descriptor helper must preserve explicit bindability/classification");

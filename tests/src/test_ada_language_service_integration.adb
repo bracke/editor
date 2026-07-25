@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Strings;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -24,6 +25,7 @@ with Editor.Ada_Tasking_Protected_Legality;
 with Editor.Ada_Wide_Semantic_Legality_Diagnostics;
 with Editor.External_Producers;
 with Editor.External_Producers.Diagnostic_Text_Lines;
+
 
 package body Test_Ada_Language_Service_Integration is
 

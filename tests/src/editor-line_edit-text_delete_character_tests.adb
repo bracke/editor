@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Directories;
@@ -7,6 +8,7 @@ with Ada.Text_IO;
 with Editor.Clipboard;
 with Editor.Command_Palette;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Buffers;
 with Editor.Cursors; use Editor.Cursors;
 with Editor.Executor;
@@ -27,12 +29,13 @@ with Editor.UTF8;
 with Editor.Workspace_Persistence;
 with Text_Buffer;
 
+
 package body Editor.Line_Edit.Text_Delete_Character_Tests is
 
    use type Editor.Keybinding_Config.Keybinding_Config_Status;
    use type Editor.Commands.Command_Id;
-   use type Editor.Commands.Command_Category;
-   use type Editor.Commands.Command_Visibility;
+   use type Editor.Commands.Descriptors.Command_Category;
+   use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Commands.Command_Availability_Status;
    use type Editor.Commands.Command_Kind;
    use type Editor.Keybindings.Keybinding_Validation_Status;
@@ -1400,7 +1403,7 @@ package body Editor.Line_Edit.Text_Delete_Character_Tests is
       Assert (Editor.Commands.Is_Available (Avail),
               "Character Delete availability must be available with active buffer and caret");
       declare
-         Candidates : Editor.Commands.Command_Descriptor_Vectors.Vector;
+         Candidates : Editor.Commands.Descriptors.Command_Descriptor_Vectors.Vector;
       begin
          Editor.Command_Palette.Reset;
          Editor.Command_Palette.Filtered_Commands (Candidates);
@@ -1602,15 +1605,15 @@ package body Editor.Line_Edit.Text_Delete_Character_Tests is
       declare
          Dummy : Editor.Commands.Command_Id;
       begin
-         Dummy := Editor.Commands.Command_Id_From_Stable_Name
+         Dummy := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
            ("edit.char.delete-current", Found);
          Assert (Dummy = Editor.Commands.No_Command and then not Found,
                  "non-goal delete-current command must not resolve");
-         Dummy := Editor.Commands.Command_Id_From_Stable_Name
+         Dummy := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
            ("edit.char.kill", Found);
          Assert (Dummy = Editor.Commands.No_Command and then not Found,
                  "non-goal char-kill command must not resolve");
-         Dummy := Editor.Commands.Command_Id_From_Stable_Name
+         Dummy := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
            ("selection.delete", Found);
          Assert (Found and then Dummy = Editor.Commands.Command_Selection_Delete,
                  "selection-delete command must resolve through canonical selection namespace");

@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 package Editor.Commands.Descriptor_Editing is
 
    function Descriptor

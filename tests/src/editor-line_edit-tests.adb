@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -8,6 +9,7 @@ with Ada.Text_IO;
 with Editor.Clipboard;
 with Editor.Command_Palette;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Buffers;
 with Editor.Cursors; use Editor.Cursors;
 with Editor.Executor;
@@ -28,12 +30,13 @@ with Editor.UTF8;
 with Editor.Workspace_Persistence;
 with Text_Buffer;
 
+
 package body Editor.Line_Edit.Tests is
 
    use type Editor.Keybinding_Config.Keybinding_Config_Status;
    use type Editor.Commands.Command_Id;
-   use type Editor.Commands.Command_Category;
-   use type Editor.Commands.Command_Visibility;
+   use type Editor.Commands.Descriptors.Command_Category;
+   use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Commands.Command_Availability_Status;
    use type Editor.Commands.Command_Kind;
    use type Editor.Keybindings.Keybinding_Validation_Status;
@@ -671,7 +674,7 @@ package body Editor.Line_Edit.Tests is
 
       procedure Assert_Not_Exposed (Name : String) is
       begin
-         Id := Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
+         Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
          Assert (not Found, Name & " must not be exposed as a line-edit command");
       end Assert_Not_Exposed;
    begin
@@ -774,7 +777,7 @@ package body Editor.Line_Edit.Tests is
          declare
             Id   : constant Editor.Commands.Command_Id :=
               Editor.Keybinding_Config.Command_At (Cfg, I);
-            Name : constant String := Editor.Commands.Stable_Command_Name (Id);
+            Name : constant String := Editor.Commands.Name_Metadata.Stable_Command_Name (Id);
          begin
             Assert
               (Name /= "line.delete"
@@ -924,15 +927,15 @@ package body Editor.Line_Edit.Tests is
       Assert (Index (Summary, "tab width") = 0,
               "workspace snapshot must not persist tab-width indentation policy");
 
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.indent.selection", Found);
       Assert (not Found and then Id = Editor.Commands.No_Command,
               "selected-line indentation command must remain absent");
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.format.document", Found);
       Assert (not Found and then Id = Editor.Commands.No_Command,
               "format-document alias must remain absent");
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.tabs.convert-to-spaces", Found);
       Assert (not Found and then Id = Editor.Commands.No_Command,
               "tabs-to-spaces command must remain absent");
@@ -1503,7 +1506,7 @@ package body Editor.Line_Edit.Tests is
          Found    : Boolean := False;
          Resolved : Editor.Commands.Command_Id := Editor.Commands.No_Command;
       begin
-         Resolved := Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
+         Resolved := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
          Assert (Found and then Resolved = Id,
                  Why & ": canonical stable command name must resolve exactly");
       end Assert_Stable_Name;
@@ -1515,7 +1518,7 @@ package body Editor.Line_Edit.Tests is
          Found    : Boolean := False;
          Resolved : Editor.Commands.Command_Id := Editor.Commands.No_Command;
       begin
-         Resolved := Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
+         Resolved := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
          Assert (not Found and then Resolved = Editor.Commands.No_Command,
                  Why & ": removed/noncanonical line-comment name must not resolve");
       end Assert_Removed_Name_Absent;
@@ -1744,7 +1747,7 @@ package body Editor.Line_Edit.Tests is
 
       procedure Assert_Not_Exposed (Name : String; Why : String) is
       begin
-         Id := Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
+         Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
          Assert (not Found and then Id = Editor.Commands.No_Command, Why);
       end Assert_Not_Exposed;
    begin
@@ -1841,7 +1844,7 @@ package body Editor.Line_Edit.Tests is
       Assert_Not_Exposed ("edit.comment.region",
                           "region comment command must remain absent");
       Assert
-        (Editor.Commands.Command_Id_From_Stable_Name
+        (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
            ("edit.format.on-save", Found) =
          Editor.Commands.No_Command
          and then not Found,
@@ -2146,7 +2149,7 @@ package body Editor.Line_Edit.Tests is
       pragma Unreferenced (T);
       S              : Editor.State.State_Type;
       R              : Editor.Render_Model.Render_Snapshot;
-      Candidates     : Editor.Commands.Command_Descriptor_Vectors.Vector;
+      Candidates     : Editor.Commands.Descriptors.Command_Descriptor_Vectors.Vector;
       Before_Text    : constant String := "ReadOnlyAlphaBeta";
       Before_Clip    : constant Unbounded_String := To_Unbounded_String ("READONLY-CLIP");
       Before_Undo    : Natural := 0;
@@ -2677,7 +2680,7 @@ package body Editor.Line_Edit.Tests is
       is
          Found : Boolean := False;
          Id    : constant Editor.Commands.Command_Id :=
-           Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
+           Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
       begin
          Assert (Found, "expected command name did not resolve: " & Name);
          Assert

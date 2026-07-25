@@ -1,3 +1,4 @@
+with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Executor.Command_Palette_Projection;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -28,6 +29,7 @@ with Editor.State;
 with Editor.Test_Helper;
 with Editor.View;
 with Editor.Workspace_Persistence;
+
 
 package body Editor.Executor.Project_Workspace_Session_Tests is
 
@@ -510,7 +512,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
       Snapshot   : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status     : Editor.Workspace_Persistence.Workspace_Persistence_Status;
       Summary    : Editor.Workspace_Persistence.Workspace_Restore_Summary;
-      Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Save_A     : Editor.Commands.Command_Availability;
       Reload_A   : Editor.Commands.Command_Availability;
       Close_A    : Editor.Commands.Command_Availability;

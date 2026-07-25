@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Directories;
@@ -7,6 +8,7 @@ with Ada.Text_IO;
 with Editor.Clipboard;
 with Editor.Command_Palette;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Buffers;
 with Editor.Cursors; use Editor.Cursors;
 with Editor.Executor;
@@ -27,12 +29,13 @@ with Editor.UTF8;
 with Editor.Workspace_Persistence;
 with Text_Buffer;
 
+
 package body Editor.Line_Edit.Text_Delete_Tests is
 
    use type Editor.Keybinding_Config.Keybinding_Config_Status;
    use type Editor.Commands.Command_Id;
-   use type Editor.Commands.Command_Category;
-   use type Editor.Commands.Command_Visibility;
+   use type Editor.Commands.Descriptors.Command_Category;
+   use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Commands.Command_Availability_Status;
    use type Editor.Commands.Command_Kind;
    use type Editor.Keybindings.Keybinding_Validation_Status;
@@ -1400,7 +1403,7 @@ package body Editor.Line_Edit.Text_Delete_Tests is
       Dummy          : Editor.Commands.Command_Id := Editor.Commands.No_Command;
       procedure Assert_Not_Exposed (Name : String) is
       begin
-         Dummy := Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
+         Dummy := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
          Assert (not Found, "non-goal command exposed: " & Name);
       end Assert_Not_Exposed;
    begin

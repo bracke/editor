@@ -1,3 +1,5 @@
+with Editor.Commands.Audit_Model; use Editor.Commands.Audit_Model;
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Strings;
 with Ada.Strings.Fixed;
 with Ada.Characters.Handling;
@@ -9,6 +11,8 @@ with Editor.Commands.Audits;
 with Editor.Commands.Reference_Metadata;
 with Editor.Commands.Name_Metadata;
 with Editor.Commands.Workflow_Messages;
+
+
 package body Editor.Commands is
 
    use Position_Vectors;
@@ -1231,202 +1235,6 @@ package body Editor.Commands is
    end Command_For_Id;
 
 
-   function Is_File_Lifecycle_Command
-     (Id : Command_Id) return Boolean
-   is
-   begin
-      case Id is
-         when Command_Save_File
-            | Command_Save_File_As
-            | Command_Close_Active_Buffer
-            | Command_Confirm_Close_Save
-            | Command_Confirm_Close_Discard
-            | Command_Cancel_Close
-            | Command_Reopen_Closed_Buffer
-            | Command_Reload_Active_Buffer
-            | Command_Revert_Active_Buffer
-            | Command_File_Conflict_Keep_Buffer
-            | Command_File_Conflict_Reload_From_Disk
-            | Command_File_Conflict_Overwrite_Disk
-            | Command_File_Conflict_Cancel
-            | Command_Rename_Buffer_File
-            | Command_Delete_Buffer_File
-            | Command_Copy_Buffer_File
-            | Command_Move_Buffer_File =>
-            return True;
-         when others =>
-            return False;
-      end case;
-   end Is_File_Lifecycle_Command;
-
-   function Reference_Summary
-     (Id : Command_Id) return String
-     renames Editor.Commands.Reference_Metadata.Reference_Summary;
-
-   function Reference_Availability_Summary
-     (Id : Command_Id) return String
-     renames Editor.Commands.Reference_Metadata.Reference_Availability_Summary;
-
-   function Reference_Mutation_Summary
-     (Id : Command_Id) return String
-     renames Editor.Commands.Reference_Metadata.Reference_Mutation_Summary;
-
-   function Reference_Filesystem_Effect_Summary
-     (Id : Command_Id) return String
-     renames Editor.Commands.Reference_Metadata.Reference_Filesystem_Effect_Summary;
-
-   function Reference_State_Preservation_Summary
-     (Id : Command_Id) return String
-     renames Editor.Commands.Reference_Metadata.Reference_State_Preservation_Summary;
-
-   function Reference_Non_Goal_Summary
-     (Id : Command_Id) return String
-     renames Editor.Commands.Reference_Metadata.Reference_Non_Goal_Summary;
-
-   function Reference_Command_Family
-     (Id : Command_Id) return Command_Family_Id
-     renames Editor.Commands.Reference_Metadata.Reference_Command_Family;
-
-   function Reference_Effect_Classification
-     (Id : Command_Id) return Command_Effect_Classification_Id
-     renames Editor.Commands.Reference_Metadata.Reference_Effect_Classification;
-
-   function Command_Requires_Explicit_Target
-     (Id : Command_Id) return Boolean
-     renames Editor.Commands.Reference_Metadata.Command_Requires_Explicit_Target;
-
-   function Command_Is_Target_Prompt_Capable
-     (Id : Command_Id) return Boolean
-     renames Editor.Commands.Reference_Metadata.Command_Is_Target_Prompt_Capable;
-
-   function Command_Target_Prompt_Label
-     (Id : Command_Id) return String
-     renames Editor.Commands.Reference_Metadata.Command_Target_Prompt_Label;
-
-   function Command_Summary
-     (Id : Command_Id) return String
-     renames Editor.Commands.Reference_Metadata.Command_Summary;
-
-   function Command_Availability_Summary
-     (Id : Command_Id) return String
-     renames Editor.Commands.Reference_Metadata.Command_Availability_Summary;
-
-   function Command_Mutation_Summary
-     (Id : Command_Id) return String
-     renames Editor.Commands.Reference_Metadata.Command_Mutation_Summary;
-
-   function Command_Filesystem_Effect_Summary
-     (Id : Command_Id) return String
-     renames Editor.Commands.Reference_Metadata.Command_Filesystem_Effect_Summary;
-
-   function Command_State_Preservation_Summary
-     (Id : Command_Id) return String
-     renames Editor.Commands.Reference_Metadata.Command_State_Preservation_Summary;
-
-   function Command_Non_Goal_Summary
-     (Id : Command_Id) return String
-     renames Editor.Commands.Reference_Metadata.Command_Non_Goal_Summary;
-
-   function Command_Family
-     (Id : Command_Id) return Command_Family_Id
-     renames Editor.Commands.Reference_Metadata.Command_Family;
-
-   function Command_Family_Label
-     (Family : Command_Family_Id) return String
-     renames Editor.Commands.Reference_Metadata.Command_Family_Label;
-
-   function Command_Effect_Classification
-     (Id : Command_Id) return Command_Effect_Classification_Id
-     renames Editor.Commands.Reference_Metadata.Command_Effect_Classification;
-
-   function Command_Effect_Classification_Label
-     (Effect : Command_Effect_Classification_Id) return String
-     renames Editor.Commands.Reference_Metadata.Command_Effect_Classification_Label;
-
-   function File_Lifecycle_Target_Prompt_Metadata_Minimal return Boolean
-     renames Editor.Commands.Reference_Metadata.File_Lifecycle_Target_Prompt_Metadata_Minimal;
-
-   function File_Lifecycle_Target_Prompt_Metadata_Canonical_And_Minimal
-     return Boolean
-     renames Editor.Commands.Reference_Metadata.File_Lifecycle_Target_Prompt_Metadata_Canonical_And_Minimal;
-
-   function File_Lifecycle_Target_Prompt_Metadata_Frozen return Boolean
-     renames Editor.Commands.Reference_Metadata.File_Lifecycle_Target_Prompt_Metadata_Frozen;
-
-   function Has_Command_Reference
-     (Id : Command_Id) return Boolean
-   is
-   begin
-      case Id is
-         when Command_Save_File
-            | Command_Save_File_As
-            | Command_Close_Active_Buffer
-            | Command_Reopen_Closed_Buffer
-            | Command_Reload_Active_Buffer
-            | Command_Revert_Active_Buffer
-            | Command_Rename_Buffer_File
-            | Command_Delete_Buffer_File
-            | Command_Copy_Buffer_File
-            | Command_Move_Buffer_File =>
-            null;
-         when others =>
-            return False;
-      end case;
-
-      return Is_File_Lifecycle_Command (Id)
-        and then Command_Family (Id) = File_Lifecycle_Family
-        and then Command_Effect_Classification (Id) /= No_Command_Effect
-        and then Command_Summary (Id)'Length > 0
-        and then Command_Availability_Summary (Id)'Length > 0
-        and then Command_Mutation_Summary (Id)'Length > 0
-        and then Command_Filesystem_Effect_Summary (Id)'Length > 0
-        and then Command_State_Preservation_Summary (Id)'Length > 0
-        and then Command_Non_Goal_Summary (Id)'Length > 0;
-   end Has_Command_Reference;
-
-   function File_Lifecycle_Command_Reference_Coherent return Boolean
-   is
-      Covered : constant array (Positive range 1 .. 10) of Command_Id :=
-        (Command_Save_File,
-         Command_Save_File_As,
-         Command_Close_Active_Buffer,
-         Command_Reopen_Closed_Buffer,
-         Command_Reload_Active_Buffer,
-         Command_Revert_Active_Buffer,
-         Command_Rename_Buffer_File,
-         Command_Delete_Buffer_File,
-         Command_Copy_Buffer_File,
-         Command_Move_Buffer_File);
-      Seen : array (Command_Effect_Classification_Id) of Boolean :=
-        (others => False);
-      D : Command_Descriptor;
-   begin
-      for Id of Covered loop
-         D := Descriptor (Id);
-         if D.Id /= Id
-           or else D.Category /= File_Category
-           or else D.Family /= File_Lifecycle_Family
-           or else D.Effect_Classification /= Command_Effect_Classification (Id)
-           or else not Has_Command_Reference (Id)
-           or else To_String (D.Summary) /= Command_Summary (Id)
-           or else To_String (D.Availability_Summary) /= Command_Availability_Summary (Id)
-           or else To_String (D.Mutation_Summary) /= Command_Mutation_Summary (Id)
-           or else To_String (D.Filesystem_Effect_Summary) /= Command_Filesystem_Effect_Summary (Id)
-           or else To_String (D.State_Preservation_Summary) /= Command_State_Preservation_Summary (Id)
-           or else To_String (D.Non_Goal_Summary) /= Command_Non_Goal_Summary (Id)
-         then
-            return False;
-         end if;
-
-         if Seen (D.Effect_Classification) then
-            return False;
-         end if;
-         Seen (D.Effect_Classification) := True;
-      end loop;
-
-      return True;
-   end File_Lifecycle_Command_Reference_Coherent;
-
    function Make_Command_Descriptor
      (Id             : Command_Id;
       Stable_Name    : String;
@@ -1518,7 +1326,7 @@ package body Editor.Commands is
    function Discoverability_Category_Label
      (Id : Command_Id) return String
    is
-      Stable : constant String := Stable_Command_Name (Id);
+      Stable : constant String := Name_Metadata.Stable_Command_Name (Id);
    begin
       if Ada.Strings.Fixed.Index (Stable, "build.") = Stable'First then
          return "Build";
@@ -1600,7 +1408,7 @@ package body Editor.Commands is
    function Surface_Relevance_Label
      (Id : Command_Id) return String
    is
-      Stable : constant String := Stable_Command_Name (Id);
+      Stable : constant String := Name_Metadata.Stable_Command_Name (Id);
    begin
       if Stable'Length = 0 then
          return "";
@@ -2046,25 +1854,10 @@ package body Editor.Commands is
       return D.Id = Id;
    end Has_Descriptor;
 
-   function Stable_Command_Name
-     (Id : Command_Id) return String
-   is
-   begin
-      return Name_Metadata.Stable_Command_Name (Id);
-   end Stable_Command_Name;
-
-   function Command_Id_From_Stable_Name
-     (Name  : String;
-      Found : out Boolean) return Command_Id
-   is
-   begin
-      return Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
-   end Command_Id_From_Stable_Name;
-
    function Has_Stable_Name
      (Id : Command_Id) return Boolean
    is
-      Name : constant String := Stable_Command_Name (Id);
+      Name : constant String := Name_Metadata.Stable_Command_Name (Id);
    begin
       return Is_Bindable_Command (Id)
         and then Name'Length > 0

@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -11,6 +12,7 @@ with Editor.Files;
 with Editor.Project_Search;
 with Editor.Project;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Buffers;
 with Editor.Command_Route_Audit;
 with Editor.Executor;
@@ -21,6 +23,7 @@ with Editor.Executor.File_Operation_Commands;
 with Editor.Executor.File_Save_Basic_Commands;
 with Editor.State;
 with Editor.Search_Results;
+
 
 package body Editor.Project_Search.Tests is
 
@@ -33,7 +36,7 @@ package body Editor.Project_Search.Tests is
    use type Editor.Search_Results.Search_Results_Row_Kind;
    use type Editor.Commands.Command_Availability_Status;
    use type Editor.Commands.Command_Id;
-   use type Editor.Commands.Command_Visibility;
+   use type Editor.Commands.Descriptors.Command_Visibility;
 
    package Stream_IO renames Ada.Streams.Stream_IO;
 
@@ -238,7 +241,7 @@ package body Editor.Project_Search.Tests is
       Found : Boolean := False;
       Id    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
    begin
-      Id := Editor.Commands.Command_Id_From_Stable_Name (Stable_Name, Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Stable_Name, Found);
       Assert (not Found and then Id = Editor.Commands.No_Command,
               Stable_Name & " must not resolve to a registered command");
    end Assert_Absent_Command_Not_Exposed;
@@ -631,135 +634,135 @@ package body Editor.Project_Search.Tests is
       Found : Boolean := False;
       Id    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
    begin
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Open_Project_Search_Bar) = "project.search.show",
               "project search show command must have stable persisted name");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Toggle_Project_Search_Bar) = "project.search.toggle",
               "project search toggle command must have stable persisted name");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Close_Project_Search_Bar) = "project.search.hide",
               "project search hide command must have stable persisted name");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Run_Project_Search) = "project.search.run",
               "project search run command must have stable persisted name");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Run_Project_Search_From_Bar) = "project.search.query.set",
               "project search query.set route must have stable persisted name");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Project_Search_From_Selection) = "project.search.from-selection",
               "from-selection command must have stable persisted name");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Project_Search_From_Active_Word) = "project.search.from-active-word",
               "from-active-word command must have stable persisted name");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Project_Search_Active_Directory) = "project.search.active-directory",
               "active-directory command must have stable persisted name");
-      Assert (Editor.Commands.Descriptor
+      Assert (Editor.Commands.Descriptors.Descriptor
                 (Editor.Commands.Command_Project_Search_From_Selection).Bindable,
               "from-selection command should be bindable");
-      Assert (Editor.Commands.Descriptor
+      Assert (Editor.Commands.Descriptors.Descriptor
                 (Editor.Commands.Command_Project_Search_From_Active_Word).Bindable,
               "from-active-word command should be bindable");
-      Assert (Editor.Commands.Descriptor
+      Assert (Editor.Commands.Descriptors.Descriptor
                 (Editor.Commands.Command_Project_Search_Active_Directory).Bindable,
               "active-directory command should be bindable");
-      Assert (Editor.Commands.Descriptor
-                (Editor.Commands.Command_Project_Search_From_Selection).Visibility = Editor.Commands.Palette_Command,
+      Assert (Editor.Commands.Descriptors.Descriptor
+                (Editor.Commands.Command_Project_Search_From_Selection).Visibility = Editor.Commands.Descriptors.Palette_Command,
               "from-selection command should be Command Palette visible");
-      Assert (Editor.Commands.Descriptor
-                (Editor.Commands.Command_Project_Search_From_Active_Word).Visibility = Editor.Commands.Palette_Command,
+      Assert (Editor.Commands.Descriptors.Descriptor
+                (Editor.Commands.Command_Project_Search_From_Active_Word).Visibility = Editor.Commands.Descriptors.Palette_Command,
               "from-active-word command should be Command Palette visible");
-      Assert (Editor.Commands.Descriptor
-                (Editor.Commands.Command_Project_Search_Active_Directory).Visibility = Editor.Commands.Palette_Command,
+      Assert (Editor.Commands.Descriptors.Descriptor
+                (Editor.Commands.Command_Project_Search_Active_Directory).Visibility = Editor.Commands.Descriptors.Palette_Command,
               "active-directory command should be Command Palette visible");
-      Assert (not Editor.Commands.Descriptor
+      Assert (not Editor.Commands.Descriptors.Descriptor
                     (Editor.Commands.Command_Project_Search_From_Selection).Destructive
-              and then not Editor.Commands.Descriptor
+              and then not Editor.Commands.Descriptors.Descriptor
                     (Editor.Commands.Command_Project_Search_From_Active_Word).Destructive
-              and then not Editor.Commands.Descriptor
+              and then not Editor.Commands.Descriptors.Descriptor
                     (Editor.Commands.Command_Project_Search_Active_Directory).Destructive,
               "context search commands should be non-destructive");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Clear_Project_Search) = "project.search.query.clear",
               "project search query.clear route must have stable persisted name");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Next_Project_Search_Result) = "project.search.next",
               "project search next command must have stable persisted name");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Previous_Project_Search_Result) = "project.search.previous",
               "project search previous command must have stable persisted name");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_First_Project_Search_Result) = "project.search.first",
               "project search first command must have stable persisted name");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Last_Project_Search_Result) = "project.search.last",
               "project search last command must have stable persisted name");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Reveal_Active_Project_Search_Result) = "project.search.reveal-active-result",
               "project search reveal-active-result command must have stable persisted name");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Project_Search_Scope_Selected_Directory) = "project.search.scope.selected-directory",
               "project search selected-directory scope command must have stable persisted name");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Open_Selected_Project_Search_Result) = "project.search.open-selected",
               "project search open-selected command must have stable persisted name");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Project_Search_Kind_Next) = "project.search.kind.next",
               "Project Search kind-next command must have stable persisted name");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Project_Search_Kind_Previous) = "project.search.kind.previous",
               "Project Search kind-previous command must have stable persisted name");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Project_Search_Kind_Clear) = "project.search.kind.clear",
               "Project Search kind-clear command must have stable persisted name");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Project_Search_Scope_Set) = "project.search.scope.set",
               "Project Search scope-set command must have stable persisted name");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Project_Search_Scope_Clear) = "project.search.scope.clear",
               "Project Search scope-clear command must have stable persisted name");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Project_Search_Case_Toggle) = "project.search.case.toggle",
               "Project Search case-toggle command must have stable persisted name");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Project_Search_Case_Clear) = "project.search.case.clear",
               "Project Search case-clear command must have stable persisted name");
-      Assert (not Editor.Commands.Descriptor
+      Assert (not Editor.Commands.Descriptors.Descriptor
                     (Editor.Commands.Command_Project_Search_Scope_Set).Bindable,
               "payload-style Project Search scope.set must not be bindable");
-      Assert (Editor.Commands.Descriptor
+      Assert (Editor.Commands.Descriptors.Descriptor
                 (Editor.Commands.Command_Project_Search_Case_Toggle).Bindable,
               "Project Search case toggle should be bindable like local search commands");
 
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("project.search.run", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("project.search.run", Found);
       Assert (Found and then Id = Editor.Commands.Command_Run_Project_Search,
               "project.search.run should roundtrip through stable command lookup");
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("project.search.toggle", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("project.search.toggle", Found);
       Assert (Found and then Id = Editor.Commands.Command_Toggle_Project_Search_Bar,
               "project.search.toggle should roundtrip through stable command lookup");
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("project.search.scope.clear", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("project.search.scope.clear", Found);
       Assert (Found and then Id = Editor.Commands.Command_Project_Search_Scope_Clear,
               "project.search.scope.clear should roundtrip through stable command lookup");
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("project.search.from-selection", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("project.search.from-selection", Found);
       Assert (Found and then Id = Editor.Commands.Command_Project_Search_From_Selection,
               "project.search.from-selection should roundtrip through stable command lookup");
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("project.search.from-active-word", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("project.search.from-active-word", Found);
       Assert (Found and then Id = Editor.Commands.Command_Project_Search_From_Active_Word,
               "project.search.from-active-word should roundtrip through stable command lookup");
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("project.search.active-directory", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("project.search.active-directory", Found);
       Assert (Found and then Id = Editor.Commands.Command_Project_Search_Active_Directory,
               "project.search.active-directory should roundtrip through stable command lookup");
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("project.search.first", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("project.search.first", Found);
       Assert (Found and then Id = Editor.Commands.Command_First_Project_Search_Result,
               "project.search.first should roundtrip through stable command lookup");
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("project.search.last", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("project.search.last", Found);
       Assert (Found and then Id = Editor.Commands.Command_Last_Project_Search_Result,
               "project.search.last should roundtrip through stable command lookup");
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("project.search.reveal-active-result", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("project.search.reveal-active-result", Found);
       Assert (Found and then Id = Editor.Commands.Command_Reveal_Active_Project_Search_Result,
               "project.search.reveal-active-result should roundtrip through stable command lookup");
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("project.search.scope.selected-directory", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("project.search.scope.selected-directory", Found);
       Assert (Found and then Id = Editor.Commands.Command_Project_Search_Scope_Selected_Directory,
               "project.search.scope.selected-directory should roundtrip through stable command lookup");
    end Test_Command_Surface_Stable_Names;
@@ -2872,70 +2875,70 @@ package body Editor.Project_Search.Tests is
       pragma Unreferenced (T);
       Found : Boolean := False;
       Id    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
-      D     : Editor.Commands.Command_Descriptor;
+      D     : Editor.Commands.Descriptors.Command_Descriptor;
    begin
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("project.search.whole-word.toggle", Found);
       Assert (Found and then Id = Editor.Commands.Command_Project_Search_Whole_Word_Toggle,
               "whole-word toggle must have a stable no-payload command name");
-      D := Editor.Commands.Descriptor (Id);
+      D := Editor.Commands.Descriptors.Descriptor (Id);
       Assert (D.Id = Id and then D.Bindable,
               "whole-word toggle must have command metadata and remain bindable");
       Assert (Editor.Commands.Is_Search_Command (Id),
               "whole-word toggle must be classified as a search command");
 
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("project.search.whole-word.clear", Found);
       Assert (Found and then Id = Editor.Commands.Command_Project_Search_Whole_Word_Clear,
               "whole-word clear must have a stable no-payload command name");
       Assert (Editor.Commands.Is_Search_Command (Id),
               "whole-word clear must be classified as a search command");
 
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("project.search.regex.toggle", Found);
       Assert (Found and then Id = Editor.Commands.Command_Project_Search_Regex_Toggle,
               "regex toggle must have a stable no-payload command name");
-      D := Editor.Commands.Descriptor (Id);
+      D := Editor.Commands.Descriptors.Descriptor (Id);
       Assert (D.Id = Id and then D.Bindable,
               "regex toggle must have command metadata and remain bindable");
       Assert (Editor.Commands.Is_Search_Command (Id),
               "regex toggle must be classified as a search command");
 
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("project.search.regex.clear", Found);
       Assert (Found and then Id = Editor.Commands.Command_Project_Search_Regex_Clear,
               "regex clear must have a stable no-payload command name");
       Assert (Editor.Commands.Is_Search_Command (Id),
               "regex clear must be classified as a search command");
 
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("project.search.include.set", Found);
       Assert (Found and then Id = Editor.Commands.Command_Project_Search_Include_Filter_Set,
               "include-filter set must resolve as a non-keybinding explicit-text command");
-      D := Editor.Commands.Descriptor (Id);
+      D := Editor.Commands.Descriptors.Descriptor (Id);
       Assert (not D.Bindable,
               "include-filter set must not be bindable because it requires explicit text");
       Assert (Editor.Commands.Is_Search_Command (Id),
               "include-filter set must be classified as a search command");
 
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("project.search.exclude.set", Found);
       Assert (Found and then Id = Editor.Commands.Command_Project_Search_Exclude_Filter_Set,
               "exclude-filter set must resolve as a non-keybinding explicit-text command");
-      D := Editor.Commands.Descriptor (Id);
+      D := Editor.Commands.Descriptors.Descriptor (Id);
       Assert (not D.Bindable,
               "exclude-filter set must not be bindable because it requires explicit text");
       Assert (Editor.Commands.Is_Search_Command (Id),
               "exclude-filter set must be classified as a search command");
 
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("project.search.include.clear", Found);
       Assert (Found and then Id = Editor.Commands.Command_Project_Search_Include_Filter_Clear,
               "include-filter clear must have a stable no-payload command name");
       Assert (Editor.Commands.Is_Search_Command (Id),
               "include-filter clear must be classified as a search command");
 
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("project.search.exclude.clear", Found);
       Assert (Found and then Id = Editor.Commands.Command_Project_Search_Exclude_Filter_Clear,
               "exclude-filter clear must have a stable no-payload command name");

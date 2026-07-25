@@ -1,3 +1,5 @@
+with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with Ada.Containers;
@@ -5,6 +7,7 @@ with Ada.Directories;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Command_Palette;
 with Editor.Command_Route_Audit;
 with Editor.Configuration_Audit;
@@ -54,6 +57,11 @@ with Editor.View;
 with Editor.Workspace_Persistence;
 with Text_Buffer;
 
+with Editor.Commands.Reference_Metadata;
+
+
+
+
 package body Editor.Files.Target_Prompt_Metadata_Tests is
 
    use type Editor.Files.File_Status;
@@ -61,11 +69,11 @@ package body Editor.Files.Target_Prompt_Metadata_Tests is
    use type Editor.Files.File_Save_Status;
    use type Editor.Files.File_Move_Status;
    use type Editor.Commands.Command_Id;
-   use type Editor.Commands.Command_Category;
-   use type Editor.Commands.Command_Visibility;
+   use type Editor.Commands.Descriptors.Command_Category;
+   use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Command_Palette.Command_Palette_Row_Kind;
-   use type Editor.Commands.Command_Family_Id;
-   use type Editor.Commands.Command_Effect_Classification_Id;
+   use type Editor.Commands.Descriptors.Command_Family_Id;
+   use type Editor.Commands.Descriptors.Command_Effect_Classification_Id;
    use type Editor.Keybindings.Keybinding_Validation_Status;
    use type Editor.Buffers.Buffer_Id;
    use type Editor.Messages.Message_Severity;
@@ -394,7 +402,7 @@ package body Editor.Files.Target_Prompt_Metadata_Tests is
       pragma Unreferenced (T);
       S            : Editor.State.State_Type;
       Source       : constant String := Temp_Path ("route_source.txt");
-      Candidates   : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates   : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Count_Save_As : Natural := 0;
       Count_Rename  : Natural := 0;
       Count_Copy    : Natural := 0;
@@ -418,7 +426,7 @@ package body Editor.Files.Target_Prompt_Metadata_Tests is
       if Candidates.Length > 0 then
          for I in 0 .. Natural (Candidates.Length) - 1 loop
             declare
-               C : constant Editor.Commands.Command_Palette_Candidate := Candidates.Element (I);
+               C : constant Editor.Commands.Palette_Model.Command_Palette_Candidate := Candidates.Element (I);
             begin
                if C.Id = Editor.Commands.Command_Save_File_As then
                   Count_Save_As := Count_Save_As + 1;
@@ -451,16 +459,16 @@ package body Editor.Files.Target_Prompt_Metadata_Tests is
         and then Editor.Commands.Is_Bindable_Command (Editor.Commands.Command_Move_Buffer_File),
         "keybinding routes should continue to target canonical bindable command names only");
 
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("file.save-as-prompted", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("file.save-as-prompted", Found);
       Assert (not Found and then Id = Editor.Commands.No_Command,
         "prompted save-as alias must remain absent");
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("file.rename-buffer-file-prompted", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("file.rename-buffer-file-prompted", Found);
       Assert (not Found and then Id = Editor.Commands.No_Command,
         "prompted rename alias must remain absent");
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("file.copy-buffer-file-prompted", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("file.copy-buffer-file-prompted", Found);
       Assert (not Found and then Id = Editor.Commands.No_Command,
         "prompted copy alias must remain absent");
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("file.move-buffer-file-prompted", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("file.move-buffer-file-prompted", Found);
       Assert (not Found and then Id = Editor.Commands.No_Command,
         "prompted move alias must remain absent");
 
@@ -1119,7 +1127,7 @@ procedure Test_Target_Prompt_Metadata_Boundaries_And_Behavior_Freeze
       S             : Editor.State.State_Type;
       Source        : constant String := Temp_Path ("boundary_source.txt");
       Target        : constant String := Temp_Path ("exact target.txt");
-      Candidates    : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates    : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Save_As_Rows  : Natural := 0;
       Rename_Rows   : Natural := 0;
       Copy_Rows     : Natural := 0;
@@ -1138,11 +1146,11 @@ procedure Test_Target_Prompt_Metadata_Boundaries_And_Behavior_Freeze
       Editor.Messages.Clear (S.Messages);
       Before_Msgs := Editor.Messages.Count (S.Messages);
 
-      Assert (Editor.Commands.Command_Requires_Explicit_Target
+      Assert (Editor.Commands.Reference_Metadata.Command_Requires_Explicit_Target
                 (Editor.Commands.Command_Save_File_As)
-        and then Editor.Commands.Command_Is_Target_Prompt_Capable
+        and then Editor.Commands.Reference_Metadata.Command_Is_Target_Prompt_Capable
                 (Editor.Commands.Command_Save_File_As)
-        and then Editor.Commands.Command_Target_Prompt_Label
+        and then Editor.Commands.Reference_Metadata.Command_Target_Prompt_Label
                 (Editor.Commands.Command_Save_File_As) = "Save As target",
         "reading minimal metadata must be a pure descriptor/accessor operation");
       Assert (not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S)
@@ -1159,9 +1167,9 @@ procedure Test_Target_Prompt_Metadata_Boundaries_And_Behavior_Freeze
       if Candidates.Length > 0 then
          for I in 0 .. Natural (Candidates.Length) - 1 loop
             declare
-               C : constant Editor.Commands.Command_Palette_Candidate :=
+               C : constant Editor.Commands.Palette_Model.Command_Palette_Candidate :=
                  Candidates.Element (I);
-               Name : constant String := Editor.Commands.Stable_Command_Name (C.Id);
+               Name : constant String := Editor.Commands.Name_Metadata.Stable_Command_Name (C.Id);
             begin
                Assert (Ada.Strings.Fixed.Index (Name, "prompt") = 0,
                  "Command Palette must not expose prompted aliases");
@@ -1241,11 +1249,11 @@ procedure Test_Target_Prompt_Metadata_Minimality_Guard
       end Reject_In;
 
       procedure Check_Command_Text (Id : Editor.Commands.Command_Id) is
-         D       : constant Editor.Commands.Command_Descriptor :=
-           Editor.Commands.Descriptor (Id);
-         Context : constant String := Editor.Commands.Stable_Command_Name (Id);
+         D       : constant Editor.Commands.Descriptors.Command_Descriptor :=
+           Editor.Commands.Descriptors.Descriptor (Id);
+         Context : constant String := Editor.Commands.Name_Metadata.Stable_Command_Name (Id);
          Text    : constant String :=
-           Editor.Commands.Stable_Command_Name (Id) & " " &
+           Editor.Commands.Name_Metadata.Stable_Command_Name (Id) & " " &
            To_String (D.Name) & " " &
            To_String (D.Description) & " " &
            To_String (D.Summary) & " " &
@@ -1296,14 +1304,14 @@ procedure Test_Target_Prompt_Metadata_Minimality_Guard
 
       for Id in Editor.Commands.Command_Id loop
          declare
-            D : constant Editor.Commands.Command_Descriptor :=
-              Editor.Commands.Descriptor (Id);
+            D : constant Editor.Commands.Descriptors.Command_Descriptor :=
+              Editor.Commands.Descriptors.Descriptor (Id);
             pragma Unreferenced (D);
             Required : constant Boolean :=
-              Editor.Commands.Command_Requires_Explicit_Target (Id);
+              Editor.Commands.Reference_Metadata.Command_Requires_Explicit_Target (Id);
             Capable : constant Boolean :=
-              Editor.Commands.Command_Is_Target_Prompt_Capable (Id);
-            Label : constant String := Editor.Commands.Command_Target_Prompt_Label (Id);
+              Editor.Commands.Reference_Metadata.Command_Is_Target_Prompt_Capable (Id);
+            Label : constant String := Editor.Commands.Reference_Metadata.Command_Target_Prompt_Label (Id);
             pragma Unreferenced (Required, Capable, Label);
          begin
             null;
@@ -1315,15 +1323,15 @@ procedure Test_Target_Prompt_Metadata_Minimality_Guard
       Save_As_Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Save_File_As);
 
-      Assert (Editor.Commands.Command_Requires_Explicit_Target
+      Assert (Editor.Commands.Reference_Metadata.Command_Requires_Explicit_Target
                 (Editor.Commands.Command_Rename_Buffer_File)
-        and then Editor.Commands.Command_Is_Target_Prompt_Capable
+        and then Editor.Commands.Reference_Metadata.Command_Is_Target_Prompt_Capable
                 (Editor.Commands.Command_Rename_Buffer_File)
         and then not Editor.Commands.Is_Available (Rename_Avail),
         "explicit-target metadata must not imply runtime availability");
-      Assert (Editor.Commands.Command_Requires_Explicit_Target
+      Assert (Editor.Commands.Reference_Metadata.Command_Requires_Explicit_Target
                 (Editor.Commands.Command_Save_File_As)
-        and then Editor.Commands.Command_Is_Target_Prompt_Capable
+        and then Editor.Commands.Reference_Metadata.Command_Is_Target_Prompt_Capable
                 (Editor.Commands.Command_Save_File_As)
         and then not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S),
         "metadata reads must not open the target prompt");
@@ -1351,7 +1359,7 @@ procedure Test_Target_Prompt_Metadata_Minimality_Guard
       S             : Editor.State.State_Type;
       Source        : constant String := Temp_Path ("boundary_source.txt");
       Target        : constant String := Temp_Path ("prompted target.txt");
-      Candidates    : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates    : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Save_As_Rows  : Natural := 0;
       Rename_Rows   : Natural := 0;
       Copy_Rows     : Natural := 0;
@@ -1378,9 +1386,9 @@ procedure Test_Target_Prompt_Metadata_Minimality_Guard
       if Candidates.Length > 0 then
          for I in 0 .. Natural (Candidates.Length) - 1 loop
             declare
-               C    : constant Editor.Commands.Command_Palette_Candidate :=
+               C    : constant Editor.Commands.Palette_Model.Command_Palette_Candidate :=
                  Candidates.Element (I);
-               Name : constant String := Editor.Commands.Stable_Command_Name (C.Id);
+               Name : constant String := Editor.Commands.Name_Metadata.Stable_Command_Name (C.Id);
             begin
                Assert (Ada.Strings.Fixed.Index (Name, "prompt") = 0,
                  "Command Palette must expose no prompted aliases");
@@ -1486,35 +1494,35 @@ procedure Test_Target_Prompt_Metadata_Minimality_Guard
 
       Prompt_Capable_Count : Natural := 0;
    begin
-      Assert (Editor.Commands.File_Lifecycle_Target_Prompt_Metadata_Minimal,
+      Assert (Editor.Commands.Reference_Metadata.File_Lifecycle_Target_Prompt_Metadata_Minimal,
         "retained target prompt metadata must remain minimal");
-      Assert (Editor.Commands.File_Lifecycle_Target_Prompt_Metadata_Canonical_And_Minimal,
+      Assert (Editor.Commands.Reference_Metadata.File_Lifecycle_Target_Prompt_Metadata_Canonical_And_Minimal,
         "cleanup guard must keep canonical descriptor/accessor prompt metadata coherent");
 
       for E of Expected loop
          declare
-            D : constant Editor.Commands.Command_Descriptor :=
-              Editor.Commands.Descriptor (E.Id);
+            D : constant Editor.Commands.Descriptors.Command_Descriptor :=
+              Editor.Commands.Descriptors.Descriptor (E.Id);
          begin
             Assert (D.Requires_Explicit_Target = E.Required
               and then D.Target_Prompt_Capable = E.Capable
               and then To_String (D.Target_Prompt_Label) = To_String (E.Label),
               "descriptor-owned prompt metadata drift for " &
-              Editor.Commands.Stable_Command_Name (E.Id));
-            Assert (Editor.Commands.Command_Requires_Explicit_Target (E.Id) =
+              Editor.Commands.Name_Metadata.Stable_Command_Name (E.Id));
+            Assert (Editor.Commands.Reference_Metadata.Command_Requires_Explicit_Target (E.Id) =
                     D.Requires_Explicit_Target
-              and then Editor.Commands.Command_Is_Target_Prompt_Capable (E.Id) =
+              and then Editor.Commands.Reference_Metadata.Command_Is_Target_Prompt_Capable (E.Id) =
                        D.Target_Prompt_Capable
-              and then Editor.Commands.Command_Target_Prompt_Label (E.Id) =
+              and then Editor.Commands.Reference_Metadata.Command_Target_Prompt_Label (E.Id) =
                        To_String (D.Target_Prompt_Label),
               "public prompt accessors must project descriptor metadata for " &
-              Editor.Commands.Stable_Command_Name (E.Id));
+              Editor.Commands.Name_Metadata.Stable_Command_Name (E.Id));
             Assert (Editor.Executor.Shared_Services.Command_Requires_Explicit_Target (E.Id) =
                     D.Requires_Explicit_Target
               and then Editor.Executor.File_Target_Prompt_Commands.Command_Requires_File_Target_Prompt (E.Id) =
                        D.Target_Prompt_Capable,
               "Executor prompt predicates must remain canonical-accessor derived for " &
-              Editor.Commands.Stable_Command_Name (E.Id));
+              Editor.Commands.Name_Metadata.Stable_Command_Name (E.Id));
 
             if D.Target_Prompt_Capable then
                Prompt_Capable_Count := Prompt_Capable_Count + 1;
@@ -1526,14 +1534,14 @@ procedure Test_Target_Prompt_Metadata_Minimality_Guard
         "only Save As, Rename, Copy, and Move may be prompt-capable");
 
       for Id in Editor.Commands.Command_Id loop
-         if Editor.Commands.Command_Is_Target_Prompt_Capable (Id) then
-            Assert (Editor.Commands.Is_File_Lifecycle_Command (Id)
-              and then Editor.Commands.Command_Requires_Explicit_Target (Id)
-              and then Editor.Commands.Command_Target_Prompt_Label (Id)'Length > 0,
+         if Editor.Commands.Reference_Metadata.Command_Is_Target_Prompt_Capable (Id) then
+            Assert (Editor.Commands.Reference_Metadata.Is_File_Lifecycle_Command (Id)
+              and then Editor.Commands.Reference_Metadata.Command_Requires_Explicit_Target (Id)
+              and then Editor.Commands.Reference_Metadata.Command_Target_Prompt_Label (Id)'Length > 0,
               "no non-file or unlabeled command may become prompt-capable");
          else
-            Assert (not Editor.Commands.Command_Requires_Explicit_Target (Id)
-              and then Editor.Commands.Command_Target_Prompt_Label (Id)'Length = 0,
+            Assert (not Editor.Commands.Reference_Metadata.Command_Requires_Explicit_Target (Id)
+              and then Editor.Commands.Reference_Metadata.Command_Target_Prompt_Label (Id)'Length = 0,
               "non-prompt-capable commands must carry no prompt metadata");
          end if;
       end loop;
@@ -1640,9 +1648,9 @@ procedure Test_Metadata_Cleanup_Behavior_And_Persistence_Smoke
       end Reject_In;
 
       procedure Assert_Descriptor_Minimal (Id : Editor.Commands.Command_Id) is
-         D       : constant Editor.Commands.Command_Descriptor :=
-           Editor.Commands.Descriptor (Id);
-         Context : constant String := Editor.Commands.Stable_Command_Name (Id);
+         D       : constant Editor.Commands.Descriptors.Command_Descriptor :=
+           Editor.Commands.Descriptors.Descriptor (Id);
+         Context : constant String := Editor.Commands.Name_Metadata.Stable_Command_Name (Id);
          Text    : constant String :=
            Context & " " &
            To_String (D.Name) & " " &
@@ -1676,28 +1684,28 @@ procedure Test_Metadata_Cleanup_Behavior_And_Persistence_Smoke
          Reject_In (Text, "force prompt", Context);
       end Assert_Descriptor_Minimal;
    begin
-      Assert (Editor.Commands.File_Lifecycle_Target_Prompt_Metadata_Minimal,
+      Assert (Editor.Commands.Reference_Metadata.File_Lifecycle_Target_Prompt_Metadata_Minimal,
         "minimal metadata guard must remain true");
-      Assert (Editor.Commands.File_Lifecycle_Target_Prompt_Metadata_Canonical_And_Minimal,
+      Assert (Editor.Commands.Reference_Metadata.File_Lifecycle_Target_Prompt_Metadata_Canonical_And_Minimal,
         "canonical/minimal cleanup guard must remain true");
-      Assert (Editor.Commands.File_Lifecycle_Target_Prompt_Metadata_Frozen,
+      Assert (Editor.Commands.Reference_Metadata.File_Lifecycle_Target_Prompt_Metadata_Frozen,
         "final metadata freeze guard must remain true");
 
       for E of Expected loop
          declare
-            D : constant Editor.Commands.Command_Descriptor :=
-              Editor.Commands.Descriptor (E.Id);
+            D : constant Editor.Commands.Descriptors.Command_Descriptor :=
+              Editor.Commands.Descriptors.Descriptor (E.Id);
          begin
             Assert (D.Id = E.Id
-              and then Editor.Commands.Stable_Command_Name (E.Id) = To_String (E.Name),
+              and then Editor.Commands.Name_Metadata.Stable_Command_Name (E.Id) = To_String (E.Name),
               "descriptor identity drift for " & To_String (E.Name));
             Assert (D.Requires_Explicit_Target = E.Required
               and then D.Target_Prompt_Capable = E.Capable
               and then To_String (D.Target_Prompt_Label) = To_String (E.Label),
               "descriptor-owned prompt metadata mapping drift for " & To_String (E.Name));
-            Assert (Editor.Commands.Command_Requires_Explicit_Target (E.Id) = E.Required
-              and then Editor.Commands.Command_Is_Target_Prompt_Capable (E.Id) = E.Capable
-              and then Editor.Commands.Command_Target_Prompt_Label (E.Id) = To_String (E.Label),
+            Assert (Editor.Commands.Reference_Metadata.Command_Requires_Explicit_Target (E.Id) = E.Required
+              and then Editor.Commands.Reference_Metadata.Command_Is_Target_Prompt_Capable (E.Id) = E.Capable
+              and then Editor.Commands.Reference_Metadata.Command_Target_Prompt_Label (E.Id) = To_String (E.Label),
               "public metadata accessor mapping drift for " & To_String (E.Name));
             Assert (Editor.Executor.Shared_Services.Command_Requires_Explicit_Target (E.Id) = E.Required
               and then Editor.Executor.File_Target_Prompt_Commands.Command_Requires_File_Target_Prompt (E.Id) = E.Capable,
@@ -1724,17 +1732,17 @@ procedure Test_Metadata_Cleanup_Behavior_And_Persistence_Smoke
         "only Save As, Rename, Copy, and Move may require and support target prompts");
 
       for Id in Editor.Commands.Command_Id loop
-         if Editor.Commands.Command_Is_Target_Prompt_Capable (Id) then
+         if Editor.Commands.Reference_Metadata.Command_Is_Target_Prompt_Capable (Id) then
             Assert (Id in Editor.Commands.Command_Save_File_As
                        | Editor.Commands.Command_Rename_Buffer_File
                        | Editor.Commands.Command_Copy_Buffer_File
                        | Editor.Commands.Command_Move_Buffer_File
-              and then Editor.Commands.Command_Requires_Explicit_Target (Id)
-              and then Editor.Commands.Command_Target_Prompt_Label (Id)'Length > 0,
+              and then Editor.Commands.Reference_Metadata.Command_Requires_Explicit_Target (Id)
+              and then Editor.Commands.Reference_Metadata.Command_Target_Prompt_Label (Id)'Length > 0,
               "no command outside the frozen file target set may become prompt-capable");
          else
-            Assert (not Editor.Commands.Command_Requires_Explicit_Target (Id)
-              and then Editor.Commands.Command_Target_Prompt_Label (Id)'Length = 0,
+            Assert (not Editor.Commands.Reference_Metadata.Command_Requires_Explicit_Target (Id)
+              and then Editor.Commands.Reference_Metadata.Command_Target_Prompt_Label (Id)'Length = 0,
               "non-prompt-capable commands must not retain prompt metadata");
          end if;
       end loop;
@@ -1799,22 +1807,22 @@ procedure Test_Render_Audit_Persistence_And_Behavior_Final_Freeze
            and then Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Label (S) = To_String (P.Label)
            and then Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (S) = "",
            "no-target invocation must open canonical prompt for " &
-           Editor.Commands.Stable_Command_Name (P.Id));
+           Editor.Commands.Name_Metadata.Stable_Command_Name (P.Id));
          Editor.Render_Model.Build_Render_Snapshot (S, Snap);
          Assert (Snap.File_Target_Prompt_Visible
            and then To_String (Snap.File_Target_Prompt_Label) = To_String (P.Label),
            "render snapshot must project canonical prompt label for " &
-           Editor.Commands.Stable_Command_Name (P.Id));
+           Editor.Commands.Name_Metadata.Stable_Command_Name (P.Id));
          Editor.Executor.File_Target_Prompt_Commands.Cancel_File_Target_Prompt (S);
          Assert (not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S),
            "prompt cancellation must clean transient state for " &
-           Editor.Commands.Stable_Command_Name (P.Id));
+           Editor.Commands.Name_Metadata.Stable_Command_Name (P.Id));
       end loop;
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File);
-      Assert (not Editor.Commands.Command_Is_Target_Prompt_Capable
+      Assert (not Editor.Commands.Reference_Metadata.Command_Is_Target_Prompt_Capable
                 (Editor.Commands.Command_Delete_Buffer_File)
-        and then not Editor.Commands.Command_Requires_Explicit_Target
+        and then not Editor.Commands.Reference_Metadata.Command_Requires_Explicit_Target
                 (Editor.Commands.Command_Delete_Buffer_File)
         and then not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S)
         and then Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (S) = "",

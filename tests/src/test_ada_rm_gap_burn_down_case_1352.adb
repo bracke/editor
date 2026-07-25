@@ -1,7 +1,9 @@
+with Editor.Commands.Audit_Model; use Editor.Commands.Audit_Model;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Editor.Ada_RM_Gap_Burn_Down_Case_1352;
+
 
 package body Test_Ada_RM_Gap_Burn_Down_Case_1352 is
 

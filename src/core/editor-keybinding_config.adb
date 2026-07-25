@@ -4,6 +4,8 @@ with Ada.Strings.Fixed;
 with Ada.Text_IO;
 with Editor.Text_Helpers;
 
+with Editor.Commands.Name_Metadata;
+
 package body Editor.Keybinding_Config is
 
    use type Editor.Commands.Command_Id;
@@ -308,8 +310,8 @@ package body Editor.Keybinding_Config is
 
    function Name_Less (Left, Right : Editor.Commands.Command_Id) return Boolean is
    begin
-      return Editor.Commands.Stable_Command_Name (Left)
-        < Editor.Commands.Stable_Command_Name (Right);
+      return Editor.Commands.Name_Metadata.Stable_Command_Name (Left)
+        < Editor.Commands.Name_Metadata.Stable_Command_Name (Right);
    end Name_Less;
 
    function Sorted_Command_At
@@ -546,7 +548,7 @@ package body Editor.Keybinding_Config is
                  Sorted_Command_At (C, N, Include_Unbound => True);
             begin
                Ada.Text_IO.Put
-                 (File, Editor.Commands.Stable_Command_Name (Id) & "=");
+                 (File, Editor.Commands.Name_Metadata.Stable_Command_Name (Id) & "=");
                if C.Entries (Id).State = Entry_Unbound then
                   Ada.Text_IO.Put_Line (File, "none");
                else
@@ -710,7 +712,7 @@ package body Editor.Keybinding_Config is
                      Found_Command : Boolean := False;
                      Found_Chord   : Boolean := False;
                      Id : constant Editor.Commands.Command_Id :=
-                       Editor.Commands.Command_Id_From_Stable_Name
+                       Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
                          (Key, Found_Command);
                      Chord : Editor.Keybindings.Key_Chord;
                   begin

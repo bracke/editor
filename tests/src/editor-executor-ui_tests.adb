@@ -1,3 +1,4 @@
+with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Executor.Command_Palette_Projection;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -35,6 +36,7 @@ with Editor.Project_Search_Bar;
 with Editor.Quick_Open;
 with Editor.State;
 with Text_Buffer;
+
 
 package body Editor.Executor.UI_Tests is
 
@@ -745,7 +747,7 @@ package body Editor.Executor.UI_Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Found : Boolean := False;
       Expected : Unbounded_String;
    begin

@@ -1,3 +1,5 @@
+with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -17,10 +19,12 @@ with Editor.Messages;
 with Editor.Settings;
 with Editor.State;
 
+
+
 package body Editor.Feature_Integration.Tests is
 
    use type Editor.Commands.Command_Id;
-   use type Editor.Commands.Command_Category;
+   use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Feature_Integration.Feature_Integration_Status;
    use type Editor.Keybinding_Config.Keybinding_Config_Status;
    use type Editor.Keybindings.Binding_Result;
@@ -317,9 +321,9 @@ package body Editor.Feature_Integration.Tests is
    is
       pragma Unreferenced (T);
       S          : Editor.State.State_Type;
-      Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Found      : Boolean := False;
-      D          : Editor.Commands.Command_Descriptor;
+      D          : Editor.Commands.Descriptors.Command_Descriptor;
    begin
       Editor.Command_Palette.Reset;
       Editor.State.Init (S);
@@ -328,7 +332,7 @@ package body Editor.Feature_Integration.Tests is
       for C of Candidates loop
          if C.Id = Editor.Commands.Command_Toggle_Problems_Panel then
             Found := True;
-            D := Editor.Commands.Descriptor (C.Id);
+            D := Editor.Commands.Descriptors.Descriptor (C.Id);
             Assert (To_String (C.Label) = To_String (D.Name),
                     "feature-like palette label must come from descriptor");
             Assert (To_String (C.Description) = To_String (D.Description),

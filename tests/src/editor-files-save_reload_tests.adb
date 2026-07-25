@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with Ada.Containers;
@@ -5,6 +6,7 @@ with Ada.Directories;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Command_Palette;
 with Editor.Command_Route_Audit;
 with Editor.Configuration_Audit;
@@ -53,6 +55,7 @@ with Editor.View;
 with Editor.Workspace_Persistence;
 with Text_Buffer;
 
+
 package body Editor.Files.Save_Reload_Tests is
 
    use type Editor.Files.File_Status;
@@ -60,11 +63,11 @@ package body Editor.Files.Save_Reload_Tests is
    use type Editor.Files.File_Save_Status;
    use type Editor.Files.File_Move_Status;
    use type Editor.Commands.Command_Id;
-   use type Editor.Commands.Command_Category;
-   use type Editor.Commands.Command_Visibility;
+   use type Editor.Commands.Descriptors.Command_Category;
+   use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Command_Palette.Command_Palette_Row_Kind;
-   use type Editor.Commands.Command_Family_Id;
-   use type Editor.Commands.Command_Effect_Classification_Id;
+   use type Editor.Commands.Descriptors.Command_Family_Id;
+   use type Editor.Commands.Descriptors.Command_Effect_Classification_Id;
    use type Editor.Keybindings.Keybinding_Validation_Status;
    use type Editor.Buffers.Buffer_Id;
    use type Editor.Messages.Message_Severity;
@@ -742,7 +745,7 @@ package body Editor.Files.Save_Reload_Tests is
          Availability := Editor.Executor.Command_Availability (S, Command);
          Assert (not Editor.Commands.Is_Available (Availability),
            "lifecycle confirmation should hide target-changing command "
-           & Editor.Commands.Stable_Command_Name (Command));
+           & Editor.Commands.Name_Metadata.Stable_Command_Name (Command));
          Assert (Editor.Commands.Unavailable_Reason (Availability) =
            "Command unavailable while confirmation is pending.",
            "target-changing command should use pending-confirmation reason");
@@ -817,7 +820,7 @@ package body Editor.Files.Save_Reload_Tests is
          Availability := Editor.Executor.Command_Availability (S, Command);
          Assert (not Editor.Commands.Is_Available (Availability),
            "lifecycle confirmation should hide text mutation command "
-           & Editor.Commands.Stable_Command_Name (Command));
+           & Editor.Commands.Name_Metadata.Stable_Command_Name (Command));
          Assert (Editor.Commands.Unavailable_Reason (Availability) =
            "Command unavailable while confirmation is pending.",
            "text mutation command should use pending-confirmation reason");

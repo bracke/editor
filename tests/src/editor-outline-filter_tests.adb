@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with Ada.Characters.Handling;
 with Editor.Test_Helper;
@@ -14,6 +15,7 @@ with AUnit.Test_Cases;
 with Editor.Outline.Fixtures; use Editor.Outline.Fixtures;
 with Editor.Ada_Syntax_Core;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Cursors;
 with Editor.Executor;
 with Editor.Executor.File_Save_Commands;
@@ -32,10 +34,11 @@ with Editor.State;
 with Editor.Render_Model;
 with Editor.Workspace_Persistence;
 
+
 package body Editor.Outline.Filter_Tests is
 
    use type Editor.Commands.Command_Id;
-   use type Editor.Commands.Command_Category;
+   use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Executor.Command_Execution_Status;
    use type Editor.Outline.Outline_Item_Kind;
    use type Editor.Outline.Outline_Target_Kind;
@@ -522,25 +525,25 @@ package body Editor.Outline.Filter_Tests is
       Found : Boolean := False;
       Id    : Editor.Commands.Command_Id;
    begin
-      Assert (Editor.Commands.Label (Editor.Commands.Command_Focus_Outline_Filter) =
+      Assert (Editor.Commands.Descriptors.Label (Editor.Commands.Command_Focus_Outline_Filter) =
                 "Focus Outline Filter",
               "focus filter has concise palette label");
-      Assert (Editor.Commands.Label (Editor.Commands.Command_Clear_Outline_Filter) =
+      Assert (Editor.Commands.Descriptors.Label (Editor.Commands.Command_Clear_Outline_Filter) =
                 "Clear Outline Filter",
               "clear filter has concise palette label");
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("outline.filter.focus", Found);
       Assert (Found and then Id = Editor.Commands.Command_Focus_Outline_Filter,
               "focus filter stable command name round trips");
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("outline.filter.toggle", Found);
       Assert (Found and then Id = Editor.Commands.Command_Toggle_Outline_Filter,
               "toggle filter stable command name round trips");
-      Assert (Editor.Commands.Label
+      Assert (Editor.Commands.Descriptors.Label
                 (Editor.Commands.Command_Outline_Filter_History_Previous) =
                 "Outline: Previous Filter",
               "previous filter history command has concise palette label");
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("outline.filter.history.previous", Found);
       Assert
         (Found and then

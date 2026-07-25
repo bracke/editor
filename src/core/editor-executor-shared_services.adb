@@ -8,6 +8,9 @@ with Editor.Messages;
 with Editor.State;
 with Editor.View;
 
+with Editor.Commands.Reference_Metadata;
+
+
 package body Editor.Executor.Shared_Services is
 
    function Current_Message_Time_Ms return Natural
@@ -126,7 +129,7 @@ package body Editor.Executor.Shared_Services is
      (Id : Editor.Commands.Command_Id) return Boolean
    is
    begin
-      return Editor.Commands.Command_Requires_Explicit_Target (Id);
+      return Editor.Commands.Reference_Metadata.Command_Requires_Explicit_Target (Id);
    end Command_Requires_Explicit_Target;
 
    procedure Report_Success

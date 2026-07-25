@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
 with Editor.State;
 with Editor.Executor;
@@ -9,6 +10,7 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Text_Buffer;
 with Editor.Cursors; use Editor.Cursors;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 use type Editor.Commands.Command_Id;
 with Editor.History;
 with Editor.Messages;
@@ -19,8 +21,9 @@ with Editor.Keybindings;
 with Editor.Instance;
 
 use type Editor.Commands.Command_Availability_Status;
-use type Editor.Commands.Command_Visibility;
+use type Editor.Commands.Descriptors.Command_Visibility;
 use type Editor.Keybindings.Binding_Result;
+
 
 package body Editor.History.Tests is
 
@@ -412,22 +415,22 @@ package body Editor.History.Tests is
    begin
       Editor.State.Init (S);
       Assert
-        (Editor.Commands.Stable_Command_Name (Editor.Commands.Command_Undo) = "edit.undo",
+        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Undo) = "edit.undo",
          "undo stable command name must be canonical");
       Assert
-        (Editor.Commands.Stable_Command_Name (Editor.Commands.Command_Redo) = "edit.redo",
+        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Redo) = "edit.redo",
          "redo stable command name must be canonical");
       Assert
-        (Editor.Commands.Stable_Command_Name (Editor.Commands.Command_Edit_History_Clear) = "edit.history.clear",
+        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Edit_History_Clear) = "edit.history.clear",
          "clear edit history stable command name must be canonical");
       Assert
-        (Editor.Commands.Descriptor (Editor.Commands.Command_Undo).Visibility = Editor.Commands.Palette_Command,
+        (Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Undo).Visibility = Editor.Commands.Descriptors.Palette_Command,
          "undo must be command-palette visible");
       Assert
-        (Editor.Commands.Descriptor (Editor.Commands.Command_Redo).Visibility = Editor.Commands.Palette_Command,
+        (Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Redo).Visibility = Editor.Commands.Descriptors.Palette_Command,
          "redo must be command-palette visible");
       Assert
-        (Editor.Commands.Descriptor (Editor.Commands.Command_Edit_History_Clear).Visibility = Editor.Commands.Palette_Command,
+        (Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Edit_History_Clear).Visibility = Editor.Commands.Descriptors.Palette_Command,
          "clear edit history must be command-palette visible");
 
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Insert (0, 'a'));
@@ -457,18 +460,18 @@ package body Editor.History.Tests is
       Found : Boolean := False;
       Id    : Editor.Commands.Command_Id;
    begin
-      Id := Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
       Assert
         (not Found and then Id = Editor.Commands.No_Command,
          "removed undo/redo command name must be rejected: " & Name);
    end Assert_Removed_Name_Undo_Redo_Name_Rejected;
 
    function Palette_Contains_Stable_Name (Name : String) return Boolean is
-      Rows : constant Editor.Commands.Command_Descriptor_Vectors.Vector :=
-        Editor.Commands.Palette_Commands;
+      Rows : constant Editor.Commands.Descriptors.Command_Descriptor_Vectors.Vector :=
+        Editor.Commands.Descriptors.Palette_Commands;
    begin
       for Row of Rows loop
-         if Editor.Commands.Stable_Command_Name (Row.Id) = Name then
+         if Editor.Commands.Name_Metadata.Stable_Command_Name (Row.Id) = Name then
             return True;
          end if;
       end loop;

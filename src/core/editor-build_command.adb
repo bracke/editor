@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Directories;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -25,6 +26,7 @@ with Editor.Keybindings;
 with Editor.Project;
 with Editor.View;
 
+
 package body Editor.Build_Command is
 
    use Editor.Build_Command.Registry;
@@ -33,8 +35,8 @@ package body Editor.Build_Command is
    use type Editor.Build_UI.Public_Build_UI_Validation_Status;
    use type Editor.External_Producers.Build_Request_Validation_Status;
    use type Editor.External_Producers.Build_Run_Status;
-   use type Editor.Commands.Command_Visibility;
-   use type Editor.Commands.Command_Category;
+   use type Editor.Commands.Descriptors.Command_Visibility;
+   use type Editor.Commands.Descriptors.Command_Category;
    use type Build_Run_Readiness_Status;
    use type Editor.Build_Runner_Policy.Build_Execution_Policy;
    use type Editor.Build_Runner_Policy.Build_Cancellation_State;

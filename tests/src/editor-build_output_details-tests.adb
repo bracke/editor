@@ -14,6 +14,7 @@ with Editor.Build_Candidates;
 with Editor.Build_Output_Details_Audit;
 with Editor.Command_Execution;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Executor;
 with Editor.Input_Bridge;
 with Editor.Keybindings;
@@ -362,7 +363,7 @@ package body Editor.Build_Output_Details.Tests is
            Stdout_Text => "stdout",
            Stderr_Text => "stderr");
 
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("build.output-details.select-stdout", Found);
       Assert (Found
               and then Id =

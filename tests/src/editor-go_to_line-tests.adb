@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
@@ -10,6 +11,7 @@ with Editor.Executor.Navigation_Commands;
 with Editor.Executor.Command_Surface_Commands;
 with Editor.Executor.Quick_Open_Commands;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Navigation;
 with Editor.Navigation_History;
 with Editor.Messages;
@@ -24,9 +26,13 @@ with Editor.Buffer_Switcher;
 use type Editor.Go_To_Line.Go_To_Line_Validation_Status;
 use type Editor.Commands.Command_Availability_Status;
 use type Editor.Commands.Command_Id;
-use type Editor.Commands.Command_Category;
-use type Editor.Commands.Command_Visibility;
+use type Editor.Commands.Descriptors.Command_Category;
+use type Editor.Commands.Descriptors.Command_Visibility;
 use type Editor.Project_Search.Project_Search_Status;
+
+
+with Editor.Commands.Audits;
+
 
 package body Editor.Go_To_Line.Tests is
 
@@ -47,71 +53,71 @@ package body Editor.Go_To_Line.Tests is
    is
       pragma Unreferenced (T);
       S      : Editor.State.State_Type;
-      D      : constant Editor.Commands.Command_Descriptor :=
-        Editor.Commands.Descriptor (Editor.Commands.Command_Goto_Line);
+      D      : constant Editor.Commands.Descriptors.Command_Descriptor :=
+        Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Goto_Line);
       Found  : Boolean := False;
       Resolved : Editor.Commands.Command_Id := Editor.Commands.No_Command;
       Avail  : Editor.Commands.Command_Availability;
    begin
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Goto_Line) = "navigation.goto-line.show",
          "go-to-line show command must have the stable persisted name");
-      Resolved := Editor.Commands.Command_Id_From_Stable_Name
+      Resolved := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("navigation.goto-line.show", Found);
       Assert
         (Resolved = Editor.Commands.Command_Goto_Line and then Found,
          "stable go-to-line command name must resolve back to the command id");
       Assert
-        (D.Category = Editor.Commands.Navigation_Category
-         and then D.Visibility = Editor.Commands.Palette_Command
+        (D.Category = Editor.Commands.Descriptors.Navigation_Category
+         and then D.Visibility = Editor.Commands.Descriptors.Palette_Command
          and then D.Bindable,
          "go-to-line descriptor must be a bindable visible Navigation command");
       Assert
-        (Editor.Commands.Descriptor_Is_Complete
+        (Editor.Commands.Audits.Descriptor_Is_Complete
            (Editor.Commands.Command_Goto_Line),
          "go-to-line descriptor metadata must be complete");
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Goto_Line_Toggle) =
          "navigation.goto-line.toggle",
          "go-to-line toggle must have a stable prompt-command name");
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Goto_Line_Prefill_Current) =
          "navigation.goto-line.prefill-current",
          "go-to-line prefill-current must have a stable prompt-command name");
-      Resolved := Editor.Commands.Command_Id_From_Stable_Name
+      Resolved := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("navigation.goto-line.prefill-current", Found);
       Assert
         (Resolved = Editor.Commands.Command_Goto_Line_Prefill_Current and then Found,
          "stable prefill-current command name must resolve back to the command id");
       Assert
-        (Editor.Commands.Descriptor (Editor.Commands.Command_Goto_Line_Prefill_Current).Category
-           = Editor.Commands.Navigation_Category
-         and then Editor.Commands.Descriptor
+        (Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Goto_Line_Prefill_Current).Category
+           = Editor.Commands.Descriptors.Navigation_Category
+         and then Editor.Commands.Descriptors.Descriptor
            (Editor.Commands.Command_Goto_Line_Prefill_Current).Visibility
-           = Editor.Commands.Palette_Command
-         and then Editor.Commands.Descriptor
+           = Editor.Commands.Descriptors.Palette_Command
+         and then Editor.Commands.Descriptors.Descriptor
            (Editor.Commands.Command_Goto_Line_Prefill_Current).Bindable,
          "prefill-current descriptor must be a bindable visible Navigation command");
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Goto_Line_Query_Set) =
          "navigation.goto-line.query.set",
          "go-to-line query set must have a stable prompt-command name");
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Goto_Line_Query_Clear) =
          "navigation.goto-line.query.clear",
          "go-to-line query clear must have a stable prompt-command name");
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Accept_Goto_Line) =
          "navigation.goto-line.accept",
          "go-to-line accept must have a stable context-command name");
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Close_Goto_Line) =
          "navigation.goto-line.hide",
          "go-to-line hide must have a stable context-command name");

@@ -1,3 +1,5 @@
+with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with Ada.Containers;
@@ -5,6 +7,7 @@ with Ada.Directories;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Command_Palette;
 with Editor.Command_Route_Audit;
 with Editor.Configuration_Audit;
@@ -53,6 +56,8 @@ with Editor.View;
 with Editor.Workspace_Persistence;
 with Text_Buffer;
 
+
+
 package body Editor.Files.Reload_Revert_Operation_Tests is
 
    use type Editor.Files.File_Status;
@@ -60,11 +65,11 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
    use type Editor.Files.File_Save_Status;
    use type Editor.Files.File_Move_Status;
    use type Editor.Commands.Command_Id;
-   use type Editor.Commands.Command_Category;
-   use type Editor.Commands.Command_Visibility;
+   use type Editor.Commands.Descriptors.Command_Category;
+   use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Command_Palette.Command_Palette_Row_Kind;
-   use type Editor.Commands.Command_Family_Id;
-   use type Editor.Commands.Command_Effect_Classification_Id;
+   use type Editor.Commands.Descriptors.Command_Family_Id;
+   use type Editor.Commands.Descriptors.Command_Effect_Classification_Id;
    use type Editor.Keybindings.Keybinding_Validation_Status;
    use type Editor.Buffers.Buffer_Id;
    use type Editor.Messages.Message_Severity;
@@ -85,39 +90,39 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Id    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
    begin
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Reload_Active_Buffer) = "file.reload-buffer",
          "reload must use canonical file.reload-buffer persisted name");
       Assert
-        (Editor.Commands.Category (Editor.Commands.Command_Reload_Active_Buffer) =
-           Editor.Commands.File_Category,
+        (Editor.Commands.Descriptors.Category (Editor.Commands.Command_Reload_Active_Buffer) =
+           Editor.Commands.Descriptors.File_Category,
          "reload must remain a File command");
       Assert
         (Editor.Commands.Is_Bindable_Command
            (Editor.Commands.Command_Reload_Active_Buffer),
          "reload must remain bindable");
       Assert
-        (Editor.Commands.Descriptor
+        (Editor.Commands.Descriptors.Descriptor
            (Editor.Commands.Command_Reload_Active_Buffer).Visibility =
-           Editor.Commands.Palette_Command,
+           Editor.Commands.Descriptors.Palette_Command,
          "reload must remain Command Palette visible");
       Assert
         (Editor.Commands.Is_Lifecycle_Command
            (Editor.Commands.Command_Reload_Active_Buffer),
          "reload must be classified as lifecycle");
 
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("file.reload-buffer", Found);
       Assert
         (Found and then Id = Editor.Commands.Command_Reload_Active_Buffer,
          "file.reload-buffer must resolve to the reload command id");
 
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("reload-buffer", Found);
       Assert
         (not Found and then Id = Editor.Commands.No_Command,
          "removed reload-buffer name must not resolve");
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("file.reload-force", Found);
       Assert
         (not Found and then Id = Editor.Commands.No_Command,
@@ -649,7 +654,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
 
       procedure Check_Rejected (Name : String) is
       begin
-         Id := Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
+         Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
          Assert (not Found and then Id = Editor.Commands.No_Command,
            "non-goal reload command must not be exposed: " & Name);
       end Check_Rejected;
@@ -1117,22 +1122,22 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       pragma Unreferenced (T);
       Found : Boolean := False;
       Cmd   : Editor.Commands.Command_Id;
-      Desc  : Editor.Commands.Command_Descriptor;
+      Desc  : Editor.Commands.Descriptors.Command_Descriptor;
       S     : Editor.State.State_Type;
       Path  : constant String := Temp_Path ("revert_validation.txt");
       M     : Editor.Messages.Editor_Message;
    begin
-      Cmd := Editor.Commands.Command_Id_From_Stable_Name ("file.revert-buffer", Found);
+      Cmd := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("file.revert-buffer", Found);
       Assert (Found and then Cmd = Editor.Commands.Command_Revert_Active_Buffer,
         "file.revert-buffer must resolve to canonical command id");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
         (Editor.Commands.Command_Revert_Active_Buffer) = "file.revert-buffer",
         "revert must use canonical persisted command name");
-      Desc := Editor.Commands.Descriptor
+      Desc := Editor.Commands.Descriptors.Descriptor
         (Editor.Commands.Command_Revert_Active_Buffer);
-      Assert (Desc.Category = Editor.Commands.File_Category,
+      Assert (Desc.Category = Editor.Commands.Descriptors.File_Category,
         "revert must be a File command");
-      Assert (Desc.Bindable and then Desc.Visibility = Editor.Commands.Palette_Command,
+      Assert (Desc.Bindable and then Desc.Visibility = Editor.Commands.Descriptors.Palette_Command,
         "revert must be bindable and Command Palette visible");
       Assert (Desc.Destructive and then Desc.Lifecycle,
         "revert must be classified as destructive lifecycle command");
@@ -1671,7 +1676,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
 
       procedure Assert_Absent (Name : String) is
       begin
-         Id := Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
+         Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
          Assert (not Found and then Id = Editor.Commands.No_Command,
            "non-goal revert/recovery command must not be exposed: " & Name);
       end Assert_Absent;
@@ -1682,7 +1687,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Editor.Buffers.Reset_Global_For_Test;
 
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Revert_Active_Buffer) = "file.revert-buffer",
          "canonical active-buffer revert stable name must remain file.revert-buffer");
       Assert_Absent ("file.revert-all-buffers");
@@ -2088,7 +2093,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Save_As     : constant String := Temp_Path ("lifecycle_save_as.txt");
       Snap        : Editor.Render_Model.Render_Snapshot;
       Avail       : Editor.Commands.Command_Availability;
-      Candidates  : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates  : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Palette_Found : Boolean := False;
       Before_Text : Unbounded_String;
       Before_Gen  : Natural := 0;

@@ -1254,6 +1254,10 @@ editor-empty_state_guidance-surfaces.adb
 editor-empty_state_guidance-surfaces.ads
 editor-commands-availability_metadata.adb
 editor-commands-availability_metadata.ads
+editor-commands-descriptors.adb
+editor-commands-descriptors.ads
+editor-commands-palette_model.ads
+editor-commands-audit_model.ads
 editor-commands-descriptor_metadata.adb
 editor-commands-descriptor_metadata.ads
 editor-commands-audits.adb

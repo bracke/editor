@@ -1,3 +1,4 @@
+with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Containers; use type Ada.Containers.Count_Type;
 with Editor.Command_Palette;
@@ -10,6 +11,7 @@ with Editor.Overlay_Focus;
 with Editor.Render_Cache;
 with Editor.Theme;
 with Editor.View;
+
 
 package body Editor.Input_Bridge.Command_Palette_Handlers is
 
@@ -26,8 +28,8 @@ package body Editor.Input_Bridge.Command_Palette_Handlers is
       return Boolean
    is
       procedure Accept_Selected_Palette_Command is
-         Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
-         Visible_Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+         Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
+         Visible_Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
          Preferred  : constant Editor.Commands.Command_Id :=
            Editor.Command_Palette.Current.Selected_Command_Id;
          Still_Visible : Boolean := Preferred = Editor.Commands.No_Command;
@@ -67,7 +69,7 @@ package body Editor.Input_Bridge.Command_Palette_Handlers is
             end if;
 
             declare
-               Candidate : constant Editor.Commands.Command_Palette_Candidate :=
+               Candidate : constant Editor.Commands.Palette_Model.Command_Palette_Candidate :=
                  Visible_Candidates.Element (Selected_Index);
             begin
                if not Candidate.Available then
@@ -153,7 +155,7 @@ package body Editor.Input_Bridge.Command_Palette_Handlers is
 
          when Editor.Commands.Move_Up =>
             declare
-               Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+               Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
             begin
                Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates
                  (S, Candidates);
@@ -163,7 +165,7 @@ package body Editor.Input_Bridge.Command_Palette_Handlers is
 
          when Editor.Commands.Move_Down =>
             declare
-               Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+               Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
             begin
                Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates
                  (S, Candidates);

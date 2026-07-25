@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -29,6 +30,7 @@ with Editor.State;
 with Editor.Test_Helper;
 with Editor.History;
 with Text_Buffer;
+
 
 package body Editor.Project.Tests is
 
@@ -118,8 +120,8 @@ package body Editor.Project.Tests is
    end Project_Search_Has_Result_Path;
 
    function Descriptor_Exists (Id : Editor.Commands.Command_Id) return Boolean is
-      Descriptors : constant Editor.Commands.Command_Descriptor_Vectors.Vector :=
-        Editor.Commands.Palette_Commands;
+      Descriptors : constant Editor.Commands.Descriptors.Command_Descriptor_Vectors.Vector :=
+        Editor.Commands.Descriptors.Palette_Commands;
    begin
       for D of Descriptors loop
          if D.Id = Id then
@@ -754,7 +756,7 @@ package body Editor.Project.Tests is
               "Open Project descriptor must exist");
       Assert (Descriptor_Exists (Editor.Commands.Command_Close_Project),
               "Close Project palette descriptor must exist");
-      Assert (Editor.Commands.Descriptor (Editor.Commands.Command_Clear_Project).Id =
+      Assert (Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Clear_Project).Id =
                 Editor.Commands.Command_Clear_Project,
               "Clear Project Context descriptor must exist as hidden/internal command");
       Assert (Descriptor_Exists (Editor.Commands.Command_Refresh_File_Tree),
@@ -763,17 +765,17 @@ package body Editor.Project.Tests is
               "Show Recent Projects descriptor must exist");
       Assert (Descriptor_Exists (Editor.Commands.Command_Clear_Recent_Projects),
               "Clear Recent Projects descriptor must exist");
-      Assert (Editor.Commands.Descriptor
+      Assert (Editor.Commands.Descriptors.Descriptor
                 (Editor.Commands.Command_Remove_Selected_Recent_Project).Id =
               Editor.Commands.Command_Remove_Selected_Recent_Project,
               "Remove Selected Recent Project descriptor must exist as hidden/internal command");
       Assert (Descriptor_Exists (Editor.Commands.Command_Remove_Missing_Recent_Projects),
               "Remove Missing Recent Projects descriptor must exist");
-      Assert (Editor.Commands.Descriptor
+      Assert (Editor.Commands.Descriptors.Descriptor
                 (Editor.Commands.Command_Select_Next_Recent_Project).Id =
               Editor.Commands.Command_Select_Next_Recent_Project,
               "Select Next Recent Project descriptor must exist as hidden/internal command");
-      Assert (Editor.Commands.Descriptor
+      Assert (Editor.Commands.Descriptors.Descriptor
                 (Editor.Commands.Command_Select_Previous_Recent_Project).Id =
               Editor.Commands.Command_Select_Previous_Recent_Project,
               "Select Previous Recent Project descriptor must exist as hidden/internal command");

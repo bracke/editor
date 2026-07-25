@@ -19,6 +19,7 @@ with Editor.Feature_Diagnostics;
 with Editor.Feature_Diagnostics.Fixtures; use Editor.Feature_Diagnostics.Fixtures;
 with Editor.Feature_Panel;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.State;
 with Editor.Executor;
 with Editor.Command_Execution;
@@ -554,14 +555,14 @@ package body Editor.Build_UI.Tests is
    begin
       Editor.State.Init (S);
       S.Build_UI := Ready_UI;
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Build_Run) = "build.run",
               "build.run has a stable public command name");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Build_Refresh_Candidates) =
               "build.refresh-candidates",
               "build refresh has a stable public command name");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Build_Select_First_Candidate) =
               "build.select-first-candidate",
               "build select-first has a stable public command name");
@@ -598,7 +599,7 @@ package body Editor.Build_UI.Tests is
       is
          Found : Boolean := False;
          Actual : constant Editor.Commands.Command_Id :=
-           Editor.Commands.Command_Id_From_Stable_Name (Stable_Name, Found);
+           Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Stable_Name, Found);
       begin
          Assert (Found and then Actual = Expected,
                  Context & " must resolve through the command registry");
@@ -892,7 +893,7 @@ package body Editor.Build_UI.Tests is
       Id : Editor.Commands.Command_Id;
    begin
       Editor.State.Init (S);
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("build.ui.show", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("build.ui.show", Found);
       Assert (Found and then Id = Editor.Commands.Command_Build_UI_Show,
               "build.ui.show has a stable command id");
       Result := Editor.Executor.Execute_Command_With_Result

@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with Ada.Characters.Handling;
 with Editor.Test_Helper;
@@ -32,10 +33,11 @@ with Editor.State;
 with Editor.Render_Model;
 with Editor.Workspace_Persistence;
 
+
 package body Editor.Outline.Navigation_Tests is
 
    use type Editor.Commands.Command_Id;
-   use type Editor.Commands.Command_Category;
+   use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Executor.Command_Execution_Status;
    use type Editor.Outline.Outline_Item_Kind;
    use type Editor.Outline.Outline_Target_Kind;

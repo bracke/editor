@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Interfaces.C;
@@ -16,6 +17,7 @@ with Editor.Folding;
 use type Editor.Commands.Command_Id;
 use type Editor.Line_Numbers.Line_Number_Mode;
 use type Interfaces.C.int;
+
 
 package body Editor.Line_Numbers.Tests is
 
@@ -256,8 +258,8 @@ package body Editor.Line_Numbers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Descs : Editor.Commands.Command_Descriptor_Vectors.Vector :=
-        Editor.Commands.Palette_Commands;
+      Descs : Editor.Commands.Descriptors.Command_Descriptor_Vectors.Vector :=
+        Editor.Commands.Descriptors.Palette_Commands;
       Seen_Toggle   : Boolean := False;
       Seen_Absolute : Boolean := False;
       Seen_Relative : Boolean := False;

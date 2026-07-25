@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Characters.Handling;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -6,6 +7,7 @@ with Editor.Build_Diagnostics;
 with Editor.Build_UI;
 with Editor.Build_UI_Actions;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Command_Execution;
 with Editor.External_Producers.Build_Requests;
 with Editor.External_Producers.Diagnostic_Line_Parsing;
@@ -13,9 +15,10 @@ with Editor.External_Producers.Diagnostics;
 with Editor.Feature_Diagnostics;
 with Editor.Feature_Panel;
 
+
 package body Editor.Build_Diagnostics_Review is
 
-   use type Editor.Commands.Command_Category;
+   use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Commands.Command_Id;
    use type Editor.External_Producers.Diagnostic_Line_Parsing.Command_Outcome;
    use type Editor.External_Producers.Diagnostics.Producer_Kind;
@@ -113,13 +116,13 @@ package body Editor.Build_Diagnostics_Review is
      (Id : Editor.Commands.Command_Id;
       Name : String) return Boolean
    is
-      Descriptor : constant Editor.Commands.Command_Descriptor :=
-        Editor.Commands.Descriptor (Id);
+      Descriptor : constant Editor.Commands.Descriptors.Command_Descriptor :=
+        Editor.Commands.Descriptors.Descriptor (Id);
    begin
-      return Editor.Commands.Stable_Command_Name (Id) = Name
+      return Editor.Commands.Name_Metadata.Stable_Command_Name (Id) = Name
         and then Editor.Commands.Has_Availability_Handler (Id)
         and then Editor.Commands.Is_Bindable_Command (Id)
-        and then Descriptor.Category = Editor.Commands.Panel_Category;
+        and then Descriptor.Category = Editor.Commands.Descriptors.Panel_Category;
    end Diagnostics_Command_Route_Passes;
 
    function Assert_Build_Diagnostics_Navigation_Uses_Diagnostics_Routes
@@ -135,12 +138,12 @@ package body Editor.Build_Diagnostics_Review is
         and then Diagnostics_Command_Route_Passes
           (Editor.Commands.Command_Diagnostics_Select_Previous,
            "diagnostics.previous")
-        and then Editor.Commands.Stable_Command_Name
+        and then Editor.Commands.Name_Metadata.Stable_Command_Name
           (Editor.Commands.Command_Build_Run) = "build.run"
         and then Editor.Commands.Is_Public_Build_Command
           (Editor.Commands.Command_Build_Run)
         and then not Contains
-          (To_String (Editor.Commands.Descriptor
+          (To_String (Editor.Commands.Descriptors.Descriptor
              (Editor.Commands.Command_Build_Run).Name), "Diagnostic");
    end Assert_Build_Diagnostics_Navigation_Uses_Diagnostics_Routes;
 
@@ -320,14 +323,14 @@ package body Editor.Build_Diagnostics_Review is
    is
    begin
       return Assert_Build_Diagnostics_Navigation_Uses_Diagnostics_Routes
-        and then Editor.Commands.Stable_Command_Name
+        and then Editor.Commands.Name_Metadata.Stable_Command_Name
           (Editor.Commands.Command_Build_Run) = "build.run"
         and then not Contains
-          (Editor.Commands.Stable_Command_Name
+          (Editor.Commands.Name_Metadata.Stable_Command_Name
              (Editor.Commands.Command_Build_Run), "diagnostic")
-        and then Editor.Commands.Descriptor
+        and then Editor.Commands.Descriptors.Descriptor
           (Editor.Commands.Command_Build_Run).Category /=
-          Editor.Commands.Diagnostics_Category;
+          Editor.Commands.Descriptors.Diagnostics_Category;
    end Assert_Build_Diagnostics_No_Build_Specific_Navigation;
 
    function Assert_Build_Diagnostics_Ingestion_Only_Diagnostics_API
@@ -753,10 +756,10 @@ package body Editor.Build_Diagnostics_Review is
         and then Editor.Build_Command.Assert_Build_Run_Keybinding_Boundary
         and then Assert_Build_Diagnostics_Navigation_Uses_Diagnostics_Routes
         and then not Contains
-          (Editor.Commands.Stable_Command_Name (Editor.Commands.Command_Build_Run),
+          (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Build_Run),
            "diagnostic")
         and then not Contains
-          (To_String (Editor.Commands.Descriptor
+          (To_String (Editor.Commands.Descriptors.Descriptor
              (Editor.Commands.Command_Build_Run).Name),
            "Diagnostic");
    end Assert_Command_Frontdoors_Carry_No_Diagnostic_Payload;

@@ -6,6 +6,9 @@ with Editor.Selection;
 with Editor.Pending_Transitions;
 with Editor.Overlay_Focus;
 
+with Editor.Commands.Audits;
+
+
 package body Editor.Core_Editing_Workflow is
 
    use type Editor.Cursors.Cursor_Index;
@@ -711,7 +714,7 @@ package body Editor.Core_Editing_Workflow is
         (Id : Editor.Commands.Command_Id) return Boolean is
       begin
          return Editor.Commands.Has_Descriptor (Id)
-           and then Editor.Commands.Descriptor_Is_Complete (Id)
+           and then Editor.Commands.Audits.Descriptor_Is_Complete (Id)
            and then Editor.Commands.Is_Bindable_Command (Id)
            and then Editor.Commands.Visible_In_Command_Palette (Id);
       end User_Facing_Edit_Command;

@@ -1,3 +1,5 @@
+with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -14,6 +16,7 @@ with Editor.Command_Execution;
 with Editor.Command_Route_Audit;
 with Editor.Command_Surface;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Executor;
 with Editor.Executor.Command_Palette_Projection;
 with Editor.File_Tree;
@@ -38,13 +41,21 @@ with Editor.State;
 with Editor.Overlay_Focus;
 with Editor.Panel_Focus;
 
+with Editor.Commands.Reference_Metadata;
+
+
+with Editor.Commands.Audits;
+
+
+
+
 package body Editor.Command_Surface.Product_Surface_Tests is
 
    use type Editor.Commands.Command_Id;
-   use type Editor.Commands.Command_Visibility;
-   use type Editor.Commands.Command_Category;
-   use type Editor.Commands.Command_Family_Id;
-   use type Editor.Commands.Command_Effect_Classification_Id;
+   use type Editor.Commands.Descriptors.Command_Visibility;
+   use type Editor.Commands.Descriptors.Command_Category;
+   use type Editor.Commands.Descriptors.Command_Family_Id;
+   use type Editor.Commands.Descriptors.Command_Effect_Classification_Id;
    use type Editor.Commands.Command_Kind;
    use type Editor.Keybindings.Keybinding_Validation_Status;
    use type Editor.Overlay_Focus.Overlay_Target;
@@ -98,8 +109,8 @@ package body Editor.Command_Surface.Product_Surface_Tests is
    end Trimmed;
 
    procedure Assert_Candidate_Vectors_Equal
-     (Left  : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
-      Right : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+     (Left  : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
+      Right : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Msg   : String)
    is
    begin
@@ -110,8 +121,8 @@ package body Editor.Command_Surface.Product_Surface_Tests is
 
       for I in 0 .. Natural (Left.Length) - 1 loop
          declare
-            L : constant Editor.Commands.Command_Palette_Candidate := Left.Element (I);
-            R : constant Editor.Commands.Command_Palette_Candidate := Right.Element (I);
+            L : constant Editor.Commands.Palette_Model.Command_Palette_Candidate := Left.Element (I);
+            R : constant Editor.Commands.Palette_Model.Command_Palette_Candidate := Right.Element (I);
          begin
             Assert (L.Id = R.Id, Msg & ": candidate id differs");
             Assert (To_String (L.Label) = To_String (R.Label), Msg & ": label differs");
@@ -197,7 +208,7 @@ package body Editor.Command_Surface.Product_Surface_Tests is
    is
       Found : Boolean;
       Id    : constant Editor.Commands.Command_Id :=
-        Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
+        Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
    begin
       if Name = "build.run" then
          Assert (Found and then Id = Editor.Commands.Command_Build_Run,
@@ -370,7 +381,7 @@ package body Editor.Command_Surface.Product_Surface_Tests is
    function Switcher_Command_Is_In_Reference
      (Id : Editor.Commands.Command_Id) return Boolean
    is
-      Stable : constant String := Editor.Commands.Stable_Command_Name (Id);
+      Stable : constant String := Editor.Commands.Name_Metadata.Stable_Command_Name (Id);
    begin
       return Starts_With (Stable, "buffers.switcher.")
         or else Stable = "buffers.recent.previous"
@@ -381,7 +392,7 @@ package body Editor.Command_Surface.Product_Surface_Tests is
    end Switcher_Command_Is_In_Reference;
 
    function Classification_Label
-     (D : Editor.Commands.Command_Descriptor) return String
+     (D : Editor.Commands.Descriptors.Command_Descriptor) return String
    is
    begin
       if D.Destructive and then D.Lifecycle and then D.Configuration then
@@ -513,23 +524,23 @@ package body Editor.Command_Surface.Product_Surface_Tests is
       Stable : constant String := Cell (Line, 1);
       Found  : Boolean := False;
       Id     : Editor.Commands.Command_Id := Editor.Commands.No_Command;
-      D      : Editor.Commands.Command_Descriptor;
+      D      : Editor.Commands.Descriptors.Command_Descriptor;
    begin
-      Id := Editor.Commands.Command_Id_From_Stable_Name (Stable, Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Stable, Found);
       Assert (Found,
               "documented switcher command must resolve to descriptor: " & Stable);
       Assert (Switcher_Command_Is_In_Reference (Id),
               "documented command must be part of switcher reference: " & Stable);
-      D := Editor.Commands.Descriptor (Id);
+      D := Editor.Commands.Descriptors.Descriptor (Id);
       Assert (Cell (Line, 2) = To_String (D.Description),
               "documented description must match descriptor for " & Stable);
-      Assert (Cell (Line, 3) = Editor.Commands.Category_Label (D.Category),
+      Assert (Cell (Line, 3) = Editor.Commands.Descriptors.Category_Label (D.Category),
               "documented category must match descriptor for " & Stable);
       Assert (Cell (Line, 4) = Classification_Label (D),
               "documented classification must match descriptor for " & Stable);
       Assert (Cell (Line, 5) = Yes_No (D.Bindable),
               "documented bindability must match descriptor for " & Stable);
-      Assert (Cell (Line, 6) = Yes_No (D.Visibility = Editor.Commands.Palette_Command),
+      Assert (Cell (Line, 6) = Yes_No (D.Visibility = Editor.Commands.Descriptors.Palette_Command),
               "documented palette visibility must match descriptor for " & Stable);
       Assert (Cell (Line, 7) = Hint_Label (Id),
               "documented hint eligibility must match hint baseline for " & Stable);
@@ -659,7 +670,7 @@ package body Editor.Command_Surface.Product_Surface_Tests is
                      or else Starts_With (To_String (Line), "| file.close-"))
          then
             Assert_Row_Matches_Descriptor (To_String (Line));
-            Id := Editor.Commands.Command_Id_From_Stable_Name (Cell (To_String (Line), 1), Found);
+            Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Cell (To_String (Line), 1), Found);
             Assert (Found and then not Seen (Id),
                     "documented switcher command names must be unique");
             Seen (Id) := True;
@@ -674,7 +685,7 @@ package body Editor.Command_Surface.Product_Surface_Tests is
             Expected_Count := Expected_Count + 1;
             Assert (Seen (Id),
                     "every switcher descriptor in the frozen baseline must be documented: " &
-                    Editor.Commands.Stable_Command_Name (Id));
+                    Editor.Commands.Name_Metadata.Stable_Command_Name (Id));
          end if;
       end loop;
 
@@ -766,11 +777,11 @@ package body Editor.Command_Surface.Product_Surface_Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      D      : constant Editor.Commands.Command_Descriptor :=
-        Editor.Commands.Descriptor (Editor.Commands.Command_Switch_Project);
+      D      : constant Editor.Commands.Descriptors.Command_Descriptor :=
+        Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Switch_Project);
       Found  : Boolean := False;
       Id     : constant Editor.Commands.Command_Id :=
-        Editor.Commands.Command_Id_From_Stable_Name ("project.switch", Found);
+        Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("project.switch", Found);
       S      : Editor.State.State_Type;
       Avail  : constant Editor.Commands.Command_Availability :=
         Editor.Executor.Command_Availability
@@ -778,7 +789,7 @@ package body Editor.Command_Surface.Product_Surface_Tests is
    begin
       Assert (D.Id = Editor.Commands.Command_Switch_Project,
               "switch project descriptor must exist");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Switch_Project) = "project.switch",
               "switch project stable name must be canonical");
       Assert (Found and then Id = Editor.Commands.Command_Switch_Project,
@@ -846,19 +857,19 @@ package body Editor.Command_Surface.Product_Surface_Tests is
           Editor.Commands.Command_Language_Index_Status));
       Found : Boolean;
       Round : Editor.Commands.Command_Id;
-      D     : Editor.Commands.Command_Descriptor;
+      D     : Editor.Commands.Descriptors.Command_Descriptor;
    begin
       for E of Expected loop
-         Round := Editor.Commands.Command_Id_From_Stable_Name
+         Round := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
            (To_String (E.Name), Found);
          Assert (Found and then Round = E.Id,
                  "IDE-grade language command must resolve by canonical id: " &
                  To_String (E.Name));
-         Assert (Editor.Commands.Stable_Command_Name (E.Id) = To_String (E.Name),
+         Assert (Editor.Commands.Name_Metadata.Stable_Command_Name (E.Id) = To_String (E.Name),
                  "IDE-grade language command must expose canonical stable id: " &
                  To_String (E.Name));
-         D := Editor.Commands.Descriptor (E.Id);
-         Assert (D.Visibility = Editor.Commands.Palette_Command,
+         D := Editor.Commands.Descriptors.Descriptor (E.Id);
+         Assert (D.Visibility = Editor.Commands.Descriptors.Palette_Command,
                  "IDE-grade language command must be palette-visible: " &
                  To_String (E.Name));
          Assert (To_String (D.Name)'Length > 0
@@ -867,15 +878,15 @@ package body Editor.Command_Surface.Product_Surface_Tests is
                  To_String (E.Name));
       end loop;
 
-      Round := Editor.Commands.Command_Id_From_Stable_Name
+      Round := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("refactor.rename-symbol", Found);
       Assert (not Found and then Round = Editor.Commands.No_Command,
               "Refactor rename alias is not loadable");
-      Round := Editor.Commands.Command_Id_From_Stable_Name
+      Round := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("refactor.rename-symbol-preview", Found);
       Assert (not Found and then Round = Editor.Commands.No_Command,
               "Refactor rename preview alias is not loadable");
-      Round := Editor.Commands.Command_Id_From_Stable_Name
+      Round := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("refactor.rename-symbol-apply", Found);
       Assert (not Found and then Round = Editor.Commands.No_Command,
               "Refactor rename apply alias is not loadable");
@@ -892,16 +903,16 @@ package body Editor.Command_Surface.Product_Surface_Tests is
              Editor.Commands.Command_Semantic_Popup_Dismiss));
       begin
          for E of Hidden_Expected loop
-            Round := Editor.Commands.Command_Id_From_Stable_Name
+            Round := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
               (To_String (E.Name), Found);
             Assert (Found and then Round = E.Id,
                     "IDE-grade popup command must resolve by canonical id: " &
                     To_String (E.Name));
-            Assert (Editor.Commands.Stable_Command_Name (E.Id) = To_String (E.Name),
+            Assert (Editor.Commands.Name_Metadata.Stable_Command_Name (E.Id) = To_String (E.Name),
                     "IDE-grade popup command must expose canonical stable id: " &
                     To_String (E.Name));
-            D := Editor.Commands.Descriptor (E.Id);
-            Assert (D.Visibility = Editor.Commands.Hidden_Command,
+            D := Editor.Commands.Descriptors.Descriptor (E.Id);
+            Assert (D.Visibility = Editor.Commands.Descriptors.Hidden_Command,
                     "IDE-grade popup command must stay hidden: " &
                     To_String (E.Name));
             Assert (To_String (D.Name)'Length > 0
@@ -914,14 +925,14 @@ package body Editor.Command_Surface.Product_Surface_Tests is
       --  descriptor-specific project-refresh checks must live
       --  outside the expected-command enumeration loop.
 
-      D := Editor.Commands.Descriptor
+      D := Editor.Commands.Descriptors.Descriptor
         (Editor.Commands.Command_Refresh_Outline_Project_Index);
       Assert
         (Ada.Strings.Fixed.Index
            (To_String (D.Description), "known project Ada source files") > 0,
          "outline project-index refresh must describe project-file indexing");
 
-      D := Editor.Commands.Descriptor
+      D := Editor.Commands.Descriptors.Descriptor
         (Editor.Commands.Command_Semantic_Refresh_Project_Index);
       Assert
         (Ada.Strings.Fixed.Index
@@ -932,7 +943,7 @@ package body Editor.Command_Surface.Product_Surface_Tests is
 
       --  body/spec navigation must be a real indexed target
       --  command surface, not a permanently reserved unavailable placeholder.
-      D := Editor.Commands.Descriptor (Editor.Commands.Command_Goto_Body);
+      D := Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Goto_Body);
       Assert
         (Ada.Strings.Fixed.Index
            (To_String (D.Description), "body target") > 0
@@ -941,7 +952,7 @@ package body Editor.Command_Surface.Product_Surface_Tests is
             "reserved") = 0,
          "outline.goto-body must describe real indexed body navigation");
 
-      D := Editor.Commands.Descriptor (Editor.Commands.Command_Goto_Spec);
+      D := Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Goto_Spec);
       Assert
         (Ada.Strings.Fixed.Index
            (To_String (D.Description), "spec target") > 0
@@ -950,15 +961,15 @@ package body Editor.Command_Surface.Product_Surface_Tests is
             "reserved") = 0,
          "outline.goto-spec must describe real indexed spec navigation");
 
-      Round := Editor.Commands.Command_Id_From_Stable_Name ("refresh-outline", Found);
+      Round := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("refresh-outline", Found);
       Assert (not Found, "legacy refresh-outline spelling must not resolve");
-      Round := Editor.Commands.Command_Id_From_Stable_Name ("clear-outline", Found);
+      Round := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("clear-outline", Found);
       Assert (not Found, "legacy clear-outline spelling must not resolve");
-      Round := Editor.Commands.Command_Id_From_Stable_Name ("show-outline", Found);
+      Round := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("show-outline", Found);
       Assert (not Found, "legacy show-outline spelling must not resolve");
-      Round := Editor.Commands.Command_Id_From_Stable_Name ("focus-outline", Found);
+      Round := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("focus-outline", Found);
       Assert (not Found, "legacy focus-outline spelling must not resolve");
-      Round := Editor.Commands.Command_Id_From_Stable_Name ("open-selected-outline-item", Found);
+      Round := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("open-selected-outline-item", Found);
       Assert (not Found, "legacy open-selected-outline-item spelling must not resolve");
    end Test_IDE_Grade_Language_Command_Surface;
 
@@ -1004,20 +1015,20 @@ package body Editor.Command_Surface.Product_Surface_Tests is
 
       Text : Unbounded_String;
    begin
-      Assert (Editor.Commands.Command_Family_Label
-                (Editor.Commands.File_Lifecycle_Family) = "File Operations",
+      Assert (Editor.Commands.Reference_Metadata.Command_Family_Label
+                (Editor.Commands.Descriptors.File_Lifecycle_Family) = "File Operations",
               "file command family label is product-facing");
 
       for Id of File_Commands loop
          Text := To_Unbounded_String
-           (Editor.Commands.Reference_Summary (Id) & " " &
-            Editor.Commands.Reference_Availability_Summary (Id) & " " &
-            Editor.Commands.Reference_Mutation_Summary (Id) & " " &
-            Editor.Commands.Reference_Filesystem_Effect_Summary (Id) & " " &
-            Editor.Commands.Reference_State_Preservation_Summary (Id) & " " &
-            Editor.Commands.Reference_Non_Goal_Summary (Id));
+           (Editor.Commands.Reference_Metadata.Reference_Summary (Id) & " " &
+            Editor.Commands.Reference_Metadata.Reference_Availability_Summary (Id) & " " &
+            Editor.Commands.Reference_Metadata.Reference_Mutation_Summary (Id) & " " &
+            Editor.Commands.Reference_Metadata.Reference_Filesystem_Effect_Summary (Id) & " " &
+            Editor.Commands.Reference_Metadata.Reference_State_Preservation_Summary (Id) & " " &
+            Editor.Commands.Reference_Metadata.Reference_Non_Goal_Summary (Id));
 
-         Assert (Editor.Commands.Has_Command_Reference (Id),
+         Assert (Editor.Commands.Audits.Has_Command_Reference (Id),
                  "file command reference exists");
          Assert (Length (Text) > 0,
                  "file command reference text is present");
@@ -1027,7 +1038,7 @@ package body Editor.Command_Surface.Product_Surface_Tests is
       end loop;
 
       for Id of Prompt_Commands loop
-         Assert (not Editor.Commands.Has_Command_Reference (Id),
+         Assert (not Editor.Commands.Audits.Has_Command_Reference (Id),
                  "prompt-only file command must not expand public reference surface");
       end loop;
    end Test_File_Command_Reference_Surface;
@@ -1097,10 +1108,10 @@ package body Editor.Command_Surface.Product_Surface_Tests is
            or else Ada.Strings.Fixed.Index (Lower, ":") > 0;
       end Contains_Project_Search_Leak;
 
-      D : Editor.Commands.Command_Descriptor;
+      D : Editor.Commands.Descriptors.Command_Descriptor;
    begin
       for Id of Project_Search_Commands loop
-         D := Editor.Commands.Descriptor (Id);
+         D := Editor.Commands.Descriptors.Descriptor (Id);
          Assert (To_String (D.Name)'Length > 0,
                  "Project Search command label is present");
          Assert (To_String (D.Description)'Length > 0,
@@ -1163,10 +1174,10 @@ package body Editor.Command_Surface.Product_Surface_Tests is
            or else Ada.Strings.Fixed.Index (Lower, "active-buffer replace") > 0;
       end Contains_Find_Surface_Leak;
 
-      D : Editor.Commands.Command_Descriptor;
+      D : Editor.Commands.Descriptors.Command_Descriptor;
    begin
       for Id of Find_And_Goto_Commands loop
-         D := Editor.Commands.Descriptor (Id);
+         D := Editor.Commands.Descriptors.Descriptor (Id);
          Assert (To_String (D.Name)'Length > 0,
                  "Find/Go to Line command label is present");
          Assert (To_String (D.Description)'Length > 0,

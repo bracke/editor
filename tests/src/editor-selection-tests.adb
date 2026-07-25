@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions;  use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -20,6 +21,9 @@ with Editor.Command_Palette;
 with Editor.Render_Model;
 
 use type Editor.Keybindings.Binding_Result;
+
+with Editor.Commands.Name_Metadata;
+
 
 package body Editor.Selection.Tests is
 
@@ -60,22 +64,22 @@ package body Editor.Selection.Tests is
       pragma Unreferenced (T);
    begin
       Assert
-        (Editor.Commands.Stable_Command_Name (Editor.Commands.Command_Select_All) =
+        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Select_All) =
          "selection.select-all",
          "select-all must have stable persisted command name");
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Selection_Clear) =
          "selection.clear",
          "clear-selection must have stable persisted command name");
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Select_Word) =
          "selection.select-word",
          "select-word must have the canonical command name");
       Assert
-        (Editor.Commands.Descriptor (Editor.Commands.Command_Select_All).Category =
-         Editor.Commands.Selection_Category,
+        (Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Select_All).Category =
+         Editor.Commands.Descriptors.Selection_Category,
          "select-all belongs to the Selection category");
       Assert
         (Editor.Commands.Is_Bindable_Command (Editor.Commands.Command_Select_All),
@@ -808,7 +812,7 @@ package body Editor.Selection.Tests is
       Before_Text : constant String := "Alpha";
       Before_Clip : constant String := "clip";
       A : Editor.Commands.Command_Availability;
-      Filtered : Editor.Commands.Command_Descriptor_Vectors.Vector;
+      Filtered : Editor.Commands.Descriptors.Command_Descriptor_Vectors.Vector;
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, Before_Text);
@@ -840,23 +844,23 @@ package body Editor.Selection.Tests is
       Found : Boolean := True;
       Id    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
    begin
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.selection.expand", Found);
       Assert ((not Found) and then Id = Editor.Commands.No_Command,
               "must not expose selection expansion command");
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.selection.block", Found);
       Assert ((not Found) and then Id = Editor.Commands.No_Command,
               "must not expose block selection command");
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.selection.multi-cursor.add", Found);
       Assert ((not Found) and then Id = Editor.Commands.No_Command,
               "must not expose multi-cursor selection command");
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.copy-line", Found);
       Assert ((not Found) and then Id = Editor.Commands.No_Command,
               "must not expose copy-line without selection");
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.cut-line", Found);
       Assert ((not Found) and then Id = Editor.Commands.No_Command,
               "must not expose cut-line without selection");
@@ -866,7 +870,7 @@ package body Editor.Selection.Tests is
    procedure Test_Command_Palette_Projects_Canonical_Selection_Only
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Candidates : Editor.Commands.Command_Descriptor_Vectors.Vector;
+      Candidates : Editor.Commands.Descriptors.Command_Descriptor_Vectors.Vector;
       Select_All_Count    : Natural := 0;
       Clear_Count         : Natural := 0;
       Select_Word_Count   : Natural := 0;

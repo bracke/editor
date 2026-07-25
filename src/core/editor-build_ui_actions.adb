@@ -9,6 +9,7 @@ with Editor.Build_UI;
 with Editor.Build_Working_Context;
 with Editor.Command_Execution;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Executor;
 with Editor.Feature_Diagnostics;
 with Editor.Feature_Panel;
@@ -339,7 +340,7 @@ package body Editor.Build_UI_Actions is
               (Editor.Build_UI.Build_UI_Action_Row'
                  (Label => To_Unbounded_String (Label),
                   Command_Name => To_Unbounded_String
-                    (Editor.Commands.Stable_Command_Name (Command)),
+                    (Editor.Commands.Name_Metadata.Stable_Command_Name (Command)),
                   Enabled => Enabled,
                   Selected => False,
                   Diagnostic_Index => Diagnostic_Index,

@@ -1,6 +1,13 @@
+with Editor.Commands.Audit_Model; use Editor.Commands.Audit_Model;
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Commands;
+
+
+
+with Editor.Commands.Audits;
+
 
 package body Editor.Command_Integration_Checklist is
 
@@ -12,16 +19,16 @@ package body Editor.Command_Integration_Checklist is
    procedure Assert_Ready_For_User_Command
      (Id : Editor.Commands.Command_Id)
    is
-      Failure : Editor.Commands.Command_Audit_Failure;
+      Failure : Editor.Commands.Audit_Model.Command_Audit_Failure;
       Found   : Boolean := False;
-      D       : constant Editor.Commands.Command_Descriptor :=
-        Editor.Commands.Descriptor (Id);
+      D       : constant Editor.Commands.Descriptors.Command_Descriptor :=
+        Editor.Commands.Descriptors.Descriptor (Id);
    begin
       Assert (Editor.Commands.Is_Concrete_Command (Id),
               Prefix (Id) & "command id is not concrete");
       Assert (Editor.Commands.Has_Descriptor (Id),
               Prefix (Id) & "missing descriptor");
-      Assert (Editor.Commands.Descriptor_Is_Complete (Id),
+      Assert (Editor.Commands.Audits.Descriptor_Is_Complete (Id),
               Prefix (Id) & "descriptor is incomplete");
       Assert (Length (D.Name) > 0,
               Prefix (Id) & "missing user-facing label");
@@ -29,10 +36,10 @@ package body Editor.Command_Integration_Checklist is
               Prefix (Id) & "missing description");
       Assert (Editor.Commands.Has_Availability_Handler (Id),
               Prefix (Id) & "missing availability handler coverage");
-      Editor.Commands.Audit_Command (Id, Failure, Found);
+      Editor.Commands.Audits.Audit_Command (Id, Failure, Found);
       Assert (not Found,
               Prefix (Id) & "audit failure " &
-              Editor.Commands.Command_Audit_Failure_Kind'Image (Failure.Kind));
+              Editor.Commands.Audit_Model.Command_Audit_Failure_Kind'Image (Failure.Kind));
    end Assert_Ready_For_User_Command;
 
    procedure Assert_Ready_For_Bindable_Command
@@ -49,8 +56,8 @@ package body Editor.Command_Integration_Checklist is
    procedure Assert_Ready_For_Destructive_Command
      (Id : Editor.Commands.Command_Id)
    is
-      D : constant Editor.Commands.Command_Descriptor :=
-        Editor.Commands.Descriptor (Id);
+      D : constant Editor.Commands.Descriptors.Command_Descriptor :=
+        Editor.Commands.Descriptors.Descriptor (Id);
    begin
       Assert_Ready_For_User_Command (Id);
       Assert (D.Destructive,
@@ -60,8 +67,8 @@ package body Editor.Command_Integration_Checklist is
    procedure Assert_Ready_For_Configuration_Command
      (Id : Editor.Commands.Command_Id)
    is
-      D : constant Editor.Commands.Command_Descriptor :=
-        Editor.Commands.Descriptor (Id);
+      D : constant Editor.Commands.Descriptors.Command_Descriptor :=
+        Editor.Commands.Descriptors.Descriptor (Id);
    begin
       Assert_Ready_For_User_Command (Id);
       Assert (D.Configuration,
@@ -71,8 +78,8 @@ package body Editor.Command_Integration_Checklist is
    procedure Assert_Ready_For_Lifecycle_Command
      (Id : Editor.Commands.Command_Id)
    is
-      D : constant Editor.Commands.Command_Descriptor :=
-        Editor.Commands.Descriptor (Id);
+      D : constant Editor.Commands.Descriptors.Command_Descriptor :=
+        Editor.Commands.Descriptors.Descriptor (Id);
    begin
       Assert_Ready_For_User_Command (Id);
       Assert (D.Lifecycle,

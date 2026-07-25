@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -10,6 +11,7 @@ with Editor.Buffers;
 with Editor.Buffer_Switcher;
 with Editor.Command_Palette;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Configuration_Audit;
 with Editor.Configuration_Recovery;
 with Editor.Dirty_Guards;
@@ -32,6 +34,7 @@ with Editor.Settings_Management;
 with Editor.Startup_Readiness;
 with Editor.State;
 with Editor.Workspace_Persistence;
+
 
 package body Editor.Configuration_Audit.Tests is
 
@@ -640,27 +643,27 @@ package body Editor.Configuration_Audit.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      use type Editor.Commands.Command_Category;
-      use type Editor.Commands.Command_Visibility;
+      use type Editor.Commands.Descriptors.Command_Category;
+      use type Editor.Commands.Descriptors.Command_Visibility;
 
       procedure Check
         (Id   : Editor.Commands.Command_Id;
          Name : String)
       is
-         D     : constant Editor.Commands.Command_Descriptor :=
-           Editor.Commands.Descriptor (Id);
+         D     : constant Editor.Commands.Descriptors.Command_Descriptor :=
+           Editor.Commands.Descriptors.Descriptor (Id);
          Found : Boolean := False;
          Roundtrip : constant Editor.Commands.Command_Id :=
-           Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
+           Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
       begin
          Assert
-           (Editor.Commands.Stable_Command_Name (Id) = Name,
+           (Editor.Commands.Name_Metadata.Stable_Command_Name (Id) = Name,
             "configuration recovery command stable name must match catalog");
          Assert
            (Found and then Roundtrip = Id,
             "configuration recovery stable name must resolve back to the descriptor id");
          Assert
-           (D.Visibility = Editor.Commands.Palette_Command,
+           (D.Visibility = Editor.Commands.Descriptors.Palette_Command,
             "configuration recovery commands must be discoverable through the palette");
          Assert
            (D.Configuration,

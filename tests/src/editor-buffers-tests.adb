@@ -1,3 +1,5 @@
+with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -11,6 +13,7 @@ with Editor.Command_Palette;
 with Editor.Keybindings;
 with Editor.Project;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Executor;
 with Editor.Executor.Command_Palette_Projection;
 with Editor.Executor.File_Save_Commands;
@@ -31,6 +34,8 @@ with Editor.Navigation_History;
 with Editor.Render_Model;
 with Editor.Workspace_Persistence;
 
+
+
 package body Editor.Buffers.Tests is
 
    use type Editor.Buffers.Buffer_Id;
@@ -39,8 +44,8 @@ package body Editor.Buffers.Tests is
    use type Editor.Buffers.Buffer_Close_Eligibility;
    use type Editor.Buffers.Buffer_Workspace_Persistability;
    use type Editor.Commands.Command_Availability_Status;
-   use type Editor.Commands.Command_Category;
-   use type Editor.Commands.Command_Visibility;
+   use type Editor.Commands.Descriptors.Command_Category;
+   use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Commands.Command_Id;
    use type Editor.Messages.Message_Severity;
    use type Editor.State.Dirty_Close_Scope;
@@ -837,13 +842,13 @@ package body Editor.Buffers.Tests is
       Id      : Editor.Buffers.Buffer_Id;
       Summary : Editor.Buffers.Buffer_Summary;
    begin
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
         (Editor.Commands.Command_Pin_Buffer) = "buffers.pin",
         "pin command stable name must be buffers.pin");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
         (Editor.Commands.Command_Unpin_Buffer) = "buffers.unpin",
         "unpin command stable name must be buffers.unpin");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
         (Editor.Commands.Command_Toggle_Buffer_Pin) = "buffers.toggle-pin",
         "toggle pin command stable name must be buffers.toggle-pin");
       Editor.Buffers.Reset_Global_For_Test;
@@ -933,7 +938,7 @@ package body Editor.Buffers.Tests is
       Reopened   : Editor.Buffers.Buffer_Id;
       Summary    : Editor.Buffers.Buffer_Summary;
    begin
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
         (Editor.Commands.Command_Assign_Buffer_Group) = "buffers.group.assign",
         "assign group command stable name must be deterministic");
       Editor.Buffers.Reset_Global_For_Test;
@@ -1106,16 +1111,16 @@ package body Editor.Buffers.Tests is
       M            : Editor.Messages.Editor_Message;
       Was_Dirty    : Boolean := False;
    begin
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
         (Editor.Commands.Command_Set_Buffer_Note) = "buffers.note.set",
         "set note command stable name must be deterministic");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
         (Editor.Commands.Command_Clear_Buffer_Note) = "buffers.note.clear",
         "clear note command stable name must be deterministic");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
         (Editor.Commands.Command_Edit_Buffer_Note) = "buffers.note.edit",
         "edit note command stable name must be deterministic");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
         (Editor.Commands.Command_Show_Buffer_Note) = "buffers.note.show",
         "show note command stable name must be deterministic");
       Assert (not Editor.Commands.Is_Destructive_Command (Editor.Commands.Command_Set_Buffer_Note),
@@ -1304,16 +1309,16 @@ package body Editor.Buffers.Tests is
       M            : Editor.Messages.Editor_Message;
       Was_Dirty    : Boolean := False;
    begin
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
         (Editor.Commands.Command_Set_Buffer_Label) = "buffers.label.set",
         "set label command stable name must be deterministic");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
         (Editor.Commands.Command_Clear_Buffer_Label) = "buffers.label.clear",
         "clear label command stable name must be deterministic");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
         (Editor.Commands.Command_Edit_Buffer_Label) = "buffers.label.edit",
         "edit label command stable name must be deterministic");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
         (Editor.Commands.Command_Show_Buffer_Label) = "buffers.label.show",
         "show label command stable name must be deterministic");
       Assert (not Editor.Commands.Is_Destructive_Command (Editor.Commands.Command_Set_Buffer_Label),
@@ -1522,24 +1527,24 @@ package body Editor.Buffers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      D     : constant Editor.Commands.Command_Descriptor :=
-        Editor.Commands.Descriptor (Editor.Commands.Command_Close_Active_Buffer);
+      D     : constant Editor.Commands.Descriptors.Command_Descriptor :=
+        Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Close_Active_Buffer);
       Found : Boolean := False;
    begin
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Close_Active_Buffer) = "file.close-buffer",
          "active-buffer close stable name must be file.close-buffer");
       Assert
-        (Editor.Commands.Command_Id_From_Stable_Name
+        (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
            ("file.close-buffer", Found) = Editor.Commands.Command_Close_Active_Buffer
          and then Found,
          "file.close-buffer must resolve to active-buffer close");
-      Assert (D.Category = Editor.Commands.File_Category,
+      Assert (D.Category = Editor.Commands.Descriptors.File_Category,
         "close-buffer must be a File command");
       Assert (D.Bindable,
         "close-buffer must be bindable");
-      Assert (D.Visibility = Editor.Commands.Palette_Command,
+      Assert (D.Visibility = Editor.Commands.Descriptors.Palette_Command,
         "close-buffer must be visible in Command Palette");
       Assert (D.Lifecycle,
         "close-buffer must be classified as lifecycle");
@@ -1553,48 +1558,48 @@ package body Editor.Buffers.Tests is
       Found : Boolean := False;
    begin
       Assert
-        (Editor.Commands.Descriptor
+        (Editor.Commands.Descriptors.Descriptor
            (Editor.Commands.Command_Close_Active_Buffer).Visibility =
-         Editor.Commands.Palette_Command,
+         Editor.Commands.Descriptors.Palette_Command,
          "file.close-buffer remains the active-buffer close surface");
       Assert
-        (Editor.Commands.Descriptor
+        (Editor.Commands.Descriptors.Descriptor
            (Editor.Commands.Command_Close_Other_Buffers).Visibility =
-         Editor.Commands.Palette_Command,
+         Editor.Commands.Descriptors.Palette_Command,
          "Close Other Buffers is public with dirty review guards");
       Assert
-        (Editor.Commands.Descriptor
+        (Editor.Commands.Descriptors.Descriptor
            (Editor.Commands.Command_Close_All_Clean_Buffers).Visibility =
-         Editor.Commands.Palette_Command,
+         Editor.Commands.Descriptors.Palette_Command,
          "Close Clean Buffers is public and preserves dirty buffers");
       Assert
-        (Editor.Commands.Command_Id_From_Stable_Name ("file.close-buffer", Found) =
+        (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("file.close-buffer", Found) =
          Editor.Commands.Command_Close_Active_Buffer and then Found,
          "canonical close stable name must resolve");
       Assert
-        (Editor.Commands.Command_Id_From_Stable_Name ("close-buffer", Found) =
+        (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("close-buffer", Found) =
          Editor.Commands.No_Command and then not Found,
          "removed-name close-buffer name must not resolve");
       Assert
-        (Editor.Commands.Command_Id_From_Stable_Name ("buffer.close", Found) =
+        (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("buffer.close", Found) =
          Editor.Commands.No_Command and then not Found,
          "buffer.close removed name must not resolve");
       Found := False;
       Assert
-        (Editor.Commands.Command_Id_From_Stable_Name ("file.close-other-buffers", Found) =
+        (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("file.close-other-buffers", Found) =
          Editor.Commands.Command_Close_Other_Buffers and then Found,
          "close-other stable name must resolve");
       Found := False;
       Assert
-        (Editor.Commands.Command_Id_From_Stable_Name ("file.close-clean-buffers", Found) =
+        (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("file.close-clean-buffers", Found) =
          Editor.Commands.Command_Close_All_Clean_Buffers and then Found,
          "close-clean stable name must resolve");
       Assert
-        (Editor.Commands.Command_Id_From_Stable_Name ("file.close-all", Found) =
+        (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("file.close-all", Found) =
          Editor.Commands.No_Command and then not Found,
          "close-all removed name must not resolve");
       Assert
-        (Editor.Commands.Command_Id_From_Stable_Name ("file.discard-buffer", Found) =
+        (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("file.discard-buffer", Found) =
          Editor.Commands.No_Command and then not Found,
          "discard removed-name close-adjacent name must not resolve");
    end Test_Close_Surface_Is_Canonical_And_Removed_Name_Hidden;
@@ -1686,8 +1691,8 @@ package body Editor.Buffers.Tests is
       pragma Unreferenced (T);
       S     : Editor.State.State_Type;
       Path  : constant String := Editor.Test_Temp.Base & "/editor_reopen_success.txt";
-      D     : constant Editor.Commands.Command_Descriptor :=
-        Editor.Commands.Descriptor (Editor.Commands.Command_Reopen_Closed_Buffer);
+      D     : constant Editor.Commands.Descriptors.Command_Descriptor :=
+        Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Reopen_Closed_Buffer);
       M     : Editor.Messages.Editor_Message;
       Found : Boolean := False;
    begin
@@ -1696,20 +1701,20 @@ package body Editor.Buffers.Tests is
       Editor.State.Init (S);
 
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Reopen_Closed_Buffer) =
          "file.reopen-closed-buffer",
          "reopen command stable name must be canonical");
       Assert
-        (Editor.Commands.Command_Id_From_Stable_Name
+        (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
            ("file.reopen-closed-buffer", Found) =
          Editor.Commands.Command_Reopen_Closed_Buffer and then Found,
          "reopen stable name must resolve");
-      Assert (D.Category = Editor.Commands.File_Category,
+      Assert (D.Category = Editor.Commands.Descriptors.File_Category,
         "reopen command must be a File command");
       Assert (D.Bindable,
         "reopen command must be bindable");
-      Assert (D.Visibility = Editor.Commands.Palette_Command,
+      Assert (D.Visibility = Editor.Commands.Descriptors.Palette_Command,
         "reopen command must be palette visible");
       Assert (D.Lifecycle,
         "reopen command must be lifecycle-classified");
@@ -2305,7 +2310,7 @@ package body Editor.Buffers.Tests is
       Before_Forward : Natural := 0;
       A              : Editor.Commands.Command_Availability;
       Snap           : Editor.Render_Model.Render_Snapshot;
-      Candidates     : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates     : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Editor.Clipboard.Clear;
@@ -2551,7 +2556,7 @@ package body Editor.Buffers.Tests is
       Before_Forward : Natural := 0;
       A              : Editor.Commands.Command_Availability;
       Snap           : Editor.Render_Model.Render_Snapshot;
-      Candidates     : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates     : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       M              : Editor.Messages.Editor_Message;
       Found          : Boolean := False;
    begin
@@ -2881,7 +2886,7 @@ package body Editor.Buffers.Tests is
       Before_Fwd    : Natural := 0;
       A             : Editor.Commands.Command_Availability;
       Snap          : Editor.Render_Model.Render_Snapshot;
-      Candidates    : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates    : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       M             : Editor.Messages.Editor_Message;
       Found         : Boolean := False;
    begin

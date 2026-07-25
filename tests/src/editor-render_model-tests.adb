@@ -1,3 +1,5 @@
+with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
 with Editor.Render_Packet; use Editor.Render_Packet;
 with Editor.Render_Packet.Debug_Support;
@@ -52,6 +54,8 @@ with Editor.Scrollbars;
 with Editor.Buffers;
 with Editor.Panels;
 with Editor.Problems;
+
+
 
 package body Editor.Render_Model.Tests is
 
@@ -4796,7 +4800,7 @@ package body Editor.Render_Model.Tests is
 
       S      : Editor.State.State_Type;
       After_Packet  : Editor.Render_Packet.Render_Packet;
-      Manual_Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Manual_Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Snapshot      : Editor.Command_Palette.Command_Palette_Snapshot;
       Has_State_Context : Boolean := False;
       Width  : constant Natural := Editor.Layout.Cell_W * 96;
@@ -4808,19 +4812,19 @@ package body Editor.Render_Model.Tests is
       Editor.Build_UI_Actions.Show_Build_UI (S);
 
       Manual_Candidates.Append
-        (Editor.Commands.Command_Palette_Candidate'
+        (Editor.Commands.Palette_Model.Command_Palette_Candidate'
          (Id                    => Editor.Commands.Command_Build_Run,
           Label                 => To_Unbounded_String ("Run Build"),
           Description           => To_Unbounded_String ("Run the selected build"),
-          Category              => Editor.Commands.Project_Category,
+          Category              => Editor.Commands.Descriptors.Project_Category,
           Category_Label        => To_Unbounded_String ("Build"),
           Available             => True,
           Reason                => Null_Unbounded_String,
           Has_Keybinding        => False,
           Keybinding_Display    => Null_Unbounded_String,
           Reference_Summary     => Null_Unbounded_String,
-          Family                => Editor.Commands.No_Command_Family,
-          Effect_Classification => Editor.Commands.No_Command_Effect,
+          Family                => Editor.Commands.Descriptors.No_Command_Family,
+          Effect_Classification => Editor.Commands.Descriptors.No_Command_Effect,
           Match_Score           => 1,
           Registry_Order        => 1));
       Editor.Command_Palette.Set_Command_State_Context

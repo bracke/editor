@@ -1,6 +1,8 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Commands.Descriptor_Config_Workspace;
 with Editor.Commands.Descriptor_Find_Project_Search;
 with Editor.Commands.Descriptor_Semantic_Panels;
+
 
 package body Editor.Commands.Descriptor_Semantic_Search is
 

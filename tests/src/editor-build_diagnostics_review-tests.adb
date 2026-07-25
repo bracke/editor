@@ -10,6 +10,7 @@ with Editor.Build_Output_Details;
 with Editor.Build_UI_Actions;
 with Editor.Build_Result_Summary;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Command_Execution;
 with Editor.Executor;
 with Editor.External_Producers;
@@ -161,12 +162,12 @@ package body Editor.Build_Diagnostics_Review.Tests is
         (Assert_Build_Diagnostics_Navigation_Uses_Diagnostics_Routes,
          "navigation remains on existing Diagnostics command routes");
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Diagnostics_Open_Selected) =
            "diagnostics.open-selected",
          "open selected route is Diagnostics-owned");
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Build_Run) = "build.run",
          "build.run does not become a diagnostics navigation command");
    end Test_Navigation_Uses_Diagnostics_Routes_Only;
@@ -922,13 +923,13 @@ package body Editor.Build_Diagnostics_Review.Tests is
         (Assert_Command_Frontdoors_Carry_No_Diagnostic_Payload (S),
          "Command Palette and keybinding frontdoors expose canonical Diagnostics commands only");
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Diagnostics_Open_Selected) =
            "diagnostics.open-selected",
          "Diagnostics open-selected remains the canonical navigation command");
       Assert
         (not Contains
-           (Editor.Commands.Stable_Command_Name (Editor.Commands.Command_Build_Run),
+           (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Build_Run),
             "diagnostic"),
          "build.run does not become a build-specific diagnostic navigation route");
    end Test_Command_Frontdoors_Carry_No_Payload;

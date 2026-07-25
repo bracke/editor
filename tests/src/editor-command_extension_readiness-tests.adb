@@ -1,3 +1,6 @@
+with Editor.Commands.Audit_Model; use Editor.Commands.Audit_Model;
+with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -19,11 +22,17 @@ with Editor.Recent_Projects;
 with Editor.Settings;
 with Editor.State;
 
+
+
+
+with Editor.Commands.Audits;
+
+
 package body Editor.Command_Extension_Readiness.Tests is
 
    use type Editor.Commands.Command_Id;
-   use type Editor.Commands.Command_Visibility;
-   use type Editor.Commands.Command_Category;
+   use type Editor.Commands.Descriptors.Command_Visibility;
+   use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Keybinding_Config.Keybinding_Config_Status;
    use type Editor.Keybindings.Binding_Result;
    use type Ada.Containers.Count_Type;
@@ -50,7 +59,7 @@ package body Editor.Command_Extension_Readiness.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      D : Editor.Commands.Command_Descriptor;
+      D : Editor.Commands.Descriptors.Command_Descriptor;
    begin
       for I in 1 .. Editor.Commands.Command_Count loop
          declare
@@ -62,7 +71,7 @@ package body Editor.Command_Extension_Readiness.Tests is
                   Editor.Command_Integration_Checklist.Assert_Ready_For_Bindable_Command (Id);
                end if;
 
-               D := Editor.Commands.Descriptor (Id);
+               D := Editor.Commands.Descriptors.Descriptor (Id);
                if D.Destructive then
                   Editor.Command_Integration_Checklist.Assert_Ready_For_Destructive_Command (Id);
                end if;
@@ -81,23 +90,23 @@ package body Editor.Command_Extension_Readiness.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Failures : Editor.Commands.Command_Audit_Failure_Vectors.Vector;
+      Failures : Editor.Commands.Audit_Model.Command_Audit_Failure_Vectors.Vector;
       Summary  : Unbounded_String;
    begin
       Failures.Append
-        (Editor.Commands.Command_Audit_Failure'
+        (Editor.Commands.Audit_Model.Command_Audit_Failure'
            (Kind => Editor.Commands.Missing_Stable_Name,
           Command => Editor.Commands.Command_Save_Keybindings));
       Failures.Append
-        (Editor.Commands.Command_Audit_Failure'
+        (Editor.Commands.Audit_Model.Command_Audit_Failure'
            (Kind => Editor.Commands.Missing_Classification,
           Command => Editor.Commands.Command_Reset_Settings_To_Defaults));
       Failures.Append
-        (Editor.Commands.Command_Audit_Failure'
+        (Editor.Commands.Audit_Model.Command_Audit_Failure'
            (Kind => Editor.Commands.Route_Bypasses_Executor,
           Command => Editor.Commands.Command_Open_Project));
 
-      Summary := To_Unbounded_String (Editor.Commands.Command_Audit_Summary (Failures));
+      Summary := To_Unbounded_String (Editor.Commands.Audits.Command_Audit_Summary (Failures));
       Assert (Contains (To_String (Summary), "Command audit failed"),
               "summary must explain that the command audit failed");
       Assert (Contains (To_String (Summary), "COMMAND_SAVE_KEYBINDINGS"),
@@ -197,9 +206,9 @@ package body Editor.Command_Extension_Readiness.Tests is
    is
       pragma Unreferenced (T);
       S          : Editor.State.State_Type;
-      Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Found      : Boolean := False;
-      D          : Editor.Commands.Command_Descriptor;
+      D          : Editor.Commands.Descriptors.Command_Descriptor;
    begin
       Editor.State.Init (S);
       Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
@@ -207,7 +216,7 @@ package body Editor.Command_Extension_Readiness.Tests is
       for C of Candidates loop
          if C.Id = Editor.Commands.Command_Save_File then
             Found := True;
-            D := Editor.Commands.Descriptor (C.Id);
+            D := Editor.Commands.Descriptors.Descriptor (C.Id);
             Assert (To_String (C.Label) = To_String (D.Name),
                     "palette row label must come from descriptor");
             Assert (To_String (C.Description) = To_String (D.Description),
@@ -284,10 +293,10 @@ package body Editor.Command_Extension_Readiness.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      D : constant Editor.Commands.Command_Descriptor :=
-        Editor.Commands.Descriptor (Editor.Commands.Command_Insert_Newline);
+      D : constant Editor.Commands.Descriptors.Command_Descriptor :=
+        Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Insert_Newline);
    begin
-      Assert (D.Visibility = Editor.Commands.Hidden_Command,
+      Assert (D.Visibility = Editor.Commands.Descriptors.Hidden_Command,
               "hidden command fixture must remain hidden");
       Assert (D.Bindable,
               "hidden does not imply non-bindable");

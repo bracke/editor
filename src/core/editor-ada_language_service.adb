@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Ada_Diagnostic_Action_Router;
 with Editor.Ada_Diagnostic_Navigation;
@@ -10,6 +11,7 @@ with Editor.External_Producers.Diagnostic_Line_Parsing;
 with Editor.External_Producers.Diagnostic_Text_Lines;
 with Editor.External_Producers.Diagnostics;
 with Editor.Syntax;
+
 
 package body Editor.Ada_Language_Service is
 

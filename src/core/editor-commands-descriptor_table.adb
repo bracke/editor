@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Commands.Descriptor_Build_Terminal;
 with Editor.Commands.Descriptor_Editing;
 with Editor.Commands.Descriptor_Factory;
@@ -5,6 +6,10 @@ with Editor.Commands.Descriptor_File_Project;
 with Editor.Commands.Descriptor_Navigation;
 with Editor.Commands.Descriptor_Semantic_Search;
 with Editor.Commands.Descriptor_UI_Panels;
+
+with Editor.Commands.Name_Metadata;
+
+
 
 package body Editor.Commands.Descriptor_Table is
 
@@ -22,7 +27,7 @@ package body Editor.Commands.Descriptor_Table is
    begin
       return Descriptor_Factory.Make_Command_Descriptor
         (Id            => Id,
-         Stable_Name   => Stable_Command_Name (Id),
+         Stable_Name   => Name_Metadata.Stable_Command_Name (Id),
          Label         => Name,
          Description   => Effective_Description,
          Category      => Category,

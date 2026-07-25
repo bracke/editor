@@ -1,9 +1,12 @@
+with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
 with Ada.Containers;
 with Ada.Directories;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Command_Palette;
 with Editor.Command_Route_Audit;
 with Editor.Configuration_Audit;
@@ -52,6 +55,8 @@ with Editor.View;
 with Editor.Workspace_Persistence;
 with Text_Buffer;
 
+
+
 package body Editor.Files.Save_Operation_Tests is
 
    use type Editor.Files.File_Status;
@@ -59,11 +64,11 @@ package body Editor.Files.Save_Operation_Tests is
    use type Editor.Files.File_Save_Status;
    use type Editor.Files.File_Move_Status;
    use type Editor.Commands.Command_Id;
-   use type Editor.Commands.Command_Category;
-   use type Editor.Commands.Command_Visibility;
+   use type Editor.Commands.Descriptors.Command_Category;
+   use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Command_Palette.Command_Palette_Row_Kind;
-   use type Editor.Commands.Command_Family_Id;
-   use type Editor.Commands.Command_Effect_Classification_Id;
+   use type Editor.Commands.Descriptors.Command_Family_Id;
+   use type Editor.Commands.Descriptors.Command_Effect_Classification_Id;
    use type Editor.Keybindings.Keybinding_Validation_Status;
    use type Editor.Buffers.Buffer_Id;
    use type Editor.Messages.Message_Severity;
@@ -85,18 +90,18 @@ package body Editor.Files.Save_Operation_Tests is
       Id    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
    begin
       Assert
-        (Editor.Commands.Stable_Command_Name (Editor.Commands.Command_Save_File_As) =
+        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Save_File_As) =
            "file.save-as",
          "Save As must expose canonical file.save-as persisted name");
       Assert
-        (Editor.Commands.Category (Editor.Commands.Command_Save_File_As) =
-           Editor.Commands.File_Category,
+        (Editor.Commands.Descriptors.Category (Editor.Commands.Command_Save_File_As) =
+           Editor.Commands.Descriptors.File_Category,
          "Save As must remain a File command");
       Assert
         (Editor.Commands.Is_File_Content_Save_Command
            (Editor.Commands.Command_Save_File_As),
          "Save As must be classified as a file/content persistence command");
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("file.save-as", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("file.save-as", Found);
       Assert
         (Found and then Id = Editor.Commands.Command_Save_File_As,
          "file.save-as must resolve to the Save As command id");
@@ -918,16 +923,16 @@ package body Editor.Files.Save_Operation_Tests is
       Assert (Editor.Messages.Count (S.Messages) = 0,
         "render and availability must not emit Save As messages");
 
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("file.save-all", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("file.save-all", Found);
       Assert (Found and then Id = Editor.Commands.Command_Save_All,
         "file.save-all remains a separate command and is not executed by Save As surface reads");
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("file.autosave.enable", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("file.autosave.enable", Found);
       Assert (not Found and then Id = Editor.Commands.No_Command,
         "non-goal autosave command must not be exposed");
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("file.format-on-save", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("file.format-on-save", Found);
       Assert (Found and then Id = Editor.Commands.Command_Toggle_Format_On_Save,
         "format-on-save command should be exposed without mutating Save As state");
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("workspace.save-buffer-text", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("workspace.save-buffer-text", Found);
       Assert (not Found and then Id = Editor.Commands.No_Command,
         "non-goal workspace text persistence command must not be exposed");
 
@@ -1050,26 +1055,26 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Id    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
    begin
       Assert
-        (Editor.Commands.Stable_Command_Name (Editor.Commands.Command_Save_File) =
+        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Save_File) =
            "file.save",
          "active-buffer save must use canonical file.save persisted name");
       Assert
-        (Editor.Commands.Category (Editor.Commands.Command_Save_File) =
-           Editor.Commands.File_Category,
+        (Editor.Commands.Descriptors.Category (Editor.Commands.Command_Save_File) =
+           Editor.Commands.Descriptors.File_Category,
          "active-buffer save must remain a File command");
       Assert
         (Editor.Commands.Is_Bindable_Command (Editor.Commands.Command_Save_File),
          "active-buffer save must be bindable");
       Assert
-        (Editor.Commands.Descriptor (Editor.Commands.Command_Save_File).Visibility =
-           Editor.Commands.Palette_Command,
+        (Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Save_File).Visibility =
+           Editor.Commands.Descriptors.Palette_Command,
          "active-buffer save must remain Command Palette visible");
 
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("file.save", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("file.save", Found);
       Assert
         (Found and then Id = Editor.Commands.Command_Save_File,
          "file.save must resolve to active-buffer save");
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("save-file", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("save-file", Found);
       Assert
         (not Found and then Id = Editor.Commands.No_Command,
          "removed save-file keybinding data must be rejected instead of aliasing file.save");
@@ -2010,7 +2015,7 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S          : Editor.State.State_Type;
-      Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Save_Rows  : Natural := 0;
       Binding    : Editor.Keybindings.Command_Keybinding_Info;
    begin

@@ -1,3 +1,4 @@
+with Editor.Commands.Audit_Model; use Editor.Commands.Audit_Model;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Commands;
 with Editor.Command_Surface;
@@ -10,6 +11,10 @@ with Editor.External_Producers;
 with Editor.External_Producers.Audits;
 with Editor.External_Producers.Public_Build;
 with Editor.State;
+
+
+with Editor.Commands.Audits;
+
 
 package body Editor.Feature_Panel_Audit is
 
@@ -39,10 +44,10 @@ package body Editor.Feature_Panel_Audit is
      (Id : Editor.Commands.Command_Id) return Boolean
    is
       Found   : Boolean := False;
-      Failure : Editor.Commands.Command_Audit_Failure;
+      Failure : Editor.Commands.Audit_Model.Command_Audit_Failure;
    begin
       if not Editor.Commands.Has_Descriptor (Id)
-        or else not Editor.Commands.Descriptor_Is_Complete (Id)
+        or else not Editor.Commands.Audits.Descriptor_Is_Complete (Id)
         or else not Editor.Commands.Has_Availability_Handler (Id)
       then
          return False;
@@ -54,7 +59,7 @@ package body Editor.Feature_Panel_Audit is
          return False;
       end if;
 
-      Editor.Commands.Audit_Command (Id, Failure, Found);
+      Editor.Commands.Audits.Audit_Command (Id, Failure, Found);
       return not Found;
    end Command_Audit_Passes;
 

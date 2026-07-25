@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Directories;
@@ -7,6 +8,7 @@ with Ada.Text_IO;
 with Editor.Clipboard;
 with Editor.Command_Palette;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Buffers;
 with Editor.Cursors; use Editor.Cursors;
 with Editor.Executor;
@@ -27,12 +29,13 @@ with Editor.UTF8;
 with Editor.Workspace_Persistence;
 with Text_Buffer;
 
+
 package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
 
    use type Editor.Keybinding_Config.Keybinding_Config_Status;
    use type Editor.Commands.Command_Id;
-   use type Editor.Commands.Command_Category;
-   use type Editor.Commands.Command_Visibility;
+   use type Editor.Commands.Descriptors.Command_Category;
+   use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Commands.Command_Availability_Status;
    use type Editor.Commands.Command_Kind;
    use type Editor.Keybindings.Keybinding_Validation_Status;
@@ -853,27 +856,27 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
 
       procedure Assert_Not_Exposed (Name : String) is
       begin
-         Id := Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
+         Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
          Assert (not Found, Name & " must not be exposed in ");
       end Assert_Not_Exposed;
    begin
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Indent_Increase) = "edit.indent.increase",
          "indent increase stable name mismatch");
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Indent_Decrease) = "edit.indent.decrease",
          "indent decrease stable name mismatch");
       Assert
-        (Editor.Commands.Descriptor
+        (Editor.Commands.Descriptors.Descriptor
            (Editor.Commands.Command_Indent_Increase).Category =
-         Editor.Commands.Edit_Category,
+         Editor.Commands.Descriptors.Edit_Category,
          "indent increase must be an Edit command");
       Assert
-        (Editor.Commands.Descriptor
+        (Editor.Commands.Descriptors.Descriptor
            (Editor.Commands.Command_Indent_Decrease).Category =
-         Editor.Commands.Edit_Category,
+         Editor.Commands.Descriptors.Edit_Category,
          "indent decrease must be an Edit command");
       Assert
         (Editor.Commands.Is_Bindable_Command
@@ -1099,36 +1102,36 @@ procedure Test_Line_Comment_Command_Descriptors
 
       procedure Assert_Not_Exposed (Name : String) is
       begin
-         Id := Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
+         Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
          Assert (not Found, Name & " must not be exposed in ");
       end Assert_Not_Exposed;
    begin
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Comment_Line) = "edit.comment.line",
          "comment-line stable name mismatch");
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Uncomment_Line) = "edit.uncomment.line",
          "uncomment-line stable name mismatch");
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Toggle_Line_Comment) = "edit.comment.toggle-line",
          "toggle-line-comment stable name mismatch");
       Assert
-        (Editor.Commands.Descriptor
+        (Editor.Commands.Descriptors.Descriptor
            (Editor.Commands.Command_Comment_Line).Category =
-         Editor.Commands.Edit_Category,
+         Editor.Commands.Descriptors.Edit_Category,
          "comment-line must be an Edit command");
       Assert
-        (Editor.Commands.Descriptor
+        (Editor.Commands.Descriptors.Descriptor
            (Editor.Commands.Command_Uncomment_Line).Category =
-         Editor.Commands.Edit_Category,
+         Editor.Commands.Descriptors.Edit_Category,
          "uncomment-line must be an Edit command");
       Assert
-        (Editor.Commands.Descriptor
+        (Editor.Commands.Descriptors.Descriptor
            (Editor.Commands.Command_Toggle_Line_Comment).Category =
-         Editor.Commands.Edit_Category,
+         Editor.Commands.Descriptors.Edit_Category,
          "toggle-line-comment must be an Edit command");
       Assert
         (Editor.Commands.Is_Bindable_Command
@@ -1575,13 +1578,13 @@ procedure Test_Line_Comment_Command_Descriptors
       Id    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
    begin
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Line_Join_Next) = "edit.line.join-next",
          "join-next stable name mismatch");
       Assert
-        (Editor.Commands.Descriptor
+        (Editor.Commands.Descriptors.Descriptor
            (Editor.Commands.Command_Line_Join_Next).Category =
-         Editor.Commands.Edit_Category,
+         Editor.Commands.Descriptors.Edit_Category,
          "join-next must be an Edit command");
       Assert
         (Editor.Commands.Is_Bindable_Command
@@ -1591,7 +1594,7 @@ procedure Test_Line_Comment_Command_Descriptors
         (Editor.Commands.Is_Text_Editing_Command
            (Editor.Commands.Command_Line_Join_Next),
          "join-next must be classified as a text-editing command");
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.line.join-next", Found);
       Assert (Found and then Id = Editor.Commands.Command_Line_Join_Next,
               "join-next stable name must resolve to canonical command id");
@@ -1603,7 +1606,7 @@ procedure Test_Line_Comment_Command_Descriptors
       pragma Unreferenced (T);
       Id    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
       Found : Boolean := False;
-      Desc  : Editor.Commands.Command_Descriptor;
+      Desc  : Editor.Commands.Descriptors.Command_Descriptor;
       Cmd   : Editor.Commands.Command;
       S     : Editor.State.State_Type;
       Availability : Editor.Commands.Command_Availability;
@@ -1614,21 +1617,21 @@ procedure Test_Line_Comment_Command_Descriptors
 
       procedure Assert_Not_Exposed (Name : String) is
       begin
-         Id := Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
+         Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
          Assert (not Found and then Id = Editor.Commands.No_Command,
                  Name & " must not be exposed as a split command");
       end Assert_Not_Exposed;
    begin
-      Desc := Editor.Commands.Descriptor
+      Desc := Editor.Commands.Descriptors.Descriptor
         (Editor.Commands.Command_Line_Split_At_Caret);
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Line_Split_At_Caret) =
          "edit.line.split-at-caret",
          "split stable command name mismatch");
-      Assert (Desc.Category = Editor.Commands.Edit_Category,
+      Assert (Desc.Category = Editor.Commands.Descriptors.Edit_Category,
               "split must be an Edit command");
-      Assert (Desc.Visibility = Editor.Commands.Palette_Command,
+      Assert (Desc.Visibility = Editor.Commands.Descriptors.Palette_Command,
               "split must be visible in the Command Palette");
       Assert
         (Editor.Commands.Is_Bindable_Command
@@ -1638,7 +1641,7 @@ procedure Test_Line_Comment_Command_Descriptors
         (Editor.Commands.Command_Line_Split_At_Caret);
       Assert (Cmd.Kind = Editor.Commands.Split_Current_Line_At_Caret,
               "split command must map to canonical edit kind");
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.line.split-at-caret", Found);
       Assert (Found and then Id = Editor.Commands.Command_Line_Split_At_Caret,
               "split stable name must resolve back to command id");
@@ -1688,24 +1691,24 @@ procedure Test_Line_Comment_Command_Descriptors
       After : Editor.State.State_Type;
    begin
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Word_Delete_Previous) =
          "edit.word.delete-previous",
          "previous-word delete stable name mismatch");
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Word_Delete_Next) =
          "edit.word.delete-next",
          "next-word delete stable name mismatch");
       Assert
-        (Editor.Commands.Descriptor
+        (Editor.Commands.Descriptors.Descriptor
            (Editor.Commands.Command_Word_Delete_Previous).Category =
-         Editor.Commands.Edit_Category,
+         Editor.Commands.Descriptors.Edit_Category,
          "previous-word delete must be an Edit command");
       Assert
-        (Editor.Commands.Descriptor
+        (Editor.Commands.Descriptors.Descriptor
            (Editor.Commands.Command_Word_Delete_Next).Visibility =
-         Editor.Commands.Palette_Command,
+         Editor.Commands.Descriptors.Palette_Command,
          "next-word delete must be palette visible");
       Assert
         (Editor.Commands.Is_Bindable_Command
@@ -1714,11 +1717,11 @@ procedure Test_Line_Comment_Command_Descriptors
            (Editor.Commands.Command_Word_Delete_Next),
          "word delete commands must be bindable");
 
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.word.delete-previous", Found);
       Assert (Found and then Id = Editor.Commands.Command_Word_Delete_Previous,
               "previous-word stable name lookup mismatch");
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.word.delete-next", Found);
       Assert (Found and then Id = Editor.Commands.Command_Word_Delete_Next,
               "next-word stable name lookup mismatch");
@@ -1899,19 +1902,19 @@ procedure Test_Line_Comment_Command_Descriptors
       S     : Editor.State.State_Type;
    begin
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Char_Delete_Previous) =
          "edit.char.delete-previous",
          "previous-character delete stable name mismatch");
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Char_Delete_Next) =
          "edit.char.delete-next",
          "next-character delete stable name mismatch");
       Assert
-        (Editor.Commands.Descriptor
+        (Editor.Commands.Descriptors.Descriptor
            (Editor.Commands.Command_Char_Delete_Previous).Category =
-         Editor.Commands.Edit_Category,
+         Editor.Commands.Descriptors.Edit_Category,
          "previous-character delete must be an Edit command");
       Assert
         (Editor.Commands.Visible_In_Command_Palette
@@ -1922,12 +1925,12 @@ procedure Test_Line_Comment_Command_Descriptors
          and then Editor.Commands.Is_Bindable_Command (Editor.Commands.Command_Char_Delete_Next),
          "Character Delete commands must be bindable");
       Assert
-        (Editor.Commands.Command_Id_From_Stable_Name
+        (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
            ("edit.char.delete-previous", Found) =
          Editor.Commands.Command_Char_Delete_Previous and then Found,
          "previous-character stable name must resolve");
       Assert
-        (Editor.Commands.Command_Id_From_Stable_Name
+        (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
            ("edit.char.delete-next", Found) =
          Editor.Commands.Command_Char_Delete_Next and then Found,
          "next-character stable name must resolve");
@@ -1951,21 +1954,21 @@ procedure Test_Line_Comment_Command_Descriptors
 
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      D     : constant Editor.Commands.Command_Descriptor :=
-        Editor.Commands.Descriptor (Editor.Commands.Command_Selection_Delete);
+      D     : constant Editor.Commands.Descriptors.Command_Descriptor :=
+        Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Selection_Delete);
       Found : Boolean := False;
       Id    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
       S     : Editor.State.State_Type;
    begin
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Selection_Delete) = "selection.delete",
          "selection delete must have stable persisted command name");
       Assert
-        (D.Category = Editor.Commands.Edit_Category,
+        (D.Category = Editor.Commands.Descriptors.Edit_Category,
          "selection delete must be an Edit command");
       Assert
-        (D.Visibility = Editor.Commands.Palette_Command,
+        (D.Visibility = Editor.Commands.Descriptors.Palette_Command,
          "selection delete must be command-palette visible");
       Assert
         (Editor.Commands.Is_Bindable_Command
@@ -1976,7 +1979,7 @@ procedure Test_Line_Comment_Command_Descriptors
            (Editor.Commands.Command_Selection_Delete),
          "selection delete must be classified as a text editing command");
 
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("selection.delete", Found);
       Assert
         (Found and then Id = Editor.Commands.Command_Selection_Delete,
@@ -2010,25 +2013,25 @@ procedure Test_Line_Comment_Command_Descriptors
       pragma Unreferenced (T);
    begin
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Line_Delete) = "edit.line.delete",
          "delete-line stable name mismatch");
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Line_Duplicate) = "edit.line.duplicate",
          "duplicate-line stable name mismatch");
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Line_Move_Up) = "edit.line.move-up",
          "move-up stable name mismatch");
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Line_Move_Down) = "edit.line.move-down",
          "move-down stable name mismatch");
       Assert
-        (Editor.Commands.Descriptor
+        (Editor.Commands.Descriptors.Descriptor
            (Editor.Commands.Command_Line_Delete).Category =
-         Editor.Commands.Edit_Category,
+         Editor.Commands.Descriptors.Edit_Category,
          "line delete must be an Edit command");
       Assert
         (Editor.Commands.Is_Bindable_Command

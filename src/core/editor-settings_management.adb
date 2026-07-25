@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Characters.Handling;
 with Ada.Directories;
 with Ada.Strings.Fixed;
@@ -6,11 +7,13 @@ with Ada.Text_IO;
 with Editor.Image_Helpers;
 with Editor.Theme;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
+
 
 package body Editor.Settings_Management is
 
    use type Editor.Commands.Command_Id;
-   use type Editor.Commands.Command_Category;
+   use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Settings.Settings_Status;
 
    type Setting_Descriptor is record
@@ -1494,19 +1497,19 @@ package body Editor.Settings_Management is
       --  they carry no key/value payload from keybindings or Command Palette
       --  and operate only on the transient selected settings row.
       Append (Catalog_Row
-        (Editor.Commands.Stable_Command_Name (Editor.Commands.Command_Save_Settings),
+        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Save_Settings),
          "Save Settings",
          "Saves supported global preferences only.",
          Settings_Action_Save,
          True, False, False, False, False));
       Append (Catalog_Row
-        (Editor.Commands.Stable_Command_Name (Editor.Commands.Command_Reload_Settings),
+        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Reload_Settings),
          "Load Settings",
          "Loads supported global preferences with validation.",
          Settings_Action_Load,
          True, False, False, False, False));
       Append (Catalog_Row
-        (Editor.Commands.Stable_Command_Name (Editor.Commands.Command_Reset_Settings_To_Defaults),
+        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Reset_Settings_To_Defaults),
          "Reset All Settings",
          "Requests confirmation before resetting global preferences to defaults.",
          Settings_Action_Reset_All,
@@ -1655,17 +1658,17 @@ package body Editor.Settings_Management is
       end Append;
    begin
       Append (Route_Row
-        (Editor.Commands.Stable_Command_Name (Editor.Commands.Command_Save_Settings),
+        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Save_Settings),
          Settings_Action_Save,
          Editor.Commands.Command_Save_Settings,
          True, False, True, True, False));
       Append (Route_Row
-        (Editor.Commands.Stable_Command_Name (Editor.Commands.Command_Reload_Settings),
+        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Reload_Settings),
          Settings_Action_Load,
          Editor.Commands.Command_Reload_Settings,
          True, False, True, True, False));
       Append (Route_Row
-        (Editor.Commands.Stable_Command_Name (Editor.Commands.Command_Reset_Settings_To_Defaults),
+        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Reset_Settings_To_Defaults),
          Settings_Action_Reset_All,
          Editor.Commands.Command_Reset_Settings_To_Defaults,
          True, False, True, True, False));
@@ -1864,14 +1867,14 @@ package body Editor.Settings_Management is
          if Is_Settings_Management_Command (Id) then
             Result.Settings_Command_Count := Result.Settings_Command_Count + 1;
             declare
-               D : constant Editor.Commands.Command_Descriptor := Editor.Commands.Descriptor (Id);
+               D : constant Editor.Commands.Descriptors.Command_Descriptor := Editor.Commands.Descriptors.Descriptor (Id);
             begin
                if D.Id /= Id or else To_String (D.Name)'Length = 0
                  or else To_String (D.Description)'Length = 0
                then
                   Result.Missing_Descriptor_Count := Result.Missing_Descriptor_Count + 1;
                end if;
-               if D.Category /= Editor.Commands.Settings_Category then
+               if D.Category /= Editor.Commands.Descriptors.Settings_Category then
                   Result.Wrong_Category_Count := Result.Wrong_Category_Count + 1;
                end if;
                if not Editor.Commands.Is_Configuration_Command (Id) then
@@ -2032,7 +2035,7 @@ package body Editor.Settings_Management is
       for Id in Editor.Commands.Command_Id loop
          if Is_Settings_Management_Command (Id) then
             declare
-               D : constant Editor.Commands.Command_Descriptor := Editor.Commands.Descriptor (Id);
+               D : constant Editor.Commands.Descriptors.Command_Descriptor := Editor.Commands.Descriptors.Descriptor (Id);
             begin
                if D.Requires_Explicit_Target
                  or else D.Target_Prompt_Capable

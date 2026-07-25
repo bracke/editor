@@ -1,5 +1,13 @@
+with Editor.Commands.Audit_Model; use Editor.Commands.Audit_Model;
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+
+with Editor.Commands.Name_Metadata;
+with Editor.Commands.Reference_Metadata;
+
+
+
 
 package body Editor.Commands.Audits is
 
@@ -53,15 +61,15 @@ package body Editor.Commands.Audits is
             return False;
       end case;
 
-      return Is_File_Lifecycle_Command (Id)
-        and then Command_Family (Id) = File_Lifecycle_Family
-        and then Command_Effect_Classification (Id) /= No_Command_Effect
-        and then Command_Summary (Id)'Length > 0
-        and then Command_Availability_Summary (Id)'Length > 0
-        and then Command_Mutation_Summary (Id)'Length > 0
-        and then Command_Filesystem_Effect_Summary (Id)'Length > 0
-        and then Command_State_Preservation_Summary (Id)'Length > 0
-        and then Command_Non_Goal_Summary (Id)'Length > 0;
+      return Reference_Metadata.Is_File_Lifecycle_Command (Id)
+        and then Reference_Metadata.Command_Family (Id) = File_Lifecycle_Family
+        and then Reference_Metadata.Command_Effect_Classification (Id) /= No_Command_Effect
+        and then Reference_Metadata.Command_Summary (Id)'Length > 0
+        and then Reference_Metadata.Command_Availability_Summary (Id)'Length > 0
+        and then Reference_Metadata.Command_Mutation_Summary (Id)'Length > 0
+        and then Reference_Metadata.Command_Filesystem_Effect_Summary (Id)'Length > 0
+        and then Reference_Metadata.Command_State_Preservation_Summary (Id)'Length > 0
+        and then Reference_Metadata.Command_Non_Goal_Summary (Id)'Length > 0;
    end Has_Command_Reference;
 
    function File_Lifecycle_Command_Reference_Coherent return Boolean
@@ -86,14 +94,14 @@ package body Editor.Commands.Audits is
          if D.Id /= Id
            or else D.Category /= File_Category
            or else D.Family /= File_Lifecycle_Family
-           or else D.Effect_Classification /= Command_Effect_Classification (Id)
+           or else D.Effect_Classification /= Reference_Metadata.Command_Effect_Classification (Id)
            or else not Has_Command_Reference (Id)
-           or else To_String (D.Summary) /= Command_Summary (Id)
-           or else To_String (D.Availability_Summary) /= Command_Availability_Summary (Id)
-           or else To_String (D.Mutation_Summary) /= Command_Mutation_Summary (Id)
-           or else To_String (D.Filesystem_Effect_Summary) /= Command_Filesystem_Effect_Summary (Id)
-           or else To_String (D.State_Preservation_Summary) /= Command_State_Preservation_Summary (Id)
-           or else To_String (D.Non_Goal_Summary) /= Command_Non_Goal_Summary (Id)
+           or else To_String (D.Summary) /= Reference_Metadata.Command_Summary (Id)
+           or else To_String (D.Availability_Summary) /= Reference_Metadata.Command_Availability_Summary (Id)
+           or else To_String (D.Mutation_Summary) /= Reference_Metadata.Command_Mutation_Summary (Id)
+           or else To_String (D.Filesystem_Effect_Summary) /= Reference_Metadata.Command_Filesystem_Effect_Summary (Id)
+           or else To_String (D.State_Preservation_Summary) /= Reference_Metadata.Command_State_Preservation_Summary (Id)
+           or else To_String (D.Non_Goal_Summary) /= Reference_Metadata.Command_Non_Goal_Summary (Id)
          then
             return False;
          end if;
@@ -111,7 +119,7 @@ package body Editor.Commands.Audits is
      (Id : Command_Id) return Boolean
    is
       D : constant Command_Descriptor := Descriptor (Id);
-      Stable : constant String := Stable_Command_Name (Id);
+      Stable : constant String := Name_Metadata.Stable_Command_Name (Id);
       Title : constant String := To_String (D.Name);
       Description_Text : constant String := To_String (D.Description);
       Category_Text : constant String := Discoverability_Category_Label (Id);

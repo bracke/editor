@@ -1,3 +1,5 @@
+with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Characters.Handling;
 with Ada.Strings;
 with Ada.Strings.Fixed;
@@ -6,6 +8,7 @@ with Editor.Build_UI;
 with Editor.Build_UI_Actions;
 with Editor.Command_Palette;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Executor.Availability;
 with Editor.Feature_Diagnostics;
 with Editor.Keybindings;
@@ -13,6 +16,8 @@ with Editor.Overlay_Focus;
 with Editor.Problems;
 with Editor.State;
 with Guikit.Command_Palette;
+
+
 
 package body Editor.Executor.Command_Palette_Projection is
 
@@ -24,10 +29,10 @@ package body Editor.Executor.Command_Palette_Projection is
 
    procedure Command_Palette_Candidates
      (S      : Editor.State.State_Type;
-      Result : out Editor.Commands.Command_Palette_Candidate_Vectors.Vector)
+      Result : out Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector)
    is
-      All_Commands : constant Editor.Commands.Command_Descriptor_Vectors.Vector :=
-        Editor.Commands.Palette_Commands;
+      All_Commands : constant Editor.Commands.Descriptors.Command_Descriptor_Vectors.Vector :=
+        Editor.Commands.Descriptors.Palette_Commands;
       Query : constant String :=
         To_String (Editor.Command_Palette.Current.Query);
       Score : Natural := 0;
@@ -39,7 +44,7 @@ package body Editor.Executor.Command_Palette_Projection is
       end Starts_With;
 
       function Relevance_Boost (Id : Editor.Commands.Command_Id) return Natural is
-         Stable : constant String := Editor.Commands.Stable_Command_Name (Id);
+         Stable : constant String := Editor.Commands.Name_Metadata.Stable_Command_Name (Id);
          Previous : constant Editor.Overlay_Focus.Previous_Focus_Target :=
            Editor.Overlay_Focus.Previous_Focus (S.Overlay_Focus);
       begin
@@ -74,7 +79,7 @@ package body Editor.Executor.Command_Palette_Projection is
       function State_Context_For
         (Id : Editor.Commands.Command_Id) return String
       is
-         Stable : constant String := Editor.Commands.Stable_Command_Name (Id);
+         Stable : constant String := Editor.Commands.Name_Metadata.Stable_Command_Name (Id);
       begin
          if Starts_With (Stable, "problems.") then
             return
@@ -138,8 +143,8 @@ package body Editor.Executor.Command_Palette_Projection is
          begin
             Score := Editor.Command_Palette.Metadata_Match_Score
               (Label          => To_String (D.Name),
-               Stable_Name    => Editor.Commands.Stable_Command_Name (D.Id),
-               Category_Label => Editor.Commands.Discoverability_Category_Label
+               Stable_Name    => Editor.Commands.Name_Metadata.Stable_Command_Name (D.Id),
+               Category_Label => Editor.Commands.Descriptors.Discoverability_Category_Label
                  (D.Id),
                Description    => To_String (D.Description),
                Keybinding     =>
@@ -162,13 +167,13 @@ package body Editor.Executor.Command_Palette_Projection is
                     Editor.Keybindings.Primary_Binding_For_Command (D.Id);
                begin
                   declare
-                     Candidate : constant Editor.Commands.Command_Palette_Candidate :=
+                     Candidate : constant Editor.Commands.Palette_Model.Command_Palette_Candidate :=
                         (Id                 => D.Id,
                         Label              => D.Name,
                         Description        => D.Description,
                         Category           => D.Category,
                         Category_Label     => To_Unbounded_String
-                          (Editor.Commands.Discoverability_Category_Label (D.Id)),
+                          (Editor.Commands.Descriptors.Discoverability_Category_Label (D.Id)),
                         Available          => Editor.Commands.Is_Available (A),
                         Reason             => A.Reason,
                         Has_Keybinding     => D.Bindable and then Binding.Has_Binding,
@@ -199,7 +204,7 @@ package body Editor.Executor.Command_Palette_Projection is
      (S      : Editor.State.State_Type;
       Result : out Guikit.Command_Palette.Command_Vectors.Vector)
    is
-      Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
    begin
       Result.Clear;
       Command_Palette_Candidates (S, Candidates);
@@ -208,7 +213,7 @@ package body Editor.Executor.Command_Palette_Projection is
            (Guikit.Command_Palette.Command'
               (Id          => Editor.Commands.Command_Id'Pos (C.Id),
                Identifier  =>
-                 To_Unbounded_String (Editor.Commands.Stable_Command_Name (C.Id)),
+                 To_Unbounded_String (Editor.Commands.Name_Metadata.Stable_Command_Name (C.Id)),
                Label       => C.Label,
                Description => C.Description,
                Shortcut    => C.Keybinding_Display,

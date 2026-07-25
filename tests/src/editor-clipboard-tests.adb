@@ -1,3 +1,5 @@
+with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with AUnit.Assertions;  use AUnit.Assertions;
 with Ada.Containers;
@@ -8,6 +10,7 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with Editor.Clipboard;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Buffers;
 with Editor.Input_Field;
 with Editor.Messages;
@@ -25,8 +28,8 @@ with Editor.Executor.Clipboard;
 with Editor.Executor.Project_Lifecycle_Commands;
 use type Editor.Executor.Clipboard.Clipboard_Execution_Status;
 use type Editor.Commands.Command_Id;
-use type Editor.Commands.Command_Category;
-use type Editor.Commands.Command_Visibility;
+use type Editor.Commands.Descriptors.Command_Category;
+use type Editor.Commands.Descriptors.Command_Visibility;
 use type Ada.Containers.Count_Type;
 with Editor.History;
 with Editor.State;
@@ -39,6 +42,8 @@ with Editor.Recent_Buffers;
 with Editor.Bookmarks;
 with Editor.Input_Bridge;
 with Editor.Keybindings;
+
+
 
 package body Editor.Clipboard.Tests is
 
@@ -148,32 +153,32 @@ package body Editor.Clipboard.Tests is
       pragma Unreferenced (T);
    begin
       Assert
-        (Editor.Commands.Stable_Command_Name (Editor.Commands.Command_Copy) =
+        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Copy) =
          "edit.copy",
          "copy must have the stable command name");
       Assert
-        (Editor.Commands.Stable_Command_Name (Editor.Commands.Command_Cut) =
+        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Cut) =
          "edit.cut",
          "cut must have the stable command name");
       Assert
-        (Editor.Commands.Stable_Command_Name (Editor.Commands.Command_Paste) =
+        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Paste) =
          "edit.paste",
          "paste must have the stable command name");
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Clipboard_Clear) =
          "edit.clipboard.clear",
          "clipboard clear must have the stable command name");
       Assert
-        (Editor.Commands.Descriptor (Editor.Commands.Command_Copy).Category =
-         Editor.Commands.Edit_Category,
+        (Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Copy).Category =
+         Editor.Commands.Descriptors.Edit_Category,
          "copy must be an Edit command");
       Assert
-        (Editor.Commands.Descriptor (Editor.Commands.Command_Cut).Bindable,
+        (Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Cut).Bindable,
          "cut must be bindable");
       Assert
-        (Editor.Commands.Descriptor (Editor.Commands.Command_Paste).Visibility =
-         Editor.Commands.Palette_Command,
+        (Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Paste).Visibility =
+         Editor.Commands.Descriptors.Palette_Command,
          "paste must be visible in the command palette");
    end Test_Command_Metadata;
 
@@ -1010,7 +1015,7 @@ package body Editor.Clipboard.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S          : Editor.State.State_Type;
-      Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Before_Text : Unbounded_String;
       Before_Clip : Unbounded_String;
 
@@ -1031,7 +1036,7 @@ package body Editor.Clipboard.Tests is
          Found : Boolean := False;
          Id    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
       begin
-         Id := Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
+         Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
          Assert (Found and then Id = Expected,
                  Name & " must resolve to the canonical clipboard command id");
       end Assert_Stable;
@@ -1197,26 +1202,26 @@ package body Editor.Clipboard.Tests is
       Assert (Ada.Strings.Unbounded.Index (Summary, "Clipboard") = 0,
               "workspace snapshot debug summary must not contain clipboard fields");
 
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("edit.copy-line", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("edit.copy-line", Found);
       Assert (not Found and then Id = Editor.Commands.No_Command,
               "copy-line must not be exposed as a command");
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("edit.cut-line", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("edit.cut-line", Found);
       Assert (not Found and then Id = Editor.Commands.No_Command,
               "cut-line must not be exposed as a command");
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("edit.copy-rich", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("edit.copy-rich", Found);
       Assert (not Found and then Id = Editor.Commands.No_Command,
               "rich-text copy must not be exposed");
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("edit.paste-special", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("edit.paste-special", Found);
       Assert (not Found and then Id = Editor.Commands.No_Command,
               "paste-special must not be exposed");
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("edit.paste-history", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("edit.paste-history", Found);
       Assert (not Found and then Id = Editor.Commands.No_Command,
               "paste-history must not be exposed");
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.system-clipboard.sync", Found);
       Assert (not Found and then Id = Editor.Commands.No_Command,
               "system clipboard synchronization must not be exposed");
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.clipboard.persist", Found);
       Assert (not Found and then Id = Editor.Commands.No_Command,
               "persistent clipboard command must not be exposed");
@@ -1464,7 +1469,7 @@ package body Editor.Clipboard.Tests is
          if Editor.Keybindings.Bound_Command_Count > 0 then
             for I in 1 .. Editor.Keybindings.Bound_Command_Count loop
                Id := Editor.Keybindings.Bound_Command_At (I);
-               Name := To_Unbounded_String (Editor.Commands.Stable_Command_Name (Id));
+               Name := To_Unbounded_String (Editor.Commands.Name_Metadata.Stable_Command_Name (Id));
                if Ada.Strings.Unbounded.Index (Name, "copy") /= 0
                  or else Ada.Strings.Unbounded.Index (Name, "cut") /= 0
                  or else Ada.Strings.Unbounded.Index (Name, "paste") /= 0

@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Buffer_Switcher;
 with Editor.Buffers;
@@ -5,6 +6,7 @@ with Editor.Commands;
 with Editor.Executor;
 with Editor.Keybindings;
 with Editor.Settings;
+
 
 package body Editor.Buffer_Switcher_Contextual_Hints is
 
@@ -79,7 +81,7 @@ package body Editor.Buffer_Switcher_Contextual_Hints is
       end if;
 
       Hint.Command_Id := Id;
-      Hint.Label := To_Unbounded_String (Editor.Commands.Label (Id));
+      Hint.Label := To_Unbounded_String (Editor.Commands.Descriptors.Label (Id));
       Hint.Keybinding_Text := To_Unbounded_String
         (Hint_Keybinding_Text (Id, Show_Keybindings));
       Hint.Is_Enabled := Editor.Commands.Is_Available (Availability);

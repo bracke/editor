@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Build_Command;
 with Editor.Build_UI;
@@ -5,16 +6,18 @@ with Editor.Build_Working_Context;
 with Editor.Build_Result_Summary;
 with Editor.Build_Output_Details;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.External_Producers;
 with Editor.External_Producers.Audits;
 with Editor.External_Producers.Public_Build;
 with Editor.State;
 
+
 package body Editor.Build_Command_Audit is
 
    use type Editor.Build_Command.Build_Run_Readiness_Status;
-   use type Editor.Commands.Command_Visibility;
-   use type Editor.Commands.Command_Category;
+   use type Editor.Commands.Descriptors.Command_Visibility;
+   use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Build_Working_Context.Build_Working_Context_Validation_Status;
 
    function Build_Run_Availability_Is_Side_Effect_Free
@@ -47,11 +50,11 @@ package body Editor.Build_Command_Audit is
             .Run_Public_Build_Command_Readiness_Audit (State);
    begin
       Result.Build_Run_Descriptor_Stable :=
-        Editor.Commands.Stable_Command_Name (Editor.Commands.Command_Build_Run) =
+        Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Build_Run) =
         "build.run"
-        and then Editor.Commands.Descriptor (Editor.Commands.Command_Build_Run).Visibility =
-          Editor.Commands.Palette_Command
-        and then not Editor.Commands.Descriptor (Editor.Commands.Command_Build_Run).Bindable;
+        and then Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Build_Run).Visibility =
+          Editor.Commands.Descriptors.Palette_Command
+        and then not Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Build_Run).Bindable;
       Result.Build_Run_Routes_Through_Executor := Readiness.Routes_Through_Executor;
       Result.Build_Run_Requires_Explicit_Consent :=
         Readiness.Public_Consent_UX_Publicly_Ready
@@ -299,16 +302,16 @@ package body Editor.Build_Command_Audit is
 
    function Assert_Build_Cancel_Command_Descriptor_Stable return Boolean
    is
-      D : constant Editor.Commands.Command_Descriptor :=
-        Editor.Commands.Descriptor (Editor.Commands.Command_Build_Cancel);
+      D : constant Editor.Commands.Descriptors.Command_Descriptor :=
+        Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Build_Cancel);
       Name : constant String := To_String (D.Name);
    begin
-      return Editor.Commands.Stable_Command_Name
+      return Editor.Commands.Name_Metadata.Stable_Command_Name
           (Editor.Commands.Command_Build_Cancel) = "build.cancel"
         and then Editor.Commands.Is_Public_Build_Command
           (Editor.Commands.Command_Build_Cancel)
-        and then D.Visibility = Editor.Commands.Palette_Command
-        and then D.Category = Editor.Commands.Project_Category
+        and then D.Visibility = Editor.Commands.Descriptors.Palette_Command
+        and then D.Category = Editor.Commands.Descriptors.Project_Category
         and then not D.Bindable
         and then Name = "Cancel Build";
    end Assert_Build_Cancel_Command_Descriptor_Stable;

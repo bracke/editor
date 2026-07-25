@@ -1,3 +1,5 @@
+with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with Ada.Containers;
@@ -5,6 +7,7 @@ with Ada.Directories;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Command_Palette;
 with Editor.Command_Route_Audit;
 with Editor.Configuration_Audit;
@@ -53,6 +56,14 @@ with Editor.View;
 with Editor.Workspace_Persistence;
 with Text_Buffer;
 
+with Editor.Commands.Reference_Metadata;
+
+
+with Editor.Commands.Audits;
+
+
+
+
 package body Editor.Files.Tests is
 
    use type Editor.Files.File_Status;
@@ -60,11 +71,11 @@ package body Editor.Files.Tests is
    use type Editor.Files.File_Save_Status;
    use type Editor.Files.File_Move_Status;
    use type Editor.Commands.Command_Id;
-   use type Editor.Commands.Command_Category;
-   use type Editor.Commands.Command_Visibility;
+   use type Editor.Commands.Descriptors.Command_Category;
+   use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Command_Palette.Command_Palette_Row_Kind;
-   use type Editor.Commands.Command_Family_Id;
-   use type Editor.Commands.Command_Effect_Classification_Id;
+   use type Editor.Commands.Descriptors.Command_Family_Id;
+   use type Editor.Commands.Descriptors.Command_Effect_Classification_Id;
    use type Editor.Keybindings.Keybinding_Validation_Status;
    use type Editor.Buffers.Buffer_Id;
    use type Editor.Messages.Message_Severity;
@@ -532,10 +543,10 @@ package body Editor.Files.Tests is
          Editor.Commands.Command_Delete_Buffer_File,
          Editor.Commands.Command_Copy_Buffer_File,
          Editor.Commands.Command_Move_Buffer_File);
-      Desc  : Editor.Commands.Command_Descriptor;
+      Desc  : Editor.Commands.Descriptors.Command_Descriptor;
       Id    : Editor.Commands.Command_Id;
       Found : Boolean := False;
-      Seen  : array (Editor.Commands.Command_Effect_Classification_Id) of Boolean :=
+      Seen  : array (Editor.Commands.Descriptors.Command_Effect_Classification_Id) of Boolean :=
         (others => False);
 
       procedure Assert_Contains
@@ -549,34 +560,34 @@ package body Editor.Files.Tests is
 
       procedure Assert_Absent (Name : String) is
       begin
-         Id := Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
+         Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
          Assert (not Found and then Id = Editor.Commands.No_Command,
            "absent/non-goal command must not gain reference surface: " & Name);
       end Assert_Absent;
    begin
-      Assert (Editor.Commands.File_Lifecycle_Command_Reference_Coherent,
+      Assert (Editor.Commands.Audits.File_Lifecycle_Command_Reference_Coherent,
         "file lifecycle command reference helper must be coherent");
 
       for Expected of Covered loop
-         Desc := Editor.Commands.Descriptor (Expected);
+         Desc := Editor.Commands.Descriptors.Descriptor (Expected);
          Assert (Desc.Id = Expected
-           and then Desc.Category = Editor.Commands.File_Category
-           and then Desc.Family = Editor.Commands.File_Lifecycle_Family
+           and then Desc.Category = Editor.Commands.Descriptors.File_Category
+           and then Desc.Family = Editor.Commands.Descriptors.File_Lifecycle_Family
            and then Desc.Effect_Classification =
-             Editor.Commands.Command_Effect_Classification (Expected)
-           and then Editor.Commands.Has_Command_Reference (Expected),
+             Editor.Commands.Reference_Metadata.Command_Effect_Classification (Expected)
+           and then Editor.Commands.Audits.Has_Command_Reference (Expected),
            "covered file lifecycle command missing descriptor-owned reference metadata");
-         Assert (To_String (Desc.Summary) = Editor.Commands.Command_Summary (Expected)
+         Assert (To_String (Desc.Summary) = Editor.Commands.Reference_Metadata.Command_Summary (Expected)
            and then To_String (Desc.Availability_Summary) =
-             Editor.Commands.Command_Availability_Summary (Expected)
+             Editor.Commands.Reference_Metadata.Command_Availability_Summary (Expected)
            and then To_String (Desc.Mutation_Summary) =
-             Editor.Commands.Command_Mutation_Summary (Expected)
+             Editor.Commands.Reference_Metadata.Command_Mutation_Summary (Expected)
            and then To_String (Desc.Filesystem_Effect_Summary) =
-             Editor.Commands.Command_Filesystem_Effect_Summary (Expected)
+             Editor.Commands.Reference_Metadata.Command_Filesystem_Effect_Summary (Expected)
            and then To_String (Desc.State_Preservation_Summary) =
-             Editor.Commands.Command_State_Preservation_Summary (Expected)
+             Editor.Commands.Reference_Metadata.Command_State_Preservation_Summary (Expected)
            and then To_String (Desc.Non_Goal_Summary) =
-             Editor.Commands.Command_Non_Goal_Summary (Expected),
+             Editor.Commands.Reference_Metadata.Command_Non_Goal_Summary (Expected),
            "descriptor fields must be derived from static command-reference constants");
          Assert (To_String (Desc.Summary)'Length > 0
            and then To_String (Desc.Availability_Summary)'Length > 0
@@ -585,8 +596,8 @@ package body Editor.Files.Tests is
            and then To_String (Desc.State_Preservation_Summary)'Length > 0
            and then To_String (Desc.Non_Goal_Summary)'Length > 0,
            "all reference summaries must be present");
-         Assert (Editor.Commands.Command_Family_Label (Desc.Family) = "File Operations"
-           and then Editor.Commands.Command_Effect_Classification_Label
+         Assert (Editor.Commands.Reference_Metadata.Command_Family_Label (Desc.Family) = "File Operations"
+           and then Editor.Commands.Reference_Metadata.Command_Effect_Classification_Label
              (Desc.Effect_Classification)'Length > 0,
            "family/effect labels must be stable and discoverable");
          Assert (not Seen (Desc.Effect_Classification),
@@ -594,25 +605,25 @@ package body Editor.Files.Tests is
          Seen (Desc.Effect_Classification) := True;
       end loop;
 
-      Assert_Contains (Editor.Commands.Command_Filesystem_Effect_Summary
+      Assert_Contains (Editor.Commands.Reference_Metadata.Command_Filesystem_Effect_Summary
         (Editor.Commands.Command_Save_File), "Writes", "file.save");
-      Assert_Contains (Editor.Commands.Command_Mutation_Summary
+      Assert_Contains (Editor.Commands.Reference_Metadata.Command_Mutation_Summary
         (Editor.Commands.Command_Save_File_As), "association", "file.save-as");
-      Assert_Contains (Editor.Commands.Command_Filesystem_Effect_Summary
+      Assert_Contains (Editor.Commands.Reference_Metadata.Command_Filesystem_Effect_Summary
         (Editor.Commands.Command_Close_Active_Buffer), "no filesystem", "file.close-buffer");
-      Assert_Contains (Editor.Commands.Command_Mutation_Summary
+      Assert_Contains (Editor.Commands.Reference_Metadata.Command_Mutation_Summary
         (Editor.Commands.Command_Reopen_Closed_Buffer), "reopen candidate", "file.reopen-closed-buffer");
-      Assert_Contains (Editor.Commands.Command_Non_Goal_Summary
+      Assert_Contains (Editor.Commands.Reference_Metadata.Command_Non_Goal_Summary
         (Editor.Commands.Command_Reload_Active_Buffer), "dirty text", "file.reload-buffer");
-      Assert_Contains (Editor.Commands.Command_Mutation_Summary
+      Assert_Contains (Editor.Commands.Reference_Metadata.Command_Mutation_Summary
         (Editor.Commands.Command_Revert_Active_Buffer), "dirty", "file.revert-buffer");
-      Assert_Contains (Editor.Commands.Command_Non_Goal_Summary
+      Assert_Contains (Editor.Commands.Reference_Metadata.Command_Non_Goal_Summary
         (Editor.Commands.Command_Rename_Buffer_File), "overwrite", "file.rename-buffer-file");
-      Assert_Contains (Editor.Commands.Command_State_Preservation_Summary
+      Assert_Contains (Editor.Commands.Reference_Metadata.Command_State_Preservation_Summary
         (Editor.Commands.Command_Delete_Buffer_File), "Preserves active text", "file.delete-buffer-file");
-      Assert_Contains (Editor.Commands.Command_Mutation_Summary
+      Assert_Contains (Editor.Commands.Reference_Metadata.Command_Mutation_Summary
         (Editor.Commands.Command_Copy_Buffer_File), "Does not mutate", "file.copy-buffer-file");
-      Assert_Contains (Editor.Commands.Command_Mutation_Summary
+      Assert_Contains (Editor.Commands.Reference_Metadata.Command_Mutation_Summary
         (Editor.Commands.Command_Move_Buffer_File), "association", "file.move-buffer-file");
 
       Assert_Absent ("file.force-save");
@@ -645,7 +656,7 @@ package body Editor.Files.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S             : Editor.State.State_Type;
-      Candidates    : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates    : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Summary       : Unbounded_String;
       Workspace     : Editor.Workspace_Persistence.Workspace_Snapshot;
       Before_Text   : constant String := "";
@@ -656,14 +667,14 @@ package body Editor.Files.Tests is
       Copy_Rows     : Natural := 0;
       Move_Rows     : Natural := 0;
 
-      procedure Count_Row (C : Editor.Commands.Command_Palette_Candidate) is
+      procedure Count_Row (C : Editor.Commands.Palette_Model.Command_Palette_Candidate) is
       begin
-         if Editor.Commands.Is_File_Lifecycle_Command (C.Id) then
+         if Editor.Commands.Reference_Metadata.Is_File_Lifecycle_Command (C.Id) then
             Visible_Count := Visible_Count + 1;
-            Assert (C.Reference_Summary = Editor.Commands.Descriptor (C.Id).Summary
-              and then C.Family = Editor.Commands.File_Lifecycle_Family
+            Assert (C.Reference_Summary = Editor.Commands.Descriptors.Descriptor (C.Id).Summary
+              and then C.Family = Editor.Commands.Descriptors.File_Lifecycle_Family
               and then C.Effect_Classification =
-                Editor.Commands.Command_Effect_Classification (C.Id),
+                Editor.Commands.Reference_Metadata.Command_Effect_Classification (C.Id),
               "Command Palette reference projection must be descriptor-derived");
          end if;
 
@@ -753,17 +764,17 @@ package body Editor.Files.Tests is
          Context : String) is
       begin
          if Field = "summary" then
-            Assert_Contains (Editor.Commands.Command_Summary (Id), Needle, Context);
+            Assert_Contains (Editor.Commands.Reference_Metadata.Command_Summary (Id), Needle, Context);
          elsif Field = "availability" then
-            Assert_Contains (Editor.Commands.Command_Availability_Summary (Id), Needle, Context);
+            Assert_Contains (Editor.Commands.Reference_Metadata.Command_Availability_Summary (Id), Needle, Context);
          elsif Field = "mutation" then
-            Assert_Contains (Editor.Commands.Command_Mutation_Summary (Id), Needle, Context);
+            Assert_Contains (Editor.Commands.Reference_Metadata.Command_Mutation_Summary (Id), Needle, Context);
          elsif Field = "filesystem" then
-            Assert_Contains (Editor.Commands.Command_Filesystem_Effect_Summary (Id), Needle, Context);
+            Assert_Contains (Editor.Commands.Reference_Metadata.Command_Filesystem_Effect_Summary (Id), Needle, Context);
          elsif Field = "state" then
-            Assert_Contains (Editor.Commands.Command_State_Preservation_Summary (Id), Needle, Context);
+            Assert_Contains (Editor.Commands.Reference_Metadata.Command_State_Preservation_Summary (Id), Needle, Context);
          elsif Field = "non-goal" then
-            Assert_Contains (Editor.Commands.Command_Non_Goal_Summary (Id), Needle, Context);
+            Assert_Contains (Editor.Commands.Reference_Metadata.Command_Non_Goal_Summary (Id), Needle, Context);
          else
             Assert (False, "unknown reference field fixture");
          end if;
@@ -820,13 +831,13 @@ package body Editor.Files.Tests is
       Assert_Field (Editor.Commands.Command_Move_Buffer_File, "filesystem", "Moves", "file.move-buffer-file");
       Assert_Field (Editor.Commands.Command_Move_Buffer_File, "non-goal", "write buffer text", "file.move-buffer-file");
 
-      Assert_Not_Contains (Editor.Commands.Command_Mutation_Summary
+      Assert_Not_Contains (Editor.Commands.Reference_Metadata.Command_Mutation_Summary
         (Editor.Commands.Command_Copy_Buffer_File), "updates association", "file.copy-buffer-file");
-      Assert_Not_Contains (Editor.Commands.Command_Mutation_Summary
+      Assert_Not_Contains (Editor.Commands.Reference_Metadata.Command_Mutation_Summary
         (Editor.Commands.Command_Delete_Buffer_File), "closes", "file.delete-buffer-file");
-      Assert_Not_Contains (Editor.Commands.Command_Mutation_Summary
+      Assert_Not_Contains (Editor.Commands.Reference_Metadata.Command_Mutation_Summary
         (Editor.Commands.Command_Rename_Buffer_File), "save baseline", "file.rename-buffer-file");
-      Assert_Not_Contains (Editor.Commands.Command_Mutation_Summary
+      Assert_Not_Contains (Editor.Commands.Reference_Metadata.Command_Mutation_Summary
         (Editor.Commands.Command_Move_Buffer_File), "save baseline", "file.move-buffer-file");
    end Test_File_Lifecycle_Command_Reference_Accuracy_Matrix;
 
@@ -839,7 +850,7 @@ package body Editor.Files.Tests is
 
       procedure Assert_Absent (Name : String) is
       begin
-         Id := Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
+         Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
          Assert (not Found and then Id = Editor.Commands.No_Command,
            "reference metadata must not expose absent command " & Name);
       end Assert_Absent;
@@ -878,7 +889,7 @@ package body Editor.Files.Tests is
       S             : Editor.State.State_Type;
       Path          : constant String := Temp_Path ("availability_reference.txt");
       Before_Text   : constant String := "dirty reference separation";
-      Static_Text    : constant String := Editor.Commands.Command_Availability_Summary
+      Static_Text    : constant String := Editor.Commands.Reference_Metadata.Command_Availability_Summary
         (Editor.Commands.Command_Reload_Active_Buffer);
       No_Active      : Editor.Commands.Command_Availability;
       Dirty_Avail    : Editor.Commands.Command_Availability;
@@ -891,7 +902,7 @@ package body Editor.Files.Tests is
       Editor.State.Init (S);
       No_Active := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Reload_Active_Buffer);
-      Assert (Editor.Commands.Command_Availability_Summary
+      Assert (Editor.Commands.Reference_Metadata.Command_Availability_Summary
         (Editor.Commands.Command_Reload_Active_Buffer) = Static_Text,
         "static reference availability must not change in no-active state");
 
@@ -909,7 +920,7 @@ package body Editor.Files.Tests is
         (S, Editor.Commands.Command_Reload_Active_Buffer);
       Assert (not Editor.Commands.Is_Available (Dirty_Avail),
         "Executor must remain authoritative for dirty reload availability");
-      Assert (Editor.Commands.Command_Availability_Summary
+      Assert (Editor.Commands.Reference_Metadata.Command_Availability_Summary
         (Editor.Commands.Command_Reload_Active_Buffer) = Static_Text,
         "reference availability text must remain stable for dirty associated buffer");
       Assert (Read_Bytes (Path) = "disk reference separation"
@@ -924,7 +935,7 @@ package body Editor.Files.Tests is
         (S, Editor.Commands.Command_Reload_Active_Buffer);
       Assert (Editor.Commands.Is_Available (Clean_Avail),
         "clean associated buffer availability remains Executor-derived");
-      Assert (Editor.Commands.Command_Availability_Summary
+      Assert (Editor.Commands.Reference_Metadata.Command_Availability_Summary
         (Editor.Commands.Command_Reload_Active_Buffer) = Static_Text,
         "static reference availability must not follow Executor status");
       Assert (Editor.Messages.Count (S.Messages) = 0,
@@ -946,20 +957,20 @@ package body Editor.Files.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S               : Editor.State.State_Type;
-      Candidates      : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates      : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Covered_Count   : Natural := 0;
       Save_Rows       : Natural := 0;
       Move_Rows       : Natural := 0;
       Before_Bound_Count : Natural := 0;
 
-      procedure Inspect (C : Editor.Commands.Command_Palette_Candidate) is
+      procedure Inspect (C : Editor.Commands.Palette_Model.Command_Palette_Candidate) is
       begin
-         if Editor.Commands.Is_File_Lifecycle_Command (C.Id) then
+         if Editor.Commands.Reference_Metadata.Is_File_Lifecycle_Command (C.Id) then
             Covered_Count := Covered_Count + 1;
-            Assert (C.Reference_Summary = Editor.Commands.Descriptor (C.Id).Summary
-              and then C.Family = Editor.Commands.File_Lifecycle_Family
+            Assert (C.Reference_Summary = Editor.Commands.Descriptors.Descriptor (C.Id).Summary
+              and then C.Family = Editor.Commands.Descriptors.File_Lifecycle_Family
               and then C.Effect_Classification =
-                Editor.Commands.Command_Effect_Classification (C.Id),
+                Editor.Commands.Reference_Metadata.Command_Effect_Classification (C.Id),
               "palette reference projection must remain descriptor-derived");
             Assert (C.Available = Editor.Commands.Is_Available
               (Editor.Executor.Command_Availability (S, C.Id)),
@@ -1000,8 +1011,8 @@ package body Editor.Files.Tests is
       Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
       if not Candidates.Is_Empty then
          for I in Candidates.First_Index .. Candidates.Last_Index loop
-            Assert (not Editor.Commands.Is_File_Lifecycle_Command (Candidates (I).Id)
-              or else Editor.Commands.Has_Command_Reference (Candidates (I).Id),
+            Assert (not Editor.Commands.Reference_Metadata.Is_File_Lifecycle_Command (Candidates (I).Id)
+              or else Editor.Commands.Audits.Has_Command_Reference (Candidates (I).Id),
               "removed-name query text must not create noncanonical reference rows");
          end loop;
       end if;
@@ -1021,58 +1032,58 @@ package body Editor.Files.Tests is
          Editor.Commands.Command_Delete_Buffer_File,
          Editor.Commands.Command_Copy_Buffer_File,
          Editor.Commands.Command_Move_Buffer_File);
-      Desc : Editor.Commands.Command_Descriptor;
+      Desc : Editor.Commands.Descriptors.Command_Descriptor;
       Non_Canonical : constant array (Positive range 1 .. 4) of Editor.Commands.Command_Id :=
         (Editor.Commands.Command_Open_File,
          Editor.Commands.Command_Open_Project,
          Editor.Commands.Command_Save_Settings,
          Editor.Commands.Command_Open_Command_Palette);
    begin
-      Assert (Editor.Commands.File_Lifecycle_Command_Reference_Coherent,
+      Assert (Editor.Commands.Audits.File_Lifecycle_Command_Reference_Coherent,
         "canonical descriptor-owned reference metadata must remain coherent");
 
       for Id of Covered loop
-         Desc := Editor.Commands.Descriptor (Id);
-         Assert (To_String (Desc.Summary) = Editor.Commands.Reference_Summary (Id)
+         Desc := Editor.Commands.Descriptors.Descriptor (Id);
+         Assert (To_String (Desc.Summary) = Editor.Commands.Reference_Metadata.Reference_Summary (Id)
            and then To_String (Desc.Availability_Summary) =
-             Editor.Commands.Reference_Availability_Summary (Id)
+             Editor.Commands.Reference_Metadata.Reference_Availability_Summary (Id)
            and then To_String (Desc.Mutation_Summary) =
-             Editor.Commands.Reference_Mutation_Summary (Id)
+             Editor.Commands.Reference_Metadata.Reference_Mutation_Summary (Id)
            and then To_String (Desc.Filesystem_Effect_Summary) =
-             Editor.Commands.Reference_Filesystem_Effect_Summary (Id)
+             Editor.Commands.Reference_Metadata.Reference_Filesystem_Effect_Summary (Id)
            and then To_String (Desc.State_Preservation_Summary) =
-             Editor.Commands.Reference_State_Preservation_Summary (Id)
+             Editor.Commands.Reference_Metadata.Reference_State_Preservation_Summary (Id)
            and then To_String (Desc.Non_Goal_Summary) =
-             Editor.Commands.Reference_Non_Goal_Summary (Id)
-           and then Desc.Family = Editor.Commands.Reference_Command_Family (Id)
+             Editor.Commands.Reference_Metadata.Reference_Non_Goal_Summary (Id)
+           and then Desc.Family = Editor.Commands.Reference_Metadata.Reference_Command_Family (Id)
            and then Desc.Effect_Classification =
-             Editor.Commands.Reference_Effect_Classification (Id),
+             Editor.Commands.Reference_Metadata.Reference_Effect_Classification (Id),
            "descriptor fields must project the canonical reference accessor for one owner");
-         Assert (Editor.Commands.Command_Summary (Id) = Editor.Commands.Reference_Summary (Id)
-           and then Editor.Commands.Command_Availability_Summary (Id) =
-             Editor.Commands.Reference_Availability_Summary (Id)
-           and then Editor.Commands.Command_Mutation_Summary (Id) =
-             Editor.Commands.Reference_Mutation_Summary (Id)
-           and then Editor.Commands.Command_Filesystem_Effect_Summary (Id) =
-             Editor.Commands.Reference_Filesystem_Effect_Summary (Id)
-           and then Editor.Commands.Command_State_Preservation_Summary (Id) =
-             Editor.Commands.Reference_State_Preservation_Summary (Id)
-           and then Editor.Commands.Command_Non_Goal_Summary (Id) =
-             Editor.Commands.Reference_Non_Goal_Summary (Id)
-           and then Editor.Commands.Command_Family (Id) =
-             Editor.Commands.Reference_Command_Family (Id)
-           and then Editor.Commands.Command_Effect_Classification (Id) =
-             Editor.Commands.Reference_Effect_Classification (Id),
+         Assert (Editor.Commands.Reference_Metadata.Command_Summary (Id) = Editor.Commands.Reference_Metadata.Reference_Summary (Id)
+           and then Editor.Commands.Reference_Metadata.Command_Availability_Summary (Id) =
+             Editor.Commands.Reference_Metadata.Reference_Availability_Summary (Id)
+           and then Editor.Commands.Reference_Metadata.Command_Mutation_Summary (Id) =
+             Editor.Commands.Reference_Metadata.Reference_Mutation_Summary (Id)
+           and then Editor.Commands.Reference_Metadata.Command_Filesystem_Effect_Summary (Id) =
+             Editor.Commands.Reference_Metadata.Reference_Filesystem_Effect_Summary (Id)
+           and then Editor.Commands.Reference_Metadata.Command_State_Preservation_Summary (Id) =
+             Editor.Commands.Reference_Metadata.Reference_State_Preservation_Summary (Id)
+           and then Editor.Commands.Reference_Metadata.Command_Non_Goal_Summary (Id) =
+             Editor.Commands.Reference_Metadata.Reference_Non_Goal_Summary (Id)
+           and then Editor.Commands.Reference_Metadata.Command_Family (Id) =
+             Editor.Commands.Reference_Metadata.Reference_Command_Family (Id)
+           and then Editor.Commands.Reference_Metadata.Command_Effect_Classification (Id) =
+             Editor.Commands.Reference_Metadata.Reference_Effect_Classification (Id),
            "compatibility accessors must not become a duplicate metadata source");
       end loop;
 
       for Id of Non_Canonical loop
-         Assert (not Editor.Commands.Has_Command_Reference (Id)
-           and then Editor.Commands.Reference_Summary (Id) = ""
-           and then Editor.Commands.Reference_Command_Family (Id) =
-             Editor.Commands.No_Command_Family
-           and then Editor.Commands.Reference_Effect_Classification (Id) =
-             Editor.Commands.No_Command_Effect,
+         Assert (not Editor.Commands.Audits.Has_Command_Reference (Id)
+           and then Editor.Commands.Reference_Metadata.Reference_Summary (Id) = ""
+           and then Editor.Commands.Reference_Metadata.Reference_Command_Family (Id) =
+             Editor.Commands.Descriptors.No_Command_Family
+           and then Editor.Commands.Reference_Metadata.Reference_Effect_Classification (Id) =
+             Editor.Commands.Descriptors.No_Command_Effect,
            "noncovered commands must not infer file lifecycle reference metadata");
       end loop;
    end Test_Command_Reference_Canonical_Metadata_Source;
@@ -1082,7 +1093,7 @@ package body Editor.Files.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S              : Editor.State.State_Type;
-      Candidates     : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates     : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Seen_Save      : Natural := 0;
       Seen_Save_As   : Natural := 0;
       Seen_Rename    : Natural := 0;
@@ -1123,16 +1134,16 @@ package body Editor.Files.Tests is
       if not Candidates.Is_Empty then
          for I in Candidates.First_Index .. Candidates.Last_Index loop
             Count (Candidates (I).Id);
-            if Editor.Commands.Is_File_Lifecycle_Command (Candidates (I).Id) then
+            if Editor.Commands.Reference_Metadata.Is_File_Lifecycle_Command (Candidates (I).Id) then
                Assert (Candidates (I).Reference_Summary =
-                 Editor.Commands.Descriptor (Candidates (I).Id).Summary
+                 Editor.Commands.Descriptors.Descriptor (Candidates (I).Id).Summary
                  and then Candidates (I).Family =
-                   Editor.Commands.Descriptor (Candidates (I).Id).Family
+                   Editor.Commands.Descriptors.Descriptor (Candidates (I).Id).Family
                  and then Candidates (I).Effect_Classification =
-                   Editor.Commands.Descriptor (Candidates (I).Id).Effect_Classification,
+                   Editor.Commands.Descriptors.Descriptor (Candidates (I).Id).Effect_Classification,
                  "palette rows must be descriptor-derived without local fallback metadata");
             else
-               Assert (not Editor.Commands.Has_Command_Reference (Candidates (I).Id),
+               Assert (not Editor.Commands.Audits.Has_Command_Reference (Candidates (I).Id),
                  "palette must not synthesize reference rows for noncovered commands");
             end if;
          end loop;
@@ -1151,8 +1162,8 @@ package body Editor.Files.Tests is
       Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
       if not Candidates.Is_Empty then
          for I in Candidates.First_Index .. Candidates.Last_Index loop
-            Assert (Editor.Commands.Command_Effect_Classification (Candidates (I).Id) =
-              Editor.Commands.Reference_Effect_Classification (Candidates (I).Id),
+            Assert (Editor.Commands.Reference_Metadata.Command_Effect_Classification (Candidates (I).Id) =
+              Editor.Commands.Reference_Metadata.Reference_Effect_Classification (Candidates (I).Id),
               "query text must not infer command-reference effect classifications");
          end loop;
       end if;
@@ -1193,7 +1204,7 @@ package body Editor.Files.Tests is
       Assert_Excluded ("expanded command");
       Assert_Excluded ("collapsed command");
       Assert_Excluded ("last viewed command");
-      Assert (Editor.Commands.File_Lifecycle_Command_Reference_Coherent,
+      Assert (Editor.Commands.Audits.File_Lifecycle_Command_Reference_Coherent,
         "audit-facing coherence check must be metadata-only and transient");
    end Test_Reference_Metadata_Persistence_And_Audit_Boundary;
 
@@ -1226,17 +1237,17 @@ package body Editor.Files.Tests is
          To_Unbounded_String ("file.copy-buffer-file"),
          To_Unbounded_String ("file.move-buffer-file"));
 
-      Expected_Effects : constant array (Positive range 1 .. 10) of Editor.Commands.Command_Effect_Classification_Id :=
-        (Editor.Commands.Writes_Buffer_Text_To_Associated_File,
-         Editor.Commands.Writes_Buffer_Text_To_Explicit_Target_And_Associates,
-         Editor.Commands.Closes_Active_Buffer,
-         Editor.Commands.Reopens_Safe_File_Reference,
-         Editor.Commands.Rereads_Associated_File,
-         Editor.Commands.Discards_Unsaved_Changes_And_Rereads,
-         Editor.Commands.Renames_Associated_File,
-         Editor.Commands.Deletes_Associated_File,
-         Editor.Commands.Copies_Associated_File,
-         Editor.Commands.Moves_Associated_File);
+      Expected_Effects : constant array (Positive range 1 .. 10) of Editor.Commands.Descriptors.Command_Effect_Classification_Id :=
+        (Editor.Commands.Descriptors.Writes_Buffer_Text_To_Associated_File,
+         Editor.Commands.Descriptors.Writes_Buffer_Text_To_Explicit_Target_And_Associates,
+         Editor.Commands.Descriptors.Closes_Active_Buffer,
+         Editor.Commands.Descriptors.Reopens_Safe_File_Reference,
+         Editor.Commands.Descriptors.Rereads_Associated_File,
+         Editor.Commands.Descriptors.Discards_Unsaved_Changes_And_Rereads,
+         Editor.Commands.Descriptors.Renames_Associated_File,
+         Editor.Commands.Descriptors.Deletes_Associated_File,
+         Editor.Commands.Descriptors.Copies_Associated_File,
+         Editor.Commands.Descriptors.Moves_Associated_File);
 
       Expected_Effect_Labels : constant array (Positive range 1 .. 10) of Unbounded_String :=
         (To_Unbounded_String ("writes-buffer-text-to-associated-file"),
@@ -1301,13 +1312,13 @@ package body Editor.Files.Tests is
            " must not contain '" & Needle & "'");
       end Assert_Field_Not_Contains;
    begin
-      Assert (Editor.Commands.File_Lifecycle_Command_Reference_Coherent,
+      Assert (Editor.Commands.Audits.File_Lifecycle_Command_Reference_Coherent,
         "canonical command-reference coherence helper must pass before final freeze checks");
 
       for Id in Editor.Commands.Command_Id loop
-         if Editor.Commands.Has_Command_Reference (Id) then
+         if Editor.Commands.Audits.Has_Command_Reference (Id) then
             Count := Count + 1;
-            Assert (Editor.Commands.Is_File_Lifecycle_Command (Id),
+            Assert (Editor.Commands.Reference_Metadata.Is_File_Lifecycle_Command (Id),
               "command-reference metadata must remain limited to file lifecycle commands");
          end if;
       end loop;
@@ -1317,64 +1328,64 @@ package body Editor.Files.Tests is
       for I in Covered'Range loop
          declare
             Id   : constant Editor.Commands.Command_Id := Covered (I);
-            Desc : constant Editor.Commands.Command_Descriptor := Editor.Commands.Descriptor (Id);
+            Desc : constant Editor.Commands.Descriptors.Command_Descriptor := Editor.Commands.Descriptors.Descriptor (Id);
             Name : constant String := To_String (Expected_Names (I));
          begin
-            Found_Id := Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
+            Found_Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
             Assert (Found and then Found_Id = Id,
               "frozen stable command name must resolve to canonical descriptor: " & Name);
             Assert (Desc.Id = Id
               and then Editor.Commands.Has_Descriptor (Id)
-              and then Editor.Commands.Stable_Command_Name (Id) = Name
-              and then Desc.Category = Editor.Commands.File_Category
-              and then Desc.Visibility = Editor.Commands.Palette_Command,
+              and then Editor.Commands.Name_Metadata.Stable_Command_Name (Id) = Name
+              and then Desc.Category = Editor.Commands.Descriptors.File_Category
+              and then Desc.Visibility = Editor.Commands.Descriptors.Palette_Command,
               "descriptor identity/category/visibility drifted for " & Name);
-            Assert (Desc.Family = Editor.Commands.File_Lifecycle_Family
-              and then Editor.Commands.Command_Family (Id) = Editor.Commands.File_Lifecycle_Family
-              and then Editor.Commands.Command_Family_Label (Desc.Family) = "File Operations",
+            Assert (Desc.Family = Editor.Commands.Descriptors.File_Lifecycle_Family
+              and then Editor.Commands.Reference_Metadata.Command_Family (Id) = Editor.Commands.Descriptors.File_Lifecycle_Family
+              and then Editor.Commands.Reference_Metadata.Command_Family_Label (Desc.Family) = "File Operations",
               "File Lifecycle family freeze drifted for " & Name);
             Assert (Desc.Effect_Classification = Expected_Effects (I)
-              and then Editor.Commands.Command_Effect_Classification (Id) = Expected_Effects (I)
-              and then Editor.Commands.Command_Effect_Classification_Label (Expected_Effects (I)) = To_String (Expected_Effect_Labels (I)),
+              and then Editor.Commands.Reference_Metadata.Command_Effect_Classification (Id) = Expected_Effects (I)
+              and then Editor.Commands.Reference_Metadata.Command_Effect_Classification_Label (Expected_Effects (I)) = To_String (Expected_Effect_Labels (I)),
               "effect-classification freeze drifted for " & Name);
-            Assert (To_String (Desc.Summary) = Editor.Commands.Reference_Summary (Id)
-              and then To_String (Desc.Availability_Summary) = Editor.Commands.Reference_Availability_Summary (Id)
-              and then To_String (Desc.Mutation_Summary) = Editor.Commands.Reference_Mutation_Summary (Id)
-              and then To_String (Desc.Filesystem_Effect_Summary) = Editor.Commands.Reference_Filesystem_Effect_Summary (Id)
-              and then To_String (Desc.State_Preservation_Summary) = Editor.Commands.Reference_State_Preservation_Summary (Id)
-              and then To_String (Desc.Non_Goal_Summary) = Editor.Commands.Reference_Non_Goal_Summary (Id)
-              and then Desc.Family = Editor.Commands.Reference_Command_Family (Id)
-              and then Desc.Effect_Classification = Editor.Commands.Reference_Effect_Classification (Id),
+            Assert (To_String (Desc.Summary) = Editor.Commands.Reference_Metadata.Reference_Summary (Id)
+              and then To_String (Desc.Availability_Summary) = Editor.Commands.Reference_Metadata.Reference_Availability_Summary (Id)
+              and then To_String (Desc.Mutation_Summary) = Editor.Commands.Reference_Metadata.Reference_Mutation_Summary (Id)
+              and then To_String (Desc.Filesystem_Effect_Summary) = Editor.Commands.Reference_Metadata.Reference_Filesystem_Effect_Summary (Id)
+              and then To_String (Desc.State_Preservation_Summary) = Editor.Commands.Reference_Metadata.Reference_State_Preservation_Summary (Id)
+              and then To_String (Desc.Non_Goal_Summary) = Editor.Commands.Reference_Metadata.Reference_Non_Goal_Summary (Id)
+              and then Desc.Family = Editor.Commands.Reference_Metadata.Reference_Command_Family (Id)
+              and then Desc.Effect_Classification = Editor.Commands.Reference_Metadata.Reference_Effect_Classification (Id),
               "descriptor-owned metadata accessors drifted for " & Name);
-            Assert (Editor.Commands.Command_Summary (Id) = Editor.Commands.Reference_Summary (Id)
-              and then Editor.Commands.Command_Availability_Summary (Id) = Editor.Commands.Reference_Availability_Summary (Id)
-              and then Editor.Commands.Command_Mutation_Summary (Id) = Editor.Commands.Reference_Mutation_Summary (Id)
-              and then Editor.Commands.Command_Filesystem_Effect_Summary (Id) = Editor.Commands.Reference_Filesystem_Effect_Summary (Id)
-              and then Editor.Commands.Command_State_Preservation_Summary (Id) = Editor.Commands.Reference_State_Preservation_Summary (Id)
-              and then Editor.Commands.Command_Non_Goal_Summary (Id) = Editor.Commands.Reference_Non_Goal_Summary (Id),
+            Assert (Editor.Commands.Reference_Metadata.Command_Summary (Id) = Editor.Commands.Reference_Metadata.Reference_Summary (Id)
+              and then Editor.Commands.Reference_Metadata.Command_Availability_Summary (Id) = Editor.Commands.Reference_Metadata.Reference_Availability_Summary (Id)
+              and then Editor.Commands.Reference_Metadata.Command_Mutation_Summary (Id) = Editor.Commands.Reference_Metadata.Reference_Mutation_Summary (Id)
+              and then Editor.Commands.Reference_Metadata.Command_Filesystem_Effect_Summary (Id) = Editor.Commands.Reference_Metadata.Reference_Filesystem_Effect_Summary (Id)
+              and then Editor.Commands.Reference_Metadata.Command_State_Preservation_Summary (Id) = Editor.Commands.Reference_Metadata.Reference_State_Preservation_Summary (Id)
+              and then Editor.Commands.Reference_Metadata.Command_Non_Goal_Summary (Id) = Editor.Commands.Reference_Metadata.Reference_Non_Goal_Summary (Id),
               "public command-reference aliases must remain canonical for " & Name);
          end;
       end loop;
 
-      Assert_Field_Contains (Editor.Commands.Command_Summary (Editor.Commands.Command_Save_File), "associated file path", "file.save summary");
-      Assert_Field_Contains (Editor.Commands.Command_Non_Goal_Summary (Editor.Commands.Command_Save_File), "new target path", "file.save non-goal");
-      Assert_Field_Contains (Editor.Commands.Command_Mutation_Summary (Editor.Commands.Command_Save_File_As), "association", "file.save-as mutation");
-      Assert_Field_Contains (Editor.Commands.Command_Non_Goal_Summary (Editor.Commands.Command_Save_File_As), "rename or move", "file.save-as non-goal");
-      Assert_Field_Contains (Editor.Commands.Command_Filesystem_Effect_Summary (Editor.Commands.Command_Close_Active_Buffer), "no filesystem operation", "file.close-buffer filesystem");
-      Assert_Field_Contains (Editor.Commands.Command_Non_Goal_Summary (Editor.Commands.Command_Close_Active_Buffer), "delete the associated file", "file.close-buffer non-goal");
-      Assert_Field_Contains (Editor.Commands.Command_Non_Goal_Summary (Editor.Commands.Command_Reopen_Closed_Buffer), "unsaved closed-buffer memory", "file.reopen-closed-buffer non-goal");
-      Assert_Field_Contains (Editor.Commands.Command_Summary (Editor.Commands.Command_Reload_Active_Buffer), "without discarding dirty text", "file.reload-buffer summary");
-      Assert_Field_Contains (Editor.Commands.Command_Non_Goal_Summary (Editor.Commands.Command_Revert_Active_Buffer), "recovery snapshots", "file.revert-buffer non-goal");
-      Assert_Field_Contains (Editor.Commands.Command_Mutation_Summary (Editor.Commands.Command_Rename_Buffer_File), "after filesystem rename success", "file.rename-buffer-file mutation");
-      Assert_Field_Contains (Editor.Commands.Command_Mutation_Summary (Editor.Commands.Command_Delete_Buffer_File), "Clears active buffer association", "file.delete-buffer-file mutation");
-      Assert_Field_Contains (Editor.Commands.Command_Mutation_Summary (Editor.Commands.Command_Copy_Buffer_File), "Does not mutate association", "file.copy-buffer-file mutation");
-      Assert_Field_Contains (Editor.Commands.Command_Mutation_Summary (Editor.Commands.Command_Move_Buffer_File), "after filesystem move success", "file.move-buffer-file mutation");
-      Assert_Field_Not_Contains (Editor.Commands.Command_Mutation_Summary (Editor.Commands.Command_Copy_Buffer_File), "Updates active buffer association", "file.copy-buffer-file mutation");
-      Assert_Field_Not_Contains (Editor.Commands.Command_Mutation_Summary (Editor.Commands.Command_Delete_Buffer_File), "Removes the active buffer", "file.delete-buffer-file mutation");
-      Assert_Field_Not_Contains (Editor.Commands.Command_Non_Goal_Summary (Editor.Commands.Command_Rename_Buffer_File), "available", "file.rename-buffer-file non-goal");
+      Assert_Field_Contains (Editor.Commands.Reference_Metadata.Command_Summary (Editor.Commands.Command_Save_File), "associated file path", "file.save summary");
+      Assert_Field_Contains (Editor.Commands.Reference_Metadata.Command_Non_Goal_Summary (Editor.Commands.Command_Save_File), "new target path", "file.save non-goal");
+      Assert_Field_Contains (Editor.Commands.Reference_Metadata.Command_Mutation_Summary (Editor.Commands.Command_Save_File_As), "association", "file.save-as mutation");
+      Assert_Field_Contains (Editor.Commands.Reference_Metadata.Command_Non_Goal_Summary (Editor.Commands.Command_Save_File_As), "rename or move", "file.save-as non-goal");
+      Assert_Field_Contains (Editor.Commands.Reference_Metadata.Command_Filesystem_Effect_Summary (Editor.Commands.Command_Close_Active_Buffer), "no filesystem operation", "file.close-buffer filesystem");
+      Assert_Field_Contains (Editor.Commands.Reference_Metadata.Command_Non_Goal_Summary (Editor.Commands.Command_Close_Active_Buffer), "delete the associated file", "file.close-buffer non-goal");
+      Assert_Field_Contains (Editor.Commands.Reference_Metadata.Command_Non_Goal_Summary (Editor.Commands.Command_Reopen_Closed_Buffer), "unsaved closed-buffer memory", "file.reopen-closed-buffer non-goal");
+      Assert_Field_Contains (Editor.Commands.Reference_Metadata.Command_Summary (Editor.Commands.Command_Reload_Active_Buffer), "without discarding dirty text", "file.reload-buffer summary");
+      Assert_Field_Contains (Editor.Commands.Reference_Metadata.Command_Non_Goal_Summary (Editor.Commands.Command_Revert_Active_Buffer), "recovery snapshots", "file.revert-buffer non-goal");
+      Assert_Field_Contains (Editor.Commands.Reference_Metadata.Command_Mutation_Summary (Editor.Commands.Command_Rename_Buffer_File), "after filesystem rename success", "file.rename-buffer-file mutation");
+      Assert_Field_Contains (Editor.Commands.Reference_Metadata.Command_Mutation_Summary (Editor.Commands.Command_Delete_Buffer_File), "Clears active buffer association", "file.delete-buffer-file mutation");
+      Assert_Field_Contains (Editor.Commands.Reference_Metadata.Command_Mutation_Summary (Editor.Commands.Command_Copy_Buffer_File), "Does not mutate association", "file.copy-buffer-file mutation");
+      Assert_Field_Contains (Editor.Commands.Reference_Metadata.Command_Mutation_Summary (Editor.Commands.Command_Move_Buffer_File), "after filesystem move success", "file.move-buffer-file mutation");
+      Assert_Field_Not_Contains (Editor.Commands.Reference_Metadata.Command_Mutation_Summary (Editor.Commands.Command_Copy_Buffer_File), "Updates active buffer association", "file.copy-buffer-file mutation");
+      Assert_Field_Not_Contains (Editor.Commands.Reference_Metadata.Command_Mutation_Summary (Editor.Commands.Command_Delete_Buffer_File), "Removes the active buffer", "file.delete-buffer-file mutation");
+      Assert_Field_Not_Contains (Editor.Commands.Reference_Metadata.Command_Non_Goal_Summary (Editor.Commands.Command_Rename_Buffer_File), "available", "file.rename-buffer-file non-goal");
 
       for Name of Frozen_Absent loop
-         Found_Id := Editor.Commands.Command_Id_From_Stable_Name (To_String (Name), Found);
+         Found_Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (To_String (Name), Found);
          Assert (not Found and then Found_Id = Editor.Commands.No_Command,
            "absent removed/force/overwrite/open-target/project command must remain absent: " & To_String (Name));
       end loop;
@@ -1385,7 +1396,7 @@ package body Editor.Files.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S                  : Editor.State.State_Type;
-      Candidates         : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates         : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Visible_Snapshot   : Editor.Command_Palette.Command_Palette_Snapshot;
       Hidden_Snapshot    : Editor.Command_Palette.Command_Palette_Snapshot;
       Render_Before      : Editor.Render_Model.Render_Snapshot;
@@ -1409,7 +1420,7 @@ package body Editor.Files.Tests is
          Show_Keybindings              => False,
          Show_Help_Row                 => False);
       Before_Bindings    : Natural := 0;
-      Before_Reference   : constant String := Editor.Commands.Command_Summary (Editor.Commands.Command_Move_Buffer_File);
+      Before_Reference   : constant String := Editor.Commands.Reference_Metadata.Command_Summary (Editor.Commands.Command_Move_Buffer_File);
       No_Active          : Editor.Commands.Command_Availability;
       Dirty_Avail        : Editor.Commands.Command_Availability;
       Clean_Avail        : Editor.Commands.Command_Availability;
@@ -1442,7 +1453,7 @@ package body Editor.Files.Tests is
       No_Active := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Reload_Active_Buffer);
       Assert (not Editor.Commands.Is_Available (No_Active),
         "no-active availability remains Executor-derived");
-      Assert (Editor.Commands.Command_Summary (Editor.Commands.Command_Move_Buffer_File) = Before_Reference,
+      Assert (Editor.Commands.Reference_Metadata.Command_Summary (Editor.Commands.Command_Move_Buffer_File) = Before_Reference,
         "reference metadata must be stable in no-active state");
 
       Editor.State.Load_Text (S, "dirty memory text");
@@ -1469,7 +1480,7 @@ package body Editor.Files.Tests is
       Clean_Avail := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Reload_Active_Buffer);
       Assert (Editor.Commands.Is_Available (Clean_Avail),
         "clean associated reload remains enabled only by Executor availability");
-      Assert (Editor.Commands.Command_Summary (Editor.Commands.Command_Move_Buffer_File) = Before_Reference,
+      Assert (Editor.Commands.Reference_Metadata.Command_Summary (Editor.Commands.Command_Move_Buffer_File) = Before_Reference,
         "reference metadata must not follow Executor availability state");
 
       Editor.Command_Palette.Reset;
@@ -1481,10 +1492,10 @@ package body Editor.Files.Tests is
       if not Candidates.Is_Empty then
          for I in Candidates.First_Index .. Candidates.Last_Index loop
             Count_Row (Candidates (I).Id);
-            Assert (Candidates (I).Reference_Summary = Editor.Commands.Descriptor (Candidates (I).Id).Summary,
+            Assert (Candidates (I).Reference_Summary = Editor.Commands.Descriptors.Descriptor (Candidates (I).Id).Summary,
               "Command Palette reference summary must be descriptor-derived");
-            Assert (Candidates (I).Family = Editor.Commands.Descriptor (Candidates (I).Id).Family
-              and then Candidates (I).Effect_Classification = Editor.Commands.Descriptor (Candidates (I).Id).Effect_Classification,
+            Assert (Candidates (I).Family = Editor.Commands.Descriptors.Descriptor (Candidates (I).Id).Family
+              and then Candidates (I).Effect_Classification = Editor.Commands.Descriptors.Descriptor (Candidates (I).Id).Effect_Classification,
               "Command Palette family/effect projection must be descriptor-derived");
          end loop;
       end if;
@@ -1516,7 +1527,7 @@ package body Editor.Files.Tests is
       Assert (Render_Before.Length = Render_After.Length
         and then Render_Before.Is_Dirty = Render_After.Is_Dirty
         and then Render_Before.File_Name = Render_After.File_Name
-        and then Editor.Commands.Command_Summary (Editor.Commands.Command_Move_Buffer_File) = Before_Reference,
+        and then Editor.Commands.Reference_Metadata.Command_Summary (Editor.Commands.Command_Move_Buffer_File) = Before_Reference,
         "render snapshots must be deterministic and must not own or repair reference metadata");
 
       Before_Audit := Editor.Configuration_Audit.Configuration_State_Summary_For (S);
@@ -1554,7 +1565,7 @@ package body Editor.Files.Tests is
       S          : Editor.State.State_Type;
       Workspace  : Editor.Workspace_Persistence.Workspace_Snapshot;
       Summary    : Unbounded_String;
-      Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Snap       : Editor.Render_Model.Render_Snapshot;
       Path       : constant String := Temp_Path ("behavior_save.txt");
       Save_As    : constant String := Temp_Path ("behavior_save_as.txt");
@@ -1640,10 +1651,10 @@ package body Editor.Files.Tests is
         and then not S.File_Info.Dirty,
         "file.move-buffer-file smoke must update association after filesystem success without changing text");
 
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("file.move-buffer-file-overwrite", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("file.move-buffer-file-overwrite", Found);
       Assert (not Found and then Id = Editor.Commands.No_Command,
         "behavior smoke must not expose overwrite command aliases");
-      Assert (Editor.Commands.File_Lifecycle_Command_Reference_Coherent,
+      Assert (Editor.Commands.Audits.File_Lifecycle_Command_Reference_Coherent,
         "behavior smoke must leave static command-reference metadata coherent");
 
       Remove_If_Exists (Path);
@@ -1721,14 +1732,14 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
            and then Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Label (S) = Label
            and then Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (S) = "",
            "no-target invocation must open canonical prompt for " &
-           Editor.Commands.Stable_Command_Name (Id));
+           Editor.Commands.Name_Metadata.Stable_Command_Name (Id));
          Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text (S, Target);
          Editor.Executor.File_Target_Prompt_Commands.Confirm_File_Target_Prompt (S);
          Assert (not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S)
            and then S.File_Target_Prompt_Command = Editor.Commands.No_Command
            and then Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (S) = "",
            "prompt confirmation must clear transient state for " &
-           Editor.Commands.Stable_Command_Name (Id));
+           Editor.Commands.Name_Metadata.Stable_Command_Name (Id));
       end Prompt_And_Confirm;
    begin
       Cleanup;

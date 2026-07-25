@@ -1,6 +1,7 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Executor;
 with Editor.Feature_Diagnostics;
 with Editor.Feature_Messages;
@@ -433,10 +434,10 @@ package body Editor.Feature_Panel_Audit.Tests is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
       Before_Generic : constant String :=
-        Editor.Commands.Stable_Command_Name
+        Editor.Commands.Name_Metadata.Stable_Command_Name
           (Editor.Commands.Command_Feature_Panel_Open_Selected);
       Before_Diagnostics : constant String :=
-        Editor.Commands.Stable_Command_Name
+        Editor.Commands.Name_Metadata.Stable_Command_Name
           (Editor.Commands.Command_Diagnostics_Show);
    begin
       Editor.State.Init (S);
@@ -448,10 +449,10 @@ package body Editor.Feature_Panel_Audit.Tests is
       Assert (Editor.Commands.Has_Descriptor
                 (Editor.Commands.Command_Diagnostics_Show),
               "workspace close preserves Diagnostics command descriptor");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Feature_Panel_Open_Selected) = Before_Generic,
               "workspace close preserves generic stable command name");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Diagnostics_Show) = Before_Diagnostics,
               "workspace close preserves Diagnostics stable command name");
       Assert_Audit_Passed ("after workspace close metadata check");

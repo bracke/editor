@@ -1,3 +1,4 @@
+with Editor.Commands.Audit_Model; use Editor.Commands.Audit_Model;
 package Editor.Commands.Audits is
 
    function Has_Command_Reference

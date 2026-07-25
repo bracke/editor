@@ -1,7 +1,11 @@
+with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
 with Editor.Commands;
 with Editor.Input_Field;
+
+
 
 package Editor.Command_Palette is
 
@@ -103,8 +107,8 @@ package Editor.Command_Palette is
    type Command_Palette_Row is record
       Kind                   : Command_Palette_Row_Kind := Command_Palette_Empty_Row;
       Candidate_Index        : Natural := 0;
-      Category               : Editor.Commands.Command_Category :=
-        Editor.Commands.Internal_Category;
+      Category               : Editor.Commands.Descriptors.Command_Category :=
+        Editor.Commands.Descriptors.Internal_Category;
       Primary_Text           : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
       Secondary_Text         : Ada.Strings.Unbounded.Unbounded_String :=
@@ -218,13 +222,13 @@ package Editor.Command_Palette is
    --  input so availability filters and Show_Unavailable_Commands cannot
    --  cause keyboard navigation to target a non-rendered command.
    procedure Move_Selection_By_Candidates
-     (Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+     (Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Amount     : Integer);
    procedure Select_First;
    procedure Select_Last;
 
    procedure Filtered_Commands
-     (Result : out Editor.Commands.Command_Descriptor_Vectors.Vector);
+     (Result : out Editor.Commands.Descriptors.Command_Descriptor_Vectors.Vector);
 
    function Selected_Command return Editor.Commands.Command_Id;
 
@@ -240,27 +244,27 @@ package Editor.Command_Palette is
    --  filters. This is display-only filtering over already-projected metadata
    --  and does not compute availability, mutate keybindings, or execute work.
    function Candidate_Passes_Transient_Filters
-     (Candidate : Editor.Commands.Command_Palette_Candidate) return Boolean;
+     (Candidate : Editor.Commands.Palette_Model.Command_Palette_Candidate) return Boolean;
 
    --  Return True when a candidate is visible under the current transient
    --  filters and command-palette display preferences. This additionally
    --  honors Show_Unavailable_Commands so selection/execution cannot target a
    --  row hidden from the normal palette projection.
    function Candidate_Is_Currently_Visible
-     (Candidate : Editor.Commands.Command_Palette_Candidate) return Boolean;
+     (Candidate : Editor.Commands.Palette_Model.Command_Palette_Candidate) return Boolean;
 
    --  Project candidates to the currently visible command-palette rows. This
    --  is used by input/execution paths so Enter operates on the same filtered
    --  candidate sequence that render displays, without carrying payloads.
    procedure Visible_Candidates
-     (Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
-      Result     : out Editor.Commands.Command_Palette_Candidate_Vectors.Vector);
+     (Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
+      Result     : out Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector);
 
    --  Descriptor-only counterpart used by selection/filter projection helpers.
    --  Availability filters are intentionally ignored here because availability
    --  is Executor-owned and context-dependent.
    function Descriptor_Passes_Transient_Metadata_Filters
-     (Descriptor : Editor.Commands.Command_Descriptor) return Boolean;
+     (Descriptor : Editor.Commands.Descriptors.Command_Descriptor) return Boolean;
 
    --  Rank a command by the full discoverability surface: title/label,
    --  stable command name, refined category label, description, and active
@@ -278,7 +282,7 @@ package Editor.Command_Palette is
    --  descriptor metadata, active keybinding projection already carried by
    --  the candidate, and the candidate availability snapshot.
    function Build_Command_Help
-     (Candidate : Editor.Commands.Command_Palette_Candidate)
+     (Candidate : Editor.Commands.Palette_Model.Command_Palette_Candidate)
       return Command_Help_Snapshot;
 
    procedure Clear_Command_State_Contexts;
@@ -300,15 +304,15 @@ package Editor.Command_Palette is
      (Id : Editor.Commands.Command_Id) return Natural;
 
    procedure Sort_Candidates
-     (Candidates : in out Editor.Commands.Command_Palette_Candidate_Vectors.Vector);
+     (Candidates : in out Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector);
 
    procedure Reconcile_Selection
-     (Candidates             : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+     (Candidates             : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Preferred_Command      : Editor.Commands.Command_Id := Editor.Commands.No_Command;
       Prefer_First_Available : Boolean := True);
 
    function Build_Snapshot
-     (Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+     (Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Config     : Command_Palette_Config) return Command_Palette_Snapshot;
 
    --  Truncate text to Max_Columns using the editor's monospaced column model.
@@ -351,7 +355,7 @@ package Editor.Command_Palette is
    --  @param Row_Columns Available text columns inside the palette row.
    --  @return Text and right-aligned keybinding placement for render/tests.
    function Project_Command_Row_Layout
-     (Candidate   : Editor.Commands.Command_Palette_Candidate;
+     (Candidate   : Editor.Commands.Palette_Model.Command_Palette_Candidate;
       Is_Selected : Boolean;
       Row_Columns : Natural) return Command_Palette_Row_Layout;
 
@@ -367,7 +371,7 @@ package Editor.Command_Palette is
 
    function Candidate
      (Snapshot : Command_Palette_Snapshot;
-      Index    : Natural) return Editor.Commands.Command_Palette_Candidate;
+      Index    : Natural) return Editor.Commands.Palette_Model.Command_Palette_Candidate;
 
    function Candidate_For_Row
      (Snapshot  : Command_Palette_Snapshot;
@@ -400,7 +404,7 @@ private
         Element_Type => Command_Palette_Row);
 
    type Command_Palette_Snapshot is record
-      Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Rows       : Command_Palette_Row_Vectors.Vector;
    end record;
 

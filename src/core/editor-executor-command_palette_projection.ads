@@ -1,12 +1,14 @@
+with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Commands;
 with Editor.State;
 with Guikit.Command_Palette;
+
 
 package Editor.Executor.Command_Palette_Projection is
 
    procedure Command_Palette_Candidates
      (S      : Editor.State.State_Type;
-      Result : out Editor.Commands.Command_Palette_Candidate_Vectors.Vector);
+      Result : out Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector);
 
    procedure Project_Guikit_Commands
      (S      : Editor.State.State_Type;

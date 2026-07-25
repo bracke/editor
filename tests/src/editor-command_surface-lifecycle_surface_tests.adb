@@ -1,3 +1,5 @@
+with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -14,6 +16,7 @@ with Editor.Command_Execution;
 with Editor.Command_Route_Audit;
 with Editor.Command_Surface;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Executor;
 with Editor.Executor.Command_Palette_Projection;
 with Editor.File_Tree;
@@ -38,13 +41,15 @@ with Editor.State;
 with Editor.Overlay_Focus;
 with Editor.Panel_Focus;
 
+
+
 package body Editor.Command_Surface.Lifecycle_Surface_Tests is
 
    use type Editor.Commands.Command_Id;
-   use type Editor.Commands.Command_Visibility;
-   use type Editor.Commands.Command_Category;
-   use type Editor.Commands.Command_Family_Id;
-   use type Editor.Commands.Command_Effect_Classification_Id;
+   use type Editor.Commands.Descriptors.Command_Visibility;
+   use type Editor.Commands.Descriptors.Command_Category;
+   use type Editor.Commands.Descriptors.Command_Family_Id;
+   use type Editor.Commands.Descriptors.Command_Effect_Classification_Id;
    use type Editor.Commands.Command_Kind;
    use type Editor.Keybindings.Keybinding_Validation_Status;
    use type Editor.Overlay_Focus.Overlay_Target;
@@ -98,8 +103,8 @@ package body Editor.Command_Surface.Lifecycle_Surface_Tests is
    end Trimmed;
 
    procedure Assert_Candidate_Vectors_Equal
-     (Left  : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
-      Right : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+     (Left  : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
+      Right : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Msg   : String)
    is
    begin
@@ -110,8 +115,8 @@ package body Editor.Command_Surface.Lifecycle_Surface_Tests is
 
       for I in 0 .. Natural (Left.Length) - 1 loop
          declare
-            L : constant Editor.Commands.Command_Palette_Candidate := Left.Element (I);
-            R : constant Editor.Commands.Command_Palette_Candidate := Right.Element (I);
+            L : constant Editor.Commands.Palette_Model.Command_Palette_Candidate := Left.Element (I);
+            R : constant Editor.Commands.Palette_Model.Command_Palette_Candidate := Right.Element (I);
          begin
             Assert (L.Id = R.Id, Msg & ": candidate id differs");
             Assert (To_String (L.Label) = To_String (R.Label), Msg & ": label differs");
@@ -197,7 +202,7 @@ package body Editor.Command_Surface.Lifecycle_Surface_Tests is
    is
       Found : Boolean;
       Id    : constant Editor.Commands.Command_Id :=
-        Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
+        Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
    begin
       if Name = "build.run" then
          Assert (Found and then Id = Editor.Commands.Command_Build_Run,
@@ -370,7 +375,7 @@ package body Editor.Command_Surface.Lifecycle_Surface_Tests is
    function Switcher_Command_Is_In_Reference
      (Id : Editor.Commands.Command_Id) return Boolean
    is
-      Stable : constant String := Editor.Commands.Stable_Command_Name (Id);
+      Stable : constant String := Editor.Commands.Name_Metadata.Stable_Command_Name (Id);
    begin
       return Starts_With (Stable, "buffers.switcher.")
         or else Stable = "buffers.recent.previous"
@@ -381,7 +386,7 @@ package body Editor.Command_Surface.Lifecycle_Surface_Tests is
    end Switcher_Command_Is_In_Reference;
 
    function Classification_Label
-     (D : Editor.Commands.Command_Descriptor) return String
+     (D : Editor.Commands.Descriptors.Command_Descriptor) return String
    is
    begin
       if D.Destructive and then D.Lifecycle and then D.Configuration then
@@ -513,23 +518,23 @@ package body Editor.Command_Surface.Lifecycle_Surface_Tests is
       Stable : constant String := Cell (Line, 1);
       Found  : Boolean := False;
       Id     : Editor.Commands.Command_Id := Editor.Commands.No_Command;
-      D      : Editor.Commands.Command_Descriptor;
+      D      : Editor.Commands.Descriptors.Command_Descriptor;
    begin
-      Id := Editor.Commands.Command_Id_From_Stable_Name (Stable, Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Stable, Found);
       Assert (Found,
               "documented switcher command must resolve to descriptor: " & Stable);
       Assert (Switcher_Command_Is_In_Reference (Id),
               "documented command must be part of switcher reference: " & Stable);
-      D := Editor.Commands.Descriptor (Id);
+      D := Editor.Commands.Descriptors.Descriptor (Id);
       Assert (Cell (Line, 2) = To_String (D.Description),
               "documented description must match descriptor for " & Stable);
-      Assert (Cell (Line, 3) = Editor.Commands.Category_Label (D.Category),
+      Assert (Cell (Line, 3) = Editor.Commands.Descriptors.Category_Label (D.Category),
               "documented category must match descriptor for " & Stable);
       Assert (Cell (Line, 4) = Classification_Label (D),
               "documented classification must match descriptor for " & Stable);
       Assert (Cell (Line, 5) = Yes_No (D.Bindable),
               "documented bindability must match descriptor for " & Stable);
-      Assert (Cell (Line, 6) = Yes_No (D.Visibility = Editor.Commands.Palette_Command),
+      Assert (Cell (Line, 6) = Yes_No (D.Visibility = Editor.Commands.Descriptors.Palette_Command),
               "documented palette visibility must match descriptor for " & Stable);
       Assert (Cell (Line, 7) = Hint_Label (Id),
               "documented hint eligibility must match hint baseline for " & Stable);
@@ -671,7 +676,7 @@ package body Editor.Command_Surface.Lifecycle_Surface_Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Found : Boolean := False;
    begin
       Editor.Buffers.Reset_Global_For_Test;

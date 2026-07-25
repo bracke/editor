@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Characters.Handling;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
@@ -10,9 +11,10 @@ with Editor.Outline;
 with Editor.Project_Search;
 with Editor.Quick_Open;
 
+
 package body Editor.Product_Surface_Cleanup is
 
-   use type Editor.Commands.Command_Visibility;
+   use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Outline.Outline_Source_Class;
    use type Editor.Outline.Outline_Target_Kind;
    use type Editor.Build_Candidates.Build_Candidate_Kind;
@@ -222,10 +224,10 @@ package body Editor.Product_Surface_Cleanup is
       for Id in Editor.Commands.Command_Id loop
          if Is_Test_Only_Command (Id) then
             declare
-               D : constant Editor.Commands.Command_Descriptor :=
-                 Editor.Commands.Descriptor (Id);
+               D : constant Editor.Commands.Descriptors.Command_Descriptor :=
+                 Editor.Commands.Descriptors.Descriptor (Id);
             begin
-               if D.Visibility = Editor.Commands.Palette_Command
+               if D.Visibility = Editor.Commands.Descriptors.Palette_Command
                  or else Editor.Commands.Is_Bindable_Command (Id)
                then
                   return True;

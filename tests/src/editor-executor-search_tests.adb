@@ -5,6 +5,7 @@ with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Buffers;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Cursors;
 with Editor.Executor.Test_Support; use Editor.Executor.Test_Support;
 with Editor.Executor.File_Open_Commands;
@@ -2097,18 +2098,18 @@ package body Editor.Executor.Search_Tests is
 
       procedure Check_Absent (Name : String) is
       begin
-         Id := Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
+         Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
          Assert ((not Found) and then Id = Editor.Commands.No_Command,
                  Name & " must remain absent from descriptors, palette, default bindings, input routes, and Executor dispatch");
       end Check_Absent;
    begin
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("edit.replace.show", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("edit.replace.show", Found);
       Assert (Found and then Id = Editor.Commands.Command_Replace_Show,
               "edit.replace.show route must resolve through command metadata");
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("edit.replace.current", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("edit.replace.current", Found);
       Assert (Found and then Id = Editor.Commands.Command_Replace_Current,
               "edit.replace.current route must resolve through command metadata");
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("edit.replace.all", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("edit.replace.all", Found);
       Assert (Found and then Id = Editor.Commands.Command_Replace_All,
               "edit.replace.all route must resolve through command metadata");
 

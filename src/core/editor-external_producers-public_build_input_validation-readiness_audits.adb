@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Containers;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Commands;
@@ -5,10 +6,11 @@ with Editor.External_Producers.Diagnostic_Line_Pipeline;
 with Editor.External_Producers.Public_Build_Command_Surface_Audits;
 with Editor.External_Producers.Request_Policies;
 
+
 package body Editor.External_Producers.Public_Build_Input_Validation.Readiness_Audits is
 
-   use type Editor.Commands.Command_Visibility;
-   use type Editor.Commands.Command_Category;
+   use type Editor.Commands.Descriptors.Command_Visibility;
+   use type Editor.Commands.Descriptors.Command_Category;
    use type Ada.Containers.Count_Type;
 
    function Build_Inherited_Test_Working_Context return Build_Working_Context
@@ -187,14 +189,14 @@ package body Editor.External_Producers.Public_Build_Input_Validation.Readiness_A
 
       function Command_Surface_Has_Public_Build_Command return Boolean is
          Id : Editor.Commands.Command_Id;
-         D  : Editor.Commands.Command_Descriptor;
+         D  : Editor.Commands.Descriptors.Command_Descriptor;
       begin
          for I in 1 .. Editor.Commands.Command_Count loop
             Id := Editor.Commands.Command_At (I);
-            D := Editor.Commands.Descriptor (Id);
+            D := Editor.Commands.Descriptors.Descriptor (Id);
             if Editor.Commands.Is_Public_Build_Command (Id)
-              and then D.Visibility = Editor.Commands.Palette_Command
-              and then D.Category /= Editor.Commands.Internal_Category
+              and then D.Visibility = Editor.Commands.Descriptors.Palette_Command
+              and then D.Category /= Editor.Commands.Descriptors.Internal_Category
             then
                return True;
             end if;

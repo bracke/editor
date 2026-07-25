@@ -1,13 +1,15 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Strings; use Ada.Strings;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.External_Producers.Public_Build_Input_Validation.Readiness_Audits;
 with Editor.External_Producers.Request_Policies;
 
+
 package body Editor.External_Producers.Public_Build_Input_Validation is
 
-   use type Editor.Commands.Command_Visibility;
-   use type Editor.Commands.Command_Category;
+   use type Editor.Commands.Descriptors.Command_Visibility;
+   use type Editor.Commands.Descriptors.Command_Category;
    use Editor.External_Producers.Request_Policies;
 
    function Contains_Control_Character (Value : String) return Boolean is

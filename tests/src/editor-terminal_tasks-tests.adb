@@ -6,6 +6,7 @@ with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Editor.Command_Execution;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Executor;
 with Editor.Executor.Project_Lifecycle_Commands;
 with Editor.External_Producers;
@@ -224,25 +225,25 @@ package body Editor.Terminal_Tasks.Tests is
       pragma Unreferenced (T);
       Found : Boolean := False;
    begin
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Terminal_Toggle) =
               "terminal.toggle",
               "terminal toggle has a stable name");
-      Assert (Editor.Commands.Command_Id_From_Stable_Name
+      Assert (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
                 ("terminal.run-selected-task", Found) =
               Editor.Commands.Command_Terminal_Run_Selected_Task,
               "terminal run-selected command can be resolved");
       Assert (Found, "terminal run-selected stable name was found");
-      Assert (Editor.Commands.Command_Id_From_Stable_Name
+      Assert (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
                 ("terminal.rerun-last-task", Found) =
               Editor.Commands.Command_Terminal_Rerun_Last_Task,
               "terminal rerun-last command can be resolved");
       Assert (Found, "terminal rerun-last stable name was found");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Run_Project) =
               "project.run",
               "project run has a stable name");
-      Assert (Editor.Commands.Command_Id_From_Stable_Name
+      Assert (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
                 ("project.test", Found) =
               Editor.Commands.Command_Run_Tests,
               "project test command can be resolved");

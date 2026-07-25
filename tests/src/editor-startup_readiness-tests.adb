@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -6,6 +7,7 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Strings.Fixed; use Ada.Strings.Fixed;
 with Ada.Text_IO;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Configuration_Recovery;
 with Editor.Executor;
 with Editor.State;
@@ -15,12 +17,13 @@ with Editor.Settings;
 with Editor.Status_Bar;
 with Editor.Workspace_Persistence;
 
+
 package body Editor.Startup_Readiness.Tests is
 
    use type Editor.Commands.Command_Id;
    use type Editor.Commands.Command_Kind;
    use type Editor.Commands.Command_Availability_Status;
-   use type Editor.Commands.Command_Visibility;
+   use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Configuration_Recovery.Configuration_Domain;
    use type Editor.Workspace_Persistence.Workspace_Persistence_Status;
 
@@ -455,15 +458,15 @@ package body Editor.Startup_Readiness.Tests is
       pragma Unreferenced (T);
       Found : Boolean := False;
       Id    : constant Editor.Commands.Command_Id :=
-        Editor.Commands.Command_Id_From_Stable_Name ("startup.show-summary", Found);
-      Descriptor : constant Editor.Commands.Command_Descriptor :=
-        Editor.Commands.Descriptor (Editor.Commands.Command_Startup_Show_Summary);
+        Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("startup.show-summary", Found);
+      Descriptor : constant Editor.Commands.Descriptors.Command_Descriptor :=
+        Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Startup_Show_Summary);
       Command : constant Editor.Commands.Command :=
         Editor.Commands.Command_For_Id (Editor.Commands.Command_Startup_Show_Summary);
    begin
       Assert (Found and then Id = Editor.Commands.Command_Startup_Show_Summary,
               "startup.show-summary must resolve to the startup summary command");
-      Assert (Descriptor.Visibility = Editor.Commands.Palette_Command,
+      Assert (Descriptor.Visibility = Editor.Commands.Descriptors.Palette_Command,
               "startup summary command must be discoverable through the command palette");
       Assert (Descriptor.Configuration,
               "startup summary command must remain in the configuration/recovery command family");

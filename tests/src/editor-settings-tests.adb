@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -33,12 +34,16 @@ with Editor.State;
 with Editor.Theme;
 with Editor.View;
 
+
+with Editor.Commands.Audits;
+
+
 package body Editor.Settings.Tests is
 
    use type Editor.Settings.Settings_Status;
    use type Editor.Line_Numbers.Line_Number_Mode;
    use type Editor.Cursor.Cursor_Style;
-   use type Editor.Commands.Command_Category;
+   use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Settings.Settings_Apply_Status;
    use type Editor.Messages.Message_Severity;
    use type Interfaces.C.int;
@@ -483,17 +488,17 @@ package body Editor.Settings.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
    begin
-      Assert (Editor.Commands.Label (Editor.Commands.Command_Save_Settings) = "Save Settings",
+      Assert (Editor.Commands.Descriptors.Label (Editor.Commands.Command_Save_Settings) = "Save Settings",
               "Save Settings descriptor must exist");
-      Assert (Editor.Commands.Label (Editor.Commands.Command_Reload_Settings) = "Reload Settings",
+      Assert (Editor.Commands.Descriptors.Label (Editor.Commands.Command_Reload_Settings) = "Reload Settings",
               "Reload Settings descriptor must exist");
-      Assert (Editor.Commands.Label (Editor.Commands.Command_Reset_Settings_To_Defaults) =
+      Assert (Editor.Commands.Descriptors.Label (Editor.Commands.Command_Reset_Settings_To_Defaults) =
               "Reset Settings to Defaults",
               "Reset Settings to Defaults descriptor must exist");
-      Assert (Editor.Commands.Category (Editor.Commands.Command_Save_Settings) =
-              Editor.Commands.Settings_Category,
+      Assert (Editor.Commands.Descriptors.Category (Editor.Commands.Command_Save_Settings) =
+              Editor.Commands.Descriptors.Settings_Category,
               "Settings commands must use the Settings category");
-      Assert (Editor.Commands.Descriptor_Is_Complete
+      Assert (Editor.Commands.Audits.Descriptor_Is_Complete
                 (Editor.Commands.Command_Save_Settings),
               "Settings command descriptors must satisfy command audit completeness");
    end Test_Settings_Command_Descriptors;
@@ -611,19 +616,19 @@ package body Editor.Settings.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
    begin
-      Assert (Editor.Commands.Category (Editor.Commands.Command_Toggle_Line_Number_Mode) =
-              Editor.Commands.Settings_Category,
+      Assert (Editor.Commands.Descriptors.Category (Editor.Commands.Command_Toggle_Line_Number_Mode) =
+              Editor.Commands.Descriptors.Settings_Category,
               "Toggle Line Number Mode must be discoverable as a Settings command");
-      Assert (Editor.Commands.Category (Editor.Commands.Command_Toggle_Minimap) =
-              Editor.Commands.Settings_Category,
+      Assert (Editor.Commands.Descriptors.Category (Editor.Commands.Command_Toggle_Minimap) =
+              Editor.Commands.Descriptors.Settings_Category,
               "Toggle Minimap must be discoverable as a Settings command");
-      Assert (Editor.Commands.Category (Editor.Commands.Command_Toggle_Scrollbars) =
-              Editor.Commands.Settings_Category,
+      Assert (Editor.Commands.Descriptors.Category (Editor.Commands.Command_Toggle_Scrollbars) =
+              Editor.Commands.Descriptors.Settings_Category,
               "Toggle Scrollbars must be discoverable as a Settings command");
-      Assert (Editor.Commands.Category (Editor.Commands.Command_Toggle_Cursor_Blink) =
-              Editor.Commands.Settings_Category,
+      Assert (Editor.Commands.Descriptors.Category (Editor.Commands.Command_Toggle_Cursor_Blink) =
+              Editor.Commands.Descriptors.Settings_Category,
               "Toggle Cursor Blink must be discoverable as a Settings command");
-      Assert (Editor.Commands.Descriptor_Is_Complete
+      Assert (Editor.Commands.Audits.Descriptor_Is_Complete
                 (Editor.Commands.Command_Toggle_Scrollbars),
               "Toggle Scrollbars descriptor must satisfy command audit completeness");
    end Test_Settings_Toggle_Commands_Are_Settings_Category;
@@ -708,13 +713,13 @@ package body Editor.Settings.Tests is
       Found : Boolean := False;
       M     : Editor.Messages.Editor_Message;
    begin
-      Assert (Editor.Commands.Category (Editor.Commands.Command_Set_Theme_Light) =
-              Editor.Commands.Settings_Category,
+      Assert (Editor.Commands.Descriptors.Category (Editor.Commands.Command_Set_Theme_Light) =
+              Editor.Commands.Descriptors.Settings_Category,
               "Set Theme Light must be a Settings command");
-      Assert (Editor.Commands.Category (Editor.Commands.Command_Set_Theme_Dark) =
-              Editor.Commands.Settings_Category,
+      Assert (Editor.Commands.Descriptors.Category (Editor.Commands.Command_Set_Theme_Dark) =
+              Editor.Commands.Descriptors.Settings_Category,
               "Set Theme Dark must be a Settings command");
-      Assert (Editor.Commands.Descriptor_Is_Complete
+      Assert (Editor.Commands.Audits.Descriptor_Is_Complete
                 (Editor.Commands.Command_Set_Theme_Light),
               "Set Theme Light descriptor must satisfy command audit completeness");
 

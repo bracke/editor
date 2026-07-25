@@ -1,4 +1,9 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Commands.Descriptor_Factory;
+
+with Editor.Commands.Name_Metadata;
+
+
 
 package body Editor.Commands.Descriptor_File_Project is
 
@@ -16,7 +21,7 @@ package body Editor.Commands.Descriptor_File_Project is
    begin
       return Descriptor_Factory.Make_Command_Descriptor
         (Id            => Id,
-         Stable_Name   => Stable_Command_Name (Id),
+         Stable_Name   => Name_Metadata.Stable_Command_Name (Id),
          Label         => Name,
          Description   => Effective_Description,
          Category      => Category,
@@ -45,7 +50,7 @@ package body Editor.Commands.Descriptor_File_Project is
             --  projected and bindable through the transient file-target prompt.
             return Descriptor_Factory.Make_Command_Descriptor
               (Id            => Id,
-               Stable_Name   => Stable_Command_Name (Id),
+               Stable_Name   => Name_Metadata.Stable_Command_Name (Id),
                Label         => "Save File As",
                Description   => "Save the current buffer to an explicit path.",
                Category      => File_Category,
@@ -64,7 +69,7 @@ package body Editor.Commands.Descriptor_File_Project is
          when Command_Revert_Active_Buffer =>
             return Descriptor_Factory.Make_Command_Descriptor
               (Id            => Id,
-               Stable_Name   => Stable_Command_Name (Id),
+               Stable_Name   => Name_Metadata.Stable_Command_Name (Id),
                Label         => "Revert File",
                Description   => "Discard unsaved changes in the active file-backed buffer by rereading disk contents",
                Category      => File_Category,
@@ -76,7 +81,7 @@ package body Editor.Commands.Descriptor_File_Project is
          when Command_File_Conflict_Keep_Buffer =>
             return Descriptor_Factory.Make_Command_Descriptor
               (Id            => Id,
-               Stable_Name   => Stable_Command_Name (Id),
+               Stable_Name   => Name_Metadata.Stable_Command_Name (Id),
                Label         => "Keep Buffer Changes",
                Description   => "Dismiss the active file conflict without reading or writing",
                Category      => File_Category,
@@ -88,7 +93,7 @@ package body Editor.Commands.Descriptor_File_Project is
          when Command_File_Conflict_Reload_From_Disk =>
             return Descriptor_Factory.Make_Command_Descriptor
               (Id            => Id,
-               Stable_Name   => Stable_Command_Name (Id),
+               Stable_Name   => Name_Metadata.Stable_Command_Name (Id),
                Label         => "Reload Conflict From Disk",
                Description   => "Replace the conflicted buffer from disk after explicit confirmation",
                Category      => File_Category,
@@ -100,7 +105,7 @@ package body Editor.Commands.Descriptor_File_Project is
          when Command_File_Conflict_Overwrite_Disk =>
             return Descriptor_Factory.Make_Command_Descriptor
               (Id            => Id,
-               Stable_Name   => Stable_Command_Name (Id),
+               Stable_Name   => Name_Metadata.Stable_Command_Name (Id),
                Label         => "Overwrite Disk From Buffer",
                Description   => "Overwrite the conflicted backing file with current buffer text",
                Category      => File_Category,
@@ -112,7 +117,7 @@ package body Editor.Commands.Descriptor_File_Project is
          when Command_File_Conflict_Cancel =>
             return Descriptor_Factory.Make_Command_Descriptor
               (Id            => Id,
-               Stable_Name   => Stable_Command_Name (Id),
+               Stable_Name   => Name_Metadata.Stable_Command_Name (Id),
                Label         => "Cancel File Conflict",
                Description   => "Cancel the active file conflict prompt and preserve buffer text",
                Category      => File_Category,
@@ -124,7 +129,7 @@ package body Editor.Commands.Descriptor_File_Project is
          when Command_Rename_Buffer_File =>
             return Descriptor_Factory.Make_Command_Descriptor
               (Id            => Id,
-               Stable_Name   => Stable_Command_Name (Id),
+               Stable_Name   => Name_Metadata.Stable_Command_Name (Id),
                Label         => "Rename Buffer File",
                Description   => "Rename the active clean file-backed buffer's backing file to an explicit path",
                Category      => File_Category,
@@ -136,7 +141,7 @@ package body Editor.Commands.Descriptor_File_Project is
          when Command_Delete_Buffer_File =>
             return Descriptor_Factory.Make_Command_Descriptor
               (Id            => Id,
-               Stable_Name   => Stable_Command_Name (Id),
+               Stable_Name   => Name_Metadata.Stable_Command_Name (Id),
                Label         => "Delete Buffer File",
                Description   => "Delete the active clean file-backed buffer's backing file and keep the buffer open as unsaved text",
                Category      => File_Category,
@@ -148,7 +153,7 @@ package body Editor.Commands.Descriptor_File_Project is
          when Command_Copy_Buffer_File =>
             return Descriptor_Factory.Make_Command_Descriptor
               (Id            => Id,
-               Stable_Name   => Stable_Command_Name (Id),
+               Stable_Name   => Name_Metadata.Stable_Command_Name (Id),
                Label         => "Copy Buffer File",
                Description   => "Copy the active clean file-backed buffer's backing file to an explicit path without changing the active association",
                Category      => File_Category,

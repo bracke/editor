@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Strings.Fixed;
 with Editor.State;
 with Editor.Workspace_Persistence;
@@ -7,12 +8,14 @@ with Editor.Build_Output_Details;
 with Editor.Build_Result_Summary;
 with Editor.Build_UI;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Feature_Diagnostics;
 with Editor.Feature_Panel;
 
+
 package body Editor.Diagnostics_Review_UX is
 
-   use type Editor.Commands.Command_Category;
+   use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Commands.Command_Id;
 
    function Contains (Text, Pattern : String) return Boolean is
@@ -177,29 +180,29 @@ package body Editor.Diagnostics_Review_UX is
       pragma Unreferenced (State);
       Found : Boolean := False;
    begin
-      return Editor.Commands.Descriptor
+      return Editor.Commands.Descriptors.Descriptor
           (Editor.Commands.Command_Diagnostics_Open_Selected).Category =
-          Editor.Commands.Panel_Category
-        and then Editor.Commands.Stable_Command_Name
+          Editor.Commands.Descriptors.Panel_Category
+        and then Editor.Commands.Name_Metadata.Stable_Command_Name
           (Editor.Commands.Command_Diagnostics_Open_Selected) =
           "diagnostics.open-selected"
-        and then Editor.Commands.Command_Id_From_Stable_Name
+        and then Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
           ("diagnostics.open-selected", Found) =
           Editor.Commands.Command_Diagnostics_Open_Selected
         and then Found
-        and then Editor.Commands.Stable_Command_Name
+        and then Editor.Commands.Name_Metadata.Stable_Command_Name
           (Editor.Commands.Command_Diagnostics_Filter_Errors) =
           "diagnostics.filter-errors"
-        and then Editor.Commands.Stable_Command_Name
+        and then Editor.Commands.Name_Metadata.Stable_Command_Name
           (Editor.Commands.Command_Diagnostics_Filter_Warnings) =
           "diagnostics.filter-warnings"
-        and then Editor.Commands.Stable_Command_Name
+        and then Editor.Commands.Name_Metadata.Stable_Command_Name
           (Editor.Commands.Command_Diagnostics_Filter_Source) =
           "diagnostics.filter-source"
-        and then Editor.Commands.Stable_Command_Name
+        and then Editor.Commands.Name_Metadata.Stable_Command_Name
           (Editor.Commands.Command_Diagnostics_Filter_Build) =
           "diagnostics.filter-producer-build"
-        and then Editor.Commands.Stable_Command_Name
+        and then Editor.Commands.Name_Metadata.Stable_Command_Name
           (Editor.Commands.Command_Diagnostics_Clear_Build) =
           "diagnostics.clear-build"
         and then Editor.Build_Diagnostics_Review.Assert_Build_Diagnostics_Navigation_Uses_Diagnostics_Routes;

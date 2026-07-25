@@ -2,6 +2,7 @@ with Ada.Strings.Fixed;
 
 with Editor.Command_Surface;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.External_Producers;
 with Editor.External_Producers.Audits;
 with Editor.External_Producers.Public_Build;
@@ -227,20 +228,20 @@ package body Editor.Diagnostics_Audit is
            and then Editor.Commands.Is_Bindable_Command (Id);
       end Command_Route_Passes;
    begin
-      return Editor.Commands.Stable_Command_Name
+      return Editor.Commands.Name_Metadata.Stable_Command_Name
           (Editor.Commands.Command_Diagnostics_Show) = "diagnostics.show"
-        and then Editor.Commands.Stable_Command_Name
+        and then Editor.Commands.Name_Metadata.Stable_Command_Name
           (Editor.Commands.Command_Diagnostics_Clear) = "diagnostics-clear"
-        and then Editor.Commands.Stable_Command_Name
+        and then Editor.Commands.Name_Metadata.Stable_Command_Name
           (Editor.Commands.Command_Diagnostics_Open_Selected) =
             "diagnostics.open-selected"
-        and then Editor.Commands.Stable_Command_Name
+        and then Editor.Commands.Name_Metadata.Stable_Command_Name
           (Editor.Commands.Command_Diagnostics_Execute_Selected_Action) =
             "diagnostics.execute-selected-action"
-        and then Editor.Commands.Stable_Command_Name
+        and then Editor.Commands.Name_Metadata.Stable_Command_Name
           (Editor.Commands.Command_Diagnostics_Select_Next) =
             "diagnostics.next"
-        and then Editor.Commands.Stable_Command_Name
+        and then Editor.Commands.Name_Metadata.Stable_Command_Name
           (Editor.Commands.Command_Diagnostics_Select_Previous) =
             "diagnostics.previous"
         and then Command_Route_Passes (Editor.Commands.Command_Diagnostics_Show)

@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Directories;
@@ -5,6 +6,7 @@ with Ada.Containers; use type Ada.Containers.Count_Type;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Buffers;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Dirty_Guards;
 with Editor.Executor.Test_Support; use Editor.Executor.Test_Support;
 with Editor.Executor.Buffer_Close_Commands;
@@ -16,12 +18,13 @@ with Editor.Recent_Buffers;
 with Editor.Render_Model;
 with Editor.State;
 
+
 package body Editor.Executor.Lifecycle_Tests is
 
    use type Editor.Buffers.Buffer_Id;
    use type Editor.Commands.Command_Availability_Status;
    use type Editor.Commands.Command_Id;
-   use type Editor.Commands.Command_Visibility;
+   use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.State.Dirty_Close_Scope;
 
    function Pending_Test_Summary
@@ -1653,47 +1656,47 @@ package body Editor.Executor.Lifecycle_Tests is
       Found : Boolean := False;
    begin
       Assert
-        (Editor.Commands.Descriptor
+        (Editor.Commands.Descriptors.Descriptor
            (Editor.Commands.Command_Close_Other_Buffers).Visibility =
-         Editor.Commands.Palette_Command,
+         Editor.Commands.Descriptors.Palette_Command,
          "close-others must remain discoverable with dirty review guards");
       Assert
-        (Editor.Commands.Descriptor
+        (Editor.Commands.Descriptors.Descriptor
            (Editor.Commands.Command_Close_All_Clean_Buffers).Visibility =
-         Editor.Commands.Palette_Command,
+         Editor.Commands.Descriptors.Palette_Command,
          "close-clean must be discoverable as a safe no-discard workflow");
       Assert
-        (Editor.Commands.Command_Id_From_Stable_Name
+        (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
            ("file.close-other-buffers", Found) = Editor.Commands.Command_Close_Other_Buffers
          and then Found,
          "close-others canonical stable name must resolve");
       Found := False;
       Assert
-        (Editor.Commands.Command_Id_From_Stable_Name
+        (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
            ("file.close-clean-buffers", Found) = Editor.Commands.Command_Close_All_Clean_Buffers
          and then Found,
          "close-clean canonical stable name must resolve");
       Found := False;
       Assert
-        (Editor.Commands.Command_Id_From_Stable_Name
+        (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
            ("buffer.close-active", Found) = Editor.Commands.Command_Close_Active_Buffer
          and then Found,
          "expected buffer.close-active alias must resolve without payload");
       Found := False;
       Assert
-        (Editor.Commands.Command_Id_From_Stable_Name
+        (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
            ("buffer.close-selected", Found) = Editor.Commands.Command_Buffer_Switcher_Selected_Close
          and then Found,
          "expected buffer.close-selected alias must resolve without payload");
       Found := False;
       Assert
-        (Editor.Commands.Command_Id_From_Stable_Name
+        (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
            ("buffer.close-all", Found) = Editor.Commands.Command_Close_All_Buffers
          and then Found,
          "expected buffer.close-all alias must resolve without payload");
       Found := False;
       Assert
-        (Editor.Commands.Command_Id_From_Stable_Name
+        (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
            ("buffer.close-clean", Found) = Editor.Commands.Command_Close_All_Clean_Buffers
          and then Found,
          "expected buffer.close-clean alias must resolve without payload");

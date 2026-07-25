@@ -10,6 +10,8 @@ with Editor.Render_Cache;
 with Editor.View;
 with Editor.Input_Bridge.Build_UI_Projection;
 
+with Editor.Commands.Name_Metadata;
+
 package body Editor.Input_Bridge.Build_UI_Pointer_Handlers is
 
    use type Editor.Build_UI_Panel_Layout.Build_UI_Panel_Zone;
@@ -72,7 +74,7 @@ package body Editor.Input_Bridge.Build_UI_Pointer_Handlers is
                   Report.all ("Command unavailable");
                end if;
             else
-               Id := Editor.Commands.Command_Id_From_Stable_Name
+               Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
                  (To_String (Action.Command_Name), Found);
                if Found and then Id /= Editor.Commands.No_Command then
                   if Id = Editor.Commands.Command_Diagnostic_Apply_Quick_Fix

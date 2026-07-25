@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Command_Execution;
 with Editor.Command_Palette;
@@ -6,10 +7,13 @@ with Editor.Configuration_Recovery;
 with Editor.Empty_State_Guidance.Surfaces;
 with Editor.Messages;
 
+with Editor.Commands.Name_Metadata;
+
+
 package body Editor.Empty_State_Guidance.Guided_Actions is
 
    use type Editor.Commands.Command_Id;
-   use type Editor.Commands.Command_Visibility;
+   use type Editor.Commands.Descriptors.Command_Visibility;
 
    function Safe_Stable_Command_Name (Name : String) return Boolean is
    begin
@@ -25,8 +29,8 @@ package body Editor.Empty_State_Guidance.Guided_Actions is
    function Suggested_Action_Guard_Label
      (Command : Editor.Commands.Command_Id) return String
    is
-      D : constant Editor.Commands.Command_Descriptor :=
-        Editor.Commands.Descriptor (Command);
+      D : constant Editor.Commands.Descriptors.Command_Descriptor :=
+        Editor.Commands.Descriptors.Descriptor (Command);
    begin
       if Command = Editor.Commands.Command_Build_Acknowledge_Consent then
          return "Consent required";
@@ -73,10 +77,10 @@ package body Editor.Empty_State_Guidance.Guided_Actions is
    function Command_Is_Visible_In_Guidance
      (Command : Editor.Commands.Command_Id) return Boolean
    is
-      D : constant Editor.Commands.Command_Descriptor :=
-        Editor.Commands.Descriptor (Command);
+      D : constant Editor.Commands.Descriptors.Command_Descriptor :=
+        Editor.Commands.Descriptors.Descriptor (Command);
    begin
-      return D.Visibility = Editor.Commands.Palette_Command
+      return D.Visibility = Editor.Commands.Descriptors.Palette_Command
         or else Command = Editor.Commands.Command_Open_Command_Palette;
    end Command_Is_Visible_In_Guidance;
 
@@ -100,11 +104,11 @@ package body Editor.Empty_State_Guidance.Guided_Actions is
       end if;
 
       declare
-         D : constant Editor.Commands.Command_Descriptor :=
-           Editor.Commands.Descriptor (Command);
+         D : constant Editor.Commands.Descriptors.Command_Descriptor :=
+           Editor.Commands.Descriptors.Descriptor (Command);
          A : constant Editor.Commands.Command_Availability :=
            Editor.Executor.Command_Availability (S, Command);
-         Stable : constant String := Editor.Commands.Stable_Command_Name (Command);
+         Stable : constant String := Editor.Commands.Name_Metadata.Stable_Command_Name (Command);
       begin
          if not Command_Is_Visible_In_Guidance (Command)
            or else Stable'Length = 0
@@ -162,19 +166,19 @@ package body Editor.Empty_State_Guidance.Guided_Actions is
          return False;
       end if;
 
-      Resolved := Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
+      Resolved := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
       if not Found
         or else Resolved /= Suggestion.Command
         or else not Command_Is_Visible_In_Guidance (Suggestion.Command)
         or else To_String (Suggestion.Title) /=
-          To_String (Editor.Commands.Descriptor (Suggestion.Command).Name)
+          To_String (Editor.Commands.Descriptors.Descriptor (Suggestion.Command).Name)
         or else To_String (Suggestion.Short_Explanation) /=
-          To_String (Editor.Commands.Descriptor (Suggestion.Command).Description)
+          To_String (Editor.Commands.Descriptors.Descriptor (Suggestion.Command).Description)
       then
          return False;
       end if;
 
-      return Name = Editor.Commands.Stable_Command_Name (Suggestion.Command);
+      return Name = Editor.Commands.Name_Metadata.Stable_Command_Name (Suggestion.Command);
    end Suggestion_Is_Descriptor_Consistent;
 
    function Stable_Name_Is_Display_Only
@@ -187,7 +191,7 @@ package body Editor.Empty_State_Guidance.Guided_Actions is
          return False;
       end if;
 
-      Resolved := Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
+      Resolved := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
       if not Found or else Resolved = Editor.Commands.No_Command then
          return False;
       end if;
@@ -333,7 +337,7 @@ package body Editor.Empty_State_Guidance.Guided_Actions is
          return False;
       end if;
 
-      Resolved := Editor.Commands.Command_Id_From_Stable_Name
+      Resolved := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         (To_String (Suggestion.Stable_Name), Found);
       if not Found
         or else Resolved = Editor.Commands.No_Command
@@ -393,7 +397,7 @@ package body Editor.Empty_State_Guidance.Guided_Actions is
          return Editor.Command_Execution.No_Op (Editor.Commands.No_Command);
       end if;
 
-      Resolved := Editor.Commands.Command_Id_From_Stable_Name
+      Resolved := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         (To_String (Suggestion.Stable_Name), Found);
       if not Found
         or else Resolved = Editor.Commands.No_Command

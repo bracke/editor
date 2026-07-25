@@ -9,6 +9,8 @@ with Editor.Render_Cache;
 with Editor.View;
 with Editor.Input_Bridge.Build_UI_Projection;
 
+with Editor.Commands.Name_Metadata;
+
 package body Editor.Input_Bridge.Build_UI_Key_Handlers is
 
    use type Editor.Commands.Command_Id;
@@ -126,7 +128,7 @@ package body Editor.Input_Bridge.Build_UI_Key_Handlers is
             return;
          end if;
 
-         Id := Editor.Commands.Command_Id_From_Stable_Name
+         Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
            (To_String (Row.Command_Name), Found);
 
          if Found and then Id /= Editor.Commands.No_Command then

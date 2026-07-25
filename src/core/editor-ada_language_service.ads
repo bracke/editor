@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
 with Editor.Ada_Diagnostic_Command_Projection;
@@ -6,6 +7,7 @@ with Editor.Ada_Project_Index;
 with Editor.Ada_Semantic_Diagnostic_Feed;
 with Editor.External_Producers;
 with Editor.External_Producers.Diagnostic_Text_Lines;
+
 
 package Editor.Ada_Language_Service is
 

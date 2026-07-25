@@ -1,7 +1,9 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Buffers;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Keybindings;
 with Editor.Messages;
 with Editor.Panel_Focus;
@@ -11,6 +13,7 @@ with Editor.Project;
 with Editor.Recent_Projects;
 with Editor.Settings;
 with Editor.State;
+
 
 package body Editor.Command_Domain is
 
@@ -77,7 +80,7 @@ package body Editor.Command_Domain is
          declare
             Id : constant Editor.Commands.Command_Id := Editor.Commands.Command_At (I);
          begin
-            H := Hash_String (Editor.Commands.Stable_Command_Name (Id), H);
+            H := Hash_String (Editor.Commands.Name_Metadata.Stable_Command_Name (Id), H);
             H := Hash_Natural
               (H, Editor.Keybindings.Binding_Count_For_Command (Id));
             Info := Editor.Keybindings.Primary_Binding_For_Command (Id);
@@ -92,16 +95,16 @@ package body Editor.Command_Domain is
 
    function Command_Metadata_Fingerprint return Natural is
       H : Natural := 29;
-      D : Editor.Commands.Command_Descriptor;
+      D : Editor.Commands.Descriptors.Command_Descriptor;
    begin
       for I in 1 .. Editor.Commands.Command_Count loop
-         D := Editor.Commands.Descriptor (Editor.Commands.Command_At (I));
+         D := Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_At (I));
          H := Hash_String (Editor.Commands.Command_Id'Image (D.Id), H);
-         H := Hash_String (Editor.Commands.Stable_Command_Name (D.Id), H);
+         H := Hash_String (Editor.Commands.Name_Metadata.Stable_Command_Name (D.Id), H);
          H := Hash_String (To_String (D.Name), H);
          H := Hash_String (To_String (D.Description), H);
-         H := Hash_String (Editor.Commands.Command_Category'Image (D.Category), H);
-         H := Hash_String (Editor.Commands.Command_Visibility'Image (D.Visibility), H);
+         H := Hash_String (Editor.Commands.Descriptors.Command_Category'Image (D.Category), H);
+         H := Hash_String (Editor.Commands.Descriptors.Command_Visibility'Image (D.Visibility), H);
          H := Hash_Boolean (H, D.Bindable);
          H := Hash_Boolean (H, D.Destructive);
          H := Hash_Boolean (H, D.Lifecycle);

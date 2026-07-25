@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with Ada.Directories;
 with Ada.Text_IO;
@@ -16,6 +17,7 @@ with Editor.Build_UI;
 with Editor.Build_Working_Context;
 with Editor.Command_Execution;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Executor;
 with Editor.External_Producers;
 with Editor.External_Producers.Execution_Policy;
@@ -23,6 +25,7 @@ with Editor.External_Producers.Build_Requests;
 with Editor.Messages;
 with Editor.Project;
 with Editor.State;
+
 
 package body Editor.Build_Execution_Workflow.Tests is
 
@@ -913,7 +916,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Editor.State.Initialize (S);
-      Id := Editor.Commands.Command_Id_From_Stable_Name ("build.cancel", Found);
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("build.cancel", Found);
       Assert (Found and then Id = Editor.Commands.Command_Build_Cancel,
               "build.cancel is advertised once the active build-job model exists");
       Assert (not Editor.Commands.Is_Available
@@ -1105,14 +1108,14 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Run_Descriptor : constant Editor.Commands.Command_Descriptor :=
-        Editor.Commands.Descriptor (Editor.Commands.Command_Build_Run);
+      Run_Descriptor : constant Editor.Commands.Descriptors.Command_Descriptor :=
+        Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Build_Run);
    begin
       Assert (Editor.Build_Execution_Workflow.Assert_Build_Command_Surface_Has_No_Execution_Payloads,
               "build.run descriptor exposes only a canonical command, not request/candidate/result payloads");
       Assert (not Run_Descriptor.Bindable,
               "build.run remains unavailable to payload-free keybindings until a safe default exists");
-      Assert (Editor.Commands.Stable_Command_Name (Editor.Commands.Command_Build_Run) = "build.run",
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Build_Run) = "build.run",
               "Command Palette route uses the canonical stable command name only");
       Assert (Editor.Build_Execution_Workflow.Assert_Build_Keybindings_Have_No_Run_Payloads,
               "keybinding surface carries no Build request or result identifiers");

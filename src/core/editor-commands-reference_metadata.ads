@@ -1,4 +1,8 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 package Editor.Commands.Reference_Metadata is
+
+   function Is_File_Lifecycle_Command
+     (Id : Command_Id) return Boolean;
 
    function File_Lifecycle_Target_Prompt_Metadata_Minimal return Boolean;
 

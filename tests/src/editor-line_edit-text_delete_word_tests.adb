@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -8,6 +9,7 @@ with Ada.Text_IO;
 with Editor.Clipboard;
 with Editor.Command_Palette;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Buffers;
 with Editor.Cursors; use Editor.Cursors;
 with Editor.Executor;
@@ -28,12 +30,13 @@ with Editor.UTF8;
 with Editor.Workspace_Persistence;
 with Text_Buffer;
 
+
 package body Editor.Line_Edit.Text_Delete_Word_Tests is
 
    use type Editor.Keybinding_Config.Keybinding_Config_Status;
    use type Editor.Commands.Command_Id;
-   use type Editor.Commands.Command_Category;
-   use type Editor.Commands.Command_Visibility;
+   use type Editor.Commands.Descriptors.Command_Category;
+   use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Commands.Command_Availability_Status;
    use type Editor.Commands.Command_Kind;
    use type Editor.Keybindings.Keybinding_Validation_Status;
@@ -1428,7 +1431,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Assert (Editor.Commands.Is_Available (Avail),
               "availability check must expose Word Delete with active buffer/caret");
       declare
-         Candidates : Editor.Commands.Command_Descriptor_Vectors.Vector;
+         Candidates : Editor.Commands.Descriptors.Command_Descriptor_Vectors.Vector;
       begin
          Editor.Command_Palette.Reset;
          Editor.Command_Palette.Filtered_Commands (Candidates);
@@ -1484,19 +1487,19 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Next_Count     : Natural := 0;
       Palette_Prev   : Natural := 0;
       Palette_Next   : Natural := 0;
-      Candidates     : Editor.Commands.Command_Descriptor_Vectors.Vector;
+      Candidates     : Editor.Commands.Descriptors.Command_Descriptor_Vectors.Vector;
       Path           : constant String := Editor.Test_Temp.Base & "/editor-canonical-word-delete-keybindings";
       File           : Ada.Text_IO.File_Type;
       Config         : Editor.Keybinding_Config.Keybinding_Config_Model;
       Status         : Editor.Keybinding_Config.Keybinding_Config_Status;
       Chord          : Editor.Keybindings.Key_Chord;
    begin
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.word.delete-previous", Found);
       Assert
         (Found and then Id = Editor.Commands.Command_Word_Delete_Previous,
          "previous Word Delete command must resolve through canonical stable name");
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.word.delete-next", Found);
       Assert
         (Found and then Id = Editor.Commands.Command_Word_Delete_Next,
@@ -1505,7 +1508,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       for I in 1 .. Editor.Commands.Command_Count loop
          declare
             C    : constant Editor.Commands.Command_Id := Editor.Commands.Command_At (I);
-            Name : constant String := Editor.Commands.Stable_Command_Name (C);
+            Name : constant String := Editor.Commands.Name_Metadata.Stable_Command_Name (C);
          begin
             if C = Editor.Commands.Command_Word_Delete_Previous then
                Previous_Count := Previous_Count + 1;
@@ -1548,7 +1551,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
          declare
             Command : constant Editor.Commands.Command_Id :=
               Editor.Keybinding_Config.Command_At (Config, I);
-            Name    : constant String := Editor.Commands.Stable_Command_Name (Command);
+            Name    : constant String := Editor.Commands.Name_Metadata.Stable_Command_Name (Command);
          begin
             if Command = Editor.Commands.Command_Word_Delete_Previous then
                Assert (Name = "edit.word.delete-previous",

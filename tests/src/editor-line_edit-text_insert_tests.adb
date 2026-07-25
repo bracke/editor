@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Directories;
@@ -7,6 +8,7 @@ with Ada.Text_IO;
 with Editor.Clipboard;
 with Editor.Command_Palette;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Buffers;
 with Editor.Cursors; use Editor.Cursors;
 with Editor.Executor;
@@ -27,12 +29,13 @@ with Editor.UTF8;
 with Editor.Workspace_Persistence;
 with Text_Buffer;
 
+
 package body Editor.Line_Edit.Text_Insert_Tests is
 
    use type Editor.Keybinding_Config.Keybinding_Config_Status;
    use type Editor.Commands.Command_Id;
-   use type Editor.Commands.Command_Category;
-   use type Editor.Commands.Command_Visibility;
+   use type Editor.Commands.Descriptors.Command_Category;
+   use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Commands.Command_Availability_Status;
    use type Editor.Commands.Command_Kind;
    use type Editor.Keybindings.Keybinding_Validation_Status;
@@ -543,7 +546,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
               "unicode text entry does not create redo entries");
 
       Resolved :=
-        Editor.Commands.Command_Id_From_Stable_Name ("internal.text.insert", Found);
+        Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("internal.text.insert", Found);
       Assert (not Found and then Resolved = Editor.Commands.No_Command,
               "arbitrary parameterized Text Insert must not be a public stable command");
 
@@ -1529,14 +1532,14 @@ package body Editor.Line_Edit.Text_Insert_Tests is
          Resolved : Editor.Commands.Command_Id := Editor.Commands.No_Command;
          Found    : Boolean := False;
       begin
-         Resolved := Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
+         Resolved := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
          Assert (not Found and then Resolved = Editor.Commands.No_Command,
                  "non-goal command exposed: " & Name);
       end Assert_Non_Goal_Command_Absent;
 
       S             : Editor.State.State_Type;
       Snap          : Editor.Render_Model.Render_Snapshot;
-      Desc          : Editor.Commands.Command_Descriptor;
+      Desc          : Editor.Commands.Descriptors.Command_Descriptor;
       Undo_Before   : Natural := 0;
       Redo_Before   : Natural := 0;
       Dirty_Before  : Boolean := False;
@@ -1545,8 +1548,8 @@ package body Editor.Line_Edit.Text_Insert_Tests is
    begin
       --  Arbitrary parameterized text insertion remains an internal/editor
       --  text-entry route, not a public command-palette/keybinding surface.
-      Desc := Editor.Commands.Descriptor (Editor.Commands.Command_Insert_Newline);
-      Assert (Desc.Visibility = Editor.Commands.Hidden_Command,
+      Desc := Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Insert_Newline);
+      Assert (Desc.Visibility = Editor.Commands.Descriptors.Hidden_Command,
               "newline text input command remains hidden from the palette");
       Assert_Non_Goal_Command_Absent ("edit.text.insert-snippet");
       Assert_Non_Goal_Command_Absent ("edit.text.insert-template");

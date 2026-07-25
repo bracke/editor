@@ -1,4 +1,9 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Commands.Descriptor_Factory;
+
+with Editor.Commands.Name_Metadata;
+
+
 
 package body Editor.Commands.Descriptor_Navigation is
 
@@ -16,7 +21,7 @@ package body Editor.Commands.Descriptor_Navigation is
    begin
       return Descriptor_Factory.Make_Command_Descriptor
         (Id            => Id,
-         Stable_Name   => Stable_Command_Name (Id),
+         Stable_Name   => Name_Metadata.Stable_Command_Name (Id),
          Label         => Name,
          Description   => Effective_Description,
          Category      => Category,
@@ -253,7 +258,7 @@ package body Editor.Commands.Descriptor_Navigation is
          when Command_Move_Buffer_File =>
             return Descriptor_Factory.Make_Command_Descriptor
               (Id            => Id,
-               Stable_Name   => Stable_Command_Name (Id),
+               Stable_Name   => Name_Metadata.Stable_Command_Name (Id),
                Label         => "Move Buffer File",
                Description   => "Move the active clean file-backed buffer's backing file to an explicit path and update the active association after success",
                Category      => File_Category,

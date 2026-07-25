@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Characters.Handling;
@@ -6,6 +7,7 @@ with Ada.Strings.Unbounded;
 with Editor.Build_Candidates;
 with Editor.Build_UI;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Feature_Panel;
 with Editor.Feature_Panel.Fixtures; use Editor.Feature_Panel.Fixtures;
 with Editor.Feature_Search_Results;
@@ -18,9 +20,10 @@ with Editor.Product_Surface_Cleanup;
 with Editor.Quick_Open;
 with Editor.State;
 
+
 package body Editor.Product_Surface_Cleanup.Tests is
 
-   use type Editor.Commands.Command_Visibility;
+   use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Commands.Command_Id;
 
    function Product_Surface_Text_Is_Placeholder (Text : String) return Boolean is
@@ -72,7 +75,7 @@ package body Editor.Product_Surface_Cleanup.Tests is
       Found : Boolean := True;
       Id    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
    begin
-      Id := Editor.Commands.Command_Id_From_Stable_Name
+      Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("populate-feature-panel-placeholder", Found);
       Assert (not Found and then Id = Editor.Commands.No_Command,
               "removed placeholder population command is not registered");
@@ -84,13 +87,13 @@ package body Editor.Product_Surface_Cleanup.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Commands : constant Editor.Commands.Command_Descriptor_Vectors.Vector :=
-        Editor.Commands.Palette_Commands;
+      Commands : constant Editor.Commands.Descriptors.Command_Descriptor_Vectors.Vector :=
+        Editor.Commands.Descriptors.Palette_Commands;
    begin
       for D of Commands loop
          declare
             Stable_Name : constant String :=
-              Editor.Commands.Stable_Command_Name (D.Id);
+              Editor.Commands.Name_Metadata.Stable_Command_Name (D.Id);
             Label : constant String := Ada.Strings.Unbounded.To_String (D.Name);
             Description : constant String :=
               Ada.Strings.Unbounded.To_String (D.Description);

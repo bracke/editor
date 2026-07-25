@@ -1,9 +1,12 @@
+with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
 with Ada.Containers;
 with Ada.Directories;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Command_Palette;
 with Editor.Command_Route_Audit;
 with Editor.Configuration_Audit;
@@ -54,6 +57,8 @@ with Editor.View;
 with Editor.Workspace_Persistence;
 with Text_Buffer;
 
+
+
 package body Editor.Files.Copy_Move_Association_Tests is
 
    use type Editor.Files.File_Status;
@@ -61,11 +66,11 @@ package body Editor.Files.Copy_Move_Association_Tests is
    use type Editor.Files.File_Save_Status;
    use type Editor.Files.File_Move_Status;
    use type Editor.Commands.Command_Id;
-   use type Editor.Commands.Command_Category;
-   use type Editor.Commands.Command_Visibility;
+   use type Editor.Commands.Descriptors.Command_Category;
+   use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Command_Palette.Command_Palette_Row_Kind;
-   use type Editor.Commands.Command_Family_Id;
-   use type Editor.Commands.Command_Effect_Classification_Id;
+   use type Editor.Commands.Descriptors.Command_Family_Id;
+   use type Editor.Commands.Descriptors.Command_Effect_Classification_Id;
    use type Editor.Keybindings.Keybinding_Validation_Status;
    use type Editor.Buffers.Buffer_Id;
    use type Editor.Messages.Message_Severity;
@@ -88,22 +93,22 @@ package body Editor.Files.Copy_Move_Association_Tests is
       Existing     : constant String := Temp_Path ("p453_surface_existing.txt");
       Cmd_Id       : Editor.Commands.Command_Id;
       Found        : Boolean := False;
-      Descriptor   : Editor.Commands.Command_Descriptor;
+      Descriptor   : Editor.Commands.Descriptors.Command_Descriptor;
       Availability : Editor.Commands.Command_Availability;
       M            : Editor.Messages.Editor_Message;
    begin
-      Cmd_Id := Editor.Commands.Command_Id_From_Stable_Name
+      Cmd_Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("file.copy-buffer-file", Found);
       Assert (Found and then Cmd_Id = Editor.Commands.Command_Copy_Buffer_File,
         "file.copy-buffer-file must resolve to canonical command id");
-      Assert (Editor.Commands.Stable_Command_Name
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
         (Editor.Commands.Command_Copy_Buffer_File) = "file.copy-buffer-file",
         "copy must expose canonical stable command name");
 
-      Descriptor := Editor.Commands.Descriptor
+      Descriptor := Editor.Commands.Descriptors.Descriptor
         (Editor.Commands.Command_Copy_Buffer_File);
-      Assert (Descriptor.Category = Editor.Commands.File_Category
-        and then Descriptor.Visibility = Editor.Commands.Palette_Command
+      Assert (Descriptor.Category = Editor.Commands.Descriptors.File_Category
+        and then Descriptor.Visibility = Editor.Commands.Descriptors.Palette_Command
         and then Descriptor.Bindable
         and then not Descriptor.Destructive
         and then Descriptor.Lifecycle,
@@ -625,7 +630,7 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
       Before_Fwd    : Ada.Containers.Count_Type;
       Before_Caret  : Editor.Cursors.Caret_State;
       Availability  : Editor.Commands.Command_Availability;
-      Candidates    : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates    : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Found         : Boolean := False;
       M             : Editor.Messages.Editor_Message;
       Copy_Rows     : Natural := 0;
@@ -1101,7 +1106,7 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
       Before_Fwd     : Ada.Containers.Count_Type;
       Snap           : Editor.Render_Model.Render_Snapshot;
       Availability   : Editor.Commands.Command_Availability;
-      Candidates     : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates     : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Copy_Rows      : Natural := 0;
       Workspace      : Editor.Workspace_Persistence.Workspace_Snapshot;
       Summary        : Unbounded_String;
@@ -1261,7 +1266,7 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
       procedure Assert_Absent (Name : String) is
          Id : Editor.Commands.Command_Id;
       begin
-         Id := Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
+         Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
          Assert (not Found,
            "non-goal command must not be exposed: " & Name);
       end Assert_Absent;
@@ -1492,7 +1497,7 @@ procedure Test_Copy_Source_Validation_And_Target_Canonicalization
       Workspace     : Editor.Workspace_Persistence.Workspace_Snapshot;
       Summary       : Unbounded_String;
       Availability  : Editor.Commands.Command_Availability;
-      Candidates    : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates    : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Before_Text   : Unbounded_String;
       Before_Path   : Unbounded_String;
       Before_Base   : Natural;
@@ -1668,7 +1673,7 @@ procedure Test_Move_Canonical_State_And_Persistence_Cleanup
       Workspace     : Editor.Workspace_Persistence.Workspace_Snapshot;
       Summary       : Unbounded_String;
       Availability  : Editor.Commands.Command_Availability;
-      Candidates    : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates    : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Move_Rows     : Natural := 0;
       Found         : Boolean := False;
       M             : Editor.Messages.Editor_Message;
@@ -2409,7 +2414,7 @@ procedure Test_Move_Canonical_State_And_Persistence_Cleanup
       Workspace     : Editor.Workspace_Persistence.Workspace_Snapshot;
       Summary       : Unbounded_String;
       Availability  : Editor.Commands.Command_Availability;
-      Candidates    : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Candidates    : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Before_Text   : Unbounded_String;
       Before_Path   : Unbounded_String;
       Before_Base   : Natural;

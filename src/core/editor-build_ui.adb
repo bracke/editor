@@ -6,6 +6,7 @@ with Editor.Build_Candidates;
 with Editor.Build_Result_Summary;
 with Editor.Build_Output_Details;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.External_Producers;
 
 package body Editor.Build_UI is
@@ -1345,14 +1346,14 @@ package body Editor.Build_UI is
                & " diagnostics")
             else To_Unbounded_String ("No diagnostics to reveal yet")),
          Open_Source_Command_Name => To_Unbounded_String
-           (Editor.Commands.Stable_Command_Name
+           (Editor.Commands.Name_Metadata.Stable_Command_Name
               (Editor.Commands.Command_Diagnostic_Open_Source)),
          Open_Source_Available => Can_Reveal,
          Open_Source_Unavailable_Reason =>
            (if Can_Reveal then Null_Unbounded_String
             else To_Unbounded_String ("Diagnostics are not available yet")),
          Suppress_Command_Name => To_Unbounded_String
-           (Editor.Commands.Stable_Command_Name
+           (Editor.Commands.Name_Metadata.Stable_Command_Name
               (Editor.Commands.Command_Diagnostic_Suppress_Selected)),
          Suppress_Available => Can_Reveal,
          Suppress_Unavailable_Reason =>
@@ -1360,19 +1361,19 @@ package body Editor.Build_UI is
             else To_Unbounded_String ("Diagnostics are not available yet")),
          Suppressed_Count_Label => To_Unbounded_String ("Suppressed: 0"),
          Show_Suppressed_Command_Name => To_Unbounded_String
-           (Editor.Commands.Stable_Command_Name
+           (Editor.Commands.Name_Metadata.Stable_Command_Name
               (Editor.Commands.Command_Diagnostic_Show_Suppressed)),
          Show_Suppressed_Available => False,
          Show_Suppressed_Unavailable_Reason =>
            To_Unbounded_String ("No suppressed diagnostics"),
          Restore_Suppressed_Command_Name => To_Unbounded_String
-           (Editor.Commands.Stable_Command_Name
+           (Editor.Commands.Name_Metadata.Stable_Command_Name
               (Editor.Commands.Command_Diagnostic_Restore_Last_Suppressed)),
          Restore_Suppressed_Available => False,
          Restore_Suppressed_Unavailable_Reason =>
            To_Unbounded_String ("No suppressed diagnostics"),
          Quick_Fix_Command_Name => To_Unbounded_String
-           (Editor.Commands.Stable_Command_Name
+           (Editor.Commands.Name_Metadata.Stable_Command_Name
               (Editor.Commands.Command_Diagnostic_Apply_Quick_Fix)),
          Quick_Fix_Label => To_Unbounded_String ("Apply quick fix"),
          Quick_Fix_Detail => To_Unbounded_String ("Select a diagnostic with a quick fix"),
@@ -1394,7 +1395,7 @@ package body Editor.Build_UI is
       return
         (Label => To_Unbounded_String (Label),
          Command_Name => To_Unbounded_String
-           (Editor.Commands.Stable_Command_Name (Command)),
+           (Editor.Commands.Name_Metadata.Stable_Command_Name (Command)),
          Enabled => Enabled,
          Selected => False,
          Diagnostic_Index => 0,

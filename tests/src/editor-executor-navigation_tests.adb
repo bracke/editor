@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Containers; use type Ada.Containers.Count_Type;
@@ -6,6 +7,7 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Buffers;
 with Editor.Buffer_Switcher;
 with Editor.Commands;
+with Editor.Commands.Name_Metadata;
 with Editor.Cursors;
 with Editor.Executor.Test_Support; use Editor.Executor.Test_Support;
 with Editor.Executor.File_Save_Commands;
@@ -43,10 +45,11 @@ with Editor.State;
 with Editor.Test_Helper;
 with Editor.View;
 
+
 package body Editor.Executor.Navigation_Tests is
 
-   use type Editor.Commands.Command_Category;
-   use type Editor.Commands.Command_Visibility;
+   use type Editor.Commands.Descriptors.Command_Category;
+   use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Executor.Command_Execution_Status;
    use type Editor.Buffers.Buffer_Id;
    use type Editor.File_Tree.File_Tree_Node_Id;
@@ -656,16 +659,16 @@ package body Editor.Executor.Navigation_Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      D : constant Editor.Commands.Command_Descriptor :=
-        Editor.Commands.Descriptor (Editor.Commands.Command_Navigation_History_Clear);
+      D : constant Editor.Commands.Descriptors.Command_Descriptor :=
+        Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Navigation_History_Clear);
    begin
-      Assert (Editor.Commands.Stable_Command_Name (Editor.Commands.Command_Navigation_History_Clear) = "navigation.history.clear",
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Navigation_History_Clear) = "navigation.history.clear",
               "clear command must have a stable persisted name");
       Assert (D.Bindable,
               "clear command must be bindable");
-      Assert (D.Visibility = Editor.Commands.Palette_Command,
+      Assert (D.Visibility = Editor.Commands.Descriptors.Palette_Command,
               "clear command must be visible in the Command Palette");
-      Assert (D.Category = Editor.Commands.Navigation_Category,
+      Assert (D.Category = Editor.Commands.Descriptors.Navigation_Category,
               "clear command must be categorized as Navigation");
       Assert (not D.Destructive,
               "clear command must not be classified destructive");
@@ -1865,23 +1868,23 @@ package body Editor.Executor.Navigation_Tests is
       Msg   : Editor.Messages.Editor_Message;
    begin
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Toggle_Bookmark) = "bookmarks.toggle",
          "toggle bookmark should expose the stable command name");
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Next_Bookmark) = "bookmarks.next",
          "next bookmark should expose the stable command name");
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Previous_Bookmark) = "bookmarks.previous",
          "previous bookmark should expose the stable command name");
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Clear_Bookmarks) = "bookmarks.clear-buffer",
          "clear buffer bookmarks should expose the stable command name");
       Assert
-        (Editor.Commands.Stable_Command_Name
+        (Editor.Commands.Name_Metadata.Stable_Command_Name
            (Editor.Commands.Command_Clear_All_Bookmarks) = "bookmarks.clear-all",
          "clear all bookmarks should expose the stable command name");
 
