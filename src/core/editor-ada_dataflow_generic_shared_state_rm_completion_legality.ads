@@ -1,5 +1,6 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
+with Editor.Ada_Accessibility_Remediation;
 with Editor.Ada_Accessibility_Generic_Shared_State_RM_Completion_Legality;
 with Editor.Ada_Coverage_Proven_Generic_Shared_State_AST_Repair_Legality;
 with Editor.Ada_Cross_Unit_Generic_Shared_State_RM_Completion_Closure_Legality;

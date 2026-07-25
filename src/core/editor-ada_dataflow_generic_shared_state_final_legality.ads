@@ -1,6 +1,6 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
-with Editor.Ada_Accessibility_Generic_Shared_State_Final_Legality;
+with Editor.Ada_Accessibility_Remediation;
 with Editor.Ada_Dataflow_Definite_Initialization_Consumer_Legality;
 with Editor.Ada_Definite_Initialization_Flow_Legality;
 with Editor.Ada_Discriminant_Generic_Shared_State_Final_Legality;
@@ -38,7 +38,7 @@ package Editor.Ada_Dataflow_Generic_Shared_State_Final_Legality is
    package Closure renames Editor.Ada_Shared_State_Stabilized_Closure_Legality;
    package Rep_Generic renames Editor.Ada_Representation_Generic_Shared_State_Final_Legality;
    package Tasking_Generic renames Editor.Ada_Tasking_Generic_Shared_State_Final_Legality;
-   package Access_Generic renames Editor.Ada_Accessibility_Generic_Shared_State_Final_Legality;
+   package Access_Generic renames Editor.Ada_Accessibility_Remediation.Generic_Shared_State_Final;
    package Disc_Generic renames Editor.Ada_Discriminant_Generic_Shared_State_Final_Legality;
    package Exception_Generic renames Editor.Ada_Exception_Finalization_Generic_Shared_State_Final_Legality;
    package Renaming_Generic renames Editor.Ada_Renaming_Generic_Shared_State_Final_Legality;

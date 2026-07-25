@@ -1,6 +1,6 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
-with Editor.Ada_Accessibility_Generic_Shared_State_Final_Legality;
+with Editor.Ada_Accessibility_Remediation;
 with Editor.Ada_Cross_Unit_Generic_Shared_State_Final_Closure_Legality;
 with Editor.Ada_Discriminant_Variant_Consumer_Integration_Legality;
 with Editor.Ada_Elaboration_Generic_Shared_State_Final_Legality;
@@ -34,7 +34,7 @@ package Editor.Ada_Discriminant_Generic_Shared_State_Final_Legality is
    package Overload_Generic renames Editor.Ada_Overload_Generic_Shared_State_Final_Legality;
    package Rep_Generic renames Editor.Ada_Representation_Generic_Shared_State_Final_Legality;
    package Tasking_Generic renames Editor.Ada_Tasking_Generic_Shared_State_Final_Legality;
-   package Access_Generic renames Editor.Ada_Accessibility_Generic_Shared_State_Final_Legality;
+   package Access_Generic renames Editor.Ada_Accessibility_Remediation.Generic_Shared_State_Final;
    package Closure renames Editor.Ada_Shared_State_Stabilized_Closure_Legality;
 
    type Discriminant_Generic_Final_Row_Id is new Natural;

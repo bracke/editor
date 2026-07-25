@@ -1,12 +1,12 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
-with Editor.Ada_Accessibility_Lifetime_Vertical_Slice_Legality;
+with Editor.Ada_Accessibility_Remediation;
 with Editor.Ada_Syntax_Tree;
 
 package body Test_Ada_Accessibility_Lifetime_Vertical_Slice_Legality is
 
-   package AL renames Editor.Ada_Accessibility_Lifetime_Vertical_Slice_Legality;
+   package AL renames Editor.Ada_Accessibility_Remediation.Lifetime;
    use type AL.Scope_Id;
    use type AL.Entity_Id;
    use type AL.Flow_Id;

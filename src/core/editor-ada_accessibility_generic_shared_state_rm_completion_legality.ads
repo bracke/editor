@@ -1,6 +1,6 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
-with Editor.Ada_Accessibility_Generic_Shared_State_Final_Legality;
+with Editor.Ada_Accessibility_Remediation;
 with Editor.Ada_Coverage_Proven_Generic_Shared_State_AST_Repair_Legality;
 with Editor.Ada_Cross_Unit_Generic_Shared_State_RM_Completion_Closure_Legality;
 with Editor.Ada_Elaboration_Generic_Shared_State_RM_Completion_Legality;
@@ -27,7 +27,7 @@ package Editor.Ada_Accessibility_Generic_Shared_State_RM_Completion_Legality is
    --  RM evidence agrees and fingerprints still match.
 
    package Cross_RM renames Editor.Ada_Cross_Unit_Generic_Shared_State_RM_Completion_Closure_Legality;
-   package Prior_Access renames Editor.Ada_Accessibility_Generic_Shared_State_Final_Legality;
+   package Prior_Access renames Editor.Ada_Accessibility_Remediation.Generic_Shared_State_Final;
    package Elaboration_RM renames Editor.Ada_Elaboration_Generic_Shared_State_RM_Completion_Legality;
    package Overload_RM renames Editor.Ada_Overload_Generic_Shared_State_RM_Edge_Completion_Legality;
    package Representation_RM renames Editor.Ada_Representation_Generic_Shared_State_RM_Hard_Case_Completion_Legality;

@@ -1,13 +1,13 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_Accessibility_Generic_Shared_State_Final_Legality;
+with Editor.Ada_Accessibility_Remediation;
 with Editor.Ada_Syntax_Tree;
 
 package body Test_Ada_Accessibility_Generic_Shared_State_Final_Legality is
 
    package Registration renames AUnit.Test_Cases.Registration;
-   package C renames Editor.Ada_Accessibility_Generic_Shared_State_Final_Legality;
+   package C renames Editor.Ada_Accessibility_Remediation.Generic_Shared_State_Final;
    use type C.Accessibility_Generic_Final_Row_Id;
    use type C.Accessibility_Generic_Final_Kind;
    use type C.Accessibility_Generic_Final_Blocker_Family;

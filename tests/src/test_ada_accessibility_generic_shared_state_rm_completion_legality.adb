@@ -1,6 +1,7 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
+with Editor.Ada_Accessibility_Remediation;
 with Editor.Ada_Accessibility_Generic_Shared_State_RM_Completion_Legality;
 with Editor.Ada_Syntax_Tree;
 
