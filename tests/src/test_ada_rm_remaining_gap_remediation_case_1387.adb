@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1387;
+with Editor.Ada_RM_Remediation.Project_Index.Partial_Context_Index_Guard;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1387 is
 
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1387;
+   package Audit renames Editor.Ada_RM_Remediation.Project_Index.Partial_Context_Index_Guard;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -58,7 +58,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1387 is
         To_Unbounded_String
           ("recovered context clauses must not enter the project index, leak private-child visibility, or feed consumers before fresh closure evidence exists");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1387");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Project_Index.Partial_Context_Index_Guard");
       Row.Candidate_Case := To_Unbounded_String ("Case 1387");
       Row.Blocker_Family :=
         To_Unbounded_String ("RM.Context.Project_Index.Recovered_Clause");

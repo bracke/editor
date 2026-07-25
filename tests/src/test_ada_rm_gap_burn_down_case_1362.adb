@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Gap_Burn_Down_Case_1362;
+with Editor.Ada_RM_Remediation.Final_Readiness.Bounded_Work_Cancellation;
 
 package body Test_Ada_RM_Gap_Burn_Down_Case_1362 is
 
-   package Audit renames Editor.Ada_RM_Gap_Burn_Down_Case_1362;
+   package Audit renames Editor.Ada_RM_Remediation.Final_Readiness.Bounded_Work_Cancellation;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -55,7 +55,7 @@ package body Test_Ada_RM_Gap_Burn_Down_Case_1362 is
       Row.Name := To_Unbounded_String
         ("case 1362 source-shaped bounded scheduling row");
       Row.Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Gap_Burn_Down_Case_1362");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Final_Readiness.Bounded_Work_Cancellation");
       Row.Per_Buffer_Budget := 100;
       Row.Request_Budget := 80;
       Row.Slice_Budget := 40;

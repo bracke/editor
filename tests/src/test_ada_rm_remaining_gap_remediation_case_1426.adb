@@ -1,10 +1,10 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1426;
+with Editor.Ada_RM_Remediation.Tagged_Types.Private_Extension_Primitives;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1426 is
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1426;
+   package Audit renames Editor.Ada_RM_Remediation.Tagged_Types.Private_Extension_Primitives;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -61,7 +61,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1426 is
            & "stale primitive-hiding evidence, and semantic consumers must"
            & "share one source-shaped legality result");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1426");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Tagged_Types.Private_Extension_Primitives");
       Row.Candidate_Case := To_Unbounded_String ("Case 1426");
       Row.Blocker_Family := To_Unbounded_String ("RM.Tagged_Model.Private_Extension.Primitive_Hiding");
       return Row;

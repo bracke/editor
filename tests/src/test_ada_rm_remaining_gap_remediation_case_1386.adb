@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1386;
+with Editor.Ada_RM_Remediation.Diagnostics.Cancelled_Budget_Verdicts;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1386 is
 
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1386;
+   package Audit renames Editor.Ada_RM_Remediation.Diagnostics.Cancelled_Budget_Verdicts;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -58,7 +58,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1386 is
         To_Unbounded_String
           ("cancelled, superseded, budget-exceeded, runtime-check, warning-only, and final readiness verdict rows must agree canonically");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1386");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Diagnostics.Cancelled_Budget_Verdicts");
       Row.Candidate_Case := To_Unbounded_String ("Case 1386");
       Row.Blocker_Family :=
         To_Unbounded_String ("RM.Final.Readiness.Cancellation_Budget_Verdict");

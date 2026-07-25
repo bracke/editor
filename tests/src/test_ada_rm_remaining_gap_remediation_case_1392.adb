@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1392;
+with Editor.Ada_RM_Remediation.Expressions.Boolean_Predicate_Guards;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1392 is
 
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1392;
+   package Audit renames Editor.Ada_RM_Remediation.Expressions.Boolean_Predicate_Guards;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -58,7 +58,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1392 is
         To_Unbounded_String
           ("Boolean short-circuit operands, static predicate checks, side-effect ordering, contract guards, control-flow guards, runtime predicate checks, and diagnostic consumers must share one canonical Boolean result");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1392");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Expressions.Boolean_Predicate_Guards");
       Row.Candidate_Case := To_Unbounded_String ("Case 1392");
       Row.Blocker_Family :=
         To_Unbounded_String ("RM.Expressions.Boolean_Short_Circuit_Predicate");

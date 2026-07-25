@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1380;
+with Editor.Ada_RM_Remediation.Tasking.Protected_Requeue_Select;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1380 is
 
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1380;
+   package Audit renames Editor.Ada_RM_Remediation.Tasking.Protected_Requeue_Select;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -58,7 +58,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1380 is
         To_Unbounded_String
           ("protected entry requeue, select coverage, termination, abort/finalization, runtime queue checks, and consumers must preserve one canonical tasking result");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1380");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Tasking.Protected_Requeue_Select");
       Row.Candidate_Case := To_Unbounded_String ("Case 1380");
       Row.Blocker_Family :=
         To_Unbounded_String ("RM.Tasking.Protected.Requeue.Select.Finalization");

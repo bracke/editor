@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1375;
+with Editor.Ada_RM_Remediation.Expressions.Fixed_Point_Conversion;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1375 is
 
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1375;
+   package Audit renames Editor.Ada_RM_Remediation.Expressions.Fixed_Point_Conversion;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -58,7 +58,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1375 is
         To_Unbounded_String
           ("decimal and ordinary fixed-point conversion, rounding, delta, digits, and range evidence must preserve canonical static/runtime classification");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1375");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Expressions.Fixed_Point_Conversion");
       Row.Candidate_Case := To_Unbounded_String ("Case 1375");
       Row.Blocker_Family :=
         To_Unbounded_String ("RM.Fixed_Point.Conversion_Rounding_Range");

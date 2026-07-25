@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1395;
+with Editor.Ada_RM_Remediation.Expressions.Declare_Expression_Lifetime;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1395 is
 
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1395;
+   package Audit renames Editor.Ada_RM_Remediation.Expressions.Declare_Expression_Lifetime;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -58,7 +58,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1395 is
         To_Unbounded_String
           ("declare expression local object declarations, initializers, accessibility, finalization ownership, result typing, runtime checks, and diagnostic consumers must share one canonical declare-expression result");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1395");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Expressions.Declare_Expression_Lifetime");
       Row.Candidate_Case := To_Unbounded_String ("Case 1395");
       Row.Blocker_Family :=
         To_Unbounded_String ("RM.Expressions.Declare_Object_Lifetime");

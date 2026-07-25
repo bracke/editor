@@ -67,7 +67,7 @@ package body Test_Slice_Rules.Tests is
            "ada-language-service",
          "executor semantic index-state tests belong to ada-language-service");
       Assert
-        (Slice_For ("src/core/editor-ada_rm_gap_burn_down_case_1366.adb") =
+        (Slice_For ("src/core/editor-ada_rm_remediation-final_readiness-remaining_gap_inventory.adb") =
            "ada-rm-validation",
          "RM burn-down validation belongs to ada-rm-validation");
       Assert

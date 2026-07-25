@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1412;
+with Editor.Ada_RM_Remediation.Calls.Anonymous_Access_Result_Profile;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1412 is
 
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1412;
+   package Audit renames Editor.Ada_RM_Remediation.Calls.Anonymous_Access_Result_Profile;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -62,7 +62,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1412 is
            & "conventions, accessibility masters, runtime checks, warnings, and "
            & "consumers must preserve one canonical return-profile result");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1412");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Calls.Anonymous_Access_Result_Profile");
       Row.Candidate_Case := To_Unbounded_String ("Case 1412");
       Row.Blocker_Family :=
         To_Unbounded_String ("RM.Access.Anonymous.Return.Profile");

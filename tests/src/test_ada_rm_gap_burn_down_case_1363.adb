@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Gap_Burn_Down_Case_1363;
+with Editor.Ada_RM_Remediation.Project_Index.Project_Snapshot_Cross_Unit;
 
 package body Test_Ada_RM_Gap_Burn_Down_Case_1363 is
 
-   package Audit renames Editor.Ada_RM_Gap_Burn_Down_Case_1363;
+   package Audit renames Editor.Ada_RM_Remediation.Project_Index.Project_Snapshot_Cross_Unit;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -58,7 +58,7 @@ package body Test_Ada_RM_Gap_Burn_Down_Case_1363 is
       Row.Unit_Name := To_Unbounded_String ("Project.Root");
       Row.Source_Path := To_Unbounded_String ("src/project-root.ads");
       Row.Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Gap_Burn_Down_Case_1363");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Project_Index.Project_Snapshot_Cross_Unit");
       return Row;
    end Base_Row;
 

@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Gap_Burn_Down_Case_1364;
+with Editor.Ada_RM_Remediation.Diagnostics.Blocker_Source_Span_Precision;
 
 package body Test_Ada_RM_Gap_Burn_Down_Case_1364 is
 
-   package Audit renames Editor.Ada_RM_Gap_Burn_Down_Case_1364;
+   package Audit renames Editor.Ada_RM_Remediation.Diagnostics.Blocker_Source_Span_Precision;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -60,7 +60,7 @@ package body Test_Ada_RM_Gap_Burn_Down_Case_1364 is
       Row.Blocker_Family := To_Unbounded_String ("RM.P1364.Source_Span");
       Row.Source_File := To_Unbounded_String ("src/project-root.adb");
       Row.Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Gap_Burn_Down_Case_1364");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Diagnostics.Blocker_Source_Span_Precision");
       return Row;
    end Base_Row;
 

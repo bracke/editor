@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1398;
+with Editor.Ada_RM_Remediation.Expressions.Conditional_Expressions;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1398 is
 
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1398;
+   package Audit renames Editor.Ada_RM_Remediation.Expressions.Conditional_Expressions;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -58,7 +58,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1398 is
         To_Unbounded_String
           ("conditional expressions, branch expression types, expected-type propagation, Boolean guards, static case choices, runtime checks, and diagnostic consumers must share one canonical conditional-expression result");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1398");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Expressions.Conditional_Expressions");
       Row.Candidate_Case := To_Unbounded_String ("Case 1398");
       Row.Blocker_Family :=
         To_Unbounded_String ("RM.Expressions.Conditional_Expression_Expected_Type");

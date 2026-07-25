@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1408;
+with Editor.Ada_RM_Remediation.Tagged_Types.Classwide_Membership_Conversion;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1408 is
 
-     package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1408;
+     package Audit renames Editor.Ada_RM_Remediation.Tagged_Types.Classwide_Membership_Conversion;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -59,7 +59,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1408 is
             ("class-wide membership tests and conversions must agree with tagged root, interface, controlling oper"
              & "and, dispatching candidates, and contract-effect evidence");
         Row.Candidate_Implementing_Package :=
-          To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1408");
+          To_Unbounded_String ("Editor.Ada_RM_Remediation.Tagged_Types.Classwide_Membership_Conversion");
         Row.Candidate_Case := To_Unbounded_String ("Case 1408");
         Row.Blocker_Family := To_Unbounded_String ("RM.Tagged_Model.Class_Wide_Membership_Dispatching");
         return Row;

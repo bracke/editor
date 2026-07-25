@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1376;
+with Editor.Ada_RM_Remediation.Expressions.Enumeration_Attributes;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1376 is
 
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1376;
+   package Audit renames Editor.Ada_RM_Remediation.Expressions.Enumeration_Attributes;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -58,7 +58,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1376 is
         To_Unbounded_String
           ("enumeration representation and attributes Pos Val Succ Pred Value Image must preserve canonical literal, static choice, runtime-check, and consumer evidence");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1376");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Expressions.Enumeration_Attributes");
       Row.Candidate_Case := To_Unbounded_String ("Case 1376");
       Row.Blocker_Family :=
         To_Unbounded_String ("RM.Enumeration.Attribute_Representation_Literal");

@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1384;
+with Editor.Ada_RM_Remediation.Project_Index.Stale_Visibility_Precedence;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1384 is
 
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1384;
+   package Audit renames Editor.Ada_RM_Remediation.Project_Index.Stale_Visibility_Precedence;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -58,7 +58,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1384 is
         To_Unbounded_String
           ("open dirty buffer snapshots must dominate project file index rows while duplicate library units, private-child leaks, missing files, and stale index rows remain explicit blockers");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1384");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Project_Index.Stale_Visibility_Precedence");
       Row.Candidate_Case := To_Unbounded_String ("Case 1384");
       Row.Blocker_Family :=
         To_Unbounded_String ("RM.Project_Index.Open_Buffer.Duplicate_Unit.Private_Child");

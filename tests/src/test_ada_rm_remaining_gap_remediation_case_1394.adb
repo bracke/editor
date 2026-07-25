@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1394;
+with Editor.Ada_RM_Remediation.Expressions.Reduction_Expression_Combiners;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1394 is
 
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1394;
+   package Audit renames Editor.Ada_RM_Remediation.Expressions.Reduction_Expression_Combiners;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -58,7 +58,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1394 is
         To_Unbounded_String
           ("reduction expression iterable domains, combiner profiles, seed compatibility, accumulator/result typing, runtime checks, and diagnostic consumers must share one canonical reduction result");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1394");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Expressions.Reduction_Expression_Combiners");
       Row.Candidate_Case := To_Unbounded_String ("Case 1394");
       Row.Blocker_Family :=
         To_Unbounded_String ("RM.Expressions.Reduction_Combiner_Profile_Seed");

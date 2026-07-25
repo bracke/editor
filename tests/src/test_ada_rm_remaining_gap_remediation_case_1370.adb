@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1370;
+with Editor.Ada_RM_Remediation.Tasking.Parallel_Container_Reduction;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1370 is
 
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1370;
+   package Audit renames Editor.Ada_RM_Remediation.Tasking.Parallel_Container_Reduction;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -58,7 +58,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1370 is
         To_Unbounded_String
           ("parallel iterator reductions must preserve tampering and shared-state effect evidence");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1370");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Tasking.Parallel_Container_Reduction");
       Row.Candidate_Case := To_Unbounded_String ("Case 1370");
       Row.Blocker_Family :=
         To_Unbounded_String ("RM.Iterators.Parallel_Reduction_Tampering_Effect");

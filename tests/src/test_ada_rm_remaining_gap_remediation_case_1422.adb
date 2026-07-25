@@ -1,10 +1,10 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1422;
+with Editor.Ada_RM_Remediation.Generics.Formal_Subprogram_Call_Profile;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1422 is
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1422;
+   package Audit renames Editor.Ada_RM_Remediation.Generics.Formal_Subprogram_Call_Profile;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -61,7 +61,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1422 is
            & "evidence, and semantic consumers must share one source-shaped"
            & "legality result");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1422");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Generics.Formal_Subprogram_Call_Profile");
       Row.Candidate_Case := To_Unbounded_String ("Case 1422");
       Row.Blocker_Family := To_Unbounded_String ("RM.Generic.Formal_Subprogram.Call");
       return Row;

@@ -1,10 +1,10 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1415;
+with Editor.Ada_RM_Remediation.Expressions.String_Array_Constraints;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1415 is
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1415;
+   package Audit renames Editor.Ada_RM_Remediation.Expressions.String_Array_Constraints;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -62,7 +62,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1415 is
            & "runtime length checks, warning preservation, stale encoding "
            & "evidence, and consumers must preserve one canonical result");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1415");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Expressions.String_Array_Constraints");
       Row.Candidate_Case := To_Unbounded_String ("Case 1415");
       Row.Blocker_Family :=
         To_Unbounded_String ("RM.Array.String.Wide_Wide_Character");

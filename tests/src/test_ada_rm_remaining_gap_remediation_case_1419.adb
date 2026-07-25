@@ -1,10 +1,10 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1419;
+with Editor.Ada_RM_Remediation.Tasking.Protected_Action_Reentrancy;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1419 is
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1419;
+   package Audit renames Editor.Ada_RM_Remediation.Tasking.Protected_Action_Reentrancy;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -60,7 +60,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1419 is
            & "warning diagnostics, stale protected-action evidence, and"
            & "semantic consumers must share one source-shaped legality result");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1419");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Tasking.Protected_Action_Reentrancy");
       Row.Candidate_Case := To_Unbounded_String ("Case 1419");
       Row.Blocker_Family := To_Unbounded_String ("RM.Protected.Action.Reentrancy");
       return Row;

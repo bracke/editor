@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1383;
+with Editor.Ada_RM_Remediation.Representation.Low_Level_Access_Representation;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1383 is
 
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1383;
+   package Audit renames Editor.Ada_RM_Remediation.Representation.Low_Level_Access_Representation;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -58,7 +58,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1383 is
         To_Unbounded_String
           ("unchecked conversion and unchecked deallocation must preserve size, address alignment, storage-pool, policy, accessibility, and finalization evidence");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1383");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Representation.Low_Level_Access_Representation");
       Row.Candidate_Case := To_Unbounded_String ("Case 1383");
       Row.Blocker_Family :=
         To_Unbounded_String ("RM.Access.Unchecked.Address.Alignment.Storage.Policy");

@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Gap_Burn_Down_Case_1361;
+with Editor.Ada_RM_Remediation.Final_Readiness.Incremental_Snapshot_Invalidation;
 
 package body Test_Ada_RM_Gap_Burn_Down_Case_1361 is
 
-   package Audit renames Editor.Ada_RM_Gap_Burn_Down_Case_1361;
+   package Audit renames Editor.Ada_RM_Remediation.Final_Readiness.Incremental_Snapshot_Invalidation;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -55,7 +55,7 @@ package body Test_Ada_RM_Gap_Burn_Down_Case_1361 is
       Row.Name := To_Unbounded_String
         ("case 1361 source-shaped incremental snapshot invalidation row");
       Row.Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Gap_Burn_Down_Case_1361");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Final_Readiness.Incremental_Snapshot_Invalidation");
       return Row;
    end Base_Row;
 

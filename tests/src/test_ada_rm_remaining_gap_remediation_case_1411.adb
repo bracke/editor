@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1411;
+with Editor.Ada_RM_Remediation.Tasking.Task_Termination_Finalization;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1411 is
 
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1411;
+   package Audit renames Editor.Ada_RM_Remediation.Tasking.Task_Termination_Finalization;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -62,7 +62,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1411 is
            & "finalization order, protected finalization, runtime checks, "
            & "warnings, and consumers must preserve one canonical lifecycle result");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1411");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Tasking.Task_Termination_Finalization");
       Row.Candidate_Case := To_Unbounded_String ("Case 1411");
       Row.Blocker_Family :=
         To_Unbounded_String ("RM.Tasking.Termination.Abort.Finalization");

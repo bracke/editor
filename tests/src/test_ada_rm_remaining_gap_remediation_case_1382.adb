@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1382;
+with Editor.Ada_RM_Remediation.Tagged_Types.Dispatching_Interface;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1382 is
 
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1382;
+   package Audit renames Editor.Ada_RM_Remediation.Tagged_Types.Dispatching_Interface;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -58,7 +58,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1382 is
         To_Unbounded_String
           ("dispatching through interfaces must preserve abstract/null primitive conformance, class-wide conversion checks, effect joins, runtime tag checks, and consumer results");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1382");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Tagged_Types.Dispatching_Interface");
       Row.Candidate_Case := To_Unbounded_String ("Case 1382");
       Row.Blocker_Family :=
         To_Unbounded_String ("RM.Tagged_Model.Interface.Dispatching.Null.Abstract.Effect");

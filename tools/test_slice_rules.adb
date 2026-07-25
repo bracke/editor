@@ -61,6 +61,7 @@ package body Test_Slice_Rules is
         or else Contains (P, "performance_boundedness_validation")
         or else Contains (P, "diagnostic_quality_validation")
         or else Contains (P, "project_scale_closure")
+        or else Contains (P, "ada_rm_remediation")
       then
          return "ada-rm-validation";
       elsif Contains (P, "ada_language_service")

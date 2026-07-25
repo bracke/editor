@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1369;
+with Editor.Ada_RM_Remediation.Representation.Stream_Import_Export;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1369 is
 
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1369;
+   package Audit renames Editor.Ada_RM_Remediation.Representation.Stream_Import_Export;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -59,7 +59,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1369 is
         To_Unbounded_String
           ("stream operational item must agree with import/export convention and freezing evidence");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1369");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Representation.Stream_Import_Export");
       Row.Candidate_Case := To_Unbounded_String ("Case 1369");
       Row.Blocker_Family :=
         To_Unbounded_String ("RM.Representation.Stream_External_Import_Export");

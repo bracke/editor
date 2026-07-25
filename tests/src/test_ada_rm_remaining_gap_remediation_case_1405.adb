@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1405;
+with Editor.Ada_RM_Remediation.Expressions.Loop_Range_Iterator;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1405 is
 
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1405;
+   package Audit renames Editor.Ada_RM_Remediation.Expressions.Loop_Range_Iterator;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -58,7 +58,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1405 is
         To_Unbounded_String
           ("discrete loop ranges, iterator element profiles, parallel reduction consumers, runtime bounds checks, and diagnostics must share one canonical iterator/subtype result");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1405");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Expressions.Loop_Range_Iterator");
       Row.Candidate_Case := To_Unbounded_String ("Case 1405");
       Row.Blocker_Family :=
         To_Unbounded_String ("RM.Iterators.Discrete_Subtype_Loop_Range");

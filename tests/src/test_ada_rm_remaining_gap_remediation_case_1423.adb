@@ -1,10 +1,10 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1423;
+with Editor.Ada_RM_Remediation.Calls.Access_Subprogram_Effects;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1423 is
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1423;
+   package Audit renames Editor.Ada_RM_Remediation.Calls.Access_Subprogram_Effects;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -61,7 +61,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1423 is
            & "stale access-subprogram evidence, and semantic consumers must"
            & "share one source-shaped legality result");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1423");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Calls.Access_Subprogram_Effects");
       Row.Candidate_Case := To_Unbounded_String ("Case 1423");
       Row.Blocker_Family := To_Unbounded_String ("RM.Access_Subprogram.Effect_Profile");
       return Row;

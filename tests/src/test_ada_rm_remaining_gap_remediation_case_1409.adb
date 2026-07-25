@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1409;
+with Editor.Ada_RM_Remediation.Accessibility.Access_Parameter_Allocator_Master;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1409 is
 
-     package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1409;
+     package Audit renames Editor.Ada_RM_Remediation.Accessibility.Access_Parameter_Allocator_Master;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -59,7 +59,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1409 is
             ("access parameters initialized from allocator-created objects must preserve master, lifetime, storage"
              & "-pool, null-exclusion, deallocation, finalization, and consumer evidence");
         Row.Candidate_Implementing_Package :=
-          To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1409");
+          To_Unbounded_String ("Editor.Ada_RM_Remediation.Accessibility.Access_Parameter_Allocator_Master");
         Row.Candidate_Case := To_Unbounded_String ("Case 1409");
         Row.Blocker_Family := To_Unbounded_String ("RM.Accessibility.Access_Parameter_Allocator_Master");
         return Row;

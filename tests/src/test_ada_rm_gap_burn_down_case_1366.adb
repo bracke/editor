@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Gap_Burn_Down_Case_1366;
+with Editor.Ada_RM_Remediation.Final_Readiness.Remaining_Gap_Inventory;
 
 package body Test_Ada_RM_Gap_Burn_Down_Case_1366 is
 
-   package Audit renames Editor.Ada_RM_Gap_Burn_Down_Case_1366;
+   package Audit renames Editor.Ada_RM_Remediation.Final_Readiness.Remaining_Gap_Inventory;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -55,7 +55,7 @@ package body Test_Ada_RM_Gap_Burn_Down_Case_1366 is
       Row.Source_File := To_Unbounded_String ("src/remaining-gaps.adb");
       Row.Missing_Subrule := To_Unbounded_String ("source-shaped remaining subrule");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Gap_Burn_Down_Case_1366");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Final_Readiness.Remaining_Gap_Inventory");
       Row.Candidate_Case := To_Unbounded_String ("Case 1366");
       Row.Blocker_Family := To_Unbounded_String ("RM.P1366.Remaining_Gap");
       return Row;

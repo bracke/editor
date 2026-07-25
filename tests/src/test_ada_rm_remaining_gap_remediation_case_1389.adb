@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1389;
+with Editor.Ada_RM_Remediation.Representation.Discriminant_Variant_Representation;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1389 is
 
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1389;
+   package Audit renames Editor.Ada_RM_Remediation.Representation.Discriminant_Variant_Representation;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -58,7 +58,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1389 is
         To_Unbounded_String
           ("record representation clauses must preserve discriminant, variant, controlled-component, range/predicate, and consumer evidence as one canonical result");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1389");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Representation.Discriminant_Variant_Representation");
       Row.Candidate_Case := To_Unbounded_String ("Case 1389");
       Row.Blocker_Family :=
         To_Unbounded_String ("RM.Representation.Record_Variant_Component");

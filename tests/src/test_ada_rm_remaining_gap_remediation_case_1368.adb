@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1368;
+with Editor.Ada_RM_Remediation.Generics.Discriminated_Private_Aggregate;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1368 is
 
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1368;
+   package Audit renames Editor.Ada_RM_Remediation.Generics.Discriminated_Private_Aggregate;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -58,7 +58,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1368 is
         To_Unbounded_String
           ("generic body replay of discriminated private aggregate uses substituted full view");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1368");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Generics.Discriminated_Private_Aggregate");
       Row.Candidate_Case := To_Unbounded_String ("Case 1368");
       Row.Blocker_Family :=
         To_Unbounded_String ("RM.Generic.Body_Replay.Discriminated_Private_Aggregate");

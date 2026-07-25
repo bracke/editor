@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Gap_Burn_Down_Case_1365;
+with Editor.Ada_RM_Remediation.Final_Readiness.Readiness_Gate;
 
 package body Test_Ada_RM_Gap_Burn_Down_Case_1365 is
 
-   package Audit renames Editor.Ada_RM_Gap_Burn_Down_Case_1365;
+   package Audit renames Editor.Ada_RM_Remediation.Final_Readiness.Readiness_Gate;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -51,7 +51,7 @@ package body Test_Ada_RM_Gap_Burn_Down_Case_1365 is
       Row.Source_File := To_Unbounded_String ("src/final-readiness.adb");
       Row.Blocker_Family := To_Unbounded_String ("RM.P1365.Final_Verdict");
       Row.Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Gap_Burn_Down_Case_1365");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Final_Readiness.Readiness_Gate");
       return Row;
    end Base_Row;
 

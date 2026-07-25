@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1378;
+with Editor.Ada_RM_Remediation.Finalization.Exception_Finalization;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1378 is
 
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1378;
+   package Audit renames Editor.Ada_RM_Remediation.Finalization.Exception_Finalization;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -58,7 +58,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1378 is
         To_Unbounded_String
           ("exception handlers, reraise legality, exception propagation, controlled finalization, and task/abort finalization must preserve one canonical exception/finalization result");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1378");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Finalization.Exception_Finalization");
       Row.Candidate_Case := To_Unbounded_String ("Case 1378");
       Row.Blocker_Family :=
         To_Unbounded_String ("RM.Exceptions.Finalization.Handler_Reraise_Propagation");

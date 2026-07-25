@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1397;
+with Editor.Ada_RM_Remediation.Calls.Expression_Function_Contracts;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1397 is
 
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1397;
+   package Audit renames Editor.Ada_RM_Remediation.Calls.Expression_Function_Contracts;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -58,7 +58,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1397 is
         To_Unbounded_String
           ("expression functions, return expression type, Pre/Post contracts, No_Return flow, runtime checks, and diagnostic consumers must share one canonical contract-return result");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1397");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Calls.Expression_Function_Contracts");
       Row.Candidate_Case := To_Unbounded_String ("Case 1397");
       Row.Blocker_Family :=
         To_Unbounded_String ("RM.Expressions.Expression_Function_Contract_Return");

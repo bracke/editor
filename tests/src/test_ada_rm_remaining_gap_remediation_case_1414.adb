@@ -1,10 +1,10 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1414;
+with Editor.Ada_RM_Remediation.Tagged_Types.Record_Extension_Interface_Aggregate;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1414 is
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1414;
+   package Audit renames Editor.Ada_RM_Remediation.Tagged_Types.Record_Extension_Interface_Aggregate;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -62,7 +62,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1414 is
            & "primitive availability, runtime tag checks, warnings, and "
            & "consumers must preserve one canonical aggregate/interface result");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1414");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Tagged_Types.Record_Extension_Interface_Aggregate");
       Row.Candidate_Case := To_Unbounded_String ("Case 1414");
       Row.Blocker_Family :=
         To_Unbounded_String ("RM.Aggregate.Record_Extension.Interface");

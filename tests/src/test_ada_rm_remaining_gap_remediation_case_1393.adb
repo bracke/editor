@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1393;
+with Editor.Ada_RM_Remediation.Expressions.Quantified_Iterator_Predicates;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1393 is
 
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1393;
+   package Audit renames Editor.Ada_RM_Remediation.Expressions.Quantified_Iterator_Predicates;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -58,7 +58,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1393 is
         To_Unbounded_String
           ("quantified expression iterator domains, static predicate checks, side-effect ordering, contract guards, control-flow guards, runtime predicate checks, and diagnostic consumers must share one canonical quantified iterator result");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1393");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Expressions.Quantified_Iterator_Predicates");
       Row.Candidate_Case := To_Unbounded_String ("Case 1393");
       Row.Blocker_Family :=
         To_Unbounded_String ("RM.Expressions.Quantified_Iterator_Filter_Predicate");

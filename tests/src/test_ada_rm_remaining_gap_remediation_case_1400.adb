@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1400;
+with Editor.Ada_RM_Remediation.Expressions.Membership_Range_Predicate;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1400 is
 
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1400;
+   package Audit renames Editor.Ada_RM_Remediation.Expressions.Membership_Range_Predicate;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -58,7 +58,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1400 is
         To_Unbounded_String
           ("membership tests, range alternatives, subtype predicates, runtime membership checks, and diagnostic consumers must share one canonical membership/range/predicate result");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1400");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Expressions.Membership_Range_Predicate");
       Row.Candidate_Case := To_Unbounded_String ("Case 1400");
       Row.Blocker_Family :=
         To_Unbounded_String ("RM.Expressions.Membership_Range_Predicate");

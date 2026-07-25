@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1407;
+with Editor.Ada_RM_Remediation.Calls.Writable_Slice_Aliasing;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1407 is
 
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1407;
+   package Audit renames Editor.Ada_RM_Remediation.Calls.Writable_Slice_Aliasing;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -58,7 +58,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1407 is
         To_Unbounded_String
           ("overlapping array slices and components passed to writable call formals must share one canonical alias, mode, bounds, and effect result");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1407");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Calls.Writable_Slice_Aliasing");
       Row.Candidate_Case := To_Unbounded_String ("Case 1407");
       Row.Blocker_Family :=
         To_Unbounded_String ("RM.Calls.Array_Slice_Writable_Alias");

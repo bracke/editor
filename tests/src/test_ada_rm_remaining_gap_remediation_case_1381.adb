@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1381;
+with Editor.Ada_RM_Remediation.Finalization.Controlled_Assignment_Finalization;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1381 is
 
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1381;
+   package Audit renames Editor.Ada_RM_Remediation.Finalization.Controlled_Assignment_Finalization;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -58,7 +58,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1381 is
         To_Unbounded_String
           ("controlled assignment must preserve Adjust/Finalize profile evidence, writable alias blockers, finalization ordering, runtime adjust checks, and consumer results");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1381");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Finalization.Controlled_Assignment_Finalization");
       Row.Candidate_Case := To_Unbounded_String ("Case 1381");
       Row.Blocker_Family :=
         To_Unbounded_String ("RM.Finalization.Controlled.Assignment.Adjust.Finalize.Alias");

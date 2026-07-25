@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1403;
+with Editor.Ada_RM_Remediation.Generics.Formal_Derived_Interface;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1403 is
 
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1403;
+   package Audit renames Editor.Ada_RM_Remediation.Generics.Formal_Derived_Interface;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -58,7 +58,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1403 is
         To_Unbounded_String
           ("formal derived private interface actuals, inherited interface primitives, dispatching profiles, contracts, effects, runtime tag checks, and consumers must share one canonical generic/tagged result");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1403");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Generics.Formal_Derived_Interface");
       Row.Candidate_Case := To_Unbounded_String ("Case 1403");
       Row.Blocker_Family :=
         To_Unbounded_String ("RM.Generics.Formal_Derived_Interface_Private_View");

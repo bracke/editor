@@ -1,10 +1,10 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1428;
+with Editor.Ada_RM_Remediation.Final_Readiness.Frozen_Remaining_Inventory;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1428 is
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1428;
+   package Audit renames Editor.Ada_RM_Remediation.Final_Readiness.Frozen_Remaining_Inventory;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;

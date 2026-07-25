@@ -1,10 +1,10 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1413;
+with Editor.Ada_RM_Remediation.Elaboration.Imported_Subprogram_Preelaboration;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1413 is
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1413;
+   package Audit renames Editor.Ada_RM_Remediation.Elaboration.Imported_Subprogram_Preelaboration;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -61,7 +61,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1413 is
            & "preelaborated unit restrictions, elaboration effects, runtime checks, "
            & "warnings, and consumers must preserve one canonical import result");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1413");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Elaboration.Imported_Subprogram_Preelaboration");
       Row.Candidate_Case := To_Unbounded_String ("Case 1413");
       Row.Blocker_Family :=
         To_Unbounded_String ("RM.Interfacing.Import.Preelaborate.Elaboration");

@@ -1,10 +1,10 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1424;
+with Editor.Ada_RM_Remediation.Expressions.Universal_Numeric_Expected_Context;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1424 is
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1424;
+   package Audit renames Editor.Ada_RM_Remediation.Expressions.Universal_Numeric_Expected_Context;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -61,7 +61,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1424 is
            & "evidence, and semantic consumers must share one source-shaped"
            & "legality result");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1424");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Expressions.Universal_Numeric_Expected_Context");
       Row.Candidate_Case := To_Unbounded_String ("Case 1424");
       Row.Blocker_Family := To_Unbounded_String ("RM.Expressions.Universal_Numeric.Expected_Context");
       return Row;

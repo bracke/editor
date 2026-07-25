@@ -1,10 +1,10 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1418;
+with Editor.Ada_RM_Remediation.Tasking.Entry_Family_Barrier;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1418 is
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1418;
+   package Audit renames Editor.Ada_RM_Remediation.Tasking.Entry_Family_Barrier;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -62,7 +62,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1418 is
            & "diagnostics, stale queue evidence, and diagnostic consumers "
            & "must share one source-shaped legality result");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1418");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Tasking.Entry_Family_Barrier");
       Row.Candidate_Case := To_Unbounded_String ("Case 1418");
       Row.Blocker_Family :=
         To_Unbounded_String ("RM.Protected.Entry_Family.Barrier_Index");

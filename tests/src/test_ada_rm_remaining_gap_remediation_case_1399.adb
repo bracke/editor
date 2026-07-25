@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1399;
+with Editor.Ada_RM_Remediation.Expressions.Case_Expressions;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1399 is
 
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1399;
+   package Audit renames Editor.Ada_RM_Remediation.Expressions.Case_Expressions;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -58,7 +58,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1399 is
         To_Unbounded_String
           ("case expressions, discrete subject typing, static choice coverage, others placement, case alternative result typing, runtime checks, and diagnostic consumers must share one canonical case-expression result");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1399");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Expressions.Case_Expressions");
       Row.Candidate_Case := To_Unbounded_String ("Case 1399");
       Row.Blocker_Family :=
         To_Unbounded_String ("RM.Expressions.Case_Expression_Others_Coverage");

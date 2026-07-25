@@ -2,12 +2,12 @@ with Editor.Commands.Audit_Model; use Editor.Commands.Audit_Model;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
-with Editor.Ada_RM_Gap_Burn_Down_Case_1352;
+with Editor.Ada_RM_Remediation.Elaboration.Configuration_Restriction_Policy;
 
 
 package body Test_Ada_RM_Gap_Burn_Down_Case_1352 is
 
-   package Audit renames Editor.Ada_RM_Gap_Burn_Down_Case_1352;
+   package Audit renames Editor.Ada_RM_Remediation.Elaboration.Configuration_Restriction_Policy;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -135,7 +135,7 @@ package body Test_Ada_RM_Gap_Burn_Down_Case_1352 is
       Row.Context := Context;
       Row.Name := To_Unbounded_String ("case 1352 source-shaped row");
       Row.Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Gap_Burn_Down_Case_1352");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Elaboration.Configuration_Restriction_Policy");
       Row.Source_Shaped_Evidence := Source_Shaped;
       Row.Remediation_Entry_Present := Remediation_Present;
       Row.Matrix_Coverage_Present := Matrix_Present;

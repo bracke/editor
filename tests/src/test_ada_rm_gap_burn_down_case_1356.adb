@@ -1,11 +1,11 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
-with Editor.Ada_RM_Gap_Burn_Down_Case_1356;
+with Editor.Ada_RM_Remediation.Accessibility.Master_Lifetime_Closure;
 
 package body Test_Ada_RM_Gap_Burn_Down_Case_1356 is
 
-   package Audit renames Editor.Ada_RM_Gap_Burn_Down_Case_1356;
+   package Audit renames Editor.Ada_RM_Remediation.Accessibility.Master_Lifetime_Closure;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -55,7 +55,7 @@ package body Test_Ada_RM_Gap_Burn_Down_Case_1356 is
       Row.Name := To_Unbounded_String
         ("case 1356 source-shaped master lifetime row");
       Row.Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Gap_Burn_Down_Case_1356");
+        To_Unbounded_String ("Editor.Ada_RM_Remediation.Accessibility.Master_Lifetime_Closure");
       return Row;
    end Base_Row;
 
