@@ -1884,6 +1884,16 @@ editor-render_packet-debug_support.adb
 editor-render_packet-debug_support.ads
 editor-render_packet-guikit_adapters.adb
 editor-render_packet-guikit_adapters.ads
+editor-render_packet-chrome_surfaces.adb
+editor-render_packet-chrome_surfaces.ads
+editor-render_packet-editor_text_surface.adb
+editor-render_packet-editor_text_surface.ads
+editor-render_packet-overlay_surfaces.adb
+editor-render_packet-overlay_surfaces.ads
+editor-render_packet-panel_surfaces.adb
+editor-render_packet-panel_surfaces.ads
+editor-render_packet-render_context.adb
+editor-render_packet-render_context.ads
 editor-render_packet-surface_registry.adb
 editor-render_packet-surface_registry.ads
 editor-scrollbars.adb
