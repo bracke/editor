@@ -468,8 +468,12 @@ editor-ada_generic_contract_diagnostics.adb
 editor-ada_generic_contract_diagnostics.ads
 editor-ada_generic_contracts.adb
 editor-ada_generic_contracts.ads
+editor-ada_generic_contracts-body_visibility.adb
 editor-ada_generic_contracts-core_utilities.adb
 editor-ada_generic_contracts-core_utilities.ads
+editor-ada_generic_contracts-default_expression_checks.adb
+editor-ada_generic_contracts-formal_collection.adb
+editor-ada_generic_contracts-instance_matching.adb
 editor-ada_generic_contracts-profile_text.adb
 editor-ada_generic_contracts-profile_text.ads
 editor-ada_generic_contracts-type_conformance.adb
