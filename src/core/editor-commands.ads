@@ -722,22 +722,6 @@ package Editor.Commands is
    function Is_Concrete_Command
      (Id : Command_Id) return Boolean;
 
-   --  Return True for a registered command id that is part of the public
-   --  build-command UX surface. build.run is a guarded, descriptor-owned
-   --  public command that routes through Executor and the structured,
-   --  consent-gated build runner.
-   --  @param Id Command identifier.
-   --  @return True for public build command metadata.
-   function Is_Public_Build_Command
-     (Id : Command_Id) return Boolean;
-
-   --  Return True for build-related command ids that are internal/test-only
-   --  seams and must stay hidden, non-bindable, and Executor-routed.
-   --  @param Id Command identifier.
-   --  @return True for current internal build test-seam command ids.
-   function Is_Internal_Build_Test_Seam_Command
-     (Id : Command_Id) return Boolean;
-
    --  Return True for commands that may be referenced by test fixtures but
    --  must not be exposed as normal product features.
    --  @param Id Command identifier.
@@ -812,18 +796,6 @@ package Editor.Commands is
    function Is_Configuration_Command
      (Id : Command_Id) return Boolean;
 
-   --  Return True for commands that write file buffer contents.
-   --  @param Id Command identifier.
-   --  @return True for Save File, Save File As, and Save All.
-   function Is_File_Content_Save_Command
-     (Id : Command_Id) return Boolean;
-
-   --  Return True for commands that write structural workspace/session state.
-   --  @param Id Command identifier.
-   --  @return True for Save Workspace State.
-   function Is_Workspace_Structural_Save_Command
-     (Id : Command_Id) return Boolean;
-
    --  Return True for commands that write global editor preferences.
    --  @param Id Command identifier.
    --  @return True for Save Settings.
@@ -836,12 +808,6 @@ package Editor.Commands is
    function Is_Global_Keybindings_Save_Command
      (Id : Command_Id) return Boolean;
 
-   --  Return True for navigation-oriented commands.
-   --  @param Id Command identifier.
-   --  @return True for static navigation command metadata.
-   function Is_Navigation_Command
-     (Id : Command_Id) return Boolean;
-
    --  Return True for search/find/project-search commands.
    --  @param Id Command identifier.
    --  @return True for static search command metadata.
@@ -852,12 +818,6 @@ package Editor.Commands is
    --  @param Id Command identifier.
    --  @return True for static panel-focus command metadata.
    function Is_Panel_Focus_Command
-     (Id : Command_Id) return Boolean;
-
-   --  Return True for direct text-editing commands.
-   --  @param Id Command identifier.
-   --  @return True for static text-editing command metadata.
-   function Is_Text_Editing_Command
      (Id : Command_Id) return Boolean;
 
    --  Return True when Id should be offered by the command palette. Hidden

@@ -1,4 +1,5 @@
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
+with Editor.Commands.Build_Terminal_Ids;
 with Editor.Commands.Descriptor_Factory;
 
 with Editor.Commands.Name_Metadata;
@@ -27,7 +28,7 @@ package body Editor.Commands.Descriptor_File_Project is
          Category      => Category,
          Visible       => Visibility = Palette_Command,
          Bindable      => Id /= No_Command
-           and then not Is_Public_Build_Command (Id),
+           and then not Editor.Commands.Build_Terminal_Ids.Is_Public_Build_Command (Id),
          Destructive   => Is_Destructive_Command (Id),
          Lifecycle     => Is_Lifecycle_Command (Id),
          Configuration => Is_Configuration_Command (Id));

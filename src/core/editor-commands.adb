@@ -5,6 +5,10 @@ with Ada.Strings.Fixed;
 with Ada.Characters.Handling;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Commands.Classification;
+with Editor.Commands.Editing_Ids;
+with Editor.Commands.Navigation_Ids;
+with Editor.Commands.Build_Terminal_Ids;
+with Editor.Commands.Project_File_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Descriptor_Metadata;
 with Editor.Commands.Audits;
@@ -207,7 +211,7 @@ package body Editor.Commands is
       if Is_Configuration_Command (Id) then
          Add ("configuration");
       end if;
-      if Is_Navigation_Command (Id) then
+      if Editor.Commands.Navigation_Ids.Is_Navigation_Command (Id) then
          Add ("navigation");
       end if;
       if Is_Search_Command (Id) then
@@ -216,7 +220,7 @@ package body Editor.Commands is
       if Is_Panel_Focus_Command (Id) then
          Add ("panel");
       end if;
-      if Is_Text_Editing_Command (Id) then
+      if Editor.Commands.Editing_Ids.Is_Editing_Command (Id) then
          Add ("editing");
       end if;
       if Descriptor (Id).Visibility = Hidden_Command
@@ -404,46 +408,12 @@ package body Editor.Commands is
         and then not Is_Placeholder_Label (L);
    end Has_Stable_User_Label;
 
-   function Is_Public_Build_Command
-     (Id : Command_Id) return Boolean
-   is
-   begin
-      return Id in Command_Build_Run
-        | Command_Build_Cancel
-        | Command_Build_Result_Focus
-        | Command_Build_Output_Details_Focus
-        | Command_Build_Output_Details_Select_Stdout
-        | Command_Build_Output_Details_Select_Stderr
-        | Command_Build_Output_Details_Select_Merged
-        | Command_Build_Refresh_Candidates
-        | Command_Build_Select_First_Candidate
-        | Command_Build_Select_Next_Candidate
-        | Command_Build_Select_Previous_Candidate
-        | Command_Build_Clear_Selected_Candidate
-        | Command_Build_Set_Mode_Default
-        | Command_Build_Set_Mode_Debug
-        | Command_Build_Set_Mode_Release
-        | Command_Build_Set_Mode_Validation
-        | Command_Build_Toggle_Diagnostics_Ingestion
-        | Command_Build_Cycle_Output_Limit
-        | Command_Build_Toggle_Option_Verbose
-        | Command_Build_Toggle_Option_Keep_Going
-        | Command_Build_Acknowledge_Consent
-        | Command_Build_Clear_Consent;
-   end Is_Public_Build_Command;
-
-   function Is_Internal_Build_Test_Seam_Command
-     (Id : Command_Id) return Boolean
-   is
-   begin
-      return Id = Command_Build_Run_User_Opt_In_Test_Seam;
-   end Is_Internal_Build_Test_Seam_Command;
-
    function Is_Test_Only_Command
      (Id : Command_Id) return Boolean
    is
    begin
-      return Is_Internal_Build_Test_Seam_Command (Id);
+      return
+        Editor.Commands.Build_Terminal_Ids.Is_Internal_Build_Test_Seam_Command (Id);
    end Is_Test_Only_Command;
 
    function Is_Destructive_Command
@@ -623,27 +593,6 @@ package body Editor.Commands is
       end case;
    end Is_Configuration_Command;
 
-   function Is_File_Content_Save_Command
-     (Id : Command_Id) return Boolean
-   is
-   begin
-      case Id is
-         when Command_Save_File
-            | Command_Save_File_As
-            | Command_Save_All =>
-            return True;
-         when others =>
-            return False;
-      end case;
-   end Is_File_Content_Save_Command;
-
-   function Is_Workspace_Structural_Save_Command
-     (Id : Command_Id) return Boolean
-   is
-   begin
-      return Id = Command_Save_Workspace_State;
-   end Is_Workspace_Structural_Save_Command;
-
    function Is_Global_Settings_Save_Command
      (Id : Command_Id) return Boolean
    is
@@ -658,10 +607,6 @@ package body Editor.Commands is
       return Id = Command_Save_Keybindings;
    end Is_Global_Keybindings_Save_Command;
 
-   function Is_Navigation_Command
-     (Id : Command_Id) return Boolean
-     renames Editor.Commands.Classification.Is_Navigation_Command;
-
    function Is_Search_Command
      (Id : Command_Id) return Boolean
      renames Editor.Commands.Classification.Is_Search_Command;
@@ -669,10 +614,6 @@ package body Editor.Commands is
    function Is_Panel_Focus_Command
      (Id : Command_Id) return Boolean
      renames Editor.Commands.Classification.Is_Panel_Focus_Command;
-
-   function Is_Text_Editing_Command
-     (Id : Command_Id) return Boolean
-     renames Editor.Commands.Classification.Is_Text_Editing_Command;
 
    function Has_Descriptor
      (Id : Command_Id) return Boolean

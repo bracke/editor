@@ -7,6 +7,7 @@ with Editor.Build_Diagnostics;
 with Editor.Build_UI;
 with Editor.Build_UI_Actions;
 with Editor.Commands;
+with Editor.Commands.Build_Terminal_Ids;
 with Editor.Commands.Name_Metadata;
 with Editor.Command_Execution;
 with Editor.External_Producers.Build_Requests;
@@ -141,7 +142,7 @@ package body Editor.Build_Diagnostics_Review is
            "diagnostics.previous")
         and then Editor.Commands.Name_Metadata.Stable_Command_Name
           (Editor.Commands.Command_Build_Run) = "build.run"
-        and then Editor.Commands.Is_Public_Build_Command
+        and then Editor.Commands.Build_Terminal_Ids.Is_Public_Build_Command
           (Editor.Commands.Command_Build_Run)
         and then not Contains
           (To_String (Editor.Commands.Descriptors.Descriptor

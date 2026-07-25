@@ -1266,6 +1266,16 @@ editor-commands-audits.adb
 editor-commands-audits.ads
 editor-commands-reference_metadata.adb
 editor-commands-reference_metadata.ads
+editor-commands-editing_ids.adb
+editor-commands-editing_ids.ads
+editor-commands-navigation_ids.adb
+editor-commands-navigation_ids.ads
+editor-commands-project_file_ids.adb
+editor-commands-project_file_ids.ads
+editor-commands-build_terminal_ids.adb
+editor-commands-build_terminal_ids.ads
+editor-commands-semantic_ids.adb
+editor-commands-semantic_ids.ads
 editor-commands-classification.adb
 editor-commands-classification.ads
 editor-commands-descriptor_factory.adb

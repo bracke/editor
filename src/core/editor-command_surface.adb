@@ -4,6 +4,7 @@ with Ada.Strings;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Commands;
+with Editor.Commands.Build_Terminal_Ids;
 with Editor.Commands.Name_Metadata;
 with Editor.Executor;
 with Editor.External_Producers;
@@ -131,7 +132,7 @@ package body Editor.Command_Surface is
             return False;
          end if;
 
-         if Editor.Commands.Is_Internal_Build_Test_Seam_Command (Id)
+         if Editor.Commands.Build_Terminal_Ids.Is_Internal_Build_Test_Seam_Command (Id)
            and then (D.Visibility /= Editor.Commands.Descriptors.Hidden_Command
                      or else D.Category /= Editor.Commands.Descriptors.Internal_Category)
          then
@@ -153,13 +154,13 @@ package body Editor.Command_Surface is
             return False;
          end if;
 
-         if Editor.Commands.Is_Internal_Build_Test_Seam_Command (Id)
+         if Editor.Commands.Build_Terminal_Ids.Is_Internal_Build_Test_Seam_Command (Id)
            and then D.Bindable
          then
             return False;
          end if;
 
-         if Editor.Commands.Is_Public_Build_Command (Id)
+         if Editor.Commands.Build_Terminal_Ids.Is_Public_Build_Command (Id)
            and then D.Bindable
          then
             return False;
@@ -229,7 +230,7 @@ package body Editor.Command_Surface is
       for D of Palette loop
          if not Editor.Commands.Visible_In_Command_Palette (D.Id)
            or else D.Category = Editor.Commands.Descriptors.Internal_Category
-           or else Editor.Commands.Is_Internal_Build_Test_Seam_Command (D.Id)
+           or else Editor.Commands.Build_Terminal_Ids.Is_Internal_Build_Test_Seam_Command (D.Id)
            or else Seen (D.Id)
          then
             return False;
@@ -271,8 +272,8 @@ package body Editor.Command_Surface is
                return False;
             end if;
 
-            if (Editor.Commands.Is_Internal_Build_Test_Seam_Command (Id)
-                or else Editor.Commands.Is_Public_Build_Command (Id))
+            if (Editor.Commands.Build_Terminal_Ids.Is_Internal_Build_Test_Seam_Command (Id)
+                or else Editor.Commands.Build_Terminal_Ids.Is_Public_Build_Command (Id))
               and then Editor.Keybindings.Binding_Count_For_Command (Id) > 0
             then
                return False;

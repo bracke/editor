@@ -9,6 +9,7 @@ with Ada.Text_IO;
 with Editor.Clipboard;
 with Editor.Command_Palette;
 with Editor.Commands;
+with Editor.Commands.Editing_Ids;
 with Editor.Commands.Name_Metadata;
 with Editor.Buffers;
 with Editor.Cursors; use Editor.Cursors;
@@ -896,11 +897,11 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
            (Editor.Commands.Command_Indent_Decrease),
          "indent decrease must be command-palette visible");
       Assert
-        (Editor.Commands.Is_Text_Editing_Command
+        (Editor.Commands.Editing_Ids.Is_Editing_Command
            (Editor.Commands.Command_Indent_Increase),
          "indent increase must be classified as a text edit");
       Assert
-        (Editor.Commands.Is_Text_Editing_Command
+        (Editor.Commands.Editing_Ids.Is_Editing_Command
            (Editor.Commands.Command_Indent_Decrease),
          "indent decrease must be classified as a text edit");
 
@@ -1159,15 +1160,15 @@ procedure Test_Line_Comment_Command_Descriptors
            (Editor.Commands.Command_Toggle_Line_Comment),
          "toggle-line-comment must be command-palette visible");
       Assert
-        (Editor.Commands.Is_Text_Editing_Command
+        (Editor.Commands.Editing_Ids.Is_Editing_Command
            (Editor.Commands.Command_Comment_Line),
          "comment-line must be classified as text editing");
       Assert
-        (Editor.Commands.Is_Text_Editing_Command
+        (Editor.Commands.Editing_Ids.Is_Editing_Command
            (Editor.Commands.Command_Uncomment_Line),
          "uncomment-line must be classified as text editing");
       Assert
-        (Editor.Commands.Is_Text_Editing_Command
+        (Editor.Commands.Editing_Ids.Is_Editing_Command
            (Editor.Commands.Command_Toggle_Line_Comment),
          "toggle-line-comment must be classified as text editing");
 
@@ -1592,7 +1593,7 @@ procedure Test_Line_Comment_Command_Descriptors
            (Editor.Commands.Command_Line_Join_Next),
          "join-next must be bindable");
       Assert
-        (Editor.Commands.Is_Text_Editing_Command
+        (Editor.Commands.Editing_Ids.Is_Editing_Command
            (Editor.Commands.Command_Line_Join_Next),
          "join-next must be classified as a text-editing command");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
@@ -1976,7 +1977,7 @@ procedure Test_Line_Comment_Command_Descriptors
            (Editor.Commands.Command_Selection_Delete),
          "selection delete must be bindable");
       Assert
-        (Editor.Commands.Is_Text_Editing_Command
+        (Editor.Commands.Editing_Ids.Is_Editing_Command
            (Editor.Commands.Command_Selection_Delete),
          "selection delete must be classified as a text editing command");
 

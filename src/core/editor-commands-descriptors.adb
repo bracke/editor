@@ -2,7 +2,9 @@ with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Commands.Descriptor_Factory;
 with Editor.Commands.Descriptor_Metadata;
+with Editor.Commands.Editing_Ids;
 with Editor.Commands.Name_Metadata;
+with Editor.Commands.Navigation_Ids;
 
 package body Editor.Commands.Descriptors is
 
@@ -150,7 +152,7 @@ package body Editor.Commands.Descriptors is
       if Is_Configuration_Command (Id) then
          Add ("configuration");
       end if;
-      if Is_Navigation_Command (Id) then
+      if Editor.Commands.Navigation_Ids.Is_Navigation_Command (Id) then
          Add ("navigation");
       end if;
       if Is_Search_Command (Id) then
@@ -159,7 +161,7 @@ package body Editor.Commands.Descriptors is
       if Is_Panel_Focus_Command (Id) then
          Add ("panel");
       end if;
-      if Is_Text_Editing_Command (Id) then
+      if Editor.Commands.Editing_Ids.Is_Editing_Command (Id) then
          Add ("editing");
       end if;
       if Descriptor (Id).Visibility = Hidden_Command

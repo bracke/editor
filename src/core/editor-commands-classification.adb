@@ -1,167 +1,13 @@
+with Editor.Commands.Editing_Ids;
+with Editor.Commands.Navigation_Ids;
+with Editor.Commands.Semantic_Ids;
+
 package body Editor.Commands.Classification is
 
    function Is_Navigation_Command
      (Id : Command_Id) return Boolean
-   is
-   begin
-      case Id is
-         when Command_Move_Left
-            | Command_Move_Right
-            | Command_Move_Up
-            | Command_Move_Down
-            | Command_Move_Line_Start
-            | Command_Move_Line_End
-            | Command_Move_Document_Start
-            | Command_Move_Document_End
-            | Command_Move_Word_Left
-            | Command_Move_Word_Right
-            | Command_Page_Up
-            | Command_Page_Down
-            | Command_Goto_Start
-            | Command_Goto_End
-            | Command_Goto_Line
-            | Command_Goto_Line_Toggle
-            | Command_Goto_Line_Prefill_Current
-            | Command_Goto_Line_Query_Set
-            | Command_Goto_Line_Query_Clear
-            | Command_Active_Find_Next
-            | Command_Active_Find_Previous
-            | Command_Find_First
-            | Command_Find_Last
-            | Command_Open_Buffer_Switcher
-            | Command_Close_Buffer_Switcher
-            | Command_Accept_Buffer_Switcher
-            | Command_Buffer_Switcher_Next_Result
-            | Command_Buffer_Switcher_Previous_Result
-            | Command_Buffer_Switcher_Filter_Clear
-            | Command_Buffer_Switcher_Filter_Pinned
-            | Command_Buffer_Switcher_Filter_Group
-            | Command_Buffer_Switcher_Filter_Label
-            | Command_Buffer_Switcher_Filter_Noted
-            | Command_Buffer_Switcher_Sort_Default
-            | Command_Buffer_Switcher_Sort_Recent
-            | Command_Buffer_Switcher_Sort_Name
-            | Command_Buffer_Switcher_Sort_Pinned
-            | Command_Buffer_Switcher_Sort_Group
-            | Command_Buffer_Switcher_Sort_Label
-            | Command_Buffer_Switcher_Sort_Next
-            | Command_Buffer_Switcher_Sort_Previous
-            | Command_Buffer_Switcher_Selected_Close
-            | Command_Buffer_Switcher_Selected_Pin
-            | Command_Buffer_Switcher_Selected_Unpin
-            | Command_Buffer_Switcher_Selected_Toggle_Pin
-            | Command_Buffer_Switcher_Selected_Group_Assign
-            | Command_Buffer_Switcher_Selected_Group_Clear
-            | Command_Buffer_Switcher_Selected_Label_Set
-            | Command_Buffer_Switcher_Selected_Label_Clear
-            | Command_Buffer_Switcher_Selected_Note_Set
-            | Command_Buffer_Switcher_Selected_Note_Clear
-            | Command_Buffer_Switcher_Preview_Toggle
-            | Command_Buffer_Switcher_Preview_Show
-            | Command_Buffer_Switcher_Preview_Hide
-            | Command_Buffer_Switcher_Preview_Next_Line
-            | Command_Buffer_Switcher_Preview_Previous_Line
-            | Command_Buffer_Switcher_Preview_Center_Cursor
-            | Command_Buffer_Switcher_Mark_Toggle
-            | Command_Buffer_Switcher_Mark_Set
-            | Command_Buffer_Switcher_Mark_Clear
-            | Command_Buffer_Switcher_Mark_Clear_All
-            | Command_Buffer_Switcher_Mark_Invert_Visible
-            | Command_Buffer_Switcher_Mark_Visible
-            | Command_Buffer_Switcher_Mark_Clear_Visible
-            | Command_Buffer_Switcher_Mark_Pinned
-            | Command_Buffer_Switcher_Mark_Group
-            | Command_Buffer_Switcher_Mark_Label
-            | Command_Buffer_Switcher_Mark_Noted
-            | Command_Buffer_Switcher_Mark_Close_Marked
-            | Command_Buffer_Switcher_Mark_Confirm
-            | Command_Buffer_Switcher_Mark_Cancel
-            | Command_Buffer_Switcher_Mark_Pin_Marked
-            | Command_Buffer_Switcher_Mark_Unpin_Marked
-            | Command_Buffer_Switcher_Mark_Clear_Metadata
-            | Command_Buffer_Switcher_Mark_Group_Assign
-            | Command_Buffer_Switcher_Mark_Group_Clear
-            | Command_Buffer_Switcher_Mark_Label_Set
-            | Command_Buffer_Switcher_Mark_Label_Clear
-            | Command_Buffer_Switcher_Mark_Note_Set
-            | Command_Buffer_Switcher_Mark_Note_Clear
-            | Command_Buffer_Switcher_Mark_Review_Toggle
-            | Command_Buffer_Switcher_Mark_Review_Show
-            | Command_Buffer_Switcher_Mark_Review_Hide
-            | Command_Buffer_Switcher_Pending_Mark_Review_Toggle
-            | Command_Buffer_Switcher_Pending_Mark_Review_Show
-            | Command_Buffer_Switcher_Pending_Mark_Review_Hide
-            | Command_Buffer_Switcher_Pending_Mark_Next
-            | Command_Buffer_Switcher_Pending_Mark_Previous
-            | Command_Buffer_Switcher_Pending_Mark_Summary
-            | Command_Buffer_Switcher_Pending_Mark_Remove_Selected
-            | Command_Buffer_Switcher_Pending_Mark_Restore_Last_Pruned
-            | Command_Buffer_Switcher_Pending_Mark_Pruned_Summary
-            | Command_Buffer_Switcher_Pending_Mark_Pruned_Next
-            | Command_Buffer_Switcher_Pending_Mark_Pruned_Previous
-            | Command_Buffer_Switcher_Pending_Mark_Pruned_Review_Toggle
-            | Command_Buffer_Switcher_Pending_Mark_Pruned_Review_Show
-            | Command_Buffer_Switcher_Pending_Mark_Pruned_Review_Hide
-            | Command_Buffer_Switcher_Pending_Mark_Restore_Selected_Pruned
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Summary
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Next
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Previous
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Remove_Selected
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Preview
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Confirm
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Cancel
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Summary
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Next
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Previous
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Toggle
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Show
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Hide
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Remove_Selected
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Restore_Last_Removed
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Summary
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Next
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Previous
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Clear_Stale
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Stale_Summary
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Cancel
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Summary
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Next
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Previous
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Review_Toggle
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Review_Show
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Review_Hide
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Remove_Selected
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Restore_Last_Removed
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Removed_Summary
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Removed_Next
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Removed_Previous
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Clear_Stale
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Stale_Summary
-            | Command_Buffer_Switcher_Mark_Next
-            | Command_Buffer_Switcher_Mark_Previous
-            | Command_Buffer_Switcher_Mark_Summary
-            | Command_Navigation_Back
-            | Command_Navigation_Forward
-            | Command_Navigation_History_Clear
-            | Command_Next_Buffer
-            | Command_Previous_Buffer
-            | Command_Previous_Recent_Buffer
-            | Command_Next_Recent_Buffer
-            | Command_Next_Diagnostic
-            | Command_Previous_Diagnostic
-            | Command_Next_Bookmark
-            | Command_Previous_Bookmark
-            | Command_Next_Project_Search_Result
-            | Command_Previous_Project_Search_Result
-            | Command_First_Project_Search_Result
-            | Command_Last_Project_Search_Result
-            | Command_Reveal_Active_Project_Search_Result =>
-            return True;
-         when others =>
-            return False;
-      end case;
-   end Is_Navigation_Command;
+     renames Editor.Commands.Navigation_Ids.Is_Navigation_Command;
+
 
    function Is_Search_Command
      (Id : Command_Id) return Boolean
@@ -253,6 +99,10 @@ package body Editor.Commands.Classification is
      (Id : Command_Id) return Boolean
    is
    begin
+      if Editor.Commands.Semantic_Ids.Is_Semantic_Command (Id) then
+         return True;
+      end if;
+
       case Id is
          when Command_Toggle_Problems_Panel
             | Command_Focus_Editor_Text
@@ -303,38 +153,6 @@ package body Editor.Commands.Classification is
             | Command_Feature_Panel_Select_Next
             | Command_Feature_Panel_Select_Previous
             | Command_Feature_Panel_Open_Selected
-            | Command_Refresh_Outline
-            | Command_Refresh_Outline_Project_Index
-            | Command_Goto_Declaration
-            | Command_Goto_Body
-            | Command_Goto_Spec
-            | Command_Find_References
-            | Command_Workspace_Symbols
-            | Command_Show_Hover
-            | Command_Show_Completions
-            | Command_Rename_Symbol_Preview
-            | Command_Rename_Symbol_Apply
-            | Command_Semantic_Refresh_Buffer
-            | Command_Semantic_Refresh_Project_Index
-            | Command_Language_Index_Clear
-            | Command_Language_Index_Status
-            | Command_Clear_Outline
-            | Command_Show_Outline
-            | Command_Focus_Outline
-            | Command_Open_Selected_Outline_Item
-            | Command_Select_Current_Outline_Symbol
-            | Command_Reveal_Current_Outline_Symbol
-            | Command_Next_Outline_Symbol
-            | Command_Previous_Outline_Symbol
-            | Command_Select_Next_Outline_Item
-            | Command_Select_Previous_Outline_Item
-            | Command_Focus_Outline_Filter
-            | Command_Filter_Outline
-            | Command_Clear_Outline_Filter
-            | Command_Toggle_Outline_Filter
-            | Command_Outline_Filter_History_Previous
-            | Command_Outline_Filter_History_Next
-            | Command_Clear_Outline_Filter_History
             | Command_Show_Messages
             | Command_Clear_Messages
             | Command_Search_Results_Search_Active_Buffer
@@ -397,39 +215,6 @@ package body Editor.Commands.Classification is
 
    function Is_Text_Editing_Command
      (Id : Command_Id) return Boolean
-   is
-   begin
-      case Id is
-         when Command_Insert_Newline
-            | Command_Undo
-            | Command_Redo
-            | Command_Cut
-            | Command_Paste
-            | Command_Line_Delete
-            | Command_Line_Duplicate
-            | Command_Line_Move_Up
-            | Command_Line_Move_Down
-            | Command_Indent_Increase
-            | Command_Indent_Decrease
-            | Command_Comment_Line
-            | Command_Uncomment_Line
-            | Command_Toggle_Line_Comment
-            | Command_Line_Join_Next
-            | Command_Line_Split_At_Caret
-            | Command_Trim_Trailing_Whitespace
-            | Command_Format_Buffer
-            | Command_Format_Selected_Text
-            | Command_Char_Delete_Previous
-            | Command_Char_Delete_Next
-            | Command_Word_Delete_Previous
-            | Command_Word_Delete_Next
-            | Command_Selection_Delete
-            | Command_Replace_Current
-            | Command_Replace_All =>
-            return True;
-         when others =>
-            return False;
-      end case;
-   end Is_Text_Editing_Command;
+     renames Editor.Commands.Editing_Ids.Is_Editing_Command;
 
 end Editor.Commands.Classification;

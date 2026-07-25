@@ -1,6 +1,7 @@
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Commands;
+with Editor.Commands.Build_Terminal_Ids;
 with Editor.Executor;
 with Editor.Keybindings;
 with Editor.Settings;
@@ -41,8 +42,8 @@ package body Editor.Lifecycle_Guidance is
    begin
       if not Show_Shortcuts
         or else not Editor.Commands.Is_Bindable_Command (Command)
-        or else Editor.Commands.Is_Internal_Build_Test_Seam_Command (Command)
-        or else Editor.Commands.Is_Public_Build_Command (Command)
+        or else Editor.Commands.Build_Terminal_Ids.Is_Internal_Build_Test_Seam_Command (Command)
+        or else Editor.Commands.Build_Terminal_Ids.Is_Public_Build_Command (Command)
       then
          return "";
       end if;

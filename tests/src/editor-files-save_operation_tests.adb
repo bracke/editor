@@ -7,6 +7,7 @@ with Ada.Directories;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
 with Editor.Commands;
+with Editor.Commands.Project_File_Ids;
 with Editor.Commands.Name_Metadata;
 with Editor.Command_Palette;
 with Editor.Command_Route_Audit;
@@ -99,7 +100,7 @@ package body Editor.Files.Save_Operation_Tests is
            Editor.Commands.Descriptors.File_Category,
          "Save As must remain a File command");
       Assert
-        (Editor.Commands.Is_File_Content_Save_Command
+        (Editor.Commands.Project_File_Ids.Is_File_Content_Save_Command
            (Editor.Commands.Command_Save_File_As),
          "Save As must be classified as a file/content persistence command");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("file.save-as", Found);

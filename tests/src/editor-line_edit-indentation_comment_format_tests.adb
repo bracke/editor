@@ -8,6 +8,7 @@ with Ada.Text_IO;
 with Editor.Clipboard;
 with Editor.Command_Palette;
 with Editor.Commands;
+with Editor.Commands.Editing_Ids;
 with Editor.Commands.Name_Metadata;
 with Editor.Buffers;
 with Editor.Cursors; use Editor.Cursors;
@@ -1497,7 +1498,7 @@ procedure Test_Canonical_Line_Comment_Path_And_Persistence_Exclusion
            (Editor.Commands.Command_Trim_Trailing_Whitespace),
          "trim trailing whitespace must be bindable");
       Assert
-        (Editor.Commands.Is_Text_Editing_Command
+        (Editor.Commands.Editing_Ids.Is_Editing_Command
            (Editor.Commands.Command_Trim_Trailing_Whitespace),
          "trim trailing whitespace must be classified as text editing");
       Assert
@@ -1515,7 +1516,7 @@ procedure Test_Canonical_Line_Comment_Path_And_Persistence_Exclusion
            (Editor.Commands.Command_Format_Buffer),
          "format buffer must be bindable");
       Assert
-        (Editor.Commands.Is_Text_Editing_Command
+        (Editor.Commands.Editing_Ids.Is_Editing_Command
            (Editor.Commands.Command_Format_Buffer),
          "format buffer must be classified as text editing");
       Assert
@@ -1533,7 +1534,7 @@ procedure Test_Canonical_Line_Comment_Path_And_Persistence_Exclusion
            (Editor.Commands.Command_Format_Selected_Text),
          "format selection must be bindable");
       Assert
-        (Editor.Commands.Is_Text_Editing_Command
+        (Editor.Commands.Editing_Ids.Is_Editing_Command
            (Editor.Commands.Command_Format_Selected_Text),
          "format selection must be classified as text editing");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
@@ -1978,11 +1979,11 @@ procedure Test_Canonical_Line_Comment_Path_And_Persistence_Exclusion
            (Editor.Commands.Command_Indent_Decrease),
          "indent decrease must be command-palette visible");
       Assert
-        (Editor.Commands.Is_Text_Editing_Command
+        (Editor.Commands.Editing_Ids.Is_Editing_Command
            (Editor.Commands.Command_Indent_Increase),
          "indent increase must be classified as a text edit");
       Assert
-        (Editor.Commands.Is_Text_Editing_Command
+        (Editor.Commands.Editing_Ids.Is_Editing_Command
            (Editor.Commands.Command_Indent_Decrease),
          "indent decrease must be classified as a text edit");
 

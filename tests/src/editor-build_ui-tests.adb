@@ -20,6 +20,7 @@ with Editor.Feature_Diagnostics;
 with Editor.Feature_Diagnostics.Fixtures; use Editor.Feature_Diagnostics.Fixtures;
 with Editor.Feature_Panel;
 with Editor.Commands;
+with Editor.Commands.Build_Terminal_Ids;
 with Editor.Commands.Name_Metadata;
 with Editor.State;
 with Editor.Executor;
@@ -567,13 +568,13 @@ package body Editor.Build_UI.Tests is
                 (Editor.Commands.Command_Build_Select_First_Candidate) =
               "build.select-first-candidate",
               "build select-first has a stable public command name");
-      Assert (Editor.Commands.Is_Public_Build_Command
+      Assert (Editor.Commands.Build_Terminal_Ids.Is_Public_Build_Command
                 (Editor.Commands.Command_Build_Run),
               "build.run is classified as the public build command");
-      Assert (Editor.Commands.Is_Public_Build_Command
+      Assert (Editor.Commands.Build_Terminal_Ids.Is_Public_Build_Command
                 (Editor.Commands.Command_Build_Refresh_Candidates),
               "build refresh is classified as a public build command");
-      Assert (Editor.Commands.Is_Public_Build_Command
+      Assert (Editor.Commands.Build_Terminal_Ids.Is_Public_Build_Command
                 (Editor.Commands.Command_Build_Select_First_Candidate),
               "build select-first is classified as a public build command");
       Result := Editor.Executor.Execute_Command_With_Result

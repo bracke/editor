@@ -17,6 +17,9 @@ with Editor.Command_Execution;
 with Editor.Command_Route_Audit;
 with Editor.Command_Surface;
 with Editor.Commands;
+with Editor.Commands.Project_File_Ids;
+with Editor.Commands.Navigation_Ids;
+with Editor.Commands.Editing_Ids;
 with Editor.Commands.Name_Metadata;
 with Editor.Executor;
 with Editor.Executor.Command_Palette_Projection;
@@ -965,27 +968,27 @@ package body Editor.Command_Surface.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
    begin
-      Assert (Editor.Commands.Is_File_Content_Save_Command (Editor.Commands.Command_Save_File),
+      Assert (Editor.Commands.Project_File_Ids.Is_File_Content_Save_Command (Editor.Commands.Command_Save_File),
               "Save File must be classified as file-content-save");
-      Assert (Editor.Commands.Is_File_Content_Save_Command (Editor.Commands.Command_Save_All),
+      Assert (Editor.Commands.Project_File_Ids.Is_File_Content_Save_Command (Editor.Commands.Command_Save_All),
               "Save All must be classified as file-content-save");
-      Assert (not Editor.Commands.Is_File_Content_Save_Command (Editor.Commands.Command_Save_Workspace_State),
+      Assert (not Editor.Commands.Project_File_Ids.Is_File_Content_Save_Command (Editor.Commands.Command_Save_Workspace_State),
               "Workspace structural save must not be classified as file-content-save");
 
-      Assert (Editor.Commands.Is_Workspace_Structural_Save_Command (Editor.Commands.Command_Save_Workspace_State),
+      Assert (Editor.Commands.Project_File_Ids.Is_Workspace_Structural_Save_Command (Editor.Commands.Command_Save_Workspace_State),
               "Save Workspace State must be classified as workspace-structural-save");
       Assert (Editor.Commands.Is_Global_Settings_Save_Command (Editor.Commands.Command_Save_Settings),
               "Save Settings must be classified as global-settings-save");
       Assert (Editor.Commands.Is_Global_Keybindings_Save_Command (Editor.Commands.Command_Save_Keybindings),
               "Save Keybindings must be classified as global-keybindings-save");
 
-      Assert (Editor.Commands.Is_Navigation_Command (Editor.Commands.Command_Move_Left),
+      Assert (Editor.Commands.Navigation_Ids.Is_Navigation_Command (Editor.Commands.Command_Move_Left),
               "Move Left must be classified as navigation");
       Assert (Editor.Commands.Is_Search_Command (Editor.Commands.Command_Active_Find_Next),
               "Find Next must be classified as search");
       Assert (Editor.Commands.Is_Search_Command (Editor.Commands.Command_Replace_All),
               "Replace All must be classified as search");
-      Assert (Editor.Commands.Is_Text_Editing_Command (Editor.Commands.Command_Replace_Current),
+      Assert (Editor.Commands.Editing_Ids.Is_Editing_Command (Editor.Commands.Command_Replace_Current),
               "Replace Current must be classified as text-editing");
       Assert (Editor.Commands.Requires_Context (Editor.Commands.Command_Replace_Current),
               "Replace Current must require active-buffer/find context");
@@ -993,7 +996,7 @@ package body Editor.Command_Surface.Tests is
               "Replace Text Set must require prompt/payload context");
       Assert (Editor.Commands.Is_Panel_Focus_Command (Editor.Commands.Command_Focus_Problems),
               "Focus Problems must be classified as panel-focus");
-      Assert (Editor.Commands.Is_Text_Editing_Command (Editor.Commands.Command_Insert_Newline),
+      Assert (Editor.Commands.Editing_Ids.Is_Editing_Command (Editor.Commands.Command_Insert_Newline),
               "Insert Newline must be classified as text-editing");
 
       Assert (not Editor.Commands.Is_Configuration_Command (Editor.Commands.Command_Save_File),

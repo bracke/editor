@@ -3,6 +3,7 @@ with Ada.Strings.Fixed;
 with Ada.Characters.Handling;
 
 with Editor.Commands.Name_Metadata;
+with Editor.Commands.Build_Terminal_Ids;
 
 package body Editor.Keybindings is
 
@@ -56,8 +57,8 @@ package body Editor.Keybindings is
    is
    begin
       return Editor.Commands.Is_Bindable_Command (Id)
-        and then not Editor.Commands.Is_Internal_Build_Test_Seam_Command (Id)
-        and then not Editor.Commands.Is_Public_Build_Command (Id);
+        and then not Editor.Commands.Build_Terminal_Ids.Is_Internal_Build_Test_Seam_Command (Id)
+        and then not Editor.Commands.Build_Terminal_Ids.Is_Public_Build_Command (Id);
    end Is_Normal_Assignable_Command;
 
    function First_Free_Binding_Index (Found : out Boolean) return Natural is
@@ -105,10 +106,10 @@ package body Editor.Keybindings is
       if not Editor.Commands.Is_Concrete_Command (Id) then
          Status := Keybinding_Change_Invalid_Target;
          return;
-      elsif Editor.Commands.Is_Public_Build_Command (Id) then
+      elsif Editor.Commands.Build_Terminal_Ids.Is_Public_Build_Command (Id) then
          Status := Keybinding_Change_Public_Build_Target;
          return;
-      elsif Editor.Commands.Is_Internal_Build_Test_Seam_Command (Id) then
+      elsif Editor.Commands.Build_Terminal_Ids.Is_Internal_Build_Test_Seam_Command (Id) then
          Status := Keybinding_Change_Internal_Target;
          return;
       elsif not Editor.Commands.Is_Bindable_Command (Id) then

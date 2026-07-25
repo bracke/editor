@@ -6,6 +6,7 @@ with Editor.Build_Working_Context;
 with Editor.Build_Result_Summary;
 with Editor.Build_Output_Details;
 with Editor.Commands;
+with Editor.Commands.Build_Terminal_Ids;
 with Editor.Commands.Name_Metadata;
 with Editor.External_Producers;
 with Editor.External_Producers.Audits;
@@ -308,7 +309,7 @@ package body Editor.Build_Command_Audit is
    begin
       return Editor.Commands.Name_Metadata.Stable_Command_Name
           (Editor.Commands.Command_Build_Cancel) = "build.cancel"
-        and then Editor.Commands.Is_Public_Build_Command
+        and then Editor.Commands.Build_Terminal_Ids.Is_Public_Build_Command
           (Editor.Commands.Command_Build_Cancel)
         and then D.Visibility = Editor.Commands.Descriptors.Palette_Command
         and then D.Category = Editor.Commands.Descriptors.Project_Category

@@ -16,6 +16,7 @@ with Editor.Command_Execution;
 with Editor.Command_Route_Audit;
 with Editor.Command_Surface;
 with Editor.Commands;
+with Editor.Commands.Build_Terminal_Ids;
 with Editor.Commands.Name_Metadata;
 with Editor.Executor;
 with Editor.Executor.Command_Palette_Projection;
@@ -765,19 +766,19 @@ package body Editor.Command_Surface.Build_Surface_Tests is
          declare
             Id : constant Editor.Commands.Command_Id := Editor.Commands.Command_At (I);
          begin
-            if Editor.Commands.Is_Public_Build_Command (Id) then
+            if Editor.Commands.Build_Terminal_Ids.Is_Public_Build_Command (Id) then
                Assert (Ada.Strings.Fixed.Index
                          (Editor.Commands.Name_Metadata.Stable_Command_Name (Id), "build.") = 1,
                        "public build commands must stay under the build namespace");
-               Assert (not Editor.Commands.Is_Internal_Build_Test_Seam_Command (Id),
+               Assert (not Editor.Commands.Build_Terminal_Ids.Is_Internal_Build_Test_Seam_Command (Id),
                        "internal test seams must not be public build commands");
             end if;
          end;
       end loop;
-      Assert (Editor.Commands.Is_Internal_Build_Test_Seam_Command
+      Assert (Editor.Commands.Build_Terminal_Ids.Is_Internal_Build_Test_Seam_Command
                 (Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam),
               "user opt-in test seam must be classified as internal build test seam");
-      Assert (not Editor.Commands.Is_Internal_Build_Test_Seam_Command
+      Assert (not Editor.Commands.Build_Terminal_Ids.Is_Internal_Build_Test_Seam_Command
                 (Editor.Commands.Command_Save_File),
               "non-build commands must not be classified as internal build test seams");
    end Test_Build_Command_Classification_Helpers;
@@ -880,7 +881,7 @@ package body Editor.Command_Surface.Build_Surface_Tests is
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Build_Run) = "build.run",
               "build.run stable command name is registered");
-      Assert (Editor.Commands.Is_Public_Build_Command
+      Assert (Editor.Commands.Build_Terminal_Ids.Is_Public_Build_Command
                 (Editor.Commands.Command_Build_Run),
               "build.run is classified as public build command");
       Assert (D.Visibility = Editor.Commands.Descriptors.Palette_Command,

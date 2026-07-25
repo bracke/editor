@@ -2,6 +2,7 @@ with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Containers;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Commands;
+with Editor.Commands.Build_Terminal_Ids;
 with Editor.External_Producers.Diagnostic_Line_Pipeline;
 with Editor.External_Producers.Public_Build_Command_Surface_Audits;
 with Editor.External_Producers.Request_Policies;
@@ -196,7 +197,7 @@ package body Editor.External_Producers.Public_Build_Input_Validation.Readiness_A
          for I in 1 .. Editor.Commands.Command_Count loop
             Id := Editor.Commands.Command_At (I);
             D := Editor.Commands.Descriptors.Descriptor (Id);
-            if Editor.Commands.Is_Public_Build_Command (Id)
+            if Editor.Commands.Build_Terminal_Ids.Is_Public_Build_Command (Id)
               and then D.Visibility = Editor.Commands.Descriptors.Palette_Command
               and then D.Category /= Editor.Commands.Descriptors.Internal_Category
             then
@@ -247,7 +248,7 @@ package body Editor.External_Producers.Public_Build_Input_Validation.Readiness_A
       Result.Keeps_Opaque_Arguments_Rejected := True;
 
       Result.Routes_Through_Executor :=
-        Editor.Commands.Is_Public_Build_Command (Editor.Commands.Command_Build_Run);
+        Editor.Commands.Build_Terminal_Ids.Is_Public_Build_Command (Editor.Commands.Command_Build_Run);
       Result.Routes_Diagnostics_Through_Pipeline :=
         Editor.External_Producers.Diagnostic_Line_Pipeline.Diagnostic_Line_Command_Surface_Audit_Passes
         and then Editor.External_Producers.Diagnostic_Line_Pipeline.Diagnostic_Line_Layering_Audit_Passes;

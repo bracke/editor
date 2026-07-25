@@ -16,6 +16,7 @@ with Editor.Command_Execution;
 with Editor.Command_Route_Audit;
 with Editor.Command_Surface;
 with Editor.Commands;
+with Editor.Commands.Build_Terminal_Ids;
 with Editor.Commands.Name_Metadata;
 with Editor.Executor;
 with Editor.Executor.Command_Palette_Projection;
@@ -701,7 +702,7 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
       Editor.State.Init (S);
       Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
       for Candidate of Candidates loop
-         Assert (not Editor.Commands.Is_Public_Build_Command (Candidate.Id),
+         Assert (not Editor.Commands.Build_Terminal_Ids.Is_Public_Build_Command (Candidate.Id),
                  "normal palette must not contain public build commands in ");
          Assert (Candidate.Id /= Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam,
                  "normal palette must not contain internal build test seam");

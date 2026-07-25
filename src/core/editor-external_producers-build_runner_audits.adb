@@ -4,6 +4,7 @@ with Ada.Strings; use Ada.Strings;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Commands;
+with Editor.Commands.Build_Terminal_Ids;
 with Editor.Keybindings;
 with Editor.State;
 with Editor.External_Producers.Build_Command_Execution;
@@ -690,7 +691,7 @@ package body Editor.External_Producers.Build_Runner_Audits is
           (Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam);
    begin
       Result.Has_Public_Build_Command :=
-        Editor.Commands.Is_Public_Build_Command
+        Editor.Commands.Build_Terminal_Ids.Is_Public_Build_Command
           (Editor.Commands.Command_Build_Run);
       Result.Has_Default_Build_Keybinding :=
         Editor.Keybindings.Primary_Binding_For_Command

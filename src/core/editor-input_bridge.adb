@@ -34,6 +34,7 @@ with Editor.Input_Bridge.Search_Query_Handlers;
 with Editor.Input_Bridge.Text_Entry_Routing;
 with Editor.Input_Bridge.Wheel_Handlers;
 with Editor.Commands;
+with Editor.Commands.Editing_Ids;
 with Editor.Command_Execution;
 with Editor.Render_Model;
 with Editor.View;
@@ -679,7 +680,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
          return;
       end if;
 
-      if Editor.Commands.Is_Text_Editing_Command (Id) then
+      if Editor.Commands.Editing_Ids.Is_Editing_Command (Id) then
          if Id = Editor.Commands.Command_Comment_Line
            or else Id = Editor.Commands.Command_Uncomment_Line
            or else Id = Editor.Commands.Command_Toggle_Line_Comment

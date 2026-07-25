@@ -10,6 +10,7 @@ with Ada.Strings.Fixed;
 with Ada.Text_IO;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Commands;
+with Editor.Commands.Build_Terminal_Ids;
 with Editor.Commands.Name_Metadata;
 with Editor.Command_Route_Audit;
 with Editor.Command_Palette;
@@ -1254,10 +1255,10 @@ package body Editor.Keybindings.Tests is
            (Editor.Commands.Is_Bindable_Command (Id),
             "bound display must only list bindable commands");
          Assert
-           (not Editor.Commands.Is_Public_Build_Command (Id),
+           (not Editor.Commands.Build_Terminal_Ids.Is_Public_Build_Command (Id),
             "bound display must not list public build commands");
          Assert
-           (not Editor.Commands.Is_Internal_Build_Test_Seam_Command (Id),
+           (not Editor.Commands.Build_Terminal_Ids.Is_Internal_Build_Test_Seam_Command (Id),
             "bound display must not list internal build test seams");
          Info := Editor.Keybindings.Primary_Binding_For_Command (Id);
          Assert

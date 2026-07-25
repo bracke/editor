@@ -6,6 +6,7 @@ with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases; use AUnit.Test_Cases.Registration;
 with Editor.Buffers;
 with Editor.Commands;
+with Editor.Commands.Navigation_Ids;
 with Editor.Commands.Name_Metadata;
 with Editor.Cursors;
 with Editor.Executor;
@@ -113,9 +114,9 @@ package body Editor.Active_Find.Tests is
          and then Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Find_Last).Bindable
          and then Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Find_Reveal_Current).Bindable
          and then Editor.Commands.Is_Search_Command (Editor.Commands.Command_Find_Reveal_Current)
-         and then Editor.Commands.Is_Navigation_Command (Editor.Commands.Command_Find_First)
-         and then Editor.Commands.Is_Navigation_Command (Editor.Commands.Command_Find_Last)
-         and then not Editor.Commands.Is_Navigation_Command
+         and then Editor.Commands.Navigation_Ids.Is_Navigation_Command (Editor.Commands.Command_Find_First)
+         and then Editor.Commands.Navigation_Ids.Is_Navigation_Command (Editor.Commands.Command_Find_Last)
+         and then not Editor.Commands.Navigation_Ids.Is_Navigation_Command
            (Editor.Commands.Command_Find_Reveal_Current),
          "command descriptors must classify first/last as navigation search commands and reveal-current as non-navigation search state");
       Assert

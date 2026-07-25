@@ -16,6 +16,7 @@ with Editor.Command_Execution;
 with Editor.Command_Route_Audit;
 with Editor.Command_Surface;
 with Editor.Commands;
+with Editor.Commands.Build_Terminal_Ids;
 with Editor.Commands.Name_Metadata;
 with Editor.Executor;
 with Editor.Executor.Command_Palette_Projection;
@@ -1059,7 +1060,7 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       Round : Editor.Commands.Command_Id;
    begin
       Editor.State.Init (S);
-      Assert (not Editor.Commands.Is_Public_Build_Command
+      Assert (not Editor.Commands.Build_Terminal_Ids.Is_Public_Build_Command
                 (Editor.Commands.Command_Diagnostics_Show),
               "unrelated public diagnostics command must not count as public build");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
@@ -1186,7 +1187,7 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       S : Editor.State.State_Type;
    begin
       Editor.State.Init (S);
-      Assert (not Editor.Commands.Is_Public_Build_Command
+      Assert (not Editor.Commands.Build_Terminal_Ids.Is_Public_Build_Command
                 (Editor.Commands.Command_Toggle_Feature_Panel),
               "unrelated feature-panel descriptor must not classify as public build");
       Assert (Editor.External_Producers.Public_Build.Run_Public_Build_Guardrail_Audit (S).Status =
