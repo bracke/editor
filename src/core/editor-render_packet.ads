@@ -77,4 +77,16 @@ package Editor.Render_Packet is
    procedure Build_Render_Packet
      (Out_Packet : out Render_Packet);
 
+   procedure Push_Rect
+     (Packet : in out Render_Packet;
+      Layer : Render_Layer;
+      X, Y, W, H, R, G, B : Float);
+
+   procedure Push_Glyph
+     (Packet         : in out Render_Packet;
+      Layer          : Render_Layer;
+      X, Y, W, H     : Float;
+      U0, V0, U1, V1 : Float;
+      R, G, B        : Float);
+
 end Editor.Render_Packet;
