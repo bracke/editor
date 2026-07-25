@@ -18,6 +18,8 @@ with Editor.Command_Execution;
 with Editor.Commands;
 with Editor.Executor;
 with Editor.External_Producers;
+with Editor.External_Producers.Execution_Policy;
+with Editor.External_Producers.Build_Requests;
 with Editor.Messages;
 with Editor.Project;
 with Editor.State;
@@ -71,10 +73,10 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
    function Request return Editor.External_Producers.Build_Run_Request
    is
       Args : Editor.External_Producers.Process_Argument_Vector :=
-        Editor.External_Producers.Empty_Process_Arguments;
+        Editor.External_Producers.Build_Requests.Empty_Process_Arguments;
    begin
-      Editor.External_Producers.Append_Process_Argument (Args, "-P");
-      Editor.External_Producers.Append_Process_Argument (Args, "demo.gpr");
+      Editor.External_Producers.Build_Requests.Append_Process_Argument (Args, "-P");
+      Editor.External_Producers.Build_Requests.Append_Process_Argument (Args, "demo.gpr");
       return
         (Tool => Editor.External_Producers.GPRbuild_Tool,
          Provenance => Editor.External_Producers.Build_Request_From_User_Opt_In,
@@ -144,7 +146,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
                 Editor.Build_Command.Build_Run_Readiness_Consent_Required,
               "clearing consent makes build.run unavailable before runner invocation");
       declare
-         Result : constant Editor.External_Producers.Build_Command_Result :=
+         Result : constant Editor.External_Producers.Build_Requests.Build_Command_Result :=
            Editor.Build_Command.Execute_Public_Build_Run (S);
       begin
          Assert (Result.Build_Result.Status =
@@ -165,17 +167,17 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
       Gate : constant Editor.External_Producers.Build_Execution_Gate :=
-        Editor.External_Producers.Build_Test_Fixture_Execution_Gate
+        Editor.External_Producers.Execution_Policy.Build_Test_Fixture_Execution_Gate
           (Allow_Diagnostics_Ingestion => False,
            Consent => Editor.External_Producers.Build_Consent_Test_Only);
       Process_Result : constant Editor.External_Producers.Process_Run_Result :=
-        Editor.External_Producers.Build_Process_Run_Result
+        Editor.External_Producers.Build_Requests.Build_Process_Run_Result
           (Editor.External_Producers.Process_Run_Succeeded,
            Exit_Code => 0,
            Has_Exit_Code => True,
            Stdout_Text => "build ok",
            Stderr_Text => "");
-      Command_Result : Editor.External_Producers.Build_Command_Result;
+      Command_Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
       Details : Editor.Build_Output_Details.Latest_Build_Output_Details;
       Summary : Editor.Build_Result_Summary.Latest_Build_Result_Summary;
    begin
@@ -186,7 +188,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
                 (Request),
               "request has no shell pipeline/redirection language");
 
-      Command_Result := Editor.External_Producers.Run_Build_Command_With_Gate
+      Command_Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Gate
         (S, Request, Gate, Process_Result);
       Assert (Command_Result.Build_Result.Status =
                 Editor.External_Producers.Build_Run_Succeeded,
@@ -231,28 +233,28 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
       Gate_Disabled : constant Editor.External_Producers.Build_Execution_Gate :=
-        Editor.External_Producers.Build_Test_Fixture_Execution_Gate
+        Editor.External_Producers.Execution_Policy.Build_Test_Fixture_Execution_Gate
           (Allow_Diagnostics_Ingestion => False,
            Consent => Editor.External_Producers.Build_Consent_Test_Only);
       Gate_Enabled : constant Editor.External_Producers.Build_Execution_Gate :=
-        Editor.External_Producers.Build_Test_Fixture_Execution_Gate
+        Editor.External_Producers.Execution_Policy.Build_Test_Fixture_Execution_Gate
           (Allow_Diagnostics_Ingestion => True,
            Consent => Editor.External_Producers.Build_Consent_Test_Only);
       Process_Result : constant Editor.External_Producers.Process_Run_Result :=
-        Editor.External_Producers.Build_Process_Run_Result
+        Editor.External_Producers.Build_Requests.Build_Process_Run_Result
           (Editor.External_Producers.Process_Run_Failed,
            Exit_Code => 1,
            Has_Exit_Code => True,
            Stderr_Text => "demo.adb:1:1:error: broken");
-      Disabled_Result : Editor.External_Producers.Build_Command_Result;
-      Enabled_Result : Editor.External_Producers.Build_Command_Result;
+      Disabled_Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
+      Enabled_Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
-      Disabled_Result := Editor.External_Producers.Run_Build_Command_With_Gate
+      Disabled_Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Gate
         (S, Request, Gate_Disabled, Process_Result);
       Assert (Disabled_Result.Diagnostic_Result.Ingestion.Ingestion_Result.Accepted_Count = 0,
               "disabled diagnostics ingestion produces no Diagnostics-owned rows");
 
-      Enabled_Result := Editor.External_Producers.Run_Build_Command_With_Gate
+      Enabled_Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Gate
         (S, Request, Gate_Enabled, Process_Result);
       Assert (Enabled_Result.Diagnostic_Result.Ingestion.Ingestion_Result.Accepted_Count > 0,
               "enabled diagnostics ingestion sends parsed output through Diagnostics ingestion seam");
@@ -291,7 +293,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type := Ready_State;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Editor.Build_UI.Clear_Selected_Build_Candidate (S.Build_UI);
       Result := Editor.Build_Command.Execute_Public_Build_Run (S);
@@ -377,7 +379,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type := Ready_State;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Editor.Project.Clear (S.Project);
       Assert (Editor.Build_Command.Validate_Build_Run_Invocation (S) =
@@ -398,8 +400,8 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       pragma Unreferenced (T);
       No_Candidate_State : Editor.State.State_Type := Ready_State;
       Stale_State : Editor.State.State_Type := Ready_State;
-      No_Candidate_Result : Editor.External_Producers.Build_Command_Result;
-      Stale_Result : Editor.External_Producers.Build_Command_Result;
+      No_Candidate_Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
+      Stale_Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Editor.Build_UI.Clear_Selected_Build_Candidate
         (No_Candidate_State.Build_UI);
@@ -436,7 +438,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type := Ready_State;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Ada.Directories.Delete_File (Fixture_Root & "/demo.gpr");
       Assert (Editor.Build_Command.Validate_Build_Run_Invocation (S) =
@@ -458,8 +460,8 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       pragma Unreferenced (T);
       Missing_Context_State : Editor.State.State_Type := Ready_State;
       Unavailable_Context_State : Editor.State.State_Type := Ready_State;
-      Missing_Result : Editor.External_Producers.Build_Command_Result;
-      Unavailable_Result : Editor.External_Producers.Build_Command_Result;
+      Missing_Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
+      Unavailable_Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Missing_Context_State.Build_UI.Selected_Working_Context :=
         Editor.Build_Working_Context.None;
@@ -553,33 +555,33 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
       Gate : constant Editor.External_Producers.Build_Execution_Gate :=
-        Editor.External_Producers.Build_Test_Fixture_Execution_Gate
+        Editor.External_Producers.Execution_Policy.Build_Test_Fixture_Execution_Gate
           (Allow_Diagnostics_Ingestion => False,
            Consent => Editor.External_Producers.Build_Consent_Test_Only);
-      Failed : constant Editor.External_Producers.Build_Command_Result :=
-        Editor.External_Producers.Run_Build_Command_With_Gate
+      Failed : constant Editor.External_Producers.Build_Requests.Build_Command_Result :=
+        Editor.External_Producers.Build_Requests.Run_Build_Command_With_Gate
           (S, Request, Gate,
-           Editor.External_Producers.Build_Process_Run_Result
+           Editor.External_Producers.Build_Requests.Build_Process_Run_Result
              (Editor.External_Producers.Process_Run_Failed,
               Exit_Code => 1,
               Has_Exit_Code => True,
               Stderr_Text => "build failed"));
-      Timeout : constant Editor.External_Producers.Build_Command_Result :=
-        Editor.External_Producers.Run_Build_Command_With_Gate
+      Timeout : constant Editor.External_Producers.Build_Requests.Build_Command_Result :=
+        Editor.External_Producers.Build_Requests.Run_Build_Command_With_Gate
           (S, Request, Gate,
-           Editor.External_Producers.Build_Process_Run_Result
+           Editor.External_Producers.Build_Requests.Build_Process_Run_Result
              (Editor.External_Producers.Process_Run_Timed_Out,
               Stdout_Text => "partial stdout"));
-      Cancelled : constant Editor.External_Producers.Build_Command_Result :=
-        Editor.External_Producers.Run_Build_Command_With_Gate
+      Cancelled : constant Editor.External_Producers.Build_Requests.Build_Command_Result :=
+        Editor.External_Producers.Build_Requests.Run_Build_Command_With_Gate
           (S, Request, Gate,
-           Editor.External_Producers.Build_Process_Run_Result
+           Editor.External_Producers.Build_Requests.Build_Process_Run_Result
              (Editor.External_Producers.Process_Run_Cancelled,
               Stderr_Text => "cancelled stderr"));
-      Spawn_Failure : constant Editor.External_Producers.Build_Command_Result :=
-        Editor.External_Producers.Run_Build_Command_With_Gate
+      Spawn_Failure : constant Editor.External_Producers.Build_Requests.Build_Command_Result :=
+        Editor.External_Producers.Build_Requests.Run_Build_Command_With_Gate
           (S, Request, Gate,
-           Editor.External_Producers.Build_Process_Run_Result
+           Editor.External_Producers.Build_Requests.Build_Process_Run_Result
              (Editor.External_Producers.Process_Run_Execution_Error));
    begin
       Assert (Failed.Build_Result.Status = Editor.External_Producers.Build_Run_Failed
@@ -652,10 +654,10 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
    is
       pragma Unreferenced (T);
       Args : Editor.External_Producers.Process_Argument_Vector :=
-        Editor.External_Producers.Empty_Process_Arguments;
+        Editor.External_Producers.Build_Requests.Empty_Process_Arguments;
       Shell_Request : Editor.External_Producers.Build_Run_Request;
    begin
-      Editor.External_Producers.Append_Process_Argument (Args, "demo.gpr; rm -rf tmp");
+      Editor.External_Producers.Build_Requests.Append_Process_Argument (Args, "demo.gpr; rm -rf tmp");
       Shell_Request :=
         (Tool => Editor.External_Producers.GPRbuild_Tool,
          Provenance => Editor.External_Producers.Build_Request_From_User_Opt_In,
@@ -702,15 +704,15 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
       Args : Editor.External_Producers.Process_Argument_Vector :=
-        Editor.External_Producers.Empty_Process_Arguments;
+        Editor.External_Producers.Build_Requests.Empty_Process_Arguments;
       Shell_Request : Editor.External_Producers.Build_Run_Request;
       Gate : constant Editor.External_Producers.Build_Execution_Gate :=
-        Editor.External_Producers.Build_Real_Execution_Gate
+        Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate
           (Allow_Diagnostics_Ingestion => True,
            Consent => Editor.External_Producers.Build_Consent_User_Confirmed);
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
-      Editor.External_Producers.Append_Process_Argument (Args, "demo.gpr; rm -rf tmp");
+      Editor.External_Producers.Build_Requests.Append_Process_Argument (Args, "demo.gpr; rm -rf tmp");
       Shell_Request :=
         (Tool => Editor.External_Producers.GPRbuild_Tool,
          Provenance => Editor.External_Producers.Build_Request_From_User_Opt_In,
@@ -719,7 +721,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
          Arguments => Null_Unbounded_String,
          Structured_Arguments => Args);
 
-      Result := Editor.External_Producers.Run_Build_Command_With_Gate
+      Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Gate
         (S, Shell_Request, Gate);
       Assert (Result.Build_Result.Status =
                 Editor.External_Producers.Build_Run_Rejected,
@@ -778,7 +780,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       S : Editor.State.State_Type := Ready_State;
       Before : Editor.State.State_Type;
       Old_Identity : constant String := Editor.Build_UI.Current_Request_Identity (S.Build_UI);
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Assert (Editor.Build_Command.Validate_Build_Run_Invocation (S) =
                 Editor.Build_Command.Build_Run_Readiness_Ready,
@@ -884,7 +886,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       pragma Unreferenced (T);
       S : Editor.State.State_Type := Ready_State;
       Before : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       S.Build_UI.Selected_Candidate_Stale := True;
       Before := S;
@@ -908,7 +910,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       S : Editor.State.State_Type;
       Found : Boolean := False;
       Id : Editor.Commands.Command_Id;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Editor.State.Initialize (S);
       Id := Editor.Commands.Command_Id_From_Stable_Name ("build.cancel", Found);
@@ -984,17 +986,17 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
          Require_Absolute_Program => False,
          Timeout_Milliseconds     => 0);
       Raw_Result : constant Editor.External_Producers.Process_Run_Result :=
-        Editor.External_Producers.Build_Process_Run_Result
+        Editor.External_Producers.Build_Requests.Build_Process_Run_Result
           (Editor.External_Producers.Process_Run_Succeeded,
            Exit_Code => 0,
            Has_Exit_Code => True,
            Stdout_Text => "12345",
            Stderr_Text => "");
       Bounded : constant Editor.External_Producers.Process_Run_Result :=
-        Editor.External_Producers.Enforce_Process_Output_Bounds
+        Editor.External_Producers.Build_Requests.Enforce_Process_Output_Bounds
           (Raw_Result, Policy);
-      Build_Result : constant Editor.External_Producers.Build_Run_Result :=
-        Editor.External_Producers.Build_Result_From_Process_Result
+      Build_Result : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
+        Editor.External_Producers.Build_Requests.Build_Result_From_Process_Result
           (Request, Bounded);
       Details : constant Editor.Build_Output_Details.Latest_Build_Output_Details :=
         Editor.Build_Output_Details.Build_Output_Details_From_Captured_Output
@@ -1160,18 +1162,18 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
       Gate_Disabled : constant Editor.External_Producers.Build_Execution_Gate :=
-        Editor.External_Producers.Build_Test_Fixture_Execution_Gate
+        Editor.External_Producers.Execution_Policy.Build_Test_Fixture_Execution_Gate
           (Allow_Diagnostics_Ingestion => False,
            Show_Diagnostics => False,
            Consent => Editor.External_Producers.Build_Consent_Test_Only);
       Process_Result : constant Editor.External_Producers.Process_Run_Result :=
-        Editor.External_Producers.Build_Process_Run_Result
+        Editor.External_Producers.Build_Requests.Build_Process_Run_Result
           (Editor.External_Producers.Process_Run_Failed,
            Exit_Code => 1,
            Has_Exit_Code => True,
            Stderr_Text => "demo.adb:1:1:error: broken");
-      Result : constant Editor.External_Producers.Build_Command_Result :=
-        Editor.External_Producers.Run_Build_Command_With_Gate
+      Result : constant Editor.External_Producers.Build_Requests.Build_Command_Result :=
+        Editor.External_Producers.Build_Requests.Run_Build_Command_With_Gate
           (S, Request, Gate_Disabled, Process_Result);
    begin
       Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Failed,
@@ -1258,7 +1260,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type := Ready_State;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Editor.Build_UI.Clear_Selected_Build_Candidate (S.Build_UI);
       Result := Editor.Build_Command.Execute_Public_Build_Run (S);
@@ -1379,20 +1381,20 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       pragma Unreferenced (T);
    begin
       Assert
-        (Editor.External_Producers.Current_Native_Process_Control_Backend in
+        (Editor.External_Producers.Execution_Policy.Current_Native_Process_Control_Backend in
            Editor.External_Producers.Native_Process_Control_POSIX
          | Editor.External_Producers.Native_Process_Control_Windows,
          "native process-control backend is explicitly POSIX");
       Assert
-        (Editor.External_Producers.Native_Process_Control_Is_POSIX
-           = (Editor.External_Producers.Current_Native_Process_Control_Backend
+        (Editor.External_Producers.Execution_Policy.Native_Process_Control_Is_POSIX
+           = (Editor.External_Producers.Execution_Policy.Current_Native_Process_Control_Backend
               = Editor.External_Producers.Native_Process_Control_POSIX),
          "native process-control backend reports POSIX support");
       Assert
-        (Editor.External_Producers.Native_Process_Control_Backend_Label /= "",
+        (Editor.External_Producers.Execution_Policy.Native_Process_Control_Backend_Label /= "",
          "native process-control backend label names the POSIX primitives");
       Assert
-        (Editor.External_Producers.Native_Process_Control_Platform_Audit_Passes,
+        (Editor.External_Producers.Execution_Policy.Native_Process_Control_Platform_Audit_Passes,
          "native process-control platform audit passes");
    end Test_Native_Process_Control_Backend_Is_Explicitly_POSIX;
 

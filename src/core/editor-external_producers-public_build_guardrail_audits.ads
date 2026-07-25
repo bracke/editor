@@ -34,6 +34,13 @@ package Editor.External_Producers.Public_Build_Guardrail_Audits is
 
    function Is_Internal_Public_Build_Test_Seam_Id (Name : String) return Boolean;
 
+   function Build_Public_Build_Internal_Test_Seam_Exposure_Detail
+     (Palette_Row       : String := "";
+      Keybinding_Target : String := "";
+      Invocation_Path   : String := "";
+      Persisted_Name    : String := "")
+      return Public_Build_Guardrail_Failure_Detail;
+
    function First_Public_Build_Guardrail_Failure
      (Result : Public_Build_Guardrail_Result)
       return Public_Build_Guardrail_Failure_Detail;
@@ -75,6 +82,16 @@ package Editor.External_Producers.Public_Build_Guardrail_Audits is
 
    procedure Assert_Public_Build_Guardrail_Regression_Manifest_Default
      (Manifest : Public_Build_Guardrail_Regression_Manifest);
+
+   procedure Assert_Public_Build_Guardrail_Manifest_Fields_Have_Direct_Backers
+     (Manifest : Public_Build_Guardrail_Regression_Manifest);
+
+   procedure Assert_Public_Build_Guardrail_No_Extra_Layer_Above_Manifest;
+
+   procedure Assert_Public_Build_Guardrail_No_Self_Referential_Healthy_State
+     (State : Editor.State.State_Type);
+
+   procedure Assert_Public_Build_Guardrail_Audit_Matrix_Coverage_Only;
 
    function Public_Build_Surface_Commands_Executable return Boolean;
 

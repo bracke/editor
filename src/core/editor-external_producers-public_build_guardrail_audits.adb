@@ -2,14 +2,18 @@ with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.State;
 with Editor.External_Producers.Public_Build_Command_Surface_Audits;
+with Editor.External_Producers.Public_Build_Input_Validation;
 
 package body Editor.External_Producers.Public_Build_Guardrail_Audits is
+
+   package Surface_Audits renames
+     Editor.External_Producers.Public_Build_Command_Surface_Audits;
 
    function Looks_Like_Public_Build_Near_Miss (Name : String) return Boolean
    is
    begin
       return Name /= ""
-        and then not Is_Public_Build_Surface_Id (Name)
+        and then not Surface_Audits.Is_Public_Build_Surface_Id (Name)
         and then (Ada.Strings.Fixed.Index (Name, "build.") = Name'First
                   or else Ada.Strings.Fixed.Index (Name, "compile.") = Name'First
                   or else Ada.Strings.Fixed.Index
@@ -31,22 +35,24 @@ package body Editor.External_Producers.Public_Build_Guardrail_Audits is
       Result : Public_Build_Surface_Id_Scan_Result;
       Any_Near_Miss : Boolean := False;
    begin
-      Result.Exact_Command_Id_Found := Is_Public_Build_Surface_Id (Command_Id);
+      Result.Exact_Command_Id_Found :=
+        Surface_Audits.Is_Public_Build_Surface_Id (Command_Id);
       Result.Exact_Display_Name_Found :=
-        Is_Public_Build_Surface_Id (Display_Name);
+        Surface_Audits.Is_Public_Build_Surface_Id (Display_Name);
       Result.Exact_Keybinding_Target_Found :=
-        Is_Public_Build_Surface_Id (Keybinding_Target);
+        Surface_Audits.Is_Public_Build_Surface_Id (Keybinding_Target);
       Result.Exact_Runtime_Keybinding_Found :=
-        Is_Public_Build_Surface_Id (Runtime_Keybinding_Target);
-      Result.Exact_Palette_Row_Found := Is_Public_Build_Surface_Id (Palette_Row);
+        Surface_Audits.Is_Public_Build_Surface_Id (Runtime_Keybinding_Target);
+      Result.Exact_Palette_Row_Found :=
+        Surface_Audits.Is_Public_Build_Surface_Id (Palette_Row);
       Result.Exact_Executor_Route_Found :=
-        Is_Public_Build_Surface_Id (Executor_Route);
+        Surface_Audits.Is_Public_Build_Surface_Id (Executor_Route);
       Result.Exact_Invocation_Path_Found :=
-        Is_Public_Build_Surface_Id (Invocation_Path);
+        Surface_Audits.Is_Public_Build_Surface_Id (Invocation_Path);
       Result.Exact_Persisted_Name_Found :=
-        Is_Public_Build_Surface_Id (Persisted_Name);
+        Surface_Audits.Is_Public_Build_Surface_Id (Persisted_Name);
       Result.Exact_Workspace_Name_Found :=
-        Is_Public_Build_Surface_Id (Workspace_Name);
+        Surface_Audits.Is_Public_Build_Surface_Id (Workspace_Name);
 
       Result.Stable_Command_Ids_Checked := True;
       Result.Display_Search_Names_Checked := True;
@@ -219,6 +225,40 @@ package body Editor.External_Producers.Public_Build_Guardrail_Audits is
          Command_Id => To_Unbounded_String (Id),
          Domain     => To_Unbounded_String (Domain));
    end Public_Build_Guardrail_Failure_Detail_For;
+
+   function Build_Public_Build_Internal_Test_Seam_Exposure_Detail
+     (Palette_Row       : String := "";
+      Keybinding_Target : String := "";
+      Invocation_Path   : String := "";
+      Persisted_Name    : String := "")
+      return Public_Build_Guardrail_Failure_Detail
+   is
+   begin
+      if Is_Internal_Public_Build_Test_Seam_Id (Palette_Row) then
+         return Public_Build_Guardrail_Failure_Detail_For
+           (Public_Build_Failure_Internal_Test_Seam_Exposure,
+            "palette",
+            Palette_Row);
+      elsif Is_Internal_Public_Build_Test_Seam_Id (Keybinding_Target) then
+         return Public_Build_Guardrail_Failure_Detail_For
+           (Public_Build_Failure_Internal_Test_Seam_Exposure,
+            "keybinding",
+            Keybinding_Target);
+      elsif Is_Internal_Public_Build_Test_Seam_Id (Invocation_Path) then
+         return Public_Build_Guardrail_Failure_Detail_For
+           (Public_Build_Failure_Internal_Test_Seam_Exposure,
+            "invocation",
+            Invocation_Path);
+      elsif Is_Internal_Public_Build_Test_Seam_Id (Persisted_Name) then
+         return Public_Build_Guardrail_Failure_Detail_For
+           (Public_Build_Failure_Internal_Test_Seam_Exposure,
+            "persistence",
+            Persisted_Name);
+      else
+         return Public_Build_Guardrail_Failure_Detail_For
+           (Public_Build_Failure_None, "");
+      end if;
+   end Build_Public_Build_Internal_Test_Seam_Exposure_Detail;
 
    procedure Append_Public_Build_Guardrail_Failure
      (Failures : in out Public_Build_Guardrail_Failure_Detail_Vector;
@@ -560,6 +600,175 @@ package body Editor.External_Producers.Public_Build_Guardrail_Audits is
       end if;
    end Assert_Public_Build_Guardrail_Regression_Manifest_Default;
 
+   function Public_Build_Guardrail_Audit_Matrix_Anchored
+     (Matrix : Public_Build_Guardrail_Audit_Matrix) return Boolean
+   is
+   begin
+      return Public_Build_Guardrail_Audit_Matrix_Complete (Matrix)
+        and then Public_Build_Guardrail_Audit_Matrix_Dimension'Pos
+                   (Public_Build_Guardrail_Audit_Matrix_Dimension'Last) + 1 = 31
+        and then Matrix (Public_Build_Matrix_Normalized_Guardrail_Contract)
+        and then Matrix (Public_Build_Matrix_Regression_Manifest)
+        and then Matrix (Public_Build_Matrix_Audit_Trace_Completeness)
+        and then Matrix (Public_Build_Matrix_Surface_Id_Domain_Coverage)
+        and then Matrix (Public_Build_Matrix_Persistence_Exclusion_Scan)
+        and then Matrix (Public_Build_Matrix_Lifecycle_Stability_Check)
+        and then Matrix (Public_Build_Matrix_Side_Effect_Free_Audit_Check);
+   end Public_Build_Guardrail_Audit_Matrix_Anchored;
+
+   procedure Assert_Public_Build_Guardrail_Manifest_Fields_Have_Direct_Backers
+     (Manifest : Public_Build_Guardrail_Regression_Manifest)
+   is
+      Result : constant Public_Build_Guardrail_Result :=
+        Manifest.Health.Guardrail_Result;
+      Contract_Mismatch : constant Public_Build_Guardrail_Contract_Mismatch :=
+        Detect_Public_Build_Guardrail_Contract_Mismatch (Result);
+   begin
+      if Manifest.Health.Healthy /=
+        (Result.Status = Public_Build_Guardrail_Passed
+         and then Manifest.Health.Surface_Id_Scan.Passed
+         and then Public_Build_Surface_Id_Scan_Domains_Checked
+                    (Manifest.Health.Surface_Id_Scan)
+         and then Public_Build_Guardrail_Audit_Trace_Complete
+                    (Manifest.Health.Audit_Trace)
+         and then Manifest.Health.First_Failure.Kind = Public_Build_Failure_None
+         and then Manifest.Health.Failure_Count = 0
+         and then not Manifest.Health.Snapshot_Mismatch.Any_Mismatch)
+      then
+         raise Program_Error with "public build guardrail health lacks direct backers";
+      end if;
+
+      if Manifest.Default_Contract_Matches /=
+        (not Contract_Mismatch.Any_Mismatch)
+      then
+         raise Program_Error with "public build manifest default contract lacks direct backer";
+      end if;
+
+      if Manifest.Trace_Surface_Complete /=
+        (Public_Build_Guardrail_Audit_Matrix_Complete
+           (Build_Public_Build_Guardrail_Audit_Matrix)
+         and then Public_Build_Guardrail_Audit_Trace_Complete
+                    (Manifest.Health.Audit_Trace)
+         and then Result.Audits_Consistent)
+      then
+         raise Program_Error with "public build manifest trace surface lacks direct backer";
+      end if;
+
+      if Manifest.Public_Command_Surface_Complete /=
+        (Manifest.Health.Surface_Id_Scan.Passed
+         and then Public_Build_Surface_Id_Scan_Domains_Checked
+                    (Manifest.Health.Surface_Id_Scan))
+      then
+         raise Program_Error with "public build manifest public domains lack direct backer";
+      end if;
+
+      if Manifest.Persistence_Exclusion_Clean /= Result.Persistence_Clean then
+         raise Program_Error with "public build manifest persistence lacks direct backer";
+      end if;
+
+      if Manifest.Lifecycle_Stable /=
+        (Manifest.Health.Failure_Count = 0
+         and then Manifest.Health.First_Failure.Kind = Public_Build_Failure_None
+         and then not Manifest.Health.Snapshot_Mismatch.Any_Mismatch)
+      then
+         raise Program_Error with "public build manifest lifecycle lacks direct backer";
+      end if;
+
+      if Manifest.Public_Surface_Present /=
+        (Result.No_Public_Command
+         and then Result.No_Public_Keybinding
+         and then Result.No_Public_Palette_Entry
+         and then Result.No_Public_Bindable_Command)
+      then
+         raise Program_Error with "public build manifest public surface lacks direct backer";
+      end if;
+
+      if Manifest.Execution_Surface_Present /=
+        (Result.No_Public_Executor_Route
+         and then Result.No_Public_Invocation_Path
+         and then Result.No_Public_Bindable_Command
+         and then Result.Default_Execution_Disabled)
+      then
+         raise Program_Error with "public build manifest execution surface lacks direct backer";
+      end if;
+
+      if Manifest.Surface_Command_Executable /= Public_Build_Surface_Commands_Executable then
+         raise Program_Error with "public build manifest surface entry state lacks direct backer";
+      end if;
+
+      if Manifest.Promotion_Blocked /= Result.Promotion_Blocked then
+         raise Program_Error with "public build manifest promotion lacks direct backer";
+      end if;
+
+      if Manifest.Dependency_Blockers_Active /= Result.Dependency_Blockers_Active then
+         raise Program_Error with "public build manifest dependency blockers lack direct backer";
+      end if;
+
+      if Manifest.Manifest_Healthy /=
+        (Manifest.Health.Healthy
+         and then Manifest.Default_Contract_Matches
+         and then Manifest.Trace_Surface_Complete
+         and then Manifest.Public_Command_Surface_Complete
+         and then Manifest.Persistence_Exclusion_Clean
+         and then Manifest.Lifecycle_Stable
+         and then Manifest.Public_Surface_Present
+         and then Manifest.Execution_Surface_Present
+         and then Manifest.Surface_Command_Executable
+         and then not Manifest.Promotion_Blocked
+         and then not Manifest.Dependency_Blockers_Active)
+      then
+         raise Program_Error with "public build manifest health is not field-derived";
+      end if;
+   end Assert_Public_Build_Guardrail_Manifest_Fields_Have_Direct_Backers;
+
+   procedure Assert_Public_Build_Guardrail_No_Extra_Layer_Above_Manifest
+   is
+   begin
+      if Public_Build_Guardrail_Audit_Matrix_Dimension'Pos
+           (Public_Build_Guardrail_Audit_Matrix_Dimension'Last) + 1 /= 31
+      then
+         raise Program_Error with "public build guardrail audit matrix dimension drift";
+      end if;
+      Assert_Public_Build_Guardrail_Audit_Matrix_Complete
+        (Build_Public_Build_Guardrail_Audit_Matrix);
+   end Assert_Public_Build_Guardrail_No_Extra_Layer_Above_Manifest;
+
+   procedure Assert_Public_Build_Guardrail_No_Self_Referential_Healthy_State
+     (State : Editor.State.State_Type)
+   is
+      Result   : constant Public_Build_Guardrail_Result :=
+        Run_Public_Build_Guardrail_Audit (State);
+      Health   : constant Public_Build_Guardrail_Health :=
+        Build_Public_Build_Guardrail_Health (State);
+      Manifest : constant Public_Build_Guardrail_Regression_Manifest :=
+        Build_Public_Build_Guardrail_Regression_Manifest (State);
+   begin
+      if Health.Guardrail_Result /= Result then
+         raise Program_Error with "public build health does not reflect direct guardrail result";
+      end if;
+      Assert_Public_Build_Guardrail_Manifest_Fields_Have_Direct_Backers
+        (Manifest);
+      if Manifest.Health /= Health then
+         raise Program_Error with "public build manifest does not embed direct health";
+      end if;
+      if Result.Status /= Public_Build_Guardrail_Passed then
+         raise Program_Error with "public build result status changed";
+      end if;
+   end Assert_Public_Build_Guardrail_No_Self_Referential_Healthy_State;
+
+   procedure Assert_Public_Build_Guardrail_Audit_Matrix_Coverage_Only
+   is
+      Matrix : constant Public_Build_Guardrail_Audit_Matrix :=
+        Build_Public_Build_Guardrail_Audit_Matrix;
+   begin
+      if not Public_Build_Guardrail_Audit_Matrix_Complete (Matrix) then
+         raise Program_Error with "public build guardrail audit matrix coverage incomplete";
+      end if;
+      if not Public_Build_Guardrail_Audit_Matrix_Anchored (Matrix) then
+         raise Program_Error with "public build guardrail audit matrix lost coverage-only anchor";
+      end if;
+   end Assert_Public_Build_Guardrail_Audit_Matrix_Coverage_Only;
+
    function Public_Build_Surface_Commands_Executable return Boolean
    is
       Surface_Entries : constant Public_Build_Command_Surface_Array :=
@@ -583,16 +792,17 @@ package body Editor.External_Producers.Public_Build_Guardrail_Audits is
      (State : Editor.State.State_Type) return Public_Build_Guardrail_Result
    is
       Hard_Freeze : constant Public_Build_Command_Hard_Freeze_Audit_Result :=
-        Run_Public_Build_Command_Hard_Freeze_Audit (State);
+        Surface_Audits.Run_Public_Build_Command_Hard_Freeze_Audit (State);
       Readiness : constant Public_Build_Command_Readiness_Audit_Result :=
-        Run_Public_Build_Command_Readiness_Audit (State);
+        Editor.External_Producers.Public_Build_Input_Validation
+          .Run_Public_Build_Command_Readiness_Audit (State);
       Matrix : constant Public_Build_UX_Dependency_Matrix :=
-        Build_Public_Build_UX_Dependency_Matrix;
+        Surface_Audits.Build_Public_Build_UX_Dependency_Matrix;
       Matrix_Status : constant Public_Build_Command_Promotion_Status :=
-        Validate_Public_Build_UX_Dependencies (Matrix);
+        Surface_Audits.Validate_Public_Build_UX_Dependencies (Matrix);
       Drift : constant Public_Build_Hard_Freeze_Drift_Result :=
-        Detect_Public_Build_Hard_Freeze_Drift
-          (State, Build_Public_Build_Hard_Freeze_Baseline);
+        Surface_Audits.Detect_Public_Build_Hard_Freeze_Drift
+          (State, Surface_Audits.Build_Public_Build_Hard_Freeze_Baseline);
       Trace : constant Public_Build_Guardrail_Audit_Trace :=
         Build_Public_Build_Guardrail_Audit_Trace;
       Surface_Id_Scan : constant Public_Build_Surface_Id_Scan_Result :=
@@ -640,7 +850,7 @@ package body Editor.External_Producers.Public_Build_Guardrail_Audits is
         and then Result.Default_Execution_Disabled
         and then not Result.Dependency_Blockers_Active
         and then Result.Persistence_Clean
-        and then Public_Build_Surface_Ids_Not_Publicly_Projected (State)
+        and then Surface_Audits.Public_Build_Surface_Ids_Not_Publicly_Projected (State)
         and then Surface_Id_Scan.Passed
         and then Public_Build_Surface_Id_Scan_Domains_Checked (Surface_Id_Scan)
         and then Public_Build_Guardrail_Audit_Trace_Complete (Trace)
@@ -719,7 +929,7 @@ package body Editor.External_Producers.Public_Build_Guardrail_Audits is
       Result : Public_Build_Guardrail_Result)
    is
       Audit : constant Public_Build_Command_Hard_Freeze_Audit_Result :=
-        Run_Public_Build_Command_Hard_Freeze_Audit (State);
+        Surface_Audits.Run_Public_Build_Command_Hard_Freeze_Audit (State);
    begin
       if Result.No_Public_Command
         and then not Audit.No_Public_Command_Registered
@@ -757,7 +967,8 @@ package body Editor.External_Producers.Public_Build_Guardrail_Audits is
          raise Program_Error with "guardrail bindability result disagrees with scan";
       end if;
 
-      Assert_No_Public_Build_Execution_Path (State);
+      Editor.External_Producers.Public_Build_Command_Surface_Audits
+        .Assert_No_Public_Build_Execution_Path (State);
    end Assert_Public_Build_Guardrail_Agrees_With_No_Execution_Scan;
 
    procedure Assert_Public_Build_Guardrail_State_Not_Persisted
@@ -770,8 +981,9 @@ package body Editor.External_Producers.Public_Build_Guardrail_Audits is
          raise Program_Error with "normalized public build guardrail state persisted";
       end if;
 
-      Assert_Public_Build_Hard_Freeze_Not_Persisted (State);
-      Assert_Public_Build_Surface_Ids_Not_Reused;
+      Editor.External_Producers.Public_Build_Command_Surface_Audits
+        .Assert_Public_Build_Hard_Freeze_Not_Persisted (State);
+      Surface_Audits.Assert_Public_Build_Surface_Ids_Not_Reused;
    end Assert_Public_Build_Guardrail_State_Not_Persisted;
 
 end Editor.External_Producers.Public_Build_Guardrail_Audits;

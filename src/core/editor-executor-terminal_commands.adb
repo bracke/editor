@@ -4,6 +4,7 @@ with Editor.Executor;
 with Editor.Executor.Shared_Services;
 use Editor.Executor.Shared_Services;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Requests;
 with Editor.Project;
 with Editor.Render_Cache;
 with Editor.State;
@@ -154,7 +155,7 @@ package body Editor.Executor.Terminal_Commands is
 
       Editor.Terminal_Tasks.Show (S.Terminal_Tasks);
       Result :=
-        Editor.External_Producers.Execute_Process_Request_Real_Gated
+        Editor.External_Producers.Build_Requests.Execute_Process_Request_Real_Gated
           (Editor.Terminal_Tasks.Selected_Task_Request (S.Terminal_Tasks),
            Terminal_Process_Policy);
       Editor.Terminal_Tasks.Run_Selected_With_Result
@@ -222,7 +223,7 @@ package body Editor.Executor.Terminal_Commands is
          when Editor.Commands.Command_Terminal_Run_Selected_Task =>
             declare
                Result : constant Editor.External_Producers.Process_Run_Result :=
-                 Editor.External_Producers.Execute_Process_Request_Real_Gated
+                 Editor.External_Producers.Build_Requests.Execute_Process_Request_Real_Gated
                    (Editor.Terminal_Tasks.Selected_Task_Request
                       (S.Terminal_Tasks),
                     Terminal_Process_Policy);
@@ -237,7 +238,7 @@ package body Editor.Executor.Terminal_Commands is
          when Editor.Commands.Command_Terminal_Rerun_Last_Task =>
             declare
                Result : constant Editor.External_Producers.Process_Run_Result :=
-                 Editor.External_Producers.Execute_Process_Request_Real_Gated
+                 Editor.External_Producers.Build_Requests.Execute_Process_Request_Real_Gated
                    (Editor.Terminal_Tasks.Last_Task_Request
                       (S.Terminal_Tasks),
                     Terminal_Process_Policy);

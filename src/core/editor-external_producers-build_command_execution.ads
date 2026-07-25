@@ -1,6 +1,19 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.External_Producers.Build_Types;
+with Editor.External_Producers.Diagnostics;
 
 package Editor.External_Producers.Build_Command_Execution is
+
+   subtype Diagnostic_Text_Line_Array is
+     Editor.External_Producers.Build_Types.Diagnostic_Text_Line_Array;
+   package Diagnostic_Text_Line_Vectors renames
+     Editor.External_Producers.Build_Types.Diagnostic_Text_Line_Vectors;
+   subtype Diagnostic_Line_Command_Result is
+     Editor.External_Producers.Build_Types.Diagnostic_Line_Command_Result;
+   subtype Build_Run_Result is
+     Editor.External_Producers.Build_Types.Build_Run_Result;
+   subtype Build_Command_Result is
+     Editor.External_Producers.Build_Types.Build_Command_Result;
 
    procedure Append_Output_Text_Lines
      (Text  : String;
@@ -11,7 +24,7 @@ package Editor.External_Producers.Build_Command_Execution is
 
    function Ingest_Build_Run_Diagnostics
      (S                : in out Editor.State.State_Type;
-      Producer         : External_Producer_Source;
+      Producer         : Editor.External_Producers.Diagnostics.Producer_Source;
       Result           : Build_Run_Result;
       Show_Diagnostics : Boolean := False) return Diagnostic_Line_Command_Result;
 
@@ -231,6 +244,17 @@ package Editor.External_Producers.Build_Command_Execution is
          Stderr_Truncated => False))
       return Build_Run_Result;
 
+   function Enforce_Process_Output_Bounds
+     (Result : Process_Run_Result;
+      Policy : Process_Execution_Policy) return Process_Run_Result;
+
+   function Process_Fixture_Result_Is_Consistent
+     (Result : Process_Run_Result;
+      Policy : Process_Execution_Policy) return Boolean;
+
+   procedure Assert_Process_Fixture_Result_Consistent
+     (Result : Process_Run_Result);
+
    function Execute_Test_Fed_Process_Request
      (Request         : Process_Run_Request;
       Supplied_Result : Process_Run_Result) return Process_Run_Result;
@@ -324,5 +348,11 @@ package Editor.External_Producers.Build_Command_Execution is
          Stdout_Truncated => False,
          Stderr_Truncated => False))
       return Build_Command_Result;
+
+   procedure Reset_Build_Run_State_For_Project_Close
+     (S : in out Editor.State.State_Type);
+
+   procedure Reset_Build_Run_State_For_Workspace_Close
+     (S : in out Editor.State.State_Type);
 
 end Editor.External_Producers.Build_Command_Execution;

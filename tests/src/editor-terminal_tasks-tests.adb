@@ -9,6 +9,7 @@ with Editor.Commands;
 with Editor.Executor;
 with Editor.Executor.Project_Lifecycle_Commands;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Requests;
 with Editor.Input_Bridge;
 with Editor.Keybindings;
 with Editor.Project;
@@ -74,7 +75,7 @@ package body Editor.Terminal_Tasks.Tests is
               "selected task request keeps structured program");
       Assert (To_String (Request.Working_Label) = "/project",
               "selected task request keeps working directory");
-      Assert (Editor.External_Producers.Process_Argument_Count
+      Assert (Editor.External_Producers.Build_Requests.Process_Argument_Count
                 (Request.Structured_Arguments) = 1,
               "selected task request keeps structured arguments");
    end Test_Task_Registration_Selection_And_Request;
@@ -92,7 +93,7 @@ package body Editor.Terminal_Tasks.Tests is
          Editor.Terminal_Tasks.Task_Profile_Custom);
       Editor.Terminal_Tasks.Append_Argument (S, Id, "hello");
       Editor.Terminal_Tasks.Run_Selected_With_Result
-        (S, Editor.External_Producers.Build_Process_Run_Result
+        (S, Editor.External_Producers.Build_Requests.Build_Process_Run_Result
           (Editor.External_Producers.Process_Run_Succeeded,
            Exit_Code => 0,
            Has_Exit_Code => True,
@@ -107,7 +108,7 @@ package body Editor.Terminal_Tasks.Tests is
               "row records process status");
 
       Editor.Terminal_Tasks.Rerun_Last_With_Result
-        (S, Editor.External_Producers.Build_Process_Run_Result
+        (S, Editor.External_Producers.Build_Requests.Build_Process_Run_Result
           (Editor.External_Producers.Process_Run_Failed,
            Exit_Code => 2,
            Has_Exit_Code => True,
@@ -135,7 +136,7 @@ package body Editor.Terminal_Tasks.Tests is
       Editor.Terminal_Tasks.Append_Argument (S.Terminal_Tasks, Id, "--version");
       Editor.Terminal_Tasks.Run_Selected_With_Result
         (S.Terminal_Tasks,
-         Editor.External_Producers.Build_Process_Run_Result
+         Editor.External_Producers.Build_Requests.Build_Process_Run_Result
            (Editor.External_Producers.Process_Run_Succeeded,
             Stdout_Text => "1.0" & ASCII.LF));
 
@@ -386,7 +387,7 @@ package body Editor.Terminal_Tasks.Tests is
       Request := Editor.Terminal_Tasks.Selected_Task_Request (S);
       Assert (To_String (Request.Program_Label) = "alr",
               "run profile uses the structured Alire program");
-      Assert (Editor.External_Producers.Process_Argument_Count
+      Assert (Editor.External_Producers.Build_Requests.Process_Argument_Count
                 (Request.Structured_Arguments) = 1,
               "run profile has one structured argument");
 
@@ -397,7 +398,7 @@ package body Editor.Terminal_Tasks.Tests is
       Request := Editor.Terminal_Tasks.Selected_Task_Request (S);
       Assert (To_String (Request.Program_Label) = "alr",
               "test profile uses the structured Alire program");
-      Assert (Editor.External_Producers.Process_Argument_Count
+      Assert (Editor.External_Producers.Build_Requests.Process_Argument_Count
                 (Request.Structured_Arguments) = 1,
               "test profile has one structured argument");
    end Test_Project_Run_And_Test_Profile_Selection;

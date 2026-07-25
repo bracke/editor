@@ -8,6 +8,8 @@ with Ada.Text_IO;
 
 with Editor.Build_Output_Details;
 with Editor.External_Producers;
+with Editor.External_Producers.Execution_Policy;
+with Editor.External_Producers.Build_Requests;
 with Editor.Feature_Diagnostics;
 with Editor.State;
 
@@ -100,11 +102,11 @@ procedure Editor_Real_Build_Runner_Smoke is
 
    function Smoke_Request return Editor.External_Producers.Build_Run_Request is
       Args : Editor.External_Producers.Process_Argument_Vector :=
-        Editor.External_Producers.Empty_Process_Arguments;
+        Editor.External_Producers.Build_Requests.Empty_Process_Arguments;
    begin
-      Editor.External_Producers.Append_Process_Argument (Args, "-q");
-      Editor.External_Producers.Append_Process_Argument (Args, "-P");
-      Editor.External_Producers.Append_Process_Argument (Args, Project_Path);
+      Editor.External_Producers.Build_Requests.Append_Process_Argument (Args, "-q");
+      Editor.External_Producers.Build_Requests.Append_Process_Argument (Args, "-P");
+      Editor.External_Producers.Build_Requests.Append_Process_Argument (Args, Project_Path);
       return
         (Tool => Editor.External_Producers.GPRbuild_Tool,
          Provenance => Editor.External_Producers.Build_Request_From_User_Opt_In,
@@ -142,15 +144,15 @@ procedure Editor_Real_Build_Runner_Smoke is
    end Runner_Status_For;
 
    procedure Check_Build_Output_Details
-     (Result       : Editor.External_Producers.Build_Run_Result;
+     (Result       : Editor.External_Producers.Build_Requests.Build_Run_Result;
       Has_Output   : Boolean;
       Context      : String)
    is
       Expected_Stream : constant Editor.Build_Output_Details.Build_Output_Stream_Selection :=
-        (if Editor.External_Producers.Build_Result_Output_Stream (Result) =
+        (if Editor.External_Producers.Execution_Policy.Build_Result_Output_Stream (Result) =
             Editor.External_Producers.Process_Output_Merged
          then Editor.Build_Output_Details.Build_Output_Stream_Merged
-         elsif Editor.External_Producers.Build_Result_Output_Stream (Result) =
+         elsif Editor.External_Producers.Execution_Policy.Build_Result_Output_Stream (Result) =
             Editor.External_Producers.Process_Output_Stderr
          then Editor.Build_Output_Details.Build_Output_Stream_Stderr
          else Editor.Build_Output_Details.Build_Output_Stream_Stdout);
@@ -190,7 +192,7 @@ procedure Editor_Real_Build_Runner_Smoke is
 
    procedure Check_Timeout_If_Available is
       Args : Editor.External_Producers.Process_Argument_Vector :=
-        Editor.External_Producers.Empty_Process_Arguments;
+        Editor.External_Producers.Build_Requests.Empty_Process_Arguments;
       Request : Editor.External_Producers.Process_Run_Request;
       Policy  : constant Editor.External_Producers.Process_Execution_Policy :=
         (Mode                     => Editor.External_Producers.Process_Execution_Real_Allowed,
@@ -207,13 +209,13 @@ procedure Editor_Real_Build_Runner_Smoke is
          return;
       end if;
 
-      Editor.External_Producers.Append_Process_Argument (Args, "2");
+      Editor.External_Producers.Build_Requests.Append_Process_Argument (Args, "2");
       Request :=
         (Program_Label => To_Unbounded_String ("/bin/sleep"),
          Working_Label => To_Unbounded_String (Root),
          Arguments => Null_Unbounded_String,
          Structured_Arguments => Args);
-      Result := Editor.External_Producers.Execute_Process_Request_Real_Gated
+      Result := Editor.External_Producers.Build_Requests.Execute_Process_Request_Real_Gated
         (Request, Policy);
       Check (Result.Status = Editor.External_Producers.Process_Run_Timed_Out,
              "real process timeout did not map through the native runner supervisor");
@@ -226,18 +228,18 @@ procedure Editor_Real_Build_Runner_Smoke is
 
    S : Editor.State.State_Type;
    Gate : constant Editor.External_Producers.Build_Execution_Gate :=
-     Editor.External_Producers.Build_Real_Execution_Gate
+     Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate
        (Allow_Diagnostics_Ingestion => True,
         Show_Diagnostics            => False,
         Consent                     => Editor.External_Producers.Build_Consent_User_Confirmed);
-   Success_Result : Editor.External_Producers.Build_Command_Result;
-   Failure_Result : Editor.External_Producers.Build_Command_Result;
+   Success_Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
+   Failure_Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
 
 begin
    Editor.State.Init (S);
 
    Build_Fixture (Valid => True);
-   Success_Result := Editor.External_Producers.Run_Build_Command_With_Gate
+   Success_Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Gate
      (S, Smoke_Request, Gate);
    if Success_Result.Build_Result.Status /=
      Editor.External_Producers.Build_Run_Succeeded
@@ -277,7 +279,7 @@ begin
       Context    => "successful real gprbuild run");
 
    Build_Fixture (Valid => False);
-   Failure_Result := Editor.External_Producers.Run_Build_Command_With_Gate
+   Failure_Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Gate
      (S, Smoke_Request, Gate);
    Check (Failure_Result.Build_Result.Status =
             Editor.External_Producers.Build_Run_Failed,

@@ -10,6 +10,7 @@ with Editor.Build_Diagnostics;
 with Editor.Commands;
 with Editor.Diagnostics_Review_UX;
 with Editor.External_Producers;
+with Editor.External_Producers.Diagnostics;
 with Editor.Executor;
 with Editor.Feature_Diagnostics;
 with Editor.Feature_Panel;
@@ -698,7 +699,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
       pragma Unreferenced (T);
       S      : Editor.State.State_Type;
       Token  : Natural;
-      Item   : Editor.External_Producers.External_Diagnostic_Record;
+      Item   : Editor.External_Producers.Diagnostics.Diagnostic_Record;
       Result : Editor.Producer_Contracts.Producer_Result;
    begin
       Editor.State.Init (S);
@@ -720,9 +721,9 @@ package body Editor.Diagnostics_Review_UX.Tests is
          Replacement_Text  => Null_Unbounded_String,
          Quick_Fix_Label   => Null_Unbounded_String,
          Quick_Fix_Detail  => Null_Unbounded_String);
-      Result := Editor.External_Producers.Ingest_Diagnostic_Record
+      Result := Editor.External_Producers.Diagnostics.Ingest_Diagnostic_Record
         (S,
-         Editor.External_Producers.Build_Compiler_Diagnostics_Producer_Source,
+         Editor.External_Producers.Diagnostics.Build_Compiler_Diagnostics_Producer_Source,
          Item);
 
       Assert (Result.Row_Accepted,
@@ -753,9 +754,9 @@ package body Editor.Diagnostics_Review_UX.Tests is
          Replacement_Text  => Null_Unbounded_String,
          Quick_Fix_Label   => Null_Unbounded_String,
          Quick_Fix_Detail  => Null_Unbounded_String);
-      Result := Editor.External_Producers.Ingest_Diagnostic_Record
+      Result := Editor.External_Producers.Diagnostics.Ingest_Diagnostic_Record
         (S,
-         Editor.External_Producers.Build_Compiler_Diagnostics_Producer_Source,
+         Editor.External_Producers.Diagnostics.Build_Compiler_Diagnostics_Producer_Source,
          Item);
 
       Assert (Result.Row_Accepted,
@@ -780,7 +781,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
       pragma Unreferenced (T);
       S      : Editor.State.State_Type;
       Token  : Natural;
-      Item   : Editor.External_Producers.External_Diagnostic_Record;
+      Item   : Editor.External_Producers.Diagnostics.Diagnostic_Record;
       Result : Editor.Producer_Contracts.Producer_Result;
       A      : Editor.Commands.Command_Availability;
    begin
@@ -803,9 +804,9 @@ package body Editor.Diagnostics_Review_UX.Tests is
          Replacement_Text  => Null_Unbounded_String,
          Quick_Fix_Label   => Null_Unbounded_String,
          Quick_Fix_Detail  => Null_Unbounded_String);
-      Result := Editor.External_Producers.Ingest_Diagnostic_Record
+      Result := Editor.External_Producers.Diagnostics.Ingest_Diagnostic_Record
         (S,
-         Editor.External_Producers.Build_Compiler_Diagnostics_Producer_Source,
+         Editor.External_Producers.Diagnostics.Build_Compiler_Diagnostics_Producer_Source,
          Item);
 
       Assert (Result.Row_Accepted,
@@ -1031,7 +1032,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Item : Editor.External_Producers.External_Diagnostic_Record :=
+      Item : Editor.External_Producers.Diagnostics.Diagnostic_Record :=
         (Severity      => Editor.Feature_Diagnostics.Diagnostic_Error,
          Message       => To_Unbounded_String ("explicit producer row"),
          Source_Label  => To_Unbounded_String ("src/main.adb"),
@@ -1049,10 +1050,10 @@ package body Editor.Diagnostics_Review_UX.Tests is
          Quick_Fix_Detail  => Null_Unbounded_String);
       Result : Editor.Producer_Contracts.Producer_Result;
    begin
-      Result := Editor.External_Producers.Ingest_Diagnostic_Record
+      Result := Editor.External_Producers.Diagnostics.Ingest_Diagnostic_Record
         (S,
-         Editor.External_Producers.Build_External_Producer_Source
-           (Editor.External_Producers.Build_Diagnostics_Producer),
+         Editor.External_Producers.Diagnostics.Build_External_Producer_Source
+           (Editor.External_Producers.Diagnostics.Build_Diagnostics_Producer),
          Item);
       Assert (Result.Row_Accepted,
               "build producer diagnostic is accepted into Diagnostics");
@@ -1065,9 +1066,9 @@ package body Editor.Diagnostics_Review_UX.Tests is
 
       Editor.Feature_Diagnostics.Clear_Diagnostics (S.Feature_Diagnostics);
       Item.Source_Label := To_Unbounded_String ("build-looking compiler label");
-      Result := Editor.External_Producers.Ingest_Diagnostic_Record
+      Result := Editor.External_Producers.Diagnostics.Ingest_Diagnostic_Record
         (S,
-         Editor.External_Producers.Build_Compiler_Diagnostics_Producer_Source,
+         Editor.External_Producers.Diagnostics.Build_Compiler_Diagnostics_Producer_Source,
          Item);
       Assert (Result.Row_Accepted,
               "compiler producer diagnostic is accepted into Diagnostics");

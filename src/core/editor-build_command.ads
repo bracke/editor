@@ -1,5 +1,6 @@
 with Editor.Commands;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Requests;
 with Editor.Build_Output_Details;
 with Editor.Build_Process_Control;
 with Editor.State;
@@ -62,17 +63,17 @@ package Editor.Build_Command is
 
    function Request_Public_Build_Cancel
      (State : in out Editor.State.State_Type)
-      return Editor.External_Producers.Build_Command_Result;
+      return Editor.External_Producers.Build_Requests.Build_Command_Result;
 
    function Request_Public_Build_Lifecycle_Shutdown
      (State  : in out Editor.State.State_Type;
       Reason : String)
-      return Editor.External_Producers.Build_Command_Result;
+      return Editor.External_Producers.Build_Requests.Build_Command_Result;
 
    function Drain_Public_Build_Worker_For_Shutdown
      (State  : in out Editor.State.State_Type;
       Reason : String)
-      return Editor.External_Producers.Build_Command_Result;
+      return Editor.External_Producers.Build_Requests.Build_Command_Result;
 
    procedure Stop_Public_Build_Workers_For_Application_Exit;
 
@@ -96,15 +97,15 @@ package Editor.Build_Command is
 
    function Execute_Public_Build_Run
      (State : in out Editor.State.State_Type)
-      return Editor.External_Producers.Build_Command_Result;
+      return Editor.External_Producers.Build_Requests.Build_Command_Result;
 
    function Start_Public_Build_Run_Asynchronously
      (State : in out Editor.State.State_Type)
-      return Editor.External_Producers.Build_Command_Result;
+      return Editor.External_Producers.Build_Requests.Build_Command_Result;
 
    function Poll_Public_Build_Run_Completion
      (State : in out Editor.State.State_Type;
-      Result : out Editor.External_Producers.Build_Command_Result) return Boolean;
+      Result : out Editor.External_Producers.Build_Requests.Build_Command_Result) return Boolean;
 
    function Has_Queued_Public_Build_Job
      (State : Editor.State.State_Type) return Boolean;
@@ -117,7 +118,7 @@ package Editor.Build_Command is
    function Execute_Public_Build_Run_With_Supplied_Result
      (State           : in out Editor.State.State_Type;
       Supplied_Result : Editor.External_Producers.Process_Run_Result)
-      return Editor.External_Producers.Build_Command_Result;
+      return Editor.External_Producers.Build_Requests.Build_Command_Result;
 
    function Assert_Build_Run_Descriptor_Stable return Boolean;
    function Assert_Build_Run_Routes_Through_Executor

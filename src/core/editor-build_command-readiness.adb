@@ -6,6 +6,8 @@ with Editor.Build_Runner_Policy;
 with Editor.Build_UI;
 with Editor.Commands;
 with Editor.External_Producers;
+with Editor.External_Producers.Execution_Policy;
+with Editor.External_Producers.Build_Requests;
 with Editor.Project;
 with Editor.State;
 
@@ -193,7 +195,7 @@ package body Editor.Build_Command.Readiness is
          end if;
       end;
 
-      if Editor.External_Producers.Validate_Build_Run_Request_Status
+      if Editor.External_Producers.Build_Requests.Validate_Build_Run_Request_Status
         (Conversion.Request) /= Editor.External_Producers.Build_Request_Valid
       then
          return Build_Run_Readiness_Request_Incomplete;
@@ -216,9 +218,9 @@ package body Editor.Build_Command.Readiness is
       case State.Public_Build_Execution_Policy is
          when Editor.Build_Runner_Policy.Build_Execution_Disabled |
               Editor.Build_Runner_Policy.Build_Execution_Stub_Only =>
-            return Editor.External_Producers.Build_Default_Execution_Gate;
+            return Editor.External_Producers.Execution_Policy.Build_Default_Execution_Gate;
          when Editor.Build_Runner_Policy.Build_Execution_Bounded_Process =>
-           return Editor.External_Producers.Build_Real_Execution_Gate
+           return Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate
               (Allow_Diagnostics_Ingestion =>
                  Editor.Build_Diagnostics.Build_Diagnostics_Ingestion_Allowed
                    (Editor.Build_Diagnostics.Build_Diagnostics_Ingestion_On_Request,

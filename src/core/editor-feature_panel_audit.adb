@@ -7,6 +7,8 @@ with Editor.Feature_Diagnostics;
 with Editor.Message_Producers;
 with Editor.Producer_Contracts;
 with Editor.External_Producers;
+with Editor.External_Producers.Audits;
+with Editor.External_Producers.Public_Build;
 with Editor.State;
 
 package body Editor.Feature_Panel_Audit is
@@ -199,7 +201,7 @@ package body Editor.Feature_Panel_Audit is
           (Editor.Feature_Panel.Messages_Feature)
         and then Producer_Capable_Feature_Covers
           (Editor.Feature_Panel.Diagnostics_Feature)
-        and then Editor.External_Producers.External_Producer_Audit_Passes;
+        and then Editor.External_Producers.Audits.External_Producer_Audit_Passes;
    end Producer_Boundary_Audit_Passes;
 
    function Generic_Command_Surface_Passes return Boolean is
@@ -412,8 +414,10 @@ package body Editor.Feature_Panel_Audit is
    is
       Command_Review : constant Editor.Command_Surface.Command_Surface_Review :=
         Editor.Command_Surface.Review_Command_Surface (State);
-      Manifest : constant Editor.External_Producers.Public_Build_Guardrail_Regression_Manifest :=
-        Editor.External_Producers.Build_Public_Build_Guardrail_Regression_Manifest (State);
+      Manifest : constant
+        Editor.External_Producers.Public_Build.Guardrail_Regression_Manifest :=
+          Editor.External_Producers.Public_Build
+            .Build_Public_Build_Guardrail_Regression_Manifest (State);
       Audit : constant Feature_Panel_Audit_Result := Run_Feature_Panel_Audit;
       Panel : constant Editor.Feature_Panel.Feature_Panel_State := State.Feature_Panel;
       Summary : constant Editor.Feature_Panel.Feature_Panel_Summary :=
@@ -527,11 +531,11 @@ package body Editor.Feature_Panel_Audit is
          Result.Has_Producer_Boundary_Gap := True;
       end if;
 
-      if not Editor.External_Producers.Producer_Lifecycle_Audit_Passes then
+      if not Editor.External_Producers.Audits.Producer_Lifecycle_Audit_Passes then
          Result.Has_Producer_Lifecycle_Gap := True;
       end if;
 
-      if not Editor.External_Producers.Compiler_Diagnostic_Normalization_Audit_Passes then
+      if not Editor.External_Producers.Audits.Compiler_Diagnostic_Normalization_Audit_Passes then
          Result.Has_Producer_Target_Gap := True;
       end if;
 

@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Command_Surface;
 with Editor.Commands;
 with Editor.External_Producers;
+with Editor.External_Producers.Audits;
+with Editor.External_Producers.Public_Build;
 with Editor.Feature_Panel;
 with Editor.Feature_Panel_Audit;
 with Editor.Feature_Search_Results;
@@ -250,8 +252,10 @@ package body Editor.Search_Results_Audit is
    is
       Command_Review : constant Editor.Command_Surface.Command_Surface_Review :=
         Editor.Command_Surface.Review_Command_Surface (State);
-      Manifest : constant Editor.External_Producers.Public_Build_Guardrail_Regression_Manifest :=
-        Editor.External_Producers.Build_Public_Build_Guardrail_Regression_Manifest
+      Manifest : constant
+        Editor.External_Producers.Public_Build.Guardrail_Regression_Manifest :=
+          Editor.External_Producers.Public_Build
+            .Build_Public_Build_Guardrail_Regression_Manifest
           (State);
       Panel_Review : constant Editor.Feature_Panel_Audit.Feature_Panel_Contract_Review :=
         Editor.Feature_Panel_Audit.Review_Feature_Panel_Contract (State);

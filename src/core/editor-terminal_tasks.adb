@@ -1,6 +1,7 @@
 with Ada.Containers;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.External_Producers.Build_Requests;
 
 package body Editor.Terminal_Tasks is
 
@@ -479,7 +480,7 @@ package body Editor.Terminal_Tasks is
       Request.Program_Label := Row.Program_Label;
       Request.Working_Label := Row.Working_Label;
       for Arg of Row.Arguments loop
-         Editor.External_Producers.Append_Process_Argument
+         Editor.External_Producers.Build_Requests.Append_Process_Argument
            (Request.Structured_Arguments, To_String (Arg));
       end loop;
       return Request;

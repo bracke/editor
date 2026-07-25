@@ -12,13 +12,20 @@ with Editor.Build_Output_Details;
 with Editor.Build_Process_Control;
 with Editor.Build_Runner_Policy;
 with Editor.State;
+with Editor.External_Producers.Diagnostics;
+with Editor.External_Producers.Diagnostic_Line_Parsing;
+with Editor.External_Producers.Diagnostic_Line_Pipeline;
+with Editor.External_Producers.Execution_Policy;
 with Editor.External_Producers.Public_Build_Input_Validation;
 with Editor.External_Producers.Request_Policies;
+with Editor.External_Producers.Source_Metadata;
 
 package body Editor.External_Producers.Build_Command_Execution is
 
    use type Ada.Containers.Count_Type;
    use type Editor.Build_Runner_Policy.Build_Cancellation_State;
+   use Editor.External_Producers.Request_Policies;
+   use Editor.External_Producers.Execution_Policy;
 
    Build_Output_Capture_Sequence : Natural := 0;
 
@@ -132,14 +139,14 @@ package body Editor.External_Producers.Build_Command_Execution is
 
    function Ingest_Build_Run_Diagnostics
      (S                : in out Editor.State.State_Type;
-      Producer         : External_Producer_Source;
+      Producer         : Editor.External_Producers.Diagnostics.Producer_Source;
       Result           : Build_Run_Result;
       Show_Diagnostics : Boolean := False) return Diagnostic_Line_Command_Result
    is
       Max_Build_Diagnostic_Input_Lines : constant Natural := 512;
       Source : constant Diagnostic_Text_Line_Array :=
         Extract_Diagnostic_Lines_From_Build_Result (Result);
-      Lines  : Diagnostic_Text_Line_Array;
+      Lines  : Editor.External_Producers.Diagnostic_Line_Parsing.Text_Line_Array;
       Count  : Natural := 0;
    begin
       if not Source.Is_Empty then
@@ -150,8 +157,7 @@ package body Editor.External_Producers.Build_Command_Execution is
          end loop;
       end if;
 
-      return Ingest_Diagnostic_Lines_From_Command
-        (S, Producer, Lines, Show_Diagnostics);
+      return Editor.External_Producers.Diagnostic_Line_Parsing.Ingest_Diagnostic_Lines_From_Command (S, Producer, Lines, Show_Diagnostics);
    end Ingest_Build_Run_Diagnostics;
 
    function Build_Build_Command_Feedback
@@ -590,8 +596,9 @@ package body Editor.External_Producers.Build_Command_Execution is
          Stderr_Truncated => False);
       Show_Diagnostics : Boolean := False) return Build_Command_Result
    is
-      Producer : constant External_Producer_Source :=
-        Build_External_Producer_Source (Build_Diagnostics_Producer);
+      Producer : constant Editor.External_Producers.Diagnostics.Producer_Source :=
+        Editor.External_Producers.Diagnostics.Build_External_Producer_Source
+          (Editor.External_Producers.Diagnostics.Build_Diagnostics_Producer);
       Preflight : constant Build_Preflight_Result :=
         Preflight_Build_Run_Request (Request, Policy);
       Build_Result : Build_Run_Result;
@@ -600,7 +607,8 @@ package body Editor.External_Producers.Build_Command_Execution is
    begin
       if Preflight.Build_Request_Status /= Build_Request_Valid then
          Build_Result := Build_Build_Run_Result (Build_Run_Rejected);
-         Diagnostic_Result := Empty_Diagnostic_Line_Command_Result;
+         Diagnostic_Result :=
+           Editor.External_Producers.Diagnostic_Line_Parsing.Empty_Diagnostic_Line_Command_Result;
          Message := To_Unbounded_String
            (Build_Request_Rejection_Feedback (Preflight.Build_Request_Status));
       elsif Preflight.Process_Request_Status /= Process_Request_Valid then
@@ -611,7 +619,8 @@ package body Editor.External_Producers.Build_Command_Execution is
          else
             Build_Result := Build_Build_Run_Result (Build_Run_Rejected);
          end if;
-         Diagnostic_Result := Empty_Diagnostic_Line_Command_Result;
+         Diagnostic_Result :=
+           Editor.External_Producers.Diagnostic_Line_Parsing.Empty_Diagnostic_Line_Command_Result;
          Message := To_Unbounded_String
            (Process_Request_Rejection_Feedback
               (Preflight.Process_Request_Status));
@@ -884,6 +893,61 @@ package body Editor.External_Producers.Build_Command_Execution is
       end if;
    end Build_User_Opt_In_Build_Feedback;
 
+   function Enforce_Process_Output_Bounds
+     (Result : Process_Run_Result;
+      Policy : Process_Execution_Policy) return Process_Run_Result
+   is
+   begin
+      if Length (Result.Stdout_Text) > Policy.Max_Output_Bytes
+        or else Length (Result.Stderr_Text) > Policy.Max_Output_Bytes
+      then
+         return Build_Process_Run_Result (Process_Run_Execution_Error);
+      end if;
+
+      return Result;
+   end Enforce_Process_Output_Bounds;
+
+   function Process_Fixture_Result_Is_Consistent
+     (Result : Process_Run_Result;
+      Policy : Process_Execution_Policy) return Boolean
+   is
+   begin
+      if Length (Result.Stdout_Text) > Policy.Max_Output_Bytes
+        or else Length (Result.Stderr_Text) > Policy.Max_Output_Bytes
+      then
+         return False;
+      end if;
+
+      case Result.Status is
+         when Process_Run_Succeeded | Process_Run_Failed =>
+            return Result.Has_Exit_Code;
+         when Process_Run_Not_Available | Process_Run_Rejected
+            | Process_Run_Execution_Error
+            | Process_Run_Cancellation_Unsupported =>
+            return not Result.Has_Exit_Code
+              and then Length (Result.Stdout_Text) = 0
+              and then Length (Result.Stderr_Text) = 0;
+         when Process_Run_Timed_Out | Process_Run_Cancelled
+            | Process_Run_Output_Truncated =>
+            return not Result.Has_Exit_Code;
+      end case;
+   end Process_Fixture_Result_Is_Consistent;
+
+   procedure Assert_Process_Fixture_Result_Consistent
+     (Result : Process_Run_Result)
+   is
+      Conservative_Policy : constant Process_Execution_Policy :=
+        (Mode                     => Process_Execution_Real_Fixture_Allowed,
+         Allow_Real_Execution     => True,
+         Allow_Shell              => False,
+         Max_Output_Bytes         => 262_144,
+         Require_Absolute_Program => False,
+         Timeout_Milliseconds     => 0);
+   begin
+      pragma Assert
+        (Process_Fixture_Result_Is_Consistent (Result, Conservative_Policy));
+   end Assert_Process_Fixture_Result_Consistent;
+
    function Empty_User_Opt_In_Build_Command_Context
      return User_Opt_In_Build_Command_Context
    is
@@ -1097,6 +1161,45 @@ package body Editor.External_Producers.Build_Command_Execution is
    begin
       pragma Assert (User_Opt_In_Build_Preflight_Is_Consistent (Result));
    end Assert_User_Opt_In_Build_Preflight_Consistent;
+
+   function Gated_Build_Command_Result_Is_Consistent
+     (Result : Build_Command_Result;
+      Diagnostics_Ingestion_Allowed : Boolean := True) return Boolean
+   is
+      Ingested : constant Natural :=
+        Result.Diagnostic_Result.Ingestion.Ingestion_Result.Accepted_Count;
+      Parsed : constant Natural :=
+        Result.Diagnostic_Result.Ingestion.Parse_Input_Count;
+      Message : constant String := To_String (Result.Command_Message);
+   begin
+      case Result.Build_Result.Status is
+         when Build_Run_Succeeded | Build_Run_Failed =>
+            if not Result.Build_Result.Has_Exit_Code then
+               return False;
+            end if;
+         when Build_Run_Not_Available | Build_Run_Rejected
+            | Build_Run_Execution_Error | Build_Run_Timed_Out
+            | Build_Run_Cancelled | Build_Run_Cancellation_Unsupported
+            | Build_Run_Output_Truncated =>
+            if Result.Build_Result.Has_Exit_Code then
+               return False;
+            end if;
+      end case;
+
+      if not Diagnostics_Ingestion_Allowed then
+         return Ingested = 0
+           and then Parsed = 0
+           and then Message'Length > 0;
+      end if;
+
+      if Result.Build_Result.Status = Build_Run_Not_Available then
+         return Ingested = 0
+           and then Parsed = 0
+           and then Message'Length > 0;
+      end if;
+
+      return Message'Length > 0;
+   end Gated_Build_Command_Result_Is_Consistent;
 
    function User_Opt_In_Build_Command_Result_Is_Consistent
      (Result : Build_Command_Result) return Boolean
@@ -1581,12 +1684,13 @@ package body Editor.External_Producers.Build_Command_Execution is
          Stderr_Truncated => False))
       return Build_Command_Result
    is
-      Producer : constant External_Producer_Source :=
-        Build_External_Producer_Source (Build_Diagnostics_Producer);
+      Producer : constant Editor.External_Producers.Diagnostics.Producer_Source :=
+        Editor.External_Producers.Diagnostics.Build_External_Producer_Source
+          (Editor.External_Producers.Diagnostics.Build_Diagnostics_Producer);
       Preflight : Build_Preflight_Result;
       Build_Result : Build_Run_Result;
       Diagnostic_Result : Diagnostic_Line_Command_Result :=
-        Empty_Diagnostic_Line_Command_Result;
+        Editor.External_Producers.Diagnostic_Line_Parsing.Empty_Diagnostic_Line_Command_Result;
       Message : Unbounded_String;
       Mode : Process_Execution_Mode;
       Process_Result : Process_Run_Result;
@@ -1657,11 +1761,12 @@ package body Editor.External_Producers.Build_Command_Execution is
       Fixture : Process_Fixture_Request;
       Gate    : Build_Execution_Gate) return Build_Command_Result
    is
-      Producer : constant External_Producer_Source :=
-        Build_External_Producer_Source (Build_Diagnostics_Producer);
+      Producer : constant Editor.External_Producers.Diagnostics.Producer_Source :=
+        Editor.External_Producers.Diagnostics.Build_External_Producer_Source
+          (Editor.External_Producers.Diagnostics.Build_Diagnostics_Producer);
       Build_Result : Build_Run_Result;
       Diagnostic_Result : Diagnostic_Line_Command_Result :=
-        Empty_Diagnostic_Line_Command_Result;
+        Editor.External_Producers.Diagnostic_Line_Parsing.Empty_Diagnostic_Line_Command_Result;
       Message : Unbounded_String;
       Diagnostics_Used : Boolean := False;
       Fixture_Status : Process_Fixture_Validation_Status;
@@ -1733,15 +1838,16 @@ package body Editor.External_Producers.Build_Command_Execution is
          Stderr_Truncated => False))
       return Build_Command_Result
    is
-      Producer : constant External_Producer_Source :=
-        Build_External_Producer_Source (Build_Diagnostics_Producer);
+      Producer : constant Editor.External_Producers.Diagnostics.Producer_Source :=
+        Editor.External_Producers.Diagnostics.Build_External_Producer_Source
+          (Editor.External_Producers.Diagnostics.Build_Diagnostics_Producer);
       Validation : constant Real_Build_Tool_Fixture_Validation_Status :=
         Validate_Real_Build_Tool_Fixture_Request (Request, Fixture, Gate);
       Preflight : constant Build_Preflight_Result :=
         Preflight_Real_Build_Tool_Fixture (Request, Fixture, Gate);
       Build_Result : Build_Run_Result;
       Diagnostic_Result : Diagnostic_Line_Command_Result :=
-        Empty_Diagnostic_Line_Command_Result;
+        Editor.External_Producers.Diagnostic_Line_Parsing.Empty_Diagnostic_Line_Command_Result;
       Message : Unbounded_String;
       Process_Result : Process_Run_Result;
    begin
@@ -1800,13 +1906,14 @@ package body Editor.External_Producers.Build_Command_Execution is
          Stderr_Truncated => False))
       return Build_Command_Result
    is
-      Producer : constant External_Producer_Source :=
-        Build_External_Producer_Source (Build_Diagnostics_Producer);
+      Producer : constant Editor.External_Producers.Diagnostics.Producer_Source :=
+        Editor.External_Producers.Diagnostics.Build_External_Producer_Source
+          (Editor.External_Producers.Diagnostics.Build_Diagnostics_Producer);
       Preflight : constant Build_Preflight_Result :=
         Preflight_User_Opt_In_Build_Request (Request, Gate);
       Build_Result : Build_Run_Result;
       Diagnostic_Result : Diagnostic_Line_Command_Result :=
-        Empty_Diagnostic_Line_Command_Result;
+        Editor.External_Producers.Diagnostic_Line_Parsing.Empty_Diagnostic_Line_Command_Result;
       Process_Result : Process_Run_Result;
       Diagnostics_Used : Boolean := False;
       Message : Unbounded_String;
@@ -1933,7 +2040,7 @@ package body Editor.External_Producers.Build_Command_Execution is
       Status : constant User_Opt_In_Build_Command_Context_Status :=
         Validate_User_Opt_In_Build_Command_Context (Context);
       Empty_Result : constant Diagnostic_Line_Command_Result :=
-        Empty_Diagnostic_Line_Command_Result;
+        Editor.External_Producers.Diagnostic_Line_Parsing.Empty_Diagnostic_Line_Command_Result;
       Build_Status : Build_Run_Status := Build_Run_Rejected;
       Result : Build_Command_Result;
    begin
@@ -2357,5 +2464,24 @@ package body Editor.External_Producers.Build_Command_Execution is
            or else Status = Build_Run_Cancellation_Unsupported,
          Diagnostic_Lines => Diagnostic_Lines);
    end Build_Build_Run_Result;
+
+   procedure Reset_Build_Run_State_For_Project_Close
+     (S : in out Editor.State.State_Type)
+   is
+      pragma Unreferenced (S);
+   begin
+      --  Build/process runs are synchronous and retain no run id, pending
+      --  result, late-delivery queue, output text, or build-owned feature state.
+      null;
+   end Reset_Build_Run_State_For_Project_Close;
+
+   procedure Reset_Build_Run_State_For_Workspace_Close
+     (S : in out Editor.State.State_Type)
+   is
+      pragma Unreferenced (S);
+   begin
+      --  Workspace close has no build-run state to clear.
+      null;
+   end Reset_Build_Run_State_For_Workspace_Close;
 
 end Editor.External_Producers.Build_Command_Execution;

@@ -4,6 +4,7 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Build_Output_Details;
 with Editor.Build_Result_Summary;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Requests;
 with Editor.State;
 with Editor.Build_UI;
 with Editor.Build_Working_Context;
@@ -281,7 +282,7 @@ package body Editor.Build_Output_Details.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Result := Editor.Build_Command.Execute_Public_Build_Run (S);
       Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Not_Available,
@@ -760,7 +761,7 @@ package body Editor.Build_Output_Details.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Result := Editor.Build_Command.Execute_Public_Build_Run (S);
       Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Not_Available,
@@ -909,7 +910,7 @@ package body Editor.Build_Output_Details.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Assert (Editor.Build_Command.Assert_Build_Run_Command_Palette_Boundary (S),
               "Command Palette boundary remains descriptor/Executor-only");

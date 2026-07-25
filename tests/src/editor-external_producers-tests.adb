@@ -6,6 +6,12 @@ with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Editor.Buffers;
 with Editor.External_Producers;
+with Editor.External_Producers.Execution_Policy;
+with Editor.External_Producers.Audits;
+with Editor.External_Producers.Build_Requests;
+with Editor.External_Producers.Diagnostic_Line_Pipeline;
+with Editor.External_Producers.Diagnostic_Line_Parsing;
+with Editor.External_Producers.Diagnostics;
 with Editor.Feature_Diagnostics;
 with Editor.Feature_Messages;
 with Editor.Feature_Panel;
@@ -16,11 +22,11 @@ with Editor.Outline;
 with Editor.State;
 
 use type Ada.Containers.Count_Type;
-use type Editor.External_Producers.External_Producer_Kind;
-use type Editor.External_Producers.Compiler_Diagnostic_Severity;
-use type Editor.External_Producers.Diagnostic_Line_Parse_Status;
-use type Editor.External_Producers.Diagnostic_Line_Parse_Reason;
-use type Editor.External_Producers.Diagnostic_Line_Command_Outcome;
+use type Editor.External_Producers.Diagnostics.Producer_Kind;
+use type Editor.External_Producers.Diagnostics.Compiler_Severity;
+use type Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Status;
+use type Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Reason;
+use type Editor.External_Producers.Diagnostic_Line_Parsing.Command_Outcome;
 use type Editor.External_Producers.Build_Run_Status;
 use type Editor.External_Producers.Process_Run_Status;
 use type Editor.External_Producers.Process_Execution_Mode;
@@ -76,7 +82,7 @@ package body Editor.External_Producers.Tests is
       Replacement_Text : String := "";
       Quick_Fix_Label : String := "";
       Quick_Fix_Detail : String := "")
-      return Editor.External_Producers.External_Diagnostic_Record
+      return Editor.External_Producers.Diagnostics.Diagnostic_Record
    is
    begin
       return
@@ -99,14 +105,14 @@ package body Editor.External_Producers.Tests is
 
    function CRec
      (Message : String;
-      Severity : Editor.External_Producers.Compiler_Diagnostic_Severity :=
-        Editor.External_Producers.Compiler_Error;
+      Severity : Editor.External_Producers.Diagnostics.Compiler_Severity :=
+        Editor.External_Producers.Diagnostics.Compiler_Error;
       File_Label : String := "main.adb";
       Has_Location : Boolean := False;
       Line : Natural := 0;
       Column : Natural := 0;
       Tool_Name : String := "gnat")
-      return Editor.External_Producers.Compiler_Diagnostic_Record
+      return Editor.External_Producers.Diagnostics.Compiler_Record
    is
    begin
       return
@@ -132,39 +138,39 @@ package body Editor.External_Producers.Tests is
       Editor.State.Set_Current_File (S, File);
    end Name_Current_Buffer;
 
-   function Compiler_Source return Editor.External_Producers.External_Producer_Source is
+   function Compiler_Source return Editor.External_Producers.Diagnostics.Producer_Source is
    begin
-      return Editor.External_Producers.Build_Compiler_Diagnostics_Producer_Source;
+      return Editor.External_Producers.Diagnostics.Build_Compiler_Diagnostics_Producer_Source;
    end Compiler_Source;
 
-   function Build_Source return Editor.External_Producers.External_Producer_Source is
+   function Build_Source return Editor.External_Producers.Diagnostics.Producer_Source is
    begin
-      return Editor.External_Producers.Build_External_Producer_Source
-        (Editor.External_Producers.Build_Diagnostics_Producer);
+      return Editor.External_Producers.Diagnostics.Build_External_Producer_Source
+        (Editor.External_Producers.Diagnostics.Build_Diagnostics_Producer);
    end Build_Source;
 
    procedure Test_External_Producer_Identity_Is_Deterministic
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Build : constant Editor.External_Producers.External_Producer_Source :=
+      Build : constant Editor.External_Producers.Diagnostics.Producer_Source :=
         Build_Source;
-      Compiler : constant Editor.External_Producers.External_Producer_Source :=
-        Editor.External_Producers.Build_External_Producer_Source
-          (Editor.External_Producers.Compiler_Diagnostics_Producer);
-      None : constant Editor.External_Producers.External_Producer_Source :=
-        Editor.External_Producers.Build_External_Producer_Source
-          (Editor.External_Producers.No_External_Producer);
+      Compiler : constant Editor.External_Producers.Diagnostics.Producer_Source :=
+        Editor.External_Producers.Diagnostics.Build_External_Producer_Source
+          (Editor.External_Producers.Diagnostics.Compiler_Diagnostics_Producer);
+      None : constant Editor.External_Producers.Diagnostics.Producer_Source :=
+        Editor.External_Producers.Diagnostics.Build_External_Producer_Source
+          (Editor.External_Producers.Diagnostics.No_External_Producer);
    begin
-      Assert (Editor.External_Producers.Producer_Source_Is_Valid (Build),
+      Assert (Editor.External_Producers.Diagnostics.Producer_Source_Is_Valid (Build),
               "build diagnostics producer metadata is valid");
-      Assert (Editor.External_Producers.Producer_Source_Is_Valid (Compiler),
+      Assert (Editor.External_Producers.Diagnostics.Producer_Source_Is_Valid (Compiler),
               "compiler diagnostics producer metadata is valid");
-      Assert (not Editor.External_Producers.Producer_Source_Is_Valid (None),
+      Assert (not Editor.External_Producers.Diagnostics.Producer_Source_Is_Valid (None),
               "no external producer is rejected safely");
       Assert (To_String (Build.Stable_Name) /= To_String (Compiler.Stable_Name),
               "external producer stable names are distinct");
-      Assert (Editor.External_Producers.Map_External_Producer_To_Diagnostic_Source
+      Assert (Editor.External_Producers.Diagnostics.Map_External_Producer_To_Diagnostic_Source
                 (Build) = Editor.Feature_Diagnostics.External_Diagnostic_Source,
               "build producer maps explicitly to external diagnostic source");
    end Test_External_Producer_Identity_Is_Deterministic;
@@ -174,13 +180,13 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Items : Editor.External_Producers.External_Diagnostic_Record_Array;
-      Result : Editor.External_Producers.Producer_Batch_Result;
+      Items : Editor.External_Producers.Diagnostics.Diagnostic_Record_Array;
+      Result : Editor.External_Producers.Diagnostics.Producer_Batch_Result;
    begin
       Prepare_State (S);
       Items.Append (Rec ("build failed", Source => "gprbuild", Has_Target => True,
                          Buffer => S.Registry_Token, Line => 2, Column => 1));
-      Result := Editor.External_Producers.Ingest_Diagnostic_Batch
+      Result := Editor.External_Producers.Diagnostics.Ingest_Diagnostic_Batch
         (S, Build_Source, Items);
       Assert (Result.Accepted_Count = 1, "one external diagnostic is accepted");
       Assert (Result.Rejected_Count = 0, "valid external diagnostic is not rejected");
@@ -198,8 +204,8 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Items : Editor.External_Producers.External_Diagnostic_Record_Array;
-      Result : Editor.External_Producers.Producer_Batch_Result;
+      Items : Editor.External_Producers.Diagnostics.Diagnostic_Record_Array;
+      Result : Editor.External_Producers.Diagnostics.Producer_Batch_Result;
    begin
       Prepare_State (S);
       Items.Append
@@ -246,7 +252,7 @@ package body Editor.External_Producers.Tests is
             Edit_End_Column => 4,
             Replacement_Text => "begin" & ASCII.LF & "   null;"));
 
-      Result := Editor.External_Producers.Ingest_Diagnostic_Batch
+      Result := Editor.External_Producers.Diagnostics.Ingest_Diagnostic_Batch
         (S, Compiler_Source, Items);
 
       Assert (Result.Accepted_Count = 3,
@@ -291,14 +297,14 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Items : Editor.External_Producers.External_Diagnostic_Record_Array;
-      Result : Editor.External_Producers.Producer_Batch_Result;
+      Items : Editor.External_Producers.Diagnostics.Diagnostic_Record_Array;
+      Result : Editor.External_Producers.Diagnostics.Producer_Batch_Result;
    begin
       Prepare_State (S);
       Items.Append (Rec ("first"));
       Items.Append (Rec ("second", Severity => Editor.Feature_Diagnostics.Diagnostic_Warning));
       Items.Append (Rec ("third", Severity => Editor.Feature_Diagnostics.Diagnostic_Info));
-      Result := Editor.External_Producers.Ingest_Diagnostic_Batch (S, Build_Source, Items);
+      Result := Editor.External_Producers.Diagnostics.Ingest_Diagnostic_Batch (S, Build_Source, Items);
       Assert (Result.Accepted_Count = 3, "all ordered records are accepted");
       Assert (Editor.Feature_Diagnostics.Item_Message (S.Feature_Diagnostics, 1) = "first",
               "first record remains first");
@@ -313,13 +319,13 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Items : Editor.External_Producers.External_Diagnostic_Record_Array;
-      Result : Editor.External_Producers.Producer_Batch_Result;
+      Items : Editor.External_Producers.Diagnostics.Diagnostic_Record_Array;
+      Result : Editor.External_Producers.Diagnostics.Producer_Batch_Result;
    begin
       Prepare_State (S);
       Items.Append (Rec ("bad target", Has_Target => True,
                          Buffer => S.Registry_Token + 99, Line => 1, Column => 1));
-      Result := Editor.External_Producers.Ingest_Diagnostic_Batch (S, Build_Source, Items);
+      Result := Editor.External_Producers.Diagnostics.Ingest_Diagnostic_Batch (S, Build_Source, Items);
       Assert (Result.Accepted_Count = 1, "invalid-target record is still accepted");
       Assert (Result.Accepted_Untargeted = 1,
               "invalid-target record is counted as untargeted");
@@ -332,15 +338,15 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Items : Editor.External_Producers.External_Diagnostic_Record_Array;
-      Result : Editor.External_Producers.Producer_Batch_Result;
+      Items : Editor.External_Producers.Diagnostics.Diagnostic_Record_Array;
+      Result : Editor.External_Producers.Diagnostics.Producer_Batch_Result;
    begin
       Prepare_State (S);
       Editor.Feature_Diagnostics.Toggle_Errors_Visible (S.Feature_Diagnostics);
       Editor.Feature_Diagnostics.Set_Filter_Text (S.Feature_Diagnostics, "warning");
       Items.Append (Rec ("hidden error", Severity => Editor.Feature_Diagnostics.Diagnostic_Error));
       Items.Append (Rec ("shown warning", Severity => Editor.Feature_Diagnostics.Diagnostic_Warning));
-      Result := Editor.External_Producers.Ingest_Diagnostic_Batch (S, Build_Source, Items);
+      Result := Editor.External_Producers.Diagnostics.Ingest_Diagnostic_Batch (S, Build_Source, Items);
       Assert (Result.Accepted_Count = 2, "filter state does not block storage");
       Assert (Editor.Feature_Diagnostics.Filter_Text (S.Feature_Diagnostics) = "warning",
               "external ingestion preserves diagnostic text filter");
@@ -356,14 +362,14 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Items : Editor.External_Producers.External_Diagnostic_Record_Array;
-      Result : Editor.External_Producers.Producer_Batch_Result;
+      Items : Editor.External_Producers.Diagnostics.Diagnostic_Record_Array;
+      Result : Editor.External_Producers.Diagnostics.Producer_Batch_Result;
    begin
       Prepare_State (S);
       for I in 1 .. Editor.Feature_Diagnostics.Max_Diagnostics + 5 loop
          Items.Append (Rec ("diagnostic" & Natural'Image (I)));
       end loop;
-      Result := Editor.External_Producers.Ingest_Diagnostic_Batch (S, Build_Source, Items);
+      Result := Editor.External_Producers.Diagnostics.Ingest_Diagnostic_Batch (S, Build_Source, Items);
       Assert (Result.Accepted_Count = Editor.Feature_Diagnostics.Max_Diagnostics + 5,
               "all oversized batch records are accepted before deterministic retention");
       Assert (Result.Evicted_Count = 5, "retention eviction count is deterministic");
@@ -380,15 +386,15 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Items : Editor.External_Producers.External_Diagnostic_Record_Array;
-      Result : Editor.External_Producers.Producer_Batch_Result;
+      Items : Editor.External_Producers.Diagnostics.Diagnostic_Record_Array;
+      Result : Editor.External_Producers.Diagnostics.Producer_Batch_Result;
    begin
       Prepare_State (S);
       Assert (Editor.Feature_Panel_Controller.Show_Feature
                 (S, Editor.Feature_Panel.Outline_Feature),
               "test can activate Outline");
       Items.Append (Rec ("external diagnostic"));
-      Result := Editor.External_Producers.Ingest_Diagnostic_Batch (S, Build_Source, Items);
+      Result := Editor.External_Producers.Diagnostics.Ingest_Diagnostic_Batch (S, Build_Source, Items);
       Assert (Result.Accepted_Count = 1, "external diagnostic accepted while Outline active");
       Assert (Editor.Feature_Panel.Active_Feature (S.Feature_Panel) =
                 Editor.Feature_Panel.Outline_Feature,
@@ -402,7 +408,7 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Items : Editor.External_Producers.External_Diagnostic_Record_Array;
+      Items : Editor.External_Producers.Diagnostics.Diagnostic_Record_Array;
       Outline_Before : Natural;
       Messages_Before : Natural;
       Search_Before : Natural;
@@ -413,8 +419,8 @@ package body Editor.External_Producers.Tests is
       Search_Before := Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results);
       Items.Append (Rec ("external diagnostic"));
       declare
-         Result : constant Editor.External_Producers.Producer_Batch_Result :=
-           Editor.External_Producers.Ingest_Diagnostic_Batch (S, Build_Source, Items);
+         Result : constant Editor.External_Producers.Diagnostics.Producer_Batch_Result :=
+           Editor.External_Producers.Diagnostics.Ingest_Diagnostic_Batch (S, Build_Source, Items);
       begin
          Assert (Result.Accepted_Count = 1, "external diagnostic accepted");
       end;
@@ -432,7 +438,7 @@ package body Editor.External_Producers.Tests is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
       Token : Editor.Feature_Panel.Feature_Projection_Token;
-      Items : Editor.External_Producers.External_Diagnostic_Record_Array;
+      Items : Editor.External_Producers.Diagnostics.Diagnostic_Record_Array;
    begin
       Prepare_State (S);
       Assert (Editor.Feature_Panel_Controller.Show_Feature
@@ -445,8 +451,8 @@ package body Editor.External_Producers.Tests is
               "clearing rows makes token stale");
       Items.Append (Rec ("external diagnostic"));
       declare
-         Result : constant Editor.External_Producers.Producer_Batch_Result :=
-           Editor.External_Producers.Ingest_Diagnostic_Batch (S, Build_Source, Items);
+         Result : constant Editor.External_Producers.Diagnostics.Producer_Batch_Result :=
+           Editor.External_Producers.Diagnostics.Ingest_Diagnostic_Batch (S, Build_Source, Items);
       begin
          Assert (Result.Accepted_Count = 1, "external diagnostic accepted");
       end;
@@ -471,7 +477,7 @@ package body Editor.External_Producers.Tests is
       Before := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
       Result := Editor.Feature_Panel_Audit.Run_Feature_Panel_Audit;
       Assert (Result.Passed, Editor.Feature_Panel_Audit.Summary (Result));
-      Assert (Editor.External_Producers.External_Producer_Audit_Passes,
+      Assert (Editor.External_Producers.Audits.External_Producer_Audit_Passes,
               "external producer audit passes");
       After := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
       Assert (Before = After,
@@ -485,14 +491,14 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Items : Editor.External_Producers.External_Diagnostic_Record_Array;
-      Bad : Editor.External_Producers.External_Producer_Source := Build_Source;
-      Result : Editor.External_Producers.Producer_Batch_Result;
+      Items : Editor.External_Producers.Diagnostics.Diagnostic_Record_Array;
+      Bad : Editor.External_Producers.Diagnostics.Producer_Source := Build_Source;
+      Result : Editor.External_Producers.Diagnostics.Producer_Batch_Result;
    begin
       Prepare_State (S);
       Bad.Stable_Name := To_Unbounded_String ("tampered");
       Items.Append (Rec ("should not store"));
-      Result := Editor.External_Producers.Ingest_Diagnostic_Batch (S, Bad, Items);
+      Result := Editor.External_Producers.Diagnostics.Ingest_Diagnostic_Batch (S, Bad, Items);
       Assert (Result.Accepted_Count = 0, "tampered producer accepts no rows");
       Assert (Result.Rejected_Count = 1, "tampered producer rejects the input row");
       Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
@@ -504,28 +510,28 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
    begin
-      Assert (Editor.External_Producers.Map_Compiler_Severity_To_Diagnostic_Severity
-                (Editor.External_Producers.Compiler_Info) =
+      Assert (Editor.External_Producers.Diagnostics.Map_Compiler_Severity_To_Diagnostic_Severity
+                (Editor.External_Producers.Diagnostics.Compiler_Info) =
               Editor.Feature_Diagnostics.Diagnostic_Info,
               "compiler info maps to diagnostic info");
-      Assert (Editor.External_Producers.Map_Compiler_Severity_To_Diagnostic_Severity
-                (Editor.External_Producers.Compiler_Warning) =
+      Assert (Editor.External_Producers.Diagnostics.Map_Compiler_Severity_To_Diagnostic_Severity
+                (Editor.External_Producers.Diagnostics.Compiler_Warning) =
               Editor.Feature_Diagnostics.Diagnostic_Warning,
               "compiler warning maps to diagnostic warning");
-      Assert (Editor.External_Producers.Map_Compiler_Severity_To_Diagnostic_Severity
-                (Editor.External_Producers.Compiler_Error) =
+      Assert (Editor.External_Producers.Diagnostics.Map_Compiler_Severity_To_Diagnostic_Severity
+                (Editor.External_Producers.Diagnostics.Compiler_Error) =
               Editor.Feature_Diagnostics.Diagnostic_Error,
               "compiler error maps to diagnostic error");
-      Assert (Editor.External_Producers.Map_Compiler_Severity_To_Diagnostic_Severity
-                (Editor.External_Producers.Compiler_Fatal) =
+      Assert (Editor.External_Producers.Diagnostics.Map_Compiler_Severity_To_Diagnostic_Severity
+                (Editor.External_Producers.Diagnostics.Compiler_Fatal) =
               Editor.Feature_Diagnostics.Diagnostic_Error,
               "compiler fatal maps to diagnostic error");
-      Assert (Editor.External_Producers.Map_Compiler_Severity_To_Diagnostic_Severity
-                (Editor.External_Producers.Compiler_Note) =
+      Assert (Editor.External_Producers.Diagnostics.Map_Compiler_Severity_To_Diagnostic_Severity
+                (Editor.External_Producers.Diagnostics.Compiler_Note) =
               Editor.Feature_Diagnostics.Diagnostic_Note,
               "compiler note maps to first-class diagnostic note");
-      Assert (Editor.External_Producers.Map_Compiler_Severity_To_Diagnostic_Severity
-                (Editor.External_Producers.Compiler_Unknown) =
+      Assert (Editor.External_Producers.Diagnostics.Map_Compiler_Severity_To_Diagnostic_Severity
+                (Editor.External_Producers.Diagnostics.Compiler_Unknown) =
               Editor.Feature_Diagnostics.Diagnostic_Unknown,
               "unknown compiler severity maps to first-class unknown diagnostic severity");
    end Test_Compiler_Diagnostic_Normalizes_Severity_Mapping;
@@ -535,11 +541,11 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      R : Editor.External_Producers.External_Diagnostic_Record;
+      R : Editor.External_Producers.Diagnostics.Diagnostic_Record;
    begin
       Prepare_State (S);
       Name_Current_Buffer (S);
-      R := Editor.External_Producers.Normalize_Compiler_Diagnostic
+      R := Editor.External_Producers.Diagnostics.Normalize_Compiler_Diagnostic
         (S, Compiler_Source,
          CRec ("missing semicolon", File_Label => "main.adb",
                Has_Location => True, Line => 2, Column => 1));
@@ -557,11 +563,11 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      R : Editor.External_Producers.External_Diagnostic_Record;
+      R : Editor.External_Producers.Diagnostics.Diagnostic_Record;
    begin
       Prepare_State (S);
       Name_Current_Buffer (S, Path => Editor.Test_Temp.Base & "/main.adb", Display_Name => "main.adb");
-      R := Editor.External_Producers.Normalize_Compiler_Diagnostic
+      R := Editor.External_Producers.Diagnostics.Normalize_Compiler_Diagnostic
         (S, Compiler_Source,
          CRec ("other file", File_Label => "other.adb",
                Has_Location => True, Line => 1, Column => 1));
@@ -576,13 +582,13 @@ package body Editor.External_Producers.Tests is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
       B1, B2 : Editor.Buffers.Buffer_Id;
-      Resolution : Editor.External_Producers.Buffer_Target_Resolution;
+      Resolution : Editor.External_Producers.Diagnostics.Buffer_Target_Resolution;
    begin
       Prepare_State (S);
       Editor.Buffers.Reset_Global_For_Test;
       Editor.Buffers.Global_Add_File_Buffer ("/a/dup.adb", "dup.adb", "a", B1);
       Editor.Buffers.Global_Add_File_Buffer ("/b/dup.adb", "dup.adb", "b", B2);
-      Resolution := Editor.External_Producers.Resolve_Diagnostic_File_Target
+      Resolution := Editor.External_Producers.Diagnostics.Resolve_Diagnostic_File_Target
         (S, "dup.adb");
       Assert (not Resolution.Found,
               "ambiguous live buffer display label is treated as untargeted");
@@ -594,15 +600,15 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Batch : Editor.External_Producers.Normalized_Diagnostic_Batch;
-      Inputs : Editor.External_Producers.Compiler_Diagnostic_Record_Array;
+      Batch : Editor.External_Producers.Diagnostics.Normalized_Batch;
+      Inputs : Editor.External_Producers.Diagnostics.Compiler_Record_Array;
    begin
       Prepare_State (S);
       Name_Current_Buffer (S);
       Inputs.Append
         (CRec ("bad line", File_Label => "main.adb",
                Has_Location => True, Line => 99, Column => 1));
-      Batch := Editor.External_Producers.Normalize_Compiler_Diagnostic_Batch
+      Batch := Editor.External_Producers.Diagnostics.Normalize_Compiler_Diagnostic_Batch
         (S, Compiler_Source, Inputs);
       Assert (Batch.Input_Count = 1 and then Batch.Normalized_Count = 1,
               "invalid-location compiler diagnostic is still normalized");
@@ -619,21 +625,21 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Inputs : Editor.External_Producers.Compiler_Diagnostic_Record_Array;
-      Batch : Editor.External_Producers.Normalized_Diagnostic_Batch;
+      Inputs : Editor.External_Producers.Diagnostics.Compiler_Record_Array;
+      Batch : Editor.External_Producers.Diagnostics.Normalized_Batch;
    begin
       Prepare_State (S);
       Name_Current_Buffer (S);
-      Inputs.Append (CRec ("first", Severity => Editor.External_Producers.Compiler_Info,
+      Inputs.Append (CRec ("first", Severity => Editor.External_Producers.Diagnostics.Compiler_Info,
                            Has_Location => True, Line => 1, Column => 1));
-      Inputs.Append (CRec ("second", Severity => Editor.External_Producers.Compiler_Unknown,
+      Inputs.Append (CRec ("second", Severity => Editor.External_Producers.Diagnostics.Compiler_Unknown,
                            File_Label => "missing.adb", Has_Location => True,
                            Line => 1, Column => 1));
-      Inputs.Append (CRec ("   ", Severity => Editor.External_Producers.Compiler_Warning,
+      Inputs.Append (CRec ("   ", Severity => Editor.External_Producers.Diagnostics.Compiler_Warning,
                            File_Label => "main.adb"));
-      Batch := Editor.External_Producers.Normalize_Compiler_Diagnostic_Batch
+      Batch := Editor.External_Producers.Diagnostics.Normalize_Compiler_Diagnostic_Batch
         (S, Compiler_Source, Inputs);
-      Assert (Editor.External_Producers.Assert_Normalized_Batch_Consistent (Batch),
+      Assert (Editor.External_Producers.Diagnostics.Assert_Normalized_Batch_Consistent (Batch),
               "normalized compiler batch consistency audit passes");
       Assert (Batch.Input_Count = 3 and then Batch.Normalized_Count = 3,
               "compiler batch records input and normalized counts");
@@ -654,16 +660,16 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Inputs : Editor.External_Producers.Compiler_Diagnostic_Record_Array;
-      Result : Editor.External_Producers.Producer_Batch_Result;
+      Inputs : Editor.External_Producers.Diagnostics.Compiler_Record_Array;
+      Result : Editor.External_Producers.Diagnostics.Producer_Batch_Result;
    begin
       Prepare_State (S);
       Name_Current_Buffer (S);
       Inputs.Append
-        (CRec ("build failed", Severity => Editor.External_Producers.Compiler_Fatal,
+        (CRec ("build failed", Severity => Editor.External_Producers.Diagnostics.Compiler_Fatal,
                File_Label => "main.adb", Has_Location => True,
                Line => 3, Column => 1));
-      Result := Editor.External_Producers.Ingest_Compiler_Diagnostic_Batch
+      Result := Editor.External_Producers.Diagnostics.Ingest_Compiler_Diagnostic_Batch
         (S, Compiler_Source, Inputs);
       Assert (Result.Accepted_Count = 1 and then Result.Rejected_Count = 0,
               "structured compiler diagnostic is accepted through batch ingestion");
@@ -684,8 +690,8 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Inputs : Editor.External_Producers.Compiler_Diagnostic_Record_Array;
-      Result : Editor.External_Producers.Producer_Batch_Result;
+      Inputs : Editor.External_Producers.Diagnostics.Compiler_Record_Array;
+      Result : Editor.External_Producers.Diagnostics.Producer_Batch_Result;
    begin
       Prepare_State (S);
       Name_Current_Buffer (S);
@@ -695,10 +701,10 @@ package body Editor.External_Producers.Tests is
       Editor.Feature_Diagnostics.Set_Filter_Text (S.Feature_Diagnostics, "warn");
       Editor.Feature_Diagnostics.Toggle_Errors_Visible (S.Feature_Diagnostics);
       Inputs.Append
-        (CRec ("warn from compiler", Severity => Editor.External_Producers.Compiler_Warning,
+        (CRec ("warn from compiler", Severity => Editor.External_Producers.Diagnostics.Compiler_Warning,
                File_Label => "main.adb", Has_Location => True,
                Line => 1, Column => 1));
-      Result := Editor.External_Producers.Ingest_Compiler_Diagnostic_Batch
+      Result := Editor.External_Producers.Diagnostics.Ingest_Compiler_Diagnostic_Batch
         (S, Compiler_Source, Inputs);
       Assert (Result.Accepted_Count = 1, "compiler diagnostic accepted while another feature is active");
       Assert (Editor.Feature_Diagnostics.Filter_Text (S.Feature_Diagnostics) = "warn",
@@ -718,7 +724,7 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Inputs : Editor.External_Producers.Compiler_Diagnostic_Record_Array;
+      Inputs : Editor.External_Producers.Diagnostics.Compiler_Record_Array;
       Outline_Before : Natural;
       Messages_Before : Natural;
       Search_Before : Natural;
@@ -729,10 +735,10 @@ package body Editor.External_Producers.Tests is
       Messages_Before := Editor.Feature_Messages.Row_Count (S.Feature_Messages);
       Search_Before := Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results);
       Inputs.Append (CRec ("external compiler warning",
-                           Severity => Editor.External_Producers.Compiler_Warning));
+                           Severity => Editor.External_Producers.Diagnostics.Compiler_Warning));
       declare
-         Result : constant Editor.External_Producers.Producer_Batch_Result :=
-           Editor.External_Producers.Ingest_Compiler_Diagnostic_Batch
+         Result : constant Editor.External_Producers.Diagnostics.Producer_Batch_Result :=
+           Editor.External_Producers.Diagnostics.Ingest_Compiler_Diagnostic_Batch
              (S, Compiler_Source, Inputs);
       begin
          Assert (Result.Accepted_Count = 1, "compiler diagnostic accepted");
@@ -755,11 +761,11 @@ package body Editor.External_Producers.Tests is
    begin
       Prepare_State (S);
       Before := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
-      Assert (Editor.External_Producers.Compiler_Diagnostic_Normalization_Audit_Passes,
+      Assert (Editor.External_Producers.Audits.Compiler_Diagnostic_Normalization_Audit_Passes,
               "producer audit covers compiler diagnostic normalization boundary");
-      Assert (Editor.External_Producers.Producer_Lifecycle_Audit_Passes,
+      Assert (Editor.External_Producers.Audits.Producer_Lifecycle_Audit_Passes,
               "producer lifecycle audit documents synchronous-only lifecycle state");
-      Assert (Editor.External_Producers.External_Producer_Audit_Passes,
+      Assert (Editor.External_Producers.Audits.External_Producer_Audit_Passes,
               "external producer audit includes compiler normalization checks");
       After := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
       Assert (Before = After,
@@ -774,19 +780,19 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      R : constant Editor.External_Producers.Diagnostic_Line_Parse_Result :=
-        Editor.External_Producers.Parse_Compiler_Diagnostic_Line
+      R : constant Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Result :=
+        Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Compiler_Diagnostic_Line
           ("src/main.adb:42:7: error: missing "";""", "gnat");
    begin
-      Assert (R.Status = Editor.External_Producers.Parse_Accepted
-              and then R.Reason = Editor.External_Producers.No_Parse_Reason,
+      Assert (R.Status = Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Accepted
+              and then R.Reason = Editor.External_Producers.Diagnostic_Line_Parsing.No_Parse_Reason,
               "error diagnostic line is accepted with no parse-failure reason");
       Assert (R.Has_Record, "accepted diagnostic has structured record");
       Assert (To_String (R.Diagnostic_Record.File_Label) = "src/main.adb",
               "file label is preserved exactly after trimming");
       Assert (R.Diagnostic_Record.Line = 42 and then R.Diagnostic_Record.Column = 7,
               "line and column are parsed as positive integers");
-      Assert (R.Diagnostic_Record.Severity = Editor.External_Producers.Compiler_Error,
+      Assert (R.Diagnostic_Record.Severity = Editor.External_Producers.Diagnostics.Compiler_Error,
               "error severity token maps to compiler error");
       Assert (To_String (R.Diagnostic_Record.Message) = "missing "";""",
               "diagnostic message is preserved");
@@ -796,30 +802,30 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      W : constant Editor.External_Producers.Diagnostic_Line_Parse_Result :=
-        Editor.External_Producers.Parse_Compiler_Diagnostic_Line
+      W : constant Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Result :=
+        Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Compiler_Diagnostic_Line
           ("src/parser.adb:18:3: warning: unused variable ""X""", "gnat");
-      I : constant Editor.External_Producers.Diagnostic_Line_Parse_Result :=
-        Editor.External_Producers.Parse_Compiler_Diagnostic_Line
+      I : constant Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Result :=
+        Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Compiler_Diagnostic_Line
           ("src/editor.ads:5:1: info: style note", "gnat");
-      F : constant Editor.External_Producers.Diagnostic_Line_Parse_Result :=
-        Editor.External_Producers.Parse_Compiler_Diagnostic_Line
+      F : constant Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Result :=
+        Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Compiler_Diagnostic_Line
           ("src/build.adb:2:9: fatal: cannot continue", "gnat");
-      U : constant Editor.External_Producers.Diagnostic_Line_Parse_Result :=
-        Editor.External_Producers.Parse_Compiler_Diagnostic_Line
+      U : constant Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Result :=
+        Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Compiler_Diagnostic_Line
           ("src/other.adb:6:4: strange: explicit unknown token", "gnat");
    begin
-      Assert (W.Status = Editor.External_Producers.Parse_Accepted
-              and then W.Diagnostic_Record.Severity = Editor.External_Producers.Compiler_Warning,
+      Assert (W.Status = Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Accepted
+              and then W.Diagnostic_Record.Severity = Editor.External_Producers.Diagnostics.Compiler_Warning,
               "warning diagnostic line is accepted");
-      Assert (I.Status = Editor.External_Producers.Parse_Accepted
-              and then I.Diagnostic_Record.Severity = Editor.External_Producers.Compiler_Info,
+      Assert (I.Status = Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Accepted
+              and then I.Diagnostic_Record.Severity = Editor.External_Producers.Diagnostics.Compiler_Info,
               "info diagnostic line is accepted");
-      Assert (F.Status = Editor.External_Producers.Parse_Accepted
-              and then F.Diagnostic_Record.Severity = Editor.External_Producers.Compiler_Fatal,
+      Assert (F.Status = Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Accepted
+              and then F.Diagnostic_Record.Severity = Editor.External_Producers.Diagnostics.Compiler_Fatal,
               "fatal diagnostic line is accepted");
-      Assert (U.Status = Editor.External_Producers.Parse_Accepted
-              and then U.Diagnostic_Record.Severity = Editor.External_Producers.Compiler_Unknown,
+      Assert (U.Status = Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Accepted
+              and then U.Diagnostic_Record.Severity = Editor.External_Producers.Diagnostics.Compiler_Unknown,
               "unknown severity token is accepted as Compiler_Unknown");
    end Test_Diagnostic_Line_Parser_Accepts_Warning_Info_Fatal_And_Unknown;
 
@@ -827,23 +833,23 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Note : constant Editor.External_Producers.Diagnostic_Line_Parse_Result :=
-        Editor.External_Producers.Parse_Compiler_Diagnostic_Line
+      Note : constant Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Result :=
+        Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Compiler_Diagnostic_Line
           ("src/main.adb:12:7: note: related declaration", "gnat");
-      Tool : constant Editor.External_Producers.Diagnostic_Line_Parse_Result :=
-        Editor.External_Producers.Parse_Compiler_Diagnostic_Line
+      Tool : constant Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Result :=
+        Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Compiler_Diagnostic_Line
           ("gprbuild: ""demo.gpr"" processing failed", "gprbuild");
    begin
-      Assert (Note.Status = Editor.External_Producers.Parse_Accepted
-              and then Note.Diagnostic_Record.Severity = Editor.External_Producers.Compiler_Note,
+      Assert (Note.Status = Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Accepted
+              and then Note.Diagnostic_Record.Severity = Editor.External_Producers.Diagnostics.Compiler_Note,
               "note severity is preserved distinctly before Diagnostics maps it to info");
-      Assert (Tool.Status = Editor.External_Producers.Parse_Accepted
+      Assert (Tool.Status = Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Accepted
               and then Tool.Has_Record,
               "tool-level gprbuild failure is accepted as a source-less row");
       Assert (not Tool.Diagnostic_Record.Has_Location
               and then To_String (Tool.Diagnostic_Record.File_Label) = "",
               "tool-level gprbuild failure does not fabricate a source target");
-      Assert (Tool.Diagnostic_Record.Severity = Editor.External_Producers.Compiler_Error,
+      Assert (Tool.Diagnostic_Record.Severity = Editor.External_Producers.Diagnostics.Compiler_Error,
               "tool-level gprbuild failure is an explicit build error row");
       Assert (To_String (Tool.Diagnostic_Record.Message) = """demo.gpr"" processing failed",
               "tool-level gprbuild message is bounded and preserved");
@@ -853,26 +859,26 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Warning_Line : constant Editor.External_Producers.Diagnostic_Line_Parse_Result :=
-        Editor.External_Producers.Parse_Compiler_Diagnostic_Line
+      Warning_Line : constant Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Result :=
+        Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Compiler_Diagnostic_Line
           ("gprbuild: warning: project file will be reparsed", "Build diagnostics");
-      Info_Line : constant Editor.External_Producers.Diagnostic_Line_Parse_Result :=
-        Editor.External_Producers.Parse_Compiler_Diagnostic_Line
+      Info_Line : constant Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Result :=
+        Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Compiler_Diagnostic_Line
           ("gprbuild: info: using project demo.gpr", "Build diagnostics");
    begin
-      Assert (Warning_Line.Status = Editor.External_Producers.Parse_Accepted
+      Assert (Warning_Line.Status = Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Accepted
               and then not Warning_Line.Diagnostic_Record.Has_Location
               and then Warning_Line.Diagnostic_Record.Severity =
-                Editor.External_Producers.Compiler_Warning,
+                Editor.External_Producers.Diagnostics.Compiler_Warning,
               "gprbuild warning line remains source-less but keeps warning severity");
       Assert (To_String (Warning_Line.Diagnostic_Record.Message) =
                 "project file will be reparsed",
               "gprbuild severity token is not copied into the diagnostic message");
       Assert (To_String (Warning_Line.Diagnostic_Record.Tool_Name) = "gprbuild",
               "gprbuild-prefixed tool line keeps gprbuild as source label");
-      Assert (Info_Line.Status = Editor.External_Producers.Parse_Accepted
+      Assert (Info_Line.Status = Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Accepted
               and then Info_Line.Diagnostic_Record.Severity =
-                Editor.External_Producers.Compiler_Info
+                Editor.External_Producers.Diagnostics.Compiler_Info
               and then To_String (Info_Line.Diagnostic_Record.Message) =
                 "using project demo.gpr",
               "gprbuild info line maps deterministically to info severity");
@@ -882,18 +888,18 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Chatter : constant Editor.External_Producers.Diagnostic_Line_Parse_Result :=
-        Editor.External_Producers.Parse_Compiler_Diagnostic_Line
+      Chatter : constant Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Result :=
+        Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Compiler_Diagnostic_Line
           ("gprbuild: compiling src/main.adb", "Build diagnostics");
-      Missing_Message : constant Editor.External_Producers.Diagnostic_Line_Parse_Result :=
-        Editor.External_Producers.Parse_Compiler_Diagnostic_Line
+      Missing_Message : constant Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Result :=
+        Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Compiler_Diagnostic_Line
           ("gprbuild: warning:", "Build diagnostics");
    begin
-      Assert (Chatter.Status = Editor.External_Producers.Parse_Ignored_Unrecognized
+      Assert (Chatter.Status = Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Ignored_Unrecognized
               and then not Chatter.Has_Record,
               "ordinary gprbuild chatter must not become a source-less error row");
-      Assert (Missing_Message.Status = Editor.External_Producers.Parse_Rejected_Malformed
-              and then Missing_Message.Reason = Editor.External_Producers.Missing_Message,
+      Assert (Missing_Message.Status = Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Rejected_Malformed
+              and then Missing_Message.Reason = Editor.External_Producers.Diagnostic_Line_Parsing.Missing_Message,
               "explicit gprbuild severity without message is rejected, not defaulted to error");
    end Test_Diagnostic_Line_Parser_Ignores_Ordinary_GPRbuild_Tool_Chatter;
 
@@ -903,14 +909,14 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
    begin
-      Assert (Editor.External_Producers.Parse_Compiler_Diagnostic_Severity ("NOTE") =
-                Editor.External_Producers.Compiler_Note,
+      Assert (Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Compiler_Diagnostic_Severity ("NOTE") =
+                Editor.External_Producers.Diagnostics.Compiler_Note,
               "note maps case-insensitively to note");
-      Assert (Editor.External_Producers.Parse_Compiler_Diagnostic_Severity ("Warn") =
-                Editor.External_Producers.Compiler_Warning,
+      Assert (Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Compiler_Diagnostic_Severity ("Warn") =
+                Editor.External_Producers.Diagnostics.Compiler_Warning,
               "warn maps case-insensitively to warning");
-      Assert (Editor.External_Producers.Parse_Compiler_Diagnostic_Severity ("ERROR") =
-                Editor.External_Producers.Compiler_Error,
+      Assert (Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Compiler_Diagnostic_Severity ("ERROR") =
+                Editor.External_Producers.Diagnostics.Compiler_Error,
               "error maps case-insensitively to error");
    end Test_Diagnostic_Line_Parser_Is_Case_Insensitive;
 
@@ -918,11 +924,11 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      R : constant Editor.External_Producers.Diagnostic_Line_Parse_Result :=
-        Editor.External_Producers.Parse_Compiler_Diagnostic_Line
+      R : constant Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Result :=
+        Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Compiler_Diagnostic_Line
           ("src/main.adb:1:2: warning: value: still: valid", "gnat");
    begin
-      Assert (R.Status = Editor.External_Producers.Parse_Accepted,
+      Assert (R.Status = Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Accepted,
               "message containing extra colons is accepted");
       Assert (To_String (R.Diagnostic_Record.Message) = "value: still: valid",
               "remaining message text preserves extra colons");
@@ -933,30 +939,30 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Line_Only : constant Editor.External_Producers.Diagnostic_Line_Parse_Result :=
-        Editor.External_Producers.Parse_Compiler_Diagnostic_Line
+      Line_Only : constant Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Result :=
+        Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Compiler_Diagnostic_Line
           ("src/main.adb:12: warning: suspicious construct", "gnat");
-      Unknown_Line_Only : constant Editor.External_Producers.Diagnostic_Line_Parse_Result :=
-        Editor.External_Producers.Parse_Compiler_Diagnostic_Line
+      Unknown_Line_Only : constant Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Result :=
+        Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Compiler_Diagnostic_Line
           ("src/main.adb:13: advisory: unusual but accepted", "gnat");
-      Bad_Column : constant Editor.External_Producers.Diagnostic_Line_Parse_Result :=
-        Editor.External_Producers.Parse_Compiler_Diagnostic_Line
+      Bad_Column : constant Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Result :=
+        Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Compiler_Diagnostic_Line
           ("src/main.adb:14:x: error: bad column", "gnat");
    begin
-      Assert (Line_Only.Status = Editor.External_Producers.Parse_Accepted
+      Assert (Line_Only.Status = Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Accepted
               and then Line_Only.Diagnostic_Record.Line = 12
               and then Line_Only.Diagnostic_Record.Column = 1
-              and then Line_Only.Diagnostic_Record.Severity = Editor.External_Producers.Compiler_Warning,
+              and then Line_Only.Diagnostic_Record.Severity = Editor.External_Producers.Diagnostics.Compiler_Warning,
               "line-only warning diagnostic maps to the retained line-start policy");
       Assert (To_String (Line_Only.Diagnostic_Record.Message) = "suspicious construct",
               "line-only diagnostic preserves message text after severity");
-      Assert (Unknown_Line_Only.Status = Editor.External_Producers.Parse_Accepted
+      Assert (Unknown_Line_Only.Status = Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Accepted
               and then Unknown_Line_Only.Diagnostic_Record.Severity =
-                Editor.External_Producers.Compiler_Unknown
+                Editor.External_Producers.Diagnostics.Compiler_Unknown
               and then Unknown_Line_Only.Diagnostic_Record.Column = 1,
               "line-only unknown severity remains deterministic and source-positioned");
-      Assert (Bad_Column.Status = Editor.External_Producers.Parse_Rejected_Malformed
-              and then Bad_Column.Reason = Editor.External_Producers.Nonnumeric_Column,
+      Assert (Bad_Column.Status = Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Rejected_Malformed
+              and then Bad_Column.Reason = Editor.External_Producers.Diagnostic_Line_Parsing.Nonnumeric_Column,
               "nonnumeric column before a known severity is not misread as line-only severity");
    end Test_Diagnostic_Line_Parser_Accepts_Line_Only_And_Rejects_Bad_Column;
 
@@ -964,8 +970,8 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Lines : Editor.External_Producers.Diagnostic_Text_Line_Array;
-      Batch : Editor.External_Producers.Diagnostic_Line_Batch_Parse_Result;
+      Lines : Editor.External_Producers.Diagnostic_Line_Parsing.Text_Line_Array;
+      Batch : Editor.External_Producers.Diagnostic_Line_Parsing.Batch_Parse_Result;
       First_Message : Unbounded_String;
    begin
       Lines.Append (To_Unbounded_String ("src/main.adb:12:7: error: invalid operand types"));
@@ -973,7 +979,7 @@ package body Editor.External_Producers.Tests is
       Lines.Append (To_Unbounded_String ("   right operand has type ""String"""));
       Lines.Append (To_Unbounded_String ("src/other.adb:4:1: warning: next diagnostic"));
       Lines.Append (To_Unbounded_String ("orphan progress line"));
-      Batch := Editor.External_Producers.Parse_Compiler_Diagnostic_Lines (Lines, "gnat");
+      Batch := Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Compiler_Diagnostic_Lines (Lines, "gnat");
       First_Message := Batch.Records.Element (Batch.Records.First_Index).Message;
 
       Assert (Natural (Batch.Records.Length) = 2,
@@ -994,8 +1000,8 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Lines : Editor.External_Producers.Diagnostic_Text_Line_Array;
-      Batch : Editor.External_Producers.Diagnostic_Line_Batch_Parse_Result;
+      Lines : Editor.External_Producers.Diagnostic_Line_Parsing.Text_Line_Array;
+      Batch : Editor.External_Producers.Diagnostic_Line_Parsing.Batch_Parse_Result;
       Message : Unbounded_String;
    begin
       Lines.Append (To_Unbounded_String ("src/main.adb:1:1: error: first"));
@@ -1005,7 +1011,7 @@ package body Editor.External_Producers.Tests is
       Lines.Append (To_Unbounded_String (""));
       Lines.Append (To_Unbounded_String ("   not a continuation after blank"));
 
-      Batch := Editor.External_Producers.Parse_Compiler_Diagnostic_Lines (Lines, "gnat");
+      Batch := Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Compiler_Diagnostic_Lines (Lines, "gnat");
       Message := Batch.Records.Element (Batch.Records.First_Index).Message;
 
       Assert (Natural (Batch.Records.Length) = 2,
@@ -1026,18 +1032,18 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Blank : constant Editor.External_Producers.Diagnostic_Line_Parse_Result :=
-        Editor.External_Producers.Parse_Compiler_Diagnostic_Line ("   ", "gnat");
-      Other : constant Editor.External_Producers.Diagnostic_Line_Parse_Result :=
-        Editor.External_Producers.Parse_Compiler_Diagnostic_Line
+      Blank : constant Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Result :=
+        Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Compiler_Diagnostic_Line ("   ", "gnat");
+      Other : constant Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Result :=
+        Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Compiler_Diagnostic_Line
           ("this is not a diagnostic", "gnat");
    begin
-      Assert (Blank.Status = Editor.External_Producers.Parse_Ignored_Blank
-              and then Blank.Reason = Editor.External_Producers.Blank_Line
+      Assert (Blank.Status = Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Ignored_Blank
+              and then Blank.Reason = Editor.External_Producers.Diagnostic_Line_Parsing.Blank_Line
               and then not Blank.Has_Record,
               "blank line is ignored without a record and carries reason");
-      Assert (Other.Status = Editor.External_Producers.Parse_Ignored_Unrecognized
-              and then Other.Reason = Editor.External_Producers.Unrecognized_Format
+      Assert (Other.Status = Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Ignored_Unrecognized
+              and then Other.Reason = Editor.External_Producers.Diagnostic_Line_Parsing.Unrecognized_Format
               and then not Other.Has_Record,
               "unrecognized line is ignored without a record and carries reason");
    end Test_Diagnostic_Line_Parser_Ignores_Blank_And_Unrecognized;
@@ -1046,42 +1052,42 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Bad_Line : constant Editor.External_Producers.Diagnostic_Line_Parse_Result :=
-        Editor.External_Producers.Parse_Compiler_Diagnostic_Line
+      Bad_Line : constant Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Result :=
+        Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Compiler_Diagnostic_Line
           ("src/main.adb:abc:7: error: bad line", "gnat");
-      Bad_Column : constant Editor.External_Producers.Diagnostic_Line_Parse_Result :=
-        Editor.External_Producers.Parse_Compiler_Diagnostic_Line
+      Bad_Column : constant Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Result :=
+        Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Compiler_Diagnostic_Line
           ("src/main.adb:42:x: error: bad column", "gnat");
-      Zero_Line : constant Editor.External_Producers.Diagnostic_Line_Parse_Result :=
-        Editor.External_Producers.Parse_Compiler_Diagnostic_Line
+      Zero_Line : constant Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Result :=
+        Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Compiler_Diagnostic_Line
           ("src/main.adb:0:7: error: bad line", "gnat");
-      Zero_Column : constant Editor.External_Producers.Diagnostic_Line_Parse_Result :=
-        Editor.External_Producers.Parse_Compiler_Diagnostic_Line
+      Zero_Column : constant Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Result :=
+        Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Compiler_Diagnostic_Line
           ("src/main.adb:42:0: error: bad column", "gnat");
-      Missing_Severity : constant Editor.External_Producers.Diagnostic_Line_Parse_Result :=
-        Editor.External_Producers.Parse_Compiler_Diagnostic_Line
+      Missing_Severity : constant Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Result :=
+        Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Compiler_Diagnostic_Line
           ("src/main.adb:42:7: : bad severity", "gnat");
-      Empty_Message : constant Editor.External_Producers.Diagnostic_Line_Parse_Result :=
-        Editor.External_Producers.Parse_Compiler_Diagnostic_Line
+      Empty_Message : constant Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Result :=
+        Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Compiler_Diagnostic_Line
           ("src/main.adb:42:7: error:   ", "gnat");
    begin
-      Assert (Bad_Line.Status = Editor.External_Producers.Parse_Rejected_Malformed
-              and then Bad_Line.Reason = Editor.External_Producers.Nonnumeric_Line,
+      Assert (Bad_Line.Status = Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Rejected_Malformed
+              and then Bad_Line.Reason = Editor.External_Producers.Diagnostic_Line_Parsing.Nonnumeric_Line,
               "nonnumeric line is rejected with reason");
-      Assert (Bad_Column.Status = Editor.External_Producers.Parse_Rejected_Malformed
-              and then Bad_Column.Reason = Editor.External_Producers.Nonnumeric_Column,
+      Assert (Bad_Column.Status = Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Rejected_Malformed
+              and then Bad_Column.Reason = Editor.External_Producers.Diagnostic_Line_Parsing.Nonnumeric_Column,
               "nonnumeric column is rejected with reason");
-      Assert (Zero_Line.Status = Editor.External_Producers.Parse_Rejected_Malformed
-              and then Zero_Line.Reason = Editor.External_Producers.Zero_Line,
+      Assert (Zero_Line.Status = Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Rejected_Malformed
+              and then Zero_Line.Reason = Editor.External_Producers.Diagnostic_Line_Parsing.Zero_Line,
               "zero line is rejected with reason");
-      Assert (Zero_Column.Status = Editor.External_Producers.Parse_Rejected_Malformed
-              and then Zero_Column.Reason = Editor.External_Producers.Zero_Column,
+      Assert (Zero_Column.Status = Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Rejected_Malformed
+              and then Zero_Column.Reason = Editor.External_Producers.Diagnostic_Line_Parsing.Zero_Column,
               "zero column is rejected with reason");
-      Assert (Missing_Severity.Status = Editor.External_Producers.Parse_Rejected_Malformed
-              and then Missing_Severity.Reason = Editor.External_Producers.Missing_Severity,
+      Assert (Missing_Severity.Status = Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Rejected_Malformed
+              and then Missing_Severity.Reason = Editor.External_Producers.Diagnostic_Line_Parsing.Missing_Severity,
               "missing severity token is rejected with reason");
-      Assert (Empty_Message.Status = Editor.External_Producers.Parse_Rejected_Malformed
-              and then Empty_Message.Reason = Editor.External_Producers.Missing_Message,
+      Assert (Empty_Message.Status = Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Rejected_Malformed
+              and then Empty_Message.Reason = Editor.External_Producers.Diagnostic_Line_Parsing.Missing_Message,
               "empty message is rejected with reason");
    end Test_Diagnostic_Line_Parser_Rejects_Malformed_Locations_And_Message;
 
@@ -1089,11 +1095,11 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      R : constant Editor.External_Producers.Diagnostic_Line_Parse_Result :=
-        Editor.External_Producers.Parse_Compiler_Diagnostic_Line
+      R : constant Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Result :=
+        Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Compiler_Diagnostic_Line
           ("C:\work\main.adb:10:2: error: windows path", "gnat");
    begin
-      Assert (R.Status = Editor.External_Producers.Parse_Accepted,
+      Assert (R.Status = Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Accepted,
               "Windows-style drive-letter path is accepted by skipping nonnumeric colon fields");
       Assert (To_String (R.Diagnostic_Record.File_Label) = "C:\work\main.adb",
               "Windows-style file label is preserved");
@@ -1103,16 +1109,16 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Lines : Editor.External_Producers.Diagnostic_Text_Line_Array;
-      Batch : Editor.External_Producers.Diagnostic_Line_Batch_Parse_Result;
+      Lines : Editor.External_Producers.Diagnostic_Line_Parsing.Text_Line_Array;
+      Batch : Editor.External_Producers.Diagnostic_Line_Parsing.Batch_Parse_Result;
    begin
       Lines.Append (To_Unbounded_String ("src/a.adb:1:1: error: first"));
       Lines.Append (To_Unbounded_String (""));
       Lines.Append (To_Unbounded_String ("not diagnostic"));
       Lines.Append (To_Unbounded_String ("src/b.adb:2:3: warning: second"));
       Lines.Append (To_Unbounded_String ("src/c.adb:0:3: error: rejected"));
-      Batch := Editor.External_Producers.Parse_Compiler_Diagnostic_Lines (Lines, "gnat");
-      Assert (Editor.External_Producers.Assert_Diagnostic_Line_Batch_Consistent (Batch),
+      Batch := Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Compiler_Diagnostic_Lines (Lines, "gnat");
+      Assert (Editor.External_Producers.Diagnostic_Line_Parsing.Assert_Diagnostic_Line_Batch_Consistent (Batch),
               "batch parse counts are internally consistent");
       Assert (Batch.Input_Count = 5, "batch records full input count");
       Assert (Batch.Accepted_Count = 2, "batch reports accepted lines");
@@ -1130,11 +1136,11 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Lines : Editor.External_Producers.Diagnostic_Text_Line_Array;
-      Batch : constant Editor.External_Producers.Diagnostic_Line_Batch_Parse_Result :=
-        Editor.External_Producers.Parse_Compiler_Diagnostic_Lines (Lines, "gnat");
+      Lines : Editor.External_Producers.Diagnostic_Line_Parsing.Text_Line_Array;
+      Batch : constant Editor.External_Producers.Diagnostic_Line_Parsing.Batch_Parse_Result :=
+        Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Compiler_Diagnostic_Lines (Lines, "gnat");
    begin
-      Assert (Editor.External_Producers.Assert_Diagnostic_Line_Batch_Consistent (Batch),
+      Assert (Editor.External_Producers.Diagnostic_Line_Parsing.Assert_Diagnostic_Line_Batch_Consistent (Batch),
               "empty batch is internally consistent");
       Assert (Batch.Input_Count = 0 and then Batch.Accepted_Count = 0,
               "empty batch has zero input and accepted counts");
@@ -1150,26 +1156,26 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      With_Tool : constant Editor.External_Producers.Diagnostic_Line_Parse_Result :=
-        Editor.External_Producers.Parse_Compiler_Diagnostic_Line
+      With_Tool : constant Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Result :=
+        Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Compiler_Diagnostic_Line
           ("main.adb:1:1: warning: message", " gnat ");
-      Empty_Tool : constant Editor.External_Producers.Diagnostic_Line_Parse_Result :=
-        Editor.External_Producers.Parse_Compiler_Diagnostic_Line
+      Empty_Tool : constant Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Result :=
+        Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Compiler_Diagnostic_Line
           ("main.adb:1:1: warning: message", "   ");
       S : Editor.State.State_Type;
-      Source : constant Editor.External_Producers.External_Producer_Source :=
+      Source : constant Editor.External_Producers.Diagnostics.Producer_Source :=
         Compiler_Source;
-      Normalized_With_Tool : Editor.External_Producers.External_Diagnostic_Record;
-      Normalized_Empty_Tool : Editor.External_Producers.External_Diagnostic_Record;
+      Normalized_With_Tool : Editor.External_Producers.Diagnostics.Diagnostic_Record;
+      Normalized_Empty_Tool : Editor.External_Producers.Diagnostics.Diagnostic_Record;
    begin
       Prepare_State (S);
       Assert (To_String (With_Tool.Diagnostic_Record.Tool_Name) = "gnat",
               "parser trims and propagates non-empty tool name");
       Assert (To_String (Empty_Tool.Diagnostic_Record.Tool_Name) = "",
               "parser keeps empty tool name clean");
-      Normalized_With_Tool := Editor.External_Producers.Normalize_Parsed_Compiler_Diagnostic
+      Normalized_With_Tool := Editor.External_Producers.Diagnostic_Line_Parsing.Normalize_Parsed_Compiler_Diagnostic
         (S, Source, With_Tool);
-      Normalized_Empty_Tool := Editor.External_Producers.Normalize_Parsed_Compiler_Diagnostic
+      Normalized_Empty_Tool := Editor.External_Producers.Diagnostic_Line_Parsing.Normalize_Parsed_Compiler_Diagnostic
         (S, Source, Empty_Tool);
       Assert (To_String (Normalized_With_Tool.Source_Label) = "gnat: main.adb",
               "normalizer includes non-empty tool name in source label");
@@ -1181,44 +1187,44 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Only_Colons : constant Editor.External_Producers.Diagnostic_Line_Parse_Result :=
-        Editor.External_Producers.Parse_Compiler_Diagnostic_Line ("::::", "gnat");
-      Missing_Column : constant Editor.External_Producers.Diagnostic_Line_Parse_Result :=
-        Editor.External_Producers.Parse_Compiler_Diagnostic_Line
+      Only_Colons : constant Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Result :=
+        Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Compiler_Diagnostic_Line ("::::", "gnat");
+      Missing_Column : constant Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Result :=
+        Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Compiler_Diagnostic_Line
           ("main.adb:1:: error: message", "gnat");
-      No_Message_Separator : constant Editor.External_Producers.Diagnostic_Line_Parse_Result :=
-        Editor.External_Producers.Parse_Compiler_Diagnostic_Line
+      No_Message_Separator : constant Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Result :=
+        Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Compiler_Diagnostic_Line
           ("main.adb:1:1: warning", "gnat");
-      Warning_Separator_Only : constant Editor.External_Producers.Diagnostic_Line_Parse_Result :=
-        Editor.External_Producers.Parse_Compiler_Diagnostic_Line
+      Warning_Separator_Only : constant Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Result :=
+        Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Compiler_Diagnostic_Line
           ("main.adb:1:1: warning:", "gnat");
       Long_Message : constant String := (1 .. 1200 => 'x');
       Long_File_Label : constant String := (1 .. 900 => 'p');
-      Many_Colons : constant Editor.External_Producers.Diagnostic_Line_Parse_Result :=
-        Editor.External_Producers.Parse_Compiler_Diagnostic_Line
+      Many_Colons : constant Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Result :=
+        Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Compiler_Diagnostic_Line
           ("main.adb:1:1: warning: one:two:three:four", "gnat");
-      Long_Result : constant Editor.External_Producers.Diagnostic_Line_Parse_Result :=
-        Editor.External_Producers.Parse_Compiler_Diagnostic_Line
+      Long_Result : constant Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Result :=
+        Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Compiler_Diagnostic_Line
           ("main.adb:1:1: warning: " & Long_Message, "gnat");
-      Long_File_Result : constant Editor.External_Producers.Diagnostic_Line_Parse_Result :=
-        Editor.External_Producers.Parse_Compiler_Diagnostic_Line
+      Long_File_Result : constant Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Result :=
+        Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Compiler_Diagnostic_Line
           (Long_File_Label & ":1:1: warning: long file", "gnat");
    begin
-      Assert (Only_Colons.Status = Editor.External_Producers.Parse_Rejected_Malformed,
+      Assert (Only_Colons.Status = Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Rejected_Malformed,
               "only-colons input is rejected without an exception");
-      Assert (Missing_Column.Reason = Editor.External_Producers.Missing_Column,
+      Assert (Missing_Column.Reason = Editor.External_Producers.Diagnostic_Line_Parsing.Missing_Column,
               "missing column reason is deterministic");
-      Assert (No_Message_Separator.Reason = Editor.External_Producers.Missing_Message,
+      Assert (No_Message_Separator.Reason = Editor.External_Producers.Diagnostic_Line_Parsing.Missing_Message,
               "line without message separator is missing message");
-      Assert (Warning_Separator_Only.Reason = Editor.External_Producers.Missing_Message,
+      Assert (Warning_Separator_Only.Reason = Editor.External_Producers.Diagnostic_Line_Parsing.Missing_Message,
               "line with empty message after separator is missing message");
-      Assert (Many_Colons.Status = Editor.External_Producers.Parse_Accepted
+      Assert (Many_Colons.Status = Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Accepted
               and then To_String (Many_Colons.Diagnostic_Record.Message) = "one:two:three:four",
               "message with many colons is accepted and preserved");
-      Assert (Long_Result.Status = Editor.External_Producers.Parse_Accepted
+      Assert (Long_Result.Status = Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Accepted
               and then Natural (Length (Long_Result.Diagnostic_Record.Message)) <= 512,
               "very long message is accepted and bounded without an exception");
-      Assert (Long_File_Result.Status = Editor.External_Producers.Parse_Accepted
+      Assert (Long_File_Result.Status = Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Accepted
               and then Natural (Length (Long_File_Result.Diagnostic_Record.File_Label)) =
                 Long_File_Label'Length,
               "very long file label is accepted without an exception");
@@ -1229,8 +1235,8 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Lines : Editor.External_Producers.Diagnostic_Text_Line_Array;
-      Batch : Editor.External_Producers.Diagnostic_Line_Batch_Parse_Result;
+      Lines : Editor.External_Producers.Diagnostic_Line_Parsing.Text_Line_Array;
+      Batch : Editor.External_Producers.Diagnostic_Line_Parsing.Batch_Parse_Result;
       Before : Editor.Feature_Panel.Feature_Panel_Fingerprint;
       After : Editor.Feature_Panel.Feature_Panel_Fingerprint;
    begin
@@ -1239,7 +1245,7 @@ package body Editor.External_Producers.Tests is
       Lines.Append (To_Unbounded_String ("main.adb:0:1: error: malformed"));
       Lines.Append (To_Unbounded_String ("not a diagnostic"));
       Before := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
-      Batch := Editor.External_Producers.Parse_Compiler_Diagnostic_Lines (Lines, "gnat");
+      Batch := Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Compiler_Diagnostic_Lines (Lines, "gnat");
       After := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
       Assert (Batch.Accepted_Count = 1,
               "parser-only mixed batch still parses accepted record");
@@ -1260,13 +1266,13 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Lines : Editor.External_Producers.Diagnostic_Text_Line_Array;
-      Result : Editor.External_Producers.Diagnostic_Line_Ingestion_Result;
+      Lines : Editor.External_Producers.Diagnostic_Line_Parsing.Text_Line_Array;
+      Result : Editor.External_Producers.Diagnostic_Line_Parsing.Ingestion_Result;
    begin
       Prepare_State (S);
       Name_Current_Buffer (S);
       Lines.Append (To_Unbounded_String ("main.adb:2:1: error: parsed failure"));
-      Result := Editor.External_Producers.Ingest_Compiler_Diagnostic_Lines
+      Result := Editor.External_Producers.Diagnostic_Line_Parsing.Ingest_Compiler_Diagnostic_Lines
         (S, Compiler_Source, Lines);
       Assert (Result.Parse_Input_Count = 1 and then Result.Parse_Accepted_Count = 1,
               "line ingestion reports parser counts");
@@ -1286,8 +1292,8 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Lines : Editor.External_Producers.Diagnostic_Text_Line_Array;
-      Result : Editor.External_Producers.Diagnostic_Line_Ingestion_Result;
+      Lines : Editor.External_Producers.Diagnostic_Line_Parsing.Text_Line_Array;
+      Result : Editor.External_Producers.Diagnostic_Line_Parsing.Ingestion_Result;
    begin
       Prepare_State (S);
       Lines.Append (To_Unbounded_String (""));
@@ -1295,7 +1301,7 @@ package body Editor.External_Producers.Tests is
       Lines.Append (To_Unbounded_String ("not a diagnostic"));
       Lines.Append (To_Unbounded_String ("src/parser.adb:x:3: warning: bad line number"));
       Lines.Append (To_Unbounded_String ("src/editor.ads:5:1: info: style note"));
-      Result := Editor.External_Producers.Ingest_Compiler_Diagnostic_Lines
+      Result := Editor.External_Producers.Diagnostic_Line_Parsing.Ingest_Compiler_Diagnostic_Lines
         (S, Compiler_Source, Lines);
       Assert (Result.Parse_Input_Count = 5,
               "mixed ingestion reports full raw input count");
@@ -1323,11 +1329,11 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Ingested : Editor.External_Producers.Diagnostic_Line_Ingestion_Result;
-      Ignored : Editor.External_Producers.Diagnostic_Line_Ingestion_Result;
-      Malformed : Editor.External_Producers.Diagnostic_Line_Ingestion_Result;
-      Empty : Editor.External_Producers.Diagnostic_Line_Ingestion_Result;
-      Is_Limited : Editor.External_Producers.Diagnostic_Line_Ingestion_Result;
+      Ingested : Editor.External_Producers.Diagnostic_Line_Parsing.Ingestion_Result;
+      Ignored : Editor.External_Producers.Diagnostic_Line_Parsing.Ingestion_Result;
+      Malformed : Editor.External_Producers.Diagnostic_Line_Parsing.Ingestion_Result;
+      Empty : Editor.External_Producers.Diagnostic_Line_Parsing.Ingestion_Result;
+      Is_Limited : Editor.External_Producers.Diagnostic_Line_Parsing.Ingestion_Result;
    begin
       Ingested.Ingestion_Result.Accepted_Count := 3;
       Ignored.Ingestion_Result.Accepted_Count := 3;
@@ -1337,29 +1343,29 @@ package body Editor.External_Producers.Tests is
       Malformed.Parse_Rejected_Malformed_Count := 2;
       Is_Limited.Ingestion_Result.Accepted_Count := 3;
       Is_Limited.Ingestion_Result.Evicted_Count := 2;
-      Assert (Editor.External_Producers.Format_Diagnostic_Line_Ingestion_Result (Ingested) =
+      Assert (Editor.External_Producers.Diagnostic_Line_Parsing.Format_Diagnostic_Line_Ingestion_Result (Ingested) =
                 "Diagnostics: ingested 3 diagnostics",
               "format helper reports plain ingested count");
-      Assert (Editor.External_Producers.Format_Diagnostic_Line_Ingestion_Result (Ignored) =
+      Assert (Editor.External_Producers.Diagnostic_Line_Parsing.Format_Diagnostic_Line_Ingestion_Result (Ignored) =
                 "Diagnostics: ingested 3 diagnostics, ignored 2 lines",
               "format helper reports ingested count with ignored lines");
-      Assert (Editor.External_Producers.Format_Diagnostic_Line_Ingestion_Result (Malformed) =
+      Assert (Editor.External_Producers.Diagnostic_Line_Parsing.Format_Diagnostic_Line_Ingestion_Result (Malformed) =
                 "Diagnostics: 2 malformed diagnostic lines",
               "format helper reports malformed-only result");
-      Assert (Editor.External_Producers.Format_Diagnostic_Line_Ingestion_Result (Is_Limited) =
+      Assert (Editor.External_Producers.Diagnostic_Line_Parsing.Format_Diagnostic_Line_Ingestion_Result (Is_Limited) =
                 "Diagnostics: ingested 3 diagnostics, limit reached, evicted 2 older diagnostics",
               "format helper reports diagnostic retention limit pressure");
-      Assert (Editor.External_Producers.Format_Diagnostic_Line_Ingestion_Result (Empty) =
+      Assert (Editor.External_Producers.Diagnostic_Line_Parsing.Format_Diagnostic_Line_Ingestion_Result (Empty) =
                 "Diagnostics: no diagnostic input",
               "format helper reports empty input distinctly");
 
       declare
-         No_Parse : Editor.External_Producers.Diagnostic_Line_Ingestion_Result;
+         No_Parse : Editor.External_Producers.Diagnostic_Line_Parsing.Ingestion_Result;
       begin
          No_Parse.Parse_Input_Count := 2;
          No_Parse.Parse_Ignored_Blank_Count := 1;
          No_Parse.Parse_Ignored_Unrecognized_Count := 1;
-         Assert (Editor.External_Producers.Build_Diagnostic_Line_Command_Feedback (No_Parse) =
+         Assert (Editor.External_Producers.Diagnostic_Line_Parsing.Build_Diagnostic_Line_Command_Feedback (No_Parse) =
                    "Diagnostics: no diagnostics parsed, ignored 2 lines",
                  "command feedback reports ignored count for ignored-only input");
       end;
@@ -1370,8 +1376,8 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Lines : Editor.External_Producers.Diagnostic_Text_Line_Array;
-      Result : Editor.External_Producers.Diagnostic_Line_Ingestion_Result;
+      Lines : Editor.External_Producers.Diagnostic_Line_Parsing.Text_Line_Array;
+      Result : Editor.External_Producers.Diagnostic_Line_Parsing.Ingestion_Result;
    begin
       Prepare_State (S);
       Assert (Editor.Feature_Panel_Controller.Show_Feature
@@ -1383,7 +1389,7 @@ package body Editor.External_Producers.Tests is
          Lines.Append (To_Unbounded_String
            ("src/main.adb:1:1: warning: warning" & Natural'Image (I)));
       end loop;
-      Result := Editor.External_Producers.Ingest_Compiler_Diagnostic_Lines
+      Result := Editor.External_Producers.Diagnostic_Line_Parsing.Ingest_Compiler_Diagnostic_Lines
         (S, Compiler_Source, Lines);
       Assert (Result.Parse_Accepted_Count = Editor.Feature_Diagnostics.Max_Diagnostics + 3,
               "all raw lines are parsed before retention");
@@ -1407,18 +1413,18 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Lines : Editor.External_Producers.Diagnostic_Text_Line_Array;
+      Lines : Editor.External_Producers.Diagnostic_Line_Parsing.Text_Line_Array;
       Outline_Before : Natural;
       Messages_Before : Natural;
       Search_Before : Natural;
-      Result : Editor.External_Producers.Diagnostic_Line_Ingestion_Result;
+      Result : Editor.External_Producers.Diagnostic_Line_Parsing.Ingestion_Result;
    begin
       Prepare_State (S);
       Outline_Before := Editor.Outline.Item_Count (S.Outline);
       Messages_Before := Editor.Feature_Messages.Row_Count (S.Feature_Messages);
       Search_Before := Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results);
       Lines.Append (To_Unbounded_String ("src/main.adb:1:1: warning: parsed warning"));
-      Result := Editor.External_Producers.Ingest_Compiler_Diagnostic_Lines
+      Result := Editor.External_Producers.Diagnostic_Line_Parsing.Ingest_Compiler_Diagnostic_Lines
         (S, Compiler_Source, Lines);
       Assert (Result.Ingestion_Result.Accepted_Count = 1,
               "line diagnostic is ingested");
@@ -1435,7 +1441,7 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Mixed : Editor.External_Producers.Diagnostic_Line_Ingestion_Result;
+      Mixed : Editor.External_Producers.Diagnostic_Line_Parsing.Ingestion_Result;
    begin
       Mixed.Parse_Input_Count := 5;
       Mixed.Parse_Accepted_Count := 2;
@@ -1443,10 +1449,10 @@ package body Editor.External_Producers.Tests is
       Mixed.Parse_Ignored_Unrecognized_Count := 1;
       Mixed.Parse_Rejected_Malformed_Count := 1;
       Mixed.Ingestion_Result.Accepted_Count := 2;
-      Assert (Editor.External_Producers.Classify_Diagnostic_Line_Command_Outcome (Mixed) =
-                Editor.External_Producers.Diagnostic_Line_Command_Succeeded,
+      Assert (Editor.External_Producers.Diagnostic_Line_Parsing.Classify_Diagnostic_Line_Command_Outcome (Mixed) =
+                Editor.External_Producers.Diagnostic_Line_Parsing.Diagnostic_Line_Command_Succeeded,
               "mixed accepted input is a successful command outcome");
-      Assert (Editor.External_Producers.Build_Diagnostic_Line_Command_Feedback (Mixed) =
+      Assert (Editor.External_Producers.Diagnostic_Line_Parsing.Build_Diagnostic_Line_Command_Feedback (Mixed) =
                 "Diagnostics: ingested 2 diagnostics, ignored 2 lines, rejected 1 malformed lines",
               "mixed feedback reports ingested count before ignored and rejected counts");
    end Test_Diagnostic_Line_Command_Feedback_Mixed_Rejected_Count;
@@ -1456,17 +1462,17 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Lines : Editor.External_Producers.Diagnostic_Text_Line_Array;
-      Result : Editor.External_Producers.Diagnostic_Line_Command_Result;
+      Lines : Editor.External_Producers.Diagnostic_Line_Parsing.Text_Line_Array;
+      Result : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result;
    begin
       Prepare_State (S);
       Assert (Editor.Feature_Panel_Controller.Show_Feature
                 (S, Editor.Feature_Panel.Messages_Feature),
               "test can activate Messages");
       Lines.Append (To_Unbounded_String ("main.adb:1:1: warning: from command"));
-      Result := Editor.External_Producers.Ingest_Diagnostic_Lines_From_Command
+      Result := Editor.External_Producers.Diagnostic_Line_Parsing.Ingest_Diagnostic_Lines_From_Command
         (S, Compiler_Source, Lines);
-      Assert (Result.Outcome = Editor.External_Producers.Diagnostic_Line_Command_Succeeded,
+      Assert (Result.Outcome = Editor.External_Producers.Diagnostic_Line_Parsing.Diagnostic_Line_Command_Succeeded,
               "command-facing ingestion succeeds for accepted line");
       Assert (To_String (Result.Command_Message) =
                 "Diagnostics: ingested 1 diagnostics",
@@ -1483,15 +1489,15 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Lines : Editor.External_Producers.Diagnostic_Text_Line_Array;
-      Result : Editor.External_Producers.Diagnostic_Line_Command_Result;
+      Lines : Editor.External_Producers.Diagnostic_Line_Parsing.Text_Line_Array;
+      Result : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result;
    begin
       Prepare_State (S);
       Assert (Editor.Feature_Panel_Controller.Show_Feature
                 (S, Editor.Feature_Panel.Search_Results_Feature),
               "test can activate Search Results");
       Lines.Append (To_Unbounded_String ("main.adb:1:1: error: explicit show"));
-      Result := Editor.External_Producers.Ingest_Diagnostic_Lines_From_Command
+      Result := Editor.External_Producers.Diagnostic_Line_Parsing.Ingest_Diagnostic_Lines_From_Command
         (S, Compiler_Source, Lines, Show_Diagnostics => True);
       Assert (Result.Should_Show_Diagnostics,
               "explicit show command records that Diagnostics was shown");
@@ -1507,14 +1513,14 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Lines : Editor.External_Producers.Diagnostic_Text_Line_Array;
-      Result : Editor.External_Producers.Diagnostic_Line_Command_Result;
+      Lines : Editor.External_Producers.Diagnostic_Line_Parsing.Text_Line_Array;
+      Result : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result;
    begin
       Prepare_State (S);
       Editor.Feature_Diagnostics.Toggle_Source_Visible
         (S.Feature_Diagnostics, Editor.Feature_Diagnostics.External_Diagnostic_Source);
       Lines.Append (To_Unbounded_String ("main.adb:1:1: warning: hidden external source"));
-      Result := Editor.External_Producers.Ingest_Diagnostic_Lines_From_Command
+      Result := Editor.External_Producers.Diagnostic_Line_Parsing.Ingest_Diagnostic_Lines_From_Command
         (S, Compiler_Source, Lines);
       Assert (Result.Ingestion.Ingestion_Result.Accepted_Count = 1,
               "source visibility does not block command-facing storage");
@@ -1529,14 +1535,14 @@ package body Editor.External_Producers.Tests is
       pragma Unreferenced (T);
       Project_State : Editor.State.State_Type;
       Workspace_State : Editor.State.State_Type;
-      Lines : Editor.External_Producers.Diagnostic_Text_Line_Array;
-      Project_Result : Editor.External_Producers.Diagnostic_Line_Command_Result;
-      Workspace_Result : Editor.External_Producers.Diagnostic_Line_Command_Result;
+      Lines : Editor.External_Producers.Diagnostic_Line_Parsing.Text_Line_Array;
+      Project_Result : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result;
+      Workspace_Result : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result;
    begin
       Lines.Append (To_Unbounded_String ("missing.adb:1:1: warning: untargeted after close"));
       Prepare_State (Project_State);
       Editor.Feature_Panel_Controller.Reset_All_Features_For_Project_Close (Project_State);
-      Project_Result := Editor.External_Producers.Ingest_Diagnostic_Lines_From_Command
+      Project_Result := Editor.External_Producers.Diagnostic_Line_Parsing.Ingest_Diagnostic_Lines_From_Command
         (Project_State, Compiler_Source, Lines);
       Assert (Project_Result.Ingestion.Ingestion_Result.Accepted_Count = 1,
               "command-facing ingestion is safe after project close lifecycle cleanup");
@@ -1546,7 +1552,7 @@ package body Editor.External_Producers.Tests is
 
       Prepare_State (Workspace_State);
       Editor.Feature_Panel_Controller.Reset_All_Features_For_Workspace_Close (Workspace_State);
-      Workspace_Result := Editor.External_Producers.Ingest_Diagnostic_Lines_From_Command
+      Workspace_Result := Editor.External_Producers.Diagnostic_Line_Parsing.Ingest_Diagnostic_Lines_From_Command
         (Workspace_State, Compiler_Source, Lines);
       Assert (Workspace_Result.Ingestion.Ingestion_Result.Accepted_Count = 1,
               "command-facing ingestion is safe after workspace close lifecycle cleanup");
@@ -1556,8 +1562,8 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Mixed : Editor.External_Producers.Diagnostic_Line_Ingestion_Result;
-      Bad : Editor.External_Producers.Diagnostic_Line_Ingestion_Result;
+      Mixed : Editor.External_Producers.Diagnostic_Line_Parsing.Ingestion_Result;
+      Bad : Editor.External_Producers.Diagnostic_Line_Parsing.Ingestion_Result;
    begin
       Mixed.Parse_Input_Count := 4;
       Mixed.Parse_Accepted_Count := 2;
@@ -1567,15 +1573,15 @@ package body Editor.External_Producers.Tests is
       Mixed.Parsed_Error_Count := 1;
       Mixed.Parsed_Warning_Count := 1;
       Mixed.Ingestion_Result.Accepted_Count := 2;
-      Assert (Editor.External_Producers.Diagnostic_Line_Ingestion_Result_Is_Consistent (Mixed),
+      Assert (Editor.External_Producers.Diagnostic_Line_Parsing.Diagnostic_Line_Ingestion_Result_Is_Consistent (Mixed),
               "mixed command ingestion result is internally consistent");
-      Editor.External_Producers.Assert_Diagnostic_Line_Ingestion_Result_Consistent (Mixed);
+      Editor.External_Producers.Diagnostic_Line_Parsing.Assert_Diagnostic_Line_Ingestion_Result_Consistent (Mixed);
 
       Bad.Parse_Input_Count := 3;
       Bad.Parse_Accepted_Count := 1;
       Bad.Parse_Ignored_Blank_Count := 1;
       Bad.Normalized_Count := 2;
-      Assert (not Editor.External_Producers.Diagnostic_Line_Ingestion_Result_Is_Consistent (Bad),
+      Assert (not Editor.External_Producers.Diagnostic_Line_Parsing.Diagnostic_Line_Ingestion_Result_Is_Consistent (Bad),
               "consistency helper rejects count sums and over-normalization");
    end Test_Diagnostic_Line_Ingestion_Result_Consistency_For_Mixed_Batch;
 
@@ -1583,12 +1589,12 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      One_Malformed : Editor.External_Producers.Diagnostic_Line_Ingestion_Result;
-      Mixed : Editor.External_Producers.Diagnostic_Line_Ingestion_Result;
+      One_Malformed : Editor.External_Producers.Diagnostic_Line_Parsing.Ingestion_Result;
+      Mixed : Editor.External_Producers.Diagnostic_Line_Parsing.Ingestion_Result;
    begin
       One_Malformed.Parse_Input_Count := 1;
       One_Malformed.Parse_Rejected_Malformed_Count := 1;
-      Assert (Editor.External_Producers.Build_Diagnostic_Line_Command_Feedback (One_Malformed) =
+      Assert (Editor.External_Producers.Diagnostic_Line_Parsing.Build_Diagnostic_Line_Command_Feedback (One_Malformed) =
                 "Diagnostics: 1 malformed diagnostic line",
               "single malformed-only feedback uses stable singular command text");
 
@@ -1600,7 +1606,7 @@ package body Editor.External_Producers.Tests is
       Mixed.Normalized_Count := 1;
       Mixed.Parsed_Error_Count := 1;
       Mixed.Ingestion_Result.Accepted_Count := 1;
-      Assert (Editor.External_Producers.Format_Diagnostic_Line_Ingestion_Result (Mixed) =
+      Assert (Editor.External_Producers.Diagnostic_Line_Parsing.Format_Diagnostic_Line_Ingestion_Result (Mixed) =
                 "Diagnostics: ingested 1 diagnostics, ignored 2 lines, rejected 1 malformed lines",
               "mixed command feedback keeps accepted, ignored, rejected ordering");
    end Test_Diagnostic_Line_Command_Feedback_Is_Stable;
@@ -1610,8 +1616,8 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Lines : Editor.External_Producers.Diagnostic_Text_Line_Array;
-      Result : Editor.External_Producers.Diagnostic_Line_Command_Result;
+      Lines : Editor.External_Producers.Diagnostic_Line_Parsing.Text_Line_Array;
+      Result : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result;
    begin
       Prepare_State (S);
       Editor.Feature_Diagnostics.Set_Filter_Text (S.Feature_Diagnostics, "warning");
@@ -1622,7 +1628,7 @@ package body Editor.External_Producers.Tests is
 
       for I in 1 .. 3 loop
          pragma Unreferenced (I);
-         Result := Editor.External_Producers.Ingest_Diagnostic_Lines_From_Command
+         Result := Editor.External_Producers.Diagnostic_Line_Parsing.Ingest_Diagnostic_Lines_From_Command
            (S, Compiler_Source, Lines);
          Assert (Result.Ingestion.Ingestion_Result.Accepted_Count = 1,
                  "each repeated mixed command batch ingests accepted lines");
@@ -1632,7 +1638,7 @@ package body Editor.External_Producers.Tests is
                  "each repeated mixed command batch reports unrecognized line");
          Assert (Result.Ingestion.Parse_Rejected_Malformed_Count = 1,
                  "each repeated mixed command batch reports malformed line");
-         Assert (Editor.External_Producers.Diagnostic_Line_Ingestion_Result_Is_Consistent
+         Assert (Editor.External_Producers.Diagnostic_Line_Parsing.Diagnostic_Line_Ingestion_Result_Is_Consistent
                    (Result.Ingestion),
                  "each repeated mixed command batch remains count-consistent");
       end loop;
@@ -1648,8 +1654,8 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Lines : Editor.External_Producers.Diagnostic_Text_Line_Array;
-      Result : Editor.External_Producers.Diagnostic_Line_Command_Result;
+      Lines : Editor.External_Producers.Diagnostic_Line_Parsing.Text_Line_Array;
+      Result : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result;
    begin
       Prepare_State (S);
       Lines.Append (To_Unbounded_String ("main.adb:x:1: error: malformed"));
@@ -1657,9 +1663,9 @@ package body Editor.External_Producers.Tests is
 
       for I in 1 .. 3 loop
          pragma Unreferenced (I);
-         Result := Editor.External_Producers.Ingest_Diagnostic_Lines_From_Command
+         Result := Editor.External_Producers.Diagnostic_Line_Parsing.Ingest_Diagnostic_Lines_From_Command
            (S, Compiler_Source, Lines);
-         Assert (Result.Outcome = Editor.External_Producers.Diagnostic_Line_Command_Malformed_Only,
+         Assert (Result.Outcome = Editor.External_Producers.Diagnostic_Line_Parsing.Diagnostic_Line_Command_Malformed_Only,
                  "malformed-only batches keep malformed-only command outcome");
          Assert (Result.Ingestion.Ingestion_Result.Accepted_Count = 0,
                  "malformed-only batches do not add Diagnostics rows");
@@ -1677,12 +1683,12 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Lines : Editor.External_Producers.Diagnostic_Text_Line_Array;
+      Lines : Editor.External_Producers.Diagnostic_Line_Parsing.Text_Line_Array;
    begin
       Prepare_State (S);
       Editor.Feature_Diagnostics.Set_Filter_Text (S.Feature_Diagnostics, "needle");
       Lines.Append (To_Unbounded_String ("main.adb:1:1: warning: haystack"));
-      Assert (Editor.External_Producers.Ingest_Diagnostic_Lines_From_Command
+      Assert (Editor.External_Producers.Diagnostic_Line_Parsing.Ingest_Diagnostic_Lines_From_Command
                 (S, Compiler_Source, Lines).Ingestion.Ingestion_Result.Accepted_Count = 1,
               "filter-active command ingestion stores accepted diagnostic");
       Assert (Editor.Feature_Diagnostics.Filter_Text (S.Feature_Diagnostics) = "needle",
@@ -1694,12 +1700,12 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Lines : Editor.External_Producers.Diagnostic_Text_Line_Array;
+      Lines : Editor.External_Producers.Diagnostic_Line_Parsing.Text_Line_Array;
    begin
       Prepare_State (S);
       Editor.Feature_Diagnostics.Toggle_Errors_Visible (S.Feature_Diagnostics);
       Lines.Append (To_Unbounded_String ("main.adb:1:1: error: hidden severity"));
-      Assert (Editor.External_Producers.Ingest_Diagnostic_Lines_From_Command
+      Assert (Editor.External_Producers.Diagnostic_Line_Parsing.Ingest_Diagnostic_Lines_From_Command
                 (S, Compiler_Source, Lines).Ingestion.Ingestion_Result.Accepted_Count = 1,
               "hidden-severity command ingestion stores accepted diagnostic");
       Assert (not Editor.Feature_Diagnostics.Severity_Is_Visible
@@ -1712,7 +1718,7 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Lines : Editor.External_Producers.Diagnostic_Text_Line_Array;
+      Lines : Editor.External_Producers.Diagnostic_Line_Parsing.Text_Line_Array;
    begin
       Prepare_State (S);
       Assert (Editor.Feature_Panel_Controller.Show_Feature
@@ -1722,7 +1728,7 @@ package body Editor.External_Producers.Tests is
                 (S, Editor.Feature_Panel.Messages_Feature),
               "test can switch to Messages before command ingestion");
       Lines.Append (To_Unbounded_String ("main.adb:1:1: warning: preserve feature"));
-      Assert (Editor.External_Producers.Ingest_Diagnostic_Lines_From_Command
+      Assert (Editor.External_Producers.Diagnostic_Line_Parsing.Ingest_Diagnostic_Lines_From_Command
                 (S, Compiler_Source, Lines).Ingestion.Ingestion_Result.Accepted_Count = 1,
               "feature-switch command ingestion stores accepted diagnostic");
       Assert (Editor.Feature_Panel.Active_Feature (S.Feature_Panel) =
@@ -1735,10 +1741,10 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Lines : Editor.External_Producers.Diagnostic_Text_Line_Array;
+      Lines : Editor.External_Producers.Diagnostic_Line_Parsing.Text_Line_Array;
       Id : Editor.Buffers.Buffer_Id;
       Closed : Boolean := False;
-      Result : Editor.External_Producers.Diagnostic_Line_Command_Result;
+      Result : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result;
    begin
       Prepare_State (S);
       Id := Editor.Buffers.Global_Active_Buffer;
@@ -1748,7 +1754,7 @@ package body Editor.External_Producers.Tests is
            (S, Natural (Id));
       end if;
       Lines.Append (To_Unbounded_String ("main.adb:1:1: warning: after buffer close"));
-      Result := Editor.External_Producers.Ingest_Diagnostic_Lines_From_Command
+      Result := Editor.External_Producers.Diagnostic_Line_Parsing.Ingest_Diagnostic_Lines_From_Command
         (S, Compiler_Source, Lines);
       Assert (Result.Ingestion.Ingestion_Result.Accepted_Count = 1,
               "command ingestion after buffer close remains synchronous and safe");
@@ -1762,14 +1768,14 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Lines : Editor.External_Producers.Diagnostic_Text_Line_Array;
-      Result : Editor.External_Producers.Diagnostic_Line_Command_Result;
+      Lines : Editor.External_Producers.Diagnostic_Line_Parsing.Text_Line_Array;
+      Result : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result;
    begin
       Prepare_State (S);
       Editor.Feature_Panel_Controller.Reset_All_Features_For_Workspace_Close (S);
-      Editor.External_Producers.Reset_Diagnostic_Line_Command_State_For_Workspace_Close (S);
+      Editor.External_Producers.Diagnostic_Line_Pipeline.Reset_Diagnostic_Line_Command_State_For_Workspace_Close (S);
       Lines.Append (To_Unbounded_String ("missing.adb:1:1: warning: after workspace close"));
-      Result := Editor.External_Producers.Ingest_Diagnostic_Lines_From_Command
+      Result := Editor.External_Producers.Diagnostic_Line_Parsing.Ingest_Diagnostic_Lines_From_Command
         (S, Compiler_Source, Lines);
       Assert (Result.Ingestion.Ingestion_Result.Accepted_Count = 1,
               "command ingestion after workspace close remains safe");
@@ -1780,18 +1786,18 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Lines : Editor.External_Producers.Diagnostic_Text_Line_Array;
+      Lines : Editor.External_Producers.Diagnostic_Line_Parsing.Text_Line_Array;
    begin
       Prepare_State (S);
       Lines.Append (To_Unbounded_String ("main.adb:1:1: warning: audit after ingestion"));
       for I in 1 .. 2 loop
-         Assert (Editor.External_Producers.Ingest_Diagnostic_Lines_From_Command
+         Assert (Editor.External_Producers.Diagnostic_Line_Parsing.Ingest_Diagnostic_Lines_From_Command
                    (S, Compiler_Source, Lines).Ingestion.Ingestion_Result.Accepted_Count = 1,
                  "setup ingestion succeeds before producer audit");
       end loop;
-      Assert (Editor.External_Producers.Diagnostic_Line_Layering_Audit_Passes,
+      Assert (Editor.External_Producers.Audits.Diagnostic_Line_Layering_Audit_Passes,
               "layering audit passes after repeated line ingestion elsewhere");
-      Assert (Editor.External_Producers.External_Producer_Audit_Passes,
+      Assert (Editor.External_Producers.Audits.External_Producer_Audit_Passes,
               "external producer audit passes after repeated line ingestion");
    end Test_Producer_Audit_Passes_After_Repeated_Line_Ingestion;
 
@@ -1805,7 +1811,7 @@ package body Editor.External_Producers.Tests is
    begin
       Prepare_State (S);
       Before := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
-      Assert (Editor.External_Producers.Diagnostic_Line_Command_Surface_Audit_Passes,
+      Assert (Editor.External_Producers.Audits.Diagnostic_Line_Command_Surface_Audit_Passes,
               "producer audit covers diagnostic-line command-surface feedback semantics");
       After := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
       Assert (Before = After,
@@ -1824,9 +1830,9 @@ package body Editor.External_Producers.Tests is
    begin
       Prepare_State (S);
       Before := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
-      Assert (Editor.External_Producers.Diagnostic_Line_Parser_Audit_Passes,
+      Assert (Editor.External_Producers.Audits.Diagnostic_Line_Parser_Audit_Passes,
               "producer audit covers diagnostic line parser boundary");
-      Assert (Editor.External_Producers.External_Producer_Audit_Passes,
+      Assert (Editor.External_Producers.Audits.External_Producer_Audit_Passes,
               "external producer audit includes line parser checks");
       After := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
       Assert (Before = After,
@@ -1851,7 +1857,7 @@ package body Editor.External_Producers.Tests is
          Command_Label => To_Unbounded_String (Command),
          Arguments     => Null_Unbounded_String,
          Structured_Arguments =>
-           Editor.External_Producers.Build_Process_Argument_Vector ("-q"));
+           Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q"));
    end Build_Request;
 
 
@@ -1860,7 +1866,7 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       Default_Gate : constant Editor.External_Producers.Build_Execution_Gate :=
-        Editor.External_Producers.Build_Real_Execution_Gate
+        Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate
           (Consent => Editor.External_Producers.Build_Consent_User_Confirmed);
       Disabled_Policy : constant Editor.External_Producers.Process_Execution_Policy :=
         (Mode                     => Editor.External_Producers.Process_Execution_Disabled,
@@ -1878,15 +1884,15 @@ package body Editor.External_Producers.Tests is
          Timeout_Milliseconds     => 900_000);
    begin
       Assert (Default_Gate.Process_Policy.Timeout_Milliseconds =
-                Editor.External_Producers.Build_Default_Timeout_Milliseconds,
+                Editor.External_Producers.Execution_Policy.Build_Default_Timeout_Milliseconds,
               "real public build gate applies the default bounded timeout policy");
-      Assert (Editor.External_Producers.Build_Timeout_Policy_Is_Bounded
+      Assert (Editor.External_Producers.Execution_Policy.Build_Timeout_Policy_Is_Bounded
                 (Default_Gate.Process_Policy),
               "default runtime timeout policy is bounded");
-      Assert (Editor.External_Producers.Build_Timeout_Policy_Is_Bounded
+      Assert (Editor.External_Producers.Execution_Policy.Build_Timeout_Policy_Is_Bounded
                 (Disabled_Policy),
               "disabled timeout is accepted only on disabled/test policy shape");
-      Assert (not Editor.External_Producers.Build_Timeout_Policy_Is_Bounded
+      Assert (not Editor.External_Producers.Execution_Policy.Build_Timeout_Policy_Is_Bounded
                 (Unbounded_Policy),
               "unbounded timeout policy is rejected deterministically");
    end Test_Build_Timeout_Policy_Is_Explicit_And_Bounded;
@@ -1896,13 +1902,13 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Prepare_State (S);
-      Result := Editor.External_Producers.Run_Build_Command_With_Gate
+      Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Gate
         (S, Build_Request,
-         Editor.External_Producers.Build_Test_Fixture_Execution_Gate,
-         Editor.External_Producers.Build_Process_Run_Result
+         Editor.External_Producers.Execution_Policy.Build_Test_Fixture_Execution_Gate,
+         Editor.External_Producers.Build_Requests.Build_Process_Run_Result
            (Editor.External_Producers.Process_Run_Timed_Out,
             Stderr_Text => "main.adb:1:1: error: partial before timeout"));
       Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Timed_Out,
@@ -1920,19 +1926,19 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Cancelled : Editor.External_Producers.Build_Command_Result;
-      Unsupported : Editor.External_Producers.Build_Command_Result;
+      Cancelled : Editor.External_Producers.Build_Requests.Build_Command_Result;
+      Unsupported : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Prepare_State (S);
-      Cancelled := Editor.External_Producers.Run_Build_Command_With_Gate
+      Cancelled := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Gate
         (S, Build_Request,
-         Editor.External_Producers.Build_Test_Fixture_Execution_Gate,
-         Editor.External_Producers.Build_Process_Run_Result
+         Editor.External_Producers.Execution_Policy.Build_Test_Fixture_Execution_Gate,
+         Editor.External_Producers.Build_Requests.Build_Process_Run_Result
            (Editor.External_Producers.Process_Run_Cancelled));
-      Unsupported := Editor.External_Producers.Run_Build_Command_With_Gate
+      Unsupported := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Gate
         (S, Build_Request,
-         Editor.External_Producers.Build_Test_Fixture_Execution_Gate,
-         Editor.External_Producers.Build_Cancellation_Unsupported_Process_Result);
+         Editor.External_Producers.Execution_Policy.Build_Test_Fixture_Execution_Gate,
+         Editor.External_Producers.Execution_Policy.Build_Cancellation_Unsupported_Process_Result);
       Assert (Cancelled.Build_Result.Status = Editor.External_Producers.Build_Run_Cancelled,
               "process cancellation maps to canonical build cancelled status");
       Assert (To_String (Cancelled.Command_Message) = "Build cancelled",
@@ -1950,7 +1956,7 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
    begin
-      Assert (not Editor.External_Producers.Validate_Build_Run_Request
+      Assert (not Editor.External_Producers.Build_Requests.Validate_Build_Run_Request
                 (Build_Request (Tool => Editor.External_Producers.No_Build_Tool)),
               "build request rejects No_Build_Tool deterministically");
    end Test_Build_Request_Rejects_No_Tool;
@@ -1960,7 +1966,7 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
    begin
-      Assert (not Editor.External_Producers.Validate_Build_Run_Request
+      Assert (not Editor.External_Producers.Build_Requests.Validate_Build_Run_Request
                 (Build_Request (Command => "   ")),
               "build request rejects an empty command label");
    end Test_Build_Request_Rejects_Empty_Command_Label;
@@ -1970,14 +1976,14 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
    begin
-      Assert (Editor.External_Producers.Validate_Build_Run_Request_Status
+      Assert (Editor.External_Producers.Build_Requests.Validate_Build_Run_Request_Status
                 (Build_Request) = Editor.External_Producers.Build_Request_Valid,
               "supported build tool with command label validates");
-      Assert (Editor.External_Producers.Validate_Build_Run_Request_Status
+      Assert (Editor.External_Producers.Build_Requests.Validate_Build_Run_Request_Status
                 (Build_Request (Tool => Editor.External_Producers.No_Build_Tool)) =
               Editor.External_Producers.Build_Request_Rejected_No_Tool,
               "No_Build_Tool has a specific rejection status");
-      Assert (Editor.External_Producers.Validate_Build_Run_Request_Status
+      Assert (Editor.External_Producers.Build_Requests.Validate_Build_Run_Request_Status
                 (Build_Request (Command => "")) =
               Editor.External_Producers.Build_Request_Rejected_Empty_Command,
               "blank command label has a specific rejection status");
@@ -1988,13 +1994,13 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
    begin
-      Assert (Editor.External_Producers.Validate_Build_Run_Request
+      Assert (Editor.External_Producers.Build_Requests.Validate_Build_Run_Request
                 (Build_Request (Tool => Editor.External_Producers.GPRbuild_Tool)),
               "gprbuild request validates");
-      Assert (Editor.External_Producers.Validate_Build_Run_Request
+      Assert (Editor.External_Producers.Build_Requests.Validate_Build_Run_Request
                 (Build_Request (Tool => Editor.External_Producers.Alire_Build_Tool)),
               "alire build request validates");
-      Assert (not Editor.External_Producers.Validate_Build_Run_Request
+      Assert (not Editor.External_Producers.Build_Requests.Validate_Build_Run_Request
                 (Build_Request (Tool => Editor.External_Producers.Custom_Build_Tool)),
               "custom build request remains rejected until structured command configuration exists");
    end Test_Build_Request_Accepts_Supported_Tools;
@@ -2009,11 +2015,11 @@ package body Editor.External_Producers.Tests is
          Working_Label => To_Unbounded_String ("unit-test"),
          Command_Label => To_Unbounded_String ("gprbuild"),
          Arguments     => To_Unbounded_String ("-q"),
-         Structured_Arguments => Editor.External_Producers.Build_Process_Argument_Vector ("build"));
+         Structured_Arguments => Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("build"));
       Process : constant Editor.External_Producers.Process_Run_Request :=
-        Editor.External_Producers.Prepare_Process_Request (Request);
+        Editor.External_Producers.Build_Requests.Prepare_Process_Request (Request);
    begin
-      Assert (Editor.External_Producers.Validate_Build_Run_Request (Request),
+      Assert (Editor.External_Producers.Build_Requests.Validate_Build_Run_Request (Request),
               "gprbuild request validates before process preparation");
       Assert (To_String (Process.Program_Label) = "gprbuild",
               "gprbuild process preparation maps deterministic program metadata");
@@ -2033,11 +2039,11 @@ package body Editor.External_Producers.Tests is
          Working_Label => To_Unbounded_String ("unit-test"),
          Command_Label => To_Unbounded_String ("alr build"),
          Arguments     => Null_Unbounded_String,
-         Structured_Arguments => Editor.External_Producers.Build_Process_Argument_Vector ("build"));
+         Structured_Arguments => Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("build"));
       Process : constant Editor.External_Producers.Process_Run_Request :=
-        Editor.External_Producers.Prepare_Process_Request (Request);
+        Editor.External_Producers.Build_Requests.Prepare_Process_Request (Request);
    begin
-      Assert (Editor.External_Producers.Validate_Build_Run_Request (Request),
+      Assert (Editor.External_Producers.Build_Requests.Validate_Build_Run_Request (Request),
               "alire request validates before process preparation");
       Assert (To_String (Process.Program_Label) = "alr",
               "alire process preparation maps deterministic program metadata");
@@ -2053,7 +2059,7 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
    begin
-      Assert (Editor.External_Producers.Validate_Build_Run_Request_Status
+      Assert (Editor.External_Producers.Build_Requests.Validate_Build_Run_Request_Status
                 (Build_Request (Tool => Editor.External_Producers.Custom_Build_Tool)) =
               Editor.External_Producers.Build_Request_Rejected_Unsupported_Tool,
               "custom build tool is rejected before process preparation without structured configuration");
@@ -2064,9 +2070,9 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       Process : constant Editor.External_Producers.Process_Run_Request :=
-        Editor.External_Producers.Prepare_Process_Request (Build_Request);
+        Editor.External_Producers.Build_Requests.Prepare_Process_Request (Build_Request);
       Result : constant Editor.External_Producers.Process_Run_Result :=
-        Editor.External_Producers.Execute_Process_Request_Default (Process);
+        Editor.External_Producers.Build_Requests.Execute_Process_Request_Default (Process);
    begin
       Assert (Result.Status = Editor.External_Producers.Process_Run_Not_Available,
               "default process runner remains non-executing and unavailable");
@@ -2082,14 +2088,14 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       Process : constant Editor.External_Producers.Process_Run_Request :=
-        Editor.External_Producers.Prepare_Process_Request (Build_Request);
+        Editor.External_Producers.Build_Requests.Prepare_Process_Request (Build_Request);
       Supplied : constant Editor.External_Producers.Process_Run_Result :=
-        Editor.External_Producers.Build_Process_Run_Result
+        Editor.External_Producers.Build_Requests.Build_Process_Run_Result
           (Editor.External_Producers.Process_Run_Failed,
            Exit_Code => 3, Has_Exit_Code => True,
            Stderr_Text => "main.adb:1:1: error: process");
       Result : constant Editor.External_Producers.Process_Run_Result :=
-        Editor.External_Producers.Execute_Test_Fed_Process_Request
+        Editor.External_Producers.Build_Requests.Execute_Test_Fed_Process_Request
           (Process, Supplied);
    begin
       Assert (Result.Status = Editor.External_Producers.Process_Run_Failed,
@@ -2106,58 +2112,58 @@ package body Editor.External_Producers.Tests is
       pragma Unreferenced (T);
       Request : constant Editor.External_Producers.Build_Run_Request := Build_Request;
    begin
-      Assert (Editor.External_Producers.Build_Result_From_Process_Result
-                (Request, Editor.External_Producers.Build_Process_Run_Result
+      Assert (Editor.External_Producers.Build_Requests.Build_Result_From_Process_Result
+                (Request, Editor.External_Producers.Build_Requests.Build_Process_Run_Result
                    (Editor.External_Producers.Process_Run_Succeeded)).Status =
               Editor.External_Producers.Build_Run_Succeeded,
               "process success maps to build success");
-      Assert (Editor.External_Producers.Build_Result_From_Process_Result
-                (Request, Editor.External_Producers.Build_Process_Run_Result
+      Assert (Editor.External_Producers.Build_Requests.Build_Result_From_Process_Result
+                (Request, Editor.External_Producers.Build_Requests.Build_Process_Run_Result
                    (Editor.External_Producers.Process_Run_Failed)).Status =
               Editor.External_Producers.Build_Run_Failed,
               "process failure maps to build failure");
-      Assert (Editor.External_Producers.Build_Result_From_Process_Result
-                (Request, Editor.External_Producers.Build_Process_Run_Result
+      Assert (Editor.External_Producers.Build_Requests.Build_Result_From_Process_Result
+                (Request, Editor.External_Producers.Build_Requests.Build_Process_Run_Result
                    (Editor.External_Producers.Process_Run_Not_Available)).Status =
               Editor.External_Producers.Build_Run_Not_Available,
               "process not available maps to build not available");
-      Assert (Editor.External_Producers.Build_Result_From_Process_Result
-                (Request, Editor.External_Producers.Build_Process_Run_Result
+      Assert (Editor.External_Producers.Build_Requests.Build_Result_From_Process_Result
+                (Request, Editor.External_Producers.Build_Requests.Build_Process_Run_Result
                    (Editor.External_Producers.Process_Run_Rejected)).Status =
               Editor.External_Producers.Build_Run_Rejected,
               "process rejected maps to build rejected");
-      Assert (Editor.External_Producers.Build_Result_From_Process_Result
-                (Request, Editor.External_Producers.Build_Process_Run_Result
+      Assert (Editor.External_Producers.Build_Requests.Build_Result_From_Process_Result
+                (Request, Editor.External_Producers.Build_Requests.Build_Process_Run_Result
                    (Editor.External_Producers.Process_Run_Execution_Error)).Status =
               Editor.External_Producers.Build_Run_Execution_Error,
               "process execution error maps to build execution error");
-      Assert (Editor.External_Producers.Build_Result_From_Process_Result
-                (Request, Editor.External_Producers.Build_Process_Run_Result
+      Assert (Editor.External_Producers.Build_Requests.Build_Result_From_Process_Result
+                (Request, Editor.External_Producers.Build_Requests.Build_Process_Run_Result
                    (Editor.External_Producers.Process_Run_Timed_Out)).Status =
               Editor.External_Producers.Build_Run_Timed_Out,
               "process timeout maps to build timeout");
-      Assert (Editor.External_Producers.Build_Result_From_Process_Result
-                (Request, Editor.External_Producers.Build_Process_Run_Result
+      Assert (Editor.External_Producers.Build_Requests.Build_Result_From_Process_Result
+                (Request, Editor.External_Producers.Build_Requests.Build_Process_Run_Result
                    (Editor.External_Producers.Process_Run_Cancelled)).Status =
               Editor.External_Producers.Build_Run_Cancelled,
               "process cancellation maps to build cancelled");
-      Assert (Editor.External_Producers.Build_Result_From_Process_Result
-                (Request, Editor.External_Producers.Build_Cancellation_Unsupported_Process_Result).Status =
+      Assert (Editor.External_Producers.Build_Requests.Build_Result_From_Process_Result
+                (Request, Editor.External_Producers.Execution_Policy.Build_Cancellation_Unsupported_Process_Result).Status =
               Editor.External_Producers.Build_Run_Cancellation_Unsupported,
               "unsupported cancellation maps to build cancellation unsupported");
 
       declare
-         Truncated : constant Editor.External_Producers.Build_Run_Result :=
-           Editor.External_Producers.Build_Result_From_Process_Result
+         Truncated : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
+           Editor.External_Producers.Build_Requests.Build_Result_From_Process_Result
              (Request,
-              Editor.External_Producers.Build_Process_Run_Result
+              Editor.External_Producers.Build_Requests.Build_Process_Run_Result
                 (Editor.External_Producers.Process_Run_Output_Truncated,
                  Stdout_Text => "bounded",
                  Stdout_Truncated => True));
-         Timed_Out : constant Editor.External_Producers.Build_Run_Result :=
-           Editor.External_Producers.Build_Result_From_Process_Result
+         Timed_Out : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
+           Editor.External_Producers.Build_Requests.Build_Result_From_Process_Result
              (Request,
-              Editor.External_Producers.Build_Process_Run_Result
+              Editor.External_Producers.Build_Requests.Build_Process_Run_Result
                 (Editor.External_Producers.Process_Run_Timed_Out,
                  Stdout_Text => "partial"));
       begin
@@ -2173,15 +2179,15 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       Process : constant Editor.External_Producers.Process_Run_Result :=
-        Editor.External_Producers.Build_Process_Run_Result
+        Editor.External_Producers.Build_Requests.Build_Process_Run_Result
           (Editor.External_Producers.Process_Run_Failed,
            Stdout_Text => "main.adb:3:1: warning: stdout",
            Stderr_Text => "main.adb:1:1: error: stderr");
-      Build : constant Editor.External_Producers.Build_Run_Result :=
-        Editor.External_Producers.Build_Result_From_Process_Result
+      Build : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
+        Editor.External_Producers.Build_Requests.Build_Result_From_Process_Result
           (Build_Request, Process);
-      Lines : constant Editor.External_Producers.Diagnostic_Text_Line_Array :=
-        Editor.External_Producers.Extract_Diagnostic_Lines_From_Build_Result (Build);
+      Lines : constant Editor.External_Producers.Build_Requests.Diagnostic_Text_Line_Array :=
+        Editor.External_Producers.Build_Requests.Extract_Diagnostic_Lines_From_Build_Result (Build);
    begin
       Assert (Lines.Length = 2,
               "process-originated build result extracts both output streams");
@@ -2196,63 +2202,63 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       Separated : constant Editor.External_Producers.Process_Run_Result :=
-        Editor.External_Producers.Build_Process_Run_Result
+        Editor.External_Producers.Build_Requests.Build_Process_Run_Result
           (Editor.External_Producers.Process_Run_Failed,
            Stdout_Text => "main.adb:3:1: warning: stdout",
            Stderr_Text => "main.adb:1:1: error: stderr");
       Merged : constant Editor.External_Producers.Process_Run_Result :=
-        Editor.External_Producers.Build_Process_Run_Result
+        Editor.External_Producers.Build_Requests.Build_Process_Run_Result
           (Editor.External_Producers.Process_Run_Failed,
            Stdout_Text => "main.adb:1:1: error: merged",
            Output_Capture_Mode =>
              Editor.External_Producers.Process_Output_Capture_Merged_Stdout_Stderr);
       Stdout_Only : constant Editor.External_Producers.Process_Run_Result :=
-        Editor.External_Producers.Build_Process_Run_Result
+        Editor.External_Producers.Build_Requests.Build_Process_Run_Result
           (Editor.External_Producers.Process_Run_Succeeded,
            Stdout_Text => "plain supplied stdout");
-      Separated_Build : constant Editor.External_Producers.Build_Run_Result :=
-        Editor.External_Producers.Build_Result_From_Process_Result
+      Separated_Build : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
+        Editor.External_Producers.Build_Requests.Build_Result_From_Process_Result
           (Build_Request, Separated);
-      Merged_Build : constant Editor.External_Producers.Build_Run_Result :=
-        Editor.External_Producers.Build_Result_From_Process_Result
+      Merged_Build : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
+        Editor.External_Producers.Build_Requests.Build_Result_From_Process_Result
           (Build_Request, Merged);
-      Stdout_Only_Build : constant Editor.External_Producers.Build_Run_Result :=
-        Editor.External_Producers.Build_Result_From_Process_Result
+      Stdout_Only_Build : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
+        Editor.External_Producers.Build_Requests.Build_Result_From_Process_Result
           (Build_Request, Stdout_Only);
    begin
-      Assert (Editor.External_Producers.Real_Process_Runner_Output_Capture_Mode =
+      Assert (Editor.External_Producers.Execution_Policy.Real_Process_Runner_Output_Capture_Mode =
                 Editor.External_Producers.Process_Output_Capture_Separated,
               "real process runner advertises separated stdout/stderr capture");
-      Assert (Editor.External_Producers.Diagnostic_Stream_Preference (Separated) =
+      Assert (Editor.External_Producers.Execution_Policy.Diagnostic_Stream_Preference (Separated) =
                 Editor.External_Producers.Process_Diagnostics_Prefer_Stderr,
               "separated fixture/process results prefer stderr diagnostics");
-      Assert (Editor.External_Producers.Diagnostic_Stream_Preference (Merged) =
+      Assert (Editor.External_Producers.Execution_Policy.Diagnostic_Stream_Preference (Merged) =
                 Editor.External_Producers.Process_Diagnostics_Merged_Output_Fallback,
               "supplied merged results parse captured stdout fallback");
-      Assert (Editor.External_Producers.Build_Run_Diagnostic_Stream_Preference
+      Assert (Editor.External_Producers.Execution_Policy.Build_Run_Diagnostic_Stream_Preference
                 (Separated_Build) =
                 Editor.External_Producers.Process_Diagnostics_Prefer_Stderr,
               "build result preserves stderr preference when stderr exists");
-      Assert (Editor.External_Producers.Build_Run_Diagnostic_Stream_Preference
+      Assert (Editor.External_Producers.Execution_Policy.Build_Run_Diagnostic_Stream_Preference
                 (Merged_Build) =
                 Editor.External_Producers.Process_Diagnostics_Merged_Output_Fallback,
               "build result exposes merged-output fallback for supplied merged results");
-      Assert (Editor.External_Producers.Process_Result_Output_Stream (Merged) =
+      Assert (Editor.External_Producers.Execution_Policy.Process_Result_Output_Stream (Merged) =
                 Editor.External_Producers.Process_Output_Merged,
               "supplied merged result exposes merged stream provenance");
-      Assert (Editor.External_Producers.Process_Result_Output_Stream (Separated) =
+      Assert (Editor.External_Producers.Execution_Policy.Process_Result_Output_Stream (Separated) =
                 Editor.External_Producers.Process_Output_Stderr,
               "separated supplied result exposes stderr provenance for diagnostics");
-      Assert (Editor.External_Producers.Build_Result_Output_Stream (Merged_Build) =
+      Assert (Editor.External_Producers.Execution_Policy.Build_Result_Output_Stream (Merged_Build) =
                 Editor.External_Producers.Process_Output_Merged,
               "build result carries merged stream provenance when stderr is absent");
-      Assert (Editor.External_Producers.Process_Result_Output_Stream (Stdout_Only) =
+      Assert (Editor.External_Producers.Execution_Policy.Process_Result_Output_Stream (Stdout_Only) =
                 Editor.External_Producers.Process_Output_Stdout,
               "supplied stdout-only result remains stdout, not merged fallback");
-      Assert (Editor.External_Producers.Build_Result_Output_Stream (Stdout_Only_Build) =
+      Assert (Editor.External_Producers.Execution_Policy.Build_Result_Output_Stream (Stdout_Only_Build) =
                 Editor.External_Producers.Process_Output_Stdout,
               "build result preserves supplied stdout-only stream provenance");
-      Assert (Editor.External_Producers.Audit_Build_Runner_Output_Stream_Capture,
+      Assert (Editor.External_Producers.Audits.Audit_Build_Runner_Output_Stream_Capture,
               "stream-capture audit covers real separated capture and supplied merged extraction");
    end Test_Build_Output_Stream_Capture_Mode_Is_Explicit;
 
@@ -2323,7 +2329,7 @@ package body Editor.External_Producers.Tests is
       return Editor.External_Producers.Process_Fixture_Request
    is
    begin
-      return Editor.External_Producers.Build_Process_Fixture_Request
+      return Editor.External_Producers.Build_Requests.Build_Process_Fixture_Request
         (Kind, First, Second, Third);
    end Fixture_Request;
 
@@ -2365,7 +2371,7 @@ package body Editor.External_Producers.Tests is
          Working_Label => To_Unbounded_String (Working_Label),
          Command_Label => To_Unbounded_String ("real build fixture"),
          Arguments     => Null_Unbounded_String,
-         Structured_Arguments => Editor.External_Producers.Empty_Process_Arguments);
+         Structured_Arguments => Editor.External_Producers.Build_Requests.Empty_Process_Arguments);
    end Real_Build_Tool_Fixture_Request;
 
    procedure Test_Real_Build_Tool_Fixture_Default_Gate_Disables_Execution
@@ -2373,10 +2379,10 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       Preflight : constant Editor.External_Producers.Build_Preflight_Result :=
-        Editor.External_Producers.Preflight_Real_Build_Tool_Fixture
+        Editor.External_Producers.Build_Requests.Preflight_Real_Build_Tool_Fixture
           (Real_Build_Tool_Fixture_Request,
            Editor.External_Producers.GPRbuild_Version_Fixture,
-           Editor.External_Producers.Build_Default_Execution_Gate);
+           Editor.External_Producers.Execution_Policy.Build_Default_Execution_Gate);
    begin
       Assert (Preflight.Process_Request_Status =
                 Editor.External_Producers.Process_Request_Rejected_Execution_Disabled,
@@ -2390,11 +2396,11 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
    begin
-      Assert (Editor.External_Producers.Validate_Real_Build_Tool_Fixture_Gate
+      Assert (Editor.External_Producers.Build_Requests.Validate_Real_Build_Tool_Fixture_Gate
                 (Real_Build_Tool_Fixture_Gate),
               "explicit real build-tool fixture gate validates");
-      Assert (not Editor.External_Producers.Validate_Real_Build_Tool_Fixture_Gate
-                (Editor.External_Producers.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed)),
+      Assert (not Editor.External_Producers.Build_Requests.Validate_Real_Build_Tool_Fixture_Gate
+                (Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed)),
               "general real build gate is not a real build-tool fixture gate");
    end Test_Real_Build_Tool_Fixture_Requires_Explicit_Gate;
 
@@ -2403,7 +2409,7 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       Preflight : constant Editor.External_Producers.Build_Preflight_Result :=
-        Editor.External_Producers.Preflight_Real_Build_Tool_Fixture
+        Editor.External_Producers.Build_Requests.Preflight_Real_Build_Tool_Fixture
           (Real_Build_Tool_Fixture_Request,
            Editor.External_Producers.No_Real_Build_Tool_Fixture,
            Real_Build_Tool_Fixture_Gate);
@@ -2420,7 +2426,7 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       Preflight : constant Editor.External_Producers.Build_Preflight_Result :=
-        Editor.External_Producers.Preflight_Real_Build_Tool_Fixture
+        Editor.External_Producers.Build_Requests.Preflight_Real_Build_Tool_Fixture
           (Real_Build_Tool_Fixture_Request
              (Provenance => Editor.External_Producers.Build_Request_From_Implicit_Source),
            Editor.External_Producers.GPRbuild_Version_Fixture,
@@ -2438,7 +2444,7 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       Preflight : constant Editor.External_Producers.Build_Preflight_Result :=
-        Editor.External_Producers.Preflight_Real_Build_Tool_Fixture
+        Editor.External_Producers.Build_Requests.Preflight_Real_Build_Tool_Fixture
           (Real_Build_Tool_Fixture_Request,
            Editor.External_Producers.GPRbuild_Version_Fixture,
            Real_Build_Tool_Fixture_Gate);
@@ -2459,7 +2465,7 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       Preflight : constant Editor.External_Producers.Build_Preflight_Result :=
-        Editor.External_Producers.Preflight_Real_Build_Tool_Fixture
+        Editor.External_Producers.Build_Requests.Preflight_Real_Build_Tool_Fixture
           (Real_Build_Tool_Fixture_Request
              (Tool => Editor.External_Producers.Alire_Build_Tool),
            Editor.External_Producers.Alire_Version_Fixture,
@@ -2479,7 +2485,7 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       Preflight : constant Editor.External_Producers.Build_Preflight_Result :=
-        Editor.External_Producers.Preflight_Real_Build_Tool_Fixture
+        Editor.External_Producers.Build_Requests.Preflight_Real_Build_Tool_Fixture
           (Real_Build_Tool_Fixture_Request (Working_Label => "project-root"),
            Editor.External_Producers.GPRbuild_Version_Fixture,
            Real_Build_Tool_Fixture_Gate);
@@ -2496,14 +2502,14 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Prepare_State (S);
-      Result := Editor.External_Producers.Run_Real_Build_Tool_Fixture_With_Gate
+      Result := Editor.External_Producers.Build_Requests.Run_Real_Build_Tool_Fixture_With_Gate
         (S, Real_Build_Tool_Fixture_Request,
          Editor.External_Producers.Diagnostic_Output_Fixture,
          Real_Build_Tool_Fixture_Gate,
-         Editor.External_Producers.Build_Process_Run_Result
+         Editor.External_Producers.Build_Requests.Build_Process_Run_Result
            (Editor.External_Producers.Process_Run_Succeeded,
             Exit_Code => 0, Has_Exit_Code => True,
             Stderr_Text => "main.adb:1:1: error: fixture"));
@@ -2520,14 +2526,14 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Prepare_State (S);
-      Result := Editor.External_Producers.Run_Real_Build_Tool_Fixture_With_Gate
+      Result := Editor.External_Producers.Build_Requests.Run_Real_Build_Tool_Fixture_With_Gate
         (S, Real_Build_Tool_Fixture_Request,
          Editor.External_Producers.GPRbuild_Version_Fixture,
          Real_Build_Tool_Fixture_Gate,
-         Editor.External_Producers.Build_Process_Run_Result
+         Editor.External_Producers.Build_Requests.Build_Process_Run_Result
            (Editor.External_Producers.Process_Run_Succeeded,
             Exit_Code => 0, Has_Exit_Code => True,
             Stdout_Text => "GPRBUILD Pro 0.0"));
@@ -2549,7 +2555,7 @@ package body Editor.External_Producers.Tests is
    begin
       Prepare_State (S);
       Before := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
-      Assert (Editor.External_Producers.Audit_Real_Build_Tool_Fixture_Gates,
+      Assert (Editor.External_Producers.Audits.Audit_Real_Build_Tool_Fixture_Gates,
               "real build-tool fixture audit covers explicit gate and preflight checks");
       After := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
       Assert (Before = After,
@@ -2574,7 +2580,7 @@ package body Editor.External_Producers.Tests is
         (S, Editor.Feature_Panel.Outline_Feature),
         "feature panel show feature succeeds");
       Before := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
-      Status := Editor.External_Producers.Validate_Real_Build_Tool_Fixture_Request
+      Status := Editor.External_Producers.Build_Requests.Validate_Real_Build_Tool_Fixture_Request
         (Real_Build_Tool_Fixture_Request,
          Editor.External_Producers.GPRbuild_Version_Fixture,
          Real_Build_Tool_Fixture_Gate);
@@ -2594,14 +2600,14 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Prepare_State (S);
-      Result := Editor.External_Producers.Run_Real_Build_Tool_Fixture_With_Gate
+      Result := Editor.External_Producers.Build_Requests.Run_Real_Build_Tool_Fixture_With_Gate
         (S, Real_Build_Tool_Fixture_Request,
          Editor.External_Producers.No_Real_Build_Tool_Fixture,
          Real_Build_Tool_Fixture_Gate,
-         Editor.External_Producers.Build_Process_Run_Result
+         Editor.External_Producers.Build_Requests.Build_Process_Run_Result
            (Editor.External_Producers.Process_Run_Succeeded,
             Exit_Code => 0, Has_Exit_Code => True,
             Stderr_Text => "main.adb:1:1: error: must not run"));
@@ -2620,12 +2626,12 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       Preflight : constant Editor.External_Producers.Build_Preflight_Result :=
-        Editor.External_Producers.Preflight_Real_Build_Tool_Fixture
+        Editor.External_Producers.Build_Requests.Preflight_Real_Build_Tool_Fixture
           (Real_Build_Tool_Fixture_Request,
            Editor.External_Producers.GPRbuild_Version_Fixture,
            Real_Build_Tool_Fixture_Gate);
    begin
-      Assert (Editor.External_Producers.Real_Build_Tool_Fixture_Preflight_Is_Consistent
+      Assert (Editor.External_Producers.Build_Requests.Real_Build_Tool_Fixture_Preflight_Is_Consistent
                 (Preflight),
               "valid real build-tool fixture preflight has structured argv and process metadata");
    end Test_Real_Build_Tool_Fixture_Preflight_Result_Consistency_Valid;
@@ -2635,13 +2641,13 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       Preflight : constant Editor.External_Producers.Build_Preflight_Result :=
-        Editor.External_Producers.Preflight_Real_Build_Tool_Fixture
+        Editor.External_Producers.Build_Requests.Preflight_Real_Build_Tool_Fixture
           (Real_Build_Tool_Fixture_Request
              (Provenance => Editor.External_Producers.Build_Request_From_Implicit_Source),
            Editor.External_Producers.GPRbuild_Version_Fixture,
            Real_Build_Tool_Fixture_Gate);
    begin
-      Assert (Editor.External_Producers.Real_Build_Tool_Fixture_Preflight_Is_Consistent
+      Assert (Editor.External_Producers.Build_Requests.Real_Build_Tool_Fixture_Preflight_Is_Consistent
                 (Preflight),
               "rejected project-metadata fixture preflight has no executable process request");
    end Test_Real_Build_Tool_Fixture_Preflight_Result_Consistency_Rejected;
@@ -2651,18 +2657,18 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Prepare_State (S);
-      Result := Editor.External_Producers.Run_Real_Build_Tool_Fixture_With_Gate
+      Result := Editor.External_Producers.Build_Requests.Run_Real_Build_Tool_Fixture_With_Gate
         (S, Real_Build_Tool_Fixture_Request,
          Editor.External_Producers.GPRbuild_Version_Fixture,
          Real_Build_Tool_Fixture_Gate,
-         Editor.External_Producers.Build_Process_Run_Result
+         Editor.External_Producers.Build_Requests.Build_Process_Run_Result
            (Editor.External_Producers.Process_Run_Succeeded,
             Exit_Code => 0, Has_Exit_Code => True,
             Stdout_Text => "GPRBUILD Pro 0.0"));
-      Assert (Editor.External_Producers.Real_Build_Tool_Fixture_Command_Result_Is_Consistent
+      Assert (Editor.External_Producers.Build_Requests.Real_Build_Tool_Fixture_Command_Result_Is_Consistent
                 (Result),
               "succeeded real build-tool fixture command result is internally consistent");
    end Test_Real_Build_Tool_Fixture_Command_Result_Consistency_Succeeded;
@@ -2672,18 +2678,18 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Prepare_State (S);
-      Result := Editor.External_Producers.Run_Real_Build_Tool_Fixture_With_Gate
+      Result := Editor.External_Producers.Build_Requests.Run_Real_Build_Tool_Fixture_With_Gate
         (S, Real_Build_Tool_Fixture_Request,
          Editor.External_Producers.Diagnostic_Output_Fixture,
          Real_Build_Tool_Fixture_Gate,
-         Editor.External_Producers.Build_Process_Run_Result
+         Editor.External_Producers.Build_Requests.Build_Process_Run_Result
            (Editor.External_Producers.Process_Run_Failed,
             Exit_Code => 1, Has_Exit_Code => True,
             Stderr_Text => "main.adb:1:1: error: fixture"));
-      Assert (Editor.External_Producers.Real_Build_Tool_Fixture_Command_Result_Is_Consistent
+      Assert (Editor.External_Producers.Build_Requests.Real_Build_Tool_Fixture_Command_Result_Is_Consistent
                 (Result),
               "failed real build-tool fixture command result with diagnostics is consistent");
       Assert (To_String (Result.Command_Message) = "Build: failed, ingested 1 diagnostics",
@@ -2695,18 +2701,18 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Prepare_State (S);
-      Result := Editor.External_Producers.Run_Real_Build_Tool_Fixture_With_Gate
+      Result := Editor.External_Producers.Build_Requests.Run_Real_Build_Tool_Fixture_With_Gate
         (S, Real_Build_Tool_Fixture_Request,
          Editor.External_Producers.GPRbuild_Version_Fixture,
          Real_Build_Tool_Fixture_Gate,
-         Editor.External_Producers.Build_Process_Run_Result
+         Editor.External_Producers.Build_Requests.Build_Process_Run_Result
            (Editor.External_Producers.Process_Run_Not_Available));
       Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Not_Available,
               "unavailable tool maps to deterministic build fixture unavailable");
-      Assert (Editor.External_Producers.Real_Build_Tool_Fixture_Command_Result_Is_Consistent
+      Assert (Editor.External_Producers.Build_Requests.Real_Build_Tool_Fixture_Command_Result_Is_Consistent
                 (Result),
               "unavailable real build-tool fixture command result is consistent");
       Assert (To_String (Result.Command_Message) = "Build: build fixture unavailable",
@@ -2718,14 +2724,14 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Prepare_State (S);
-      Result := Editor.External_Producers.Run_Real_Build_Tool_Fixture_With_Gate
+      Result := Editor.External_Producers.Build_Requests.Run_Real_Build_Tool_Fixture_With_Gate
         (S, Real_Build_Tool_Fixture_Request,
          Editor.External_Producers.Diagnostic_Output_Fixture,
          Real_Build_Tool_Fixture_Gate (Allow_Diagnostics_Ingestion => False),
-         Editor.External_Producers.Build_Process_Run_Result
+         Editor.External_Producers.Build_Requests.Build_Process_Run_Result
            (Editor.External_Producers.Process_Run_Succeeded,
             Exit_Code => 0, Has_Exit_Code => True,
             Stderr_Text => "main.adb:1:1: error: fixture"));
@@ -2740,7 +2746,7 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Prepare_State (S);
       Editor.Feature_Diagnostics.Set_Filter_Text (S.Feature_Diagnostics, "warning");
@@ -2749,11 +2755,11 @@ package body Editor.External_Producers.Tests is
         "feature panel show feature succeeds");
       for I in 1 .. 3 loop
          pragma Unreferenced (I);
-         Result := Editor.External_Producers.Run_Real_Build_Tool_Fixture_With_Gate
+         Result := Editor.External_Producers.Build_Requests.Run_Real_Build_Tool_Fixture_With_Gate
            (S, Real_Build_Tool_Fixture_Request,
             Editor.External_Producers.Diagnostic_Output_Fixture,
             Real_Build_Tool_Fixture_Gate,
-            Editor.External_Producers.Build_Process_Run_Result
+            Editor.External_Producers.Build_Requests.Build_Process_Run_Result
               (Editor.External_Producers.Process_Run_Succeeded,
                Exit_Code => 0, Has_Exit_Code => True,
                Stderr_Text => "main.adb:1:1: warning: fixture"));
@@ -2772,17 +2778,17 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Prepare_State (S);
       Assert (Editor.Feature_Panel_Controller.Show_Feature
         (S, Editor.Feature_Panel.Outline_Feature),
         "feature panel show feature succeeds");
-      Result := Editor.External_Producers.Run_Real_Build_Tool_Fixture_With_Gate
+      Result := Editor.External_Producers.Build_Requests.Run_Real_Build_Tool_Fixture_With_Gate
         (S, Real_Build_Tool_Fixture_Request,
          Editor.External_Producers.Diagnostic_Output_Fixture,
          Real_Build_Tool_Fixture_Gate (Show_Diagnostics => True),
-         Editor.External_Producers.Build_Process_Run_Result
+         Editor.External_Producers.Build_Requests.Build_Process_Run_Result
            (Editor.External_Producers.Process_Run_Succeeded,
             Exit_Code => 0, Has_Exit_Code => True,
             Stderr_Text => "main.adb:1:1: warning: fixture"));
@@ -2798,32 +2804,32 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Prepare_State (S);
       for I in 1 .. 2 loop
          pragma Unreferenced (I);
-         Result := Editor.External_Producers.Run_Real_Build_Tool_Fixture_With_Gate
+         Result := Editor.External_Producers.Build_Requests.Run_Real_Build_Tool_Fixture_With_Gate
            (S, Real_Build_Tool_Fixture_Request,
             Editor.External_Producers.GPRbuild_Version_Fixture,
             Real_Build_Tool_Fixture_Gate,
-            Editor.External_Producers.Build_Process_Run_Result
+            Editor.External_Producers.Build_Requests.Build_Process_Run_Result
               (Editor.External_Producers.Process_Run_Not_Available));
          Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Not_Available,
                  "repeated unavailable fixture attempts remain deterministic");
       end loop;
-      Editor.External_Producers.Reset_Build_Run_State_For_Workspace_Close (S);
-      Result := Editor.External_Producers.Run_Real_Build_Tool_Fixture_With_Gate
+      Editor.External_Producers.Build_Requests.Reset_Build_Run_State_For_Workspace_Close (S);
+      Result := Editor.External_Producers.Build_Requests.Run_Real_Build_Tool_Fixture_With_Gate
         (S, Real_Build_Tool_Fixture_Request,
          Editor.External_Producers.GPRbuild_Version_Fixture,
-         Editor.External_Producers.Build_Default_Execution_Gate,
-         Editor.External_Producers.Build_Process_Run_Result
+         Editor.External_Producers.Execution_Policy.Build_Default_Execution_Gate,
+         Editor.External_Producers.Build_Requests.Build_Process_Run_Result
            (Editor.External_Producers.Process_Run_Succeeded,
             Exit_Code => 0, Has_Exit_Code => True,
             Stderr_Text => "main.adb:1:1: error: must not run"));
       Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Not_Available,
               "disabled gate after workspace close cannot consume supplied runner output");
-      Assert (Editor.External_Producers.Audit_Real_Build_Tool_Fixture_Gates,
+      Assert (Editor.External_Producers.Audits.Audit_Real_Build_Tool_Fixture_Gates,
               "real build-tool fixture audit passes after repeated attempts");
    end Test_Real_Build_Tool_Fixture_Audit_Passes_After_Repeated_Attempts;
 
@@ -2832,7 +2838,7 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       Result : constant Editor.External_Producers.Process_Run_Result :=
-        Editor.External_Producers.Execute_Process_Request_Real_Fixture
+        Editor.External_Producers.Build_Requests.Execute_Process_Request_Real_Fixture
           (Fixture_Request, Disabled_Process_Policy);
    begin
       Assert (Result.Status = Editor.External_Producers.Process_Run_Not_Available,
@@ -2846,13 +2852,13 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       Result : constant Editor.External_Producers.Process_Run_Result :=
-        Editor.External_Producers.Execute_Process_Request_Gated
+        Editor.External_Producers.Build_Requests.Execute_Process_Request_Gated
           ((Program_Label => To_Unbounded_String ("fixture"),
             Working_Label => Null_Unbounded_String,
             Arguments     => Null_Unbounded_String,
-            Structured_Arguments => Editor.External_Producers.Empty_Process_Arguments),
+            Structured_Arguments => Editor.External_Producers.Build_Requests.Empty_Process_Arguments),
            Real_Fixture_Process_Policy,
-           Editor.External_Producers.Build_Process_Run_Result
+           Editor.External_Producers.Build_Requests.Build_Process_Run_Result
              (Editor.External_Producers.Process_Run_Succeeded));
    begin
       Assert (Result.Status = Editor.External_Producers.Process_Run_Rejected,
@@ -2863,10 +2869,10 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Result : constant Editor.External_Producers.Build_Run_Result :=
-        Editor.External_Producers.Execute_Build_Request_With_Process_Policy
+      Result : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
+        Editor.External_Producers.Build_Requests.Execute_Build_Request_With_Process_Policy
           (Build_Request, Real_Fixture_Process_Policy,
-           Editor.External_Producers.Build_Process_Run_Result
+           Editor.External_Producers.Build_Requests.Build_Process_Run_Result
              (Editor.External_Producers.Process_Run_Succeeded,
               Stdout_Text => "main.adb:1:1: error: should-not-run"));
    begin
@@ -2881,7 +2887,7 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       Result : constant Editor.External_Producers.Process_Run_Result :=
-        Editor.External_Producers.Execute_Process_Request_Real_Fixture
+        Editor.External_Producers.Build_Requests.Execute_Process_Request_Real_Fixture
           (Fixture_Request (Kind => Editor.External_Producers.No_Process_Fixture),
            Real_Fixture_Process_Policy);
    begin
@@ -2894,7 +2900,7 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       Status : constant Editor.External_Producers.Process_Request_Validation_Status :=
-        Editor.External_Producers.Validate_Process_Fixture_Request_Status
+        Editor.External_Producers.Build_Requests.Validate_Process_Fixture_Request_Status
           (Fixture_Request, Real_Fixture_Process_Policy (Allow_Shell => True));
    begin
       Assert (Status = Editor.External_Producers.Process_Request_Rejected_Shell_Disallowed,
@@ -2906,7 +2912,7 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       Result : constant Editor.External_Producers.Process_Run_Result :=
-        Editor.External_Producers.Execute_Process_Request_Real_Fixture
+        Editor.External_Producers.Build_Requests.Execute_Process_Request_Real_Fixture
           (Fixture_Request
              (First => "stdout",
               Second => "two words",
@@ -2925,11 +2931,11 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       Echo : constant Editor.External_Producers.Process_Run_Result :=
-        Editor.External_Producers.Execute_Process_Request_Real_Fixture
+        Editor.External_Producers.Build_Requests.Execute_Process_Request_Real_Fixture
           (Fixture_Request (First => "stderr", Second => "main.adb:1:1: error: stderr"),
            Real_Fixture_Process_Policy);
       Exit_Result : constant Editor.External_Producers.Process_Run_Result :=
-        Editor.External_Producers.Execute_Process_Request_Real_Fixture
+        Editor.External_Producers.Build_Requests.Execute_Process_Request_Real_Fixture
           (Fixture_Request
              (Kind => Editor.External_Producers.Exit_Code_Fixture,
               First => "7", Second => "main.adb:2:1: error: failed"),
@@ -2950,7 +2956,7 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       Result : constant Editor.External_Producers.Process_Run_Result :=
-        Editor.External_Producers.Execute_Process_Request_Real_Fixture
+        Editor.External_Producers.Build_Requests.Execute_Process_Request_Real_Fixture
           (Fixture_Request (First => "stdout", Second => "12345"),
            Real_Fixture_Process_Policy (Max_Output_Bytes => 4));
    begin
@@ -2965,16 +2971,16 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Prepare_State (S);
-      Result := Editor.External_Producers.Run_Build_Command_With_Fixture_Gate
+      Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Fixture_Gate
         (S, Build_Request,
          Fixture_Request
            (First => "stderr",
             Second => "main.adb:1:1: error: fixture",
             Third => "not a diagnostic"),
-         Editor.External_Producers.Build_Real_Fixture_Execution_Gate);
+         Editor.External_Producers.Execution_Policy.Build_Real_Fixture_Execution_Gate);
       Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Succeeded,
               "fixture command maps process success to build success");
       Assert (Result.Diagnostic_Result.Ingestion.Parse_Input_Count = 2,
@@ -2992,14 +2998,14 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Prepare_State (S);
-      Result := Editor.External_Producers.Run_Build_Command_With_Fixture_Gate
+      Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Fixture_Gate
         (S, Build_Request,
          Fixture_Request
            (First => "stdout", Second => "", Third => "not a diagnostic"),
-         Editor.External_Producers.Build_Real_Fixture_Execution_Gate);
+         Editor.External_Producers.Execution_Policy.Build_Real_Fixture_Execution_Gate);
       Assert (Result.Diagnostic_Result.Ingestion.Parse_Input_Count = 2,
               "blank fixture line is still counted as parser input");
       Assert (Result.Diagnostic_Result.Ingestion.Parse_Ignored_Blank_Count = 1,
@@ -3013,18 +3019,18 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result;
-      Lines : Editor.External_Producers.Diagnostic_Text_Line_Array;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
+      Lines : Editor.External_Producers.Build_Requests.Diagnostic_Text_Line_Array;
    begin
       Prepare_State (S);
-      Result := Editor.External_Producers.Run_Build_Command_With_Fixture_Gate
+      Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Fixture_Gate
         (S, Build_Request,
          Fixture_Request
            (First => "mixed",
             Second => "main.adb:1:1: error: stderr: extra: colon",
             Third => "main.adb:2:1: warning: stdout"),
-         Editor.External_Producers.Build_Real_Fixture_Execution_Gate);
-      Lines := Editor.External_Producers.Extract_Diagnostic_Lines_From_Build_Result
+         Editor.External_Producers.Execution_Policy.Build_Real_Fixture_Execution_Gate);
+      Lines := Editor.External_Producers.Build_Requests.Extract_Diagnostic_Lines_From_Build_Result
         (Result.Build_Result);
       Assert (Lines.Length = 2,
               "mixed fixture output extracts one stderr and one stdout line");
@@ -3042,15 +3048,15 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Prepare_State (S);
-      Result := Editor.External_Producers.Run_Build_Command_With_Fixture_Gate
+      Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Fixture_Gate
         (S, Build_Request,
          Fixture_Request
            (First => "stdout",
             Second => "main.adb:x:1: error: malformed"),
-         Editor.External_Producers.Build_Real_Fixture_Execution_Gate);
+         Editor.External_Producers.Execution_Policy.Build_Real_Fixture_Execution_Gate);
       Assert (Result.Diagnostic_Result.Ingestion.Parse_Rejected_Malformed_Count = 1,
               "malformed diagnostic-looking fixture line is counted by parser");
       Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
@@ -3062,7 +3068,7 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Prepare_State (S);
       Editor.Feature_Diagnostics.Toggle_Errors_Visible (S.Feature_Diagnostics);
@@ -3070,11 +3076,11 @@ package body Editor.External_Producers.Tests is
       Assert (Editor.Feature_Panel_Controller.Show_Feature
         (S, Editor.Feature_Panel.Outline_Feature),
         "feature panel show feature succeeds");
-      Result := Editor.External_Producers.Run_Build_Command_With_Fixture_Gate
+      Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Fixture_Gate
         (S, Build_Request,
          Fixture_Request
            (First => "stdout", Second => "main.adb:1:1: warning: visible"),
-         Editor.External_Producers.Build_Real_Fixture_Execution_Gate);
+         Editor.External_Producers.Execution_Policy.Build_Real_Fixture_Execution_Gate);
       Assert (Result.Diagnostic_Result.Ingestion.Ingestion_Result.Accepted_Count = 1,
               "fixture output can ingest a diagnostic while filters are active");
       Assert (Editor.Feature_Diagnostics.Filter_Text (S.Feature_Diagnostics) = "warning",
@@ -3092,15 +3098,15 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Prepare_State (S);
       Assert (Editor.Feature_Panel_Controller.Show_Feature
         (S, Editor.Feature_Panel.Outline_Feature),
         "feature panel show feature succeeds");
-      Result := Editor.External_Producers.Run_Build_Command_With_Fixture_Gate
+      Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Fixture_Gate
         (S, Build_Request, Fixture_Request,
-         Editor.External_Producers.Build_Real_Fixture_Execution_Gate
+         Editor.External_Producers.Execution_Policy.Build_Real_Fixture_Execution_Gate
            (Show_Diagnostics => True));
       Assert (Result.Diagnostic_Result.Should_Show_Diagnostics,
               "explicit fixture show flag is reported");
@@ -3119,7 +3125,7 @@ package body Editor.External_Producers.Tests is
    begin
       Prepare_State (S);
       Before := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
-      Assert (Editor.External_Producers.Audit_Process_Fixture_Gates,
+      Assert (Editor.External_Producers.Audits.Audit_Process_Fixture_Gates,
               "fixture audit covers explicit gate, identity, argv, bounds, and line pipeline");
       After := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
       Assert (Before = After,
@@ -3139,7 +3145,7 @@ package body Editor.External_Producers.Tests is
    begin
       Prepare_State (S);
       Before := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
-      Status := Editor.External_Producers.Validate_Process_Fixture_Request
+      Status := Editor.External_Producers.Build_Requests.Validate_Process_Fixture_Request
         (Fixture_Request, Real_Fixture_Process_Policy);
       After := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
       Assert (Status = Editor.External_Producers.Fixture_Request_Valid,
@@ -3155,13 +3161,13 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Prepare_State (S);
-      Result := Editor.External_Producers.Run_Build_Command_With_Fixture_Gate
+      Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Fixture_Gate
         (S, Build_Request,
          Fixture_Request (Kind => Editor.External_Producers.No_Process_Fixture),
-         Editor.External_Producers.Build_Real_Fixture_Execution_Gate);
+         Editor.External_Producers.Execution_Policy.Build_Real_Fixture_Execution_Gate);
       Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Rejected,
               "unknown fixture request is rejected before runner execution");
       Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
@@ -3175,14 +3181,14 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Prepare_State (S);
-      Result := Editor.External_Producers.Run_Build_Command_With_Fixture_Gate
+      Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Fixture_Gate
         (S, Build_Request,
          Fixture_Request
            (First => "stdout", Second => "main.adb:1:1: error: too-long"),
-         Editor.External_Producers.Build_Real_Fixture_Execution_Gate
+         Editor.External_Producers.Execution_Policy.Build_Real_Fixture_Execution_Gate
            (Max_Output_Bytes => 8));
       Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Execution_Error,
               "fixture output beyond the bound maps to execution error");
@@ -3197,15 +3203,15 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Prepare_State (S);
-      Result := Editor.External_Producers.Run_Build_Command_With_Fixture_Gate
+      Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Fixture_Gate
         (S, Build_Request,
          Fixture_Request
            (Kind => Editor.External_Producers.Exit_Code_Fixture,
             First => "4", Second => "main.adb:1:1: error: failed"),
-         Editor.External_Producers.Build_Real_Fixture_Execution_Gate);
+         Editor.External_Producers.Execution_Policy.Build_Real_Fixture_Execution_Gate);
       Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Failed,
               "nonzero fixture exit maps to failed build result");
       Assert (Result.Build_Result.Has_Exit_Code and then Result.Build_Result.Exit_Code = 4,
@@ -3219,12 +3225,12 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Prepare_State (S);
-      Result := Editor.External_Producers.Run_Build_Command_With_Fixture_Gate
+      Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Fixture_Gate
         (S, Build_Request, Fixture_Request,
-         Editor.External_Producers.Build_Real_Fixture_Execution_Gate
+         Editor.External_Producers.Execution_Policy.Build_Real_Fixture_Execution_Gate
            (Allow_Diagnostics_Ingestion => False));
       Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Succeeded,
               "fixture execution can succeed while diagnostics ingestion is disabled");
@@ -3242,13 +3248,13 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       Result : constant Editor.External_Producers.Process_Run_Result :=
-        Editor.External_Producers.Execute_Process_Request_Real_Fixture
+        Editor.External_Producers.Build_Requests.Execute_Process_Request_Real_Fixture
           (Fixture_Request, Real_Fixture_Process_Policy);
    begin
-      Assert (Editor.External_Producers.Process_Fixture_Result_Is_Consistent
+      Assert (Editor.External_Producers.Build_Requests.Process_Fixture_Result_Is_Consistent
                 (Result, Real_Fixture_Process_Policy),
               "successful fixture process result is internally consistent");
-      Editor.External_Producers.Assert_Process_Fixture_Result_Consistent (Result);
+      Editor.External_Producers.Build_Requests.Assert_Process_Fixture_Result_Consistent (Result);
    end Test_Process_Fixture_Result_Consistency_Succeeded;
 
    procedure Test_Process_Fixture_Result_Consistency_Failed
@@ -3256,13 +3262,13 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       Result : constant Editor.External_Producers.Process_Run_Result :=
-        Editor.External_Producers.Execute_Process_Request_Real_Fixture
+        Editor.External_Producers.Build_Requests.Execute_Process_Request_Real_Fixture
           (Fixture_Request
              (Kind => Editor.External_Producers.Exit_Code_Fixture,
               First => "2", Second => "main.adb:1:1: error: failed"),
            Real_Fixture_Process_Policy);
    begin
-      Assert (Editor.External_Producers.Process_Fixture_Result_Is_Consistent
+      Assert (Editor.External_Producers.Build_Requests.Process_Fixture_Result_Is_Consistent
                 (Result, Real_Fixture_Process_Policy),
               "failed fixture process result preserves exit-code consistency");
    end Test_Process_Fixture_Result_Consistency_Failed;
@@ -3272,10 +3278,10 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       Result : constant Editor.External_Producers.Process_Run_Result :=
-        Editor.External_Producers.Execute_Process_Request_Real_Fixture
+        Editor.External_Producers.Build_Requests.Execute_Process_Request_Real_Fixture
           (Fixture_Request, Disabled_Process_Policy);
    begin
-      Assert (Editor.External_Producers.Process_Fixture_Result_Is_Consistent
+      Assert (Editor.External_Producers.Build_Requests.Process_Fixture_Result_Is_Consistent
                 (Result, Disabled_Process_Policy),
               "not-available fixture result carries no exit code or captured output");
    end Test_Process_Fixture_Result_Consistency_Not_Available;
@@ -3285,11 +3291,11 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       Result : constant Editor.External_Producers.Process_Run_Result :=
-        Editor.External_Producers.Execute_Process_Request_Real_Fixture
+        Editor.External_Producers.Build_Requests.Execute_Process_Request_Real_Fixture
           (Fixture_Request (First => "stdout", Second => "12345"),
            Real_Fixture_Process_Policy (Max_Output_Bytes => 4));
    begin
-      Assert (Editor.External_Producers.Process_Fixture_Result_Is_Consistent
+      Assert (Editor.External_Producers.Build_Requests.Process_Fixture_Result_Is_Consistent
                 (Result, Real_Fixture_Process_Policy (Max_Output_Bytes => 4)),
               "execution-error fixture result drops output and reports no fabricated success");
    end Test_Process_Fixture_Result_Consistency_Execution_Error;
@@ -3299,9 +3305,9 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
    begin
-      Assert (Editor.External_Producers.Audit_Process_Fixture_Gates,
+      Assert (Editor.External_Producers.Audits.Audit_Process_Fixture_Gates,
               "fixture audit covers lifecycle-safe explicit fixture execution gates");
-      Assert (Editor.External_Producers.Process_Runner_Audit_Passes,
+      Assert (Editor.External_Producers.Audits.Process_Runner_Audit_Passes,
               "process runner test-seam audit includes fixture finalization checks");
    end Test_Process_Fixture_Audit_Covers_Lifecycle;
 
@@ -3310,19 +3316,19 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Prepare_State (S);
       for I in 1 .. 3 loop
          pragma Unreferenced (I);
-         Result := Editor.External_Producers.Run_Build_Command_With_Fixture_Gate
+         Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Fixture_Gate
            (S, Build_Request, Fixture_Request,
-            Editor.External_Producers.Build_Real_Fixture_Execution_Gate);
-         Assert (Editor.External_Producers.Gated_Build_Command_Result_Is_Consistent
+            Editor.External_Producers.Execution_Policy.Build_Real_Fixture_Execution_Gate);
+         Assert (Editor.External_Producers.Audits.Gated_Build_Command_Result_Is_Consistent
                    (Result),
                  "repeated fixture command result remains consistent");
       end loop;
-      Assert (Editor.External_Producers.Audit_Process_Fixture_Gates,
+      Assert (Editor.External_Producers.Audits.Audit_Process_Fixture_Gates,
               "fixture audit still passes after repeated fixture runs");
    end Test_Process_Fixture_Audit_Passes_After_Repeated_Runs;
 
@@ -3333,7 +3339,7 @@ package body Editor.External_Producers.Tests is
       Policy : constant Editor.External_Producers.Process_Execution_Policy :=
         Disabled_Process_Policy;
    begin
-      Assert (Editor.External_Producers.Validate_Process_Execution_Policy (Policy),
+      Assert (Editor.External_Producers.Build_Requests.Validate_Process_Execution_Policy (Policy),
               "default disabled process policy is valid");
       Assert (not Policy.Allow_Real_Execution,
               "default process policy does not allow real execution");
@@ -3346,13 +3352,13 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       Result : constant Editor.External_Producers.Process_Run_Result :=
-        Editor.External_Producers.Execute_Process_Request_Gated
+        Editor.External_Producers.Build_Requests.Execute_Process_Request_Gated
           ((Program_Label => To_Unbounded_String ("gprbuild"),
             Working_Label => Null_Unbounded_String,
             Arguments     => Null_Unbounded_String,
-            Structured_Arguments => Editor.External_Producers.Empty_Process_Arguments),
+            Structured_Arguments => Editor.External_Producers.Build_Requests.Empty_Process_Arguments),
            Disabled_Process_Policy,
-           Editor.External_Producers.Build_Process_Run_Result
+           Editor.External_Producers.Build_Requests.Build_Process_Run_Result
              (Editor.External_Producers.Process_Run_Succeeded));
    begin
       Assert (Result.Status = Editor.External_Producers.Process_Run_Not_Available,
@@ -3371,7 +3377,7 @@ package body Editor.External_Producers.Tests is
          Require_Absolute_Program => False,
          Timeout_Milliseconds     => 0);
    begin
-      Assert (not Editor.External_Producers.Validate_Process_Execution_Policy (Bad),
+      Assert (not Editor.External_Producers.Build_Requests.Validate_Process_Execution_Policy (Bad),
               "real mode requires explicit Allow_Real_Execution");
    end Test_Process_Execution_Real_Mode_Must_Be_Explicit;
 
@@ -3380,11 +3386,11 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       Result : constant Editor.External_Producers.Process_Run_Result :=
-        Editor.External_Producers.Execute_Process_Request_Real_Gated
+        Editor.External_Producers.Build_Requests.Execute_Process_Request_Real_Gated
           ((Program_Label => To_Unbounded_String ("/bin/sh"),
             Working_Label => Null_Unbounded_String,
             Arguments     => Null_Unbounded_String,
-            Structured_Arguments => Editor.External_Producers.Empty_Process_Arguments),
+            Structured_Arguments => Editor.External_Producers.Build_Requests.Empty_Process_Arguments),
            Real_Process_Policy (Allow_Shell => True));
    begin
       Assert (Result.Status = Editor.External_Producers.Process_Run_Rejected,
@@ -3396,11 +3402,11 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       Result : constant Editor.External_Producers.Process_Run_Result :=
-        Editor.External_Producers.Execute_Process_Request_Real_Gated
+        Editor.External_Producers.Build_Requests.Execute_Process_Request_Real_Gated
           ((Program_Label => To_Unbounded_String ("gprbuild"),
             Working_Label => Null_Unbounded_String,
             Arguments     => To_Unbounded_String ("-q ; rm -rf ignored"),
-            Structured_Arguments => Editor.External_Producers.Empty_Process_Arguments),
+            Structured_Arguments => Editor.External_Producers.Build_Requests.Empty_Process_Arguments),
            Real_Process_Policy);
    begin
       Assert (Result.Status = Editor.External_Producers.Process_Run_Rejected,
@@ -3412,7 +3418,7 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       Args : constant Editor.External_Producers.Process_Argument_Vector :=
-        Editor.External_Producers.Build_Process_Argument_Vector
+        Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector
           ("first", "", "third");
    begin
       Assert (Args.Length = 3,
@@ -3435,9 +3441,9 @@ package body Editor.External_Producers.Tests is
         (Program_Label => To_Unbounded_String ("gprbuild"),
          Working_Label => Null_Unbounded_String,
          Arguments     => Null_Unbounded_String,
-         Structured_Arguments => Editor.External_Producers.Empty_Process_Arguments);
+         Structured_Arguments => Editor.External_Producers.Build_Requests.Empty_Process_Arguments);
       Status : constant Editor.External_Producers.Process_Request_Validation_Status :=
-        Editor.External_Producers.Validate_Process_Run_Request_For_Real_Execution_Status
+        Editor.External_Producers.Build_Requests.Validate_Process_Run_Request_For_Real_Execution_Status
           (Request,
            Real_Process_Policy (Require_Absolute_Program => True));
    begin
@@ -3455,9 +3461,9 @@ package body Editor.External_Producers.Tests is
          Working_Label => To_Unbounded_String ("unit-test"),
          Command_Label => To_Unbounded_String ("gprbuild"),
          Arguments     => To_Unbounded_String ("-q --RTS=two words ; ignored"),
-         Structured_Arguments => Editor.External_Producers.Build_Process_Argument_Vector ("-q"));
+         Structured_Arguments => Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q"));
       Process : constant Editor.External_Producers.Process_Run_Request :=
-        Editor.External_Producers.Prepare_Process_Request (Request);
+        Editor.External_Producers.Build_Requests.Prepare_Process_Request (Request);
    begin
       Assert (To_String (Process.Arguments) = "-q --RTS=two words ; ignored",
               "opaque argument metadata is preserved exactly for display/testing");
@@ -3476,12 +3482,12 @@ package body Editor.External_Producers.Tests is
          Working_Label => To_Unbounded_String ("unit-test"),
          Command_Label => To_Unbounded_String ("gprbuild"),
          Arguments     => To_Unbounded_String ("-q"),
-         Structured_Arguments => Editor.External_Producers.Build_Process_Argument_Vector ("-q"));
+         Structured_Arguments => Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q"));
       Result : constant Editor.External_Producers.Build_Preflight_Result :=
-        Editor.External_Producers.Preflight_Build_Run_Request
+        Editor.External_Producers.Build_Requests.Preflight_Build_Run_Request
           (Request, Real_Process_Policy);
    begin
-      Assert (Editor.External_Producers.Build_Preflight_Result_Is_Consistent (Result),
+      Assert (Editor.External_Producers.Build_Requests.Build_Preflight_Result_Is_Consistent (Result),
               "preflight result remains internally consistent");
       Assert (Result.Build_Request_Status = Editor.External_Producers.Build_Request_Valid,
               "preflight validates the build request before process validation");
@@ -3503,13 +3509,13 @@ package body Editor.External_Producers.Tests is
          Working_Label => To_Unbounded_String ("unit-test"),
          Command_Label => To_Unbounded_String ("gprbuild"),
          Arguments     => To_Unbounded_String ("-q"),
-         Structured_Arguments => Editor.External_Producers.Build_Process_Argument_Vector ("-q"));
-      Result : Editor.External_Producers.Build_Command_Result;
+         Structured_Arguments => Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q"));
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Prepare_State (S);
-      Result := Editor.External_Producers.Run_Build_Command_Test_Seam_With_Runner
+      Result := Editor.External_Producers.Build_Requests.Run_Build_Command_Test_Seam_With_Runner
         (S, Request, Real_Process_Policy,
-         Editor.External_Producers.Build_Process_Run_Result
+         Editor.External_Producers.Build_Requests.Build_Process_Run_Result
            (Editor.External_Producers.Process_Run_Succeeded,
             Stdout_Text => "main.adb:1:1: error: should-not-run"));
       Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Rejected,
@@ -3525,13 +3531,13 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       Result : constant Editor.External_Producers.Process_Run_Result :=
-        Editor.External_Producers.Execute_Process_Request_Gated
+        Editor.External_Producers.Build_Requests.Execute_Process_Request_Gated
           ((Program_Label => To_Unbounded_String ("fixture"),
             Working_Label => Null_Unbounded_String,
             Arguments     => Null_Unbounded_String,
-            Structured_Arguments => Editor.External_Producers.Empty_Process_Arguments),
+            Structured_Arguments => Editor.External_Producers.Build_Requests.Empty_Process_Arguments),
            Fixture_Process_Policy (Max_Output_Bytes => 4),
-           Editor.External_Producers.Build_Process_Run_Result
+           Editor.External_Producers.Build_Requests.Build_Process_Run_Result
              (Editor.External_Producers.Process_Run_Succeeded,
               Stdout_Text => "12345"));
    begin
@@ -3546,12 +3552,12 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       Result : constant Editor.External_Producers.Process_Run_Result :=
-        Editor.External_Producers.Execute_Process_Request_Real_Gated
+        Editor.External_Producers.Build_Requests.Execute_Process_Request_Real_Gated
           ((Program_Label => To_Unbounded_String ("/bin/echo"),
             Working_Label => To_Unbounded_String ("/"),
             Arguments     => Null_Unbounded_String,
             Structured_Arguments =>
-              Editor.External_Producers.Build_Process_Argument_Vector ("ok")),
+              Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("ok")),
            Real_Process_Policy (Timeout_Milliseconds => 1));
    begin
       Assert (Result.Status =
@@ -3566,11 +3572,11 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       Result : constant Editor.External_Producers.Process_Run_Result :=
-        Editor.External_Producers.Execute_Process_Request_Real_Gated
+        Editor.External_Producers.Build_Requests.Execute_Process_Request_Real_Gated
           ((Program_Label => To_Unbounded_String ("gprbuild"),
             Working_Label => Null_Unbounded_String,
             Arguments     => Null_Unbounded_String,
-            Structured_Arguments => Editor.External_Producers.Empty_Process_Arguments),
+            Structured_Arguments => Editor.External_Producers.Build_Requests.Empty_Process_Arguments),
            Real_Process_Policy);
    begin
       Assert (Result.Status = Editor.External_Producers.Process_Run_Rejected,
@@ -3581,11 +3587,11 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Result : constant Editor.External_Producers.Build_Run_Result :=
-        Editor.External_Producers.Execute_Build_Request_With_Process_Policy
+      Result : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
+        Editor.External_Producers.Build_Requests.Execute_Build_Request_With_Process_Policy
           (Build_Request,
            Fixture_Process_Policy,
-           Editor.External_Producers.Build_Process_Run_Result
+           Editor.External_Producers.Build_Requests.Build_Process_Run_Result
              (Editor.External_Producers.Process_Run_Failed,
               Exit_Code => 9, Has_Exit_Code => True,
               Stderr_Text => "main.adb:1:1: error: fixture"));
@@ -3600,8 +3606,8 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Result : constant Editor.External_Producers.Build_Run_Result :=
-        Editor.External_Producers.Execute_Build_Request (Build_Request);
+      Result : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
+        Editor.External_Producers.Build_Requests.Execute_Build_Request (Build_Request);
    begin
       Assert (Result.Status = Editor.External_Producers.Build_Run_Not_Available,
               "default build request still selects the disabled runner");
@@ -3611,11 +3617,11 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Result : constant Editor.External_Producers.Build_Run_Result :=
-        Editor.External_Producers.Execute_Build_Request_With_Process_Policy
+      Result : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
+        Editor.External_Producers.Build_Requests.Execute_Build_Request_With_Process_Policy
           (Build_Request (Tool => Editor.External_Producers.No_Build_Tool),
            Fixture_Process_Policy,
-           Editor.External_Producers.Build_Process_Run_Result
+           Editor.External_Producers.Build_Requests.Build_Process_Run_Result
              (Editor.External_Producers.Process_Run_Succeeded));
    begin
       Assert (Result.Status = Editor.External_Producers.Build_Run_Rejected,
@@ -3627,17 +3633,17 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : constant Editor.External_Producers.Build_Run_Result :=
-        Editor.External_Producers.Execute_Build_Request_With_Process_Policy
+      Result : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
+        Editor.External_Producers.Build_Requests.Execute_Build_Request_With_Process_Policy
           (Build_Request,
            Fixture_Process_Policy,
-           Editor.External_Producers.Build_Process_Run_Result
+           Editor.External_Producers.Build_Requests.Build_Process_Run_Result
              (Editor.External_Producers.Process_Run_Failed,
               Stderr_Text => "main.adb:1:1: error: gated fixture"));
-      Command : Editor.External_Producers.Diagnostic_Line_Command_Result;
+      Command : Editor.External_Producers.Build_Requests.Diagnostic_Line_Command_Result;
    begin
       Prepare_State (S);
-      Command := Editor.External_Producers.Ingest_Build_Run_Diagnostics
+      Command := Editor.External_Producers.Build_Requests.Ingest_Build_Run_Diagnostics
         (S, Build_Source, Result);
       Assert (Command.Ingestion.Parse_Accepted_Count = 1,
               "gated runner output uses the existing diagnostic-line parser");
@@ -3650,9 +3656,9 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       Gate : constant Editor.External_Producers.Build_Execution_Gate :=
-        Editor.External_Producers.Build_Default_Execution_Gate;
+        Editor.External_Producers.Execution_Policy.Build_Default_Execution_Gate;
    begin
-      Assert (Editor.External_Producers.Validate_Build_Execution_Gate (Gate),
+      Assert (Editor.External_Producers.Build_Requests.Validate_Build_Execution_Gate (Gate),
               "default build execution gate is internally consistent");
       Assert (not Gate.Allow_Build_Run,
               "default build execution gate does not allow build execution");
@@ -3665,12 +3671,12 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Prepare_State (S);
-      Result := Editor.External_Producers.Run_Build_Command_With_Gate
-        (S, Build_Request, Editor.External_Producers.Build_Default_Execution_Gate,
-         Editor.External_Producers.Build_Process_Run_Result
+      Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Gate
+        (S, Build_Request, Editor.External_Producers.Execution_Policy.Build_Default_Execution_Gate,
+         Editor.External_Producers.Build_Requests.Build_Process_Run_Result
            (Editor.External_Producers.Process_Run_Succeeded,
             Stderr_Text => "main.adb:1:1: error: must-not-run"));
       Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Not_Available,
@@ -3686,9 +3692,9 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       Gate : constant Editor.External_Producers.Build_Execution_Gate :=
-        Editor.External_Producers.Build_Test_Fixture_Execution_Gate;
+        Editor.External_Producers.Execution_Policy.Build_Test_Fixture_Execution_Gate;
    begin
-      Assert (Editor.External_Producers.Select_Process_Runner_Mode
+      Assert (Editor.External_Producers.Execution_Policy.Select_Process_Runner_Mode
                 (Gate, Gate.Process_Policy) = Editor.External_Producers.Process_Execution_Test_Fixture,
               "test fixture gate selects only the test-fed runner");
    end Test_Build_Gate_Test_Fixture_Selects_Test_Runner;
@@ -3698,11 +3704,11 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       Gate : constant Editor.External_Producers.Build_Execution_Gate :=
-        Editor.External_Producers.Build_Real_Execution_Gate;
+        Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate;
    begin
       Assert (Gate.Allow_Build_Run and then Gate.Process_Policy.Allow_Real_Execution,
               "real gate requires explicit command and process opt-in");
-      Assert (Editor.External_Producers.Select_Process_Runner_Mode
+      Assert (Editor.External_Producers.Execution_Policy.Select_Process_Runner_Mode
                 (Gate, Gate.Process_Policy) = Editor.External_Producers.Process_Execution_Real_Allowed,
               "explicit real gate selects real runner mode");
    end Test_Build_Gate_Real_Mode_Must_Be_Explicit;
@@ -3726,9 +3732,9 @@ package body Editor.External_Producers.Tests is
          Allow_Diagnostics_Ingestion => True,
          Show_Diagnostics            => False);
    begin
-      Assert (not Editor.External_Producers.Validate_Build_Execution_Gate (Gate),
+      Assert (not Editor.External_Producers.Build_Requests.Validate_Build_Execution_Gate (Gate),
               "test-fed and real execution cannot be active ambiguously");
-      Assert (Editor.External_Producers.Select_Process_Runner_Mode
+      Assert (Editor.External_Producers.Execution_Policy.Select_Process_Runner_Mode
                 (Gate, Gate.Process_Policy) = Editor.External_Producers.Process_Execution_Disabled,
               "ambiguous gate deterministically selects no runner");
    end Test_Build_Gate_Rejects_Ambiguous_Test_And_Real_Mode;
@@ -3746,7 +3752,7 @@ package body Editor.External_Producers.Tests is
          Allow_Diagnostics_Ingestion => True,
          Show_Diagnostics            => False);
    begin
-      Assert (not Editor.External_Producers.Validate_Build_Execution_Gate (Gate),
+      Assert (not Editor.External_Producers.Build_Requests.Validate_Build_Execution_Gate (Gate),
               "build gate rejects shell-enabled policy");
    end Test_Build_Gate_Rejects_Shell_Mode;
 
@@ -3761,13 +3767,13 @@ package body Editor.External_Producers.Tests is
          Working_Label => Null_Unbounded_String,
          Command_Label => To_Unbounded_String ("gprbuild"),
          Arguments     => To_Unbounded_String ("-q --not-split"),
-         Structured_Arguments => Editor.External_Producers.Build_Process_Argument_Vector ("-q"));
-      Result : Editor.External_Producers.Build_Command_Result;
+         Structured_Arguments => Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q"));
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Prepare_State (S);
-      Result := Editor.External_Producers.Run_Build_Command_With_Gate
-        (S, Request, Editor.External_Producers.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed),
-         Editor.External_Producers.Build_Process_Run_Result (Editor.External_Producers.Process_Run_Succeeded));
+      Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Gate
+        (S, Request, Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed),
+         Editor.External_Producers.Build_Requests.Build_Process_Run_Result (Editor.External_Producers.Process_Run_Succeeded));
       Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Rejected,
               "real gate rejects opaque arguments before runner selection");
       Assert (To_String (Result.Command_Message) = "Build: structured arguments required",
@@ -3779,13 +3785,13 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Prepare_State (S);
-      Result := Editor.External_Producers.Run_Build_Command_With_Gate
+      Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Gate
         (S, Build_Request (Tool => Editor.External_Producers.No_Build_Tool),
-         Editor.External_Producers.Build_Test_Fixture_Execution_Gate,
-         Editor.External_Producers.Build_Process_Run_Result
+         Editor.External_Producers.Execution_Policy.Build_Test_Fixture_Execution_Gate,
+         Editor.External_Producers.Build_Requests.Build_Process_Run_Result
            (Editor.External_Producers.Process_Run_Succeeded,
             Stderr_Text => "main.adb:1:1: error: must-not-run"));
       Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Rejected,
@@ -3799,13 +3805,13 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Prepare_State (S);
-      Result := Editor.External_Producers.Run_Build_Command_With_Gate
+      Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Gate
         (S, Build_Request (Command => ""),
-         Editor.External_Producers.Build_Test_Fixture_Execution_Gate,
-         Editor.External_Producers.Build_Process_Run_Result (Editor.External_Producers.Process_Run_Succeeded));
+         Editor.External_Producers.Execution_Policy.Build_Test_Fixture_Execution_Gate,
+         Editor.External_Producers.Build_Requests.Build_Process_Run_Result (Editor.External_Producers.Process_Run_Succeeded));
       Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Rejected,
               "invalid process-preparation input rejects before supplied runner result");
       Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
@@ -3817,12 +3823,12 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Prepare_State (S);
-      Result := Editor.External_Producers.Run_Build_Command_With_Gate
-        (S, Build_Request, Editor.External_Producers.Build_Test_Fixture_Execution_Gate,
-         Editor.External_Producers.Build_Process_Run_Result
+      Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Gate
+        (S, Build_Request, Editor.External_Producers.Execution_Policy.Build_Test_Fixture_Execution_Gate,
+         Editor.External_Producers.Build_Requests.Build_Process_Run_Result
            (Editor.External_Producers.Process_Run_Failed,
             Exit_Code => 2, Has_Exit_Code => True,
             Stderr_Text => "main.adb:1:1: error: explicit fixture"));
@@ -3837,10 +3843,10 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Prepare_State (S);
-      Result := Editor.External_Producers.Run_Build_Command_With_Gate
+      Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Gate
         (S,
          (Tool          => Editor.External_Producers.GPRbuild_Tool,
           Provenance    => Editor.External_Producers.Build_Request_From_User_Opt_In,
@@ -3848,9 +3854,9 @@ package body Editor.External_Producers.Tests is
           Command_Label => To_Unbounded_String ("gprbuild --version"),
           Arguments     => Null_Unbounded_String,
           Structured_Arguments =>
-            Editor.External_Producers.Build_Process_Argument_Vector ("--version")),
-         Editor.External_Producers.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed),
-         Editor.External_Producers.Build_Process_Run_Result (Editor.External_Producers.Process_Run_Succeeded));
+            Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("--version")),
+         Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed),
+         Editor.External_Producers.Build_Requests.Build_Process_Run_Result (Editor.External_Producers.Process_Run_Succeeded));
       Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Succeeded,
               "validated real gate executes a bounded version command");
       Assert (Result.Build_Result.Has_Exit_Code
@@ -3866,13 +3872,13 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Prepare_State (S);
-      Result := Editor.External_Producers.Run_Build_Command_With_Gate
+      Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Gate
         (S, Build_Request,
-         Editor.External_Producers.Build_Test_Fixture_Execution_Gate (Allow_Diagnostics_Ingestion => False),
-         Editor.External_Producers.Build_Process_Run_Result
+         Editor.External_Producers.Execution_Policy.Build_Test_Fixture_Execution_Gate (Allow_Diagnostics_Ingestion => False),
+         Editor.External_Producers.Build_Requests.Build_Process_Run_Result
            (Editor.External_Producers.Process_Run_Failed,
             Stderr_Text => "main.adb:1:1: error: not-ingested"));
       Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Failed,
@@ -3890,12 +3896,12 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Prepare_State (S);
-      Result := Editor.External_Producers.Run_Build_Command_With_Gate
-        (S, Build_Request, Editor.External_Producers.Build_Test_Fixture_Execution_Gate,
-         Editor.External_Producers.Build_Process_Run_Result
+      Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Gate
+        (S, Build_Request, Editor.External_Producers.Execution_Policy.Build_Test_Fixture_Execution_Gate,
+         Editor.External_Producers.Build_Requests.Build_Process_Run_Result
            (Editor.External_Producers.Process_Run_Failed,
             Stderr_Text => "main.adb:1:1: error: ingested"));
       Assert (Result.Diagnostic_Result.Ingestion.Parse_Accepted_Count = 1,
@@ -3911,15 +3917,15 @@ package body Editor.External_Producers.Tests is
       S : Editor.State.State_Type;
       Before : Editor.Feature_Panel.Feature_Id;
       After : Editor.Feature_Panel.Feature_Id;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Prepare_State (S);
       Assert (Editor.Feature_Panel_Controller.Show_Feature (S, Editor.Feature_Panel.Outline_Feature),
         "feature panel show feature succeeds");
       Before := Editor.Feature_Panel.Active_Feature (S.Feature_Panel);
-      Result := Editor.External_Producers.Run_Build_Command_With_Gate
-        (S, Build_Request, Editor.External_Producers.Build_Test_Fixture_Execution_Gate,
-         Editor.External_Producers.Build_Process_Run_Result
+      Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Gate
+        (S, Build_Request, Editor.External_Producers.Execution_Policy.Build_Test_Fixture_Execution_Gate,
+         Editor.External_Producers.Build_Requests.Build_Process_Run_Result
            (Editor.External_Producers.Process_Run_Failed,
             Stderr_Text => "main.adb:1:1: error: hidden"));
       After := Editor.Feature_Panel.Active_Feature (S.Feature_Panel);
@@ -3934,15 +3940,15 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Prepare_State (S);
       Assert (Editor.Feature_Panel_Controller.Show_Feature (S, Editor.Feature_Panel.Outline_Feature),
         "feature panel show feature succeeds");
-      Result := Editor.External_Producers.Run_Build_Command_With_Gate
+      Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Gate
         (S, Build_Request,
-         Editor.External_Producers.Build_Test_Fixture_Execution_Gate (Show_Diagnostics => True),
-         Editor.External_Producers.Build_Process_Run_Result
+         Editor.External_Producers.Execution_Policy.Build_Test_Fixture_Execution_Gate (Show_Diagnostics => True),
+         Editor.External_Producers.Build_Requests.Build_Process_Run_Result
            (Editor.External_Producers.Process_Run_Failed,
             Stderr_Text => "main.adb:1:1: error: visible"));
       Assert (Result.Diagnostic_Result.Should_Show_Diagnostics,
@@ -3961,11 +3967,11 @@ package body Editor.External_Producers.Tests is
    begin
       Prepare_State (S);
       Before := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
-      Assert (Editor.External_Producers.Audit_Build_Execution_Gates,
+      Assert (Editor.External_Producers.Audits.Audit_Build_Execution_Gates,
               "build gate audit covers default, fixture, real, shell, and ambiguous cases");
-      Assert (Editor.External_Producers.Audit_Gated_Runner_Command_Path,
+      Assert (Editor.External_Producers.Audits.Audit_Gated_Runner_Command_Path,
               "gated runner command audit covers disabled, invalid, fixture, no-ingest, unavailable, and opaque cases");
-      Assert (Editor.External_Producers.Audit_Real_Build_Execution_Gates,
+      Assert (Editor.External_Producers.Audits.Audit_Real_Build_Execution_Gates,
               "real build opt-in audit covers provenance, implicit source, working context, and gate rejection cases");
       After := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
       Assert (Before = After,
@@ -3979,7 +3985,7 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
    begin
-      Assert (Editor.External_Producers.Audit_Process_Execution_Gates,
+      Assert (Editor.External_Producers.Audits.Audit_Process_Execution_Gates,
               "process execution gate audit covers disabled, real, fixture, output-bound, and invalid-build cases");
    end Test_Process_Runner_Audit_Covers_Execution_Gating;
 
@@ -3995,7 +4001,7 @@ package body Editor.External_Producers.Tests is
    begin
       Prepare_State (S);
       Before := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
-      Assert (Editor.External_Producers.Audit_Process_Argv_And_Preflight_Gates,
+      Assert (Editor.External_Producers.Audits.Audit_Process_Argv_And_Preflight_Gates,
               "process audit covers structured argv and preflight gates");
       After := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
       Assert (Before = After,
@@ -4009,7 +4015,7 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
    begin
-      Assert (Editor.External_Producers.Process_Runner_Audit_Passes,
+      Assert (Editor.External_Producers.Audits.Process_Runner_Audit_Passes,
               "process-runner audit covers default non-execution, validation, conversion, and line extraction");
    end Test_Process_Runner_Audit_Covers_Default_Non_Execution;
 
@@ -4017,13 +4023,13 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Supplied : constant Editor.External_Producers.Build_Run_Result :=
-        Editor.External_Producers.Build_Build_Run_Result
+      Supplied : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
+        Editor.External_Producers.Build_Requests.Build_Build_Run_Result
           (Editor.External_Producers.Build_Run_Failed,
            Exit_Code => 2, Has_Exit_Code => True,
            Stderr_Text => "main.adb:1:1: error: supplied");
-      Result : constant Editor.External_Producers.Build_Run_Result :=
-        Editor.External_Producers.Execute_Test_Fed_Build_Request
+      Result : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
+        Editor.External_Producers.Build_Requests.Execute_Test_Fed_Build_Request
           (Build_Request, Supplied);
    begin
       Assert (Result.Status = Editor.External_Producers.Build_Run_Failed,
@@ -4038,12 +4044,12 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Supplied : constant Editor.External_Producers.Build_Run_Result :=
-        Editor.External_Producers.Build_Build_Run_Result
+      Supplied : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
+        Editor.External_Producers.Build_Requests.Build_Build_Run_Result
           (Editor.External_Producers.Build_Run_Succeeded,
            Stdout_Text => "main.adb:1:1: warning: should-not-appear");
-      Result : constant Editor.External_Producers.Build_Run_Result :=
-        Editor.External_Producers.Execute_Test_Fed_Build_Request
+      Result : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
+        Editor.External_Producers.Build_Requests.Execute_Test_Fed_Build_Request
           (Build_Request (Tool => Editor.External_Producers.No_Build_Tool),
            Supplied);
    begin
@@ -4057,11 +4063,11 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Result : constant Editor.External_Producers.Build_Run_Result :=
-        Editor.External_Producers.Build_Build_Run_Result
+      Result : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
+        Editor.External_Producers.Build_Requests.Build_Build_Run_Result
           (Editor.External_Producers.Build_Run_Succeeded);
-      Lines : constant Editor.External_Producers.Diagnostic_Text_Line_Array :=
-        Editor.External_Producers.Extract_Diagnostic_Lines_From_Build_Result (Result);
+      Lines : constant Editor.External_Producers.Build_Requests.Diagnostic_Text_Line_Array :=
+        Editor.External_Producers.Build_Requests.Extract_Diagnostic_Lines_From_Build_Result (Result);
    begin
       Assert (Result.Status = Editor.External_Producers.Build_Run_Succeeded,
               "build result stores the requested status");
@@ -4075,17 +4081,17 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Explicit : Editor.External_Producers.Diagnostic_Text_Line_Array;
-      Result : Editor.External_Producers.Build_Run_Result;
-      Lines : Editor.External_Producers.Diagnostic_Text_Line_Array;
+      Explicit : Editor.External_Producers.Build_Requests.Diagnostic_Text_Line_Array;
+      Result : Editor.External_Producers.Build_Requests.Build_Run_Result;
+      Lines : Editor.External_Producers.Build_Requests.Diagnostic_Text_Line_Array;
    begin
       Explicit.Append (To_Unbounded_String ("main.adb:1:1: error: explicit"));
-      Result := Editor.External_Producers.Build_Build_Run_Result
+      Result := Editor.External_Producers.Build_Requests.Build_Build_Run_Result
         (Editor.External_Producers.Build_Run_Failed,
          Exit_Code => 1, Has_Exit_Code => True,
          Stderr_Text => "main.adb:2:1: warning: stderr",
          Diagnostic_Lines => Explicit);
-      Lines := Editor.External_Producers.Extract_Diagnostic_Lines_From_Build_Result (Result);
+      Lines := Editor.External_Producers.Build_Requests.Extract_Diagnostic_Lines_From_Build_Result (Result);
       Assert (Lines.Length = 1,
               "explicit diagnostic lines take precedence over stream splitting");
       Assert (To_String (Lines.First_Element) = "main.adb:1:1: error: explicit",
@@ -4096,13 +4102,13 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Result : constant Editor.External_Producers.Build_Run_Result :=
-        Editor.External_Producers.Build_Build_Run_Result
+      Result : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
+        Editor.External_Producers.Build_Requests.Build_Build_Run_Result
           (Editor.External_Producers.Build_Run_Failed,
            Stdout_Text => "stdout.adb:2:1: warning: stdout" & ASCII.LF,
            Stderr_Text => "stderr.adb:1:1: error: stderr" & ASCII.LF);
-      Lines : constant Editor.External_Producers.Diagnostic_Text_Line_Array :=
-        Editor.External_Producers.Extract_Diagnostic_Lines_From_Build_Result (Result);
+      Lines : constant Editor.External_Producers.Build_Requests.Diagnostic_Text_Line_Array :=
+        Editor.External_Producers.Build_Requests.Extract_Diagnostic_Lines_From_Build_Result (Result);
    begin
       Assert (Lines.Length = 2,
               "stderr and stdout diagnostic-looking output split into two lines");
@@ -4116,12 +4122,12 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Result : constant Editor.External_Producers.Build_Run_Result :=
-        Editor.External_Producers.Build_Build_Run_Result
+      Result : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
+        Editor.External_Producers.Build_Requests.Build_Build_Run_Result
           (Editor.External_Producers.Build_Run_Execution_Error,
            Stderr_Text => "main.adb:1:1: error: execution diagnostic");
-      Lines : constant Editor.External_Producers.Diagnostic_Text_Line_Array :=
-        Editor.External_Producers.Extract_Diagnostic_Lines_From_Build_Result (Result);
+      Lines : constant Editor.External_Producers.Build_Requests.Diagnostic_Text_Line_Array :=
+        Editor.External_Producers.Build_Requests.Extract_Diagnostic_Lines_From_Build_Result (Result);
    begin
       Assert (Lines.Length = 1,
               "execution-error result may carry explicitly supplied output diagnostics");
@@ -4134,8 +4140,8 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Result : constant Editor.External_Producers.Build_Run_Result :=
-        Editor.External_Producers.Execute_Build_Request (Build_Request);
+      Result : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
+        Editor.External_Producers.Build_Requests.Execute_Build_Request (Build_Request);
    begin
       Assert (Result.Status = Editor.External_Producers.Build_Run_Not_Available,
               "default build executor seam does not run an external tool");
@@ -4148,15 +4154,15 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Run_Result;
-      Command : Editor.External_Producers.Diagnostic_Line_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Run_Result;
+      Command : Editor.External_Producers.Build_Requests.Diagnostic_Line_Command_Result;
    begin
       Prepare_State (S);
-      Result := Editor.External_Producers.Build_Build_Run_Result
+      Result := Editor.External_Producers.Build_Requests.Build_Build_Run_Result
         (Editor.External_Producers.Build_Run_Failed,
          Exit_Code => 1, Has_Exit_Code => True,
          Stderr_Text => "main.adb:1:1: error: build failed");
-      Command := Editor.External_Producers.Ingest_Build_Run_Diagnostics
+      Command := Editor.External_Producers.Build_Requests.Ingest_Build_Run_Diagnostics
         (S, Build_Source, Result);
       Assert (Command.Ingestion.Parse_Accepted_Count = 1,
               "build output is parsed by the diagnostic-line parser");
@@ -4169,15 +4175,15 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Run_Result;
-      Command : Editor.External_Producers.Diagnostic_Line_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Run_Result;
+      Command : Editor.External_Producers.Build_Requests.Diagnostic_Line_Command_Result;
    begin
       Prepare_State (S);
       Editor.Feature_Diagnostics.Set_Filter_Text (S.Feature_Diagnostics, "warning");
-      Result := Editor.External_Producers.Build_Build_Run_Result
+      Result := Editor.External_Producers.Build_Requests.Build_Build_Run_Result
         (Editor.External_Producers.Build_Run_Succeeded,
          Stdout_Text => "main.adb:1:1: warning: preserved filter");
-      Command := Editor.External_Producers.Ingest_Build_Run_Diagnostics
+      Command := Editor.External_Producers.Build_Requests.Ingest_Build_Run_Diagnostics
         (S, Build_Source, Result);
       Assert (Command.Ingestion.Ingestion_Result.Accepted_Count = 1,
               "build output diagnostic is ingested");
@@ -4190,16 +4196,16 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Run_Result;
-      Command : Editor.External_Producers.Diagnostic_Line_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Run_Result;
+      Command : Editor.External_Producers.Build_Requests.Diagnostic_Line_Command_Result;
    begin
       Prepare_State (S);
       Editor.Feature_Diagnostics.Toggle_Warnings_Visible
         (S.Feature_Diagnostics);
-      Result := Editor.External_Producers.Build_Build_Run_Result
+      Result := Editor.External_Producers.Build_Requests.Build_Build_Run_Result
         (Editor.External_Producers.Build_Run_Succeeded,
          Stderr_Text => "main.adb:1:1: warning: hidden severity remains hidden");
-      Command := Editor.External_Producers.Ingest_Build_Run_Diagnostics
+      Command := Editor.External_Producers.Build_Requests.Ingest_Build_Run_Diagnostics
         (S, Build_Source, Result);
       Assert (Command.Ingestion.Ingestion_Result.Accepted_Count = 1,
               "severity visibility does not block diagnostic storage");
@@ -4213,16 +4219,16 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Run_Result;
-      Command : Editor.External_Producers.Diagnostic_Line_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Run_Result;
+      Command : Editor.External_Producers.Build_Requests.Diagnostic_Line_Command_Result;
    begin
       Prepare_State (S);
       Editor.Feature_Diagnostics.Toggle_Source_Visible
         (S.Feature_Diagnostics, Editor.Feature_Diagnostics.External_Diagnostic_Source);
-      Result := Editor.External_Producers.Build_Build_Run_Result
+      Result := Editor.External_Producers.Build_Requests.Build_Build_Run_Result
         (Editor.External_Producers.Build_Run_Succeeded,
          Stderr_Text => "main.adb:1:1: warning: hidden source remains hidden");
-      Command := Editor.External_Producers.Ingest_Build_Run_Diagnostics
+      Command := Editor.External_Producers.Build_Requests.Ingest_Build_Run_Diagnostics
         (S, Build_Source, Result);
       Assert (Command.Ingestion.Ingestion_Result.Accepted_Count = 1,
               "source visibility does not block storage");
@@ -4236,17 +4242,17 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Run_Result;
-      Command : Editor.External_Producers.Diagnostic_Line_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Run_Result;
+      Command : Editor.External_Producers.Build_Requests.Diagnostic_Line_Command_Result;
    begin
       Prepare_State (S);
       Assert (Editor.Feature_Panel_Controller.Show_Feature
                 (S, Editor.Feature_Panel.Messages_Feature),
               "test can activate Messages");
-      Result := Editor.External_Producers.Build_Build_Run_Result
+      Result := Editor.External_Producers.Build_Requests.Build_Build_Run_Result
         (Editor.External_Producers.Build_Run_Failed,
          Stderr_Text => "main.adb:1:1: error: no switch");
-      Command := Editor.External_Producers.Ingest_Build_Run_Diagnostics
+      Command := Editor.External_Producers.Build_Requests.Ingest_Build_Run_Diagnostics
         (S, Build_Source, Result);
       Assert (Command.Ingestion.Ingestion_Result.Accepted_Count = 1,
               "build output diagnostic is ingested");
@@ -4260,17 +4266,17 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Run_Result;
-      Command : Editor.External_Producers.Diagnostic_Line_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Run_Result;
+      Command : Editor.External_Producers.Build_Requests.Diagnostic_Line_Command_Result;
    begin
       Prepare_State (S);
       Assert (Editor.Feature_Panel_Controller.Show_Feature
                 (S, Editor.Feature_Panel.Search_Results_Feature),
               "test can activate Search Results");
-      Result := Editor.External_Producers.Build_Build_Run_Result
+      Result := Editor.External_Producers.Build_Requests.Build_Build_Run_Result
         (Editor.External_Producers.Build_Run_Succeeded,
          Stdout_Text => "main.adb:1:1: warning: explicit show");
-      Command := Editor.External_Producers.Ingest_Build_Run_Diagnostics
+      Command := Editor.External_Producers.Build_Requests.Ingest_Build_Run_Diagnostics
         (S, Build_Source, Result, Show_Diagnostics => True);
       Assert (Command.Should_Show_Diagnostics,
               "explicit build-output ingestion can show Diagnostics");
@@ -4284,8 +4290,8 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Run_Result;
-      Command : Editor.External_Producers.Diagnostic_Line_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Run_Result;
+      Command : Editor.External_Producers.Build_Requests.Diagnostic_Line_Command_Result;
       Outline_Before : Natural;
       Messages_Before : Natural;
       Search_Before : Natural;
@@ -4294,10 +4300,10 @@ package body Editor.External_Producers.Tests is
       Outline_Before := Editor.Outline.Item_Count (S.Outline);
       Messages_Before := Editor.Feature_Messages.Row_Count (S.Feature_Messages);
       Search_Before := Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results);
-      Result := Editor.External_Producers.Build_Build_Run_Result
+      Result := Editor.External_Producers.Build_Requests.Build_Build_Run_Result
         (Editor.External_Producers.Build_Run_Failed,
          Stderr_Text => "main.adb:1:1: error: unrelated stable");
-      Command := Editor.External_Producers.Ingest_Build_Run_Diagnostics
+      Command := Editor.External_Producers.Build_Requests.Ingest_Build_Run_Diagnostics
         (S, Build_Source, Result);
       Assert (Command.Ingestion.Ingestion_Result.Accepted_Count = 1,
               "build diagnostic is ingested");
@@ -4313,14 +4319,14 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Diag : Editor.External_Producers.Diagnostic_Line_Command_Result;
+      Diag : Editor.External_Producers.Build_Requests.Diagnostic_Line_Command_Result;
    begin
       Diag.Ingestion.Parse_Input_Count := 1;
       Diag.Ingestion.Parse_Accepted_Count := 1;
       Diag.Ingestion.Normalized_Count := 1;
       Diag.Ingestion.Ingestion_Result.Accepted_Count := 1;
-      Assert (Editor.External_Producers.Build_Build_Command_Feedback
-                (Editor.External_Producers.Build_Build_Run_Result
+      Assert (Editor.External_Producers.Build_Requests.Build_Build_Command_Feedback
+                (Editor.External_Producers.Build_Requests.Build_Build_Run_Result
                    (Editor.External_Producers.Build_Run_Succeeded), Diag) =
                 "Build: succeeded, ingested 1 diagnostics",
               "successful build feedback appends diagnostic count compactly");
@@ -4330,14 +4336,14 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Diag : Editor.External_Producers.Diagnostic_Line_Command_Result;
+      Diag : Editor.External_Producers.Build_Requests.Diagnostic_Line_Command_Result;
    begin
       Diag.Ingestion.Parse_Input_Count := 3;
       Diag.Ingestion.Parse_Accepted_Count := 2;
       Diag.Ingestion.Normalized_Count := 2;
       Diag.Ingestion.Ingestion_Result.Accepted_Count := 2;
-      Assert (Editor.External_Producers.Build_Build_Command_Feedback
-                (Editor.External_Producers.Build_Build_Run_Result
+      Assert (Editor.External_Producers.Build_Requests.Build_Build_Command_Feedback
+                (Editor.External_Producers.Build_Requests.Build_Build_Run_Result
                    (Editor.External_Producers.Build_Run_Failed,
                     Exit_Code => 1, Has_Exit_Code => True), Diag) =
                 "Build: failed, ingested 2 diagnostics",
@@ -4348,11 +4354,11 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Diag : Editor.External_Producers.Diagnostic_Line_Command_Result;
+      Diag : Editor.External_Producers.Build_Requests.Diagnostic_Line_Command_Result;
    begin
       Diag.Ingestion.Parse_Input_Count := 1;
-      Assert (Editor.External_Producers.Build_Build_Command_Feedback
-                (Editor.External_Producers.Build_Build_Run_Result
+      Assert (Editor.External_Producers.Build_Requests.Build_Build_Command_Feedback
+                (Editor.External_Producers.Build_Requests.Build_Build_Run_Result
                    (Editor.External_Producers.Build_Run_Succeeded), Diag) =
                 "Build: succeeded, no diagnostics parsed",
               "build feedback reports no parsed diagnostics for non-empty unparsed output");
@@ -4362,10 +4368,10 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Diag : Editor.External_Producers.Diagnostic_Line_Command_Result;
+      Diag : Editor.External_Producers.Build_Requests.Diagnostic_Line_Command_Result;
    begin
-      Assert (Editor.External_Producers.Build_Build_Command_Feedback
-                (Editor.External_Producers.Build_Build_Run_Result
+      Assert (Editor.External_Producers.Build_Requests.Build_Build_Command_Feedback
+                (Editor.External_Producers.Build_Requests.Build_Build_Run_Result
                    (Editor.External_Producers.Build_Run_Execution_Error), Diag) =
                 "Build: execution error",
               "execution-error feedback is compact when no diagnostics are ingested");
@@ -4373,8 +4379,8 @@ package body Editor.External_Producers.Tests is
       Diag.Ingestion.Parse_Accepted_Count := 1;
       Diag.Ingestion.Normalized_Count := 1;
       Diag.Ingestion.Ingestion_Result.Accepted_Count := 1;
-      Assert (Editor.External_Producers.Build_Build_Command_Feedback
-                (Editor.External_Producers.Build_Build_Run_Result
+      Assert (Editor.External_Producers.Build_Requests.Build_Build_Command_Feedback
+                (Editor.External_Producers.Build_Requests.Build_Build_Run_Result
                    (Editor.External_Producers.Build_Run_Execution_Error), Diag) =
                 "Build: execution error, ingested 1 diagnostics",
               "execution-error feedback can append diagnostic ingestion count");
@@ -4385,10 +4391,10 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Prepare_State (S);
-      Result := Editor.External_Producers.Run_Build_Command_Test_Seam
+      Result := Editor.External_Producers.Build_Requests.Run_Build_Command_Test_Seam
         (S, Build_Request (Tool => Editor.External_Producers.No_Build_Tool));
       Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Rejected,
               "invalid build command test seam request is rejected safely");
@@ -4403,7 +4409,7 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
    begin
-      Assert (Editor.External_Producers.Build_Run_Test_Seam_Audit_Passes,
+      Assert (Editor.External_Producers.Audits.Build_Run_Test_Seam_Audit_Passes,
               "build-run test seam audit covers request, executor and extraction seams");
    end Test_Build_Command_Audit_Covers_Build_Run_Test_Seam;
 
@@ -4417,7 +4423,7 @@ package body Editor.External_Producers.Tests is
    begin
       Prepare_State (S);
       Before := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
-      Assert (Editor.External_Producers.Build_Run_Test_Seam_Audit_Passes,
+      Assert (Editor.External_Producers.Audits.Build_Run_Test_Seam_Audit_Passes,
               "producer audit includes build output diagnostic ingestion seam");
       After := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
       Assert (Before = After,
@@ -4434,13 +4440,13 @@ package body Editor.External_Producers.Tests is
    is
    begin
       if Arg'Length = 0 then
-         return Editor.External_Producers.Build_User_Opt_In_Request
+         return Editor.External_Producers.Build_Requests.Build_User_Opt_In_Request
            (Tool, Program, Working,
-            Editor.External_Producers.Empty_Process_Arguments);
+            Editor.External_Producers.Build_Requests.Empty_Process_Arguments);
       else
-         return Editor.External_Producers.Build_User_Opt_In_Request
+         return Editor.External_Producers.Build_Requests.Build_User_Opt_In_Request
            (Tool, Program, Working,
-            Editor.External_Producers.Build_Process_Argument_Vector (Arg));
+            Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector (Arg));
       end if;
    end User_Request;
 
@@ -4449,8 +4455,8 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       Result : constant Editor.External_Producers.Build_Preflight_Result :=
-        Editor.External_Producers.Preflight_User_Opt_In_Build_Request
-          (User_Request, Editor.External_Producers.Build_Default_Execution_Gate);
+        Editor.External_Producers.Build_Requests.Preflight_User_Opt_In_Build_Request
+          (User_Request, Editor.External_Producers.Execution_Policy.Build_Default_Execution_Gate);
    begin
       Assert (Result.Process_Request_Status =
                 Editor.External_Producers.Process_Request_Rejected_Execution_Disabled,
@@ -4460,7 +4466,7 @@ package body Editor.External_Producers.Tests is
       Assert (Result.Build_Request_Status =
                 Editor.External_Producers.Build_Request_Rejected_Consent,
               "default user opt-in gate lacks execution consent");
-      Assert (Editor.External_Producers.Build_User_Opt_In_Build_Feedback (Result) =
+      Assert (Editor.External_Producers.Build_Requests.Build_User_Opt_In_Build_Feedback (Result) =
                 "Build: execution consent required",
               "missing default consent feedback is deterministic");
    end Test_User_Opt_In_Build_Default_Gate_Disables_Execution;
@@ -4470,12 +4476,12 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       Missing : constant Editor.External_Producers.Build_Preflight_Result :=
-        Editor.External_Producers.Preflight_User_Opt_In_Build_Request
-          (User_Request, Editor.External_Producers.Build_Real_Execution_Gate);
+        Editor.External_Producers.Build_Requests.Preflight_User_Opt_In_Build_Request
+          (User_Request, Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate);
       Test_Only : constant Editor.External_Producers.Build_Preflight_Result :=
-        Editor.External_Producers.Preflight_User_Opt_In_Build_Request
+        Editor.External_Producers.Build_Requests.Preflight_User_Opt_In_Build_Request
           (User_Request,
-           Editor.External_Producers.Build_Real_Execution_Gate
+           Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate
              (Consent => Editor.External_Producers.Build_Consent_Test_Only));
    begin
       Assert (Missing.Build_Request_Status =
@@ -4483,7 +4489,7 @@ package body Editor.External_Producers.Tests is
               "missing execution consent rejects user opt-in build preflight");
       Assert (not Missing.Has_Process_Request,
               "missing consent prepares no process request");
-      Assert (Editor.External_Producers.Build_User_Opt_In_Build_Feedback (Missing) =
+      Assert (Editor.External_Producers.Build_Requests.Build_User_Opt_In_Build_Feedback (Missing) =
                 "Build: execution consent required",
               "missing consent feedback is deterministic");
       Assert (Test_Only.Build_Request_Status =
@@ -4498,8 +4504,8 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       Result : constant Editor.External_Producers.Build_Preflight_Result :=
-        Editor.External_Producers.Preflight_User_Opt_In_Build_Request
-          (User_Request, Editor.External_Producers.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed));
+        Editor.External_Producers.Build_Requests.Preflight_User_Opt_In_Build_Request
+          (User_Request, Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed));
    begin
       Assert (Result.Build_Request_Status = Editor.External_Producers.Build_Request_Valid,
               "user opt-in provenance validates under explicit real gate");
@@ -4524,15 +4530,15 @@ package body Editor.External_Producers.Tests is
          Command_Label => To_Unbounded_String ("gprbuild"),
          Arguments     => Null_Unbounded_String,
          Structured_Arguments =>
-           Editor.External_Producers.Build_Process_Argument_Vector ("-q"));
+           Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q"));
       Result : constant Editor.External_Producers.Build_Preflight_Result :=
-        Editor.External_Producers.Preflight_User_Opt_In_Build_Request
-          (Request, Editor.External_Producers.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed));
+        Editor.External_Producers.Build_Requests.Preflight_User_Opt_In_Build_Request
+          (Request, Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed));
    begin
       Assert (Result.Build_Request_Status =
                 Editor.External_Producers.Build_Request_Rejected_Provenance,
               "internal command provenance cannot satisfy user opt-in preflight");
-      Assert (Editor.External_Producers.Build_User_Opt_In_Build_Feedback (Result) =
+      Assert (Editor.External_Producers.Build_Requests.Build_User_Opt_In_Build_Feedback (Result) =
                 "Build: user opt-in required",
               "missing user opt-in provenance maps to compact feedback");
    end Test_User_Opt_In_Build_Requires_User_Opt_In_Provenance;
@@ -4548,15 +4554,15 @@ package body Editor.External_Producers.Tests is
          Command_Label => To_Unbounded_String ("alr"),
          Arguments     => Null_Unbounded_String,
          Structured_Arguments =>
-           Editor.External_Producers.Build_Process_Argument_Vector ("build"));
+           Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("build"));
       Result : constant Editor.External_Producers.Build_Preflight_Result :=
-        Editor.External_Producers.Preflight_User_Opt_In_Build_Request
-          (Request, Editor.External_Producers.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed));
+        Editor.External_Producers.Build_Requests.Preflight_User_Opt_In_Build_Request
+          (Request, Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed));
    begin
       Assert (Result.Build_Request_Status =
                 Editor.External_Producers.Build_Request_Rejected_Implicit_Source,
               "implicit build source provenance remains rejected");
-      Assert (Editor.External_Producers.Build_User_Opt_In_Build_Feedback (Result) =
+      Assert (Editor.External_Producers.Build_Requests.Build_User_Opt_In_Build_Feedback (Result) =
                 "Build: explicit build request required",
               "implicit build source rejection has deterministic feedback");
    end Test_User_Opt_In_Build_Rejects_Implicit_Source_Provenance;
@@ -4572,10 +4578,10 @@ package body Editor.External_Producers.Tests is
          Command_Label => To_Unbounded_String ("gprbuild"),
          Arguments     => Null_Unbounded_String,
          Structured_Arguments =>
-           Editor.External_Producers.Build_Process_Argument_Vector ("-q"));
+           Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q"));
       Result : constant Editor.External_Producers.Build_Preflight_Result :=
-        Editor.External_Producers.Preflight_User_Opt_In_Build_Request
-          (Request, Editor.External_Producers.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed));
+        Editor.External_Producers.Build_Requests.Preflight_User_Opt_In_Build_Request
+          (Request, Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed));
    begin
       Assert (Result.Build_Request_Status =
                 Editor.External_Producers.Build_Request_Rejected_Unknown_Provenance,
@@ -4593,10 +4599,10 @@ package body Editor.External_Producers.Tests is
          Command_Label => To_Unbounded_String ("gprbuild"),
          Arguments     => Null_Unbounded_String,
          Structured_Arguments =>
-           Editor.External_Producers.Build_Process_Argument_Vector ("-q"));
+           Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q"));
       Result : constant Editor.External_Producers.Build_Preflight_Result :=
-        Editor.External_Producers.Preflight_User_Opt_In_Build_Request
-          (Request, Editor.External_Producers.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed));
+        Editor.External_Producers.Build_Requests.Preflight_User_Opt_In_Build_Request
+          (Request, Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed));
    begin
       Assert (Result.Build_Request_Status =
                 Editor.External_Producers.Build_Request_Rejected_Provenance,
@@ -4608,20 +4614,20 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       Custom : constant Editor.External_Producers.Build_Preflight_Result :=
-        Editor.External_Producers.Preflight_User_Opt_In_Build_Request
+        Editor.External_Producers.Build_Requests.Preflight_User_Opt_In_Build_Request
           (User_Request (Tool => Editor.External_Producers.Custom_Build_Tool,
                          Program => "custom", Arg => "build"),
-           Editor.External_Producers.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed));
+           Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed));
       None : constant Editor.External_Producers.Build_Preflight_Result :=
-        Editor.External_Producers.Preflight_User_Opt_In_Build_Request
+        Editor.External_Producers.Build_Requests.Preflight_User_Opt_In_Build_Request
           (User_Request (Tool => Editor.External_Producers.No_Build_Tool,
                          Program => "", Arg => ""),
-           Editor.External_Producers.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed));
+           Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed));
    begin
       Assert (Custom.Build_Request_Status =
                 Editor.External_Producers.Build_Request_Rejected_Unsupported_Tool,
               "custom build tool remains unsupported without structured configuration");
-      Assert (Editor.External_Producers.Build_User_Opt_In_Build_Feedback (Custom) =
+      Assert (Editor.External_Producers.Build_Requests.Build_User_Opt_In_Build_Feedback (Custom) =
                 "Build: custom build tool not supported",
               "custom tool feedback is deterministic");
       Assert (None.Build_Request_Status =
@@ -4648,17 +4654,17 @@ package body Editor.External_Producers.Tests is
          Command_Label => To_Unbounded_String ("gprbuild"),
          Arguments     => To_Unbounded_String ("-q --not-split"),
          Structured_Arguments =>
-           Editor.External_Producers.Build_Process_Argument_Vector ("-q"));
+           Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q"));
       Shell : constant Editor.External_Producers.Build_Preflight_Result :=
-        Editor.External_Producers.Preflight_User_Opt_In_Build_Request
+        Editor.External_Producers.Build_Requests.Preflight_User_Opt_In_Build_Request
           (User_Request, Shell_Gate);
       Opaque : constant Editor.External_Producers.Build_Preflight_Result :=
-        Editor.External_Producers.Preflight_User_Opt_In_Build_Request
-          (Opaque_Request, Editor.External_Producers.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed));
+        Editor.External_Producers.Build_Requests.Preflight_User_Opt_In_Build_Request
+          (Opaque_Request, Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed));
       Working : constant Editor.External_Producers.Build_Preflight_Result :=
-        Editor.External_Producers.Preflight_User_Opt_In_Build_Request
+        Editor.External_Producers.Build_Requests.Preflight_User_Opt_In_Build_Request
           (User_Request (Working => "project-root"),
-           Editor.External_Producers.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed));
+           Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed));
    begin
       Assert (Shell.Process_Request_Status =
                 Editor.External_Producers.Process_Request_Rejected_Execution_Disabled,
@@ -4666,7 +4672,7 @@ package body Editor.External_Producers.Tests is
       Assert (Opaque.Process_Request_Status =
                 Editor.External_Producers.Process_Request_Rejected_Opaque_Arguments,
               "opaque argument text remains rejected");
-      Assert (Editor.External_Producers.Build_User_Opt_In_Build_Feedback (Opaque) =
+      Assert (Editor.External_Producers.Build_Requests.Build_User_Opt_In_Build_Feedback (Opaque) =
                 "Build: structured arguments required",
               "opaque argument rejection does not expose argv or shell text");
       Assert (Working.Process_Request_Status =
@@ -4685,10 +4691,10 @@ package body Editor.External_Producers.Tests is
    begin
       Prepare_State (S);
       Before := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
-      Result := Editor.External_Producers.Preflight_User_Opt_In_Build_Request
-        (User_Request, Editor.External_Producers.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed));
+      Result := Editor.External_Producers.Build_Requests.Preflight_User_Opt_In_Build_Request
+        (User_Request, Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed));
       After := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
-      Assert (Editor.External_Producers.User_Opt_In_Build_Preflight_Is_Consistent (Result),
+      Assert (Editor.External_Producers.Build_Requests.User_Opt_In_Build_Preflight_Is_Consistent (Result),
               "user opt-in preflight consistency check passes");
       Assert (Before = After,
               "user opt-in preflight does not mutate feature panel state");
@@ -4701,13 +4707,13 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Prepare_State (S);
-      Result := Editor.External_Producers.Run_User_Opt_In_Build_Command_Test_Seam
+      Result := Editor.External_Producers.Build_Requests.Run_User_Opt_In_Build_Command_Test_Seam
         (S, User_Request (Working => "project-root"),
-         Editor.External_Producers.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed),
-         Editor.External_Producers.Build_Process_Run_Result
+         Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed),
+         Editor.External_Producers.Build_Requests.Build_Process_Run_Result
            (Editor.External_Producers.Process_Run_Succeeded,
             Stderr_Text => "main.adb:1:1: error: must-not-run"));
       Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Rejected,
@@ -4721,12 +4727,12 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Prepare_State (S);
-      Result := Editor.External_Producers.Run_User_Opt_In_Build_Command_Test_Seam
-        (S, User_Request, Editor.External_Producers.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed),
-         Editor.External_Producers.Build_Process_Run_Result
+      Result := Editor.External_Producers.Build_Requests.Run_User_Opt_In_Build_Command_Test_Seam
+        (S, User_Request, Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed),
+         Editor.External_Producers.Build_Requests.Build_Process_Run_Result
            (Editor.External_Producers.Process_Run_Failed,
             Exit_Code => 1, Has_Exit_Code => True,
             Stderr_Text => "main.adb:1:1: error: user opt-in diagnostic"));
@@ -4744,13 +4750,13 @@ package body Editor.External_Producers.Tests is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
       Active_Before : Editor.Feature_Panel.Feature_Id;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Prepare_State (S);
       Active_Before := Editor.Feature_Panel.Active_Feature (S.Feature_Panel);
-      Result := Editor.External_Producers.Run_User_Opt_In_Build_Command_Test_Seam
-        (S, User_Request, Editor.External_Producers.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed),
-         Editor.External_Producers.Build_Process_Run_Result
+      Result := Editor.External_Producers.Build_Requests.Run_User_Opt_In_Build_Command_Test_Seam
+        (S, User_Request, Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed),
+         Editor.External_Producers.Build_Requests.Build_Process_Run_Result
            (Editor.External_Producers.Process_Run_Failed,
             Exit_Code => 1, Has_Exit_Code => True,
             Stderr_Text => "main.adb:1:1: warning: user opt-in"));
@@ -4776,7 +4782,7 @@ package body Editor.External_Producers.Tests is
    begin
       Prepare_State (S);
       Before := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
-      Assert (Editor.External_Producers.Audit_User_Opt_In_Build_Gates,
+      Assert (Editor.External_Producers.Audits.Audit_User_Opt_In_Build_Gates,
               "user opt-in build audit covers gates, provenance, argv, working context and feedback");
       After := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
       Assert (Before = After,
@@ -4790,16 +4796,16 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       Context : constant Editor.External_Producers.User_Opt_In_Build_Command_Context :=
-        Editor.External_Producers.Build_User_Opt_In_Command_Context
+        Editor.External_Producers.Build_Requests.Build_User_Opt_In_Command_Context
           (Tool              => Editor.External_Producers.GPRbuild_Tool,
            Program_Label     => "gprbuild",
            Working_Label     => "",
-           Arguments         => Editor.External_Producers.Build_Process_Argument_Vector ("-q"),
+           Arguments         => Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q"),
            Consent           => Editor.External_Producers.Build_Consent_User_Confirmed,
            Allow_Diagnostics => True,
            Show_Diagnostics  => False);
       Status : constant Editor.External_Producers.User_Opt_In_Build_Command_Context_Status :=
-        Editor.External_Producers.Validate_User_Opt_In_Build_Command_Context
+        Editor.External_Producers.Build_Requests.Validate_User_Opt_In_Build_Command_Context
           (Context);
    begin
       Assert (Context.Has_Request,
@@ -4823,15 +4829,15 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Prepare_State (S);
-      Result := Editor.External_Producers.Execute_User_Opt_In_Build_Command
-        (S, Editor.External_Producers.Empty_User_Opt_In_Build_Command_Context,
-         Editor.External_Producers.Build_Process_Run_Result
+      Result := Editor.External_Producers.Build_Requests.Execute_User_Opt_In_Build_Command
+        (S, Editor.External_Producers.Build_Requests.Empty_User_Opt_In_Build_Command_Context,
+         Editor.External_Producers.Build_Requests.Build_Process_Run_Result
            (Editor.External_Producers.Process_Run_Succeeded,
             Stderr_Text => "main.adb:1:1: error: must-not-run"));
-      Editor.External_Producers.Assert_User_Opt_In_Build_Command_Result_Consistent
+      Editor.External_Producers.Build_Requests.Assert_User_Opt_In_Build_Command_Result_Consistent
         (Result);
       Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Rejected,
               "missing user opt-in command context rejects before runner result");
@@ -4846,11 +4852,11 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
       Valid : constant Editor.External_Producers.User_Opt_In_Build_Command_Context :=
-        Editor.External_Producers.Build_User_Opt_In_Command_Context
+        Editor.External_Producers.Build_Requests.Build_User_Opt_In_Command_Context
           (Tool              => Editor.External_Producers.GPRbuild_Tool,
            Program_Label     => "gprbuild",
            Working_Label     => "",
-           Arguments         => Editor.External_Producers.Build_Process_Argument_Vector ("-q"),
+           Arguments         => Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q"),
            Consent           => Editor.External_Producers.Build_Consent_User_Confirmed,
            Allow_Diagnostics => True,
            Show_Diagnostics  => False);
@@ -4862,21 +4868,21 @@ package body Editor.External_Producers.Tests is
             Working_Label        => Null_Unbounded_String,
             Command_Label        => Null_Unbounded_String,
             Arguments            => Null_Unbounded_String,
-            Structured_Arguments => Editor.External_Producers.Empty_Process_Arguments),
+            Structured_Arguments => Editor.External_Producers.Build_Requests.Empty_Process_Arguments),
          Gate        => Valid.Gate);
       Missing_Gate : constant Editor.External_Producers.User_Opt_In_Build_Command_Context :=
         (Has_Request => True,
          Request     => Valid.Request,
-         Gate        => Editor.External_Producers.Build_Default_Execution_Gate);
+         Gate        => Editor.External_Producers.Execution_Policy.Build_Default_Execution_Gate);
       Missing_Consent : constant Editor.External_Producers.User_Opt_In_Build_Command_Context :=
         (Has_Request => True,
          Request     => Valid.Request,
-         Gate        => Editor.External_Producers.Build_Real_Execution_Gate
+         Gate        => Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate
            (Consent => Editor.External_Producers.Build_Consent_Not_Provided));
       Test_Only_Consent : constant Editor.External_Producers.User_Opt_In_Build_Command_Context :=
         (Has_Request => True,
          Request     => Valid.Request,
-         Gate        => Editor.External_Producers.Build_Real_Execution_Gate
+         Gate        => Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate
            (Consent => Editor.External_Producers.Build_Consent_Test_Only));
       Project_Request : constant Editor.External_Producers.User_Opt_In_Build_Command_Context :=
         (Has_Request => True,
@@ -4886,7 +4892,7 @@ package body Editor.External_Producers.Tests is
             Working_Label        => Null_Unbounded_String,
             Command_Label        => To_Unbounded_String ("gprbuild"),
             Arguments            => Null_Unbounded_String,
-            Structured_Arguments => Editor.External_Producers.Build_Process_Argument_Vector ("-q")),
+            Structured_Arguments => Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q")),
          Gate        => Valid.Gate);
       Fixture_Request : constant Editor.External_Producers.User_Opt_In_Build_Command_Context :=
         (Has_Request => True,
@@ -4896,7 +4902,7 @@ package body Editor.External_Producers.Tests is
             Working_Label        => Null_Unbounded_String,
             Command_Label        => To_Unbounded_String ("gprbuild"),
             Arguments            => Null_Unbounded_String,
-            Structured_Arguments => Editor.External_Producers.Build_Process_Argument_Vector ("-q")),
+            Structured_Arguments => Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q")),
          Gate        => Valid.Gate);
       Test_Request : constant Editor.External_Producers.User_Opt_In_Build_Command_Context :=
         (Has_Request => True,
@@ -4906,7 +4912,7 @@ package body Editor.External_Producers.Tests is
             Working_Label        => Null_Unbounded_String,
             Command_Label        => To_Unbounded_String ("gprbuild"),
             Arguments            => Null_Unbounded_String,
-            Structured_Arguments => Editor.External_Producers.Build_Process_Argument_Vector ("-q")),
+            Structured_Arguments => Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q")),
          Gate        => Valid.Gate);
       Custom_Tool : constant Editor.External_Producers.User_Opt_In_Build_Command_Context :=
         (Has_Request => True,
@@ -4916,7 +4922,7 @@ package body Editor.External_Producers.Tests is
             Working_Label        => Null_Unbounded_String,
             Command_Label        => To_Unbounded_String ("custom"),
             Arguments            => Null_Unbounded_String,
-            Structured_Arguments => Editor.External_Producers.Build_Process_Argument_Vector ("-q")),
+            Structured_Arguments => Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q")),
          Gate        => Valid.Gate);
       No_Tool : constant Editor.External_Producers.User_Opt_In_Build_Command_Context :=
         (Has_Request => True,
@@ -4926,7 +4932,7 @@ package body Editor.External_Producers.Tests is
             Working_Label        => Null_Unbounded_String,
             Command_Label        => To_Unbounded_String ("gprbuild"),
             Arguments            => Null_Unbounded_String,
-            Structured_Arguments => Editor.External_Producers.Build_Process_Argument_Vector ("-q")),
+            Structured_Arguments => Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q")),
          Gate        => Valid.Gate);
       Opaque : constant Editor.External_Producers.User_Opt_In_Build_Command_Context :=
         (Has_Request => True,
@@ -4936,7 +4942,7 @@ package body Editor.External_Producers.Tests is
             Working_Label        => Null_Unbounded_String,
             Command_Label        => To_Unbounded_String ("gprbuild"),
             Arguments            => To_Unbounded_String ("-q"),
-            Structured_Arguments => Editor.External_Producers.Empty_Process_Arguments),
+            Structured_Arguments => Editor.External_Producers.Build_Requests.Empty_Process_Arguments),
          Gate        => Valid.Gate);
       Working : constant Editor.External_Producers.User_Opt_In_Build_Command_Context :=
         (Has_Request => True,
@@ -4946,44 +4952,44 @@ package body Editor.External_Producers.Tests is
             Working_Label        => To_Unbounded_String ("project-root"),
             Command_Label        => To_Unbounded_String ("gprbuild"),
             Arguments            => Null_Unbounded_String,
-            Structured_Arguments => Editor.External_Producers.Build_Process_Argument_Vector ("-q")),
+            Structured_Arguments => Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q")),
          Gate        => Valid.Gate);
    begin
-      Assert (Editor.External_Producers.Validate_User_Opt_In_Build_Command_Context
-                (Editor.External_Producers.Empty_User_Opt_In_Build_Command_Context) =
+      Assert (Editor.External_Producers.Build_Requests.Validate_User_Opt_In_Build_Command_Context
+                (Editor.External_Producers.Build_Requests.Empty_User_Opt_In_Build_Command_Context) =
               Editor.External_Producers.User_Build_Context_Rejected_Missing_Context,
               "missing context rejects before preflight");
-      Assert (Editor.External_Producers.Validate_User_Opt_In_Build_Command_Context
+      Assert (Editor.External_Producers.Build_Requests.Validate_User_Opt_In_Build_Command_Context
                 (Missing_Request) = Editor.External_Producers.User_Build_Context_Rejected_Missing_Request,
               "missing request rejects before preflight");
-      Assert (Editor.External_Producers.Validate_User_Opt_In_Build_Command_Context
+      Assert (Editor.External_Producers.Build_Requests.Validate_User_Opt_In_Build_Command_Context
                 (Missing_Gate) = Editor.External_Producers.User_Build_Context_Rejected_Missing_Gate,
               "missing gate rejects before runner selection");
-      Assert (Editor.External_Producers.Validate_User_Opt_In_Build_Command_Context
+      Assert (Editor.External_Producers.Build_Requests.Validate_User_Opt_In_Build_Command_Context
                 (Missing_Consent) = Editor.External_Producers.User_Build_Context_Rejected_Missing_Consent,
               "missing consent rejects before runner selection");
-      Assert (Editor.External_Producers.Validate_User_Opt_In_Build_Command_Context
+      Assert (Editor.External_Producers.Build_Requests.Validate_User_Opt_In_Build_Command_Context
                 (Test_Only_Consent) = Editor.External_Producers.User_Build_Context_Rejected_Missing_Consent,
               "test-only consent is not user-confirmed consent");
-      Assert (Editor.External_Producers.Validate_User_Opt_In_Build_Command_Context
+      Assert (Editor.External_Producers.Build_Requests.Validate_User_Opt_In_Build_Command_Context
                 (Project_Request) = Editor.External_Producers.User_Build_Context_Rejected_Implicit_Source,
               "implicit build source remains unreachable from command test seam");
-      Assert (Editor.External_Producers.Validate_User_Opt_In_Build_Command_Context
+      Assert (Editor.External_Producers.Build_Requests.Validate_User_Opt_In_Build_Command_Context
                 (Fixture_Request) = Editor.External_Producers.User_Build_Context_Rejected_Provenance,
               "fixture provenance cannot substitute for user opt-in provenance");
-      Assert (Editor.External_Producers.Validate_User_Opt_In_Build_Command_Context
+      Assert (Editor.External_Producers.Build_Requests.Validate_User_Opt_In_Build_Command_Context
                 (Test_Request) = Editor.External_Producers.User_Build_Context_Rejected_Provenance,
               "test provenance cannot substitute for user opt-in provenance");
-      Assert (Editor.External_Producers.Validate_User_Opt_In_Build_Command_Context
+      Assert (Editor.External_Producers.Build_Requests.Validate_User_Opt_In_Build_Command_Context
                 (Custom_Tool) = Editor.External_Producers.User_Build_Context_Rejected_Custom_Tool,
               "custom build tool remains rejected");
-      Assert (Editor.External_Producers.Validate_User_Opt_In_Build_Command_Context
+      Assert (Editor.External_Producers.Build_Requests.Validate_User_Opt_In_Build_Command_Context
                 (No_Tool) = Editor.External_Producers.User_Build_Context_Rejected_Custom_Tool,
               "missing concrete build tool remains rejected");
-      Assert (Editor.External_Producers.Validate_User_Opt_In_Build_Command_Context
+      Assert (Editor.External_Producers.Build_Requests.Validate_User_Opt_In_Build_Command_Context
                 (Opaque) = Editor.External_Producers.User_Build_Context_Rejected_Opaque_Arguments,
               "opaque arguments remain rejected");
-      Assert (Editor.External_Producers.Validate_User_Opt_In_Build_Command_Context
+      Assert (Editor.External_Producers.Build_Requests.Validate_User_Opt_In_Build_Command_Context
                 (Working) = Editor.External_Producers.User_Build_Context_Rejected_Working_Context,
               "project-derived working context remains rejected");
    end Test_User_Opt_In_Build_Command_Context_Rejection_Matrix;
@@ -4995,19 +5001,19 @@ package body Editor.External_Producers.Tests is
       S : Editor.State.State_Type;
       Before : Editor.Feature_Panel.Feature_Panel_Fingerprint;
       After : Editor.Feature_Panel.Feature_Panel_Fingerprint;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Prepare_State (S);
       Before := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
-      Result := Editor.External_Producers.Execute_User_Opt_In_Build_Command
-        (S, Editor.External_Producers.Empty_User_Opt_In_Build_Command_Context,
-         Editor.External_Producers.Build_Process_Run_Result
+      Result := Editor.External_Producers.Build_Requests.Execute_User_Opt_In_Build_Command
+        (S, Editor.External_Producers.Build_Requests.Empty_User_Opt_In_Build_Command_Context,
+         Editor.External_Producers.Build_Requests.Build_Process_Run_Result
            (Editor.External_Producers.Process_Run_Succeeded,
             Has_Exit_Code => True,
             Exit_Code     => 0,
             Stderr_Text   => "main.adb:1:1: error: must-not-ingest"));
       After := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
-      Editor.External_Producers.Assert_User_Opt_In_Build_Command_Result_Consistent
+      Editor.External_Producers.Build_Requests.Assert_User_Opt_In_Build_Command_Result_Consistent
         (Result);
       Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Rejected,
               "invalid context returns a rejected command result");
@@ -5023,25 +5029,26 @@ package body Editor.External_Producers.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Empty_Result : constant Editor.External_Producers.Build_Command_Result :=
-        (Build_Result      => Editor.External_Producers.Build_Build_Run_Result
+      Empty_Result : constant Editor.External_Producers.Build_Requests.Build_Command_Result :=
+        (Build_Result      => Editor.External_Producers.Build_Requests.Build_Build_Run_Result
            (Editor.External_Producers.Build_Run_Rejected),
-         Diagnostic_Result => Editor.External_Producers.Empty_Diagnostic_Line_Command_Result,
+         Diagnostic_Result =>
+           Editor.External_Producers.Diagnostic_Line_Parsing.Empty_Diagnostic_Line_Command_Result,
          Command_Message   => Null_Unbounded_String);
    begin
-      Assert (Editor.External_Producers.Build_User_Opt_In_Command_Feedback
+      Assert (Editor.External_Producers.Build_Requests.Build_User_Opt_In_Command_Feedback
                 (Editor.External_Producers.User_Build_Context_Rejected_Missing_Context,
                  Empty_Result) = "Build: user opt-in required",
               "missing context feedback is stable");
-      Assert (Editor.External_Producers.Build_User_Opt_In_Command_Feedback
+      Assert (Editor.External_Producers.Build_Requests.Build_User_Opt_In_Command_Feedback
                 (Editor.External_Producers.User_Build_Context_Rejected_Missing_Consent,
                  Empty_Result) = "Build: execution consent required",
               "missing consent feedback is stable");
-      Assert (Editor.External_Producers.Build_User_Opt_In_Command_Feedback
+      Assert (Editor.External_Producers.Build_Requests.Build_User_Opt_In_Command_Feedback
                 (Editor.External_Producers.User_Build_Context_Rejected_Opaque_Arguments,
                  Empty_Result) = "Build: structured arguments required",
               "opaque argument feedback does not expose argv");
-      Assert (Editor.External_Producers.Build_User_Opt_In_Command_Feedback
+      Assert (Editor.External_Producers.Build_Requests.Build_User_Opt_In_Command_Feedback
                 (Editor.External_Producers.User_Build_Context_Rejected_Working_Context,
                  Empty_Result) = "Build: working directory unsupported",
               "working-context feedback does not expose paths");
@@ -5055,7 +5062,7 @@ package body Editor.External_Producers.Tests is
       Result : Editor.External_Producers.Build_Execution_Consent_Audit_Result;
    begin
       Prepare_State (S);
-      Result := Editor.External_Producers.Run_Build_Execution_Consent_Audit (S);
+      Result := Editor.External_Producers.Audits.Run_Build_Execution_Consent_Audit (S);
       Assert (Result.Passed,
               "build execution consent audit must pass default state");
       Assert (Result.Has_Public_Build_Command,
@@ -5099,7 +5106,7 @@ package body Editor.External_Producers.Tests is
       Before_Panel := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
       Before_Diagnostics := Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics);
       Before_Messages := Editor.Feature_Messages.Row_Count (S.Feature_Messages);
-      Result := Editor.External_Producers.Run_Build_Execution_Consent_Audit (S);
+      Result := Editor.External_Producers.Audits.Run_Build_Execution_Consent_Audit (S);
       After_Panel := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
       After_Diagnostics := Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics);
       After_Messages := Editor.Feature_Messages.Row_Count (S.Feature_Messages);
@@ -5119,7 +5126,7 @@ package body Editor.External_Producers.Tests is
    is
       pragma Unreferenced (T);
    begin
-      Assert (Editor.External_Producers.Audit_Build_Command_Rejection_Matrix,
+      Assert (Editor.External_Producers.Audits.Audit_Build_Command_Rejection_Matrix,
               "rejection matrix audit must cover context, request, gate, consent, provenance, tool, argv, shell, working context, diagnostics policy, visibility policy, and execution ambiguity");
    end Test_Build_Command_Rejection_Matrix_Audit_Covers_Invalid_Cells;
 
@@ -5133,7 +5140,7 @@ package body Editor.External_Producers.Tests is
    begin
       Prepare_State (S);
       Before := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
-      Assert (Editor.External_Producers.Audit_User_Opt_In_Build_Command_Surface,
+      Assert (Editor.External_Producers.Audits.Audit_User_Opt_In_Build_Command_Surface,
               "user opt-in build command audit covers context, gate, consent, argv and shell rejection");
       After := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
       Assert (Before = After,

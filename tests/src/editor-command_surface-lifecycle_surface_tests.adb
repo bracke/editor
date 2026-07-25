@@ -19,6 +19,8 @@ with Editor.Executor.Command_Palette_Projection;
 with Editor.File_Tree;
 with Editor.File_Tree_View;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Requests;
+with Editor.External_Producers.Public_Build;
 with Editor.Messages;
 with Editor.Keybindings;
 with Editor.Keybinding_Management;
@@ -215,13 +217,13 @@ package body Editor.Command_Surface.Lifecycle_Surface_Tests is
          Tool             => Editor.External_Producers.GPRbuild_Tool,
          Program_Label    => To_Unbounded_String ("gprbuild"),
          Working_Context  =>
-           Editor.External_Producers.Build_Inherited_Test_Working_Context,
+           Editor.External_Producers.Build_Requests.Build_Inherited_Test_Working_Context,
          Working_Context_Model =>
            (Source => Editor.External_Producers.Public_Build_Working_Context_Test_Context,
             Label  => Null_Unbounded_String,
             User_Acknowledged_Context => True),
          Arguments        =>
-           Editor.External_Producers.Build_Process_Argument_Vector ("-q"),
+           Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q"),
          Consent          => Editor.External_Producers.Build_Consent_User_Confirmed,
          Consent_Model    =>
            (Source => Editor.External_Producers.Public_Build_Consent_Test_Context,
@@ -290,8 +292,8 @@ package body Editor.Command_Surface.Lifecycle_Surface_Tests is
               "conversion must preserve program label as metadata");
       Assert (To_String (Request.Arguments)'Length = 0,
               "conversion must not introduce opaque command text");
-      Assert (Process_Argument_Count (Request.Structured_Arguments) =
-              Process_Argument_Count (Input.Arguments),
+      Assert (Editor.External_Producers.Build_Requests.Process_Argument_Count (Request.Structured_Arguments) =
+              Editor.External_Producers.Build_Requests.Process_Argument_Count (Input.Arguments),
               "conversion must preserve structured argv count");
       Assert (To_String (Request.Working_Label)'Length = 0,
               "conversion must not create a real working directory label");
@@ -303,7 +305,7 @@ package body Editor.Command_Surface.Lifecycle_Surface_Tests is
       S : Editor.State.State_Type;
    begin
       Editor.State.Init (S);
-      return Run_Public_Build_Guardrail_Audit (S);
+      return Editor.External_Producers.Public_Build.Run_Public_Build_Guardrail_Audit (S);
    end Default_Result;
 
    function Starts_With (Text : String; Prefix : String) return Boolean is

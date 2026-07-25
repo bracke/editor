@@ -14,6 +14,22 @@ package body Editor.External_Producers.Request_Policies is
    function Contains_Shell_Syntax (Value : String) return Boolean
      renames Editor.External_Producers.Public_Build_Input_Validation.Contains_Shell_Syntax;
 
+   function Build_User_Opt_In_Request
+     (Tool          : Build_Tool_Kind;
+      Program_Label : String;
+      Working_Label : String;
+      Arguments     : Process_Argument_Vector) return Build_Run_Request
+   is
+   begin
+      return
+        (Tool                 => Tool,
+         Provenance           => Build_Request_From_User_Opt_In,
+         Working_Label        => To_Unbounded_String (Working_Label),
+         Command_Label        => To_Unbounded_String (Program_Label),
+         Arguments            => Null_Unbounded_String,
+         Structured_Arguments => Arguments);
+   end Build_User_Opt_In_Request;
+
    function Validate_Build_Run_Request_Status
      (Request : Build_Run_Request) return Build_Request_Validation_Status
    is

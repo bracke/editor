@@ -9,6 +9,9 @@ with Editor.Build_UI;
 with Editor.Build_Working_Context;
 with Editor.Commands;
 with Editor.External_Producers;
+with Editor.External_Producers.Execution_Policy;
+with Editor.External_Producers.Build_Requests;
+with Editor.External_Producers.Diagnostic_Line_Parsing;
 with Editor.Feature_Diagnostics;
 with Editor.Project;
 
@@ -108,7 +111,7 @@ package body Editor.Build_Milestone_Freeze is
           Editor.External_Producers.Build_Request_From_User_Opt_In
         and then To_String (C.Request.Command_Label) = "gprbuild"
         and then To_String (C.Request.Arguments)'Length = 0
-        and then Editor.External_Producers.Process_Argument_Count
+        and then Editor.External_Producers.Build_Requests.Process_Argument_Count
           (C.Request.Structured_Arguments) = 2
         and then Editor.Build_UI.Assert_Build_UI_State_Is_Transient (S);
    end Assert_Public_Build_Manual_Request_Frozen;
@@ -142,7 +145,7 @@ package body Editor.Build_Milestone_Freeze is
         and then C.Request.Tool = Editor.External_Producers.Alire_Build_Tool
         and then To_String (C.Request.Command_Label) = "alr"
         and then To_String (C.Request.Arguments)'Length = 0
-        and then Editor.External_Producers.Process_Argument_Count
+        and then Editor.External_Producers.Build_Requests.Process_Argument_Count
           (C.Request.Structured_Arguments) = 1
         and then not Editor.Build_UI.Command_Palette_Can_Supply_Candidate (S)
         and then not Editor.Build_UI.Keybinding_Can_Supply_Candidate (S)
@@ -225,15 +228,15 @@ package body Editor.Build_Milestone_Freeze is
       C : constant Editor.Build_Public_Request.Public_Build_Request_Conversion_Result :=
         Request_From (UI);
       Gate : Editor.External_Producers.Build_Execution_Gate :=
-        Editor.External_Producers.Build_Default_Execution_Gate;
+        Editor.External_Producers.Execution_Policy.Build_Default_Execution_Gate;
       Supplied : constant Editor.External_Producers.Process_Run_Result :=
-        Editor.External_Producers.Build_Process_Run_Result
+        Editor.External_Producers.Build_Requests.Build_Process_Run_Result
           (Editor.External_Producers.Process_Run_Succeeded,
            Exit_Code => 0,
            Has_Exit_Code => True,
            Stdout_Text => "ok",
            Stderr_Text => "");
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
       Preflight : Editor.External_Producers.Build_Preflight_Result;
       Rejected : Editor.External_Producers.Process_Run_Result;
    begin
@@ -249,12 +252,12 @@ package body Editor.Build_Milestone_Freeze is
       Gate.Allow_Diagnostics_Ingestion := False;
       Gate.Show_Diagnostics := False;
 
-      Preflight := Editor.External_Producers.Preflight_Build_Run_Request
+      Preflight := Editor.External_Producers.Build_Requests.Preflight_Build_Run_Request
         (C.Request, Gate.Process_Policy);
-      Result := Editor.External_Producers.Run_Build_Command_With_Gate
+      Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Gate
         (S, C.Request, Gate, Supplied);
-      Rejected := Editor.External_Producers.Enforce_Process_Output_Bounds
-        (Editor.External_Producers.Build_Process_Run_Result
+      Rejected := Editor.External_Producers.Build_Requests.Enforce_Process_Output_Bounds
+        (Editor.External_Producers.Build_Requests.Build_Process_Run_Result
            (Editor.External_Producers.Process_Run_Succeeded,
             Exit_Code => 0,
             Has_Exit_Code => True,
@@ -265,7 +268,7 @@ package body Editor.Build_Milestone_Freeze is
           Editor.External_Producers.Process_Request_Valid
         and then To_String (Preflight.Process_Request.Program_Label) = "gprbuild"
         and then To_String (Preflight.Process_Request.Arguments)'Length = 0
-        and then Editor.External_Producers.Process_Argument_Count
+        and then Editor.External_Producers.Build_Requests.Process_Argument_Count
           (Preflight.Process_Request.Structured_Arguments) = 2
         and then not Gate.Process_Policy.Allow_Shell
         and then Gate.Process_Policy.Mode =
@@ -283,13 +286,14 @@ package body Editor.Build_Milestone_Freeze is
       UI : constant Editor.Build_UI.Public_Build_UI_State := Ready_Manual_UI;
       C : constant Editor.Build_Public_Request.Public_Build_Request_Conversion_Result :=
         Request_From (UI);
-      Lines : Editor.External_Producers.Diagnostic_Text_Line_Array;
-      Build_Result : Editor.External_Producers.Build_Run_Result;
-      Disabled : Editor.External_Producers.Diagnostic_Line_Command_Result;
-      Enabled  : Editor.External_Producers.Diagnostic_Line_Command_Result;
+      Lines :
+        Editor.External_Producers.Build_Requests.Diagnostic_Text_Line_Array;
+      Build_Result : Editor.External_Producers.Build_Requests.Build_Run_Result;
+      Disabled : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result;
+      Enabled  : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result;
    begin
       Lines.Append (To_Unbounded_String ("main.adb:1:1: error: frozen"));
-      Build_Result := Editor.External_Producers.Build_Build_Run_Result
+      Build_Result := Editor.External_Producers.Build_Requests.Build_Build_Run_Result
         (Editor.External_Producers.Build_Run_Failed,
          Exit_Code => 1,
          Has_Exit_Code => True,
@@ -353,7 +357,7 @@ package body Editor.Build_Milestone_Freeze is
       Result : Public_Build_Command_Milestone_Freeze;
       Audit_State : Editor.State.State_Type := State;
       One_Message_State : Editor.State.State_Type := State;
-      One_Message_Result : Editor.External_Producers.Build_Command_Result;
+      One_Message_Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
       Manual : constant Editor.Build_UI.Public_Build_UI_State := Ready_Manual_UI;
    begin
       Audit_State.Build_UI := Ready_Manual_UI;
@@ -397,10 +401,10 @@ package body Editor.Build_Milestone_Freeze is
         and then Editor.Build_Public_Request.Assert_Public_Build_Working_Context_Foundation_Coherent
           (Manual)
         and then Editor.Build_Diagnostics.Assert_Public_Build_Diagnostics_Ingestion_Foundation_Coherent;
-      One_Message_Result := Editor.External_Producers.Run_Build_Command_With_Gate
+      One_Message_Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Gate
         (One_Message_State,
          Request_From (Manual).Request,
-         Editor.External_Producers.Build_Default_Execution_Gate);
+         Editor.External_Producers.Execution_Policy.Build_Default_Execution_Gate);
       Result.One_Primary_Message_Frozen :=
         To_String (One_Message_Result.Command_Message)'Length > 0;
       end;

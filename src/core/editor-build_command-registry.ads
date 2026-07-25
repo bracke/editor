@@ -1,5 +1,6 @@
 with Editor.Build_Process_Control;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Requests;
 with Editor.State;
 
 package Editor.Build_Command.Registry is
@@ -14,7 +15,7 @@ package Editor.Build_Command.Registry is
    type State_By_Public_Build_Slot is array (Public_Build_Async_Slot_Index) of Editor.State.State_Type;
    type Build_Request_By_Public_Build_Slot is array (Public_Build_Async_Slot_Index) of Editor.External_Producers.Build_Run_Request;
    type Build_Gate_By_Public_Build_Slot is array (Public_Build_Async_Slot_Index) of Editor.External_Producers.Build_Execution_Gate;
-   type Build_Result_By_Public_Build_Slot is array (Public_Build_Async_Slot_Index) of Editor.External_Producers.Build_Command_Result;
+   type Build_Result_By_Public_Build_Slot is array (Public_Build_Async_Slot_Index) of Editor.External_Producers.Build_Requests.Build_Command_Result;
 
    protected Public_Build_Slot_Allocator is
       procedure Allocate (Slot_Id : out Natural);
@@ -50,7 +51,7 @@ package Editor.Build_Command.Registry is
       procedure Store_Worker_Result
         (Slot_Id        : Natural;
          State_Snapshot : Editor.State.State_Type;
-         Result         : Editor.External_Producers.Build_Command_Result);
+         Result         : Editor.External_Producers.Build_Requests.Build_Command_Result);
 
       procedure Mark_Worker_Running (Slot_Id : Natural);
       procedure Mark_Cancellation_Requested (Slot_Id : Natural);
@@ -70,7 +71,7 @@ package Editor.Build_Command.Registry is
          State_Snapshot : out Editor.State.State_Type;
          Request        : out Editor.External_Producers.Build_Run_Request;
          Result_Gate    : out Editor.External_Producers.Build_Execution_Gate;
-         Result         : out Editor.External_Producers.Build_Command_Result);
+         Result         : out Editor.External_Producers.Build_Requests.Build_Command_Result);
    private
       Occupied      : Boolean_By_Public_Build_Slot := (others => False);
       Running       : Boolean_By_Public_Build_Slot := (others => False);

@@ -1,6 +1,7 @@
 with Editor.Build_Output_Details;
 with Editor.Build_Result_Summary;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Requests;
 with Editor.State;
 
 package Editor.Build_Execution_Workflow is
@@ -48,7 +49,7 @@ package Editor.Build_Execution_Workflow is
      (State : Editor.State.State_Type) return Boolean;
 
    function Assert_Build_Diagnostics_Disabled_Does_Not_Ingest
-     (Result : Editor.External_Producers.Build_Command_Result) return Boolean;
+     (Result : Editor.External_Producers.Build_Requests.Build_Command_Result) return Boolean;
 
    function Assert_Build_Cancel_Advertised_With_Active_Job_Model
      (State : Editor.State.State_Type) return Boolean;
@@ -61,7 +62,7 @@ package Editor.Build_Execution_Workflow is
       return Boolean;
 
    function Assert_Build_Preflight_Result_Has_No_Diagnostics
-     (Result : Editor.External_Producers.Build_Command_Result) return Boolean;
+     (Result : Editor.External_Producers.Build_Requests.Build_Command_Result) return Boolean;
 
    function Assert_Build_Preflight_Preserves_Request_Surface
      (Before : Editor.State.State_Type;
@@ -73,7 +74,7 @@ package Editor.Build_Execution_Workflow is
    function Assert_Build_Preflight_Failure_Is_Non_Destructive
      (Before : Editor.State.State_Type;
       After  : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result) return Boolean;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result) return Boolean;
 
    function Assert_Build_Execution_Workflow_Coherent
      (State : Editor.State.State_Type) return Boolean;

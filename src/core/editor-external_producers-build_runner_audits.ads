@@ -1,6 +1,14 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.External_Producers.Build_Types;
 
 package Editor.External_Producers.Build_Runner_Audits is
+
+   subtype Build_Command_Result is
+     Editor.External_Producers.Build_Types.Build_Command_Result;
+   subtype Build_Run_Result is
+     Editor.External_Producers.Build_Types.Build_Run_Result;
+   subtype Diagnostic_Text_Line_Array is
+     Editor.External_Producers.Build_Types.Diagnostic_Text_Line_Array;
 
    function Gated_Build_Command_Result_Is_Consistent
      (Result : Build_Command_Result;
@@ -34,5 +42,11 @@ package Editor.External_Producers.Build_Runner_Audits is
    function Audit_Process_Fixture_Gates return Boolean;
 
    function Build_Run_Test_Seam_Audit_Passes return Boolean;
+
+   function Audit_Build_Command_Rejection_Matrix return Boolean;
+
+   function Run_Build_Execution_Consent_Audit
+     (State : Editor.State.State_Type)
+      return Build_Execution_Consent_Audit_Result;
 
 end Editor.External_Producers.Build_Runner_Audits;

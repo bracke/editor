@@ -19,6 +19,10 @@ with Editor.Executor.Command_Palette_Projection;
 with Editor.File_Tree;
 with Editor.File_Tree_View;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Requests;
+with Editor.External_Producers.Diagnostic_Line_Pipeline;
+with Editor.External_Producers.Public_Build;
+with Editor.External_Producers.Diagnostics;
 with Editor.Messages;
 with Editor.Keybindings;
 with Editor.Keybinding_Management;
@@ -215,13 +219,13 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
          Tool             => Editor.External_Producers.GPRbuild_Tool,
          Program_Label    => To_Unbounded_String ("gprbuild"),
          Working_Context  =>
-           Editor.External_Producers.Build_Inherited_Test_Working_Context,
+           Editor.External_Producers.Build_Requests.Build_Inherited_Test_Working_Context,
          Working_Context_Model =>
            (Source => Editor.External_Producers.Public_Build_Working_Context_Test_Context,
             Label  => Null_Unbounded_String,
             User_Acknowledged_Context => True),
          Arguments        =>
-           Editor.External_Producers.Build_Process_Argument_Vector ("-q"),
+           Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q"),
          Consent          => Editor.External_Producers.Build_Consent_User_Confirmed,
          Consent_Model    =>
            (Source => Editor.External_Producers.Public_Build_Consent_Test_Context,
@@ -290,8 +294,8 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
               "conversion must preserve program label as metadata");
       Assert (To_String (Request.Arguments)'Length = 0,
               "conversion must not introduce opaque command text");
-      Assert (Process_Argument_Count (Request.Structured_Arguments) =
-              Process_Argument_Count (Input.Arguments),
+      Assert (Editor.External_Producers.Build_Requests.Process_Argument_Count (Request.Structured_Arguments) =
+              Editor.External_Producers.Build_Requests.Process_Argument_Count (Input.Arguments),
               "conversion must preserve structured argv count");
       Assert (To_String (Request.Working_Label)'Length = 0,
               "conversion must not create a real working directory label");
@@ -303,7 +307,7 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       S : Editor.State.State_Type;
    begin
       Editor.State.Init (S);
-      return Run_Public_Build_Guardrail_Audit (S);
+      return Editor.External_Producers.Public_Build.Run_Public_Build_Guardrail_Audit (S);
    end Default_Result;
 
    function Starts_With (Text : String; Prefix : String) return Boolean is
@@ -582,7 +586,7 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       Audit : Public_Build_Command_Hard_Freeze_Audit_Result;
    begin
       Editor.State.Init (S);
-      Audit := Run_Public_Build_Command_Hard_Freeze_Audit (S);
+      Audit := Editor.External_Producers.Public_Build.Run_Public_Build_Command_Hard_Freeze_Audit (S);
       Assert (Audit.Passed,
               "public build hard-freeze audit must pass the default not-exposed state");
       Assert (Audit.Readiness_Audit_Passed_As_Not_Ready,
@@ -611,8 +615,8 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       Editor.State.Init (S);
       Before_Messages := Editor.Messages.Count (S.Messages);
       Before_Has_Buffer := Editor.State.Has_Active_Buffer (S);
-      A1 := Run_Public_Build_Command_Hard_Freeze_Audit (S);
-      A2 := Run_Public_Build_Command_Hard_Freeze_Audit (S);
+      A1 := Editor.External_Producers.Public_Build.Run_Public_Build_Command_Hard_Freeze_Audit (S);
+      A2 := Editor.External_Producers.Public_Build.Run_Public_Build_Command_Hard_Freeze_Audit (S);
       Assert (A1.Passed = A2.Passed,
               "repeated hard-freeze audits must return stable pass state");
       Assert (A1.Promotion_Blocked = A2.Promotion_Blocked,
@@ -632,9 +636,9 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       S : Editor.State.State_Type;
    begin
       Editor.State.Init (S);
-      Assert_Public_Build_Audits_Agree (S);
-      Assert_No_Public_Build_Execution_Path (S);
-      Assert_Public_Build_Hard_Freeze_Not_Persisted (S);
+      Editor.External_Producers.Public_Build.Assert_Public_Build_Audits_Agree (S);
+      Editor.External_Producers.Public_Build.Assert_No_Public_Build_Execution_Path (S);
+      Editor.External_Producers.Public_Build.Assert_Public_Build_Hard_Freeze_Not_Persisted (S);
    end Test_Public_Build_Hard_Freeze_Audit_Agrees_With_Other_Audits;
 
    procedure Test_Public_Build_Hard_Freeze_Detects_Simulated_Hard_Failures
@@ -646,11 +650,11 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       R : Public_Build_Command_Readiness_Audit_Result;
    begin
       Editor.State.Init (S);
-      R := Run_Public_Build_Command_Readiness_Audit (S);
+      R := Editor.External_Producers.Public_Build.Run_Public_Build_Command_Readiness_Audit (S);
       R.Has_Default_Public_Build_Keybinding := True;
-      Assert (Detect_Public_Build_Command_Exposure_Hard_Failure (R),
+      Assert (Editor.External_Producers.Public_Build.Detect_Public_Build_Command_Exposure_Hard_Failure (R),
               "simulated public default keybinding must be a hard failure");
-      Assert (Run_Public_Build_Command_Hard_Freeze_Audit (S).Passed,
+      Assert (Editor.External_Producers.Public_Build.Run_Public_Build_Command_Hard_Freeze_Audit (S).Passed,
               "simulated hard failures must not mutate the real registry or audits");
       Assert_Public_Build_Name_Not_Registered ("build.run");
    end Test_Public_Build_Hard_Freeze_Detects_Simulated_Hard_Failures;
@@ -663,21 +667,21 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       S : Editor.State.State_Type;
    begin
       Editor.State.Init (S);
-      Assert (Run_Public_Build_Command_Hard_Freeze_Audit (S).Passed,
+      Assert (Editor.External_Producers.Public_Build.Run_Public_Build_Command_Hard_Freeze_Audit (S).Passed,
               "hard-freeze must pass before lifecycle transitions");
       Editor.State.Reset_Project_Scoped_State (S);
-      Assert (Run_Public_Build_Command_Hard_Freeze_Audit (S).Passed,
+      Assert (Editor.External_Producers.Public_Build.Run_Public_Build_Command_Hard_Freeze_Audit (S).Passed,
               "hard-freeze must survive project-scoped reset");
-      Reset_Build_Run_State_For_Project_Close (S);
-      Reset_Diagnostic_Line_Command_State_For_Project_Close (S);
-      Assert (Run_Public_Build_Command_Hard_Freeze_Audit (S).Passed,
+      Editor.External_Producers.Build_Requests.Reset_Build_Run_State_For_Project_Close (S);
+      Editor.External_Producers.Diagnostic_Line_Pipeline.Reset_Diagnostic_Line_Command_State_For_Project_Close (S);
+      Assert (Editor.External_Producers.Public_Build.Run_Public_Build_Command_Hard_Freeze_Audit (S).Passed,
               "hard-freeze must survive project close build/diagnostic resets");
-      Reset_Build_Run_State_For_Workspace_Close (S);
-      Reset_Diagnostic_Line_Command_State_For_Workspace_Close (S);
-      Assert (Run_Public_Build_Command_Hard_Freeze_Audit (S).Passed,
+      Editor.External_Producers.Build_Requests.Reset_Build_Run_State_For_Workspace_Close (S);
+      Editor.External_Producers.Diagnostic_Line_Pipeline.Reset_Diagnostic_Line_Command_State_For_Workspace_Close (S);
+      Assert (Editor.External_Producers.Public_Build.Run_Public_Build_Command_Hard_Freeze_Audit (S).Passed,
               "hard-freeze must survive workspace close build/diagnostic resets");
       Editor.Keybindings.Reset_To_Defaults;
-      Assert (Run_Public_Build_Command_Hard_Freeze_Audit (S).Passed,
+      Assert (Editor.External_Producers.Public_Build.Run_Public_Build_Command_Hard_Freeze_Audit (S).Passed,
               "hard-freeze must survive keybinding reset");
       Assert_Public_Build_Name_Not_Registered ("build.run");
    end Test_Public_Build_Hard_Freeze_Remains_After_Lifecycle_Transitions;
@@ -691,7 +695,7 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       Audit : Public_Build_Command_Hard_Freeze_Audit_Result;
    begin
       Editor.State.Init (S);
-      Audit := Run_Public_Build_Command_Hard_Freeze_Audit (S);
+      Audit := Editor.External_Producers.Public_Build.Run_Public_Build_Command_Hard_Freeze_Audit (S);
       Assert (Audit.No_Public_Command_Registered,
               "no public build descriptor may exist");
       Assert (Audit.No_Public_Executor_Route,
@@ -706,7 +710,7 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
               "no public build bindable command may exist");
       Assert (Audit.No_Default_Execution,
               "default execution must remain disabled");
-      Assert_No_Public_Build_Execution_Path (S);
+      Editor.External_Producers.Public_Build.Assert_No_Public_Build_Execution_Path (S);
    end Test_No_Public_Build_Execution_Path_Remains;
 
    procedure Test_Public_Build_Hard_Freeze_Feedback_Is_Deterministic
@@ -719,19 +723,19 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       Failed : Public_Build_Command_Hard_Freeze_Audit_Result;
    begin
       Editor.State.Init (S);
-      Audit := Run_Public_Build_Command_Hard_Freeze_Audit (S);
-      Assert (Build_Public_Build_Hard_Freeze_Feedback (Audit) =
+      Audit := Editor.External_Producers.Public_Build.Run_Public_Build_Command_Hard_Freeze_Audit (S);
+      Assert (Editor.External_Producers.Public_Build.Build_Public_Build_Hard_Freeze_Feedback (Audit) =
               "Build: public command ready",
               "passing hard-freeze feedback must be deterministic and sanitized");
       Failed := Audit;
       Failed.Public_Exposure_Hard_Failure := True;
       Failed.Passed := False;
-      Assert (Build_Public_Build_Hard_Freeze_Feedback (Failed) =
+      Assert (Editor.External_Producers.Public_Build.Build_Public_Build_Hard_Freeze_Feedback (Failed) =
               "Build: unsafe public command exposure detected",
               "hard-failure feedback must be deterministic and sanitized");
       Failed := Audit;
       Failed.Passed := False;
-      Assert (Build_Public_Build_Hard_Freeze_Feedback (Failed) =
+      Assert (Editor.External_Producers.Public_Build.Build_Public_Build_Hard_Freeze_Feedback (Failed) =
               "Build: public build hard-freeze failed",
               "generic failed hard-freeze feedback must be deterministic and sanitized");
    end Test_Public_Build_Hard_Freeze_Feedback_Is_Deterministic;
@@ -742,9 +746,9 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       pragma Unreferenced (T);
       use Editor.External_Producers;
       B1 : constant Public_Build_Hard_Freeze_Baseline :=
-        Build_Public_Build_Hard_Freeze_Baseline;
+        Editor.External_Producers.Public_Build.Build_Public_Build_Hard_Freeze_Baseline;
       B2 : constant Public_Build_Hard_Freeze_Baseline :=
-        Build_Public_Build_Hard_Freeze_Baseline;
+        Editor.External_Producers.Public_Build.Build_Public_Build_Hard_Freeze_Baseline;
    begin
       Assert (B1.Public_Command_Count = 1,
               "baseline must record one guarded public build command");
@@ -783,11 +787,11 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       Drift : Public_Build_Hard_Freeze_Drift_Result;
    begin
       Editor.State.Init (S);
-      Drift := Detect_Public_Build_Hard_Freeze_Drift
-        (S, Build_Public_Build_Hard_Freeze_Baseline);
+      Drift := Editor.External_Producers.Public_Build.Detect_Public_Build_Hard_Freeze_Drift
+        (S, Editor.External_Producers.Public_Build.Build_Public_Build_Hard_Freeze_Baseline);
       Assert (not Drift.Any_Drift,
               "default state must not drift from hard-freeze baseline");
-      Assert (Build_Public_Build_Drift_Feedback (Drift) =
+      Assert (Editor.External_Producers.Public_Build.Build_Public_Build_Drift_Feedback (Drift) =
               "Build: public command hard-freeze intact",
               "no-drift feedback must be deterministic and sanitized");
    end Test_Public_Build_Hard_Freeze_Drift_Default_State_Has_No_Drift;
@@ -806,10 +810,10 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       Editor.State.Init (S);
       Before_Messages := Editor.Messages.Count (S.Messages);
       Before_Has_Buffer := Editor.State.Has_Active_Buffer (S);
-      D1 := Detect_Public_Build_Hard_Freeze_Drift
-        (S, Build_Public_Build_Hard_Freeze_Baseline);
-      D2 := Detect_Public_Build_Hard_Freeze_Drift
-        (S, Build_Public_Build_Hard_Freeze_Baseline);
+      D1 := Editor.External_Producers.Public_Build.Detect_Public_Build_Hard_Freeze_Drift
+        (S, Editor.External_Producers.Public_Build.Build_Public_Build_Hard_Freeze_Baseline);
+      D2 := Editor.External_Producers.Public_Build.Detect_Public_Build_Hard_Freeze_Drift
+        (S, Editor.External_Producers.Public_Build.Build_Public_Build_Hard_Freeze_Baseline);
       Assert (D1.Any_Drift = D2.Any_Drift,
               "repeated drift scans must be deterministic");
       Assert (Editor.Messages.Count (S.Messages) = Before_Messages,
@@ -826,12 +830,12 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       use Editor.External_Producers;
       S : Editor.State.State_Type;
       B : Public_Build_Hard_Freeze_Baseline :=
-        Build_Public_Build_Hard_Freeze_Baseline;
+        Editor.External_Producers.Public_Build.Build_Public_Build_Hard_Freeze_Baseline;
       D : Public_Build_Hard_Freeze_Drift_Result;
    begin
       Editor.State.Init (S);
       B.Public_Command_Count := 0;
-      D := Detect_Public_Build_Hard_Freeze_Drift (S, B);
+      D := Editor.External_Producers.Public_Build.Detect_Public_Build_Hard_Freeze_Drift (S, B);
       Assert (D.Public_Command_Drift and then D.Any_Drift,
               "changed public-command baseline must be reported as command drift");
    end Test_Public_Build_Hard_Freeze_Drift_Detects_Public_Command;
@@ -843,15 +847,15 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       use Editor.External_Producers;
       S : Editor.State.State_Type;
       B : Public_Build_Hard_Freeze_Baseline :=
-        Build_Public_Build_Hard_Freeze_Baseline;
+        Editor.External_Producers.Public_Build.Build_Public_Build_Hard_Freeze_Baseline;
       D : Public_Build_Hard_Freeze_Drift_Result;
    begin
       Editor.State.Init (S);
       B.Public_Default_Keybinding_Count := 1;
-      D := Detect_Public_Build_Hard_Freeze_Drift (S, B);
+      D := Editor.External_Producers.Public_Build.Detect_Public_Build_Hard_Freeze_Drift (S, B);
       Assert (D.Keybinding_Drift and then D.Any_Drift,
               "changed keybinding baseline must be reported as keybinding drift");
-      Assert (Build_Public_Build_Drift_Feedback (D) =
+      Assert (Editor.External_Producers.Public_Build.Build_Public_Build_Drift_Feedback (D) =
               "Build: public build keybinding drift detected",
               "keybinding drift feedback must be deterministic");
    end Test_Public_Build_Hard_Freeze_Drift_Detects_Keybinding;
@@ -863,12 +867,12 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       use Editor.External_Producers;
       S : Editor.State.State_Type;
       B : Public_Build_Hard_Freeze_Baseline :=
-        Build_Public_Build_Hard_Freeze_Baseline;
+        Editor.External_Producers.Public_Build.Build_Public_Build_Hard_Freeze_Baseline;
       D : Public_Build_Hard_Freeze_Drift_Result;
    begin
       Editor.State.Init (S);
       B.Public_Command_Palette_Count := 0;
-      D := Detect_Public_Build_Hard_Freeze_Drift (S, B);
+      D := Editor.External_Producers.Public_Build.Detect_Public_Build_Hard_Freeze_Drift (S, B);
       Assert (D.Palette_Drift and then D.Any_Drift,
               "changed palette baseline must be reported as palette drift");
    end Test_Public_Build_Hard_Freeze_Drift_Detects_Palette_Entry;
@@ -880,15 +884,15 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       use Editor.External_Producers;
       S : Editor.State.State_Type;
       B : Public_Build_Hard_Freeze_Baseline :=
-        Build_Public_Build_Hard_Freeze_Baseline;
+        Editor.External_Producers.Public_Build.Build_Public_Build_Hard_Freeze_Baseline;
       D : Public_Build_Hard_Freeze_Drift_Result;
    begin
       Editor.State.Init (S);
       B.Public_Executor_Route_Count := 0;
-      D := Detect_Public_Build_Hard_Freeze_Drift (S, B);
+      D := Editor.External_Producers.Public_Build.Detect_Public_Build_Hard_Freeze_Drift (S, B);
       Assert (D.Executor_Route_Drift and then D.Any_Drift,
               "changed route baseline must be reported as route drift");
-      Assert (Build_Public_Build_Drift_Feedback (D) =
+      Assert (Editor.External_Producers.Public_Build.Build_Public_Build_Drift_Feedback (D) =
               "Build: public build route drift detected",
               "route drift feedback must be deterministic");
    end Test_Public_Build_Hard_Freeze_Drift_Detects_Executor_Route;
@@ -900,12 +904,12 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       use Editor.External_Producers;
       S : Editor.State.State_Type;
       B : Public_Build_Hard_Freeze_Baseline :=
-        Build_Public_Build_Hard_Freeze_Baseline;
+        Editor.External_Producers.Public_Build.Build_Public_Build_Hard_Freeze_Baseline;
       D : Public_Build_Hard_Freeze_Drift_Result;
    begin
       Editor.State.Init (S);
       B.Public_Invocation_Path_Count := 0;
-      D := Detect_Public_Build_Hard_Freeze_Drift (S, B);
+      D := Editor.External_Producers.Public_Build.Detect_Public_Build_Hard_Freeze_Drift (S, B);
       Assert (D.Invocation_Path_Drift and then D.Any_Drift,
               "changed invocation-path baseline must be reported as drift");
    end Test_Public_Build_Hard_Freeze_Drift_Detects_Public_Invocation_Path;
@@ -917,12 +921,12 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       use Editor.External_Producers;
       S : Editor.State.State_Type;
       B : Public_Build_Hard_Freeze_Baseline :=
-        Build_Public_Build_Hard_Freeze_Baseline;
+        Editor.External_Producers.Public_Build.Build_Public_Build_Hard_Freeze_Baseline;
       D : Public_Build_Hard_Freeze_Drift_Result;
    begin
       Editor.State.Init (S);
       B.Bindable_Public_Build_Count := 1;
-      D := Detect_Public_Build_Hard_Freeze_Drift (S, B);
+      D := Editor.External_Producers.Public_Build.Detect_Public_Build_Hard_Freeze_Drift (S, B);
       Assert (D.Bindability_Drift and then D.Any_Drift,
               "changed bindability baseline must be reported as drift");
    end Test_Public_Build_Hard_Freeze_Drift_Detects_Bindable_Command;
@@ -934,12 +938,12 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       use Editor.External_Producers;
       S : Editor.State.State_Type;
       B : Public_Build_Hard_Freeze_Baseline :=
-        Build_Public_Build_Hard_Freeze_Baseline;
+        Editor.External_Producers.Public_Build.Build_Public_Build_Hard_Freeze_Baseline;
       D : Public_Build_Hard_Freeze_Drift_Result;
    begin
       Editor.State.Init (S);
       B.Promotion_Blocked := True;
-      D := Detect_Public_Build_Hard_Freeze_Drift (S, B);
+      D := Editor.External_Producers.Public_Build.Detect_Public_Build_Hard_Freeze_Drift (S, B);
       Assert (D.Promotion_Drift and then D.Any_Drift,
               "changed promotion baseline must be reported as promotion drift");
    end Test_Public_Build_Hard_Freeze_Drift_Detects_Promotion_Status_Change;
@@ -951,15 +955,15 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       use Editor.External_Producers;
       S : Editor.State.State_Type;
       B : Public_Build_Hard_Freeze_Baseline :=
-        Build_Public_Build_Hard_Freeze_Baseline;
+        Editor.External_Producers.Public_Build.Build_Public_Build_Hard_Freeze_Baseline;
       D : Public_Build_Hard_Freeze_Drift_Result;
    begin
       Editor.State.Init (S);
       B.Consent_UX_Missing := True;
-      D := Detect_Public_Build_Hard_Freeze_Drift (S, B);
+      D := Editor.External_Producers.Public_Build.Detect_Public_Build_Hard_Freeze_Drift (S, B);
       Assert (D.Blocker_Precedence_Drift and then D.Any_Drift,
               "changed blocker baseline must be reported as precedence drift");
-      Assert_Public_Build_Blocker_Precedence;
+      Editor.External_Producers.Public_Build.Assert_Public_Build_Blocker_Precedence;
    end Test_Public_Build_Hard_Freeze_Drift_Detects_Blocker_Precedence_Change;
 
    procedure Test_Public_Build_Hard_Freeze_Drift_Detects_Persistence_Leak
@@ -971,7 +975,7 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
    begin
       D.Persistence_Drift := True;
       D.Any_Drift := True;
-      Assert (Build_Public_Build_Drift_Feedback (D) =
+      Assert (Editor.External_Producers.Public_Build.Build_Public_Build_Drift_Feedback (D) =
               "Build: public build persistence drift detected",
               "persistence drift feedback must be deterministic");
    end Test_Public_Build_Hard_Freeze_Drift_Detects_Persistence_Leak;
@@ -982,13 +986,13 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       pragma Unreferenced (T);
       use Editor.External_Producers;
    begin
-      Assert (Is_Public_Build_Surface_Id ("build.run"),
+      Assert (Editor.External_Producers.Public_Build.Is_Public_Build_Surface_Id ("build.run"),
               "build.run must be public");
-      Assert (not Is_Public_Build_Surface_Id ("compile.current"),
+      Assert (not Editor.External_Producers.Public_Build.Is_Public_Build_Surface_Id ("compile.current"),
               "compile.current remains a reserved alias, not public build");
-      Assert (not Is_Public_Build_Surface_Id ("diagnostics.show"),
+      Assert (not Editor.External_Producers.Public_Build.Is_Public_Build_Surface_Id ("diagnostics.show"),
               "unrelated diagnostics command must not be public as public build");
-      Assert_Public_Build_Surface_Ids_Not_Reused;
+      Editor.External_Producers.Public_Build.Assert_Public_Build_Surface_Ids_Not_Reused;
    end Test_Public_Build_Surface_Id_Cannot_Be_Reused_By_Unrelated_Command;
 
    procedure Test_Public_Build_Audit_Composition_Remains_Consistent
@@ -1002,10 +1006,10 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       Drift : Public_Build_Hard_Freeze_Drift_Result;
    begin
       Editor.State.Init (S);
-      Hard_Freeze := Run_Public_Build_Command_Hard_Freeze_Audit (S);
-      Readiness := Run_Public_Build_Command_Readiness_Audit (S);
-      Drift := Detect_Public_Build_Hard_Freeze_Drift
-        (S, Build_Public_Build_Hard_Freeze_Baseline);
+      Hard_Freeze := Editor.External_Producers.Public_Build.Run_Public_Build_Command_Hard_Freeze_Audit (S);
+      Readiness := Editor.External_Producers.Public_Build.Run_Public_Build_Command_Readiness_Audit (S);
+      Drift := Editor.External_Producers.Public_Build.Detect_Public_Build_Hard_Freeze_Drift
+        (S, Editor.External_Producers.Public_Build.Build_Public_Build_Hard_Freeze_Baseline);
       Assert (Hard_Freeze.Passed,
               "hard-freeze must pass in default state");
       Assert (Readiness.Passed_As_Not_Ready,
@@ -1015,7 +1019,7 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
               "readiness must allow guarded promotion");
       Assert (not Drift.Any_Drift,
               "passing hard-freeze must have no drift");
-      Assert_Public_Build_Audits_Agree (S);
+      Editor.External_Producers.Public_Build.Assert_Public_Build_Audits_Agree (S);
    end Test_Public_Build_Audit_Composition_Remains_Consistent;
 
    procedure Test_Public_Build_Audit_Composition_Hard_Failure_Fails_Hard_Freeze
@@ -1027,11 +1031,11 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       R : Public_Build_Command_Readiness_Audit_Result;
    begin
       Editor.State.Init (S);
-      R := Run_Public_Build_Command_Readiness_Audit (S);
+      R := Editor.External_Producers.Public_Build.Run_Public_Build_Command_Readiness_Audit (S);
       R.Has_Default_Public_Build_Keybinding := True;
-      Assert (Detect_Public_Build_Command_Exposure_Hard_Failure (R),
+      Assert (Editor.External_Producers.Public_Build.Detect_Public_Build_Command_Exposure_Hard_Failure (R),
               "simulated public default keybinding must be a hard exposure failure");
-      Assert (Run_Public_Build_Command_Hard_Freeze_Audit (S).Passed,
+      Assert (Editor.External_Producers.Public_Build.Run_Public_Build_Command_Hard_Freeze_Audit (S).Passed,
               "hard-failure simulation must not mutate real hard-freeze state");
    end Test_Public_Build_Audit_Composition_Hard_Failure_Fails_Hard_Freeze;
 
@@ -1057,7 +1061,7 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       Assert (Found and then Round =
               Editor.Commands.Command_Diagnostics_Execute_Selected_Action,
               "diagnostic selected action command keeps code-action alias");
-      Assert (Run_Public_Build_Command_Hard_Freeze_Audit (S).Passed,
+      Assert (Editor.External_Producers.Public_Build.Run_Public_Build_Command_Hard_Freeze_Audit (S).Passed,
               "unrelated public commands must not affect build hard-freeze");
    end Test_Public_Build_Unrelated_Public_Command_Does_Not_Affect_Freeze;
 
@@ -1069,10 +1073,10 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       S : Editor.State.State_Type;
    begin
       Editor.State.Init (S);
-      Assert (Run_Public_Build_Command_Hard_Freeze_Audit (S).Passed,
+      Assert (Editor.External_Producers.Public_Build.Run_Public_Build_Command_Hard_Freeze_Audit (S).Passed,
               "unrelated keybindings must not affect build hard-freeze");
-      Assert (not Detect_Public_Build_Hard_Freeze_Drift
-                    (S, Build_Public_Build_Hard_Freeze_Baseline).Any_Drift,
+      Assert (not Editor.External_Producers.Public_Build.Detect_Public_Build_Hard_Freeze_Drift
+                    (S, Editor.External_Producers.Public_Build.Build_Public_Build_Hard_Freeze_Baseline).Any_Drift,
               "unrelated keybinding surface must not create public build drift");
    end Test_Public_Build_Unrelated_Keybinding_Does_Not_Affect_Freeze;
 
@@ -1085,7 +1089,7 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       Audit : Public_Build_Command_Hard_Freeze_Audit_Result;
    begin
       Editor.State.Init (S);
-      Audit := Run_Public_Build_Command_Hard_Freeze_Audit (S);
+      Audit := Editor.External_Producers.Public_Build.Run_Public_Build_Command_Hard_Freeze_Audit (S);
       Assert (Audit.No_Public_Command_Registered,
               "deep scan: registry must have no public build command");
       Assert (Audit.No_Public_Command_Palette_Entry,
@@ -1098,7 +1102,7 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
               "deep scan: public invocation API must have no build path");
       Assert (Audit.Shell_Rejected and then Audit.Opaque_Arguments_Rejected,
               "deep scan: shell and opaque argument routes must stay rejected");
-      Assert_No_Public_Build_Execution_Path (S);
+      Editor.External_Producers.Public_Build.Assert_No_Public_Build_Execution_Path (S);
    end Test_No_Public_Build_Execution_Path_RemainsDeep_Scan;
 
    procedure Test_Public_Build_Drift_Feedback_Is_Deterministic
@@ -1108,18 +1112,18 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       use Editor.External_Producers;
       D : Public_Build_Hard_Freeze_Drift_Result;
    begin
-      Assert (Build_Public_Build_Drift_Feedback (D) =
+      Assert (Editor.External_Producers.Public_Build.Build_Public_Build_Drift_Feedback (D) =
               "Build: public command hard-freeze intact",
               "intact drift feedback must be deterministic");
       D.Any_Drift := True;
       D.Public_Command_Drift := True;
-      Assert (Build_Public_Build_Drift_Feedback (D) =
+      Assert (Editor.External_Producers.Public_Build.Build_Public_Build_Drift_Feedback (D) =
               "Build: public command exposure drift detected",
               "exposure drift feedback must be deterministic");
       D := (others => False);
       D.Any_Drift := True;
       D.Promotion_Drift := True;
-      Assert (Build_Public_Build_Drift_Feedback (D) =
+      Assert (Editor.External_Producers.Public_Build.Build_Public_Build_Drift_Feedback (D) =
               "Build: public build promotion drift detected",
               "promotion drift feedback must be deterministic");
    end Test_Public_Build_Drift_Feedback_Is_Deterministic;
@@ -1134,8 +1138,8 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       G : Public_Build_Guardrail_Result;
    begin
       Editor.State.Init (S);
-      H := Run_Public_Build_Command_Hard_Freeze_Audit (S);
-      G := Run_Public_Build_Guardrail_Audit (S);
+      H := Editor.External_Producers.Public_Build.Run_Public_Build_Command_Hard_Freeze_Audit (S);
+      G := Editor.External_Producers.Public_Build.Run_Public_Build_Guardrail_Audit (S);
       Assert (G.No_Public_Command = H.No_Public_Command_Registered
               and then G.No_Public_Keybinding = H.No_Public_Default_Keybinding
               and then G.No_Public_Palette_Entry = H.No_Public_Command_Palette_Entry
@@ -1152,15 +1156,15 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       use Editor.External_Producers;
       S : Editor.State.State_Type;
       B : Public_Build_Hard_Freeze_Baseline :=
-        Build_Public_Build_Hard_Freeze_Baseline;
+        Editor.External_Producers.Public_Build.Build_Public_Build_Hard_Freeze_Baseline;
       D : Public_Build_Hard_Freeze_Drift_Result;
    begin
       Editor.State.Init (S);
       B.Public_Command_Count := 0;
-      D := Detect_Public_Build_Hard_Freeze_Drift (S, B);
+      D := Editor.External_Producers.Public_Build.Detect_Public_Build_Hard_Freeze_Drift (S, B);
       Assert (D.Public_Command_Drift and then D.Any_Drift,
               "normalized guardrail source drift detection must catch changed public command baseline");
-      Assert (Run_Public_Build_Guardrail_Audit (S).Status =
+      Assert (Editor.External_Producers.Public_Build.Run_Public_Build_Guardrail_Audit (S).Status =
               Public_Build_Guardrail_Passed,
               "default normalized guardrail must pass with canonical baseline");
    end Test_Public_Build_Guardrail_Audit_Uses_Drift_Detection;
@@ -1176,7 +1180,7 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       Assert (not Editor.Commands.Is_Public_Build_Command
                 (Editor.Commands.Command_Toggle_Feature_Panel),
               "unrelated feature-panel descriptor must not classify as public build");
-      Assert (Run_Public_Build_Guardrail_Audit (S).Status =
+      Assert (Editor.External_Producers.Public_Build.Run_Public_Build_Guardrail_Audit (S).Status =
               Public_Build_Guardrail_Passed,
               "unrelated feature descriptor must not affect the public build guardrail");
    end Test_Public_Build_Unrelated_Feature_Descriptor_Does_Not_Affect_Guardrail;
@@ -1187,13 +1191,14 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       pragma Unreferenced (T);
       use Editor.External_Producers;
       S : Editor.State.State_Type;
-      Source : constant External_Producer_Source :=
-        Build_External_Producer_Source (Compiler_Diagnostics_Producer);
+      Source : constant Editor.External_Producers.Diagnostics.Producer_Source :=
+        Editor.External_Producers.Diagnostics.Build_External_Producer_Source
+          (Editor.External_Producers.Diagnostics.Compiler_Diagnostics_Producer);
    begin
       Editor.State.Init (S);
       Assert (To_String (Source.Stable_Name) /= "build.run",
               "unrelated diagnostics source must not reuse public build id");
-      Assert (Run_Public_Build_Guardrail_Audit (S).Status =
+      Assert (Editor.External_Producers.Public_Build.Run_Public_Build_Guardrail_Audit (S).Status =
               Public_Build_Guardrail_Passed,
               "unrelated diagnostics source must not affect public build guardrail");
    end Test_Public_Build_Unrelated_Diagnostics_Source_Does_Not_Affect_Guardrail;
@@ -1207,10 +1212,10 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
    begin
       Editor.State.Init (S);
       Editor.Messages.Push_Info (S.Messages, "unrelated status message");
-      Assert (Run_Public_Build_Guardrail_Audit (S).Status =
+      Assert (Editor.External_Producers.Public_Build.Run_Public_Build_Guardrail_Audit (S).Status =
               Public_Build_Guardrail_Passed,
               "unrelated Messages rows must not affect public build guardrail");
-      Assert (Run_Public_Build_Guardrail_Audit (S).Persistence_Clean,
+      Assert (Editor.External_Producers.Public_Build.Run_Public_Build_Guardrail_Audit (S).Persistence_Clean,
               "unrelated Messages rows must not persist guardrail state");
    end Test_Public_Build_Unrelated_Messages_Source_Does_Not_Affect_Guardrail;
 
@@ -1222,10 +1227,10 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       S : Editor.State.State_Type;
    begin
       Editor.State.Init (S);
-      Assert (Run_Public_Build_Guardrail_Audit (S).Status =
+      Assert (Editor.External_Producers.Public_Build.Run_Public_Build_Guardrail_Audit (S).Status =
               Public_Build_Guardrail_Passed,
               "unrelated settings preferences must not affect public build guardrail");
-      Assert (Run_Public_Build_Guardrail_Audit (S).Default_Execution_Disabled,
+      Assert (Editor.External_Producers.Public_Build.Run_Public_Build_Guardrail_Audit (S).Default_Execution_Disabled,
               "unrelated settings preferences must not enable build execution");
    end Test_Public_Build_Unrelated_Settings_Preference_Does_Not_Affect_Guardrail;
 
@@ -1238,7 +1243,7 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       M : Public_Build_Guardrail_Contract_Mismatch;
    begin
       R.Status := Public_Build_Guardrail_Not_Ready_But_Safe;
-      M := Detect_Public_Build_Guardrail_Contract_Mismatch (R);
+      M := Editor.External_Producers.Public_Build.Detect_Public_Build_Guardrail_Contract_Mismatch (R);
       Assert (M.Status_Mismatch and then M.Any_Mismatch,
               "contract mismatch detector must catch normalized status drift");
    end Test_Public_Build_Guardrail_Contract_Mismatch_Detects_Status_Drift;
@@ -1252,7 +1257,7 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       M : Public_Build_Guardrail_Contract_Mismatch;
    begin
       R.No_Public_Command := False;
-      M := Detect_Public_Build_Guardrail_Contract_Mismatch (R);
+      M := Editor.External_Producers.Public_Build.Detect_Public_Build_Guardrail_Contract_Mismatch (R);
       Assert (M.Public_Command_Mismatch and then M.Any_Mismatch,
               "contract mismatch detector must catch public command drift");
    end Test_Public_Build_Guardrail_Contract_Mismatch_Detects_Public_Command_Drift;
@@ -1266,7 +1271,7 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       M : Public_Build_Guardrail_Contract_Mismatch;
    begin
       R.Promotion_Blocked := True;
-      M := Detect_Public_Build_Guardrail_Contract_Mismatch (R);
+      M := Editor.External_Producers.Public_Build.Detect_Public_Build_Guardrail_Contract_Mismatch (R);
       Assert (M.Promotion_Mismatch and then M.Any_Mismatch,
               "contract mismatch detector must catch promotion drift");
    end Test_Public_Build_Guardrail_Contract_Mismatch_Detects_Promotion_Drift;
@@ -1281,8 +1286,8 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       B : Public_Build_Guardrail_Result;
    begin
       Editor.State.Init (S);
-      A := Run_Public_Build_Guardrail_Audit (S);
-      B := Run_Public_Build_Guardrail_Audit (S);
+      A := Editor.External_Producers.Public_Build.Run_Public_Build_Guardrail_Audit (S);
+      B := Editor.External_Producers.Public_Build.Run_Public_Build_Guardrail_Audit (S);
       Assert (A = B,
               "same editor state must produce identical normalized guardrail results");
    end Test_Public_Build_Normalized_Audit_Is_Deterministic;
@@ -1299,8 +1304,8 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       R1.No_Public_Command := False;
       R2.Status := Public_Build_Guardrail_Exposure_Detected;
       R2.No_Public_Command := False;
-      Assert (Detect_Public_Build_Guardrail_Contract_Mismatch (R1) =
-              Detect_Public_Build_Guardrail_Contract_Mismatch (R2),
+      Assert (Editor.External_Producers.Public_Build.Detect_Public_Build_Guardrail_Contract_Mismatch (R1) =
+              Editor.External_Producers.Public_Build.Detect_Public_Build_Guardrail_Contract_Mismatch (R2),
               "same exposure simulation must produce identical mismatch result");
    end Test_Public_Build_Normalized_Audit_Exposure_Simulation_Is_Stable;
 
@@ -1314,8 +1319,8 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
    begin
       R1.Status := Public_Build_Guardrail_Drift_Detected;
       R2.Status := Public_Build_Guardrail_Drift_Detected;
-      Assert (Detect_Public_Build_Guardrail_Contract_Mismatch (R1) =
-              Detect_Public_Build_Guardrail_Contract_Mismatch (R2),
+      Assert (Editor.External_Producers.Public_Build.Detect_Public_Build_Guardrail_Contract_Mismatch (R1) =
+              Editor.External_Producers.Public_Build.Detect_Public_Build_Guardrail_Contract_Mismatch (R2),
               "same drift simulation must produce identical mismatch result");
    end Test_Public_Build_Normalized_Audit_Drift_Simulation_Is_Stable;
 
@@ -1330,7 +1335,7 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       R.Status := Public_Build_Guardrail_Inconsistent_Audits;
       R.Audits_Consistent := False;
       R.Promotion_Blocked := True;
-      M := Detect_Public_Build_Guardrail_Contract_Mismatch (R);
+      M := Editor.External_Producers.Public_Build.Detect_Public_Build_Guardrail_Contract_Mismatch (R);
       Assert (M.Status_Mismatch and then M.Promotion_Mismatch
               and then M.Audit_Consistency_Mismatch and then M.Any_Mismatch,
               "readiness/promotion inconsistency simulation must be detected");
@@ -1347,7 +1352,7 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       R.Status := Public_Build_Guardrail_Inconsistent_Audits;
       R.Audits_Consistent := False;
       R.Default_Execution_Disabled := False;
-      M := Detect_Public_Build_Guardrail_Contract_Mismatch (R);
+      M := Editor.External_Producers.Public_Build.Detect_Public_Build_Guardrail_Contract_Mismatch (R);
       Assert (M.Status_Mismatch and then M.Default_Execution_Mismatch
               and then M.Audit_Consistency_Mismatch and then M.Any_Mismatch,
               "hard-freeze/drift inconsistency simulation must be detected");
@@ -1362,8 +1367,8 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       R : Public_Build_Guardrail_Result;
    begin
       Editor.State.Init (S);
-      R := Run_Public_Build_Guardrail_Audit (S);
-      Assert_Public_Build_Guardrail_Agrees_With_No_Execution_Scan (S, R);
+      R := Editor.External_Producers.Public_Build.Run_Public_Build_Guardrail_Audit (S);
+      Editor.External_Producers.Public_Build.Assert_Public_Build_Guardrail_Agrees_With_No_Execution_Scan (S, R);
    end Test_Public_Build_Normalized_Audit_Agrees_With_No_Execution_Scan;
 
    overriding procedure Register_Tests

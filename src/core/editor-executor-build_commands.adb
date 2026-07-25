@@ -12,6 +12,7 @@ with Editor.Executor;
 with Editor.Executor.Shared_Services;
 use Editor.Executor.Shared_Services;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Requests;
 with Editor.Project;
 with Editor.Render_Cache;
 with Editor.State;
@@ -246,7 +247,7 @@ package body Editor.Executor.Build_Commands is
 
          when Editor.Commands.Command_Build_Run =>
             declare
-               Result : constant Editor.External_Producers.Build_Command_Result :=
+               Result : constant Editor.External_Producers.Build_Requests.Build_Command_Result :=
                  Editor.Build_Command.Start_Public_Build_Run_Asynchronously (S);
             begin
                Report_Info (S, To_String (Result.Command_Message));
@@ -266,7 +267,7 @@ package body Editor.Executor.Build_Commands is
 
          when Editor.Commands.Command_Build_Cancel =>
             declare
-               Result : constant Editor.External_Producers.Build_Command_Result :=
+               Result : constant Editor.External_Producers.Build_Requests.Build_Command_Result :=
                  Editor.Build_Command.Request_Public_Build_Cancel (S);
             begin
                Report_Info (S, To_String (Result.Command_Message));

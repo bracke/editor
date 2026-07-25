@@ -19,6 +19,9 @@ with Editor.Executor.Command_Palette_Projection;
 with Editor.File_Tree;
 with Editor.File_Tree_View;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Requests;
+with Editor.External_Producers.Diagnostic_Line_Pipeline;
+with Editor.External_Producers.Public_Build;
 with Editor.External_Producers.Public_Build_Guardrail_Audits;
 with Editor.Messages;
 with Editor.Keybindings;
@@ -216,13 +219,13 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Contract_Tests is
          Tool             => Editor.External_Producers.GPRbuild_Tool,
          Program_Label    => To_Unbounded_String ("gprbuild"),
          Working_Context  =>
-           Editor.External_Producers.Build_Inherited_Test_Working_Context,
+           Editor.External_Producers.Build_Requests.Build_Inherited_Test_Working_Context,
          Working_Context_Model =>
            (Source => Editor.External_Producers.Public_Build_Working_Context_Test_Context,
             Label  => Null_Unbounded_String,
             User_Acknowledged_Context => True),
          Arguments        =>
-           Editor.External_Producers.Build_Process_Argument_Vector ("-q"),
+           Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q"),
          Consent          => Editor.External_Producers.Build_Consent_User_Confirmed,
          Consent_Model    =>
            (Source => Editor.External_Producers.Public_Build_Consent_Test_Context,
@@ -291,8 +294,8 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Contract_Tests is
               "conversion must preserve program label as metadata");
       Assert (To_String (Request.Arguments)'Length = 0,
               "conversion must not introduce opaque command text");
-      Assert (Process_Argument_Count (Request.Structured_Arguments) =
-              Process_Argument_Count (Input.Arguments),
+      Assert (Editor.External_Producers.Build_Requests.Process_Argument_Count (Request.Structured_Arguments) =
+              Editor.External_Producers.Build_Requests.Process_Argument_Count (Input.Arguments),
               "conversion must preserve structured argv count");
       Assert (To_String (Request.Working_Label)'Length = 0,
               "conversion must not create a real working directory label");
@@ -304,7 +307,7 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Contract_Tests is
       S : Editor.State.State_Type;
    begin
       Editor.State.Init (S);
-      return Run_Public_Build_Guardrail_Audit (S);
+      return Editor.External_Producers.Public_Build.Run_Public_Build_Guardrail_Audit (S);
    end Default_Result;
 
    function Starts_With (Text : String; Prefix : String) return Boolean is
@@ -592,14 +595,14 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Contract_Tests is
           others => <>);
    begin
       Editor.State.Init (S);
-      R := Run_Public_Build_Command_Readiness_Audit (S);
+      R := Editor.External_Producers.Public_Build.Run_Public_Build_Command_Readiness_Audit (S);
       R.Has_Default_Public_Build_Keybinding := True;
-      Assert (Detect_Public_Build_Command_Exposure_Hard_Failure (R),
+      Assert (Editor.External_Producers.Public_Build.Detect_Public_Build_Command_Exposure_Hard_Failure (R),
               "simulated public build default keybinding must be a hard failure");
-      Assert (Validate_Public_Build_Command_Promotion (P, R) =
+      Assert (Editor.External_Producers.Public_Build.Validate_Public_Build_Command_Promotion (P, R) =
               Public_Build_Promotion_Unsafe_Exposure_Detected,
               "hard exposure must outrank normal guarded-surface blockers");
-      Assert (Build_Public_Command_Promotion_Feedback
+      Assert (Editor.External_Producers.Public_Build.Build_Public_Command_Promotion_Feedback
                 (Public_Build_Promotion_Unsafe_Exposure_Detected) =
               "Build: unsafe public command exposure detected",
               "hard-failure feedback must be deterministic");
@@ -617,7 +620,7 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Contract_Tests is
    begin
       Assert (not Info.Has_Binding,
               "internal test seam must have no default/active keybinding");
-      Assert_Public_Build_Surface_Ids_Not_Reused;
+      Editor.External_Producers.Public_Build.Assert_Public_Build_Surface_Ids_Not_Reused;
    end Test_Public_Build_Surface_Id_Cannot_Be_Keybinding_Target;
 
    procedure Test_Public_Build_Guardrail_Contract_Version_Is_Not_Persisted
@@ -630,7 +633,7 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Contract_Tests is
       Editor.State.Init (S);
       Assert (Public_Build_Guardrail_Contract_Version = "",
               "guardrail contract version must identify the audit contract");
-      Assert (Run_Public_Build_Guardrail_Audit (S).Persistence_Clean,
+      Assert (Editor.External_Producers.Public_Build.Run_Public_Build_Guardrail_Audit (S).Persistence_Clean,
               "guardrail contract version must remain audit-only and non-persistent");
    end Test_Public_Build_Guardrail_Contract_Version_Is_Not_Persisted;
 
@@ -643,11 +646,11 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Contract_Tests is
       R : Public_Build_Guardrail_Result;
    begin
       Editor.State.Init (S);
-      R := Run_Public_Build_Guardrail_Audit (S);
+      R := Editor.External_Producers.Public_Build.Run_Public_Build_Guardrail_Audit (S);
       Assert (R.Persistence_Clean,
               "long-horizon persistence snapshot must exclude normalized guardrail results");
-      Assert_Public_Build_Hard_Freeze_Not_Persisted (S);
-      Assert (Public_Build_Surface_Ids_Not_Publicly_Projected (S),
+      Editor.External_Producers.Public_Build.Assert_Public_Build_Hard_Freeze_Not_Persisted (S);
+      Assert (Editor.External_Producers.Public_Build.Public_Build_Surface_Ids_Not_Publicly_Projected (S),
               "long-horizon persistence snapshot must exclude public-id audit projections");
    end Test_Public_Build_Long_Horizon_Persistence_Snapshot_Excludes_Guardrail_State;
 
@@ -658,7 +661,7 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Contract_Tests is
       use Editor.External_Producers;
       R : constant Public_Build_Guardrail_Result := Default_Result;
    begin
-      Assert_Public_Build_Guardrail_Default_Contract (R);
+      Editor.External_Producers.Public_Build.Assert_Public_Build_Guardrail_Default_Contract (R);
    end Test_Public_Build_Guardrail_Default_Contract_Holds;
 
    procedure Test_Public_Build_Guardrail_Contract_Mismatch_Default_Has_No_Mismatch
@@ -667,7 +670,7 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Contract_Tests is
       pragma Unreferenced (T);
       use Editor.External_Producers;
       M : constant Public_Build_Guardrail_Contract_Mismatch :=
-        Detect_Public_Build_Guardrail_Contract_Mismatch (Default_Result);
+        Editor.External_Producers.Public_Build.Detect_Public_Build_Guardrail_Contract_Mismatch (Default_Result);
    begin
       Assert (not M.Any_Mismatch,
               "default public build guardrail result must match frozen contract");
@@ -678,7 +681,7 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Contract_Tests is
    is
       pragma Unreferenced (T);
       use Editor.External_Producers;
-      Names : constant Command_Id_Vector := Public_Build_Command_Surface_Ids;
+      Names : constant Command_Id_Vector := Editor.External_Producers.Public_Build.Public_Build_Command_Surface_Ids;
       Expected : constant array (Natural range 0 .. 0) of Unbounded_String :=
         (0 => To_Unbounded_String ("build.run"));
    begin
@@ -695,7 +698,7 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Contract_Tests is
    is
       pragma Unreferenced (T);
       use Editor.External_Producers;
-      Names : constant Command_Id_Vector := Public_Build_Command_Surface_Ids;
+      Names : constant Command_Id_Vector := Editor.External_Producers.Public_Build.Public_Build_Command_Surface_Ids;
    begin
       for I in 0 .. Natural (Names.Length) - 1 loop
          for J in I + 1 .. Natural (Names.Length) - 1 loop
@@ -711,13 +714,13 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Contract_Tests is
       pragma Unreferenced (T);
       use Editor.External_Producers;
    begin
-      Assert (not Is_Public_Build_Surface_Id ("build.runner"),
+      Assert (not Editor.External_Producers.Public_Build.Is_Public_Build_Surface_Id ("build.runner"),
               "near-miss build.runner must not match public ids");
-      Assert (not Is_Public_Build_Surface_Id ("build.run-diagnostics"),
+      Assert (not Editor.External_Producers.Public_Build.Is_Public_Build_Surface_Id ("build.run-diagnostics"),
               "near-miss build.run-diagnostics must not match public ids");
-      Assert (not Is_Public_Build_Surface_Id ("compile.note"),
+      Assert (not Editor.External_Producers.Public_Build.Is_Public_Build_Surface_Id ("compile.note"),
               "near-miss compile.note must not match public ids");
-      Assert (not Is_Public_Build_Surface_Id ("diagnostics.run-build-notes"),
+      Assert (not Editor.External_Producers.Public_Build.Is_Public_Build_Surface_Id ("diagnostics.run-build-notes"),
               "near-miss diagnostics.run-build-notes must not match public ids");
    end Test_Public_Build_Surface_Id_Scan_Ignores_Near_Miss_Labels;
 
@@ -727,9 +730,9 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Contract_Tests is
       pragma Unreferenced (T);
       use Editor.External_Producers;
    begin
-      Assert (Is_Public_Build_Surface_Id ("build.run"),
+      Assert (Editor.External_Producers.Public_Build.Is_Public_Build_Surface_Id ("build.run"),
               "exact public build id must be rejected by identity scans");
-      Assert_Public_Build_Surface_Ids_Not_Reused;
+      Editor.External_Producers.Public_Build.Assert_Public_Build_Surface_Ids_Not_Reused;
    end Test_Public_Build_Surface_Id_Scan_Rejects_Exact_Public_Name;
 
    procedure Test_Public_Build_Guardrail_Failure_Detail_Default_Is_None
@@ -793,7 +796,7 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Contract_Tests is
       pragma Unreferenced (T);
       use Editor.External_Producers;
       Scan : constant Public_Build_Surface_Id_Scan_Result :=
-        Scan_Public_Build_Surface_Ids;
+        Editor.External_Producers.Public_Build.Scan_Public_Build_Surface_Ids;
    begin
       Assert (Scan.Passed, "empty public-id scan must pass");
       Assert (not Scan.Exact_Command_Id_Found
@@ -811,22 +814,22 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Contract_Tests is
       pragma Unreferenced (T);
       use Editor.External_Producers;
    begin
-      Assert (Scan_Public_Build_Surface_Ids
+      Assert (Editor.External_Producers.Public_Build.Scan_Public_Build_Surface_Ids
                 (Command_Id => "build.run").Exact_Command_Id_Found,
               "exact command id must fail scan");
-      Assert (Scan_Public_Build_Surface_Ids
+      Assert (Editor.External_Producers.Public_Build.Scan_Public_Build_Surface_Ids
                 (Keybinding_Target => "build.run").Exact_Keybinding_Target_Found,
               "exact keybinding target must fail scan");
-      Assert (Scan_Public_Build_Surface_Ids
+      Assert (Editor.External_Producers.Public_Build.Scan_Public_Build_Surface_Ids
                 (Palette_Row => "build.run").Exact_Palette_Row_Found,
               "exact palette row id must fail scan");
-      Assert (Scan_Public_Build_Surface_Ids
+      Assert (Editor.External_Producers.Public_Build.Scan_Public_Build_Surface_Ids
                 (Executor_Route => "build.run").Exact_Executor_Route_Found,
               "exact executor route must fail scan");
-      Assert (Scan_Public_Build_Surface_Ids
+      Assert (Editor.External_Producers.Public_Build.Scan_Public_Build_Surface_Ids
                 (Invocation_Path => "build.run").Exact_Invocation_Path_Found,
               "exact invocation path must fail scan");
-      Assert (Scan_Public_Build_Surface_Ids
+      Assert (Editor.External_Producers.Public_Build.Scan_Public_Build_Surface_Ids
                 (Persisted_Name => "build.run").Exact_Persisted_Name_Found,
               "exact persisted command name must fail scan");
    end Test_Public_Build_Surface_Id_Scan_Rejects_Exact_Domains;
@@ -837,7 +840,7 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Contract_Tests is
       pragma Unreferenced (T);
       use Editor.External_Producers;
       Scan : constant Public_Build_Surface_Id_Scan_Result :=
-        Scan_Public_Build_Surface_Ids (Palette_Row => "build.runner");
+        Editor.External_Producers.Public_Build.Scan_Public_Build_Surface_Ids (Palette_Row => "build.runner");
    begin
       Assert (Scan.Passed,
               "near-miss label must not fail exact-match scan");
@@ -851,11 +854,11 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Contract_Tests is
       pragma Unreferenced (T);
       use Editor.External_Producers;
       Trace : constant Public_Build_Guardrail_Audit_Trace :=
-        Build_Public_Build_Guardrail_Audit_Trace;
+        Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Audit_Trace;
    begin
-      Assert (Public_Build_Guardrail_Audit_Trace_Complete (Trace),
+      Assert (Editor.External_Producers.Public_Build.Public_Build_Guardrail_Audit_Trace_Complete (Trace),
               "default audit trace must cover every required surface");
-      Assert_Public_Build_Guardrail_Trace_Complete (Trace);
+      Editor.External_Producers.Public_Build.Assert_Public_Build_Guardrail_Trace_Complete (Trace);
    end Test_Public_Build_Guardrail_Audit_Trace_Default_Checks_All_Surfaces;
 
    procedure Test_Public_Build_Guardrail_Audit_Trace_Missing_Surface_Is_Inconsistent
@@ -864,10 +867,10 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Contract_Tests is
       pragma Unreferenced (T);
       use Editor.External_Producers;
       Trace : Public_Build_Guardrail_Audit_Trace :=
-        Build_Public_Build_Guardrail_Audit_Trace;
+        Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Audit_Trace;
    begin
       Trace.Surface_Ids_Checked := False;
-      Assert (not Public_Build_Guardrail_Audit_Trace_Complete (Trace),
+      Assert (not Editor.External_Producers.Public_Build.Public_Build_Guardrail_Audit_Trace_Complete (Trace),
               "missing trace surface must be incomplete");
    end Test_Public_Build_Guardrail_Audit_Trace_Missing_Surface_Is_Inconsistent;
 
@@ -878,7 +881,7 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Contract_Tests is
       use Editor.External_Producers;
       R : constant Public_Build_Guardrail_Result := Default_Result;
       M : constant Public_Build_Guardrail_Contract_Mismatch :=
-        Compare_Public_Build_Guardrail_Snapshots (R, R);
+        Editor.External_Producers.Public_Build.Compare_Public_Build_Guardrail_Snapshots (R, R);
    begin
       Assert (not M.Any_Mismatch,
               "identical guardrail snapshots must not mismatch");
@@ -894,7 +897,7 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Contract_Tests is
       M      : Public_Build_Guardrail_Contract_Mismatch;
    begin
       After.No_Public_Command := False;
-      M := Compare_Public_Build_Guardrail_Snapshots (Before, After);
+      M := Editor.External_Producers.Public_Build.Compare_Public_Build_Guardrail_Snapshots (Before, After);
       Assert (M.Public_Command_Mismatch and then M.Any_Mismatch,
               "snapshot comparison must detect public exposure changes");
    end Test_Public_Build_Guardrail_Snapshot_Comparison_Detects_Exposure;
@@ -909,7 +912,7 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Contract_Tests is
       M      : Public_Build_Guardrail_Contract_Mismatch;
    begin
       After.Promotion_Blocked := True;
-      M := Compare_Public_Build_Guardrail_Snapshots (Before, After);
+      M := Editor.External_Producers.Public_Build.Compare_Public_Build_Guardrail_Snapshots (Before, After);
       Assert (M.Promotion_Mismatch and then M.Any_Mismatch,
               "snapshot comparison must detect promotion changes");
    end Test_Public_Build_Guardrail_Snapshot_Comparison_Detects_Promotion_Change;
@@ -924,12 +927,12 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Contract_Tests is
       After  : Public_Build_Guardrail_Audit_Trace;
    begin
       Editor.State.Init (S);
-      Before := Build_Public_Build_Guardrail_Audit_Trace;
-      Editor.External_Producers.Reset_Build_Run_State_For_Project_Close (S);
-      Editor.External_Producers.Reset_Build_Run_State_For_Workspace_Close (S);
-      After := Build_Public_Build_Guardrail_Audit_Trace;
-      Assert (Public_Build_Guardrail_Audit_Trace_Complete (Before)
-              and then Public_Build_Guardrail_Audit_Trace_Complete (After),
+      Before := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Audit_Trace;
+      Editor.External_Producers.Build_Requests.Reset_Build_Run_State_For_Project_Close (S);
+      Editor.External_Producers.Build_Requests.Reset_Build_Run_State_For_Workspace_Close (S);
+      After := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Audit_Trace;
+      Assert (Editor.External_Producers.Public_Build.Public_Build_Guardrail_Audit_Trace_Complete (Before)
+              and then Editor.External_Producers.Public_Build.Public_Build_Guardrail_Audit_Trace_Complete (After),
               "lifecycle operations must not weaken audit trace coverage");
    end Test_Public_Build_Guardrail_Lifecycle_Trace_Remains_Stable;
 
@@ -944,11 +947,11 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Contract_Tests is
       M      : Public_Build_Guardrail_Contract_Mismatch;
    begin
       Editor.State.Init (S);
-      Before := Run_Public_Build_Guardrail_Audit (S);
-      Editor.External_Producers.Reset_Diagnostic_Line_Command_State_For_Project_Close (S);
-      Editor.External_Producers.Reset_Diagnostic_Line_Command_State_For_Workspace_Close (S);
-      After := Run_Public_Build_Guardrail_Audit (S);
-      M := Compare_Public_Build_Guardrail_Snapshots (Before, After);
+      Before := Editor.External_Producers.Public_Build.Run_Public_Build_Guardrail_Audit (S);
+      Editor.External_Producers.Diagnostic_Line_Pipeline.Reset_Diagnostic_Line_Command_State_For_Project_Close (S);
+      Editor.External_Producers.Diagnostic_Line_Pipeline.Reset_Diagnostic_Line_Command_State_For_Workspace_Close (S);
+      After := Editor.External_Producers.Public_Build.Run_Public_Build_Guardrail_Audit (S);
+      M := Editor.External_Producers.Public_Build.Compare_Public_Build_Guardrail_Snapshots (Before, After);
       Assert (not M.Any_Mismatch,
               "lifecycle operations must not alter normalized guardrail snapshot");
       Assert (Editor.External_Producers.Public_Build_Guardrail_Audits.
@@ -963,11 +966,11 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Contract_Tests is
       pragma Unreferenced (T);
       use Editor.External_Producers;
       Scan : constant Public_Build_Surface_Id_Scan_Result :=
-        Scan_Public_Build_Surface_Ids;
+        Editor.External_Producers.Public_Build.Scan_Public_Build_Surface_Ids;
    begin
-      Assert (Public_Build_Surface_Id_Scan_Domains_Checked (Scan),
+      Assert (Editor.External_Producers.Public_Build.Public_Build_Surface_Id_Scan_Domains_Checked (Scan),
               "public-id scan must mark every domain checked or checked-empty");
-      Assert_Public_Build_Surface_Id_Scan_Domains_Checked (Scan);
+      Editor.External_Producers.Public_Build.Assert_Public_Build_Surface_Id_Scan_Domains_Checked (Scan);
       Assert (Scan.Stable_Command_Ids_Checked
               and then Scan.Display_Search_Names_Checked
               and then Scan.Palette_Checked
@@ -987,16 +990,16 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Contract_Tests is
       pragma Unreferenced (T);
       use Editor.External_Producers;
    begin
-      Assert (not Scan_Public_Build_Surface_Ids
+      Assert (not Editor.External_Producers.Public_Build.Scan_Public_Build_Surface_Ids
                     (Command_Id => "build.run").Passed,
               "canonical exact build.run must fail public-id scan");
-      Assert (Scan_Public_Build_Surface_Ids
+      Assert (Editor.External_Producers.Public_Build.Scan_Public_Build_Surface_Ids
                 (Command_Id => " build.run").Passed,
               "leading whitespace must follow current exact command-id policy");
-      Assert (Scan_Public_Build_Surface_Ids
+      Assert (Editor.External_Producers.Public_Build.Scan_Public_Build_Surface_Ids
                 (Command_Id => "build.run ").Passed,
               "trailing whitespace must follow current exact command-id policy");
-      Assert (Scan_Public_Build_Surface_Ids
+      Assert (Editor.External_Producers.Public_Build.Scan_Public_Build_Surface_Ids
                 (Command_Id => "BUILD.RUN").Passed,
               "case-only variant must follow current exact command-id policy");
    end Test_Public_Build_Surface_Id_Canonical_Exact_Match_Fails;
@@ -1007,9 +1010,9 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Contract_Tests is
       pragma Unreferenced (T);
       use Editor.External_Producers;
       A : constant Public_Build_Surface_Id_Scan_Result :=
-        Scan_Public_Build_Surface_Ids (Command_Id => "build.runner");
+        Editor.External_Producers.Public_Build.Scan_Public_Build_Surface_Ids (Command_Id => "build.runner");
       B : constant Public_Build_Surface_Id_Scan_Result :=
-        Scan_Public_Build_Surface_Ids
+        Editor.External_Producers.Public_Build.Scan_Public_Build_Surface_Ids
           (Command_Id => "diagnostics.run-build-notes");
    begin
       Assert (A.Passed and then A.Near_Miss_Only,

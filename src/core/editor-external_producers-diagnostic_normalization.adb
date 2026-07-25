@@ -9,6 +9,11 @@ with Editor.Feature_Panel;
 with Editor.Feature_Targets;
 with Editor.Project;
 with Editor.State;
+with Editor.External_Producers.Diagnostics;
+use Editor.External_Producers.Diagnostics;
+with Editor.External_Producers.Build_Runner_Audits;
+with Editor.External_Producers.Diagnostic_Line_Pipeline;
+with Editor.External_Producers.Source_Metadata;
 
 package body Editor.External_Producers.Diagnostic_Normalization is
 
@@ -73,7 +78,7 @@ package body Editor.External_Producers.Diagnostic_Normalization is
 
    function Resolve_Diagnostic_File_Target
      (S          : Editor.State.State_Type;
-      File_Label : String) return Buffer_Target_Resolution
+      File_Label : String) return Editor.External_Producers.Diagnostics.Buffer_Target_Resolution
    is
       Clean_Label : constant String := Ada.Strings.Fixed.Trim (File_Label, Both);
       Match_Count : Natural := 0;
@@ -180,9 +185,9 @@ package body Editor.External_Producers.Diagnostic_Normalization is
 
    function Normalize_Compiler_Diagnostic
      (S        : Editor.State.State_Type;
-      Producer : External_Producer_Source;
-      Input    : Compiler_Diagnostic_Record)
-      return External_Diagnostic_Record
+      Producer : Editor.External_Producers.Diagnostics.Producer_Source;
+      Input    : Editor.External_Producers.Diagnostics.Compiler_Record)
+      return Editor.External_Producers.Diagnostics.Diagnostic_Record
    is
       Clean_Message : constant String :=
         Editor.Producer_Contracts.Normalize_Producer_Text (To_String (Input.Message));
@@ -191,9 +196,9 @@ package body Editor.External_Producers.Diagnostic_Normalization is
           (To_String (Input.Tool_Name), To_String (Input.File_Label));
       Fallback_Source : constant String :=
         (if Source_Label'Length > 0 then Source_Label
-         elsif Producer_Source_Is_Valid (Producer) then To_String (Producer.Display_Label)
+         elsif Editor.External_Producers.Source_Metadata.Producer_Source_Is_Valid (Producer) then To_String (Producer.Display_Label)
          else "compiler diagnostics");
-      Resolution : constant Buffer_Target_Resolution :=
+      Resolution : constant Editor.External_Producers.Diagnostics.Buffer_Target_Resolution :=
         Resolve_Diagnostic_File_Target (S, To_String (Input.File_Label));
       Target : constant Editor.Feature_Targets.Feature_Row_Target_Validation :=
         (if Input.Has_Location and then Resolution.Found then
@@ -203,7 +208,7 @@ package body Editor.External_Producers.Diagnostic_Normalization is
       Has_Target_Metadata : constant Boolean := Target.Valid;
    begin
       return
-        (Severity      => Map_Compiler_Severity_To_Diagnostic_Severity
+        (Severity      => Editor.External_Producers.Source_Metadata.Map_Compiler_Severity_To_Diagnostic_Severity
                             (Input.Severity),
          Message       => To_Unbounded_String (Clean_Message),
          Source_Label  => To_Unbounded_String (Fallback_Source),
@@ -223,13 +228,13 @@ package body Editor.External_Producers.Diagnostic_Normalization is
 
    function Normalize_Compiler_Diagnostic_Batch
      (S        : Editor.State.State_Type;
-      Producer : External_Producer_Source;
-      Inputs   : Compiler_Diagnostic_Record_Array)
-      return Normalized_Diagnostic_Batch
+      Producer : Editor.External_Producers.Diagnostics.Producer_Source;
+      Inputs   : Editor.External_Producers.Diagnostics.Compiler_Record_Array)
+      return Editor.External_Producers.Diagnostics.Normalized_Batch
    is
-      Result     : Normalized_Diagnostic_Batch;
-      Normalized : External_Diagnostic_Record;
-      Resolution : Buffer_Target_Resolution;
+      Result     : Editor.External_Producers.Diagnostics.Normalized_Batch;
+      Normalized : Editor.External_Producers.Diagnostics.Diagnostic_Record;
+      Resolution : Editor.External_Producers.Diagnostics.Buffer_Target_Resolution;
    begin
       Result.Input_Count := Natural (Inputs.Length);
       if Inputs.Is_Empty then
@@ -267,18 +272,18 @@ package body Editor.External_Producers.Diagnostic_Normalization is
 
    function Ingest_Compiler_Diagnostic_Batch
      (S        : in out Editor.State.State_Type;
-      Producer : External_Producer_Source;
-      Inputs   : Compiler_Diagnostic_Record_Array)
-      return Producer_Batch_Result
+      Producer : Editor.External_Producers.Diagnostics.Producer_Source;
+      Inputs   : Editor.External_Producers.Diagnostics.Compiler_Record_Array)
+      return Editor.External_Producers.Diagnostics.Producer_Batch_Result
    is
-      Batch : constant Normalized_Diagnostic_Batch :=
+      Batch : constant Editor.External_Producers.Diagnostics.Normalized_Batch :=
         Normalize_Compiler_Diagnostic_Batch (S, Producer, Inputs);
    begin
       return Ingest_Diagnostic_Batch (S, Producer, Batch.Items);
    end Ingest_Compiler_Diagnostic_Batch;
 
    function Assert_Normalized_Batch_Consistent
-     (Batch : Normalized_Diagnostic_Batch) return Boolean
+     (Batch : Editor.External_Producers.Diagnostics.Normalized_Batch) return Boolean
    is
    begin
       return Batch.Input_Count = Natural (Batch.Items.Length)
@@ -290,14 +295,14 @@ package body Editor.External_Producers.Diagnostic_Normalization is
 
    function Compiler_Diagnostic_Normalization_Audit_Passes return Boolean
    is
-      Source : constant External_Producer_Source :=
-        Build_Compiler_Diagnostics_Producer_Source;
+      Source : constant Editor.External_Producers.Diagnostics.Producer_Source :=
+        Editor.External_Producers.Source_Metadata.Build_Compiler_Diagnostics_Producer_Source;
       Empty_State : Editor.State.State_Type;
-      Inputs : Compiler_Diagnostic_Record_Array;
-      Batch : Normalized_Diagnostic_Batch;
+      Inputs : Editor.External_Producers.Diagnostics.Compiler_Record_Array;
+      Batch : Editor.External_Producers.Diagnostics.Normalized_Batch;
    begin
       Inputs.Append
-        (Compiler_Diagnostic_Record'(Severity     => Compiler_Unknown,
+        (Editor.External_Producers.Diagnostics.Compiler_Record'(Severity     => Compiler_Unknown,
           Message      => To_Unbounded_String (" audit "),
           File_Label   => To_Unbounded_String (""),
           Has_Location => False,
@@ -306,18 +311,18 @@ package body Editor.External_Producers.Diagnostic_Normalization is
           Tool_Name    => To_Unbounded_String (" compiler ")));
       Batch := Normalize_Compiler_Diagnostic_Batch (Empty_State, Source, Inputs);
 
-      return Producer_Source_Is_Valid (Source)
-        and then Map_Compiler_Severity_To_Diagnostic_Severity (Compiler_Info) =
+      return Editor.External_Producers.Source_Metadata.Producer_Source_Is_Valid (Source)
+        and then Editor.External_Producers.Source_Metadata.Map_Compiler_Severity_To_Diagnostic_Severity (Compiler_Info) =
           Editor.Feature_Diagnostics.Diagnostic_Info
-        and then Map_Compiler_Severity_To_Diagnostic_Severity (Compiler_Note) =
+        and then Editor.External_Producers.Source_Metadata.Map_Compiler_Severity_To_Diagnostic_Severity (Compiler_Note) =
           Editor.Feature_Diagnostics.Diagnostic_Note
-        and then Map_Compiler_Severity_To_Diagnostic_Severity (Compiler_Warning) =
+        and then Editor.External_Producers.Source_Metadata.Map_Compiler_Severity_To_Diagnostic_Severity (Compiler_Warning) =
           Editor.Feature_Diagnostics.Diagnostic_Warning
-        and then Map_Compiler_Severity_To_Diagnostic_Severity (Compiler_Error) =
+        and then Editor.External_Producers.Source_Metadata.Map_Compiler_Severity_To_Diagnostic_Severity (Compiler_Error) =
           Editor.Feature_Diagnostics.Diagnostic_Error
-        and then Map_Compiler_Severity_To_Diagnostic_Severity (Compiler_Fatal) =
+        and then Editor.External_Producers.Source_Metadata.Map_Compiler_Severity_To_Diagnostic_Severity (Compiler_Fatal) =
           Editor.Feature_Diagnostics.Diagnostic_Error
-        and then Map_Compiler_Severity_To_Diagnostic_Severity (Compiler_Unknown) =
+        and then Editor.External_Producers.Source_Metadata.Map_Compiler_Severity_To_Diagnostic_Severity (Compiler_Unknown) =
           Editor.Feature_Diagnostics.Diagnostic_Unknown
         and then Build_Normalized_Diagnostic_Source_Label (" gnat ", " main.adb ") =
           "gnat: main.adb"
@@ -339,7 +344,7 @@ package body Editor.External_Producers.Diagnostic_Normalization is
    end Producer_Lifecycle_Audit_Passes;
 
    function Normalize_External_Diagnostic_Record
-     (Item : External_Diagnostic_Record) return External_Diagnostic_Record
+     (Item : Editor.External_Producers.Diagnostics.Diagnostic_Record) return Editor.External_Producers.Diagnostics.Diagnostic_Record
    is
       Clean_Message : constant String :=
         Editor.Producer_Contracts.Normalize_Producer_Text (To_String (Item.Message));
@@ -373,8 +378,8 @@ package body Editor.External_Producers.Diagnostic_Normalization is
 
    procedure Add_Normalized_Record
      (S           : in out Editor.State.State_Type;
-      Producer    : External_Producer_Source;
-      Item        : External_Diagnostic_Record;
+      Producer    : Editor.External_Producers.Diagnostics.Producer_Source;
+      Item        : Editor.External_Producers.Diagnostics.Diagnostic_Record;
       Target_Kept : out Boolean)
    is
       Known_Buffer_Target : constant Boolean :=
@@ -410,7 +415,7 @@ package body Editor.External_Producers.Diagnostic_Normalization is
          Severity      => Item.Severity,
          Message       => To_String (Item.Message),
          Source_Label   => To_String (Item.Source_Label),
-         Source_Kind    => Map_External_Producer_To_Diagnostic_Source (Producer),
+         Source_Kind    => Editor.External_Producers.Source_Metadata.Map_External_Producer_To_Diagnostic_Source (Producer),
          Has_Target     => Store_Target_Metadata,
          Target_Buffer  =>
            (if Store_Target_Metadata then Item.Target_Buffer
@@ -431,17 +436,17 @@ package body Editor.External_Producers.Diagnostic_Normalization is
 
    function Ingest_Diagnostic_Record
      (S        : in out Editor.State.State_Type;
-      Producer : External_Producer_Source;
-      Item     : External_Diagnostic_Record)
+      Producer : Editor.External_Producers.Diagnostics.Producer_Source;
+      Item     : Editor.External_Producers.Diagnostics.Diagnostic_Record)
       return Editor.Producer_Contracts.Producer_Result
    is
-      Items : External_Diagnostic_Record_Array;
-      Batch : Producer_Batch_Result;
+      Items : Editor.External_Producers.Diagnostics.Diagnostic_Record_Array;
+      Batch : Editor.External_Producers.Diagnostics.Producer_Batch_Result;
    begin
       Items.Append (Item);
       Batch := Ingest_Diagnostic_Batch (S, Producer, Items);
       if Batch.Rejected_Count = 1 then
-         if Producer_Source_Is_Valid (Producer) then
+         if Editor.External_Producers.Source_Metadata.Producer_Source_Is_Valid (Producer) then
             return Editor.Producer_Contracts.Rejected_Empty_Text;
          else
             return Editor.Producer_Contracts.Rejected_Invalid_State;
@@ -455,21 +460,21 @@ package body Editor.External_Producers.Diagnostic_Normalization is
 
    function Ingest_Diagnostic_Batch
      (S        : in out Editor.State.State_Type;
-      Producer : External_Producer_Source;
-      Items    : External_Diagnostic_Record_Array)
-      return Producer_Batch_Result
+      Producer : Editor.External_Producers.Diagnostics.Producer_Source;
+      Items    : Editor.External_Producers.Diagnostics.Diagnostic_Record_Array)
+      return Editor.External_Producers.Diagnostics.Producer_Batch_Result
    is
-      Result        : Producer_Batch_Result;
+      Result        : Editor.External_Producers.Diagnostics.Producer_Batch_Result;
       Before_Count  : constant Natural :=
         Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics);
       Target_Kept   : Boolean := False;
-      Normalized    : External_Diagnostic_Record;
+      Normalized    : Editor.External_Producers.Diagnostics.Diagnostic_Record;
    begin
       if Items.Is_Empty then
          return Result;
       end if;
 
-      if not Producer_Source_Is_Valid (Producer) then
+      if not Editor.External_Producers.Source_Metadata.Producer_Source_Is_Valid (Producer) then
          Result.Rejected_Count := Natural (Items.Length);
          return Result;
       end if;
@@ -509,33 +514,33 @@ package body Editor.External_Producers.Diagnostic_Normalization is
 
    function External_Producer_Audit_Passes return Boolean
    is
-      Build_Source : constant External_Producer_Source :=
-        Build_External_Producer_Source (Build_Diagnostics_Producer);
-      Compiler_Source : constant External_Producer_Source :=
-        Build_External_Producer_Source (Compiler_Diagnostics_Producer);
-      None_Source : constant External_Producer_Source :=
-        Build_External_Producer_Source (No_External_Producer);
+      Build_Source : constant Editor.External_Producers.Diagnostics.Producer_Source :=
+        Editor.External_Producers.Source_Metadata.Build_External_Producer_Source (Build_Diagnostics_Producer);
+      Compiler_Source : constant Editor.External_Producers.Diagnostics.Producer_Source :=
+        Editor.External_Producers.Source_Metadata.Build_External_Producer_Source (Compiler_Diagnostics_Producer);
+      None_Source : constant Editor.External_Producers.Diagnostics.Producer_Source :=
+        Editor.External_Producers.Source_Metadata.Build_External_Producer_Source (No_External_Producer);
    begin
-      return Producer_Source_Is_Valid (Build_Source)
-        and then Producer_Source_Is_Valid (Compiler_Source)
-        and then not Producer_Source_Is_Valid (None_Source)
-        and then Stable_Name (Build_Diagnostics_Producer) /=
-          Stable_Name (Compiler_Diagnostics_Producer)
-        and then Display_Label (Build_Diagnostics_Producer) /=
-          Display_Label (Compiler_Diagnostics_Producer)
-        and then Map_External_Producer_To_Diagnostic_Source (Build_Source) =
+      return Editor.External_Producers.Source_Metadata.Producer_Source_Is_Valid (Build_Source)
+        and then Editor.External_Producers.Source_Metadata.Producer_Source_Is_Valid (Compiler_Source)
+        and then not Editor.External_Producers.Source_Metadata.Producer_Source_Is_Valid (None_Source)
+        and then Editor.External_Producers.Source_Metadata.Stable_Name (Build_Diagnostics_Producer) /=
+          Editor.External_Producers.Source_Metadata.Stable_Name (Compiler_Diagnostics_Producer)
+        and then Editor.External_Producers.Source_Metadata.Display_Label (Build_Diagnostics_Producer) /=
+          Editor.External_Producers.Source_Metadata.Display_Label (Compiler_Diagnostics_Producer)
+        and then Editor.External_Producers.Source_Metadata.Map_External_Producer_To_Diagnostic_Source (Build_Source) =
           Editor.Feature_Diagnostics.External_Diagnostic_Source
-        and then Map_External_Producer_To_Diagnostic_Source (Compiler_Source) =
+        and then Editor.External_Producers.Source_Metadata.Map_External_Producer_To_Diagnostic_Source (Compiler_Source) =
           Editor.Feature_Diagnostics.External_Diagnostic_Source
-        and then Map_External_Producer_To_Diagnostic_Source (None_Source) =
+        and then Editor.External_Producers.Source_Metadata.Map_External_Producer_To_Diagnostic_Source (None_Source) =
           Editor.Feature_Diagnostics.Unknown_Diagnostic_Source
         and then Compiler_Diagnostic_Normalization_Audit_Passes
-        and then Diagnostic_Line_Parser_Audit_Passes
-        and then Diagnostic_Line_Command_Surface_Audit_Passes
-        and then Diagnostic_Line_Layering_Audit_Passes
-        and then Build_Run_Test_Seam_Audit_Passes
-        and then Audit_Real_Build_Execution_Gates
-        and then Audit_User_Opt_In_Build_Command_Surface
+        and then Editor.External_Producers.Diagnostic_Line_Pipeline.Diagnostic_Line_Parser_Audit_Passes
+        and then Editor.External_Producers.Diagnostic_Line_Pipeline.Diagnostic_Line_Command_Surface_Audit_Passes
+        and then Editor.External_Producers.Diagnostic_Line_Pipeline.Diagnostic_Line_Layering_Audit_Passes
+        and then Editor.External_Producers.Build_Runner_Audits.Build_Run_Test_Seam_Audit_Passes
+        and then Editor.External_Producers.Build_Runner_Audits.Audit_Real_Build_Execution_Gates
+        and then Editor.External_Producers.Build_Runner_Audits.Audit_User_Opt_In_Build_Command_Surface
         and then Producer_Lifecycle_Audit_Passes;
    end External_Producer_Audit_Passes;
 

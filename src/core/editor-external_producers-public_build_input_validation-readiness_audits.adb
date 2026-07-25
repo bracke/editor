@@ -3,12 +3,36 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Commands;
 with Editor.External_Producers.Diagnostic_Line_Pipeline;
 with Editor.External_Producers.Public_Build_Command_Surface_Audits;
+with Editor.External_Producers.Request_Policies;
 
 package body Editor.External_Producers.Public_Build_Input_Validation.Readiness_Audits is
 
    use type Editor.Commands.Command_Visibility;
    use type Editor.Commands.Command_Category;
    use type Ada.Containers.Count_Type;
+
+   function Build_Inherited_Test_Working_Context return Build_Working_Context
+     renames Editor.External_Producers.Request_Policies.Build_Inherited_Test_Working_Context;
+
+   function Build_Unsupported_Working_Context return Build_Working_Context
+     renames Editor.External_Producers.Request_Policies.Build_Unsupported_Working_Context;
+
+   function Build_Process_Argument_Vector
+     (First  : String := "";
+      Second : String := "";
+      Third  : String := "") return Process_Argument_Vector
+     renames Editor.External_Producers.Request_Policies.Build_Process_Argument_Vector;
+
+   function Empty_Process_Arguments return Process_Argument_Vector
+     renames Editor.External_Producers.Request_Policies.Empty_Process_Arguments;
+
+   function Process_Argument_Count
+     (Arguments : Process_Argument_Vector) return Natural
+     renames Editor.External_Producers.Request_Policies.Process_Argument_Count;
+
+   function Validate_Build_Run_Request_Status
+     (Request : Build_Run_Request) return Build_Request_Validation_Status
+     renames Editor.External_Producers.Request_Policies.Validate_Build_Run_Request_Status;
 
    function Audit_Public_Build_Consent_Readiness return Boolean is
       Test_Consent : constant Public_Build_Consent_Model :=

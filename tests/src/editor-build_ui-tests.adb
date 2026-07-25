@@ -14,6 +14,7 @@ with Editor.Build_Output_Details;
 with Editor.Build_Working_Context;
 with Editor.Ada_Diagnostic_Command_Projection;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Requests;
 with Editor.Feature_Diagnostics;
 with Editor.Feature_Diagnostics.Fixtures; use Editor.Feature_Diagnostics.Fixtures;
 with Editor.Feature_Panel;
@@ -368,7 +369,7 @@ package body Editor.Build_UI.Tests is
               "conversion preserves bounded tool selection");
       Assert (To_String (C.Request.Arguments)'Length = 0,
               "conversion does not create opaque shell arguments");
-      Assert (Editor.External_Producers.Process_Argument_Count
+      Assert (Editor.External_Producers.Build_Requests.Process_Argument_Count
                 (C.Request.Structured_Arguments) > 0,
               "conversion preserves structured argv");
    end Test_Structured_Request_Conversion;

@@ -6,6 +6,8 @@ with Editor.Build_Result_Summary;
 with Editor.Build_Output_Details;
 with Editor.Commands;
 with Editor.External_Producers;
+with Editor.External_Producers.Audits;
+with Editor.External_Producers.Public_Build;
 with Editor.State;
 
 package body Editor.Build_Command_Audit is
@@ -39,8 +41,10 @@ package body Editor.Build_Command_Audit is
       return Public_Build_Command_UX_Foundation_Audit
    is
       Result : Public_Build_Command_UX_Foundation_Audit;
-      Readiness : constant Editor.External_Producers.Public_Build_Command_Readiness_Audit_Result :=
-        Editor.External_Producers.Run_Public_Build_Command_Readiness_Audit (State);
+      Readiness : constant
+        Editor.External_Producers.Public_Build.Readiness_Audit_Result :=
+          Editor.External_Producers.Public_Build
+            .Run_Public_Build_Command_Readiness_Audit (State);
    begin
       Result.Build_Run_Descriptor_Stable :=
         Editor.Commands.Stable_Command_Name (Editor.Commands.Command_Build_Run) =

@@ -2,11 +2,129 @@ with Ada.Containers;
 with Ada.Strings; use Ada.Strings;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.External_Producers.Build_Requests;
+with Editor.External_Producers.Build_Command_Execution;
+with Editor.External_Producers.Diagnostic_Line_Parsing;
+with Editor.External_Producers.Diagnostic_Line_Pipeline;
+with Editor.External_Producers.Execution_Policy;
+with Editor.External_Producers.Request_Policies;
 with Editor.State;
 
 package body Editor.External_Producers.Build_Runner_Audits.Build_Path_Audits is
 
    use type Ada.Containers.Count_Type;
+
+   function Build_Process_Argument_Vector
+     (First  : String := "";
+      Second : String := "";
+      Third  : String := "") return Process_Argument_Vector
+     renames Editor.External_Producers.Request_Policies.Build_Process_Argument_Vector;
+
+   function Empty_Process_Arguments return Process_Argument_Vector
+     renames Editor.External_Producers.Request_Policies.Empty_Process_Arguments;
+
+   function Build_Process_Run_Result
+     (Status        : Process_Run_Status;
+      Exit_Code     : Integer := 0;
+      Has_Exit_Code : Boolean := False;
+      Stdout_Text   : String := "";
+      Stderr_Text   : String := "";
+      Stdout_Truncated : Boolean := False;
+      Stderr_Truncated : Boolean := False;
+      Output_Capture_Mode : Process_Output_Capture_Mode :=
+        Process_Output_Capture_Separated) return Process_Run_Result
+     renames Editor.External_Producers.Request_Policies.Build_Process_Run_Result;
+
+   function Validate_Build_Run_Request_Status
+     (Request : Build_Run_Request) return Build_Request_Validation_Status
+     renames Editor.External_Producers.Request_Policies.Validate_Build_Run_Request_Status;
+
+   function Validate_Build_Execution_Gate
+     (Gate : Build_Execution_Gate) return Boolean
+     renames Editor.External_Producers.Execution_Policy.Validate_Build_Execution_Gate;
+
+   function Build_Default_Execution_Gate return Build_Execution_Gate
+     renames Editor.External_Producers.Execution_Policy.Build_Default_Execution_Gate;
+
+   function Preflight_Real_Build_Tool_Request
+     (Request : Build_Run_Request;
+      Gate    : Build_Execution_Gate) return Build_Preflight_Result
+     renames Editor.External_Producers.Build_Command_Execution.Preflight_Real_Build_Tool_Request;
+
+   function Build_User_Opt_In_Build_Feedback
+     (Result : Build_Preflight_Result) return String
+     renames Editor.External_Producers.Build_Command_Execution.Build_User_Opt_In_Build_Feedback;
+
+   function User_Opt_In_Build_Preflight_Is_Consistent
+     (Result : Build_Preflight_Result) return Boolean
+     renames Editor.External_Producers.Build_Command_Execution.User_Opt_In_Build_Preflight_Is_Consistent;
+
+   function Build_Test_Fixture_Execution_Gate
+     (Allow_Diagnostics_Ingestion : Boolean := True;
+      Show_Diagnostics            : Boolean := False;
+      Max_Output_Bytes            : Natural := 262_144;
+      Consent                     : Build_Execution_Consent :=
+        Build_Consent_Test_Only) return Build_Execution_Gate
+     renames Editor.External_Producers.Execution_Policy.Build_Test_Fixture_Execution_Gate;
+
+   function Build_Real_Fixture_Execution_Gate
+     (Allow_Diagnostics_Ingestion : Boolean := True;
+      Show_Diagnostics            : Boolean := False;
+      Max_Output_Bytes            : Natural := 262_144;
+      Consent                     : Build_Execution_Consent :=
+        Build_Consent_Test_Only) return Build_Execution_Gate
+     renames Editor.External_Producers.Execution_Policy.Build_Real_Fixture_Execution_Gate;
+
+   function Build_Real_Execution_Gate
+     (Allow_Diagnostics_Ingestion : Boolean := True;
+      Show_Diagnostics            : Boolean := False;
+      Require_Absolute_Program    : Boolean := False;
+      Max_Output_Bytes            : Natural := 262_144;
+      Consent                     : Build_Execution_Consent :=
+        Build_Consent_Not_Provided) return Build_Execution_Gate
+     renames Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate;
+
+   function Build_Default_Timeout_Milliseconds return Natural
+     renames Editor.External_Producers.Execution_Policy.Build_Default_Timeout_Milliseconds;
+
+   function Select_Process_Runner_Mode
+     (Gate   : Build_Execution_Gate;
+      Policy : Process_Execution_Policy) return Process_Execution_Mode
+     renames Editor.External_Producers.Execution_Policy.Select_Process_Runner_Mode;
+
+   function Preflight_User_Opt_In_Build_Request
+     (Request : Build_Run_Request;
+      Gate    : Build_Execution_Gate) return Build_Preflight_Result
+     renames Editor.External_Producers.Build_Command_Execution.Preflight_User_Opt_In_Build_Request;
+
+   function Validate_Process_Fixture_Request
+     (Fixture : Process_Fixture_Request;
+      Policy  : Process_Execution_Policy)
+      return Process_Fixture_Validation_Status
+     renames Editor.External_Producers.Build_Command_Execution.Validate_Process_Fixture_Request;
+
+   function Run_Build_Command_With_Gate
+     (S               : in out Editor.State.State_Type;
+      Request         : Build_Run_Request;
+      Gate            : Build_Execution_Gate;
+      Supplied_Result : Process_Run_Result :=
+        (Status        => Process_Run_Not_Available,
+         Output_Capture_Mode => Process_Output_Capture_None,
+         Has_Exit_Code => False,
+         Exit_Code     => 0,
+         Stdout_Text   => Null_Unbounded_String,
+         Stderr_Text   => Null_Unbounded_String,
+         Stdout_Truncated => False,
+         Stderr_Truncated => False))
+      return Build_Command_Result
+     renames Editor.External_Producers.Build_Command_Execution.Run_Build_Command_With_Gate;
+
+   function Run_Build_Command_With_Fixture_Gate
+     (S       : in out Editor.State.State_Type;
+      Request : Build_Run_Request;
+      Fixture : Process_Fixture_Request;
+      Gate    : Build_Execution_Gate) return Build_Command_Result
+     renames Editor.External_Producers.Build_Command_Execution.Run_Build_Command_With_Fixture_Gate;
 
    function Audit_Real_Build_Execution_Gates return Boolean
    is
@@ -136,11 +254,11 @@ package body Editor.External_Producers.Build_Runner_Audits.Build_Path_Audits is
          Allow_Diagnostics_Ingestion => True,
          Show_Diagnostics            => False);
       User_Request : constant Build_Run_Request :=
-        Build_User_Opt_In_Request
+        Editor.External_Producers.Request_Policies.Build_User_Opt_In_Request
           (GPRbuild_Tool, "gprbuild", "",
            Build_Process_Argument_Vector ("-q"));
       Alire_Request : constant Build_Run_Request :=
-        Build_User_Opt_In_Request
+        Editor.External_Producers.Request_Policies.Build_User_Opt_In_Request
           (Alire_Build_Tool, "alr", "",
            Build_Process_Argument_Vector ("build"));
       Project_Request : constant Build_Run_Request :=
@@ -165,11 +283,11 @@ package body Editor.External_Producers.Build_Runner_Audits.Build_Path_Audits is
          Arguments     => Null_Unbounded_String,
          Structured_Arguments => Build_Process_Argument_Vector ("-q"));
       Custom_Request : constant Build_Run_Request :=
-        Build_User_Opt_In_Request
+        Editor.External_Producers.Request_Policies.Build_User_Opt_In_Request
           (Custom_Build_Tool, "custom", "",
            Build_Process_Argument_Vector ("build"));
       No_Tool_Request : constant Build_Run_Request :=
-        Build_User_Opt_In_Request
+        Editor.External_Producers.Request_Policies.Build_User_Opt_In_Request
           (No_Build_Tool, "", "", Empty_Process_Arguments);
       Opaque_Request : constant Build_Run_Request :=
         (Tool          => GPRbuild_Tool,
@@ -179,7 +297,7 @@ package body Editor.External_Producers.Build_Runner_Audits.Build_Path_Audits is
          Arguments     => To_Unbounded_String ("-q"),
          Structured_Arguments => Build_Process_Argument_Vector ("-q"));
       Working_Request : constant Build_Run_Request :=
-        Build_User_Opt_In_Request
+        Editor.External_Producers.Request_Policies.Build_User_Opt_In_Request
           (GPRbuild_Tool, "gprbuild", "project-root",
            Build_Process_Argument_Vector ("-q"));
       User_Preflight : constant Build_Preflight_Result :=
@@ -410,16 +528,16 @@ package body Editor.External_Producers.Build_Runner_Audits.Build_Path_Audits is
       Fixture_Gate : constant Build_Execution_Gate :=
         Build_Real_Fixture_Execution_Gate;
       Disabled_Result : constant Process_Run_Result :=
-        Execute_Process_Request_Real_Fixture
+        Editor.External_Producers.Build_Requests.Execute_Process_Request_Real_Fixture
           ((Kind => Echo_Diagnostic_Fixture,
             Arguments => Build_Process_Argument_Vector ("stdout", "x.adb:1:1: error: fixture", "")),
            Default_Gate.Process_Policy);
       Unknown_Result : constant Process_Run_Result :=
-        Execute_Process_Request_Real_Fixture
+        Editor.External_Producers.Build_Requests.Execute_Process_Request_Real_Fixture
           ((Kind => No_Process_Fixture, Arguments => Empty_Process_Arguments),
            Fixture_Gate.Process_Policy);
       Echo_Result : constant Process_Run_Result :=
-        Execute_Process_Request_Real_Fixture
+        Editor.External_Producers.Build_Requests.Execute_Process_Request_Real_Fixture
           ((Kind => Echo_Diagnostic_Fixture,
             Arguments => Build_Process_Argument_Vector
               ("stdout", "two words", ";not interpreted")),
@@ -427,7 +545,7 @@ package body Editor.External_Producers.Build_Runner_Audits.Build_Path_Audits is
       Oversize_Gate : constant Build_Execution_Gate :=
         Build_Real_Fixture_Execution_Gate (Max_Output_Bytes => 3);
       Oversize_Result : constant Process_Run_Result :=
-        Execute_Process_Request_Real_Fixture
+        Editor.External_Producers.Build_Requests.Execute_Process_Request_Real_Fixture
           ((Kind => Echo_Diagnostic_Fixture,
             Arguments => Build_Process_Argument_Vector ("stdout", "1234", "")),
            Oversize_Gate.Process_Policy);
@@ -473,12 +591,12 @@ package body Editor.External_Producers.Build_Runner_Audits.Build_Path_Audits is
         and then Disabled_Result.Status = Process_Run_Not_Available
         and then Unknown_Result.Status = Process_Run_Rejected
         and then Echo_Result.Status = Process_Run_Succeeded
-        and then Process_Fixture_Result_Is_Consistent
+        and then Editor.External_Producers.Build_Requests.Process_Fixture_Result_Is_Consistent
           (Echo_Result, Fixture_Gate.Process_Policy)
         and then To_String (Echo_Result.Stdout_Text) =
           "two words" & ASCII.LF & ";not interpreted"
         and then Oversize_Result.Status = Process_Run_Execution_Error
-        and then Process_Fixture_Result_Is_Consistent
+        and then Editor.External_Producers.Build_Requests.Process_Fixture_Result_Is_Consistent
           (Oversize_Result, Oversize_Gate.Process_Policy)
         and then Command.Build_Result.Status = Build_Run_Succeeded
         and then Gated_Build_Command_Result_Is_Consistent (Command)
@@ -521,31 +639,33 @@ package body Editor.External_Producers.Build_Runner_Audits.Build_Path_Audits is
       Error_Extracted : Diagnostic_Text_Line_Array;
       Split_Extracted : Diagnostic_Text_Line_Array;
       Default_Result : Build_Run_Result;
-      Empty_Diag : constant Diagnostic_Line_Command_Result :=
-        Empty_Diagnostic_Line_Command_Result;
+      Empty_Diag : constant
+        Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result :=
+        Editor.External_Producers.Diagnostic_Line_Pipeline.
+          Empty_Diagnostic_Line_Command_Result;
    begin
       Lines.Append (To_Unbounded_String ("src/main.adb:1:1: error: build"));
-      Result_With_Lines := Build_Build_Run_Result
+      Result_With_Lines := Editor.External_Producers.Build_Command_Execution.Build_Build_Run_Result
         (Build_Run_Failed, Exit_Code => 1, Has_Exit_Code => True,
          Stderr_Text => "src/other.adb:2:3: warning: split",
          Diagnostic_Lines => Lines);
-      Error_With_Output := Build_Build_Run_Result
+      Error_With_Output := Editor.External_Producers.Build_Command_Execution.Build_Build_Run_Result
         (Build_Run_Execution_Error,
          Stderr_Text => "src/ignored.adb:2:3: error: ignored");
-      Split_Output := Build_Build_Run_Result
+      Split_Output := Editor.External_Producers.Build_Command_Execution.Build_Build_Run_Result
         (Build_Run_Failed,
          Stdout_Text => "src/stdout.adb:4:5: warning: stdout",
          Stderr_Text => "src/stderr.adb:2:3: error: stderr");
-      Test_Fed_Result := Execute_Test_Fed_Build_Request
+      Test_Fed_Result := Editor.External_Producers.Build_Command_Execution.Execute_Test_Fed_Build_Request
         (Valid_Request,
-         Build_Build_Run_Result (Build_Run_Failed, Exit_Code => 1,
+         Editor.External_Producers.Build_Command_Execution.Build_Build_Run_Result (Build_Run_Failed, Exit_Code => 1,
            Has_Exit_Code => True));
-      Invalid_Test_Fed_Result := Execute_Test_Fed_Build_Request
-        (No_Tool_Request, Build_Build_Run_Result (Build_Run_Succeeded));
-      Extracted := Extract_Diagnostic_Lines_From_Build_Result (Result_With_Lines);
-      Error_Extracted := Extract_Diagnostic_Lines_From_Build_Result (Error_With_Output);
-      Split_Extracted := Extract_Diagnostic_Lines_From_Build_Result (Split_Output);
-      Default_Result := Execute_Build_Request (Valid_Request);
+      Invalid_Test_Fed_Result := Editor.External_Producers.Build_Command_Execution.Execute_Test_Fed_Build_Request
+        (No_Tool_Request, Editor.External_Producers.Build_Command_Execution.Build_Build_Run_Result (Build_Run_Succeeded));
+      Extracted := Editor.External_Producers.Build_Command_Execution.Extract_Diagnostic_Lines_From_Build_Result (Result_With_Lines);
+      Error_Extracted := Editor.External_Producers.Build_Command_Execution.Extract_Diagnostic_Lines_From_Build_Result (Error_With_Output);
+      Split_Extracted := Editor.External_Producers.Build_Command_Execution.Extract_Diagnostic_Lines_From_Build_Result (Split_Output);
+      Default_Result := Editor.External_Producers.Build_Command_Execution.Execute_Build_Request (Valid_Request);
 
       return Validate_Build_Run_Request_Status (Valid_Request) = Build_Request_Valid
         and then Validate_Build_Run_Request_Status (No_Tool_Request) =
@@ -567,7 +687,8 @@ package body Editor.External_Producers.Build_Runner_Audits.Build_Path_Audits is
           "src/stderr.adb:2:3: error: stderr"
         and then To_String (Split_Extracted.Last_Element) =
           "src/stdout.adb:4:5: warning: stdout"
-        and then Diagnostic_Line_Layering_Audit_Passes
+        and then Editor.External_Producers.Diagnostic_Line_Pipeline.
+          Diagnostic_Line_Layering_Audit_Passes
         and then Process_Runner_Audit_Passes
         and then Audit_Build_Execution_Gates
         and then Audit_Real_Build_Execution_Gates
@@ -575,8 +696,9 @@ package body Editor.External_Producers.Build_Runner_Audits.Build_Path_Audits is
         and then Audit_User_Opt_In_Build_Gates
         and then Audit_Gated_Runner_Command_Path
         and then Audit_Process_Fixture_Gates
-        and then Build_Build_Command_Feedback
-          (Build_Build_Run_Result (Build_Run_Succeeded), Empty_Diag) =
+        and then Editor.External_Producers.Build_Command_Execution.Build_Build_Command_Feedback
+          (Editor.External_Producers.Build_Command_Execution.Build_Build_Run_Result (Build_Run_Succeeded),
+           Empty_Diag) =
           "Build: succeeded";
    end Build_Run_Test_Seam_Audit_Passes;
 

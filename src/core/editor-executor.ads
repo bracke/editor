@@ -17,6 +17,7 @@ with Editor.Dirty_Guards;
 with Editor.Command_Execution;
 with Editor.Executor_Edit_Status;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Requests;
 with Editor.Navigation_History;
 with Editor.Pending_Transitions;
 with Editor.Ada_Language_Service;
@@ -133,7 +134,7 @@ package Editor.Executor is
          Stderr_Text   => Null_Unbounded_String,
          Stdout_Truncated => False,
          Stderr_Truncated => False))
-      return Editor.External_Producers.Build_Command_Result;
+      return Editor.External_Producers.Build_Requests.Build_Command_Result;
 
    function File_Tree_Status_Message
      (Result : Editor.File_Tree.File_Tree_Scan_Result) return String;

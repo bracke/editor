@@ -84,6 +84,15 @@ package Editor.External_Producers.Public_Build_Command_Surface_Audits is
      (State : Editor.State.State_Type)
       return Public_Build_Command_Hard_Freeze_Audit_Result;
 
+   procedure Assert_No_Public_Build_Execution_Path
+     (State : Editor.State.State_Type);
+
+   procedure Assert_Public_Build_Hard_Freeze_Not_Persisted
+     (State : Editor.State.State_Type);
+
+   function Build_Public_Build_Hard_Freeze_Feedback
+     (Audit : Public_Build_Command_Hard_Freeze_Audit_Result) return String;
+
    procedure Assert_Public_Build_Audits_Agree
      (State : Editor.State.State_Type);
 

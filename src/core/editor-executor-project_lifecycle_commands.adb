@@ -17,6 +17,7 @@ use Editor.Executor.Pending_Transition_Policy;
 with Editor.Executor.Shared_Services;
 use Editor.Executor.Shared_Services;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Requests;
 with Editor.Feature_Messages;
 with Editor.File_Tree;
 use type Editor.File_Tree.File_Tree_Node_Id;
@@ -756,7 +757,7 @@ package body Editor.Executor.Project_Lifecycle_Commands is
      (S      : in out Editor.State.State_Type;
       Reason : String) return Boolean
    is
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       if not Editor.Build_Command.Has_Active_Public_Build_Job (S) then
          return False;

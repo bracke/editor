@@ -1,5 +1,6 @@
 with Editor.Build_Process_Control;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Requests;
 with Editor.Build_Runner_Policy;
 with Editor.State;
 
@@ -91,7 +92,7 @@ package body Editor.Build_Command.Registry is
       procedure Store_Worker_Result
         (Slot_Id        : Natural;
          State_Snapshot : Editor.State.State_Type;
-         Result         : Editor.External_Producers.Build_Command_Result)
+         Result         : Editor.External_Producers.Build_Requests.Build_Command_Result)
       is
          Index : constant Public_Build_Async_Slot_Index := Slot_Index_For (Slot_Id);
       begin
@@ -176,7 +177,7 @@ package body Editor.Build_Command.Registry is
          State_Snapshot : out Editor.State.State_Type;
          Request        : out Editor.External_Producers.Build_Run_Request;
          Result_Gate    : out Editor.External_Producers.Build_Execution_Gate;
-         Result         : out Editor.External_Producers.Build_Command_Result)
+         Result         : out Editor.External_Producers.Build_Requests.Build_Command_Result)
       is
          Index : constant Public_Build_Async_Slot_Index := Slot_Index_For (Slot_Id);
       begin
@@ -193,7 +194,7 @@ package body Editor.Build_Command.Registry is
       Worker_State : Editor.State.State_Type;
       Worker_Request : Editor.External_Producers.Build_Run_Request;
       Worker_Runner_Gate : Editor.External_Producers.Build_Execution_Gate;
-      Worker_Result : Editor.External_Producers.Build_Command_Result;
+      Worker_Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
       Worker_Slot_Id : Natural := 0;
    begin
       loop
@@ -205,7 +206,7 @@ package body Editor.Build_Command.Registry is
               (Worker_Slot_Id, Worker_State, Worker_Request, Worker_Runner_Gate);
             Public_Build_Jobs.Mark_Worker_Running (Worker_Slot_Id);
             Worker_Result :=
-              Editor.External_Producers.Run_Build_Command_With_Gate
+              Editor.External_Producers.Build_Requests.Run_Build_Command_With_Gate
                 (Worker_State, Worker_Request, Worker_Runner_Gate);
             Public_Build_Jobs.Store_Worker_Result
               (Worker_Slot_Id, Worker_State, Worker_Result);

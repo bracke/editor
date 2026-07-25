@@ -5,6 +5,7 @@ with Editor.Build_Diagnostics;
 with Editor.Build_Public_Request;
 with Editor.Build_UI;
 with Editor.Commands;
+with Editor.External_Producers.Build_Requests;
 
 package body Editor.Build_Execution_Workflow is
 
@@ -221,7 +222,7 @@ package body Editor.Build_Execution_Workflow is
    end Assert_Build_Execution_No_Transient_Persistence_Fields;
 
    function Assert_Build_Diagnostics_Disabled_Does_Not_Ingest
-     (Result : Editor.External_Producers.Build_Command_Result) return Boolean
+     (Result : Editor.External_Producers.Build_Requests.Build_Command_Result) return Boolean
    is
    begin
       return Result.Diagnostic_Result.Ingestion.Ingestion_Result.Accepted_Count = 0
@@ -301,7 +302,7 @@ package body Editor.Build_Execution_Workflow is
    end Assert_Build_Latest_Result_Replaces_Attempt;
 
    function Assert_Build_Preflight_Result_Has_No_Diagnostics
-     (Result : Editor.External_Producers.Build_Command_Result) return Boolean
+     (Result : Editor.External_Producers.Build_Requests.Build_Command_Result) return Boolean
    is
    begin
       return Result.Build_Result.Status = Editor.External_Producers.Build_Run_Not_Available
@@ -371,7 +372,7 @@ package body Editor.Build_Execution_Workflow is
    begin
       if Status = Editor.Build_Command.Build_Run_Readiness_Ready then
          return Gate.Consent = Editor.External_Producers.Build_Consent_User_Confirmed
-           and then Editor.External_Producers.Validate_Build_Execution_Gate (Gate);
+           and then Editor.External_Producers.Build_Requests.Validate_Build_Execution_Gate (Gate);
       else
          return Gate.Consent /= Editor.External_Producers.Build_Consent_User_Confirmed;
       end if;
@@ -380,7 +381,7 @@ package body Editor.Build_Execution_Workflow is
    function Assert_Build_Preflight_Failure_Is_Non_Destructive
      (Before : Editor.State.State_Type;
       After  : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result) return Boolean
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result) return Boolean
    is
    begin
       return Result.Build_Result.Status = Editor.External_Producers.Build_Run_Not_Available

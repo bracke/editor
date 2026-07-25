@@ -5,6 +5,7 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Commands;
 with Editor.Executor;
 with Editor.External_Producers;
+with Editor.External_Producers.Public_Build;
 with Editor.Keybindings;
 with Editor.State;
 
@@ -292,8 +293,10 @@ package body Editor.Command_Surface is
    function Review_Command_Surface
      (State : Editor.State.State_Type) return Command_Surface_Review
    is
-      Manifest : constant Editor.External_Producers.Public_Build_Guardrail_Regression_Manifest :=
-        Editor.External_Producers.Build_Public_Build_Guardrail_Regression_Manifest (State);
+      Manifest : constant
+        Editor.External_Producers.Public_Build.Guardrail_Regression_Manifest :=
+          Editor.External_Producers.Public_Build
+            .Build_Public_Build_Guardrail_Regression_Manifest (State);
       Review : Command_Surface_Review;
    begin
       Review.Descriptor_Count := Editor.Commands.Concrete_Command_Count;

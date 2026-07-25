@@ -2,13 +2,100 @@ with Ada.Containers;
 with Ada.Strings; use Ada.Strings;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.Commands;
+with Editor.Keybindings;
 with Editor.State;
+with Editor.External_Producers.Build_Command_Execution;
 with Editor.External_Producers.Build_Runner_Audits.Build_Path_Audits;
 with Editor.External_Producers.Build_Runner_Audits.Execution_Policy_Audits;
+with Editor.External_Producers.Diagnostic_Line_Parsing;
+with Editor.External_Producers.Diagnostic_Line_Pipeline;
+with Editor.External_Producers.Execution_Policy;
+with Editor.External_Producers.Request_Policies;
 
 package body Editor.External_Producers.Build_Runner_Audits is
 
    use type Ada.Containers.Count_Type;
+   use type Editor.Commands.Command_Category;
+   use type Editor.Commands.Command_Visibility;
+
+   function Build_Process_Argument_Vector
+     (First  : String := "";
+      Second : String := "";
+      Third  : String := "") return Process_Argument_Vector
+     renames Editor.External_Producers.Request_Policies.Build_Process_Argument_Vector;
+
+   function Empty_Process_Arguments return Process_Argument_Vector
+     renames Editor.External_Producers.Request_Policies.Empty_Process_Arguments;
+
+   function Validate_Build_Execution_Gate
+     (Gate : Build_Execution_Gate) return Boolean
+     renames Editor.External_Producers.Execution_Policy.Validate_Build_Execution_Gate;
+
+   function Build_Default_Execution_Gate return Build_Execution_Gate
+     renames Editor.External_Producers.Execution_Policy.Build_Default_Execution_Gate;
+
+   function Build_Real_Execution_Gate
+     (Allow_Diagnostics_Ingestion : Boolean := True;
+      Show_Diagnostics            : Boolean := False;
+      Require_Absolute_Program    : Boolean := False;
+      Max_Output_Bytes            : Natural := 262_144;
+      Consent                     : Build_Execution_Consent :=
+        Build_Consent_Not_Provided) return Build_Execution_Gate
+     renames Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate;
+
+   function Build_Default_Timeout_Milliseconds return Natural
+     renames Editor.External_Producers.Execution_Policy.Build_Default_Timeout_Milliseconds;
+
+   function Preflight_Real_Build_Tool_Fixture
+     (Request : Build_Run_Request;
+      Fixture : Real_Build_Tool_Fixture_Kind;
+      Gate    : Build_Execution_Gate) return Build_Preflight_Result
+     renames Editor.External_Producers.Build_Command_Execution.Preflight_Real_Build_Tool_Fixture;
+
+   function Validate_Real_Build_Tool_Fixture_Request
+     (Request : Build_Run_Request;
+      Fixture : Real_Build_Tool_Fixture_Kind;
+      Gate    : Build_Execution_Gate)
+      return Real_Build_Tool_Fixture_Validation_Status
+     renames Editor.External_Producers.Build_Command_Execution.Validate_Real_Build_Tool_Fixture_Request;
+
+   function Validate_Real_Build_Tool_Fixture_Gate
+     (Gate : Build_Execution_Gate) return Boolean
+     renames Editor.External_Producers.Build_Command_Execution.Validate_Real_Build_Tool_Fixture_Gate;
+
+   function Build_User_Opt_In_Command_Context
+     (Tool              : Build_Tool_Kind;
+      Program_Label     : String;
+      Working_Label     : String;
+      Arguments         : Process_Argument_Vector;
+      Consent           : Build_Execution_Consent;
+      Allow_Diagnostics : Boolean;
+      Show_Diagnostics  : Boolean)
+      return User_Opt_In_Build_Command_Context
+     renames Editor.External_Producers.Build_Command_Execution.Build_User_Opt_In_Command_Context;
+
+   function Empty_User_Opt_In_Build_Command_Context
+     return User_Opt_In_Build_Command_Context
+     renames Editor.External_Producers.Build_Command_Execution.Empty_User_Opt_In_Build_Command_Context;
+
+   function Validate_User_Opt_In_Build_Command_Context
+     (Context : User_Opt_In_Build_Command_Context)
+      return User_Opt_In_Build_Command_Context_Status
+     renames Editor.External_Producers.Build_Command_Execution.Validate_User_Opt_In_Build_Command_Context;
+
+   function Build_User_Opt_In_Command_Feedback
+     (Status : User_Opt_In_Build_Command_Context_Status;
+      Result : Build_Command_Result) return String
+     renames Editor.External_Producers.Build_Command_Execution.Build_User_Opt_In_Command_Feedback;
+
+   function Build_Preflight_Result_Is_Consistent
+     (Result : Build_Preflight_Result) return Boolean
+     renames Editor.External_Producers.Build_Command_Execution.Build_Preflight_Result_Is_Consistent;
+
+   function Real_Build_Tool_Fixture_Preflight_Is_Consistent
+     (Result : Build_Preflight_Result) return Boolean
+     renames Editor.External_Producers.Build_Command_Execution.Real_Build_Tool_Fixture_Preflight_Is_Consistent;
 
    function Gated_Build_Command_Result_Is_Consistent
      (Result : Build_Command_Result;
@@ -136,8 +223,10 @@ package body Editor.External_Producers.Build_Runner_Audits is
             Allow_Diagnostics_Ingestion  => True,
             Show_Diagnostics             => False));
       Empty_Command_Result : constant Build_Command_Result :=
-        (Build_Result      => Build_Build_Run_Result (Build_Run_Rejected),
-         Diagnostic_Result => Empty_Diagnostic_Line_Command_Result,
+        (Build_Result      => Editor.External_Producers.Build_Command_Execution.Build_Build_Run_Result (Build_Run_Rejected),
+         Diagnostic_Result =>
+           Editor.External_Producers.Diagnostic_Line_Parsing.
+             Empty_Diagnostic_Line_Command_Result,
          Command_Message   => Null_Unbounded_String);
    begin
       return Validate_User_Opt_In_Build_Command_Context (Valid_Context) =
@@ -354,5 +443,314 @@ package body Editor.External_Producers.Build_Runner_Audits is
 
    function Build_Run_Test_Seam_Audit_Passes return Boolean
      renames Editor.External_Producers.Build_Runner_Audits.Build_Path_Audits.Build_Run_Test_Seam_Audit_Passes;
+
+   function Audit_Build_Command_Rejection_Matrix return Boolean
+   is
+      Valid : constant User_Opt_In_Build_Command_Context :=
+        Build_User_Opt_In_Command_Context
+          (Tool              => GPRbuild_Tool,
+           Program_Label     => "gprbuild",
+           Working_Label     => "",
+           Arguments         => Build_Process_Argument_Vector ("-q"),
+           Consent           => Build_Consent_User_Confirmed,
+           Allow_Diagnostics => True,
+           Show_Diagnostics  => False);
+      Missing_Request : constant User_Opt_In_Build_Command_Context :=
+        (Has_Request => True,
+         Request     =>
+           (Tool                 => No_Build_Tool,
+            Provenance           => Build_Request_Unknown,
+            Working_Label        => Null_Unbounded_String,
+            Command_Label        => Null_Unbounded_String,
+            Arguments            => Null_Unbounded_String,
+            Structured_Arguments => Empty_Process_Arguments),
+         Gate        => Valid.Gate);
+      Missing_Gate : constant User_Opt_In_Build_Command_Context :=
+        (Has_Request => True,
+         Request     => Valid.Request,
+         Gate        => Build_Default_Execution_Gate);
+      Missing_Consent : constant User_Opt_In_Build_Command_Context :=
+        (Has_Request => True,
+         Request     => Valid.Request,
+         Gate        =>
+           Build_Real_Execution_Gate
+             (Consent => Build_Consent_Not_Provided));
+      Test_Consent : constant User_Opt_In_Build_Command_Context :=
+        (Has_Request => True,
+         Request     => Valid.Request,
+         Gate        =>
+           Build_Real_Execution_Gate
+             (Consent => Build_Consent_Test_Only));
+      Project_Context : constant User_Opt_In_Build_Command_Context :=
+        (Has_Request => True,
+         Request     =>
+           (Tool                 => GPRbuild_Tool,
+            Provenance           => Build_Request_From_Implicit_Source,
+            Working_Label        => Null_Unbounded_String,
+            Command_Label        => To_Unbounded_String ("gprbuild"),
+            Arguments            => Null_Unbounded_String,
+            Structured_Arguments => Build_Process_Argument_Vector ("-q")),
+         Gate        => Valid.Gate);
+      Fixture_Context : constant User_Opt_In_Build_Command_Context :=
+        (Has_Request => True,
+         Request     =>
+           (Tool                 => GPRbuild_Tool,
+            Provenance           => Build_Request_From_Fixture,
+            Working_Label        => Null_Unbounded_String,
+            Command_Label        => To_Unbounded_String ("gprbuild"),
+            Arguments            => Null_Unbounded_String,
+            Structured_Arguments => Build_Process_Argument_Vector ("-q")),
+         Gate        => Valid.Gate);
+      Custom_Context : constant User_Opt_In_Build_Command_Context :=
+        (Has_Request => True,
+         Request     =>
+           (Tool                 => Custom_Build_Tool,
+            Provenance           => Build_Request_From_User_Opt_In,
+            Working_Label        => Null_Unbounded_String,
+            Command_Label        => To_Unbounded_String ("custom"),
+            Arguments            => Null_Unbounded_String,
+            Structured_Arguments => Build_Process_Argument_Vector ("-q")),
+         Gate        => Valid.Gate);
+      Opaque_Context : constant User_Opt_In_Build_Command_Context :=
+        (Has_Request => True,
+         Request     =>
+           (Tool                 => GPRbuild_Tool,
+            Provenance           => Build_Request_From_User_Opt_In,
+            Working_Label        => Null_Unbounded_String,
+            Command_Label        => To_Unbounded_String ("gprbuild"),
+            Arguments            => To_Unbounded_String ("-q"),
+            Structured_Arguments => Empty_Process_Arguments),
+         Gate        => Valid.Gate);
+      Shell_Context : constant User_Opt_In_Build_Command_Context :=
+        (Has_Request => True,
+         Request     => Valid.Request,
+         Gate        =>
+           (Process_Policy =>
+              (Mode                     => Process_Execution_Real_Allowed,
+               Allow_Real_Execution     => True,
+               Allow_Shell              => True,
+               Max_Output_Bytes         => 262_144,
+               Require_Absolute_Program => False,
+               Timeout_Milliseconds     => 0),
+            Allow_Build_Run                 => True,
+            Allow_Real_Build_Tool_Execution => True,
+            Allow_Real_Build_Tool_Fixture   => False,
+            Consent                        => Build_Consent_User_Confirmed,
+            Allow_Diagnostics_Ingestion    => True,
+            Show_Diagnostics               => False));
+      Working_Context : constant User_Opt_In_Build_Command_Context :=
+        (Has_Request => True,
+         Request     =>
+           (Tool                 => GPRbuild_Tool,
+            Provenance           => Build_Request_From_User_Opt_In,
+            Working_Label        => To_Unbounded_String ("project-root"),
+            Command_Label        => To_Unbounded_String ("gprbuild"),
+            Arguments            => Null_Unbounded_String,
+            Structured_Arguments => Build_Process_Argument_Vector ("-q")),
+         Gate        => Valid.Gate);
+      No_Diagnostics_Context : constant User_Opt_In_Build_Command_Context :=
+        Build_User_Opt_In_Command_Context
+          (Tool              => GPRbuild_Tool,
+           Program_Label     => "gprbuild",
+           Working_Label     => "",
+           Arguments         => Build_Process_Argument_Vector ("-q"),
+           Consent           => Build_Consent_User_Confirmed,
+           Allow_Diagnostics => False,
+           Show_Diagnostics  => False);
+      Show_Diagnostics_Context : constant User_Opt_In_Build_Command_Context :=
+        Build_User_Opt_In_Command_Context
+          (Tool              => GPRbuild_Tool,
+           Program_Label     => "gprbuild",
+           Working_Label     => "",
+           Arguments         => Build_Process_Argument_Vector ("-q"),
+           Consent           => Build_Consent_User_Confirmed,
+           Allow_Diagnostics => True,
+           Show_Diagnostics  => True);
+      Ambiguous_Context : constant User_Opt_In_Build_Command_Context :=
+        (Has_Request => True,
+         Request     => Valid.Request,
+         Gate        =>
+           (Process_Policy => Valid.Gate.Process_Policy,
+            Allow_Build_Run                 => True,
+            Allow_Real_Build_Tool_Execution => True,
+            Allow_Real_Build_Tool_Fixture   => True,
+            Consent                        => Build_Consent_User_Confirmed,
+            Allow_Diagnostics_Ingestion    => True,
+            Show_Diagnostics               => False));
+   begin
+      return Validate_User_Opt_In_Build_Command_Context
+          (Empty_User_Opt_In_Build_Command_Context) =
+          User_Build_Context_Rejected_Missing_Context
+        and then Validate_User_Opt_In_Build_Command_Context (Missing_Request) =
+          User_Build_Context_Rejected_Missing_Request
+        and then Validate_User_Opt_In_Build_Command_Context (Missing_Gate) =
+          User_Build_Context_Rejected_Missing_Gate
+        and then Validate_User_Opt_In_Build_Command_Context (Missing_Consent) =
+          User_Build_Context_Rejected_Missing_Consent
+        and then Validate_User_Opt_In_Build_Command_Context (Test_Consent) =
+          User_Build_Context_Rejected_Missing_Consent
+        and then Validate_User_Opt_In_Build_Command_Context (Project_Context) =
+          User_Build_Context_Rejected_Implicit_Source
+        and then Validate_User_Opt_In_Build_Command_Context (Fixture_Context) =
+          User_Build_Context_Rejected_Provenance
+        and then Validate_User_Opt_In_Build_Command_Context (Custom_Context) =
+          User_Build_Context_Rejected_Custom_Tool
+        and then Validate_User_Opt_In_Build_Command_Context (Opaque_Context) =
+          User_Build_Context_Rejected_Opaque_Arguments
+        and then Validate_User_Opt_In_Build_Command_Context (Shell_Context) =
+          User_Build_Context_Rejected_Shell
+        and then Validate_User_Opt_In_Build_Command_Context (Working_Context) =
+          User_Build_Context_Rejected_Working_Context
+        and then Validate_User_Opt_In_Build_Command_Context (No_Diagnostics_Context) =
+          User_Build_Context_Valid
+        and then Validate_User_Opt_In_Build_Command_Context (Show_Diagnostics_Context) =
+          User_Build_Context_Valid
+        and then Validate_User_Opt_In_Build_Command_Context (Ambiguous_Context) =
+          User_Build_Context_Rejected_Ambiguous_Execution_Path;
+   end Audit_Build_Command_Rejection_Matrix;
+
+   function Run_Build_Execution_Consent_Audit
+     (State : Editor.State.State_Type)
+      return Build_Execution_Consent_Audit_Result
+   is
+      pragma Unreferenced (State);
+      Valid_Context : constant User_Opt_In_Build_Command_Context :=
+        Build_User_Opt_In_Command_Context
+          (Tool              => GPRbuild_Tool,
+           Program_Label     => "gprbuild",
+           Working_Label     => "",
+           Arguments         => Build_Process_Argument_Vector ("-q"),
+           Consent           => Build_Consent_User_Confirmed,
+           Allow_Diagnostics => True,
+           Show_Diagnostics  => False);
+      Project_Context : constant User_Opt_In_Build_Command_Context :=
+        (Has_Request => True,
+         Request     =>
+           (Tool                 => GPRbuild_Tool,
+            Provenance           => Build_Request_From_Implicit_Source,
+            Working_Label        => Null_Unbounded_String,
+            Command_Label        => To_Unbounded_String ("gprbuild"),
+            Arguments            => Null_Unbounded_String,
+            Structured_Arguments => Build_Process_Argument_Vector ("-q")),
+         Gate        => Valid_Context.Gate);
+      Custom_Context : constant User_Opt_In_Build_Command_Context :=
+        (Has_Request => True,
+         Request     =>
+           (Tool                 => Custom_Build_Tool,
+            Provenance           => Build_Request_From_User_Opt_In,
+            Working_Label        => Null_Unbounded_String,
+            Command_Label        => To_Unbounded_String ("custom"),
+            Arguments            => Null_Unbounded_String,
+            Structured_Arguments => Build_Process_Argument_Vector ("-q")),
+         Gate        => Valid_Context.Gate);
+      Shell_Context : constant User_Opt_In_Build_Command_Context :=
+        (Has_Request => True,
+         Request     => Valid_Context.Request,
+         Gate        =>
+           (Process_Policy =>
+              (Mode                     => Process_Execution_Real_Allowed,
+               Allow_Real_Execution     => True,
+               Allow_Shell              => True,
+               Max_Output_Bytes         => 262_144,
+               Require_Absolute_Program => False,
+               Timeout_Milliseconds     => 0),
+            Allow_Build_Run                 => True,
+            Allow_Real_Build_Tool_Execution => True,
+            Allow_Real_Build_Tool_Fixture   => False,
+            Consent                        => Build_Consent_User_Confirmed,
+            Allow_Diagnostics_Ingestion    => True,
+            Show_Diagnostics               => False));
+      Opaque_Context : constant User_Opt_In_Build_Command_Context :=
+        (Has_Request => True,
+         Request     =>
+           (Tool                 => GPRbuild_Tool,
+            Provenance           => Build_Request_From_User_Opt_In,
+            Working_Label        => Null_Unbounded_String,
+            Command_Label        => To_Unbounded_String ("gprbuild"),
+            Arguments            => To_Unbounded_String ("-q"),
+            Structured_Arguments => Empty_Process_Arguments),
+         Gate        => Valid_Context.Gate);
+      Missing_Gate : constant User_Opt_In_Build_Command_Context :=
+        (Has_Request => True,
+         Request     => Valid_Context.Request,
+         Gate        => Build_Default_Execution_Gate);
+      Missing_Consent : constant User_Opt_In_Build_Command_Context :=
+        (Has_Request => True,
+         Request     => Valid_Context.Request,
+         Gate        =>
+           Build_Real_Execution_Gate
+             (Consent => Build_Consent_Not_Provided));
+      Result : Build_Execution_Consent_Audit_Result;
+      D : constant Editor.Commands.Command_Descriptor :=
+        Editor.Commands.Descriptor
+          (Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam);
+   begin
+      Result.Has_Public_Build_Command :=
+        Editor.Commands.Is_Public_Build_Command
+          (Editor.Commands.Command_Build_Run);
+      Result.Has_Default_Build_Keybinding :=
+        Editor.Keybindings.Primary_Binding_For_Command
+          (Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam).Has_Binding;
+      Result.Internal_Command_Requires_Context :=
+        D.Category = Editor.Commands.Internal_Category
+        and then D.Visibility = Editor.Commands.Hidden_Command
+        and then not D.Bindable
+        and then Editor.Commands.Requires_Context
+          (Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam)
+        and then not Editor.Commands.Visible_In_Command_Palette
+          (Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam);
+      Result.Internal_Command_Requires_Provenance :=
+        Validate_User_Opt_In_Build_Command_Context
+          (Empty_User_Opt_In_Build_Command_Context) =
+          User_Build_Context_Rejected_Missing_Context
+        and then Validate_User_Opt_In_Build_Command_Context
+          ((Has_Request => True,
+            Request     =>
+              (Tool                 => GPRbuild_Tool,
+               Provenance           => Build_Request_From_Internal_Command,
+               Working_Label        => Null_Unbounded_String,
+               Command_Label        => To_Unbounded_String ("gprbuild"),
+               Arguments            => Null_Unbounded_String,
+               Structured_Arguments => Build_Process_Argument_Vector ("-q")),
+            Gate        => Valid_Context.Gate)) =
+          User_Build_Context_Rejected_Provenance;
+      Result.Internal_Command_Requires_Gate :=
+        Validate_User_Opt_In_Build_Command_Context (Missing_Gate) =
+        User_Build_Context_Rejected_Missing_Gate;
+      Result.Internal_Command_Requires_Consent :=
+        Validate_User_Opt_In_Build_Command_Context (Missing_Consent) =
+        User_Build_Context_Rejected_Missing_Consent;
+      Result.Rejects_Implicit_Source :=
+        Validate_User_Opt_In_Build_Command_Context (Project_Context) =
+        User_Build_Context_Rejected_Implicit_Source;
+      Result.Rejects_Custom_Tool :=
+        Validate_User_Opt_In_Build_Command_Context (Custom_Context) =
+        User_Build_Context_Rejected_Custom_Tool;
+      Result.Rejects_Shell :=
+        Validate_User_Opt_In_Build_Command_Context (Shell_Context) =
+        User_Build_Context_Rejected_Shell;
+      Result.Rejects_Opaque_Arguments :=
+        Validate_User_Opt_In_Build_Command_Context (Opaque_Context) =
+        User_Build_Context_Rejected_Opaque_Arguments;
+      Result.Routes_Diagnostics_Through_Pipeline :=
+        Editor.External_Producers.Diagnostic_Line_Pipeline.
+          Diagnostic_Line_Command_Surface_Audit_Passes
+        and then Editor.External_Producers.Diagnostic_Line_Pipeline.
+          Diagnostic_Line_Layering_Audit_Passes;
+      Result.Passed :=
+        Result.Has_Public_Build_Command
+        and then not Result.Has_Default_Build_Keybinding
+        and then Result.Internal_Command_Requires_Context
+        and then Result.Internal_Command_Requires_Provenance
+        and then Result.Internal_Command_Requires_Gate
+        and then Result.Internal_Command_Requires_Consent
+        and then Result.Rejects_Implicit_Source
+        and then Result.Rejects_Custom_Tool
+        and then Result.Rejects_Shell
+        and then Result.Rejects_Opaque_Arguments
+        and then Result.Routes_Diagnostics_Through_Pipeline
+        and then Audit_Build_Command_Rejection_Matrix;
+      return Result;
+   end Run_Build_Execution_Consent_Audit;
 
 end Editor.External_Producers.Build_Runner_Audits;

@@ -7,6 +7,9 @@ with Editor.Build_Diagnostics;
 with Editor.Build_Runner_Policy;
 with Editor.Build_UI;
 with Editor.External_Producers;
+with Editor.External_Producers.Execution_Policy;
+with Editor.External_Producers.Build_Requests;
+with Editor.External_Producers.Diagnostic_Line_Parsing;
 with Editor.Feature_Diagnostics;
 with Editor.Feature_Panel;
 with Editor.Feature_Panel_Controller;
@@ -14,8 +17,8 @@ with Editor.State;
 
 use type Editor.Build_Diagnostics.Build_Diagnostics_Ingestion_Policy;
 use type Editor.External_Producers.Build_Run_Status;
-use type Editor.External_Producers.Diagnostic_Line_Command_Outcome;
-use type Editor.External_Producers.Diagnostic_Line_Parse_Status;
+use type Editor.External_Producers.Diagnostic_Line_Parsing.Command_Outcome;
+use type Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Status;
 use type Editor.Feature_Panel.Feature_Id;
 
 package body Editor.Build_Diagnostics.Tests is
@@ -37,14 +40,14 @@ package body Editor.Build_Diagnostics.Tests is
          Working_Label        => To_Unbounded_String ("current-project-root"),
          Command_Label        => To_Unbounded_String ("gprbuild"),
          Arguments            => Null_Unbounded_String,
-         Structured_Arguments => Editor.External_Producers.Empty_Process_Arguments);
+         Structured_Arguments => Editor.External_Producers.Build_Requests.Empty_Process_Arguments);
    end Request;
 
    function Output_Result
-     (Text : String) return Editor.External_Producers.Build_Run_Result
+     (Text : String) return Editor.External_Producers.Build_Requests.Build_Run_Result
    is
    begin
-      return Editor.External_Producers.Build_Build_Run_Result
+      return Editor.External_Producers.Build_Requests.Build_Build_Run_Result
         (Editor.External_Producers.Build_Run_Failed,
          Exit_Code     => 1,
          Has_Exit_Code => True,
@@ -101,16 +104,17 @@ package body Editor.Build_Diagnostics.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Lines  : Editor.External_Producers.Diagnostic_Text_Line_Array;
-      Result : Editor.External_Producers.Build_Run_Result;
-      Parsed : Editor.External_Producers.Diagnostic_Line_Batch_Parse_Result;
+      Lines  :
+        Editor.External_Producers.Build_Requests.Diagnostic_Text_Line_Array;
+      Result : Editor.External_Producers.Build_Requests.Build_Run_Result;
+      Parsed : Editor.External_Producers.Diagnostic_Line_Parsing.Batch_Parse_Result;
    begin
       for I in 1 .. Max_Build_Diagnostic_Input_Lines + 25 loop
          Lines.Append
            (To_Unbounded_String ("main.adb:1:1: warning: bounded"));
       end loop;
 
-      Result := Editor.External_Producers.Build_Build_Run_Result
+      Result := Editor.External_Producers.Build_Requests.Build_Build_Run_Result
         (Editor.External_Producers.Build_Run_Failed,
          Diagnostic_Lines => Lines);
       Parsed := Parse_Build_Output_Diagnostics (Request, Result);
@@ -132,7 +136,7 @@ package body Editor.Build_Diagnostics.Tests is
    is
       pragma Unreferenced (T);
       S       : Editor.State.State_Type;
-      Command : Editor.External_Producers.Diagnostic_Line_Command_Result;
+      Command : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result;
    begin
       Command := Ingest_Build_Diagnostics_Through_Diagnostics
         (S, Request, Output_Result ("main.adb:1:1: error: disabled"),
@@ -152,7 +156,7 @@ package body Editor.Build_Diagnostics.Tests is
    is
       pragma Unreferenced (T);
       S       : Editor.State.State_Type;
-      Command : Editor.External_Producers.Diagnostic_Line_Command_Result;
+      Command : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result;
    begin
       Command := Ingest_Build_Diagnostics_Through_Diagnostics
         (S, Request, Output_Result ("main.adb:1:1: error: owned"),
@@ -161,7 +165,7 @@ package body Editor.Build_Diagnostics.Tests is
 
       Assert
         (Command.Outcome =
-           Editor.External_Producers.Diagnostic_Line_Command_Succeeded,
+           Editor.External_Producers.Diagnostic_Line_Parsing.Diagnostic_Line_Command_Succeeded,
          "on-request policy parses build diagnostic output");
       Assert
         (Command.Ingestion.Ingestion_Result.Accepted_Count = 1,
@@ -185,21 +189,21 @@ package body Editor.Build_Diagnostics.Tests is
          Command_Label        => To_Unbounded_String ("gprbuild"),
          Arguments            => Null_Unbounded_String,
          Structured_Arguments =>
-           Editor.External_Producers.Build_Process_Argument_Vector ("-q"));
+           Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q"));
       Captured_Output : constant Editor.External_Producers.Process_Run_Result :=
-        Editor.External_Producers.Build_Process_Run_Result
+        Editor.External_Producers.Build_Requests.Build_Process_Run_Result
           (Editor.External_Producers.Process_Run_Failed,
            Exit_Code     => 1,
            Has_Exit_Code => True,
            Stderr_Text   =>
              "main.adb:1:1: error: command-owned" & ASCII.LF &
              "plain process noise");
-      Command : Editor.External_Producers.Build_Command_Result;
-      Disabled_Command : Editor.External_Producers.Build_Command_Result;
+      Command : Editor.External_Producers.Build_Requests.Build_Command_Result;
+      Disabled_Command : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
-      Command := Editor.External_Producers.Run_Build_Command_With_Gate
+      Command := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Gate
         (S, Command_Request,
-         Editor.External_Producers.Build_Test_Fixture_Execution_Gate
+         Editor.External_Producers.Execution_Policy.Build_Test_Fixture_Execution_Gate
            (Allow_Diagnostics_Ingestion => True,
             Show_Diagnostics            => False),
          Captured_Output);
@@ -228,9 +232,9 @@ package body Editor.Build_Diagnostics.Tests is
         (not Command.Diagnostic_Result.Should_Show_Diagnostics,
          "show diagnostics remains gate metadata, not an output side effect");
 
-      Disabled_Command := Editor.External_Producers.Run_Build_Command_With_Gate
+      Disabled_Command := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Gate
         (S_Disabled, Command_Request,
-         Editor.External_Producers.Build_Test_Fixture_Execution_Gate
+         Editor.External_Producers.Execution_Policy.Build_Test_Fixture_Execution_Gate
            (Allow_Diagnostics_Ingestion => False,
             Show_Diagnostics            => True),
          Captured_Output);
@@ -249,7 +253,7 @@ package body Editor.Build_Diagnostics.Tests is
    is
       pragma Unreferenced (T);
       S       : Editor.State.State_Type;
-      Command : Editor.External_Producers.Diagnostic_Line_Command_Result;
+      Command : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result;
    begin
       Assert
         (Editor.Feature_Panel_Controller.Show_Feature

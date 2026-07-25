@@ -1,6 +1,8 @@
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Hostkit.Process;
+with Editor.External_Producers.Build_Types;
+with Editor.External_Producers.Request_Policies;
 
 package body Editor.External_Producers.Execution_Policy is
 
@@ -208,7 +210,8 @@ package body Editor.External_Producers.Execution_Policy is
      return Editor.External_Producers.Process_Run_Result
    is
    begin
-      return Build_Process_Run_Result (Process_Run_Cancellation_Unsupported);
+      return Editor.External_Producers.Request_Policies.Build_Process_Run_Result
+        (Process_Run_Cancellation_Unsupported);
    end Build_Cancellation_Unsupported_Process_Result;
 
    function Current_Native_Process_Control_Backend
@@ -279,7 +282,7 @@ package body Editor.External_Producers.Execution_Policy is
    end Process_Result_Output_Stream;
 
    function Build_Result_Output_Stream
-     (Result : Editor.External_Producers.Build_Run_Result)
+     (Result : Editor.External_Producers.Build_Types.Build_Run_Result)
       return Editor.External_Producers.Process_Output_Stream
    is
    begin
@@ -296,7 +299,7 @@ package body Editor.External_Producers.Execution_Policy is
    end Build_Result_Output_Stream;
 
    function Build_Run_Diagnostic_Stream_Preference
-     (Result : Editor.External_Producers.Build_Run_Result)
+     (Result : Editor.External_Producers.Build_Types.Build_Run_Result)
       return Editor.External_Producers.Process_Diagnostic_Stream_Preference
    is
    begin

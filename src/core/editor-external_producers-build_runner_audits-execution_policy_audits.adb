@@ -3,8 +3,11 @@ with Ada.Strings; use Ada.Strings;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Requests;
+with Editor.External_Producers.Build_Command_Execution;
 with Editor.External_Producers.Diagnostic_Line_Pipeline;
 with Editor.External_Producers.Execution_Policy;
+with Editor.External_Producers.Request_Policies;
 with Editor.State;
 
 package body Editor.External_Producers.Build_Runner_Audits.Execution_Policy_Audits is
@@ -16,6 +19,93 @@ package body Editor.External_Producers.Build_Runner_Audits.Execution_Policy_Audi
 
    function Native_Process_Control_Platform_Audit_Passes return Boolean
      renames Editor.External_Producers.Execution_Policy.Native_Process_Control_Platform_Audit_Passes;
+
+   function Build_Test_Fixture_Execution_Gate
+     (Allow_Diagnostics_Ingestion : Boolean := True;
+      Show_Diagnostics            : Boolean := False;
+      Max_Output_Bytes            : Natural := 262_144;
+      Consent                     : Build_Execution_Consent :=
+        Build_Consent_Test_Only) return Build_Execution_Gate
+     renames Editor.External_Producers.Execution_Policy.Build_Test_Fixture_Execution_Gate;
+
+   function Build_Cancellation_Unsupported_Process_Result
+     return Process_Run_Result
+     renames Editor.External_Producers.Execution_Policy.Build_Cancellation_Unsupported_Process_Result;
+
+   function Real_Process_Runner_Output_Capture_Mode
+     return Process_Output_Capture_Mode
+     renames Editor.External_Producers.Execution_Policy.Real_Process_Runner_Output_Capture_Mode;
+
+   function Build_Preflight_Result_Is_Consistent
+     (Result : Build_Preflight_Result) return Boolean
+     renames Editor.External_Producers.Build_Command_Execution.Build_Preflight_Result_Is_Consistent;
+
+   function Diagnostic_Stream_Preference
+     (Result : Process_Run_Result) return Process_Diagnostic_Stream_Preference
+     renames Editor.External_Producers.Execution_Policy.Diagnostic_Stream_Preference;
+
+   function Build_Run_Diagnostic_Stream_Preference
+     (Result : Build_Run_Result) return Process_Diagnostic_Stream_Preference
+     renames Editor.External_Producers.Execution_Policy.Build_Run_Diagnostic_Stream_Preference;
+
+   function Build_Process_Argument_Vector
+     (First  : String := "";
+      Second : String := "";
+      Third  : String := "") return Process_Argument_Vector
+     renames Editor.External_Producers.Request_Policies.Build_Process_Argument_Vector;
+
+   function Prepare_Process_Request
+     (Request : Build_Run_Request) return Process_Run_Request
+     renames Editor.External_Producers.Request_Policies.Prepare_Process_Request;
+
+   function Build_Process_Run_Result
+     (Status        : Process_Run_Status;
+      Exit_Code     : Integer := 0;
+      Has_Exit_Code : Boolean := False;
+      Stdout_Text   : String := "";
+      Stderr_Text   : String := "";
+      Stdout_Truncated : Boolean := False;
+      Stderr_Truncated : Boolean := False;
+      Output_Capture_Mode : Process_Output_Capture_Mode :=
+        Process_Output_Capture_Separated) return Process_Run_Result
+     renames Editor.External_Producers.Request_Policies.Build_Process_Run_Result;
+
+   function Empty_Process_Arguments return Process_Argument_Vector
+     renames Editor.External_Producers.Request_Policies.Empty_Process_Arguments;
+
+   procedure Append_Process_Argument
+     (Arguments : in out Process_Argument_Vector;
+      Value     : String)
+     renames Editor.External_Producers.Request_Policies.Append_Process_Argument;
+
+   function Validate_Build_Run_Request_Status
+     (Request : Build_Run_Request) return Build_Request_Validation_Status
+     renames Editor.External_Producers.Request_Policies.Validate_Build_Run_Request_Status;
+
+   function Validate_Process_Execution_Policy
+     (Policy : Process_Execution_Policy) return Boolean
+     renames Editor.External_Producers.Request_Policies.Validate_Process_Execution_Policy;
+
+   function Preflight_Build_Run_Request
+     (Request : Build_Run_Request;
+      Policy  : Process_Execution_Policy) return Build_Preflight_Result
+     renames Editor.External_Producers.Build_Command_Execution.Preflight_Build_Run_Request;
+
+   function Run_Build_Command_With_Gate
+     (S               : in out Editor.State.State_Type;
+      Request         : Build_Run_Request;
+      Gate            : Build_Execution_Gate;
+      Supplied_Result : Process_Run_Result :=
+        (Status        => Process_Run_Not_Available,
+         Output_Capture_Mode => Process_Output_Capture_None,
+         Has_Exit_Code => False,
+         Exit_Code     => 0,
+         Stdout_Text   => Null_Unbounded_String,
+         Stderr_Text   => Null_Unbounded_String,
+         Stdout_Truncated => False,
+         Stderr_Truncated => False))
+      return Build_Command_Result
+     renames Editor.External_Producers.Build_Command_Execution.Run_Build_Command_With_Gate;
 
    function Build_Timeout_Policy_Is_Bounded
      (Policy : Process_Execution_Policy) return Boolean
@@ -103,26 +193,26 @@ package body Editor.External_Producers.Build_Runner_Audits.Execution_Policy_Audi
       Alire_Process : constant Process_Run_Request :=
         Prepare_Process_Request (Alire_Request);
       Default_Result : constant Process_Run_Result :=
-        Execute_Process_Request_Default (GPR_Process);
+        Editor.External_Producers.Build_Requests.Execute_Process_Request_Default (GPR_Process);
       Supplied_Process : constant Process_Run_Result :=
         Build_Process_Run_Result
           (Process_Run_Failed, Exit_Code => 7, Has_Exit_Code => True,
            Stdout_Text => "src/stdout.adb:3:4: warning: out",
            Stderr_Text => "src/stderr.adb:1:2: error: err");
       Test_Result : constant Process_Run_Result :=
-        Execute_Test_Fed_Process_Request (GPR_Process, Supplied_Process);
+        Editor.External_Producers.Build_Requests.Execute_Test_Fed_Process_Request (GPR_Process, Supplied_Process);
       Empty_Process : constant Process_Run_Request :=
         (Program_Label => Null_Unbounded_String,
          Working_Label => Null_Unbounded_String,
          Arguments     => Null_Unbounded_String,
          Structured_Arguments => Empty_Process_Arguments);
       Rejected_Test : constant Process_Run_Result :=
-        Execute_Test_Fed_Process_Request
+        Editor.External_Producers.Build_Requests.Execute_Test_Fed_Process_Request
           (Empty_Process, Build_Process_Run_Result (Process_Run_Succeeded));
       Build_Result : constant Build_Run_Result :=
-        Build_Result_From_Process_Result (GPR_Request, Test_Result);
+        Editor.External_Producers.Build_Requests.Build_Result_From_Process_Result (GPR_Request, Test_Result);
       Lines : constant Diagnostic_Text_Line_Array :=
-        Extract_Diagnostic_Lines_From_Build_Result (Build_Result);
+        Editor.External_Producers.Build_Command_Execution.Extract_Diagnostic_Lines_From_Build_Result (Build_Result);
    begin
       return Validate_Build_Run_Request_Status (GPR_Request) = Build_Request_Valid
         and then Validate_Build_Run_Request_Status (Custom_Request) =
@@ -206,21 +296,21 @@ package body Editor.External_Producers.Build_Runner_Audits.Execution_Policy_Audi
          Arguments     => Null_Unbounded_String,
          Structured_Arguments => Build_Process_Argument_Vector ("-q"));
       Disabled_Result : constant Build_Run_Result :=
-        Build_Build_Run_Result (Build_Run_Not_Available);
+        Editor.External_Producers.Build_Command_Execution.Build_Build_Run_Result (Build_Run_Not_Available);
       Shell_Result : constant Build_Run_Result :=
-        Build_Build_Run_Result (Build_Run_Rejected);
+        Editor.External_Producers.Build_Command_Execution.Build_Build_Run_Result (Build_Run_Rejected);
       Opaque_Result : constant Build_Run_Result :=
-        Build_Build_Run_Result (Build_Run_Rejected);
+        Editor.External_Producers.Build_Command_Execution.Build_Build_Run_Result (Build_Run_Rejected);
       Empty_Result : constant Build_Run_Result :=
-        Build_Build_Run_Result (Build_Run_Rejected);
+        Editor.External_Producers.Build_Command_Execution.Build_Build_Run_Result (Build_Run_Rejected);
       Timeout_Result : constant Build_Run_Result :=
-        Build_Build_Run_Result (Build_Run_Succeeded);
+        Editor.External_Producers.Build_Command_Execution.Build_Build_Run_Result (Build_Run_Succeeded);
       Oversize : constant Build_Run_Result :=
-        Build_Build_Run_Result (Build_Run_Execution_Error);
+        Editor.External_Producers.Build_Command_Execution.Build_Build_Run_Result (Build_Run_Execution_Error);
       Args : constant Process_Argument_Vector :=
         Build_Process_Argument_Vector ("one", "", "three");
       Bad_Build : constant Build_Run_Result :=
-        Execute_Build_Request_With_Process_Policy
+        Editor.External_Producers.Build_Command_Execution.Execute_Build_Request_With_Process_Policy
           ((Tool                 => No_Build_Tool,
             Provenance           => Build_Request_From_Internal_Command,
             Working_Label        => Null_Unbounded_String,
@@ -233,11 +323,11 @@ package body Editor.External_Producers.Build_Runner_Audits.Execution_Policy_Audi
       return Validate_Process_Execution_Policy (Default_Policy)
         and then not Validate_Process_Execution_Policy (Shell_Policy)
         and then Validate_Process_Execution_Policy (Timeout_Policy)
-        and then not Validate_Process_Run_Request_For_Real_Execution
+        and then not Editor.External_Producers.Build_Requests.Validate_Process_Run_Request_For_Real_Execution
           (Opaque_Request, Real_Policy)
-        and then not Validate_Process_Run_Request_For_Real_Execution
+        and then not Editor.External_Producers.Build_Requests.Validate_Process_Run_Request_For_Real_Execution
           (No_Arg_Request, Real_Policy)
-        and then Validate_Process_Run_Request_For_Real_Execution
+        and then Editor.External_Producers.Build_Requests.Validate_Process_Run_Request_For_Real_Execution
           (Valid_Process, Real_Policy)
         and then Disabled_Result.Status = Build_Run_Not_Available
         and then Shell_Result.Status = Build_Run_Rejected
@@ -327,13 +417,13 @@ package body Editor.External_Producers.Build_Runner_Audits.Execution_Policy_Audi
            Stdout_Text => "main.adb:1:1: error: merged stderr/stdout",
            Output_Capture_Mode => Process_Output_Capture_Merged_Stdout_Stderr);
       Separated_Build : constant Build_Run_Result :=
-        Build_Result_From_Process_Result (Request, Separated);
+        Editor.External_Producers.Build_Requests.Build_Result_From_Process_Result (Request, Separated);
       Merged_Build : constant Build_Run_Result :=
-        Build_Result_From_Process_Result (Request, Merged);
+        Editor.External_Producers.Build_Requests.Build_Result_From_Process_Result (Request, Merged);
       Separated_Lines : constant Diagnostic_Text_Line_Array :=
-        Extract_Diagnostic_Lines_From_Build_Result (Separated_Build);
+        Editor.External_Producers.Build_Command_Execution.Extract_Diagnostic_Lines_From_Build_Result (Separated_Build);
       Merged_Lines : constant Diagnostic_Text_Line_Array :=
-        Extract_Diagnostic_Lines_From_Build_Result (Merged_Build);
+        Editor.External_Producers.Build_Command_Execution.Extract_Diagnostic_Lines_From_Build_Result (Merged_Build);
    begin
       return Real_Process_Runner_Output_Capture_Mode =
           Process_Output_Capture_Separated

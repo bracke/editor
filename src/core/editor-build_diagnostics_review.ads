@@ -2,6 +2,7 @@ with Editor.Build_Output_Details;
 with Editor.Build_Result_Summary;
 with Editor.Command_Execution;
 with Editor.External_Producers;
+with Editor.External_Producers.Diagnostic_Line_Parsing;
 with Editor.State;
 
 package Editor.Build_Diagnostics_Review is
@@ -29,7 +30,7 @@ package Editor.Build_Diagnostics_Review is
      (Request : Editor.External_Producers.Build_Run_Request) return String;
 
    function Build_Diagnostics_Ingestion_Summary
-     (Result : Editor.External_Producers.Diagnostic_Line_Command_Result)
+     (Result : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result)
       return String;
 
    function Assert_Build_Diagnostics_Are_Diagnostics_Owned
@@ -58,17 +59,17 @@ package Editor.Build_Diagnostics_Review is
 
    function Assert_Build_Diagnostics_Zero_Output_Reliable
      (State  : Editor.State.State_Type;
-      Result : Editor.External_Producers.Diagnostic_Line_Command_Result)
+      Result : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result)
       return Boolean;
 
    function Assert_Build_Diagnostics_Malformed_Output_Reliable
      (State  : Editor.State.State_Type;
-      Result : Editor.External_Producers.Diagnostic_Line_Command_Result)
+      Result : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result)
       return Boolean;
 
    function Assert_Build_Diagnostics_Truncated_Or_Partial_Output_Reliable
      (State  : Editor.State.State_Type;
-      Result : Editor.External_Producers.Diagnostic_Line_Command_Result)
+      Result : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result)
       return Boolean;
 
    function Assert_Build_Diagnostics_Mixed_Source_Review_Reliable

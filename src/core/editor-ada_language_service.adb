@@ -6,6 +6,8 @@ with Editor.Ada_Diagnostic_Provenance;
 with Editor.Ada_Diagnostic_Quick_Fix_Skeleton;
 with Editor.Ada_Diagnostic_Status_Line;
 with Editor.Ada_Semantic_Diagnostic_Index;
+with Editor.External_Producers.Diagnostic_Line_Parsing;
+with Editor.External_Producers.Diagnostics;
 with Editor.Syntax;
 
 package body Editor.Ada_Language_Service is
@@ -1146,11 +1148,19 @@ package body Editor.Ada_Language_Service is
       Tool_Name       : String := "gnat";
       Run_Fingerprint : Natural := 0)
    is
-      Parsed : constant Editor.External_Producers.Diagnostic_Line_Batch_Parse_Result :=
-        Editor.External_Producers.Parse_Compiler_Diagnostic_Lines
-          (Lines, Tool_Name);
+      Parsing_Lines : Editor.External_Producers.Diagnostic_Line_Parsing.Text_Line_Array;
+      Parsed : Editor.External_Producers.Diagnostic_Line_Parsing.Batch_Parse_Result;
       State : Compiler_Backend_Status;
    begin
+      if not Lines.Is_Empty then
+         for I in Lines.First_Index .. Lines.Last_Index loop
+            Parsing_Lines.Append (Lines.Element (I));
+         end loop;
+      end if;
+
+      Parsed :=
+        Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Compiler_Diagnostic_Lines
+          (Parsing_Lines, Tool_Name);
       Service.Compiler_Diagnostics.Clear;
 
       State.Has_Run := True;
@@ -1168,7 +1178,10 @@ package body Editor.Ada_Language_Service is
       for R of Parsed.Records loop
          declare
             Diagnostic : constant Compiler_Diagnostic :=
-              (Severity     => R.Severity,
+              (Severity     =>
+                 Compiler_Diagnostic_Severity'Val
+                   (Editor.External_Producers.Diagnostics.Compiler_Severity'Pos
+                      (R.Severity)),
                Message      => R.Message,
                File_Label   => R.File_Label,
                Has_Location => R.Has_Location,

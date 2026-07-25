@@ -17,7 +17,10 @@ with Editor.Build_Command.Registry;
 with Editor.Build_Command.Execution;
 with Editor.Ada_Language_Service;
 with Editor.External_Producers;
+with Editor.External_Producers.Execution_Policy;
 with Editor.External_Producers.Build_Command_Execution;
+with Editor.External_Producers.Build_Requests;
+with Editor.External_Producers.Diagnostic_Line_Parsing;
 with Editor.Keybindings;
 with Editor.Project;
 with Editor.View;
@@ -134,15 +137,17 @@ package body Editor.Build_Command is
 
    function Request_Public_Build_Cancel
      (State : in out Editor.State.State_Type)
-      return Editor.External_Producers.Build_Command_Result
+      return Editor.External_Producers.Build_Requests.Build_Command_Result
    is
-      Empty_Diagnostics : constant Editor.External_Producers.Diagnostic_Line_Command_Result :=
-        Editor.External_Producers.Empty_Diagnostic_Line_Command_Result;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Empty_Diagnostics : constant
+        Editor.External_Producers.Build_Requests.Diagnostic_Line_Command_Result :=
+          Editor.External_Producers.Diagnostic_Line_Parsing.
+            Empty_Diagnostic_Line_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       if not State.Public_Build_Job_Active then
          Result :=
-           (Build_Result      => Editor.External_Producers.Build_Build_Run_Result
+           (Build_Result      => Editor.External_Producers.Build_Requests.Build_Build_Run_Result
               (Editor.External_Producers.Build_Run_Not_Available),
             Diagnostic_Result => Empty_Diagnostics,
             Command_Message   => To_Unbounded_String ("No active build job."));
@@ -159,7 +164,7 @@ package body Editor.Build_Command is
            Editor.Build_Runner_Policy.Cancellation_Requested;
          Public_Build_Jobs.Mark_Cancellation_Requested (State.Public_Build_Async_Slot_Id);
          return
-           (Build_Result      => Editor.External_Producers.Build_Build_Run_Result
+           (Build_Result      => Editor.External_Producers.Build_Requests.Build_Build_Run_Result
               (Editor.External_Producers.Build_Run_Cancelled,
                Output_Partial => True),
             Diagnostic_Result => Empty_Diagnostics,
@@ -186,7 +191,7 @@ package body Editor.Build_Command is
                Public_Build_Jobs.Mark_Cancellation_Requested (State.Public_Build_Async_Slot_Id);
                State.Public_Build_Process_Handle := Handle;
                Result :=
-                 (Build_Result      => Editor.External_Producers.Build_Build_Run_Result
+                 (Build_Result      => Editor.External_Producers.Build_Requests.Build_Build_Run_Result
                     (Editor.External_Producers.Build_Run_Cancelled),
                   Diagnostic_Result => Empty_Diagnostics,
                   Command_Message   => To_Unbounded_String ("Build cancellation requested."));
@@ -221,7 +226,7 @@ package body Editor.Build_Command is
                State.Public_Build_Job_Cancellation :=
                  Editor.Build_Runner_Policy.Cancellation_Unsupported;
                Result :=
-                 (Build_Result      => Editor.External_Producers.Build_Build_Run_Result
+                 (Build_Result      => Editor.External_Producers.Build_Requests.Build_Build_Run_Result
                     (Editor.External_Producers.Build_Run_Cancellation_Unsupported),
                   Diagnostic_Result => Empty_Diagnostics,
                   Command_Message   =>
@@ -231,7 +236,7 @@ package body Editor.Build_Command is
                State.Public_Build_Job_Cancellation :=
                  Editor.Build_Runner_Policy.Cancellation_Unsupported;
                Result :=
-                 (Build_Result      => Editor.External_Producers.Build_Build_Run_Result
+                 (Build_Result      => Editor.External_Producers.Build_Requests.Build_Build_Run_Result
                     (Editor.External_Producers.Build_Run_Execution_Error),
                   Diagnostic_Result => Empty_Diagnostics,
                   Command_Message   =>
@@ -270,13 +275,15 @@ package body Editor.Build_Command is
    function Request_Public_Build_Lifecycle_Shutdown
      (State  : in out Editor.State.State_Type;
       Reason : String)
-      return Editor.External_Producers.Build_Command_Result
+      return Editor.External_Producers.Build_Requests.Build_Command_Result
    is
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
       Cancel_Result : Editor.Build_Process_Control.Build_Process_Cancel_Result :=
         Editor.Build_Process_Control.Build_Process_Cancel_Not_Active;
-      Empty_Diagnostics : constant Editor.External_Producers.Diagnostic_Line_Command_Result :=
-        Editor.External_Producers.Empty_Diagnostic_Line_Command_Result;
+      Empty_Diagnostics : constant
+        Editor.External_Producers.Build_Requests.Diagnostic_Line_Command_Result :=
+          Editor.External_Producers.Diagnostic_Line_Parsing.
+            Empty_Diagnostic_Line_Command_Result;
       Message : constant String :=
         (if Reason'Length = 0 then
             "Build cancellation requested before lifecycle transition."
@@ -285,7 +292,7 @@ package body Editor.Build_Command is
    begin
       if not State.Public_Build_Job_Active then
          return
-           (Build_Result      => Editor.External_Producers.Build_Build_Run_Result
+           (Build_Result      => Editor.External_Producers.Build_Requests.Build_Build_Run_Result
               (Editor.External_Producers.Build_Run_Not_Available),
             Diagnostic_Result => Empty_Diagnostics,
             Command_Message   => To_Unbounded_String ("No active build job."));
@@ -331,7 +338,7 @@ package body Editor.Build_Command is
 
       if Cancel_Result = Editor.Build_Process_Control.Build_Process_Cancel_Failed then
          Result :=
-           (Build_Result      => Editor.External_Producers.Build_Build_Run_Result
+           (Build_Result      => Editor.External_Producers.Build_Requests.Build_Build_Run_Result
               (Editor.External_Producers.Build_Run_Cancelled,
                Output_Partial => True),
             Diagnostic_Result => Empty_Diagnostics,
@@ -339,7 +346,7 @@ package body Editor.Build_Command is
               ("Build cancellation requested before " & Reason & "; process signal failed."));
       else
          Result :=
-           (Build_Result      => Editor.External_Producers.Build_Build_Run_Result
+           (Build_Result      => Editor.External_Producers.Build_Requests.Build_Build_Run_Result
               (Editor.External_Producers.Build_Run_Cancelled,
                Output_Partial => True),
             Diagnostic_Result => Empty_Diagnostics,
@@ -352,16 +359,18 @@ package body Editor.Build_Command is
    function Drain_Public_Build_Worker_For_Shutdown
      (State  : in out Editor.State.State_Type;
       Reason : String)
-      return Editor.External_Producers.Build_Command_Result
+      return Editor.External_Producers.Build_Requests.Build_Command_Result
    is
-      Result : Editor.External_Producers.Build_Command_Result;
-      Poll_Result : Editor.External_Producers.Build_Command_Result;
-      Empty_Diagnostics : constant Editor.External_Producers.Diagnostic_Line_Command_Result :=
-        Editor.External_Producers.Empty_Diagnostic_Line_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
+      Poll_Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
+      Empty_Diagnostics : constant
+        Editor.External_Producers.Build_Requests.Diagnostic_Line_Command_Result :=
+          Editor.External_Producers.Diagnostic_Line_Parsing.
+            Empty_Diagnostic_Line_Command_Result;
    begin
       if not State.Public_Build_Job_Active then
          return
-           (Build_Result      => Editor.External_Producers.Build_Build_Run_Result
+           (Build_Result      => Editor.External_Producers.Build_Requests.Build_Build_Run_Result
               (Editor.External_Producers.Build_Run_Not_Available),
             Diagnostic_Result => Empty_Diagnostics,
             Command_Message   => To_Unbounded_String ("No active build job."));
@@ -471,7 +480,7 @@ package body Editor.Build_Command is
 
    function Start_Public_Build_Run_Asynchronously
      (State : in out Editor.State.State_Type)
-      return Editor.External_Producers.Build_Command_Result
+      return Editor.External_Producers.Build_Requests.Build_Command_Result
    is
    begin
       return Editor.Build_Command.Execution.Start_Public_Build_Run_Asynchronously (State);
@@ -479,7 +488,7 @@ package body Editor.Build_Command is
 
    function Poll_Public_Build_Run_Completion
      (State : in out Editor.State.State_Type;
-      Result : out Editor.External_Producers.Build_Command_Result) return Boolean
+      Result : out Editor.External_Producers.Build_Requests.Build_Command_Result) return Boolean
    is
    begin
       return Editor.Build_Command.Execution.Poll_Public_Build_Run_Completion
@@ -489,7 +498,7 @@ package body Editor.Build_Command is
 
    function Execute_Public_Build_Run
      (State : in out Editor.State.State_Type)
-      return Editor.External_Producers.Build_Command_Result
+      return Editor.External_Producers.Build_Requests.Build_Command_Result
    is
    begin
       return Editor.Build_Command.Execution.Execute_Public_Build_Run (State);
@@ -498,7 +507,7 @@ package body Editor.Build_Command is
    function Execute_Public_Build_Run_With_Supplied_Result
      (State           : in out Editor.State.State_Type;
       Supplied_Result : Editor.External_Producers.Process_Run_Result)
-      return Editor.External_Producers.Build_Command_Result
+      return Editor.External_Producers.Build_Requests.Build_Command_Result
    is
    begin
       return Editor.Build_Command.Execution.Execute_Public_Build_Run_With_Supplied_Result
@@ -576,17 +585,17 @@ package body Editor.Build_Command is
          Working_Label => To_Unbounded_String ("async-test-root"),
          Command_Label => To_Unbounded_String ("async test build"),
          Arguments => Null_Unbounded_String,
-         Structured_Arguments => Editor.External_Producers.Empty_Process_Arguments);
+         Structured_Arguments => Editor.External_Producers.Build_Requests.Empty_Process_Arguments);
    end Async_Test_Request;
 
    function Assert_Async_Build_Cancel_Handoff_Behavior return Boolean is
       S : Editor.State.State_Type;
       Worker_State : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result;
-      Poll_Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
+      Poll_Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
       Completed : Boolean;
       Gate : constant Editor.External_Producers.Build_Execution_Gate :=
-        Editor.External_Producers.Build_Test_Fixture_Execution_Gate
+        Editor.External_Producers.Execution_Policy.Build_Test_Fixture_Execution_Gate
           (Allow_Diagnostics_Ingestion => False,
            Show_Diagnostics => False,
            Consent => Editor.External_Producers.Build_Consent_Test_Only);
@@ -629,10 +638,12 @@ package body Editor.Build_Command is
 
       Public_Build_Jobs.Store_Worker_Result
         (S.Public_Build_Async_Slot_Id, Worker_State,
-         (Build_Result => Editor.External_Producers.Build_Build_Run_Result
+          (Build_Result => Editor.External_Producers.Build_Requests.Build_Build_Run_Result
             (Editor.External_Producers.Build_Run_Cancelled,
              Output_Partial => True),
-          Diagnostic_Result => Editor.External_Producers.Empty_Diagnostic_Line_Command_Result,
+          Diagnostic_Result =>
+            Editor.External_Producers.Diagnostic_Line_Parsing.
+              Empty_Diagnostic_Line_Command_Result,
           Command_Message => To_Unbounded_String ("Build cancelled")));
 
       Completed := Poll_Public_Build_Run_Completion (S, Poll_Result);
@@ -654,11 +665,11 @@ package body Editor.Build_Command is
 
    function Assert_Async_Build_Output_Snapshot_Handoff_Behavior return Boolean is
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
       Completed : Boolean;
       Stream : Editor.Build_Output_Details.Build_Output_Stream_State;
       Gate : constant Editor.External_Producers.Build_Execution_Gate :=
-        Editor.External_Producers.Build_Test_Fixture_Execution_Gate
+        Editor.External_Producers.Execution_Policy.Build_Test_Fixture_Execution_Gate
           (Allow_Diagnostics_Ingestion => False,
            Show_Diagnostics => False,
            Consent => Editor.External_Producers.Build_Consent_Test_Only);
@@ -717,11 +728,11 @@ package body Editor.Build_Command is
      return Boolean
    is
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
       Completed : Boolean;
       Stream : Editor.Build_Output_Details.Build_Output_Stream_State;
       Gate : constant Editor.External_Producers.Build_Execution_Gate :=
-        Editor.External_Producers.Build_Test_Fixture_Execution_Gate
+        Editor.External_Producers.Execution_Policy.Build_Test_Fixture_Execution_Gate
           (Allow_Diagnostics_Ingestion => False,
            Show_Diagnostics => False,
            Consent => Editor.External_Producers.Build_Consent_Test_Only);
@@ -810,14 +821,14 @@ package body Editor.Build_Command is
 
       Sleep_Path : constant String := "/bin/sleep";
       S : Editor.State.State_Type;
-      Poll_Result : Editor.External_Producers.Build_Command_Result;
-      Cancel_Result : Editor.External_Producers.Build_Command_Result;
+      Poll_Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
+      Cancel_Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
       Completed : Boolean := False;
       Args : Editor.External_Producers.Process_Argument_Vector :=
-        Editor.External_Producers.Empty_Process_Arguments;
+        Editor.External_Producers.Build_Requests.Empty_Process_Arguments;
       Process_Request : Editor.External_Producers.Process_Run_Request;
       Process_Result : Editor.External_Producers.Process_Run_Result;
-      Build_Result : Editor.External_Producers.Build_Command_Result;
+      Build_Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
       Policy : constant Editor.External_Producers.Process_Execution_Policy :=
         (Mode                     => Editor.External_Producers.Process_Execution_Real_Allowed,
          Allow_Real_Execution     => True,
@@ -826,7 +837,7 @@ package body Editor.Build_Command is
          Require_Absolute_Program => True,
          Timeout_Milliseconds     => 10_000);
       Gate : constant Editor.External_Producers.Build_Execution_Gate :=
-        Editor.External_Producers.Build_Real_Execution_Gate
+        Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate
           (Allow_Diagnostics_Ingestion => False,
            Show_Diagnostics => False,
            Require_Absolute_Program => True,
@@ -851,14 +862,15 @@ package body Editor.Build_Command is
              (Worker_State,
               Process_Request,
               Policy,
-              Editor.External_Producers.Build_Process_Run_Result
+              Editor.External_Producers.Build_Requests.Build_Process_Run_Result
                 (Editor.External_Producers.Process_Run_Not_Available));
          Build_Result :=
            (Build_Result =>
-              Editor.External_Producers.Build_Result_From_Process_Result
+              Editor.External_Producers.Build_Requests.Build_Result_From_Process_Result
                 (Async_Test_Request, Process_Result),
             Diagnostic_Result =>
-              Editor.External_Producers.Empty_Diagnostic_Line_Command_Result,
+              Editor.External_Producers.Diagnostic_Line_Parsing.
+                Empty_Diagnostic_Line_Command_Result,
             Command_Message =>
               To_Unbounded_String
                 ((if Process_Result.Status =
@@ -870,10 +882,11 @@ package body Editor.Build_Command is
          when others =>
             Public_Build_Jobs.Store_Worker_Result
               (Worker_Slot, Worker_State,
-               (Build_Result => Editor.External_Producers.Build_Build_Run_Result
+               (Build_Result => Editor.External_Producers.Build_Requests.Build_Build_Run_Result
                   (Editor.External_Producers.Build_Run_Execution_Error),
                 Diagnostic_Result =>
-                  Editor.External_Producers.Empty_Diagnostic_Line_Command_Result,
+                  Editor.External_Producers.Diagnostic_Line_Parsing.
+                    Empty_Diagnostic_Line_Command_Result,
                 Command_Message => To_Unbounded_String ("Build worker failed")));
       end Real_Process_Cancel_Worker;
 
@@ -911,7 +924,7 @@ package body Editor.Build_Command is
       end if;
 
       Editor.State.Initialize (S);
-      Editor.External_Producers.Append_Process_Argument (Args, "5");
+      Editor.External_Producers.Build_Requests.Append_Process_Argument (Args, "5");
       Process_Request :=
         (Program_Label        => To_Unbounded_String (Sleep_Path),
          Working_Label        => To_Unbounded_String (Ada.Directories.Current_Directory),
@@ -1014,7 +1027,7 @@ package body Editor.Build_Command is
       Snap1 : Editor.State.State_Type;
       Snap2 : Editor.State.State_Type;
       Gate : constant Editor.External_Producers.Build_Execution_Gate :=
-        Editor.External_Producers.Build_Test_Fixture_Execution_Gate
+        Editor.External_Producers.Execution_Policy.Build_Test_Fixture_Execution_Gate
           (Allow_Diagnostics_Ingestion => False,
            Show_Diagnostics => False);
    begin
@@ -1120,7 +1133,7 @@ package body Editor.Build_Command is
       S8 : Editor.State.State_Type;
       S9 : Editor.State.State_Type;
       Gate : constant Editor.External_Producers.Build_Execution_Gate :=
-        Editor.External_Producers.Build_Test_Fixture_Execution_Gate
+        Editor.External_Producers.Execution_Policy.Build_Test_Fixture_Execution_Gate
           (Allow_Diagnostics_Ingestion => False,
            Show_Diagnostics => False);
 
@@ -1188,12 +1201,12 @@ package body Editor.Build_Command is
    is
       S : Editor.State.State_Type;
       Gate : constant Editor.External_Producers.Build_Execution_Gate :=
-        Editor.External_Producers.Build_Test_Fixture_Execution_Gate
+        Editor.External_Producers.Execution_Policy.Build_Test_Fixture_Execution_Gate
           (Allow_Diagnostics_Ingestion => False,
            Show_Diagnostics => False);
       Request : constant Editor.External_Producers.Build_Run_Request :=
         Async_Test_Request;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
       Worker_State : Editor.State.State_Type;
    begin
       Editor.State.Initialize (S);
@@ -1236,10 +1249,10 @@ package body Editor.Build_Command is
    is
       S : Editor.State.State_Type;
       Gate : constant Editor.External_Producers.Build_Execution_Gate :=
-        Editor.External_Producers.Build_Test_Fixture_Execution_Gate
+        Editor.External_Producers.Execution_Policy.Build_Test_Fixture_Execution_Gate
           (Allow_Diagnostics_Ingestion => False,
            Show_Diagnostics => False);
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
       Completed : Boolean := False;
    begin
       Editor.State.Initialize (S);

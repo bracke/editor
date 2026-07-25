@@ -19,6 +19,9 @@ with Editor.Executor.Command_Palette_Projection;
 with Editor.File_Tree;
 with Editor.File_Tree_View;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Requests;
+with Editor.External_Producers.Diagnostic_Line_Pipeline;
+with Editor.External_Producers.Public_Build;
 with Editor.External_Producers.Public_Build_Guardrail_Audits;
 with Editor.Messages;
 with Editor.Keybindings;
@@ -216,13 +219,13 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
          Tool             => Editor.External_Producers.GPRbuild_Tool,
          Program_Label    => To_Unbounded_String ("gprbuild"),
          Working_Context  =>
-           Editor.External_Producers.Build_Inherited_Test_Working_Context,
+           Editor.External_Producers.Build_Requests.Build_Inherited_Test_Working_Context,
          Working_Context_Model =>
            (Source => Editor.External_Producers.Public_Build_Working_Context_Test_Context,
             Label  => Null_Unbounded_String,
             User_Acknowledged_Context => True),
          Arguments        =>
-           Editor.External_Producers.Build_Process_Argument_Vector ("-q"),
+           Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q"),
          Consent          => Editor.External_Producers.Build_Consent_User_Confirmed,
          Consent_Model    =>
            (Source => Editor.External_Producers.Public_Build_Consent_Test_Context,
@@ -291,8 +294,8 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
               "conversion must preserve program label as metadata");
       Assert (To_String (Request.Arguments)'Length = 0,
               "conversion must not introduce opaque command text");
-      Assert (Process_Argument_Count (Request.Structured_Arguments) =
-              Process_Argument_Count (Input.Arguments),
+      Assert (Editor.External_Producers.Build_Requests.Process_Argument_Count (Request.Structured_Arguments) =
+              Editor.External_Producers.Build_Requests.Process_Argument_Count (Input.Arguments),
               "conversion must preserve structured argv count");
       Assert (To_String (Request.Working_Label)'Length = 0,
               "conversion must not create a real working directory label");
@@ -304,7 +307,7 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
       S : Editor.State.State_Type;
    begin
       Editor.State.Init (S);
-      return Run_Public_Build_Guardrail_Audit (S);
+      return Editor.External_Producers.Public_Build.Run_Public_Build_Guardrail_Audit (S);
    end Default_Result;
 
    function Starts_With (Text : String; Prefix : String) return Boolean is
@@ -583,7 +586,7 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
       Health : Public_Build_Guardrail_Health;
    begin
       Editor.State.Init (S);
-      Health := Build_Public_Build_Guardrail_Health (S);
+      Health := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Health (S);
       Assert (Health.Healthy,
               "default public build guardrail health must be healthy");
       Assert (Health.Guardrail_Result.Status =
@@ -591,7 +594,7 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
               "healthy default reports passed status");
       Assert (Health.Surface_Id_Scan.Passed,
               "healthy default must include passing public-id scan");
-      Assert (Public_Build_Guardrail_Audit_Trace_Complete
+      Assert (Editor.External_Producers.Public_Build.Public_Build_Guardrail_Audit_Trace_Complete
                 (Health.Audit_Trace),
               "healthy default must include complete audit trace");
       Assert (Health.First_Failure.Kind = Public_Build_Failure_None,
@@ -600,7 +603,7 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
               "healthy default must have zero failures");
       Assert (not Health.Snapshot_Mismatch.Any_Mismatch,
               "healthy default must not have contract mismatch");
-      Assert_Public_Build_Guardrail_Health_Default (Health);
+      Editor.External_Producers.Public_Build.Assert_Public_Build_Guardrail_Health_Default (Health);
    end Test_Public_Build_Guardrail_Health_Default_Is_Healthy;
 
    procedure Test_Public_Build_Guardrail_Health_Is_Side_Effect_Free
@@ -613,8 +616,8 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
       B : Public_Build_Guardrail_Health;
    begin
       Editor.State.Init (S);
-      A := Build_Public_Build_Guardrail_Health (S);
-      B := Build_Public_Build_Guardrail_Health (S);
+      A := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Health (S);
+      B := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Health (S);
       Assert (A = B,
               "public build guardrail health must be deterministic and side-effect-free");
    end Test_Public_Build_Guardrail_Health_Is_Side_Effect_Free;
@@ -628,14 +631,14 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
       Health : Public_Build_Guardrail_Health;
    begin
       Editor.State.Init (S);
-      Health := Build_Public_Build_Guardrail_Health (S);
+      Health := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Health (S);
       Health.Guardrail_Result.No_Public_Command := False;
       Health.Guardrail_Result.Status := Public_Build_Guardrail_Exposure_Detected;
       Health.Snapshot_Mismatch :=
-        Detect_Public_Build_Guardrail_Contract_Mismatch
+        Editor.External_Producers.Public_Build.Detect_Public_Build_Guardrail_Contract_Mismatch
           (Health.Guardrail_Result);
       Health.Healthy := False;
-      Assert (Build_Public_Build_Guardrail_Health_Feedback (Health) =
+      Assert (Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Health_Feedback (Health) =
               "Build: public build exposure detected",
               "health feedback must identify public command exposure");
    end Test_Public_Build_Guardrail_Health_Unhealthy_On_Public_Command;
@@ -649,14 +652,14 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
       Health : Public_Build_Guardrail_Health;
    begin
       Editor.State.Init (S);
-      Health := Build_Public_Build_Guardrail_Health (S);
+      Health := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Health (S);
       Health.Audit_Trace.Hard_Freeze_Checked := False;
       Health.Guardrail_Result.Audits_Consistent := False;
       Health.Healthy := False;
-      Assert (not Public_Build_Guardrail_Audit_Trace_Complete
+      Assert (not Editor.External_Producers.Public_Build.Public_Build_Guardrail_Audit_Trace_Complete
                     (Health.Audit_Trace),
               "missing hard-freeze surface must make trace incomplete");
-      Assert (Build_Public_Build_Guardrail_Health_Feedback (Health) =
+      Assert (Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Health_Feedback (Health) =
               "Build: public build audit trace incomplete",
               "health feedback must identify trace incompleteness");
    end Test_Public_Build_Guardrail_Health_Unhealthy_On_Audit_Trace_Incomplete;
@@ -670,15 +673,15 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
       Health : Public_Build_Guardrail_Health;
    begin
       Editor.State.Init (S);
-      Health := Build_Public_Build_Guardrail_Health (S);
+      Health := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Health (S);
       Health.Guardrail_Result.Promotion_Blocked := True;
       Health.Snapshot_Mismatch :=
-        Detect_Public_Build_Guardrail_Contract_Mismatch
+        Editor.External_Producers.Public_Build.Detect_Public_Build_Guardrail_Contract_Mismatch
           (Health.Guardrail_Result);
       Health.Healthy := False;
       Assert (Health.Snapshot_Mismatch.Any_Mismatch,
               "simulated promotion drift must create contract mismatch");
-      Assert (Build_Public_Build_Guardrail_Health_Feedback (Health) =
+      Assert (Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Health_Feedback (Health) =
               "Build: public build contract mismatch detected",
               "health feedback must identify contract mismatch");
    end Test_Public_Build_Guardrail_Health_Unhealthy_On_Contract_Mismatch;
@@ -692,12 +695,12 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
       Health : Public_Build_Guardrail_Health;
    begin
       Editor.State.Init (S);
-      Health := Build_Public_Build_Guardrail_Health (S);
-      Assert (Build_Public_Build_Guardrail_Health_Feedback (Health) =
+      Health := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Health (S);
+      Assert (Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Health_Feedback (Health) =
               "Build: public build guardrail healthy",
               "healthy guardrail feedback must be deterministic");
       Health.Healthy := False;
-      Assert (Build_Public_Build_Guardrail_Health_Feedback (Health) =
+      Assert (Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Health_Feedback (Health) =
               "Build: public build guardrail unhealthy",
               "unhealthy passed-state fallback feedback must be deterministic");
    end Test_Public_Build_Guardrail_Health_Feedback_Is_Deterministic;
@@ -748,11 +751,11 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
       M      : Public_Build_Guardrail_Contract_Mismatch;
    begin
       Editor.State.Init (S);
-      Before := Run_Public_Build_Guardrail_Audit (S);
-      A := Build_Public_Build_Guardrail_Health (S);
-      B := Build_Public_Build_Guardrail_Health (S);
-      After := Run_Public_Build_Guardrail_Audit (S);
-      M := Compare_Public_Build_Guardrail_Snapshots (Before, After);
+      Before := Editor.External_Producers.Public_Build.Run_Public_Build_Guardrail_Audit (S);
+      A := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Health (S);
+      B := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Health (S);
+      After := Editor.External_Producers.Public_Build.Run_Public_Build_Guardrail_Audit (S);
+      M := Editor.External_Producers.Public_Build.Compare_Public_Build_Guardrail_Snapshots (Before, After);
       Assert (A = B,
               "health builder must be deterministic");
       Assert (not M.Any_Mismatch,
@@ -773,16 +776,16 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
       Unsafe_Failures : Public_Build_Guardrail_Failure_Detail_Vector;
    begin
       Editor.State.Init (S);
-      Old_Health := Build_Public_Build_Guardrail_Health (S);
-      Unchanged := Compare_Public_Build_Guardrail_Snapshots
-        (Old_Health.Guardrail_Result, Run_Public_Build_Guardrail_Audit (S));
+      Old_Health := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Health (S);
+      Unchanged := Editor.External_Producers.Public_Build.Compare_Public_Build_Guardrail_Snapshots
+        (Old_Health.Guardrail_Result, Editor.External_Producers.Public_Build.Run_Public_Build_Guardrail_Audit (S));
       Assert (not Unchanged.Any_Mismatch,
               "old health must remain valid against unchanged current audit");
 
       Unsafe_Result := Old_Health.Guardrail_Result;
       Unsafe_Result.No_Public_Command := False;
       Unsafe_Result.Status := Public_Build_Guardrail_Exposure_Detected;
-      Stale_Mismatch := Compare_Public_Build_Guardrail_Snapshots
+      Stale_Mismatch := Editor.External_Producers.Public_Build.Compare_Public_Build_Guardrail_Snapshots
         (Old_Health.Guardrail_Result, Unsafe_Result);
       Assert (Stale_Mismatch.Public_Command_Mismatch
               and then Stale_Mismatch.Any_Mismatch,
@@ -791,7 +794,7 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
       Unsafe_Health := Old_Health;
       Unsafe_Health.Guardrail_Result := Unsafe_Result;
       Unsafe_Health.Snapshot_Mismatch :=
-        Detect_Public_Build_Guardrail_Contract_Mismatch (Unsafe_Result);
+        Editor.External_Producers.Public_Build.Detect_Public_Build_Guardrail_Contract_Mismatch (Unsafe_Result);
       Unsafe_Health.First_Failure :=
         Editor.External_Producers.Public_Build_Guardrail_Audits.
           First_Public_Build_Guardrail_Failure (Unsafe_Result);
@@ -821,11 +824,11 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
       M      : Public_Build_Guardrail_Contract_Mismatch;
    begin
       Editor.State.Init (S);
-      Before := Build_Public_Build_Guardrail_Health (S);
-      Reset_Build_Run_State_For_Project_Close (S);
-      Reset_Diagnostic_Line_Command_State_For_Project_Close (S);
-      After := Build_Public_Build_Guardrail_Health (S);
-      M := Compare_Public_Build_Guardrail_Snapshots
+      Before := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Health (S);
+      Editor.External_Producers.Build_Requests.Reset_Build_Run_State_For_Project_Close (S);
+      Editor.External_Producers.Diagnostic_Line_Pipeline.Reset_Diagnostic_Line_Command_State_For_Project_Close (S);
+      After := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Health (S);
+      M := Editor.External_Producers.Public_Build.Compare_Public_Build_Guardrail_Snapshots
         (Before.Guardrail_Result, After.Guardrail_Result);
       Assert (Before.Healthy and then After.Healthy,
               "project-close lifecycle must preserve public-build health");
@@ -844,11 +847,11 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
       M      : Public_Build_Guardrail_Contract_Mismatch;
    begin
       Editor.State.Init (S);
-      Before := Build_Public_Build_Guardrail_Health (S);
-      Reset_Build_Run_State_For_Workspace_Close (S);
-      Reset_Diagnostic_Line_Command_State_For_Workspace_Close (S);
-      After := Build_Public_Build_Guardrail_Health (S);
-      M := Compare_Public_Build_Guardrail_Snapshots
+      Before := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Health (S);
+      Editor.External_Producers.Build_Requests.Reset_Build_Run_State_For_Workspace_Close (S);
+      Editor.External_Producers.Diagnostic_Line_Pipeline.Reset_Diagnostic_Line_Command_State_For_Workspace_Close (S);
+      After := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Health (S);
+      M := Editor.External_Producers.Public_Build.Compare_Public_Build_Guardrail_Snapshots
         (Before.Guardrail_Result, After.Guardrail_Result);
       Assert (Before.Healthy and then After.Healthy,
               "workspace-close lifecycle must preserve public-build health");
@@ -864,7 +867,7 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
       S : Editor.State.State_Type;
    begin
       Editor.State.Init (S);
-      Assert_Public_Build_Guardrail_Health_Not_Persisted (S);
+      Editor.External_Producers.Public_Build.Assert_Public_Build_Guardrail_Health_Not_Persisted (S);
    end Test_Public_Build_Health_Not_Persisted;
 
    procedure Test_Public_Build_Guardrail_Manifest_Default_Is_Healthy
@@ -875,7 +878,7 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
       Manifest : Public_Build_Guardrail_Regression_Manifest;
    begin
       Editor.State.Init (S);
-      Manifest := Build_Public_Build_Guardrail_Regression_Manifest (S);
+      Manifest := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Regression_Manifest (S);
       Assert (Manifest.Health.Healthy,
               "manifest embeds healthy public build guardrail health");
       Assert (Manifest.Default_Contract_Matches,
@@ -900,7 +903,7 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
               "manifest must prove dependency blockers are inactive");
       Assert (Manifest.Manifest_Healthy,
               "default public build guardrail regression manifest must be healthy");
-      Assert_Public_Build_Guardrail_Regression_Manifest_Default (Manifest);
+      Editor.External_Producers.Public_Build.Assert_Public_Build_Guardrail_Regression_Manifest_Default (Manifest);
    end Test_Public_Build_Guardrail_Manifest_Default_Is_Healthy;
 
    procedure Test_Public_Build_Guardrail_Manifest_Feedback_Is_Deterministic
@@ -911,29 +914,29 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
       Manifest : Public_Build_Guardrail_Regression_Manifest;
    begin
       Editor.State.Init (S);
-      Manifest := Build_Public_Build_Guardrail_Regression_Manifest (S);
-      Assert (Build_Public_Build_Guardrail_Regression_Manifest_Feedback
+      Manifest := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Regression_Manifest (S);
+      Assert (Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Regression_Manifest_Feedback
                 (Manifest) =
               "Build: public build regression manifest healthy",
               "healthy manifest feedback must be deterministic");
 
       Manifest.Manifest_Healthy := False;
       Manifest.Default_Contract_Matches := False;
-      Assert (Build_Public_Build_Guardrail_Regression_Manifest_Feedback
+      Assert (Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Regression_Manifest_Feedback
                 (Manifest) =
               "Build: public build default contract mismatch",
               "contract mismatch feedback must be deterministic");
 
       Manifest.Default_Contract_Matches := True;
       Manifest.Trace_Surface_Complete := False;
-      Assert (Build_Public_Build_Guardrail_Regression_Manifest_Feedback
+      Assert (Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Regression_Manifest_Feedback
                 (Manifest) =
               "Build: public build audit trace incomplete",
               "trace feedback must be deterministic");
 
       Manifest.Trace_Surface_Complete := True;
       Manifest.Public_Command_Surface_Complete := False;
-      Assert (Build_Public_Build_Guardrail_Regression_Manifest_Feedback
+      Assert (Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Regression_Manifest_Feedback
                 (Manifest) =
               "Build: public build public-id domain coverage incomplete",
               "public-id domain feedback must be deterministic");
@@ -948,7 +951,7 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
       M : Public_Build_Guardrail_Regression_Manifest;
    begin
       Editor.State.Init (S);
-      Base := Build_Public_Build_Guardrail_Regression_Manifest (S);
+      Base := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Regression_Manifest (S);
       M := Base;
       M.Health.Healthy := False;
       M.Manifest_Healthy :=
@@ -992,7 +995,7 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
    is
       pragma Unreferenced (T);
       Matrix : constant Public_Build_Guardrail_Audit_Matrix :=
-        Build_Public_Build_Guardrail_Audit_Matrix;
+        Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Audit_Matrix;
       Count : Natural := 0;
    begin
       for Dimension in Matrix'Range loop
@@ -1002,9 +1005,9 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
       end loop;
       Assert (Count = 31,
               "public build guardrail audit matrix dimension count changed");
-      Assert (Public_Build_Guardrail_Audit_Matrix_Complete (Matrix),
+      Assert (Editor.External_Producers.Public_Build.Public_Build_Guardrail_Audit_Matrix_Complete (Matrix),
               "public build guardrail audit matrix must be complete");
-      Assert_Public_Build_Guardrail_Audit_Matrix_Complete (Matrix);
+      Editor.External_Producers.Public_Build.Assert_Public_Build_Guardrail_Audit_Matrix_Complete (Matrix);
    end Test_Public_Build_Guardrail_Audit_Matrix_All_Dimensions_Checked;
 
    procedure Test_Public_Build_Guardrail_Audit_Matrix_Is_Deterministic
@@ -1012,9 +1015,9 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
    is
       pragma Unreferenced (T);
       A : constant Public_Build_Guardrail_Audit_Matrix :=
-        Build_Public_Build_Guardrail_Audit_Matrix;
+        Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Audit_Matrix;
       B : constant Public_Build_Guardrail_Audit_Matrix :=
-        Build_Public_Build_Guardrail_Audit_Matrix;
+        Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Audit_Matrix;
    begin
       Assert (A = B,
               "public build guardrail audit matrix must be deterministic");
@@ -1031,10 +1034,10 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
       After : Public_Build_Guardrail_Result;
    begin
       Editor.State.Init (S);
-      Before := Run_Public_Build_Guardrail_Audit (S);
-      A := Build_Public_Build_Guardrail_Regression_Manifest (S);
-      B := Build_Public_Build_Guardrail_Regression_Manifest (S);
-      After := Run_Public_Build_Guardrail_Audit (S);
+      Before := Editor.External_Producers.Public_Build.Run_Public_Build_Guardrail_Audit (S);
+      A := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Regression_Manifest (S);
+      B := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Regression_Manifest (S);
+      After := Editor.External_Producers.Public_Build.Run_Public_Build_Guardrail_Audit (S);
       Assert (A = B,
               "public build guardrail manifest builder must be deterministic");
       Assert (Before = After,
@@ -1051,11 +1054,11 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
       Manifest : Public_Build_Guardrail_Regression_Manifest;
    begin
       Editor.State.Init (S);
-      Manifest := Build_Public_Build_Guardrail_Regression_Manifest (S);
+      Manifest := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Regression_Manifest (S);
       Assert (Manifest.Persistence_Exclusion_Clean,
               "manifest audit-only state must remain excluded from persistence");
-      Assert_Public_Build_Guardrail_Health_Not_Persisted (S);
-      Assert_Public_Build_Guardrail_State_Not_Persisted (S);
+      Editor.External_Producers.Public_Build.Assert_Public_Build_Guardrail_Health_Not_Persisted (S);
+      Editor.External_Producers.Public_Build.Assert_Public_Build_Guardrail_State_Not_Persisted (S);
    end Test_Public_Build_Guardrail_Manifest_Not_Persisted;
 
    procedure Test_Public_Build_Guardrail_Manifest_Lifecycle_Project_Close_Remains_Healthy
@@ -1068,11 +1071,11 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
       M : Public_Build_Guardrail_Contract_Mismatch;
    begin
       Editor.State.Init (S);
-      Before := Build_Public_Build_Guardrail_Regression_Manifest (S);
-      Reset_Build_Run_State_For_Project_Close (S);
-      Reset_Diagnostic_Line_Command_State_For_Project_Close (S);
-      After := Build_Public_Build_Guardrail_Regression_Manifest (S);
-      M := Compare_Public_Build_Guardrail_Snapshots
+      Before := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Regression_Manifest (S);
+      Editor.External_Producers.Build_Requests.Reset_Build_Run_State_For_Project_Close (S);
+      Editor.External_Producers.Diagnostic_Line_Pipeline.Reset_Diagnostic_Line_Command_State_For_Project_Close (S);
+      After := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Regression_Manifest (S);
+      M := Editor.External_Producers.Public_Build.Compare_Public_Build_Guardrail_Snapshots
         (Before.Health.Guardrail_Result, After.Health.Guardrail_Result);
       Assert (Before.Manifest_Healthy and then After.Manifest_Healthy,
               "manifest must remain healthy across project close");
@@ -1085,7 +1088,7 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
    is
       pragma Unreferenced (T);
    begin
-      Assert_Public_Build_Guardrail_No_Extra_Layer_Above_Manifest;
+      Editor.External_Producers.Public_Build.Assert_Public_Build_Guardrail_No_Extra_Layer_Above_Manifest;
    end Test_Public_Build_Guardrail_No_Extra_Layer_Above_Manifest;
 
    procedure Test_Public_Build_Guardrail_Manifest_Fields_Have_Direct_Backers
@@ -1096,8 +1099,8 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
       Manifest : Public_Build_Guardrail_Regression_Manifest;
    begin
       Editor.State.Init (S);
-      Manifest := Build_Public_Build_Guardrail_Regression_Manifest (S);
-      Assert_Public_Build_Guardrail_Manifest_Fields_Have_Direct_Backers
+      Manifest := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Regression_Manifest (S);
+      Editor.External_Producers.Public_Build.Assert_Public_Build_Guardrail_Manifest_Fields_Have_Direct_Backers
         (Manifest);
       Assert (Manifest.Manifest_Healthy,
               "manifest direct-backer assertion must preserve default healthy state");
@@ -1113,12 +1116,12 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
       Result_After : Public_Build_Guardrail_Result;
    begin
       Editor.State.Init (S);
-      Result_Before := Run_Public_Build_Guardrail_Audit (S);
-      Health := Build_Public_Build_Guardrail_Health (S);
+      Result_Before := Editor.External_Producers.Public_Build.Run_Public_Build_Guardrail_Audit (S);
+      Health := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Health (S);
       Health.Healthy := False;
       Assert (not Health.Healthy,
               "mutated health copy must not influence result builder");
-      Result_After := Run_Public_Build_Guardrail_Audit (S);
+      Result_After := Editor.External_Producers.Public_Build.Run_Public_Build_Guardrail_Audit (S);
       Assert (Result_Before = Result_After,
               "guardrail result must be computed below health and remain independent");
       Assert (Result_After.Status = Public_Build_Guardrail_Passed,
@@ -1135,12 +1138,12 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
       Health_After : Public_Build_Guardrail_Health;
    begin
       Editor.State.Init (S);
-      Health_Before := Build_Public_Build_Guardrail_Health (S);
-      Manifest := Build_Public_Build_Guardrail_Regression_Manifest (S);
+      Health_Before := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Health (S);
+      Manifest := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Regression_Manifest (S);
       Manifest.Manifest_Healthy := False;
       Assert (not Manifest.Manifest_Healthy,
               "mutated manifest copy must not influence health builder");
-      Health_After := Build_Public_Build_Guardrail_Health (S);
+      Health_After := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Health (S);
       Assert (Health_Before = Health_After,
               "health must be computed below manifest and remain independent");
       Assert (Health_After.Healthy,
@@ -1156,11 +1159,11 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
       B : Public_Build_Guardrail_Regression_Manifest;
    begin
       Editor.State.Init (S);
-      A := Build_Public_Build_Guardrail_Regression_Manifest (S);
-      B := Build_Public_Build_Guardrail_Regression_Manifest (S);
+      A := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Regression_Manifest (S);
+      B := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Regression_Manifest (S);
       Assert (A = B,
               "manifest must be final semantic layer and not depend on a higher wrapper");
-      Assert_Public_Build_Guardrail_Manifest_Fields_Have_Direct_Backers (A);
+      Editor.External_Producers.Public_Build.Assert_Public_Build_Guardrail_Manifest_Fields_Have_Direct_Backers (A);
    end Test_Public_Build_Guardrail_Manifest_Is_Final_Semantic_Layer;
 
    procedure Test_Public_Build_Guardrail_Audit_Matrix_Is_Coverage_Only
@@ -1168,7 +1171,7 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
    is
       pragma Unreferenced (T);
    begin
-      Assert_Public_Build_Guardrail_Audit_Matrix_Coverage_Only;
+      Editor.External_Producers.Public_Build.Assert_Public_Build_Guardrail_Audit_Matrix_Coverage_Only;
    end Test_Public_Build_Guardrail_Audit_Matrix_Is_Coverage_Only;
 
    procedure Test_Public_Build_Guardrail_No_Self_Referential_Healthy_State
@@ -1178,7 +1181,7 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
       S : Editor.State.State_Type;
    begin
       Editor.State.Init (S);
-      Assert_Public_Build_Guardrail_No_Self_Referential_Healthy_State (S);
+      Editor.External_Producers.Public_Build.Assert_Public_Build_Guardrail_No_Self_Referential_Healthy_State (S);
    end Test_Public_Build_Guardrail_No_Self_Referential_Healthy_State;
 
    procedure Test_Public_Build_Guardrail_Post_Pruning_Default_Result_Is_Safe
@@ -1189,7 +1192,7 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
       Result : Public_Build_Guardrail_Result;
    begin
       Editor.State.Init (S);
-      Result := Run_Public_Build_Guardrail_Audit (S);
+      Result := Editor.External_Producers.Public_Build.Run_Public_Build_Guardrail_Audit (S);
       Assert (Result.Status = Public_Build_Guardrail_Passed,
               "post-pruning guardrail status must remain passed");
       Assert (Result.No_Public_Command
@@ -1204,7 +1207,7 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
               and then Result.Persistence_Clean
               and then Result.Audits_Consistent,
               "post-pruning normalized guardrail default contract drifted");
-      Assert_Public_Build_Guardrail_Default_Contract (Result);
+      Editor.External_Producers.Public_Build.Assert_Public_Build_Guardrail_Default_Contract (Result);
    end Test_Public_Build_Guardrail_Post_Pruning_Default_Result_Is_Safe;
 
    procedure Test_Public_Build_Guardrail_Post_Pruning_Health_Is_Healthy
@@ -1215,7 +1218,7 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
       Health : Public_Build_Guardrail_Health;
    begin
       Editor.State.Init (S);
-      Health := Build_Public_Build_Guardrail_Health (S);
+      Health := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Health (S);
       Assert (Health.Healthy,
               "post-pruning health report must remain healthy");
       Assert (Health.Failure_Count = 0,
@@ -1224,7 +1227,7 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
               "post-pruning health first failure must be none");
       Assert (not Health.Snapshot_Mismatch.Any_Mismatch,
               "post-pruning health must report no contract mismatch");
-      Assert_Public_Build_Guardrail_Health_Default (Health);
+      Editor.External_Producers.Public_Build.Assert_Public_Build_Guardrail_Health_Default (Health);
    end Test_Public_Build_Guardrail_Post_Pruning_Health_Is_Healthy;
 
    procedure Test_Public_Build_Guardrail_Post_Pruning_Manifest_Is_Healthy
@@ -1235,7 +1238,7 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
       Manifest : Public_Build_Guardrail_Regression_Manifest;
    begin
       Editor.State.Init (S);
-      Manifest := Build_Public_Build_Guardrail_Regression_Manifest (S);
+      Manifest := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Regression_Manifest (S);
       Assert (Manifest.Manifest_Healthy,
               "post-pruning manifest must remain healthy");
       Assert (Manifest.Health.Healthy
@@ -1250,7 +1253,7 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
               and then not Manifest.Promotion_Blocked
               and then not Manifest.Dependency_Blockers_Active,
               "post-pruning manifest field contract drifted");
-      Assert_Public_Build_Guardrail_Regression_Manifest_Default (Manifest);
+      Editor.External_Producers.Public_Build.Assert_Public_Build_Guardrail_Regression_Manifest_Default (Manifest);
    end Test_Public_Build_Guardrail_Post_Pruning_Manifest_Is_Healthy;
 
    procedure Test_Public_Build_Guardrail_Manifest_Does_Not_Depend_On_Evidence
@@ -1262,12 +1265,12 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
       B : Public_Build_Guardrail_Regression_Manifest;
    begin
       Editor.State.Init (S);
-      Assert_Public_Build_Guardrail_No_Extra_Layer_Above_Manifest;
-      A := Build_Public_Build_Guardrail_Regression_Manifest (S);
-      B := Build_Public_Build_Guardrail_Regression_Manifest (S);
+      Editor.External_Producers.Public_Build.Assert_Public_Build_Guardrail_No_Extra_Layer_Above_Manifest;
+      A := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Regression_Manifest (S);
+      B := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Regression_Manifest (S);
       Assert (A = B,
               "manifest must not consult removed evidence/release-candidate wrappers");
-      Assert_Public_Build_Guardrail_Manifest_Fields_Have_Direct_Backers (A);
+      Editor.External_Producers.Public_Build.Assert_Public_Build_Guardrail_Manifest_Fields_Have_Direct_Backers (A);
    end Test_Public_Build_Guardrail_Manifest_Does_Not_Depend_On_Evidence;
 
    procedure Test_Public_Build_Guardrail_Feedback_Helpers_Only_Health_And_Manifest
@@ -1279,12 +1282,12 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
       Manifest : Public_Build_Guardrail_Regression_Manifest;
    begin
       Editor.State.Init (S);
-      Health := Build_Public_Build_Guardrail_Health (S);
-      Manifest := Build_Public_Build_Guardrail_Regression_Manifest (S);
-      Assert (Build_Public_Build_Guardrail_Health_Feedback (Health) =
+      Health := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Health (S);
+      Manifest := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Regression_Manifest (S);
+      Assert (Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Health_Feedback (Health) =
               "Build: public build guardrail healthy",
               "health feedback helper drifted after pruning");
-      Assert (Build_Public_Build_Guardrail_Regression_Manifest_Feedback
+      Assert (Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Regression_Manifest_Feedback
                 (Manifest) =
               "Build: public build regression manifest healthy",
               "manifest feedback helper drifted after pruning");
@@ -1298,11 +1301,11 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
       Manifest : Public_Build_Guardrail_Regression_Manifest;
    begin
       Editor.State.Init (S);
-      Manifest := Build_Public_Build_Guardrail_Regression_Manifest (S);
+      Manifest := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Regression_Manifest (S);
       Assert (Manifest.Persistence_Exclusion_Clean,
               "post-pruning guardrail manifest must remain non-persistent");
-      Assert_Public_Build_Guardrail_State_Not_Persisted (S);
-      Assert_Public_Build_Guardrail_Health_Not_Persisted (S);
+      Editor.External_Producers.Public_Build.Assert_Public_Build_Guardrail_State_Not_Persisted (S);
+      Editor.External_Producers.Public_Build.Assert_Public_Build_Guardrail_Health_Not_Persisted (S);
    end Test_Public_Build_Guardrail_Post_Pruning_Not_Persisted;
 
    procedure Test_Public_Build_Guardrail_Post_Pruning_Side_Effect_Free
@@ -1318,12 +1321,12 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
       Result_After : Public_Build_Guardrail_Result;
    begin
       Editor.State.Init (S);
-      Result_Before := Run_Public_Build_Guardrail_Audit (S);
-      Health_A := Build_Public_Build_Guardrail_Health (S);
-      Health_B := Build_Public_Build_Guardrail_Health (S);
-      Manifest_A := Build_Public_Build_Guardrail_Regression_Manifest (S);
-      Manifest_B := Build_Public_Build_Guardrail_Regression_Manifest (S);
-      Result_After := Run_Public_Build_Guardrail_Audit (S);
+      Result_Before := Editor.External_Producers.Public_Build.Run_Public_Build_Guardrail_Audit (S);
+      Health_A := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Health (S);
+      Health_B := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Health (S);
+      Manifest_A := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Regression_Manifest (S);
+      Manifest_B := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Regression_Manifest (S);
+      Result_After := Editor.External_Producers.Public_Build.Run_Public_Build_Guardrail_Audit (S);
       Assert (Result_Before = Result_After,
               "post-pruning guardrail builders must not mutate audit state");
       Assert (Health_A = Health_B,
@@ -1344,11 +1347,11 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Manifest_Tests is
       M : Public_Build_Guardrail_Contract_Mismatch;
    begin
       Editor.State.Init (S);
-      Before := Build_Public_Build_Guardrail_Regression_Manifest (S);
-      Reset_Build_Run_State_For_Workspace_Close (S);
-      Reset_Diagnostic_Line_Command_State_For_Workspace_Close (S);
-      After := Build_Public_Build_Guardrail_Regression_Manifest (S);
-      M := Compare_Public_Build_Guardrail_Snapshots
+      Before := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Regression_Manifest (S);
+      Editor.External_Producers.Build_Requests.Reset_Build_Run_State_For_Workspace_Close (S);
+      Editor.External_Producers.Diagnostic_Line_Pipeline.Reset_Diagnostic_Line_Command_State_For_Workspace_Close (S);
+      After := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Regression_Manifest (S);
+      M := Editor.External_Producers.Public_Build.Compare_Public_Build_Guardrail_Snapshots
         (Before.Health.Guardrail_Result, After.Health.Guardrail_Result);
       Assert (Before.Manifest_Healthy and then After.Manifest_Healthy,
               "manifest must remain healthy across workspace close");

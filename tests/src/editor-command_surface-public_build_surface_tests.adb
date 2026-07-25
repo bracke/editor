@@ -19,6 +19,9 @@ with Editor.Executor.Command_Palette_Projection;
 with Editor.File_Tree;
 with Editor.File_Tree_View;
 with Editor.External_Producers;
+with Editor.External_Producers.Audits;
+with Editor.External_Producers.Build_Requests;
+with Editor.External_Producers.Public_Build;
 with Editor.Messages;
 with Editor.Keybindings;
 with Editor.Keybinding_Management;
@@ -215,13 +218,13 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
          Tool             => Editor.External_Producers.GPRbuild_Tool,
          Program_Label    => To_Unbounded_String ("gprbuild"),
          Working_Context  =>
-           Editor.External_Producers.Build_Inherited_Test_Working_Context,
+           Editor.External_Producers.Build_Requests.Build_Inherited_Test_Working_Context,
          Working_Context_Model =>
            (Source => Editor.External_Producers.Public_Build_Working_Context_Test_Context,
             Label  => Null_Unbounded_String,
             User_Acknowledged_Context => True),
          Arguments        =>
-           Editor.External_Producers.Build_Process_Argument_Vector ("-q"),
+           Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q"),
          Consent          => Editor.External_Producers.Build_Consent_User_Confirmed,
          Consent_Model    =>
            (Source => Editor.External_Producers.Public_Build_Consent_Test_Context,
@@ -290,8 +293,8 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
               "conversion must preserve program label as metadata");
       Assert (To_String (Request.Arguments)'Length = 0,
               "conversion must not introduce opaque command text");
-      Assert (Process_Argument_Count (Request.Structured_Arguments) =
-              Process_Argument_Count (Input.Arguments),
+      Assert (Editor.External_Producers.Build_Requests.Process_Argument_Count (Request.Structured_Arguments) =
+              Editor.External_Producers.Build_Requests.Process_Argument_Count (Input.Arguments),
               "conversion must preserve structured argv count");
       Assert (To_String (Request.Working_Label)'Length = 0,
               "conversion must not create a real working directory label");
@@ -303,7 +306,7 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
       S : Editor.State.State_Type;
    begin
       Editor.State.Init (S);
-      return Run_Public_Build_Guardrail_Audit (S);
+      return Editor.External_Producers.Public_Build.Run_Public_Build_Guardrail_Audit (S);
    end Default_Result;
 
    function Starts_With (Text : String; Prefix : String) return Boolean is
@@ -581,7 +584,7 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
       R : Editor.External_Producers.Public_Build_Command_Readiness_Audit_Result;
    begin
       Editor.State.Init (S);
-      R := Editor.External_Producers.Run_Public_Build_Command_Readiness_Audit (S);
+      R := Editor.External_Producers.Public_Build.Run_Public_Build_Command_Readiness_Audit (S);
       Assert (R.Has_Public_Build_Command,
               "public build command is registered through the guarded surface");
       Assert (not R.Has_Default_Public_Build_Keybinding,
@@ -631,7 +634,7 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
       Before_Focus := Editor.Panel_Focus.Target (S.Panel_Focus);
       Before_Bottom := Editor.Panel_Focus.Bottom_Content (S.Panel_Focus);
 
-      R := Editor.External_Producers.Run_Public_Build_Command_Readiness_Audit (S);
+      R := Editor.External_Producers.Public_Build.Run_Public_Build_Command_Readiness_Audit (S);
       Assert (R.Public_Command_Can_Be_Promoted,
               "side-effect-free readiness audit should still return the ready result");
       Assert (Editor.Messages.Count (S.Messages) = Before_Messages,
@@ -670,7 +673,7 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
    begin
       Editor.Keybindings.Reset_To_Defaults;
       Editor.State.Init (S);
-      R := Editor.External_Producers.Run_Public_Build_Command_Readiness_Audit (S);
+      R := Editor.External_Producers.Public_Build.Run_Public_Build_Command_Readiness_Audit (S);
       Assert (not R.Has_Default_Public_Build_Keybinding,
               "public build commands must have no default keybindings");
       Assert (not Editor.Keybindings.Primary_Binding_For_Command
@@ -706,7 +709,7 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
       R : Editor.External_Producers.Public_Build_Command_Readiness_Audit_Result;
    begin
       Editor.State.Init (S);
-      R := Editor.External_Producers.Run_Public_Build_Command_Readiness_Audit (S);
+      R := Editor.External_Producers.Public_Build.Run_Public_Build_Command_Readiness_Audit (S);
       Assert (R.Has_Consent_UX_Model,
               "readiness audit must report the structured consent model");
       Assert (R.Public_Consent_Model_Exists,
@@ -733,7 +736,7 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
       R : Editor.External_Producers.Public_Build_Command_Readiness_Audit_Result;
    begin
       Editor.State.Init (S);
-      R := Editor.External_Producers.Run_Public_Build_Command_Readiness_Audit (S);
+      R := Editor.External_Producers.Public_Build.Run_Public_Build_Command_Readiness_Audit (S);
       Assert (R.Keeps_Implicit_Source_Rejected,
               "readiness audit must prove implicit build source remains rejected");
       Assert (R.Keeps_Shell_Rejected,
@@ -750,7 +753,7 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
       R : Editor.External_Producers.Public_Build_Command_Readiness_Audit_Result;
    begin
       Editor.State.Init (S);
-      R := Editor.External_Producers.Run_Public_Build_Command_Readiness_Audit (S);
+      R := Editor.External_Producers.Public_Build.Run_Public_Build_Command_Readiness_Audit (S);
       Assert (R.Has_User_Command_Input_Model,
               "readiness audit must report public input model present");
       Assert (R.Has_Public_Input_Model_Audit,
@@ -787,7 +790,7 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
       R : Editor.External_Producers.Public_Build_Command_Readiness_Audit_Result;
    begin
       Editor.State.Init (S);
-      R := Editor.External_Producers.Run_Public_Build_Command_Readiness_Audit (S);
+      R := Editor.External_Producers.Public_Build.Run_Public_Build_Command_Readiness_Audit (S);
       Assert (R.Public_Working_Context_Model_Exists,
               "readiness audit must report public working-context model exists");
       Assert (R.Public_Working_Context_Model_Validated,
@@ -808,7 +811,7 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
       pragma Unreferenced (T);
       use Editor.External_Producers;
       Surface_Entries : constant Public_Build_Command_Surface_Array :=
-        Build_Public_Build_Command_Surface;
+        Editor.External_Producers.Public_Build.Build_Public_Build_Command_Surface;
       Surface_Entry : Public_Build_Command_Surface_Entry;
    begin
       Assert (Surface_Entries.Length = 1,
@@ -816,7 +819,7 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
       Surface_Entry := Surface_Entries.First_Element;
       Assert (To_String (Surface_Entry.Stable_Id) = "build.run",
               "surface entry name must be build.run");
-      Assert (Validate_Public_Build_Command_Surface_Entry (Surface_Entry) =
+      Assert (Editor.External_Producers.Public_Build.Validate_Public_Build_Command_Surface_Entry (Surface_Entry) =
               Public_Build_Command_Surface_Valid,
               "surface entry metadata must validate");
       Assert (Surface_Entry.Has_Input_Model,
@@ -829,7 +832,7 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
               "surface entry must be publicly invokable through the guarded command");
       Assert (Surface_Entry.Routes_Through_Executor,
               "surface entry must route through Executor");
-      Assert_Public_Build_Command_Surface_Entry_Consistent (Surface_Entry);
+      Editor.External_Producers.Public_Build.Assert_Public_Build_Command_Surface_Entry_Consistent (Surface_Entry);
    end Test_Public_Build_Command_Surface_Entries_Exist_As_Metadata_Only;
 
    procedure Test_Public_Build_Command_Surface_Entry_Not_Registered
@@ -857,7 +860,7 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
    begin
       Editor.Keybindings.Reset_To_Defaults;
       Editor.State.Init (S);
-      R := Editor.External_Producers.Run_Public_Build_Command_Readiness_Audit (S);
+      R := Editor.External_Producers.Public_Build.Run_Public_Build_Command_Readiness_Audit (S);
       Assert (not R.Has_Default_Public_Build_Keybinding,
               "public build surface entrys must have no default keybinding");
    end Test_Public_Build_Command_Surface_Entry_Has_No_Keybinding;
@@ -897,7 +900,7 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
       pragma Unreferenced (T);
       use Editor.External_Producers;
    begin
-      Assert (Audit_Public_Build_Command_Visibility,
+      Assert (Editor.External_Producers.Public_Build.Audit_Public_Build_Command_Visibility,
               "public surface entry visibility audit must prove no Executor route exists");
       Assert_Public_Build_Name_Not_Registered ("build.run");
       Assert_Public_Build_Name_Not_Registered ("build.configure");
@@ -923,7 +926,7 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
       Editor.State.Init (S);
       Before_Messages := Editor.Messages.Count (S.Messages);
       Before_Has_Buffer := Editor.State.Has_Active_Buffer (S);
-      Status := Validate_Public_Build_Command_Surface_Entry
+      Status := Editor.External_Producers.Public_Build.Validate_Public_Build_Command_Surface_Entry
         ((Stable_Id => To_Unbounded_String ("build.run"),
           Has_Descriptor => True,
           Has_Input_Model => True,
@@ -948,7 +951,7 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
       use Editor.External_Producers;
    begin
       Editor.Keybindings.Reset_To_Defaults;
-      Assert (Validate_Public_Build_Command_Surface_Entry
+      Assert (Editor.External_Producers.Public_Build.Validate_Public_Build_Command_Surface_Entry
                 ((Stable_Id => Null_Unbounded_String,
                   Has_Input_Model => True,
                   Has_Consent_Model => True,
@@ -957,7 +960,7 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
           others => <>)) =
               Public_Build_Command_Surface_Rejected_Empty_Id,
               "empty surface entry id must reject");
-      Assert (Validate_Public_Build_Command_Surface_Entry
+      Assert (Editor.External_Producers.Public_Build.Validate_Public_Build_Command_Surface_Entry
                 ((Stable_Id => To_Unbounded_String ("build.run"),
                   Has_Descriptor => True,
                   Has_Input_Model => False,
@@ -968,7 +971,7 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
           others => <>)) =
               Public_Build_Command_Surface_Rejected_Missing_Input_Model,
               "surface entry without input model must reject");
-      Assert (Validate_Public_Build_Command_Surface_Entry
+      Assert (Editor.External_Producers.Public_Build.Validate_Public_Build_Command_Surface_Entry
                 ((Stable_Id => To_Unbounded_String ("build.run"),
                   Has_Descriptor => True,
                   Has_Input_Model => True,
@@ -979,7 +982,7 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
           others => <>)) =
               Public_Build_Command_Surface_Rejected_Missing_Consent_Model,
               "surface entry without consent model must reject");
-      Assert (Validate_Public_Build_Command_Surface_Entry
+      Assert (Editor.External_Producers.Public_Build.Validate_Public_Build_Command_Surface_Entry
                 ((Stable_Id => To_Unbounded_String ("build.run"),
                   Has_Descriptor => True,
                   Has_Input_Model => True,
@@ -990,7 +993,7 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
           others => <>)) =
               Public_Build_Command_Surface_Rejected_Missing_Working_Context_Model,
               "surface entry without working-context model must reject");
-      Assert (Validate_Public_Build_Command_Surface_Entry
+      Assert (Editor.External_Producers.Public_Build.Validate_Public_Build_Command_Surface_Entry
                 ((Stable_Id => To_Unbounded_String ("build.run"),
                   Has_Descriptor => True,
                   Has_Input_Model => True,
@@ -1000,7 +1003,7 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
           others => <>)) =
               Public_Build_Command_Surface_Rejected_Not_Publicly_Invokable,
               "non-invokable surface entry must reject");
-      Assert (Validate_Public_Build_Command_Surface_Entry
+      Assert (Editor.External_Producers.Public_Build.Validate_Public_Build_Command_Surface_Entry
                 ((Stable_Id => To_Unbounded_String
                     ("build.run-user-opt-in-test-seam"),
                   Has_Descriptor => True,
@@ -1012,7 +1015,7 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
           others => <>)) =
               Public_Build_Command_Surface_Rejected_Missing_Descriptor,
               "non-public command id must reject as surface entry metadata");
-      Assert (Validate_Public_Build_Command_Surface_Entry
+      Assert (Editor.External_Producers.Public_Build.Validate_Public_Build_Command_Surface_Entry
                 ((Stable_Id => To_Unbounded_String ("file.save"),
                   Has_Descriptor => True,
                   Has_Input_Model => True,
@@ -1033,7 +1036,7 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
       R : Editor.External_Producers.Public_Build_Command_Readiness_Audit_Result;
    begin
       Editor.State.Init (S);
-      R := Editor.External_Producers.Run_Public_Build_Command_Readiness_Audit (S);
+      R := Editor.External_Producers.Public_Build.Run_Public_Build_Command_Readiness_Audit (S);
       Assert (R.Public_Command_Surface_Exists,
               "readiness audit must report design-only surface entry metadata exists");
       Assert (R.Public_Executable_Command_Exists,
@@ -1053,7 +1056,7 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
    is
       pragma Unreferenced (T);
       R : constant Editor.External_Producers.Public_Build_Command_UX_Dependency_Audit_Result :=
-        Editor.External_Producers.Audit_Public_Build_Command_UX_Dependencies;
+        Editor.External_Producers.Public_Build.Audit_Public_Build_Command_UX_Dependencies;
    begin
       Assert (R.Has_Input_Model,
               "dependency matrix must report public input model exists");
@@ -1094,8 +1097,8 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
    is
       pragma Unreferenced (T);
    begin
-      Editor.External_Producers.Assert_Public_Build_Command_Surface_Exposed;
-      Assert (Editor.External_Producers.Audit_Public_Build_Command_Visibility,
+      Editor.External_Producers.Public_Build.Assert_Public_Build_Command_Surface_Exposed;
+      Assert (Editor.External_Producers.Public_Build.Audit_Public_Build_Command_Visibility,
               "exposure barrier must pass while surface entrys remain metadata only");
    end Test_Public_Build_Command_Exposure_Barrier_Passes_For_Surface_Entries;
 
@@ -1117,13 +1120,13 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
           others => <>);
    begin
       Editor.State.Init (S);
-      R := Run_Public_Build_Command_Readiness_Audit (S);
+      R := Editor.External_Producers.Public_Build.Run_Public_Build_Command_Readiness_Audit (S);
       R.Public_Consent_UX_Publicly_Ready := False;
       R.Public_Consent_Publicly_Exposable := False;
-      Assert (Validate_Public_Build_Command_Promotion (P, R) =
+      Assert (Editor.External_Producers.Public_Build.Validate_Public_Build_Command_Promotion (P, R) =
               Public_Build_Promotion_Consent_UX_Incomplete,
               "promotion must be blocked by missing real consent UX");
-      Assert (Build_Public_Command_Promotion_Feedback
+      Assert (Editor.External_Producers.Public_Build.Build_Public_Command_Promotion_Feedback
                 (Public_Build_Promotion_Consent_UX_Incomplete) =
               "Build: consent UX not ready",
               "consent promotion feedback must not leak command details");
@@ -1147,13 +1150,13 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
           others => <>);
    begin
       Editor.State.Init (S);
-      R := Run_Public_Build_Command_Readiness_Audit (S);
+      R := Editor.External_Producers.Public_Build.Run_Public_Build_Command_Readiness_Audit (S);
       R.Public_Working_Context_Publicly_Ready := False;
       R.Public_Working_Context_Publicly_Exposable := False;
-      Assert (Validate_Public_Build_Command_Promotion (P, R) =
+      Assert (Editor.External_Producers.Public_Build.Validate_Public_Build_Command_Promotion (P, R) =
               Public_Build_Promotion_Working_Context_UX_Incomplete,
               "promotion must be blocked by missing safe working-context UX");
-      Assert (Build_Public_Command_Promotion_Feedback
+      Assert (Editor.External_Producers.Public_Build.Build_Public_Command_Promotion_Feedback
                 (Public_Build_Promotion_Working_Context_UX_Incomplete) =
               "Build: working directory UX not ready",
               "working-context promotion feedback must not include paths");
@@ -1177,15 +1180,15 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
           others => <>);
    begin
       Editor.State.Init (S);
-      R := Run_Public_Build_Command_Readiness_Audit (S);
+      R := Editor.External_Producers.Public_Build.Run_Public_Build_Command_Readiness_Audit (S);
       R.Public_Consent_UX_Publicly_Ready := True;
       R.Public_Consent_Publicly_Exposable := True;
       R.Public_Working_Context_Publicly_Ready := True;
       R.Public_Working_Context_Publicly_Exposable := True;
-      Assert (Validate_Public_Build_Command_Promotion (P, R) =
+      Assert (Editor.External_Producers.Public_Build.Validate_Public_Build_Command_Promotion (P, R) =
               Public_Build_Promotion_Command_Surface_Ready,
               "promotion must be ready when explicit-source policy and guardrails pass");
-      Assert (Build_Public_Command_Promotion_Feedback
+      Assert (Editor.External_Producers.Public_Build.Build_Public_Command_Promotion_Feedback
                 (Public_Build_Promotion_Command_Surface_Ready) =
               "Build: public command ready",
               "ready promotion feedback must stay deterministic");
@@ -1207,8 +1210,8 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
           others => <>);
    begin
       Editor.State.Init (S);
-      R := Run_Public_Build_Command_Readiness_Audit (S);
-      Assert (Validate_Public_Build_Command_Promotion (P, R) =
+      R := Editor.External_Producers.Public_Build.Run_Public_Build_Command_Readiness_Audit (S);
+      Assert (Editor.External_Producers.Public_Build.Validate_Public_Build_Command_Promotion (P, R) =
               Public_Build_Promotion_Blocked,
               "registered command ids must hard-block surface entry promotion");
    end Test_Public_Build_Promotion_Blocked_When_Command_Already_Registered;
@@ -1230,8 +1233,8 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
    begin
       Editor.Keybindings.Reset_To_Defaults;
       Editor.State.Init (S);
-      R := Run_Public_Build_Command_Readiness_Audit (S);
-      Assert (Validate_Public_Build_Command_Promotion (P, R) =
+      R := Editor.External_Producers.Public_Build.Run_Public_Build_Command_Readiness_Audit (S);
+      Assert (Editor.External_Producers.Public_Build.Validate_Public_Build_Command_Promotion (P, R) =
               Public_Build_Promotion_Blocked,
               "default-keybound command ids must hard-block public build promotion");
    end Test_Public_Build_Promotion_Blocked_When_Default_Keybinding_Exists;
@@ -1252,11 +1255,11 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
           others => <>);
    begin
       Editor.State.Init (S);
-      R := Run_Public_Build_Command_Readiness_Audit (S);
+      R := Editor.External_Producers.Public_Build.Run_Public_Build_Command_Readiness_Audit (S);
       Assert (Editor.Commands.Requires_Context
                 (Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam),
               "fixture for route-exists test must be an Executor-routed internal command");
-      Assert (Validate_Public_Build_Command_Promotion (P, R) =
+      Assert (Editor.External_Producers.Public_Build.Validate_Public_Build_Command_Promotion (P, R) =
               Public_Build_Promotion_Blocked,
               "existing Executor routes must hard-block surface entry promotion");
    end Test_Public_Build_Promotion_Blocked_When_Executor_Route_Exists;
@@ -1270,7 +1273,7 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
       R : Public_Build_Command_Readiness_Audit_Result;
    begin
       Editor.State.Init (S);
-      R := Run_Public_Build_Command_Readiness_Audit (S);
+      R := Editor.External_Producers.Public_Build.Run_Public_Build_Command_Readiness_Audit (S);
       Assert (R.Public_Command_Promotion_Status =
               Public_Build_Promotion_Command_Surface_Ready,
               "audit must report command-surface promotion ready");
@@ -1313,20 +1316,20 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
       Editor.State.Init (S);
       Before_Messages := Editor.Messages.Count (S.Messages);
       Before_Has_Buffer := Editor.State.Has_Active_Buffer (S);
-      R1 := Run_Public_Build_Command_Readiness_Audit (S);
-      Status := Validate_Public_Build_Command_Promotion (P, R1);
-      Assert_Public_Build_Command_Surface_Exposed;
-      Assert (Audit_Public_Build_Command_Visibility,
+      R1 := Editor.External_Producers.Public_Build.Run_Public_Build_Command_Readiness_Audit (S);
+      Status := Editor.External_Producers.Public_Build.Validate_Public_Build_Command_Promotion (P, R1);
+      Editor.External_Producers.Public_Build.Assert_Public_Build_Command_Surface_Exposed;
+      Assert (Editor.External_Producers.Public_Build.Audit_Public_Build_Command_Visibility,
               "exposure barrier must pass without mutation");
       declare
          Feedback : constant String :=
-           Build_Public_Command_Promotion_Feedback
+           Editor.External_Producers.Public_Build.Build_Public_Command_Promotion_Feedback
              (R1.Public_Command_Promotion_Status);
       begin
          Assert (Feedback'Length > 0,
                  "feedback helper must be pure deterministic text");
       end;
-      R2 := Run_Public_Build_Command_Readiness_Audit (S);
+      R2 := Editor.External_Producers.Public_Build.Run_Public_Build_Command_Readiness_Audit (S);
       Assert (R1.Public_Command_Promotion_Status = R2.Public_Command_Promotion_Status,
               "repeated readiness audits must return stable promotion status");
       Assert (R1.Public_Command_Can_Be_Promoted = R2.Public_Command_Can_Be_Promoted,
@@ -1344,7 +1347,7 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
       pragma Unreferenced (T);
       use Editor.External_Producers;
       Matrix : constant Public_Build_UX_Dependency_Matrix :=
-        Build_Public_Build_UX_Dependency_Matrix;
+        Editor.External_Producers.Public_Build.Build_Public_Build_UX_Dependency_Matrix;
    begin
       Assert (Matrix (Public_Build_Dependency_Input_Model) =
               Dependency_Satisfied,
@@ -1385,9 +1388,9 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
       pragma Unreferenced (T);
       use Editor.External_Producers;
       Matrix : constant Public_Build_UX_Dependency_Matrix :=
-        Build_Public_Build_UX_Dependency_Matrix;
+        Editor.External_Producers.Public_Build.Build_Public_Build_UX_Dependency_Matrix;
    begin
-      Assert (Validate_Public_Build_UX_Dependencies (Matrix) =
+      Assert (Editor.External_Producers.Public_Build.Validate_Public_Build_UX_Dependencies (Matrix) =
               Public_Build_Promotion_Command_Surface_Ready,
               "dependency matrix must allow guarded surface entry promotion");
    end Test_Public_Build_UX_Dependency_Matrix_Validation_Allows_Promotion;
@@ -1398,9 +1401,9 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
       pragma Unreferenced (T);
       use Editor.External_Producers;
       Matrix : Public_Build_UX_Dependency_Matrix :=
-        Build_Public_Build_UX_Dependency_Matrix;
+        Editor.External_Producers.Public_Build.Build_Public_Build_UX_Dependency_Matrix;
    begin
-      Assert (Validate_Public_Build_UX_Dependencies (Matrix) =
+      Assert (Editor.External_Producers.Public_Build.Validate_Public_Build_UX_Dependencies (Matrix) =
               Public_Build_Promotion_Command_Surface_Ready,
               "dependency matrix is ready when all guarded dependencies are satisfied");
    end Test_Public_Build_Promotion_Blocker_Precedence_Is_Deterministic;
@@ -1414,7 +1417,7 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
       R : Public_Build_Command_Readiness_Audit_Result;
    begin
       Editor.State.Init (S);
-      R := Run_Public_Build_Command_Readiness_Audit (S);
+      R := Editor.External_Producers.Public_Build.Run_Public_Build_Command_Readiness_Audit (S);
       Assert (R.Public_UX_Dependency_Matrix_Exists,
               "readiness audit must report dependency matrix exists");
       Assert (R.Public_UX_Dependency_Matrix_Validated,
@@ -1443,9 +1446,9 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
       S : Editor.State.State_Type;
    begin
       Editor.State.Init (S);
-      Assert (Public_Build_Surface_Ids_Not_Publicly_Projected (S),
+      Assert (Editor.External_Producers.Public_Build.Public_Build_Surface_Ids_Not_Publicly_Projected (S),
               "guardrail projection scan must see no public-id projection");
-      Assert_No_Public_Build_Execution_Path (S);
+      Editor.External_Producers.Public_Build.Assert_No_Public_Build_Execution_Path (S);
    end Test_Public_Build_Guardrail_Audit_Uses_Exposure_Barrier;
 
    overriding procedure Register_Tests

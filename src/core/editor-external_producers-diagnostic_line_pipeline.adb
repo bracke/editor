@@ -6,10 +6,43 @@ with Editor.Image_Helpers;
 with Editor.Feature_Diagnostics;
 with Editor.Feature_Panel;
 with Editor.Feature_Panel_Controller;
+with Editor.External_Producers.Diagnostic_Line_Parsing;
+with Editor.External_Producers.Diagnostics;
+with Editor.External_Producers.Diagnostic_Normalization;
+with Editor.External_Producers.Source_Metadata;
 
 package body Editor.External_Producers.Diagnostic_Line_Pipeline is
 
    use type Editor.Feature_Panel.Feature_Id;
+
+   subtype Diagnostic_Line_Parse_Status is
+     Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Status;
+   subtype Diagnostic_Line_Parse_Reason is
+     Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Reason;
+   subtype Diagnostic_Line_Parse_Result is
+     Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Result;
+   subtype Diagnostic_Text_Line_Array is
+     Editor.External_Producers.Diagnostic_Line_Parsing.Text_Line_Array;
+   subtype Diagnostic_Line_Batch_Parse_Result is
+     Editor.External_Producers.Diagnostic_Line_Parsing.Batch_Parse_Result;
+   subtype Diagnostic_Line_Ingestion_Result is
+     Editor.External_Producers.Diagnostic_Line_Parsing.Ingestion_Result;
+   subtype Diagnostic_Line_Command_Outcome is
+     Editor.External_Producers.Diagnostic_Line_Parsing.Command_Outcome;
+   subtype Diagnostic_Line_Command_Result is
+     Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result;
+   subtype Compiler_Diagnostic_Severity is
+     Editor.External_Producers.Diagnostic_Line_Parsing.Compiler_Severity;
+   subtype Compiler_Diagnostic_Record is
+     Editor.External_Producers.Diagnostics.Compiler_Record;
+   subtype Compiler_Diagnostic_Record_Array is
+     Editor.External_Producers.Diagnostics.Compiler_Record_Array;
+
+   package Diagnostic_Text_Line_Vectors renames
+     Editor.External_Producers.Diagnostic_Line_Parsing.Text_Line_Vectors;
+
+   use Editor.External_Producers.Diagnostic_Line_Parsing;
+   use Editor.External_Producers.Diagnostics;
 
    function Trim_Slice_Or_Empty
      (Text : String;
@@ -580,12 +613,15 @@ package body Editor.External_Producers.Diagnostic_Line_Pipeline is
 
    function Normalize_Parsed_Compiler_Diagnostic
      (S        : Editor.State.State_Type;
-      Producer : External_Producer_Source;
-      Parsed   : Diagnostic_Line_Parse_Result) return External_Diagnostic_Record
+      Producer : Editor.External_Producers.Diagnostics.Producer_Source;
+      Parsed   : Diagnostic_Line_Parse_Result)
+      return Editor.External_Producers.Diagnostics.Diagnostic_Record
    is
    begin
       if Parsed.Status = Parse_Accepted and then Parsed.Has_Record then
-         return Normalize_Compiler_Diagnostic (S, Producer, Parsed.Diagnostic_Record);
+         return Editor.External_Producers.Diagnostic_Normalization.
+           Normalize_Compiler_Diagnostic
+             (S, Producer, Parsed.Diagnostic_Record);
       else
          return
            (Severity      => Editor.Feature_Diagnostics.Diagnostic_Warning,
@@ -608,14 +644,16 @@ package body Editor.External_Producers.Diagnostic_Line_Pipeline is
 
    function Ingest_Compiler_Diagnostic_Lines
      (S        : in out Editor.State.State_Type;
-      Producer : External_Producer_Source;
+      Producer : Editor.External_Producers.Diagnostics.Producer_Source;
       Lines    : Diagnostic_Text_Line_Array) return Diagnostic_Line_Ingestion_Result
    is
       Parsed : constant Diagnostic_Line_Batch_Parse_Result :=
         Parse_Compiler_Diagnostic_Lines
           (Lines, To_String (Producer.Display_Label));
-      Normalized : constant Normalized_Diagnostic_Batch :=
-        Normalize_Compiler_Diagnostic_Batch (S, Producer, Parsed.Records);
+      Normalized : constant Editor.External_Producers.Diagnostics.Normalized_Batch :=
+        Editor.External_Producers.Diagnostic_Normalization.
+          Normalize_Compiler_Diagnostic_Batch
+            (S, Producer, Parsed.Records);
       Result : Diagnostic_Line_Ingestion_Result;
    begin
       Result.Parse_Input_Count := Parsed.Input_Count;
@@ -630,7 +668,8 @@ package body Editor.External_Producers.Diagnostic_Line_Pipeline is
       Result.Parsed_Note_Count := Parsed.Note_Count;
       Result.Parsed_Unknown_Count := Parsed.Unknown_Count;
       Result.Ingestion_Result :=
-        Ingest_Diagnostic_Batch (S, Producer, Normalized.Items);
+        Editor.External_Producers.Diagnostic_Normalization.
+          Ingest_Diagnostic_Batch (S, Producer, Normalized.Items);
       Assert_Diagnostic_Line_Ingestion_Result_Consistent (Result);
       return Result;
    end Ingest_Compiler_Diagnostic_Lines;
@@ -827,15 +866,17 @@ package body Editor.External_Producers.Diagnostic_Line_Pipeline is
 
    function Ingest_Diagnostic_Lines_From_Command_With_Tool_Label
      (S                : in out Editor.State.State_Type;
-      Producer         : External_Producer_Source;
+      Producer         : Editor.External_Producers.Diagnostics.Producer_Source;
       Lines            : Diagnostic_Text_Line_Array;
       Tool_Label       : String;
       Show_Diagnostics : Boolean := False) return Diagnostic_Line_Command_Result
    is
       Parsed : constant Diagnostic_Line_Batch_Parse_Result :=
         Parse_Compiler_Diagnostic_Lines (Lines, Tool_Label);
-      Normalized : constant Normalized_Diagnostic_Batch :=
-        Normalize_Compiler_Diagnostic_Batch (S, Producer, Parsed.Records);
+      Normalized : constant Editor.External_Producers.Diagnostics.Normalized_Batch :=
+        Editor.External_Producers.Diagnostic_Normalization.
+          Normalize_Compiler_Diagnostic_Batch
+            (S, Producer, Parsed.Records);
       Ingestion : Diagnostic_Line_Ingestion_Result;
       Showed : Boolean := False;
    begin
@@ -851,7 +892,8 @@ package body Editor.External_Producers.Diagnostic_Line_Pipeline is
       Ingestion.Parsed_Note_Count := Parsed.Note_Count;
       Ingestion.Parsed_Unknown_Count := Parsed.Unknown_Count;
       Ingestion.Ingestion_Result :=
-        Ingest_Diagnostic_Batch (S, Producer, Normalized.Items);
+        Editor.External_Producers.Diagnostic_Normalization.
+          Ingest_Diagnostic_Batch (S, Producer, Normalized.Items);
       Assert_Diagnostic_Line_Ingestion_Result_Consistent (Ingestion);
 
       if Show_Diagnostics
@@ -872,7 +914,7 @@ package body Editor.External_Producers.Diagnostic_Line_Pipeline is
 
    function Ingest_Diagnostic_Lines_From_Command
      (S                : in out Editor.State.State_Type;
-      Producer         : External_Producer_Source;
+      Producer         : Editor.External_Producers.Diagnostics.Producer_Source;
       Lines            : Diagnostic_Text_Line_Array;
       Show_Diagnostics : Boolean := False) return Diagnostic_Line_Command_Result
    is
@@ -984,11 +1026,12 @@ package body Editor.External_Producers.Diagnostic_Line_Pipeline is
    function Diagnostic_Line_Layering_Audit_Passes return Boolean
    is
       S : Editor.State.State_Type;
-      Source : constant External_Producer_Source :=
-        Build_Compiler_Diagnostics_Producer_Source;
+      Source : constant Editor.External_Producers.Diagnostics.Producer_Source :=
+        Editor.External_Producers.Source_Metadata.
+          Build_Compiler_Diagnostics_Producer_Source;
       Lines : Diagnostic_Text_Line_Array;
       Parsed : Diagnostic_Line_Batch_Parse_Result;
-      Normalized : Normalized_Diagnostic_Batch;
+      Normalized : Editor.External_Producers.Diagnostics.Normalized_Batch;
       Simulated_Result : Diagnostic_Line_Ingestion_Result;
       Before_Feature : Editor.Feature_Panel.Feature_Id;
       After_Feature : Editor.Feature_Panel.Feature_Id;
@@ -999,8 +1042,9 @@ package body Editor.External_Producers.Diagnostic_Line_Pipeline is
       Lines.Append (To_Unbounded_String ("src/main.adb:x:1: error: malformed"));
 
       Parsed := Parse_Compiler_Diagnostic_Lines (Lines, "gnat");
-      Normalized := Normalize_Compiler_Diagnostic_Batch
-        (S, Source, Parsed.Records);
+      Normalized := Editor.External_Producers.Diagnostic_Normalization.
+        Normalize_Compiler_Diagnostic_Batch
+          (S, Source, Parsed.Records);
       Before_Feature := Editor.Feature_Panel.Active_Feature (S.Feature_Panel);
       Simulated_Result.Parse_Input_Count := Parsed.Input_Count;
       Simulated_Result.Parse_Accepted_Count := Parsed.Accepted_Count;
@@ -1016,7 +1060,8 @@ package body Editor.External_Producers.Diagnostic_Line_Pipeline is
       After_Feature := Editor.Feature_Panel.Active_Feature (S.Feature_Panel);
 
       return Assert_Diagnostic_Line_Batch_Consistent (Parsed)
-        and then Assert_Normalized_Batch_Consistent (Normalized)
+        and then Editor.External_Producers.Diagnostic_Normalization.
+          Assert_Normalized_Batch_Consistent (Normalized)
         and then Diagnostic_Line_Ingestion_Result_Is_Consistent (Simulated_Result)
         and then Parsed.Input_Count = 3
         and then Parsed.Accepted_Count = 1
@@ -1029,5 +1074,27 @@ package body Editor.External_Producers.Diagnostic_Line_Pipeline is
         and then Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0
         and then Before_Feature = After_Feature;
    end Diagnostic_Line_Layering_Audit_Passes;
+
+   procedure Reset_Diagnostic_Line_Command_State_For_Project_Close
+     (S : in out Editor.State.State_Type)
+   is
+      pragma Unreferenced (S);
+   begin
+      --  Synchronous-only invariant: command-facing diagnostic-line ingestion
+      --  stores no run id, no pending output, no retained lines, and no live
+      --  buffer handles outside Diagnostics-owned rows.
+      null;
+   end Reset_Diagnostic_Line_Command_State_For_Project_Close;
+
+   procedure Reset_Diagnostic_Line_Command_State_For_Workspace_Close
+     (S : in out Editor.State.State_Type)
+   is
+      pragma Unreferenced (S);
+   begin
+      --  Synchronous-only invariant: workspace close preserves pure parser and
+      --  normalizer helpers and stable command descriptors; no transient
+      --  diagnostic-line command state is retained here.
+      null;
+   end Reset_Diagnostic_Line_Command_State_For_Workspace_Close;
 
 end Editor.External_Producers.Diagnostic_Line_Pipeline;

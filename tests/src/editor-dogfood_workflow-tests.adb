@@ -32,6 +32,7 @@ with Editor.Executor.File_Tree_Commands;
 with Editor.Executor.Project_File_Index_Commands;
 with Editor.Executor.Project_Lifecycle_Commands;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Requests;
 with Editor.Feature_Diagnostics;
 with Editor.Feature_Panel;
 with Editor.Focus_Management;
@@ -305,7 +306,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Build_View    : Editor.Build_UI.Build_UI_Render_Snapshot;
       Build_Run     : Editor.Command_Execution.Command_Execution_Result;
       Supplied_Process : Editor.External_Producers.Process_Run_Result;
-      Build_Command_Result : Editor.External_Producers.Build_Command_Result;
+      Build_Command_Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
       Compiler_Status : Editor.Ada_Language_Service.Compiler_Backend_Status;
       Compiler_Diagnostic : Editor.Ada_Language_Service.Compiler_Diagnostic;
       Diagnostic_Open : Editor.Command_Execution.Command_Execution_Result;
@@ -730,7 +731,7 @@ package body Editor.Dogfood_Workflow.Tests is
                 Editor.Commands.Command_Available,
               "build.run is available once project, candidate, policy, and consent agree");
 
-      Supplied_Process := Editor.External_Producers.Build_Process_Run_Result
+      Supplied_Process := Editor.External_Producers.Build_Requests.Build_Process_Run_Result
         (Editor.External_Producers.Process_Run_Failed,
          Exit_Code => 1,
          Has_Exit_Code => True,
@@ -2923,7 +2924,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Build_Refresh  : Editor.Build_Candidate_Refresh.Build_Candidate_Refresh_Result;
       Context        : Editor.Build_Working_Context.Build_Working_Context_Record;
       Supplied_Process : Editor.External_Producers.Process_Run_Result;
-      Build_Command_Result : Editor.External_Producers.Build_Command_Result;
+      Build_Command_Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
       Diagnostic_Open : Editor.Command_Execution.Command_Execution_Result;
       Back_Result     : Editor.Command_Execution.Command_Execution_Result;
 
@@ -3040,7 +3041,7 @@ package body Editor.Dogfood_Workflow.Tests is
         (S, Editor.Commands.Command_Build_Acknowledge_Consent);
       Assert (Build_Run.Status = Editor.Command_Execution.Command_Executed,
               "main workflow smoke acknowledges build consent");
-      Supplied_Process := Editor.External_Producers.Build_Process_Run_Result
+      Supplied_Process := Editor.External_Producers.Build_Requests.Build_Process_Run_Result
         (Editor.External_Producers.Process_Run_Failed,
          Exit_Code => 1,
          Has_Exit_Code => True,
@@ -3112,7 +3113,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Build_Refresh : Editor.Build_Candidate_Refresh.Build_Candidate_Refresh_Result;
       Context       : Editor.Build_Working_Context.Build_Working_Context_Record;
       Supplied_Process : Editor.External_Producers.Process_Run_Result;
-      Build_Command_Result : Editor.External_Producers.Build_Command_Result;
+      Build_Command_Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
       Diagnostic_Open : Editor.Command_Execution.Command_Execution_Result;
       Workspace_Save : Editor.Command_Execution.Command_Execution_Result;
       Workspace_Restore : Editor.Command_Execution.Command_Execution_Result;
@@ -3262,7 +3263,7 @@ package body Editor.Dogfood_Workflow.Tests is
         (S, Editor.Commands.Command_Build_Acknowledge_Consent);
       Assert (Build_Run.Status = Editor.Command_Execution.Command_Executed,
               "daily loop acknowledges build consent");
-      Supplied_Process := Editor.External_Producers.Build_Process_Run_Result
+      Supplied_Process := Editor.External_Producers.Build_Requests.Build_Process_Run_Result
         (Editor.External_Producers.Process_Run_Failed,
          Exit_Code => 1,
          Has_Exit_Code => True,

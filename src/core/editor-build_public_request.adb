@@ -1,6 +1,7 @@
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Build_Working_Context;
+with Editor.External_Producers.Build_Requests;
 
 package body Editor.Build_Public_Request is
 
@@ -49,7 +50,7 @@ package body Editor.Build_Public_Request is
       return Editor.External_Producers.Process_Argument_Vector
    is
       Result : Editor.External_Producers.Process_Argument_Vector :=
-        Editor.External_Producers.Empty_Process_Arguments;
+        Editor.External_Producers.Build_Requests.Empty_Process_Arguments;
    begin
       for Arg of Arguments loop
          Result.Append (Arg);
@@ -70,7 +71,7 @@ package body Editor.Build_Public_Request is
       Input.Tool := Tool_To_Build_Tool (State.Selected_Build_Tool);
       Input.Program_Label := To_Unbounded_String
         (Program_Label_For (State.Selected_Build_Tool));
-      Input.Working_Context := Editor.External_Producers.Build_Explicit_Label_Working_Context
+      Input.Working_Context := Editor.External_Producers.Build_Requests.Build_Explicit_Label_Working_Context
         (Trimmed (State.Selected_Working_Context.Canonical_Path_If_Available));
       Input.Working_Context_Model :=
         (Source => Editor.External_Producers.Public_Build_Working_Context_User_Form_Label,
@@ -97,7 +98,7 @@ package body Editor.Build_Public_Request is
       Input.Show_Diagnostics := State.Show_Diagnostics_On_Result;
 
       if Status = Editor.Build_UI.Build_UI_Valid then
-         Request := Editor.External_Producers.Build_Public_Build_Request_From_UI_State
+         Request := Editor.External_Producers.Build_Requests.Build_Public_Build_Request_From_UI_State
            (Input);
       else
          Request :=
@@ -122,7 +123,7 @@ package body Editor.Build_Public_Request is
         and then Conversion.Status = Editor.Build_UI.Build_UI_Valid
         and then Conversion.Request.Provenance =
           Editor.External_Producers.Build_Request_From_User_Opt_In
-        and then Editor.External_Producers.Process_Argument_Count
+        and then Editor.External_Producers.Build_Requests.Process_Argument_Count
           (Conversion.Request.Structured_Arguments) =
           Editor.Build_UI.Argument_Count (State.Structured_Arguments);
    end Assert_Public_Build_Command_UX_Foundation_Coherent;
@@ -151,7 +152,7 @@ package body Editor.Build_Public_Request is
         and then Conversion.Request.Provenance =
           Editor.External_Producers.Build_Request_From_User_Opt_In
         and then To_String (Conversion.Request.Arguments)'Length = 0
-        and then Editor.External_Producers.Process_Argument_Count
+        and then Editor.External_Producers.Build_Requests.Process_Argument_Count
           (Conversion.Request.Structured_Arguments) =
           Editor.Build_UI.Argument_Count (State.Structured_Arguments);
    end Assert_Public_Build_Working_Context_Foundation_Coherent;

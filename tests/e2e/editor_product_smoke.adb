@@ -26,6 +26,8 @@ with Editor.Executor.Project_File_Index_Commands;
 with Editor.Executor.Project_Lifecycle_Commands;
 with Editor.Executor.Workspace_Commands;
 with Editor.External_Producers;
+with Editor.External_Producers.Execution_Policy;
+with Editor.External_Producers.Build_Requests;
 with Editor.Feature_Diagnostics;
 with Editor.Feature_Panel;
 with Editor.File_Tree;
@@ -215,10 +217,10 @@ procedure Editor_Product_Smoke is
 
    function Smoke_Request return Editor.External_Producers.Build_Run_Request is
       Args : Editor.External_Producers.Process_Argument_Vector :=
-        Editor.External_Producers.Empty_Process_Arguments;
+        Editor.External_Producers.Build_Requests.Empty_Process_Arguments;
    begin
-      Editor.External_Producers.Append_Process_Argument (Args, "-P");
-      Editor.External_Producers.Append_Process_Argument
+      Editor.External_Producers.Build_Requests.Append_Process_Argument (Args, "-P");
+      Editor.External_Producers.Build_Requests.Append_Process_Argument
         (Args, Root & "/smoke_project.gpr");
       return
         (Tool => Editor.External_Producers.GPRbuild_Tool,
@@ -239,7 +241,7 @@ procedure Editor_Product_Smoke is
    Search_Result : Editor.Project_Search.Project_Search_Result;
    Build_Context : Editor.External_Producers.User_Opt_In_Build_Command_Context;
    Supplied_Process : Editor.External_Producers.Process_Run_Result;
-   Build_Result : Editor.External_Producers.Build_Command_Result;
+   Build_Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    Workspace : Editor.Workspace_Persistence.Workspace_Snapshot;
    Loaded : Editor.Workspace_Persistence.Workspace_Snapshot;
    Persist_Status : Editor.Workspace_Persistence.Workspace_Persistence_Status;
@@ -1024,11 +1026,11 @@ begin
 
    Build_Context.Has_Request := True;
    Build_Context.Request := Smoke_Request;
-   Build_Context.Gate := Editor.External_Producers.Build_Real_Execution_Gate
+   Build_Context.Gate := Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate
      (Allow_Diagnostics_Ingestion => True,
       Show_Diagnostics            => True,
       Consent                     => Editor.External_Producers.Build_Consent_User_Confirmed);
-   Supplied_Process := Editor.External_Producers.Build_Process_Run_Result
+   Supplied_Process := Editor.External_Producers.Build_Requests.Build_Process_Run_Result
      (Status        => Editor.External_Producers.Process_Run_Failed,
       Exit_Code     => 1,
       Has_Exit_Code => True,

@@ -7,6 +7,9 @@ with Editor.Build_Result_Summary;
 with Editor.Build_Output_Details;
 with Editor.Build_UI;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Requests;
+with Editor.External_Producers.Diagnostic_Line_Parsing;
+with Editor.External_Producers.Execution_Policy;
 with Editor.Project;
 with Editor.View;
 
@@ -15,10 +18,10 @@ package body Editor.Build_Command.Projections is
    use type Editor.Build_Candidates.Build_Candidate_Validation_Status;
    use type Editor.Build_UI.Public_Build_UI_Validation_Status;
    use type Editor.External_Producers.Build_Request_Validation_Status;
-   use type Editor.External_Producers.Build_Run_Status;
+   use type Editor.External_Producers.Build_Requests.Build_Run_Status;
 
    function Summary_Kind_For
-     (Status : Editor.External_Producers.Build_Run_Status)
+     (Status : Editor.External_Producers.Build_Requests.Build_Run_Status)
       return Editor.Build_Result_Summary.Build_Result_Summary_Kind
    is
    begin
@@ -42,7 +45,7 @@ package body Editor.Build_Command.Projections is
    end Summary_Kind_For;
 
    function Summary_Tool_For
-     (Tool : Editor.External_Producers.Build_Tool_Kind)
+     (Tool : Editor.External_Producers.Build_Requests.Build_Tool_Kind)
       return Editor.Build_Result_Summary.Build_Result_Tool_Kind
    is
    begin
@@ -59,7 +62,7 @@ package body Editor.Build_Command.Projections is
    end Summary_Tool_For;
 
    function Compiler_Tool_Name
-     (Tool : Editor.External_Producers.Build_Tool_Kind) return String
+     (Tool : Editor.External_Producers.Build_Requests.Build_Tool_Kind) return String
    is
    begin
       case Tool is
@@ -75,7 +78,7 @@ package body Editor.Build_Command.Projections is
    end Compiler_Tool_Name;
 
    function Build_Run_Fingerprint
-     (Result : Editor.External_Producers.Build_Run_Result) return Natural
+     (Result : Editor.External_Producers.Build_Requests.Build_Run_Result) return Natural
    is
       Exit_Code_Part : Natural := 0;
    begin
@@ -90,28 +93,38 @@ package body Editor.Build_Command.Projections is
       end if;
 
       return
-        Editor.External_Producers.Build_Run_Status'Pos (Result.Status)
+        Editor.External_Producers.Build_Requests.Build_Run_Status'Pos (Result.Status)
         + Exit_Code_Part;
    end Build_Run_Fingerprint;
 
    procedure Feed_Language_Service_Compiler_Backend
      (State   : in out Editor.State.State_Type;
-      Request : Editor.External_Producers.Build_Run_Request;
-      Result  : Editor.External_Producers.Build_Run_Result)
+      Request : Editor.External_Producers.Build_Requests.Build_Run_Request;
+      Result  : Editor.External_Producers.Build_Requests.Build_Run_Result)
    is
+      Lines : constant
+        Editor.External_Producers.Build_Requests.Diagnostic_Text_Line_Array :=
+          Editor.External_Producers.Build_Requests
+            .Extract_Diagnostic_Lines_From_Build_Result (Result);
+      Root_Lines : Editor.External_Producers.Diagnostic_Text_Line_Array;
    begin
+      if not Lines.Is_Empty then
+         for Index in Lines.First_Index .. Lines.Last_Index loop
+            Root_Lines.Append (Lines.Element (Index));
+         end loop;
+      end if;
+
       State.Language_Service :=
         Editor.Ada_Language_Service.From_Index (State.Language_Index);
       Editor.Ada_Language_Service.Put_Compiler_Diagnostic_Lines
         (State.Language_Service,
-         Editor.External_Producers.Extract_Diagnostic_Lines_From_Build_Result
-           (Result),
+         Root_Lines,
          Tool_Name       => Compiler_Tool_Name (Request.Tool),
          Run_Fingerprint => Build_Run_Fingerprint (Result));
    end Feed_Language_Service_Compiler_Backend;
 
    function Summary_Mode_For
-     (Request : Editor.External_Producers.Build_Run_Request)
+     (Request : Editor.External_Producers.Build_Requests.Build_Run_Request)
       return Editor.Build_Result_Summary.Build_Result_Request_Mode
    is
    begin
@@ -134,7 +147,7 @@ package body Editor.Build_Command.Projections is
    end Summary_Mode_For;
 
    function Summary_Diagnostics_For
-     (Result : Editor.External_Producers.Diagnostic_Line_Command_Result;
+     (Result : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result;
       Allowed : Boolean)
       return Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status
    is
@@ -144,7 +157,7 @@ package body Editor.Build_Command.Projections is
       end if;
 
       case Result.Outcome is
-         when Editor.External_Producers.Diagnostic_Line_Command_Succeeded =>
+         when Editor.External_Producers.Diagnostic_Line_Parsing.Diagnostic_Line_Command_Succeeded =>
             if Result.Ingestion.Ingestion_Result.Accepted_Count > 0 then
                if Result.Ingestion.Parse_Rejected_Malformed_Count > 0 then
                   return Editor.Build_Result_Summary.Diagnostics_Ingestion_Parse_Partial;
@@ -154,16 +167,16 @@ package body Editor.Build_Command.Projections is
             else
                return Editor.Build_Result_Summary.Diagnostics_Ingestion_No_Diagnostics;
             end if;
-         when Editor.External_Producers.Diagnostic_Line_Command_No_Input
-            | Editor.External_Producers.Diagnostic_Line_Command_No_Diagnostics =>
+         when Editor.External_Producers.Diagnostic_Line_Parsing.Diagnostic_Line_Command_No_Input
+            | Editor.External_Producers.Diagnostic_Line_Parsing.Diagnostic_Line_Command_No_Diagnostics =>
             return Editor.Build_Result_Summary.Diagnostics_Ingestion_No_Diagnostics;
-         when Editor.External_Producers.Diagnostic_Line_Command_Malformed_Only =>
+         when Editor.External_Producers.Diagnostic_Line_Parsing.Diagnostic_Line_Command_Malformed_Only =>
             return Editor.Build_Result_Summary.Diagnostics_Ingestion_Failed;
       end case;
    end Summary_Diagnostics_For;
 
    function Runner_Status_Label
-     (Status : Editor.External_Producers.Build_Run_Status) return String
+     (Status : Editor.External_Producers.Build_Requests.Build_Run_Status) return String
    is
    begin
       case Status is
@@ -180,7 +193,7 @@ package body Editor.Build_Command.Projections is
    end Runner_Status_Label;
 
    function Output_Runner_Status_For
-     (Status : Editor.External_Producers.Build_Run_Status)
+     (Status : Editor.External_Producers.Build_Requests.Build_Run_Status)
       return Editor.Build_Output_Details.Build_Output_Runner_Status
    is
    begin
@@ -207,7 +220,7 @@ package body Editor.Build_Command.Projections is
    end Output_Runner_Status_For;
 
    function Output_Details_From_Result
-     (Build : Editor.External_Producers.Build_Run_Result)
+     (Build : Editor.External_Producers.Build_Requests.Build_Run_Result)
       return Editor.Build_Output_Details.Latest_Build_Output_Details
    is
    begin
@@ -221,7 +234,7 @@ package body Editor.Build_Command.Projections is
          Exit_Code => Build.Exit_Code,
          Has_Exit_Code => Build.Has_Exit_Code,
          Output_Stream =>
-           (case Editor.External_Producers.Build_Result_Output_Stream (Build) is
+           (case Editor.External_Producers.Execution_Policy.Build_Result_Output_Stream (Build) is
               when Editor.External_Producers.Process_Output_Stdout =>
                  Editor.Build_Output_Details.Build_Output_Stream_Stdout,
               when Editor.External_Producers.Process_Output_Stderr =>
@@ -249,19 +262,20 @@ package body Editor.Build_Command.Projections is
    end Public_Build_Duration_Milliseconds;
 
    function Summary_From_Result
-     (Request : Editor.External_Producers.Build_Run_Request;
-      Result  : Editor.External_Producers.Build_Command_Result;
+     (Request : Editor.External_Producers.Build_Requests.Build_Run_Request;
+      Result  : Editor.External_Producers.Build_Requests.Build_Command_Result;
       Diagnostics_Allowed : Boolean;
       Duration_Milliseconds : Natural := 0;
       Has_Duration : Boolean := False)
       return Editor.Build_Result_Summary.Latest_Build_Result_Summary
    is
-      Build : constant Editor.External_Producers.Build_Run_Result := Result.Build_Result;
+      Build : constant Editor.External_Producers.Build_Requests.Build_Run_Result := Result.Build_Result;
       Count : constant Natural :=
         Result.Diagnostic_Result.Ingestion.Ingestion_Result.Accepted_Count;
       Diagnostics_Status : constant
         Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status :=
-          Summary_Diagnostics_For (Result.Diagnostic_Result, Diagnostics_Allowed);
+          Summary_Diagnostics_For
+            (Result.Diagnostic_Result, Diagnostics_Allowed);
       Has_Count : constant Boolean :=
         Diagnostics_Status in
           Editor.Build_Result_Summary.Diagnostics_Ingestion_Succeeded |

@@ -11,6 +11,9 @@ with Editor.Build_UI;
 with Editor.Build_Working_Context;
 with Editor.Commands;
 with Editor.External_Producers;
+with Editor.External_Producers.Execution_Policy;
+with Editor.External_Producers.Build_Requests;
+with Editor.External_Producers.Diagnostic_Line_Parsing;
 with Editor.Project;
 with Editor.Feature_Diagnostics;
 with Editor.State;
@@ -204,16 +207,16 @@ package body Editor.Build_Milestone_Freeze.Tests is
       C : constant Editor.Build_Public_Request.Public_Build_Request_Conversion_Result :=
         Editor.Build_Public_Request.Build_Public_Request_From_UI_State (Manual_UI);
       Gate : Editor.External_Producers.Build_Execution_Gate :=
-        Editor.External_Producers.Build_Default_Execution_Gate;
+        Editor.External_Producers.Execution_Policy.Build_Default_Execution_Gate;
       Supplied : constant Editor.External_Producers.Process_Run_Result :=
-        Editor.External_Producers.Build_Process_Run_Result
+        Editor.External_Producers.Build_Requests.Build_Process_Run_Result
           (Editor.External_Producers.Process_Run_Failed,
            Exit_Code => 2,
            Has_Exit_Code => True,
            Stdout_Text => "",
            Stderr_Text => "main.adb:1:1: error: failed");
       Preflight : Editor.External_Producers.Build_Preflight_Result;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Gate.Process_Policy :=
         (Mode                     => Editor.External_Producers.Process_Execution_Test_Fixture,
@@ -226,9 +229,9 @@ package body Editor.Build_Milestone_Freeze.Tests is
       Gate.Consent := Editor.External_Producers.Build_Consent_Test_Only;
       Gate.Allow_Diagnostics_Ingestion := False;
       Gate.Show_Diagnostics := False;
-      Preflight := Editor.External_Producers.Preflight_Build_Run_Request
+      Preflight := Editor.External_Producers.Build_Requests.Preflight_Build_Run_Request
         (C.Request, Gate.Process_Policy);
-      Result := Editor.External_Producers.Run_Build_Command_With_Gate
+      Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Gate
         (S, C.Request, Gate, Supplied);
       Assert (Preflight.Process_Request_Status =
                 Editor.External_Producers.Process_Request_Valid,
@@ -254,12 +257,13 @@ package body Editor.Build_Milestone_Freeze.Tests is
       S : Editor.State.State_Type;
       C : constant Editor.Build_Public_Request.Public_Build_Request_Conversion_Result :=
         Editor.Build_Public_Request.Build_Public_Request_From_UI_State (Manual_UI);
-      Lines : Editor.External_Producers.Diagnostic_Text_Line_Array;
-      Build_Result : Editor.External_Producers.Build_Run_Result;
-      Command : Editor.External_Producers.Diagnostic_Line_Command_Result;
+      Lines :
+        Editor.External_Producers.Build_Requests.Diagnostic_Text_Line_Array;
+      Build_Result : Editor.External_Producers.Build_Requests.Build_Run_Result;
+      Command : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result;
    begin
       Lines.Append (To_Unbounded_String ("main.adb:1:1: warning: owned"));
-      Build_Result := Editor.External_Producers.Build_Build_Run_Result
+      Build_Result := Editor.External_Producers.Build_Requests.Build_Build_Run_Result
         (Editor.External_Producers.Build_Run_Failed,
          Diagnostic_Lines => Lines);
       Command := Editor.Build_Diagnostics.Ingest_Build_Diagnostics_Through_Diagnostics

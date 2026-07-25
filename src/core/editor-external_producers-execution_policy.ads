@@ -1,10 +1,16 @@
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Types;
 with Editor.Feature_Diagnostics;
 
 package Editor.External_Producers.Execution_Policy is
 
    function Build_Default_Execution_Gate
      return Editor.External_Producers.Build_Execution_Gate;
+
+   function Build_Default_Timeout_Milliseconds return Natural;
+
+   function Build_Timeout_Policy_Is_Bounded
+     (Policy : Editor.External_Producers.Process_Execution_Policy) return Boolean;
 
    function Build_Test_Fixture_Execution_Gate
      (Allow_Diagnostics_Ingestion : Boolean := True;
@@ -69,11 +75,11 @@ package Editor.External_Producers.Execution_Policy is
       return Editor.External_Producers.Process_Output_Stream;
 
    function Build_Result_Output_Stream
-     (Result : Editor.External_Producers.Build_Run_Result)
+     (Result : Editor.External_Producers.Build_Types.Build_Run_Result)
       return Editor.External_Producers.Process_Output_Stream;
 
    function Build_Run_Diagnostic_Stream_Preference
-     (Result : Editor.External_Producers.Build_Run_Result)
+     (Result : Editor.External_Producers.Build_Types.Build_Run_Result)
       return Editor.External_Producers.Process_Diagnostic_Stream_Preference;
 
 end Editor.External_Producers.Execution_Policy;

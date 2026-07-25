@@ -2,6 +2,12 @@ with Editor.Build_Working_Context;
 
 package Editor.External_Producers.Request_Policies is
 
+   function Build_User_Opt_In_Request
+     (Tool          : Build_Tool_Kind;
+      Program_Label : String;
+      Working_Label : String;
+      Arguments     : Process_Argument_Vector) return Build_Run_Request;
+
    function Validate_Build_Run_Request_Status
      (Request : Build_Run_Request) return Build_Request_Validation_Status;
 

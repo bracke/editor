@@ -1,4 +1,6 @@
-with Editor.External_Producers;
+with Editor.External_Producers.Build_Requests;
+with Editor.External_Producers.Diagnostic_Line_Parsing;
+with Editor.External_Producers.Diagnostics;
 with Editor.State;
 
 package Editor.Build_Diagnostics is
@@ -26,28 +28,29 @@ package Editor.Build_Diagnostics is
       Request_Show_Diagnostics : Boolean) return Boolean;
 
    function Build_Diagnostic_Source_Metadata
-     (Request : Editor.External_Producers.Build_Run_Request)
-      return Editor.External_Producers.External_Producer_Source;
+     (Request : Editor.External_Producers.Build_Requests.Build_Run_Request)
+      return Editor.External_Producers.Diagnostics.Producer_Source;
 
    function Build_Diagnostic_Source_Display_Label
-     (Request : Editor.External_Producers.Build_Run_Request) return String;
+     (Request : Editor.External_Producers.Build_Requests.Build_Run_Request)
+      return String;
 
    function Bounded_Build_Output_Diagnostic_Lines
-     (Result : Editor.External_Producers.Build_Run_Result)
-      return Editor.External_Producers.Diagnostic_Text_Line_Array;
+     (Result : Editor.External_Producers.Build_Requests.Build_Run_Result)
+      return Editor.External_Producers.Diagnostic_Line_Parsing.Text_Line_Array;
 
    function Parse_Build_Output_Diagnostics
-     (Request : Editor.External_Producers.Build_Run_Request;
-      Result  : Editor.External_Producers.Build_Run_Result)
-      return Editor.External_Producers.Diagnostic_Line_Batch_Parse_Result;
+     (Request : Editor.External_Producers.Build_Requests.Build_Run_Request;
+      Result  : Editor.External_Producers.Build_Requests.Build_Run_Result)
+      return Editor.External_Producers.Diagnostic_Line_Parsing.Batch_Parse_Result;
 
    function Ingest_Build_Diagnostics_Through_Diagnostics
      (S                        : in out Editor.State.State_Type;
-      Request                  : Editor.External_Producers.Build_Run_Request;
-      Result                   : Editor.External_Producers.Build_Run_Result;
+      Request                  : Editor.External_Producers.Build_Requests.Build_Run_Request;
+      Result                   : Editor.External_Producers.Build_Requests.Build_Run_Result;
       Policy                   : Build_Diagnostics_Ingestion_Policy;
       Request_Show_Diagnostics : Boolean := False)
-      return Editor.External_Producers.Diagnostic_Line_Command_Result;
+      return Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result;
 
    function Assert_Build_Diagnostics_Output_Bounded return Boolean;
    function Assert_Build_Diagnostics_Uses_Diagnostics_API return Boolean;

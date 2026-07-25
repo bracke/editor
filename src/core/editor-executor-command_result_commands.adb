@@ -130,6 +130,7 @@ with Editor.Dirty_Guards;
 with Editor.Command_Execution;
 use type Editor.Command_Execution.Command_Execution_Status;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Requests;
 use type Editor.External_Producers.Build_Run_Status;
 use type Editor.External_Producers.Process_Run_Status;
 with Editor.Build_UI;
@@ -351,7 +352,7 @@ package body Editor.Executor.Command_Result_Commands is
         and then Editor.Build_Command.Has_Queued_Public_Build_Job (S)
       then
          declare
-            Build_Result : Editor.External_Producers.Build_Command_Result;
+            Build_Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
             Completed    : constant Boolean :=
               Editor.Build_Command.Poll_Public_Build_Run_Completion
                 (S, Build_Result);

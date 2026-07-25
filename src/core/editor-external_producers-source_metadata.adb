@@ -1,9 +1,11 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.External_Producers.Diagnostics;
+use Editor.External_Producers.Diagnostics;
 
 package body Editor.External_Producers.Source_Metadata is
 
    function Producer_Kind_Is_Valid
-     (Kind : Editor.External_Producers.External_Producer_Kind) return Boolean
+     (Kind : Editor.External_Producers.Diagnostics.Producer_Kind) return Boolean
    is
    begin
       case Kind is
@@ -15,7 +17,7 @@ package body Editor.External_Producers.Source_Metadata is
    end Producer_Kind_Is_Valid;
 
    function Stable_Name
-     (Kind : Editor.External_Producers.External_Producer_Kind) return String is
+     (Kind : Editor.External_Producers.Diagnostics.Producer_Kind) return String is
    begin
       case Kind is
          when Build_Diagnostics_Producer =>
@@ -28,7 +30,7 @@ package body Editor.External_Producers.Source_Metadata is
    end Stable_Name;
 
    function Display_Label
-     (Kind : Editor.External_Producers.External_Producer_Kind) return String is
+     (Kind : Editor.External_Producers.Diagnostics.Producer_Kind) return String is
    begin
       case Kind is
          when Build_Diagnostics_Producer =>
@@ -41,8 +43,8 @@ package body Editor.External_Producers.Source_Metadata is
    end Display_Label;
 
    function Build_External_Producer_Source
-     (Kind : Editor.External_Producers.External_Producer_Kind)
-      return Editor.External_Producers.External_Producer_Source
+     (Kind : Editor.External_Producers.Diagnostics.Producer_Kind)
+      return Editor.External_Producers.Diagnostics.Producer_Source
    is
    begin
       return
@@ -52,14 +54,14 @@ package body Editor.External_Producers.Source_Metadata is
    end Build_External_Producer_Source;
 
    function Build_Compiler_Diagnostics_Producer_Source
-     return Editor.External_Producers.External_Producer_Source
+     return Editor.External_Producers.Diagnostics.Producer_Source
    is
    begin
       return Build_External_Producer_Source (Compiler_Diagnostics_Producer);
    end Build_Compiler_Diagnostics_Producer_Source;
 
    function Producer_Source_Is_Valid
-     (Producer : Editor.External_Producers.External_Producer_Source)
+     (Producer : Editor.External_Producers.Diagnostics.Producer_Source)
       return Boolean
    is
    begin
@@ -69,7 +71,7 @@ package body Editor.External_Producers.Source_Metadata is
    end Producer_Source_Is_Valid;
 
    function Map_External_Producer_To_Diagnostic_Source
-     (Producer : Editor.External_Producers.External_Producer_Source)
+     (Producer : Editor.External_Producers.Diagnostics.Producer_Source)
       return Editor.Feature_Diagnostics.Diagnostic_Source_Kind
    is
    begin
@@ -86,7 +88,7 @@ package body Editor.External_Producers.Source_Metadata is
    end Map_External_Producer_To_Diagnostic_Source;
 
    function Map_Compiler_Severity_To_Diagnostic_Severity
-     (Severity : Editor.External_Producers.Compiler_Diagnostic_Severity)
+     (Severity : Editor.External_Producers.Diagnostics.Compiler_Severity)
       return Editor.Feature_Diagnostics.Diagnostic_Severity
    is
    begin

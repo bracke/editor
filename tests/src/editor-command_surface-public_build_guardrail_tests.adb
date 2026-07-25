@@ -19,6 +19,9 @@ with Editor.Executor.Command_Palette_Projection;
 with Editor.File_Tree;
 with Editor.File_Tree_View;
 with Editor.External_Producers;
+with Editor.External_Producers.Audits;
+with Editor.External_Producers.Build_Requests;
+with Editor.External_Producers.Public_Build;
 with Editor.Messages;
 with Editor.Keybindings;
 with Editor.Keybinding_Management;
@@ -215,13 +218,13 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Tests is
          Tool             => Editor.External_Producers.GPRbuild_Tool,
          Program_Label    => To_Unbounded_String ("gprbuild"),
          Working_Context  =>
-           Editor.External_Producers.Build_Inherited_Test_Working_Context,
+           Editor.External_Producers.Build_Requests.Build_Inherited_Test_Working_Context,
          Working_Context_Model =>
            (Source => Editor.External_Producers.Public_Build_Working_Context_Test_Context,
             Label  => Null_Unbounded_String,
             User_Acknowledged_Context => True),
          Arguments        =>
-           Editor.External_Producers.Build_Process_Argument_Vector ("-q"),
+           Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q"),
          Consent          => Editor.External_Producers.Build_Consent_User_Confirmed,
          Consent_Model    =>
            (Source => Editor.External_Producers.Public_Build_Consent_Test_Context,
@@ -290,8 +293,8 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Tests is
               "conversion must preserve program label as metadata");
       Assert (To_String (Request.Arguments)'Length = 0,
               "conversion must not introduce opaque command text");
-      Assert (Process_Argument_Count (Request.Structured_Arguments) =
-              Process_Argument_Count (Input.Arguments),
+      Assert (Editor.External_Producers.Build_Requests.Process_Argument_Count (Request.Structured_Arguments) =
+              Editor.External_Producers.Build_Requests.Process_Argument_Count (Input.Arguments),
               "conversion must preserve structured argv count");
       Assert (To_String (Request.Working_Label)'Length = 0,
               "conversion must not create a real working directory label");
@@ -303,7 +306,7 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Tests is
       S : Editor.State.State_Type;
    begin
       Editor.State.Init (S);
-      return Run_Public_Build_Guardrail_Audit (S);
+      return Editor.External_Producers.Public_Build.Run_Public_Build_Guardrail_Audit (S);
    end Default_Result;
 
    function Starts_With (Text : String; Prefix : String) return Boolean is
@@ -581,21 +584,21 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Tests is
       R : Editor.External_Producers.Public_Build_Command_Readiness_Audit_Result;
    begin
       Editor.State.Init (S);
-      R := Editor.External_Producers.Run_Public_Build_Command_Readiness_Audit (S);
-      Assert (Editor.External_Producers.Build_Public_Command_Not_Ready_Feedback (R) =
+      R := Editor.External_Producers.Public_Build.Run_Public_Build_Command_Readiness_Audit (S);
+      Assert (Editor.External_Producers.Public_Build.Build_Public_Command_Not_Ready_Feedback (R) =
               "Build: public command not ready",
               "ready baseline feedback must fall back to generic not-ready helper text");
       R.Public_Consent_UX_Publicly_Ready := False;
-      Assert (Editor.External_Producers.Build_Public_Command_Not_Ready_Feedback (R) =
+      Assert (Editor.External_Producers.Public_Build.Build_Public_Command_Not_Ready_Feedback (R) =
               "Build: consent UX not ready",
               "feedback must report missing consent UX when simulated");
       R.Public_Consent_UX_Publicly_Ready := True;
       R.Public_Working_Context_Publicly_Ready := False;
-      Assert (Editor.External_Producers.Build_Public_Command_Not_Ready_Feedback (R) =
+      Assert (Editor.External_Producers.Public_Build.Build_Public_Command_Not_Ready_Feedback (R) =
               "Build: working directory UX not ready",
               "feedback must report missing working-directory UX without paths");
       R.Public_Working_Context_Publicly_Ready := True;
-      Assert (Editor.External_Producers.Build_Public_Command_Not_Ready_Feedback (R) =
+      Assert (Editor.External_Producers.Public_Build.Build_Public_Command_Not_Ready_Feedback (R) =
               "Build: public command not ready",
               "feedback must not probe project files in the ready baseline");
    end Test_Public_Build_Command_Not_Ready_Feedback_Is_Deterministic;
@@ -614,10 +617,10 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Tests is
    begin
       Editor.State.Init (S);
       Before_Messages := Editor.Messages.Count (S.Messages);
-      R1 := Run_Public_Build_Command_Readiness_Audit (S);
-      R2 := Run_Public_Build_Command_Readiness_Audit (S);
-      Matrix1 := Build_Public_Build_UX_Dependency_Matrix;
-      Matrix2 := Build_Public_Build_UX_Dependency_Matrix;
+      R1 := Editor.External_Producers.Public_Build.Run_Public_Build_Command_Readiness_Audit (S);
+      R2 := Editor.External_Producers.Public_Build.Run_Public_Build_Command_Readiness_Audit (S);
+      Matrix1 := Editor.External_Producers.Public_Build.Build_Public_Build_UX_Dependency_Matrix;
+      Matrix2 := Editor.External_Producers.Public_Build.Build_Public_Build_UX_Dependency_Matrix;
       Assert (R1.Public_Command_Promotion_Status = R2.Public_Command_Promotion_Status,
               "repeated readiness audits must keep promotion status stable");
       Assert (R1.Primary_Promotion_Blocker = R2.Primary_Promotion_Blocker,
@@ -637,9 +640,9 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Tests is
       pragma Unreferenced (T);
       use Editor.External_Producers;
       S1 : constant Public_Build_Blocker_Summary :=
-        Build_Public_Build_Blocker_Summary;
+        Editor.External_Producers.Public_Build.Build_Public_Build_Blocker_Summary;
       S2 : constant Public_Build_Blocker_Summary :=
-        Build_Public_Build_Blocker_Summary;
+        Editor.External_Producers.Public_Build.Build_Public_Build_Blocker_Summary;
    begin
       Assert (not S1.Consent_UX_Missing,
               "blocker summary must show consent UX ready");
@@ -653,8 +656,8 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Tests is
               "blocker summary must show guarded public command registered");
       Assert (S1.Default_Execution_Disabled,
               "blocker summary must report default execution disabled");
-      Assert (Validate_Public_Build_UX_Dependencies
-                (Build_Public_Build_UX_Dependency_Matrix) =
+      Assert (Editor.External_Producers.Public_Build.Validate_Public_Build_UX_Dependencies
+                (Editor.External_Producers.Public_Build.Build_Public_Build_UX_Dependency_Matrix) =
               Public_Build_Promotion_Command_Surface_Ready,
               "blocker summary must agree with ready dependency matrix");
       Assert (S1.Primary_Blocker = S2.Primary_Blocker,
@@ -670,7 +673,7 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Tests is
       Result : Public_Build_Guardrail_Result;
    begin
       Editor.State.Init (S);
-      Result := Run_Public_Build_Guardrail_Audit (S);
+      Result := Editor.External_Producers.Public_Build.Run_Public_Build_Guardrail_Audit (S);
       Assert (Result.Status = Public_Build_Guardrail_Passed,
               "default guardrail status must pass");
       Assert (Result.No_Public_Command,
@@ -707,8 +710,8 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Tests is
       After  : Public_Build_Guardrail_Result;
    begin
       Editor.State.Init (S);
-      Before := Run_Public_Build_Guardrail_Audit (S);
-      After := Run_Public_Build_Guardrail_Audit (S);
+      Before := Editor.External_Producers.Public_Build.Run_Public_Build_Guardrail_Audit (S);
+      After := Editor.External_Producers.Public_Build.Run_Public_Build_Guardrail_Audit (S);
       Assert (Before.Status = After.Status
               and then Before.No_Public_Command = After.No_Public_Command
               and then Before.No_Public_Keybinding = After.No_Public_Keybinding
@@ -729,17 +732,17 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Tests is
    is
       pragma Unreferenced (T);
       use Editor.External_Producers;
-      Names : constant Command_Id_Vector := Public_Build_Command_Surface_Ids;
+      Names : constant Command_Id_Vector := Editor.External_Producers.Public_Build.Public_Build_Command_Surface_Ids;
    begin
       Assert (Names.Length = 1,
               "central public build public-id list must contain every public id");
       for Name of Names loop
-         Assert (Is_Public_Build_Surface_Id (To_String (Name)),
+         Assert (Editor.External_Producers.Public_Build.Is_Public_Build_Surface_Id (To_String (Name)),
                  "public-id classifier must use the centralized list");
       end loop;
-      Assert (not Is_Public_Build_Surface_Id ("diagnostics.run-build"),
+      Assert (not Editor.External_Producers.Public_Build.Is_Public_Build_Surface_Id ("diagnostics.run-build"),
               "diagnostics.run-build remains reserved, not public");
-      Assert_Public_Build_Surface_Ids_Not_Reused;
+      Editor.External_Producers.Public_Build.Assert_Public_Build_Surface_Ids_Not_Reused;
    end Test_Public_Build_Surface_Command_Id_List_Is_Centralized;
 
    procedure Test_Public_Build_Surface_Command_Id_Not_Palette_Row
@@ -750,7 +753,7 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Tests is
       S : Editor.State.State_Type;
    begin
       Editor.State.Init (S);
-      Assert (Run_Public_Build_Guardrail_Audit (S).No_Public_Palette_Entry,
+      Assert (Editor.External_Producers.Public_Build.Run_Public_Build_Guardrail_Audit (S).No_Public_Palette_Entry,
               "public build ids must not appear as normal palette rows");
    end Test_Public_Build_Surface_Command_Id_Not_Palette_Row;
 
@@ -762,9 +765,9 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Tests is
       S : Editor.State.State_Type;
    begin
       Editor.State.Init (S);
-      Assert (Run_Public_Build_Guardrail_Audit (S).Persistence_Clean,
+      Assert (Editor.External_Producers.Public_Build.Run_Public_Build_Guardrail_Audit (S).Persistence_Clean,
               "public build ids and guardrail data must not persist");
-      Assert_Public_Build_Hard_Freeze_Not_Persisted (S);
+      Editor.External_Producers.Public_Build.Assert_Public_Build_Hard_Freeze_Not_Persisted (S);
    end Test_Public_Build_Surface_Command_Id_Not_Persisted_Command_Name;
 
    procedure Test_Public_Build_Internal_Test_Seam_Not_Counted_As_Public_Command
@@ -776,10 +779,10 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Tests is
       R : Public_Build_Guardrail_Result;
    begin
       Editor.State.Init (S);
-      R := Run_Public_Build_Guardrail_Audit (S);
+      R := Editor.External_Producers.Public_Build.Run_Public_Build_Guardrail_Audit (S);
       Assert (R.No_Public_Command,
               "internal build test seam must be excluded from public build command counts");
-      Assert (not Is_Public_Build_Surface_Id
+      Assert (not Editor.External_Producers.Public_Build.Is_Public_Build_Surface_Id
                 (Editor.Commands.Stable_Command_Name
                    (Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam)),
               "internal test-seam id must not match the public build id list");
@@ -807,7 +810,7 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Tests is
       S : Editor.State.State_Type;
    begin
       Editor.State.Init (S);
-      Assert_Public_Build_Guardrail_State_Not_Persisted (S);
+      Editor.External_Producers.Public_Build.Assert_Public_Build_Guardrail_State_Not_Persisted (S);
    end Test_Public_Build_Guardrail_State_Not_Persisted;
 
    procedure Test_Public_Build_Internal_Test_Seam_Public_Leak_Reported_Separately
@@ -816,10 +819,10 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Tests is
       pragma Unreferenced (T);
       use Editor.External_Producers;
       Detail : constant Public_Build_Guardrail_Failure_Detail :=
-        Build_Public_Build_Internal_Test_Seam_Exposure_Detail
+        Editor.External_Producers.Public_Build.Build_Public_Build_Internal_Test_Seam_Exposure_Detail
           (Palette_Row => "build.run-user-opt-in-test-seam");
       Scan : constant Public_Build_Surface_Id_Scan_Result :=
-        Scan_Public_Build_Surface_Ids
+        Editor.External_Producers.Public_Build.Scan_Public_Build_Surface_Ids
           (Palette_Row => "build.run-user-opt-in-test-seam");
    begin
       Assert (Detail.Kind = Public_Build_Failure_Internal_Test_Seam_Exposure,
@@ -837,12 +840,12 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Tests is
       Manifest : Public_Build_Guardrail_Regression_Manifest;
    begin
       Editor.State.Init (S);
-      Health := Build_Public_Build_Guardrail_Health (S);
-      Manifest := Build_Public_Build_Guardrail_Regression_Manifest (S);
-      Assert (Build_Public_Build_Guardrail_Health_Feedback (Health) =
+      Health := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Health (S);
+      Manifest := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Regression_Manifest (S);
+      Assert (Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Health_Feedback (Health) =
               "Build: public build guardrail healthy",
               "health remains the only health feedback helper");
-      Assert (Build_Public_Build_Guardrail_Regression_Manifest_Feedback
+      Assert (Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Regression_Manifest_Feedback
                 (Manifest) =
               "Build: public build regression manifest healthy",
               "manifest remains the only manifest-level feedback helper");
@@ -853,7 +856,7 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Tests is
    is
       pragma Unreferenced (T);
    begin
-      Assert_Public_Build_Guardrail_No_Extra_Layer_Above_Manifest;
+      Editor.External_Producers.Public_Build.Assert_Public_Build_Guardrail_No_Extra_Layer_Above_Manifest;
    end Test_Public_Build_Guardrail_Evidence_Pack_Production_API_Absent;
 
    procedure Test_Public_Build_Guardrail_Release_Candidate_Production_API_Absent
@@ -861,7 +864,7 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Tests is
    is
       pragma Unreferenced (T);
    begin
-      Assert_Public_Build_Guardrail_No_Extra_Layer_Above_Manifest;
+      Editor.External_Producers.Public_Build.Assert_Public_Build_Guardrail_No_Extra_Layer_Above_Manifest;
    end Test_Public_Build_Guardrail_Release_Candidate_Production_API_Absent;
 
    overriding procedure Register_Tests

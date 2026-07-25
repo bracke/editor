@@ -118,6 +118,7 @@ with Editor.Focus_Management;
 with Editor.Guided_Prompts;
 with Editor.Build_Command;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Requests;
 with Editor.Terminal_Tasks;
 
 use type Editor.Problems.Problems_Severity_Filter;
@@ -2143,7 +2144,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
    end Active_Diagnostic_For_Render;
 
    procedure Tick_Async_Build_Jobs is
-      Result    : Editor.External_Producers.Build_Command_Result;
+      Result    : Editor.External_Producers.Build_Requests.Build_Command_Result;
       Completed : Boolean := False;
    begin
       pragma Assert (Initialized,

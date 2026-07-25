@@ -89,6 +89,7 @@ with Editor.Dirty_Guards;
 with Editor.Command_Execution;
 use type Editor.Command_Execution.Command_Execution_Status;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Requests;
 use type Editor.External_Producers.Build_Run_Status;
 use type Editor.External_Producers.Process_Run_Status;
 with Editor.Feature_Panel;
@@ -706,10 +707,10 @@ package body Editor.Executor is
          Stderr_Text   => Null_Unbounded_String,
          Stdout_Truncated => False,
          Stderr_Truncated => False))
-      return Editor.External_Producers.Build_Command_Result
+      return Editor.External_Producers.Build_Requests.Build_Command_Result
    is
    begin
-      return Editor.External_Producers.Execute_User_Opt_In_Build_Command
+      return Editor.External_Producers.Build_Requests.Execute_User_Opt_In_Build_Command
         (S, Context, Supplied_Result);
    end Execute_User_Opt_In_Build_Command;
    procedure Execute_Command

@@ -19,6 +19,8 @@ with Editor.Executor.Command_Palette_Projection;
 with Editor.File_Tree;
 with Editor.File_Tree_View;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Requests;
+with Editor.External_Producers.Public_Build;
 with Editor.Messages;
 with Editor.Keybindings;
 with Editor.Keybinding_Management;
@@ -215,13 +217,13 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
          Tool             => Editor.External_Producers.GPRbuild_Tool,
          Program_Label    => To_Unbounded_String ("gprbuild"),
          Working_Context  =>
-           Editor.External_Producers.Build_Inherited_Test_Working_Context,
+           Editor.External_Producers.Build_Requests.Build_Inherited_Test_Working_Context,
          Working_Context_Model =>
            (Source => Editor.External_Producers.Public_Build_Working_Context_Test_Context,
             Label  => Null_Unbounded_String,
             User_Acknowledged_Context => True),
          Arguments        =>
-           Editor.External_Producers.Build_Process_Argument_Vector ("-q"),
+           Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q"),
          Consent          => Editor.External_Producers.Build_Consent_User_Confirmed,
          Consent_Model    =>
            (Source => Editor.External_Producers.Public_Build_Consent_Test_Context,
@@ -290,8 +292,8 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
               "conversion must preserve program label as metadata");
       Assert (To_String (Request.Arguments)'Length = 0,
               "conversion must not introduce opaque command text");
-      Assert (Process_Argument_Count (Request.Structured_Arguments) =
-              Process_Argument_Count (Input.Arguments),
+      Assert (Editor.External_Producers.Build_Requests.Process_Argument_Count (Request.Structured_Arguments) =
+              Editor.External_Producers.Build_Requests.Process_Argument_Count (Input.Arguments),
               "conversion must preserve structured argv count");
       Assert (To_String (Request.Working_Label)'Length = 0,
               "conversion must not create a real working directory label");
@@ -303,7 +305,7 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
       S : Editor.State.State_Type;
    begin
       Editor.State.Init (S);
-      return Run_Public_Build_Guardrail_Audit (S);
+      return Editor.External_Producers.Public_Build.Run_Public_Build_Guardrail_Audit (S);
    end Default_Result;
 
    function Starts_With (Text : String; Prefix : String) return Boolean is
@@ -585,7 +587,7 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
       Editor.State.Init (S);
       Before_Messages := Editor.Messages.Count (S.Messages);
       Before_Focus := Editor.Panel_Focus.Target (S.Panel_Focus);
-      Status := Editor.External_Producers.Validate_Public_Build_Consent
+      Status := Editor.External_Producers.Public_Build.Validate_Public_Build_Consent
         (Valid_Test_Consent);
       Assert (Status = Editor.External_Producers.Public_Build_Consent_Valid_For_Internal_Test,
               "valid test-context consent must validate without side effects");
@@ -603,31 +605,31 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
       Consent : Public_Build_Consent_Model := Valid_Test_Consent;
    begin
       Consent.Source := Public_Build_Consent_None;
-      Assert (Validate_Public_Build_Consent (Consent) =
+      Assert (Editor.External_Producers.Public_Build.Validate_Public_Build_Consent (Consent) =
               Public_Build_Consent_Rejected_None,
               "missing consent source must reject deterministically");
 
       Consent := Valid_Test_Consent;
       Consent.User_Acknowledged_Execution := False;
-      Assert (Validate_Public_Build_Consent (Consent) =
+      Assert (Editor.External_Producers.Public_Build.Validate_Public_Build_Consent (Consent) =
               Public_Build_Consent_Rejected_Missing_Execution_Acknowledgement,
               "missing execution acknowledgement must reject deterministically");
 
       Consent := Valid_Test_Consent;
       Consent.User_Acknowledged_No_Shell := False;
-      Assert (Validate_Public_Build_Consent (Consent) =
+      Assert (Editor.External_Producers.Public_Build.Validate_Public_Build_Consent (Consent) =
               Public_Build_Consent_Rejected_Missing_No_Shell_Acknowledgement,
               "missing no-shell acknowledgement must reject deterministically");
 
       Consent := Valid_Test_Consent;
       Consent.User_Acknowledged_External_Process := False;
-      Assert (Validate_Public_Build_Consent (Consent) =
+      Assert (Editor.External_Producers.Public_Build.Validate_Public_Build_Consent (Consent) =
               Public_Build_Consent_Rejected_Missing_External_Process_Acknowledgement,
               "missing external-process acknowledgement must reject deterministically");
 
       Consent := Valid_Test_Consent;
       Consent.User_Acknowledged_Diagnostics_Output := False;
-      Assert (Validate_Public_Build_Consent (Consent) =
+      Assert (Editor.External_Producers.Public_Build.Validate_Public_Build_Consent (Consent) =
               Public_Build_Consent_Rejected_Missing_Diagnostics_Acknowledgement,
               "missing diagnostics acknowledgement must reject deterministically");
    end Test_Public_Build_Consent_Rejects_Missing_Acknowledgements;
@@ -638,13 +640,13 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
       pragma Unreferenced (T);
       use Editor.External_Producers;
    begin
-      Assert (Validate_Public_Build_Consent (Valid_Test_Consent) =
+      Assert (Editor.External_Producers.Public_Build.Validate_Public_Build_Consent (Valid_Test_Consent) =
               Public_Build_Consent_Valid_For_Internal_Test,
               "test-context consent must validate only for internal/test conversion");
-      Assert (Classify_Public_Build_Consent_Safety (Valid_Test_Consent) =
+      Assert (Editor.External_Producers.Public_Build.Classify_Public_Build_Consent_Safety (Valid_Test_Consent) =
               Public_Build_Input_Valid_For_Internal_Test,
               "test-context consent must classify as internal-test-only");
-      Assert (Build_Execution_Consent_From_Public_Model (Valid_Test_Consent) =
+      Assert (Editor.External_Producers.Public_Build.Build_Execution_Consent_From_Public_Model (Valid_Test_Consent) =
               Build_Consent_User_Confirmed,
               "test-context consent may derive explicit user-confirmed consent for internal/test conversion");
    end Test_Public_Build_Consent_Test_Context_Internal_Only;
@@ -655,13 +657,13 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
       pragma Unreferenced (T);
       use Editor.External_Producers;
    begin
-      Assert (Validate_Public_Build_Consent (Valid_User_Form_Consent) =
+      Assert (Editor.External_Producers.Public_Build.Validate_Public_Build_Consent (Valid_User_Form_Consent) =
               Public_Build_Consent_Valid_But_Not_Public_UX,
               "user-form-shaped consent must validate structurally but not as public UX");
-      Assert (Classify_Public_Build_Consent_Safety (Valid_User_Form_Consent) =
+      Assert (Editor.External_Producers.Public_Build.Classify_Public_Build_Consent_Safety (Valid_User_Form_Consent) =
               Public_Build_Input_Valid_But_Not_Publicly_Exposable,
               "user-form-shaped consent must not be publicly exposable");
-      Assert (Build_Execution_Consent_From_Public_Model (Valid_User_Form_Consent) =
+      Assert (Editor.External_Producers.Public_Build.Build_Execution_Consent_From_Public_Model (Valid_User_Form_Consent) =
               Build_Consent_User_Confirmed,
               "acknowledged user-form consent must convert to execution consent");
    end Test_Public_Build_Consent_User_Form_Not_Publicly_Exposable;
@@ -672,15 +674,15 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
       pragma Unreferenced (T);
       use Editor.External_Producers;
    begin
-      Assert (Build_Public_Build_Consent_Feedback
+      Assert (Editor.External_Producers.Public_Build.Build_Public_Build_Consent_Feedback
                 (Public_Build_Consent_Rejected_None) =
               "Build: execution consent required",
               "missing consent feedback must be deterministic");
-      Assert (Build_Public_Build_Consent_Feedback
+      Assert (Editor.External_Producers.Public_Build.Build_Public_Build_Consent_Feedback
                 (Public_Build_Consent_Rejected_Missing_No_Shell_Acknowledgement) =
               "Build: no-shell acknowledgement required",
               "no-shell feedback must be deterministic");
-      Assert (Build_Public_Build_Consent_Feedback
+      Assert (Editor.External_Producers.Public_Build.Build_Public_Build_Consent_Feedback
                 (Public_Build_Consent_Valid_But_Not_Public_UX) =
               "Build: public consent UX not ready",
               "user-form consent feedback must not expose internals");
@@ -698,7 +700,7 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
       Editor.State.Init (S);
       Before_Messages := Editor.Messages.Count (S.Messages);
       Before_Focus := Editor.Panel_Focus.Target (S.Panel_Focus);
-      Status := Editor.External_Producers.Validate_Public_Build_Command_Input
+      Status := Editor.External_Producers.Build_Requests.Validate_Public_Build_Command_Input
         (Valid_Public_Input);
       Assert (Status = Editor.External_Producers.Public_Build_Input_Valid,
               "valid public input DTO must validate without side effects");
@@ -716,71 +718,71 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
       Input : Public_Build_Command_Input := Valid_Public_Input;
    begin
       Input.Source := Public_Build_Input_None;
-      Assert (Validate_Public_Build_Command_Input (Input) =
+      Assert (Editor.External_Producers.Build_Requests.Validate_Public_Build_Command_Input (Input) =
               Public_Build_Input_Rejected_No_Input,
               "public build input must reject no input source");
 
       Input := Valid_Public_Input;
       Input.Tool := No_Build_Tool;
-      Assert (Validate_Public_Build_Command_Input (Input) =
+      Assert (Editor.External_Producers.Build_Requests.Validate_Public_Build_Command_Input (Input) =
               Public_Build_Input_Rejected_No_Tool,
               "public build input must reject missing tool");
 
       Input := Valid_Public_Input;
       Input.Tool := Custom_Build_Tool;
-      Assert (Validate_Public_Build_Command_Input (Input) =
+      Assert (Editor.External_Producers.Build_Requests.Validate_Public_Build_Command_Input (Input) =
               Public_Build_Input_Rejected_Custom_Tool,
               "public build input must reject custom tool");
 
       Input := Valid_Public_Input;
       Input.Program_Label := Null_Unbounded_String;
-      Assert (Validate_Public_Build_Command_Input (Input) =
+      Assert (Editor.External_Producers.Build_Requests.Validate_Public_Build_Command_Input (Input) =
               Public_Build_Input_Rejected_Missing_Program,
               "public build input must reject missing program label");
 
       Input := Valid_Public_Input;
       Input.Consent := Build_Consent_Not_Provided;
-      Assert (Validate_Public_Build_Command_Input (Input) =
+      Assert (Editor.External_Producers.Build_Requests.Validate_Public_Build_Command_Input (Input) =
               Public_Build_Input_Rejected_Missing_Consent,
               "public build input must reject missing consent");
 
       Input := Valid_Public_Input;
       Input.Consent_Model.User_Acknowledged_Execution := False;
-      Assert (Validate_Public_Build_Command_Input (Input) =
+      Assert (Editor.External_Producers.Build_Requests.Validate_Public_Build_Command_Input (Input) =
               Public_Build_Input_Rejected_Missing_Consent,
               "public build input must reject partial structured consent");
 
       Input := Valid_Public_Input;
-      Input.Working_Context := Build_Unsupported_Working_Context;
+      Input.Working_Context := Editor.External_Producers.Build_Requests.Build_Unsupported_Working_Context;
       Input.Working_Context_Model :=
         (Source => Public_Build_Working_Context_None,
          Label  => Null_Unbounded_String,
          User_Acknowledged_Context => False);
-      Assert (Validate_Public_Build_Command_Input (Input) =
+      Assert (Editor.External_Producers.Build_Requests.Validate_Public_Build_Command_Input (Input) =
               Public_Build_Input_Rejected_Unsupported_Working_Context,
               "public build input must reject unsupported working context");
 
       Input := Valid_Public_Input;
-      Input.Arguments := Empty_Process_Arguments;
-      Assert (Validate_Public_Build_Command_Input (Input) =
+      Input.Arguments := Editor.External_Producers.Build_Requests.Empty_Process_Arguments;
+      Assert (Editor.External_Producers.Build_Requests.Validate_Public_Build_Command_Input (Input) =
               Public_Build_Input_Rejected_Opaque_Arguments,
               "public build input must require structured argv tokens");
 
       Input := Valid_Public_Input;
-      Input.Arguments := Build_Process_Argument_Vector ("");
-      Assert (Validate_Public_Build_Command_Input (Input) =
+      Input.Arguments := Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("");
+      Assert (Editor.External_Producers.Build_Requests.Validate_Public_Build_Command_Input (Input) =
               Public_Build_Input_Rejected_Opaque_Arguments,
               "empty helper arguments must not synthesize argv");
 
       Input := Valid_Public_Input;
-      Input.Arguments := Build_Process_Argument_Vector ("-q", "", "--keep-going");
-      Assert (Validate_Public_Build_Command_Input (Input) =
+      Input.Arguments := Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q", "", "--keep-going");
+      Assert (Editor.External_Producers.Build_Requests.Validate_Public_Build_Command_Input (Input) =
               Public_Build_Input_Rejected_Empty_Argument,
               "public build input must reject empty structured argv entries");
 
       Input := Valid_Public_Input;
       Input.Program_Label := To_Unbounded_String ("gprbuild; rm -rf tmp");
-      Assert (Validate_Public_Build_Command_Input (Input) =
+      Assert (Editor.External_Producers.Build_Requests.Validate_Public_Build_Command_Input (Input) =
               Public_Build_Input_Rejected_Shell,
               "public build input must reject shell syntax in program labels");
    end Test_Public_Build_Input_Rejects_Invalid_Forms;
@@ -790,7 +792,7 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
    is
       pragma Unreferenced (T);
       Status : constant Editor.External_Producers.Public_Build_Input_Validation_Status :=
-        Editor.External_Producers.Validate_Public_Build_Command_Input
+        Editor.External_Producers.Build_Requests.Validate_Public_Build_Command_Input
           (Valid_Public_Input);
    begin
       Assert (Status = Editor.External_Producers.Public_Build_Input_Valid,
@@ -809,16 +811,16 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
       User_Form.Source := Public_Build_Input_User_Form;
       User_Form.Consent := Build_Consent_Not_Provided;
       User_Form.Consent_Model := Valid_User_Form_Consent;
-      User_Form.Working_Context := Build_Explicit_Label_Working_Context ("workspace label");
+      User_Form.Working_Context := Editor.External_Producers.Build_Requests.Build_Explicit_Label_Working_Context ("workspace label");
       User_Form.Working_Context_Model := Valid_User_Form_Working_Context;
 
-      Assert (Classify_Public_Build_Input_Safety (No_Input) =
+      Assert (Editor.External_Producers.Build_Requests.Classify_Public_Build_Input_Safety (No_Input) =
               Public_Build_Input_Not_Valid,
               "no public input must classify as not valid");
-      Assert (Classify_Public_Build_Input_Safety (Valid_Public_Input) =
+      Assert (Editor.External_Producers.Build_Requests.Classify_Public_Build_Input_Safety (Valid_Public_Input) =
               Public_Build_Input_Valid_For_Internal_Test,
               "valid test-context input must be internal-test-only");
-      Assert (Classify_Public_Build_Input_Safety (User_Form) =
+      Assert (Editor.External_Producers.Build_Requests.Classify_Public_Build_Input_Safety (User_Form) =
               Public_Build_Input_Valid_But_Not_Publicly_Exposable,
               "structural user-form input remains gated until implicit build source policy exists");
    end Test_Public_Build_Input_Safety_Classification;
@@ -830,26 +832,26 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
       use Editor.External_Producers;
       Input : Public_Build_Command_Input := Valid_Public_Input;
    begin
-      Assert (Classify_Public_Build_Input_Safety (Input) /=
+      Assert (Editor.External_Producers.Build_Requests.Classify_Public_Build_Input_Safety (Input) /=
               Public_Build_Input_Publicly_Exposable,
               "test-context input must not be public-exposable");
 
       Input.Source := Public_Build_Input_User_Form;
       Input.Consent := Build_Consent_Not_Provided;
       Input.Consent_Model := Valid_User_Form_Consent;
-      Input.Working_Context := Build_Explicit_Label_Working_Context ("workspace label");
+      Input.Working_Context := Editor.External_Producers.Build_Requests.Build_Explicit_Label_Working_Context ("workspace label");
       Input.Working_Context_Model := Valid_User_Form_Working_Context;
-      Assert (Classify_Public_Build_Input_Safety (Input) /=
+      Assert (Editor.External_Producers.Build_Requests.Classify_Public_Build_Input_Safety (Input) /=
               Public_Build_Input_Publicly_Exposable,
               "user-form input must not be public-exposable in ");
 
       Input.Source := Public_Build_Input_None;
-      Input.Working_Context := Build_Unsupported_Working_Context;
+      Input.Working_Context := Editor.External_Producers.Build_Requests.Build_Unsupported_Working_Context;
       Input.Working_Context_Model :=
         (Source => Public_Build_Working_Context_None,
          Label  => Null_Unbounded_String,
          User_Acknowledged_Context => False);
-      Assert (Classify_Public_Build_Input_Safety (Input) /=
+      Assert (Editor.External_Producers.Build_Requests.Classify_Public_Build_Input_Safety (Input) /=
               Public_Build_Input_Publicly_Exposable,
               "invalid input must not be public-exposable");
    end Test_Public_Build_Input_No_State_Publicly_Exposable;
@@ -861,27 +863,27 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
       use Editor.External_Producers;
       Input : Public_Build_Command_Input := Valid_Public_Input;
    begin
-      Input.Working_Context := Build_Unsupported_Working_Context;
+      Input.Working_Context := Editor.External_Producers.Build_Requests.Build_Unsupported_Working_Context;
       Input.Working_Context_Model :=
         (Source => Public_Build_Working_Context_None,
          Label  => Null_Unbounded_String,
          User_Acknowledged_Context => False);
-      Assert (Validate_Public_Build_Command_Input (Input) =
+      Assert (Editor.External_Producers.Build_Requests.Validate_Public_Build_Command_Input (Input) =
               Public_Build_Input_Rejected_Unsupported_Working_Context,
               "unsupported working context must reject validation");
 
       Input := Valid_Public_Input;
-      Input.Working_Context := Build_Explicit_Label_Working_Context (Editor.Test_Temp.Base & "/project");
+      Input.Working_Context := Editor.External_Producers.Build_Requests.Build_Explicit_Label_Working_Context (Editor.Test_Temp.Base & "/project");
       Input.Working_Context_Model :=
         (Source => Public_Build_Working_Context_User_Form_Label,
          Label  => To_Unbounded_String (Editor.Test_Temp.Base & "/project"),
          User_Acknowledged_Context => True);
-      Assert (Validate_Public_Build_Command_Input (Input) =
+      Assert (Editor.External_Producers.Build_Requests.Validate_Public_Build_Command_Input (Input) =
               Public_Build_Input_Rejected_Unsafe_Working_Context,
               "explicit label context must not validate for execution");
       declare
          Request : constant Build_Run_Request :=
-           Build_User_Opt_In_Request_From_Public_Input (Input);
+           Editor.External_Producers.Build_Requests.Build_User_Opt_In_Request_From_Public_Input (Input);
       begin
          Assert (Request.Provenance = Build_Request_Unknown,
                  "explicit label context must not convert to executable request");
@@ -892,17 +894,17 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
       Input.Consent := Build_Consent_User_Confirmed;
       Input.Consent_Model := Valid_User_Form_Consent;
       Input.Working_Context_Model := Valid_Test_Working_Context;
-      Assert (Validate_Public_Build_Command_Input (Input) =
+      Assert (Editor.External_Producers.Build_Requests.Validate_Public_Build_Command_Input (Input) =
               Public_Build_Input_Rejected_Unsupported_Working_Context,
               "test working context must be accepted only for test source");
 
       Input := Valid_Public_Input;
-      Input.Working_Context := Build_Explicit_Label_Working_Context ("project:root");
+      Input.Working_Context := Editor.External_Producers.Build_Requests.Build_Explicit_Label_Working_Context ("project:root");
       Input.Working_Context_Model :=
         (Source => Public_Build_Working_Context_Project_Derived,
          Label  => To_Unbounded_String ("project:root"),
          User_Acknowledged_Context => True);
-      Assert (Validate_Public_Build_Command_Input (Input) =
+      Assert (Editor.External_Producers.Build_Requests.Validate_Public_Build_Command_Input (Input) =
               Public_Build_Input_Rejected_Unsafe_Working_Context,
               "project-derived working labels must be rejected");
    end Test_Public_Build_Input_Working_Context_Guardrails;
@@ -915,12 +917,12 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
       Input : Public_Build_Command_Input := Valid_Public_Input;
    begin
       Input.Program_Label := To_Unbounded_String ("   ");
-      Assert (Validate_Public_Build_Command_Input (Input) =
+      Assert (Editor.External_Producers.Build_Requests.Validate_Public_Build_Command_Input (Input) =
               Public_Build_Input_Rejected_Missing_Program,
               "blank-only program label must be rejected");
 
       Input.Program_Label := To_Unbounded_String ("bin/gprbuild");
-      Assert (Validate_Public_Build_Command_Input (Input) =
+      Assert (Editor.External_Producers.Build_Requests.Validate_Public_Build_Command_Input (Input) =
               Public_Build_Input_Valid,
               "path-like program labels remain metadata labels, not resolved paths");
    end Test_Public_Build_Input_Program_Label_Guardrails;
@@ -933,27 +935,27 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
       Input : Public_Build_Command_Input := Valid_Public_Input;
       Request : Build_Run_Request;
    begin
-      Input.Arguments := Build_Process_Argument_Vector ("-gnat2022", "file name.adb");
-      Request := Build_User_Opt_In_Request_From_Public_Input (Input);
+      Input.Arguments := Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-gnat2022", "file name.adb");
+      Request := Editor.External_Producers.Build_Requests.Build_User_Opt_In_Request_From_Public_Input (Input);
       Assert (Request.Provenance = Build_Request_From_User_Opt_In,
               "whitespace argv token must remain structured and valid");
       Assert (To_String (Request.Structured_Arguments.Element (1)) = "file name.adb",
               "public input conversion must not split whitespace arguments");
 
-      Input.Arguments := Build_Process_Argument_Vector ("""quoted arg""");
-      Request := Build_User_Opt_In_Request_From_Public_Input (Input);
+      Input.Arguments := Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("""quoted arg""");
+      Request := Editor.External_Producers.Build_Requests.Build_User_Opt_In_Request_From_Public_Input (Input);
       Assert (To_String (Request.Structured_Arguments.Element (0)) = """quoted arg""",
               "public input conversion must not parse quoted arguments");
 
-      Input.Arguments := Build_Process_Argument_Vector ("-q; rm -rf tmp");
-      Request := Build_User_Opt_In_Request_From_Public_Input (Input);
+      Input.Arguments := Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q; rm -rf tmp");
+      Request := Editor.External_Producers.Build_Requests.Build_User_Opt_In_Request_From_Public_Input (Input);
       Assert (Request.Provenance = Build_Request_From_User_Opt_In,
               "shell metacharacters in structured argv must remain inert text");
       Assert (To_String (Request.Structured_Arguments.Element (0)) = "-q; rm -rf tmp",
               "structured argv shell metacharacters must not be interpreted");
 
-      Input.Arguments := Build_Process_Argument_Vector ("-q" & Character'Val (10));
-      Assert (Validate_Public_Build_Command_Input (Input) =
+      Input.Arguments := Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q" & Character'Val (10));
+      Assert (Editor.External_Producers.Build_Requests.Validate_Public_Build_Command_Input (Input) =
               Public_Build_Input_Rejected_Control_Argument,
               "control-character argv entries must be rejected");
    end Test_Public_Build_Input_Argument_Guardrails;
@@ -965,7 +967,7 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
       use Editor.External_Producers;
       Input : constant Public_Build_Command_Input := Valid_Public_Input;
       Request : constant Build_Run_Request :=
-        Build_User_Opt_In_Request_From_Public_Input (Input);
+        Editor.External_Producers.Build_Requests.Build_User_Opt_In_Request_From_Public_Input (Input);
    begin
       Assert_Public_Build_Input_Conversion_Consistent (Input, Request);
    end Test_Public_Build_Input_Conversion_Consistency_Valid_Test_Context;
@@ -979,10 +981,10 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
       Request : Build_Run_Request;
    begin
       Input.Source := Public_Build_Input_None;
-      Request := Build_User_Opt_In_Request_From_Public_Input (Input);
+      Request := Editor.External_Producers.Build_Requests.Build_User_Opt_In_Request_From_Public_Input (Input);
       Assert (Request.Provenance = Build_Request_Unknown,
               "invalid public input must convert only to inert unknown provenance");
-      Assert (Validate_Build_Run_Request_Status (Request) /= Build_Request_Valid,
+      Assert (Editor.External_Producers.Build_Requests.Validate_Build_Run_Request_Status (Request) /= Build_Request_Valid,
               "invalid public input must not become an executable build request");
    end Test_Public_Build_Input_Conversion_Requires_Valid_Input;
 
@@ -995,8 +997,8 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
       Request : Build_Run_Request;
    begin
       Input.Consent_Model.User_Acknowledged_External_Process := False;
-      Request := Build_User_Opt_In_Request_From_Public_Input (Input);
-      Assert (Validate_Public_Build_Command_Input (Input) =
+      Request := Editor.External_Producers.Build_Requests.Build_User_Opt_In_Request_From_Public_Input (Input);
+      Assert (Editor.External_Producers.Build_Requests.Validate_Public_Build_Command_Input (Input) =
               Public_Build_Input_Rejected_Missing_Consent,
               "partial consent model must reject public input validation");
       Assert (Request.Provenance = Build_Request_Unknown,
@@ -1012,8 +1014,8 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
       Request : Build_Run_Request;
    begin
       Input.Consent_Model := Valid_User_Form_Consent;
-      Request := Build_User_Opt_In_Request_From_Public_Input (Input);
-      Assert (Build_Execution_Consent_From_Public_Model (Input.Consent_Model) =
+      Request := Editor.External_Producers.Build_Requests.Build_User_Opt_In_Request_From_Public_Input (Input);
+      Assert (Editor.External_Producers.Public_Build.Build_Execution_Consent_From_Public_Model (Input.Consent_Model) =
               Build_Consent_User_Confirmed,
               "acknowledged user-form consent converts to execution consent");
       Assert (Request.Provenance = Build_Request_Unknown,
@@ -1026,12 +1028,12 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
       pragma Unreferenced (T);
       use Editor.External_Producers;
       Request : constant Build_Run_Request :=
-        Build_User_Opt_In_Request_From_Public_Input
+        Editor.External_Producers.Build_Requests.Build_User_Opt_In_Request_From_Public_Input
           (Valid_Public_Input);
    begin
       Assert (Request.Provenance = Build_Request_From_User_Opt_In,
               "valid public input conversion must preserve user-opt-in provenance");
-      Assert (Process_Argument_Count (Request.Structured_Arguments) = 1,
+      Assert (Editor.External_Producers.Build_Requests.Process_Argument_Count (Request.Structured_Arguments) = 1,
               "valid public input conversion must preserve structured argv");
       Assert (To_String (Request.Arguments)'Length = 0,
               "valid public input conversion must not carry opaque argument text");
@@ -1043,15 +1045,15 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
       pragma Unreferenced (T);
       use Editor.External_Producers;
    begin
-      Assert (Build_Public_Build_Input_Feedback
+      Assert (Editor.External_Producers.Build_Requests.Build_Public_Build_Input_Feedback
                 (Public_Build_Input_Rejected_No_Input) =
               "Build: input required",
               "no-input feedback must be compact and deterministic");
-      Assert (Build_Public_Build_Input_Feedback
+      Assert (Editor.External_Producers.Build_Requests.Build_Public_Build_Input_Feedback
                 (Public_Build_Input_Rejected_Custom_Tool) =
               "Build: custom build tool not supported",
               "custom-tool feedback must not expose command internals");
-      Assert (Build_Public_Build_Input_Feedback
+      Assert (Editor.External_Producers.Build_Requests.Build_Public_Build_Input_Feedback
                 (Public_Build_Input_Rejected_Shell) =
               "Build: shell execution disabled",
               "shell feedback must be compact and deterministic");
@@ -1062,7 +1064,7 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
    is
       pragma Unreferenced (T);
       Request : constant Editor.External_Producers.Build_Run_Request :=
-        Editor.External_Producers.Build_User_Opt_In_Request_From_Public_Input
+        Editor.External_Producers.Build_Requests.Build_User_Opt_In_Request_From_Public_Input
           (Valid_Public_Input);
       pragma Unreferenced (Request);
    begin
@@ -1086,7 +1088,7 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
       Editor.State.Init (S);
       Before_Messages := Editor.Messages.Count (S.Messages);
       Before_Focus := Editor.Panel_Focus.Target (S.Panel_Focus);
-      Status := Editor.External_Producers.Validate_Public_Build_Working_Context
+      Status := Editor.External_Producers.Public_Build.Validate_Public_Build_Working_Context
         (Valid_Test_Working_Context);
       Assert (Status = Editor.External_Producers.Public_Build_Working_Context_Valid_For_Internal_Test,
               "test working context must validate without side effects");
@@ -1106,39 +1108,39 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
       Context := (Source => Public_Build_Working_Context_None,
                   Label  => Null_Unbounded_String,
                   User_Acknowledged_Context => False);
-      Assert (Validate_Public_Build_Working_Context (Context) =
+      Assert (Editor.External_Producers.Public_Build.Validate_Public_Build_Working_Context (Context) =
               Public_Build_Working_Context_Rejected_None,
               "missing working context must reject deterministically");
 
       Context := (Source => Public_Build_Working_Context_Project_Derived,
                   Label  => To_Unbounded_String ("project:root"),
                   User_Acknowledged_Context => True);
-      Assert (Validate_Public_Build_Working_Context (Context) =
+      Assert (Editor.External_Producers.Public_Build.Validate_Public_Build_Working_Context (Context) =
               Public_Build_Working_Context_Rejected_Project_Derived,
               "project-derived working context must reject deterministically");
 
       Context := (Source => Public_Build_Working_Context_User_Form_Label,
                   Label  => Null_Unbounded_String,
                   User_Acknowledged_Context => True);
-      Assert (Validate_Public_Build_Working_Context (Context) =
+      Assert (Editor.External_Producers.Public_Build.Validate_Public_Build_Working_Context (Context) =
               Public_Build_Working_Context_Rejected_Missing_Label,
               "missing user-form working label must reject deterministically");
 
       Context := Valid_User_Form_Working_Context;
       Context.User_Acknowledged_Context := False;
-      Assert (Validate_Public_Build_Working_Context (Context) =
+      Assert (Editor.External_Producers.Public_Build.Validate_Public_Build_Working_Context (Context) =
               Public_Build_Working_Context_Rejected_Missing_Acknowledgement,
               "missing working-context acknowledgement must reject deterministically");
 
       Context := Valid_User_Form_Working_Context;
       Context.Label := To_Unbounded_String ("bad" & Character'Val (10));
-      Assert (Validate_Public_Build_Working_Context (Context) =
+      Assert (Editor.External_Producers.Public_Build.Validate_Public_Build_Working_Context (Context) =
               Public_Build_Working_Context_Rejected_Unsafe_Label,
               "control-character working labels must reject deterministically");
 
       Context := Valid_User_Form_Working_Context;
       Context.Label := To_Unbounded_String (Editor.Test_Temp.Base & "/project");
-      Assert (Validate_Public_Build_Working_Context (Context) =
+      Assert (Editor.External_Producers.Public_Build.Validate_Public_Build_Working_Context (Context) =
               Public_Build_Working_Context_Rejected_Unsafe_Label,
               "path-like working labels must reject until safe directory UX exists");
    end Test_Public_Build_Working_Context_Rejects_Invalid_Forms;
@@ -1151,17 +1153,17 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
       Context : constant Public_Build_Working_Context_Model :=
         Valid_Test_Working_Context;
       Converted : constant Editor.External_Producers.Build_Working_Context :=
-        Build_Working_Context_From_Public_Model (Context);
+        Editor.External_Producers.Public_Build.Build_Working_Context_From_Public_Model (Context);
    begin
-      Assert (Validate_Public_Build_Working_Context (Context) =
+      Assert (Editor.External_Producers.Public_Build.Validate_Public_Build_Working_Context (Context) =
               Public_Build_Working_Context_Valid_For_Internal_Test,
               "test working context must validate for internal/test conversion only");
-      Assert (Classify_Public_Build_Working_Context_Safety (Context) =
+      Assert (Editor.External_Producers.Public_Build.Classify_Public_Build_Working_Context_Safety (Context) =
               Public_Build_Input_Valid_For_Internal_Test,
               "test working context must classify as internal-test-only");
       Assert (Converted.Kind = Build_Working_Context_Inherited_Test_Context,
               "test working context must convert only to inherited test context");
-      Assert (Assert_Public_Build_Working_Context_Conversion_Consistent
+      Assert (Editor.External_Producers.Public_Build.Assert_Public_Build_Working_Context_Conversion_Consistent
                 (Context, Converted),
               "test working-context conversion must be consistent");
    end Test_Public_Build_Working_Context_Test_Context_Internal_Only;
@@ -1174,15 +1176,15 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
       Context : constant Public_Build_Working_Context_Model :=
         Valid_User_Form_Working_Context;
       Converted : constant Editor.External_Producers.Build_Working_Context :=
-        Build_Working_Context_From_Public_Model (Context);
+        Editor.External_Producers.Public_Build.Build_Working_Context_From_Public_Model (Context);
    begin
-      Assert (Validate_Public_Build_Working_Context (Context) =
+      Assert (Editor.External_Producers.Public_Build.Validate_Public_Build_Working_Context (Context) =
               Public_Build_Working_Context_Valid_But_Not_Public_UX,
               "user-form working context must remain structurally valid but not UX-ready");
-      Assert (Classify_Public_Build_Working_Context_Safety (Context) =
+      Assert (Editor.External_Producers.Public_Build.Classify_Public_Build_Working_Context_Safety (Context) =
               Public_Build_Input_Valid_But_Not_Publicly_Exposable,
               "user-form working context must not classify as publicly exposable");
-      Assert (Classify_Public_Build_Working_Context_Safety (Context) /=
+      Assert (Editor.External_Producers.Public_Build.Classify_Public_Build_Working_Context_Safety (Context) /=
               Public_Build_Input_Publicly_Exposable,
               "no working context may be publicly exposable in ");
       Assert (Converted.Kind = Build_Working_Context_Explicit_Label,
@@ -1201,8 +1203,8 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
         (Source => Public_Build_Working_Context_Project_Derived,
          Label  => To_Unbounded_String ("project:root"),
          User_Acknowledged_Context => True);
-      Request := Build_User_Opt_In_Request_From_Public_Input (Input);
-      Assert (Validate_Public_Build_Command_Input (Input) =
+      Request := Editor.External_Producers.Build_Requests.Build_User_Opt_In_Request_From_Public_Input (Input);
+      Assert (Editor.External_Producers.Build_Requests.Validate_Public_Build_Command_Input (Input) =
               Public_Build_Input_Rejected_Unsafe_Working_Context,
               "project-derived public working context must reject input validation");
       Assert (Request.Provenance = Build_Request_Unknown,
@@ -1218,8 +1220,8 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
       Request : Build_Run_Request;
    begin
       Input.Working_Context_Model := Valid_User_Form_Working_Context;
-      Request := Build_User_Opt_In_Request_From_Public_Input (Input);
-      Assert (Build_Working_Context_From_Public_Model
+      Request := Editor.External_Producers.Build_Requests.Build_User_Opt_In_Request_From_Public_Input (Input);
+      Assert (Editor.External_Producers.Public_Build.Build_Working_Context_From_Public_Model
                 (Input.Working_Context_Model).Kind = Build_Working_Context_Explicit_Label,
               "safe user-form working context converts to an explicit guarded label");
       Assert (Request.Provenance = Build_Request_Unknown,
@@ -1233,9 +1235,9 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
       use Editor.External_Producers;
       Input : constant Public_Build_Command_Input := Valid_Public_Input;
       Converted : constant Editor.External_Producers.Build_Working_Context :=
-        Build_Working_Context_From_Public_Model (Input.Working_Context_Model);
+        Editor.External_Producers.Public_Build.Build_Working_Context_From_Public_Model (Input.Working_Context_Model);
       Request : constant Build_Run_Request :=
-        Build_User_Opt_In_Request_From_Public_Input (Input);
+        Editor.External_Producers.Build_Requests.Build_User_Opt_In_Request_From_Public_Input (Input);
    begin
       Assert (Converted.Kind = Build_Working_Context_Inherited_Test_Context,
               "valid test public working context must convert to inherited test context");
@@ -1251,15 +1253,15 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
       pragma Unreferenced (T);
       use Editor.External_Producers;
    begin
-      Assert (Build_Public_Build_Working_Context_Feedback
+      Assert (Editor.External_Producers.Public_Build.Build_Public_Build_Working_Context_Feedback
                 (Public_Build_Working_Context_Rejected_None) =
               "Build: working context required",
               "missing context feedback must be stable");
-      Assert (Build_Public_Build_Working_Context_Feedback
+      Assert (Editor.External_Producers.Public_Build.Build_Public_Build_Working_Context_Feedback
                 (Public_Build_Working_Context_Rejected_Project_Derived) =
               "Build: project working context not supported",
               "project-derived context feedback must be stable");
-      Assert (Build_Public_Build_Working_Context_Feedback
+      Assert (Editor.External_Producers.Public_Build.Build_Public_Build_Working_Context_Feedback
                 (Public_Build_Working_Context_Valid_But_Not_Public_UX) =
               "Build: public working directory UX not ready",
               "user-form context feedback must report missing UX");
@@ -1270,7 +1272,7 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
    is
       pragma Unreferenced (T);
       Status : constant Editor.External_Producers.Public_Build_Working_Context_Validation_Status :=
-        Editor.External_Producers.Validate_Public_Build_Working_Context
+        Editor.External_Producers.Public_Build.Validate_Public_Build_Working_Context
           (Valid_User_Form_Working_Context);
       pragma Unreferenced (Status);
    begin

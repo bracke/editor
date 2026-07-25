@@ -7,6 +7,9 @@ with Editor.Build_UI;
 with Editor.Build_UI_Actions;
 with Editor.Commands;
 with Editor.Command_Execution;
+with Editor.External_Producers.Build_Requests;
+with Editor.External_Producers.Diagnostic_Line_Parsing;
+with Editor.External_Producers.Diagnostics;
 with Editor.Feature_Diagnostics;
 with Editor.Feature_Panel;
 
@@ -14,8 +17,8 @@ package body Editor.Build_Diagnostics_Review is
 
    use type Editor.Commands.Command_Category;
    use type Editor.Commands.Command_Id;
-   use type Editor.External_Producers.Diagnostic_Line_Command_Outcome;
-   use type Editor.External_Producers.External_Producer_Kind;
+   use type Editor.External_Producers.Diagnostic_Line_Parsing.Command_Outcome;
+   use type Editor.External_Producers.Diagnostics.Producer_Kind;
    use type Editor.Feature_Diagnostics.Diagnostic_Source_Kind;
    use type Editor.Feature_Panel.Feature_Id;
    use type Editor.Feature_Panel.Feature_Panel_Row_Kind;
@@ -38,20 +41,20 @@ package body Editor.Build_Diagnostics_Review is
    end Build_Diagnostic_Source_Label;
 
    function Build_Diagnostics_Ingestion_Summary
-     (Result : Editor.External_Producers.Diagnostic_Line_Command_Result)
+     (Result : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result)
       return String
    is
       Count : constant Natural :=
         Result.Ingestion.Ingestion_Result.Accepted_Count;
    begin
       case Result.Outcome is
-         when Editor.External_Producers.Diagnostic_Line_Command_Succeeded =>
+         when Editor.External_Producers.Diagnostic_Line_Parsing.Diagnostic_Line_Command_Succeeded =>
             return "diagnostics ingested:" & Natural'Image (Count);
-         when Editor.External_Producers.Diagnostic_Line_Command_No_Input =>
+         when Editor.External_Producers.Diagnostic_Line_Parsing.Diagnostic_Line_Command_No_Input =>
             return "diagnostics not requested";
-         when Editor.External_Producers.Diagnostic_Line_Command_No_Diagnostics =>
+         when Editor.External_Producers.Diagnostic_Line_Parsing.Diagnostic_Line_Command_No_Diagnostics =>
             return "no diagnostics";
-         when Editor.External_Producers.Diagnostic_Line_Command_Malformed_Only =>
+         when Editor.External_Producers.Diagnostic_Line_Parsing.Diagnostic_Line_Command_Malformed_Only =>
             return "diagnostics parse partial";
       end case;
    end Build_Diagnostics_Ingestion_Summary;
@@ -177,12 +180,13 @@ package body Editor.Build_Diagnostics_Review is
    function Assert_Build_Diagnostics_Source_Metadata_Reliable
      (Request : Editor.External_Producers.Build_Run_Request) return Boolean
    is
-      Source : constant Editor.External_Producers.External_Producer_Source :=
+      Source : constant Editor.External_Producers.Diagnostics.Producer_Source :=
         Editor.Build_Diagnostics.Build_Diagnostic_Source_Metadata (Request);
       Label  : constant String := To_String (Source.Display_Label);
    begin
-      return Editor.External_Producers.Producer_Source_Is_Valid (Source)
-        and then Source.Kind = Editor.External_Producers.Build_Diagnostics_Producer
+      return Editor.External_Producers.Diagnostics.Producer_Source_Is_Valid (Source)
+        and then Source.Kind =
+          Editor.External_Producers.Diagnostics.Build_Diagnostics_Producer
         and then Contains (Label, "Build")
         and then not Contains (Label, "gprbuild")
         and then not Contains (Label, "alr")
@@ -193,36 +197,36 @@ package body Editor.Build_Diagnostics_Review is
 
    function Assert_Build_Diagnostics_Zero_Output_Reliable
      (State  : Editor.State.State_Type;
-      Result : Editor.External_Producers.Diagnostic_Line_Command_Result)
+      Result : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result)
       return Boolean
    is
    begin
       return Result.Ingestion.Ingestion_Result.Accepted_Count = 0
         and then Result.Ingestion.Normalized_Count = 0
         and then Result.Outcome in
-          Editor.External_Producers.Diagnostic_Line_Command_No_Input |
-          Editor.External_Producers.Diagnostic_Line_Command_No_Diagnostics
+          Editor.External_Producers.Diagnostic_Line_Parsing.Diagnostic_Line_Command_No_Input |
+          Editor.External_Producers.Diagnostic_Line_Parsing.Diagnostic_Line_Command_No_Diagnostics
         and then Assert_Build_Diagnostics_Are_Diagnostics_Owned (State)
         and then Assert_Build_Diagnostics_Not_Build_Owned (State);
    end Assert_Build_Diagnostics_Zero_Output_Reliable;
 
    function Assert_Build_Diagnostics_Malformed_Output_Reliable
      (State  : Editor.State.State_Type;
-      Result : Editor.External_Producers.Diagnostic_Line_Command_Result)
+      Result : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result)
       return Boolean
    is
    begin
       return Result.Ingestion.Ingestion_Result.Accepted_Count = 0
         and then Result.Ingestion.Parse_Rejected_Malformed_Count > 0
         and then Result.Outcome =
-          Editor.External_Producers.Diagnostic_Line_Command_Malformed_Only
+          Editor.External_Producers.Diagnostic_Line_Parsing.Diagnostic_Line_Command_Malformed_Only
         and then Assert_Build_Diagnostics_Are_Diagnostics_Owned (State)
         and then Assert_Build_Diagnostics_Not_Build_Owned (State);
    end Assert_Build_Diagnostics_Malformed_Output_Reliable;
 
    function Assert_Build_Diagnostics_Truncated_Or_Partial_Output_Reliable
      (State  : Editor.State.State_Type;
-      Result : Editor.External_Producers.Diagnostic_Line_Command_Result)
+      Result : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result)
       return Boolean
    is
    begin
@@ -338,12 +342,12 @@ package body Editor.Build_Diagnostics_Review is
          Working_Label        => Null_Unbounded_String,
          Command_Label        => To_Unbounded_String ("gprbuild"),
          Arguments            => Null_Unbounded_String,
-         Structured_Arguments => Editor.External_Producers.Empty_Process_Arguments);
-      Build_Result : constant Editor.External_Producers.Build_Run_Result :=
-        Editor.External_Producers.Build_Build_Run_Result
+         Structured_Arguments => Editor.External_Producers.Build_Requests.Empty_Process_Arguments);
+      Build_Result : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
+        Editor.External_Producers.Build_Requests.Build_Build_Run_Result
           (Editor.External_Producers.Build_Run_Failed,
            Stderr_Text => "main.adb:9:1: error: canonical");
-      Ingestion : Editor.External_Producers.Diagnostic_Line_Command_Result;
+      Ingestion : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result;
    begin
       Ingestion := Editor.Build_Diagnostics.Ingest_Build_Diagnostics_Through_Diagnostics
         (S, Request, Build_Result,
@@ -409,12 +413,12 @@ package body Editor.Build_Diagnostics_Review is
          Working_Label        => Null_Unbounded_String,
          Command_Label        => To_Unbounded_String ("gprbuild"),
          Arguments            => Null_Unbounded_String,
-         Structured_Arguments => Editor.External_Producers.Empty_Process_Arguments);
-      Build_Result : constant Editor.External_Producers.Build_Run_Result :=
-        Editor.External_Producers.Build_Build_Run_Result
+         Structured_Arguments => Editor.External_Producers.Build_Requests.Empty_Process_Arguments);
+      Build_Result : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
+        Editor.External_Producers.Build_Requests.Build_Build_Run_Result
           (Editor.External_Producers.Build_Run_Failed,
            Stderr_Text => "main.adb:1:1: error: reviewable");
-      Ingestion : Editor.External_Producers.Diagnostic_Line_Command_Result;
+      Ingestion : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result;
       Review    : Build_Diagnostics_Review_Result;
    begin
       Ingestion := Editor.Build_Diagnostics.Ingest_Build_Diagnostics_Through_Diagnostics
@@ -445,12 +449,12 @@ package body Editor.Build_Diagnostics_Review is
          Working_Label        => To_Unbounded_String ("current-project-root"),
          Command_Label        => To_Unbounded_String ("gprbuild"),
          Arguments            => Null_Unbounded_String,
-         Structured_Arguments => Editor.External_Producers.Empty_Process_Arguments);
-      Good : constant Editor.External_Producers.Build_Run_Result :=
-        Editor.External_Producers.Build_Build_Run_Result
+         Structured_Arguments => Editor.External_Producers.Build_Requests.Empty_Process_Arguments);
+      Good : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
+        Editor.External_Producers.Build_Requests.Build_Build_Run_Result
           (Editor.External_Producers.Build_Run_Failed,
            Stderr_Text => "main.adb:1:1: error: reliable");
-      Command : Editor.External_Producers.Diagnostic_Line_Command_Result;
+      Command : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result;
       Review  : Build_Diagnostics_Review_Result;
    begin
       Command := Editor.Build_Diagnostics.Ingest_Build_Diagnostics_Through_Diagnostics
@@ -512,13 +516,14 @@ package body Editor.Build_Diagnostics_Review is
    function Assert_Build_Diagnostics_Final_Source_Metadata_Boundary
      (Request : Editor.External_Producers.Build_Run_Request) return Boolean
    is
-      Source : constant Editor.External_Producers.External_Producer_Source :=
+      Source : constant Editor.External_Producers.Diagnostics.Producer_Source :=
         Editor.Build_Diagnostics.Build_Diagnostic_Source_Metadata (Request);
       Stable : constant String := To_String (Source.Stable_Name);
       Label  : constant String := To_String (Source.Display_Label);
    begin
       return Assert_Build_Diagnostics_Source_Metadata_Reliable (Request)
-        and then Source.Kind = Editor.External_Producers.Build_Diagnostics_Producer
+        and then Source.Kind =
+          Editor.External_Producers.Diagnostics.Build_Diagnostics_Producer
         and then not Contains (Stable, "shell")
         and then not Contains (Stable, "rerun")
         and then not Contains (Stable, "handle")
@@ -804,12 +809,12 @@ package body Editor.Build_Diagnostics_Review is
          Working_Label        => To_Unbounded_String ("current-project-root"),
          Command_Label        => To_Unbounded_String ("gprbuild"),
          Arguments            => Null_Unbounded_String,
-         Structured_Arguments => Editor.External_Producers.Empty_Process_Arguments);
-      Result : constant Editor.External_Producers.Build_Run_Result :=
-        Editor.External_Producers.Build_Build_Run_Result
+         Structured_Arguments => Editor.External_Producers.Build_Requests.Empty_Process_Arguments);
+      Result : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
+        Editor.External_Producers.Build_Requests.Build_Build_Run_Result
           (Editor.External_Producers.Build_Run_Failed,
            Stderr_Text => "Untitled:2:1: error: navigate");
-      Command : Editor.External_Producers.Diagnostic_Line_Command_Result;
+      Command : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result;
       Before_Reveal : Editor.State.State_Type;
       After_Reveal  : Editor.State.State_Type;
       Reveal_Result : Editor.Command_Execution.Command_Execution_Result;
@@ -853,12 +858,12 @@ package body Editor.Build_Diagnostics_Review is
          Working_Label        => To_Unbounded_String ("current-project-root"),
          Command_Label        => To_Unbounded_String ("gprbuild"),
          Arguments            => Null_Unbounded_String,
-         Structured_Arguments => Editor.External_Producers.Empty_Process_Arguments);
-      Result : constant Editor.External_Producers.Build_Run_Result :=
-        Editor.External_Producers.Build_Build_Run_Result
+         Structured_Arguments => Editor.External_Producers.Build_Requests.Empty_Process_Arguments);
+      Result : constant Editor.External_Producers.Build_Requests.Build_Run_Result :=
+        Editor.External_Producers.Build_Requests.Build_Build_Run_Result
           (Editor.External_Producers.Build_Run_Failed,
            Stderr_Text => "main.adb:21:1: error: final freeze");
-      Command : Editor.External_Producers.Diagnostic_Line_Command_Result;
+      Command : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result;
       Review  : Build_Diagnostics_Review_Result;
    begin
       Editor.State.Init (S);

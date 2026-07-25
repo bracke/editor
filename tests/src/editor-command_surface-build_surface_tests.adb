@@ -19,6 +19,8 @@ with Editor.Executor.Command_Palette_Projection;
 with Editor.File_Tree;
 with Editor.File_Tree_View;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Requests;
+with Editor.External_Producers.Public_Build;
 with Editor.Messages;
 with Editor.Keybindings;
 with Editor.Keybinding_Management;
@@ -215,13 +217,13 @@ package body Editor.Command_Surface.Build_Surface_Tests is
          Tool             => Editor.External_Producers.GPRbuild_Tool,
          Program_Label    => To_Unbounded_String ("gprbuild"),
          Working_Context  =>
-           Editor.External_Producers.Build_Inherited_Test_Working_Context,
+           Editor.External_Producers.Build_Requests.Build_Inherited_Test_Working_Context,
          Working_Context_Model =>
            (Source => Editor.External_Producers.Public_Build_Working_Context_Test_Context,
             Label  => Null_Unbounded_String,
             User_Acknowledged_Context => True),
          Arguments        =>
-           Editor.External_Producers.Build_Process_Argument_Vector ("-q"),
+           Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q"),
          Consent          => Editor.External_Producers.Build_Consent_User_Confirmed,
          Consent_Model    =>
            (Source => Editor.External_Producers.Public_Build_Consent_Test_Context,
@@ -290,8 +292,8 @@ package body Editor.Command_Surface.Build_Surface_Tests is
               "conversion must preserve program label as metadata");
       Assert (To_String (Request.Arguments)'Length = 0,
               "conversion must not introduce opaque command text");
-      Assert (Process_Argument_Count (Request.Structured_Arguments) =
-              Process_Argument_Count (Input.Arguments),
+      Assert (Editor.External_Producers.Build_Requests.Process_Argument_Count (Request.Structured_Arguments) =
+              Editor.External_Producers.Build_Requests.Process_Argument_Count (Input.Arguments),
               "conversion must preserve structured argv count");
       Assert (To_String (Request.Working_Label)'Length = 0,
               "conversion must not create a real working directory label");
@@ -303,7 +305,7 @@ package body Editor.Command_Surface.Build_Surface_Tests is
       S : Editor.State.State_Type;
    begin
       Editor.State.Init (S);
-      return Run_Public_Build_Guardrail_Audit (S);
+      return Editor.External_Producers.Public_Build.Run_Public_Build_Guardrail_Audit (S);
    end Default_Result;
 
    function Starts_With (Text : String; Prefix : String) return Boolean is
@@ -638,19 +640,19 @@ package body Editor.Command_Surface.Build_Surface_Tests is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
       Context : constant Editor.External_Producers.User_Opt_In_Build_Command_Context :=
-        Editor.External_Producers.Build_User_Opt_In_Command_Context
+        Editor.External_Producers.Build_Requests.Build_User_Opt_In_Command_Context
           (Tool              => Editor.External_Producers.GPRbuild_Tool,
            Program_Label     => "gprbuild",
            Working_Label     => "",
-           Arguments         => Editor.External_Producers.Build_Process_Argument_Vector ("-q"),
+           Arguments         => Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("-q"),
            Consent           => Editor.External_Producers.Build_Consent_User_Confirmed,
            Allow_Diagnostics => True,
            Show_Diagnostics  => False);
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Result := Editor.Executor.Execute_User_Opt_In_Build_Command
         (S, Context,
-         Editor.External_Producers.Build_Process_Run_Result
+         Editor.External_Producers.Build_Requests.Build_Process_Run_Result
            (Editor.External_Producers.Process_Run_Succeeded,
             Exit_Code => 0, Has_Exit_Code => True));
       Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Succeeded,
@@ -773,7 +775,7 @@ package body Editor.Command_Surface.Build_Surface_Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Names : constant Command_Id_Vector := Public_Build_Command_Surface_Ids;
+      Names : constant Command_Id_Vector := Editor.External_Producers.Public_Build.Public_Build_Command_Surface_Ids;
       Found : Boolean;
       Id    : Editor.Commands.Command_Id;
    begin
@@ -804,7 +806,7 @@ package body Editor.Command_Surface.Build_Surface_Tests is
    begin
       Assert (Test_Seam_Id = "build.run-user-opt-in-test-seam",
               "internal test seam near-miss id must remain stable");
-      Assert (not Is_Public_Build_Surface_Id (Test_Seam_Id),
+      Assert (not Editor.External_Producers.Public_Build.Is_Public_Build_Surface_Id (Test_Seam_Id),
               "internal test seam must not canonicalize to a public build id");
       Assert (not Editor.Commands.Is_Bindable_Command
                 (Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam),
@@ -824,7 +826,7 @@ package body Editor.Command_Surface.Build_Surface_Tests is
    begin
       Editor.State.Init (S);
       Review := Editor.Command_Surface.Review_Command_Surface (S);
-      Manifest := Build_Public_Build_Guardrail_Regression_Manifest (S);
+      Manifest := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Regression_Manifest (S);
       Assert (Review.Public_Build_Guardrail_Intact,
               "command surface review must keep public-build manifest as a healthy sentinel");
       Assert (Manifest.Manifest_Healthy,

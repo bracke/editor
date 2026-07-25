@@ -4,6 +4,8 @@ with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Build_Result_Summary;
 with Editor.External_Producers;
+with Editor.External_Producers.Build_Requests;
+with Editor.External_Producers.Diagnostic_Line_Parsing;
 with Editor.State;
 with Editor.Build_Command;
 with Editor.Commands;
@@ -32,7 +34,7 @@ package body Editor.Build_Result_Summary.Tests is
          Working_Label => To_Unbounded_String ("current project root"),
          Command_Label => Null_Unbounded_String,
          Arguments => Null_Unbounded_String,
-         Structured_Arguments => Editor.External_Producers.Empty_Process_Arguments);
+         Structured_Arguments => Editor.External_Producers.Build_Requests.Empty_Process_Arguments);
    end Request;
 
    function Command_Result
@@ -41,19 +43,20 @@ package body Editor.Build_Result_Summary.Tests is
       Has_Exit_Code : Boolean := False;
       Stdout_Truncated : Boolean := False;
       Stderr_Truncated : Boolean := False)
-      return Editor.External_Producers.Build_Command_Result
+      return Editor.External_Producers.Build_Requests.Build_Command_Result
    is
    begin
       return
         (Build_Result =>
-           Editor.External_Producers.Build_Build_Run_Result
+           Editor.External_Producers.Build_Requests.Build_Build_Run_Result
              (Status,
               Exit_Code => Exit_Code,
               Has_Exit_Code => Has_Exit_Code,
               Stdout_Truncated => Stdout_Truncated,
               Stderr_Truncated => Stderr_Truncated),
          Diagnostic_Result =>
-           Editor.External_Producers.Empty_Diagnostic_Line_Command_Result,
+           Editor.External_Producers.Diagnostic_Line_Parsing.
+             Empty_Diagnostic_Line_Command_Result,
          Command_Message => To_Unbounded_String ("Build message"));
    end Command_Result;
 
@@ -216,7 +219,7 @@ package body Editor.Build_Result_Summary.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Result := Editor.Build_Command.Execute_Public_Build_Run (S);
       Assert (Result.Build_Result.Status =
@@ -700,7 +703,7 @@ package body Editor.Build_Result_Summary.Tests is
    is
       pragma Unreferenced (T);
       State : Editor.State.State_Type;
-      Result : Editor.External_Producers.Build_Command_Result;
+      Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Assert (not State.Latest_Build_Result.Has_Result,
               "fresh runtime state has no restored latest result");

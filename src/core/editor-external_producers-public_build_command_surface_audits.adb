@@ -4,10 +4,16 @@ with Editor.Commands;
 with Editor.State;
 with Editor.External_Producers.Diagnostic_Line_Pipeline;
 with Editor.External_Producers.Public_Build_Guardrail_Audits;
+with Editor.External_Producers.Public_Build_Input_Validation;
 
 use Editor.External_Producers.Diagnostic_Line_Pipeline;
 
 package body Editor.External_Producers.Public_Build_Command_Surface_Audits is
+
+   package Guardrail_Audits renames
+     Editor.External_Producers.Public_Build_Guardrail_Audits;
+   package Input_Validation renames
+     Editor.External_Producers.Public_Build_Input_Validation;
 
    use type Ada.Containers.Count_Type;
    use type Editor.Commands.Command_Id;
@@ -295,12 +301,14 @@ package body Editor.External_Producers.Public_Build_Command_Surface_Audits is
    is
       Result : Public_Build_Command_UX_Dependency_Audit_Result;
    begin
-      Result.Has_Input_Model := Audit_Public_Build_Input_Model_Readiness;
+      Result.Has_Input_Model :=
+        Input_Validation.Audit_Public_Build_Input_Model_Readiness;
       Result.Has_Structured_Argv_Model := True;
-      Result.Has_Consent_Model := Audit_Public_Build_Consent_Readiness;
+      Result.Has_Consent_Model :=
+        Input_Validation.Audit_Public_Build_Consent_Readiness;
       Result.Has_Real_Consent_UX := True;
       Result.Has_Working_Context_Model :=
-        Audit_Public_Build_Working_Context_Readiness;
+        Input_Validation.Audit_Public_Build_Working_Context_Readiness;
       Result.Has_Safe_Working_Context_UX := True;
       Result.Has_Implicit_Source_Validation := True;
       Result.Explicitly_Rejects_Implicit_Source := True;
@@ -419,17 +427,17 @@ package body Editor.External_Producers.Public_Build_Command_Surface_Audits is
         (others => Dependency_Missing);
    begin
       Matrix (Public_Build_Dependency_Input_Model) :=
-        (if Audit_Public_Build_Input_Model_Readiness
+        (if Input_Validation.Audit_Public_Build_Input_Model_Readiness
          then Dependency_Satisfied
          else Dependency_Missing);
       Matrix (Public_Build_Dependency_Structured_Argv) := Dependency_Satisfied;
       Matrix (Public_Build_Dependency_Consent_Model) :=
-        (if Audit_Public_Build_Consent_Readiness
+        (if Input_Validation.Audit_Public_Build_Consent_Readiness
          then Dependency_Satisfied
          else Dependency_Missing);
       Matrix (Public_Build_Dependency_Consent_UX) := Dependency_Satisfied;
       Matrix (Public_Build_Dependency_Working_Context_Model) :=
-        (if Audit_Public_Build_Working_Context_Readiness
+        (if Input_Validation.Audit_Public_Build_Working_Context_Readiness
          then Dependency_Satisfied
          else Dependency_Missing);
       Matrix (Public_Build_Dependency_Working_Context_UX) := Dependency_Satisfied;
@@ -799,7 +807,8 @@ package body Editor.External_Producers.Public_Build_Command_Surface_Audits is
       return Public_Build_Command_Hard_Freeze_Audit_Result
    is
       Readiness : constant Public_Build_Command_Readiness_Audit_Result :=
-        Run_Public_Build_Command_Readiness_Audit (State);
+        Editor.External_Producers.Public_Build_Input_Validation
+          .Run_Public_Build_Command_Readiness_Audit (State);
       Matrix : constant Public_Build_UX_Dependency_Matrix :=
         Build_Public_Build_UX_Dependency_Matrix;
       Matrix_Status : constant Public_Build_Command_Promotion_Status :=
@@ -863,11 +872,65 @@ package body Editor.External_Producers.Public_Build_Command_Surface_Audits is
       return Result;
    end Run_Public_Build_Command_Hard_Freeze_Audit;
 
+   procedure Assert_No_Public_Build_Execution_Path
+     (State : Editor.State.State_Type)
+   is
+      Audit : constant Public_Build_Command_Hard_Freeze_Audit_Result :=
+        Run_Public_Build_Command_Hard_Freeze_Audit (State);
+   begin
+      Assert_Public_Build_Surface_Ids_Not_Reused;
+      if not Audit.No_Public_Command_Registered
+        or else not Audit.No_Public_Executor_Route
+        or else not Audit.No_Public_Invocation_Path
+        or else not Audit.No_Public_Default_Keybinding
+        or else not Audit.No_Public_Command_Palette_Entry
+        or else not Audit.No_Public_Bindable_Command
+        or else not Audit.No_Default_Execution
+      then
+         raise Program_Error with "public build execution path exposed";
+      end if;
+   end Assert_No_Public_Build_Execution_Path;
+
+   procedure Assert_Public_Build_Hard_Freeze_Not_Persisted
+     (State : Editor.State.State_Type)
+   is
+      pragma Unreferenced (State);
+      Summary : constant Public_Build_Blocker_Summary :=
+        Build_Public_Build_Blocker_Summary;
+   begin
+      Assert_Public_Build_Surface_Ids_Not_Reused;
+      if not Summary.Default_Execution_Disabled then
+         raise Program_Error with "public build state persisted as command config";
+      end if;
+   end Assert_Public_Build_Hard_Freeze_Not_Persisted;
+
+   function Build_Public_Build_Hard_Freeze_Feedback
+     (Audit : Public_Build_Command_Hard_Freeze_Audit_Result) return String
+   is
+      Summary : constant Public_Build_Blocker_Summary :=
+        Build_Public_Build_Blocker_Summary;
+   begin
+      if Audit.Public_Exposure_Hard_Failure then
+         return "Build: unsafe public command exposure detected";
+      elsif not Audit.Passed then
+         return "Build: public build hard-freeze failed";
+      elsif Summary.Consent_UX_Missing then
+         return "Build: consent UX not ready";
+      elsif Summary.Working_Context_UX_Missing then
+         return "Build: working directory UX not ready";
+      elsif Summary.Implicit_Source_Unsupported then
+         return "Build: explicit build request required";
+      else
+         return "Build: public command ready";
+      end if;
+   end Build_Public_Build_Hard_Freeze_Feedback;
+
    procedure Assert_Public_Build_Audits_Agree
      (State : Editor.State.State_Type)
    is
       Readiness : constant Public_Build_Command_Readiness_Audit_Result :=
-        Run_Public_Build_Command_Readiness_Audit (State);
+        Editor.External_Producers.Public_Build_Input_Validation
+          .Run_Public_Build_Command_Readiness_Audit (State);
       Matrix : constant Public_Build_UX_Dependency_Matrix :=
         Build_Public_Build_UX_Dependency_Matrix;
       Dependency_Status : constant Public_Build_Command_Promotion_Status :=
@@ -902,11 +965,9 @@ package body Editor.External_Producers.Public_Build_Command_Surface_Audits is
            "public build dependency matrix blocks promotion";
       end if;
 
-      Editor.External_Producers.Public_Build_Guardrail_Audits
-        .Assert_Public_Build_Guardrail_Agrees_With_No_Execution_Scan
-          (State, Run_Public_Build_Guardrail_Audit (State));
-      Editor.External_Producers.Public_Build_Guardrail_Audits
-        .Assert_Public_Build_Guardrail_State_Not_Persisted (State);
+      Guardrail_Audits.Assert_Public_Build_Guardrail_Agrees_With_No_Execution_Scan
+        (State, Guardrail_Audits.Run_Public_Build_Guardrail_Audit (State));
+      Guardrail_Audits.Assert_Public_Build_Guardrail_State_Not_Persisted (State);
    end Assert_Public_Build_Audits_Agree;
 
 end Editor.External_Producers.Public_Build_Command_Surface_Audits;
