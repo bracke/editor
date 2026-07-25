@@ -1884,6 +1884,8 @@ editor-render_packet-debug_support.adb
 editor-render_packet-debug_support.ads
 editor-render_packet-guikit_adapters.adb
 editor-render_packet-guikit_adapters.ads
+editor-render_packet-geometry.adb
+editor-render_packet-geometry.ads
 editor-render_packet-chrome_surfaces.adb
 editor-render_packet-chrome_surfaces.ads
 editor-render_packet-editor_text_surface.adb

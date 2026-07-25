@@ -1,140 +1,29 @@
-with Ada.Containers; use Ada.Containers;
-with Interfaces.C; use Interfaces.C;
-with Editor.Fonts;
-with Editor.Input_Bridge;
-with Editor.Input_Field;
-with Editor.Layout;
-with Editor.Line_Numbers;
-with Editor.View;
-with Editor.Wrap;
-with Editor.Render_Model; use Editor.Render_Model;
-with Editor.Render_Layers; use Editor.Render_Layers;
-with Editor.Render_Cache;
-with Editor.Render_Packet.Debug_Support;
-with Editor.Syntax;
-with Editor.Theme;
-with Editor.Unicode;
-with Editor.Minimap;
-with Editor.Diagnostics;
-with Editor.Cursor;
-with Editor.Search;
-with Editor.Command_Palette;
-with Editor.Command_Palette.Surface_Rendering;
-with Editor.Contextual_Help;
-with Editor.Executor;
-with Editor.Executor.Command_Palette_Projection;
-with Editor.Build_UI;
+with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.Bookmarks.Surface_Rendering;
 with Editor.Build_UI.Surface_Rendering;
 with Editor.Feature_Panel.Surface_Rendering;
-with Editor.Terminal_Tasks;
-with Editor.Terminal_Tasks.Surface_Rendering;
-with Editor.Commands;
-with Editor.Settings;
-with Editor.Settings_Management;
-with Editor.Settings_Management.Surface_Rendering;
-with Editor.Scrollbars;
-with Editor.Folding;
-with Editor.Gutter_Markers;
-with Editor.Gutter.Surface_Rendering;
-with Editor.Render_Packet.Guikit_Adapters;
-with Editor.Status_Bar;
-with Editor.Status_Bar.Surface_Rendering;
-with Editor.Messages;
-with Editor.Messages.Surface_Rendering;
-with Editor.Buffers;
-with Guikit.Command_Palette;
-with Guikit.Draw;
-with Guikit.List_Panel;
-with Guikit.Item_Grid;
-with Guikit.Layout;
-with Guikit.Segmented;
-with Guikit.Settings_Panel;
-with Guikit.Tree_Panel;
-with Guikit.Utf8;
-with Guikit.Widgets;
-with Editor.Tab_Bar;
-with Editor.Tab_Bar.Surface_Rendering;
-with Editor.File_Tree;
 with Editor.File_Tree.Surface_Rendering;
-with Editor.File_Tree_View;
-with Editor.Panels;
-with Editor.Problems;
-with Editor.Problems.Surface_Rendering;
-with Editor.Quick_Open;
-use type Editor.Quick_Open.Quick_Open_File_Kind_Filter;
-with Editor.Buffer_Switcher;
-with Editor.Buffer_Switcher.Surface_Rendering;
-with Editor.Buffer_Switcher_Contextual_Hints;
-use type Editor.Buffer_Switcher.Pending_Marked_Action_Kind;
-with Editor.Go_To_Line;
-with Editor.Go_To_Line.Surface_Rendering;
-with Editor.Guided_Prompts;
-with Editor.Project_Search_Bar;
-with Editor.Project_Search_Bar.Surface_Rendering;
-use type Editor.Project_Search_Bar.Project_Search_Bar_Field;
-with Editor.Search_Results;
-with Editor.Search_Results.Surface_Rendering;
-with Editor.Active_Find_Prompt.Surface_Rendering;
-with Editor.Guided_Prompts.Surface_Rendering;
-with Editor.Project_Search;
-with Editor.Project;
-with Editor.Outline;
-with Editor.Semantic_Popup.Surface_Rendering;
-with Editor.Pending_Transitions;
-with Editor.Build_Result_Summary;
-with Editor.Workspace_Persistence;
-with Editor.History;
-with Editor.Panel_Focus;
-with Editor.Pending_Transition_Bar;
-with Editor.Pending_Transition_Bar.Surface_Rendering;
-with Editor.Overlay_Focus;
-with Editor.Focus_Management;
-with Editor.Recent_Projects;
-with Editor.State;
-with Editor.Feature_Panel;
-with Editor.Bookmarks;
-with Editor.Bookmarks.Surface_Rendering;
-with Editor.Buffer_Switcher.Surface_Projection;
+with Editor.Input_Bridge;
 with Editor.Keybinding_Management;
 with Editor.Keybinding_Management.Surface_Projection;
 with Editor.Keybinding_Management.Surface_Rendering;
-with Editor.Lifecycle_Guidance;
-with Editor.Startup_Readiness;
-with Editor.Quick_Open.Surface_Rendering;
-with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Ada.Strings;
-with Ada.Strings.Fixed;
-use type Editor.Line_Numbers.Line_Number_Mode;
-use type Editor.Gutter_Markers.Gutter_Marker_Kind;
-use type Editor.Messages.Message_Severity;
-use type Editor.Tab_Bar.Tab_Visual_State;
-use type Editor.File_Tree.File_Tree_Node_Kind;
-use type Editor.File_Tree.File_Tree_Node_Id;
-use type Editor.Panel_Focus.Bottom_Focus_Content;
-use type Editor.Overlay_Focus.Overlay_Target;
-use type Editor.Problems.Problem_Row_Severity;
-use type Editor.Buffers.Buffer_Id;
-use type Editor.Diagnostics.Diagnostic_Index;
-use type Editor.File_Tree.File_Tree_Scan_Status;
-use type Editor.State.Semantic_Popup_Kind;
-use type Editor.Panels.Bottom_Panel_Content;
-use type Editor.Pending_Transition_Bar.Pending_Bar_Action;
-use type Editor.Feature_Panel.Feature_Panel_Row_Kind;
-use type Editor.Outline.Outline_Source_Class;
-use type Editor.Project_Search.Project_Search_Status;
-use type Editor.Project_Search.Project_Replace_Preview_Status;
-use type Editor.Build_Result_Summary.Build_Result_Summary_Kind;
-use type Editor.Build_UI.Public_Build_UI_Validation_Status;
-use type Editor.Terminal_Tasks.Terminal_Task_Status;
-use type Editor.Commands.Command_Id;
-use type Editor.Settings_Management.Setting_Value_Kind;
-use type Guikit.Settings_Panel.Field_Kind;
-use type Guikit.Draw.Render_Color;
-use type Guikit.Item_Grid.Background_Kind;
+with Editor.Layout;
+with Editor.Render_Model;
+with Editor.Panels;
+with Editor.Render_Layers; use Editor.Render_Layers;
+with Editor.Render_Packet.Debug_Support;
+with Editor.Render_Packet.Geometry;
 with Editor.Render_Packet.Render_Context;
 with Editor.Render_Packet.Surface_Registry; use Editor.Render_Packet.Surface_Registry;
+with Editor.State;
+with Editor.Tab_Bar.Surface_Rendering;
+with Editor.Theme;
+with Editor.View;
+with Guikit.Draw;
 
 package body Editor.Render_Packet.Chrome_Surfaces is
+
+   use Editor.Render_Packet.Geometry;
 
    use Editor.Render_Packet.Debug_Support;
 
@@ -150,77 +39,6 @@ package body Editor.Render_Packet.Chrome_Surfaces is
       Layout : Editor.Layout.Layout_Config renames Context.Layout;
       Cell_W : Positive renames Context.Cell_W;
       Cell_H : Positive renames Context.Cell_H;
-      Message_Layout : Editor.Messages.Message_Layout renames Context.Message_Layout;
-      Scroll_X : Natural renames Context.Scroll_X;
-      Cursor_Config : Editor.Cursor.Cursor_Config renames Context.Cursor_Config;
-      Minimap : Editor.Minimap.Minimap_Config renames Context.Minimap;
-      Settings : Editor.Settings.Settings_State renames Context.Settings;
-      Line_Number_Config : Editor.Line_Numbers.Line_Number_Config renames Context.Line_Number_Config;
-      Scrollbars : Editor.Scrollbars.Scrollbar_Config renames Context.Scrollbars;
-      Effective_Viewport_W : Natural renames Context.Effective_Viewport_W;
-      Effective_Viewport_H : Natural renames Context.Effective_Viewport_H;
-      Effective_Minimap_Enabled : Boolean renames Context.Effective_Minimap_Enabled;
-      Out_Packet : Render_Packet renames Packet;
-      function Line_Count return Natural is
-      begin
-         return Natural'Max (1, Snap.Total_Line_Count);
-      end Line_Count;
-
-      function Screen_X (C : Natural) return Float is
-      begin
-         return Editor.View.Visual_Screen_X
-           (Layout, Line_Count, C);
-      end Screen_X;
-
-      function Screen_Y (Visible_Row : Natural) return Float is
-      begin
-         return Editor.View.Visual_Screen_Y (Layout, Visible_Row);
-      end Screen_Y;
-
-      function Text_Viewport_Right return Float is
-      begin
-         if Effective_Minimap_Enabled then
-            return Editor.Layout.Text_Viewport_Right
-              (Layout,
-               Effective_Viewport_W,
-               Minimap.Enabled,
-               Minimap.Width,
-               Minimap.Padding_Left,
-               Minimap.Padding_Right);
-         else
-            return Editor.Layout.Text_Right_X
-              (Layout, Effective_Viewport_W);
-         end if;
-      end Text_Viewport_Right;
-
-      function Text_Viewport_Width return Natural is
-      begin
-         if Effective_Minimap_Enabled then
-            return Editor.Layout.Text_Viewport_Width
-              (Layout,
-               Line_Count,
-               Effective_Viewport_W,
-               Minimap.Enabled,
-               Minimap.Width,
-               Minimap.Padding_Left,
-               Minimap.Padding_Right);
-         else
-            return Editor.Layout.Text_Viewport_Width
-              (Layout, Line_Count, Effective_Viewport_W);
-         end if;
-      end Text_Viewport_Width;
-
-      function Scrollbar_Viewport_Height return Natural is
-      begin
-         return Editor.Layout.Text_Viewport_Height
-           (Layout, Editor.View.Viewport_Height);
-      end Scrollbar_Viewport_Height;
-
-      function Text_Viewport_Height return Natural is
-      begin
-         return Editor.Layout.Text_Viewport_Height
-           (Layout, Effective_Viewport_H);
-      end Text_Viewport_Height;
       procedure Push_Tab_Bar
         (Packet : in out Render_Packet)
       is
@@ -268,35 +86,6 @@ package body Editor.Render_Packet.Chrome_Surfaces is
          end if;
       end Push_File_Tree;
 
-      procedure Push_Active_Find_Prompt
-        (Packet : in out Render_Packet)
-      is
-      begin
-         Editor.Active_Find_Prompt.Surface_Rendering.Build_Packet
-           (Packet         => Packet,
-            Snapshot       => Snap,
-            Layout_Config  => Layout,
-            Viewport_Width => Editor.View.Viewport_Width,
-            Viewport_Height => Editor.View.Viewport_Height,
-            Cell_W         => Cell_W,
-            Cell_H         => Cell_H);
-      end Push_Active_Find_Prompt;
-
-      procedure Push_Guided_Prompt
-        (Packet : in out Render_Packet)
-      is
-      begin
-         Editor.Guided_Prompts.Surface_Rendering.Build_Packet
-           (Packet         => Packet,
-            Snapshot       => Snap.Guided_Prompt,
-            Layout_Config  => Layout,
-            Viewport_Width => Editor.View.Viewport_Width,
-            Viewport_Height => Editor.View.Viewport_Height,
-            Cell_W         => Cell_W,
-            Cell_H         => Cell_H);
-      end Push_Guided_Prompt;
-
-
       function Truncate_Right
         (Text    : String;
          Columns : Natural) return String
@@ -342,7 +131,7 @@ package body Editor.Render_Packet.Chrome_Surfaces is
             State                 => S,
             Layout_Config         => Layout,
             Viewport_Width        => Editor.View.Viewport_Width,
-            Viewport_Height       => Text_Viewport_Height,
+            Viewport_Height       => Text_Viewport_Height (Context),
             Cell_W                => Cell_W,
             Cell_H                => Cell_H,
             Visible               => Visible,
