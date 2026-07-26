@@ -1,5 +1,6 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
+with Editor.Buffer_Switcher.Config;
 with Editor.Buffer_Switcher_Contextual_Hints;
 with Editor.Buffers;
 with Editor.Buffer_Switcher.Surface_Projection;
@@ -102,7 +103,7 @@ package body Editor.Buffer_Switcher.Surface_Rendering is
       Text           : out Guikit.Draw.Text_Command_Vectors.Vector;
       Accessibility  : out Guikit.Draw.Accessibility_Node_Vectors.Vector)
    is
-      Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
       Projection : constant Editor.Buffer_Switcher.Surface_Projection.Buffer_Switcher_Render_Projection :=
         Editor.Buffer_Switcher.Surface_Projection.Project
           (State,

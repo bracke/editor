@@ -1,4 +1,5 @@
 with Editor.Buffer_Switcher;
+with Editor.Buffer_Switcher.Filters;
 with Editor.Commands;
 with Editor.State;
 
@@ -64,7 +65,7 @@ package Editor.Executor.Buffer_Switcher_Surface_Commands is
 
    procedure Execute_Buffer_Switcher_Sort
      (S    : in out Editor.State.State_Type;
-      Mode : Editor.Buffer_Switcher.Switcher_Sort_Mode);
+      Mode : Editor.Buffer_Switcher.Filters.Switcher_Sort_Mode);
 
    procedure Execute_Buffer_Switcher_Sort_Next
      (S : in out Editor.State.State_Type);

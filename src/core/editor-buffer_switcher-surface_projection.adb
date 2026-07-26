@@ -1,6 +1,7 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with Editor.Buffers;
+with Editor.Buffer_Switcher.Config;
 with Editor.Buffer_Switcher_Contextual_Hints;
 with Editor.Layout;
 with Guikit.Draw;
@@ -87,7 +88,7 @@ package body Editor.Buffer_Switcher.Surface_Projection is
       Cell_H           : Positive)
       return Buffer_Switcher_Render_Projection
    is
-      Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
       Message_Body : constant Editor.Layout.Rect :=
         Editor.Layout.Editor_Body_Rect
           (Editor.Layout.Current, Viewport_Width, Viewport_Height);
