@@ -1,3 +1,4 @@
+with Editor.State_Project;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with Ada.Directories;
@@ -69,8 +70,8 @@ package body Editor.State.Tests is
       pragma Unreferenced (T);
 
       S : Editor.State.State_Type;
-      Before : Editor.State.Project_Scoped_State_Summary;
-      After  : Editor.State.Project_Scoped_State_Summary;
+      Before : Editor.State_Project.Project_Scoped_State_Summary;
+      After  : Editor.State_Project.Project_Scoped_State_Summary;
       Config_Dir : constant String := Ada.Directories.Compose
         (Editor.Test_Temp.Base & "/editor-tests", "recent_config");
       Open_Result : constant Editor.Project.Project_Open_Result :=

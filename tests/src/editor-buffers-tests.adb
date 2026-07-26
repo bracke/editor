@@ -1,3 +1,4 @@
+with Editor.State_Buffer;
 with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
@@ -54,8 +55,8 @@ package body Editor.Buffers.Tests is
    use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Command_Ids.Command_Id;
    use type Editor.Messages.Message_Severity;
-   use type Editor.State.Dirty_Close_Scope;
-   use type Editor.State.File_State;
+   use type Editor.State_Buffer.Dirty_Close_Scope;
+   use type Editor.State_Buffer.File_State;
    use type Ada.Containers.Count_Type;
 
    function Text (S : Editor.State.State_Type) return String is
@@ -418,7 +419,7 @@ package body Editor.Buffers.Tests is
       S      : Editor.State.State_Type;
       A_Path : constant String := Editor.Test_Temp.Base & "/editor_save_as_a.txt";
       B_Path : constant String := Editor.Test_Temp.Base & "/editor_save_as_b.txt";
-      Old    : Editor.State.File_State;
+      Old    : Editor.State_Buffer.File_State;
       Found  : Boolean := False;
       M      : Editor.Messages.Editor_Message;
    begin

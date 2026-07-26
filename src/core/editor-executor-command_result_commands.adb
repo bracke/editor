@@ -1,11 +1,13 @@
+with Editor.State_Semantic;
+with Editor.State_Buffer;
 with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Text_Buffer;
 with Editor.State;
-use type Editor.State.Dirty_Close_Scope;
-use type Editor.State.Semantic_Popup_Kind;
+use type Editor.State_Buffer.Dirty_Close_Scope;
+use type Editor.State_Semantic.Semantic_Popup_Kind;
 use type Editor.Command_Kinds.Command_Kind;
 with Editor.Cursors;    use Editor.Cursors;
 with Editor.Commands.Workflow_Messages;

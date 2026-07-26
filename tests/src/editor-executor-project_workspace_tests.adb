@@ -1,3 +1,4 @@
+with Editor.State_Buffer;
 with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
@@ -49,7 +50,7 @@ package body Editor.Executor.Project_Workspace_Tests is
    use type Editor.Build_UI.Build_Candidate_Refresh_Status;
    use type Editor.Outline.Outline_Refresh_Status;
    use type Editor.Pending_Transitions.Pending_Transition_Kind;
-   use type Editor.State.Dirty_Close_Scope;
+   use type Editor.State_Buffer.Dirty_Close_Scope;
    use type Editor.Workspace_Persistence.Workspace_Persistence_Status;
 
    overriding function Name

@@ -1,3 +1,4 @@
+with Editor.State_Buffer;
 with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Payloads;
 with Text_Buffer;
@@ -37,7 +38,7 @@ with Editor.Quick_Open;
 with Editor.Render_Cache;
 with Editor.Settings;
 with Editor.State;
-use type Editor.State.File_Conflict_Kind;
+use type Editor.State_Buffer.File_Conflict_Kind;
 with Editor.View;
 
 package body Editor.Executor.File_Save_Basic_Commands is
@@ -232,7 +233,7 @@ package body Editor.Executor.File_Save_Basic_Commands is
 
    function Conflict_Kind_For_Status
      (Status : Editor.Files.File_External_Change_Status;
-      Dirty  : Boolean) return Editor.State.File_Conflict_Kind
+      Dirty  : Boolean) return Editor.State_Buffer.File_Conflict_Kind
    is
    begin
       case Status is
@@ -253,7 +254,7 @@ package body Editor.Executor.File_Save_Basic_Commands is
 
    procedure Start_File_Conflict_Prompt
      (S      : in out Editor.State.State_Type;
-      Kind   : Editor.State.File_Conflict_Kind;
+      Kind   : Editor.State_Buffer.File_Conflict_Kind;
       Reason : String)
    is
    begin
@@ -369,7 +370,7 @@ package body Editor.Executor.File_Save_Basic_Commands is
       declare
          External_Status : constant Editor.Files.File_External_Change_Status :=
            Active_File_External_Status (S);
-         Conflict_Kind : constant Editor.State.File_Conflict_Kind :=
+         Conflict_Kind : constant Editor.State_Buffer.File_Conflict_Kind :=
            Conflict_Kind_For_Status (External_Status, S.File_Info.Dirty);
       begin
          --  requires command-boundary detection for both dirty and

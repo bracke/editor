@@ -1,3 +1,4 @@
+with Editor.State_Buffer;
 with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
@@ -78,7 +79,7 @@ package body Editor.Dogfood_Workflow.Tests is
    use type Editor.File_Tree.File_Tree_Node_Id;
    use type Editor.Focus_Management.Focus_Owner;
    use type Editor.Guided_Prompts.Prompt_Kind;
-   use type Editor.State.File_Conflict_Kind;
+   use type Editor.State_Buffer.File_Conflict_Kind;
    use type Editor.Buffers.Buffer_Id;
    use type Editor.Buffers.Buffer_Dirty_Category;
    use type Editor.Buffers.Buffer_Close_Eligibility;

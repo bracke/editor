@@ -1,3 +1,4 @@
+with Editor.State_Buffer;
 with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
@@ -31,7 +32,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
    use type Editor.Buffer_Switcher.Filters.Switcher_Metadata_Filter_Kind;
    use type Editor.Buffer_Switcher.Filters.Switcher_Sort_Mode;
    use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
-   use type Editor.State.Dirty_Close_Scope;
+   use type Editor.State_Buffer.Dirty_Close_Scope;
 
    overriding function Name
      (T : Buffer_Switcher_Test_Case) return AUnit.Message_String

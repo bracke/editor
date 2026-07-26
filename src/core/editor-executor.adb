@@ -1,11 +1,13 @@
+with Editor.State_Semantic;
+with Editor.State_Buffer;
 with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Command_Kinds; use Editor.Command_Kinds;
 with Editor.Commands.Payloads; use Editor.Commands.Payloads;
 with Text_Buffer;
 with Editor.State;
-use type Editor.State.Dirty_Close_Scope;
-use type Editor.State.Semantic_Popup_Kind;
+use type Editor.State_Buffer.Dirty_Close_Scope;
+use type Editor.State_Semantic.Semantic_Popup_Kind;
 with Editor.Cursors;    use Editor.Cursors;
 with Editor.Commands.Workflow_Messages;
 with Editor.History;    use Editor.History;
@@ -330,7 +332,7 @@ package body Editor.Executor is
    use type Editor.Files.File_Save_Status;
    use type Editor.Files.File_Open_Status;
    use type Editor.Files.File_External_Change_Status;
-   use type Editor.State.File_Conflict_Kind;
+   use type Editor.State_Buffer.File_Conflict_Kind;
 
    use type Editor.Buffers.Buffer_Id;
    use type Editor.File_Tree.File_Tree_Scan_Status;
@@ -434,7 +436,7 @@ package body Editor.Executor is
      (S     : Editor.State.State_Type;
       Found : out Boolean) return String
    is
-      File      : constant Editor.State.File_State := Editor.State.Current_File (S);
+      File      : constant Editor.State_Buffer.File_State := Editor.State.Current_File (S);
       Raw_Path  : constant String := To_String (File.Path);
       Candidate : Unbounded_String := Null_Unbounded_String;
    begin

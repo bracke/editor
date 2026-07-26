@@ -1,3 +1,4 @@
+with Editor.State_Buffer;
 with Ada.Strings.Unbounded;
 with Editor.Buffers;
 with Editor.Dirty_Guards;
@@ -50,7 +51,7 @@ package Editor.Executor.Buffer_Close_Prompt_Commands is
 
    procedure Start_Dirty_Close_Prompt
      (S           : in out Editor.State.State_Type;
-      Scope       : Editor.State.Dirty_Close_Scope;
+      Scope       : Editor.State_Buffer.Dirty_Close_Scope;
       All_Buffers : Boolean;
       Buffer_Id   : Editor.Buffers.Buffer_Id;
       Summary     : Editor.Dirty_Guards.Dirty_Buffer_Summary);

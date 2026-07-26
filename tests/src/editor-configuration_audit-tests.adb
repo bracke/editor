@@ -1,3 +1,4 @@
+with Editor.State_Project;
 with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
@@ -1167,8 +1168,8 @@ package body Editor.Configuration_Audit.Tests is
    is
       pragma Unreferenced (T);
       S              : Editor.State.State_Type;
-      Before_Project : Editor.State.Project_Scoped_State_Summary;
-      After_Project  : Editor.State.Project_Scoped_State_Summary;
+      Before_Project : Editor.State_Project.Project_Scoped_State_Summary;
+      After_Project  : Editor.State_Project.Project_Scoped_State_Summary;
       Before_Config  : Editor.Configuration_Audit.Configuration_State_Summary;
       After_Config   : Editor.Configuration_Audit.Configuration_State_Summary;
       Summary        : Editor.Configuration_Audit.Buffer_Boundary_Audit_Summary;

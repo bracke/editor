@@ -1,3 +1,4 @@
+with Editor.State_Buffer;
 with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
@@ -77,7 +78,7 @@ package body Editor.Files.Copy_Move_Association_Tests is
    use type Editor.Messages.Message_Severity;
    use type Editor.Navigation_History.Navigation_History_Reason;
    use type Editor.Configuration_Audit.Configuration_Audit_Status;
-   use type Editor.State.File_Conflict_Kind;
+   use type Editor.State_Buffer.File_Conflict_Kind;
    use type Editor.Overlay_Focus.Overlay_Target;
    use type Editor.Workspace_Persistence.Workspace_Persistence_Status;
    use type Editor.Workspace_Persistence.Workspace_Feature_Panel_Id;

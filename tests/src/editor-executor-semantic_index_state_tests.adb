@@ -1,3 +1,4 @@
+with Editor.State_Semantic;
 with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
@@ -52,7 +53,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
    use type Editor.Outline.Outline_Refresh_Status;
    use type Editor.Panels.Bottom_Panel_Content;
    use type Editor.Project.Project_File_Refresh_Status;
-   use type Editor.State.Semantic_Popup_Kind;
+   use type Editor.State_Semantic.Semantic_Popup_Kind;
 
    overriding function Name
      (T : Semantic_Index_State_Test_Case) return AUnit.Message_String

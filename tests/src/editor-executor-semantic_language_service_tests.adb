@@ -1,3 +1,4 @@
+with Editor.State_Semantic;
 with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -45,7 +46,7 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
    use type Editor.Outline.Outline_Refresh_Status;
    use type Editor.Panels.Bottom_Panel_Content;
    use type Editor.Project.Project_File_Refresh_Status;
-   use type Editor.State.Semantic_Popup_Kind;
+   use type Editor.State_Semantic.Semantic_Popup_Kind;
 
    overriding function Name
      (T : Semantic_Language_Service_Test_Case) return AUnit.Message_String
@@ -324,7 +325,7 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
                 (S.Feature_Search_Results, 1) = S.Active_Buffer_Token,
               "semantic completion row targets the live buffer token");
       Assert (S.Semantic_Popup.Active
-              and then S.Semantic_Popup.Kind = Editor.State.Semantic_Completion_Popup,
+              and then S.Semantic_Popup.Kind = Editor.State_Semantic.Semantic_Completion_Popup,
               "semantic completions show a native completion popup");
       Assert (S.Semantic_Popup.Item_Count = 3
               and then To_String (S.Semantic_Popup.Items (1).Label) = "R",
@@ -336,7 +337,7 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
       Editor.Render_Model.Build_Render_Snapshot (S, Snapshot);
       Assert (Snapshot.Semantic_Popup.Active
               and then Snapshot.Semantic_Popup.Kind =
-                Editor.State.Semantic_Completion_Popup,
+                Editor.State_Semantic.Semantic_Completion_Popup,
               "render snapshot exposes semantic completion popup");
 
       Result := Editor.Executor.Execute_Command_With_Result
@@ -452,7 +453,7 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
                 (S.Feature_Search_Results, 1) = S.Active_Buffer_Token,
               "semantic hover row targets the live buffer token");
       Assert (S.Semantic_Popup.Active
-              and then S.Semantic_Popup.Kind = Editor.State.Semantic_Hover_Popup,
+              and then S.Semantic_Popup.Kind = Editor.State_Semantic.Semantic_Hover_Popup,
               "semantic hover shows a native hover popup");
       Assert (To_String (S.Semantic_Popup.Title) = "Run"
               and then To_String (S.Semantic_Popup.Detail) =
@@ -465,7 +466,7 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
       Editor.Render_Model.Build_Render_Snapshot (S, Snapshot);
       Assert (Snapshot.Semantic_Popup.Active
               and then Snapshot.Semantic_Popup.Kind =
-                Editor.State.Semantic_Hover_Popup,
+                Editor.State_Semantic.Semantic_Hover_Popup,
               "render snapshot exposes semantic hover popup");
 
       Editor.Buffers.Reset_Global_For_Test;

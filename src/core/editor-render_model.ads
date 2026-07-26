@@ -1,3 +1,5 @@
+with Editor.State_Semantic;
+with Editor.State_Buffer;
 with Editor.State;
 with Editor.Cursors;
 with Ada.Containers; use Ada.Containers;
@@ -156,7 +158,7 @@ package Editor.Render_Model is
       Folding : Editor.Folding.Folding_State;
       Gutter_Markers : Editor.Gutter_Markers.Gutter_Marker_State;
       Gutter_Marker_Hover : Editor.Gutter_Markers.Gutter_Marker_Hover_State;
-      Semantic_Popup : Editor.State.Semantic_Popup_State;
+      Semantic_Popup : Editor.State_Semantic.Semantic_Popup_State;
       Messages : Editor.Messages.Message_State;
       Post_Restore_Feedback_Current : Boolean := False;
 
@@ -246,7 +248,7 @@ package Editor.Render_Model is
       --  derived from transient Executor-owned prompt state only; render must
       --  never use them to close, save, discard, or persist buffers.
       Dirty_Close_Prompt_Visible : Boolean := False;
-      Dirty_Close_Scope          : Editor.State.Dirty_Close_Scope :=
+      Dirty_Close_Scope          : Editor.State_Buffer.Dirty_Close_Scope :=
         Editor.State.No_Dirty_Close_Scope;
       Dirty_Close_All_Buffers    : Boolean := False;
       Dirty_Close_Target_Buffer  : Natural := 0;

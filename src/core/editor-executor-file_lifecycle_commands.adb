@@ -1,3 +1,4 @@
+with Editor.State_Buffer;
 with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Executor.Shared_Services;
@@ -66,7 +67,7 @@ package body Editor.Executor.File_Lifecycle_Commands is
    is
       Active_Id : constant Editor.Buffers.Buffer_Id :=
         Editor.Buffers.Global_Active_Buffer;
-      Effective_File : Editor.State.File_State := S.File_Info;
+      Effective_File : Editor.State_Buffer.File_State := S.File_Info;
       Effective_Has_Buffer : Boolean := Has_Buffer (S);
    begin
       if Editor.Buffers.Global_Count = 0
@@ -369,7 +370,7 @@ package body Editor.Executor.File_Lifecycle_Commands is
             declare
                Active_Id : constant Editor.Buffers.Buffer_Id :=
                  Editor.Buffers.Global_Active_Buffer;
-               Effective_File : Editor.State.File_State := S.File_Info;
+               Effective_File : Editor.State_Buffer.File_State := S.File_Info;
                Effective_Has_Buffer : Boolean := Has_Buffer (S);
             begin
                if Editor.Buffers.Global_Registry_Current_For (S)
@@ -412,7 +413,7 @@ package body Editor.Executor.File_Lifecycle_Commands is
             declare
                Active_Id : constant Editor.Buffers.Buffer_Id :=
                  Editor.Buffers.Global_Active_Buffer;
-               Effective_File : Editor.State.File_State := S.File_Info;
+               Effective_File : Editor.State_Buffer.File_State := S.File_Info;
                Effective_Has_Buffer : Boolean := Has_Buffer (S);
             begin
                if Editor.Buffers.Global_Count = 0
@@ -452,7 +453,7 @@ package body Editor.Executor.File_Lifecycle_Commands is
             declare
                Active_Id : constant Editor.Buffers.Buffer_Id :=
                  Editor.Buffers.Global_Active_Buffer;
-               Effective_File : Editor.State.File_State := S.File_Info;
+               Effective_File : Editor.State_Buffer.File_State := S.File_Info;
                Effective_Has_Buffer : Boolean := Has_Buffer (S);
             begin
                if Editor.Buffers.Global_Count = 0

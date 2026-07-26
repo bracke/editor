@@ -1,3 +1,4 @@
+with Editor.State_Semantic;
 with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
@@ -133,7 +134,7 @@ package body Editor.Input_Bridge is
 
    use Editor.State;
 use type Editor.Command_Ids.Command_Id;
-use type Editor.State.Semantic_Popup_Kind;
+use type Editor.State_Semantic.Semantic_Popup_Kind;
 use type Editor.Command_Execution.Command_Execution_Status;
 use type Editor.Command_Kinds.Command_Kind;
 use type Editor.File_Tree_View.File_Tree_View_Zone;
@@ -191,7 +192,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
    begin
       The_Editor.State.Semantic_Popup :=
         (Active => False,
-         Kind => Editor.State.No_Semantic_Popup,
+         Kind => Editor.State_Semantic.No_Semantic_Popup,
          Anchor_Row => 0,
          Anchor_Column => 0,
          Title => Null_Unbounded_String,
@@ -207,7 +208,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
    begin
       if The_Editor.State.Semantic_Popup.Active
         and then The_Editor.State.Semantic_Popup.Kind =
-          Editor.State.Semantic_Completion_Popup
+          Editor.State_Semantic.Semantic_Completion_Popup
       then
          Result := Editor.Executor.Execute_Command_With_Result
            (The_Editor.State, Editor.Command_Ids.Command_Show_Completions);

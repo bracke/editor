@@ -1,3 +1,4 @@
+with Editor.State_Semantic;
 with Editor.Active_Find_Prompt.Surface_Rendering;
 with Editor.Buffer_Switcher.Surface_Rendering;
 with Editor.Command_Palette;
@@ -66,7 +67,7 @@ package body Editor.Render_Packet.Overlay_Surfaces is
       end Push_Guided_Prompt;
    begin
       declare
-         Popup : constant Editor.State.Semantic_Popup_State := Snap.Semantic_Popup;
+         Popup : constant Editor.State_Semantic.Semantic_Popup_State := Snap.Semantic_Popup;
          Anchor_Segment : constant Natural :=
            Segment_For_Caret (Context, Popup.Anchor_Row, Popup.Anchor_Column);
          Anchor_X : constant Float :=

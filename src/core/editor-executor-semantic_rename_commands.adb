@@ -1,3 +1,4 @@
+with Editor.State_Buffer;
 with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
@@ -77,7 +78,7 @@ package body Editor.Executor.Semantic_Rename_Commands is
       New_Name : String)
       return Editor.Ada_Language_Service.Rename_Preview
    is
-      Current_File : constant Editor.State.File_State :=
+      Current_File : constant Editor.State_Buffer.File_State :=
         Editor.State.Current_File (S);
       Req : Editor.Ada_Language_Service.Semantic_Request_Id;
    begin

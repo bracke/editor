@@ -1,3 +1,4 @@
+with Editor.State_Buffer;
 with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
@@ -26,7 +27,7 @@ package body Editor.Executor.Lifecycle_Tests is
    use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
    use type Editor.Command_Ids.Command_Id;
    use type Editor.Commands.Descriptors.Command_Visibility;
-   use type Editor.State.Dirty_Close_Scope;
+   use type Editor.State_Buffer.Dirty_Close_Scope;
 
    function Pending_Test_Summary
       return Editor.Dirty_Guards.Dirty_Buffer_Summary

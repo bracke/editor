@@ -1,3 +1,4 @@
+with Editor.State_Buffer;
 with Text_Buffer;
 with Ada.Containers; use Ada.Containers;
 with Ada.Directories;
@@ -54,8 +55,8 @@ with Editor.Render_Cache;
 with Editor.Search;
 with Editor.Settings;
 with Editor.State;
-use type Editor.State.Dirty_Close_Scope;
-use type Editor.State.File_Conflict_Kind;
+use type Editor.State_Buffer.Dirty_Close_Scope;
+use type Editor.State_Buffer.File_Conflict_Kind;
 with Editor.View;
 with Editor.Build_UI;
 with Editor.Executor.File_Open_Commands;

@@ -1,3 +1,4 @@
+with Editor.State_Semantic;
 with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Cursor;
 with Editor.View;
@@ -5,7 +6,7 @@ with Editor.View;
 package body Editor.Input_Bridge.Semantic_Popup_Key_Handlers is
 
    use type Editor.Keybindings.Key_Code;
-   use type Editor.State.Semantic_Popup_Kind;
+   use type Editor.State_Semantic.Semantic_Popup_Kind;
 
    procedure Notify_Input is
    begin
@@ -30,7 +31,7 @@ package body Editor.Input_Bridge.Semantic_Popup_Key_Handlers is
          return True;
       end if;
 
-      if S.Semantic_Popup.Kind /= Editor.State.Semantic_Completion_Popup then
+      if S.Semantic_Popup.Kind /= Editor.State_Semantic.Semantic_Completion_Popup then
          return False;
       end if;
 

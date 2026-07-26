@@ -1,3 +1,4 @@
+with Editor.State_Buffer;
 with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
@@ -570,7 +571,7 @@ package body Editor.Executor.Semantic_Index_Commands is
                  Editor.Ada_Language_Service.Semantic_Diagnostic_Status :=
                    Editor.Ada_Language_Service.Semantic_Diagnostics_Status
                      (S.Language_Service);
-               Current_File : constant Editor.State.File_State :=
+               Current_File : constant Editor.State_Buffer.File_State :=
                  Editor.State.Current_File (S);
                Active_Compiler : constant
                  Editor.Ada_Language_Service.Compiler_Backend_Status :=

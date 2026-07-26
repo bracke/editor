@@ -1,3 +1,4 @@
+with Editor.State_Buffer;
 with Editor.Command_Ids; use Editor.Command_Ids;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
@@ -1002,13 +1003,13 @@ package body Editor.Buffers is
       Overlay_Focus : constant Editor.Overlay_Focus.Overlay_Focus_State := State.Overlay_Focus;
       Navigation_History : constant Editor.Navigation_History.Navigation_History_State := State.Navigation_History;
       Reopen_Candidate_Count : constant Natural := State.Reopen_Candidate_Count;
-      Reopen_Candidate_Paths : constant Editor.State.Reopen_Candidate_Array := State.Reopen_Candidate_Paths;
-      Reopen_Candidate_Labels : constant Editor.State.Reopen_Candidate_Array := State.Reopen_Candidate_Labels;
+      Reopen_Candidate_Paths : constant Editor.State_Buffer.Reopen_Candidate_Array := State.Reopen_Candidate_Paths;
+      Reopen_Candidate_Labels : constant Editor.State_Buffer.Reopen_Candidate_Array := State.Reopen_Candidate_Labels;
       Has_Reopen_Candidate : constant Boolean := State.Has_Reopen_Candidate;
       Reopen_Candidate_Path : constant Unbounded_String := State.Reopen_Candidate_Path;
       Reopen_Candidate_Label : constant Unbounded_String := State.Reopen_Candidate_Label;
       Dirty_Close_Prompt_Active : constant Boolean := State.Dirty_Close_Prompt_Active;
-      Dirty_Close_Prompt_Scope : constant Editor.State.Dirty_Close_Scope :=
+      Dirty_Close_Prompt_Scope : constant Editor.State_Buffer.Dirty_Close_Scope :=
         State.Dirty_Close_Prompt_Scope;
       Dirty_Close_Prompt_All_Buffers : constant Boolean :=
         State.Dirty_Close_Prompt_All_Buffers;

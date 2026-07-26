@@ -1,3 +1,4 @@
+with Editor.State_Project;
 with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Classification;
@@ -462,7 +463,7 @@ package body Editor.Outline.Tests is
    is
       pragma Unreferenced (T);
       S       : Editor.State.State_Type;
-      Summary : Editor.State.Project_Scoped_State_Summary;
+      Summary : Editor.State_Project.Project_Scoped_State_Summary;
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "@outline procedure Reset_Test" & ASCII.LF & "x");

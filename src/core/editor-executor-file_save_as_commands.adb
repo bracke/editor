@@ -1,3 +1,4 @@
+with Editor.State_Buffer;
 with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Payloads;
 with Ada.Directories;
@@ -196,7 +197,7 @@ package body Editor.Executor.File_Save_As_Commands is
      (S    : in out Editor.State.State_Type;
       Path : String)
    is
-      Previous_File  : Editor.State.File_State;
+      Previous_File  : Editor.State_Buffer.File_State;
       Previous_Dirty : Boolean := False;
       Previous_Saved : Natural := 0;
       Previous_Valid : Boolean := False;

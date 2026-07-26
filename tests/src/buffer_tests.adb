@@ -1,3 +1,4 @@
+with Editor.State_Buffer;
 with AUnit.Assertions; use AUnit.Assertions;
 with Ada.Containers; use Ada.Containers;
 with Editor.State;
@@ -67,7 +68,7 @@ package body Buffer_Tests is
    (S       : Editor.State.State_Type;
       Message : String)
    is
-      Expected : Editor.State.Line_Start_Vectors.Vector;
+      Expected : Editor.State_Buffer.Line_Start_Vectors.Vector;
       Pos      : Natural := 0;
 
       procedure Visit (Ch : Character) is

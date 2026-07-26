@@ -1,3 +1,4 @@
+with Editor.State_Semantic;
 with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
@@ -17,7 +18,7 @@ with Editor.State;
 
 package body Editor.Executor.Semantic_Completion_Commands is
 
-   use type Editor.State.Semantic_Popup_Kind;
+   use type Editor.State_Semantic.Semantic_Popup_Kind;
 
    procedure Report_Info
      (S    : in out Editor.State.State_Type;
@@ -45,7 +46,7 @@ package body Editor.Executor.Semantic_Completion_Commands is
    begin
       S.Semantic_Popup :=
         (Active => False,
-         Kind => Editor.State.No_Semantic_Popup,
+         Kind => Editor.State_Semantic.No_Semantic_Popup,
          Anchor_Row => 0,
          Anchor_Column => 0,
          Title => Null_Unbounded_String,
@@ -60,7 +61,7 @@ package body Editor.Executor.Semantic_Completion_Commands is
    is
    begin
       return S.Semantic_Popup.Active
-        and then S.Semantic_Popup.Kind = Editor.State.Semantic_Completion_Popup
+        and then S.Semantic_Popup.Kind = Editor.State_Semantic.Semantic_Completion_Popup
         and then S.Semantic_Popup.Item_Count > 0
         and then S.Semantic_Popup.Selected_Item in 1 .. S.Semantic_Popup.Item_Count;
    end Semantic_Completion_Popup_Is_Active;
@@ -149,7 +150,7 @@ package body Editor.Executor.Semantic_Completion_Commands is
 
       Label :=
         S.Semantic_Popup.Items
-          (Editor.State.Semantic_Completion_Item_Index
+          (Editor.State_Semantic.Semantic_Completion_Item_Index
              (S.Semantic_Popup.Selected_Item)).Label;
       if Length (Label) = 0 then
          return;

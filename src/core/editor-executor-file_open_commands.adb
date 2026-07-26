@@ -1,3 +1,4 @@
+with Editor.State_Buffer;
 with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Text_Buffer;
@@ -51,8 +52,8 @@ with Editor.Render_Cache;
 with Editor.Search;
 with Editor.Settings;
 with Editor.State;
-use type Editor.State.Dirty_Close_Scope;
-use type Editor.State.File_Conflict_Kind;
+use type Editor.State_Buffer.Dirty_Close_Scope;
+use type Editor.State_Buffer.File_Conflict_Kind;
 with Editor.View;
 with Editor.Build_UI;
 
@@ -444,7 +445,7 @@ package body Editor.Executor.File_Open_Commands is
    is
    begin
       S.Reopen_Candidate_Count := 0;
-      for I in Editor.State.Reopen_Candidate_Index loop
+      for I in Editor.State_Buffer.Reopen_Candidate_Index loop
          S.Reopen_Candidate_Paths (I) := Null_Unbounded_String;
          S.Reopen_Candidate_Labels (I) := Null_Unbounded_String;
       end loop;
@@ -460,13 +461,13 @@ package body Editor.Executor.File_Open_Commands is
          return;
       end if;
 
-      for I in 1 .. Editor.State.Max_Reopen_Candidates - 1 loop
+      for I in 1 .. Editor.State_Buffer.Max_Reopen_Candidates - 1 loop
          S.Reopen_Candidate_Paths (I) := S.Reopen_Candidate_Paths (I + 1);
          S.Reopen_Candidate_Labels (I) := S.Reopen_Candidate_Labels (I + 1);
       end loop;
-      S.Reopen_Candidate_Paths (Editor.State.Max_Reopen_Candidates) :=
+      S.Reopen_Candidate_Paths (Editor.State_Buffer.Max_Reopen_Candidates) :=
         Null_Unbounded_String;
-      S.Reopen_Candidate_Labels (Editor.State.Max_Reopen_Candidates) :=
+      S.Reopen_Candidate_Labels (Editor.State_Buffer.Max_Reopen_Candidates) :=
         Null_Unbounded_String;
       S.Reopen_Candidate_Count := S.Reopen_Candidate_Count - 1;
       Sync_Reopen_Candidate_Top (S);
@@ -477,7 +478,7 @@ package body Editor.Executor.File_Open_Commands is
       Path  : String;
       Label : String)
    is
-      Limit : constant Natural := Editor.State.Max_Reopen_Candidates;
+      Limit : constant Natural := Editor.State_Buffer.Max_Reopen_Candidates;
    begin
       --  the reopen stack is deliberately path-only runtime
       --  state.  It is registered only after a successful associated close

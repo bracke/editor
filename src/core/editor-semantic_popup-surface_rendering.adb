@@ -1,3 +1,4 @@
+with Editor.State_Semantic;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with Editor.Layout;
@@ -6,7 +7,7 @@ with Editor.Render_Packet.Guikit_Adapters;
 with Editor.State;
 with Guikit.Draw;
 with Guikit.Widgets;
-use type Editor.State.Semantic_Popup_Kind;
+use type Editor.State_Semantic.Semantic_Popup_Kind;
 
 package body Editor.Semantic_Popup.Surface_Rendering is
 
@@ -60,7 +61,7 @@ package body Editor.Semantic_Popup.Surface_Rendering is
    end Push_Rect;
 
    procedure Build_Frame
-     (Popup                 : Editor.State.Semantic_Popup_State;
+     (Popup                 : Editor.State_Semantic.Semantic_Popup_State;
       Anchor_X              : Float;
       Anchor_Y              : Float;
       Layout_Config         : Editor.Layout.Layout_Config;
@@ -79,12 +80,12 @@ package body Editor.Semantic_Popup.Surface_Rendering is
           (Layout_Config, Viewport_Width, Viewport_Height);
       Max_Rows : constant Natural :=
         (case Popup.Kind is
-           when Editor.State.Semantic_Hover_Popup => 2,
-           when Editor.State.Semantic_Completion_Popup =>
+           when Editor.State_Semantic.Semantic_Hover_Popup => 2,
+           when Editor.State_Semantic.Semantic_Completion_Popup =>
               Natural'Min
                 (Editor.State.Max_Semantic_Completion_Items,
                  Natural'Max (1, Popup.Item_Count)) + 1,
-           when Editor.State.No_Semantic_Popup => 0);
+           when Editor.State_Semantic.No_Semantic_Popup => 0);
       Width_Cols : constant Natural := 56;
       Popup_W : constant Natural :=
         Natural'Min (Message_Body.Width, Width_Cols * Cell_W);
@@ -112,7 +113,7 @@ package body Editor.Semantic_Popup.Surface_Rendering is
       Text.Clear;
       Accessibility.Clear;
       Visible := Popup.Active
-        and then Popup.Kind /= Editor.State.No_Semantic_Popup
+        and then Popup.Kind /= Editor.State_Semantic.No_Semantic_Popup
         and then Popup_W > 0
         and then Popup_H > 0;
       if not Visible then
@@ -128,7 +129,7 @@ package body Editor.Semantic_Popup.Surface_Rendering is
          Background);
 
       case Popup.Kind is
-         when Editor.State.Semantic_Hover_Popup =>
+         when Editor.State_Semantic.Semantic_Hover_Popup =>
             Push_Text
               (Text,
                Tail_Text (To_String (Popup.Title), Text_Cols),
@@ -140,7 +141,7 @@ package body Editor.Semantic_Popup.Surface_Rendering is
                X + Float (Cell_W), Y + Float (Cell_H),
                Foreground);
 
-         when Editor.State.Semantic_Completion_Popup =>
+         when Editor.State_Semantic.Semantic_Completion_Popup =>
             Push_Text
               (Text,
                Tail_Text (To_String (Popup.Title), Text_Cols),
@@ -152,8 +153,8 @@ package body Editor.Semantic_Popup.Surface_Rendering is
             loop
                declare
                   Row_Y : constant Float := Y + Float (I * Cell_H);
-                  Item : constant Editor.State.Semantic_Completion_Item :=
-                    Popup.Items (Editor.State.Semantic_Completion_Item_Index (I));
+                  Item : constant Editor.State_Semantic.Semantic_Completion_Item :=
+                    Popup.Items (Editor.State_Semantic.Semantic_Completion_Item_Index (I));
                   Label : constant String :=
                     To_String (Item.Label)
                     & (if Length (Item.Detail) > 0
@@ -177,14 +178,14 @@ package body Editor.Semantic_Popup.Surface_Rendering is
                end;
             end loop;
 
-         when Editor.State.No_Semantic_Popup =>
+         when Editor.State_Semantic.No_Semantic_Popup =>
             null;
       end case;
    end Build_Frame;
 
    procedure Build_Packet
      (Packet         : in out Editor.Render_Packet.Render_Packet;
-      Popup          : Editor.State.Semantic_Popup_State;
+      Popup          : Editor.State_Semantic.Semantic_Popup_State;
       Anchor_X       : Float;
       Anchor_Y       : Float;
       Layout_Config  : Editor.Layout.Layout_Config;

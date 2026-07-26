@@ -1,3 +1,5 @@
+with Editor.State_Semantic;
+with Editor.State_Buffer;
 with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Ada.Containers;
@@ -67,7 +69,7 @@ package body Editor.Executor.Semantic_Service_Commands is
       Name    : String)
       return Editor.Ada_Language_Service.Language_Target_Set
    is
-      Current_File : constant Editor.State.File_State :=
+      Current_File : constant Editor.State_Buffer.File_State :=
         Editor.State.Current_File (S);
       Req : Editor.Ada_Language_Service.Semantic_Request_Id;
    begin
@@ -126,7 +128,7 @@ package body Editor.Executor.Semantic_Service_Commands is
       Name    : String)
       return Editor.Ada_Language_Service.Hover_Result
    is
-      Current_File : constant Editor.State.File_State :=
+      Current_File : constant Editor.State_Buffer.File_State :=
         Editor.State.Current_File (S);
       Req : Editor.Ada_Language_Service.Semantic_Request_Id;
    begin
@@ -168,7 +170,7 @@ package body Editor.Executor.Semantic_Service_Commands is
       Limit   : Positive)
       return Editor.Ada_Language_Service.Completion_Result
    is
-      Current_File : constant Editor.State.File_State :=
+      Current_File : constant Editor.State_Buffer.File_State :=
         Editor.State.Current_File (S);
       Req : Editor.Ada_Language_Service.Semantic_Request_Id;
    begin
@@ -457,7 +459,7 @@ package body Editor.Executor.Semantic_Service_Commands is
                        (S, Safe_Caret, Anchor_Row, Anchor_Col);
                      S.Semantic_Popup :=
                        (Active => True,
-                        Kind => Editor.State.Semantic_Hover_Popup,
+                        Kind => Editor.State_Semantic.Semantic_Hover_Popup,
                         Anchor_Row => Anchor_Row,
                         Anchor_Column => Anchor_Col,
                         Title => Result.Label,
@@ -512,13 +514,13 @@ package body Editor.Executor.Semantic_Service_Commands is
                   declare
                      Anchor_Row : Natural := 0;
                      Anchor_Col : Natural := 0;
-                     Popup : Editor.State.Semantic_Popup_State;
+                     Popup : Editor.State_Semantic.Semantic_Popup_State;
                      Row : Natural := 0;
                   begin
                      Editor.State.Row_Col_For_Index
                        (S, Safe_Caret, Anchor_Row, Anchor_Col);
                      Popup.Active := True;
-                     Popup.Kind := Editor.State.Semantic_Completion_Popup;
+                     Popup.Kind := Editor.State_Semantic.Semantic_Completion_Popup;
                      Popup.Anchor_Row := Anchor_Row;
                      Popup.Anchor_Column := Anchor_Col;
                      Popup.Title := To_Unbounded_String ("Completions for " & Name);
@@ -527,7 +529,7 @@ package body Editor.Executor.Semantic_Service_Commands is
                      for Item of Result.Items loop
                         exit when Row >= Editor.State.Max_Semantic_Completion_Items;
                         Row := Row + 1;
-                        Popup.Items (Editor.State.Semantic_Completion_Item_Index (Row)) :=
+                        Popup.Items (Editor.State_Semantic.Semantic_Completion_Item_Index (Row)) :=
                           (Label  => Item.Label,
                            Detail => Item.Detail);
                      end loop;

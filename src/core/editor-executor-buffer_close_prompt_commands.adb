@@ -1,3 +1,4 @@
+with Editor.State_Buffer;
 with Editor.Buffers;
 use type Editor.Buffers.Buffer_Id;
 with Editor.Commands.Workflow_Messages;
@@ -21,7 +22,7 @@ with Editor.Executor.File_Save_Basic_Commands;
 with Editor.Executor.Pending_Transition_Policy;
 with Editor.Executor.Shared_Services;
 with Editor.State;
-use type Editor.State.Dirty_Close_Scope;
+use type Editor.State_Buffer.Dirty_Close_Scope;
 
 package body Editor.Executor.Buffer_Close_Prompt_Commands is
 
@@ -396,7 +397,7 @@ package body Editor.Executor.Buffer_Close_Prompt_Commands is
 
    procedure Start_Dirty_Close_Prompt
      (S           : in out Editor.State.State_Type;
-      Scope       : Editor.State.Dirty_Close_Scope;
+      Scope       : Editor.State_Buffer.Dirty_Close_Scope;
       All_Buffers : Boolean;
       Buffer_Id   : Editor.Buffers.Buffer_Id;
       Summary     : Editor.Dirty_Guards.Dirty_Buffer_Summary)
@@ -789,7 +790,7 @@ package body Editor.Executor.Buffer_Close_Prompt_Commands is
                           S.File_Conflict_Prompt_Path;
                         Prompt_Display : constant Unbounded_String :=
                           S.File_Conflict_Prompt_Display;
-                        Prompt_Kind : constant Editor.State.File_Conflict_Kind :=
+                        Prompt_Kind : constant Editor.State_Buffer.File_Conflict_Kind :=
                           S.File_Conflict_Prompt_Kind;
                         Prompt_Dirty : constant Boolean :=
                           S.File_Conflict_Prompt_Dirty;

@@ -1,3 +1,4 @@
+with Editor.State_Buffer;
 with Editor.Test_Temp;
 with Ada.Containers;
 with Ada.Strings.Fixed;
@@ -134,7 +135,7 @@ package body Editor.External_Producers.Tests is
       Path         : String := Editor.Test_Temp.Base & "/main.adb";
       Display_Name : String := "main.adb")
    is
-      File : Editor.State.File_State := S.File_Info;
+      File : Editor.State_Buffer.File_State := S.File_Info;
    begin
       File.Has_Path := True;
       File.Path := To_Unbounded_String (Path);

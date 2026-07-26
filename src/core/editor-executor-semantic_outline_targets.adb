@@ -1,3 +1,4 @@
+with Editor.State_Buffer;
 with Editor.Command_Ids; use Editor.Command_Ids;
 with Ada.Strings;
 with Ada.Strings.Fixed;
@@ -202,7 +203,7 @@ package body Editor.Executor.Semantic_Outline_Targets is
    function Active_Outline_Source_Is_Current
      (S : Editor.State.State_Type) return Boolean
    is
-      Current_File : constant Editor.State.File_State :=
+      Current_File : constant Editor.State_Buffer.File_State :=
         Editor.State.Current_File (S);
       Freshness : Editor.Outline.Outline_Freshness;
    begin

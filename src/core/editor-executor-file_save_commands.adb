@@ -1,3 +1,4 @@
+with Editor.State_Buffer;
 with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Payloads;
 with Text_Buffer;
@@ -56,8 +57,8 @@ with Editor.Render_Cache;
 with Editor.Search;
 with Editor.Settings;
 with Editor.State;
-use type Editor.State.Dirty_Close_Scope;
-use type Editor.State.File_Conflict_Kind;
+use type Editor.State_Buffer.Dirty_Close_Scope;
+use type Editor.State_Buffer.File_Conflict_Kind;
 with Editor.View;
 with Editor.Build_UI;
 with Editor.Executor.Buffer_Close_Prompt_Commands;
@@ -313,7 +314,7 @@ package body Editor.Executor.File_Save_Commands is
 
    function Conflict_Kind_For_Status
      (Status : Editor.Files.File_External_Change_Status;
-      Dirty  : Boolean) return Editor.State.File_Conflict_Kind
+      Dirty  : Boolean) return Editor.State_Buffer.File_Conflict_Kind
    is
    begin
       case Status is
@@ -334,7 +335,7 @@ package body Editor.Executor.File_Save_Commands is
 
    procedure Start_File_Conflict_Prompt
      (S      : in out Editor.State.State_Type;
-      Kind   : Editor.State.File_Conflict_Kind;
+      Kind   : Editor.State_Buffer.File_Conflict_Kind;
       Reason : String)
    is
    begin

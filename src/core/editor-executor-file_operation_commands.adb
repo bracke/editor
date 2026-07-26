@@ -1,3 +1,4 @@
+with Editor.State_Buffer;
 with Ada.Directories;
 with Ada.Strings; use Ada.Strings;
 with Ada.Strings.Fixed;
@@ -241,7 +242,7 @@ package body Editor.Executor.File_Operation_Commands is
      (S    : in out Editor.State.State_Type;
       Path : String)
    is
-      Previous_File : Editor.State.File_State;
+      Previous_File : Editor.State_Buffer.File_State;
       Result        : Editor.Files.File_Rename_Result;
    begin
       if S.File_Conflict_Prompt_Active
@@ -351,7 +352,7 @@ package body Editor.Executor.File_Operation_Commands is
    procedure Execute_Delete_Buffer_File
      (S : in out Editor.State.State_Type)
    is
-      Previous_File : Editor.State.File_State;
+      Previous_File : Editor.State_Buffer.File_State;
       Result        : Editor.Files.File_Delete_Result;
    begin
       if S.File_Conflict_Prompt_Active
@@ -425,7 +426,7 @@ package body Editor.Executor.File_Operation_Commands is
      (S    : in out Editor.State.State_Type;
       Path : String)
    is
-      Previous_File : Editor.State.File_State;
+      Previous_File : Editor.State_Buffer.File_State;
       Result        : Editor.Files.File_Copy_Result;
    begin
       if Editor.Executor.File_Lifecycle_Confirmation_Pending (S) then
@@ -522,7 +523,7 @@ package body Editor.Executor.File_Operation_Commands is
      (S    : in out Editor.State.State_Type;
       Path : String)
    is
-      Previous_File : Editor.State.File_State;
+      Previous_File : Editor.State_Buffer.File_State;
       Result        : Editor.Files.File_Move_Result;
    begin
       if Editor.Executor.File_Lifecycle_Confirmation_Pending (S) then

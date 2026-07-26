@@ -1,3 +1,4 @@
+with Editor.State_Buffer;
 with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -85,7 +86,7 @@ package body Editor.Executor.Semantic_Navigation_Commands is
       return Editor.Ada_Language_Service.Language_Target
    is
       Name         : constant String := To_String (Symbol.Name);
-      Current_File : constant Editor.State.File_State :=
+      Current_File : constant Editor.State_Buffer.File_State :=
         Editor.State.Current_File (S);
       Target       : Editor.Ada_Language_Service.Language_Target;
       Req          : Editor.Ada_Language_Service.Semantic_Request_Id;

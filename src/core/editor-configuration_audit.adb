@@ -1,3 +1,4 @@
+with Editor.State_Buffer;
 with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Ada.Strings.Fixed;
@@ -168,7 +169,7 @@ package body Editor.Configuration_Audit is
    function File_Conflict_Prompt_Has_Revalidation_Key
      (State : Editor.State.State_Type) return Boolean
    is
-      use type Editor.State.File_Conflict_Kind;
+      use type Editor.State_Buffer.File_Conflict_Kind;
    begin
       if not State.File_Conflict_Prompt_Active then
          return True;

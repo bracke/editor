@@ -1,3 +1,4 @@
+with Editor.State_Buffer;
 with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
@@ -24,7 +25,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
    use type Editor.Buffers.Buffer_Id;
    use type Editor.Buffer_Switcher.Reviews.Pending_Marked_Action_Kind;
    use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
-   use type Editor.State.Dirty_Close_Scope;
+   use type Editor.State_Buffer.Dirty_Close_Scope;
 
    overriding function Name
      (T : Buffer_Prune_Test_Case) return AUnit.Message_String
