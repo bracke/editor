@@ -1070,7 +1070,7 @@ package body Editor.Settings.Tests is
       Editor.State.Init (S);
       Install_Project_For_Settings (S, Editor.Test_Temp.Base & "/editor-a", "editor-a");
       Editor.State.Load_Text (S, "dirty text");
-      S.File_Info :=
+      S.Buffer_Lifecycle.File_Info :=
         (Has_Path     => True,
          Path         => To_Unbounded_String (Editor.Test_Temp.Base & "/editor-a/main.adb"),
          Display_Name => To_Unbounded_String ("main.adb"),
@@ -1091,7 +1091,7 @@ package body Editor.Settings.Tests is
               Editor.Lifecycle_Audit.Summary (Result));
       Assert (Editor.State.Current_Text (S) = "dirty text",
               "Save Settings must not save or rewrite dirty file contents");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "Save Settings must not clear dirty buffer state");
       Assert (Editor.Messages.Count (S.Messages) = 1,
               "Save Settings must emit exactly one outcome message");

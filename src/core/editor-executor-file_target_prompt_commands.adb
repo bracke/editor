@@ -29,21 +29,21 @@ package body Editor.Executor.File_Target_Prompt_Commands is
      (S : Editor.State.State_Type) return Boolean
    is
    begin
-      return S.File_Target_Prompt_Active;
+      return S.Buffer_Lifecycle.File_Target_Prompt_Active;
    end File_Target_Prompt_Is_Active;
 
    function File_Target_Prompt_Input_Text
      (S : Editor.State.State_Type) return String
    is
    begin
-      return Editor.Input_Field.Text (S.File_Target_Prompt_Input);
+      return Editor.Input_Field.Text (S.Buffer_Lifecycle.File_Target_Prompt_Input);
    end File_Target_Prompt_Input_Text;
 
    function File_Target_Prompt_Label
      (S : Editor.State.State_Type) return String
    is
    begin
-      return To_String (S.File_Target_Prompt_Label);
+      return To_String (S.Buffer_Lifecycle.File_Target_Prompt_Label);
    end File_Target_Prompt_Label;
 
    procedure Clear_File_Target_Prompt
@@ -86,11 +86,11 @@ package body Editor.Executor.File_Target_Prompt_Commands is
          return;
       end if;
 
-      S.File_Target_Prompt_Active := True;
-      S.File_Target_Prompt_Command := Id;
-      S.File_Target_Prompt_Label :=
+      S.Buffer_Lifecycle.File_Target_Prompt_Active := True;
+      S.Buffer_Lifecycle.File_Target_Prompt_Command := Id;
+      S.Buffer_Lifecycle.File_Target_Prompt_Label :=
         To_Unbounded_String (Prompt_Label_For_File_Target_Command (Id));
-      Editor.Input_Field.Clear (S.File_Target_Prompt_Input);
+      Editor.Input_Field.Clear (S.Buffer_Lifecycle.File_Target_Prompt_Input);
       Editor.Executor.Activate_Overlay
         (S, Editor.Overlay_Focus.File_Target_Prompt_Overlay);
       Editor.Render_Cache.Invalidate_All;
@@ -100,7 +100,7 @@ package body Editor.Executor.File_Target_Prompt_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if not S.File_Target_Prompt_Active then
+      if not S.Buffer_Lifecycle.File_Target_Prompt_Active then
          return;
       end if;
       Clear_File_Target_Prompt (S);
@@ -139,11 +139,11 @@ package body Editor.Executor.File_Target_Prompt_Commands is
    procedure Confirm_File_Target_Prompt
      (S : in out Editor.State.State_Type)
    is
-      Id     : constant Editor.Command_Ids.Command_Id := S.File_Target_Prompt_Command;
+      Id     : constant Editor.Command_Ids.Command_Id := S.Buffer_Lifecycle.File_Target_Prompt_Command;
       Target : constant String :=
-        Editor.Input_Field.Text (S.File_Target_Prompt_Input);
+        Editor.Input_Field.Text (S.Buffer_Lifecycle.File_Target_Prompt_Input);
    begin
-      if not S.File_Target_Prompt_Active
+      if not S.Buffer_Lifecycle.File_Target_Prompt_Active
         or else not Command_Requires_File_Target_Prompt (Id)
       then
          return;
@@ -165,8 +165,8 @@ package body Editor.Executor.File_Target_Prompt_Commands is
       Text : String)
    is
    begin
-      if S.File_Target_Prompt_Active then
-         Editor.Input_Field.Insert_Text (S.File_Target_Prompt_Input, Text);
+      if S.Buffer_Lifecycle.File_Target_Prompt_Active then
+         Editor.Input_Field.Insert_Text (S.Buffer_Lifecycle.File_Target_Prompt_Input, Text);
          Editor.Render_Cache.Invalidate_All;
       end if;
    end Insert_File_Target_Prompt_Text;
@@ -175,8 +175,8 @@ package body Editor.Executor.File_Target_Prompt_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if S.File_Target_Prompt_Active then
-         Editor.Input_Field.Select_All (S.File_Target_Prompt_Input);
+      if S.Buffer_Lifecycle.File_Target_Prompt_Active then
+         Editor.Input_Field.Select_All (S.Buffer_Lifecycle.File_Target_Prompt_Input);
          Editor.Render_Cache.Invalidate_All;
       end if;
    end Select_All_File_Target_Prompt_Text;
@@ -185,8 +185,8 @@ package body Editor.Executor.File_Target_Prompt_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if S.File_Target_Prompt_Active then
-         Editor.Input_Field.Backspace (S.File_Target_Prompt_Input);
+      if S.Buffer_Lifecycle.File_Target_Prompt_Active then
+         Editor.Input_Field.Backspace (S.Buffer_Lifecycle.File_Target_Prompt_Input);
          Editor.Render_Cache.Invalidate_All;
       end if;
    end Backspace_File_Target_Prompt;
@@ -195,8 +195,8 @@ package body Editor.Executor.File_Target_Prompt_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if S.File_Target_Prompt_Active then
-         Editor.Input_Field.Delete_Forward (S.File_Target_Prompt_Input);
+      if S.Buffer_Lifecycle.File_Target_Prompt_Active then
+         Editor.Input_Field.Delete_Forward (S.Buffer_Lifecycle.File_Target_Prompt_Input);
          Editor.Render_Cache.Invalidate_All;
       end if;
    end Delete_Forward_File_Target_Prompt;
@@ -205,8 +205,8 @@ package body Editor.Executor.File_Target_Prompt_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if S.File_Target_Prompt_Active then
-         Editor.Input_Field.Move_Cursor_Left (S.File_Target_Prompt_Input);
+      if S.Buffer_Lifecycle.File_Target_Prompt_Active then
+         Editor.Input_Field.Move_Cursor_Left (S.Buffer_Lifecycle.File_Target_Prompt_Input);
          Editor.Render_Cache.Invalidate_All;
       end if;
    end Move_File_Target_Prompt_Cursor_Left;
@@ -215,8 +215,8 @@ package body Editor.Executor.File_Target_Prompt_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if S.File_Target_Prompt_Active then
-         Editor.Input_Field.Move_Cursor_Right (S.File_Target_Prompt_Input);
+      if S.Buffer_Lifecycle.File_Target_Prompt_Active then
+         Editor.Input_Field.Move_Cursor_Right (S.Buffer_Lifecycle.File_Target_Prompt_Input);
          Editor.Render_Cache.Invalidate_All;
       end if;
    end Move_File_Target_Prompt_Cursor_Right;
@@ -225,8 +225,8 @@ package body Editor.Executor.File_Target_Prompt_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if S.File_Target_Prompt_Active then
-         Editor.Input_Field.Move_Cursor_Start (S.File_Target_Prompt_Input);
+      if S.Buffer_Lifecycle.File_Target_Prompt_Active then
+         Editor.Input_Field.Move_Cursor_Start (S.Buffer_Lifecycle.File_Target_Prompt_Input);
          Editor.Render_Cache.Invalidate_All;
       end if;
    end Move_File_Target_Prompt_Cursor_Start;
@@ -235,8 +235,8 @@ package body Editor.Executor.File_Target_Prompt_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if S.File_Target_Prompt_Active then
-         Editor.Input_Field.Move_Cursor_End (S.File_Target_Prompt_Input);
+      if S.Buffer_Lifecycle.File_Target_Prompt_Active then
+         Editor.Input_Field.Move_Cursor_End (S.Buffer_Lifecycle.File_Target_Prompt_Input);
          Editor.Render_Cache.Invalidate_All;
       end if;
    end Move_File_Target_Prompt_Cursor_End;

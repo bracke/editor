@@ -89,10 +89,10 @@ package body Editor.State is
 
    procedure Bump_Buffer_Revision (S : in out State_Type) is
    begin
-      if S.Buffer_Revision = Natural'Last then
-         S.Buffer_Revision := 1;
+      if S.Buffer_Lifecycle.Buffer_Revision = Natural'Last then
+         S.Buffer_Lifecycle.Buffer_Revision := 1;
       else
-         S.Buffer_Revision := S.Buffer_Revision + 1;
+         S.Buffer_Lifecycle.Buffer_Revision := S.Buffer_Lifecycle.Buffer_Revision + 1;
       end if;
    end Bump_Buffer_Revision;
 
@@ -132,20 +132,20 @@ package body Editor.State is
 
    function Has_Active_Buffer (S : State_Type) return Boolean is
    begin
-      if S.Active_Buffer_Token = 0 then
-         return S.Registry_Token = 0
+      if S.Buffer_Lifecycle.Active_Buffer_Token = 0 then
+         return S.Buffer_Lifecycle.Registry_Token = 0
            and then
-             (S.Buffer_Revision /= 0
-              or else S.File_Info.Has_Path
-              or else S.File_Info.Dirty
+             (S.Buffer_Lifecycle.Buffer_Revision /= 0
+              or else S.Buffer_Lifecycle.File_Info.Has_Path
+              or else S.Buffer_Lifecycle.File_Info.Dirty
               or else Current_Text (S) /= "");
       elsif Editor.Buffers.Global_Registry_Current_For (S) then
          return Editor.Buffers.Global_Contains
-           (Editor.Buffers.Buffer_Id (S.Active_Buffer_Token));
+           (Editor.Buffers.Buffer_Id (S.Buffer_Lifecycle.Active_Buffer_Token));
       else
-         return S.Buffer_Revision /= 0
-           or else S.File_Info.Has_Path
-           or else S.File_Info.Dirty
+         return S.Buffer_Lifecycle.Buffer_Revision /= 0
+           or else S.Buffer_Lifecycle.File_Info.Has_Path
+           or else S.Buffer_Lifecycle.File_Info.Dirty
            or else Current_Text (S) /= "";
       end if;
    end Has_Active_Buffer;
@@ -157,7 +157,7 @@ package body Editor.State is
 
    function Current_File (S : State_Type) return File_State is
    begin
-      return S.File_Info;
+      return S.Buffer_Lifecycle.File_Info;
    end Current_File;
 
    procedure Set_Current_File
@@ -165,12 +165,12 @@ package body Editor.State is
       File : File_State)
    is
    begin
-      S.File_Info := File;
+      S.Buffer_Lifecycle.File_Info := File;
    end Set_Current_File;
 
    function Is_Dirty (S : State_Type) return Boolean is
    begin
-      return S.File_Info.Dirty;
+      return S.Buffer_Lifecycle.File_Info.Dirty;
    end Is_Dirty;
 
    procedure Set_Dirty
@@ -178,7 +178,7 @@ package body Editor.State is
       Dirty : Boolean)
    is
    begin
-      S.File_Info.Dirty := Dirty;
+      S.Buffer_Lifecycle.File_Info.Dirty := Dirty;
    end Set_Dirty;
 
    procedure Initialize (S : out State_Type) is
@@ -188,10 +188,10 @@ package body Editor.State is
 
    procedure Clear_File_Target_Prompt (S : in out State_Type) is
    begin
-      S.File_Target_Prompt_Active := False;
-      S.File_Target_Prompt_Command := Editor.Command_Ids.No_Command;
-      S.File_Target_Prompt_Label := Null_Unbounded_String;
-      Editor.Input_Field.Clear (S.File_Target_Prompt_Input);
+      S.Buffer_Lifecycle.File_Target_Prompt_Active := False;
+      S.Buffer_Lifecycle.File_Target_Prompt_Command := Editor.Command_Ids.No_Command;
+      S.Buffer_Lifecycle.File_Target_Prompt_Label := Null_Unbounded_String;
+      Editor.Input_Field.Clear (S.Buffer_Lifecycle.File_Target_Prompt_Input);
    end Clear_File_Target_Prompt;
 
    procedure Apply_Settings
@@ -365,54 +365,54 @@ package body Editor.State is
       Editor.Overlay_Focus.Clear (S.Overlay_Focus);
       Clear_Gutter_Marker_Hover (S);
       Editor.Folding.Clear (S.Folding);
-      S.File_Info.Has_Path := False;
-      S.File_Info.Path := Null_Unbounded_String;
-      S.File_Info.Display_Name := To_Unbounded_String ("Untitled");
-      S.File_Info.Dirty := False;
-      S.File_Info.Baseline_Valid := False;
-      S.File_Info.Saved_Generation := 0;
-      S.File_Info.Last_Save_Failed := False;
-      S.File_Info.Last_Reload_Failed := False;
-      S.File_Info.Last_Revert_Failed := False;
-      S.File_Info.Missing_Target_Surfaced := False;
-      S.File_Info.Unreadable_Target_Surfaced := False;
-      S.File_Info.Unwritable_Target_Surfaced := False;
-      S.File_Info.External_Change_Surfaced := False;
-      S.File_Info.File_Token_Known := False;
-      S.File_Info.File_Token_Label := Null_Unbounded_String;
-      S.File_Conflict_Prompt_Active := False;
-      S.File_Conflict_Prompt_Buffer := 0;
-      S.File_Conflict_Prompt_Path := Null_Unbounded_String;
-      S.File_Conflict_Prompt_Display := Null_Unbounded_String;
-      S.File_Conflict_Prompt_Kind := No_File_Conflict;
-      S.File_Conflict_Prompt_Dirty := False;
-      S.File_Conflict_Prompt_Buffer_Revision := 0;
-      S.File_Conflict_Prompt_Token_Label := Null_Unbounded_String;
-      S.File_Conflict_Close_After_Overwrite := False;
-      S.File_Conflict_Close_After_Overwrite_Buffer := 0;
-      S.File_Conflict_Close_After_Overwrite_Selected := False;
-      S.File_Conflict_Close_After_Overwrite_All_Buffers := False;
-      S.Dirty_Close_Prompt_Active := False;
-      S.Dirty_Close_Prompt_Scope := No_Dirty_Close_Scope;
-      S.Dirty_Close_Prompt_All_Buffers := False;
-      S.Dirty_Close_Prompt_Buffer := 0;
-      S.Dirty_Close_Prompt_Buffer_Count := 0;
-      S.Dirty_Close_Prompt_Buffer_Fingerprint := 0;
-      S.Dirty_Close_Prompt_Dirty_Fingerprint := 0;
-      S.Dirty_Close_Prompt_Dirty_Buffer_Ids := Ada.Strings.Unbounded.Null_Unbounded_String;
-      S.Dirty_Close_Prompt_Dirty_Count := 0;
-      S.Dirty_Close_Prompt_File_Backed_Count := 0;
-      S.Dirty_Close_Prompt_Untitled_Count := 0;
-      S.Dirty_Close_Prompt_Conflicted_Count := 0;
-      S.Dirty_Close_Prompt_Unwritable_Count := 0;
-      S.Dirty_Close_Prompt_Missing_Count := 0;
-      S.Dirty_Close_Prompt_Save_Failure_Count := 0;
-      S.Reopen_Candidate_Count := 0;
-      S.Reopen_Candidate_Paths := (others => Null_Unbounded_String);
-      S.Reopen_Candidate_Labels := (others => Null_Unbounded_String);
-      S.Has_Reopen_Candidate := False;
-      S.Reopen_Candidate_Path := Null_Unbounded_String;
-      S.Reopen_Candidate_Label := Null_Unbounded_String;
+      S.Buffer_Lifecycle.File_Info.Has_Path := False;
+      S.Buffer_Lifecycle.File_Info.Path := Null_Unbounded_String;
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("Untitled");
+      S.Buffer_Lifecycle.File_Info.Dirty := False;
+      S.Buffer_Lifecycle.File_Info.Baseline_Valid := False;
+      S.Buffer_Lifecycle.File_Info.Saved_Generation := 0;
+      S.Buffer_Lifecycle.File_Info.Last_Save_Failed := False;
+      S.Buffer_Lifecycle.File_Info.Last_Reload_Failed := False;
+      S.Buffer_Lifecycle.File_Info.Last_Revert_Failed := False;
+      S.Buffer_Lifecycle.File_Info.Missing_Target_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.Unreadable_Target_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.Unwritable_Target_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.External_Change_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.File_Token_Known := False;
+      S.Buffer_Lifecycle.File_Info.File_Token_Label := Null_Unbounded_String;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Active := False;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Buffer := 0;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Path := Null_Unbounded_String;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Display := Null_Unbounded_String;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Kind := No_File_Conflict;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Dirty := False;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Buffer_Revision := 0;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Token_Label := Null_Unbounded_String;
+      S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite := False;
+      S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite_Buffer := 0;
+      S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite_Selected := False;
+      S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite_All_Buffers := False;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Active := False;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Scope := No_Dirty_Close_Scope;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_All_Buffers := False;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer_Count := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer_Fingerprint := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Dirty_Fingerprint := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Dirty_Buffer_Ids := Ada.Strings.Unbounded.Null_Unbounded_String;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Dirty_Count := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_File_Backed_Count := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Untitled_Count := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Conflicted_Count := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Unwritable_Count := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Missing_Count := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Save_Failure_Count := 0;
+      S.Buffer_Lifecycle.Reopen_Candidate_Count := 0;
+      S.Buffer_Lifecycle.Reopen_Candidate_Paths := (others => Null_Unbounded_String);
+      S.Buffer_Lifecycle.Reopen_Candidate_Labels := (others => Null_Unbounded_String);
+      S.Buffer_Lifecycle.Has_Reopen_Candidate := False;
+      S.Buffer_Lifecycle.Reopen_Candidate_Path := Null_Unbounded_String;
+      S.Buffer_Lifecycle.Reopen_Candidate_Label := Null_Unbounded_String;
       Bump_Buffer_Revision (S);
       Editor.Syntax_Cache.Clear (S.Syntax_Cache);
       Editor.Syntax_Semantics.Clear (S.Syntax_Symbols);
@@ -430,17 +430,17 @@ package body Editor.State is
      (S        : in out State_Type;
       Contents : String)
    is
-      File_Info : constant File_State := S.File_Info;
+      File_Info : constant File_State := S.Buffer_Lifecycle.File_Info;
    begin
       Replace_Document (S, Contents);
-      S.File_Info := File_Info;
+      S.Buffer_Lifecycle.File_Info := File_Info;
       Editor.Feature_Search_Results.Mark_Stale_For_Buffer_Change
-        (S.Feature_Search_Results, S.Active_Buffer_Token, S.Buffer_Revision);
-      if S.Registry_Token /= 0
-        and then S.Registry_Token /= S.Active_Buffer_Token
+        (S.Feature_Search_Results, S.Buffer_Lifecycle.Active_Buffer_Token, S.Buffer_Lifecycle.Buffer_Revision);
+      if S.Buffer_Lifecycle.Registry_Token /= 0
+        and then S.Buffer_Lifecycle.Registry_Token /= S.Buffer_Lifecycle.Active_Buffer_Token
       then
          Editor.Feature_Search_Results.Mark_Stale_For_Buffer_Change
-           (S.Feature_Search_Results, S.Registry_Token, S.Buffer_Revision);
+           (S.Feature_Search_Results, S.Buffer_Lifecycle.Registry_Token, S.Buffer_Lifecycle.Buffer_Revision);
       end if;
    end Replace_Buffer_Contents;
 
@@ -450,50 +450,50 @@ package body Editor.State is
    is
    begin
       Replace_Buffer_Contents (S, Text);
-      S.File_Info.Has_Path := False;
-      S.File_Info.Path := Null_Unbounded_String;
-      S.File_Info.Display_Name := To_Unbounded_String ("Untitled");
-      S.File_Info.Dirty := False;
-      S.File_Info.Baseline_Valid := False;
-      S.File_Info.Saved_Generation := 0;
-      S.File_Info.Last_Save_Failed := False;
-      S.File_Info.Last_Reload_Failed := False;
-      S.File_Info.Last_Revert_Failed := False;
-      S.File_Info.Missing_Target_Surfaced := False;
-      S.File_Info.Unreadable_Target_Surfaced := False;
-      S.File_Info.Unwritable_Target_Surfaced := False;
-      S.File_Info.External_Change_Surfaced := False;
-      S.File_Info.File_Token_Known := False;
-      S.File_Info.File_Token_Label := Null_Unbounded_String;
-      S.File_Conflict_Prompt_Active := False;
-      S.File_Conflict_Prompt_Buffer := 0;
-      S.File_Conflict_Prompt_Path := Null_Unbounded_String;
-      S.File_Conflict_Prompt_Display := Null_Unbounded_String;
-      S.File_Conflict_Prompt_Kind := No_File_Conflict;
-      S.File_Conflict_Prompt_Dirty := False;
-      S.File_Conflict_Prompt_Buffer_Revision := 0;
-      S.File_Conflict_Prompt_Token_Label := Null_Unbounded_String;
-      S.File_Conflict_Close_After_Overwrite := False;
-      S.File_Conflict_Close_After_Overwrite_Buffer := 0;
-      S.File_Conflict_Close_After_Overwrite_Selected := False;
-      S.File_Conflict_Close_After_Overwrite_All_Buffers := False;
-      S.Dirty_Close_Prompt_Active := False;
-      S.Dirty_Close_Prompt_Scope := No_Dirty_Close_Scope;
-      S.Dirty_Close_Prompt_All_Buffers := False;
-      S.Dirty_Close_Prompt_Buffer := 0;
-      S.Dirty_Close_Prompt_Buffer_Count := 0;
-      S.Dirty_Close_Prompt_Buffer_Fingerprint := 0;
-      S.Dirty_Close_Prompt_Dirty_Fingerprint := 0;
-      S.Dirty_Close_Prompt_Dirty_Buffer_Ids := Ada.Strings.Unbounded.Null_Unbounded_String;
-      S.Dirty_Close_Prompt_Dirty_Count := 0;
-      S.Dirty_Close_Prompt_File_Backed_Count := 0;
-      S.Dirty_Close_Prompt_Untitled_Count := 0;
-      S.Dirty_Close_Prompt_Conflicted_Count := 0;
-      S.Dirty_Close_Prompt_Unwritable_Count := 0;
-      S.Dirty_Close_Prompt_Missing_Count := 0;
-      S.Dirty_Close_Prompt_Save_Failure_Count := 0;
+      S.Buffer_Lifecycle.File_Info.Has_Path := False;
+      S.Buffer_Lifecycle.File_Info.Path := Null_Unbounded_String;
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("Untitled");
+      S.Buffer_Lifecycle.File_Info.Dirty := False;
+      S.Buffer_Lifecycle.File_Info.Baseline_Valid := False;
+      S.Buffer_Lifecycle.File_Info.Saved_Generation := 0;
+      S.Buffer_Lifecycle.File_Info.Last_Save_Failed := False;
+      S.Buffer_Lifecycle.File_Info.Last_Reload_Failed := False;
+      S.Buffer_Lifecycle.File_Info.Last_Revert_Failed := False;
+      S.Buffer_Lifecycle.File_Info.Missing_Target_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.Unreadable_Target_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.Unwritable_Target_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.External_Change_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.File_Token_Known := False;
+      S.Buffer_Lifecycle.File_Info.File_Token_Label := Null_Unbounded_String;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Active := False;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Buffer := 0;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Path := Null_Unbounded_String;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Display := Null_Unbounded_String;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Kind := No_File_Conflict;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Dirty := False;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Buffer_Revision := 0;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Token_Label := Null_Unbounded_String;
+      S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite := False;
+      S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite_Buffer := 0;
+      S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite_Selected := False;
+      S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite_All_Buffers := False;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Active := False;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Scope := No_Dirty_Close_Scope;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_All_Buffers := False;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer_Count := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer_Fingerprint := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Dirty_Fingerprint := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Dirty_Buffer_Ids := Ada.Strings.Unbounded.Null_Unbounded_String;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Dirty_Count := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_File_Backed_Count := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Untitled_Count := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Conflicted_Count := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Unwritable_Count := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Missing_Count := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Save_Failure_Count := 0;
 
-      if S.Active_Buffer_Token /= 0 then
+      if S.Buffer_Lifecycle.Active_Buffer_Token /= 0 then
          Editor.Buffers.Mark_Global_Provisional_Active;
       end if;
    end Load_Text;
@@ -509,14 +509,14 @@ package body Editor.State is
      (S : State_Type) return Natural
    is
    begin
-      return S.Buffer_Revision;
+      return S.Buffer_Lifecycle.Buffer_Revision;
    end Current_Buffer_Revision;
 
    function Current_Lifecycle_Generation
      (S : State_Type) return Natural
    is
    begin
-      return S.Lifecycle_Generation;
+      return S.Buffer_Lifecycle.Lifecycle_Generation;
    end Current_Lifecycle_Generation;
 
    procedure Init (S : out State_Type) is
@@ -530,10 +530,10 @@ package body Editor.State is
         Editor.Workspace_Persistence.Workspace_Persistence_Not_Found;
       Startup_Workspace          : Editor.Workspace_Persistence.Workspace_Snapshot;
    begin
-      S.Registry_Token := Allocate_Registry_Token;
-      S.Active_Buffer_Token := S.Registry_Token;
-      S.Buffer_Revision := 0;
-      S.Lifecycle_Generation := 0;
+      S.Buffer_Lifecycle.Registry_Token := Allocate_Registry_Token;
+      S.Buffer_Lifecycle.Active_Buffer_Token := S.Buffer_Lifecycle.Registry_Token;
+      S.Buffer_Lifecycle.Buffer_Revision := 0;
+      S.Buffer_Lifecycle.Lifecycle_Generation := 0;
       Editor.Syntax_Cache.Clear (S.Syntax_Cache);
       Editor.Syntax_Semantics.Clear (S.Syntax_Symbols);
       Editor.Ada_Language_Model.Clear (S.Syntax_Analysis);
@@ -661,54 +661,54 @@ package body Editor.State is
       Editor.Overlay_Focus.Clear (S.Overlay_Focus);
       Clear_Gutter_Marker_Hover (S);
       Editor.Folding.Clear (S.Folding);
-      S.File_Info.Has_Path := False;
-      S.File_Info.Path := Null_Unbounded_String;
-      S.File_Info.Display_Name := To_Unbounded_String ("Untitled");
-      S.File_Info.Dirty := False;
-      S.File_Info.Baseline_Valid := False;
-      S.File_Info.Saved_Generation := 0;
-      S.File_Info.Last_Save_Failed := False;
-      S.File_Info.Last_Reload_Failed := False;
-      S.File_Info.Last_Revert_Failed := False;
-      S.File_Info.Missing_Target_Surfaced := False;
-      S.File_Info.Unreadable_Target_Surfaced := False;
-      S.File_Info.Unwritable_Target_Surfaced := False;
-      S.File_Info.External_Change_Surfaced := False;
-      S.File_Info.File_Token_Known := False;
-      S.File_Info.File_Token_Label := Null_Unbounded_String;
-      S.File_Conflict_Prompt_Active := False;
-      S.File_Conflict_Prompt_Buffer := 0;
-      S.File_Conflict_Prompt_Path := Null_Unbounded_String;
-      S.File_Conflict_Prompt_Display := Null_Unbounded_String;
-      S.File_Conflict_Prompt_Kind := No_File_Conflict;
-      S.File_Conflict_Prompt_Dirty := False;
-      S.File_Conflict_Prompt_Buffer_Revision := 0;
-      S.File_Conflict_Prompt_Token_Label := Null_Unbounded_String;
-      S.File_Conflict_Close_After_Overwrite := False;
-      S.File_Conflict_Close_After_Overwrite_Buffer := 0;
-      S.File_Conflict_Close_After_Overwrite_Selected := False;
-      S.File_Conflict_Close_After_Overwrite_All_Buffers := False;
-      S.Dirty_Close_Prompt_Active := False;
-      S.Dirty_Close_Prompt_Scope := No_Dirty_Close_Scope;
-      S.Dirty_Close_Prompt_All_Buffers := False;
-      S.Dirty_Close_Prompt_Buffer := 0;
-      S.Dirty_Close_Prompt_Buffer_Count := 0;
-      S.Dirty_Close_Prompt_Buffer_Fingerprint := 0;
-      S.Dirty_Close_Prompt_Dirty_Fingerprint := 0;
-      S.Dirty_Close_Prompt_Dirty_Buffer_Ids := Ada.Strings.Unbounded.Null_Unbounded_String;
-      S.Dirty_Close_Prompt_Dirty_Count := 0;
-      S.Dirty_Close_Prompt_File_Backed_Count := 0;
-      S.Dirty_Close_Prompt_Untitled_Count := 0;
-      S.Dirty_Close_Prompt_Conflicted_Count := 0;
-      S.Dirty_Close_Prompt_Unwritable_Count := 0;
-      S.Dirty_Close_Prompt_Missing_Count := 0;
-      S.Dirty_Close_Prompt_Save_Failure_Count := 0;
-      S.Reopen_Candidate_Count := 0;
-      S.Reopen_Candidate_Paths := (others => Null_Unbounded_String);
-      S.Reopen_Candidate_Labels := (others => Null_Unbounded_String);
-      S.Has_Reopen_Candidate := False;
-      S.Reopen_Candidate_Path := Null_Unbounded_String;
-      S.Reopen_Candidate_Label := Null_Unbounded_String;
+      S.Buffer_Lifecycle.File_Info.Has_Path := False;
+      S.Buffer_Lifecycle.File_Info.Path := Null_Unbounded_String;
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("Untitled");
+      S.Buffer_Lifecycle.File_Info.Dirty := False;
+      S.Buffer_Lifecycle.File_Info.Baseline_Valid := False;
+      S.Buffer_Lifecycle.File_Info.Saved_Generation := 0;
+      S.Buffer_Lifecycle.File_Info.Last_Save_Failed := False;
+      S.Buffer_Lifecycle.File_Info.Last_Reload_Failed := False;
+      S.Buffer_Lifecycle.File_Info.Last_Revert_Failed := False;
+      S.Buffer_Lifecycle.File_Info.Missing_Target_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.Unreadable_Target_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.Unwritable_Target_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.External_Change_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.File_Token_Known := False;
+      S.Buffer_Lifecycle.File_Info.File_Token_Label := Null_Unbounded_String;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Active := False;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Buffer := 0;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Path := Null_Unbounded_String;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Display := Null_Unbounded_String;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Kind := No_File_Conflict;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Dirty := False;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Buffer_Revision := 0;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Token_Label := Null_Unbounded_String;
+      S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite := False;
+      S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite_Buffer := 0;
+      S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite_Selected := False;
+      S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite_All_Buffers := False;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Active := False;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Scope := No_Dirty_Close_Scope;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_All_Buffers := False;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer_Count := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer_Fingerprint := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Dirty_Fingerprint := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Dirty_Buffer_Ids := Ada.Strings.Unbounded.Null_Unbounded_String;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Dirty_Count := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_File_Backed_Count := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Untitled_Count := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Conflicted_Count := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Unwritable_Count := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Missing_Count := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Save_Failure_Count := 0;
+      S.Buffer_Lifecycle.Reopen_Candidate_Count := 0;
+      S.Buffer_Lifecycle.Reopen_Candidate_Paths := (others => Null_Unbounded_String);
+      S.Buffer_Lifecycle.Reopen_Candidate_Labels := (others => Null_Unbounded_String);
+      S.Buffer_Lifecycle.Has_Reopen_Candidate := False;
+      S.Buffer_Lifecycle.Reopen_Candidate_Path := Null_Unbounded_String;
+      S.Buffer_Lifecycle.Reopen_Candidate_Label := Null_Unbounded_String;
 
       Editor.Startup_Readiness.Record_Startup_Summary
         (Editor.Startup_Readiness.Build_Observed_Startup_Summary
@@ -813,7 +813,7 @@ package body Editor.State is
       S.Active_Find_Match := Editor.Search.No_Match;
       if Length (S.Active_Find_Query) > 0 then
          S.Active_Find_Stale := True;
-         S.Active_Find_Source_Buffer_Token := S.Active_Buffer_Token;
+         S.Active_Find_Source_Buffer_Token := S.Buffer_Lifecycle.Active_Buffer_Token;
       else
          S.Active_Find_Stale := False;
          S.Active_Find_Source_Buffer_Token := 0;
@@ -821,27 +821,27 @@ package body Editor.State is
       S.Diagnostics.Clear;
       S.Active_Diagnostic := (Has_Active => False, Index => Editor.Diagnostics.No_Diagnostic);
       Editor.Feature_Diagnostics.Mark_Diagnostics_For_Buffer_Stale
-        (S.Feature_Diagnostics, S.Active_Buffer_Token);
+        (S.Feature_Diagnostics, S.Buffer_Lifecycle.Active_Buffer_Token);
       --  ordinary edits make retained feature Diagnostics for the
       --  active buffer stale instead of deleting them through the buffer-close
       --  lifecycle path.  The stale marker is transient Diagnostics-owned
       --  review state; editing still must not reproject rows, navigate
       --  targets, parse build output, or mutate Build result/output state.
-      if S.Registry_Token /= 0
-        and then S.Registry_Token /= S.Active_Buffer_Token
+      if S.Buffer_Lifecycle.Registry_Token /= 0
+        and then S.Buffer_Lifecycle.Registry_Token /= S.Buffer_Lifecycle.Active_Buffer_Token
       then
          --  Rows captured before the global buffer registry assigned a real
          --  buffer id used the registry owner token as an active-buffer alias.
          Editor.Feature_Diagnostics.Reset_Diagnostics_For_Buffer_Close
-           (S.Feature_Diagnostics, S.Registry_Token);
+           (S.Feature_Diagnostics, S.Buffer_Lifecycle.Registry_Token);
       end if;
       Editor.Feature_Messages.Reset_For_Buffer_Close
-        (S.Feature_Messages, S.Active_Buffer_Token);
-      if S.Registry_Token /= 0
-        and then S.Registry_Token /= S.Active_Buffer_Token
+        (S.Feature_Messages, S.Buffer_Lifecycle.Active_Buffer_Token);
+      if S.Buffer_Lifecycle.Registry_Token /= 0
+        and then S.Buffer_Lifecycle.Registry_Token /= S.Buffer_Lifecycle.Active_Buffer_Token
       then
          Editor.Feature_Messages.Reset_For_Buffer_Close
-           (S.Feature_Messages, S.Registry_Token);
+           (S.Feature_Messages, S.Buffer_Lifecycle.Registry_Token);
       end if;
       --  Keep visible Messages rows passive during ordinary editing; source
       --  cleanup above is enough to make later explicit feature use valid.
@@ -859,14 +859,14 @@ package body Editor.State is
       --  a line-history remapping algorithm yet; markers beyond the current
       --  document range simply do not render.
       Editor.Folding.Clear (S.Folding);
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Feature_Search_Results.Mark_Stale_For_Buffer_Change
-        (S.Feature_Search_Results, S.Active_Buffer_Token, S.Buffer_Revision);
-      if S.Registry_Token /= 0
-        and then S.Registry_Token /= S.Active_Buffer_Token
+        (S.Feature_Search_Results, S.Buffer_Lifecycle.Active_Buffer_Token, S.Buffer_Lifecycle.Buffer_Revision);
+      if S.Buffer_Lifecycle.Registry_Token /= 0
+        and then S.Buffer_Lifecycle.Registry_Token /= S.Buffer_Lifecycle.Active_Buffer_Token
       then
          Editor.Feature_Search_Results.Mark_Stale_For_Buffer_Change
-           (S.Feature_Search_Results, S.Registry_Token, S.Buffer_Revision);
+           (S.Feature_Search_Results, S.Buffer_Lifecycle.Registry_Token, S.Buffer_Lifecycle.Buffer_Revision);
       end if;
       --  Mark visible Search Results stale, but do not rerun Search or mutate
       --  the visible Feature Panel rows from ordinary text editing.
@@ -896,8 +896,8 @@ package body Editor.State is
          end if;
          Editor.Syntax_Semantics.Clear (S.Syntax_Symbols);
          Editor.Ada_Language_Model.Clear (S.Syntax_Analysis);
-         S.Syntax_Source_Revision := S.Buffer_Revision;
-         S.Syntax_Source_Buffer_Token := S.Active_Buffer_Token;
+         S.Syntax_Source_Revision := S.Buffer_Lifecycle.Buffer_Revision;
+         S.Syntax_Source_Buffer_Token := S.Buffer_Lifecycle.Active_Buffer_Token;
          S.Syntax_Symbols_Revision := Natural'Last;
          S.Syntax_Symbols_Buffer_Token := 0;
       end;
@@ -977,8 +977,8 @@ package body Editor.State is
      (S : in out State_Type)
    is
       Source_Label : constant String :=
-        (if S.File_Info.Has_Path then To_String (S.File_Info.Path)
-         else To_String (S.File_Info.Display_Name));
+        (if S.Buffer_Lifecycle.File_Info.Has_Path then To_String (S.Buffer_Lifecycle.File_Info.Path)
+         else To_String (S.Buffer_Lifecycle.File_Info.Display_Name));
       Analysis : constant Editor.Ada_Language_Model.Analysis_Result :=
         Editor.Ada_Declaration_Parser.Parse (Current_Text (S), Source_Label);
    begin
@@ -1006,8 +1006,8 @@ package body Editor.State is
          end loop;
       end if;
 
-      S.Syntax_Symbols_Revision := S.Buffer_Revision;
-      S.Syntax_Symbols_Buffer_Token := S.Active_Buffer_Token;
+      S.Syntax_Symbols_Revision := S.Buffer_Lifecycle.Buffer_Revision;
+      S.Syntax_Symbols_Buffer_Token := S.Buffer_Lifecycle.Active_Buffer_Token;
    end Rebuild_Syntax_Symbols;
 
    procedure Prepare_Syntax_For_Visible_Range
@@ -1034,27 +1034,27 @@ package body Editor.State is
          return;
       end if;
 
-      if S.Syntax_Source_Buffer_Token /= S.Active_Buffer_Token then
+      if S.Syntax_Source_Buffer_Token /= S.Buffer_Lifecycle.Active_Buffer_Token then
          Editor.Syntax_Cache.Clear (S.Syntax_Cache);
          Editor.Syntax_Semantics.Clear (S.Syntax_Symbols);
          Editor.Ada_Language_Model.Clear (S.Syntax_Analysis);
          S.Syntax_Source_Revision := Natural'Last;
-         S.Syntax_Source_Buffer_Token := S.Active_Buffer_Token;
+         S.Syntax_Source_Buffer_Token := S.Buffer_Lifecycle.Active_Buffer_Token;
          S.Syntax_Symbols_Revision := Natural'Last;
-         S.Syntax_Symbols_Buffer_Token := S.Active_Buffer_Token;
+         S.Syntax_Symbols_Buffer_Token := S.Buffer_Lifecycle.Active_Buffer_Token;
       end if;
 
-      if S.Syntax_Source_Revision /= S.Buffer_Revision
+      if S.Syntax_Source_Revision /= S.Buffer_Lifecycle.Buffer_Revision
         or else Editor.Syntax_Cache.Cached_Line_Count (S.Syntax_Cache) /= Total
       then
          Editor.Syntax_Cache.Set_Line_Count (S.Syntax_Cache, Total);
-         S.Syntax_Source_Revision := S.Buffer_Revision;
-         S.Syntax_Source_Buffer_Token := S.Active_Buffer_Token;
+         S.Syntax_Source_Revision := S.Buffer_Lifecycle.Buffer_Revision;
+         S.Syntax_Source_Buffer_Token := S.Buffer_Lifecycle.Active_Buffer_Token;
       end if;
 
       if Use_Semantic_Colouring
-        and then (S.Syntax_Symbols_Revision /= S.Buffer_Revision
-          or else S.Syntax_Symbols_Buffer_Token /= S.Active_Buffer_Token)
+        and then (S.Syntax_Symbols_Revision /= S.Buffer_Lifecycle.Buffer_Revision
+          or else S.Syntax_Symbols_Buffer_Token /= S.Buffer_Lifecycle.Active_Buffer_Token)
       then
          Rebuild_Syntax_Symbols (S);
       end if;
@@ -1335,12 +1335,12 @@ package body Editor.State is
         Editor.Overlay_Focus.Active_Overlay (S.Overlay_Focus);
    begin
       Editor.Project.Clear (S.Project);
-      S.Reopen_Candidate_Count := 0;
-      S.Reopen_Candidate_Paths := (others => Null_Unbounded_String);
-      S.Reopen_Candidate_Labels := (others => Null_Unbounded_String);
-      S.Has_Reopen_Candidate := False;
-      S.Reopen_Candidate_Path := Null_Unbounded_String;
-      S.Reopen_Candidate_Label := Null_Unbounded_String;
+      S.Buffer_Lifecycle.Reopen_Candidate_Count := 0;
+      S.Buffer_Lifecycle.Reopen_Candidate_Paths := (others => Null_Unbounded_String);
+      S.Buffer_Lifecycle.Reopen_Candidate_Labels := (others => Null_Unbounded_String);
+      S.Buffer_Lifecycle.Has_Reopen_Candidate := False;
+      S.Buffer_Lifecycle.Reopen_Candidate_Path := Null_Unbounded_String;
+      S.Buffer_Lifecycle.Reopen_Candidate_Label := Null_Unbounded_String;
       Editor.File_Tree.Clear (S.File_Tree);
       Editor.File_Tree_View.Clear_View (S.File_Tree_View);
       Editor.Quick_Open.Clear (S.Quick_Open);
@@ -1409,10 +1409,10 @@ package body Editor.State is
       end if;
 
       Editor.Pending_Transitions.Clear (S.Pending_Transitions);
-      if S.Lifecycle_Generation = Natural'Last then
-         S.Lifecycle_Generation := 1;
+      if S.Buffer_Lifecycle.Lifecycle_Generation = Natural'Last then
+         S.Buffer_Lifecycle.Lifecycle_Generation := 1;
       else
-         S.Lifecycle_Generation := S.Lifecycle_Generation + 1;
+         S.Buffer_Lifecycle.Lifecycle_Generation := S.Buffer_Lifecycle.Lifecycle_Generation + 1;
       end if;
       Editor.Render_Cache.Invalidate_All;
    end Reset_Project_Scoped_State;
@@ -1522,8 +1522,8 @@ package body Editor.State is
          Summary := Editor.Buffers.Summary_At (Registry, I);
          if Summary.Id /= Editor.Buffers.No_Buffer then
             Buffer := Editor.Buffers.Buffer (Registry, Summary.Id);
-            if Buffer.File_Info.Has_Path and then Length (Buffer.File_Info.Path) > 0 then
-               Path := Buffer.File_Info.Path;
+            if Buffer.Buffer_Lifecycle.File_Info.Has_Path and then Length (Buffer.Buffer_Lifecycle.File_Info.Path) > 0 then
+               Path := Buffer.Buffer_Lifecycle.File_Info.Path;
                if Editor.Project.Has_Project (S.Project)
                  and then Editor.Project.Is_Under_Project (S.Project, To_String (Path))
                then
@@ -1579,14 +1579,14 @@ package body Editor.State is
       end loop;
 
       if not Editor.Workspace_Persistence.Has_Active_File_Path (Snapshot)
-        and then S.File_Info.Has_Path
+        and then S.Buffer_Lifecycle.File_Info.Has_Path
         and then Editor.Project.Has_Project (S.Project)
         and then Editor.Project.Is_Under_Project
-          (S.Project, To_String (S.File_Info.Path))
+          (S.Project, To_String (S.Buffer_Lifecycle.File_Info.Path))
       then
          Editor.Workspace_Persistence.Set_Active_File_Path
            (Snapshot,
-            Editor.Project.Relative_Path (S.Project, To_String (S.File_Info.Path)),
+            Editor.Project.Relative_Path (S.Project, To_String (S.Buffer_Lifecycle.File_Info.Path)),
             True);
       end if;
 

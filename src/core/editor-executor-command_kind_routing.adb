@@ -883,8 +883,8 @@ package body Editor.Executor.Command_Kind_Routing is
                      begin
                         Editor.Executor.File_Open_Commands.Execute_Open_File
                           (S, Target_Path);
-                        if S.File_Info.Has_Path
-                          and then To_String (S.File_Info.Path) = Target_Path
+                        if S.Buffer_Lifecycle.File_Info.Has_Path
+                          and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Target_Path
                         then
                            Editor.Executor.Record_Navigation_If_Target_Changed
                              (S, Before_Location,

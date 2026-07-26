@@ -475,9 +475,9 @@ package body Editor.Executor.Buffer_Close_Commands is
         or else Editor.Buffers.Global_Active_Buffer = Editor.Buffers.No_Buffer
       then
          Text_Buffer.Clear (S.Buffer);
-         S.File_Info := (others => <>);
-         S.Buffer_Revision := 0;
-         S.Active_Buffer_Token := 0;
+         S.Buffer_Lifecycle.File_Info := (others => <>);
+         S.Buffer_Lifecycle.Buffer_Revision := 0;
+         S.Buffer_Lifecycle.Active_Buffer_Token := 0;
          S.Line_Starts.Clear;
          S.Line_Starts.Append (0);
       else
@@ -622,8 +622,8 @@ package body Editor.Executor.Buffer_Close_Commands is
    is
    begin
       Editor.Buffers.Global_Set_Blocked_Close_Surfaced (Id);
-      S.File_Info.Blocked_Close_Surfaced := True;
-      if S.Active_Buffer_Token = Natural (Id) then
+      S.Buffer_Lifecycle.File_Info.Blocked_Close_Surfaced := True;
+      if S.Buffer_Lifecycle.Active_Buffer_Token = Natural (Id) then
          Editor.Buffers.Sync_Global_Active_From_State (S);
       end if;
 
@@ -669,7 +669,7 @@ package body Editor.Executor.Buffer_Close_Commands is
       if Editor.Buffers.Global_Count = 0
         or else Editor.Buffers.Global_Active_Buffer = Editor.Buffers.No_Buffer
       then
-         S.Active_Buffer_Token := 0;
+         S.Buffer_Lifecycle.Active_Buffer_Token := 0;
       else
          declare
             Saved_Index : constant Editor.Ada_Project_Index.Index_State :=
@@ -713,7 +713,7 @@ package body Editor.Executor.Buffer_Close_Commands is
       --  /432: only sync State into the registry when State still
       --  owns the same active buffer.  A stale State must not be copied into
       --  the current active close target before the dirty guard runs.
-      if S.Active_Buffer_Token = Natural (Editor.Buffers.Global_Active_Buffer)
+      if S.Buffer_Lifecycle.Active_Buffer_Token = Natural (Editor.Buffers.Global_Active_Buffer)
       then
          Editor.Buffers.Sync_Global_Active_From_State (S);
       end if;
@@ -735,8 +735,8 @@ package body Editor.Executor.Buffer_Close_Commands is
          --  observational; the save/discard/cancel decision is owned by the
          --  no-payload confirmation commands below.
          Editor.Buffers.Global_Set_Blocked_Close_Surfaced (Id);
-         S.File_Info.Blocked_Close_Surfaced := True;
-         if S.Active_Buffer_Token = Natural (Id) then
+         S.Buffer_Lifecycle.File_Info.Blocked_Close_Surfaced := True;
+         if S.Buffer_Lifecycle.Active_Buffer_Token = Natural (Id) then
             Editor.Buffers.Sync_Global_Active_From_State (S);
          end if;
          declare

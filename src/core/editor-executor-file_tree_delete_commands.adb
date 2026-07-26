@@ -88,10 +88,10 @@ package body Editor.Executor.File_Tree_Delete_Commands is
       end if;
 
       Active_Buffer_Was_Deleted :=
-        S.File_Info.Has_Path
+        S.Buffer_Lifecycle.File_Info.Has_Path
         and then Editor.Executor.File_Tree_Mutation_Commands
           .Same_Or_Descendant_File_Tree_Path
-            (To_String (S.File_Info.Path),
+            (To_String (S.Buffer_Lifecycle.File_Info.Path),
              To_String (Summary.Absolute_Path));
 
       begin
@@ -115,7 +115,7 @@ package body Editor.Executor.File_Tree_Delete_Commands is
                if Editor.Buffers.Global_Active_Buffer =
                  Editor.Buffers.No_Buffer
                then
-                  S.Active_Buffer_Token := 0;
+                  S.Buffer_Lifecycle.Active_Buffer_Token := 0;
                   Editor.State.Load_Text (S, "");
                   Editor.Focus_Management.Set_Focus_Owner
                     (S, Editor.Focus_Management.Focus_File_Tree);

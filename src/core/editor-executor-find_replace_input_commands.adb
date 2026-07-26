@@ -108,8 +108,8 @@ package body Editor.Executor.Find_Replace_Input_Commands is
    is
    begin
       return Editor.State.Has_Active_Buffer (S)
-        and then (S.Buffer_Revision > 0
-                  or else S.File_Info.Has_Path
+        and then (S.Buffer_Lifecycle.Buffer_Revision > 0
+                  or else S.Buffer_Lifecycle.File_Info.Has_Path
                   or else Text_Buffer.Length (S.Buffer) > 0);
    end Has_Find_Target_Buffer;
 

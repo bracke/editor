@@ -253,11 +253,11 @@ package body Editor.Executor.Command_Surface_Commands is
             return Editor.Command_Execution.Executed (Id);
 
          when Command_Cancel =>
-            if S.Dirty_Close_Prompt_Active then
+            if S.Buffer_Lifecycle.Dirty_Close_Prompt_Active then
                Editor.Executor.Buffer_Close_Prompt_Commands.Execute_Cancel_Close (S);
                Editor.Render_Cache.Invalidate_All;
                return Editor.Command_Execution.Cancelled (Id);
-            elsif S.File_Conflict_Prompt_Active then
+            elsif S.Buffer_Lifecycle.File_Conflict_Prompt_Active then
                Editor.Executor.File_Save_Commands.Clear_File_Conflict_Prompt (S);
                Editor.Executor.Shared_Services.Report_Info (S, "File conflict cancelled");
                Editor.Render_Cache.Invalidate_All;

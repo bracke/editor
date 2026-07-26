@@ -164,16 +164,16 @@ package body Editor.Executor.Project_Search_Replace_Commands is
       function Current_State_Is_Disposable_Initial_Untitled return Boolean is
       begin
          return Editor.Buffers.Global_Count = 0
-           and then not S.File_Info.Has_Path
-           and then not S.File_Info.Dirty
+           and then not S.Buffer_Lifecycle.File_Info.Has_Path
+           and then not S.Buffer_Lifecycle.File_Info.Dirty
            and then Editor.State.Current_Text (S) = "";
       end Current_State_Is_Disposable_Initial_Untitled;
    begin
       Opened := False;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      if S.File_Info.Has_Path
-        and then Same_File_Path (To_String (S.File_Info.Path), Path)
+      if S.Buffer_Lifecycle.File_Info.Has_Path
+        and then Same_File_Path (To_String (S.Buffer_Lifecycle.File_Info.Path), Path)
       then
          Opened := True;
          return;
@@ -184,8 +184,8 @@ package body Editor.Executor.Project_Search_Replace_Commands is
          Editor.Buffers.Global_Set_Active_Buffer (Id);
          Editor.Buffers.Load_Global_Active_Into_State (S);
          Editor.Recent_Buffers.Mark_Activated (S.Recent_Buffers, Natural (Id));
-         Opened := S.File_Info.Has_Path
-           and then Same_File_Path (To_String (S.File_Info.Path), Path);
+         Opened := S.Buffer_Lifecycle.File_Info.Has_Path
+           and then Same_File_Path (To_String (S.Buffer_Lifecycle.File_Info.Path), Path);
          return;
       end if;
 
@@ -218,8 +218,8 @@ package body Editor.Executor.Project_Search_Replace_Commands is
          Editor.Recent_Buffers.Mark_Activated (S.Recent_Buffers, Natural (Id));
       end if;
 
-      Opened := S.File_Info.Has_Path
-        and then Same_File_Path (To_String (S.File_Info.Path), Path);
+      Opened := S.Buffer_Lifecycle.File_Info.Has_Path
+        and then Same_File_Path (To_String (S.Buffer_Lifecycle.File_Info.Path), Path);
    end Focus_Project_Replace_Target_File;
 
    procedure Apply_Project_Search_Replacements_For_File

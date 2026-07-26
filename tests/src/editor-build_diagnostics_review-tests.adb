@@ -779,7 +779,7 @@ package body Editor.Build_Diagnostics_Review.Tests is
          Source_Label => "Build / gprbuild: Untitled",
          Source_Kind => Editor.Feature_Diagnostics.External_Diagnostic_Source,
          Has_Target => True,
-         Target_Buffer => S.Registry_Token,
+         Target_Buffer => S.Buffer_Lifecycle.Registry_Token,
          Target_Line => 99,
          Target_Column => 1);
       Editor.Feature_Diagnostics.Project_Rows (S.Feature_Diagnostics, S.Feature_Panel);
@@ -886,7 +886,7 @@ package body Editor.Build_Diagnostics_Review.Tests is
          Source_Label => "Editor",
          Source_Kind => Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
          Has_Target => True,
-         Target_Buffer => S.Registry_Token,
+         Target_Buffer => S.Buffer_Lifecycle.Registry_Token,
          Target_Line => 1,
          Target_Column => 1);
       Command := Editor.Build_Diagnostics.Ingest_Build_Diagnostics_Through_Diagnostics

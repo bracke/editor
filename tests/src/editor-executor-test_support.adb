@@ -187,7 +187,7 @@ package body Editor.Executor.Test_Support is
       end loop;
       Editor.State.Rebuild_Line_Index (S);
       Editor.State.Reset_Dirty_Line_Baseline (S);
-      S.File_Info.Dirty := False;
+      S.Buffer_Lifecycle.File_Info.Dirty := False;
    end Set_Buffer_Text;
 
    function Buffer_Text (S : Editor.State.State_Type) return String is

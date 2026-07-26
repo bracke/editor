@@ -317,16 +317,16 @@ package body Editor.History.Tests is
       S : Editor.State.State_Type;
    begin
       Editor.State.Init (S);
-      Assert (not S.File_Info.Dirty, "new buffer starts clean");
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty, "new buffer starts clean");
 
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Insert (0, 'a'));
-      Assert (S.File_Info.Dirty, "edit makes clean buffer dirty");
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty, "edit makes clean buffer dirty");
 
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Undo);
-      Assert (not S.File_Info.Dirty, "undo of sole edit restores clean dirty state");
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty, "undo of sole edit restores clean dirty state");
 
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Redo);
-      Assert (S.File_Info.Dirty, "redo restores dirty state");
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty, "redo restores dirty state");
    end Test_Dirty_State_Restored_By_Undo_Redo;
 
    procedure Test_Unavailable_Undo_Redo_Availability

@@ -14,7 +14,7 @@ package body Editor.Feature_Targets is
       Live : constant Boolean :=
         Editor.State.Has_Active_Buffer (S)
         and then Buffer /= 0
-        and then Buffer = S.Active_Buffer_Token
+        and then Buffer = S.Buffer_Lifecycle.Active_Buffer_Token
         and then Line > 0
         and then Column > 0
         and then Line <= Editor.State.Line_Count (S);

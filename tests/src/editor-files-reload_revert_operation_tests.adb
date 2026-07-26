@@ -165,11 +165,11 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
         "reload must leave the active buffer active");
       Assert (Buffer_Text (S) = "B disk" & ASCII.LF & " changed " & ASCII.HT & "!" & ASCII.LF,
         "reload must replace active text with exact disk contents");
-      Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = B_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = B_Path,
         "reload must preserve the active buffer association");
-      Assert (not S.File_Info.Dirty and then S.File_Info.Baseline_Valid,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty and then S.Buffer_Lifecycle.File_Info.Baseline_Valid,
         "successful reload must leave the active buffer clean with a baseline");
-      Assert (S.File_Info.Saved_Generation = Editor.State.Current_Buffer_Revision (S),
+      Assert (S.Buffer_Lifecycle.File_Info.Saved_Generation = Editor.State.Current_Buffer_Revision (S),
         "successful reload must update saved baseline after the read");
       Assert (Editor.History.Undo_Stack.Is_Empty and then Editor.History.Redo_Stack.Is_Empty,
         "successful reload must clear active Undo/Redo stacks");
@@ -183,7 +183,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, A_Id);
       Assert (Buffer_Text (S) = "A original",
         "reload must not mutate inactive buffer text");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
         "reload must not mutate inactive buffer dirty state");
 
       Remove_If_Exists (A_Path);
@@ -219,14 +219,14 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       S.Carets.Append
         (Editor.Cursors.Caret_State'(Pos => 4, Anchor => 1, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Before := To_Unbounded_String (Buffer_Text (S));
-      Before_Gen := S.File_Info.Saved_Generation;
+      Before_Gen := S.Buffer_Lifecycle.File_Info.Saved_Generation;
       Before_Caret := S.Carets (0);
       Write_Bytes (Path, "disk replacement");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
       Assert (Buffer_Text (S) = To_String (Before)
-        and then S.File_Info.Dirty
-        and then S.File_Info.Saved_Generation = Before_Gen,
+        and then S.Buffer_Lifecycle.File_Info.Dirty
+        and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Gen,
         "dirty reload must not replace text, clean state, or baseline");
       Assert (S.Carets (0).Pos = Before_Caret.Pos
         and then S.Carets (0).Anchor = Before_Caret.Anchor,
@@ -241,11 +241,11 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, Path);
       Remove_If_Exists (Path);
       Before := To_Unbounded_String (Buffer_Text (S));
-      Before_Gen := S.File_Info.Saved_Generation;
+      Before_Gen := S.Buffer_Lifecycle.File_Info.Saved_Generation;
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
       Assert (Buffer_Text (S) = To_String (Before)
-        and then not S.File_Info.Dirty
-        and then S.File_Info.Saved_Generation = Before_Gen,
+        and then not S.Buffer_Lifecycle.File_Info.Dirty
+        and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Gen,
         "read failure must preserve clean buffer text, dirty state, and baseline");
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then M.Severity = Editor.Messages.Error_Message
@@ -273,7 +273,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Write_Bytes (Path, "disk");
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
-      S.Active_Buffer_Token := 0;
+      S.Buffer_Lifecycle.Active_Buffer_Token := 0;
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Reload_Active_Buffer);
@@ -288,7 +288,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "untitled text");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Messages.Clear (S.Messages);
       Availability := Editor.Executor.Command_Availability
@@ -304,10 +304,10 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "clean associated");
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String (Path);
-      S.File_Info.Display_Name := To_Unbounded_String ("reload_validation.txt");
-      S.File_Info.Dirty := False;
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Path);
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("reload_validation.txt");
+      S.Buffer_Lifecycle.File_Info.Dirty := False;
       Editor.Buffers.Ensure_Global_Registry (S);
       Remove_If_Exists (Path);
       Editor.Messages.Clear (S.Messages);
@@ -339,16 +339,16 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Editor.State.Init (S);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
 
-      S.Has_Reopen_Candidate := True;
-      S.Reopen_Candidate_Path := To_Unbounded_String (Editor.Test_Temp.Base & "/unrelated-reopen.txt");
-      S.Reopen_Candidate_Label := To_Unbounded_String ("unrelated");
+      S.Buffer_Lifecycle.Has_Reopen_Candidate := True;
+      S.Buffer_Lifecycle.Reopen_Candidate_Path := To_Unbounded_String (Editor.Test_Temp.Base & "/unrelated-reopen.txt");
+      S.Buffer_Lifecycle.Reopen_Candidate_Label := To_Unbounded_String ("unrelated");
       Write_Bytes (Path, Exact);
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
 
       Assert (Buffer_Text (S) = Exact,
         "reload must preserve empty lines, spaces, tabs, punctuation, and trailing newlines exactly");
-      Assert (S.Has_Reopen_Candidate
-        and then To_String (S.Reopen_Candidate_Path) = Editor.Test_Temp.Base & "/unrelated-reopen.txt",
+      Assert (S.Buffer_Lifecycle.Has_Reopen_Candidate
+        and then To_String (S.Buffer_Lifecycle.Reopen_Candidate_Path) = Editor.Test_Temp.Base & "/unrelated-reopen.txt",
         "reload must not consume, create, or clear reopen candidate state");
       Assert (Read_Bytes (Path) = Exact,
         "reload must not write, format, trim, or normalize the disk file");
@@ -395,13 +395,13 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
         "reload must bind to the active buffer at execution time");
       Assert (Buffer_Text (S) = "A disk after external change",
         "reload must read only the active buffer associated path");
-      Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = A_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = A_Path,
         "reload must preserve the active buffer file association");
 
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, B_Id);
       Assert (Buffer_Text (S) = "B opened",
         "reload must not mutate inactive buffer text even when its disk file changed");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
         "reload must not mutate inactive buffer dirty state");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
@@ -442,9 +442,9 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       procedure Capture is
       begin
          Before_Text := To_Unbounded_String (Buffer_Text (S));
-         Before_Path := S.File_Info.Path;
-         Before_Display := S.File_Info.Display_Name;
-         Before_Gen := S.File_Info.Saved_Generation;
+         Before_Path := S.Buffer_Lifecycle.File_Info.Path;
+         Before_Display := S.Buffer_Lifecycle.File_Info.Display_Name;
+         Before_Gen := S.Buffer_Lifecycle.File_Info.Saved_Generation;
          Before_Caret := S.Carets (0);
          Before_Undo := Editor.History.Undo_Stack.Length;
          Before_Redo := Editor.History.Redo_Stack.Length;
@@ -460,10 +460,10 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       begin
          Assert (Buffer_Text (S) = To_String (Before_Text),
            Label & ": reload failure/block must preserve buffer text");
-         Assert (S.File_Info.Has_Path and then S.File_Info.Path = Before_Path
-           and then S.File_Info.Display_Name = Before_Display,
+         Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then S.Buffer_Lifecycle.File_Info.Path = Before_Path
+           and then S.Buffer_Lifecycle.File_Info.Display_Name = Before_Display,
            Label & ": reload failure/block must preserve file identity");
-         Assert (S.File_Info.Saved_Generation = Before_Gen,
+         Assert (S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Gen,
            Label & ": reload failure/block must preserve saved baseline marker");
          Assert (S.Carets (0).Pos = Before_Caret.Pos
            and then S.Carets (0).Anchor = Before_Caret.Anchor,
@@ -513,7 +513,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Capture;
       Write_Bytes (Path, "replacement that must not be read into dirty state");
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "dirty reload block must preserve dirty state");
       Assert_Preserved ("dirty-blocked reload");
 
@@ -526,7 +526,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Capture;
       Remove_If_Exists (Path);
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
         "read failure on clean buffer must preserve clean dirty state");
       Assert_Preserved ("read-failed reload");
 
@@ -562,8 +562,8 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
       Assert (Buffer_Text (S) = "second disk text" & ASCII.LF,
         "successful reload must replace text with exact disk contents");
-      Assert (not S.File_Info.Dirty
-        and then S.File_Info.Saved_Generation = Editor.State.Current_Buffer_Revision (S),
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty
+        and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Editor.State.Current_Buffer_Revision (S),
         "successful reload must update clean baseline after read success");
       Assert (Editor.History.Undo_Stack.Is_Empty and then Editor.History.Redo_Stack.Is_Empty,
         "successful reload must clear stale edit history without creating an undo entry");
@@ -574,7 +574,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
         "edit.undo must not undo a successful reload");
 
       Insert_Text_At (S, Buffer_Text (S)'Length, "edited");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "subsequent edit after reload must make the buffer dirty against the new baseline");
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
       Assert (Read_Bytes (Path) = "second disk text" & ASCII.LF & "edited",
@@ -610,22 +610,22 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
       Remove_If_Exists (Path);
       Before_Text := To_Unbounded_String (Buffer_Text (S));
-      Before_Gen := S.File_Info.Saved_Generation;
+      Before_Gen := S.Buffer_Lifecycle.File_Info.Saved_Generation;
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Reload_Active_Buffer);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "reload availability must not probe for a missing associated file");
       Assert (Buffer_Text (S) = To_String (Before_Text)
-        and then S.File_Info.Saved_Generation = Before_Gen
-        and then not S.File_Info.Dirty,
+        and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Gen
+        and then not S.Buffer_Lifecycle.File_Info.Dirty,
         "reload availability must not mutate text, baseline, or dirty state");
       Assert (not Ada.Directories.Exists (Path),
         "reload availability must not create or rewrite the associated file");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
       Assert (Buffer_Text (S) = To_String (Before_Text)
-        and then S.File_Info.Saved_Generation = Before_Gen,
+        and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Gen,
         "execution read failure after side-effect-free availability must still preserve state");
 
       Remove_If_Exists (Path);
@@ -679,7 +679,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Check_Rejected ("project.reload-all-buffers");
 
       Editor.State.Init (S);
-      S.Active_Buffer_Token := 0;
+      S.Buffer_Lifecycle.Active_Buffer_Token := 0;
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
       Assert_Message ("No active buffer.", Editor.Messages.Info_Message);
@@ -687,27 +687,27 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "untitled dirty text");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
       Assert_Message ("No file path for active buffer", Editor.Messages.Info_Message);
-      Assert (Buffer_Text (S) = "untitled dirty text" and then S.File_Info.Dirty,
+      Assert (Buffer_Text (S) = "untitled dirty text" and then S.Buffer_Lifecycle.File_Info.Dirty,
         "no-path dirty validation must not mutate the untitled buffer");
 
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "associated dirty text");
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String (Path);
-      S.File_Info.Display_Name := To_Unbounded_String ("validation.txt");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Path);
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("validation.txt");
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Ensure_Global_Registry (S);
       Remove_If_Exists (Path);
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
       Assert_Message ("Dirty buffer cannot be reloaded", Editor.Messages.Warning_Message);
-      Assert (Buffer_Text (S) = "associated dirty text" and then S.File_Info.Dirty,
+      Assert (Buffer_Text (S) = "associated dirty text" and then S.Buffer_Lifecycle.File_Info.Dirty,
         "dirty validation must occur before filesystem read or failure handling");
       Assert (not Ada.Directories.Exists (Path),
         "dirty reload must not create, rewrite, or repair the associated file");
@@ -716,17 +716,17 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "clean associated text");
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String (Dir_Path);
-      S.File_Info.Display_Name := To_Unbounded_String ("validation_dir");
-      S.File_Info.Dirty := False;
-      S.File_Info.Baseline_Valid := True;
-      S.File_Info.Saved_Generation := Editor.State.Current_Buffer_Revision (S);
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Dir_Path);
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("validation_dir");
+      S.Buffer_Lifecycle.File_Info.Dirty := False;
+      S.Buffer_Lifecycle.File_Info.Baseline_Valid := True;
+      S.Buffer_Lifecycle.File_Info.Saved_Generation := Editor.State.Current_Buffer_Revision (S);
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
       Assert_Message ("Could not reload file.", Editor.Messages.Error_Message);
-      Assert (Buffer_Text (S) = "clean associated text" and then not S.File_Info.Dirty,
+      Assert (Buffer_Text (S) = "clean associated text" and then not S.Buffer_Lifecycle.File_Info.Dirty,
         "read failure must preserve clean associated buffer state");
 
       Remove_If_Exists (Path);
@@ -755,11 +755,11 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
          Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
          Assert (Buffer_Text (S) = Disk_Text,
            "successful reload must use exact canonical disk text for " & Label);
-         Assert (not S.File_Info.Dirty
-           and then S.File_Info.Baseline_Valid
-           and then S.File_Info.Saved_Generation = Editor.State.Current_Buffer_Revision (S),
+         Assert (not S.Buffer_Lifecycle.File_Info.Dirty
+           and then S.Buffer_Lifecycle.File_Info.Baseline_Valid
+           and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Editor.State.Current_Buffer_Revision (S),
            "successful reload must set the saved baseline to disk text for " & Label);
-         Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Path,
+         Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Path,
            "successful reload must preserve file association for " & Label);
          Assert (Read_Bytes (Path) = Disk_Text,
            "reload must not write, format, trim, or normalize disk text for " & Label);
@@ -803,10 +803,10 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
         "successful reload must preserve Clipboard text");
 
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "post-reload edits must compare against the new disk-text baseline");
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
-      Assert (Read_Bytes (Path) = "short dirty" and then not S.File_Info.Dirty,
+      Assert (Read_Bytes (Path) = "short dirty" and then not S.Buffer_Lifecycle.File_Info.Dirty,
         "file.save after reload must write current active text to the same associated path");
 
       Editor.Clipboard.Clear;
@@ -845,7 +845,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       procedure Capture is
       begin
          Before_Text := To_Unbounded_String (Buffer_Text (S));
-         Before_Gen := S.File_Info.Saved_Generation;
+         Before_Gen := S.Buffer_Lifecycle.File_Info.Saved_Generation;
          Before_Undo := Editor.History.Undo_Stack.Length;
          Before_Redo := Editor.History.Redo_Stack.Length;
          Before_Caret := S.Carets (0);
@@ -855,15 +855,15 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
          Before_Has_Clipboard := Editor.Clipboard.Has_Text;
          Before_Query := S.Active_Find_Query;
          Before_Replace := S.Active_Replace_Text;
-         Before_Reopen := S.Has_Reopen_Candidate;
-         Before_Reopen_Path := S.Reopen_Candidate_Path;
+         Before_Reopen := S.Buffer_Lifecycle.Has_Reopen_Candidate;
+         Before_Reopen_Path := S.Buffer_Lifecycle.Reopen_Candidate_Path;
       end Capture;
 
       procedure Assert_Preserved (Label : String) is
       begin
          Assert (Buffer_Text (S) = To_String (Before_Text),
            Label & ": text must be preserved");
-         Assert (S.File_Info.Saved_Generation = Before_Gen,
+         Assert (S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Gen,
            Label & ": saved baseline marker must be preserved");
          Assert (Editor.History.Undo_Stack.Length = Before_Undo
            and then Editor.History.Redo_Stack.Length = Before_Redo,
@@ -879,8 +879,8 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
            Label & ": Clipboard must be preserved");
          Assert (S.Active_Find_Query = Before_Query and then S.Active_Replace_Text = Before_Replace,
            Label & ": Find/Replace text must be preserved");
-         Assert (S.Has_Reopen_Candidate = Before_Reopen
-           and then S.Reopen_Candidate_Path = Before_Reopen_Path,
+         Assert (S.Buffer_Lifecycle.Has_Reopen_Candidate = Before_Reopen
+           and then S.Buffer_Lifecycle.Reopen_Candidate_Path = Before_Reopen_Path,
            Label & ": reopen candidate must be preserved");
       end Assert_Preserved;
    begin
@@ -907,9 +907,9 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       S.Active_Find_Query := To_Unbounded_String ("B");
       S.Active_Replace_Text := To_Unbounded_String ("bee");
       Editor.Clipboard.Set_Text (To_Unbounded_String ("clip B"));
-      S.Has_Reopen_Candidate := True;
-      S.Reopen_Candidate_Path := To_Unbounded_String (A_Path);
-      S.Reopen_Candidate_Label := To_Unbounded_String ("A");
+      S.Buffer_Lifecycle.Has_Reopen_Candidate := True;
+      S.Buffer_Lifecycle.Reopen_Candidate_Path := To_Unbounded_String (A_Path);
+      S.Buffer_Lifecycle.Reopen_Candidate_Label := To_Unbounded_String ("A");
       Editor.Navigation_History.Record_Explicit_Navigation
         (S.Navigation_History,
          (Buffer_Id => Natural (B_Id),
@@ -924,7 +924,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Capture;
       Write_Bytes (B_Path, "B disk change that dirty reload must not apply");
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "active dirty associated buffer must remain dirty after blocked reload");
       Assert_Preserved ("dirty-blocked reload");
 
@@ -934,7 +934,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Capture;
       Remove_If_Exists (B_Path);
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
         "clean read-failure reload must preserve clean dirty state");
       Assert_Preserved ("read-failure reload");
 
@@ -945,7 +945,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
       Assert (Editor.Buffers.Global_Active_Buffer = A_Id
         and then Buffer_Text (S) = "A disk replacement"
-        and then not S.File_Info.Dirty,
+        and then not S.Buffer_Lifecycle.File_Info.Dirty,
         "reload after active switch must target only the new active Buffer A");
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, B_Id);
       Assert (Buffer_Text (S) = To_String (Before_Text),
@@ -976,42 +976,42 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "untitled payload");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Ensure_Global_Registry (S);
 
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then To_String (M.Text) = "No file path for active buffer"
-        and then Buffer_Text (S) = "untitled payload" and then S.File_Info.Dirty,
+        and then Buffer_Text (S) = "untitled payload" and then S.Buffer_Lifecycle.File_Info.Dirty,
         "dirty untitled reload must report no path and preserve text");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, Path);
       Assert (Read_Bytes (Path) = "untitled payload"
-        and then not S.File_Info.Dirty
-        and then To_String (S.File_Info.Path) = Path,
+        and then not S.Buffer_Lifecycle.File_Info.Dirty
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Path,
         "Save As remains the command that establishes the reload file association");
 
       Write_Bytes (Path, "disk after save-as");
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
       Assert (Buffer_Text (S) = "disk after save-as"
-        and then not S.File_Info.Dirty
-        and then To_String (S.File_Info.Path) = Path,
+        and then not S.Buffer_Lifecycle.File_Info.Dirty
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Path,
         "reload after Save As must read exact disk text and preserve association");
 
       Editor.Executor.Buffer_Close_Commands.Execute_Close_Active_Buffer (S);
-      Assert (S.Has_Reopen_Candidate
-        and then To_String (S.Reopen_Candidate_Path) = Path,
+      Assert (S.Buffer_Lifecycle.Has_Reopen_Candidate
+        and then To_String (S.Buffer_Lifecycle.Reopen_Candidate_Path) = Path,
         "close after clean reload must register the canonical path-only reopen candidate");
       Editor.Executor.File_Open_Commands.Execute_Reopen_Closed_Buffer (S);
-      Assert (not S.Has_Reopen_Candidate
+      Assert (not S.Buffer_Lifecycle.Has_Reopen_Candidate
         and then Buffer_Text (S) = "disk after save-as"
-        and then To_String (S.File_Info.Path) = Path,
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Path,
         "reopen after reload must use canonical file open without restoring reload state");
 
       Write_Bytes (Path, "disk after reopen");
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
-      Assert (Buffer_Text (S) = "disk after reopen" and then not S.File_Info.Dirty,
+      Assert (Buffer_Text (S) = "disk after reopen" and then not S.Buffer_Lifecycle.File_Info.Dirty,
         "reload after reopen must still target the active associated buffer");
 
       Insert_Text_At (S, Buffer_Text (S)'Length, " local edit");
@@ -1019,7 +1019,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Dirty buffer cannot be reloaded"
         and then Buffer_Text (S) = "disk after reopen local edit"
-        and then S.File_Info.Dirty,
+        and then S.Buffer_Lifecycle.File_Info.Dirty,
         "reload must not become discard or revert after close/reopen workflow");
 
       Remove_If_Exists (Path);
@@ -1062,9 +1062,9 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       B_Id := Editor.Buffers.Global_Active_Buffer;
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, A_Id);
 
-      S.Has_Reopen_Candidate := True;
-      S.Reopen_Candidate_Path := To_Unbounded_String (Reopen_Path);
-      Before_Reopen := S.Has_Reopen_Candidate;
+      S.Buffer_Lifecycle.Has_Reopen_Candidate := True;
+      S.Buffer_Lifecycle.Reopen_Candidate_Path := To_Unbounded_String (Reopen_Path);
+      Before_Reopen := S.Buffer_Lifecycle.Has_Reopen_Candidate;
       Editor.Clipboard.Set_Text (To_Unbounded_String ("clipboard"));
       Clipboard_Text := Editor.Clipboard.Get_Text;
 
@@ -1076,10 +1076,10 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
         "reload target must remain the active buffer at execution time");
       Assert (Buffer_Text (S) = "A canonical disk",
         "reload must use only the active buffer associated file read");
-      Assert (To_String (S.File_Info.Path) = A_Path and then not S.File_Info.Dirty,
+      Assert (To_String (S.Buffer_Lifecycle.File_Info.Path) = A_Path and then not S.Buffer_Lifecycle.File_Info.Dirty,
         "successful reload must preserve association and clean only the active buffer");
-      Assert (S.Has_Reopen_Candidate = Before_Reopen
-        and then To_String (S.Reopen_Candidate_Path) = Reopen_Path,
+      Assert (S.Buffer_Lifecycle.Has_Reopen_Candidate = Before_Reopen
+        and then To_String (S.Buffer_Lifecycle.Reopen_Candidate_Path) = Reopen_Path,
         "reload must not create, consume, or repair reopen candidates");
       Assert (Editor.Clipboard.Get_Text = Clipboard_Text,
         "reload must not mutate Clipboard");
@@ -1088,7 +1088,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
         "reload success keeps the canonical one-message outcome");
 
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, B_Id);
-      Assert (Buffer_Text (S) = "B initial" and then not S.File_Info.Dirty,
+      Assert (Buffer_Text (S) = "B initial" and then not S.Buffer_Lifecycle.File_Info.Dirty,
         "inactive buffer text and dirty state must be unchanged");
 
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, A_Id);
@@ -1098,12 +1098,12 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Dirty buffer cannot be reloaded"
         and then Buffer_Text (S) = "A canonical disk dirty"
-        and then S.File_Info.Dirty,
+        and then S.Buffer_Lifecycle.File_Info.Dirty,
         "dirty reload guard must not become force/discard/revert reload");
       Assert (Read_Bytes (A_Path) = "A forbidden dirty replacement",
         "blocked reload must not write, save, or normalize files");
-      Assert (S.Has_Reopen_Candidate = Before_Reopen
-        and then To_String (S.Reopen_Candidate_Path) = Reopen_Path,
+      Assert (S.Buffer_Lifecycle.Has_Reopen_Candidate = Before_Reopen
+        and then To_String (S.Buffer_Lifecycle.Reopen_Candidate_Path) = Reopen_Path,
         "blocked reload must not mutate reopen state");
 
       Editor.Clipboard.Clear;
@@ -1149,7 +1149,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
 
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
-      S.Active_Buffer_Token := 0;
+      S.Buffer_Lifecycle.Active_Buffer_Token := 0;
       Execute_Revert_And_Confirm (S);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then To_String (M.Text) = "No active buffer.",
@@ -1160,7 +1160,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Execute_Revert_And_Confirm (S);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then To_String (M.Text) = "No file path for active buffer"
-        and then Buffer_Text (S) = "dirty untitled" and then S.File_Info.Dirty,
+        and then Buffer_Text (S) = "dirty untitled" and then S.Buffer_Lifecycle.File_Info.Dirty,
         "dirty untitled revert must be no-path and non-mutating");
 
       Remove_If_Exists (Path);
@@ -1170,7 +1170,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Execute_Revert_And_Confirm (S);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then To_String (M.Text) = "No changes to revert"
-        and then Buffer_Text (S) = "clean disk" and then not S.File_Info.Dirty,
+        and then Buffer_Text (S) = "clean disk" and then not S.Buffer_Lifecycle.File_Info.Dirty,
         "clean associated revert must be no-op and must not reload");
 
       Remove_If_Exists (Path);
@@ -1215,10 +1215,10 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
         "revert must leave the active buffer active");
       Assert (Buffer_Text (S) = "B exact" & ASCII.LF & ASCII.HT & "disk text" & ASCII.LF,
         "revert must replace active dirty text with exact disk contents");
-      Assert (not S.File_Info.Dirty and then S.File_Info.Baseline_Valid
-        and then S.File_Info.Saved_Generation = Editor.State.Current_Buffer_Revision (S),
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty and then S.Buffer_Lifecycle.File_Info.Baseline_Valid
+        and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Editor.State.Current_Buffer_Revision (S),
         "successful revert must update baseline and mark active buffer clean after read");
-      Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = B_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = B_Path,
         "successful revert must preserve file association");
       Assert (Editor.History.Undo_Stack.Is_Empty and then Editor.History.Redo_Stack.Is_Empty,
         "successful revert must clear stale edit history without creating entries");
@@ -1232,7 +1232,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
         "successful revert must emit one Buffer reverted message");
 
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, A_Id);
-      Assert (Buffer_Text (S) = "A disk baseline" and then not S.File_Info.Dirty,
+      Assert (Buffer_Text (S) = "A disk baseline" and then not S.Buffer_Lifecycle.File_Info.Dirty,
         "revert must not mutate inactive buffer text or dirty state");
 
       Editor.Clipboard.Clear;
@@ -1271,7 +1271,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       S.Carets.Append
         (Editor.Cursors.Caret_State'(Pos => 5, Anchor => 1, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Before_Text := To_Unbounded_String (Buffer_Text (S));
-      Before_Gen := S.File_Info.Saved_Generation;
+      Before_Gen := S.Buffer_Lifecycle.File_Info.Saved_Generation;
       Before_Caret := S.Carets (0);
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
@@ -1282,9 +1282,9 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Assert (Found and then M.Severity = Editor.Messages.Error_Message
         and then To_String (M.Text) = "Could not revert buffer",
         "read-failure revert must emit Could not revert buffer");
-      Assert (To_Unbounded_String (Buffer_Text (S)) = Before_Text and then S.File_Info.Dirty,
+      Assert (To_Unbounded_String (Buffer_Text (S)) = Before_Text and then S.Buffer_Lifecycle.File_Info.Dirty,
         "read-failure revert must preserve dirty text and dirty state");
-      Assert (S.File_Info.Saved_Generation = Before_Gen,
+      Assert (S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Gen,
         "read-failure revert must preserve saved baseline marker");
       Assert (S.Carets (0).Pos = Before_Caret.Pos and then S.Carets (0).Anchor = Before_Caret.Anchor,
         "read-failure revert must preserve caret/selection");
@@ -1327,11 +1327,11 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Dirty buffer cannot be reloaded"
-        and then S.File_Info.Dirty,
+        and then S.Buffer_Lifecycle.File_Info.Dirty,
         "reload remains the clean-buffer reread command and must not become revert");
 
       Execute_Revert_And_Confirm (S);
-      Assert (Buffer_Text (S) = "disk after unsaved edit" and then not S.File_Info.Dirty,
+      Assert (Buffer_Text (S) = "disk after unsaved edit" and then not S.Buffer_Lifecycle.File_Info.Dirty,
         "revert success must make the buffer clean and closeable");
       Editor.Executor.Buffer_Close_Commands.Execute_Close_Active_Buffer (S);
       M := Editor.Messages.Active_Message (S.Messages, Found);
@@ -1341,7 +1341,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty after reopen");
       Write_Bytes (Path, "disk after reopen");
       Execute_Revert_And_Confirm (S);
-      Assert (Buffer_Text (S) = "disk after reopen" and then not S.File_Info.Dirty,
+      Assert (Buffer_Text (S) = "disk after reopen" and then not S.Buffer_Lifecycle.File_Info.Dirty,
         "reopen followed by edit then revert must use reopened buffer association");
 
       Remove_If_Exists (Path);
@@ -1370,7 +1370,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Remove_If_Exists (B_Path);
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
-      S.Active_Buffer_Token := 0;
+      S.Buffer_Lifecycle.Active_Buffer_Token := 0;
 
       Execute_Revert_And_Confirm (S);
       M := Editor.Messages.Active_Message (S.Messages, Found);
@@ -1382,7 +1382,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Execute_Revert_And_Confirm (S);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then To_String (M.Text) = "No file path for active buffer"
-        and then Buffer_Text (S) = "dirty untitled" and then S.File_Info.Dirty,
+        and then Buffer_Text (S) = "dirty untitled" and then S.Buffer_Lifecycle.File_Info.Dirty,
         "dirty untitled revert must report no path and preserve text");
 
       Write_Bytes (A_Path, "A clean baseline");
@@ -1393,7 +1393,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Execute_Revert_And_Confirm (S);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then To_String (M.Text) = "No changes to revert"
-        and then Buffer_Text (S) = "A clean baseline" and then not S.File_Info.Dirty,
+        and then Buffer_Text (S) = "A clean baseline" and then not S.Buffer_Lifecycle.File_Info.Dirty,
         "clean associated revert must no-op before any filesystem read");
 
       Write_Bytes (A_Path, "A disk before");
@@ -1414,21 +1414,21 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
         (S, Editor.Command_Ids.Command_Revert_Active_Buffer);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "dirty associated active buffer must make revert available");
-      Assert (Buffer_Text (S) = "A disk before dirty A" and then S.File_Info.Dirty,
+      Assert (Buffer_Text (S) = "A disk before dirty A" and then S.Buffer_Lifecycle.File_Info.Dirty,
         "revert availability must not read files or mutate text");
 
       Execute_Revert_And_Confirm (S);
       Assert (Editor.Buffers.Global_Active_Buffer = A_Id
         and then Buffer_Text (S) = "A disk target"
-        and then not S.File_Info.Dirty
-        and then To_String (S.File_Info.Path) = A_Path,
+        and then not S.Buffer_Lifecycle.File_Info.Dirty
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = A_Path,
         "revert must target only the active buffer at execution time");
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Buffer reverted",
         "active target revert success must emit Buffer reverted");
 
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, B_Id);
-      Assert (Buffer_Text (S) = "B disk before dirty B" and then S.File_Info.Dirty,
+      Assert (Buffer_Text (S) = "B disk before dirty B" and then S.Buffer_Lifecycle.File_Info.Dirty,
         "revert must not mutate inactive dirty buffers");
 
       Editor.Clipboard.Clear;
@@ -1475,12 +1475,12 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
         (Editor.Cursors.Caret_State'(Pos => 8, Anchor => 2, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       S.Active_Find_Query := To_Unbounded_String ("dirty");
       S.Active_Replace_Text := To_Unbounded_String ("clean");
-      S.Has_Reopen_Candidate := True;
-      S.Reopen_Candidate_Path := To_Unbounded_String (Reopen_Path);
+      S.Buffer_Lifecycle.Has_Reopen_Candidate := True;
+      S.Buffer_Lifecycle.Reopen_Candidate_Path := To_Unbounded_String (Reopen_Path);
       Editor.Clipboard.Set_Text (To_Unbounded_String ("clipboard survives failure"));
 
       Before_Text := To_Unbounded_String (Buffer_Text (S));
-      Before_Gen := S.File_Info.Saved_Generation;
+      Before_Gen := S.Buffer_Lifecycle.File_Info.Saved_Generation;
       Before_Caret := S.Carets (0);
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
@@ -1496,9 +1496,9 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
         and then To_String (M.Text) = "Could not revert buffer",
         "directory read failure must emit Could not revert buffer");
       Assert (To_Unbounded_String (Buffer_Text (S)) = Before_Text
-        and then S.File_Info.Dirty
-        and then S.File_Info.Saved_Generation = Before_Gen
-        and then To_String (S.File_Info.Path) = Path,
+        and then S.Buffer_Lifecycle.File_Info.Dirty
+        and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Gen
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Path,
         "read failure must preserve text, dirty state, baseline, and association");
       Assert (S.Carets (0).Pos = Before_Caret.Pos
         and then S.Carets (0).Anchor = Before_Caret.Anchor,
@@ -1511,8 +1511,8 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
         "read failure must preserve Find/Replace state");
       Assert (Editor.Clipboard.Get_Text = Before_Clip,
         "read failure must preserve Clipboard");
-      Assert (S.Has_Reopen_Candidate
-        and then To_String (S.Reopen_Candidate_Path) = Reopen_Path,
+      Assert (S.Buffer_Lifecycle.Has_Reopen_Candidate
+        and then To_String (S.Buffer_Lifecycle.Reopen_Candidate_Path) = Reopen_Path,
         "read failure must not mutate reopen candidates");
 
       Editor.Clipboard.Clear;
@@ -1548,12 +1548,12 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Write_Bytes (Path, Exact);
 
       Execute_Revert_And_Confirm (S);
-      Saved_Gen := S.File_Info.Saved_Generation;
+      Saved_Gen := S.Buffer_Lifecycle.File_Info.Saved_Generation;
       Assert (Buffer_Text (S) = Exact,
         "successful revert must preserve exact canonical disk text including whitespace and trailing newline");
-      Assert (not S.File_Info.Dirty
-        and then S.File_Info.Baseline_Valid
-        and then S.File_Info.Saved_Generation = Editor.State.Current_Buffer_Revision (S),
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty
+        and then S.Buffer_Lifecycle.File_Info.Baseline_Valid
+        and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Editor.State.Current_Buffer_Revision (S),
         "successful revert must update saved baseline and clean state after read success");
       Assert (Editor.History.Undo_Stack.Is_Empty
         and then Editor.History.Redo_Stack.Is_Empty,
@@ -1561,15 +1561,15 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert (Buffer_Text (S) = Exact
-        and then S.File_Info.Saved_Generation = Saved_Gen
-        and then not S.File_Info.Dirty,
+        and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Saved_Gen
+        and then not S.Buffer_Lifecycle.File_Info.Dirty,
         "edit.undo must not undo a successful revert");
 
       Insert_Text_At (S, Buffer_Text (S)'Length, "post");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "edits after revert must compare against the new disk-text baseline");
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
-      Assert (Read_Bytes (Path) = Exact & "post" and then not S.File_Info.Dirty,
+      Assert (Read_Bytes (Path) = Exact & "post" and then not S.Buffer_Lifecycle.File_Info.Dirty,
         "save after revert must write current text to the preserved association");
 
       Remove_If_Exists (Path);
@@ -1612,7 +1612,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       S.Active_Replace_Text := To_Unbounded_String ("replacement");
       Editor.Clipboard.Set_Text (To_Unbounded_String ("clean noop clipboard"));
       Before_Text := To_Unbounded_String (Buffer_Text (S));
-      Before_Gen := S.File_Info.Saved_Generation;
+      Before_Gen := S.Buffer_Lifecycle.File_Info.Saved_Generation;
       Before_Caret := S.Carets (0);
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
@@ -1632,8 +1632,8 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
         and then To_String (M.Text) = "No changes to revert",
         "clean associated execution must emit No changes to revert");
       Assert (To_Unbounded_String (Buffer_Text (S)) = Before_Text
-        and then not S.File_Info.Dirty
-        and then S.File_Info.Saved_Generation = Before_Gen,
+        and then not S.Buffer_Lifecycle.File_Info.Dirty
+        and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Gen,
         "clean no-op must preserve text, dirty state, and baseline");
       Assert (S.Carets (0).Pos = Before_Caret.Pos
         and then S.Carets (0).Anchor = Before_Caret.Anchor,
@@ -1708,7 +1708,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Assert_Absent ("project.revert-all-buffers");
 
       Editor.State.Init (S);
-      S.Active_Buffer_Token := 0;
+      S.Buffer_Lifecycle.Active_Buffer_Token := 0;
       Editor.Messages.Clear (S.Messages);
       Execute_Revert_And_Confirm (S);
       Assert_Message ("No active buffer.", Editor.Messages.Info_Message);
@@ -1716,32 +1716,32 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "untitled clean text");
-      S.File_Info.Dirty := False;
+      S.Buffer_Lifecycle.File_Info.Dirty := False;
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Messages.Clear (S.Messages);
       Execute_Revert_And_Confirm (S);
       Assert_Message ("No file path for active buffer", Editor.Messages.Info_Message);
-      Assert (Buffer_Text (S) = "untitled clean text" and then not S.File_Info.Dirty,
+      Assert (Buffer_Text (S) = "untitled clean text" and then not S.Buffer_Lifecycle.File_Info.Dirty,
         "no-path validation must precede clean-buffer no-op semantics");
 
       Editor.State.Load_Text (S, "untitled dirty text");
-      S.File_Info.Has_Path := False;
-      S.File_Info.Path := Null_Unbounded_String;
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Has_Path := False;
+      S.Buffer_Lifecycle.File_Info.Path := Null_Unbounded_String;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Messages.Clear (S.Messages);
       Execute_Revert_And_Confirm (S);
       Assert_Message ("No file path for active buffer", Editor.Messages.Info_Message);
-      Assert (Buffer_Text (S) = "untitled dirty text" and then S.File_Info.Dirty,
+      Assert (Buffer_Text (S) = "untitled dirty text" and then S.Buffer_Lifecycle.File_Info.Dirty,
         "dirty untitled buffers must not invent stale Save As, workspace, or display paths");
 
       Editor.State.Load_Text (S, "clean associated text");
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String (Path);
-      S.File_Info.Display_Name := To_Unbounded_String ("validation.txt");
-      S.File_Info.Dirty := False;
-      S.File_Info.Baseline_Valid := True;
-      S.File_Info.Saved_Generation := Editor.State.Current_Buffer_Revision (S);
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Path);
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("validation.txt");
+      S.Buffer_Lifecycle.File_Info.Dirty := False;
+      S.Buffer_Lifecycle.File_Info.Baseline_Valid := True;
+      S.Buffer_Lifecycle.File_Info.Saved_Generation := Editor.State.Current_Buffer_Revision (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Remove_If_Exists (Path);
       Avail := Editor.Executor.Command_Availability
@@ -1752,24 +1752,24 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Revert_Active_Buffer);
       Assert_Message ("No changes to revert", Editor.Messages.Info_Message);
-      Assert (Buffer_Text (S) = "clean associated text" and then not S.File_Info.Dirty
+      Assert (Buffer_Text (S) = "clean associated text" and then not S.Buffer_Lifecycle.File_Info.Dirty
         and then not Ada.Directories.Exists (Path),
         "clean no-op must not read, write, create, or repair the associated file");
 
       Ada.Directories.Create_Directory (Dir_Path);
       Editor.State.Load_Text (S, "dirty associated text");
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String (Dir_Path);
-      S.File_Info.Display_Name := To_Unbounded_String ("validation_dir");
-      S.File_Info.Dirty := True;
-      S.File_Info.Baseline_Valid := True;
-      S.File_Info.Saved_Generation := 77;
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Dir_Path);
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("validation_dir");
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Baseline_Valid := True;
+      S.Buffer_Lifecycle.File_Info.Saved_Generation := 77;
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Messages.Clear (S.Messages);
       Execute_Revert_And_Confirm (S);
       Assert_Message ("Could not revert buffer", Editor.Messages.Error_Message);
-      Assert (Buffer_Text (S) = "dirty associated text" and then S.File_Info.Dirty
-        and then S.File_Info.Saved_Generation = 77,
+      Assert (Buffer_Text (S) = "dirty associated text" and then S.Buffer_Lifecycle.File_Info.Dirty
+        and then S.Buffer_Lifecycle.File_Info.Saved_Generation = 77,
         "dirty associated read failure must preserve text, dirty flag, and baseline marker");
 
       Remove_If_Exists (Path);
@@ -1829,9 +1829,9 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Write_Bytes (C_Path, "C disk replacement that clean revert must not read");
 
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, A_Id, Emit_Feedback => False);
-      S.Has_Reopen_Candidate := True;
-      S.Reopen_Candidate_Path := To_Unbounded_String (A_Path);
-      S.Reopen_Candidate_Label := To_Unbounded_String ("A stale candidate");
+      S.Buffer_Lifecycle.Has_Reopen_Candidate := True;
+      S.Buffer_Lifecycle.Reopen_Candidate_Path := To_Unbounded_String (A_Path);
+      S.Buffer_Lifecycle.Reopen_Candidate_Label := To_Unbounded_String ("A stale candidate");
       Editor.Messages.Clear (S.Messages);
       Execute_Revert_And_Confirm (S);
       M := Editor.Messages.Active_Message (S.Messages, Found);
@@ -1842,19 +1842,19 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Assert (Editor.Buffers.Global_Active_Buffer = A_Id
         and then Editor.Buffers.Global_Count = Before_Count
         and then Buffer_Text (S) = "A disk replacement"
-        and then not S.File_Info.Dirty
-        and then To_String (S.File_Info.Path) = A_Path,
+        and then not S.Buffer_Lifecycle.File_Info.Dirty
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = A_Path,
         "revert must target only the active buffer identity at execution time");
-      Assert (S.Has_Reopen_Candidate
-        and then To_String (S.Reopen_Candidate_Path) = A_Path,
+      Assert (S.Buffer_Lifecycle.Has_Reopen_Candidate
+        and then To_String (S.Buffer_Lifecycle.Reopen_Candidate_Path) = A_Path,
         "revert must not consume or repair reopen candidates");
 
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, B_Id, Emit_Feedback => False);
-      Assert (Buffer_Text (S) = To_String (Before_B) and then S.File_Info.Dirty,
+      Assert (Buffer_Text (S) = To_String (Before_B) and then S.Buffer_Lifecycle.File_Info.Dirty,
         "successful revert on A must not mutate inactive dirty Buffer B");
       Editor.Messages.Clear (S.Messages);
       Execute_Revert_And_Confirm (S);
-      Assert (Buffer_Text (S) = "B disk replacement" and then not S.File_Info.Dirty,
+      Assert (Buffer_Text (S) = "B disk replacement" and then not S.Buffer_Lifecycle.File_Info.Dirty,
         "after active switch, revert must target Buffer B rather than stale A");
 
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, C_Id, Emit_Feedback => False);
@@ -1863,7 +1863,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then To_String (M.Text) = "No changes to revert"
         and then Buffer_Text (S) = To_String (Before_C)
-        and then not S.File_Info.Dirty,
+        and then not S.Buffer_Lifecycle.File_Info.Dirty,
         "active clean Buffer C revert must be a no-op and must not reload changed disk text");
 
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, A_Id, Emit_Feedback => False);
@@ -1901,23 +1901,23 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Editor.State.Init (S);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty edit");
-      Assert (S.File_Info.Dirty and then not Editor.History.Undo_Stack.Is_Empty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty and then not Editor.History.Undo_Stack.Is_Empty,
         "setup: dirty edit must produce dirty state and undo history");
       Write_Bytes (Path, Exact);
 
       Execute_Revert_And_Confirm (S);
       M := Editor.Messages.Active_Message (S.Messages, Found);
-      Reverted_Gen := S.File_Info.Saved_Generation;
+      Reverted_Gen := S.Buffer_Lifecycle.File_Info.Saved_Generation;
       Assert (Found and then Editor.Messages.Count (S.Messages) = 1
         and then To_String (M.Text) = "Buffer reverted",
         "successful revert must emit exactly one success message");
       Assert (Buffer_Text (S) = Exact
         and then Read_Bytes (Path) = Exact,
         "successful revert must use exact canonical disk text without formatting or writing");
-      Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Path
-        and then not S.File_Info.Dirty
-        and then S.File_Info.Baseline_Valid
-        and then S.File_Info.Saved_Generation = Editor.State.Current_Buffer_Revision (S),
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Path
+        and then not S.Buffer_Lifecycle.File_Info.Dirty
+        and then S.Buffer_Lifecycle.File_Info.Baseline_Valid
+        and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Editor.State.Current_Buffer_Revision (S),
         "successful revert must preserve association, update baseline, and mark clean after read success");
       Assert (Editor.History.Undo_Stack.Is_Empty
         and then Editor.History.Redo_Stack.Is_Empty,
@@ -1926,24 +1926,24 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
         "successful revert must apply retained caret/selection destructive lifecycle policy");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
-      Assert (Buffer_Text (S) = Exact and then not S.File_Info.Dirty
-        and then S.File_Info.Saved_Generation = Reverted_Gen,
+      Assert (Buffer_Text (S) = Exact and then not S.Buffer_Lifecycle.File_Info.Dirty
+        and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Reverted_Gen,
         "edit.undo must not undo the revert itself");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
-      Assert (Buffer_Text (S) = Exact and then not S.File_Info.Dirty,
+      Assert (Buffer_Text (S) = Exact and then not S.Buffer_Lifecycle.File_Info.Dirty,
         "edit.redo must not redo a revert entry");
 
       Insert_Text_At (S, Buffer_Text (S)'Length, "post");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "post-revert edits must compare against the new disk-text baseline");
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
-      Assert (Read_Bytes (Path) = Exact & "post" and then not S.File_Info.Dirty,
+      Assert (Read_Bytes (Path) = Exact & "post" and then not S.Buffer_Lifecycle.File_Info.Dirty,
         "file.save after revert remains the only writer and writes current text to the preserved path");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "undo after post-revert save must dirty against the post-revert saved baseline under normal edit policy");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
         "redo after post-revert save must return to the saved baseline under normal edit policy");
 
       Remove_If_Exists (Path);
@@ -1980,7 +1980,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       procedure Capture is
       begin
          Before_Text := To_Unbounded_String (Buffer_Text (S));
-         Before_Gen := S.File_Info.Saved_Generation;
+         Before_Gen := S.Buffer_Lifecycle.File_Info.Saved_Generation;
          Before_Undo := Editor.History.Undo_Stack.Length;
          Before_Redo := Editor.History.Redo_Stack.Length;
          Before_Caret := S.Carets (0);
@@ -1990,14 +1990,14 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
          Before_Has_Clip := Editor.Clipboard.Has_Text;
          Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
          Before_Forward := Editor.Navigation_History.Forward_Count (S.Navigation_History);
-         Before_Reopen := S.Has_Reopen_Candidate;
-         Before_Reopen_Path := S.Reopen_Candidate_Path;
+         Before_Reopen := S.Buffer_Lifecycle.Has_Reopen_Candidate;
+         Before_Reopen_Path := S.Buffer_Lifecycle.Reopen_Candidate_Path;
       end Capture;
 
       procedure Assert_Preserved (Label : String) is
       begin
          Assert (Buffer_Text (S) = To_String (Before_Text), Label & ": text changed");
-         Assert (S.File_Info.Saved_Generation = Before_Gen, Label & ": baseline marker changed");
+         Assert (S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Gen, Label & ": baseline marker changed");
          Assert (Editor.History.Undo_Stack.Length = Before_Undo
            and then Editor.History.Redo_Stack.Length = Before_Redo,
            Label & ": Undo/Redo changed");
@@ -2013,8 +2013,8 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
          Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = Before_Back
            and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = Before_Forward,
            Label & ": Navigation History changed");
-         Assert (S.Has_Reopen_Candidate = Before_Reopen
-           and then S.Reopen_Candidate_Path = Before_Reopen_Path,
+         Assert (S.Buffer_Lifecycle.Has_Reopen_Candidate = Before_Reopen
+           and then S.Buffer_Lifecycle.Reopen_Candidate_Path = Before_Reopen_Path,
            Label & ": reopen candidate changed");
       end Assert_Preserved;
    begin
@@ -2035,8 +2035,8 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       S.Active_Find_Query := To_Unbounded_String ("baseline");
       S.Active_Replace_Text := To_Unbounded_String ("replacement");
       Editor.Clipboard.Set_Text (To_Unbounded_String ("clipboard survives revert attempts"));
-      S.Has_Reopen_Candidate := True;
-      S.Reopen_Candidate_Path := To_Unbounded_String (Path);
+      S.Buffer_Lifecycle.Has_Reopen_Candidate := True;
+      S.Buffer_Lifecycle.Reopen_Candidate_Path := To_Unbounded_String (Path);
       Editor.Navigation_History.Record_Explicit_Navigation
         (S.Navigation_History,
          (Buffer_Id => Natural (Editor.Buffers.Global_Active_Buffer),
@@ -2055,17 +2055,17 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then To_String (M.Text) = "No changes to revert",
         "clean no-op must report No changes to revert even when disk is missing");
-      Assert (not S.File_Info.Dirty, "clean no-op must preserve clean state");
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty, "clean no-op must preserve clean state");
       Assert_Preserved ("clean no-op");
 
       Ada.Directories.Create_Directory (Dir_Path);
-      S.File_Info.Path := To_Unbounded_String (Dir_Path);
-      S.File_Info.Display_Name := To_Unbounded_String ("preserve_dir");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Dir_Path);
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("preserve_dir");
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty after clean noop");
-      S.File_Info.Path := To_Unbounded_String (Dir_Path);
-      S.File_Info.Display_Name := To_Unbounded_String ("preserve_dir");
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Dir_Path);
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("preserve_dir");
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Capture;
       Editor.Messages.Clear (S.Messages);
@@ -2074,7 +2074,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Assert (Found and then M.Severity = Editor.Messages.Error_Message
         and then To_String (M.Text) = "Could not revert buffer",
         "dirty read failure must report Could not revert buffer");
-      Assert (S.File_Info.Dirty, "read failure must keep dirty state");
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty, "read failure must keep dirty state");
       Assert_Preserved ("read failure");
 
       Editor.Clipboard.Clear;
@@ -2115,8 +2115,8 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty");
       Before_Text := To_Unbounded_String (Buffer_Text (S));
-      Before_Gen := S.File_Info.Saved_Generation;
-      Before_Dirty := S.File_Info.Dirty;
+      Before_Gen := S.Buffer_Lifecycle.File_Info.Saved_Generation;
+      Before_Dirty := S.Buffer_Lifecycle.File_Info.Dirty;
       Write_Bytes (Path, "render must not be read by availability");
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
@@ -2135,8 +2135,8 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
         "dirty associated revert availability may observe state but must not probe filesystem");
       Assert (Buffer_Text (S) = To_String (Before_Text)
-        and then S.File_Info.Dirty = Before_Dirty
-        and then S.File_Info.Saved_Generation = Before_Gen
+        and then S.Buffer_Lifecycle.File_Info.Dirty = Before_Dirty
+        and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Gen
         and then Read_Bytes (Path) = "render must not be read by availability",
         "render, availability, and Command Palette projection must not revert, save, reload, or mutate state");
       Assert (Snap.Is_Dirty,
@@ -2145,29 +2145,29 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Editor.Messages.Clear (S.Messages);
       Execute_Revert_And_Confirm (S);
       Assert (Buffer_Text (S) = "render must not be read by availability"
-        and then not S.File_Info.Dirty
-        and then To_String (S.File_Info.Path) = Path,
+        and then not S.Buffer_Lifecycle.File_Info.Dirty
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Path,
         "explicit revert must read current disk text and keep the file association");
       Assert (Read_Bytes (Path) = "render must not be read by availability"
         and then Read_Bytes (Save_As) = "save-as disk",
         "revert must not write active path or unrelated Save As path");
 
       Editor.Executor.Buffer_Close_Commands.Execute_Close_Active_Buffer (S);
-      Assert (S.Has_Reopen_Candidate
-        and then To_String (S.Reopen_Candidate_Path) = Path,
+      Assert (S.Buffer_Lifecycle.Has_Reopen_Candidate
+        and then To_String (S.Buffer_Lifecycle.Reopen_Candidate_Path) = Path,
         "successful revert makes the buffer clean and closeable through the normal close lifecycle");
       Editor.Executor.File_Open_Commands.Execute_Reopen_Closed_Buffer (S);
       Assert (Buffer_Text (S) = "render must not be read by availability"
-        and then not S.File_Info.Dirty,
+        and then not S.Buffer_Lifecycle.File_Info.Dirty,
         "reopen after clean close must not restore discarded pre-revert text");
 
       Insert_Text_At (S, Buffer_Text (S)'Length, " reopened dirty");
       Write_Bytes (Path, "disk after reopen");
       Execute_Revert_And_Confirm (S);
-      Assert (Buffer_Text (S) = "disk after reopen" and then not S.File_Info.Dirty,
+      Assert (Buffer_Text (S) = "disk after reopen" and then not S.Buffer_Lifecycle.File_Info.Dirty,
         "revert after reopen still targets the active associated buffer");
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
-      Assert (Buffer_Text (S) = "disk after reopen" and then not S.File_Info.Dirty,
+      Assert (Buffer_Text (S) = "disk after reopen" and then not S.Buffer_Lifecycle.File_Info.Dirty,
         "reload remains the clean-buffer reread command after revert");
       Editor.Messages.Clear (S.Messages);
       Execute_Revert_And_Confirm (S);
@@ -2176,19 +2176,19 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
         "revert after clean reload must remain a clean no-op, not duplicate reload");
 
       Editor.State.Load_Text (S, "untitled lifecycle dirty");
-      S.File_Info.Has_Path := False;
-      S.File_Info.Path := Null_Unbounded_String;
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Has_Path := False;
+      S.Buffer_Lifecycle.File_Info.Path := Null_Unbounded_String;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, Save_As);
-      Assert (To_String (S.File_Info.Path) = Save_As and then not S.File_Info.Dirty,
+      Assert (To_String (S.Buffer_Lifecycle.File_Info.Path) = Save_As and then not S.Buffer_Lifecycle.File_Info.Dirty,
         "setup: Save As remains the command that creates an association for untitled text");
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty after save-as");
       Write_Bytes (Save_As, "disk after save-as");
       Execute_Revert_And_Confirm (S);
       Assert (Buffer_Text (S) = "disk after save-as"
-        and then not S.File_Info.Dirty
-        and then To_String (S.File_Info.Path) = Save_As,
+        and then not S.Buffer_Lifecycle.File_Info.Dirty
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Save_As,
         "after Save As, revert uses the new active associated path without changing association");
 
       Remove_If_Exists (Path);

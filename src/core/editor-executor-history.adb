@@ -67,9 +67,9 @@ package body Editor.Executor.History is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if S.File_Info.Has_Path then
+      if S.Buffer_Lifecycle.File_Info.Has_Path then
          Editor.Project_Search.Mark_Replace_Preview_Stale_For_Absolute_File
-           (S.Project_Search, To_String (S.File_Info.Path));
+           (S.Project_Search, To_String (S.Buffer_Lifecycle.File_Info.Path));
       end if;
    end Mark_Current_File_Replace_Preview_Stale;
 
@@ -93,12 +93,12 @@ package body Editor.Executor.History is
       for Ch of Query loop
          if Ch = Character'Val (10) or else Ch = Character'Val (13) then
             S.Active_Find_Stale := True;
-            S.Active_Find_Source_Buffer_Token := S.Active_Buffer_Token;
+            S.Active_Find_Source_Buffer_Token := S.Buffer_Lifecycle.Active_Buffer_Token;
             return;
          end if;
       end loop;
 
-      S.Active_Find_Source_Buffer_Token := S.Active_Buffer_Token;
+      S.Active_Find_Source_Buffer_Token := S.Buffer_Lifecycle.Active_Buffer_Token;
       Editor.Search.Find_All (S.Buffer, Query, Options, Candidates);
       S.Active_Find_Matches := Candidates;
 
@@ -136,8 +136,8 @@ package body Editor.Executor.History is
       E : History_Entry) return Boolean
    is
    begin
-      return E.Owner_Buffer_Token = S.Active_Buffer_Token
-        and then E.Owner_Lifecycle_Generation = S.Lifecycle_Generation;
+      return E.Owner_Buffer_Token = S.Buffer_Lifecycle.Active_Buffer_Token
+        and then E.Owner_Lifecycle_Generation = S.Buffer_Lifecycle.Lifecycle_Generation;
    end Entry_Owns_Current_Buffer;
 
    procedure Append_Replace_Op
@@ -633,10 +633,10 @@ package body Editor.Executor.History is
       E.After_Rect_Anchor_Row     := After_S.Rect_Anchor_Row;
       E.After_Rect_Anchor_Col     := After_S.Rect_Anchor_Col;
 
-      E.Before_Dirty := Before.File_Info.Dirty;
-      E.After_Dirty  := After_S.File_Info.Dirty;
-      E.Owner_Buffer_Token := Before.Active_Buffer_Token;
-      E.Owner_Lifecycle_Generation := Before.Lifecycle_Generation;
+      E.Before_Dirty := Before.Buffer_Lifecycle.File_Info.Dirty;
+      E.After_Dirty  := After_S.Buffer_Lifecycle.File_Info.Dirty;
+      E.Owner_Buffer_Token := Before.Buffer_Lifecycle.Active_Buffer_Token;
+      E.Owner_Lifecycle_Generation := Before.Buffer_Lifecycle.Lifecycle_Generation;
 
       --  every successful concrete editing command is recorded
       --  as one predictable undo unit.  Older typing coalescing support is

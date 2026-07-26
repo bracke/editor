@@ -316,9 +316,9 @@ package body Editor.Executor.Outline_Commands is
            Editor.Outline_Extractor.Make_Snapshot
              (Text                 => Text,
               Buffer_Label         =>
-                (if S.File_Info.Has_Path
-                 then To_String (S.File_Info.Path)
-                 else To_String (S.File_Info.Display_Name)),
+                (if S.Buffer_Lifecycle.File_Info.Has_Path
+                 then To_String (S.Buffer_Lifecycle.File_Info.Path)
+                 else To_String (S.Buffer_Lifecycle.File_Info.Display_Name)),
               Active_Buffer_Token  => Active_Feature_Buffer_Token (S),
               Buffer_Revision      => Editor.State.Current_Buffer_Revision (S),
               Lifecycle_Generation =>

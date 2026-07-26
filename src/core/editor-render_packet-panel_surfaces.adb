@@ -178,18 +178,18 @@ package body Editor.Render_Packet.Panel_Surfaces is
       begin
          if not Editor.State.Has_Active_Buffer (S) then
             return "No active buffer.";
-         elsif S.File_Info.Has_Path then
+         elsif S.Buffer_Lifecycle.File_Info.Has_Path then
             if Editor.Project.Has_Project (S.Project)
               and then Editor.Project.Is_Under_Project
-                (S.Project, To_String (S.File_Info.Path))
+                (S.Project, To_String (S.Buffer_Lifecycle.File_Info.Path))
             then
                return Editor.Project.Relative_Path
-                 (S.Project, To_String (S.File_Info.Path));
+                 (S.Project, To_String (S.Buffer_Lifecycle.File_Info.Path));
             else
-               return To_String (S.File_Info.Display_Name);
+               return To_String (S.Buffer_Lifecycle.File_Info.Display_Name);
             end if;
-         elsif Length (S.File_Info.Display_Name) > 0 then
-            return To_String (S.File_Info.Display_Name);
+         elsif Length (S.Buffer_Lifecycle.File_Info.Display_Name) > 0 then
+            return To_String (S.Buffer_Lifecycle.File_Info.Display_Name);
          else
             return "Untitled";
          end if;
@@ -200,10 +200,10 @@ package body Editor.Render_Packet.Panel_Surfaces is
       begin
          if not Editor.State.Has_Active_Buffer (S) then
             return "No buffer";
-         elsif S.File_Info.Has_Path then
+         elsif S.Buffer_Lifecycle.File_Info.Has_Path then
             if Editor.Project.Has_Project (S.Project)
               and then not Editor.Project.Is_Under_Project
-                (S.Project, To_String (S.File_Info.Path))
+                (S.Project, To_String (S.Buffer_Lifecycle.File_Info.Path))
             then
                return "File-backed, outside project";
             else
@@ -219,24 +219,24 @@ package body Editor.Render_Packet.Panel_Surfaces is
       begin
          if not Editor.State.Has_Active_Buffer (S) then
             return "Unavailable";
-         elsif S.File_Conflict_Prompt_Active then
+         elsif S.Buffer_Lifecycle.File_Conflict_Prompt_Active then
             return "Conflict pending";
-         elsif S.File_Info.Missing_Target_Surfaced then
+         elsif S.Buffer_Lifecycle.File_Info.Missing_Target_Surfaced then
             return "Missing on disk";
-         elsif S.File_Info.External_Change_Surfaced and then S.File_Info.Dirty then
+         elsif S.Buffer_Lifecycle.File_Info.External_Change_Surfaced and then S.Buffer_Lifecycle.File_Info.Dirty then
             return "Conflict pending";
-         elsif S.File_Info.External_Change_Surfaced then
+         elsif S.Buffer_Lifecycle.File_Info.External_Change_Surfaced then
             return "Changed on disk";
-         elsif S.File_Info.Unreadable_Target_Surfaced
-           or else S.File_Info.Last_Reload_Failed
-           or else S.File_Info.Last_Revert_Failed
+         elsif S.Buffer_Lifecycle.File_Info.Unreadable_Target_Surfaced
+           or else S.Buffer_Lifecycle.File_Info.Last_Reload_Failed
+           or else S.Buffer_Lifecycle.File_Info.Last_Revert_Failed
          then
             return "Unreadable";
-         elsif S.File_Info.Unwritable_Target_Surfaced then
+         elsif S.Buffer_Lifecycle.File_Info.Unwritable_Target_Surfaced then
             return "Read-only";
-         elsif S.File_Info.Last_Save_Failed then
+         elsif S.Buffer_Lifecycle.File_Info.Last_Save_Failed then
             return "Save conflict";
-         elsif S.File_Info.Dirty then
+         elsif S.Buffer_Lifecycle.File_Info.Dirty then
             return "Modified";
          else
             return "Clean";
@@ -249,29 +249,29 @@ package body Editor.Render_Packet.Panel_Surfaces is
          if Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions) then
             return "Confirmation required: "
               & Editor.Pending_Transitions.Display_Text (S.Pending_Transitions);
-         elsif S.Dirty_Close_Prompt_Active then
-            if S.Dirty_Close_Prompt_Save_Failure_Count > 0 then
+         elsif S.Buffer_Lifecycle.Dirty_Close_Prompt_Active then
+            if S.Buffer_Lifecycle.Dirty_Close_Prompt_Save_Failure_Count > 0 then
                return "Dirty close review: save failed; buffer remains open";
-            elsif S.Dirty_Close_Prompt_Conflicted_Count > 0 then
+            elsif S.Buffer_Lifecycle.Dirty_Close_Prompt_Conflicted_Count > 0 then
                return "Dirty close review: file conflict requires resolution";
-            elsif S.Dirty_Close_Prompt_Unwritable_Count > 0 then
+            elsif S.Buffer_Lifecycle.Dirty_Close_Prompt_Unwritable_Count > 0 then
                return "Dirty close review: file is unwritable";
-            elsif S.Dirty_Close_Prompt_Missing_Count > 0 then
+            elsif S.Buffer_Lifecycle.Dirty_Close_Prompt_Missing_Count > 0 then
                return "Dirty close review: backing file is missing";
-            elsif S.Dirty_Close_Prompt_Untitled_Count > 0 then
+            elsif S.Buffer_Lifecycle.Dirty_Close_Prompt_Untitled_Count > 0 then
                return "Dirty close review: scratch buffer requires discard or cancel";
-            elsif S.Dirty_Close_Prompt_All_Buffers then
+            elsif S.Buffer_Lifecycle.Dirty_Close_Prompt_All_Buffers then
                return "Dirty close review: save all, discard all, or cancel";
             else
                return "Dirty close review: save, discard, or cancel";
             end if;
-         elsif S.File_Conflict_Prompt_Active then
-            if S.File_Conflict_Prompt_Dirty then
+         elsif S.Buffer_Lifecycle.File_Conflict_Prompt_Active then
+            if S.Buffer_Lifecycle.File_Conflict_Prompt_Dirty then
                return "File conflict: keep buffer, reload from disk, overwrite disk, or cancel";
             else
                return "File conflict: keep buffer, reload from disk, or cancel";
             end if;
-         elsif S.File_Target_Prompt_Active then
+         elsif S.Buffer_Lifecycle.File_Target_Prompt_Active then
             return "Pending file target";
          else
             return "";

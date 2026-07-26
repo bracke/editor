@@ -215,27 +215,11 @@ package Editor.State is
       Gutter_Marker_Hover : Editor.Gutter_Markers.Gutter_Marker_Hover_State;
       Semantic_Popup   : Semantic_Popup_State;
       Folding           : Editor.Folding.Folding_State;
-      File_Info         : File_State;
-      --  transient path-only reopen stack.  This is runtime
-      --  state only: no closed-buffer text, edit history, caret/selection,
-      --  Find/Replace, Clipboard, Navigation History, render cache, or
-      --  persistence data is stored here.  The single-candidate mirror fields
-      --  mirror the top stack entry for test support and
-      --  projections; persistence must still exclude all of these fields.
-      Reopen_Candidate_Count : Natural := 0;
-      Reopen_Candidate_Paths : Reopen_Candidate_Array :=
-        (others => Ada.Strings.Unbounded.Null_Unbounded_String);
-      Reopen_Candidate_Labels : Reopen_Candidate_Array :=
-        (others => Ada.Strings.Unbounded.Null_Unbounded_String);
-      Has_Reopen_Candidate : Boolean := False;
-      Reopen_Candidate_Path : Ada.Strings.Unbounded.Unbounded_String :=
-        Ada.Strings.Unbounded.Null_Unbounded_String;
-      Reopen_Candidate_Label : Ada.Strings.Unbounded.Unbounded_String :=
-        Ada.Strings.Unbounded.Null_Unbounded_String;
-      Registry_Token    : Natural := 0;
-      Active_Buffer_Token : Natural := 0;
-      Buffer_Revision   : Natural := 0;
-      Lifecycle_Generation : Natural := 0;
+      --  Buffer lifecycle owns file identity, reopen candidates, active
+      --  buffer tokens/revisions, file-target prompts, file-conflict prompts,
+      --  and dirty-close review state. It is runtime/editor state only; no
+      --  workspace persistence data or command payloads are stored here.
+      Buffer_Lifecycle : Editor.State_Buffer.Buffer_Lifecycle_State;
       --  Transient per-buffer syntax state. This is intentionally runtime-only:
       --  it is invalidated by text changes/reload/revert, consumed by render
       --  snapshots, and never serialized to workspace/session files.
@@ -264,83 +248,6 @@ package Editor.State is
       Post_Restore_Feedback_Current : Boolean := False;
       Last_Restore_Summary_Available : Boolean := False;
       Last_Restore_Summary : Editor.Workspace_Persistence.Workspace_Restore_Summary;
-      --  transient file-lifecycle target prompt. This is UI/input
-      --  state only and is never persisted, used for save-as/rename/copy/move
-      --  parameter acquisition before canonical Executor execution.
-      File_Target_Prompt_Active : Boolean := False;
-      File_Target_Prompt_Command : Editor.Command_Ids.Command_Id :=
-        Editor.Command_Ids.No_Command;
-      File_Target_Prompt_Label : Ada.Strings.Unbounded.Unbounded_String :=
-        Ada.Strings.Unbounded.Null_Unbounded_String;
-      File_Target_Prompt_Input : Editor.Input_Field.Input_Field_State;
-      --  transient file-conflict prompt state.  It contains only
-      --  buffer/path identity and visible action state, never buffer text,
-      --  never persisted tokens, and never keybinding/palette payloads.
-      File_Conflict_Prompt_Active : Boolean := False;
-      File_Conflict_Prompt_Buffer : Natural := 0;
-      File_Conflict_Prompt_Path : Ada.Strings.Unbounded.Unbounded_String :=
-        Ada.Strings.Unbounded.Null_Unbounded_String;
-      File_Conflict_Prompt_Display : Ada.Strings.Unbounded.Unbounded_String :=
-        Ada.Strings.Unbounded.Null_Unbounded_String;
-      File_Conflict_Prompt_Kind : File_Conflict_Kind := No_File_Conflict;
-      File_Conflict_Prompt_Dirty : Boolean := False;
-      --  Buffer revision captured when the prompt was opened.  This lets
-      --  confirmation reject stale prompts if buffer text changed through any
-      --  route while the prompt was visible, without storing buffer text.
-      File_Conflict_Prompt_Buffer_Revision : Natural := 0;
-      File_Conflict_Prompt_Token_Label : Ada.Strings.Unbounded.Unbounded_String :=
-        Ada.Strings.Unbounded.Null_Unbounded_String;
-      --  /574 interaction: when save-and-close discovers an
-      --  external conflict, the file-conflict prompt owns the overwrite
-      --  decision.  These transient fields remember only the buffer identity
-      --  needed to close after an explicit overwrite succeeds; no text, path
-      --  payload, keybinding payload, or persisted close request is stored.
-      File_Conflict_Close_After_Overwrite : Boolean := False;
-      File_Conflict_Close_After_Overwrite_Buffer : Natural := 0;
-      File_Conflict_Close_After_Overwrite_Selected : Boolean := False;
-      File_Conflict_Close_After_Overwrite_All_Buffers : Boolean := False;
-      --  transient dirty-buffer close review.  It stores only
-      --  buffer identities and counts while a close prompt is active; never
-      --  buffer text, persisted payloads, keybinding payloads, or workspace
-      --  state.
-      Dirty_Close_Prompt_Active : Boolean := False;
-      Dirty_Close_Prompt_Scope : Dirty_Close_Scope := No_Dirty_Close_Scope;
-      Dirty_Close_Prompt_All_Buffers : Boolean := False;
-      Dirty_Close_Prompt_Buffer : Natural := 0;
-      --  Number of open buffers when an all-buffers close review was opened.
-      --  Used only for transient confirmation-time staleness checks; it is
-      --  never persisted and never carries text or command payloads.
-      Dirty_Close_Prompt_Buffer_Count : Natural := 0;
-      --  Transient fingerprint of open buffer identities for all-buffer
-      --  close review staleness detection.  This prevents a same-count
-      --  buffer replacement from inheriting a prior discard/save prompt.
-      Dirty_Close_Prompt_Buffer_Fingerprint : Natural := 0;
-      --  Transient serialized identity set of all open buffers when an
-      --  all-buffers close review was opened.  The fingerprint above is a
-      --  fast diagnostic/snapshot value; this exact id list is the authority
-      --  for confirmation-time stale-review checks and prevents arithmetic
-      --  fingerprint collisions from authorizing a changed buffer set.
-      Dirty_Close_Prompt_Buffer_Ids : Ada.Strings.Unbounded.Unbounded_String :=
-        Ada.Strings.Unbounded.Null_Unbounded_String;
-      --  Transient fingerprint of dirty buffer identities for all-buffer
-      --  close review staleness detection.  This prevents newly dirtied
-      --  buffers from inheriting a prior discard/save prompt that did not
-      --  explicitly review them.
-      Dirty_Close_Prompt_Dirty_Fingerprint : Natural := 0;
-      --  Transient serialized identity set of buffers that were dirty when
-      --  an all-buffers close review was opened.  This lets confirmation
-      --  accept reviewed dirty buffers becoming clean while still rejecting
-      --  newly dirtied buffers that were not reviewed.  It stores only buffer
-      --  identities, never text or persisted payloads.
-      Dirty_Close_Prompt_Dirty_Buffer_Ids : Ada.Strings.Unbounded.Unbounded_String :=
-        Ada.Strings.Unbounded.Null_Unbounded_String;
-      Dirty_Close_Prompt_Dirty_Count : Natural := 0;
-      Dirty_Close_Prompt_File_Backed_Count : Natural := 0;
-      Dirty_Close_Prompt_Untitled_Count : Natural := 0;
-      Dirty_Close_Prompt_Conflicted_Count : Natural := 0;
-      Dirty_Close_Prompt_Unwritable_Count : Natural := 0;
-      Dirty_Close_Prompt_Missing_Count : Natural := 0;
-      Dirty_Close_Prompt_Save_Failure_Count : Natural := 0;
       --  transient public build UX input/consent state. This is not
       --  workspace, settings, recent-project, keybinding, Diagnostics, or
       --  persistence state.

@@ -247,7 +247,7 @@ package body Editor.Executor.Search_Tests is
         (Editor.Project_Search.Selected_Result_Index (S.Project_Search) = 2,
          "focused Down should move Search Results selection only");
       Assert
-        (To_String (S.File_Info.Display_Name) = "Untitled",
+        (To_String (S.Buffer_Lifecycle.File_Info.Display_Name) = "Untitled",
          "focused Down must not open the selected result");
       Assert
         (Editor.Panel_Focus.Bottom_Content (S.Panel_Focus) =
@@ -288,7 +288,7 @@ package body Editor.Executor.Search_Tests is
       Editor.Executor.Search_Results_Commands.Execute_Search_Results_Open_Selected (S);
 
       Assert
-        (To_String (S.File_Info.Display_Name) = "needle_multi.txt",
+        (To_String (S.Buffer_Lifecycle.File_Info.Display_Name) = "needle_multi.txt",
          "Enter should open the selected Search Results match");
       Assert
         (Editor.Project_Search.Selected_Result_Index (S.Project_Search) = 2,
@@ -398,14 +398,14 @@ package body Editor.Executor.Search_Tests is
       Editor.Executor.Project_Search_Result_Commands.Execute_Open_Selected_Project_Search_Result (S);
 
       Assert
-        (To_String (S.File_Info.Display_Name) = "needle.txt",
+        (To_String (S.Buffer_Lifecycle.File_Info.Display_Name) = "needle.txt",
          "opening selected project search result should activate the matching file");
       Assert
         (S.Carets (S.Carets.First_Index).Anchor = 11
          and then S.Carets (S.Carets.First_Index).Pos = 17,
          "opening selected project search result should select the matched text range");
       Assert
-        (not S.File_Info.Dirty,
+        (not S.Buffer_Lifecycle.File_Info.Dirty,
          "opening a project search result must not dirty the target buffer");
 
       Cleanup_Project_Search_Fixture (Root);
@@ -495,7 +495,7 @@ package body Editor.Executor.Search_Tests is
 
       Assert (Editor.State.Current_Text (S) = E_Acute & "pin" & ASCII.LF,
               "project replace apply should translate search byte offsets to buffer code-point columns");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "UTF-8 project replacement should dirty the changed target buffer");
 
       Remove_File_If_Exists (Path);
@@ -536,7 +536,7 @@ package body Editor.Executor.Search_Tests is
       Cmd.Click_X := 0;
       Cmd.Click_Y := 0;
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "setup should keep the target file open and dirty");
 
       Editor.Executor.Project_Search_Result_Commands.Execute_Run_Project_Search (S, "needle");
@@ -807,7 +807,7 @@ package body Editor.Executor.Search_Tests is
 
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
-      Before_Display := S.File_Info.Display_Name;
+      Before_Display := S.Buffer_Lifecycle.File_Info.Display_Name;
       Editor.Executor.Project_Search_Result_Commands.Execute_Run_Project_Search (S, "Execute_Command");
 
       Assert (Editor.Project_Search.Result_Count (S.Project_Search) = 4,
@@ -819,7 +819,7 @@ package body Editor.Executor.Search_Tests is
               "last command should select the final stored result");
       Assert (Latest_Message_Text (S) = "Selected last project search result",
               "last command should emit the expected navigation message");
-      Assert (S.File_Info.Display_Name = Before_Display,
+      Assert (S.Buffer_Lifecycle.File_Info.Display_Name = Before_Display,
               "last command must not open or activate files");
 
       Editor.Messages.Clear (S.Messages);
@@ -828,7 +828,7 @@ package body Editor.Executor.Search_Tests is
               "first command should select the first stored result");
       Assert (Latest_Message_Text (S) = "Selected first project search result",
               "first command should emit the expected navigation message");
-      Assert (S.File_Info.Display_Name = Before_Display,
+      Assert (S.Buffer_Lifecycle.File_Info.Display_Name = Before_Display,
               "first command must not open or activate files");
 
       Cleanup_Project_Search_Context_Fixture (Root);
@@ -996,7 +996,7 @@ package body Editor.Executor.Search_Tests is
       Msg := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then Editor.Messages.Text (Msg) = "Opened needle.txt:2",
               "open-selected should report the concrete result location");
-      Assert (To_String (S.File_Info.Display_Name) = "needle.txt",
+      Assert (To_String (S.Buffer_Lifecycle.File_Info.Display_Name) = "needle.txt",
               "open-selected should still use the existing open-buffer path");
 
       Cleanup_Project_Search_Fixture (Root);
@@ -1230,7 +1230,7 @@ package body Editor.Executor.Search_Tests is
               "find-next must not populate Feature Panel Search Results");
       Assert (Editor.Feature_Panel.Row_Count (S.Feature_Panel) = 0,
               "find-next must not create Feature Panel rows");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "find navigation must not dirty the buffer");
    end Test_Find_Navigation_Is_Incremental_Only;
 
@@ -1429,7 +1429,7 @@ package body Editor.Executor.Search_Tests is
               "find query edits must not populate Feature Search Results");
       Assert (Editor.Feature_Panel.Row_Count (S.Feature_Panel) = 0,
               "find query edits must not create Feature Panel rows");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "find query edits must not dirty the active buffer");
    end Test_Find_Query_Edit_Stays_Out_Of_Feature_Search;
 
@@ -1492,7 +1492,7 @@ package body Editor.Executor.Search_Tests is
 
       Assert (Editor.State.Current_Text (S) = "Execute Run",
               "replace.current must replace exactly the selected canonical Find match");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "replace.current must dirty the active buffer through the edit path");
       Assert (Natural (S.Active_Find_Matches.Length) = 1,
               "replace.current must recompute post-edit Find matches");
@@ -1531,7 +1531,7 @@ package body Editor.Executor.Search_Tests is
 
       Assert (Editor.State.Current_Text (S) = "\1 (\1) \1",
               "replace.all must insert backslash/capture-like text literally");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "replace.all must dirty the active buffer");
       Assert (Natural (S.Active_Find_Matches.Length) = 0,
               "replace.all must recompute Find matches after replacement");
@@ -1851,7 +1851,7 @@ package body Editor.Executor.Search_Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Current (S);
       Assert (Buffer_Text (S) = "Run;" & ASCII.LF & "Execute;" & ASCII.LF & "Run;",
               "replace.current must replace only the selected canonical match");
-      Assert (S.File_Info.Dirty and then Natural (S.Active_Find_Matches.Length) = 2,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty and then Natural (S.Active_Find_Matches.Length) = 2,
               "replace.current must dirty and recompute post-replacement Find matches");
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert (Snap.Active_Find_Match_Count = 2
@@ -2015,7 +2015,7 @@ package body Editor.Executor.Search_Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text (S, "BETA");
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Current (S);
       Assert (Buffer_Text (S) = "alpha BETA alpha"
-              and then S.File_Info.Dirty,
+              and then S.Buffer_Lifecycle.File_Info.Dirty,
               "replace.current must use context-derived canonical Find query on dirty in-memory text");
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert (Snap.Replace_Visible

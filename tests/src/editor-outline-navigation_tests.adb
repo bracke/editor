@@ -1221,7 +1221,7 @@ package body Editor.Outline.Navigation_Tests is
              Detail      => Ada.Strings.Unbounded.To_Unbounded_String ("line 99"),
              Depth       => 0,
              Target_Kind  => Buffer_Position_Target,
-             Buffer_Token => S.Registry_Token,
+             Buffer_Token => S.Buffer_Lifecycle.Registry_Token,
              Line         => 99,
              Column       => 1)));
       Select_Item (S.Outline, 1);
@@ -1495,7 +1495,7 @@ package body Editor.Outline.Navigation_Tests is
              Detail      => Ada.Strings.Unbounded.To_Unbounded_String ("line 1"),
              Depth       => 0,
              Target_Kind  => Buffer_Position_Target,
-             Buffer_Token => S.Registry_Token,
+             Buffer_Token => S.Buffer_Lifecycle.Registry_Token,
              Line         => 1,
              Column       => 1),
           2 =>
@@ -1504,7 +1504,7 @@ package body Editor.Outline.Navigation_Tests is
              Detail      => Ada.Strings.Unbounded.To_Unbounded_String ("line 2"),
              Depth       => 1,
              Target_Kind  => Buffer_Position_Target,
-             Buffer_Token => S.Registry_Token,
+             Buffer_Token => S.Buffer_Lifecycle.Registry_Token,
              Line         => 2,
              Column       => 4),
           3 =>
@@ -1513,11 +1513,11 @@ package body Editor.Outline.Navigation_Tests is
              Detail      => Ada.Strings.Unbounded.To_Unbounded_String ("line 3"),
              Depth       => 1,
              Target_Kind  => Buffer_Position_Target,
-             Buffer_Token => S.Registry_Token,
+             Buffer_Token => S.Buffer_Lifecycle.Registry_Token,
              Line         => 3,
              Column       => 4)));
       Apply_Filter (S.Outline, "run");
-      Update_Current_Symbol_For_Cursor (S.Outline, S.Registry_Token, 2, 4);
+      Update_Current_Symbol_For_Cursor (S.Outline, S.Buffer_Lifecycle.Registry_Token, 2, 4);
       Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
 
       Before_FP := Fingerprint (S.Outline);
@@ -1686,7 +1686,7 @@ package body Editor.Outline.Navigation_Tests is
       Assert (Item_Count (S.Outline) > 0,
               "reload setup refreshes a real Ada outline");
       Assert (Freshness_For_Active_Buffer
-        (S.Outline, S.Active_Buffer_Token, Editor.State.Current_Buffer_Revision (S)) =
+        (S.Outline, S.Buffer_Lifecycle.Active_Buffer_Token, Editor.State.Current_Buffer_Revision (S)) =
           Outline_Current,
         "reload setup outline is current before file replacement");
 
@@ -1697,13 +1697,13 @@ package body Editor.Outline.Navigation_Tests is
       Assert (Item_Count (S.Outline) = 0,
               "reload clears previously accepted outline rows");
       Assert (Freshness_For_Active_Buffer
-        (S.Outline, S.Active_Buffer_Token, Editor.State.Current_Buffer_Revision (S)) =
+        (S.Outline, S.Buffer_Lifecycle.Active_Buffer_Token, Editor.State.Current_Buffer_Revision (S)) =
           Outline_Unavailable,
         "reload makes outline unavailable until explicit refresh");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Freshness_For_Active_Buffer
-        (S.Outline, S.Active_Buffer_Token, Editor.State.Current_Buffer_Revision (S)) =
+        (S.Outline, S.Buffer_Lifecycle.Active_Buffer_Token, Editor.State.Current_Buffer_Revision (S)) =
           Outline_Current,
         "outline can be refreshed current again after reload");
 
@@ -1711,7 +1711,7 @@ package body Editor.Outline.Navigation_Tests is
         (S, Editor.Test_Helper.Insert (Editor.State.Current_Text (S)'Length, ' '));
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Freshness_For_Active_Buffer
-        (S.Outline, S.Active_Buffer_Token, Editor.State.Current_Buffer_Revision (S)) =
+        (S.Outline, S.Buffer_Lifecycle.Active_Buffer_Token, Editor.State.Current_Buffer_Revision (S)) =
           Outline_Current,
         "dirty-buffer outline can be current before revert");
 
@@ -1724,7 +1724,7 @@ package body Editor.Outline.Navigation_Tests is
       Assert (Item_Count (S.Outline) = 0,
               "revert clears previously accepted outline rows");
       Assert (Freshness_For_Active_Buffer
-        (S.Outline, S.Active_Buffer_Token, Editor.State.Current_Buffer_Revision (S)) =
+        (S.Outline, S.Buffer_Lifecycle.Active_Buffer_Token, Editor.State.Current_Buffer_Revision (S)) =
           Outline_Unavailable,
         "revert makes outline unavailable until explicit refresh");
 
@@ -1756,7 +1756,7 @@ package body Editor.Outline.Navigation_Tests is
       Editor.Feature_Panel.Select_First (S.Feature_Panel);
       Before := S.Carets (S.Carets.First_Index).Pos;
 
-      Reset_Outline_For_Buffer_Close (S.Outline, S.Active_Buffer_Token);
+      Reset_Outline_For_Buffer_Close (S.Outline, S.Buffer_Lifecycle.Active_Buffer_Token);
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
       Assert (Result.Status = Editor.Executor.Command_Unavailable
@@ -1765,7 +1765,7 @@ package body Editor.Outline.Navigation_Tests is
       Assert (S.Carets (S.Carets.First_Index).Pos = Before,
               "closed-buffer outline navigation does not move caret");
       Assert (Freshness_For_Active_Buffer
-        (S.Outline, S.Active_Buffer_Token, Editor.State.Current_Buffer_Revision (S)) =
+        (S.Outline, S.Buffer_Lifecycle.Active_Buffer_Token, Editor.State.Current_Buffer_Revision (S)) =
           Outline_Unavailable,
         "closed-buffer outline is unavailable");
    end Test_Close_Buffer_Blocks_Selected_Row_Navigation;

@@ -86,9 +86,9 @@ package body Editor.Status_Bar.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "alpha" & ASCII.LF & "beta" & ASCII.LF & "gamma");
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String ("main.adb");
-      S.File_Info.Display_Name := To_Unbounded_String ("main.adb");
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String ("main.adb");
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("main.adb");
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.View.Set_Viewport (800, 200);
       Editor.Scrollbars.Reset;

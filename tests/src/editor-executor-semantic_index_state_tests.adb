@@ -164,9 +164,9 @@ package body Editor.Executor.Semantic_Index_State_Tests is
          (Start_Line => 1, Start_Column => 20, End_Line => 1, End_Column => 22));
       Editor.Ada_Project_Index.Put_Analysis
         (S.Language_Index, "/project/run.adb",
-         Buffer_Token         => S.Active_Buffer_Token,
-         Buffer_Revision      => S.Buffer_Revision,
-         Lifecycle_Generation => S.Lifecycle_Generation,
+         Buffer_Token         => S.Buffer_Lifecycle.Active_Buffer_Token,
+         Buffer_Revision      => S.Buffer_Lifecycle.Buffer_Revision,
+         Lifecycle_Generation => S.Buffer_Lifecycle.Lifecycle_Generation,
          Analysis             => Analysis);
 
       Editor.Feature_Panel.Set_Visible (S.Feature_Panel, False);
@@ -208,9 +208,9 @@ package body Editor.Executor.Semantic_Index_State_Tests is
         (S,
          "@outline procedure Run" & ASCII.LF &
          "Run;" & ASCII.LF);
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String ("/project/run.adb");
-      S.File_Info.Display_Name := To_Unbounded_String ("run.adb");
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String ("/project/run.adb");
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("run.adb");
       S.Carets.Replace_Element
         (S.Carets.First_Index,
          Editor.Cursors.Caret_State'
@@ -222,9 +222,9 @@ package body Editor.Executor.Semantic_Index_State_Tests is
          (Start_Line => 1, Start_Column => 20, End_Line => 1, End_Column => 22));
       Editor.Ada_Project_Index.Put_Analysis
         (S.Language_Index, "/project/run.adb",
-         Buffer_Token         => S.Active_Buffer_Token,
-         Buffer_Revision      => S.Buffer_Revision,
-         Lifecycle_Generation => S.Lifecycle_Generation,
+         Buffer_Token         => S.Buffer_Lifecycle.Active_Buffer_Token,
+         Buffer_Revision      => S.Buffer_Lifecycle.Buffer_Revision,
+         Lifecycle_Generation => S.Buffer_Lifecycle.Lifecycle_Generation,
          Analysis             => Analysis);
 
       Editor.Feature_Panel.Set_Visible (S.Feature_Panel, False);
@@ -290,9 +290,9 @@ package body Editor.Executor.Semantic_Index_State_Tests is
 
       Editor.Ada_Project_Index.Put_Analysis
         (S.Language_Index, "/project/repeated.adb",
-         Buffer_Token         => S.Active_Buffer_Token,
-         Buffer_Revision      => S.Buffer_Revision,
-         Lifecycle_Generation => S.Lifecycle_Generation,
+         Buffer_Token         => S.Buffer_Lifecycle.Active_Buffer_Token,
+         Buffer_Revision      => S.Buffer_Lifecycle.Buffer_Revision,
+         Lifecycle_Generation => S.Buffer_Lifecycle.Lifecycle_Generation,
          Analysis             => Analysis);
 
       Avail := Editor.Executor.Command_Availability
@@ -352,22 +352,22 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
       Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String ("/project/run.adb");
-      S.File_Info.Display_Name := To_Unbounded_String ("run.adb");
-      S.Active_Buffer_Token := Live_Token;
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String ("/project/run.adb");
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("run.adb");
+      S.Buffer_Lifecycle.Active_Buffer_Token := Live_Token;
 
       Ignored := LM.Add_Symbol
         (Analysis, "Run", LM.Symbol_Procedure,
          (Start_Line => 1, Start_Column => 20, End_Line => 1, End_Column => 22));
       Stale_Revision :=
-        (if S.Buffer_Revision > 0 then S.Buffer_Revision - 1
-         else S.Buffer_Revision + 1);
+        (if S.Buffer_Lifecycle.Buffer_Revision > 0 then S.Buffer_Lifecycle.Buffer_Revision - 1
+         else S.Buffer_Lifecycle.Buffer_Revision + 1);
       Editor.Ada_Project_Index.Put_Analysis
         (S.Language_Index, "/project/run.adb",
          Buffer_Token         => Live_Token,
          Buffer_Revision      => Stale_Revision,
-         Lifecycle_Generation => S.Lifecycle_Generation,
+         Lifecycle_Generation => S.Buffer_Lifecycle.Lifecycle_Generation,
          Analysis             => Analysis);
 
       Avail := Editor.Executor.Command_Availability
@@ -506,9 +506,9 @@ package body Editor.Executor.Semantic_Index_State_Tests is
          (Start_Line => 1, Start_Column => 20, End_Line => 1, End_Column => 22));
       Editor.Ada_Project_Index.Put_Analysis
         (S.Language_Index, "/project/run.adb",
-         Buffer_Token         => S.Active_Buffer_Token,
-         Buffer_Revision      => S.Buffer_Revision,
-         Lifecycle_Generation => S.Lifecycle_Generation,
+         Buffer_Token         => S.Buffer_Lifecycle.Active_Buffer_Token,
+         Buffer_Revision      => S.Buffer_Lifecycle.Buffer_Revision,
+         Lifecycle_Generation => S.Buffer_Lifecycle.Lifecycle_Generation,
          Analysis             => Analysis);
 
       Avail := Editor.Executor.Command_Availability
@@ -721,9 +721,9 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               "semantic project refresh syncs language service");
       Assert (Editor.Syntax_Semantics.Symbol_Count (S.Syntax_Symbols) > 0,
               "semantic project refresh updates active-buffer semantic map");
-      Assert (S.Syntax_Symbols_Buffer_Token = S.Active_Buffer_Token,
+      Assert (S.Syntax_Symbols_Buffer_Token = S.Buffer_Lifecycle.Active_Buffer_Token,
               "semantic project refresh stamps active-buffer semantic token");
-      Assert (S.Syntax_Symbols_Revision = S.Buffer_Revision,
+      Assert (S.Syntax_Symbols_Revision = S.Buffer_Lifecycle.Buffer_Revision,
               "semantic project refresh stamps active-buffer semantic revision");
       Msg := To_Unbounded_String (Latest_Message_Text (S));
       Assert (Ada.Strings.Fixed.Index
@@ -780,9 +780,9 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Main_Path);
       Assert (Editor.Syntax_Semantics.Symbol_Count (S.Syntax_Symbols) > 0,
               "opening an Ada file should prepare active-buffer semantic state");
-      Assert (S.Syntax_Symbols_Buffer_Token = S.Active_Buffer_Token,
+      Assert (S.Syntax_Symbols_Buffer_Token = S.Buffer_Lifecycle.Active_Buffer_Token,
               "automatic file-open semantics should stamp the active buffer");
-      Assert (S.Syntax_Symbols_Revision = S.Buffer_Revision,
+      Assert (S.Syntax_Symbols_Revision = S.Buffer_Lifecycle.Buffer_Revision,
               "automatic file-open semantics should stamp the active revision");
 
       Write_Text_File
@@ -860,7 +860,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
                 (S.Feature_Diagnostics, 1),
               "live semantic Diagnostics rows are navigable");
       Assert (Editor.Feature_Diagnostics.Item_Target_Buffer
-                (S.Feature_Diagnostics, 1) = S.Active_Buffer_Token,
+                (S.Feature_Diagnostics, 1) = S.Buffer_Lifecycle.Active_Buffer_Token,
               "live semantic Diagnostics rows target the active buffer snapshot");
       for I in 1 .. Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) loop
          if Editor.Feature_Diagnostics.Item_Quick_Fix_Label
@@ -974,7 +974,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
                 (S.Feature_Diagnostics, 1) = Path,
               "buffer live Diagnostics rows retain file source labels");
       Assert (Editor.Feature_Diagnostics.Item_Target_Buffer
-                (S.Feature_Diagnostics, 1) = S.Active_Buffer_Token,
+                (S.Feature_Diagnostics, 1) = S.Buffer_Lifecycle.Active_Buffer_Token,
               "buffer live Diagnostics rows target the active buffer snapshot");
 
       First_Count := Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics);
@@ -1148,8 +1148,8 @@ package body Editor.Executor.Semantic_Index_State_Tests is
         (S, Editor.Command_Ids.Command_Goto_Body);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "indexed package spec row navigates to body");
-      Assert (S.File_Info.Has_Path
-              and then To_String (S.File_Info.Path) = Body_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path
+              and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Body_Path,
               "goto body opens indexed body file");
       Assert (Active_Caret_Line (S) = 1,
               "goto body places caret on indexed body declaration");
@@ -1200,8 +1200,8 @@ package body Editor.Executor.Semantic_Index_State_Tests is
         (S, Editor.Command_Ids.Command_Goto_Spec);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "indexed package body row navigates to spec");
-      Assert (S.File_Info.Has_Path
-              and then To_String (S.File_Info.Path) = Spec_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path
+              and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Spec_Path,
               "goto spec opens indexed spec file");
       Assert (Active_Caret_Line (S) = 1,
               "goto spec places caret on indexed spec declaration");
@@ -1245,8 +1245,8 @@ package body Editor.Executor.Semantic_Index_State_Tests is
         (S, Editor.Command_Ids.Command_Goto_Spec);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "indexed separate procedure body row navigates to parent spec");
-      Assert (S.File_Info.Has_Path
-              and then To_String (S.File_Info.Path) = Spec_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path
+              and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Spec_Path,
               "separate procedure goto spec opens indexed parent spec file");
       Assert (Editor.Ada_Language_Service.Active_Semantic_Request
                 (S.Language_Service).Kind =
@@ -1349,8 +1349,8 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               "language index buffer-switcher fixture filters to main");
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Accept_Buffer_Switcher (S);
 
-      Assert (S.File_Info.Has_Path
-              and then To_String (S.File_Info.Path) = Main_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path
+              and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Main_Path,
               "buffer-switcher accept focuses main source");
       Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
               "buffer-switcher accept preserves project language index files");
@@ -1413,8 +1413,8 @@ package body Editor.Executor.Semantic_Index_State_Tests is
 
       Editor.Navigation_History.Clear (S.Navigation_History);
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, Main_Id);
-      Assert (S.File_Info.Has_Path
-              and then To_String (S.File_Info.Path) = Main_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path
+              and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Main_Path,
               "language index navigation fixture switches to main");
       Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 1,
               "language index navigation fixture records previous lib buffer");
@@ -1423,8 +1423,8 @@ package body Editor.Executor.Semantic_Index_State_Tests is
         (S, Editor.Command_Ids.Command_Navigation_Back);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "navigate back executes for indexed open buffer target");
-      Assert (S.File_Info.Has_Path
-              and then To_String (S.File_Info.Path) = Lib_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path
+              and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Lib_Path,
               "navigate back focuses lib source");
       Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
               "navigate back preserves project language index files");
@@ -1487,8 +1487,8 @@ package body Editor.Executor.Semantic_Index_State_Tests is
         (S, Editor.Command_Ids.Command_Close_Active_Buffer);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "close active buffer executes for clean indexed source");
-      Assert (S.File_Info.Has_Path
-              and then To_String (S.File_Info.Path) = Main_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path
+              and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Main_Path,
               "close active buffer focuses remaining source");
       Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
               "close active buffer preserves project language index files");
@@ -1548,7 +1548,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
 
       Editor.Executor.File_Open_Commands.Execute_New_Buffer (S);
 
-      Assert (not S.File_Info.Has_Path,
+      Assert (not S.Buffer_Lifecycle.File_Info.Has_Path,
               "new buffer creates an untitled active buffer");
       Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
               "new buffer preserves project language index files");
@@ -1607,7 +1607,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
          "   procedure Run;" & ASCII.LF &
          "   procedure Extra;" & ASCII.LF &
          "end Lib;" & ASCII.LF);
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, Main_Id);
 
@@ -1622,8 +1622,8 @@ package body Editor.Executor.Semantic_Index_State_Tests is
         (S, Editor.Command_Ids.Command_Save_All);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "save all executes for inactive dirty file-backed buffer");
-      Assert (S.File_Info.Has_Path
-              and then To_String (S.File_Info.Path) = Main_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path
+              and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Main_Path,
               "save all restores original active source");
       Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
               "save all preserves project language index files");
@@ -1680,7 +1680,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
          "   procedure Run;" & ASCII.LF &
          "   procedure Saved;" & ASCII.LF &
          "end Lib;" & ASCII.LF);
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Result := Editor.Executor.Execute_Command_With_Result
@@ -1694,7 +1694,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
         (S, Editor.Command_Ids.Command_Save_File);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "save file executes for dirty file-backed buffer");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "save file clears dirty state");
       Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
               "save file rebuilds project language index files");
@@ -1754,7 +1754,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
          "   procedure Run;" & ASCII.LF &
          "   procedure Unsaved;" & ASCII.LF &
          "end Lib;" & ASCII.LF);
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Result := Editor.Executor.Execute_Command_With_Result
@@ -1778,7 +1778,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
 
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "reload confirmation clears the prompt");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "reload confirmation clears dirty state");
       Assert (Ada.Strings.Fixed.Index (Editor.State.Current_Text (S), "From_Disk") > 0,
               "reload confirmation installs disk text");
@@ -1838,7 +1838,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
          "   procedure Run;" & ASCII.LF &
          "   procedure Unsaved;" & ASCII.LF &
          "end Lib;" & ASCII.LF);
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Result := Editor.Executor.Execute_Command_With_Result
@@ -1857,7 +1857,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
 
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "revert confirmation clears the prompt");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "revert confirmation clears dirty state");
       Assert (Ada.Strings.Fixed.Index (Editor.State.Current_Text (S), "From_Disk") > 0,
               "revert confirmation restores disk text");
@@ -1916,7 +1916,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
          "   procedure Run;" & ASCII.LF &
          "   procedure Unsaved;" & ASCII.LF &
          "end Lib;" & ASCII.LF);
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Result := Editor.Executor.Execute_Command_With_Result
@@ -1933,15 +1933,15 @@ package body Editor.Executor.Semantic_Index_State_Tests is
          "   procedure From_Disk;" & ASCII.LF &
          "end Lib;" & ASCII.LF);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File);
-      Assert (S.File_Conflict_Prompt_Active,
+      Assert (S.Buffer_Lifecycle.File_Conflict_Prompt_Active,
               "save conflict opens file conflict prompt");
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_File_Conflict_Reload_From_Disk);
 
-      Assert (not S.File_Conflict_Prompt_Active,
+      Assert (not S.Buffer_Lifecycle.File_Conflict_Prompt_Active,
               "file-conflict reload clears prompt");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "file-conflict reload clears dirty state");
       Assert (Ada.Strings.Fixed.Index (Editor.State.Current_Text (S), "From_Disk") > 0,
               "file-conflict reload installs disk text");
@@ -2001,7 +2001,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
          "   procedure Run;" & ASCII.LF &
          "   procedure Unsaved;" & ASCII.LF &
          "end Lib;" & ASCII.LF);
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Result := Editor.Executor.Execute_Command_With_Result
@@ -2018,15 +2018,15 @@ package body Editor.Executor.Semantic_Index_State_Tests is
          "   procedure External;" & ASCII.LF &
          "end Lib;" & ASCII.LF);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File);
-      Assert (S.File_Conflict_Prompt_Active,
+      Assert (S.Buffer_Lifecycle.File_Conflict_Prompt_Active,
               "save conflict opens overwrite prompt");
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_File_Conflict_Overwrite_Disk);
 
-      Assert (not S.File_Conflict_Prompt_Active,
+      Assert (not S.Buffer_Lifecycle.File_Conflict_Prompt_Active,
               "file-conflict overwrite clears prompt");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "file-conflict overwrite clears dirty state");
       Reloaded := Editor.Files.Open_File (Lib_Path);
       Assert (Editor.Files.Is_Success (Reloaded)

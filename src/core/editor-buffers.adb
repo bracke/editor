@@ -112,9 +112,9 @@ package body Editor.Buffers is
       Editor.Feature_Messages.Clear (State.Feature_Messages);
       Editor.Feature_Search_Results.Clear (State.Feature_Search_Results);
       Editor.Feature_Diagnostics.Clear (State.Feature_Diagnostics);
-      State.Has_Reopen_Candidate := False;
-      State.Reopen_Candidate_Path := Null_Unbounded_String;
-      State.Reopen_Candidate_Label := Null_Unbounded_String;
+      State.Buffer_Lifecycle.Has_Reopen_Candidate := False;
+      State.Buffer_Lifecycle.Reopen_Candidate_Path := Null_Unbounded_String;
+      State.Buffer_Lifecycle.Reopen_Candidate_Label := Null_Unbounded_String;
    end Strip_Global_UI_State;
 
    function Index_Of
@@ -147,7 +147,7 @@ package body Editor.Buffers is
    begin
       for Item of Registry.Items loop
          if Item.State /= null
-           and then To_String (Item.State.File_Info.Display_Name) = Name
+           and then To_String (Item.State.Buffer_Lifecycle.File_Info.Display_Name) = Name
          then
             return True;
          end if;
@@ -183,8 +183,8 @@ package body Editor.Buffers is
       Rec    : Buffer_Record;
    begin
       Editor.State.Init (State.all);
-      State.Active_Buffer_Token := Natural (Id);
-      State.File_Info.Display_Name := To_Unbounded_String (Name);
+      State.Buffer_Lifecycle.Active_Buffer_Token := Natural (Id);
+      State.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String (Name);
       Clear_Buffer_Messages (State.all);
 
       Rec.Id := Id;
@@ -208,14 +208,14 @@ package body Editor.Buffers is
       Snap   : constant Editor.View.View_State := Editor.View.Snapshot;
    begin
       Editor.State.Init (State.all);
-      State.Active_Buffer_Token := Natural (Id);
+      State.Buffer_Lifecycle.Active_Buffer_Token := Natural (Id);
       Editor.State.Replace_Buffer_Contents (State.all, Contents);
-      State.File_Info.Has_Path := True;
-      State.File_Info.Path := To_Unbounded_String (Path);
-      State.File_Info.Display_Name := To_Unbounded_String (Display_Name);
-      State.File_Info.Dirty := False;
-      State.File_Info.Baseline_Valid := True;
-      State.File_Info.Saved_Generation := Editor.State.Current_Buffer_Revision (State.all);
+      State.Buffer_Lifecycle.File_Info.Has_Path := True;
+      State.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Path);
+      State.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String (Display_Name);
+      State.Buffer_Lifecycle.File_Info.Dirty := False;
+      State.Buffer_Lifecycle.File_Info.Baseline_Valid := True;
+      State.Buffer_Lifecycle.File_Info.Saved_Generation := Editor.State.Current_Buffer_Revision (State.all);
       Clear_Buffer_Messages (State.all);
 
       Rec.Id := Id;
@@ -456,7 +456,7 @@ package body Editor.Buffers is
                  File_Token_Label => Null_Unbounded_String);
       end if;
 
-      return Registry.Items (I).State.File_Info;
+      return Registry.Items (I).State.Buffer_Lifecycle.File_Info;
    end Buffer_File_Info;
 
    procedure Close_Buffer
@@ -474,7 +474,7 @@ package body Editor.Buffers is
          return;
       end if;
 
-      if Registry.Items (I).State.File_Info.Dirty and then not Force then
+      if Registry.Items (I).State.Buffer_Lifecycle.File_Info.Dirty and then not Force then
          return;
       end if;
 
@@ -630,11 +630,11 @@ package body Editor.Buffers is
 
       for Item of Registry.Items loop
          if Item.State /= null
-           and then Item.State.File_Info.Has_Path
+           and then Item.State.Buffer_Lifecycle.File_Info.Has_Path
          then
             declare
                Stored_Path : constant String :=
-                 To_String (Item.State.File_Info.Path);
+                 To_String (Item.State.Buffer_Lifecycle.File_Info.Path);
             begin
                if Stored_Path = Path
                  or else Stored_Path = Query_Path
@@ -905,17 +905,17 @@ package body Editor.Buffers is
       Rec    : Buffer_Record;
       Copy   : Buffer_State := State;
    begin
-      if State.Registry_Token /= Global_Owner_Token then
+      if State.Buffer_Lifecycle.Registry_Token /= Global_Owner_Token then
          Reset_Registry (Global_Registry);
-         Global_Owner_Token := State.Registry_Token;
+         Global_Owner_Token := State.Buffer_Lifecycle.Registry_Token;
          Editor.History.Undo_Stack.Clear;
          Editor.History.Redo_Stack.Clear;
-         if State.Active_Buffer_Token = 0 then
+         if State.Buffer_Lifecycle.Active_Buffer_Token = 0 then
             return;
          end if;
       elsif not Global_Registry.Items.Is_Empty then
          return;
-      elsif State.Active_Buffer_Token = 0 then
+      elsif State.Buffer_Lifecycle.Active_Buffer_Token = 0 then
          --  a deliberate close-last-buffer state must remain
          --  bufferless.  Read/command paths may ensure the registry, but
          --  they must not resurrect the just-closed buffer from stale State.
@@ -934,14 +934,14 @@ package body Editor.Buffers is
       Global_Registry.Active := Id;
       Global_Provisional_Active := False;
       Global_Provisional_Active_Id := No_Buffer;
-      State.Active_Buffer_Token := Natural (Id);
+      State.Buffer_Lifecycle.Active_Buffer_Token := Natural (Id);
    end Ensure_Global_Registry;
 
    function Global_Registry_Current_For
      (State : Editor.State.State_Type) return Boolean
    is
    begin
-      return State.Registry_Token = Global_Owner_Token;
+      return State.Buffer_Lifecycle.Registry_Token = Global_Owner_Token;
    end Global_Registry_Current_For;
 
    procedure Sync_Global_Active_From_State
@@ -959,11 +959,11 @@ package body Editor.Buffers is
          return;
       end if;
 
-      if Global_Owner_Token = 0 and then State.Registry_Token /= 0 then
-         Global_Owner_Token := State.Registry_Token;
+      if Global_Owner_Token = 0 and then State.Buffer_Lifecycle.Registry_Token /= 0 then
+         Global_Owner_Token := State.Buffer_Lifecycle.Registry_Token;
       end if;
 
-      Copy.Active_Buffer_Token := Natural (Global_Registry.Active);
+      Copy.Buffer_Lifecycle.Active_Buffer_Token := Natural (Global_Registry.Active);
       Strip_Global_UI_State (Copy);
       Global_Registry.Items (I).State.all := Copy;
       Global_Registry.Items (I).Undo := Editor.History.Undo_Stack;
@@ -1002,51 +1002,51 @@ package body Editor.Buffers is
       Panel_Focus : constant Editor.Panel_Focus.Panel_Focus_State := State.Panel_Focus;
       Overlay_Focus : constant Editor.Overlay_Focus.Overlay_Focus_State := State.Overlay_Focus;
       Navigation_History : constant Editor.Navigation_History.Navigation_History_State := State.Navigation_History;
-      Reopen_Candidate_Count : constant Natural := State.Reopen_Candidate_Count;
-      Reopen_Candidate_Paths : constant Editor.State_Buffer.Reopen_Candidate_Array := State.Reopen_Candidate_Paths;
-      Reopen_Candidate_Labels : constant Editor.State_Buffer.Reopen_Candidate_Array := State.Reopen_Candidate_Labels;
-      Has_Reopen_Candidate : constant Boolean := State.Has_Reopen_Candidate;
-      Reopen_Candidate_Path : constant Unbounded_String := State.Reopen_Candidate_Path;
-      Reopen_Candidate_Label : constant Unbounded_String := State.Reopen_Candidate_Label;
-      Dirty_Close_Prompt_Active : constant Boolean := State.Dirty_Close_Prompt_Active;
+      Reopen_Candidate_Count : constant Natural := State.Buffer_Lifecycle.Reopen_Candidate_Count;
+      Reopen_Candidate_Paths : constant Editor.State_Buffer.Reopen_Candidate_Array := State.Buffer_Lifecycle.Reopen_Candidate_Paths;
+      Reopen_Candidate_Labels : constant Editor.State_Buffer.Reopen_Candidate_Array := State.Buffer_Lifecycle.Reopen_Candidate_Labels;
+      Has_Reopen_Candidate : constant Boolean := State.Buffer_Lifecycle.Has_Reopen_Candidate;
+      Reopen_Candidate_Path : constant Unbounded_String := State.Buffer_Lifecycle.Reopen_Candidate_Path;
+      Reopen_Candidate_Label : constant Unbounded_String := State.Buffer_Lifecycle.Reopen_Candidate_Label;
+      Dirty_Close_Prompt_Active : constant Boolean := State.Buffer_Lifecycle.Dirty_Close_Prompt_Active;
       Dirty_Close_Prompt_Scope : constant Editor.State_Buffer.Dirty_Close_Scope :=
-        State.Dirty_Close_Prompt_Scope;
+        State.Buffer_Lifecycle.Dirty_Close_Prompt_Scope;
       Dirty_Close_Prompt_All_Buffers : constant Boolean :=
-        State.Dirty_Close_Prompt_All_Buffers;
-      Dirty_Close_Prompt_Buffer : constant Natural := State.Dirty_Close_Prompt_Buffer;
+        State.Buffer_Lifecycle.Dirty_Close_Prompt_All_Buffers;
+      Dirty_Close_Prompt_Buffer : constant Natural := State.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer;
       Dirty_Close_Prompt_Buffer_Count : constant Natural :=
-        State.Dirty_Close_Prompt_Buffer_Count;
+        State.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer_Count;
       Dirty_Close_Prompt_Buffer_Fingerprint : constant Natural :=
-        State.Dirty_Close_Prompt_Buffer_Fingerprint;
+        State.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer_Fingerprint;
       Dirty_Close_Prompt_Buffer_Ids : constant Unbounded_String :=
-        State.Dirty_Close_Prompt_Buffer_Ids;
+        State.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer_Ids;
       Dirty_Close_Prompt_Dirty_Fingerprint : constant Natural :=
-        State.Dirty_Close_Prompt_Dirty_Fingerprint;
+        State.Buffer_Lifecycle.Dirty_Close_Prompt_Dirty_Fingerprint;
       Dirty_Close_Prompt_Dirty_Buffer_Ids : constant Unbounded_String :=
-        State.Dirty_Close_Prompt_Dirty_Buffer_Ids;
+        State.Buffer_Lifecycle.Dirty_Close_Prompt_Dirty_Buffer_Ids;
       Dirty_Close_Prompt_Dirty_Count : constant Natural :=
-        State.Dirty_Close_Prompt_Dirty_Count;
+        State.Buffer_Lifecycle.Dirty_Close_Prompt_Dirty_Count;
       Dirty_Close_Prompt_File_Backed_Count : constant Natural :=
-        State.Dirty_Close_Prompt_File_Backed_Count;
+        State.Buffer_Lifecycle.Dirty_Close_Prompt_File_Backed_Count;
       Dirty_Close_Prompt_Untitled_Count : constant Natural :=
-        State.Dirty_Close_Prompt_Untitled_Count;
+        State.Buffer_Lifecycle.Dirty_Close_Prompt_Untitled_Count;
       Dirty_Close_Prompt_Conflicted_Count : constant Natural :=
-        State.Dirty_Close_Prompt_Conflicted_Count;
+        State.Buffer_Lifecycle.Dirty_Close_Prompt_Conflicted_Count;
       Dirty_Close_Prompt_Unwritable_Count : constant Natural :=
-        State.Dirty_Close_Prompt_Unwritable_Count;
+        State.Buffer_Lifecycle.Dirty_Close_Prompt_Unwritable_Count;
       Dirty_Close_Prompt_Missing_Count : constant Natural :=
-        State.Dirty_Close_Prompt_Missing_Count;
+        State.Buffer_Lifecycle.Dirty_Close_Prompt_Missing_Count;
       Dirty_Close_Prompt_Save_Failure_Count : constant Natural :=
-        State.Dirty_Close_Prompt_Save_Failure_Count;
+        State.Buffer_Lifecycle.Dirty_Close_Prompt_Save_Failure_Count;
       File_Target_Prompt_Active : constant Boolean :=
-        State.File_Target_Prompt_Active;
+        State.Buffer_Lifecycle.File_Target_Prompt_Active;
       File_Target_Prompt_Command : constant Editor.Command_Ids.Command_Id :=
-        State.File_Target_Prompt_Command;
+        State.Buffer_Lifecycle.File_Target_Prompt_Command;
       File_Target_Prompt_Label : constant Unbounded_String :=
-        State.File_Target_Prompt_Label;
+        State.Buffer_Lifecycle.File_Target_Prompt_Label;
       File_Target_Prompt_Input : constant Editor.Input_Field.Input_Field_State :=
-        State.File_Target_Prompt_Input;
-      Owner_Token : constant Natural := State.Registry_Token;
+        State.Buffer_Lifecycle.File_Target_Prompt_Input;
+      Owner_Token : constant Natural := State.Buffer_Lifecycle.Registry_Token;
    begin
       if I = Natural'Last then
          return;
@@ -1057,8 +1057,8 @@ package body Editor.Buffers is
       end if;
 
       State := Global_Registry.Items (I).State.all;
-      State.Registry_Token := Owner_Token;
-      State.Active_Buffer_Token := Natural (Global_Registry.Active);
+      State.Buffer_Lifecycle.Registry_Token := Owner_Token;
+      State.Buffer_Lifecycle.Active_Buffer_Token := Natural (Global_Registry.Active);
       State.Project := Project;
       State.File_Tree := File_Tree;
       State.File_Tree_View := File_Tree_View;
@@ -1081,39 +1081,39 @@ package body Editor.Buffers is
       State.Panel_Focus := Panel_Focus;
       State.Overlay_Focus := Overlay_Focus;
       State.Navigation_History := Navigation_History;
-      State.Reopen_Candidate_Count := Reopen_Candidate_Count;
-      State.Reopen_Candidate_Paths := Reopen_Candidate_Paths;
-      State.Reopen_Candidate_Labels := Reopen_Candidate_Labels;
-      State.Has_Reopen_Candidate := Has_Reopen_Candidate;
-      State.Reopen_Candidate_Path := Reopen_Candidate_Path;
-      State.Reopen_Candidate_Label := Reopen_Candidate_Label;
-      State.Dirty_Close_Prompt_Active := Dirty_Close_Prompt_Active;
-      State.Dirty_Close_Prompt_Scope := Dirty_Close_Prompt_Scope;
-      State.Dirty_Close_Prompt_All_Buffers := Dirty_Close_Prompt_All_Buffers;
-      State.Dirty_Close_Prompt_Buffer := Dirty_Close_Prompt_Buffer;
-      State.Dirty_Close_Prompt_Buffer_Count := Dirty_Close_Prompt_Buffer_Count;
-      State.Dirty_Close_Prompt_Buffer_Fingerprint :=
+      State.Buffer_Lifecycle.Reopen_Candidate_Count := Reopen_Candidate_Count;
+      State.Buffer_Lifecycle.Reopen_Candidate_Paths := Reopen_Candidate_Paths;
+      State.Buffer_Lifecycle.Reopen_Candidate_Labels := Reopen_Candidate_Labels;
+      State.Buffer_Lifecycle.Has_Reopen_Candidate := Has_Reopen_Candidate;
+      State.Buffer_Lifecycle.Reopen_Candidate_Path := Reopen_Candidate_Path;
+      State.Buffer_Lifecycle.Reopen_Candidate_Label := Reopen_Candidate_Label;
+      State.Buffer_Lifecycle.Dirty_Close_Prompt_Active := Dirty_Close_Prompt_Active;
+      State.Buffer_Lifecycle.Dirty_Close_Prompt_Scope := Dirty_Close_Prompt_Scope;
+      State.Buffer_Lifecycle.Dirty_Close_Prompt_All_Buffers := Dirty_Close_Prompt_All_Buffers;
+      State.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer := Dirty_Close_Prompt_Buffer;
+      State.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer_Count := Dirty_Close_Prompt_Buffer_Count;
+      State.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer_Fingerprint :=
         Dirty_Close_Prompt_Buffer_Fingerprint;
-      State.Dirty_Close_Prompt_Buffer_Ids := Dirty_Close_Prompt_Buffer_Ids;
-      State.Dirty_Close_Prompt_Dirty_Fingerprint :=
+      State.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer_Ids := Dirty_Close_Prompt_Buffer_Ids;
+      State.Buffer_Lifecycle.Dirty_Close_Prompt_Dirty_Fingerprint :=
         Dirty_Close_Prompt_Dirty_Fingerprint;
-      State.Dirty_Close_Prompt_Dirty_Buffer_Ids :=
+      State.Buffer_Lifecycle.Dirty_Close_Prompt_Dirty_Buffer_Ids :=
         Dirty_Close_Prompt_Dirty_Buffer_Ids;
-      State.Dirty_Close_Prompt_Dirty_Count := Dirty_Close_Prompt_Dirty_Count;
-      State.Dirty_Close_Prompt_File_Backed_Count :=
+      State.Buffer_Lifecycle.Dirty_Close_Prompt_Dirty_Count := Dirty_Close_Prompt_Dirty_Count;
+      State.Buffer_Lifecycle.Dirty_Close_Prompt_File_Backed_Count :=
         Dirty_Close_Prompt_File_Backed_Count;
-      State.Dirty_Close_Prompt_Untitled_Count := Dirty_Close_Prompt_Untitled_Count;
-      State.Dirty_Close_Prompt_Conflicted_Count :=
+      State.Buffer_Lifecycle.Dirty_Close_Prompt_Untitled_Count := Dirty_Close_Prompt_Untitled_Count;
+      State.Buffer_Lifecycle.Dirty_Close_Prompt_Conflicted_Count :=
         Dirty_Close_Prompt_Conflicted_Count;
-      State.Dirty_Close_Prompt_Unwritable_Count :=
+      State.Buffer_Lifecycle.Dirty_Close_Prompt_Unwritable_Count :=
         Dirty_Close_Prompt_Unwritable_Count;
-      State.Dirty_Close_Prompt_Missing_Count := Dirty_Close_Prompt_Missing_Count;
-      State.Dirty_Close_Prompt_Save_Failure_Count :=
+      State.Buffer_Lifecycle.Dirty_Close_Prompt_Missing_Count := Dirty_Close_Prompt_Missing_Count;
+      State.Buffer_Lifecycle.Dirty_Close_Prompt_Save_Failure_Count :=
         Dirty_Close_Prompt_Save_Failure_Count;
-      State.File_Target_Prompt_Active := File_Target_Prompt_Active;
-      State.File_Target_Prompt_Command := File_Target_Prompt_Command;
-      State.File_Target_Prompt_Label := File_Target_Prompt_Label;
-      State.File_Target_Prompt_Input := File_Target_Prompt_Input;
+      State.Buffer_Lifecycle.File_Target_Prompt_Active := File_Target_Prompt_Active;
+      State.Buffer_Lifecycle.File_Target_Prompt_Command := File_Target_Prompt_Command;
+      State.Buffer_Lifecycle.File_Target_Prompt_Label := File_Target_Prompt_Label;
+      State.Buffer_Lifecycle.File_Target_Prompt_Input := File_Target_Prompt_Input;
 
       --  Active-buffer Find owns only canonical query/input state during
       --  buffer switches; no inactive Active Find prompt state is preserved.
@@ -1292,7 +1292,7 @@ package body Editor.Buffers is
                  File_Token_Known => False,
                  File_Token_Label => Null_Unbounded_String);
       end if;
-      return Current (Global_Registry).File_Info;
+      return Current (Global_Registry).Buffer_Lifecycle.File_Info;
    end Global_Current_File;
 
    function Global_Display_Name
@@ -1621,10 +1621,10 @@ package body Editor.Buffers is
 
       for Item of Global_Registry.Items loop
          if Item.State /= null
-           and then Item.State.File_Info.Has_Path
-           and then Item.State.File_Info.Dirty
+           and then Item.State.Buffer_Lifecycle.File_Info.Has_Path
+           and then Item.State.Buffer_Lifecycle.File_Info.Dirty
            and then Same_Or_Descendant_Path
-             (To_String (Item.State.File_Info.Path), Path)
+             (To_String (Item.State.Buffer_Lifecycle.File_Info.Path), Path)
          then
             return True;
          end if;
@@ -1643,9 +1643,9 @@ package body Editor.Buffers is
 
       for Item of Global_Registry.Items loop
          if Item.State /= null
-           and then Item.State.File_Info.Has_Path
+           and then Item.State.Buffer_Lifecycle.File_Info.Has_Path
            and then Same_Or_Descendant_Path
-             (To_String (Item.State.File_Info.Path), Path)
+             (To_String (Item.State.Buffer_Lifecycle.File_Info.Path), Path)
          then
             return True;
          end if;
@@ -1668,18 +1668,18 @@ package body Editor.Buffers is
 
       for I in Global_Registry.Items.First_Index .. Global_Registry.Items.Last_Index loop
          if Global_Registry.Items (I).State /= null
-           and then Global_Registry.Items (I).State.File_Info.Has_Path
-           and then not Global_Registry.Items (I).State.File_Info.Dirty
+           and then Global_Registry.Items (I).State.Buffer_Lifecycle.File_Info.Has_Path
+           and then not Global_Registry.Items (I).State.Buffer_Lifecycle.File_Info.Dirty
            and then Same_Or_Descendant_Path
-             (To_String (Global_Registry.Items (I).State.File_Info.Path), Old_Root)
+             (To_String (Global_Registry.Items (I).State.Buffer_Lifecycle.File_Info.Path), Old_Root)
          then
             New_Path := To_Unbounded_String
               (Rebase_Path
-                 (To_String (Global_Registry.Items (I).State.File_Info.Path),
+                 (To_String (Global_Registry.Items (I).State.Buffer_Lifecycle.File_Info.Path),
                   Old_Root,
                   New_Root));
-            Global_Registry.Items (I).State.File_Info.Path := New_Path;
-            Global_Registry.Items (I).State.File_Info.Display_Name :=
+            Global_Registry.Items (I).State.Buffer_Lifecycle.File_Info.Path := New_Path;
+            Global_Registry.Items (I).State.Buffer_Lifecycle.File_Info.Display_Name :=
               To_Unbounded_String
                 (Ada.Directories.Simple_Name (To_String (New_Path)));
             Rebased_Count := Rebased_Count + 1;
@@ -1704,10 +1704,10 @@ package body Editor.Buffers is
         and then I <= Global_Registry.Items.Last_Index
       loop
          if Global_Registry.Items (I).State /= null
-           and then Global_Registry.Items (I).State.File_Info.Has_Path
-           and then not Global_Registry.Items (I).State.File_Info.Dirty
+           and then Global_Registry.Items (I).State.Buffer_Lifecycle.File_Info.Has_Path
+           and then not Global_Registry.Items (I).State.Buffer_Lifecycle.File_Info.Dirty
            and then Same_Or_Descendant_Path
-             (To_String (Global_Registry.Items (I).State.File_Info.Path), Path)
+             (To_String (Global_Registry.Items (I).State.Buffer_Lifecycle.File_Info.Path), Path)
          then
             declare
                Id_To_Close : constant Buffer_Id := Global_Registry.Items (I).Id;
@@ -1731,7 +1731,7 @@ package body Editor.Buffers is
       I : constant Natural := Index_Of (Global_Registry, Id);
    begin
       if I /= Natural'Last and then Global_Registry.Items (I).State /= null then
-         Global_Registry.Items (I).State.File_Info.Blocked_Close_Surfaced := True;
+         Global_Registry.Items (I).State.Buffer_Lifecycle.File_Info.Blocked_Close_Surfaced := True;
       end if;
    end Global_Set_Blocked_Close_Surfaced;
 
@@ -1742,16 +1742,16 @@ package body Editor.Buffers is
    begin
       if I /= Natural'Last
         and then Global_Registry.Items (I).State /= null
-        and then not Global_Registry.Items (I).State.File_Info.Dirty
+        and then not Global_Registry.Items (I).State.Buffer_Lifecycle.File_Info.Dirty
       then
-         Global_Registry.Items (I).State.File_Info.Last_Save_Failed := False;
-         Global_Registry.Items (I).State.File_Info.Last_Reload_Failed := False;
-         Global_Registry.Items (I).State.File_Info.Last_Revert_Failed := False;
-         Global_Registry.Items (I).State.File_Info.Missing_Target_Surfaced := False;
-         Global_Registry.Items (I).State.File_Info.Unreadable_Target_Surfaced := False;
-         Global_Registry.Items (I).State.File_Info.Unwritable_Target_Surfaced := False;
-         Global_Registry.Items (I).State.File_Info.External_Change_Surfaced := False;
-         Global_Registry.Items (I).State.File_Info.Blocked_Close_Surfaced := False;
+         Global_Registry.Items (I).State.Buffer_Lifecycle.File_Info.Last_Save_Failed := False;
+         Global_Registry.Items (I).State.Buffer_Lifecycle.File_Info.Last_Reload_Failed := False;
+         Global_Registry.Items (I).State.Buffer_Lifecycle.File_Info.Last_Revert_Failed := False;
+         Global_Registry.Items (I).State.Buffer_Lifecycle.File_Info.Missing_Target_Surfaced := False;
+         Global_Registry.Items (I).State.Buffer_Lifecycle.File_Info.Unreadable_Target_Surfaced := False;
+         Global_Registry.Items (I).State.Buffer_Lifecycle.File_Info.Unwritable_Target_Surfaced := False;
+         Global_Registry.Items (I).State.Buffer_Lifecycle.File_Info.External_Change_Surfaced := False;
+         Global_Registry.Items (I).State.Buffer_Lifecycle.File_Info.Blocked_Close_Surfaced := False;
       end if;
    end Global_Clear_Clean_Reopen_Lifecycle;
 

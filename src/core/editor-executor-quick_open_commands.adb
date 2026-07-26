@@ -516,8 +516,8 @@ package body Editor.Executor.Quick_Open_Commands is
       function Current_State_Is_Disposable_Initial_Untitled return Boolean is
       begin
          return Editor.Buffers.Global_Count = 0
-           and then not S.File_Info.Has_Path
-           and then not S.File_Info.Dirty
+           and then not S.Buffer_Lifecycle.File_Info.Has_Path
+           and then not S.Buffer_Lifecycle.File_Info.Dirty
            and then Editor.State.Current_Text (S) = "";
       end Current_State_Is_Disposable_Initial_Untitled;
    begin
@@ -552,7 +552,7 @@ package body Editor.Executor.Quick_Open_Commands is
          Preflight := Editor.Files.Open_File (Path);
          if not Editor.Files.Is_Success (Preflight) then
             if Current_State_Is_Disposable_Initial_Untitled then
-               S.Active_Buffer_Token := 0;
+               S.Buffer_Lifecycle.Active_Buffer_Token := 0;
             end if;
             Editor.Executor.Shared_Services.Report_Error (S, "Could not open " & Label & ": "
                & (case Preflight.Status is
@@ -569,8 +569,8 @@ package body Editor.Executor.Quick_Open_Commands is
            Editor.Executor.Current_Navigation_Location (S, Editor.Navigation_History.Navigation_Reason_Unknown);
       begin
          Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
-         if S.File_Info.Has_Path
-           and then To_String (S.File_Info.Path) = Path
+         if S.Buffer_Lifecycle.File_Info.Has_Path
+           and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Path
          then
             Editor.Executor.Record_Navigation_If_Target_Changed (S, Before_Location,
                Editor.Executor.Structured_File_Navigation_Target (Path));

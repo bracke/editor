@@ -133,7 +133,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Before_Rows := Editor.File_Tree.Visible_Row_Count (S.File_Tree);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Project_F);
       Editor.State.Replace_Buffer_Contents (S, "dirty project content");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       declare
@@ -189,7 +189,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Project_F);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Other_F);
       Editor.State.Replace_Buffer_Contents (S, "outside dirty");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       declare
@@ -249,7 +249,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Project_A);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Outside_F);
       Editor.State.Replace_Buffer_Contents (S, "outside dirty");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Cmd.Kind := Editor.Command_Kinds.Switch_Project;
@@ -307,7 +307,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Before_Rows := Editor.File_Tree.Visible_Row_Count (S.File_Tree);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Project_A);
       Editor.State.Replace_Buffer_Contents (S, "dirty project content");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Cmd.Kind := Editor.Command_Kinds.Switch_Project;
@@ -546,7 +546,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root_A);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Project_A);
       Editor.State.Replace_Buffer_Contents (S, "dirty project content");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Cmd.Kind := Editor.Command_Kinds.Switch_Project;
@@ -607,7 +607,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root_A);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Project_A);
       Editor.State.Replace_Buffer_Contents (S, "dirty project content");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_Project);
@@ -664,7 +664,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Before_Rows := Editor.File_Tree.Visible_Row_Count (S.File_Tree);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Project_A);
       Editor.State.Replace_Buffer_Contents (S, "dirty close content");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_Project);
@@ -719,12 +719,12 @@ package body Editor.Executor.Project_Workspace_Tests is
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Outside_F);
       Editor.State.Replace_Buffer_Contents (S, "outside dirty");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Project_A);
       Editor.State.Replace_Buffer_Contents (S, "project dirty");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Cmd.Kind := Editor.Command_Kinds.Switch_Project;
@@ -734,7 +734,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "retry setup must create pending switch");
 
-      S.File_Info.Dirty := False;
+      S.Buffer_Lifecycle.File_Info.Dirty := False;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Retry_Pending_Transition);
@@ -782,12 +782,12 @@ package body Editor.Executor.Project_Workspace_Tests is
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Outside_F);
       Editor.State.Replace_Buffer_Contents (S, "outside dirty");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Project_A);
       Editor.State.Replace_Buffer_Contents (S, "project dirty");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_Project);
@@ -795,7 +795,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "retry setup must create pending close");
 
-      S.File_Info.Dirty := False;
+      S.Buffer_Lifecycle.File_Info.Dirty := False;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Retry_Pending_Transition);
@@ -1081,12 +1081,12 @@ package body Editor.Executor.Project_Workspace_Tests is
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Outside_F);
       Editor.State.Replace_Buffer_Contents (S, "outside dirty retained");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Project_A);
       Editor.State.Replace_Buffer_Contents (S, "project dirty affected");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       declare
@@ -1165,13 +1165,13 @@ package body Editor.Executor.Project_Workspace_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Outside_F);
       Outside_Id := Editor.Buffers.Global_Active_Buffer;
       Set_Buffer_Text (S, "outside dirty retained by project lifecycle");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Project_F);
       Project_Id := Editor.Buffers.Global_Active_Buffer;
       Set_Buffer_Text (S, "project dirty reviewed by selected close");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
@@ -1199,13 +1199,13 @@ package body Editor.Executor.Project_Workspace_Tests is
               "preservation smoke: project lifecycle affected/retained split is stable");
 
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Assert (S.Dirty_Close_Prompt_Active,
+      Assert (S.Buffer_Lifecycle.Dirty_Close_Prompt_Active,
               "preservation smoke: selected dirty close still enters dirty review");
-      Assert (S.Dirty_Close_Prompt_Scope = Editor.State.Selected_Buffer_Close_Scope,
+      Assert (S.Buffer_Lifecycle.Dirty_Close_Prompt_Scope = Editor.State.Selected_Buffer_Close_Scope,
               "preservation smoke: selected close scope is preserved");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Cancel);
-      Assert (not S.Dirty_Close_Prompt_Active,
+      Assert (not S.Buffer_Lifecycle.Dirty_Close_Prompt_Active,
               "preservation smoke: cancel still exits dirty close review");
       Assert (Editor.Buffers.Global_Contains (Project_Id),
               "preservation smoke: cancel keeps selected project buffer open");
@@ -1227,14 +1227,14 @@ package body Editor.Executor.Project_Workspace_Tests is
       Editor.Buffers.Load_Global_Active_Into_State (S);
       Assert (Buffer_Text (S) = "project dirty reviewed by selected close",
               "preservation smoke: selected project dirty text survives cancel");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "preservation smoke: selected project dirty marker survives cancel");
 
       Editor.Buffers.Global_Set_Active_Buffer (Outside_Id);
       Editor.Buffers.Load_Global_Active_Into_State (S);
       Assert (Buffer_Text (S) = "outside dirty retained by project lifecycle",
               "preservation smoke: outside-project dirty text remains retained");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "preservation smoke: outside-project dirty marker remains retained");
 
       Remove_File_If_Exists (Outside_F);

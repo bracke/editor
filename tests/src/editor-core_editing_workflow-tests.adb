@@ -74,28 +74,28 @@ package body Editor.Core_Editing_Workflow.Tests is
       Before_Revision : Natural;
    begin
       Editor.State.Initialize (S);
-      Before_Revision := S.Buffer_Revision;
+      Before_Revision := S.Buffer_Lifecycle.Buffer_Revision;
 
       Assert (Editor.Core_Editing_Workflow.Buffer_Dirty_Label (S) = "Clean",
               "clean initialized buffer has clean label");
       Assert (Editor.Core_Editing_Workflow.Buffer_File_State_Label (S) = "Unbacked buffer",
               "initialized buffer is explicitly unbacked");
-      Assert (not S.File_Info.Dirty, "dirty label does not dirty buffer");
-      Assert (S.Buffer_Revision = Before_Revision, "labels do not mutate buffer revision");
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty, "dirty label does not dirty buffer");
+      Assert (S.Buffer_Lifecycle.Buffer_Revision = Before_Revision, "labels do not mutate buffer revision");
 
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String (Editor.Test_Temp.Base & "/example.adb");
-      S.File_Info.Display_Name := To_Unbounded_String ("example.adb");
-      S.File_Info.Dirty := True;
-      S.File_Info.Last_Save_Failed := True;
-      Before_Revision := S.Buffer_Revision;
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Editor.Test_Temp.Base & "/example.adb");
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("example.adb");
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Last_Save_Failed := True;
+      Before_Revision := S.Buffer_Lifecycle.Buffer_Revision;
 
       Assert (Editor.Core_Editing_Workflow.Buffer_Dirty_Label (S) = "Dirty - save failed",
               "dirty save-failure label is explicit");
       Assert (Editor.Core_Editing_Workflow.Buffer_File_State_Label (S) = "File-backed",
               "file-backed label follows retained path state");
-      Assert (S.File_Info.Dirty, "dirty label did not clear dirty flag");
-      Assert (S.Buffer_Revision = Before_Revision, "file label does not mutate buffer revision");
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty, "dirty label did not clear dirty flag");
+      Assert (S.Buffer_Lifecycle.Buffer_Revision = Before_Revision, "file label does not mutate buffer revision");
    end Test_File_And_Dirty_Labels_Are_Projection_Only;
 
    procedure Test_Availability_Reasons_For_Core_File_Commands
@@ -115,9 +115,9 @@ package body Editor.Core_Editing_Workflow.Tests is
            (S, Editor.Command_Ids.Command_Save_File_As) = "",
          "save-as is available for an active unbacked buffer");
 
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String (Editor.Test_Temp.Base & "/example.adb");
-      S.File_Info.Display_Name := To_Unbounded_String ("example.adb");
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Editor.Test_Temp.Base & "/example.adb");
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("example.adb");
       Assert
         (Editor.Core_Editing_Workflow.Editing_Availability_Reason
            (S, Editor.Command_Ids.Command_Save_File) = "",
@@ -127,7 +127,7 @@ package body Editor.Core_Editing_Workflow.Tests is
            (S, Editor.Command_Ids.Command_Reload_Active_Buffer) = "",
          "reload is available for a clean file-backed buffer");
 
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Assert
         (Editor.Core_Editing_Workflow.Editing_Availability_Reason
            (S, Editor.Command_Ids.Command_Reload_Active_Buffer) = "Dirty buffer cannot be reloaded",
@@ -320,15 +320,15 @@ package body Editor.Core_Editing_Workflow.Tests is
       R : Editor.Core_Editing_Workflow.Core_Editing_Workflow_Result;
    begin
       Editor.State.Initialize (S);
-      S.File_Target_Prompt_Active := True;
-      S.File_Target_Prompt_Command := Editor.Command_Ids.Command_Save_File_As;
+      S.Buffer_Lifecycle.File_Target_Prompt_Active := True;
+      S.Buffer_Lifecycle.File_Target_Prompt_Command := Editor.Command_Ids.Command_Save_File_As;
       R := Editor.Core_Editing_Workflow.Audit_Core_Editing_Workflow (S);
       Assert (R.Prompt_Boundary_Coherent,
               "save-as target prompt is a coherent transient editing prompt");
       Assert (R.Coherent,
               "valid target prompt does not make editing workflow incoherent");
 
-      S.File_Target_Prompt_Command := Editor.Command_Ids.Command_Build_Run;
+      S.Buffer_Lifecycle.File_Target_Prompt_Command := Editor.Command_Ids.Command_Build_Run;
       R := Editor.Core_Editing_Workflow.Audit_Core_Editing_Workflow (S);
       Assert (not R.Prompt_Boundary_Coherent,
               "build command cannot occupy file target prompt payload");
@@ -364,7 +364,7 @@ package body Editor.Core_Editing_Workflow.Tests is
            (S, Editor.Command_Ids.Command_Next_Buffer) = "",
          "buffer switch does not require saving or discarding changes");
 
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       R := Editor.Core_Editing_Workflow.Audit_Core_Editing_Workflow (S);
       Assert
         (Editor.Core_Editing_Workflow.Editing_Availability_Reason
@@ -395,8 +395,8 @@ package body Editor.Core_Editing_Workflow.Tests is
       R : Editor.Core_Editing_Workflow.Core_Editing_Workflow_Result;
    begin
       Editor.State.Initialize (S);
-      S.File_Target_Prompt_Active := True;
-      S.File_Target_Prompt_Command := Editor.Command_Ids.Command_Save_File_As;
+      S.Buffer_Lifecycle.File_Target_Prompt_Active := True;
+      S.Buffer_Lifecycle.File_Target_Prompt_Command := Editor.Command_Ids.Command_Save_File_As;
       Editor.Overlay_Focus.Activate_With_Previous
         (S.Overlay_Focus,
          Editor.Overlay_Focus.File_Target_Prompt_Overlay,
@@ -460,9 +460,9 @@ package body Editor.Core_Editing_Workflow.Tests is
       Remove_File_If_Exists (Path);
       Init_Executor_Test_State (S);
       Editor.State.Load_Text (S, "base");
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String (Path);
-      S.File_Info.Display_Name := To_Unbounded_String ("save.txt");
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Path);
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("save.txt");
 
       Cmd := Editor.Test_Helper.Insert (4, '!');
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -473,7 +473,7 @@ package body Editor.Core_Editing_Workflow.Tests is
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Dirty_Lines) = 0,
               "successful save should clear dirty-line state");
-      Assert (S.File_Info.Dirty = False,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty = False,
               "successful save should keep file-level dirty state clean");
       Remove_File_If_Exists (Path);
    end Test_Dirty_Lines_Save_Clears_Baseline;
@@ -583,9 +583,9 @@ package body Editor.Core_Editing_Workflow.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Init_Executor_Test_State (S);
       Editor.State.Load_Text (S, "A");
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String (A_Path);
-      S.File_Info.Display_Name := To_Unbounded_String ("save_a_only.txt");
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (A_Path);
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("save_a_only.txt");
       Editor.Buffers.Ensure_Global_Registry (S);
       A_Id := Editor.Buffers.Global_Active_Buffer;
 
@@ -646,7 +646,7 @@ package body Editor.Core_Editing_Workflow.Tests is
               "set rectangle must project one caret/span per row");
       Assert (Text_Buffer.Length (S.Buffer) = Before_Text_Length,
               "rectangular selection must not mutate text");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "rectangular selection must not mark file dirty");
    end Test_Executor_Set_Rectangular_Selection;
 
@@ -709,7 +709,7 @@ package body Editor.Core_Editing_Workflow.Tests is
               "caret must advance after newline insertion");
       Assert (S.Carets (S.Carets.First_Index).Anchor = 2,
               "selection must be cleared after insertion");
-      Assert (S.File_Info.Dirty, "successful insertion must dirty buffer");
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty, "successful insertion must dirty buffer");
    end Test_Insert_Newline_Dirty_And_Cursor;
 
    procedure Test_Insert_Replaces_Selection
@@ -745,7 +745,7 @@ package body Editor.Core_Editing_Workflow.Tests is
               "caret must land after replacement text");
       Assert (S.Carets (S.Carets.First_Index).Anchor = 3,
               "selection must clear after replacement");
-      Assert (S.File_Info.Dirty, "selection replacement must dirty buffer");
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty, "selection replacement must dirty buffer");
    end Test_Insert_Replaces_Selection;
 
    procedure Test_Backspace_At_Buffer_Start_Is_No_Op
@@ -779,7 +779,7 @@ package body Editor.Core_Editing_Workflow.Tests is
 
       Assert (Buffer_Text (S) = "abc",
               "backspace at start must not mutate buffer");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "backspace no-op must not dirty clean buffer");
       Assert (Editor.State.Current_Buffer_Revision (S) = Revision_0,
               "backspace no-op must not bump buffer revision");
@@ -815,7 +815,7 @@ package body Editor.Core_Editing_Workflow.Tests is
               "caret must land after pasted multiline replacement text");
       Assert (S.Carets (S.Carets.First_Index).Anchor = 5,
               "selection must clear after paste replacement");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "pasting over a selection must dirty the buffer");
    end Test_Paste_Replaces_Multiline_Selection;
 
@@ -849,7 +849,7 @@ package body Editor.Core_Editing_Workflow.Tests is
               "empty paste must preserve caret position");
       Assert (S.Carets (S.Carets.First_Index).Anchor = 2,
               "empty paste must preserve the existing selection");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "empty paste must not dirty a clean buffer");
       Assert (Editor.State.Current_Buffer_Revision (S) = Revision_0,
               "empty paste must not bump buffer revision");
@@ -882,7 +882,7 @@ package body Editor.Core_Editing_Workflow.Tests is
               "caret must land after normalized pasted text");
       Assert (S.Carets (S.Carets.First_Index).Anchor = 7,
               "selection must remain clear after normalized paste");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "normalized paste with content must dirty the buffer");
    end Test_Paste_Normalizes_Line_Endings;
 
@@ -914,7 +914,7 @@ package body Editor.Core_Editing_Workflow.Tests is
               "caret must land after pasted trailing newline");
       Assert (S.Carets (S.Carets.First_Index).Anchor = 6,
               "selection must clear after trailing-newline replacement paste");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "trailing-newline paste replacement must dirty the buffer");
    end Test_Paste_Trailing_Newline_Over_Selection;
 
@@ -948,7 +948,7 @@ package body Editor.Core_Editing_Workflow.Tests is
               "empty paste must preserve caret");
       Assert (S.Carets (S.Carets.First_Index).Anchor = 1,
               "empty paste must preserve selection state");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "empty paste must not dirty the buffer");
       Assert (Editor.State.Current_Buffer_Revision (S) = Revision_0,
               "empty paste must not bump revision");
@@ -970,7 +970,7 @@ package body Editor.Core_Editing_Workflow.Tests is
          Editor.Feature_Messages.Info_Message,
          "targeted message",
          Has_Target => True,
-         Buffer     => S.Registry_Token,
+         Buffer     => S.Buffer_Lifecycle.Registry_Token,
          Line       => 1,
          Column     => 1);
       Editor.Feature_Diagnostics.Add_Diagnostic
@@ -978,7 +978,7 @@ package body Editor.Core_Editing_Workflow.Tests is
          Editor.Feature_Diagnostics.Diagnostic_Error,
          "targeted diagnostic",
          Has_Target    => True,
-         Target_Buffer => S.Registry_Token,
+         Target_Buffer => S.Buffer_Lifecycle.Registry_Token,
          Target_Line   => 1,
          Target_Column => 1);
       Editor.Feature_Search_Results.Run_Active_Buffer_Search
@@ -986,7 +986,7 @@ package body Editor.Core_Editing_Workflow.Tests is
          Query         => "alpha",
          Snapshot_Text => Buffer_Text (S),
          Source_Label  => "active",
-         Target_Buffer => S.Registry_Token,
+         Target_Buffer => S.Buffer_Lifecycle.Registry_Token,
          Snapshot_Version => Editor.State.Current_Buffer_Revision (S));
       Result := Editor.Outline.Fixtures.Populate_Synthetic_Outline (S.Outline);
 
@@ -1844,7 +1844,7 @@ package body Editor.Core_Editing_Workflow.Tests is
         (Editor.Dirty_Lines.Dirty_Line_Count (S.Dirty_Lines) = 0,
          "navigation commands must not create dirty-line state");
       Assert
-        (not S.File_Info.Dirty,
+        (not S.Buffer_Lifecycle.File_Info.Dirty,
          "navigation commands must not mark the file dirty");
    end Test_Navigation_Does_Not_Mutate_Text_Or_Dirty_Lines;
 

@@ -110,9 +110,9 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
       Active_After_Open := Editor.Buffers.Global_Active_Buffer;
       Assert (Count_After_Open >= 1,
               "file tree open action must create or activate a buffer");
-      Assert (S.File_Info.Has_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path,
               "file tree open action must update active file identity");
-      Assert (To_String (S.File_Info.Display_Name) = "a.txt",
+      Assert (To_String (S.Buffer_Lifecycle.File_Info.Display_Name) = "a.txt",
               "file tree open action must make clicked file active");
 
       Editor.Executor.File_Tree_Navigation_Commands.Execute_File_Tree_Node_Action
@@ -472,7 +472,7 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
       Editor.State.Replace_Buffer_Contents (S, "dirty unsaved content");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Remove_File_If_Exists (Path);
 
@@ -481,7 +481,7 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
 
       Assert (Editor.State.Current_Text (S) = "dirty unsaved content",
               "File Tree activation of an already-open missing file must preserve dirty content");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "File Tree focus path must preserve the dirty marker");
       Assert (Editor.Buffers.Global_Count = 1,
               "File Tree focus path must not create a duplicate buffer");
@@ -568,8 +568,8 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
       Cmd.Text := To_Unbounded_String ("notes-renamed.txt");
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      Assert (S.File_Info.Has_Path
-              and then To_String (S.File_Info.Path) = Renamed_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path
+              and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Renamed_Path,
               "file-tree rename rebases active non-Ada buffer");
       Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
               "file-tree rename preserves unrelated Ada language index files");
@@ -620,9 +620,9 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
          (Start_Line => 1, Start_Column => 1, End_Line => 1, End_Column => 3));
       Editor.Ada_Project_Index.Put_Analysis
         (S.Language_Index, Old_Path,
-         Buffer_Token         => S.Active_Buffer_Token,
-         Buffer_Revision      => S.Buffer_Revision,
-         Lifecycle_Generation => S.Lifecycle_Generation,
+         Buffer_Token         => S.Buffer_Lifecycle.Active_Buffer_Token,
+         Buffer_Revision      => S.Buffer_Lifecycle.Buffer_Revision,
+         Lifecycle_Generation => S.Buffer_Lifecycle.Lifecycle_Generation,
          Analysis             => Analysis);
       Editor.Ada_Language_Service.Put_Index
         (S.Language_Service, S.Language_Index);
@@ -654,7 +654,7 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
               "rename must create renamed target");
       Assert (not Ada.Directories.Exists (Old_Path),
               "rename must remove old target");
-      Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = New_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = New_Path,
               "clean active buffer path must be rebased");
       Assert (not Editor.Outline.Has_Items (S.Outline),
               "rename of active file must clear stale outline rows");

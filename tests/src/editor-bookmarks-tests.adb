@@ -167,12 +167,12 @@ package body Editor.Bookmarks.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, Text);
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String (Path);
-      S.File_Info.Display_Name := To_Unbounded_String (Ada.Directories.Simple_Name (Path));
-      S.File_Info.Dirty := Dirty;
-      S.File_Info.Baseline_Valid := True;
-      S.File_Info.Saved_Generation := Editor.State.Current_Buffer_Revision (S);
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Path);
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String (Ada.Directories.Simple_Name (Path));
+      S.Buffer_Lifecycle.File_Info.Dirty := Dirty;
+      S.Buffer_Lifecycle.File_Info.Baseline_Valid := True;
+      S.Buffer_Lifecycle.File_Info.Saved_Generation := Editor.State.Current_Buffer_Revision (S);
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
    end Setup_Active_File;
@@ -825,9 +825,9 @@ package body Editor.Bookmarks.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "one" & ASCII.LF & "two" & ASCII.LF & "three");
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String ("/p/src/editor/executor.adb");
-      S.File_Info.Display_Name := To_Unbounded_String ("executor.adb");
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String ("/p/src/editor/executor.adb");
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("executor.adb");
 
       Editor.Bookmarks.Toggle (S.Bookmarks, "/p/src/editor/executor.adb", "src/editor/executor.adb", 2, 1, True, Added);
       Editor.Bookmarks.Toggle (S.Bookmarks, "/p/src/editor/executor.adb", "src/editor/executor.adb", 99, 1, True, Added);
@@ -862,8 +862,8 @@ package body Editor.Bookmarks.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "one" & ASCII.LF & "two");
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String ("/p/src/a.adb");
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String ("/p/src/a.adb");
       Editor.Bookmarks.Toggle (S.Bookmarks, "/p/src/a.adb", "src/a.adb", 1, 1, True, Added);
       Editor.Bookmarks.Show (S.Bookmarks);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
@@ -890,8 +890,8 @@ package body Editor.Bookmarks.Tests is
       Before_Debug : Unbounded_String;
    begin
       Editor.State.Init (S);
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String ("/p/src/a.adb");
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String ("/p/src/a.adb");
       Editor.Bookmarks.Toggle (S.Bookmarks, "/p/src/a.adb", "src/a.adb", 1, 1, True, Added);
       Editor.Bookmarks.Toggle (S.Bookmarks, "/p/src/stale.adb", "src/stale.adb", 50, 1, True, Added);
       Editor.Bookmarks.Show (S.Bookmarks);
@@ -921,9 +921,9 @@ package body Editor.Bookmarks.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "one" & ASCII.LF & "two");
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String ("/p/src/editor/executor.adb");
-      S.File_Info.Display_Name := To_Unbounded_String ("executor.adb");
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String ("/p/src/editor/executor.adb");
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("executor.adb");
       Editor.Project_Search.Set_Query (S.Project_Search, "executor");
       Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "src/");
       Before_Project_Search_Query := To_Unbounded_String (Editor.Project_Search.Query (S.Project_Search));
@@ -1044,8 +1044,8 @@ package body Editor.Bookmarks.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "one");
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String ("/p/src/a.adb");
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String ("/p/src/a.adb");
       Editor.Project_Search.Set_Query (S.Project_Search, "unchanged");
       Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "unchanged");
       Editor.Bookmarks.Toggle (S.Bookmarks, "/p/src/a.adb", "src/a.adb", 1, 1, True, Added);
@@ -1148,9 +1148,9 @@ package body Editor.Bookmarks.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "active buffer text");
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String ("/p/src/active.adb");
-      S.File_Info.Display_Name := To_Unbounded_String ("active.adb");
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String ("/p/src/active.adb");
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("active.adb");
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Bookmarks.Show (S.Bookmarks);
@@ -1165,7 +1165,7 @@ package body Editor.Bookmarks.Tests is
       Selected := Editor.Bookmarks.Selected (S.Bookmarks, Found);
 
       Assert (Found, "setup has a selected bookmark row");
-      Assert (To_String (Selected.File_Path) /= To_String (S.File_Info.Path),
+      Assert (To_String (Selected.File_Path) /= To_String (S.Buffer_Lifecycle.File_Info.Path),
               "selected bookmark intentionally differs from canonical active buffer");
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Save_File);
@@ -1226,10 +1226,10 @@ package body Editor.Bookmarks.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "one" & ASCII.LF & "two");
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String ("/p/src/rendered.adb");
-      S.File_Info.Display_Name := To_Unbounded_String ("rendered.adb");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String ("/p/src/rendered.adb");
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("rendered.adb");
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Bookmarks.Toggle
         (S.Bookmarks, "/p/src/rendered.adb", "src/rendered.adb", 1, 1, True, Added);
       Editor.Bookmarks.Show (S.Bookmarks);
@@ -1306,7 +1306,7 @@ package body Editor.Bookmarks.Tests is
 
       Assert_Same_Retained_Bookmark_Rows
         (Before, After_Save_State, "save observation");
-      Assert (not S.File_Info.Dirty, "save clears canonical dirty state");
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty, "save clears canonical dirty state");
       Assert (not Render_After.Bookmark_Rows (1).Is_Dirty,
               "render dirty hint follows canonical clean buffer after save");
       Assert (not After_Save_State.Bookmark_Rows (1).Is_Dirty,
@@ -1352,7 +1352,7 @@ package body Editor.Bookmarks.Tests is
 
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, Renamed);
       Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After_Rename);
-      Assert (To_String (S.File_Info.Path) = Renamed,
+      Assert (To_String (S.Buffer_Lifecycle.File_Info.Path) = Renamed,
               "rename updates canonical active buffer association");
       Assert_Same_Retained_Bookmark_Rows
         (Before, After_Rename, "rename retained target boundary");
@@ -1361,7 +1361,7 @@ package body Editor.Bookmarks.Tests is
 
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, Moved);
       Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After_Move);
-      Assert (To_String (S.File_Info.Path) = Moved,
+      Assert (To_String (S.Buffer_Lifecycle.File_Info.Path) = Moved,
               "move updates canonical active buffer association");
       Assert_Same_Retained_Bookmark_Rows
         (After_Rename, After_Move, "move retained target boundary");
@@ -1370,7 +1370,7 @@ package body Editor.Bookmarks.Tests is
 
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
       Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After_Delete);
-      Assert (not S.File_Info.Has_Path,
+      Assert (not S.Buffer_Lifecycle.File_Info.Has_Path,
               "delete clears canonical active buffer association");
       Assert_Same_Retained_Bookmark_Rows
         (After_Move, After_Delete, "delete retained target boundary");
@@ -1406,16 +1406,16 @@ package body Editor.Bookmarks.Tests is
       Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After_Invalid_Rename);
       Assert_Same_Retained_Bookmark_Rows
         (Before, After_Invalid_Rename, "invalid rename preservation");
-      Assert (To_String (S.File_Info.Path) = Path,
+      Assert (To_String (S.Buffer_Lifecycle.File_Info.Path) = Path,
               "invalid rename does not adopt failed target path");
 
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, Temp_Path ("dirty_move_target.txt"));
       Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After_Dirty_Move);
       Assert_Same_Retained_Bookmark_Rows
         (After_Invalid_Rename, After_Dirty_Move, "dirty move blocked preservation");
-      Assert (To_String (S.File_Info.Path) = Path,
+      Assert (To_String (S.Buffer_Lifecycle.File_Info.Path) = Path,
               "dirty move does not adopt blocked target path");
       Assert_Bookmarks_File_Lifecycle_Observation_Coherent
         (S.Bookmarks, "failed/blocked reliability");
@@ -1460,7 +1460,7 @@ package body Editor.Bookmarks.Tests is
       Workspace := Editor.State.Build_Workspace_Snapshot (S);
       Summary := To_Unbounded_String (Editor.Workspace_Persistence.Debug_Summary (Workspace));
 
-      Assert (To_String (S.File_Info.Path) = Explicit_Target,
+      Assert (To_String (S.Buffer_Lifecycle.File_Info.Path) = Explicit_Target,
               "prompted-equivalent target path comes from explicit Executor parameter");
       Assert (To_String (Before.Bookmark_Rows (1).File_Path) /= Explicit_Target,
               "selected bookmark was intentionally not the explicit target");
@@ -1642,7 +1642,7 @@ package body Editor.Bookmarks.Tests is
         (S, Editor.Command_Ids.Command_Rename_Buffer_File, Explicit_Target);
       Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After);
 
-      Assert (To_String (S.File_Info.Path) = Explicit_Target,
+      Assert (To_String (S.Buffer_Lifecycle.File_Info.Path) = Explicit_Target,
               "explicit target command uses Executor target, not Bookmark row text");
       Assert_Same_Retained_Bookmark_Rows
         (Before, After, "prompt/source/target cleanup boundary");
@@ -1794,15 +1794,15 @@ package body Editor.Bookmarks.Tests is
       Editor.Bookmarks.Build_Snapshot (Direct.Bookmarks, After_Direct_Copy);
       Assert_Retained_Bookmark_Snapshot_Frozen
         (Before_Direct, After_Direct_Copy, "direct copy observation");
-      Assert (Direct.File_Info.Has_Path
-                and then To_String (Direct.File_Info.Path) = Direct_Source,
+      Assert (Direct.Buffer_Lifecycle.File_Info.Has_Path
+                and then To_String (Direct.Buffer_Lifecycle.File_Info.Path) = Direct_Source,
               "direct copy preserves canonical source association");
 
       Editor.Executor.File_Target_Prompt_Commands.Execute_File_Target_Command
         (Direct, Editor.Command_Ids.Command_Rename_Buffer_File, Direct_Rename);
       Editor.Bookmarks.Build_Snapshot (Direct.Bookmarks, After_Direct_Rename);
       Editor.Render_Model.Build_Render_Snapshot (Direct, Render_After_Rename);
-      Assert (To_String (Direct.File_Info.Path) = Direct_Rename,
+      Assert (To_String (Direct.Buffer_Lifecycle.File_Info.Path) = Direct_Rename,
               "rename updates only canonical active buffer association");
       Assert_Retained_Bookmark_Snapshot_Frozen
         (After_Direct_Copy, After_Direct_Rename, "rename retained target boundary");
@@ -1834,8 +1834,8 @@ package body Editor.Bookmarks.Tests is
       Editor.Bookmarks.Build_Snapshot (Prompted.Bookmarks, After_Prompt_Copy);
       Assert_Retained_Bookmark_Snapshot_Frozen
         (Before_Prompt, After_Prompt_Copy, "prompted copy observation");
-      Assert (Prompted.File_Info.Has_Path
-                and then To_String (Prompted.File_Info.Path) = Prompt_Source,
+      Assert (Prompted.Buffer_Lifecycle.File_Info.Has_Path
+                and then To_String (Prompted.Buffer_Lifecycle.File_Info.Path) = Prompt_Source,
               "prompted copy preserves canonical source association");
       Assert_Bookmarks_File_Lifecycle_Observation_Coherent
         (Prompted.Bookmarks, "prompted operation final freeze");
@@ -1876,7 +1876,7 @@ package body Editor.Bookmarks.Tests is
       Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After_Select);
       Assert (To_String (After_Select.Bookmark_Rows (1).File_Display_Path) = Copy_Target,
               "selected row deliberately contains target-like text");
-      Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Active,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Active,
               "Bookmark selection does not override active buffer source");
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Copy_Buffer_File);
@@ -1888,7 +1888,7 @@ package body Editor.Bookmarks.Tests is
 
       Assert (Ada.Directories.Exists (Copy_Target),
               "explicit copy target comes from Executor argument");
-      Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Active,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Active,
               "selected bookmark path did not become lifecycle source");
       Assert_Retained_Bookmark_Snapshot_Frozen
         (After_Select, After_Copy, "selection target boundary");

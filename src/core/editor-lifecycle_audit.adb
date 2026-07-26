@@ -129,11 +129,11 @@ package body Editor.Lifecycle_Audit is
          Active_Exists := Editor.Buffers.Global_Active_Buffer /= Editor.Buffers.No_Buffer;
       else
          Buffer_Count := (if Editor.State.Has_Active_Buffer (State) then 1 else 0);
-         Dirty_Count := (if State.File_Info.Dirty then 1 else 0);
+         Dirty_Count := (if State.Buffer_Lifecycle.File_Info.Dirty then 1 else 0);
          File_Dirty :=
-           (if State.File_Info.Dirty and then State.File_Info.Has_Path then 1 else 0);
+           (if State.Buffer_Lifecycle.File_Info.Dirty and then State.Buffer_Lifecycle.File_Info.Has_Path then 1 else 0);
          Untitled_Dirty :=
-           (if State.File_Info.Dirty and then not State.File_Info.Has_Path then 1 else 0);
+           (if State.Buffer_Lifecycle.File_Info.Dirty and then not State.Buffer_Lifecycle.File_Info.Has_Path then 1 else 0);
          Active_Exists := Editor.State.Has_Active_Buffer (State);
       end if;
 
@@ -167,7 +167,7 @@ package body Editor.Lifecycle_Audit is
       if Editor.Buffers.Global_Count > 0 then
          Dirty_Count := Editor.Buffers.Global_Dirty_Buffer_Count;
       else
-         Dirty_Count := (if State.File_Info.Dirty then 1 else 0);
+         Dirty_Count := (if State.Buffer_Lifecycle.File_Info.Dirty then 1 else 0);
       end if;
 
       --  Normalize the local copy only: the audit projection must never repair

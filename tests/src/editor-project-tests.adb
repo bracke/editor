@@ -366,11 +366,11 @@ package body Editor.Project.Tests is
       Editor.State.Load_Text (S, "dirty text");
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Insert (0, 'x'));
       Text_Before := To_Unbounded_String (Text_Buffer.UTF8_Text (S.Buffer));
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Active := Editor.Buffers.Global_Active_Buffer;
       Count := Editor.Buffers.Global_Count;
-      Dirty := S.File_Info.Dirty;
+      Dirty := S.Buffer_Lifecycle.File_Info.Dirty;
 
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
 
@@ -380,7 +380,7 @@ package body Editor.Project.Tests is
               "Open project must not switch the active buffer");
       Assert (Active = Second and then Active /= First,
               "Test setup must have a distinct active buffer");
-      Assert (S.File_Info.Dirty = Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty = Dirty,
               "Open project must not clear dirty state");
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = To_String (Text_Before),
               "Open project must not replace active buffer contents");

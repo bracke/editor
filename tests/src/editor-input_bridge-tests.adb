@@ -309,9 +309,9 @@ package body Editor.Input_Bridge.Tests is
       Count_After_First_Click := Editor.Buffers.Global_Count;
       Active_After_First_Click := Editor.Buffers.Global_Active_Buffer;
 
-      Assert (After.File_Info.Has_Path,
+      Assert (After.Buffer_Lifecycle.File_Info.Has_Path,
               "clicking a visible file row must open a file-backed active buffer");
-      Assert (To_String (After.File_Info.Display_Name) = "a.txt",
+      Assert (To_String (After.Buffer_Lifecycle.File_Info.Display_Name) = "a.txt",
               "file tree file click must make clicked file the active file");
       Assert (Count_After_First_Click >= 1,
               "file tree file click must leave a valid buffer registry");
@@ -995,7 +995,7 @@ package body Editor.Input_Bridge.Tests is
          Source_Label  => "semantic",
          Source_Kind   => Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
          Has_Target    => True,
-         Target_Buffer => S.Active_Buffer_Token,
+         Target_Buffer => S.Buffer_Lifecycle.Active_Buffer_Token,
          Target_Line   => 3,
          Target_Column => 8,
          Has_Edit          => True,
@@ -1465,9 +1465,9 @@ package body Editor.Input_Bridge.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "alpha" & ASCII.LF & "beta");
       Editor.Feature_Search_Results.Add_Search_Result
-        (S.Feature_Search_Results, "alpha", "buffer", True, S.Active_Buffer_Token, 1, 1);
+        (S.Feature_Search_Results, "alpha", "buffer", True, S.Buffer_Lifecycle.Active_Buffer_Token, 1, 1);
       Editor.Feature_Search_Results.Add_Search_Result
-        (S.Feature_Search_Results, "beta", "buffer", True, S.Active_Buffer_Token, 2, 1);
+        (S.Feature_Search_Results, "beta", "buffer", True, S.Buffer_Lifecycle.Active_Buffer_Token, 2, 1);
       Editor.Feature_Search_Results.Project_Rows
         (S.Feature_Search_Results, S.Feature_Panel);
       Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
@@ -1513,7 +1513,7 @@ package body Editor.Input_Bridge.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "alpha" & ASCII.LF & "beta");
       Editor.Feature_Search_Results.Add_Search_Result
-        (S.Feature_Search_Results, "beta", "buffer", True, S.Active_Buffer_Token, 2, 2);
+        (S.Feature_Search_Results, "beta", "buffer", True, S.Buffer_Lifecycle.Active_Buffer_Token, 2, 2);
       Editor.Feature_Search_Results.Project_Rows
         (S.Feature_Search_Results, S.Feature_Panel);
       Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
@@ -1555,11 +1555,11 @@ package body Editor.Input_Bridge.Tests is
       Editor.Feature_Diagnostics.Add_Diagnostic
         (S.Feature_Diagnostics, Editor.Feature_Diagnostics.Diagnostic_Warning,
          "first", "buffer", Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
-         True, S.Registry_Token, 1, 1);
+         True, S.Buffer_Lifecycle.Registry_Token, 1, 1);
       Editor.Feature_Diagnostics.Add_Diagnostic
         (S.Feature_Diagnostics, Editor.Feature_Diagnostics.Diagnostic_Error,
          "second", "buffer", Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
-         True, S.Registry_Token, 2, 1);
+         True, S.Buffer_Lifecycle.Registry_Token, 2, 1);
       Editor.Feature_Diagnostics.Project_Rows
         (S.Feature_Diagnostics, S.Feature_Panel);
       Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
@@ -1848,7 +1848,7 @@ package body Editor.Input_Bridge.Tests is
 
       Assert (Editor.State.Current_Text (After) = "new",
               "keybinding/command-id reload must use the same reload path as the Executor");
-      Assert (not After.File_Info.Dirty,
+      Assert (not After.Buffer_Lifecycle.File_Info.Dirty,
               "successful command-id reload keeps the clean reload policy");
 
       Remove_File_If_Exists (Path);

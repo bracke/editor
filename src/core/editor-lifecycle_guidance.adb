@@ -109,58 +109,58 @@ package body Editor.Lifecycle_Guidance is
          end if;
       end if;
 
-      if S.File_Info.Dirty then
-         if S.File_Info.Missing_Target_Surfaced then
+      if S.Buffer_Lifecycle.File_Info.Dirty then
+         if S.Buffer_Lifecycle.File_Info.Missing_Target_Surfaced then
             return "Dirty file - backing file missing";
-         elsif S.File_Info.External_Change_Surfaced then
+         elsif S.Buffer_Lifecycle.File_Info.External_Change_Surfaced then
             return "Dirty file - conflict pending";
-         elsif S.File_Info.Unreadable_Target_Surfaced
-           or else S.File_Info.Last_Reload_Failed
-           or else S.File_Info.Last_Revert_Failed
+         elsif S.Buffer_Lifecycle.File_Info.Unreadable_Target_Surfaced
+           or else S.Buffer_Lifecycle.File_Info.Last_Reload_Failed
+           or else S.Buffer_Lifecycle.File_Info.Last_Revert_Failed
          then
             return "Dirty file - backing file unreadable";
-         elsif S.File_Info.Unwritable_Target_Surfaced then
+         elsif S.Buffer_Lifecycle.File_Info.Unwritable_Target_Surfaced then
             return "Dirty file - backing file not writable";
-         elsif S.File_Info.Has_Path
-           and then S.File_Info.Last_Save_Failed
+         elsif S.Buffer_Lifecycle.File_Info.Has_Path
+           and then S.Buffer_Lifecycle.File_Info.Last_Save_Failed
            and then Available (S, Editor.Command_Ids.Command_Save_File)
          then
             return With_Command_Shortcut
               ("Dirty file - retry save available",
                Editor.Command_Ids.Command_Save_File, Show_Shortcuts (S));
-         elsif S.File_Info.Blocked_Close_Surfaced then
+         elsif S.Buffer_Lifecycle.File_Info.Blocked_Close_Surfaced then
             return With_Command_Shortcut
               ("Close blocked - save before close",
                Editor.Command_Ids.Command_Save_File, Show_Shortcuts (S));
-         elsif S.File_Info.Has_Path
+         elsif S.Buffer_Lifecycle.File_Info.Has_Path
            and then Available (S, Editor.Command_Ids.Command_Save_File)
          then
             return With_Command_Shortcut
               ("Dirty file - save available",
                Editor.Command_Ids.Command_Save_File, Show_Shortcuts (S));
-         elsif S.File_Info.Has_Path then
+         elsif S.Buffer_Lifecycle.File_Info.Has_Path then
             return "Dirty file - save first";
          else
             return "Untitled dirty buffer";
          end if;
       end if;
 
-      if S.File_Info.Blocked_Close_Surfaced then
+      if S.Buffer_Lifecycle.File_Info.Blocked_Close_Surfaced then
          return "Close block resolved - clean file";
-      elsif S.File_Info.Missing_Target_Surfaced then
+      elsif S.Buffer_Lifecycle.File_Info.Missing_Target_Surfaced then
          return "Missing target surfaced";
-      elsif S.File_Info.External_Change_Surfaced then
+      elsif S.Buffer_Lifecycle.File_Info.External_Change_Surfaced then
          return "External change surfaced";
-      elsif S.File_Info.Unreadable_Target_Surfaced
-        or else S.File_Info.Last_Reload_Failed
-        or else S.File_Info.Last_Revert_Failed
+      elsif S.Buffer_Lifecycle.File_Info.Unreadable_Target_Surfaced
+        or else S.Buffer_Lifecycle.File_Info.Last_Reload_Failed
+        or else S.Buffer_Lifecycle.File_Info.Last_Revert_Failed
       then
          return "Backing file unreadable";
-      elsif S.File_Info.Unwritable_Target_Surfaced
-        or else S.File_Info.Last_Save_Failed
+      elsif S.Buffer_Lifecycle.File_Info.Unwritable_Target_Surfaced
+        or else S.Buffer_Lifecycle.File_Info.Last_Save_Failed
       then
          return "Backing file not writable";
-      elsif not S.File_Info.Has_Path then
+      elsif not S.Buffer_Lifecycle.File_Info.Has_Path then
          return "Untitled clean buffer";
       elsif Available (S, Editor.Command_Ids.Command_Reload_Active_Buffer) then
          return With_Command_Shortcut

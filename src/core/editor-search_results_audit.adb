@@ -264,7 +264,7 @@ package body Editor.Search_Results_Audit is
       Review : Search_Results_Contract_Review;
    begin
       Review.Active_Buffer_Only :=
-        Active_Buffer_Scope_Check (State.Feature_Search_Results, State.Registry_Token);
+        Active_Buffer_Scope_Check (State.Feature_Search_Results, State.Buffer_Lifecycle.Registry_Token);
       Review.Search_Command_Owned := Search_Command_Owned_Check;
       Review.Matching_Deterministic := Matching_Determinism_Check;
       Review.Query_Input_Non_Mutating := Query_Input_Check (State);
@@ -274,11 +274,11 @@ package body Editor.Search_Results_Audit is
       Review.Selection_Stable :=
         Selection_Stability_Check (State.Feature_Search_Results);
       Review.Targets_Validated :=
-        Target_Validation_Check (State.Feature_Search_Results, State.Registry_Token);
+        Target_Validation_Check (State.Feature_Search_Results, State.Buffer_Lifecycle.Registry_Token);
       Review.Query_History_Bounded :=
         Query_History_Check (State.Feature_Search_Results);
       Review.Lifecycle_Reset_Stable :=
-        Lifecycle_Check (State.Feature_Search_Results, State.Registry_Token);
+        Lifecycle_Check (State.Feature_Search_Results, State.Buffer_Lifecycle.Registry_Token);
       Review.Persistence_Clean := Manifest.Persistence_Exclusion_Clean;
       Review.Feature_Panel_Intact := Panel_Review.Review_Passed;
       Review.Command_Surface_Intact := Command_Review.Review_Passed;

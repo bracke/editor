@@ -1140,7 +1140,7 @@ package body Editor.Feature_Panel.Tests is
       Editor.State.Load_Text (S, "abc" & ASCII.LF & "def");
       Editor.Feature_Messages.Add_Message
         (S.Feature_Messages, Editor.Feature_Messages.Error_Message,
-         "Save failed", "main.adb", True, S.Registry_Token, 2, 2);
+         "Save failed", "main.adb", True, S.Buffer_Lifecycle.Registry_Token, 2, 2);
       Editor.Feature_Messages.Project_Rows (S.Feature_Messages, S.Feature_Panel);
 
       Result := Editor.Executor.Message_Commands.Execute_Message_Row_Click (S, 2);
@@ -1167,7 +1167,7 @@ package body Editor.Feature_Panel.Tests is
       Editor.State.Load_Text (S, "abc" & ASCII.LF & "def");
       Editor.Feature_Messages.Add_Message
         (S.Feature_Messages, Editor.Feature_Messages.Error_Message,
-         "Save failed", "main.adb", True, S.Registry_Token, 2, 2);
+         "Save failed", "main.adb", True, S.Buffer_Lifecycle.Registry_Token, 2, 2);
       Editor.Feature_Messages.Project_Rows (S.Feature_Messages, S.Feature_Panel);
 
       Result := Editor.Executor.Message_Commands.Execute_Message_Row_Activation (S, 2);
@@ -1211,7 +1211,7 @@ package body Editor.Feature_Panel.Tests is
       Editor.State.Init (S);
       Editor.Feature_Messages.Add_Message
         (S.Feature_Messages, Editor.Feature_Messages.Error_Message,
-         "Save failed", "old.adb", True, S.Registry_Token + 10, 1, 1);
+         "Save failed", "old.adb", True, S.Buffer_Lifecycle.Registry_Token + 10, 1, 1);
       Editor.Feature_Messages.Project_Rows (S.Feature_Messages, S.Feature_Panel);
 
       Result := Editor.Executor.Message_Commands.Execute_Message_Row_Activation (S, 2);
@@ -1797,7 +1797,7 @@ package body Editor.Feature_Panel.Tests is
          "File changed on disk", "main.adb");
       Editor.Feature_Messages.Add_Message
         (S.Feature_Messages, Editor.Feature_Messages.Error_Message,
-         "Save failed", "main.adb", True, S.Registry_Token, 1, 1,
+         "Save failed", "main.adb", True, S.Buffer_Lifecycle.Registry_Token, 1, 1,
          Editor.Feature_Messages.File_Source);
       Editor.Feature_Messages.Project_Rows (S.Feature_Messages, S.Feature_Panel);
 
@@ -2123,7 +2123,7 @@ package body Editor.Feature_Panel.Tests is
         (S.Feature_Messages, Editor.Feature_Messages.Info_Message,
          "hello", Source_Kind => Editor.Feature_Messages.Editor_Source);
       Editor.Feature_Search_Results.Add_Search_Result
-        (S.Feature_Search_Results, "hit", "demo", True, S.Registry_Token, 1, 1);
+        (S.Feature_Search_Results, "hit", "demo", True, S.Buffer_Lifecycle.Registry_Token, 1, 1);
       Editor.Feature_Panel_Controller.Reset_All_Features_For_Project_Close (S);
       Assert (not Editor.Outline.Has_Items (S.Outline),
               "project close lifecycle dispatcher resets Outline");
@@ -2169,7 +2169,7 @@ package body Editor.Feature_Panel.Tests is
         (S.Feature_Messages, Editor.Feature_Messages.Info_Message,
          "message", Source_Kind => Editor.Feature_Messages.Editor_Source);
       Editor.Feature_Search_Results.Add_Search_Result
-        (S.Feature_Search_Results, "hit one", "demo", True, S.Registry_Token, 1, 1);
+        (S.Feature_Search_Results, "hit one", "demo", True, S.Buffer_Lifecycle.Registry_Token, 1, 1);
       Editor.Feature_Search_Results.Add_Search_Result
         (S.Feature_Search_Results, "hit two", "demo", False);
 
@@ -2209,7 +2209,7 @@ package body Editor.Feature_Panel.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "one" & ASCII.LF & "two" & ASCII.LF);
       Editor.Feature_Search_Results.Add_Search_Result
-        (S.Feature_Search_Results, "live", "buffer", True, S.Registry_Token, 2, 1);
+        (S.Feature_Search_Results, "live", "buffer", True, S.Buffer_Lifecycle.Registry_Token, 2, 1);
       Assert (Editor.Feature_Panel_Controller.Show_Feature (S, Search_Results_Feature),
               "can show Search Results through centralized switch");
       Token := Build_Feature_Projection_Token (S.Feature_Panel);
@@ -2348,7 +2348,7 @@ package body Editor.Feature_Panel.Tests is
       Editor.State.Replace_Buffer_Contents
         (S, "one" & ASCII.LF & "changed target here" & ASCII.LF);
       Editor.Feature_Search_Results.Mark_Stale_For_Buffer_Change
-        (S.Feature_Search_Results, S.Registry_Token, Editor.State.Current_Buffer_Revision (S));
+        (S.Feature_Search_Results, S.Buffer_Lifecycle.Registry_Token, Editor.State.Current_Buffer_Revision (S));
       Assert (Editor.Feature_Search_Results.Results_Stale (S.Feature_Search_Results),
               "searched-buffer edit marks active-buffer results stale");
    end Test_Search_Activation_And_Stale_State;
@@ -2602,7 +2602,7 @@ package body Editor.Feature_Panel.Tests is
       Editor.State.Load_Text (S, "one" & ASCII.LF);
       Editor.Feature_Search_Results.Add_Search_Result
         (S.Feature_Search_Results, "missing", "buffer", True,
-         S.Registry_Token, 99, 1, "one", "one", 99, 1, 3);
+         S.Buffer_Lifecycle.Registry_Token, 99, 1, "one", "one", 99, 1, 3);
       Editor.Feature_Search_Results.Project_Rows
         (S.Feature_Search_Results, S.Feature_Panel);
       Result := Editor.Executor.Search_Results_Commands.Execute_Search_Result_Row_Activation (S, 1);
@@ -2727,7 +2727,7 @@ package body Editor.Feature_Panel.Tests is
          "message", Source_Kind => Editor.Feature_Messages.Editor_Source);
       Editor.Feature_Search_Results.Run_Active_Buffer_Search
         (S.Feature_Search_Results, "needle", Editor.State.Current_Text (S),
-         "buffer", S.Registry_Token, Editor.State.Current_Buffer_Revision (S));
+         "buffer", S.Buffer_Lifecycle.Registry_Token, Editor.State.Current_Buffer_Revision (S));
       Search_Count := Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results);
       Message_Count := Editor.Feature_Messages.Row_Count (S.Feature_Messages);
 
@@ -2867,7 +2867,7 @@ package body Editor.Feature_Panel.Tests is
          "message", Source_Kind => Editor.Feature_Messages.Editor_Source);
       Editor.Feature_Search_Results.Run_Active_Buffer_Search
         (S.Feature_Search_Results, "needle", Editor.State.Current_Text (S),
-         "buffer", S.Registry_Token, Editor.State.Current_Buffer_Revision (S));
+         "buffer", S.Buffer_Lifecycle.Registry_Token, Editor.State.Current_Buffer_Revision (S));
 
       Assert (Editor.Feature_Panel_Controller.Show_Feature (S, Messages_Feature),
               "can activate Messages before generic clear");
@@ -2926,11 +2926,11 @@ package body Editor.Feature_Panel.Tests is
         (S.Feature_Messages, Editor.Feature_Messages.Info_Message,
          "message", Source_Kind => Editor.Feature_Messages.Editor_Source);
       Editor.Feature_Search_Results.Add_Search_Result
-        (S.Feature_Search_Results, "hit", "buffer", True, S.Registry_Token, 1, 1);
+        (S.Feature_Search_Results, "hit", "buffer", True, S.Buffer_Lifecycle.Registry_Token, 1, 1);
       Editor.Feature_Diagnostics.Add_Diagnostic
         (S.Feature_Diagnostics, Editor.Feature_Diagnostics.Diagnostic_Warning,
          "diagnostic one", "buffer",
-         Has_Target => True, Target_Buffer => S.Registry_Token,
+         Has_Target => True, Target_Buffer => S.Buffer_Lifecycle.Registry_Token,
          Target_Line => 1, Target_Column => 1);
       Editor.Feature_Diagnostics.Add_Diagnostic
         (S.Feature_Diagnostics, Editor.Feature_Diagnostics.Diagnostic_Info,
@@ -2978,7 +2978,7 @@ package body Editor.Feature_Panel.Tests is
       Editor.Feature_Diagnostics.Add_Diagnostic
         (S.Feature_Diagnostics, Editor.Feature_Diagnostics.Diagnostic_Error,
          "live target", "buffer",
-         Has_Target => True, Target_Buffer => S.Registry_Token,
+         Has_Target => True, Target_Buffer => S.Buffer_Lifecycle.Registry_Token,
          Target_Line => 2, Target_Column => 1);
       Assert (Editor.Feature_Panel_Controller.Show_Feature (S, Diagnostics_Feature),
               "can show Diagnostics through centralized switch");
@@ -3009,7 +3009,7 @@ package body Editor.Feature_Panel.Tests is
       Assert (Editor.Feature_Panel_Controller.Show_Feature (S, Diagnostics_Feature),
               "can return to Diagnostics before buffer-close reset");
       Editor.Feature_Panel_Controller.Reset_All_Features_For_Buffer_Close
-        (S, S.Registry_Token);
+        (S, S.Buffer_Lifecycle.Registry_Token);
       Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 1,
               "buffer close removes only targeted Diagnostics rows");
       Editor.Feature_Panel_Controller.Reset_All_Features_For_Project_Close (S);
@@ -3033,7 +3033,7 @@ package body Editor.Feature_Panel.Tests is
         (S, Editor.Feature_Diagnostics.Diagnostic_Warning, "Unused declaration", "parser.adb");
       Editor.State.Post_Targeted_Diagnostic
         (S, Editor.Feature_Diagnostics.Diagnostic_Error, "Missing semicolon",
-         "main.adb", S.Registry_Token, 2, 1);
+         "main.adb", S.Buffer_Lifecycle.Registry_Token, 2, 1);
 
       Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 3,
               "posting appends Diagnostics rows");
@@ -3076,7 +3076,7 @@ package body Editor.Feature_Panel.Tests is
 
       Editor.State.Post_Targeted_Diagnostic
         (S, Editor.Feature_Diagnostics.Diagnostic_Error, "bad",
-         "main.adb", S.Registry_Token, 99, 1);
+         "main.adb", S.Buffer_Lifecycle.Registry_Token, 99, 1);
       Assert (not Editor.Feature_Diagnostics.Item_Has_Target (S.Feature_Diagnostics, 1),
               "invalid target is retained as non-activatable row");
 
@@ -3133,7 +3133,7 @@ package body Editor.Feature_Panel.Tests is
         (S, Editor.Feature_Diagnostics.Diagnostic_Warning, "Unused declaration", "parser.adb");
       Editor.State.Post_Targeted_Diagnostic
         (S, Editor.Feature_Diagnostics.Diagnostic_Error, "Missing semicolon",
-         "main.adb", S.Registry_Token, 2, 1);
+         "main.adb", S.Buffer_Lifecycle.Registry_Token, 2, 1);
 
       Editor.Feature_Diagnostics.Set_Filter_Text (S.Feature_Diagnostics, "MAIN");
       Assert (Editor.Feature_Diagnostics.Visible_Row_Count (S.Feature_Diagnostics) = 1,
@@ -3170,7 +3170,7 @@ package body Editor.Feature_Panel.Tests is
         (S, Editor.Feature_Diagnostics.Diagnostic_Warning, "warning row", "parser.adb");
       Editor.State.Post_Targeted_Diagnostic
         (S, Editor.Feature_Diagnostics.Diagnostic_Error, "error row",
-         "main.adb", S.Registry_Token, 2, 1);
+         "main.adb", S.Buffer_Lifecycle.Registry_Token, 2, 1);
       Assert (Editor.Feature_Panel_Controller.Show_Feature (S, Diagnostics_Feature),
               "diagnostics projection is visible before severity toggles");
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, 3);
@@ -3209,7 +3209,7 @@ package body Editor.Feature_Panel.Tests is
       Editor.State.Load_Text (S, "alpha" & ASCII.LF & "beta" & ASCII.LF);
       Editor.State.Post_Targeted_Diagnostic
         (S, Editor.Feature_Diagnostics.Diagnostic_Error, "error row",
-         "main.adb", S.Registry_Token, 2, 1);
+         "main.adb", S.Buffer_Lifecycle.Registry_Token, 2, 1);
       Editor.State.Post_Diagnostic
         (S, Editor.Feature_Diagnostics.Diagnostic_Info, "info row", "editor");
       Assert (Editor.Feature_Panel_Controller.Show_Feature (S, Diagnostics_Feature),
@@ -3243,7 +3243,7 @@ package body Editor.Feature_Panel.Tests is
         (S, Editor.Feature_Diagnostics.Diagnostic_Warning, "second", "parser.adb");
       Editor.State.Post_Targeted_Diagnostic
         (S, Editor.Feature_Diagnostics.Diagnostic_Error, "third",
-         "main.adb", S.Registry_Token, 2, 1);
+         "main.adb", S.Buffer_Lifecycle.Registry_Token, 2, 1);
       Assert (Editor.Feature_Panel_Controller.Show_Feature (S, Diagnostics_Feature),
               "diagnostics projection is visible before clear-selected");
       Select_Row (S.Feature_Panel, 3);
@@ -3351,7 +3351,7 @@ package body Editor.Feature_Panel.Tests is
          "@outline procedure beta" & ASCII.LF);
       Editor.State.Post_Targeted_Diagnostic
         (S, Editor.Feature_Diagnostics.Diagnostic_Error, "Missing semicolon",
-         "main.adb", S.Registry_Token, 2, 1);
+         "main.adb", S.Buffer_Lifecycle.Registry_Token, 2, 1);
       Editor.State.Post_Diagnostic
         (S, Editor.Feature_Diagnostics.Diagnostic_Warning,
          "Unused declaration", "parser.adb");
@@ -3395,7 +3395,7 @@ package body Editor.Feature_Panel.Tests is
         (S.Feature_Messages, Editor.Feature_Messages.Info_Message,
          "message", Source_Kind => Editor.Feature_Messages.Editor_Source);
       Editor.Feature_Search_Results.Add_Search_Result
-        (S.Feature_Search_Results, "hit", "buffer", True, S.Registry_Token, 1, 1);
+        (S.Feature_Search_Results, "hit", "buffer", True, S.Buffer_Lifecycle.Registry_Token, 1, 1);
       Editor.State.Post_Diagnostic
         (S, Editor.Feature_Diagnostics.Diagnostic_Error, "diagnostic", "main.adb");
       Assert (Editor.Feature_Panel_Controller.Show_Feature (S, Diagnostics_Feature),
@@ -3493,7 +3493,7 @@ package body Editor.Feature_Panel.Tests is
       Editor.State.Load_Text (S, "alpha" & ASCII.LF & "beta" & ASCII.LF);
       Editor.State.Post_Targeted_Diagnostic
         (S, Editor.Feature_Diagnostics.Diagnostic_Error, "buffer row",
-         "main.adb", S.Registry_Token, 2, 1);
+         "main.adb", S.Buffer_Lifecycle.Registry_Token, 2, 1);
       Editor.State.Post_Diagnostic
         (S, Editor.Feature_Diagnostics.Diagnostic_Warning, "session row", "editor");
       Assert (Editor.Feature_Panel_Controller.Show_Feature (S, Diagnostics_Feature),
@@ -3503,7 +3503,7 @@ package body Editor.Feature_Panel.Tests is
         (S.Feature_Diagnostics, S.Feature_Panel);
 
       Editor.Feature_Panel_Controller.Reset_All_Features_For_Buffer_Close
-        (S, S.Registry_Token);
+        (S, S.Buffer_Lifecycle.Registry_Token);
 
       Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 1,
               "buffer close removes only targeted diagnostics for the closed buffer");
@@ -3663,7 +3663,7 @@ package body Editor.Feature_Panel.Tests is
          "external",
          Source_Kind   => Editor.Feature_Diagnostics.External_Diagnostic_Source,
          Has_Target    => True,
-         Target_Buffer => S.Registry_Token,
+         Target_Buffer => S.Buffer_Lifecycle.Registry_Token,
          Target_Line   => 1,
          Target_Column => 1);
       Editor.Feature_Diagnostics.Project_Rows
@@ -3814,7 +3814,7 @@ package body Editor.Feature_Panel.Tests is
          "external",
          Source_Kind   => Editor.Feature_Diagnostics.External_Diagnostic_Source,
          Has_Target    => True,
-         Target_Buffer => S.Registry_Token,
+         Target_Buffer => S.Buffer_Lifecycle.Registry_Token,
          Target_Line   => 1,
          Target_Column => 99);
       Editor.Feature_Diagnostics.Project_Rows
@@ -3846,7 +3846,7 @@ package body Editor.Feature_Panel.Tests is
          Label         => "search row",
          Source_Label  => "buffer",
          Has_Target    => True,
-         Target_Buffer => S.Registry_Token,
+         Target_Buffer => S.Buffer_Lifecycle.Registry_Token,
          Target_Line   => 1,
          Target_Column => 1,
          Query         => "abc",
@@ -3884,7 +3884,7 @@ package body Editor.Feature_Panel.Tests is
          "external",
          Source_Kind   => Editor.Feature_Diagnostics.External_Diagnostic_Source,
          Has_Target    => True,
-         Target_Buffer => S.Registry_Token,
+         Target_Buffer => S.Buffer_Lifecycle.Registry_Token,
          Target_Line   => 1,
          Target_Column => 1);
       Editor.Feature_Diagnostics.Reset_Diagnostics_For_Workspace_Close
@@ -4065,7 +4065,7 @@ package body Editor.Feature_Panel.Tests is
          "external",
          Source_Kind   => Editor.Feature_Diagnostics.External_Diagnostic_Source,
          Has_Target    => True,
-         Target_Buffer => S.Registry_Token,
+         Target_Buffer => S.Buffer_Lifecycle.Registry_Token,
          Target_Line   => 1,
          Target_Column => 1);
       Editor.Feature_Diagnostics.Project_Rows
@@ -4087,7 +4087,7 @@ package body Editor.Feature_Panel.Tests is
          "external",
          Source_Kind   => Editor.Feature_Diagnostics.External_Diagnostic_Source,
          Has_Target    => True,
-         Target_Buffer => S.Registry_Token,
+         Target_Buffer => S.Buffer_Lifecycle.Registry_Token,
          Target_Line   => 1,
          Target_Column => 1);
       Editor.Feature_Diagnostics.Project_Rows
@@ -4100,7 +4100,7 @@ package body Editor.Feature_Panel.Tests is
             "external",
             Source_Kind   => Editor.Feature_Diagnostics.External_Diagnostic_Source,
             Has_Target    => True,
-            Target_Buffer => S.Registry_Token,
+            Target_Buffer => S.Buffer_Lifecycle.Registry_Token,
             Target_Line   => 1,
             Target_Column => 1);
       end loop;
@@ -4177,7 +4177,7 @@ package body Editor.Feature_Panel.Tests is
          "external",
          Source_Kind   => Editor.Feature_Diagnostics.External_Diagnostic_Source,
          Has_Target    => True,
-         Target_Buffer => S.Registry_Token,
+         Target_Buffer => S.Buffer_Lifecycle.Registry_Token,
          Target_Line   => 2,
          Target_Column => 2);
       Valid_Id := Editor.Feature_Diagnostics.Item_Id (S.Feature_Diagnostics, 1);
@@ -4189,7 +4189,7 @@ package body Editor.Feature_Panel.Tests is
                 (S.Feature_Diagnostics, Valid_Id),
               "explicit Diagnostic_Id reports live identity before activation");
       Assert (Editor.Feature_Diagnostics.Validate_Diagnostic_Id_Target
-                (S.Feature_Diagnostics, Valid_Id, S.Registry_Token),
+                (S.Feature_Diagnostics, Valid_Id, S.Buffer_Lifecycle.Registry_Token),
               "explicit Diagnostic_Id target validates against active buffer token");
 
       Result := Editor.Executor.Diagnostics_Commands.Execute_Diagnostic_Id_Activation (S, Valid_Id);
@@ -4215,7 +4215,7 @@ package body Editor.Feature_Panel.Tests is
          "external",
          Source_Kind   => Editor.Feature_Diagnostics.External_Diagnostic_Source,
          Has_Target    => True,
-         Target_Buffer => S.Registry_Token + 1,
+         Target_Buffer => S.Buffer_Lifecycle.Registry_Token + 1,
          Target_Line   => 1,
          Target_Column => 1);
       Wrong_Buffer_Id := Editor.Feature_Diagnostics.Item_Id (S.Feature_Diagnostics, 2);
@@ -4322,7 +4322,7 @@ package body Editor.Feature_Panel.Tests is
       Editor.State.Load_Text (S, "alpha" & ASCII.LF & "alpha" & ASCII.LF);
       Editor.Feature_Search_Results.Run_Active_Buffer_Search
         (S.Feature_Search_Results, "alpha", Editor.State.Current_Text (S),
-         "buffer", S.Registry_Token, Editor.State.Current_Buffer_Revision (S));
+         "buffer", S.Buffer_Lifecycle.Registry_Token, Editor.State.Current_Buffer_Revision (S));
       Editor.Feature_Search_Results.Commit_Search_Query_To_History
         (S.Feature_Search_Results, "alpha");
       Editor.Feature_Search_Results.Project_Rows
@@ -4398,7 +4398,7 @@ package body Editor.Feature_Panel.Tests is
       Editor.State.Load_Text (S, "needle" & ASCII.LF);
       Editor.Feature_Search_Results.Run_Active_Buffer_Search
         (S.Feature_Search_Results, "needle", Editor.State.Current_Text (S),
-         "buffer", S.Registry_Token, Editor.State.Current_Buffer_Revision (S));
+         "buffer", S.Buffer_Lifecycle.Registry_Token, Editor.State.Current_Buffer_Revision (S));
       Editor.Feature_Search_Results.Project_Rows
         (S.Feature_Search_Results, S.Feature_Panel);
 
@@ -4411,7 +4411,7 @@ package body Editor.Feature_Panel.Tests is
         (S.Feature_Search_Results, 1, Editor.Feature_Search_Results.No_Buffer),
               "target validation rejects absent active buffer token");
       Assert (Editor.Feature_Search_Results.Validate_Search_Result_Target
-        (S.Feature_Search_Results, 1, S.Registry_Token),
+        (S.Feature_Search_Results, 1, S.Buffer_Lifecycle.Registry_Token),
               "target validation accepts matching active buffer token");
    end Test_Search_Results_Active_Buffer_Only_And_Targets_Validated;
 
@@ -4457,7 +4457,7 @@ package body Editor.Feature_Panel.Tests is
          Label         => "stale",
          Source_Label  => "buffer",
          Has_Target    => True,
-         Target_Buffer => S.Registry_Token,
+         Target_Buffer => S.Buffer_Lifecycle.Registry_Token,
          Target_Line   => 99,
          Target_Column => 1,
          Query         => "two",
@@ -4493,7 +4493,7 @@ package body Editor.Feature_Panel.Tests is
          Label         => "bad column",
          Source_Label  => "buffer",
          Has_Target    => True,
-         Target_Buffer => S.Registry_Token,
+         Target_Buffer => S.Buffer_Lifecycle.Registry_Token,
          Target_Line   => 1,
          Target_Column => 99,
          Query         => "abc",
@@ -4587,7 +4587,7 @@ package body Editor.Feature_Panel.Tests is
       Editor.State.Load_Text (S, "abc" & ASCII.LF & "def");
       Editor.Feature_Messages.Add_Message
         (S.Feature_Messages, Editor.Feature_Messages.Error_Message,
-         "bad target", "main.adb", True, S.Registry_Token, 2, 99);
+         "bad target", "main.adb", True, S.Buffer_Lifecycle.Registry_Token, 2, 99);
       Editor.Feature_Messages.Project_Rows (S.Feature_Messages, S.Feature_Panel);
       Editor.State.Row_Col_For_Index
         (S, S.Carets.Element (S.Carets.First_Index).Pos, Row, Col);
@@ -5545,7 +5545,7 @@ package body Editor.Feature_Panel.Tests is
          Label         => "target",
          Source_Label  => "buffer",
          Has_Target    => True,
-         Target_Buffer => S.Registry_Token,
+         Target_Buffer => S.Buffer_Lifecycle.Registry_Token,
          Target_Line   => 15,
          Target_Column => 1,
          Query         => "line",
@@ -5606,7 +5606,7 @@ package body Editor.Feature_Panel.Tests is
          Label         => "bad target",
          Source_Label  => "buffer",
          Has_Target    => True,
-         Target_Buffer => S.Registry_Token,
+         Target_Buffer => S.Buffer_Lifecycle.Registry_Token,
          Target_Line   => 99,
          Target_Column => 1,
          Query         => "two",
@@ -5767,7 +5767,7 @@ package body Editor.Feature_Panel.Tests is
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "first Search activation executes");
       Assert (Editor.Buffers.Global_Active_Buffer = A_Id
-                and then S.Active_Buffer_Token = Natural (A_Id),
+                and then S.Buffer_Lifecycle.Active_Buffer_Token = Natural (A_Id),
               "first Search activation makes A the editor target");
       Editor.Executor.Execute_No_Log (S, Paste_Command ("-after-A"));
 
@@ -5777,7 +5777,7 @@ package body Editor.Feature_Panel.Tests is
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "second Search activation executes");
       Assert (Editor.Buffers.Global_Active_Buffer = B_Id
-                and then S.Active_Buffer_Token = Natural (B_Id),
+                and then S.Buffer_Lifecycle.Active_Buffer_Token = Natural (B_Id),
               "second Search activation makes B the editor target");
       Editor.Executor.Execute_No_Log (S, Paste_Command ("-after-B"));
       Editor.Buffers.Sync_Global_Active_From_State (S);
@@ -5848,7 +5848,7 @@ package body Editor.Feature_Panel.Tests is
       Result := Editor.Executor.Search_Results_Commands.Execute_Search_Result_Row_Activation (S, 1);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "live setup activation executes");
-      Assert (S.Active_Buffer_Token = Natural (B_Id),
+      Assert (S.Buffer_Lifecycle.Active_Buffer_Token = Natural (B_Id),
               "setup leaves B as active editor target");
 
       Editor.Feature_Panel.Set_Focused (S.Feature_Panel, True);
@@ -5857,7 +5857,7 @@ package body Editor.Feature_Panel.Tests is
       Assert (Result.Status = Editor.Executor.Command_No_Op,
               "stale second activation no-ops");
       Assert (Editor.Buffers.Global_Active_Buffer = B_Id
-                and then S.Active_Buffer_Token = Natural (B_Id),
+                and then S.Buffer_Lifecycle.Active_Buffer_Token = Natural (B_Id),
               "failed activation preserves previous active buffer");
       Assert (Is_Focused (S.Feature_Panel),
               "failed activation preserves Feature Panel focus");
@@ -5998,7 +5998,7 @@ package body Editor.Feature_Panel.Tests is
       Assert (Result.Status = Editor.Executor.Command_No_Op,
               "stale Search row activation is rejected");
       Assert (Editor.Buffers.Global_Active_Buffer = B_Id
-                and then S.Active_Buffer_Token = Natural (B_Id),
+                and then S.Buffer_Lifecycle.Active_Buffer_Token = Natural (B_Id),
               "stale Search row cannot retarget editor away from B");
       Assert (Registry_Buffer_Text (A_Id) = "Zalpha" & ASCII.LF,
               "stale activation does not mutate edited source buffer");

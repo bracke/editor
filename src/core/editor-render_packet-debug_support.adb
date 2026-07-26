@@ -91,14 +91,14 @@ package body Editor.Render_Packet.Debug_Support is
      (S : Editor.State.State_Type) return Natural
    is
    begin
-      if S.Active_Buffer_Token /= 0 then
-         return S.Active_Buffer_Token;
+      if S.Buffer_Lifecycle.Active_Buffer_Token /= 0 then
+         return S.Buffer_Lifecycle.Active_Buffer_Token;
       elsif Editor.Buffers.Global_Count > 1
         and then Editor.Buffers.Global_Active_Buffer /= Editor.Buffers.No_Buffer
       then
          return Natural (Editor.Buffers.Global_Active_Buffer);
       else
-         return S.Registry_Token;
+         return S.Buffer_Lifecycle.Registry_Token;
       end if;
    end Active_Find_Buffer_Token;
 

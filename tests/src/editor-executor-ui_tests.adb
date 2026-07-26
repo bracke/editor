@@ -422,7 +422,7 @@ package body Editor.Executor.UI_Tests is
       Init_Executor_Test_State (S);
       Editor.Feature_Messages.Add_Message
         (S.Feature_Messages, Editor.Feature_Messages.Error_Message,
-         "Save failed", "old.adb", True, S.Registry_Token + 10, 1, 1);
+         "Save failed", "old.adb", True, S.Buffer_Lifecycle.Registry_Token + 10, 1, 1);
       Editor.Feature_Messages.Project_Rows (S.Feature_Messages, S.Feature_Panel);
 
       Result :=
@@ -580,20 +580,20 @@ package body Editor.Executor.UI_Tests is
         (S, Editor.Command_Ids.Command_New_Buffer);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "new buffer setup succeeds");
-      Before_Dirty := S.File_Info.Dirty;
+      Before_Dirty := S.Buffer_Lifecycle.File_Info.Dirty;
 
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Move_Left);
       Assert (Result.Status = Editor.Executor.Command_No_Op,
               "moving left at the start of the buffer is a no-op");
-      Assert (S.File_Info.Dirty = Before_Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty = Before_Dirty,
               "boundary navigation must not dirty the buffer");
 
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Previous_Buffer);
       Assert (Result.Status = Editor.Executor.Command_No_Op,
               "previous buffer with only one buffer is a no-op");
-      Assert (S.File_Info.Dirty = Before_Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty = Before_Dirty,
               "buffer navigation no-op must not dirty the buffer");
    end Test_Navigation_Boundaries_Are_No_Ops;
 

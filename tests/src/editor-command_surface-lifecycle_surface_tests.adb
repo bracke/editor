@@ -718,10 +718,10 @@ package body Editor.Command_Surface.Lifecycle_Surface_Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.Buffers.Ensure_Global_Registry (S);
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Settings.Set_Command_Palette_Show_Keybindings (S.Settings, False);
       Before_Text := To_Unbounded_String (Editor.State.Current_Text (S));
-      Before_Dirty := S.File_Info.Dirty;
+      Before_Dirty := S.Buffer_Lifecycle.File_Info.Dirty;
 
       Assert (Ada.Strings.Fixed.Index
                 (Editor.Lifecycle_Guidance.Status_Bar_Hint (S),
@@ -733,7 +733,7 @@ package body Editor.Command_Surface.Lifecycle_Surface_Tests is
               "dirty untitled lifecycle hint must not advertise targetless Save As without canonical target acquisition");
       Assert (To_String (Before_Text) = Editor.State.Current_Text (S),
               "lifecycle hint projection must not mutate buffer text");
-      Assert (S.File_Info.Dirty = Before_Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty = Before_Dirty,
               "lifecycle hint projection must not mutate dirty state");
       Assert (Editor.Messages.Count (S.Messages) = 0,
               "lifecycle hint projection must not post messages");
@@ -748,10 +748,10 @@ package body Editor.Command_Surface.Lifecycle_Surface_Tests is
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String (Editor.Test_Temp.Base & "/active.adb");
-      S.File_Info.Display_Name := To_Unbounded_String ("active.adb");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Editor.Test_Temp.Base & "/active.adb");
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("active.adb");
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Ensure_Global_Registry (S);
       Summary := Editor.Buffers.Global_Summary_For (Editor.Buffers.Global_Active_Buffer);
 
@@ -809,10 +809,10 @@ package body Editor.Command_Surface.Lifecycle_Surface_Tests is
       Assert (To_String (Before_Open) = "Open file [Enter]",
               "unopened File Tree file row must advertise open");
 
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := Path;
-      S.File_Info.Display_Name := To_Unbounded_String ("a.txt");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := Path;
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("a.txt");
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Ensure_Global_Registry (S);
       After_Open := To_Unbounded_String
         (Editor.Lifecycle_Guidance.File_Tree_Row_Hint (S, Node));
@@ -841,10 +841,10 @@ package body Editor.Command_Surface.Lifecycle_Surface_Tests is
       Assert (Found, "fixture must map scanned file to visible row");
       Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
       Editor.Panel_Focus.Focus_File_Tree (S.Panel_Focus);
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := Path;
-      S.File_Info.Display_Name := To_Unbounded_String ("a.txt");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := Path;
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("a.txt");
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Ensure_Global_Registry (S);
 
       Hint := To_Unbounded_String (Editor.Lifecycle_Guidance.Status_Bar_Hint (S));
@@ -864,10 +864,10 @@ package body Editor.Command_Surface.Lifecycle_Surface_Tests is
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String (Editor.Test_Temp.Base & "/status.adb");
-      S.File_Info.Display_Name := To_Unbounded_String ("status.adb");
-      S.File_Info.Dirty := False;
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Editor.Test_Temp.Base & "/status.adb");
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("status.adb");
+      S.Buffer_Lifecycle.File_Info.Dirty := False;
       Editor.Settings.Set_Command_Palette_Show_Keybindings (S.Settings, False);
       Editor.Buffers.Ensure_Global_Registry (S);
 
@@ -875,15 +875,15 @@ package body Editor.Command_Surface.Lifecycle_Surface_Tests is
       Assert (Ada.Strings.Fixed.Index (To_String (Hint), "Clean file") > 0,
               "clean file-backed active buffer should be readable in the Status Bar lifecycle hint");
 
-      S.File_Info.Dirty := True;
-      S.File_Info.Last_Save_Failed := False;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Last_Save_Failed := False;
       Hint := To_Unbounded_String (Editor.Lifecycle_Guidance.Status_Bar_Hint (S));
       Assert (Ada.Strings.Fixed.Index (To_String (Hint), "Dirty file") > 0,
               "dirty file-backed active buffer should be readable in the Status Bar lifecycle hint");
       Assert (Ada.Strings.Fixed.Index (To_String (Hint), "save available") > 0,
               "dirty file-backed Status Bar hint should retain safe save guidance");
 
-      S.File_Info.Last_Save_Failed := True;
+      S.Buffer_Lifecycle.File_Info.Last_Save_Failed := True;
       Hint := To_Unbounded_String (Editor.Lifecycle_Guidance.Status_Bar_Hint (S));
       Assert (Ada.Strings.Fixed.Index (To_String (Hint), "retry save available") > 0,
               "failed-save state should remain visibly retryable while the buffer is dirty and saveable");
@@ -899,11 +899,11 @@ package body Editor.Command_Surface.Lifecycle_Surface_Tests is
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String (Editor.Test_Temp.Base & "/row.adb");
-      S.File_Info.Display_Name := To_Unbounded_String ("row.adb");
-      S.File_Info.Dirty := True;
-      S.File_Info.Last_Save_Failed := True;
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Editor.Test_Temp.Base & "/row.adb");
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("row.adb");
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Last_Save_Failed := True;
       Editor.Buffers.Ensure_Global_Registry (S);
 
       Summary := Editor.Buffers.Global_Summary_For (Editor.Buffers.Global_Active_Buffer);

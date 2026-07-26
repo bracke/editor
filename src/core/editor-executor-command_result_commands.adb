@@ -394,7 +394,7 @@ package body Editor.Executor.Command_Result_Commands is
          declare
             Reason : constant String := Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability);
             Allow_Stale_Close_Cleanup : constant Boolean :=
-              S.Dirty_Close_Prompt_Active
+              S.Buffer_Lifecycle.Dirty_Close_Prompt_Active
               and then
                 (Id = Editor.Command_Ids.Command_Confirm_Close_Save
                  or else Id = Editor.Command_Ids.Command_Confirm_Close_Discard)

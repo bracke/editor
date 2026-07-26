@@ -186,7 +186,7 @@ package body Editor.Executor.Project_File_Index_Commands is
       Row        : Natural := 0;
    begin
       Editor.Buffers.Ensure_Global_Registry (S);
-      if S.Active_Buffer_Token = Natural (Editor.Buffers.Global_Active_Buffer) then
+      if S.Buffer_Lifecycle.Active_Buffer_Token = Natural (Editor.Buffers.Global_Active_Buffer) then
          Editor.Buffers.Sync_Global_Active_From_State (S);
       elsif Editor.Buffers.Global_Active_Buffer /= Editor.Buffers.No_Buffer then
          Editor.Buffers.Load_Global_Active_Into_State (S);
@@ -195,7 +195,7 @@ package body Editor.Executor.Project_File_Index_Commands is
       if Editor.Buffers.Global_Active_Buffer = Editor.Buffers.No_Buffer then
          Editor.Executor.Shared_Services.Report_Info (S, "No active buffer.");
          return;
-      elsif not S.File_Info.Has_Path or else Length (S.File_Info.Path) = 0 then
+      elsif not S.Buffer_Lifecycle.File_Info.Has_Path or else Length (S.Buffer_Lifecycle.File_Info.Path) = 0 then
          Editor.Executor.Shared_Services.Report_Info (S, "Active buffer has no file path");
          return;
       elsif not Editor.Project.Has_Project (S.Project) then
@@ -203,7 +203,7 @@ package body Editor.Executor.Project_File_Index_Commands is
          return;
       end if;
 
-      Path := S.File_Info.Path;
+      Path := S.Buffer_Lifecycle.File_Info.Path;
       if not Ada.Directories.Exists (To_String (Path)) then
          Editor.Executor.Shared_Services.Report_Warning (S, "Active file no longer exists");
          return;

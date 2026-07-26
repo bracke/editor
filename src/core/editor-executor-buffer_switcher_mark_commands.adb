@@ -671,7 +671,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
                if Summary.Is_Dirty then
                   Editor.Buffers.Global_Set_Blocked_Close_Surfaced (Id);
                   if Summary.Is_Active then
-                     S.File_Info.Blocked_Close_Surfaced := True;
+                     S.Buffer_Lifecycle.File_Info.Blocked_Close_Surfaced := True;
                      Editor.Buffers.Sync_Global_Active_From_State (S);
                   end if;
                   Kept_Count := Kept_Count + 1;

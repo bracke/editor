@@ -45,7 +45,7 @@ package body Editor.Executor.Search_Results_Commands is
 
          when Command_Search_Results_Search_Active_Buffer =>
             if not Editor.State.Has_Active_Buffer (S)
-              or else S.Registry_Token = 0
+              or else S.Buffer_Lifecycle.Registry_Token = 0
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Feature_Search_Results
@@ -67,7 +67,7 @@ package body Editor.Executor.Search_Results_Commands is
                return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Feature_Search_Results.Message_Search_Repeat_No_Query);
             elsif not Editor.State.Has_Active_Buffer (S)
-              or else S.Registry_Token = 0
+              or else S.Buffer_Lifecycle.Registry_Token = 0
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Feature_Search_Results
@@ -308,7 +308,7 @@ package body Editor.Executor.Search_Results_Commands is
                New_Index       : Natural := 0;
             begin
                if not Editor.State.Has_Active_Buffer (S)
-                 or else S.Registry_Token = 0
+                 or else S.Buffer_Lifecycle.Registry_Token = 0
                then
                   Report_Info
                     (S,
@@ -360,7 +360,7 @@ package body Editor.Executor.Search_Results_Commands is
                  (Results          => S.Feature_Search_Results,
                   Query            => Effective_Query,
                   Snapshot_Text    => Editor.State.Current_Text (S),
-                  Source_Label     => To_String (S.File_Info.Display_Name),
+                  Source_Label     => To_String (S.Buffer_Lifecycle.File_Info.Display_Name),
                   Target_Buffer    => Active_Feature_Buffer_Token (S),
                   Snapshot_Version => Editor.State.Current_Buffer_Revision (S));
                Editor.Feature_Search_Results.Commit_Search_Query_To_History
@@ -425,7 +425,7 @@ package body Editor.Executor.Search_Results_Commands is
                           .Message_Search_Repeat_No_Query);
                   return No_Op (Id);
                elsif not Editor.State.Has_Active_Buffer (S)
-                 or else S.Registry_Token = 0
+                 or else S.Buffer_Lifecycle.Registry_Token = 0
                then
                   Report_Info
                     (S,
@@ -461,7 +461,7 @@ package body Editor.Executor.Search_Results_Commands is
                   Query            => Editor.Feature_Search_Results.Query_Text
                     (S.Feature_Search_Results),
                   Snapshot_Text    => Editor.State.Current_Text (S),
-                  Source_Label     => To_String (S.File_Info.Display_Name),
+                  Source_Label     => To_String (S.Buffer_Lifecycle.File_Info.Display_Name),
                   Target_Buffer    => Active_Feature_Buffer_Token (S),
                   Snapshot_Version => Editor.State.Current_Buffer_Revision (S));
                Editor.Feature_Search_Results.Commit_Search_Query_To_History

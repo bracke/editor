@@ -79,7 +79,7 @@ package body Editor.Syntax_Cache.Tests is
       S : Editor.State.State_Type;
    begin
       Editor.State.Init (S);
-      S.Active_Buffer_Token := 10;
+      S.Buffer_Lifecycle.Active_Buffer_Token := 10;
       Editor.State.Replace_Buffer_Contents
         (S, "procedure Owner_A is begin null; end Owner_A;");
       Editor.State.Prepare_Syntax_For_Visible_Range (S, 0, 0, True);
@@ -90,7 +90,7 @@ package body Editor.Syntax_Cache.Tests is
         (Editor.Syntax_Cache.Tokens_For_Line (S.Syntax_Cache, 1)'Length > 0,
          "initial owner should have cached tokens");
 
-      S.Active_Buffer_Token := 20;
+      S.Buffer_Lifecycle.Active_Buffer_Token := 20;
       Editor.State.Prepare_Syntax_For_Visible_Range (S, 0, 0, True);
       Assert
         (S.Syntax_Source_Buffer_Token = 20,
@@ -248,16 +248,16 @@ package body Editor.Syntax_Cache.Tests is
    begin
       Editor.State.Prepare_Syntax_For_Visible_Range (S, 0, 0, True);
       Assert
-        (S.Syntax_Source_Revision = S.Buffer_Revision,
+        (S.Syntax_Source_Revision = S.Buffer_Lifecycle.Buffer_Revision,
          Why & ": syntax source revision must match active buffer revision");
       Assert
-        (S.Syntax_Source_Buffer_Token = S.Active_Buffer_Token,
+        (S.Syntax_Source_Buffer_Token = S.Buffer_Lifecycle.Active_Buffer_Token,
          Why & ": syntax source owner must match active buffer token");
       Assert
-        (S.Syntax_Symbols_Revision = S.Buffer_Revision,
+        (S.Syntax_Symbols_Revision = S.Buffer_Lifecycle.Buffer_Revision,
          Why & ": semantic symbol revision must match active buffer revision");
       Assert
-        (S.Syntax_Symbols_Buffer_Token = S.Active_Buffer_Token,
+        (S.Syntax_Symbols_Buffer_Token = S.Buffer_Lifecycle.Active_Buffer_Token,
          Why & ": semantic symbol owner must match active buffer token");
       Assert
         (Editor.Syntax_Cache.Tokens_For_Line (S.Syntax_Cache, 1)'Length > 0,
@@ -270,7 +270,7 @@ package body Editor.Syntax_Cache.Tests is
    is
    begin
       Editor.State.Replace_Buffer_Contents (S, Text);
-      S.Active_Buffer_Token := 101;
+      S.Buffer_Lifecycle.Active_Buffer_Token := 101;
       Assert_Syntax_Prepared_For_Current_Buffer (S, "prime");
    end Prime_Syntax_State;
 
@@ -281,13 +281,13 @@ package body Editor.Syntax_Cache.Tests is
    is
    begin
       Assert
-        (S.Buffer_Revision /= Expected_Revision,
+        (S.Buffer_Lifecycle.Buffer_Revision /= Expected_Revision,
          Why & ": edit path must advance buffer revision");
       Assert
-        (S.Syntax_Source_Revision = S.Buffer_Revision,
+        (S.Syntax_Source_Revision = S.Buffer_Lifecycle.Buffer_Revision,
          Why & ": edit path must restamp lexical revision to the changed buffer");
       Assert
-        (S.Syntax_Source_Buffer_Token = S.Active_Buffer_Token,
+        (S.Syntax_Source_Buffer_Token = S.Buffer_Lifecycle.Active_Buffer_Token,
          Why & ": edit path must keep lexical owner on active buffer");
       Assert
         (S.Syntax_Symbols_Revision = Natural'Last,
@@ -330,19 +330,19 @@ package body Editor.Syntax_Cache.Tests is
       Editor.State.Init (S);
 
       Prime_Syntax_State (S, "procedure Demo is begin null; end Demo;");
-      Before := S.Buffer_Revision;
+      Before := S.Buffer_Lifecycle.Buffer_Revision;
       Editor.State.Mutate_Buffer (S, Insert_Keyword'Access);
       Assert_Post_Edit_Syntax_Invalidated (S, Before, "insert invalidation");
 
-      Before := S.Buffer_Revision;
+      Before := S.Buffer_Lifecycle.Buffer_Revision;
       Editor.State.Mutate_Buffer (S, Delete_Keyword'Access);
       Assert_Post_Edit_Syntax_Invalidated (S, Before, "delete invalidation");
 
-      Before := S.Buffer_Revision;
+      Before := S.Buffer_Lifecycle.Buffer_Revision;
       Editor.State.Mutate_Buffer (S, Paste_Text'Access);
       Assert_Post_Edit_Syntax_Invalidated (S, Before, "paste invalidation");
 
-      Before := S.Buffer_Revision;
+      Before := S.Buffer_Lifecycle.Buffer_Revision;
       Editor.State.Mutate_Buffer (S, Replace_Text'Access);
       Assert_Post_Edit_Syntax_Invalidated (S, Before, "replace invalidation");
    end Test_Syntax_Invalidation_Insert_Delete_Paste_Replace;
@@ -363,12 +363,12 @@ package body Editor.Syntax_Cache.Tests is
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert_Syntax_Prepared_For_Current_Buffer (S, "post edit before undo");
 
-      Before := S.Buffer_Revision;
+      Before := S.Buffer_Lifecycle.Buffer_Revision;
       Cmd := Editor.Test_Helper.Undo;
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert_Post_Edit_Syntax_Invalidated (S, Before, "undo invalidation");
 
-      Before := S.Buffer_Revision;
+      Before := S.Buffer_Lifecycle.Buffer_Revision;
       Cmd := Editor.Test_Helper.Redo;
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert_Post_Edit_Syntax_Invalidated (S, Before, "redo invalidation");
@@ -382,7 +382,7 @@ package body Editor.Syntax_Cache.Tests is
    is
    begin
       Assert
-        (S.Buffer_Revision /= Previous_Revision,
+        (S.Buffer_Lifecycle.Buffer_Revision /= Previous_Revision,
          Why & ": whole-document lifecycle path must advance buffer revision");
       Assert
         (S.Syntax_Source_Revision = Natural'Last,
@@ -396,7 +396,7 @@ package body Editor.Syntax_Cache.Tests is
       Assert
         (S.Syntax_Symbols_Buffer_Token = 0,
          Why & ": whole-document lifecycle path must clear semantic owner");
-      S.Active_Buffer_Token := Previous_Token;
+      S.Buffer_Lifecycle.Active_Buffer_Token := Previous_Token;
       Assert_Syntax_Prepared_For_Current_Buffer (S, Why & " after prepare");
    end Assert_Whole_Document_Syntax_Reset;
 
@@ -409,21 +409,21 @@ package body Editor.Syntax_Cache.Tests is
    begin
       Editor.State.Init (S);
       Prime_Syntax_State (S, "procedure Original is begin null; end Original;");
-      Token := S.Active_Buffer_Token;
+      Token := S.Buffer_Lifecycle.Active_Buffer_Token;
 
-      Before := S.Buffer_Revision;
+      Before := S.Buffer_Lifecycle.Buffer_Revision;
       Editor.State.Replace_Buffer_Contents (S, "package Opened is end Opened;");
       Assert_Whole_Document_Syntax_Reset (S, Before, Token, "open buffer invalidation");
 
-      Before := S.Buffer_Revision;
+      Before := S.Buffer_Lifecycle.Buffer_Revision;
       Editor.State.Replace_Buffer_Contents (S, "procedure Reloaded is begin null; end Reloaded;");
       Assert_Whole_Document_Syntax_Reset (S, Before, Token, "reload invalidation");
 
-      Before := S.Buffer_Revision;
+      Before := S.Buffer_Lifecycle.Buffer_Revision;
       Editor.State.Replace_Buffer_Contents (S, "procedure Reverted is begin null; end Reverted;");
       Assert_Whole_Document_Syntax_Reset (S, Before, Token, "revert invalidation");
 
-      Before := S.Buffer_Revision;
+      Before := S.Buffer_Lifecycle.Buffer_Revision;
       Editor.State.Replace_Buffer_Contents (S, "package Restored.Workspace is end Restored.Workspace;");
       Assert_Whole_Document_Syntax_Reset (S, Before, Token, "workspace restore invalidation");
    end Test_Syntax_Invalidation_Open_Reload_Revert_Workspace_Restore;
@@ -438,21 +438,21 @@ package body Editor.Syntax_Cache.Tests is
    begin
       Editor.State.Init (S);
       Prime_Syntax_State (S, "procedure Save_As_Demo is begin null; end Save_As_Demo;");
-      Before_Revision := S.Buffer_Revision;
+      Before_Revision := S.Buffer_Lifecycle.Buffer_Revision;
       Before_Source_Revision := S.Syntax_Source_Revision;
       Before_Token := S.Syntax_Source_Buffer_Token;
 
       --  Save-as establishes a file identity/baseline without changing text.
       --  It must not silently persist detached syntax state or force a stale
       --  rebuild when the active buffer text/revision are unchanged.
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String (Editor.Test_Temp.Base & "/save-as-demo.adb");
-      S.File_Info.Display_Name := To_Unbounded_String ("save-as-demo.adb");
-      S.File_Info.Dirty := False;
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Editor.Test_Temp.Base & "/save-as-demo.adb");
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("save-as-demo.adb");
+      S.Buffer_Lifecycle.File_Info.Dirty := False;
       Editor.State.Reset_Dirty_Line_Baseline (S);
 
       Assert
-        (S.Buffer_Revision = Before_Revision,
+        (S.Buffer_Lifecycle.Buffer_Revision = Before_Revision,
          "save-as baseline update must not mutate buffer text revision");
       Assert
         (S.Syntax_Source_Revision = Before_Source_Revision,
@@ -477,14 +477,14 @@ package body Editor.Syntax_Cache.Tests is
    begin
       Editor.State.Init (S);
       Prime_Syntax_State (S, "procedure Buffer_Copy is begin null; end Buffer_Copy;");
-      Token := S.Active_Buffer_Token;
-      S.File_Info.External_Change_Surfaced := True;
-      Before := S.Buffer_Revision;
+      Token := S.Buffer_Lifecycle.Active_Buffer_Token;
+      S.Buffer_Lifecycle.File_Info.External_Change_Surfaced := True;
+      Before := S.Buffer_Lifecycle.Buffer_Revision;
 
       Editor.State.Mutate_Buffer (S, Apply_Disk_Text'Access);
-      S.File_Info.External_Change_Surfaced := False;
-      S.File_Info.Last_Reload_Failed := False;
-      S.File_Info.Last_Revert_Failed := False;
+      S.Buffer_Lifecycle.File_Info.External_Change_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.Last_Reload_Failed := False;
+      S.Buffer_Lifecycle.File_Info.Last_Revert_Failed := False;
 
       Assert_Post_Edit_Syntax_Invalidated (S, Before, "external conflict reload invalidation");
       Assert
@@ -522,7 +522,7 @@ package body Editor.Syntax_Cache.Tests is
       Editor.State.Init (S);
       Editor.State.Replace_Buffer_Contents
         (S, "S := ""open" & ASCII.LF & "Y : Integer := 1;");
-      S.Active_Buffer_Token := 303;
+      S.Buffer_Lifecycle.Active_Buffer_Token := 303;
       Editor.State.Prepare_Syntax_For_Visible_Range (S, 0, 1, True);
       Assert
         (Line_Has_Kind (S, 2, Editor.Syntax.String_Literal),
@@ -547,7 +547,7 @@ package body Editor.Syntax_Cache.Tests is
       Editor.State.Init (S);
       Prime_Syntax_State (S, "procedure Nonempty is begin null; end Nonempty;");
       Editor.State.Replace_Buffer_Contents (S, "");
-      S.Active_Buffer_Token := 404;
+      S.Buffer_Lifecycle.Active_Buffer_Token := 404;
       Editor.State.Prepare_Syntax_For_Visible_Range (S, 0, 0, True);
 
       Assert
@@ -584,7 +584,7 @@ package body Editor.Syntax_Cache.Tests is
          "procedure Shifted is" & ASCII.LF
          & "X : String := ""old"";" & ASCII.LF
          & "Y : Integer := 1;");
-      S.Active_Buffer_Token := 505;
+      S.Buffer_Lifecycle.Active_Buffer_Token := 505;
       Editor.State.Prepare_Syntax_For_Visible_Range (S, 0, 2, True);
       Assert
         (Line_Has_Kind (S, 2, Editor.Syntax.String_Literal),
@@ -616,7 +616,7 @@ package body Editor.Syntax_Cache.Tests is
          "type R is record" & ASCII.LF
          & "   Field : Integer;" & ASCII.LF
          & "end record;");
-      S.Active_Buffer_Token := 606;
+      S.Buffer_Lifecycle.Active_Buffer_Token := 606;
 
       Editor.State.Prepare_Syntax_For_Visible_Range (S, 0, 2, True);
 
@@ -625,10 +625,10 @@ package body Editor.Syntax_Cache.Tests is
            (S.Syntax_Symbols, "Field") = Editor.Syntax.Parameter_Identifier,
          "visible-range semantic preparation must use parser-owned language-model record components");
       Assert
-        (S.Syntax_Symbols_Revision = S.Buffer_Revision,
+        (S.Syntax_Symbols_Revision = S.Buffer_Lifecycle.Buffer_Revision,
          "language-model semantic map must be stamped with the current revision");
       Assert
-        (S.Syntax_Symbols_Buffer_Token = S.Active_Buffer_Token,
+        (S.Syntax_Symbols_Buffer_Token = S.Buffer_Lifecycle.Active_Buffer_Token,
          "language-model semantic map must be stamped with the active buffer token");
    end Test_Prepare_Semantics_Uses_Language_Model_Analysis;
 

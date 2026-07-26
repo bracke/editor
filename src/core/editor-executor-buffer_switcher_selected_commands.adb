@@ -115,7 +115,7 @@ package body Editor.Executor.Buffer_Switcher_Selected_Commands is
       then
          Editor.Buffers.Global_Set_Blocked_Close_Surfaced (Row.Id);
          if Row.Id = Editor.Buffers.Global_Active_Buffer then
-            S.File_Info.Blocked_Close_Surfaced := True;
+            S.Buffer_Lifecycle.File_Info.Blocked_Close_Surfaced := True;
             Editor.Buffers.Sync_Global_Active_From_State (S);
          end if;
          declare
@@ -156,7 +156,7 @@ package body Editor.Executor.Buffer_Switcher_Selected_Commands is
            or else Editor.Buffers.Global_Active_Buffer =
              Editor.Buffers.No_Buffer
          then
-            S.Active_Buffer_Token := 0;
+            S.Buffer_Lifecycle.Active_Buffer_Token := 0;
          else
             Editor.Buffers.Load_Global_Active_Into_State (S);
          end if;

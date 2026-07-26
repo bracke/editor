@@ -135,7 +135,7 @@ package body Editor.External_Producers.Tests is
       Path         : String := Editor.Test_Temp.Base & "/main.adb";
       Display_Name : String := "main.adb")
    is
-      File : Editor.State_Buffer.File_State := S.File_Info;
+      File : Editor.State_Buffer.File_State := S.Buffer_Lifecycle.File_Info;
    begin
       File.Has_Path := True;
       File.Path := To_Unbounded_String (Path);
@@ -190,7 +190,7 @@ package body Editor.External_Producers.Tests is
    begin
       Prepare_State (S);
       Items.Append (Rec ("build failed", Source => "gprbuild", Has_Target => True,
-                         Buffer => S.Registry_Token, Line => 2, Column => 1));
+                         Buffer => S.Buffer_Lifecycle.Registry_Token, Line => 2, Column => 1));
       Result := Editor.External_Producers.Diagnostics.Ingest_Diagnostic_Batch
         (S, Build_Source, Items);
       Assert (Result.Accepted_Count = 1, "one external diagnostic is accepted");
@@ -218,7 +218,7 @@ package body Editor.External_Producers.Tests is
            ("missing semicolon",
             Source => "gnat",
             Has_Target => True,
-            Buffer => S.Registry_Token,
+            Buffer => S.Buffer_Lifecycle.Registry_Token,
             Line => 1,
             Column => 6,
             Has_Edit => True,
@@ -233,7 +233,7 @@ package body Editor.External_Producers.Tests is
         (Rec
            ("bad target edit",
             Has_Target => True,
-            Buffer => S.Registry_Token + 99,
+            Buffer => S.Buffer_Lifecycle.Registry_Token + 99,
             Line => 1,
             Column => 1,
             Has_Edit => True,
@@ -247,7 +247,7 @@ package body Editor.External_Producers.Tests is
            ("multi-line edit",
             Source => "gnat",
             Has_Target => True,
-            Buffer => S.Registry_Token,
+            Buffer => S.Buffer_Lifecycle.Registry_Token,
             Line => 2,
             Column => 1,
             Has_Edit => True,
@@ -329,7 +329,7 @@ package body Editor.External_Producers.Tests is
    begin
       Prepare_State (S);
       Items.Append (Rec ("bad target", Has_Target => True,
-                         Buffer => S.Registry_Token + 99, Line => 1, Column => 1));
+                         Buffer => S.Buffer_Lifecycle.Registry_Token + 99, Line => 1, Column => 1));
       Result := Editor.External_Producers.Diagnostics.Ingest_Diagnostic_Batch (S, Build_Source, Items);
       Assert (Result.Accepted_Count = 1, "invalid-target record is still accepted");
       Assert (Result.Accepted_Untargeted = 1,
@@ -555,7 +555,7 @@ package body Editor.External_Producers.Tests is
          CRec ("missing semicolon", File_Label => "main.adb",
                Has_Location => True, Line => 2, Column => 1));
       Assert (R.Has_Target, "live buffer display label resolves to target metadata");
-      Assert (R.Target_Buffer = S.Registry_Token,
+      Assert (R.Target_Buffer = S.Buffer_Lifecycle.Registry_Token,
               "resolved compiler diagnostic target uses active buffer token");
       Assert (R.Target_Line = 2 and then R.Target_Column = 1,
               "resolved compiler diagnostic keeps validated location");

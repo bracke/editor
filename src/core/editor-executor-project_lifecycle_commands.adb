@@ -111,7 +111,7 @@ package body Editor.Executor.Project_Lifecycle_Commands is
    is
       Retained_Recent : constant Retained_Recent_Buffer_Snapshot :=
         Capture_Retained_Outside_Recent_Buffers (S);
-      Old_Generation : constant Natural := S.Lifecycle_Generation;
+      Old_Generation : constant Natural := S.Buffer_Lifecycle.Lifecycle_Generation;
       Active_Was_Retained_Outside : constant Boolean :=
         Active_Buffer_Retained_Outside_Project (S);
    begin
@@ -128,9 +128,9 @@ package body Editor.Executor.Project_Lifecycle_Commands is
       --  keep their recent-buffer ordering.  Reset_Project_Scoped_State clears
       --  the project-scoped switcher/recent-buffer projections; restore only
       --  surviving outside-project recent-buffer entries after the reset.
-      S.Has_Reopen_Candidate := False;
-      S.Reopen_Candidate_Path := Null_Unbounded_String;
-      S.Reopen_Candidate_Label := Null_Unbounded_String;
+      S.Buffer_Lifecycle.Has_Reopen_Candidate := False;
+      S.Buffer_Lifecycle.Reopen_Candidate_Path := Null_Unbounded_String;
+      S.Buffer_Lifecycle.Reopen_Candidate_Label := Null_Unbounded_String;
    end Clear_Project_Transition_State;
 
    procedure Apply_Project_Open_Workspace_Policy
@@ -478,10 +478,10 @@ package body Editor.Executor.Project_Lifecycle_Commands is
         Editor.Buffers.Global_Project_Lifecycle_Dirty_Buffer_Summary (S.Project);
    begin
       if Editor.Buffers.Global_Count = 0
-        and then S.File_Info.Dirty
-        and then S.File_Info.Has_Path
+        and then S.Buffer_Lifecycle.File_Info.Dirty
+        and then S.Buffer_Lifecycle.File_Info.Has_Path
         and then Editor.Buffers.Classify_Buffer_Ownership
-          (S.File_Info.Has_Path, To_String (S.File_Info.Path), S.Project)
+          (S.Buffer_Lifecycle.File_Info.Has_Path, To_String (S.Buffer_Lifecycle.File_Info.Path), S.Project)
             = Editor.Buffers.Buffer_Project_Owned
       then
          Result.Dirty_Count := 1;
@@ -585,7 +585,7 @@ package body Editor.Executor.Project_Lifecycle_Commands is
    begin
       if not Was_Retained_Outside
         or else Active = Editor.Buffers.No_Buffer
-        or else S.Active_Buffer_Token /= Natural (Active)
+        or else S.Buffer_Lifecycle.Active_Buffer_Token /= Natural (Active)
       then
          return;
       end if;
@@ -594,12 +594,12 @@ package body Editor.Executor.Project_Lifecycle_Commands is
         (Editor.History.Undo_Stack,
          Natural (Active),
          Old_Generation,
-         S.Lifecycle_Generation);
+         S.Buffer_Lifecycle.Lifecycle_Generation);
       Rebase_History_Lifecycle
         (Editor.History.Redo_Stack,
          Natural (Active),
          Old_Generation,
-         S.Lifecycle_Generation);
+         S.Buffer_Lifecycle.Lifecycle_Generation);
       Editor.Buffers.Sync_Global_Active_From_State (S);
    end Rebase_Active_Retained_History_After_Project_Reset;
 
@@ -640,7 +640,7 @@ package body Editor.Executor.Project_Lifecycle_Commands is
       if Editor.Buffers.Global_Count = 0
         or else Editor.Buffers.Global_Active_Buffer = Editor.Buffers.No_Buffer
       then
-         S.Active_Buffer_Token := 0;
+         S.Buffer_Lifecycle.Active_Buffer_Token := 0;
       else
          Editor.Buffers.Load_Global_Active_Into_State (S);
       end if;
@@ -701,7 +701,7 @@ package body Editor.Executor.Project_Lifecycle_Commands is
       declare
          Retained_Recent : constant Retained_Recent_Buffer_Snapshot :=
            Capture_Retained_Outside_Recent_Buffers (S);
-         Old_Generation : constant Natural := S.Lifecycle_Generation;
+         Old_Generation : constant Natural := S.Buffer_Lifecycle.Lifecycle_Generation;
          Active_Was_Retained_Outside : constant Boolean :=
            Active_Buffer_Retained_Outside_Project (S);
          Closed : constant Natural := Close_All_Clean_Buffers_For_Project_Close (S);
@@ -790,8 +790,8 @@ package body Editor.Executor.Project_Lifecycle_Commands is
 
       function Current_State_Is_Disposable_Initial_Untitled return Boolean is
       begin
-         return not S.File_Info.Has_Path
-           and then not S.File_Info.Dirty
+         return not S.Buffer_Lifecycle.File_Info.Has_Path
+           and then not S.Buffer_Lifecycle.File_Info.Dirty
            and then Editor.State.Current_Text (S) = ""
            and then
              (Editor.Buffers.Global_Count = 0

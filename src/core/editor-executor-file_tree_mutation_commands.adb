@@ -675,14 +675,14 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
    is
       Updated : constant String :=
         Rebased_File_Tree_Path
-          (To_String (S.File_Info.Path), Old_Path, New_Path);
+          (To_String (S.Buffer_Lifecycle.File_Info.Path), Old_Path, New_Path);
    begin
-      if S.File_Info.Has_Path
+      if S.Buffer_Lifecycle.File_Info.Has_Path
         and then Same_Or_Descendant_File_Tree_Path
-          (To_String (S.File_Info.Path), Old_Path)
+          (To_String (S.Buffer_Lifecycle.File_Info.Path), Old_Path)
       then
-         S.File_Info.Path := To_Unbounded_String (Updated);
-         S.File_Info.Display_Name :=
+         S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Updated);
+         S.Buffer_Lifecycle.File_Info.Display_Name :=
            To_Unbounded_String
              (Editor.Files.Display_Name_For_Path (Updated));
          Editor.Buffers.Sync_Global_Active_From_State (S);
@@ -894,9 +894,9 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
       New_Path : String := "")
    is
       Affects_Active_File : constant Boolean :=
-        S.File_Info.Has_Path
+        S.Buffer_Lifecycle.File_Info.Has_Path
         and then File_Tree_Mutation_Affects_Path
-          (Old_Path, New_Path, To_String (S.File_Info.Path));
+          (Old_Path, New_Path, To_String (S.Buffer_Lifecycle.File_Info.Path));
       Affects_Build_Config : constant Boolean :=
         (Old_Path'Length > 0 and then File_Tree_Build_Config_Path (Old_Path))
         or else (New_Path'Length > 0 and then File_Tree_Build_Config_Path (New_Path))
@@ -933,11 +933,11 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
          Editor.Ada_Language_Service.Invalidate_Path_Subtree
            (S.Language_Service, New_Path);
       end if;
-      if Affects_Active_File and then S.Active_Buffer_Token /= 0 then
+      if Affects_Active_File and then S.Buffer_Lifecycle.Active_Buffer_Token /= 0 then
          Editor.Ada_Project_Index.Invalidate_Buffer
-           (S.Language_Index, S.Active_Buffer_Token);
+           (S.Language_Index, S.Buffer_Lifecycle.Active_Buffer_Token);
          Editor.Ada_Language_Service.Invalidate_Buffer
-           (S.Language_Service, S.Active_Buffer_Token);
+           (S.Language_Service, S.Buffer_Lifecycle.Active_Buffer_Token);
          Editor.Syntax_Semantics.Clear (S.Syntax_Symbols);
          Editor.Ada_Language_Model.Clear (S.Syntax_Analysis);
          S.Syntax_Symbols_Revision := Natural'Last;

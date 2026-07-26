@@ -972,25 +972,25 @@ package body Editor.Files is
       end if;
 
       Editor.State.Replace_Buffer_Contents (S, To_String (Result.Contents));
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := Result.Path;
-      S.File_Info.Display_Name := Result.Display_Name;
-      S.File_Info.Dirty := False;
-      S.File_Info.Baseline_Valid := True;
-      S.File_Info.Saved_Generation := Editor.State.Current_Buffer_Revision (S);
-      S.File_Info.Last_Save_Failed := False;
-      S.File_Info.Last_Reload_Failed := False;
-      S.File_Info.Last_Revert_Failed := False;
-      S.File_Info.Missing_Target_Surfaced := False;
-      S.File_Info.Unreadable_Target_Surfaced := False;
-      S.File_Info.Unwritable_Target_Surfaced := False;
-      S.File_Info.External_Change_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := Result.Path;
+      S.Buffer_Lifecycle.File_Info.Display_Name := Result.Display_Name;
+      S.Buffer_Lifecycle.File_Info.Dirty := False;
+      S.Buffer_Lifecycle.File_Info.Baseline_Valid := True;
+      S.Buffer_Lifecycle.File_Info.Saved_Generation := Editor.State.Current_Buffer_Revision (S);
+      S.Buffer_Lifecycle.File_Info.Last_Save_Failed := False;
+      S.Buffer_Lifecycle.File_Info.Last_Reload_Failed := False;
+      S.Buffer_Lifecycle.File_Info.Last_Revert_Failed := False;
+      S.Buffer_Lifecycle.File_Info.Missing_Target_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.Unreadable_Target_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.Unwritable_Target_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.External_Change_Surfaced := False;
       declare
          Found : Boolean := False;
          Label : constant String := Current_Token_Label (To_String (Result.Path), Found);
       begin
-         S.File_Info.File_Token_Known := Found;
-         S.File_Info.File_Token_Label := To_Unbounded_String (Label);
+         S.Buffer_Lifecycle.File_Info.File_Token_Known := Found;
+         S.Buffer_Lifecycle.File_Info.File_Token_Label := To_Unbounded_String (Label);
       end;
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
@@ -1006,25 +1006,25 @@ package body Editor.Files is
         Save_File (Path, Editor.State.Current_Text (S));
    begin
       if Is_Success (Result) then
-         S.File_Info.Has_Path := True;
-         S.File_Info.Path := Result.Path;
-         S.File_Info.Display_Name := Result.Display_Name;
-         S.File_Info.Dirty := False;
-         S.File_Info.Baseline_Valid := True;
-         S.File_Info.Saved_Generation := Editor.State.Current_Buffer_Revision (S);
-         S.File_Info.Last_Save_Failed := False;
-         S.File_Info.Last_Reload_Failed := False;
-         S.File_Info.Last_Revert_Failed := False;
-         S.File_Info.Missing_Target_Surfaced := False;
-         S.File_Info.Unreadable_Target_Surfaced := False;
-         S.File_Info.Unwritable_Target_Surfaced := False;
-         S.File_Info.External_Change_Surfaced := False;
+         S.Buffer_Lifecycle.File_Info.Has_Path := True;
+         S.Buffer_Lifecycle.File_Info.Path := Result.Path;
+         S.Buffer_Lifecycle.File_Info.Display_Name := Result.Display_Name;
+         S.Buffer_Lifecycle.File_Info.Dirty := False;
+         S.Buffer_Lifecycle.File_Info.Baseline_Valid := True;
+         S.Buffer_Lifecycle.File_Info.Saved_Generation := Editor.State.Current_Buffer_Revision (S);
+         S.Buffer_Lifecycle.File_Info.Last_Save_Failed := False;
+         S.Buffer_Lifecycle.File_Info.Last_Reload_Failed := False;
+         S.Buffer_Lifecycle.File_Info.Last_Revert_Failed := False;
+         S.Buffer_Lifecycle.File_Info.Missing_Target_Surfaced := False;
+         S.Buffer_Lifecycle.File_Info.Unreadable_Target_Surfaced := False;
+         S.Buffer_Lifecycle.File_Info.Unwritable_Target_Surfaced := False;
+         S.Buffer_Lifecycle.File_Info.External_Change_Surfaced := False;
          declare
             Found : Boolean := False;
             Label : constant String := Current_Token_Label (To_String (Result.Path), Found);
          begin
-            S.File_Info.File_Token_Known := Found;
-            S.File_Info.File_Token_Label := To_Unbounded_String (Label);
+            S.Buffer_Lifecycle.File_Info.File_Token_Known := Found;
+            S.Buffer_Lifecycle.File_Info.File_Token_Label := To_Unbounded_String (Label);
          end;
          Editor.State.Reset_Dirty_Line_Baseline (S);
       end if;

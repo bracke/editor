@@ -75,8 +75,8 @@ package body Editor.Executor.File_Open_Commands is
             return Editor.Commands.Availability_Metadata.Unavailable ("Command not available here");
 
          when Command_Reopen_Closed_Buffer =>
-            if not S.Has_Reopen_Candidate
-              or else Length (S.Reopen_Candidate_Path) = 0
+            if not S.Buffer_Lifecycle.Has_Reopen_Candidate
+              or else Length (S.Buffer_Lifecycle.Reopen_Candidate_Path) = 0
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No closed buffer to reopen");
             end if;
@@ -94,12 +94,12 @@ package body Editor.Executor.File_Open_Commands is
       Found : Boolean := False;
       Label : Unbounded_String := Null_Unbounded_String;
    begin
-      if S.File_Info.Has_Path and then Length (S.File_Info.Path) > 0 then
+      if S.Buffer_Lifecycle.File_Info.Has_Path and then Length (S.Buffer_Lifecycle.File_Info.Path) > 0 then
          Label := To_Unbounded_String
-           (Editor.Files.Current_Token_Label (To_String (S.File_Info.Path), Found));
+           (Editor.Files.Current_Token_Label (To_String (S.Buffer_Lifecycle.File_Info.Path), Found));
       end if;
-      S.File_Info.File_Token_Known := Found;
-      S.File_Info.File_Token_Label := Label;
+      S.Buffer_Lifecycle.File_Info.File_Token_Known := Found;
+      S.Buffer_Lifecycle.File_Info.File_Token_Label := Label;
    end Capture_Active_File_Token;
 
    procedure Execute_Open_File
@@ -121,8 +121,8 @@ package body Editor.Executor.File_Open_Commands is
       function Current_State_Is_Disposable_Initial_Untitled return Boolean is
       begin
          return Editor.Buffers.Global_Count = 0
-           and then not S.File_Info.Has_Path
-           and then not S.File_Info.Dirty
+           and then not S.Buffer_Lifecycle.File_Info.Has_Path
+           and then not S.Buffer_Lifecycle.File_Info.Dirty
            and then Editor.State.Current_Text (S) = "";
       end Current_State_Is_Disposable_Initial_Untitled;
 
@@ -186,13 +186,13 @@ package body Editor.Executor.File_Open_Commands is
            (S.Recent_Buffers, Natural (Editor.Buffers.Global_Active_Buffer));
       end if;
 
-      if S.File_Info.Has_Path
+      if S.Buffer_Lifecycle.File_Info.Has_Path
         and then Editor.Buffers.Global_Active_Buffer /= Editor.Buffers.No_Buffer
-        and then Same_File_Path (To_String (S.File_Info.Path), Path)
+        and then Same_File_Path (To_String (S.Buffer_Lifecycle.File_Info.Path), Path)
       then
          --  Explicit open/focus is a command boundary.  Capture a missing
          --  token only as metadata; do not reload disk or change dirty text.
-         if not S.File_Info.File_Token_Known then
+         if not S.Buffer_Lifecycle.File_Info.File_Token_Known then
             Capture_Active_File_Token (S);
             Editor.Buffers.Sync_Global_Active_From_State (S);
          end if;
@@ -200,7 +200,7 @@ package body Editor.Executor.File_Open_Commands is
          Editor.Recent_Buffers.Mark_Activated
            (S.Recent_Buffers, Natural (Editor.Buffers.Global_Active_Buffer));
          Editor.Executor.Shared_Services.Report_Info_Append (S,
-            "Focused existing buffer " & To_String (S.File_Info.Display_Name)
+            "Focused existing buffer " & To_String (S.Buffer_Lifecycle.File_Info.Display_Name)
             & "; disk was not reloaded");
          return;
       end if;
@@ -209,14 +209,14 @@ package body Editor.Executor.File_Open_Commands is
       if Found then
          Editor.Buffers.Global_Set_Active_Buffer (Id);
          Load_Global_Active_Preserving_Language_Index;
-         if not S.File_Info.File_Token_Known then
+         if not S.Buffer_Lifecycle.File_Info.File_Token_Known then
             Capture_Active_File_Token (S);
             Editor.Buffers.Sync_Global_Active_From_State (S);
          end if;
          Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
          Editor.Recent_Buffers.Mark_Activated (S.Recent_Buffers, Natural (Id));
          Editor.Executor.Shared_Services.Report_Info_Append (S,
-            "Focused existing buffer " & To_String (S.File_Info.Display_Name)
+            "Focused existing buffer " & To_String (S.Buffer_Lifecycle.File_Info.Display_Name)
             & "; disk was not reloaded");
          return;
       end if;
@@ -237,7 +237,7 @@ package body Editor.Executor.File_Open_Commands is
                   if Active /= Editor.Buffers.No_Buffer then
                      Editor.Buffers.Global_Force_Close_Buffer (Active, Closed);
                      if Closed then
-                        S.Active_Buffer_Token := 0;
+                        S.Buffer_Lifecycle.Active_Buffer_Token := 0;
                      end if;
                   end if;
                end;
@@ -254,20 +254,20 @@ package body Editor.Executor.File_Open_Commands is
          Preserve_Open_Find_State :=
            Editor.Buffers.Global_Registry_Current_For (S)
            and then Editor.Buffers.Global_Count > 0
-           and then S.File_Info.Has_Path;
+           and then S.Buffer_Lifecycle.File_Info.Has_Path;
 
          Id := Editor.Buffers.Global_Find_By_Path (To_String (Result.Path), Found);
          if Found then
             Editor.Buffers.Global_Set_Active_Buffer (Id);
             Load_Global_Active_Preserving_Language_Index;
-            if not S.File_Info.File_Token_Known then
+            if not S.Buffer_Lifecycle.File_Info.File_Token_Known then
                Capture_Active_File_Token (S);
                Editor.Buffers.Sync_Global_Active_From_State (S);
             end if;
             Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
             Editor.Recent_Buffers.Mark_Activated (S.Recent_Buffers, Natural (Id));
             Editor.Executor.Shared_Services.Report_Info_Append (S,
-               "Focused existing buffer " & To_String (S.File_Info.Display_Name)
+               "Focused existing buffer " & To_String (S.Buffer_Lifecycle.File_Info.Display_Name)
                & "; disk was not reloaded");
             return;
          end if;
@@ -308,8 +308,8 @@ package body Editor.Executor.File_Open_Commands is
         and then Editor.Buffers.Global_Count > 0;
       Disposable_Initial : constant Boolean :=
         not Had_Current_Buffers
-        and then not S.File_Info.Has_Path
-        and then not S.File_Info.Dirty
+        and then not S.Buffer_Lifecycle.File_Info.Has_Path
+        and then not S.Buffer_Lifecycle.File_Info.Dirty
         and then Editor.State.Current_Text (S) = "";
 
       procedure Load_Global_Active_Preserving_Language_Index is
@@ -422,7 +422,7 @@ package body Editor.Executor.File_Open_Commands is
          end;
       end if;
       if Emit_Feedback and then not Active_Message_Is_Non_Info then
-         Editor.Executor.Shared_Services.Report_Info (S, "Switched to " & To_String (S.File_Info.Display_Name));
+         Editor.Executor.Shared_Services.Report_Info (S, "Switched to " & To_String (S.Buffer_Lifecycle.File_Info.Display_Name));
       end if;
    end Execute_Switch_Buffer;
 
@@ -430,13 +430,13 @@ package body Editor.Executor.File_Open_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      S.Has_Reopen_Candidate := S.Reopen_Candidate_Count > 0;
-      if S.Has_Reopen_Candidate then
-         S.Reopen_Candidate_Path := S.Reopen_Candidate_Paths (1);
-         S.Reopen_Candidate_Label := S.Reopen_Candidate_Labels (1);
+      S.Buffer_Lifecycle.Has_Reopen_Candidate := S.Buffer_Lifecycle.Reopen_Candidate_Count > 0;
+      if S.Buffer_Lifecycle.Has_Reopen_Candidate then
+         S.Buffer_Lifecycle.Reopen_Candidate_Path := S.Buffer_Lifecycle.Reopen_Candidate_Paths (1);
+         S.Buffer_Lifecycle.Reopen_Candidate_Label := S.Buffer_Lifecycle.Reopen_Candidate_Labels (1);
       else
-         S.Reopen_Candidate_Path := Null_Unbounded_String;
-         S.Reopen_Candidate_Label := Null_Unbounded_String;
+         S.Buffer_Lifecycle.Reopen_Candidate_Path := Null_Unbounded_String;
+         S.Buffer_Lifecycle.Reopen_Candidate_Label := Null_Unbounded_String;
       end if;
    end Sync_Reopen_Candidate_Top;
 
@@ -444,10 +444,10 @@ package body Editor.Executor.File_Open_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      S.Reopen_Candidate_Count := 0;
+      S.Buffer_Lifecycle.Reopen_Candidate_Count := 0;
       for I in Editor.State_Buffer.Reopen_Candidate_Index loop
-         S.Reopen_Candidate_Paths (I) := Null_Unbounded_String;
-         S.Reopen_Candidate_Labels (I) := Null_Unbounded_String;
+         S.Buffer_Lifecycle.Reopen_Candidate_Paths (I) := Null_Unbounded_String;
+         S.Buffer_Lifecycle.Reopen_Candidate_Labels (I) := Null_Unbounded_String;
       end loop;
       Sync_Reopen_Candidate_Top (S);
    end Clear_Reopen_Candidate;
@@ -456,20 +456,20 @@ package body Editor.Executor.File_Open_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if S.Reopen_Candidate_Count = 0 then
+      if S.Buffer_Lifecycle.Reopen_Candidate_Count = 0 then
          Sync_Reopen_Candidate_Top (S);
          return;
       end if;
 
       for I in 1 .. Editor.State_Buffer.Max_Reopen_Candidates - 1 loop
-         S.Reopen_Candidate_Paths (I) := S.Reopen_Candidate_Paths (I + 1);
-         S.Reopen_Candidate_Labels (I) := S.Reopen_Candidate_Labels (I + 1);
+         S.Buffer_Lifecycle.Reopen_Candidate_Paths (I) := S.Buffer_Lifecycle.Reopen_Candidate_Paths (I + 1);
+         S.Buffer_Lifecycle.Reopen_Candidate_Labels (I) := S.Buffer_Lifecycle.Reopen_Candidate_Labels (I + 1);
       end loop;
-      S.Reopen_Candidate_Paths (Editor.State_Buffer.Max_Reopen_Candidates) :=
+      S.Buffer_Lifecycle.Reopen_Candidate_Paths (Editor.State_Buffer.Max_Reopen_Candidates) :=
         Null_Unbounded_String;
-      S.Reopen_Candidate_Labels (Editor.State_Buffer.Max_Reopen_Candidates) :=
+      S.Buffer_Lifecycle.Reopen_Candidate_Labels (Editor.State_Buffer.Max_Reopen_Candidates) :=
         Null_Unbounded_String;
-      S.Reopen_Candidate_Count := S.Reopen_Candidate_Count - 1;
+      S.Buffer_Lifecycle.Reopen_Candidate_Count := S.Buffer_Lifecycle.Reopen_Candidate_Count - 1;
       Sync_Reopen_Candidate_Top (S);
    end Pop_Reopen_Candidate;
 
@@ -490,13 +490,13 @@ package body Editor.Executor.File_Open_Commands is
       end if;
 
       for I in reverse 2 .. Limit loop
-         S.Reopen_Candidate_Paths (I) := S.Reopen_Candidate_Paths (I - 1);
-         S.Reopen_Candidate_Labels (I) := S.Reopen_Candidate_Labels (I - 1);
+         S.Buffer_Lifecycle.Reopen_Candidate_Paths (I) := S.Buffer_Lifecycle.Reopen_Candidate_Paths (I - 1);
+         S.Buffer_Lifecycle.Reopen_Candidate_Labels (I) := S.Buffer_Lifecycle.Reopen_Candidate_Labels (I - 1);
       end loop;
-      S.Reopen_Candidate_Paths (1) := To_Unbounded_String (Path);
-      S.Reopen_Candidate_Labels (1) := To_Unbounded_String (Label);
-      if S.Reopen_Candidate_Count < Limit then
-         S.Reopen_Candidate_Count := S.Reopen_Candidate_Count + 1;
+      S.Buffer_Lifecycle.Reopen_Candidate_Paths (1) := To_Unbounded_String (Path);
+      S.Buffer_Lifecycle.Reopen_Candidate_Labels (1) := To_Unbounded_String (Label);
+      if S.Buffer_Lifecycle.Reopen_Candidate_Count < Limit then
+         S.Buffer_Lifecycle.Reopen_Candidate_Count := S.Buffer_Lifecycle.Reopen_Candidate_Count + 1;
       end if;
       Sync_Reopen_Candidate_Top (S);
    end Register_Reopen_Candidate_After_Close;
@@ -506,7 +506,7 @@ package body Editor.Executor.File_Open_Commands is
       Path : String) return Boolean
    is
       Active_Path : constant String :=
-        (if S.File_Info.Has_Path then To_String (S.File_Info.Path) else "");
+        (if S.Buffer_Lifecycle.File_Info.Has_Path then To_String (S.Buffer_Lifecycle.File_Info.Path) else "");
    begin
       if Path'Length = 0 or else Active_Path'Length = 0 then
          return False;
@@ -526,8 +526,8 @@ package body Editor.Executor.File_Open_Commands is
    procedure Execute_Reopen_Closed_Buffer
      (S : in out Editor.State.State_Type)
    is
-      Candidate_Path  : constant String := To_String (S.Reopen_Candidate_Path);
-      Candidate_Label : constant String := To_String (S.Reopen_Candidate_Label);
+      Candidate_Path  : constant String := To_String (S.Buffer_Lifecycle.Reopen_Candidate_Path);
+      Candidate_Label : constant String := To_String (S.Buffer_Lifecycle.Reopen_Candidate_Label);
       Display         : constant String :=
         (if Candidate_Label'Length > 0 then Candidate_Label else Candidate_Path);
    begin
@@ -537,7 +537,7 @@ package body Editor.Executor.File_Open_Commands is
       --  canonical file-open, and never restores close-time text, dirty text,
       --  Undo/Redo, caret/selection, Find/Replace, Navigation, Text Feed_Item, or
       --  render state.
-      if not S.Has_Reopen_Candidate or else Candidate_Path'Length = 0 then
+      if not S.Buffer_Lifecycle.Has_Reopen_Candidate or else Candidate_Path'Length = 0 then
          Editor.Executor.Shared_Services.Report_Info (S, "No closed buffer to reopen");
          return;
       end if;

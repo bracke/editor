@@ -116,8 +116,8 @@ package body Editor.Files.Tests is
       Assert (Status = Editor.Files.Ok, "Load_File should return Ok");
       Assert (Buffer_Text (S) = "alpha" & ASCII.LF & "beta",
         "Load_File should replace buffer with file text");
-      Assert (not S.File_Info.Dirty, "Loaded file should be clean");
-      Assert (To_String (S.File_Info.Path) = Path, "Loaded path should be stored");
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty, "Loaded file should be clean");
+      Assert (To_String (S.Buffer_Lifecycle.File_Info.Path) = Path, "Loaded path should be stored");
       Remove_If_Exists (Path);
    end Test_Load_Simple_File;
 
@@ -266,7 +266,7 @@ package body Editor.Files.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "old text");
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Insert (0, 'x'));
-      S.File_Info.Dirty := False;
+      S.Buffer_Lifecycle.File_Info.Dirty := False;
       Cmd.Kind := Editor.Command_Kinds.Move_Right;
       Editor.Executor.Execute_No_Log (S, Cmd);
 
@@ -274,13 +274,13 @@ package body Editor.Files.Tests is
 
       Assert (Buffer_Text (S) = "new text",
         "Execute_Open_File should replace buffer contents");
-      Assert (S.File_Info.Has_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path,
         "Execute_Open_File should mark current file as path-backed");
-      Assert (To_String (S.File_Info.Path) = Path,
+      Assert (To_String (S.Buffer_Lifecycle.File_Info.Path) = Path,
         "Execute_Open_File should store the opened path");
-      Assert (To_String (S.File_Info.Display_Name) = "execute_open.txt",
+      Assert (To_String (S.Buffer_Lifecycle.File_Info.Display_Name) = "execute_open.txt",
         "Execute_Open_File should store the opened display name");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
         "Execute_Open_File should leave opened file clean");
       Assert (S.Carets.Length = 1 and then S.Carets (0).Pos = 0
         and then S.Carets (0).Anchor = 0,
@@ -374,20 +374,20 @@ package body Editor.Files.Tests is
       Remove_If_Exists (Missing_Path);
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "keep me");
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String ("before.txt");
-      S.File_Info.Display_Name := To_Unbounded_String ("before.txt");
-      S.File_Info.Dirty := False;
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String ("before.txt");
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("before.txt");
+      S.Buffer_Lifecycle.File_Info.Dirty := False;
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Missing_Path);
 
       Assert (Buffer_Text (S) = "keep me",
         "Failed open should preserve buffer contents");
-      Assert (S.File_Info.Has_Path
-        and then To_String (S.File_Info.Path) = "before.txt"
-        and then To_String (S.File_Info.Display_Name) = "before.txt",
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = "before.txt"
+        and then To_String (S.Buffer_Lifecycle.File_Info.Display_Name) = "before.txt",
         "Failed open should preserve current file identity");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
         "Failed open should preserve dirty state");
 
       M := Editor.Messages.Active_Message (S.Messages, Found);
@@ -414,7 +414,7 @@ package body Editor.Files.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "dirty buffer");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Ensure_Global_Registry (S);
       Old_Id := Editor.Buffers.Global_Active_Buffer;
 
@@ -425,12 +425,12 @@ package body Editor.Files.Tests is
         "Dirty-buffer open policy should create and activate a new buffer");
       Assert (Buffer_Text (S) = "replacement",
         "Dirty-buffer open policy should load replacement in the active buffer");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
         "Opened file buffer should be clean");
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, Old_Id);
       Assert (Buffer_Text (S) = "dirty buffer",
         "Dirty original buffer should remain available after open");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "Dirty original buffer should preserve dirty state");
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, New_Id);
       M := Editor.Messages.Active_Message (S.Messages, Found);
@@ -475,7 +475,7 @@ package body Editor.Files.Tests is
         "opening an already-open path alias should focus the existing buffer");
       Assert (Buffer_Text (S) = "disk-one!",
         "focusing an already-open file must not reread disk or lose dirty content");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "focusing an already-open dirty file should preserve dirty state");
       Remove_If_Exists (Path);
    end Test_Open_Already_Open_Path_Alias_Focuses_Existing;
@@ -499,7 +499,7 @@ package body Editor.Files.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "active");
-      S.File_Info.Display_Name := To_Unbounded_String ("active.txt");
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("active.txt");
       Before_Count := Editor.Buffers.Global_Count;
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Missing_Path);
@@ -719,8 +719,8 @@ package body Editor.Files.Tests is
         and then Copy_Rows = 1 and then Move_Rows = 1,
         "canonical associated-file operation rows remain unique");
       Assert (Buffer_Text (S) = Before_Text
-        and then not S.File_Info.Has_Path
-        and then not S.File_Info.Dirty
+        and then not S.Buffer_Lifecycle.File_Info.Has_Path
+        and then not S.Buffer_Lifecycle.File_Info.Dirty
         and then Editor.Messages.Count (S.Messages) = 0,
         "reference projection must not execute commands or mutate editor state");
 
@@ -912,12 +912,12 @@ package body Editor.Files.Tests is
         "static reference availability must not change in no-active state");
 
       Editor.State.Load_Text (S, Before_Text);
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String (Path);
-      S.File_Info.Display_Name := To_Unbounded_String ("availability_reference.txt");
-      S.File_Info.Dirty := True;
-      S.File_Info.Baseline_Valid := True;
-      S.File_Info.Saved_Generation := 1;
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Path);
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("availability_reference.txt");
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Baseline_Valid := True;
+      S.Buffer_Lifecycle.File_Info.Saved_Generation := 1;
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
@@ -930,11 +930,11 @@ package body Editor.Files.Tests is
         "reference availability text must remain stable for dirty associated buffer");
       Assert (Read_Bytes (Path) = "disk reference separation"
         and then Buffer_Text (S) = Before_Text
-        and then S.File_Info.Dirty,
+        and then S.Buffer_Lifecycle.File_Info.Dirty,
         "reference/availability checks must not read into state, write disk, or clean dirty text");
 
-      S.File_Info.Dirty := False;
-      S.File_Info.Saved_Generation := Editor.State.Current_Buffer_Revision (S);
+      S.Buffer_Lifecycle.File_Info.Dirty := False;
+      S.Buffer_Lifecycle.File_Info.Saved_Generation := Editor.State.Current_Buffer_Revision (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Clean_Avail := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Reload_Active_Buffer);
@@ -1462,12 +1462,12 @@ package body Editor.Files.Tests is
         "reference metadata must be stable in no-active state");
 
       Editor.State.Load_Text (S, "dirty memory text");
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String (Path);
-      S.File_Info.Display_Name := To_Unbounded_String ("projection_availability.txt");
-      S.File_Info.Dirty := True;
-      S.File_Info.Baseline_Valid := True;
-      S.File_Info.Saved_Generation := 1;
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Path);
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("projection_availability.txt");
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Baseline_Valid := True;
+      S.Buffer_Lifecycle.File_Info.Saved_Generation := 1;
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
@@ -1476,11 +1476,11 @@ package body Editor.Files.Tests is
         "dirty associated reload remains blocked by Executor availability");
       Assert (Read_Bytes (Path) = "clean disk text"
         and then Buffer_Text (S) = "dirty memory text"
-        and then S.File_Info.Dirty,
+        and then S.Buffer_Lifecycle.File_Info.Dirty,
         "reference projection/availability must not read disk into dirty text or clean state");
 
-      S.File_Info.Dirty := False;
-      S.File_Info.Saved_Generation := Editor.State.Current_Buffer_Revision (S);
+      S.Buffer_Lifecycle.File_Info.Dirty := False;
+      S.Buffer_Lifecycle.File_Info.Saved_Generation := Editor.State.Current_Buffer_Revision (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Clean_Avail := Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Reload_Active_Buffer);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Clean_Avail),
@@ -1593,12 +1593,12 @@ package body Editor.Files.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "memory");
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String (Path);
-      S.File_Info.Display_Name := To_Unbounded_String ("behavior_save.txt");
-      S.File_Info.Dirty := True;
-      S.File_Info.Baseline_Valid := True;
-      S.File_Info.Saved_Generation := 1;
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Path);
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("behavior_save.txt");
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Baseline_Valid := True;
+      S.Buffer_Lifecycle.File_Info.Saved_Generation := 1;
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
@@ -1625,12 +1625,12 @@ package body Editor.Files.Tests is
       Assert_Excluded ("reference audit cache");
       Assert (Buffer_Text (S) = "memory"
         and then Read_Bytes (Path) = "original"
-        and then S.File_Info.Dirty,
+        and then S.Buffer_Lifecycle.File_Info.Dirty,
         "palette/render/workspace reference projection must not execute save or filesystem operations");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
       Assert (Read_Bytes (Path) = "memory"
-        and then not S.File_Info.Dirty
+        and then not S.Buffer_Lifecycle.File_Info.Dirty
         and then Buffer_Text (S) = "memory",
         "file.save behavior smoke must remain unchanged after reference freeze");
 
@@ -1638,22 +1638,22 @@ package body Editor.Files.Tests is
       Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, Save_As);
       Assert (Ada.Directories.Exists (Save_As)
         and then Read_Bytes (Save_As) = "memory as"
-        and then To_String (S.File_Info.Path) = Save_As
-        and then not S.File_Info.Dirty,
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Save_As
+        and then not S.Buffer_Lifecycle.File_Info.Dirty,
         "file.save-as behavior smoke must remain unchanged after reference freeze");
 
       Editor.Executor.File_Operation_Commands.Execute_Copy_Buffer_File (S, Copy_To);
       Assert (Ada.Directories.Exists (Copy_To)
         and then Read_Bytes (Copy_To) = "memory as"
-        and then To_String (S.File_Info.Path) = Save_As,
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Save_As,
         "file.copy-buffer-file smoke must preserve association and copy backing file");
 
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, Move_To);
       Assert (Ada.Directories.Exists (Move_To)
         and then not Ada.Directories.Exists (Save_As)
-        and then To_String (S.File_Info.Path) = Move_To
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Move_To
         and then Buffer_Text (S) = "memory as"
-        and then not S.File_Info.Dirty,
+        and then not S.Buffer_Lifecycle.File_Info.Dirty,
         "file.move-buffer-file smoke must update association after filesystem success without changing text");
 
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("file.move-buffer-file-overwrite", Found);
@@ -1717,9 +1717,9 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
          Text : String;
          Note : String) is
       begin
-         Assert (To_String (S.File_Info.Path) = Path
+         Assert (To_String (S.Buffer_Lifecycle.File_Info.Path) = Path
            and then Buffer_Text (S) = Text
-           and then not S.File_Info.Dirty
+           and then not S.Buffer_Lifecycle.File_Info.Dirty
            and then Editor.Buffers.Global_Active_Buffer /= Editor.Buffers.No_Buffer
            and then Editor.Buffers.Global_Count >= 1,
            "clean association invariant failed after " & Note);
@@ -1733,7 +1733,7 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
          Editor.Messages.Clear (S.Messages);
          Editor.Executor.Execute_Command (S, Id);
          Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S)
-           and then S.File_Target_Prompt_Command = Id
+           and then S.Buffer_Lifecycle.File_Target_Prompt_Command = Id
            and then Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Label (S) = Label
            and then Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (S) = "",
            "no-target invocation must open canonical prompt for " &
@@ -1741,7 +1741,7 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
          Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text (S, Target);
          Editor.Executor.File_Target_Prompt_Commands.Confirm_File_Target_Prompt (S);
          Assert (not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S)
-           and then S.File_Target_Prompt_Command = Editor.Command_Ids.No_Command
+           and then S.Buffer_Lifecycle.File_Target_Prompt_Command = Editor.Command_Ids.No_Command
            and then Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (S) = "",
            "prompt confirmation must clear transient state for " &
            Editor.Commands.Name_Metadata.Stable_Command_Name (Id));
@@ -1757,7 +1757,7 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
       Expect_Clean_Association (Initial, Save_Text, "open");
 
       Insert_Text_At (S, Buffer_Text (S)'Length + 1, " + edit");
-      Assert (S.File_Info.Dirty, "edit must mark associated buffer dirty before save");
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty, "edit must mark associated buffer dirty before save");
       Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, Save_As_Path);
       Expect_Clean_Association (Save_As_Path, Save_Text & " + edit", "direct save-as");
       Assert (Read_Bytes (Save_As_Path) = Save_Text & " + edit",
@@ -1776,34 +1776,34 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
 
       Write_Bytes (Save_As_Path, Revert_Text);
       Insert_Text_At (S, Buffer_Text (S)'Length + 1, " dirty");
-      Assert (S.File_Info.Dirty, "dirty state must exist before revert");
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty, "dirty state must exist before revert");
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
       Assert (Buffer_Text (S) = Save_Text & " + edit" & " dirty"
-        and then S.File_Info.Dirty,
+        and then S.Buffer_Lifecycle.File_Info.Dirty,
         "reload must remain blocked for dirty associated buffers");
       Execute_Revert_And_Confirm (S);
       Expect_Clean_Association (Save_As_Path, Revert_Text, "revert");
 
       Insert_Text_At (S, Buffer_Text (S)'Length + 1, " dirty-blocked");
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, Rename_Path);
-      Assert (To_String (S.File_Info.Path) = Save_As_Path
+      Assert (To_String (S.Buffer_Lifecycle.File_Info.Path) = Save_As_Path
         and then not Ada.Directories.Exists (Rename_Path)
-        and then S.File_Info.Dirty,
+        and then S.Buffer_Lifecycle.File_Info.Dirty,
         "dirty rename must remain blocked and preserve association/text state");
       Editor.Executor.File_Operation_Commands.Execute_Copy_Buffer_File (S, Copy_Path);
       Assert (not Ada.Directories.Exists (Copy_Path)
-        and then To_String (S.File_Info.Path) = Save_As_Path
-        and then S.File_Info.Dirty,
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Save_As_Path
+        and then S.Buffer_Lifecycle.File_Info.Dirty,
         "dirty copy must remain blocked and preserve association/text state");
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, Move_Path);
       Assert (not Ada.Directories.Exists (Move_Path)
-        and then To_String (S.File_Info.Path) = Save_As_Path
-        and then S.File_Info.Dirty,
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Save_As_Path
+        and then S.Buffer_Lifecycle.File_Info.Dirty,
         "dirty move must remain blocked and preserve association/text state");
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
       Assert (Ada.Directories.Exists (Save_As_Path)
-        and then To_String (S.File_Info.Path) = Save_As_Path
-        and then S.File_Info.Dirty,
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Save_As_Path
+        and then S.Buffer_Lifecycle.File_Info.Dirty,
         "dirty delete must remain blocked and preserve association/text state");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
@@ -1825,17 +1825,17 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
         "move must update association only after filesystem success");
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
       Assert (not Ada.Directories.Exists (Move_Path)
-        and then not S.File_Info.Has_Path
-        and then To_String (S.File_Info.Path) = ""
+        and then not S.Buffer_Lifecycle.File_Info.Has_Path
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = ""
         and then Buffer_Text (S) = Revert_Text & " dirty-blocked",
         "delete must clear association only after filesystem success and keep buffer text open");
 
       Editor.State.Load_Text (S, Prompt_Text);
-      S.File_Info.Has_Path := False;
-      S.File_Info.Path := Null_Unbounded_String;
-      S.File_Info.Display_Name := To_Unbounded_String ("Untitled");
-      S.File_Info.Dirty := True;
-      S.File_Info.Baseline_Valid := False;
+      S.Buffer_Lifecycle.File_Info.Has_Path := False;
+      S.Buffer_Lifecycle.File_Info.Path := Null_Unbounded_String;
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("Untitled");
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Baseline_Valid := False;
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Prompt_And_Confirm (Editor.Command_Ids.Command_Save_File_As, Prompt_Save_As, "Save As target");
       Expect_Clean_Association (Prompt_Save_As, Prompt_Text, "prompted save-as");
@@ -1858,7 +1858,7 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
       Editor.Executor.File_Operation_Commands.Execute_Copy_Buffer_File (S, Direct_Copy);
       Assert (Ada.Directories.Exists (Direct_Copy)
         and then Read_Bytes (Direct_Copy) = Prompt_Text
-        and then To_String (S.File_Info.Path) = Prompt_Move
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Prompt_Move
         and then not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S),
         "direct explicit-target execution after cancellation must bypass prompt and preserve association");
 
@@ -1867,11 +1867,11 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
       Editor.State.Reset_Project_Scoped_State (S);
       Assert (not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S)
         and then not Ada.Directories.Exists (Direct_Copy & ".cleanup")
-        and then To_String (S.File_Info.Path) = Prompt_Move,
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Prompt_Move,
         "lifecycle cleanup must clear prompt state without executing pending move");
       Editor.Executor.File_Operation_Commands.Execute_Copy_Buffer_File (S, Direct_Copy & ".after-cleanup");
       Assert (Ada.Directories.Exists (Direct_Copy & ".after-cleanup")
-        and then To_String (S.File_Info.Path) = Prompt_Move,
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Prompt_Move,
         "direct command after lifecycle cleanup must remain canonical");
 
       Cleanup;
@@ -1898,8 +1898,8 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
-      Assert (S.File_Info.File_Token_Known
-        and then Length (S.File_Info.File_Token_Label) > 0,
+      Assert (S.Buffer_Lifecycle.File_Info.File_Token_Known
+        and then Length (S.Buffer_Lifecycle.File_Info.File_Token_Label) > 0,
         "open should capture a transient command-boundary file token");
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty buffer");
 
@@ -1909,9 +1909,9 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
       Write_Bytes (Path, "external disk replacement with different size");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
-      Assert (S.File_Conflict_Prompt_Active,
+      Assert (S.Buffer_Lifecycle.File_Conflict_Prompt_Active,
         "save should open a transient conflict prompt on token mismatch");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "save conflict must preserve dirty buffer state");
       Assert (Read_Bytes (Path) = "external disk replacement with different size",
         "save conflict must not silently overwrite disk");
@@ -1926,23 +1926,23 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_File_Conflict_Keep_Buffer);
-      Assert (not S.File_Conflict_Prompt_Active,
+      Assert (not S.Buffer_Lifecycle.File_Conflict_Prompt_Active,
         "keep-buffer should dismiss the conflict prompt");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "keep-buffer must keep dirty text");
-      Assert (S.File_Info.External_Change_Surfaced,
+      Assert (S.Buffer_Lifecycle.File_Info.External_Change_Surfaced,
         "keep-buffer should leave a visible conflict marker");
       Assert (Read_Bytes (Path) = "external disk replacement with different size",
         "keep-buffer must not write disk");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
-      Assert (S.File_Conflict_Prompt_Active,
+      Assert (S.Buffer_Lifecycle.File_Conflict_Prompt_Active,
         "later save should re-detect the unresolved external conflict");
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_File_Conflict_Overwrite_Disk);
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
         "overwrite should clear dirty state only after successful write");
-      Assert (not S.File_Conflict_Prompt_Active,
+      Assert (not S.Buffer_Lifecycle.File_Conflict_Prompt_Active,
         "overwrite should clear the conflict prompt after success");
       Assert (Read_Bytes (Path) = "disk baseline dirty buffer",
         "overwrite should write the current buffer text explicitly");
@@ -1982,7 +1982,7 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
       Write_Bytes (Path, "external disk replacement with different size");
 
       Editor.Executor.Buffer_Close_Commands.Execute_Close_Active_Buffer (S);
-      Assert (S.Dirty_Close_Prompt_Active,
+      Assert (S.Buffer_Lifecycle.Dirty_Close_Prompt_Active,
         "dirty close should open the confirmation prompt");
       Assert (Editor.Buffers.Global_Contains (Buffer_Id),
         "dirty close should keep the target buffer open");
@@ -1991,18 +1991,18 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Confirm_Close_Save);
-      Assert (S.File_Conflict_Prompt_Active,
+      Assert (S.Buffer_Lifecycle.File_Conflict_Prompt_Active,
         "confirmed close-save should surface the file conflict prompt");
-      Assert (not S.Dirty_Close_Prompt_Active,
+      Assert (not S.Buffer_Lifecycle.Dirty_Close_Prompt_Active,
         "confirming close-save should dismiss the dirty-close prompt");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "the buffer should remain dirty until the conflict is resolved");
       Assert (Editor.Buffers.Global_Contains (Buffer_Id),
         "the buffer should remain open until overwrite resolves the conflict");
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_File_Conflict_Overwrite_Disk);
-      Assert (not S.File_Conflict_Prompt_Active,
+      Assert (not S.Buffer_Lifecycle.File_Conflict_Prompt_Active,
         "overwrite should clear the conflict prompt");
       Assert (not Editor.Buffers.Global_Contains (Buffer_Id),
         "overwrite should resume and complete the pending close");
@@ -2039,23 +2039,23 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
-      Assert (S.File_Info.File_Token_Known,
+      Assert (S.Buffer_Lifecycle.File_Info.File_Token_Known,
         "setup should capture the clean buffer token on open");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
         "setup should leave the opened buffer clean");
 
       --  A clean buffer still has lifecycle state: save must not hide a
       --  known external disk change behind the ordinary no-op message.
       Write_Bytes (Path, "clean disk changed externally with size delta");
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
-      Assert (S.File_Conflict_Prompt_Active,
+      Assert (S.Buffer_Lifecycle.File_Conflict_Prompt_Active,
         "clean save should surface known external modification");
-      Assert (S.File_Conflict_Prompt_Kind =
+      Assert (S.Buffer_Lifecycle.File_Conflict_Prompt_Kind =
         Editor.State.External_Modified_While_Clean,
         "clean save should classify external modification while clean");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
         "clean external conflict must not dirty the buffer");
-      Assert (S.File_Info.External_Change_Surfaced,
+      Assert (S.Buffer_Lifecycle.File_Info.External_Change_Surfaced,
         "clean external conflict should show changed-on-disk status");
       Assert (Read_Bytes (Path) = "clean disk changed externally with size delta",
         "clean external conflict must not write disk");
@@ -2070,11 +2070,11 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_File_Conflict_Keep_Buffer);
-      Assert (not S.File_Conflict_Prompt_Active,
+      Assert (not S.Buffer_Lifecycle.File_Conflict_Prompt_Active,
         "keep-buffer should dismiss clean conflict prompt");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
         "keep-buffer should preserve clean buffer state");
-      Assert (S.File_Info.External_Change_Surfaced,
+      Assert (S.Buffer_Lifecycle.File_Info.External_Change_Surfaced,
         "keep-buffer should preserve clean changed-on-disk marker");
 
       Remove_If_Exists (Path);
@@ -2106,9 +2106,9 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_All);
 
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "save-all conflict skip must leave the buffer dirty");
-      Assert (S.File_Info.External_Change_Surfaced,
+      Assert (S.Buffer_Lifecycle.File_Info.External_Change_Surfaced,
         "save-all conflict skip should leave a visible changed-on-disk marker");
       Assert (Read_Bytes (Path) = "externally replaced save-all disk content",
         "save-all must not silently overwrite externally changed disk content");
@@ -2147,13 +2147,13 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
       Write_Bytes (Path, "external changed content with different size");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
-      Assert (S.File_Conflict_Prompt_Active,
+      Assert (S.Buffer_Lifecycle.File_Conflict_Prompt_Active,
         "setup should create a file conflict prompt");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Cancel);
-      Assert (not S.File_Conflict_Prompt_Active,
+      Assert (not S.Buffer_Lifecycle.File_Conflict_Prompt_Active,
         "generic cancel should cancel the active file conflict prompt");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "generic cancel must preserve dirty buffer state");
       Assert (Read_Bytes (Path) = "external changed content with different size",
         "generic cancel must not write disk");
@@ -2185,18 +2185,18 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
       Ada.Directories.Create_Directory (Path);
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
-      Assert (S.File_Conflict_Prompt_Active,
+      Assert (S.Buffer_Lifecycle.File_Conflict_Prompt_Active,
         "replaced backing file should open a conflict prompt");
-      Assert (S.File_Conflict_Prompt_Kind = Editor.State.Backing_File_Replaced,
+      Assert (S.Buffer_Lifecycle.File_Conflict_Prompt_Kind = Editor.State.Backing_File_Replaced,
         "replaced backing file should be classified distinctly from ordinary unreadable files");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "replaced backing file conflict must preserve dirty text");
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_File_Conflict_Cancel);
-      Assert (not S.File_Conflict_Prompt_Active,
+      Assert (not S.Buffer_Lifecycle.File_Conflict_Prompt_Active,
         "cancel should clear replaced-file conflict prompt");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "cancel of replaced-file conflict must preserve dirty state");
 
       Remove_If_Exists (Path);
@@ -2223,21 +2223,21 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
       Remove_If_Exists (Path);
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
-      Assert (S.File_Conflict_Prompt_Active,
+      Assert (S.Buffer_Lifecycle.File_Conflict_Prompt_Active,
         "missing backing file should open a conflict prompt");
-      Assert (S.File_Conflict_Prompt_Kind =
+      Assert (S.Buffer_Lifecycle.File_Conflict_Prompt_Kind =
         Editor.State.Backing_File_Deleted_While_Dirty,
         "missing backing file should keep its specific conflict kind");
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_File_Conflict_Keep_Buffer);
-      Assert (not S.File_Conflict_Prompt_Active,
+      Assert (not S.Buffer_Lifecycle.File_Conflict_Prompt_Active,
         "keep-buffer should dismiss missing-file prompt");
-      Assert (S.File_Info.Missing_Target_Surfaced,
+      Assert (S.Buffer_Lifecycle.File_Info.Missing_Target_Surfaced,
         "keep-buffer should preserve the missing-on-disk marker");
-      Assert (not S.File_Info.External_Change_Surfaced,
+      Assert (not S.Buffer_Lifecycle.File_Info.External_Change_Surfaced,
         "keep-buffer must not relabel missing files as changed-on-disk");
-      Assert (S.File_Info.Dirty and then Buffer_Text (S) = "disk baseline dirty buffer",
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty and then Buffer_Text (S) = "disk baseline dirty buffer",
         "keep-buffer must preserve dirty text for missing files");
 
       Remove_If_Exists (Path);
@@ -2265,7 +2265,7 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
       Write_Bytes (Path, "first external disk content with different size");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
-      Assert (S.File_Conflict_Prompt_Active,
+      Assert (S.Buffer_Lifecycle.File_Conflict_Prompt_Active,
         "setup should create a file conflict prompt");
 
       --  The prompt was opened against the first observed external disk
@@ -2276,9 +2276,9 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_File_Conflict_Overwrite_Disk);
-      Assert (not S.File_Conflict_Prompt_Active,
+      Assert (not S.Buffer_Lifecycle.File_Conflict_Prompt_Active,
         "stale disk conflict prompt should be dismissed");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "stale disk conflict rejection must preserve dirty state");
       Assert (Read_Bytes (Path) = "second external disk content with another size",
         "stale disk conflict prompt must not overwrite new disk content");
@@ -2308,22 +2308,22 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
       Write_Bytes (Path, "external disk content with different size");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
-      Assert (S.File_Conflict_Prompt_Active,
+      Assert (S.Buffer_Lifecycle.File_Conflict_Prompt_Active,
         "setup should create a file conflict prompt");
 
       --  Simulate an out-of-band text mutation while the transient prompt is
       --  visible.  The prompt must not be accepted merely because the buffer
       --  is still dirty and still has the same path.
       Text_Buffer.Set_Text (S.Buffer, "locally changed after prompt");
-      S.Buffer_Revision := S.Buffer_Revision + 1;
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.Buffer_Revision := S.Buffer_Lifecycle.Buffer_Revision + 1;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_File_Conflict_Overwrite_Disk);
-      Assert (not S.File_Conflict_Prompt_Active,
+      Assert (not S.Buffer_Lifecycle.File_Conflict_Prompt_Active,
         "stale conflict prompt should be dismissed");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "stale conflict rejection must preserve dirty state");
       Assert (Read_Bytes (Path) = "external disk content with different size",
         "stale conflict prompt must not overwrite disk");
@@ -2367,7 +2367,7 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
 
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
         "stale dirty reload confirmation should be dismissed");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "stale dirty reload rejection must preserve dirty state");
       Assert (Buffer_Text (S) = "reload baseline dirty buffer",
         "stale dirty reload rejection must preserve buffer text");
@@ -2401,23 +2401,23 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
       --  only the explicit conflict reload action may discard dirty text.
       Write_Bytes (Path, "external reload action disk content with size delta");
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
-      Assert (S.File_Conflict_Prompt_Active,
+      Assert (S.Buffer_Lifecycle.File_Conflict_Prompt_Active,
         "reload action setup should create a conflict prompt");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "reload action setup must preserve dirty text before confirmation");
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_File_Conflict_Reload_From_Disk);
 
-      Assert (not S.File_Conflict_Prompt_Active,
+      Assert (not S.Buffer_Lifecycle.File_Conflict_Prompt_Active,
         "explicit conflict reload should clear the conflict prompt");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
         "explicit conflict reload should clear dirty state after successful read");
       Assert (Buffer_Text (S) = "external reload action disk content with size delta",
         "explicit conflict reload should replace text from current disk content");
       Assert (Read_Bytes (Path) = "external reload action disk content with size delta",
         "explicit conflict reload must not write disk");
-      Assert (S.File_Info.File_Token_Known,
+      Assert (S.Buffer_Lifecycle.File_Info.File_Token_Known,
         "explicit conflict reload should capture the accepted disk token");
 
       Remove_If_Exists (Path);

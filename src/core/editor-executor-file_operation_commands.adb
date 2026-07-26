@@ -34,7 +34,7 @@ package body Editor.Executor.File_Operation_Commands is
       Reason : String)
    is
       Source_Path : constant String :=
-        (if S.File_Info.Has_Path then To_String (S.File_Info.Path) else "");
+        (if S.Buffer_Lifecycle.File_Info.Has_Path then To_String (S.Buffer_Lifecycle.File_Info.Path) else "");
       Relative_Path : constant String :=
         (if Source_Path'Length > 0
            and then Editor.Project.Has_Project (S.Project)
@@ -53,7 +53,7 @@ package body Editor.Executor.File_Operation_Commands is
       Editor.Project_Search.Mark_Stale_Unconditionally (S.Project_Search);
       Editor.Project_Search.Mark_Replace_Preview_Stale (S.Project_Search);
       Editor.Feature_Diagnostics.Mark_Diagnostics_For_Buffer_Stale
-        (S.Feature_Diagnostics, S.Active_Buffer_Token);
+        (S.Feature_Diagnostics, S.Buffer_Lifecycle.Active_Buffer_Token);
 
       if Source_Path'Length > 0 then
          Editor.Feature_Diagnostics.Mark_Diagnostics_For_Source_Path_Stale
@@ -75,11 +75,11 @@ package body Editor.Executor.File_Operation_Commands is
          Editor.Ada_Language_Service.Invalidate_Path
            (S.Language_Service, Source_Path);
       end if;
-      if S.Active_Buffer_Token /= 0 then
+      if S.Buffer_Lifecycle.Active_Buffer_Token /= 0 then
          Editor.Ada_Project_Index.Invalidate_Buffer
-           (S.Language_Index, S.Active_Buffer_Token);
+           (S.Language_Index, S.Buffer_Lifecycle.Active_Buffer_Token);
          Editor.Ada_Language_Service.Invalidate_Buffer
-           (S.Language_Service, S.Active_Buffer_Token);
+           (S.Language_Service, S.Buffer_Lifecycle.Active_Buffer_Token);
       end if;
 
       if To_String (S.Build_UI.Selected_Build_Candidate_Id)'Length > 0 then
@@ -145,7 +145,7 @@ package body Editor.Executor.File_Operation_Commands is
          return False;
       end if;
 
-      if S.Active_Buffer_Token = Natural (Active_Id) then
+      if S.Buffer_Lifecycle.Active_Buffer_Token = Natural (Active_Id) then
          Editor.Buffers.Sync_Global_Active_From_State (S);
       else
          Editor.Buffers.Load_Global_Active_Into_State (S);
@@ -161,7 +161,7 @@ package body Editor.Executor.File_Operation_Commands is
       --  buffer's current associated path.  Missing/empty paths fail before
       --  dirty guards, target checks, or filesystem operations; paths are not
       --  invented, repaired, or inferred from UI/persistence/history state.
-      return S.File_Info.Has_Path and then Length (S.File_Info.Path) > 0;
+      return S.Buffer_Lifecycle.File_Info.Has_Path and then Length (S.Buffer_Lifecycle.File_Info.Path) > 0;
    end Validate_Active_Buffer_Associated_Path_For_File_Operation;
 
    function Require_Clean_Active_Associated_Buffer_For_File_Operation
@@ -170,7 +170,7 @@ package body Editor.Executor.File_Operation_Commands is
       --  Shared dirty guard.  Dirty associated buffers do not reach target
       --  validation or filesystem work, and this guard performs no save,
       --  save-as, discard, prompt, recovery, dirty-prune, or state repair.
-      return not S.File_Info.Dirty;
+      return not S.Buffer_Lifecycle.File_Info.Dirty;
    end Require_Clean_Active_Associated_Buffer_For_File_Operation;
 
    function Validate_Associated_File_Operation_Target_Path
@@ -190,9 +190,9 @@ package body Editor.Executor.File_Operation_Commands is
       --  Shared no-overwrite policy for rename/copy/move.  Same-source
       --  targets and existing files/directories are deterministic
       --  collisions, not no-ops, overwrites, prompts, or repairs.
-      if S.File_Info.Has_Path
-        and then Length (S.File_Info.Path) > 0
-        and then To_String (S.File_Info.Path) = Path
+      if S.Buffer_Lifecycle.File_Info.Has_Path
+        and then Length (S.Buffer_Lifecycle.File_Info.Path) > 0
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Path
       then
          return True;
       end if;
@@ -217,7 +217,7 @@ package body Editor.Executor.File_Operation_Commands is
       --  it never serializes, writes, saves-as, reloads, reverts, closes, or
       --  reopens buffer text.
       return Editor.Files.Rename_File
-        (Source => To_String (S.File_Info.Path),
+        (Source => To_String (S.Buffer_Lifecycle.File_Info.Path),
          Target => Path);
    end Rename_Associated_File_Through_Canonical_Filesystem;
 
@@ -230,9 +230,9 @@ package body Editor.Executor.File_Operation_Commands is
       --  revision identity, clean state, Undo/Redo, caret, selection, find,
       --  clipboard, navigation, and text-entry state are intentionally left
       --  untouched.
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := Result.Target_Path;
-      S.File_Info.Display_Name := Result.Display_Name;
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := Result.Target_Path;
+      S.Buffer_Lifecycle.File_Info.Display_Name := Result.Display_Name;
       --  Preserve the retained clean/diagnostic state exactly; validation
       --  already guarantees that dirty buffers never reach this point.
       Editor.Buffers.Sync_Global_Active_From_State (S);
@@ -245,9 +245,9 @@ package body Editor.Executor.File_Operation_Commands is
       Previous_File : Editor.State_Buffer.File_State;
       Result        : Editor.Files.File_Rename_Result;
    begin
-      if S.File_Conflict_Prompt_Active
+      if S.Buffer_Lifecycle.File_Conflict_Prompt_Active
         or else (Editor.Executor.File_Lifecycle_Confirmation_Pending (S)
-                 and then not S.Dirty_Close_Prompt_Active)
+                 and then not S.Buffer_Lifecycle.Dirty_Close_Prompt_Active)
       then
          Editor.Executor.Shared_Services.Report_Warning (S, "Command unavailable while confirmation is pending");
          return;
@@ -258,7 +258,7 @@ package body Editor.Executor.File_Operation_Commands is
          return;
       end if;
 
-      Previous_File := S.File_Info;
+      Previous_File := S.Buffer_Lifecycle.File_Info;
 
       if not Validate_Active_Buffer_Associated_Path_For_File_Operation (S) then
          Editor.Executor.Shared_Services.Report_Info (S, "No file path for active buffer");
@@ -300,7 +300,7 @@ package body Editor.Executor.File_Operation_Commands is
          end if;
          Editor.Executor.Shared_Services.Report_Success (S, "Buffer file renamed");
       else
-         S.File_Info := Previous_File;
+         S.Buffer_Lifecycle.File_Info := Previous_File;
          Editor.Buffers.Sync_Global_Active_From_State (S);
 
          if Result.Status = Editor.Files.File_Rename_Invalid_Target then
@@ -320,7 +320,7 @@ package body Editor.Executor.File_Operation_Commands is
       --  This is the only filesystem effect of file.delete-buffer-file. It
       --  deletes the active associated regular file and never writes buffer
       --  text, renames, closes, reopens, snapshots, or moves anything to trash.
-      return Editor.Files.Delete_File (To_String (S.File_Info.Path));
+      return Editor.Files.Delete_File (To_String (S.Buffer_Lifecycle.File_Info.Path));
    end Delete_Associated_File_Through_Canonical_Filesystem;
 
    procedure Clear_Association_After_Delete_Success
@@ -331,20 +331,20 @@ package body Editor.Executor.File_Operation_Commands is
       --  transient feature state are preserved; the buffer becomes an
       --  unsaved dirty untitled buffer so close/save/reload/revert/rename
       --  observe the retained no-associated-file policy.
-      S.File_Info.Has_Path := False;
-      S.File_Info.Path := Null_Unbounded_String;
-      S.File_Info.Display_Name := To_Unbounded_String ("Untitled");
-      S.File_Info.Dirty := True;
-      S.File_Info.Baseline_Valid := False;
-      S.File_Info.Saved_Generation := 0;
-      S.File_Info.Last_Save_Failed := False;
-      S.File_Info.Last_Reload_Failed := False;
-      S.File_Info.Last_Revert_Failed := False;
-      S.File_Info.Missing_Target_Surfaced := False;
-      S.File_Info.Unreadable_Target_Surfaced := False;
-      S.File_Info.Unwritable_Target_Surfaced := False;
-      S.File_Info.External_Change_Surfaced := False;
-      S.File_Info.Blocked_Close_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.Has_Path := False;
+      S.Buffer_Lifecycle.File_Info.Path := Null_Unbounded_String;
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("Untitled");
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Baseline_Valid := False;
+      S.Buffer_Lifecycle.File_Info.Saved_Generation := 0;
+      S.Buffer_Lifecycle.File_Info.Last_Save_Failed := False;
+      S.Buffer_Lifecycle.File_Info.Last_Reload_Failed := False;
+      S.Buffer_Lifecycle.File_Info.Last_Revert_Failed := False;
+      S.Buffer_Lifecycle.File_Info.Missing_Target_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.Unreadable_Target_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.Unwritable_Target_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.External_Change_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.Blocked_Close_Surfaced := False;
       Editor.State.Refresh_Dirty_Lines (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
    end Clear_Association_After_Delete_Success;
@@ -355,9 +355,9 @@ package body Editor.Executor.File_Operation_Commands is
       Previous_File : Editor.State_Buffer.File_State;
       Result        : Editor.Files.File_Delete_Result;
    begin
-      if S.File_Conflict_Prompt_Active
+      if S.Buffer_Lifecycle.File_Conflict_Prompt_Active
         or else (Editor.Executor.File_Lifecycle_Confirmation_Pending (S)
-                 and then not S.Dirty_Close_Prompt_Active)
+                 and then not S.Buffer_Lifecycle.Dirty_Close_Prompt_Active)
       then
          Editor.Executor.Shared_Services.Report_Warning (S, "Command unavailable while confirmation is pending");
          return;
@@ -368,7 +368,7 @@ package body Editor.Executor.File_Operation_Commands is
          return;
       end if;
 
-      Previous_File := S.File_Info;
+      Previous_File := S.Buffer_Lifecycle.File_Info;
 
       if not Validate_Active_Buffer_Associated_Path_For_File_Operation (S) then
          Editor.Executor.Shared_Services.Report_Info (S, "No file path for active buffer");
@@ -402,7 +402,7 @@ package body Editor.Executor.File_Operation_Commands is
          end if;
          Editor.Executor.Shared_Services.Report_Success (S, "Buffer file deleted");
       else
-         S.File_Info := Previous_File;
+         S.Buffer_Lifecycle.File_Info := Previous_File;
          Editor.Buffers.Sync_Global_Active_From_State (S);
          Editor.Executor.Shared_Services.Report_Error (S, "Could not delete buffer file");
       end if;
@@ -418,7 +418,7 @@ package body Editor.Executor.File_Operation_Commands is
       --  it never serializes buffer memory, saves, save-as, reloads, reverts,
       --  renames, deletes, closes, opens, or creates reopen candidates.
       return Editor.Files.Copy_File
-        (Source => To_String (S.File_Info.Path),
+        (Source => To_String (S.Buffer_Lifecycle.File_Info.Path),
          Target => Path);
    end Copy_Associated_File_Through_Canonical_Filesystem;
 
@@ -439,7 +439,7 @@ package body Editor.Executor.File_Operation_Commands is
          return;
       end if;
 
-      Previous_File := S.File_Info;
+      Previous_File := S.Buffer_Lifecycle.File_Info;
 
       if not Validate_Active_Buffer_Associated_Path_For_File_Operation (S) then
          Editor.Executor.Shared_Services.Report_Info (S, "No file path for active buffer");
@@ -462,7 +462,7 @@ package body Editor.Executor.File_Operation_Commands is
          --  text, saved baseline, dirty state, open-buffer collection,
          --  Undo/Redo, caret/selection, find/replace, clipboard, navigation,
          --  text-entry, and reopen candidate state exactly.
-         S.File_Info := Previous_File;
+         S.Buffer_Lifecycle.File_Info := Previous_File;
          Editor.Buffers.Sync_Global_Active_From_State (S);
          Refresh_Project_File_State_If_Required (S, "", Path);
          Editor.Executor.Project_Search_Result_Commands
@@ -473,7 +473,7 @@ package body Editor.Executor.File_Operation_Commands is
          end if;
          Editor.Executor.Shared_Services.Report_Success (S, "Buffer file copied");
       else
-         S.File_Info := Previous_File;
+         S.Buffer_Lifecycle.File_Info := Previous_File;
          Editor.Buffers.Sync_Global_Active_From_State (S);
 
          if Result.Status = Editor.Files.File_Copy_Invalid_Target then
@@ -498,7 +498,7 @@ package body Editor.Executor.File_Operation_Commands is
       --  invokes the rename/copy/delete commands, closes, opens, or creates
       --  reopen candidates.
       return Editor.Files.Move_File
-        (Source => To_String (S.File_Info.Path),
+        (Source => To_String (S.Buffer_Lifecycle.File_Info.Path),
          Target => Path);
    end Move_Associated_File_Through_Canonical_Filesystem;
 
@@ -511,9 +511,9 @@ package body Editor.Executor.File_Operation_Commands is
       --  clean state, Undo/Redo, caret, selection, find, clipboard,
       --  navigation, text-entry state, and open-buffer collection are left
       --  untouched except for the active buffer path/display association.
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := Result.Target_Path;
-      S.File_Info.Display_Name := Result.Display_Name;
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := Result.Target_Path;
+      S.Buffer_Lifecycle.File_Info.Display_Name := Result.Display_Name;
       --  Preserve the retained clean/diagnostic state exactly; validation
       --  already guarantees that dirty buffers never reach this point.
       Editor.Buffers.Sync_Global_Active_From_State (S);
@@ -536,7 +536,7 @@ package body Editor.Executor.File_Operation_Commands is
          return;
       end if;
 
-      Previous_File := S.File_Info;
+      Previous_File := S.Buffer_Lifecycle.File_Info;
 
       if not Validate_Active_Buffer_Associated_Path_For_File_Operation (S) then
          Editor.Executor.Shared_Services.Report_Info (S, "No file path for active buffer");
@@ -577,7 +577,7 @@ package body Editor.Executor.File_Operation_Commands is
          end if;
          Editor.Executor.Shared_Services.Report_Success (S, "Buffer file moved");
       else
-         S.File_Info := Previous_File;
+         S.Buffer_Lifecycle.File_Info := Previous_File;
          Editor.Buffers.Sync_Global_Active_From_State (S);
 
          if Result.Status = Editor.Files.File_Move_Invalid_Target then

@@ -152,14 +152,14 @@ package body Editor.Executor is
      (S : Editor.State.State_Type) return Natural
    is
    begin
-      if S.Active_Buffer_Token /= 0 then
-         return S.Active_Buffer_Token;
+      if S.Buffer_Lifecycle.Active_Buffer_Token /= 0 then
+         return S.Buffer_Lifecycle.Active_Buffer_Token;
       elsif Editor.Buffers.Global_Count > 1
         and then Editor.Buffers.Global_Active_Buffer /= Editor.Buffers.No_Buffer
       then
          return Natural (Editor.Buffers.Global_Active_Buffer);
       else
-         return S.Registry_Token;
+         return S.Buffer_Lifecycle.Registry_Token;
       end if;
    end Active_Feature_Buffer_Token;
    function Has_Find_Target_Buffer
@@ -505,7 +505,7 @@ package body Editor.Executor is
       --  Treat it as modal for command availability so unrelated command
       --  routes cannot replace the conflict decision or mutate the same
       --  buffer while keep/reload/overwrite/cancel is pending.
-      if S.Dirty_Close_Prompt_Active or else S.File_Conflict_Prompt_Active then
+      if S.Buffer_Lifecycle.Dirty_Close_Prompt_Active or else S.Buffer_Lifecycle.File_Conflict_Prompt_Active then
          return True;
       end if;
 
@@ -817,7 +817,7 @@ package body Editor.Executor is
       Row : Natural := 0;
       Col : Natural := 0;
    begin
-      if not Editor.State.Has_Active_Buffer (S) or else S.Registry_Token = 0 then
+      if not Editor.State.Has_Active_Buffer (S) or else S.Buffer_Lifecycle.Registry_Token = 0 then
          S.Outline_Cursor_Key_Valid := False;
          if Editor.Outline.Has_Current_Symbol (S.Outline) then
             Editor.Outline.Clear_Current_Symbol (S.Outline);
@@ -1664,8 +1664,8 @@ package body Editor.Executor is
       function Current_State_Is_Disposable_Initial_Untitled return Boolean is
       begin
          return Editor.Buffers.Global_Count = 0
-           and then not S.File_Info.Has_Path
-           and then not S.File_Info.Dirty
+           and then not S.Buffer_Lifecycle.File_Info.Has_Path
+           and then not S.Buffer_Lifecycle.File_Info.Dirty
            and then Editor.State.Current_Text (S) = "";
       end Current_State_Is_Disposable_Initial_Untitled;
 
@@ -1861,7 +1861,7 @@ package body Editor.Executor is
          if Text_Buffer.UTF8_Text (Before.Buffer) /=
             Text_Buffer.UTF8_Text (S.Buffer)
          then
-            S.File_Info.Dirty := True;
+            S.Buffer_Lifecycle.File_Info.Dirty := True;
 
             --  completeness: ordinary text edits stale
             --  parser-owned language-analysis state just like reload/revert
@@ -1871,7 +1871,7 @@ package body Editor.Executor is
             --  pre-edit Ada analysis for the new buffer revision.
             declare
                Source_Path : constant String :=
-                 (if S.File_Info.Has_Path then To_String (S.File_Info.Path) else "");
+                 (if S.Buffer_Lifecycle.File_Info.Has_Path then To_String (S.Buffer_Lifecycle.File_Info.Path) else "");
             begin
                if Source_Path'Length > 0 then
                   Editor.Ada_Project_Index.Invalidate_Path
@@ -1880,11 +1880,11 @@ package body Editor.Executor is
                     (S.Language_Service, Source_Path);
                end if;
 
-               if S.Active_Buffer_Token /= 0 then
+               if S.Buffer_Lifecycle.Active_Buffer_Token /= 0 then
                   Editor.Ada_Project_Index.Invalidate_Buffer
-                    (S.Language_Index, S.Active_Buffer_Token);
+                    (S.Language_Index, S.Buffer_Lifecycle.Active_Buffer_Token);
                   Editor.Ada_Language_Service.Invalidate_Buffer
-                    (S.Language_Service, S.Active_Buffer_Token);
+                    (S.Language_Service, S.Buffer_Lifecycle.Active_Buffer_Token);
                end if;
 
                Editor.Syntax_Semantics.Clear (S.Syntax_Symbols);
@@ -1904,7 +1904,7 @@ package body Editor.Executor is
                Editor.State.Set_Dirty
                  (S, Editor.Dirty_Lines.Dirty_Line_Count (S.Dirty_Lines) > 0);
             else
-               Editor.State.Set_Dirty (S, Before.File_Info.Dirty);
+               Editor.State.Set_Dirty (S, Before.Buffer_Lifecycle.File_Info.Dirty);
             end if;
          end if;
 

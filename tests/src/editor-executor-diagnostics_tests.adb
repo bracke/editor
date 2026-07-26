@@ -63,7 +63,7 @@ package body Editor.Executor.Diagnostics_Tests is
          Source_Label  => "semantic",
          Source_Kind   => Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
          Has_Target    => True,
-         Target_Buffer => S.Active_Buffer_Token,
+         Target_Buffer => S.Buffer_Lifecycle.Active_Buffer_Token,
          Target_Line   => 3,
          Target_Column => 1);
       Shown := Editor.Feature_Panel_Controller.Show_Feature
@@ -106,7 +106,7 @@ package body Editor.Executor.Diagnostics_Tests is
          Source_Label  => "semantic",
          Source_Kind   => Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
          Has_Target    => True,
-         Target_Buffer => S.Active_Buffer_Token,
+         Target_Buffer => S.Buffer_Lifecycle.Active_Buffer_Token,
          Target_Line   => 3,
          Target_Column => 1,
          Primary_Action_Kind =>
@@ -137,7 +137,7 @@ package body Editor.Executor.Diagnostics_Tests is
                 (S.Feature_Search_Results, 1),
               "selected diagnostic explain action row is source-navigable");
       Assert (Editor.Feature_Search_Results.Item_Target_Buffer
-                (S.Feature_Search_Results, 1) = S.Active_Buffer_Token,
+                (S.Feature_Search_Results, 1) = S.Buffer_Lifecycle.Active_Buffer_Token,
               "selected diagnostic explain action row targets the live buffer");
       Assert (Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel)
               and then Editor.Panels.Active_Bottom_Content (S.Panels) =
@@ -172,7 +172,7 @@ package body Editor.Executor.Diagnostics_Tests is
          Source_Label  => "semantic",
          Source_Kind   => Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
          Has_Target    => True,
-         Target_Buffer => S.Active_Buffer_Token,
+         Target_Buffer => S.Buffer_Lifecycle.Active_Buffer_Token,
          Target_Line   => 3,
          Target_Column => 8,
          Primary_Action_Kind =>
@@ -250,7 +250,7 @@ package body Editor.Executor.Diagnostics_Tests is
          Source_Label  => "semantic",
          Source_Kind   => Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
          Has_Target    => True,
-         Target_Buffer => S.Active_Buffer_Token,
+         Target_Buffer => S.Buffer_Lifecycle.Active_Buffer_Token,
          Target_Line   => 3,
          Target_Column => 8,
          Has_Edit          => True,
@@ -346,7 +346,7 @@ package body Editor.Executor.Diagnostics_Tests is
          Source_Label  => "semantic",
          Source_Kind   => Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
          Has_Target    => True,
-         Target_Buffer => S.Active_Buffer_Token,
+         Target_Buffer => S.Buffer_Lifecycle.Active_Buffer_Token,
          Target_Line   => 3,
          Target_Column => 8,
          Has_Edit          => True,
@@ -454,7 +454,7 @@ package body Editor.Executor.Diagnostics_Tests is
             Source_Label  => "semantic",
             Source_Kind   => Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
             Has_Target    => True,
-            Target_Buffer => S.Active_Buffer_Token,
+            Target_Buffer => S.Buffer_Lifecycle.Active_Buffer_Token,
             Target_Line   => 3,
             Target_Column => 8,
             Has_Edit          => True,
@@ -562,21 +562,21 @@ package body Editor.Executor.Diagnostics_Tests is
          "line 1" & ASCII.LF &
          "line 2" & ASCII.LF);
 
-      Add_Edit_Quick_Fix ("stale quick fix", S.Active_Buffer_Token, 1, 1);
+      Add_Edit_Quick_Fix ("stale quick fix", S.Buffer_Lifecycle.Active_Buffer_Token, 1, 1);
       Stale_Index := Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics);
       Editor.Feature_Diagnostics.Mark_Diagnostics_For_Buffer_Stale
-        (S.Feature_Diagnostics, S.Active_Buffer_Token);
+        (S.Feature_Diagnostics, S.Buffer_Lifecycle.Active_Buffer_Token);
 
       Add_Edit_Quick_Fix ("missing buffer quick fix", 9999, 1, 1);
       Missing_Buffer_Index :=
         Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics);
-      Add_Edit_Quick_Fix ("invalid line quick fix", S.Active_Buffer_Token, 99, 1);
+      Add_Edit_Quick_Fix ("invalid line quick fix", S.Buffer_Lifecycle.Active_Buffer_Token, 99, 1);
       Invalid_Line_Index :=
         Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics);
-      Add_Edit_Quick_Fix ("invalid column quick fix", S.Active_Buffer_Token, 1, 99);
+      Add_Edit_Quick_Fix ("invalid column quick fix", S.Buffer_Lifecycle.Active_Buffer_Token, 1, 99);
       Invalid_Column_Index :=
         Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics);
-      Add_Edit_Quick_Fix ("inert quick fix", S.Active_Buffer_Token, 1, 1);
+      Add_Edit_Quick_Fix ("inert quick fix", S.Buffer_Lifecycle.Active_Buffer_Token, 1, 1);
       Inert_Index := Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics);
       Editor.Feature_Diagnostics.Append_Diagnostic_Quick_Fix_Unavailable
         (S.Feature_Diagnostics, Positive (Inert_Index),
@@ -632,7 +632,7 @@ package body Editor.Executor.Diagnostics_Tests is
          Source_Label  => "semantic",
          Source_Kind   => Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
          Has_Target    => True,
-         Target_Buffer => S.Active_Buffer_Token,
+         Target_Buffer => S.Buffer_Lifecycle.Active_Buffer_Token,
          Target_Line   => 2,
          Target_Column => 1,
          Primary_Action_Kind =>
@@ -725,11 +725,11 @@ package body Editor.Executor.Diagnostics_Tests is
          Source_Label  => "semantic",
          Source_Kind   => Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
          Has_Target    => True,
-         Target_Buffer => S.Active_Buffer_Token,
+         Target_Buffer => S.Buffer_Lifecycle.Active_Buffer_Token,
          Target_Line   => 3,
          Target_Column => 1);
       Editor.Feature_Diagnostics.Mark_Diagnostics_For_Buffer_Stale
-        (S.Feature_Diagnostics, S.Active_Buffer_Token);
+        (S.Feature_Diagnostics, S.Buffer_Lifecycle.Active_Buffer_Token);
       Shown := Editor.Feature_Panel_Controller.Show_Feature
         (S, Editor.Feature_Panel.Diagnostics_Feature);
       Assert (Shown, "diagnostics feature is shown for stale selected action test");
@@ -774,7 +774,7 @@ package body Editor.Executor.Diagnostics_Tests is
          Source_Label  => "semantic",
          Source_Kind   => Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
          Has_Target    => True,
-         Target_Buffer => S.Active_Buffer_Token,
+         Target_Buffer => S.Buffer_Lifecycle.Active_Buffer_Token,
          Target_Line   => 3,
          Target_Column => 4,
          Primary_Action_Kind =>
@@ -867,9 +867,9 @@ package body Editor.Executor.Diagnostics_Tests is
         (S.Language_Index, "/project/worker.adb",
          Buffer_Token         => Natural (Target_Id),
          Buffer_Revision      =>
-           Editor.Buffers.Global_Buffer (Target_Id).Buffer_Revision,
+           Editor.Buffers.Global_Buffer (Target_Id).Buffer_Lifecycle.Buffer_Revision,
          Lifecycle_Generation =>
-           Editor.Buffers.Global_Buffer (Target_Id).Lifecycle_Generation,
+           Editor.Buffers.Global_Buffer (Target_Id).Buffer_Lifecycle.Lifecycle_Generation,
          Analysis             => Analysis);
       Editor.Ada_Language_Service.Put_Index
         (S.Language_Service, S.Language_Index);
@@ -956,7 +956,7 @@ package body Editor.Executor.Diagnostics_Tests is
          Source_Label  => "semantic",
          Source_Kind   => Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
          Has_Target    => True,
-         Target_Buffer => S.Active_Buffer_Token,
+         Target_Buffer => S.Buffer_Lifecycle.Active_Buffer_Token,
          Target_Line   => 3,
          Target_Column => 4,
          Primary_Action_Kind =>
@@ -1020,7 +1020,7 @@ package body Editor.Executor.Diagnostics_Tests is
          Source_Label  => "semantic",
          Source_Kind   => Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
          Has_Target    => True,
-         Target_Buffer => S.Active_Buffer_Token,
+         Target_Buffer => S.Buffer_Lifecycle.Active_Buffer_Token,
          Target_Line   => 2,
          Target_Column => 11,
          Primary_Action_Kind =>
@@ -1133,7 +1133,7 @@ package body Editor.Executor.Diagnostics_Tests is
         (S.Active_Diagnostic.Has_Active and then S.Active_Diagnostic.Index = 1,
          "jump-to-diagnostic should record the active diagnostic");
       Assert
-        (not S.File_Info.Dirty,
+        (not S.Buffer_Lifecycle.File_Info.Dirty,
          "jump-to-diagnostic should not dirty the buffer");
    end Test_Jump_To_Diagnostic_Moves_Caret;
 

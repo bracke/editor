@@ -134,7 +134,7 @@ package body Editor.Executor.Semantic_Index_Commands is
       Read_Error_Count   : out Natural)
    is
       Active_Path : constant String :=
-        (if S.File_Info.Has_Path then To_String (S.File_Info.Path) else "");
+        (if S.Buffer_Lifecycle.File_Info.Has_Path then To_String (S.Buffer_Lifecycle.File_Info.Path) else "");
       Active_Text : constant String := Editor.State.Current_Text (S);
       Active_Buffer_Token : constant Natural := Active_Feature_Buffer_Token (S);
 
@@ -286,7 +286,7 @@ package body Editor.Executor.Semantic_Index_Commands is
          declare
             Label : constant String :=
               (if Active_Path'Length > 0 then Active_Path
-               else To_String (S.File_Info.Display_Name));
+               else To_String (S.Buffer_Lifecycle.File_Info.Display_Name));
          begin
             if Label'Length > 0 and then Is_Ada_Source_Path (Label) then
                Index_Text
@@ -472,9 +472,9 @@ package body Editor.Executor.Semantic_Index_Commands is
             declare
                Text : constant String := Editor.State.Current_Text (S);
                Label : constant String :=
-                 (if S.File_Info.Has_Path
-                  then To_String (S.File_Info.Path)
-                  else To_String (S.File_Info.Display_Name));
+                 (if S.Buffer_Lifecycle.File_Info.Has_Path
+                  then To_String (S.Buffer_Lifecycle.File_Info.Path)
+                  else To_String (S.Buffer_Lifecycle.File_Info.Display_Name));
                Buffer_Token : constant Natural := Active_Feature_Buffer_Token (S);
                Buffer_Revision : constant Natural :=
                  Editor.State.Current_Buffer_Revision (S);

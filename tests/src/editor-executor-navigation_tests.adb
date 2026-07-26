@@ -102,7 +102,7 @@ package body Editor.Executor.Navigation_Tests is
               "successful accept closes switcher");
       Assert (Buffer_Text (S) = "beta body",
               "accepted switch must load selected buffer contents");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "switcher activation must not dirty target buffer");
       Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 1,
               "successful switcher activation pushes navigation history");
@@ -139,14 +139,14 @@ package body Editor.Executor.Navigation_Tests is
 
       Editor.Executor.File_Tree_Navigation_Commands.Execute_File_Tree_Node_Action
         (S, First_File, Editor.File_Tree_View.Open_File_Action);
-      Assert (To_String (S.File_Info.Display_Name) = "a.txt",
+      Assert (To_String (S.Buffer_Lifecycle.File_Info.Display_Name) = "a.txt",
               "first tree activation must make a.txt active");
       Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 0,
               "first file activation from empty startup has no prior editor location");
 
       Editor.Executor.File_Tree_Navigation_Commands.Execute_File_Tree_Node_Action
         (S, Second_File, Editor.File_Tree_View.Open_File_Action);
-      Assert (To_String (S.File_Info.Display_Name) = "nested.txt",
+      Assert (To_String (S.Buffer_Lifecycle.File_Info.Display_Name) = "nested.txt",
               "second tree activation must switch active buffer");
       Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 0,
               "File Tree activation is not a navigation-history recording point");
@@ -431,20 +431,20 @@ package body Editor.Executor.Navigation_Tests is
         (S, Editor.Command_Ids.Command_New_Buffer);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "new buffer setup succeeds");
-      Before_Dirty := S.File_Info.Dirty;
+      Before_Dirty := S.Buffer_Lifecycle.File_Info.Dirty;
 
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Move_Left);
       Assert (Result.Status = Editor.Executor.Command_No_Op,
               "moving left at the start of the buffer is a no-op");
-      Assert (S.File_Info.Dirty = Before_Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty = Before_Dirty,
               "boundary navigation must not dirty the buffer");
 
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Previous_Buffer);
       Assert (Result.Status = Editor.Executor.Command_No_Op,
               "previous buffer with only one buffer is a no-op");
-      Assert (S.File_Info.Dirty = Before_Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty = Before_Dirty,
               "buffer navigation no-op must not dirty the buffer");
 
       Editor.Buffers.Reset_Global_For_Test;
@@ -480,7 +480,7 @@ package body Editor.Executor.Navigation_Tests is
               "successful Go To Line closes the input");
       Assert (not Editor.Overlay_Focus.Has_Active_Overlay (S.Overlay_Focus),
               "successful Go To Line returns to normal editor focus");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "Go To Line does not dirty the buffer");
       Assert (Latest_Message_Text (S) = "Went to line 3",
               "successful Go To Line feedback is deterministic");
@@ -525,7 +525,7 @@ package body Editor.Executor.Navigation_Tests is
               "failed Go To Line preserves viewport");
       Assert (Latest_Message_Text (S) = "Line 99 is outside the active buffer",
               "out-of-range feedback is deterministic");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "failed Go To Line does not dirty the buffer");
    end Test_Goto_Line_Failure_Preserves_Cursor_Viewport;
 
@@ -767,7 +767,7 @@ package body Editor.Executor.Navigation_Tests is
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Back);
 
-      Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = B_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = B_Path,
               "partial stale-line back must keep successfully opened target active");
       Assert (Buffer_Text (S) = "beta body",
               "partial stale-line back must load the opened target text");
@@ -1137,7 +1137,7 @@ package body Editor.Executor.Navigation_Tests is
       Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Set_Query (S, "beta");
       Editor.Executor.Quick_Open_Commands.Execute_Accept_Quick_Open (S);
 
-      Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = B_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = B_Path,
               "Quick Open accept must open selected target");
       Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 1,
               "Quick Open accept must record previous editor location on success");
@@ -1184,7 +1184,7 @@ package body Editor.Executor.Navigation_Tests is
       Ada.Directories.Delete_File (Stale_Path);
       Editor.Executor.Quick_Open_Commands.Execute_Accept_Quick_Open (S);
 
-      Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Current,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Current,
               "stale Quick Open failure must keep active editor location");
       Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 0,
               "stale Quick Open failure must not record previous location");
@@ -1233,7 +1233,7 @@ package body Editor.Executor.Navigation_Tests is
       Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Set_Query (S, "beta");
       Editor.Executor.Quick_Open_Commands.Execute_Accept_Quick_Open (S);
 
-      Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = B_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = B_Path,
               "Quick Open accept must open the selected target");
       Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 1
               and then Back_Top_Path (S) = A_Path
@@ -1241,14 +1241,14 @@ package body Editor.Executor.Navigation_Tests is
               "Quick Open must record the execution-time caret line, not the stale open line");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Back);
-      Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = A_Path
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = A_Path
               and then Active_Caret_Line (S) = 20,
               "navigation.back must return to the captured Quick Open source line");
       Assert (Editor.Navigation_History.Forward_Count (S.Navigation_History) = 1,
               "back must create a coherent forward entry");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Forward);
-      Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = B_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = B_Path,
               "navigation.forward must restore the Quick Open destination");
       Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 1,
               "forward must leave one useful previous-location entry");
@@ -1293,7 +1293,7 @@ package body Editor.Executor.Navigation_Tests is
               "same-file Project Search setup must produce one result");
       Editor.Executor.Project_Search_Result_Commands.Execute_Open_Selected_Project_Search_Result (S);
 
-      Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Path,
               "Project Search open-selected must stay in the same file");
       Assert (Active_Caret_Line (S) = 120,
               "Project Search open-selected must move to the result line");
@@ -1302,11 +1302,11 @@ package body Editor.Executor.Navigation_Tests is
               "same-file search navigation must record the prior line as useful history");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Back);
-      Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Path
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Path
               and then Active_Caret_Line (S) = 20,
               "back must return to the same-file source line");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Forward);
-      Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Path
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Path
               and then Active_Caret_Line (S) = 120,
               "forward must return to the same-file search result line");
 
@@ -1357,20 +1357,20 @@ package body Editor.Executor.Navigation_Tests is
           Reason => Editor.Navigation_History.Navigation_Reason_Unknown));
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Back);
-      Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = B_Path
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = B_Path
               and then Active_Caret_Line (S) = 20
               and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = 1,
               "setup back must move C:30 to B:20 and save C for forward");
 
       Move_Caret_To_Line (S, 25);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Forward);
-      Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = C_Path
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = C_Path
               and then Active_Caret_Line (S) = 30
               and then Back_Top_Line (S) = 25,
               "forward must capture the moved B:25 anchor at execution time");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Back);
-      Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = B_Path
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = B_Path
               and then Active_Caret_Line (S) = 25,
               "next back must return to moved B:25 rather than stale B:20");
 
@@ -1435,7 +1435,7 @@ package body Editor.Executor.Navigation_Tests is
       Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
       Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Set_Query (S, "delta");
       Editor.Executor.Quick_Open_Commands.Execute_Accept_Quick_Open (S);
-      Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = D_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = D_Path,
               "successful new navigation must open D");
       Assert (Editor.Navigation_History.Forward_Count (S.Navigation_History) = 0,
               "successful new non-history navigation must clear forward history");
@@ -1461,7 +1461,7 @@ package body Editor.Executor.Navigation_Tests is
       Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
       Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Set_Query (S, "stale");
       Editor.Executor.Quick_Open_Commands.Execute_Accept_Quick_Open (S);
-      Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = B_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = B_Path,
               "stale Quick Open failure must preserve active B");
       Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 1
               and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = 1
@@ -1469,7 +1469,7 @@ package body Editor.Executor.Navigation_Tests is
               "failed new navigation must not push current or clear forward history");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Forward);
-      Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = C_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = C_Path,
               "preserved forward history must still navigate to C after failed new navigation");
 
       Remove_Tree_If_Exists (Root);
@@ -1579,7 +1579,7 @@ package body Editor.Executor.Navigation_Tests is
         (Editor.Cursors.Caret_State'
           (Pos => 4, Anchor => 4, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Before_Text := To_Unbounded_String (Editor.State.Current_Text (S));
-      Before_Dirty := S.File_Info.Dirty;
+      Before_Dirty := S.Buffer_Lifecycle.File_Info.Dirty;
 
       Editor.Executor.Bookmark_Commands.Execute_Toggle_Bookmark (S);
       Assert (Editor.Gutter_Markers.Has_Marker
@@ -1587,7 +1587,7 @@ package body Editor.Executor.Navigation_Tests is
         "toggle bookmark should add a bookmark on the primary caret row");
       Assert (To_String (Before_Text) = Editor.State.Current_Text (S),
               "toggle bookmark must not mutate buffer text");
-      Assert (S.File_Info.Dirty = Before_Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty = Before_Dirty,
               "toggle bookmark must not change dirty state");
 
       Editor.Executor.Bookmark_Commands.Execute_Toggle_Bookmark_At_Row (S, 0);

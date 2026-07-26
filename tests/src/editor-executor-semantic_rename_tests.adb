@@ -83,9 +83,9 @@ package body Editor.Executor.Semantic_Rename_Tests is
          (Start_Line => 3, Start_Column => 4, End_Line => 3, End_Column => 14));
       Editor.Ada_Project_Index.Put_Analysis
         (S.Language_Index, "/project/run.adb",
-         Buffer_Token         => S.Active_Buffer_Token,
-         Buffer_Revision      => S.Buffer_Revision,
-         Lifecycle_Generation => S.Lifecycle_Generation,
+         Buffer_Token         => S.Buffer_Lifecycle.Active_Buffer_Token,
+         Buffer_Revision      => S.Buffer_Lifecycle.Buffer_Revision,
+         Lifecycle_Generation => S.Buffer_Lifecycle.Lifecycle_Generation,
          Analysis             => Analysis);
 
       Avail := Editor.Executor.Command_Availability
@@ -114,7 +114,7 @@ package body Editor.Executor.Semantic_Rename_Tests is
                 (S.Feature_Search_Results, 1),
               "open-buffer semantic rename row is navigable");
       Assert (Editor.Feature_Search_Results.Item_Target_Buffer
-                (S.Feature_Search_Results, 1) = S.Active_Buffer_Token,
+                (S.Feature_Search_Results, 1) = S.Buffer_Lifecycle.Active_Buffer_Token,
               "semantic rename row targets the live buffer token");
       Assert (Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel)
               and then Editor.Panels.Active_Bottom_Content (S.Panels) =
@@ -159,9 +159,9 @@ package body Editor.Executor.Semantic_Rename_Tests is
          (Start_Line => 1, Start_Column => 20, End_Line => 1, End_Column => 22));
       Editor.Ada_Project_Index.Put_Analysis
         (S.Language_Index, "/project/run.adb",
-         Buffer_Token         => S.Active_Buffer_Token,
-         Buffer_Revision      => S.Buffer_Revision,
-         Lifecycle_Generation => S.Lifecycle_Generation,
+         Buffer_Token         => S.Buffer_Lifecycle.Active_Buffer_Token,
+         Buffer_Revision      => S.Buffer_Lifecycle.Buffer_Revision,
+         Lifecycle_Generation => S.Buffer_Lifecycle.Lifecycle_Generation,
          Analysis             => Analysis);
 
       Avail := Editor.Executor.Command_Availability
@@ -234,14 +234,14 @@ package body Editor.Executor.Semantic_Rename_Tests is
       Editor.Ada_Project_Index.Put_Analysis
         (S.Language_Index, "/project/run.adb",
          Buffer_Token         => Natural (Active_Id),
-         Buffer_Revision      => S.Buffer_Revision,
-         Lifecycle_Generation => S.Lifecycle_Generation,
+         Buffer_Revision      => S.Buffer_Lifecycle.Buffer_Revision,
+         Lifecycle_Generation => S.Buffer_Lifecycle.Lifecycle_Generation,
          Analysis             => Active_Analysis);
       Editor.Ada_Project_Index.Put_Analysis
         (S.Language_Index, "/project/use_run.adb",
          Buffer_Token         => Natural (Other_Id),
-         Buffer_Revision      => Other_State.Buffer_Revision,
-         Lifecycle_Generation => Other_State.Lifecycle_Generation,
+         Buffer_Revision      => Other_State.Buffer_Lifecycle.Buffer_Revision,
+         Lifecycle_Generation => Other_State.Buffer_Lifecycle.Lifecycle_Generation,
          Analysis             => Other_Analysis);
       Editor.Ada_Language_Service.Put_Index
         (S.Language_Service, S.Language_Index);
@@ -317,9 +317,9 @@ package body Editor.Executor.Semantic_Rename_Tests is
          (Start_Line => 1, Start_Column => 11, End_Line => 1, End_Column => 13));
       Editor.Ada_Project_Index.Put_Analysis
         (S.Language_Index, "/project/run.adb",
-         Buffer_Token         => S.Active_Buffer_Token,
-         Buffer_Revision      => S.Buffer_Revision,
-         Lifecycle_Generation => S.Lifecycle_Generation,
+         Buffer_Token         => S.Buffer_Lifecycle.Active_Buffer_Token,
+         Buffer_Revision      => S.Buffer_Lifecycle.Buffer_Revision,
+         Lifecycle_Generation => S.Buffer_Lifecycle.Lifecycle_Generation,
          Analysis             => Active_Analysis);
       Editor.Ada_Project_Index.Put_Analysis
         (S.Language_Index, Disk_Path,
@@ -394,9 +394,9 @@ package body Editor.Executor.Semantic_Rename_Tests is
          (Start_Line => 1, Start_Column => 20, End_Line => 1, End_Column => 22));
       Editor.Ada_Project_Index.Put_Analysis
         (S.Language_Index, "/project/run.adb",
-         Buffer_Token         => S.Active_Buffer_Token,
-         Buffer_Revision      => S.Buffer_Revision,
-         Lifecycle_Generation => S.Lifecycle_Generation,
+         Buffer_Token         => S.Buffer_Lifecycle.Active_Buffer_Token,
+         Buffer_Revision      => S.Buffer_Lifecycle.Buffer_Revision,
+         Lifecycle_Generation => S.Buffer_Lifecycle.Lifecycle_Generation,
          Analysis             => Analysis);
 
       Cmd := Editor.Commands.Payloads.Command_For_Id
@@ -458,9 +458,9 @@ package body Editor.Executor.Semantic_Rename_Tests is
          (Start_Line => 1, Start_Column => 20, End_Line => 1, End_Column => 22));
       Editor.Ada_Project_Index.Put_Analysis
         (S.Language_Index, "/project/run.adb",
-         Buffer_Token         => S.Active_Buffer_Token,
-         Buffer_Revision      => S.Buffer_Revision,
-         Lifecycle_Generation => S.Lifecycle_Generation,
+         Buffer_Token         => S.Buffer_Lifecycle.Active_Buffer_Token,
+         Buffer_Revision      => S.Buffer_Lifecycle.Buffer_Revision,
+         Lifecycle_Generation => S.Buffer_Lifecycle.Lifecycle_Generation,
          Analysis             => Analysis);
 
       Cmd := Editor.Commands.Payloads.Command_For_Id
@@ -508,9 +508,9 @@ package body Editor.Executor.Semantic_Rename_Tests is
          (Start_Line => 1, Start_Column => 20, End_Line => 1, End_Column => 22));
       Editor.Ada_Project_Index.Put_Analysis
         (S.Language_Index, "/project/run.adb",
-         Buffer_Token         => S.Active_Buffer_Token,
-         Buffer_Revision      => S.Buffer_Revision,
-         Lifecycle_Generation => S.Lifecycle_Generation,
+         Buffer_Token         => S.Buffer_Lifecycle.Active_Buffer_Token,
+         Buffer_Revision      => S.Buffer_Lifecycle.Buffer_Revision,
+         Lifecycle_Generation => S.Buffer_Lifecycle.Lifecycle_Generation,
          Analysis             => Analysis);
       S.Carets.Replace_Element
         (S.Carets.First_Index,
@@ -571,9 +571,9 @@ package body Editor.Executor.Semantic_Rename_Tests is
          (Start_Line => 2, Start_Column => 4, End_Line => 2, End_Column => 14));
       Editor.Ada_Project_Index.Put_Analysis
         (S.Language_Index, "/project/run.adb",
-         Buffer_Token         => S.Active_Buffer_Token,
-         Buffer_Revision      => S.Buffer_Revision,
-         Lifecycle_Generation => S.Lifecycle_Generation,
+         Buffer_Token         => S.Buffer_Lifecycle.Active_Buffer_Token,
+         Buffer_Revision      => S.Buffer_Lifecycle.Buffer_Revision,
+         Lifecycle_Generation => S.Buffer_Lifecycle.Lifecycle_Generation,
          Analysis             => Analysis);
 
       Avail := Editor.Executor.Command_Availability

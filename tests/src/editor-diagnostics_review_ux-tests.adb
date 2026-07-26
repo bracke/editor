@@ -709,7 +709,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Result : Editor.Producer_Contracts.Producer_Result;
    begin
       Editor.State.Init (S);
-      Token := S.Active_Buffer_Token;
+      Token := S.Buffer_Lifecycle.Active_Buffer_Token;
 
       Item :=
         (Severity      => Editor.Feature_Diagnostics.Diagnostic_Error,
@@ -792,7 +792,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
       A      : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Editor.State.Init (S);
-      Token := S.Active_Buffer_Token;
+      Token := S.Buffer_Lifecycle.Active_Buffer_Token;
 
       Item :=
         (Severity      => Editor.Feature_Diagnostics.Diagnostic_Error,
@@ -854,7 +854,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Token : Natural;
    begin
       Editor.State.Init (S);
-      Token := S.Active_Buffer_Token;
+      Token := S.Buffer_Lifecycle.Active_Buffer_Token;
 
       Editor.Feature_Diagnostics.Add_Diagnostic
         (S.Feature_Diagnostics,
@@ -2537,7 +2537,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
          Source_Label  => "src/renamed.adb",
          Source_Kind   => Editor.Feature_Diagnostics.External_Diagnostic_Source,
          Has_Target    => True,
-         Target_Buffer => S.Registry_Token,
+         Target_Buffer => S.Buffer_Lifecycle.Registry_Token,
          Target_Line   => 1,
          Target_Column => 1);
 

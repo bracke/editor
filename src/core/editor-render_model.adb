@@ -110,14 +110,14 @@ package body Editor.Render_Model is
      (S : Editor.State.State_Type) return Natural
    is
    begin
-      if S.Active_Buffer_Token /= 0 then
-         return S.Active_Buffer_Token;
+      if S.Buffer_Lifecycle.Active_Buffer_Token /= 0 then
+         return S.Buffer_Lifecycle.Active_Buffer_Token;
       elsif Editor.Buffers.Global_Count > 0
         and then Editor.Buffers.Global_Active_Buffer /= Editor.Buffers.No_Buffer
       then
          return Natural (Editor.Buffers.Global_Active_Buffer);
       else
-         return S.Registry_Token;
+         return S.Buffer_Lifecycle.Registry_Token;
       end if;
    end Active_Find_Buffer_Token;
 
@@ -129,8 +129,8 @@ package body Editor.Render_Model is
         and then
           (S.Active_Find_Source_Buffer_Token = Active_Find_Buffer_Token (S)
            or else
-             (S.Active_Buffer_Token = 0
-              and then S.Active_Find_Source_Buffer_Token = S.Registry_Token));
+             (S.Buffer_Lifecycle.Active_Buffer_Token = 0
+              and then S.Active_Find_Source_Buffer_Token = S.Buffer_Lifecycle.Registry_Token));
    end Active_Find_Source_Current;
 
    function Dirty_Close_Open_Buffer_Fingerprint return Natural
@@ -210,12 +210,12 @@ package body Editor.Render_Model is
    is
       Review : constant String :=
         Ada.Strings.Unbounded.To_String
-          (S.Dirty_Close_Prompt_Buffer_Ids);
+          (S.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer_Ids);
       Registry : constant Editor.Buffers.Buffer_Registry :=
         Editor.Buffers.Global_Registry_For_UI;
       Count : constant Natural := Editor.Buffers.Buffer_Count (Registry);
    begin
-      if Editor.Buffers.Global_Count /= S.Dirty_Close_Prompt_Buffer_Count then
+      if Editor.Buffers.Global_Count /= S.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer_Count then
          return False;
       end if;
 
@@ -240,7 +240,7 @@ package body Editor.Render_Model is
    is
       Review : constant String :=
         Ada.Strings.Unbounded.To_String
-          (S.Dirty_Close_Prompt_Dirty_Buffer_Ids);
+          (S.Buffer_Lifecycle.Dirty_Close_Prompt_Dirty_Buffer_Ids);
       Registry : constant Editor.Buffers.Buffer_Registry :=
         Editor.Buffers.Global_Registry_For_UI;
       Count : constant Natural := Editor.Buffers.Buffer_Count (Registry);
@@ -271,7 +271,7 @@ package body Editor.Render_Model is
       --  summaries but exact transient dirty-id text decides whether Save/
       --  Discard may be shown for an unchanged review.
       return Dirty_Close_Dirty_Buffer_Id_List =
-        S.Dirty_Close_Prompt_Dirty_Buffer_Ids;
+        S.Buffer_Lifecycle.Dirty_Close_Prompt_Dirty_Buffer_Ids;
    end Dirty_Close_Current_Dirty_Set_Equals_Review;
 
    function Dirty_Close_All_Buffer_Identity_Current
@@ -280,7 +280,7 @@ package body Editor.Render_Model is
    begin
       return Dirty_Close_Current_Open_Set_Was_Reviewed (S)
         and then Dirty_Close_Open_Buffer_Fingerprint =
-          S.Dirty_Close_Prompt_Buffer_Fingerprint;
+          S.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer_Fingerprint;
    end Dirty_Close_All_Buffer_Identity_Current;
 
    function Dirty_Close_All_Buffer_Review_Current
@@ -289,7 +289,7 @@ package body Editor.Render_Model is
    begin
       return Dirty_Close_All_Buffer_Identity_Current (S)
         and then Dirty_Close_Dirty_Buffer_Fingerprint =
-          S.Dirty_Close_Prompt_Dirty_Fingerprint
+          S.Buffer_Lifecycle.Dirty_Close_Prompt_Dirty_Fingerprint
         and then Dirty_Close_Current_Dirty_Set_Equals_Review (S);
    end Dirty_Close_All_Buffer_Review_Current;
 
@@ -614,11 +614,11 @@ package body Editor.Render_Model is
                   for J in 1 .. Editor.Buffers.Count (Registry) loop
                      Summary := Editor.Buffers.Summary_At (Registry, J);
                      Buffer := Editor.Buffers.Buffer (Registry, Summary.Id);
-                     if Buffer.File_Info.Has_Path
-                       and then To_String (Buffer.File_Info.Path) = To_String (Row.File_Path)
+                     if Buffer.Buffer_Lifecycle.File_Info.Has_Path
+                       and then To_String (Buffer.Buffer_Lifecycle.File_Info.Path) = To_String (Row.File_Path)
                      then
                         Row.Is_Open := True;
-                        Row.Is_Dirty := Buffer.File_Info.Dirty;
+                        Row.Is_Dirty := Buffer.Buffer_Lifecycle.File_Info.Dirty;
                         Row.Is_Active := Summary.Is_Active;
                      end if;
                   end loop;
@@ -632,13 +632,13 @@ package body Editor.Render_Model is
          --  derived only from bookmark state and the active buffer's stable
          --  file identity; it does not validate paths, open files, move the
          --  caret, or mutate bookmark/open-buffer state.
-         if S.File_Info.Has_Path and then O.Bookmark_Rows.Length > 0 then
+         if S.Buffer_Lifecycle.File_Info.Has_Path and then O.Bookmark_Rows.Length > 0 then
             for I in O.Bookmark_Rows.First_Index .. O.Bookmark_Rows.Last_Index loop
                declare
                   Row : constant Editor.Bookmarks.Bookmark_Row :=
                     O.Bookmark_Rows (I);
                begin
-                  if To_String (Row.File_Path) = To_String (S.File_Info.Path)
+                  if To_String (Row.File_Path) = To_String (S.Buffer_Lifecycle.File_Info.Path)
                     and then Row.Line_Number > 0
                     and then Row.Line_Number <= Editor.State.Line_Count (S)
                   then
@@ -712,10 +712,10 @@ package body Editor.Render_Model is
            (if Active_Find_Renderable then S.Active_Find_Match
             else Editor.Search.No_Match);
       end;
-      if S.File_Info.Has_Path then
-         O.File_Name := S.File_Info.Display_Name;
-      elsif Length (S.File_Info.Display_Name) > 0 then
-         O.File_Name := S.File_Info.Display_Name;
+      if S.Buffer_Lifecycle.File_Info.Has_Path then
+         O.File_Name := S.Buffer_Lifecycle.File_Info.Display_Name;
+      elsif Length (S.Buffer_Lifecycle.File_Info.Display_Name) > 0 then
+         O.File_Name := S.Buffer_Lifecycle.File_Info.Display_Name;
       else
          O.File_Name := To_Unbounded_String ("Untitled");
       end if;
@@ -733,7 +733,7 @@ package body Editor.Render_Model is
             Append (O.File_Name, " — " & Editor.Buffers.Global_Buffer_Note (Id));
          end if;
       end;
-      O.Is_Dirty := S.File_Info.Dirty;
+      O.Is_Dirty := S.Buffer_Lifecycle.File_Info.Dirty;
       declare
          Active_Find_Renderable : constant Boolean :=
            S.Active_Find_Prompt
@@ -865,35 +865,35 @@ package body Editor.Render_Model is
         (if O.Replace_Visible then S.Active_Replace_Text else Null_Unbounded_String);
       O.Replace_Error_Message :=
         (if O.Replace_Visible then S.Active_Replace_Error_Message else Null_Unbounded_String);
-      O.File_Target_Prompt_Visible := S.File_Target_Prompt_Active;
+      O.File_Target_Prompt_Visible := S.Buffer_Lifecycle.File_Target_Prompt_Active;
       O.File_Target_Prompt_Label :=
-        (if S.File_Target_Prompt_Active then S.File_Target_Prompt_Label else Null_Unbounded_String);
+        (if S.Buffer_Lifecycle.File_Target_Prompt_Active then S.Buffer_Lifecycle.File_Target_Prompt_Label else Null_Unbounded_String);
       O.File_Target_Prompt_Field :=
-        Editor.Input_Field.Snapshot (S.File_Target_Prompt_Input, 48);
-      O.Dirty_Close_Prompt_Visible := S.Dirty_Close_Prompt_Active;
-      O.Dirty_Close_Scope := S.Dirty_Close_Prompt_Scope;
-      O.Dirty_Close_All_Buffers := S.Dirty_Close_Prompt_All_Buffers;
-      O.Dirty_Close_Target_Buffer := S.Dirty_Close_Prompt_Buffer;
-      O.Dirty_Close_Buffer_Count := S.Dirty_Close_Prompt_Buffer_Count;
+        Editor.Input_Field.Snapshot (S.Buffer_Lifecycle.File_Target_Prompt_Input, 48);
+      O.Dirty_Close_Prompt_Visible := S.Buffer_Lifecycle.Dirty_Close_Prompt_Active;
+      O.Dirty_Close_Scope := S.Buffer_Lifecycle.Dirty_Close_Prompt_Scope;
+      O.Dirty_Close_All_Buffers := S.Buffer_Lifecycle.Dirty_Close_Prompt_All_Buffers;
+      O.Dirty_Close_Target_Buffer := S.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer;
+      O.Dirty_Close_Buffer_Count := S.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer_Count;
       O.Dirty_Close_Buffer_Fingerprint :=
-        S.Dirty_Close_Prompt_Buffer_Fingerprint;
+        S.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer_Fingerprint;
       O.Dirty_Close_Dirty_Fingerprint :=
-        S.Dirty_Close_Prompt_Dirty_Fingerprint;
-      O.Dirty_Close_Buffer_Ids := S.Dirty_Close_Prompt_Buffer_Ids;
+        S.Buffer_Lifecycle.Dirty_Close_Prompt_Dirty_Fingerprint;
+      O.Dirty_Close_Buffer_Ids := S.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer_Ids;
       O.Dirty_Close_Dirty_Buffer_Ids :=
-        S.Dirty_Close_Prompt_Dirty_Buffer_Ids;
-      O.Dirty_Close_Dirty_Count := S.Dirty_Close_Prompt_Dirty_Count;
-      O.Dirty_Close_File_Backed_Count := S.Dirty_Close_Prompt_File_Backed_Count;
-      O.Dirty_Close_Untitled_Count := S.Dirty_Close_Prompt_Untitled_Count;
-      O.Dirty_Close_Conflicted_Count := S.Dirty_Close_Prompt_Conflicted_Count;
-      O.Dirty_Close_Unwritable_Count := S.Dirty_Close_Prompt_Unwritable_Count;
-      O.Dirty_Close_Missing_Count := S.Dirty_Close_Prompt_Missing_Count;
-      O.Dirty_Close_Save_Failure_Count := S.Dirty_Close_Prompt_Save_Failure_Count;
+        S.Buffer_Lifecycle.Dirty_Close_Prompt_Dirty_Buffer_Ids;
+      O.Dirty_Close_Dirty_Count := S.Buffer_Lifecycle.Dirty_Close_Prompt_Dirty_Count;
+      O.Dirty_Close_File_Backed_Count := S.Buffer_Lifecycle.Dirty_Close_Prompt_File_Backed_Count;
+      O.Dirty_Close_Untitled_Count := S.Buffer_Lifecycle.Dirty_Close_Prompt_Untitled_Count;
+      O.Dirty_Close_Conflicted_Count := S.Buffer_Lifecycle.Dirty_Close_Prompt_Conflicted_Count;
+      O.Dirty_Close_Unwritable_Count := S.Buffer_Lifecycle.Dirty_Close_Prompt_Unwritable_Count;
+      O.Dirty_Close_Missing_Count := S.Buffer_Lifecycle.Dirty_Close_Prompt_Missing_Count;
+      O.Dirty_Close_Save_Failure_Count := S.Buffer_Lifecycle.Dirty_Close_Prompt_Save_Failure_Count;
       O.Dirty_Close_Discard_Action_Available := False;
-      O.Dirty_Close_Cancel_Action_Available := S.Dirty_Close_Prompt_Active;
+      O.Dirty_Close_Cancel_Action_Available := S.Buffer_Lifecycle.Dirty_Close_Prompt_Active;
       O.Dirty_Close_Save_Action_Available := False;
-      if S.Dirty_Close_Prompt_Active then
-         if S.Dirty_Close_Prompt_All_Buffers then
+      if S.Buffer_Lifecycle.Dirty_Close_Prompt_Active then
+         if S.Buffer_Lifecycle.Dirty_Close_Prompt_All_Buffers then
             if Editor.Buffers.Global_Count = 0 then
                O.Dirty_Close_Discard_Action_Available := False;
             elsif Dirty_Close_All_Buffer_Review_Current (S) then
@@ -911,7 +911,7 @@ package body Editor.Render_Model is
          else
             declare
                Target : constant Editor.Buffers.Buffer_Id :=
-                 Editor.Buffers.Buffer_Id (S.Dirty_Close_Prompt_Buffer);
+                 Editor.Buffers.Buffer_Id (S.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer);
             begin
                O.Dirty_Close_Discard_Action_Available :=
                  Target /= Editor.Buffers.No_Buffer
@@ -919,7 +919,7 @@ package body Editor.Render_Model is
             end;
          end if;
 
-         if S.Dirty_Close_Prompt_All_Buffers then
+         if S.Buffer_Lifecycle.Dirty_Close_Prompt_All_Buffers then
             declare
                Registry : constant Editor.Buffers.Buffer_Registry :=
                  Editor.Buffers.Global_Registry_For_UI;
@@ -950,7 +950,7 @@ package body Editor.Render_Model is
          else
             declare
                Target : constant Editor.Buffers.Buffer_Id :=
-                 Editor.Buffers.Buffer_Id (S.Dirty_Close_Prompt_Buffer);
+                 Editor.Buffers.Buffer_Id (S.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer);
             begin
                if Target /= Editor.Buffers.No_Buffer
                  and then Editor.Buffers.Global_Contains (Target)
@@ -973,26 +973,26 @@ package body Editor.Render_Model is
             end;
          end if;
       end if;
-      if S.Dirty_Close_Prompt_Active then
+      if S.Buffer_Lifecycle.Dirty_Close_Prompt_Active then
          O.Dirty_Close_Message := To_Unbounded_String
-           ((if S.Dirty_Close_Prompt_Save_Failure_Count > 0 then
+           ((if S.Buffer_Lifecycle.Dirty_Close_Prompt_Save_Failure_Count > 0 then
                 "Save failed; buffer remains open"
-             elsif S.Dirty_Close_Prompt_Conflicted_Count > 0 then
+             elsif S.Buffer_Lifecycle.Dirty_Close_Prompt_Conflicted_Count > 0 then
                 "File conflict requires resolution before save-and-close"
-             elsif S.Dirty_Close_Prompt_Unwritable_Count > 0 then
+             elsif S.Buffer_Lifecycle.Dirty_Close_Prompt_Unwritable_Count > 0 then
                 "Unwritable file blocks save-and-close"
-             elsif S.Dirty_Close_Prompt_Missing_Count > 0 then
+             elsif S.Buffer_Lifecycle.Dirty_Close_Prompt_Missing_Count > 0 then
                 "Missing backing file blocks save-and-close"
-             elsif S.Dirty_Close_Prompt_All_Buffers then
+             elsif S.Buffer_Lifecycle.Dirty_Close_Prompt_All_Buffers then
                 --  render should expose the
                 --  same reviewed dirty-set summary as the Executor outcome
                 --  message.  This is still an inert snapshot projection; it
                 --  does not carry a close payload or mutate/persist anything.
                 Dirty_Close_Summary_Message
-                  (S.Dirty_Close_Prompt_Dirty_Count,
-                   S.Dirty_Close_Prompt_File_Backed_Count,
-                   S.Dirty_Close_Prompt_Untitled_Count)
-             elsif S.Dirty_Close_Prompt_Untitled_Count > 0 then
+                  (S.Buffer_Lifecycle.Dirty_Close_Prompt_Dirty_Count,
+                   S.Buffer_Lifecycle.Dirty_Close_Prompt_File_Backed_Count,
+                   S.Buffer_Lifecycle.Dirty_Close_Prompt_Untitled_Count)
+             elsif S.Buffer_Lifecycle.Dirty_Close_Prompt_Untitled_Count > 0 then
                 "Discard unsaved scratch buffer?"
              else
                 "Unsaved changes require save, discard, or cancel"));

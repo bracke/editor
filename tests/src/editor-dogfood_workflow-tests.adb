@@ -364,7 +364,7 @@ package body Editor.Dogfood_Workflow.Tests is
         (S, Editor.Focus_Management.Focus_File_Tree);
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_File_Tree_Open_Selected);
-      Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Source_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Source_Path,
               "file-tree activation opens the expected source file");
       Assert (Editor.Focus_Management.Effective_Focus_Owner (S) =
                 Editor.Focus_Management.Focus_Editor,
@@ -392,7 +392,7 @@ package body Editor.Dogfood_Workflow.Tests is
         (S, Editor.Focus_Management.Focus_Quick_Open);
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Accept_Quick_Open);
-      Assert (To_String (S.File_Info.Path) = Source_Path,
+      Assert (To_String (S.Buffer_Lifecycle.File_Info.Path) = Source_Path,
               "Quick Open activation/focus uses the canonical file-open path");
       Assert (Editor.Focus_Management.Effective_Focus_Owner (S) =
                 Editor.Focus_Management.Focus_Editor,
@@ -401,9 +401,9 @@ package body Editor.Dogfood_Workflow.Tests is
       --  Editing and save over a real file-backed buffer.
       Editor.Executor.Execute_No_Log
         (S, Editor.Test_Helper.Insert (Editor.State.Current_Text (S)'Length, ' '));
-      Assert (S.File_Info.Dirty, "editing marks the active source buffer dirty");
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty, "editing marks the active source buffer dirty");
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
-      Assert (not S.File_Info.Dirty, "save clears dirty state");
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty, "save clears dirty state");
       Assert (Ada.Strings.Fixed.Index (Read_File (Source_Path), "Dogfood_Known_Token") > 0,
               "saved file still contains the known project-search token");
 
@@ -463,7 +463,7 @@ package body Editor.Dogfood_Workflow.Tests is
          Source_Label  => "src/new_widget.adb",
          Source_Kind   => Editor.Feature_Diagnostics.External_Diagnostic_Source,
          Has_Target    => True,
-         Target_Buffer => S.Active_Buffer_Token,
+         Target_Buffer => S.Buffer_Lifecycle.Active_Buffer_Token,
          Target_Line   => 1,
          Target_Column => 1);
 
@@ -601,7 +601,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Executor.Execute_No_Log
         (S, Editor.Test_Helper.Insert (Editor.State.Current_Text (S)'Length,
                                        ASCII.LF));
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "dirty open-buffer setup leaves unsaved text in the target file");
       Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node, Found);
       Assert (Found and then Row > 0,
@@ -620,7 +620,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Run_File_Tree_Delete_Confirmation (S);
       Assert (Ada.Directories.Exists (Dirty_Block_Path),
               "dirty File Tree delete is blocked without deleting the file");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "blocked File Tree mutations preserve dirty target buffer text");
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Source_Path);
 
@@ -629,9 +629,9 @@ package body Editor.Dogfood_Workflow.Tests is
         (Editor.Outline_Extractor.Make_Snapshot
            (Editor.State.Current_Text (S),
             "dogfood_demo.adb",
-            S.Active_Buffer_Token,
-            S.Buffer_Revision,
-            S.Lifecycle_Generation,
+            S.Buffer_Lifecycle.Active_Buffer_Token,
+            S.Buffer_Lifecycle.Buffer_Revision,
+            S.Buffer_Lifecycle.Lifecycle_Generation,
             535));
       Assert (Editor.Outline_Extractor.Status (Extracted) =
                 Editor.Outline_Extractor.Extraction_Ok,
@@ -822,8 +822,8 @@ package body Editor.Dogfood_Workflow.Tests is
                 Editor.Focus_Management.Focus_Editor,
               "Diagnostics target navigation returns focus to editor text");
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Source_Path);
-      Assert (S.File_Info.Has_Path
-                and then To_String (S.File_Info.Path) = Source_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path
+                and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Source_Path,
               "workspace fixture saves the intended active source file");
 
       --  Workspace persistence retains structural state only.
@@ -959,10 +959,10 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Editor.Project.Has_Project (S2.Project)
                 and then Editor.Project.Root_Path (S2.Project) = Root,
               "workspace restore preserves the active project identity");
-      Assert (S2.File_Info.Has_Path
-                and then To_String (S2.File_Info.Path) = Source_Path,
+      Assert (S2.Buffer_Lifecycle.File_Info.Has_Path
+                and then To_String (S2.Buffer_Lifecycle.File_Info.Path) = Source_Path,
               "workspace restore reinstalls the active source buffer");
-      Assert (not S2.File_Info.Dirty,
+      Assert (not S2.Buffer_Lifecycle.File_Info.Dirty,
               "workspace restore does not fabricate dirty buffer text");
       Assert (Ada.Strings.Fixed.Index
                 (Editor.State.Current_Text (S2), "Dogfood_Known_Token") > 0,
@@ -1214,45 +1214,45 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Source_Path);
       Target := Editor.Buffers.Global_Active_Buffer;
-      Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Source_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Source_Path,
               "conflict dogfood setup opens the project source file");
 
       Editor.Executor.Execute_No_Log
         (S, Editor.Test_Helper.Insert (Editor.State.Current_Text (S)'Length,
                                        ASCII.LF));
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "conflict dogfood setup marks the file-backed buffer dirty");
       Write_File (Source_Path, "external replacement before save" & ASCII.LF);
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
-      Assert (S.File_Conflict_Prompt_Active,
+      Assert (S.Buffer_Lifecycle.File_Conflict_Prompt_Active,
               "saving after an external replacement opens a file-conflict prompt");
-      Assert (S.File_Conflict_Prompt_Kind in
+      Assert (S.Buffer_Lifecycle.File_Conflict_Prompt_Kind in
                 Editor.State.External_Modified_While_Dirty
                   | Editor.State.Backing_File_Replaced,
               "external replacement is classified as a changed backing file");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "conflict prompt preserves dirty buffer text");
       Assert (Read_File (Source_Path) = "external replacement before save" & ASCII.LF,
               "conflict prompt does not overwrite the external disk version");
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_File_Conflict_Cancel);
-      Assert (not S.File_Conflict_Prompt_Active,
+      Assert (not S.Buffer_Lifecycle.File_Conflict_Prompt_Active,
               "cancel clears the file-conflict prompt");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "cancel preserves dirty text and marker");
       Assert (Read_File (Source_Path) = "external replacement before save" & ASCII.LF,
               "cancel leaves the external disk file unchanged");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
-      Assert (S.File_Conflict_Prompt_Active,
+      Assert (S.Buffer_Lifecycle.File_Conflict_Prompt_Active,
               "saving again revalidates the still-conflicted backing file");
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_File_Conflict_Keep_Buffer);
-      Assert (not S.File_Conflict_Prompt_Active,
+      Assert (not S.Buffer_Lifecycle.File_Conflict_Prompt_Active,
               "keep-buffer dismisses the conflict prompt");
-      Assert (S.File_Info.Dirty and then S.File_Info.External_Change_Surfaced,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty and then S.Buffer_Lifecycle.File_Info.External_Change_Surfaced,
               "keep-buffer preserves dirty state and exposes changed-on-disk state");
       Metadata := Editor.Buffers.Global_Metadata_For (S.Project, Target);
       Summary := Editor.Buffers.Global_Summary_For (Target);
@@ -1280,7 +1280,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Status.File_Label := To_Unbounded_String ("src/dogfood_demo.adb");
       Status.Buffer_Kind_Label := Metadata.Ownership_Label;
       Status.File_State_Label := Metadata.Lifecycle_Status_Label;
-      Status.Is_Dirty := S.File_Info.Dirty;
+      Status.Is_Dirty := S.Buffer_Lifecycle.File_Info.Dirty;
       Status.Dirty_State_Label := To_Unbounded_String ("Modified");
       Assert (Ada.Strings.Fixed.Index
                 (Editor.Status_Bar.Format_Left (Status), "Conflict pending") > 0,
@@ -1291,15 +1291,15 @@ package body Editor.Dogfood_Workflow.Tests is
               "compact status state segment agrees with Buffer List lifecycle conflict label");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
-      Assert (S.File_Conflict_Prompt_Active,
+      Assert (S.Buffer_Lifecycle.File_Conflict_Prompt_Active,
               "overwrite path starts from a fresh validated conflict prompt");
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_File_Conflict_Overwrite_Disk);
-      Assert (not S.File_Conflict_Prompt_Active,
+      Assert (not S.Buffer_Lifecycle.File_Conflict_Prompt_Active,
               "overwrite clears the conflict prompt");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "overwrite saves the dirty buffer and clears the dirty marker");
-      Assert (not S.File_Info.External_Change_Surfaced,
+      Assert (not S.Buffer_Lifecycle.File_Info.External_Change_Surfaced,
               "overwrite clears the changed-on-disk marker");
       Assert (Ada.Strings.Fixed.Index (Read_File (Source_Path),
                                       "Dogfood_Known_Token") > 0,
@@ -1319,16 +1319,16 @@ package body Editor.Dogfood_Workflow.Tests is
       Remove_File_If_Exists (Source_Path);
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
-      Assert (S.File_Conflict_Prompt_Active,
+      Assert (S.Buffer_Lifecycle.File_Conflict_Prompt_Active,
               "saving a dirty buffer after external deletion opens a conflict prompt");
-      Assert (S.File_Conflict_Prompt_Kind =
+      Assert (S.Buffer_Lifecycle.File_Conflict_Prompt_Kind =
                 Editor.State.Backing_File_Deleted_While_Dirty,
               "external deletion is classified as missing backing file while dirty");
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_File_Conflict_Cancel);
-      Assert (not S.File_Conflict_Prompt_Active,
+      Assert (not S.Buffer_Lifecycle.File_Conflict_Prompt_Active,
               "missing-file conflict cancel clears the prompt");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "missing-file conflict cancel preserves dirty text");
       Metadata := Editor.Buffers.Global_Metadata_For
         (S.Project, Editor.Buffers.Global_Active_Buffer);
@@ -1364,16 +1364,16 @@ package body Editor.Dogfood_Workflow.Tests is
       Write_File (Source_Path, "external replacement before close" & ASCII.LF);
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_Active_Buffer);
-      Assert (S.Dirty_Close_Prompt_Active,
+      Assert (S.Buffer_Lifecycle.Dirty_Close_Prompt_Active,
               "closing a dirty file-backed buffer opens dirty-close review");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Confirm_Close_Save);
-      Assert (not S.Dirty_Close_Prompt_Active,
+      Assert (not S.Buffer_Lifecycle.Dirty_Close_Prompt_Active,
               "save-and-close conflict exits dirty-close review");
-      Assert (S.File_Conflict_Prompt_Active,
+      Assert (S.Buffer_Lifecycle.File_Conflict_Prompt_Active,
               "save-and-close conflict opens the file-conflict prompt");
       Assert (Editor.Buffers.Global_Contains (Target),
               "conflicted save-and-close keeps the buffer open");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "conflicted save-and-close keeps dirty text selected");
       Assert (Editor.Buffers.Global_Active_Buffer = Target,
               "failed save-and-close keeps the conflicted buffer selected for correction");
@@ -1383,12 +1383,12 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Metadata.Close_Eligibility =
                 Editor.Buffers.Buffer_Blocked_By_Pending_Confirmation,
               "failed save-and-close keeps close eligibility blocked by the conflict confirmation");
-      Assert (S.File_Conflict_Close_After_Overwrite,
+      Assert (S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite,
               "save-and-close conflict records an explicit close-after-overwrite handoff only after user confirmation");
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_File_Conflict_Overwrite_Disk);
-      Assert (not S.File_Conflict_Prompt_Active,
+      Assert (not S.Buffer_Lifecycle.File_Conflict_Prompt_Active,
               "overwrite confirmation after save-and-close clears conflict prompt");
       Assert (not Editor.Buffers.Global_Contains (Target),
               "overwrite confirmation resumes and completes the pending buffer close");
@@ -1449,7 +1449,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Executor.Execute_No_Log
         (S, Editor.Test_Helper.Insert (Editor.State.Current_Text (S)'Length,
                                        ASCII.LF));
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "Project A source buffer is dirty before switch");
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Buffer := Editor.Buffers.Global_Active_Buffer;
@@ -1490,9 +1490,9 @@ package body Editor.Dogfood_Workflow.Tests is
         (Editor.Outline_Extractor.Make_Snapshot
            (Editor.State.Current_Text (S),
             "dogfood_demo.adb",
-            S.Active_Buffer_Token,
-            S.Buffer_Revision,
-            S.Lifecycle_Generation,
+            S.Buffer_Lifecycle.Active_Buffer_Token,
+            S.Buffer_Lifecycle.Buffer_Revision,
+            S.Buffer_Lifecycle.Lifecycle_Generation,
             578));
       Editor.Outline.Begin_Extraction
         (S.Outline, Editor.Outline_Extractor.Identity (Extracted));
@@ -1508,7 +1508,7 @@ package body Editor.Dogfood_Workflow.Tests is
          "src/dogfood_demo.adb",
          Editor.Feature_Diagnostics.Project_Diagnostic_Source,
          Has_Target => True,
-         Target_Buffer => S.Active_Buffer_Token,
+         Target_Buffer => S.Buffer_Lifecycle.Active_Buffer_Token,
          Target_Line => 1,
          Target_Column => 1,
          Build_Produced => True);
@@ -2612,7 +2612,7 @@ package body Editor.Dogfood_Workflow.Tests is
               "prompt cancellation does not create a filesystem target");
       Assert (To_Unbounded_String (Editor.State.Current_Text (S)) = Before_Text,
               "prompt cancellation preserves active buffer text");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "prompt cancellation does not dirty the active buffer");
 
       Write_File
@@ -2628,8 +2628,8 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Editor.Project.Has_Project (S.Project)
                 and then Editor.Project.Root_Path (S.Project) = Root,
               "invalid workspace restore preserves the active project");
-      Assert (S.File_Info.Has_Path
-                and then To_String (S.File_Info.Path) = Source_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path
+                and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Source_Path,
               "invalid workspace restore preserves the active file");
       Assert (To_Unbounded_String (Editor.State.Current_Text (S)) = Before_Text,
               "invalid workspace restore preserves active buffer text");
@@ -2663,10 +2663,10 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Executor.Project_File_Index_Commands.Execute_Refresh_File_Tree (S);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Source_Path);
 
-      Assert (S.File_Info.Has_Path
-                and then To_String (S.File_Info.Path) = Source_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path
+                and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Source_Path,
               "clean-open setup opens the selected File Tree target");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "clean-open setup starts from a clean buffer");
       Assert (Editor.Buffers.Global_Count = 1,
               "clean-open setup has one open buffer");
@@ -2692,10 +2692,10 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (not Ada.Directories.Exists (Source_Path)
                 and then Ada.Directories.Exists (Renamed_Path),
               "clean open File Tree rename moves the backing file");
-      Assert (S.File_Info.Has_Path
-                and then To_String (S.File_Info.Path) = Renamed_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path
+                and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Renamed_Path,
               "clean open File Tree rename updates the active buffer path");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "clean open File Tree rename preserves clean state");
       Assert (Ada.Strings.Fixed.Index
                 (Editor.State.Current_Text (S), "Clean_Open") > 0,
@@ -2721,11 +2721,11 @@ package body Editor.Dogfood_Workflow.Tests is
               "clean open File Tree delete closes the clean buffer");
       Assert (Editor.Buffers.Global_Active_Buffer = Editor.Buffers.No_Buffer,
               "clean open File Tree delete leaves no stale active buffer id");
-      Assert (not S.File_Info.Has_Path,
+      Assert (not S.Buffer_Lifecycle.File_Info.Has_Path,
               "clean open File Tree delete clears the active file path");
       Assert (Editor.State.Current_Text (S)'Length = 0,
               "clean open File Tree delete leaves an empty editor buffer");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "clean open File Tree delete leaves no dirty phantom buffer");
       Assert (Editor.Focus_Management.Effective_Focus_Owner (S) =
                 Editor.Focus_Management.Focus_File_Tree,
@@ -2770,10 +2770,10 @@ package body Editor.Dogfood_Workflow.Tests is
 
       Assert (Editor.Buffers.Global_Count = 2,
               "multi-buffer delete setup has two clean file buffers");
-      Assert (S.File_Info.Has_Path
-                and then To_String (S.File_Info.Path) = Second_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path
+                and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Second_Path,
               "multi-buffer delete setup makes the second file active");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "multi-buffer delete setup active file is clean");
 
       Node := Editor.File_Tree.Find_By_Path
@@ -2795,13 +2795,13 @@ package body Editor.Dogfood_Workflow.Tests is
               "active clean File Tree delete preserves the remaining backing file");
       Assert (Editor.Buffers.Global_Count = 1,
               "active clean File Tree delete closes only the deleted buffer");
-      Assert (S.File_Info.Has_Path
-                and then To_String (S.File_Info.Path) = First_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path
+                and then To_String (S.Buffer_Lifecycle.File_Info.Path) = First_Path,
               "active clean File Tree delete switches to the remaining buffer");
       Assert (Ada.Strings.Fixed.Index
                 (Editor.State.Current_Text (S), "Delete_Keep_First") > 0,
               "active clean File Tree delete loads the remaining buffer text");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "active clean File Tree delete keeps the replacement buffer clean");
       Assert (Editor.Focus_Management.Effective_Focus_Owner (S) =
                 Editor.Focus_Management.Focus_Editor,
@@ -2856,12 +2856,12 @@ package body Editor.Dogfood_Workflow.Tests is
         (Old_Child_Path, Found);
       Assert (Found and then Child_Id_Before /= Editor.Buffers.No_Buffer,
               "directory rename setup has a child buffer at the old path");
-      Assert (S.File_Info.Has_Path
-                and then To_String (S.File_Info.Path) = Old_Child_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path
+                and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Old_Child_Path,
               "directory rename setup makes the child buffer active");
       Assert (Editor.Buffers.Global_Count = 2,
               "directory rename setup preserves the other clean buffer");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "directory rename setup active child is clean");
 
       Node := Editor.File_Tree.Find_By_Path
@@ -2901,13 +2901,13 @@ package body Editor.Dogfood_Workflow.Tests is
               "File Tree directory rename rebases the existing child buffer id");
       Assert (Editor.Buffers.Global_Count = 2,
               "File Tree directory rename does not create duplicate buffers");
-      Assert (S.File_Info.Has_Path
-                and then To_String (S.File_Info.Path) = New_Child_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path
+                and then To_String (S.Buffer_Lifecycle.File_Info.Path) = New_Child_Path,
               "File Tree directory rename updates the active child path");
       Assert (Ada.Strings.Fixed.Index
                 (Editor.State.Current_Text (S), "Open_Child") > 0,
               "File Tree directory rename preserves active child text");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "File Tree directory rename preserves clean child state");
       Assert (Editor.Focus_Management.Effective_Focus_Owner (S) =
                 Editor.Focus_Management.Focus_Editor,
@@ -2960,7 +2960,7 @@ package body Editor.Dogfood_Workflow.Tests is
          "main workflow smoke reports project-open feedback");
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Source_Path);
-      Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Source_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Source_Path,
               "main workflow smoke starts in the source file");
       Expect_Active_Message_Contains
         ("Opened dogfood_demo.adb",
@@ -2983,7 +2983,7 @@ package body Editor.Dogfood_Workflow.Tests is
         (S, Editor.Focus_Management.Focus_Quick_Open);
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Accept_Quick_Open);
-      Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Main_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Main_Path,
               "main workflow smoke Quick Open opens main.adb");
       Expect_Active_Message_Contains
         ("Opened main.adb",
@@ -3009,7 +3009,7 @@ package body Editor.Dogfood_Workflow.Tests is
         (S, Editor.Focus_Management.Focus_Project_Search_Results);
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Search_Results_Open_Selected);
-      Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Source_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Source_Path,
               "main workflow smoke Project Search opens the result target");
       Expect_Active_Message_Contains
         ("Activated src/dogfood_demo.adb",
@@ -3018,10 +3018,10 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Executor.Execute_No_Log
         (S, Editor.Test_Helper.Insert (Editor.State.Current_Text (S)'Length,
                                        ASCII.LF));
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "main workflow smoke edit marks the active source dirty");
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "main workflow smoke saves the edit before build navigation");
       Expect_Active_Message_Contains
         ("Saved file",
@@ -3087,7 +3087,7 @@ package body Editor.Dogfood_Workflow.Tests is
         (S, Editor.Command_Ids.Command_Navigation_Back);
       Assert (Back_Result.Status = Editor.Command_Execution.Command_Executed,
               "main workflow smoke navigates back");
-      Assert (S.File_Info.Has_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path,
               "main workflow smoke keeps a file-backed editor target after back");
       Expect_Active_Message_Contains
         ("Navigated back",
@@ -3153,7 +3153,7 @@ package body Editor.Dogfood_Workflow.Tests is
         (S, Editor.Focus_Management.Focus_File_Tree);
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_File_Tree_Open_Selected);
-      Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Source_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Source_Path,
               "daily loop opens File Tree selection into the editor");
       Assert (Editor.Focus_Management.Effective_Focus_Owner (S) =
                 Editor.Focus_Management.Focus_Editor,
@@ -3162,10 +3162,10 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Executor.Execute_No_Log
         (S, Editor.Test_Helper.Insert (Editor.State.Current_Text (S)'Length,
                                        ASCII.LF));
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "daily loop edit marks buffer dirty");
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "daily loop save clears dirty state");
       Assert (Ada.Strings.Fixed.Index (Read_File (Source_Path), "Dogfood_Known_Token") > 0,
               "daily loop save preserves source contents on disk");
@@ -3185,13 +3185,13 @@ package body Editor.Dogfood_Workflow.Tests is
         (S, Editor.Focus_Management.Focus_Quick_Open);
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Accept_Quick_Open);
-      Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Main_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Main_Path,
               "daily loop Quick Open opens the requested second buffer");
       Assert (Editor.Buffers.Global_Count >= 2,
               "daily loop has multiple buffers after Quick Open");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Next_Buffer);
-      Assert (S.File_Info.Has_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path,
               "daily loop next-buffer keeps an active file-backed buffer");
       Assert (Editor.Focus_Management.Effective_Focus_Owner (S) =
                 Editor.Focus_Management.Focus_Editor,
@@ -3215,7 +3215,7 @@ package body Editor.Dogfood_Workflow.Tests is
         (S, Editor.Focus_Management.Focus_Project_Search_Results);
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Search_Results_Open_Selected);
-      Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Source_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Source_Path,
               "daily loop Project Search result opens the source buffer");
       Assert (Editor.Focus_Management.Effective_Focus_Owner (S) =
                 Editor.Focus_Management.Focus_Editor,
@@ -3225,9 +3225,9 @@ package body Editor.Dogfood_Workflow.Tests is
         (Editor.Outline_Extractor.Make_Snapshot
            (Editor.State.Current_Text (S),
             "dogfood_demo.adb",
-            S.Active_Buffer_Token,
-            S.Buffer_Revision,
-            S.Lifecycle_Generation,
+            S.Buffer_Lifecycle.Active_Buffer_Token,
+            S.Buffer_Lifecycle.Buffer_Revision,
+            S.Buffer_Lifecycle.Lifecycle_Generation,
             579));
       Assert (Editor.Outline_Extractor.Status (Extracted) =
                 Editor.Outline_Extractor.Extraction_Ok,
@@ -3330,12 +3330,12 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Editor.Project.Has_Project (S2.Project)
                 and then Editor.Project.Root_Path (S2.Project) = Root,
               "daily loop restore returns to the project");
-      Assert (S2.File_Info.Has_Path,
+      Assert (S2.Buffer_Lifecycle.File_Info.Has_Path,
               "daily loop restore returns to a valid active file");
       Assert (Editor.Focus_Management.Effective_Focus_Owner (S2) =
                 Editor.Focus_Management.Focus_Editor,
               "daily loop restore focuses the editor for continued work");
-      Assert (not S2.File_Info.Dirty,
+      Assert (not S2.Buffer_Lifecycle.File_Info.Dirty,
               "daily loop restore does not recreate dirty state");
       Assert (Editor.Dogfood_Workflow.Product_Workflow_Success_Status
                 (Editor.Dogfood_Workflow.Product_Quit_Safely) =
@@ -3381,21 +3381,21 @@ package body Editor.Dogfood_Workflow.Tests is
 
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Source_Path);
-      Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Source_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Source_Path,
               "save/reload/revert scenario starts on a real project file");
       Assert (Editor.Focus_Management.Effective_Focus_Owner (S) =
                 Editor.Focus_Management.Focus_Editor,
               "opening the scenario file focuses the editor");
 
       Append_Text (ASCII.LF & "-- saved edit");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "editing the scenario file marks it dirty before save");
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "save clears the dirty flag in the daily workflow");
       Assert (Read_File (Source_Path) = Editor.State.Current_Text (S),
               "save writes the exact active buffer text to disk");
-      Assert (To_String (S.File_Info.Path) = Source_Path,
+      Assert (To_String (S.Buffer_Lifecycle.File_Info.Path) = Source_Path,
               "save preserves the active backing path");
       Assert (Editor.Focus_Management.Effective_Focus_Owner (S) =
                 Editor.Focus_Management.Focus_Editor,
@@ -3403,9 +3403,9 @@ package body Editor.Dogfood_Workflow.Tests is
 
       Append_Text (ASCII.LF & "-- save-as edit");
       Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, Save_As_Path);
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "save-as clears the dirty flag after writing the new target");
-      Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Save_As_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Save_As_Path,
               "save-as rebases the active buffer path to the new file");
       Assert (Read_File (Save_As_Path) = Editor.State.Current_Text (S),
               "save-as writes the exact active buffer text to the new file");
@@ -3417,19 +3417,19 @@ package body Editor.Dogfood_Workflow.Tests is
 
       Append_Text (ASCII.LF & "-- failed save-as must survive");
       Before_Text := To_Unbounded_String (Editor.State.Current_Text (S));
-      Before_Path := S.File_Info.Path;
+      Before_Path := S.Buffer_Lifecycle.File_Info.Path;
       Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, Dir_Target);
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "failed save-as preserves dirty state");
       Assert (To_Unbounded_String (Editor.State.Current_Text (S)) = Before_Text,
               "failed save-as preserves buffer text");
-      Assert (S.File_Info.Has_Path and then S.File_Info.Path = Before_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then S.Buffer_Lifecycle.File_Info.Path = Before_Path,
               "failed save-as preserves the previous backing path");
       Assert (Read_File (Save_As_Path) /= Editor.State.Current_Text (S),
               "failed save-as does not write dirty text to the old target");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "save after failed save-as writes the preserved dirty buffer");
       Assert (Read_File (Save_As_Path) = Editor.State.Current_Text (S),
               "save after failed save-as targets the retained backing path");
@@ -3438,9 +3438,9 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
       Assert (Editor.State.Current_Text (S) = "clean reload from disk",
               "reload of a clean buffer replaces text from disk");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "reload of a clean buffer remains clean");
-      Assert (To_String (S.File_Info.Path) = Save_As_Path,
+      Assert (To_String (S.Buffer_Lifecycle.File_Info.Path) = Save_As_Path,
               "reload preserves the active backing path");
 
       Append_Text (" + local dirty reload edit");
@@ -3450,13 +3450,13 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "dirty reload captures a confirmation instead of mutating text");
       Assert (To_Unbounded_String (Editor.State.Current_Text (S)) = Before_Text
-                and then S.File_Info.Dirty,
+                and then S.Buffer_Lifecycle.File_Info.Dirty,
               "dirty reload prompt preserves dirty text before a decision");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Cancel_Pending_Transition);
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "cancelled dirty reload clears only the pending decision");
       Assert (To_Unbounded_String (Editor.State.Current_Text (S)) = Before_Text
-                and then S.File_Info.Dirty,
+                and then S.Buffer_Lifecycle.File_Info.Dirty,
               "cancelled dirty reload preserves dirty text and state");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
@@ -3466,7 +3466,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "confirmed dirty reload clears the pending decision");
       Assert (Editor.State.Current_Text (S) = "confirmed reload from disk"
-                and then not S.File_Info.Dirty,
+                and then not S.Buffer_Lifecycle.File_Info.Dirty,
               "confirmed dirty reload replaces text from disk and clears dirty state");
 
       Append_Text (" + local dirty revert edit");
@@ -3476,13 +3476,13 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "dirty revert captures a confirmation instead of mutating text");
       Assert (To_Unbounded_String (Editor.State.Current_Text (S)) = Before_Text
-                and then S.File_Info.Dirty,
+                and then S.Buffer_Lifecycle.File_Info.Dirty,
               "dirty revert prompt preserves dirty text before a decision");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Cancel_Pending_Transition);
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "cancelled dirty revert clears only the pending decision");
       Assert (To_Unbounded_String (Editor.State.Current_Text (S)) = Before_Text
-                and then S.File_Info.Dirty,
+                and then S.Buffer_Lifecycle.File_Info.Dirty,
               "cancelled dirty revert preserves dirty text and state");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Revert_Active_Buffer (S);
@@ -3492,7 +3492,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "confirmed dirty revert clears the pending decision");
       Assert (Editor.State.Current_Text (S) = "confirmed revert from disk"
-                and then not S.File_Info.Dirty,
+                and then not S.Buffer_Lifecycle.File_Info.Dirty,
               "confirmed dirty revert replaces text from disk and clears dirty state");
 
       Before_Text := To_Unbounded_String (Editor.State.Current_Text (S));
@@ -3500,9 +3500,9 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
       Assert (To_Unbounded_String (Editor.State.Current_Text (S)) = Before_Text,
               "reload with a missing backing file preserves current text");
-      Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Save_As_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Save_As_Path,
               "reload with a missing backing file preserves the file association");
-      Assert (S.File_Info.Missing_Target_Surfaced,
+      Assert (S.Buffer_Lifecycle.File_Info.Missing_Target_Surfaced,
               "reload with a missing backing file surfaces missing-target state");
 
       Append_Text (" + dirty missing revert edit");
@@ -3514,9 +3514,9 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "failed missing-file revert clears the stale decision after reporting failure");
       Assert (To_Unbounded_String (Editor.State.Current_Text (S)) = Before_Text
-                and then S.File_Info.Dirty,
+                and then S.Buffer_Lifecycle.File_Info.Dirty,
               "failed missing-file revert preserves dirty text and state");
-      Assert (S.File_Info.Missing_Target_Surfaced,
+      Assert (S.Buffer_Lifecycle.File_Info.Missing_Target_Surfaced,
               "failed missing-file revert surfaces missing-target state");
 
       Remove_Tree_If_Exists (Root);
@@ -4091,10 +4091,10 @@ package body Editor.Dogfood_Workflow.Tests is
       Dirty_Text := To_Unbounded_String (Editor.State.Current_Text (S));
       Dirty_Id := Editor.Buffers.Global_Active_Buffer;
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_Active_Buffer);
-      Assert (S.Dirty_Close_Prompt_Active,
+      Assert (S.Buffer_Lifecycle.Dirty_Close_Prompt_Active,
               "dirty close opens explicit dirty-buffer review");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Cancel_Close);
-      Assert (not S.Dirty_Close_Prompt_Active,
+      Assert (not S.Buffer_Lifecycle.Dirty_Close_Prompt_Active,
               "dirty close cancel clears only the close review");
       Assert (Editor.Buffers.Global_Contains (Dirty_Id),
               "dirty close cancel keeps the dirty buffer open");
@@ -4102,7 +4102,7 @@ package body Editor.Dogfood_Workflow.Tests is
               "dirty close cancel keeps the same active buffer");
       Assert (To_Unbounded_String (Editor.State.Current_Text (S)) = Dirty_Text,
               "dirty close cancel preserves dirty buffer text");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "dirty close cancel preserves dirty state");
       Assert (Editor.Focus_Management.Effective_Focus_Owner (S) =
                 Editor.Focus_Management.Focus_Editor,
@@ -4121,10 +4121,10 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Editor.Buffers.Global_Active_Buffer = Dirty_Id,
               "discard scenario returns to dirty buffer before close");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_Active_Buffer);
-      Assert (S.Dirty_Close_Prompt_Active,
+      Assert (S.Buffer_Lifecycle.Dirty_Close_Prompt_Active,
               "dirty close discard path opens review");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Confirm_Close_Discard);
-      Assert (not S.Dirty_Close_Prompt_Active,
+      Assert (not S.Buffer_Lifecycle.Dirty_Close_Prompt_Active,
               "dirty close discard resolves review");
       Assert (not Editor.Buffers.Global_Contains (Dirty_Id),
               "dirty close discard closes the selected dirty buffer");
@@ -4132,9 +4132,9 @@ package body Editor.Dogfood_Workflow.Tests is
               "dirty close discard keeps the clean buffer open");
       Assert (Editor.Buffers.Global_Active_Buffer = Clean_Id,
               "dirty close discard selects the remaining buffer");
-      Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Clean_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Clean_Path,
               "dirty close discard loads the remaining buffer path into editor state");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "dirty close discard does not dirty the remaining buffer");
       Assert (Editor.Focus_Management.Effective_Focus_Owner (S) =
                 Editor.Focus_Management.Focus_Editor,
@@ -4160,7 +4160,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Editor.Buffers.Global_Active_Buffer = Dirty_Id,
               "dirty project close cancel keeps the dirty buffer active");
       Assert (To_Unbounded_String (Editor.State.Current_Text (S)) = Dirty_Text
-                and then S.File_Info.Dirty,
+                and then S.Buffer_Lifecycle.File_Info.Dirty,
               "dirty project close cancel preserves dirty text and state");
       Assert (Editor.Focus_Management.Effective_Focus_Owner (S) =
                 Editor.Focus_Management.Focus_Editor,
@@ -4188,7 +4188,7 @@ package body Editor.Dogfood_Workflow.Tests is
                 and then Editor.Buffers.Global_Active_Buffer = Dirty_Id,
               "dirty project switch cancel preserves the active dirty buffer");
       Assert (To_Unbounded_String (Editor.State.Current_Text (S)) = Dirty_Text
-                and then S.File_Info.Dirty,
+                and then S.Buffer_Lifecycle.File_Info.Dirty,
               "dirty project switch cancel preserves dirty text and state");
 
       --  Quit readiness is represented by the product policy until
@@ -4282,7 +4282,7 @@ package body Editor.Dogfood_Workflow.Tests is
               "workspace restore skips the missing file entry");
       Assert (Summary.Expansions_Skipped = 1,
               "workspace restore skips missing File Tree expansion");
-      Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Valid_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Valid_Path,
               "workspace restore falls back to the valid restored file");
       Assert (Editor.State.Current_Text (S) = Read_File (Valid_Path),
               "workspace restore loads the valid restored file text");
@@ -4313,7 +4313,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Executor.Restore_Workspace_Snapshot (S, Snapshot, Status, Summary);
       Assert (Status = Editor.Workspace_Persistence.Workspace_Persistence_Partial_Restore,
               "workspace restore with only missing files is partial");
-      Assert (not S.File_Info.Has_Path,
+      Assert (not S.Buffer_Lifecycle.File_Info.Has_Path,
               "workspace restore with only missing files does not fabricate active file state");
       Id := Editor.Buffers.Global_Find_By_Path (Missing_Path, Found);
       Assert (not Found,
@@ -4344,7 +4344,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Editor.Project.Has_Project (S.Project)
                 and then Editor.Project.Root_Path (S.Project) = Ada.Directories.Full_Name (Root),
               "invalid workspace restore preserves the active project");
-      Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Valid_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Valid_Path,
               "invalid workspace restore preserves the active file path");
       Assert (To_Unbounded_String (Editor.State.Current_Text (S)) = Existing_Text,
               "invalid workspace restore preserves active buffer text");

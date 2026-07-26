@@ -82,7 +82,7 @@ package body Editor.Producer_Contracts.Tests is
       Prepare_State (S);
       R := Editor.Message_Producers.Post_Targeted_Message_With_Result
         (S, Editor.Feature_Messages.Info_Message, "producer info", "unit-test",
-         Editor.Feature_Messages.Editor_Source, S.Registry_Token, 1, 1);
+         Editor.Feature_Messages.Editor_Source, S.Buffer_Lifecycle.Registry_Token, 1, 1);
       Assert (R.Status = Editor.Producer_Contracts.Producer_Accepted,
               "valid targeted message is accepted with target kept");
       Assert (R.Row_Accepted and then R.Target_Kept,
@@ -103,7 +103,7 @@ package body Editor.Producer_Contracts.Tests is
       Prepare_State (S);
       R := Editor.Message_Producers.Post_Targeted_Message_With_Result
         (S, Editor.Feature_Messages.Warning_Message, "producer warning", "unit-test",
-         Editor.Feature_Messages.Editor_Source, S.Registry_Token + 999, 1, 1);
+         Editor.Feature_Messages.Editor_Source, S.Buffer_Lifecycle.Registry_Token + 999, 1, 1);
       Assert (R.Status = Editor.Producer_Contracts.Producer_Accepted_Untargeted,
               "invalid message target is accepted as untargeted");
       Assert (R.Row_Accepted and then not R.Target_Kept,
@@ -142,7 +142,7 @@ package body Editor.Producer_Contracts.Tests is
       Prepare_State (S);
       R := Editor.State.Post_Targeted_Diagnostic_With_Result
         (S, Editor.Feature_Diagnostics.Diagnostic_Error, "producer diagnostic",
-         "unit-test", S.Registry_Token, 2, 1);
+         "unit-test", S.Buffer_Lifecycle.Registry_Token, 2, 1);
       Assert (R.Status = Editor.Producer_Contracts.Producer_Accepted,
               "valid targeted diagnostic is accepted with target kept");
       Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 1,
@@ -161,7 +161,7 @@ package body Editor.Producer_Contracts.Tests is
       Prepare_State (S);
       R := Editor.State.Post_Targeted_Diagnostic_With_Result
         (S, Editor.Feature_Diagnostics.Diagnostic_Warning, "producer diagnostic",
-         "unit-test", S.Registry_Token, 999, 1);
+         "unit-test", S.Buffer_Lifecycle.Registry_Token, 999, 1);
       Assert (R.Status = Editor.Producer_Contracts.Producer_Accepted_Untargeted,
               "invalid diagnostic target is accepted as untargeted");
       Assert (not R.Target_Kept, "invalid diagnostic target reports target cleared");
@@ -244,16 +244,16 @@ package body Editor.Producer_Contracts.Tests is
       Prepare_State (S);
       Editor.Message_Producers.Post_Targeted_Message
         (S, Editor.Feature_Messages.Info_Message, "targeted message", "unit-test",
-         Editor.Feature_Messages.Editor_Source, S.Registry_Token, 1, 1);
+         Editor.Feature_Messages.Editor_Source, S.Buffer_Lifecycle.Registry_Token, 1, 1);
       Editor.State.Post_Targeted_Diagnostic
         (S, Editor.Feature_Diagnostics.Diagnostic_Error, "targeted diagnostic",
-         "unit-test", S.Registry_Token, 1, 1);
+         "unit-test", S.Buffer_Lifecycle.Registry_Token, 1, 1);
       Assert (Editor.Feature_Messages.Row_Count (S.Feature_Messages) = 1,
               "targeted message stored before buffer close");
       Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 1,
               "targeted diagnostic stored before buffer close");
       Editor.Feature_Panel_Controller.Reset_All_Features_For_Buffer_Close
-        (S, S.Registry_Token);
+        (S, S.Buffer_Lifecycle.Registry_Token);
       Assert (Editor.Feature_Messages.Row_Count (S.Feature_Messages) = 0,
               "buffer close removes targeted producer messages");
       Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,

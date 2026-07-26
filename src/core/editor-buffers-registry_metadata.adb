@@ -76,7 +76,7 @@ package body Editor.Buffers.Registry_Metadata is
    begin
       for Item of Registry.Items loop
          if Item.State /= null
-           and then To_String (Item.State.File_Info.Display_Name) = Name
+           and then To_String (Item.State.Buffer_Lifecycle.File_Info.Display_Name) = Name
          then
             Seen := Seen + 1;
             if Seen > 1 then
@@ -147,7 +147,7 @@ package body Editor.Buffers.Registry_Metadata is
       end if;
 
       declare
-         File : constant File_Identity := Registry.Items (I).State.File_Info;
+         File : constant File_Identity := Registry.Items (I).State.Buffer_Lifecycle.File_Info;
          Decorated : Unbounded_String := To_Unbounded_String (Base);
       begin
          if Registry.Items (I).Has_Label then
@@ -221,18 +221,18 @@ package body Editor.Buffers.Registry_Metadata is
       return (Id           => Registry.Items (I).Id,
               Display_Name => To_Unbounded_String
                 (Lifecycle_Display_Label (Registry, Registry.Items (I).Id)),
-              Is_Dirty     => Registry.Items (I).State.File_Info.Dirty,
+              Is_Dirty     => Registry.Items (I).State.Buffer_Lifecycle.File_Info.Dirty,
               Is_Active    => Registry.Items (I).Id = Registry.Active,
-              Has_Path     => Registry.Items (I).State.File_Info.Has_Path,
-              Path         => Registry.Items (I).State.File_Info.Path,
-              Last_Save_Failed => Registry.Items (I).State.File_Info.Last_Save_Failed,
-              Last_Reload_Failed => Registry.Items (I).State.File_Info.Last_Reload_Failed,
-              Last_Revert_Failed => Registry.Items (I).State.File_Info.Last_Revert_Failed,
-              Missing_Target_Surfaced => Registry.Items (I).State.File_Info.Missing_Target_Surfaced,
-              Unreadable_Target_Surfaced => Registry.Items (I).State.File_Info.Unreadable_Target_Surfaced,
-              Unwritable_Target_Surfaced => Registry.Items (I).State.File_Info.Unwritable_Target_Surfaced,
-              External_Change_Surfaced => Registry.Items (I).State.File_Info.External_Change_Surfaced,
-              Blocked_Close_Surfaced  => Registry.Items (I).State.File_Info.Blocked_Close_Surfaced,
+              Has_Path     => Registry.Items (I).State.Buffer_Lifecycle.File_Info.Has_Path,
+              Path         => Registry.Items (I).State.Buffer_Lifecycle.File_Info.Path,
+              Last_Save_Failed => Registry.Items (I).State.Buffer_Lifecycle.File_Info.Last_Save_Failed,
+              Last_Reload_Failed => Registry.Items (I).State.Buffer_Lifecycle.File_Info.Last_Reload_Failed,
+              Last_Revert_Failed => Registry.Items (I).State.Buffer_Lifecycle.File_Info.Last_Revert_Failed,
+              Missing_Target_Surfaced => Registry.Items (I).State.Buffer_Lifecycle.File_Info.Missing_Target_Surfaced,
+              Unreadable_Target_Surfaced => Registry.Items (I).State.Buffer_Lifecycle.File_Info.Unreadable_Target_Surfaced,
+              Unwritable_Target_Surfaced => Registry.Items (I).State.Buffer_Lifecycle.File_Info.Unwritable_Target_Surfaced,
+              External_Change_Surfaced => Registry.Items (I).State.Buffer_Lifecycle.File_Info.External_Change_Surfaced,
+              Blocked_Close_Surfaced  => Registry.Items (I).State.Buffer_Lifecycle.File_Info.Blocked_Close_Surfaced,
               Is_Pinned               => Registry.Items (I).Pinned,
               Has_Group               => Registry.Items (I).Has_Group,
               Group_Name              => Registry.Items (I).Group,
@@ -293,7 +293,7 @@ package body Editor.Buffers.Registry_Metadata is
       end if;
 
       declare
-         File        : constant File_Identity := Registry.Items (I).State.File_Info;
+         File        : constant File_Identity := Registry.Items (I).State.Buffer_Lifecycle.File_Info;
          Has_Project : constant Boolean := Editor.Project.Has_Project (Project);
          Root        : constant String :=
            (if Has_Project then Editor.Project.Root_Path (Project) else "");

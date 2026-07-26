@@ -87,9 +87,9 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
          "missing active restore should be a partial restore");
       Assert (Summary.Files_Restored = 1, "valid sibling file should restore");
       Assert (Summary.Files_Skipped = 0, "missing active is not double-counted when files were requested");
-      Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = File_A,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = File_A,
               "missing active file should fall back to first restored file");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "restored file-backed buffer should start clean");
 
       Cleanup_Fixture (Root);
@@ -146,7 +146,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
               "active outside open set must not be counted as an open-file skip");
       Assert (not Found,
               "active path outside open-files must not open an extra buffer");
-      Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = File_A,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = File_A,
               "active outside open set should fall back to first restored file");
 
       Cleanup_Fixture (Root);
@@ -197,7 +197,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
       Assert (Summary.Files_Restored = 0, "directory path must not restore a file buffer");
       Assert (Summary.Files_Skipped = 1, "directory path should be skipped once");
       Assert (not Found, "directory path must not create a partial file buffer");
-      Assert (not S.File_Info.Dirty, "failed restore must not create a dirty buffer");
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty, "failed restore must not create a dirty buffer");
 
       Cleanup_Fixture (Root);
       Editor.Buffers.Reset_Global_For_Test;
@@ -230,8 +230,8 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, File_A);
       Before_Count := Editor.Buffers.Global_Count;
       Set_Buffer_Text (S, "dirty in memory");
-      S.File_Info.Dirty := True;
-      S.File_Info.Last_Save_Failed := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Last_Save_Failed := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Write_Text_File (File_A, "changed on disk");
 
@@ -323,7 +323,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
               "first newly restored row should follow workspace order");
       Assert (To_String (Editor.Buffers.Global_Summary_At (Before_Count + 2).Display_Name) = "a.txt",
               "second newly restored row should follow workspace order");
-      Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = File_A,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = File_A,
               "restored active buffer should match the active workspace reference");
       Assert (Editor.Buffers.Global_Summary_At (Before_Count + 2).Is_Active,
               "open-buffer active marker should match restored active buffer");
@@ -387,7 +387,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
               "duplicate restore should append one open-buffer row");
       Assert (Found and then Id /= Editor.Buffers.No_Buffer,
               "duplicate restore should leave the unique file-backed buffer tracked");
-      Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = File_A,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = File_A,
               "duplicate active reference should focus the unique restored buffer");
 
       Cleanup_Fixture (Root);
@@ -615,7 +615,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
       Cmd.Text := To_Unbounded_String (String'(1 => 'Z'));
       Cmd.Code := Wide_Wide_Character'Val (0);
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "first edit after restore should dirty the restored active buffer");
       Assert (Editor.Buffers.Global_Summary_For (Editor.Buffers.Global_Active_Buffer).Is_Dirty,
               "first edit after restore should update open-buffer dirty marker");
@@ -627,12 +627,12 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
       Assert (Editor.Files.Is_Success (Reloaded)
                 and then To_String (Reloaded.Contents) = Editor.State.Current_Text (S),
               "first save after restore should write latest restored-buffer content");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "successful save after restore should clear active dirty marker");
       Assert (not Editor.Buffers.Global_Summary_For (Editor.Buffers.Global_Active_Buffer).Is_Dirty,
               "successful save after restore should clear open-buffer dirty marker");
-      Assert (S.File_Info.Baseline_Valid
-                and then S.File_Info.Saved_Generation = Editor.State.Current_Buffer_Revision (S),
+      Assert (S.Buffer_Lifecycle.File_Info.Baseline_Valid
+                and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Editor.State.Current_Buffer_Revision (S),
               "successful save after restore should update saved baseline");
 
       Cleanup_Fixture (Root);
@@ -681,7 +681,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
               "first reload after clean restore should execute");
       Assert (Editor.State.Current_Text (S) = "changed",
               "first reload after restore should read replacement content");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "successful reload after restore should leave buffer clean");
 
       Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
@@ -695,7 +695,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
               "dirty restored buffer reload should be blocked before replacement");
       Assert (To_String (Before) = Editor.State.Current_Text (S),
               "blocked reload after restore should preserve dirty content");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "blocked reload after restore should preserve dirty marker");
 
       Cleanup_Fixture (Root);
@@ -746,17 +746,17 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
 
       Result := Editor.Executor.Execute_Command_With_Result (S, Editor.Command_Ids.Command_Next_Buffer);
       Assert (Result.Status = Editor.Executor.Command_Executed
-                and then To_String (S.File_Info.Display_Name) = "b.txt",
+                and then To_String (S.Buffer_Lifecycle.File_Info.Display_Name) = "b.txt",
               "next buffer after restore should follow restored order");
       Result := Editor.Executor.Execute_Command_With_Result (S, Editor.Command_Ids.Command_Previous_Buffer);
       Assert (Result.Status = Editor.Executor.Command_Executed
-                and then To_String (S.File_Info.Display_Name) = "a.txt",
+                and then To_String (S.Buffer_Lifecycle.File_Info.Display_Name) = "a.txt",
               "previous buffer after restore should follow restored order");
 
       Result := Editor.Executor.Execute_Command_With_Result (S, Editor.Command_Ids.Command_Close_Active_Buffer);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "first close after clean restore should execute");
-      Assert (To_String (S.File_Info.Display_Name) = "b.txt",
+      Assert (To_String (S.Buffer_Lifecycle.File_Info.Display_Name) = "b.txt",
               "closing restored active buffer should choose deterministic next active buffer");
 
       Remove_File_If_Exists (File_B);
@@ -825,7 +825,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
               "first edit should clear transient restore details");
       Assert (Editor.Messages.Count (S.Messages) > 0,
               "first edit should not erase historical restore Message");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "restore feedback cleanup must preserve dirty state");
 
       Remove_Tree_If_Exists (Root);
@@ -878,7 +878,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
               "save after restore should execute normally");
       Assert (not S.Post_Restore_Feedback_Current,
               "first command should replace restore-only current feedback");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "restore feedback replacement must not dirty clean buffer");
       Assert (Editor.Messages.Count (S.Messages) > 0,
               "command replacement keeps Messages as bounded history");
@@ -1168,7 +1168,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (not S.Post_Restore_Feedback_Current,
               "edit cleanup should make restore feedback historical");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "edit after cleanup should expose ordinary dirty state");
 
       Before := Editor.Messages.Count (S.Messages);
@@ -1184,7 +1184,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
               "save after cleanup should make the current feedback the save result");
       Assert (Ada.Strings.Fixed.Index (To_String (Latest), "Workspace state restored") = 0,
               "save after cleanup must not repost restore success as current feedback");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "successful save after cleanup should clear dirty state normally");
 
       Remove_Tree_If_Exists (Root);
@@ -1286,7 +1286,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
       Cmd.Code := Wide_Wide_Character'Val (0);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Before := To_Unbounded_String (Editor.State.Current_Text (S));
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "dirty focus fixture should be dirty after edit");
 
       Node := Editor.File_Tree.Find_By_Path (S.File_Tree, File_Path, Found);
@@ -1295,7 +1295,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
       Editor.Executor.File_Tree_Navigation_Commands.Execute_File_Tree_Node_Action
         (S, Node, Editor.File_Tree_View.Open_File_Action);
 
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "already-open File Tree activation should preserve dirty state");
       Assert (To_String (Before) = Editor.State.Current_Text (S),
               "already-open File Tree activation must not reread and replace dirty text");
@@ -1334,7 +1334,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
       Row := Editor.Buffers.Global_Summary_For (Id);
       Assert (Id /= Editor.Buffers.No_Buffer and then Row.Has_Path,
               "open should create a file-backed active buffer row");
-      Assert (not Row.Is_Dirty and then not S.File_Info.Dirty,
+      Assert (not Row.Is_Dirty and then not S.Buffer_Lifecycle.File_Info.Dirty,
               "newly opened file-backed buffer should start clean");
 
       Editor.Executor.Execute_No_Log
@@ -1345,7 +1345,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
 
       Assert (Buffer_Text (S) = "aZ",
               "typing after open should edit the active buffer only");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "typing after open should dirty the active buffer");
       Assert (Row.Is_Dirty,
               "open-buffer row should become dirty immediately after typing");
@@ -1354,7 +1354,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
       Row := Editor.Buffers.Global_Summary_For (Id);
-      Assert (not S.File_Info.Dirty and then not Row.Is_Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty and then not Row.Is_Dirty,
               "successful ordinary save should clear buffer and row dirty state");
 
       Remove_Tree_If_Exists (Root);
@@ -1454,7 +1454,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
 
       Assert (Buffer_Text (S) = To_String (Before_Text),
               "dirty reload should block before content replacement");
-      Assert (S.File_Info.Dirty and then Row.Is_Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty and then Row.Is_Dirty,
               "blocked reload should preserve buffer and row dirty state");
       Assert (Ada.Strings.Fixed.Index
                 (To_String (Row.Display_Name), "reload blocked") = 0,
@@ -1502,7 +1502,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
 
       Assert (Editor.Buffers.Global_Count = Before_Count,
               "File Tree focus should not duplicate already-open rows");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "File Tree focus should preserve already-open dirty state");
       Assert (Buffer_Text (S) = To_String (Before_Text),
               "File Tree focus should not reload over dirty text");

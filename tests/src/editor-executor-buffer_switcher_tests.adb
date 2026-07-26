@@ -518,7 +518,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, A_Path);
       A_Id := Editor.Buffers.Global_Active_Buffer;
       Set_Buffer_Text (S, "dirty alpha");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, B_Path);
       B_Id := Editor.Buffers.Global_Active_Buffer;
@@ -528,9 +528,9 @@ package body Editor.Executor.Buffer_Switcher_Tests is
 
       Assert (Editor.Buffers.Global_Contains (A_Id),
               "dirty selected close must leave selected buffer open before confirmation");
-      Assert (S.Dirty_Close_Prompt_Active,
+      Assert (S.Buffer_Lifecycle.Dirty_Close_Prompt_Active,
               "dirty selected close must open explicit dirty close review");
-      Assert (S.Dirty_Close_Prompt_Scope = Editor.State.Selected_Buffer_Close_Scope,
+      Assert (S.Buffer_Lifecycle.Dirty_Close_Prompt_Scope = Editor.State.Selected_Buffer_Close_Scope,
               "dirty selected close must record selected-buffer scope");
       Assert (True,
               "blocked selected close must not record reopen entry");
@@ -581,7 +581,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, A_Path);
       A_Id := Editor.Buffers.Global_Active_Buffer;
       Set_Buffer_Text (S, "dirty selected alpha");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, B_Path);
@@ -590,13 +590,13 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Buffer_Switcher_Previous_Result (S);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      Assert (S.Dirty_Close_Prompt_Active,
+      Assert (S.Buffer_Lifecycle.Dirty_Close_Prompt_Active,
               "selected dirty buffer-list close must enter dirty review");
-      Assert (S.Dirty_Close_Prompt_Scope = Editor.State.Selected_Buffer_Close_Scope,
+      Assert (S.Buffer_Lifecycle.Dirty_Close_Prompt_Scope = Editor.State.Selected_Buffer_Close_Scope,
               "selected dirty buffer-list close records selected-buffer close scope");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Cancel);
-      Assert (not S.Dirty_Close_Prompt_Active,
+      Assert (not S.Buffer_Lifecycle.Dirty_Close_Prompt_Active,
               "cancel exits selected dirty close review");
       Assert (Editor.Buffers.Global_Contains (A_Id),
               "cancel leaves selected dirty buffer open");
@@ -609,7 +609,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Editor.Buffers.Load_Global_Active_Into_State (S);
       Assert (Buffer_Text (S) = "dirty selected alpha",
               "cancel preserves selected dirty buffer text");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "cancel preserves selected dirty marker");
 
       Remove_Tree_If_Exists (Root);
@@ -640,7 +640,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Editor.Executor.File_Open_Commands.Execute_New_Buffer (S);
       B_Id := Editor.Buffers.Global_Active_Buffer;
       Set_Buffer_Text (S, "dirty survivor");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Editor.Executor.File_Open_Commands.Execute_New_Buffer (S);
@@ -705,9 +705,9 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Buffer_Switcher_Previous_Result (S);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      Assert (not S.Dirty_Close_Prompt_Active,
+      Assert (not S.Buffer_Lifecycle.Dirty_Close_Prompt_Active,
               "selected clean buffer-list close must not open dirty review");
-      Assert (not S.File_Conflict_Prompt_Active,
+      Assert (not S.Buffer_Lifecycle.File_Conflict_Prompt_Active,
               "selected clean buffer-list close must not open file conflict prompt");
       Assert (not Editor.Buffers.Global_Contains (A_Id),
               "selected clean buffer-list close removes the selected clean buffer");
@@ -757,7 +757,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, A_Path);
       A_Id := Editor.Buffers.Global_Active_Buffer;
       Set_Buffer_Text (S, "dirty selected alpha saved");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, B_Path);
@@ -766,16 +766,16 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Buffer_Switcher_Previous_Result (S);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      Assert (S.Dirty_Close_Prompt_Active,
+      Assert (S.Buffer_Lifecycle.Dirty_Close_Prompt_Active,
               "selected dirty save-close starts in dirty review");
-      Assert (S.Dirty_Close_Prompt_Scope = Editor.State.Selected_Buffer_Close_Scope,
+      Assert (S.Buffer_Lifecycle.Dirty_Close_Prompt_Scope = Editor.State.Selected_Buffer_Close_Scope,
               "selected dirty save-close records selected-buffer scope");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Confirm_Close_Save);
 
-      Assert (not S.Dirty_Close_Prompt_Active,
+      Assert (not S.Buffer_Lifecycle.Dirty_Close_Prompt_Active,
               "successful selected save-close clears dirty review");
-      Assert (not S.File_Conflict_Prompt_Active,
+      Assert (not S.Buffer_Lifecycle.File_Conflict_Prompt_Active,
               "successful selected save-close does not leave conflict prompt active");
       Assert (not Editor.Buffers.Global_Contains (A_Id),
               "successful selected save-close closes the selected dirty buffer");
@@ -828,7 +828,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, A_Path);
       A_Id := Editor.Buffers.Global_Active_Buffer;
       Set_Buffer_Text (S, "dirty selected alpha overwrite");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, B_Path);
@@ -840,19 +840,19 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Editor.Executor.Execute_No_Log (S, Cmd);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Confirm_Close_Save);
 
-      Assert (S.File_Conflict_Prompt_Active,
+      Assert (S.Buffer_Lifecycle.File_Conflict_Prompt_Active,
               "selected overwrite-close starts from file conflict prompt");
-      Assert (S.File_Conflict_Close_After_Overwrite,
+      Assert (S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite,
               "selected overwrite-close remembers close-after-overwrite");
-      Assert (S.File_Conflict_Close_After_Overwrite_Selected,
+      Assert (S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite_Selected,
               "selected overwrite-close remembers selected-buffer row origin");
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_File_Conflict_Overwrite_Disk);
 
-      Assert (not S.File_Conflict_Prompt_Active,
+      Assert (not S.Buffer_Lifecycle.File_Conflict_Prompt_Active,
               "selected overwrite-close clears conflict prompt");
-      Assert (not S.Dirty_Close_Prompt_Active,
+      Assert (not S.Buffer_Lifecycle.Dirty_Close_Prompt_Active,
               "selected overwrite-close leaves no dirty review active");
       Assert (not Editor.Buffers.Global_Contains (A_Id),
               "selected overwrite-close closes the selected buffer after overwrite");
@@ -902,7 +902,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, A_Path);
       A_Id := Editor.Buffers.Global_Active_Buffer;
       Set_Buffer_Text (S, "dirty selected alpha conflict");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, B_Path);
@@ -912,17 +912,17 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Buffer_Switcher_Previous_Result (S);
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Assert (S.Dirty_Close_Prompt_Active,
+      Assert (S.Buffer_Lifecycle.Dirty_Close_Prompt_Active,
               "selected dirty close starts from dirty review");
-      Assert (S.Dirty_Close_Prompt_Scope = Editor.State.Selected_Buffer_Close_Scope,
+      Assert (S.Buffer_Lifecycle.Dirty_Close_Prompt_Scope = Editor.State.Selected_Buffer_Close_Scope,
               "selected dirty close preserves selected-buffer close scope");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Confirm_Close_Save);
-      Assert (not S.Dirty_Close_Prompt_Active,
+      Assert (not S.Buffer_Lifecycle.Dirty_Close_Prompt_Active,
               "selected save-and-close conflict transfers from dirty review");
-      Assert (S.File_Conflict_Prompt_Active,
+      Assert (S.Buffer_Lifecycle.File_Conflict_Prompt_Active,
               "selected save-and-close surfaces conflict prompt");
-      Assert (S.File_Conflict_Close_After_Overwrite,
+      Assert (S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite,
               "selected save-and-close remembers close-after-overwrite intent");
       Assert (Editor.Buffers.Global_Contains (A_Id),
               "selected conflicted buffer remains open before explicit overwrite");
@@ -931,13 +931,13 @@ package body Editor.Executor.Buffer_Switcher_Tests is
               "selected save conflict preserves active buffer and open buffer set");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_File_Conflict_Cancel);
-      Assert (not S.File_Conflict_Prompt_Active,
+      Assert (not S.Buffer_Lifecycle.File_Conflict_Prompt_Active,
               "cancelling selected save conflict clears conflict prompt");
       Assert (Editor.Buffers.Global_Contains (A_Id),
               "cancelling selected save conflict keeps selected dirty buffer open");
       Editor.Buffers.Global_Set_Active_Buffer (A_Id);
       Editor.Buffers.Load_Global_Active_Into_State (S);
-      Assert (Buffer_Text (S) = "dirty selected alpha conflict" and then S.File_Info.Dirty,
+      Assert (Buffer_Text (S) = "dirty selected alpha conflict" and then S.Buffer_Lifecycle.File_Info.Dirty,
               "cancelling selected save conflict preserves selected dirty text and dirty state");
 
       Remove_Tree_If_Exists (Root);
@@ -1464,7 +1464,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, B_Path);
       B_Id := Editor.Buffers.Global_Active_Buffer;
       Set_Buffer_Text (S, "dirty beta");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Buffers.Global_Pin_Buffer (B_Id);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, C_Path);
@@ -1759,7 +1759,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, D_Path);
       D_Id := Editor.Buffers.Global_Active_Buffer;
       Set_Buffer_Text (S, "dirty delta");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Buffers.Global_Set_Active_Buffer_Group ("core");
 
@@ -2169,7 +2169,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, B_Path);
       B_Id := Editor.Buffers.Global_Active_Buffer;
       Set_Buffer_Text (S, "dirty beta");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, C_Path);
       C_Id := Editor.Buffers.Global_Active_Buffer;
@@ -2322,7 +2322,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, B_Path);
       B_Id := Editor.Buffers.Global_Active_Buffer;
       Set_Buffer_Text (S, "dirty beta");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, C_Path);
       C_Id := Editor.Buffers.Global_Active_Buffer;

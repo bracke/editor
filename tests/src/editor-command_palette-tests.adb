@@ -777,7 +777,7 @@ package body Editor.Command_Palette.Tests is
          Source_Label  => "semantic",
          Source_Kind   => Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
          Has_Target    => True,
-         Target_Buffer => S.Active_Buffer_Token,
+         Target_Buffer => S.Buffer_Lifecycle.Active_Buffer_Token,
          Target_Line   => 1,
          Target_Column => 1,
          Primary_Action_Kind =>
@@ -810,7 +810,7 @@ package body Editor.Command_Palette.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "save as requires explicit path");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Input_Bridge.Set_State_For_Test (S);

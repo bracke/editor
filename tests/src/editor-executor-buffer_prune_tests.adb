@@ -639,12 +639,12 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, B_Path);
       B_Id := Editor.Buffers.Global_Active_Buffer;
       Set_Buffer_Text (S, "dirty beta");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, C_Path);
       C_Id := Editor.Buffers.Global_Active_Buffer;
       Set_Buffer_Text (S, "dirty gamma");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
@@ -724,7 +724,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, B_Path);
       B_Id := Editor.Buffers.Global_Active_Buffer;
       Set_Buffer_Text (S, "dirty beta");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Buffers.Global_Pin_Buffer (B_Id);
       Editor.Buffers.Global_Assign_Buffer_Group (B_Id, "work");
@@ -806,7 +806,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
 
       Editor.Buffers.Global_Set_Active_Buffer (B_Id);
       Editor.Buffers.Load_Global_Active_Into_State (S);
-      S.File_Info.Dirty := False;
+      S.Buffer_Lifecycle.File_Info.Dirty := False;
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Buffer_Switcher.Select_Buffer_Or_Row (S.Buffer_Switcher, B_Id, 1);
       Cmd := Editor.Commands.Payloads.Command_For_Id
@@ -818,7 +818,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
               and then Editor.Buffer_Switcher.Pruned_Pending_Marked_Close_Target_Count (S.Buffer_Switcher) = 0,
               "dirty-only rejection leaves pending and pruned state unchanged");
 
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Remove_Selected);
@@ -870,7 +870,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, C_Path);
       C_Id := Editor.Buffers.Global_Active_Buffer;
       Set_Buffer_Text (S, "dirty gamma");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
@@ -960,15 +960,15 @@ package body Editor.Executor.Buffer_Prune_Tests is
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, A_Path); A_Id := Editor.Buffers.Global_Active_Buffer;
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, B_Path); B_Id := Editor.Buffers.Global_Active_Buffer;
-      Set_Buffer_Text (S, "dirty beta"); S.File_Info.Dirty := True; Editor.Buffers.Sync_Global_Active_From_State (S);
+      Set_Buffer_Text (S, "dirty beta"); S.Buffer_Lifecycle.File_Info.Dirty := True; Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Buffers.Global_Pin_Buffer (B_Id);
       Editor.Buffers.Global_Assign_Buffer_Group (B_Id, "bulk");
       Editor.Buffers.Global_Set_Buffer_Label (B_Id, "dirty");
       Editor.Buffers.Global_Set_Buffer_Note (B_Id, "captured");
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, C_Path); C_Id := Editor.Buffers.Global_Active_Buffer;
-      Set_Buffer_Text (S, "dirty gamma"); S.File_Info.Dirty := True; Editor.Buffers.Sync_Global_Active_From_State (S);
+      Set_Buffer_Text (S, "dirty gamma"); S.Buffer_Lifecycle.File_Info.Dirty := True; Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, D_Path); D_Id := Editor.Buffers.Global_Active_Buffer;
-      Set_Buffer_Text (S, "dirty delta not pending"); S.File_Info.Dirty := True; Editor.Buffers.Sync_Global_Active_From_State (S);
+      Set_Buffer_Text (S, "dirty delta not pending"); S.Buffer_Lifecycle.File_Info.Dirty := True; Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, A_Id);
@@ -1036,9 +1036,9 @@ package body Editor.Executor.Buffer_Prune_Tests is
 
       Editor.Buffer_Switcher.Clear_All_Marks (S.Buffer_Switcher);
       Editor.Buffers.Global_Set_Active_Buffer (B_Id); Editor.Buffers.Load_Global_Active_Into_State (S);
-      S.File_Info.Dirty := False; Editor.Buffers.Sync_Global_Active_From_State (S);
+      S.Buffer_Lifecycle.File_Info.Dirty := False; Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Buffers.Global_Set_Active_Buffer (A_Id); Editor.Buffers.Load_Global_Active_Into_State (S);
-      Set_Buffer_Text (S, "alpha became dirty after preview"); S.File_Info.Dirty := True; Editor.Buffers.Sync_Global_Active_From_State (S);
+      Set_Buffer_Text (S, "alpha became dirty after preview"); S.Buffer_Lifecycle.File_Info.Dirty := True; Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Buffers.Global_Set_Active_Buffer (D_Id); Editor.Buffers.Load_Global_Active_Into_State (S);
 
       Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Summary);
@@ -1109,9 +1109,9 @@ package body Editor.Executor.Buffer_Prune_Tests is
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, A_Path); A_Id := Editor.Buffers.Global_Active_Buffer;
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, B_Path); B_Id := Editor.Buffers.Global_Active_Buffer;
-      Set_Buffer_Text (S, "dirty beta"); S.File_Info.Dirty := True; Editor.Buffers.Sync_Global_Active_From_State (S);
+      Set_Buffer_Text (S, "dirty beta"); S.Buffer_Lifecycle.File_Info.Dirty := True; Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, C_Path); C_Id := Editor.Buffers.Global_Active_Buffer;
-      Set_Buffer_Text (S, "dirty gamma"); S.File_Info.Dirty := True; Editor.Buffers.Sync_Global_Active_From_State (S);
+      Set_Buffer_Text (S, "dirty gamma"); S.Buffer_Lifecycle.File_Info.Dirty := True; Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
       Cmd := Editor.Commands.Payloads.Command_For_Id
@@ -1197,7 +1197,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
         (Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Review_Show);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Editor.Buffers.Global_Set_Active_Buffer (B_Id); Editor.Buffers.Load_Global_Active_Into_State (S);
-      S.File_Info.Dirty := False; Editor.Buffers.Sync_Global_Active_From_State (S);
+      S.Buffer_Lifecycle.File_Info.Dirty := False; Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Buffers.Global_Set_Active_Buffer (C_Id); Editor.Buffers.Load_Global_Active_Into_State (S);
 
       Cmd := Editor.Commands.Payloads.Command_For_Id
@@ -1255,13 +1255,13 @@ package body Editor.Executor.Buffer_Prune_Tests is
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, A_Path); A_Id := Editor.Buffers.Global_Active_Buffer;
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, B_Path); B_Id := Editor.Buffers.Global_Active_Buffer;
-      Set_Buffer_Text (S, "dirty beta"); S.File_Info.Dirty := True; Editor.Buffers.Sync_Global_Active_From_State (S);
+      Set_Buffer_Text (S, "dirty beta"); S.Buffer_Lifecycle.File_Info.Dirty := True; Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Buffers.Global_Pin_Buffer (B_Id);
       Editor.Buffers.Global_Assign_Buffer_Group (B_Id, "bulk");
       Editor.Buffers.Global_Set_Buffer_Label (B_Id, "dirty");
       Editor.Buffers.Global_Set_Buffer_Note (B_Id, "captured");
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, C_Path); C_Id := Editor.Buffers.Global_Active_Buffer;
-      Set_Buffer_Text (S, "dirty gamma"); S.File_Info.Dirty := True; Editor.Buffers.Sync_Global_Active_From_State (S);
+      Set_Buffer_Text (S, "dirty gamma"); S.Buffer_Lifecycle.File_Info.Dirty := True; Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
       Cmd := Editor.Commands.Payloads.Command_For_Id
@@ -1407,13 +1407,13 @@ package body Editor.Executor.Buffer_Prune_Tests is
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, A_Path); A_Id := Editor.Buffers.Global_Active_Buffer;
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, B_Path); B_Id := Editor.Buffers.Global_Active_Buffer;
-      Set_Buffer_Text (S, "dirty beta"); S.File_Info.Dirty := True; Editor.Buffers.Sync_Global_Active_From_State (S);
+      Set_Buffer_Text (S, "dirty beta"); S.Buffer_Lifecycle.File_Info.Dirty := True; Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Buffers.Global_Pin_Buffer (B_Id);
       Editor.Buffers.Global_Assign_Buffer_Group (B_Id, "bulk");
       Editor.Buffers.Global_Set_Buffer_Label (B_Id, "dirty");
       Editor.Buffers.Global_Set_Buffer_Note (B_Id, "captured");
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, C_Path); C_Id := Editor.Buffers.Global_Active_Buffer;
-      Set_Buffer_Text (S, "dirty gamma"); S.File_Info.Dirty := True; Editor.Buffers.Sync_Global_Active_From_State (S);
+      Set_Buffer_Text (S, "dirty gamma"); S.Buffer_Lifecycle.File_Info.Dirty := True; Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
       Cmd := Editor.Commands.Payloads.Command_For_Id
@@ -1566,11 +1566,11 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Init_Executor_Test_State (S);
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, A_Path); A_Id := Editor.Buffers.Global_Active_Buffer;
-      Set_Buffer_Text (S, "dirty alpha"); S.File_Info.Dirty := True; Editor.Buffers.Sync_Global_Active_From_State (S);
+      Set_Buffer_Text (S, "dirty alpha"); S.Buffer_Lifecycle.File_Info.Dirty := True; Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, B_Path); B_Id := Editor.Buffers.Global_Active_Buffer;
-      Set_Buffer_Text (S, "dirty beta"); S.File_Info.Dirty := True; Editor.Buffers.Sync_Global_Active_From_State (S);
+      Set_Buffer_Text (S, "dirty beta"); S.Buffer_Lifecycle.File_Info.Dirty := True; Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, C_Path); C_Id := Editor.Buffers.Global_Active_Buffer;
-      Set_Buffer_Text (S, "dirty gamma"); S.File_Info.Dirty := True; Editor.Buffers.Sync_Global_Active_From_State (S);
+      Set_Buffer_Text (S, "dirty gamma"); S.Buffer_Lifecycle.File_Info.Dirty := True; Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, A_Id);
@@ -1683,9 +1683,9 @@ package body Editor.Executor.Buffer_Prune_Tests is
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, A_Path); A_Id := Editor.Buffers.Global_Active_Buffer;
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, B_Path); B_Id := Editor.Buffers.Global_Active_Buffer;
-      Set_Buffer_Text (S, "dirty beta"); S.File_Info.Dirty := True; Editor.Buffers.Sync_Global_Active_From_State (S);
+      Set_Buffer_Text (S, "dirty beta"); S.Buffer_Lifecycle.File_Info.Dirty := True; Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, C_Path); C_Id := Editor.Buffers.Global_Active_Buffer;
-      Set_Buffer_Text (S, "dirty gamma"); S.File_Info.Dirty := True; Editor.Buffers.Sync_Global_Active_From_State (S);
+      Set_Buffer_Text (S, "dirty gamma"); S.Buffer_Lifecycle.File_Info.Dirty := True; Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, A_Id);
@@ -1700,7 +1700,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
               "setup captures the two dirty pending targets");
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, B_Path);
-      S.File_Info.Dirty := False;
+      S.Buffer_Lifecycle.File_Info.Dirty := False;
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
       Editor.Buffer_Switcher.Show_Dirty_Prune_Review (S.Buffer_Switcher);
@@ -1764,7 +1764,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
               "apply after stale cleanup prunes only remaining applicable preview targets");
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, B_Path);
-      Set_Buffer_Text (S, "dirty beta again"); S.File_Info.Dirty := True; Editor.Buffers.Sync_Global_Active_From_State (S);
+      Set_Buffer_Text (S, "dirty beta again"); S.Buffer_Lifecycle.File_Info.Dirty := True; Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
       Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Preview);

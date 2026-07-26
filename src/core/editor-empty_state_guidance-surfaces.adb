@@ -62,7 +62,7 @@ package body Editor.Empty_State_Guidance.Surfaces is
 
    function Has_Active_Buffer (S : Editor.State.State_Type) return Boolean is
    begin
-      return S.Active_Buffer_Token /= 0 or else S.File_Info.Has_Path;
+      return S.Buffer_Lifecycle.Active_Buffer_Token /= 0 or else S.Buffer_Lifecycle.File_Info.Has_Path;
    end Has_Active_Buffer;
 
    function Canonical_Surface_Suggestion
@@ -454,7 +454,7 @@ package body Editor.Empty_State_Guidance.Surfaces is
          Add_Suggestion (Snapshot, S, Editor.Command_Ids.Command_Refresh_Outline);
       elsif Source = Editor.Outline.Extracted_Outline
         and then not Editor.Outline.Outline_Buffer_Identity_Matches
-          (S.Outline, S.Active_Buffer_Token)
+          (S.Outline, S.Buffer_Lifecycle.Active_Buffer_Token)
       then
          Set_Text (Snapshot, Outline_Surface, Different_Buffer_State,
                    "Outline belongs to another buffer.",

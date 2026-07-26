@@ -1059,8 +1059,8 @@ package body Editor.Empty_State_Guidance is
    begin
       return Editor.Project.Has_Project (Before.Project) =
         Editor.Project.Has_Project (After.Project)
-        and then Before.Active_Buffer_Token = After.Active_Buffer_Token
-        and then Before.File_Info.Has_Path = After.File_Info.Has_Path
+        and then Before.Buffer_Lifecycle.Active_Buffer_Token = After.Buffer_Lifecycle.Active_Buffer_Token
+        and then Before.Buffer_Lifecycle.File_Info.Has_Path = After.Buffer_Lifecycle.File_Info.Has_Path
         and then Editor.Recent_Projects.Count (Before.Recent_Projects) =
           Editor.Recent_Projects.Count (After.Recent_Projects);
    end Assert_First_Run_Guidance_Fabricates_No_Project;

@@ -65,7 +65,7 @@ package body Editor.Executor.Bookmark_Commands is
          when Command_Bookmark_Toggle_Current_Location =>
             if not Has_Buffer then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
-            elsif not S.File_Info.Has_Path then
+            elsif not S.Buffer_Lifecycle.File_Info.Has_Path then
                return Editor.Commands.Availability_Metadata.Unavailable ("No bookmarkable location");
             end if;
             return Editor.Commands.Availability_Metadata.Available;
@@ -94,7 +94,7 @@ package body Editor.Executor.Bookmark_Commands is
                return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
             elsif not Editor.Bookmarks.Has_Bookmarks (S.Bookmarks) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No bookmarks");
-            elsif not S.File_Info.Has_Path then
+            elsif not S.Buffer_Lifecycle.File_Info.Has_Path then
                return Editor.Commands.Availability_Metadata.Unavailable ("No bookmarkable location");
             end if;
             return Editor.Commands.Availability_Metadata.Available;
@@ -231,7 +231,7 @@ package body Editor.Executor.Bookmark_Commands is
    function Current_Bookmark_Display_Path
      (S : Editor.State.State_Type) return String
    is
-      Path : constant String := To_String (S.File_Info.Path);
+      Path : constant String := To_String (S.Buffer_Lifecycle.File_Info.Path);
    begin
       if Editor.Project.Has_Project (S.Project)
         and then Editor.Project.Is_Under_Project (S.Project, Path)
@@ -257,14 +257,14 @@ package body Editor.Executor.Bookmark_Commands is
       if not Editor.State.Has_Active_Buffer (S) then
          Report_Info (S, "No active buffer.");
          return;
-      elsif not S.File_Info.Has_Path then
+      elsif not S.Buffer_Lifecycle.File_Info.Has_Path then
          Report_Info (S, "No bookmarkable location");
          return;
       end if;
 
       Editor.State.Row_Col_For_Index (S, Safe_Caret (S), Row, Col);
       Line := Row + 1;
-      Path := S.File_Info.Path;
+      Path := S.Buffer_Lifecycle.File_Info.Path;
       Display := To_Unbounded_String (Current_Bookmark_Display_Path (S));
       if Editor.Project.Has_Project (S.Project)
         and then Editor.Project.Is_Under_Project (S.Project, To_String (Path))
@@ -392,7 +392,7 @@ package body Editor.Executor.Bookmark_Commands is
       elsif not Editor.Bookmarks.Has_Bookmarks (S.Bookmarks) then
          Report_Info (S, "No bookmarks");
          return;
-      elsif not S.File_Info.Has_Path then
+      elsif not S.Buffer_Lifecycle.File_Info.Has_Path then
          Report_Info (S, "No bookmarkable location");
          return;
       end if;
@@ -401,7 +401,7 @@ package body Editor.Executor.Bookmark_Commands is
       Line := Row + 1;
       Editor.Bookmarks.Reveal_Current
         (S.Bookmarks,
-         File_Path   => To_String (S.File_Info.Path),
+         File_Path   => To_String (S.Buffer_Lifecycle.File_Info.Path),
          Line_Number => Line,
          Status      => Status,
          Item       => Item);
@@ -502,7 +502,7 @@ package body Editor.Executor.Bookmark_Commands is
       Execute_Open_File (S, Target_Path);
       Editor.Messages.Dismiss_Latest (S.Messages);
 
-      if not S.File_Info.Has_Path or else To_String (S.File_Info.Path) /= Target_Path then
+      if not S.Buffer_Lifecycle.File_Info.Has_Path or else To_String (S.Buffer_Lifecycle.File_Info.Path) /= Target_Path then
          if Show_On_Failure then
             Editor.Bookmarks.Show (S.Bookmarks);
          end if;
@@ -580,10 +580,10 @@ package body Editor.Executor.Bookmark_Commands is
       Column := 0;
       Has_Column := False;
 
-      if Editor.State.Has_Active_Buffer (S) and then S.File_Info.Has_Path then
+      if Editor.State.Has_Active_Buffer (S) and then S.Buffer_Lifecycle.File_Info.Has_Path then
          Editor.State.Row_Col_For_Index (S, Safe_Caret (S), Row, Col);
          Has_Location := True;
-         File_Path := S.File_Info.Path;
+         File_Path := S.Buffer_Lifecycle.File_Info.Path;
          Line_Number := Row + 1;
          Column := Col + 1;
          Has_Column := True;

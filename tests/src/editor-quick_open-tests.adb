@@ -246,9 +246,9 @@ package body Editor.Quick_Open.Tests is
       Display_Name : String)
    is
    begin
-      Editor.Buffers.Buffer_Access (Registry, Id).File_Info.Has_Path := True;
-      Editor.Buffers.Buffer_Access (Registry, Id).File_Info.Path := To_Unbounded_String (Path);
-      Editor.Buffers.Buffer_Access (Registry, Id).File_Info.Display_Name := To_Unbounded_String (Display_Name);
+      Editor.Buffers.Buffer_Access (Registry, Id).Buffer_Lifecycle.File_Info.Has_Path := True;
+      Editor.Buffers.Buffer_Access (Registry, Id).Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Path);
+      Editor.Buffers.Buffer_Access (Registry, Id).Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String (Display_Name);
    end Set_Buffer_Association_For_Test;
 
    procedure Clear_Buffer_Association_For_Test
@@ -256,9 +256,9 @@ package body Editor.Quick_Open.Tests is
       Id       : Editor.Buffers.Buffer_Id)
    is
    begin
-      Editor.Buffers.Buffer_Access (Registry, Id).File_Info.Has_Path := False;
-      Editor.Buffers.Buffer_Access (Registry, Id).File_Info.Path := Null_Unbounded_String;
-      Editor.Buffers.Buffer_Access (Registry, Id).File_Info.Display_Name := To_Unbounded_String ("Untitled");
+      Editor.Buffers.Buffer_Access (Registry, Id).Buffer_Lifecycle.File_Info.Has_Path := False;
+      Editor.Buffers.Buffer_Access (Registry, Id).Buffer_Lifecycle.File_Info.Path := Null_Unbounded_String;
+      Editor.Buffers.Buffer_Access (Registry, Id).Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("Untitled");
    end Clear_Buffer_Association_For_Test;
 
    procedure Set_Buffer_Dirty_For_Test
@@ -267,7 +267,7 @@ package body Editor.Quick_Open.Tests is
       Dirty    : Boolean)
    is
    begin
-      Editor.Buffers.Buffer_Access (Registry, Id).File_Info.Dirty := Dirty;
+      Editor.Buffers.Buffer_Access (Registry, Id).Buffer_Lifecycle.File_Info.Dirty := Dirty;
    end Set_Buffer_Dirty_For_Test;
 
    function Quick_Open_Candidate_Index
@@ -2382,15 +2382,15 @@ package body Editor.Quick_Open.Tests is
               "Quick Open query text must not become a lifecycle target candidate");
 
       Editor.State.Init (App);
-      App.File_Target_Prompt_Active := True;
-      App.File_Target_Prompt_Command := Editor.Command_Ids.Command_Save_File_As;
-      App.File_Target_Prompt_Label := To_Unbounded_String ("Save As target");
-      Editor.Input_Field.Insert_Text (App.File_Target_Prompt_Input, "/project/src/manual.adb");
+      App.Buffer_Lifecycle.File_Target_Prompt_Active := True;
+      App.Buffer_Lifecycle.File_Target_Prompt_Command := Editor.Command_Ids.Command_Save_File_As;
+      App.Buffer_Lifecycle.File_Target_Prompt_Label := To_Unbounded_String ("Save As target");
+      Editor.Input_Field.Insert_Text (App.Buffer_Lifecycle.File_Target_Prompt_Input, "/project/src/manual.adb");
       Editor.Quick_Open.Set_Query_Text (S, "/project/src/not-the-target.adb");
       Snapshot := Editor.Quick_Open_Markers.Build_Snapshot (S, Project, Registry, Recent);
-      Assert (App.File_Target_Prompt_Active,
+      Assert (App.Buffer_Lifecycle.File_Target_Prompt_Active,
               "Quick Open snapshot construction must not own prompt state");
-      Assert (Editor.Input_Field.Text (App.File_Target_Prompt_Input) = "/project/src/manual.adb",
+      Assert (Editor.Input_Field.Text (App.Buffer_Lifecycle.File_Target_Prompt_Input) = "/project/src/manual.adb",
               "Quick Open query/selection must not seed target prompt input");
       Assert (Editor.Buffers.Active_Buffer (Registry) = Active,
               "prompt-active Quick Open interaction preserves active-buffer source policy");

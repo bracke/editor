@@ -242,7 +242,7 @@ package body Editor.Buffer_Switcher.Tests is
    begin
       Editor.Buffers.Global_Set_Active_Buffer (Id);
       Editor.Buffers.Load_Global_Active_Into_State (S);
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
    end Mark_Global_Buffer_Dirty;
 
@@ -277,9 +277,9 @@ package body Editor.Buffer_Switcher.Tests is
       Display_Name : String)
    is
    begin
-      Editor.Buffers.Buffer_Access (Registry, Id).File_Info.Has_Path := True;
-      Editor.Buffers.Buffer_Access (Registry, Id).File_Info.Path := To_Unbounded_String (Path);
-      Editor.Buffers.Buffer_Access (Registry, Id).File_Info.Display_Name := To_Unbounded_String (Display_Name);
+      Editor.Buffers.Buffer_Access (Registry, Id).Buffer_Lifecycle.File_Info.Has_Path := True;
+      Editor.Buffers.Buffer_Access (Registry, Id).Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Path);
+      Editor.Buffers.Buffer_Access (Registry, Id).Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String (Display_Name);
    end Set_Buffer_Association_For_Test;
 
    procedure Clear_Buffer_Association_For_Test
@@ -287,9 +287,9 @@ package body Editor.Buffer_Switcher.Tests is
       Id       : Editor.Buffers.Buffer_Id)
    is
    begin
-      Editor.Buffers.Buffer_Access (Registry, Id).File_Info.Has_Path := False;
-      Editor.Buffers.Buffer_Access (Registry, Id).File_Info.Path := Null_Unbounded_String;
-      Editor.Buffers.Buffer_Access (Registry, Id).File_Info.Display_Name := To_Unbounded_String ("Untitled");
+      Editor.Buffers.Buffer_Access (Registry, Id).Buffer_Lifecycle.File_Info.Has_Path := False;
+      Editor.Buffers.Buffer_Access (Registry, Id).Buffer_Lifecycle.File_Info.Path := Null_Unbounded_String;
+      Editor.Buffers.Buffer_Access (Registry, Id).Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("Untitled");
    end Clear_Buffer_Association_For_Test;
 
    procedure Set_Buffer_Dirty_For_Test
@@ -298,7 +298,7 @@ package body Editor.Buffer_Switcher.Tests is
       Dirty    : Boolean)
    is
    begin
-      Editor.Buffers.Buffer_Access (Registry, Id).File_Info.Dirty := Dirty;
+      Editor.Buffers.Buffer_Access (Registry, Id).Buffer_Lifecycle.File_Info.Dirty := Dirty;
    end Set_Buffer_Dirty_For_Test;
 
    function Row_Index_For
@@ -425,7 +425,7 @@ package body Editor.Buffer_Switcher.Tests is
       Closed : Boolean := False;
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
-      Editor.Buffers.Buffer_Access (Registry, Alpha).File_Info.Dirty := True;
+      Editor.Buffers.Buffer_Access (Registry, Alpha).Buffer_Lifecycle.File_Info.Dirty := True;
 
       Editor.Buffer_Switcher.Open (S);
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Config);
@@ -1274,7 +1274,7 @@ package body Editor.Buffer_Switcher.Tests is
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffer_Switcher.Open (S);
-      Editor.Buffers.Buffer_Access (Registry, Alpha).File_Info.Dirty := True;
+      Editor.Buffers.Buffer_Access (Registry, Alpha).Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffer_Switcher.Set_Mark (S, Alpha);
       Assert (Editor.Buffer_Switcher.Count_Badge_Text (S, Registry) = "Marked: 1",
               "dirty pending badge is absent when no pending marked close action exists");
@@ -1287,19 +1287,19 @@ package body Editor.Buffer_Switcher.Tests is
               "Marked: 2 | Pending close: 2 | Dirty: 1",
               "dirty badge displays the dirty subset of active pending targets");
 
-      Editor.Buffers.Buffer_Access (Registry, Untitled).File_Info.Dirty := True;
+      Editor.Buffers.Buffer_Access (Registry, Untitled).Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffer_Switcher.Set_Mark (S, Untitled);
       Editor.Buffer_Switcher.Clear_Mark (S, Alpha);
       Assert (Editor.Buffer_Switcher.Count_Badge_Text (S, Registry) =
               "Marked: 2 | Pending close: 2 | Dirty: 1",
               "dirty marked buffers outside the captured pending set do not affect dirty pending count");
 
-      Editor.Buffers.Buffer_Access (Registry, Beta).File_Info.Dirty := True;
+      Editor.Buffers.Buffer_Access (Registry, Beta).Buffer_Lifecycle.File_Info.Dirty := True;
       Assert (Editor.Buffer_Switcher.Count_Badge_Text (S, Registry) =
               "Marked: 2 | Pending close: 2 | Dirty: 2",
               "dirtying a clean active pending target updates the derived dirty badge");
 
-      Editor.Buffers.Buffer_Access (Registry, Alpha).File_Info.Dirty := False;
+      Editor.Buffers.Buffer_Access (Registry, Alpha).Buffer_Lifecycle.File_Info.Dirty := False;
       Assert (Editor.Buffer_Switcher.Count_Badge_Text (S, Registry) =
               "Marked: 2 | Pending close: 2 | Dirty: 1",
               "saving or otherwise cleaning a dirty pending target updates the derived dirty badge");
@@ -1358,8 +1358,8 @@ package body Editor.Buffer_Switcher.Tests is
       Restored_Name : Unbounded_String := Null_Unbounded_String;
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
-      Editor.Buffers.Buffer_Access (Registry, Alpha).File_Info.Dirty := True;
-      Editor.Buffers.Buffer_Access (Registry, Beta).File_Info.Dirty := True;
+      Editor.Buffers.Buffer_Access (Registry, Alpha).Buffer_Lifecycle.File_Info.Dirty := True;
+      Editor.Buffers.Buffer_Access (Registry, Beta).Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Set_Buffer_Label (Registry, Alpha, "keep");
       Editor.Buffers.Set_Buffer_Label (Registry, Beta, "hide");
 
@@ -1413,7 +1413,7 @@ package body Editor.Buffer_Switcher.Tests is
       Assert (Editor.Buffer_Switcher.Select_Next_Dirty_Pending_Marked_Buffer (S),
               "restored dirty active pending targets become navigable again");
 
-      Editor.Buffers.Buffer_Access (Registry, Alpha).File_Info.Dirty := False;
+      Editor.Buffers.Buffer_Access (Registry, Alpha).Buffer_Lifecycle.File_Info.Dirty := False;
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Config);
       Assert (not Editor.Buffer_Switcher.Select_Next_Dirty_Pending_Marked_Buffer (S),
               "cleaned pending targets stop being dirty-navigable under the current projection");
@@ -1444,8 +1444,8 @@ package body Editor.Buffer_Switcher.Tests is
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffer_Switcher.Open (S);
-      Editor.Buffers.Buffer_Access (Registry, Alpha).File_Info.Dirty := True;
-      Editor.Buffers.Buffer_Access (Registry, Beta).File_Info.Dirty := True;
+      Editor.Buffers.Buffer_Access (Registry, Alpha).Buffer_Lifecycle.File_Info.Dirty := True;
+      Editor.Buffers.Buffer_Access (Registry, Beta).Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Set_Buffer_Label (Registry, Alpha, "shown");
       Editor.Buffers.Set_Buffer_Label (Registry, Beta, "hidden");
 
@@ -1474,12 +1474,12 @@ package body Editor.Buffer_Switcher.Tests is
               "Marked: 3 | Pending close: 3 | Dirty: 2 | Dirty prune: 2 | Applicable: 2",
               "dirty-prune badges are global and not limited by filter, query, or sort");
 
-      Editor.Buffers.Buffer_Access (Registry, Beta).File_Info.Dirty := False;
+      Editor.Buffers.Buffer_Access (Registry, Beta).Buffer_Lifecycle.File_Info.Dirty := False;
       Assert (Editor.Buffer_Switcher.Count_Badge_Text (S, Registry) =
               "Marked: 3 | Pending close: 3 | Dirty: 1 | Dirty prune: 2 | Applicable: 1",
               "applicable count follows current dirty state without changing captured preview count");
 
-      Editor.Buffers.Buffer_Access (Registry, Untitled).File_Info.Dirty := True;
+      Editor.Buffers.Buffer_Access (Registry, Untitled).Buffer_Lifecycle.File_Info.Dirty := True;
       Assert (Editor.Buffer_Switcher.Count_Badge_Text (S, Registry) =
               "Marked: 3 | Pending close: 3 | Dirty: 2 | Dirty prune: 2 | Applicable: 1",
               "dirty pending and applicable remain distinct when a non-preview pending target becomes dirty");
@@ -1526,8 +1526,8 @@ package body Editor.Buffer_Switcher.Tests is
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffer_Switcher.Open (S);
-      Editor.Buffers.Buffer_Access (Registry, Alpha).File_Info.Dirty := True;
-      Editor.Buffers.Buffer_Access (Registry, Beta).File_Info.Dirty := True;
+      Editor.Buffers.Buffer_Access (Registry, Alpha).Buffer_Lifecycle.File_Info.Dirty := True;
+      Editor.Buffers.Buffer_Access (Registry, Beta).Buffer_Lifecycle.File_Info.Dirty := True;
 
       Editor.Buffer_Switcher.Set_Mark (S, Alpha);
       Editor.Buffer_Switcher.Set_Mark (S, Beta);
@@ -1629,11 +1629,11 @@ package body Editor.Buffer_Switcher.Tests is
         (Registry, Editor.Test_Temp.Base & "/project/src/delta.adb", "delta.adb", "delta");
       Editor.Buffer_Switcher.Open (S);
 
-      Editor.Buffers.Buffer_Access (Registry, Alpha).File_Info.Dirty := True;
-      Editor.Buffers.Buffer_Access (Registry, Beta).File_Info.Dirty := True;
-      Editor.Buffers.Buffer_Access (Registry, Untitled).File_Info.Dirty := True;
-      Editor.Buffers.Buffer_Access (Registry, Gamma).File_Info.Dirty := True;
-      Editor.Buffers.Buffer_Access (Registry, Step_Delta).File_Info.Dirty := True;
+      Editor.Buffers.Buffer_Access (Registry, Alpha).Buffer_Lifecycle.File_Info.Dirty := True;
+      Editor.Buffers.Buffer_Access (Registry, Beta).Buffer_Lifecycle.File_Info.Dirty := True;
+      Editor.Buffers.Buffer_Access (Registry, Untitled).Buffer_Lifecycle.File_Info.Dirty := True;
+      Editor.Buffers.Buffer_Access (Registry, Gamma).Buffer_Lifecycle.File_Info.Dirty := True;
+      Editor.Buffers.Buffer_Access (Registry, Step_Delta).Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffer_Switcher.Set_Mark (S, Alpha);
       Editor.Buffer_Switcher.Set_Mark (S, Beta);
       Editor.Buffer_Switcher.Set_Mark (S, Untitled);
@@ -1649,7 +1649,7 @@ package body Editor.Buffer_Switcher.Tests is
               and then Editor.Buffer_Switcher.Removed_Dirty_Pending_Marked_Close_Prune_Target_Count (S) = 1,
               "setup records one explicit removed dirty-prune target");
 
-      Editor.Buffers.Buffer_Access (Registry, Alpha).File_Info.Dirty := False;
+      Editor.Buffers.Buffer_Access (Registry, Alpha).Buffer_Lifecycle.File_Info.Dirty := False;
       Editor.Buffers.Close_Buffer (Registry, Beta, Closed, Force => True);
       Assert (Closed, "setup closes one captured preview target");
       Editor.Buffer_Switcher.Remove_Pending_Marked_Close_Target
@@ -1703,8 +1703,8 @@ package body Editor.Buffer_Switcher.Tests is
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffer_Switcher.Open (S);
-      Editor.Buffers.Buffer_Access (Registry, Alpha).File_Info.Dirty := True;
-      Editor.Buffers.Buffer_Access (Registry, Beta).File_Info.Dirty := True;
+      Editor.Buffers.Buffer_Access (Registry, Alpha).Buffer_Lifecycle.File_Info.Dirty := True;
+      Editor.Buffers.Buffer_Access (Registry, Beta).Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffer_Switcher.Set_Mark (S, Alpha);
       Editor.Buffer_Switcher.Set_Mark (S, Beta);
       Editor.Buffer_Switcher.Prepare_Pending_Marked_Close (S, Registry, Count, Dirty_Count);
@@ -1713,8 +1713,8 @@ package body Editor.Buffer_Switcher.Tests is
       Assert (Count = 2 and then Editor.Buffer_Switcher.Has_Dirty_Prune_Review (S),
               "setup has an active dirty-prune review");
 
-      Editor.Buffers.Buffer_Access (Registry, Alpha).File_Info.Dirty := False;
-      Editor.Buffers.Buffer_Access (Registry, Beta).File_Info.Dirty := False;
+      Editor.Buffers.Buffer_Access (Registry, Alpha).Buffer_Lifecycle.File_Info.Dirty := False;
+      Editor.Buffers.Buffer_Access (Registry, Beta).Buffer_Lifecycle.File_Info.Dirty := False;
       Editor.Buffer_Switcher.Clear_Stale_Dirty_Pending_Marked_Close_Prune_Targets
         (S, Registry, Cleared, Remaining);
       Assert (Cleared = 2 and then Remaining = 0,
@@ -1743,8 +1743,8 @@ package body Editor.Buffer_Switcher.Tests is
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffer_Switcher.Open (S);
-      Editor.Buffers.Buffer_Access (Registry, Alpha).File_Info.Dirty := True;
-      Editor.Buffers.Buffer_Access (Registry, Beta).File_Info.Dirty := True;
+      Editor.Buffers.Buffer_Access (Registry, Alpha).Buffer_Lifecycle.File_Info.Dirty := True;
+      Editor.Buffers.Buffer_Access (Registry, Beta).Buffer_Lifecycle.File_Info.Dirty := True;
 
       Editor.Buffer_Switcher.Set_Mark (S, Alpha);
       Editor.Buffer_Switcher.Set_Mark (S, Beta);
@@ -1763,7 +1763,7 @@ package body Editor.Buffer_Switcher.Tests is
               and then Editor.Buffer_Switcher.Removed_Dirty_Pending_Marked_Close_Prune_Target_Count (S) = 1,
               "setup creates active preview, active review, and removed-preview history");
 
-      Editor.Buffers.Buffer_Access (Registry, Beta).File_Info.Dirty := False;
+      Editor.Buffers.Buffer_Access (Registry, Beta).Buffer_Lifecycle.File_Info.Dirty := False;
       Editor.Buffer_Switcher.Prepare_Dirty_Pending_Marked_Close_Prune (S, Registry, Count);
       Assert (Count = 1
               and then Editor.Buffer_Switcher.Is_Dirty_Pending_Marked_Close_Prune_Target (S, Alpha)
@@ -1809,8 +1809,8 @@ package body Editor.Buffer_Switcher.Tests is
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffer_Switcher.Open (S);
-      Editor.Buffers.Buffer_Access (Registry, Alpha).File_Info.Dirty := True;
-      Editor.Buffers.Buffer_Access (Registry, Beta).File_Info.Dirty := True;
+      Editor.Buffers.Buffer_Access (Registry, Alpha).Buffer_Lifecycle.File_Info.Dirty := True;
+      Editor.Buffers.Buffer_Access (Registry, Beta).Buffer_Lifecycle.File_Info.Dirty := True;
 
       Editor.Buffer_Switcher.Set_Mark (S, Alpha);
       Editor.Buffer_Switcher.Set_Mark (S, Beta);
@@ -1867,8 +1867,8 @@ package body Editor.Buffer_Switcher.Tests is
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffer_Switcher.Open (S);
-      Editor.Buffers.Buffer_Access (Registry, Alpha).File_Info.Dirty := True;
-      Editor.Buffers.Buffer_Access (Registry, Beta).File_Info.Dirty := True;
+      Editor.Buffers.Buffer_Access (Registry, Alpha).Buffer_Lifecycle.File_Info.Dirty := True;
+      Editor.Buffers.Buffer_Access (Registry, Beta).Buffer_Lifecycle.File_Info.Dirty := True;
 
       Editor.Buffer_Switcher.Set_Mark (S, Alpha);
       Editor.Buffer_Switcher.Set_Mark (S, Beta);
@@ -1877,7 +1877,7 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffer_Switcher.Prepare_Dirty_Pending_Marked_Close_Prune_Apply
         (S, Registry, Count, Applicable);
 
-      Editor.Buffers.Buffer_Access (Registry, Beta).File_Info.Dirty := False;
+      Editor.Buffers.Buffer_Access (Registry, Beta).Buffer_Lifecycle.File_Info.Dirty := False;
       Assert (Editor.Buffer_Switcher.Applicable_Dirty_Pending_Marked_Close_Prune_Apply_Target_Count (S, Registry) = 1,
               "applicable apply count is derived from current dirty pending state");
 
@@ -1913,8 +1913,8 @@ package body Editor.Buffer_Switcher.Tests is
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffer_Switcher.Open (S);
-      Editor.Buffers.Buffer_Access (Registry, Alpha).File_Info.Dirty := True;
-      Editor.Buffers.Buffer_Access (Registry, Beta).File_Info.Dirty := True;
+      Editor.Buffers.Buffer_Access (Registry, Alpha).Buffer_Lifecycle.File_Info.Dirty := True;
+      Editor.Buffers.Buffer_Access (Registry, Beta).Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffer_Switcher.Set_Mark (S, Alpha);
       Editor.Buffer_Switcher.Set_Mark (S, Beta);
       Editor.Buffer_Switcher.Set_Mark (S, Untitled);
@@ -2073,9 +2073,9 @@ package body Editor.Buffer_Switcher.Tests is
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffer_Switcher.Open (S);
-      Editor.Buffers.Buffer_Access (Registry, Alpha).File_Info.Dirty := True;
-      Editor.Buffers.Buffer_Access (Registry, Beta).File_Info.Dirty := True;
-      Editor.Buffers.Buffer_Access (Registry, Untitled).File_Info.Dirty := True;
+      Editor.Buffers.Buffer_Access (Registry, Alpha).Buffer_Lifecycle.File_Info.Dirty := True;
+      Editor.Buffers.Buffer_Access (Registry, Beta).Buffer_Lifecycle.File_Info.Dirty := True;
+      Editor.Buffers.Buffer_Access (Registry, Untitled).Buffer_Lifecycle.File_Info.Dirty := True;
 
       Editor.Buffer_Switcher.Set_Mark (S, Alpha);
       Editor.Buffer_Switcher.Set_Mark (S, Beta);
@@ -2157,9 +2157,9 @@ package body Editor.Buffer_Switcher.Tests is
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffer_Switcher.Open (S);
-      Editor.Buffers.Buffer_Access (Registry, Alpha).File_Info.Dirty := True;
-      Editor.Buffers.Buffer_Access (Registry, Beta).File_Info.Dirty := True;
-      Editor.Buffers.Buffer_Access (Registry, Untitled).File_Info.Dirty := True;
+      Editor.Buffers.Buffer_Access (Registry, Alpha).Buffer_Lifecycle.File_Info.Dirty := True;
+      Editor.Buffers.Buffer_Access (Registry, Beta).Buffer_Lifecycle.File_Info.Dirty := True;
+      Editor.Buffers.Buffer_Access (Registry, Untitled).Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Set_Buffer_Label (Registry, Untitled, "shown");
 
       Editor.Buffer_Switcher.Set_Mark (S, Alpha);
@@ -2244,14 +2244,14 @@ package body Editor.Buffer_Switcher.Tests is
      (Registry : in out Editor.Buffers.Buffer_Registry;
       Id       : Editor.Buffers.Buffer_Id) is
    begin
-      Editor.Buffers.Buffer_Access (Registry, Id).File_Info.Dirty := True;
+      Editor.Buffers.Buffer_Access (Registry, Id).Buffer_Lifecycle.File_Info.Dirty := True;
    end Make_Dirty;
 
    procedure Make_Clean
      (Registry : in out Editor.Buffers.Buffer_Registry;
       Id       : Editor.Buffers.Buffer_Id) is
    begin
-      Editor.Buffers.Buffer_Access (Registry, Id).File_Info.Dirty := False;
+      Editor.Buffers.Buffer_Access (Registry, Id).Buffer_Lifecycle.File_Info.Dirty := False;
    end Make_Clean;
 
    procedure Confirm_Pending_Marked_Close_For_Test
@@ -3333,15 +3333,15 @@ package body Editor.Buffer_Switcher.Tests is
               "moving switcher selection must not change active buffer source");
 
       Editor.State.Init (App);
-      App.File_Target_Prompt_Active := True;
-      App.File_Target_Prompt_Command := Editor.Command_Ids.Command_Save_File_As;
-      App.File_Target_Prompt_Label := To_Unbounded_String ("Save As target");
-      Editor.Input_Field.Insert_Text (App.File_Target_Prompt_Input, Editor.Test_Temp.Base & "/explicit-target.adb");
+      App.Buffer_Lifecycle.File_Target_Prompt_Active := True;
+      App.Buffer_Lifecycle.File_Target_Prompt_Command := Editor.Command_Ids.Command_Save_File_As;
+      App.Buffer_Lifecycle.File_Target_Prompt_Label := To_Unbounded_String ("Save As target");
+      Editor.Input_Field.Insert_Text (App.Buffer_Lifecycle.File_Target_Prompt_Input, Editor.Test_Temp.Base & "/explicit-target.adb");
 
       Recompute_For_Test (S, Registry);
-      Assert (App.File_Target_Prompt_Active,
+      Assert (App.Buffer_Lifecycle.File_Target_Prompt_Active,
               "recomputing switcher rows must not own or clear prompt state");
-      Assert (Editor.Input_Field.Text (App.File_Target_Prompt_Input) = Editor.Test_Temp.Base & "/explicit-target.adb",
+      Assert (Editor.Input_Field.Text (App.Buffer_Lifecycle.File_Target_Prompt_Input) = Editor.Test_Temp.Base & "/explicit-target.adb",
               "switcher selection must not become target prompt input");
       Assert (Editor.Buffers.Active_Buffer (Registry) = Alpha,
               "prompt-active switcher interaction preserves active-buffer source policy");
@@ -4694,12 +4694,12 @@ package body Editor.Buffer_Switcher.Tests is
          Editor.Test_Temp.Base & "/scenario/lifecycle/conflicted.adb",
          "conflicted.adb",
          "buffer text must not appear in row markers");
-      Editor.Buffers.Buffer_Access (Registry, Id).File_Info.Missing_Target_Surfaced := True;
-      Editor.Buffers.Buffer_Access (Registry, Id).File_Info.Unreadable_Target_Surfaced := True;
-      Editor.Buffers.Buffer_Access (Registry, Id).File_Info.Unwritable_Target_Surfaced := True;
-      Editor.Buffers.Buffer_Access (Registry, Id).File_Info.External_Change_Surfaced := True;
-      Editor.Buffers.Buffer_Access (Registry, Id).File_Info.Blocked_Close_Surfaced := True;
-      Editor.Buffers.Buffer_Access (Registry, Id).File_Info.Last_Save_Failed := True;
+      Editor.Buffers.Buffer_Access (Registry, Id).Buffer_Lifecycle.File_Info.Missing_Target_Surfaced := True;
+      Editor.Buffers.Buffer_Access (Registry, Id).Buffer_Lifecycle.File_Info.Unreadable_Target_Surfaced := True;
+      Editor.Buffers.Buffer_Access (Registry, Id).Buffer_Lifecycle.File_Info.Unwritable_Target_Surfaced := True;
+      Editor.Buffers.Buffer_Access (Registry, Id).Buffer_Lifecycle.File_Info.External_Change_Surfaced := True;
+      Editor.Buffers.Buffer_Access (Registry, Id).Buffer_Lifecycle.File_Info.Blocked_Close_Surfaced := True;
+      Editor.Buffers.Buffer_Access (Registry, Id).Buffer_Lifecycle.File_Info.Last_Save_Failed := True;
       Editor.Buffers.Set_Active_Buffer (Registry, Id);
 
       Editor.Buffer_Switcher.Open (S);
@@ -4808,7 +4808,7 @@ package body Editor.Buffer_Switcher.Tests is
          Missing       => True,
          Revert_Failed => True);
       Assert (Buffer_Text (Revert_State) = "revert baseline dirty"
-                and then Revert_State.File_Info.Dirty,
+                and then Revert_State.Buffer_Lifecycle.File_Info.Dirty,
               "Buffer List marker projection must not discard dirty text during failed revert");
 
       --  External modification through the normal dirty save conflict path.
@@ -4821,14 +4821,14 @@ package body Editor.Buffer_Switcher.Tests is
         (Conflict_State, Buffer_Text (Conflict_State)'Length, " dirty buffer");
       Write_Bytes (Conflict_Path, "externally changed disk content");
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (Conflict_State);
-      Assert (Conflict_State.File_Conflict_Prompt_Active,
+      Assert (Conflict_State.Buffer_Lifecycle.File_Conflict_Prompt_Active,
               "setup must reach the normal external conflict prompt path");
       Assert_Active_Row_Has
         (Conflict_State,
          "external-conflict lifecycle path",
          External => True);
-      Assert (Conflict_State.File_Conflict_Prompt_Active
-                and then Conflict_State.File_Info.Dirty,
+      Assert (Conflict_State.Buffer_Lifecycle.File_Conflict_Prompt_Active
+                and then Conflict_State.Buffer_Lifecycle.File_Info.Dirty,
               "Buffer List marker projection must not resolve save conflict state");
 
       --  Save failure through the normal save command path where the target is a directory.
@@ -4837,10 +4837,10 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (Save_State);
       Editor.State.Load_Text (Save_State, "save failure dirty text");
-      Save_State.File_Info.Has_Path := True;
-      Save_State.File_Info.Path := To_Unbounded_String (Save_Path);
-      Save_State.File_Info.Display_Name := To_Unbounded_String ("lifecycle_save_failed_dir");
-      Save_State.File_Info.Dirty := True;
+      Save_State.Buffer_Lifecycle.File_Info.Has_Path := True;
+      Save_State.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Save_Path);
+      Save_State.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("lifecycle_save_failed_dir");
+      Save_State.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Ensure_Global_Registry (Save_State);
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (Save_State);
       Assert_Active_Row_Has
@@ -4848,7 +4848,7 @@ package body Editor.Buffer_Switcher.Tests is
          "failed-save lifecycle path",
          Unwritable  => True,
          Save_Failed => True);
-      Assert (Save_State.File_Info.Dirty,
+      Assert (Save_State.Buffer_Lifecycle.File_Info.Dirty,
               "Buffer List marker projection must not clear dirty state on save failure");
 
       Remove_If_Exists (Reload_Path);
@@ -5062,11 +5062,11 @@ package body Editor.Buffer_Switcher.Tests is
       Insert_Text_At
         (Render_State, Buffer_Text (Render_State)'Length, " dirty buffer");
       Write_Bytes (Render_Path, "externally changed on disk");
-      Render_State.File_Info.External_Change_Surfaced := True;
-      Render_State.File_Info.Unwritable_Target_Surfaced := True;
-      Render_State.File_Info.Last_Save_Failed := True;
-      Render_State.File_Conflict_Prompt_Active := True;
-      Render_State.File_Conflict_Prompt_Path := To_Unbounded_String (Render_Path);
+      Render_State.Buffer_Lifecycle.File_Info.External_Change_Surfaced := True;
+      Render_State.Buffer_Lifecycle.File_Info.Unwritable_Target_Surfaced := True;
+      Render_State.Buffer_Lifecycle.File_Info.Last_Save_Failed := True;
+      Render_State.Buffer_Lifecycle.File_Conflict_Prompt_Active := True;
+      Render_State.Buffer_Lifecycle.File_Conflict_Prompt_Path := To_Unbounded_String (Render_Path);
 
       Editor.Render_Model.Build_Render_Snapshot (Render_State, Snap);
       Editor.Render_Model.Build_Render_Snapshot (Render_State, Snap);
@@ -5075,14 +5075,14 @@ package body Editor.Buffer_Switcher.Tests is
               "render must not reload or revert active dirty buffer text");
       Assert (Read_Bytes (Render_Path) = "externally changed on disk",
               "render must not save active dirty buffer text to disk");
-      Assert (Render_State.File_Info.Dirty,
+      Assert (Render_State.Buffer_Lifecycle.File_Info.Dirty,
               "render must not clear dirty state");
-      Assert (Render_State.File_Info.External_Change_Surfaced
-                and then Render_State.File_Info.Unwritable_Target_Surfaced
-                and then Render_State.File_Info.Last_Save_Failed,
+      Assert (Render_State.Buffer_Lifecycle.File_Info.External_Change_Surfaced
+                and then Render_State.Buffer_Lifecycle.File_Info.Unwritable_Target_Surfaced
+                and then Render_State.Buffer_Lifecycle.File_Info.Last_Save_Failed,
               "render must not clear lifecycle/conflict marker state");
-      Assert (Render_State.File_Conflict_Prompt_Active
-                and then To_String (Render_State.File_Conflict_Prompt_Path) = Render_Path,
+      Assert (Render_State.Buffer_Lifecycle.File_Conflict_Prompt_Active
+                and then To_String (Render_State.Buffer_Lifecycle.File_Conflict_Prompt_Path) = Render_Path,
               "render must not resolve or clear active file-conflict prompt state");
 
       --  Deleted backing file: render must not probe the filesystem and surface
@@ -5099,10 +5099,10 @@ package body Editor.Buffer_Switcher.Tests is
 
       Assert (Buffer_Text (Probe_State) = "probe baseline",
               "render must not reload/revert when a backing file disappears");
-      Assert (not Probe_State.File_Info.Missing_Target_Surfaced
-                and then not Probe_State.File_Info.Last_Reload_Failed
-                and then not Probe_State.File_Info.Last_Revert_Failed
-                and then not Probe_State.File_Info.Last_Save_Failed,
+      Assert (not Probe_State.Buffer_Lifecycle.File_Info.Missing_Target_Surfaced
+                and then not Probe_State.Buffer_Lifecycle.File_Info.Last_Reload_Failed
+                and then not Probe_State.Buffer_Lifecycle.File_Info.Last_Revert_Failed
+                and then not Probe_State.Buffer_Lifecycle.File_Info.Last_Save_Failed,
               "render must not probe filesystem or synthesize lifecycle failure markers");
 
       Remove_If_Exists (Render_Path);
@@ -5596,8 +5596,8 @@ package body Editor.Buffer_Switcher.Tests is
 
       Editor.Buffers.Set_Active_Buffer (Registry, Clean_Project);
       Set_Buffer_Dirty_For_Test (Registry, Dirty_Project, True);
-      Editor.Buffers.Buffer_Access (Registry, Outside).File_Info.External_Change_Surfaced := True;
-      Editor.Buffers.Buffer_Access (Registry, Missing).File_Info.Missing_Target_Surfaced := True;
+      Editor.Buffers.Buffer_Access (Registry, Outside).Buffer_Lifecycle.File_Info.External_Change_Surfaced := True;
+      Editor.Buffers.Buffer_Access (Registry, Missing).Buffer_Lifecycle.File_Info.Missing_Target_Surfaced := True;
 
       Editor.Project.Apply_Open_Result
         (Project,
@@ -5671,8 +5671,8 @@ package body Editor.Buffer_Switcher.Tests is
                 and then Editor.Buffers.Active_Buffer (Registry) = Original_Active
                 and then Editor.Buffers.Is_Dirty (Registry, Dirty_Project),
               "state filters do not close, switch, save, or clear dirty state");
-      Assert (Editor.Buffers.Buffer_Access (Registry, Outside).File_Info.External_Change_Surfaced
-                and then Editor.Buffers.Buffer_Access (Registry, Missing).File_Info.Missing_Target_Surfaced,
+      Assert (Editor.Buffers.Buffer_Access (Registry, Outside).Buffer_Lifecycle.File_Info.External_Change_Surfaced
+                and then Editor.Buffers.Buffer_Access (Registry, Missing).Buffer_Lifecycle.File_Info.Missing_Target_Surfaced,
               "state filters do not clear lifecycle conflict/missing markers");
 
       Editor.Buffer_Switcher.Clear_Metadata_Filter (S);
@@ -5743,8 +5743,8 @@ package body Editor.Buffer_Switcher.Tests is
       Scratch := Editor.Buffers.Create_Untitled_Buffer (Registry);
       Editor.Buffers.Set_Active_Buffer (Registry, Clean_Project);
       Set_Buffer_Dirty_For_Test (Registry, Dirty_Project, True);
-      Editor.Buffers.Buffer_Access (Registry, Missing_Project).File_Info.Missing_Target_Surfaced := True;
-      Editor.Buffers.Buffer_Access (Registry, Outside_Conflict).File_Info.External_Change_Surfaced := True;
+      Editor.Buffers.Buffer_Access (Registry, Missing_Project).Buffer_Lifecycle.File_Info.Missing_Target_Surfaced := True;
+      Editor.Buffers.Buffer_Access (Registry, Outside_Conflict).Buffer_Lifecycle.File_Info.External_Change_Surfaced := True;
 
       Editor.Buffer_Switcher.Open (S);
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Recent, Project, Config);
@@ -5815,8 +5815,8 @@ package body Editor.Buffer_Switcher.Tests is
       Assert (Editor.Buffers.Count (Registry) = 5
                 and then Editor.Buffers.Active_Buffer (Registry) = Clean_Project
                 and then Editor.Buffers.Is_Dirty (Registry, Dirty_Project)
-                and then Editor.Buffers.Buffer_Access (Registry, Missing_Project).File_Info.Missing_Target_Surfaced
-                and then Editor.Buffers.Buffer_Access (Registry, Outside_Conflict).File_Info.External_Change_Surfaced,
+                and then Editor.Buffers.Buffer_Access (Registry, Missing_Project).Buffer_Lifecycle.File_Info.Missing_Target_Surfaced
+                and then Editor.Buffers.Buffer_Access (Registry, Outside_Conflict).Buffer_Lifecycle.File_Info.External_Change_Surfaced,
               "final audit filters do not close, switch, save, clean, or clear lifecycle markers");
 
       Assert_Name_No_Payload ("buffers.switcher.open", Editor.Command_Ids.Command_Open_Buffer_Switcher);

@@ -105,9 +105,9 @@ package body Editor.Executor.Navigation_Commands is
 
       return
         (Buffer_Id      => Editor.Executor.Active_Feature_Buffer_Token (S),
-         Has_File_Path  => S.File_Info.Has_Path,
-         File_Path      => S.File_Info.Path,
-         Display_Path   => S.File_Info.Display_Name,
+         Has_File_Path  => S.Buffer_Lifecycle.File_Info.Has_Path,
+         File_Path      => S.Buffer_Lifecycle.File_Info.Path,
+         Display_Path   => S.Buffer_Lifecycle.File_Info.Display_Name,
          Line           => Row + 1,
          Column         => Col,
          Viewport_Row   => Editor.View.Scroll_Y,
@@ -175,8 +175,8 @@ package body Editor.Executor.Navigation_Commands is
       Id           : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
    begin
       if Location.Has_File_Path then
-         if S.File_Info.Has_Path
-           and then To_String (S.File_Info.Path) = To_String (Location.File_Path)
+         if S.Buffer_Lifecycle.File_Info.Has_Path
+           and then To_String (S.Buffer_Lifecycle.File_Info.Path) = To_String (Location.File_Path)
          then
             Target_State := S;
          else
@@ -251,7 +251,7 @@ package body Editor.Executor.Navigation_Commands is
             end if;
             Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
             Editor.Messages.Dismiss_Latest (S.Messages);
-            if not S.File_Info.Has_Path or else To_String (S.File_Info.Path) /= Path then
+            if not S.Buffer_Lifecycle.File_Info.Has_Path or else To_String (S.Buffer_Lifecycle.File_Info.Path) /= Path then
                Status := Editor.Executor.Navigation_Target_Missing;
                return False;
             end if;

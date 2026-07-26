@@ -4525,10 +4525,10 @@ package body Editor.Render_Model.Tests is
       Width  : constant Natural := Editor.Layout.Cell_W * 18;
    begin
       Editor.State.Init (S);
-      S.File_Info.Display_Name :=
+      S.Buffer_Lifecycle.File_Info.Display_Name :=
         To_Unbounded_String
           ("very-long-buffer-name-that-must-not-overlap-status-fields.adb");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Executor.Execute_No_Log (S, Paste ("abc"));
 
       Set_Render_State_For_Test (S);
@@ -5209,9 +5209,9 @@ package body Editor.Render_Model.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "one" & ASCII.LF & "two" & ASCII.LF & "three");
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String ("/project/src/main.adb");
-      S.File_Info.Display_Name := To_Unbounded_String ("src/main.adb");
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String ("/project/src/main.adb");
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("src/main.adb");
       Before := To_Unbounded_String (Editor.State.Current_Text (S));
 
       Editor.Bookmarks.Toggle
@@ -5255,9 +5255,9 @@ package body Editor.Render_Model.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "one" & ASCII.LF & "two" & ASCII.LF & "three");
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String ("/project/src/main.adb");
-      S.File_Info.Display_Name := To_Unbounded_String ("src/main.adb");
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String ("/project/src/main.adb");
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("src/main.adb");
 
       Editor.Bookmarks.Toggle
         (S.Bookmarks, "/project/src/main.adb", "src/main.adb", 2, 1, True, Added);
@@ -5296,9 +5296,9 @@ package body Editor.Render_Model.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "one" & ASCII.LF & "two");
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String ("/project/src/main.adb");
-      S.File_Info.Display_Name := To_Unbounded_String ("src/main.adb");
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String ("/project/src/main.adb");
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("src/main.adb");
 
       Editor.Bookmarks.Toggle
         (S.Bookmarks, "/project/src/main.adb", "src/main.adb", 1, 1, True, Added);
@@ -5355,9 +5355,9 @@ package body Editor.Render_Model.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "one" & ASCII.LF & "two" & ASCII.LF & "three");
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String ("/project/src/main.adb");
-      S.File_Info.Display_Name := To_Unbounded_String ("src/main.adb");
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String ("/project/src/main.adb");
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("src/main.adb");
 
       Editor.Bookmarks.Toggle
         (S.Bookmarks, "/project/src/main.adb", "src/main.adb", 1, 1, True, Added);
@@ -5405,9 +5405,9 @@ package body Editor.Render_Model.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "one" & ASCII.LF & "two" & ASCII.LF & "three");
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String ("/project/src/main.adb");
-      S.File_Info.Display_Name := To_Unbounded_String ("src/main.adb");
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String ("/project/src/main.adb");
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("src/main.adb");
 
       Editor.Bookmarks.Show (S.Bookmarks);
       Editor.Bookmarks.Toggle
@@ -5426,7 +5426,7 @@ package body Editor.Render_Model.Tests is
          "setup should expose second marker");
 
       Editor.Bookmarks.Select_Next (S.Bookmarks);
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
 
       Assert
@@ -5438,7 +5438,7 @@ package body Editor.Render_Model.Tests is
            (Snap.Gutter_Markers, 2, Editor.Gutter_Markers.Bookmark_Marker),
          "dirty state changes must not remove bookmark markers");
       Assert
-        (S.File_Info.Dirty,
+        (S.Buffer_Lifecycle.File_Info.Dirty,
          "snapshot marker derivation must not clear dirty state");
    end Test_Selection_And_Dirty_State_Do_Not_Change_Markers;
 
@@ -5453,9 +5453,9 @@ package body Editor.Render_Model.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "one" & ASCII.LF & "two");
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String ("/project/src/main.adb");
-      S.File_Info.Display_Name := To_Unbounded_String ("src/main.adb");
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String ("/project/src/main.adb");
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("src/main.adb");
 
       Editor.Bookmarks.Toggle
         (S.Bookmarks, "/project/src/main.adb", "src/main.adb", 2, 1, True, Added);

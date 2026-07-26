@@ -60,7 +60,7 @@ package body Editor.Executor.Semantic_Rename_Commands is
         Editor.Ada_Project_Index.Current_Analysis_Fingerprint
           (S.Language_Index,
            Path,
-           S.Active_Buffer_Token,
+           S.Buffer_Lifecycle.Active_Buffer_Token,
            Editor.State.Current_Buffer_Revision (S),
            Editor.State.Current_Lifecycle_Generation (S));
    begin
@@ -83,7 +83,7 @@ package body Editor.Executor.Semantic_Rename_Commands is
       Req : Editor.Ada_Language_Service.Semantic_Request_Id;
    begin
       if Current_File.Has_Path
-        and then S.Active_Buffer_Token /= 0
+        and then S.Buffer_Lifecycle.Active_Buffer_Token /= 0
       then
          declare
             Current_Path : constant String := To_String (Current_File.Path);
@@ -95,14 +95,14 @@ package body Editor.Executor.Semantic_Rename_Commands is
                Editor.Ada_Language_Service.Semantic_Current_Request_Query_Key
                  (Editor.Ada_Language_Service.Semantic_Request_Rename,
                   Old_Name, Current_Path,
-                  S.Active_Buffer_Token,
+                  S.Buffer_Lifecycle.Active_Buffer_Token,
                   Editor.State.Current_Buffer_Revision (S),
                   Editor.State.Current_Lifecycle_Generation (S),
                   Fingerprint,
                   Detail => New_Name));
             return Editor.Ada_Language_Service.Request_Preview_Rename_Current
               (Service, Req, Old_Name, New_Name, Current_Path,
-               S.Active_Buffer_Token,
+               S.Buffer_Lifecycle.Active_Buffer_Token,
                Editor.State.Current_Buffer_Revision (S),
                Editor.State.Current_Lifecycle_Generation (S),
                Fingerprint);
@@ -134,7 +134,7 @@ package body Editor.Executor.Semantic_Rename_Commands is
          Open  : Editor.Files.File_Open_Result;
          Temp  : Editor.State.State_Type;
       begin
-         if Target.Key.Buffer_Token = S.Active_Buffer_Token then
+         if Target.Key.Buffer_Token = S.Buffer_Lifecycle.Active_Buffer_Token then
             return S;
          elsif Target.Key.Buffer_Token /= 0
            and then Editor.Buffers.Global_Contains
@@ -155,9 +155,9 @@ package body Editor.Executor.Semantic_Rename_Commands is
             Editor.State.Initialize (Temp);
             Editor.State.Replace_Buffer_Contents
               (Temp, To_String (Open.Contents));
-            Temp.File_Info.Has_Path := True;
-            Temp.File_Info.Path := Open.Path;
-            Temp.File_Info.Display_Name := Open.Display_Name;
+            Temp.Buffer_Lifecycle.File_Info.Has_Path := True;
+            Temp.Buffer_Lifecycle.File_Info.Path := Open.Path;
+            Temp.Buffer_Lifecycle.File_Info.Display_Name := Open.Display_Name;
             return Temp;
          end if;
 
@@ -169,7 +169,7 @@ package body Editor.Executor.Semantic_Rename_Commands is
       is
          Found : Boolean := False;
       begin
-         if Target.Key.Buffer_Token = S.Active_Buffer_Token then
+         if Target.Key.Buffer_Token = S.Buffer_Lifecycle.Active_Buffer_Token then
             return True;
          elsif Target.Key.Buffer_Token /= 0
            and then Editor.Buffers.Global_Contains
@@ -208,7 +208,7 @@ package body Editor.Executor.Semantic_Rename_Commands is
          Reason := To_Unbounded_String
            ("Rename apply unavailable for " & Old_Name & ": no edits.");
          return False;
-      elsif S.Active_Buffer_Token = 0 then
+      elsif S.Buffer_Lifecycle.Active_Buffer_Token = 0 then
          Reason := To_Unbounded_String
            ("Rename apply unavailable for " & Old_Name & ": no active buffer.");
          return False;
@@ -230,7 +230,7 @@ package body Editor.Executor.Semantic_Rename_Commands is
                    (To_String (Target.Target.Path), Found_Open_By_Path);
                pragma Unreferenced (Open_By_Path_Id);
                Open_Target : constant Boolean :=
-                 Target.Key.Buffer_Token = S.Active_Buffer_Token
+                 Target.Key.Buffer_Token = S.Buffer_Lifecycle.Active_Buffer_Token
                  or else
                    (Target.Key.Buffer_Token /= 0
                     and then Editor.Buffers.Global_Contains
@@ -467,10 +467,10 @@ package body Editor.Executor.Semantic_Rename_Commands is
                            Before_Text : Unbounded_String;
                            Replaced : Boolean := False;
                         begin
-                           if Target.Key.Buffer_Token = S.Active_Buffer_Token
+                           if Target.Key.Buffer_Token = S.Buffer_Lifecycle.Active_Buffer_Token
                            then
                               Buffer_Id := Editor.Buffers.Buffer_Id
-                                (S.Active_Buffer_Token);
+                                (S.Buffer_Lifecycle.Active_Buffer_Token);
                               Found_Open := True;
                               Buffer_State := S;
                            elsif Target.Key.Buffer_Token /= 0
@@ -496,10 +496,10 @@ package body Editor.Executor.Semantic_Rename_Commands is
                                  Editor.State.Replace_Buffer_Contents
                                    (Buffer_State,
                                     To_String (Open_Result.Contents));
-                                 Buffer_State.File_Info.Has_Path := True;
-                                 Buffer_State.File_Info.Path :=
+                                 Buffer_State.Buffer_Lifecycle.File_Info.Has_Path := True;
+                                 Buffer_State.Buffer_Lifecycle.File_Info.Path :=
                                    Open_Result.Path;
-                                 Buffer_State.File_Info.Display_Name :=
+                                 Buffer_State.Buffer_Lifecycle.File_Info.Display_Name :=
                                    Open_Result.Display_Name;
                               end if;
                            end if;

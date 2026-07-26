@@ -139,9 +139,9 @@ package body Editor.Configuration_Audit is
      (State : Editor.State.State_Type) return String
    is
    begin
-      if not State.File_Conflict_Prompt_Active then
+      if not State.Buffer_Lifecycle.File_Conflict_Prompt_Active then
          return "";
-      elsif State.File_Conflict_Prompt_Dirty then
+      elsif State.Buffer_Lifecycle.File_Conflict_Prompt_Dirty then
          return "File conflict: keep buffer, reload from disk, overwrite disk, or cancel";
       else
          return "File conflict: keep buffer, reload from disk, or cancel";
@@ -171,7 +171,7 @@ package body Editor.Configuration_Audit is
    is
       use type Editor.State_Buffer.File_Conflict_Kind;
    begin
-      if not State.File_Conflict_Prompt_Active then
+      if not State.Buffer_Lifecycle.File_Conflict_Prompt_Active then
          return True;
       end if;
 
@@ -180,9 +180,9 @@ package body Editor.Configuration_Audit is
       --  destructive confirmation path must be able to re-check the same
       --  registered buffer, backing path, conflict kind, dirty flag, buffer
       --  revision, and (when captured) disk-token label before mutating.
-      return State.File_Conflict_Prompt_Buffer /= 0
-        and then Length (State.File_Conflict_Prompt_Path) > 0
-        and then State.File_Conflict_Prompt_Kind /= Editor.State.No_File_Conflict;
+      return State.Buffer_Lifecycle.File_Conflict_Prompt_Buffer /= 0
+        and then Length (State.Buffer_Lifecycle.File_Conflict_Prompt_Path) > 0
+        and then State.Buffer_Lifecycle.File_Conflict_Prompt_Kind /= Editor.State.No_File_Conflict;
    end File_Conflict_Prompt_Has_Revalidation_Key;
 
    function Audit_File_Conflict_Prompt_Boundary
@@ -192,16 +192,16 @@ package body Editor.Configuration_Audit is
       Text  : constant String := File_Conflict_Prompt_Display_Text (State);
       Has_Forbidden_Display_Field : constant Boolean :=
         Editor.Command_Route_Audit.Text_Contains_Runtime_Buffer_Payload (Text);
-      Token_Label : constant String := To_String (State.File_Conflict_Prompt_Token_Label);
+      Token_Label : constant String := To_String (State.Buffer_Lifecycle.File_Conflict_Prompt_Token_Label);
    begin
-      Audit.Has_Prompt := State.File_Conflict_Prompt_Active;
+      Audit.Has_Prompt := State.Buffer_Lifecycle.File_Conflict_Prompt_Active;
       if not Audit.Has_Prompt then
          Audit.Boundary_Safe := True;
          return Audit;
       end if;
 
-      Audit.Has_Runtime_Buffer_Id := State.File_Conflict_Prompt_Buffer /= 0;
-      Audit.Has_File_Token := Length (State.File_Conflict_Prompt_Token_Label) > 0;
+      Audit.Has_Runtime_Buffer_Id := State.Buffer_Lifecycle.File_Conflict_Prompt_Buffer /= 0;
+      Audit.Has_File_Token := Length (State.Buffer_Lifecycle.File_Conflict_Prompt_Token_Label) > 0;
 
       Audit.Prompt_State_Is_Transient := True;
       Audit.Runtime_Buffer_Id_Not_Persisted := True;
@@ -658,7 +658,7 @@ package body Editor.Configuration_Audit is
       if Editor.Buffers.Global_Count > 0 then
          Dirty_Count := Editor.Buffers.Global_Dirty_Buffer_Count;
       else
-         Dirty_Count := (if State.File_Info.Dirty then 1 else 0);
+         Dirty_Count := (if State.Buffer_Lifecycle.File_Info.Dirty then 1 else 0);
       end if;
 
       return

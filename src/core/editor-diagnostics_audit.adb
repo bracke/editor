@@ -356,11 +356,11 @@ package body Editor.Diagnostics_Audit is
       Review.Severity_Source_Stable := Severity_Source_Stability_Check;
       Review.Row_Identity_Stable := Row_Identity_Check (State.Feature_Diagnostics);
       Review.Targets_Validated :=
-        Target_Validation_Check (State.Feature_Diagnostics, State.Registry_Token);
+        Target_Validation_Check (State.Feature_Diagnostics, State.Buffer_Lifecycle.Registry_Token);
       Review.Actions_Routed := Actions_Routed_Check;
       Review.Editable_Actions_Visible := Editable_Actions_Visible_Check;
       Review.Lifecycle_Reset_Stable :=
-        Lifecycle_Check (State.Feature_Diagnostics, State.Registry_Token);
+        Lifecycle_Check (State.Feature_Diagnostics, State.Buffer_Lifecycle.Registry_Token);
       Review.Persistence_Clean := Manifest.Persistence_Exclusion_Clean;
       Review.Feature_Panel_Intact := Panel_Review.Review_Passed;
       Review.Command_Surface_Intact := Command_Review.Review_Passed;

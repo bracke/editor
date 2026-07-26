@@ -49,12 +49,12 @@ package body Editor.Executor.File_Conflict_Commands is
       Found : Boolean := False;
       Label : Unbounded_String := Null_Unbounded_String;
    begin
-      if S.File_Info.Has_Path and then Length (S.File_Info.Path) > 0 then
+      if S.Buffer_Lifecycle.File_Info.Has_Path and then Length (S.Buffer_Lifecycle.File_Info.Path) > 0 then
          Label := To_Unbounded_String
-           (Editor.Files.Current_Token_Label (To_String (S.File_Info.Path), Found));
+           (Editor.Files.Current_Token_Label (To_String (S.Buffer_Lifecycle.File_Info.Path), Found));
       end if;
-      S.File_Info.File_Token_Known := Found;
-      S.File_Info.File_Token_Label := Label;
+      S.Buffer_Lifecycle.File_Info.File_Token_Known := Found;
+      S.Buffer_Lifecycle.File_Info.File_Token_Label := Label;
    end Capture_Active_File_Token;
 
    procedure Apply_Reloaded_Text_After_Read
@@ -94,7 +94,7 @@ package body Editor.Executor.File_Conflict_Commands is
       Reason : String)
    is
       Source_Path : constant String :=
-        (if S.File_Info.Has_Path then To_String (S.File_Info.Path) else "");
+        (if S.Buffer_Lifecycle.File_Info.Has_Path then To_String (S.Buffer_Lifecycle.File_Info.Path) else "");
       Relative_Path : constant String :=
         (if Source_Path'Length > 0
            and then Editor.Project.Has_Project (S.Project)
@@ -108,7 +108,7 @@ package body Editor.Executor.File_Conflict_Commands is
       Editor.Project_Search.Mark_Stale_Unconditionally (S.Project_Search);
       Editor.Project_Search.Mark_Replace_Preview_Stale (S.Project_Search);
       Editor.Feature_Diagnostics.Mark_Diagnostics_For_Buffer_Stale
-        (S.Feature_Diagnostics, S.Active_Buffer_Token);
+        (S.Feature_Diagnostics, S.Buffer_Lifecycle.Active_Buffer_Token);
 
       if Source_Path'Length > 0 then
          Editor.Feature_Diagnostics.Mark_Diagnostics_For_Source_Path_Stale
@@ -125,11 +125,11 @@ package body Editor.Executor.File_Conflict_Commands is
          Editor.Ada_Language_Service.Invalidate_Path
            (S.Language_Service, Source_Path);
       end if;
-      if S.Active_Buffer_Token /= 0 then
+      if S.Buffer_Lifecycle.Active_Buffer_Token /= 0 then
          Editor.Ada_Project_Index.Invalidate_Buffer
-           (S.Language_Index, S.Active_Buffer_Token);
+           (S.Language_Index, S.Buffer_Lifecycle.Active_Buffer_Token);
          Editor.Ada_Language_Service.Invalidate_Buffer
-           (S.Language_Service, S.Active_Buffer_Token);
+           (S.Language_Service, S.Buffer_Lifecycle.Active_Buffer_Token);
       end if;
 
       if To_String (S.Build_UI.Selected_Build_Candidate_Id)'Length > 0 then
@@ -151,20 +151,20 @@ package body Editor.Executor.File_Conflict_Commands is
       Reload_Display : Unbounded_String)
    is
    begin
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := Reload_Path;
-      S.File_Info.Display_Name := Reload_Display;
-      S.File_Info.Dirty := False;
-      S.File_Info.Baseline_Valid := True;
-      S.File_Info.Saved_Generation := Editor.State.Current_Buffer_Revision (S);
-      S.File_Info.Last_Save_Failed := False;
-      S.File_Info.Last_Reload_Failed := False;
-      S.File_Info.Last_Revert_Failed := False;
-      S.File_Info.Missing_Target_Surfaced := False;
-      S.File_Info.Unreadable_Target_Surfaced := False;
-      S.File_Info.Unwritable_Target_Surfaced := False;
-      S.File_Info.External_Change_Surfaced := False;
-      S.File_Info.Blocked_Close_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := Reload_Path;
+      S.Buffer_Lifecycle.File_Info.Display_Name := Reload_Display;
+      S.Buffer_Lifecycle.File_Info.Dirty := False;
+      S.Buffer_Lifecycle.File_Info.Baseline_Valid := True;
+      S.Buffer_Lifecycle.File_Info.Saved_Generation := Editor.State.Current_Buffer_Revision (S);
+      S.Buffer_Lifecycle.File_Info.Last_Save_Failed := False;
+      S.Buffer_Lifecycle.File_Info.Last_Reload_Failed := False;
+      S.Buffer_Lifecycle.File_Info.Last_Revert_Failed := False;
+      S.Buffer_Lifecycle.File_Info.Missing_Target_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.Unreadable_Target_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.Unwritable_Target_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.External_Change_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.Blocked_Close_Surfaced := False;
       Capture_Active_File_Token (S);
       Editor.Executor.File_Save_Commands.Clear_File_Conflict_Prompt (S);
       Editor.State.Reset_Dirty_Line_Baseline (S);
@@ -176,20 +176,20 @@ package body Editor.Executor.File_Conflict_Commands is
       Result : Editor.Files.File_Save_Result)
    is
    begin
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := Result.Path;
-      S.File_Info.Display_Name := Result.Display_Name;
-      S.File_Info.Dirty := False;
-      S.File_Info.Baseline_Valid := True;
-      S.File_Info.Saved_Generation := Editor.State.Current_Buffer_Revision (S);
-      S.File_Info.Last_Save_Failed := False;
-      S.File_Info.Last_Reload_Failed := False;
-      S.File_Info.Last_Revert_Failed := False;
-      S.File_Info.Missing_Target_Surfaced := False;
-      S.File_Info.Unreadable_Target_Surfaced := False;
-      S.File_Info.Unwritable_Target_Surfaced := False;
-      S.File_Info.External_Change_Surfaced := False;
-      S.File_Info.Blocked_Close_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := Result.Path;
+      S.Buffer_Lifecycle.File_Info.Display_Name := Result.Display_Name;
+      S.Buffer_Lifecycle.File_Info.Dirty := False;
+      S.Buffer_Lifecycle.File_Info.Baseline_Valid := True;
+      S.Buffer_Lifecycle.File_Info.Saved_Generation := Editor.State.Current_Buffer_Revision (S);
+      S.Buffer_Lifecycle.File_Info.Last_Save_Failed := False;
+      S.Buffer_Lifecycle.File_Info.Last_Reload_Failed := False;
+      S.Buffer_Lifecycle.File_Info.Last_Revert_Failed := False;
+      S.Buffer_Lifecycle.File_Info.Missing_Target_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.Unreadable_Target_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.Unwritable_Target_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.External_Change_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.Blocked_Close_Surfaced := False;
       Capture_Active_File_Token (S);
       Editor.Executor.File_Save_Commands.Clear_File_Conflict_Prompt (S);
       Editor.State.Reset_Dirty_Line_Baseline (S);
@@ -232,14 +232,14 @@ package body Editor.Executor.File_Conflict_Commands is
          return;
       end if;
       Editor.Executor.File_Save_Commands.Load_File_Conflict_Buffer (S);
-      Reload_Path := S.File_Info.Path;
-      Reload_Display := S.File_Info.Display_Name;
-      Result := Editor.Files.Open_File (To_String (S.File_Info.Path));
+      Reload_Path := S.Buffer_Lifecycle.File_Info.Path;
+      Reload_Display := S.Buffer_Lifecycle.File_Info.Display_Name;
+      Result := Editor.Files.Open_File (To_String (S.Buffer_Lifecycle.File_Info.Path));
       if not Editor.Files.Is_Success (Result) then
-         S.File_Info.Last_Reload_Failed := True;
-         S.File_Info.Missing_Target_Surfaced :=
+         S.Buffer_Lifecycle.File_Info.Last_Reload_Failed := True;
+         S.Buffer_Lifecycle.File_Info.Missing_Target_Surfaced :=
            Result.Status = Editor.Files.File_Open_Not_Found;
-         S.File_Info.Unreadable_Target_Surfaced :=
+         S.Buffer_Lifecycle.File_Info.Unreadable_Target_Surfaced :=
            Result.Status in Editor.Files.File_Open_Permission_Denied
              | Editor.Files.File_Open_Read_Error
              | Editor.Files.File_Open_Decode_Error
@@ -323,14 +323,14 @@ package body Editor.Executor.File_Conflict_Commands is
          return;
       end if;
 
-      Resume_Close := S.File_Conflict_Close_After_Overwrite;
+      Resume_Close := S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite;
       Resume_Buffer :=
-        Editor.Buffers.Buffer_Id (S.File_Conflict_Close_After_Overwrite_Buffer);
-      Resume_Selected := S.File_Conflict_Close_After_Overwrite_Selected;
-      Resume_All := S.File_Conflict_Close_After_Overwrite_All_Buffers;
+        Editor.Buffers.Buffer_Id (S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite_Buffer);
+      Resume_Selected := S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite_Selected;
+      Resume_All := S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite_All_Buffers;
 
       Editor.Executor.File_Save_Commands.Load_File_Conflict_Buffer (S);
-      if not S.File_Info.Dirty then
+      if not S.Buffer_Lifecycle.File_Info.Dirty then
          Editor.Executor.File_Save_Commands.Clear_File_Conflict_Prompt (S);
          if Resume_Close
            and then Resume_Buffer /= Editor.Buffers.No_Buffer
@@ -344,7 +344,7 @@ package body Editor.Executor.File_Conflict_Commands is
          return;
       end if;
       Result := Editor.Files.Save_File
-        (Path     => To_String (S.File_Info.Path),
+        (Path     => To_String (S.Buffer_Lifecycle.File_Info.Path),
          Contents => Editor.State.Current_Text (S));
       if Editor.Files.Is_Success (Result) then
          Mark_Active_Buffer_Saved_After_Overwrite (S, Result);
@@ -367,12 +367,12 @@ package body Editor.Executor.File_Conflict_Commands is
             Editor.Executor.Shared_Services.Report_Success (S, "Overwrite confirmed");
          end if;
       else
-         S.File_Info.Last_Save_Failed := True;
-         S.File_Info.Missing_Target_Surfaced :=
+         S.Buffer_Lifecycle.File_Info.Last_Save_Failed := True;
+         S.Buffer_Lifecycle.File_Info.Missing_Target_Surfaced :=
            Result.Status in Editor.Files.File_Save_No_Current_Path
              | Editor.Files.File_Save_Invalid_Path
              | Editor.Files.File_Save_Parent_Unavailable;
-         S.File_Info.Unwritable_Target_Surfaced :=
+         S.Buffer_Lifecycle.File_Info.Unwritable_Target_Surfaced :=
            Result.Status in Editor.Files.File_Save_Permission_Denied
              | Editor.Files.File_Save_Write_Error
              | Editor.Files.File_Save_Is_Directory;

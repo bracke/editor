@@ -1797,7 +1797,7 @@ package body Editor.Build_UI.Tests is
          Source_Label  => "semantic",
          Source_Kind   => Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
          Has_Target    => True,
-         Target_Buffer => S.Active_Buffer_Token,
+         Target_Buffer => S.Buffer_Lifecycle.Active_Buffer_Token,
          Target_Line   => 3,
          Target_Column => 8,
          Has_Edit          => True,
@@ -1917,7 +1917,7 @@ package body Editor.Build_UI.Tests is
          Editor.State.Load_Text (S, "line" & ASCII.LF);
          Editor.Build_UI_Actions.Show_Build_UI (S);
          if Effective_Target_Buffer = 0 then
-            Effective_Target_Buffer := S.Active_Buffer_Token;
+            Effective_Target_Buffer := S.Buffer_Lifecycle.Active_Buffer_Token;
          end if;
 
          Editor.Feature_Diagnostics.Add_Diagnostic
@@ -1940,7 +1940,7 @@ package body Editor.Build_UI.Tests is
             Quick_Fix_Detail  => "Edit target");
          if Mark_Stale then
             Editor.Feature_Diagnostics.Mark_Diagnostics_For_Buffer_Stale
-              (S.Feature_Diagnostics, S.Active_Buffer_Token);
+              (S.Feature_Diagnostics, S.Buffer_Lifecycle.Active_Buffer_Token);
          end if;
          Select_Diagnostic_By_Message (S, Message);
 

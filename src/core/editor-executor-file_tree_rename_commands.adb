@@ -99,10 +99,10 @@ package body Editor.Executor.File_Tree_Rename_Commands is
       Target := To_Unbounded_String
         (Ada.Directories.Compose (To_String (Parent_Path), Input));
       Active_Buffer_Was_Renamed :=
-        S.File_Info.Has_Path
+        S.Buffer_Lifecycle.File_Info.Has_Path
         and then Editor.Executor.File_Tree_Mutation_Commands
           .Same_Or_Descendant_File_Tree_Path
-            (To_String (S.File_Info.Path), To_String (Summary.Absolute_Path));
+            (To_String (S.Buffer_Lifecycle.File_Info.Path), To_String (Summary.Absolute_Path));
 
       if not Editor.Project.Is_Under_Project (S.Project, To_String (Target)) then
          Editor.Executor.Shared_Services.Report_Error

@@ -97,29 +97,29 @@ package body Editor.Files.Save_Reload_Tests is
       Editor.State.Init (S);
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
-      Assert (S.File_Info.Has_Path and then S.File_Info.Baseline_Valid,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then S.Buffer_Lifecycle.File_Info.Baseline_Valid,
         "open should establish a file-backed baseline");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
         "opened file-backed buffer should be clean");
-      Open_Generation := S.File_Info.Saved_Generation;
+      Open_Generation := S.Buffer_Lifecycle.File_Info.Saved_Generation;
       Assert (Open_Generation = Editor.State.Current_Buffer_Revision (S),
         "open baseline should match the loaded buffer generation");
 
       Editor.Executor.Execute_No_Log
         (S, Editor.Test_Helper.Insert (Buffer_Text (S)'Length, '!'));
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
-      Assert (not S.File_Info.Dirty and then S.File_Info.Baseline_Valid,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty and then S.Buffer_Lifecycle.File_Info.Baseline_Valid,
         "save should preserve the clean file-backed baseline");
-      Assert (S.File_Info.Saved_Generation = Editor.State.Current_Buffer_Revision (S),
+      Assert (S.Buffer_Lifecycle.File_Info.Saved_Generation = Editor.State.Current_Buffer_Revision (S),
         "save should record the saved buffer generation");
 
       Write_Bytes (Path, "two" & ASCII.LF & "three");
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
       Assert (Buffer_Text (S) = "two" & ASCII.LF & "three",
         "clean reload should replace content from disk");
-      Assert (not S.File_Info.Dirty and then S.File_Info.Baseline_Valid,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty and then S.Buffer_Lifecycle.File_Info.Baseline_Valid,
         "clean reload should leave the buffer clean with a valid baseline");
-      Assert (S.File_Info.Saved_Generation = Editor.State.Current_Buffer_Revision (S),
+      Assert (S.Buffer_Lifecycle.File_Info.Saved_Generation = Editor.State.Current_Buffer_Revision (S),
         "reload should record the replacement generation");
       Remove_If_Exists (Path);
    end Test_Open_Save_And_Reload_Update_Baseline;
@@ -139,19 +139,19 @@ package body Editor.Files.Save_Reload_Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
-      Saved_Generation := S.File_Info.Saved_Generation;
+      Saved_Generation := S.Buffer_Lifecycle.File_Info.Saved_Generation;
 
       Editor.Executor.Execute_No_Log
         (S, Editor.Test_Helper.Insert (Buffer_Text (S)'Length, '!'));
-      S.File_Info.Path := To_Unbounded_String (Dir_Path);
-      S.File_Info.Display_Name := To_Unbounded_String ("failed_save_dir");
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Dir_Path);
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("failed_save_dir");
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
 
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "failed save should preserve dirty state");
-      Assert (S.File_Info.Baseline_Valid,
+      Assert (S.Buffer_Lifecycle.File_Info.Baseline_Valid,
         "failed save should preserve the previous baseline marker");
-      Assert (S.File_Info.Saved_Generation = Saved_Generation,
+      Assert (S.Buffer_Lifecycle.File_Info.Saved_Generation = Saved_Generation,
         "failed save must not record a new saved generation");
       Assert (Buffer_Text (S) = "original!",
         "failed save should preserve dirty content");
@@ -177,7 +177,7 @@ package body Editor.Files.Save_Reload_Tests is
       S.Carets.Clear;
       S.Carets.Append
         (Editor.Cursors.Caret_State'(Pos => 3, Anchor => 1, Virtual_Column => 0, Anchor_Virtual_Column => 0));
-      Before_Generation := S.File_Info.Saved_Generation;
+      Before_Generation := S.Buffer_Lifecycle.File_Info.Saved_Generation;
       Before_Caret := S.Carets (0);
       Write_Bytes (Path, "disk-two");
 
@@ -185,9 +185,9 @@ package body Editor.Files.Save_Reload_Tests is
 
       Assert (Buffer_Text (S) = "disk-one!",
         "dirty reload should not discard in-memory edits");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "dirty reload should preserve the dirty marker");
-      Assert (S.File_Info.Saved_Generation = Before_Generation,
+      Assert (S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Generation,
         "blocked dirty reload should not update baseline generation");
       Assert (S.Carets.Length = 1
         and then S.Carets (0).Pos = Before_Caret.Pos
@@ -210,24 +210,24 @@ package body Editor.Files.Save_Reload_Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
-      Before_Generation := S.File_Info.Saved_Generation;
+      Before_Generation := S.Buffer_Lifecycle.File_Info.Saved_Generation;
 
       Remove_If_Exists (Path);
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
       Assert (Buffer_Text (S) = "safe"
-        and then not S.File_Info.Dirty
-        and then S.File_Info.Has_Path,
+        and then not S.Buffer_Lifecycle.File_Info.Dirty
+        and then S.Buffer_Lifecycle.File_Info.Has_Path,
         "missing-file reload should preserve clean file-backed state");
-      Assert (S.File_Info.Saved_Generation = Before_Generation,
+      Assert (S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Generation,
         "missing-file reload should not update baseline generation");
 
       Ada.Directories.Create_Directory (Dir_Path);
-      S.File_Info.Path := To_Unbounded_String (Dir_Path);
-      S.File_Info.Display_Name := To_Unbounded_String ("reload_dir");
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Dir_Path);
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("reload_dir");
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
       Assert (Buffer_Text (S) = "safe"
-        and then not S.File_Info.Dirty
-        and then S.File_Info.Saved_Generation = Before_Generation,
+        and then not S.Buffer_Lifecycle.File_Info.Dirty
+        and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Generation,
         "read-failure reload should preserve content, dirty state, and baseline");
       Remove_If_Exists (Dir_Path);
    end Test_Missing_And_Read_Failure_Reload_Preserve_Buffer;
@@ -269,15 +269,15 @@ package body Editor.Files.Save_Reload_Tests is
       Remove_If_Exists (Path);
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "hello" & ASCII.LF & "world");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
 
       Status := Editor.Files.Save_File (Path, S);
 
       Assert (Status = Editor.Files.Ok, "Save_File should return Ok");
       Assert (Read_Bytes (Path) = "hello" & ASCII.LF & "world",
         "Save_File should write buffer bytes with LF line separators");
-      Assert (not S.File_Info.Dirty, "Save_File should mark state clean");
-      Assert (To_String (S.File_Info.Path) = Path, "Save_File should store path");
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty, "Save_File should mark state clean");
+      Assert (To_String (S.Buffer_Lifecycle.File_Info.Path) = Path, "Save_File should store path");
       Remove_If_Exists (Path);
    end Test_Save_Writes_Buffer_And_Cleans_State;
 
@@ -293,9 +293,9 @@ package body Editor.Files.Save_Reload_Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text
         (S, "one  " & ASCII.LF & "two" & ASCII.HT);
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String (Path);
-      S.File_Info.Display_Name := To_Unbounded_String ("format_on_save_trims.txt");
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Path);
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("format_on_save_trims.txt");
       Editor.State.Set_Dirty (S, True);
 
       Editor.Executor.Execute_Command
@@ -326,7 +326,7 @@ package body Editor.Files.Save_Reload_Tests is
       Assert (Editor.Files.Save_File (Path, S) = Editor.Files.Ok,
         "Initial save should succeed");
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Insert (1, 'y'));
-      Assert (S.File_Info.Dirty, "Edit after save should mark state dirty");
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty, "Edit after save should mark state dirty");
       Remove_If_Exists (Path);
    end Test_Edit_After_Save_Marks_Dirty;
 
@@ -422,10 +422,10 @@ package body Editor.Files.Save_Reload_Tests is
 
       Assert (Buffer_Text (S) = "disk baseline",
         "failed reload must preserve existing buffer text");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
         "failed clean reload must not fabricate dirty state");
-      Assert (S.File_Info.Last_Reload_Failed
-        and then S.File_Info.Missing_Target_Surfaced,
+      Assert (S.Buffer_Lifecycle.File_Info.Last_Reload_Failed
+        and then S.Buffer_Lifecycle.File_Info.Missing_Target_Surfaced,
         "missing reload must surface transient missing-target state");
       Summary := Editor.Buffers.Global_Summary_For
         (Editor.Buffers.Global_Active_Buffer);
@@ -460,10 +460,10 @@ package body Editor.Files.Save_Reload_Tests is
 
       Assert (Buffer_Text (S) = "disk baseline dirty",
         "failed revert must preserve dirty buffer text");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "failed revert must preserve dirty state");
-      Assert (S.File_Info.Last_Revert_Failed
-        and then S.File_Info.Missing_Target_Surfaced,
+      Assert (S.Buffer_Lifecycle.File_Info.Last_Revert_Failed
+        and then S.Buffer_Lifecycle.File_Info.Missing_Target_Surfaced,
         "failed revert must surface missing backing-file state");
       Summary := Editor.Buffers.Global_Summary_For
         (Editor.Buffers.Global_Active_Buffer);
@@ -584,7 +584,7 @@ package body Editor.Files.Save_Reload_Tests is
         (S, Editor.Command_Ids.Command_Cancel_Pending_Transition);
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
         "reload cancel clears only the transient confirmation");
-      Assert (Buffer_Text (S) = "disk baseline dirty" and then S.File_Info.Dirty,
+      Assert (Buffer_Text (S) = "disk baseline dirty" and then S.Buffer_Lifecycle.File_Info.Dirty,
         "reload cancel preserves dirty buffer text and dirty state");
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Reload cancelled.",
@@ -597,7 +597,7 @@ package body Editor.Files.Save_Reload_Tests is
         (S, Editor.Command_Ids.Command_Cancel_Pending_Transition);
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
         "revert cancel clears only the transient confirmation");
-      Assert (Buffer_Text (S) = "disk baseline dirty" and then S.File_Info.Dirty,
+      Assert (Buffer_Text (S) = "disk baseline dirty" and then S.Buffer_Lifecycle.File_Info.Dirty,
         "revert cancel preserves dirty buffer text and dirty state");
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Revert cancelled.",
@@ -661,7 +661,7 @@ package body Editor.Files.Save_Reload_Tests is
 
       Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
         "rejected Save Current must leave reload confirmation pending");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "rejected Save Current must preserve dirty text/state");
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found
@@ -673,7 +673,7 @@ package body Editor.Files.Save_Reload_Tests is
 
       Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
         "rejected Save As must leave reload confirmation pending");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "rejected Save As must preserve dirty text/state");
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found
@@ -685,7 +685,7 @@ package body Editor.Files.Save_Reload_Tests is
 
       Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
         "rejected Save All must leave reload confirmation pending");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "rejected Save All must preserve dirty text/state");
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found
@@ -758,7 +758,7 @@ package body Editor.Files.Save_Reload_Tests is
         "rejected buffer switch must leave reload confirmation pending");
       Assert (Editor.Buffers.Global_Active_Buffer = Active_Id,
         "rejected buffer switch must not change the captured reload target");
-      Assert (Buffer_Text (S) = "disk baseline dirty" and then S.File_Info.Dirty,
+      Assert (Buffer_Text (S) = "disk baseline dirty" and then S.Buffer_Lifecycle.File_Info.Dirty,
         "rejected target-changing route must preserve dirty text/state");
 
       Remove_If_Exists (Path);
@@ -831,7 +831,7 @@ package body Editor.Files.Save_Reload_Tests is
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Insert_Newline);
       Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
         "rejected text mutation must leave reload confirmation pending");
-      Assert (Buffer_Text (S) = "disk baseline dirty" and then S.File_Info.Dirty,
+      Assert (Buffer_Text (S) = "disk baseline dirty" and then S.Buffer_Lifecycle.File_Info.Dirty,
         "rejected text mutation must preserve dirty text/state");
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found
@@ -868,7 +868,7 @@ package body Editor.Files.Save_Reload_Tests is
 
       Assert (Ada.Directories.Exists (Target),
         "save-as still writes the explicit target");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
         "successful save-as still clears dirty state");
       Assert (not Editor.Project_Search.Is_Stale (S.Project_Search)
         and then not Editor.Project_Search.Replace_Preview_Is_Stale (S.Project_Search),
@@ -890,26 +890,26 @@ package body Editor.Files.Save_Reload_Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "clean text");
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String (Temp_Path ("guidance_read.txt"));
-      S.File_Info.Display_Name := To_Unbounded_String ("guidance_read.txt");
-      S.File_Info.Dirty := False;
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Temp_Path ("guidance_read.txt"));
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("guidance_read.txt");
+      S.Buffer_Lifecycle.File_Info.Dirty := False;
 
-      S.File_Info.Last_Reload_Failed := True;
+      S.Buffer_Lifecycle.File_Info.Last_Reload_Failed := True;
       Assert (Ada.Strings.Fixed.Index
                 (Editor.Lifecycle_Guidance.Status_Bar_Hint (S),
                  "unreadable") > 0,
         "status guidance should expose reload failure as unreadable backing state");
 
-      S.File_Info.Last_Reload_Failed := False;
-      S.File_Info.Last_Revert_Failed := True;
+      S.Buffer_Lifecycle.File_Info.Last_Reload_Failed := False;
+      S.Buffer_Lifecycle.File_Info.Last_Revert_Failed := True;
       Assert (Ada.Strings.Fixed.Index
                 (Editor.Lifecycle_Guidance.Status_Bar_Hint (S),
                  "unreadable") > 0,
         "status guidance should expose revert failure as unreadable backing state");
 
-      S.File_Info.Last_Revert_Failed := False;
-      S.File_Info.External_Change_Surfaced := True;
+      S.Buffer_Lifecycle.File_Info.Last_Revert_Failed := False;
+      S.Buffer_Lifecycle.File_Info.External_Change_Surfaced := True;
       Assert (Ada.Strings.Fixed.Index
                 (Editor.Lifecycle_Guidance.Status_Bar_Hint (S),
                  "External change") > 0,
@@ -992,24 +992,24 @@ package body Editor.Files.Save_Reload_Tests is
       Editor.State.Init (S);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
 
-      S.File_Info.Last_Reload_Failed := True;
+      S.Buffer_Lifecycle.File_Info.Last_Reload_Failed := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Assert (Ada.Strings.Fixed.Index
                 (Editor.Lifecycle_Guidance.File_Tree_Row_Hint (S, Node),
                  "unreadable") > 0,
         "file-tree guidance should expose open-buffer reload failures before generic focus hints");
 
-      S.File_Info.Last_Reload_Failed := False;
-      S.File_Info.Unwritable_Target_Surfaced := True;
+      S.Buffer_Lifecycle.File_Info.Last_Reload_Failed := False;
+      S.Buffer_Lifecycle.File_Info.Unwritable_Target_Surfaced := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Assert (Ada.Strings.Fixed.Index
                 (Editor.Lifecycle_Guidance.File_Tree_Row_Hint (S, Node),
                  "unwritable") > 0,
         "file-tree guidance should expose open-buffer unwritable state before generic focus hints");
 
-      S.File_Info.Unwritable_Target_Surfaced := False;
-      S.File_Info.Dirty := True;
-      S.File_Info.External_Change_Surfaced := True;
+      S.Buffer_Lifecycle.File_Info.Unwritable_Target_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.External_Change_Surfaced := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Assert (Ada.Strings.Fixed.Index
                 (Editor.Lifecycle_Guidance.File_Tree_Row_Hint (S, Node),
@@ -1062,7 +1062,7 @@ package body Editor.Files.Save_Reload_Tests is
       Assert (Read_Bytes (Saved_Path) = "inactive clean dirty",
         "save-all still writes the inactive dirty file-backed buffer");
       Assert (not Editor.Buffers.Buffer
-                (Editor.Buffers.Global_Registry_For_UI, Saved_Id).File_Info.Dirty,
+                (Editor.Buffers.Global_Registry_For_UI, Saved_Id).Buffer_Lifecycle.File_Info.Dirty,
         "save-all still clears the saved inactive buffer dirty state");
 
       Editor.Buffers.Reset_Global_For_Test;
@@ -1107,15 +1107,15 @@ package body Editor.Files.Save_Reload_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Missing_Source);
       Missing_Id := Editor.Buffers.Global_Active_Buffer;
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty");
-      S.File_Info.Path := To_Unbounded_String (Missing_Path);
-      S.File_Info.Display_Name := To_Unbounded_String ("lost.txt");
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Missing_Path);
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("lost.txt");
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Dir_Source);
       Dir_Id := Editor.Buffers.Global_Active_Buffer;
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty");
-      S.File_Info.Path := To_Unbounded_String (Dir_Path);
-      S.File_Info.Display_Name := To_Unbounded_String ("save_all_dir_target");
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Dir_Path);
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("save_all_dir_target");
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Editor.Messages.Clear (S.Messages);
@@ -1135,11 +1135,11 @@ package body Editor.Files.Save_Reload_Tests is
         (Editor.Buffers.Global_Registry_For_UI, Missing_Id);
       Dir_State := Editor.Buffers.Buffer
         (Editor.Buffers.Global_Registry_For_UI, Dir_Id);
-      Assert (Missing_State.File_Info.Dirty
-        and then Missing_State.File_Info.Missing_Target_Surfaced,
+      Assert (Missing_State.Buffer_Lifecycle.File_Info.Dirty
+        and then Missing_State.Buffer_Lifecycle.File_Info.Missing_Target_Surfaced,
         "save-all missing-parent failure must preserve dirty text and marker");
-      Assert (Dir_State.File_Info.Dirty
-        and then Dir_State.File_Info.Unwritable_Target_Surfaced,
+      Assert (Dir_State.Buffer_Lifecycle.File_Info.Dirty
+        and then Dir_State.Buffer_Lifecycle.File_Info.Unwritable_Target_Surfaced,
         "save-all directory target failure must preserve dirty text and unwritable marker");
 
       Editor.Buffers.Reset_Global_For_Test;
@@ -1169,8 +1169,8 @@ package body Editor.Files.Save_Reload_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty");
 
-      S.File_Info.Last_Save_Failed := True;
-      S.File_Info.Missing_Target_Surfaced := True;
+      S.Buffer_Lifecycle.File_Info.Last_Save_Failed := True;
+      S.Buffer_Lifecycle.File_Info.Missing_Target_Surfaced := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Summary := Editor.Buffers.Global_Summary_For
         (Editor.Buffers.Global_Active_Buffer);
@@ -1188,8 +1188,8 @@ package body Editor.Files.Save_Reload_Tests is
                  "missing target") > 0,
         "dirty buffer display labels must prefer recovery markers over generic retry-save labels");
 
-      S.File_Info.Missing_Target_Surfaced := False;
-      S.File_Info.Unwritable_Target_Surfaced := True;
+      S.Buffer_Lifecycle.File_Info.Missing_Target_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.Unwritable_Target_Surfaced := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Summary := Editor.Buffers.Global_Summary_For
         (Editor.Buffers.Global_Active_Buffer);
@@ -1241,10 +1241,10 @@ package body Editor.Files.Save_Reload_Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "active row summary baseline");
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String (Temp_Path ("active_summary.txt"));
-      S.File_Info.Display_Name := To_Unbounded_String ("active_summary.txt");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Temp_Path ("active_summary.txt"));
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("active_summary.txt");
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       --  Deliberately leave the active State_Type without recovery markers.
       --  The row hint must still honor the supplied active-row summary rather
       --  than falling back to generic active dirty save/retry hints.
@@ -1342,22 +1342,22 @@ package body Editor.Files.Save_Reload_Tests is
       Remove_If_Exists (Path);
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "saved text");
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String (Path);
-      S.File_Info.Display_Name := To_Unbounded_String ("execute_save.txt");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Path);
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("execute_save.txt");
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
 
       Assert (Read_Bytes (Path) = "saved text",
         "Execute_Save should write current buffer contents to current path");
-      Assert (S.File_Info.Has_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path,
         "Execute_Save should preserve path-backed file identity");
-      Assert (To_String (S.File_Info.Path) = Path,
+      Assert (To_String (S.Buffer_Lifecycle.File_Info.Path) = Path,
         "Execute_Save should preserve the current file path");
-      Assert (To_String (S.File_Info.Display_Name) = "execute_save.txt",
+      Assert (To_String (S.Buffer_Lifecycle.File_Info.Display_Name) = "execute_save.txt",
         "Execute_Save should preserve/refresh the display name");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
         "Execute_Save should clear dirty state after successful write");
 
       M := Editor.Messages.Active_Message (S.Messages, Found);
@@ -1378,15 +1378,15 @@ package body Editor.Files.Save_Reload_Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "untitled text");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
 
-      Assert (not S.File_Info.Has_Path,
+      Assert (not S.Buffer_Lifecycle.File_Info.Has_Path,
         "Execute_Save on an untitled buffer should not invent a path");
-      Assert (To_String (S.File_Info.Display_Name) = "Untitled",
+      Assert (To_String (S.Buffer_Lifecycle.File_Info.Display_Name) = "Untitled",
         "Execute_Save on an untitled buffer should preserve display name");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "Execute_Save failure should preserve dirty state");
       Assert (Buffer_Text (S) = "untitled text",
         "Execute_Save failure should preserve buffer contents");
@@ -1411,18 +1411,18 @@ package body Editor.Files.Save_Reload_Tests is
       Ada.Directories.Create_Directory (Dir_Path);
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "preserve on failed save");
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String (Dir_Path);
-      S.File_Info.Display_Name := To_Unbounded_String ("before.adb");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Dir_Path);
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("before.adb");
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
 
-      Assert (S.File_Info.Has_Path
-        and then To_String (S.File_Info.Path) = Dir_Path
-        and then To_String (S.File_Info.Display_Name) = "before.adb",
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Dir_Path
+        and then To_String (S.Buffer_Lifecycle.File_Info.Display_Name) = "before.adb",
         "Execute_Save failure should preserve current file identity");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "Execute_Save failure should preserve dirty state");
       Assert (Buffer_Text (S) = "preserve on failed save",
         "Execute_Save failure should preserve buffer contents");
@@ -1449,19 +1449,19 @@ package body Editor.Files.Save_Reload_Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "save as text");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, Path);
 
       Assert (Read_Bytes (Path) = "save as text",
         "Execute_Save_As should write current buffer contents to requested path");
-      Assert (S.File_Info.Has_Path,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path,
         "Execute_Save_As should set path-backed file identity on success");
-      Assert (To_String (S.File_Info.Path) = Path,
+      Assert (To_String (S.Buffer_Lifecycle.File_Info.Path) = Path,
         "Execute_Save_As should store the requested path on success");
-      Assert (To_String (S.File_Info.Display_Name) = "execute_save_as.txt",
+      Assert (To_String (S.Buffer_Lifecycle.File_Info.Display_Name) = "execute_save_as.txt",
         "Execute_Save_As should derive display name from requested path");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
         "Execute_Save_As should clear dirty state after successful write");
 
       M := Editor.Messages.Active_Message (S.Messages, Found);
@@ -1490,20 +1490,20 @@ package body Editor.Files.Save_Reload_Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "keep save-as text");
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String ("before.txt");
-      S.File_Info.Display_Name := To_Unbounded_String ("before.txt");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String ("before.txt");
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("before.txt");
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, "");
 
       Assert (Buffer_Text (S) = "keep save-as text",
         "Failed Save As should preserve buffer contents");
-      Assert (S.File_Info.Has_Path
-        and then To_String (S.File_Info.Path) = "before.txt"
-        and then To_String (S.File_Info.Display_Name) = "before.txt",
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = "before.txt"
+        and then To_String (S.Buffer_Lifecycle.File_Info.Display_Name) = "before.txt",
         "Failed Save As should preserve previous file identity");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "Failed Save As should preserve dirty state");
 
       M := Editor.Messages.Active_Message (S.Messages, Found);
@@ -1527,20 +1527,20 @@ package body Editor.Files.Save_Reload_Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "keep save-as directory text");
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String ("before-save-as.adb");
-      S.File_Info.Display_Name := To_Unbounded_String ("before-save-as.adb");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String ("before-save-as.adb");
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("before-save-as.adb");
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, Dir_Path);
 
       Assert (Buffer_Text (S) = "keep save-as directory text",
         "Directory Save As failure should preserve buffer contents");
-      Assert (S.File_Info.Has_Path
-        and then To_String (S.File_Info.Path) = "before-save-as.adb"
-        and then To_String (S.File_Info.Display_Name) = "before-save-as.adb",
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = "before-save-as.adb"
+        and then To_String (S.Buffer_Lifecycle.File_Info.Display_Name) = "before-save-as.adb",
         "Directory Save As failure should preserve previous file identity");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "Directory Save As failure should preserve dirty state");
 
       M := Editor.Messages.Active_Message (S.Messages, Found);
@@ -1577,7 +1577,7 @@ package body Editor.Files.Save_Reload_Tests is
         (S.Gutter_Markers, 0, Editor.Gutter_Markers.Bookmark_Marker);
       Editor.Folding.Add_Fold (S.Folding, 0, 1);
       Editor.View.Set_Scroll (4, 2);
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Before_Caret := S.Carets (0);
       Before_Scroll_X := Editor.View.Scroll_X;
       Before_Scroll_Y := Editor.View.Scroll_Y;
@@ -1613,7 +1613,7 @@ package body Editor.Files.Save_Reload_Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "unsaved untitled");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Save_File);
@@ -1634,10 +1634,10 @@ package body Editor.Files.Save_Reload_Tests is
       Remove_If_Exists (Path);
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "file-backed text");
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String (Path);
-      S.File_Info.Display_Name := To_Unbounded_String ("save_availability.txt");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Path);
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("save_availability.txt");
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Save_File);
@@ -1666,17 +1666,17 @@ package body Editor.Files.Save_Reload_Tests is
           Anchor                => 1,
           Virtual_Column        => 0,
           Anchor_Virtual_Column => 0));
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String (Dir_Path);
-      S.File_Info.Display_Name := To_Unbounded_String ("failed_save.adb");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Dir_Path);
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("failed_save.adb");
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Before_Caret := S.Carets (0);
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
 
       Assert (Buffer_Text (S) = Before_Text,
         "Failed save should preserve buffer content");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "Failed save should preserve dirty state");
       Assert (S.Carets.Length = 1
         and then S.Carets (0).Pos = Before_Caret.Pos
@@ -1703,13 +1703,13 @@ package body Editor.Files.Save_Reload_Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "save as explicit path required");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, "");
 
-      Assert (not S.File_Info.Has_Path,
+      Assert (not S.Buffer_Lifecycle.File_Info.Has_Path,
         "Failed Save As should not convert untitled buffer to file-backed");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "Failed Save As should preserve dirty state");
       Assert (Buffer_Text (S) = "save as explicit path required",
         "Failed Save As should preserve buffer content");
@@ -1734,12 +1734,12 @@ package body Editor.Files.Save_Reload_Tests is
       Remove_If_Exists (Path);
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "recreated by explicit save");
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String (Path);
-      S.File_Info.Display_Name := To_Unbounded_String ("missing_recreate.txt");
-      S.File_Info.Dirty := True;
-      S.File_Info.Baseline_Valid := True;
-      S.File_Info.Saved_Generation := 7;
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Path);
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("missing_recreate.txt");
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Baseline_Valid := True;
+      S.Buffer_Lifecycle.File_Info.Saved_Generation := 7;
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
 
@@ -1747,11 +1747,11 @@ package body Editor.Files.Save_Reload_Tests is
         "Explicit save should recreate a missing backing file under current policy");
       Assert (Read_Bytes (Path) = "recreated by explicit save",
         "Recreated backing file should contain current buffer text");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
         "Successful recreate save should clear dirty state");
-      Assert (S.File_Info.Baseline_Valid,
+      Assert (S.Buffer_Lifecycle.File_Info.Baseline_Valid,
         "Successful recreate save should keep a valid baseline");
-      Assert (S.File_Info.Saved_Generation = Editor.State.Current_Buffer_Revision (S),
+      Assert (S.Buffer_Lifecycle.File_Info.Saved_Generation = Editor.State.Current_Buffer_Revision (S),
         "Successful recreate save should update saved generation");
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then M.Severity = Editor.Messages.Success_Message,
@@ -1786,14 +1786,14 @@ package body Editor.Files.Save_Reload_Tests is
           Virtual_Column        => 0,
           Anchor_Virtual_Column => 0));
       Editor.View.Set_Scroll (6, 3);
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String (Dir_Path);
-      S.File_Info.Display_Name := To_Unbounded_String ("directory_target.adb");
-      S.File_Info.Dirty := True;
-      S.File_Info.Baseline_Valid := True;
-      S.File_Info.Saved_Generation := 42;
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Dir_Path);
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("directory_target.adb");
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Baseline_Valid := True;
+      S.Buffer_Lifecycle.File_Info.Saved_Generation := 42;
       Before_Caret := S.Carets (0);
-      Before_Saved := S.File_Info.Saved_Generation;
+      Before_Saved := S.Buffer_Lifecycle.File_Info.Saved_Generation;
       Before_X := Editor.View.Scroll_X;
       Before_Y := Editor.View.Scroll_Y;
 
@@ -1801,9 +1801,9 @@ package body Editor.Files.Save_Reload_Tests is
 
       Assert (Buffer_Text (S) = Before_Text,
         "Directory-target failed save should preserve buffer content");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "Directory-target failed save should preserve dirty state");
-      Assert (S.File_Info.Saved_Generation = Before_Saved,
+      Assert (S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Saved,
         "Directory-target failed save should preserve saved generation");
       Assert (S.Carets.Length = 1
         and then S.Carets (0).Pos = Before_Caret.Pos
@@ -1848,17 +1848,17 @@ package body Editor.Files.Save_Reload_Tests is
         "Test setup should have undo history before failed save");
       Assert (not Editor.History.Redo_Stack.Is_Empty,
         "Test setup should have redo history before failed save");
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String (Dir_Path);
-      S.File_Info.Display_Name := To_Unbounded_String ("history.adb");
-      S.File_Info.Dirty := True;
-      S.File_Info.Baseline_Valid := True;
-      S.File_Info.Saved_Generation := 11;
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Dir_Path);
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("history.adb");
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Baseline_Valid := True;
+      S.Buffer_Lifecycle.File_Info.Saved_Generation := 11;
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
-      Before_Saved := S.File_Info.Saved_Generation;
+      Before_Saved := S.Buffer_Lifecycle.File_Info.Saved_Generation;
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
 
@@ -1866,9 +1866,9 @@ package body Editor.Files.Save_Reload_Tests is
         "Failed save should preserve undo history");
       Assert (Editor.History.Redo_Stack.Length = Before_Redo,
         "Failed save should preserve redo history");
-      Assert (S.File_Info.Saved_Generation = Before_Saved,
+      Assert (S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Saved,
         "Failed save should not update saved baseline generation");
-      Assert (S.File_Info.Baseline_Valid,
+      Assert (S.Buffer_Lifecycle.File_Info.Baseline_Valid,
         "Failed save should preserve baseline validity");
       Remove_If_Exists (Dir_Path);
    end Test_Failed_Save_Preserves_Undo_Redo_And_Baseline;

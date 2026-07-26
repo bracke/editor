@@ -1741,7 +1741,7 @@ package body Editor.Outline.Tests is
              Detail      => Ada.Strings.Unbounded.To_Unbounded_String ("line 1"),
              Depth       => 0,
              Target_Kind  => Buffer_Position_Target,
-             Buffer_Token => S.Registry_Token,
+             Buffer_Token => S.Buffer_Lifecycle.Registry_Token,
              Line         => 1,
              Column       => 1),
           2 =>
@@ -1750,12 +1750,12 @@ package body Editor.Outline.Tests is
              Detail      => Ada.Strings.Unbounded.To_Unbounded_String ("line 2"),
              Depth       => 1,
              Target_Kind  => Buffer_Position_Target,
-             Buffer_Token => S.Registry_Token,
+             Buffer_Token => S.Buffer_Lifecycle.Registry_Token,
              Line         => 2,
              Column       => 4)));
       Select_Item (S.Outline, 2);
       Apply_Filter (S.Outline, "run");
-      Update_Current_Symbol_For_Cursor (S.Outline, S.Registry_Token, 2, 4);
+      Update_Current_Symbol_For_Cursor (S.Outline, S.Buffer_Lifecycle.Registry_Token, 2, 4);
 
       Before_FP := Fingerprint (S.Outline);
       Before_Rows := Item_Count (S.Outline);

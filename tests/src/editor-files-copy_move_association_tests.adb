@@ -118,7 +118,7 @@ package body Editor.Files.Copy_Move_Association_Tests is
 
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
-      S.Active_Buffer_Token := 0;
+      S.Buffer_Lifecycle.Active_Buffer_Token := 0;
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Copy_Buffer_File);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
@@ -161,8 +161,8 @@ package body Editor.Files.Copy_Move_Association_Tests is
         and then not Ada.Directories.Exists (Target)
         and then Ada.Directories.Exists (Path)
         and then Read_Bytes (Path) = "copy dirty guard disk"
-        and then S.File_Info.Has_Path
-        and then S.File_Info.Dirty
+        and then S.Buffer_Lifecycle.File_Info.Has_Path
+        and then S.Buffer_Lifecycle.File_Info.Dirty
         and then Buffer_Text (S) = "copy dirty guard disk dirty",
         "dirty copy must be blocked before target validation, filesystem copy, or mutation");
 
@@ -180,7 +180,7 @@ package body Editor.Files.Copy_Move_Association_Tests is
       Assert (Found
         and then To_String (M.Text) = "Copy target already exists"
         and then Read_Bytes (Existing) = "existing target"
-        and then To_String (S.File_Info.Path) = Path,
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Path,
         "existing target must be blocked without overwrite or association change");
 
       Remove_If_Exists (Path);
@@ -226,8 +226,8 @@ package body Editor.Files.Copy_Move_Association_Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text (S, "target");
       Editor.Clipboard.Set_Text (To_Unbounded_String ("clipboard"));
       Before_Text := To_Unbounded_String (Buffer_Text (S));
-      Before_Path := S.File_Info.Path;
-      Before_Base := S.File_Info.Saved_Generation;
+      Before_Path := S.Buffer_Lifecycle.File_Info.Path;
+      Before_Base := S.Buffer_Lifecycle.File_Info.Saved_Generation;
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
 
@@ -241,10 +241,10 @@ package body Editor.Files.Copy_Move_Association_Tests is
         and then Read_Bytes (Path) = "copy source disk text"
         and then Read_Bytes (Target) = "copy source disk text"
         and then Buffer_Text (S) = To_String (Before_Text)
-        and then S.File_Info.Has_Path
-        and then To_String (S.File_Info.Path) = To_String (Before_Path)
-        and then S.File_Info.Saved_Generation = Before_Base
-        and then not S.File_Info.Dirty
+        and then S.Buffer_Lifecycle.File_Info.Has_Path
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = To_String (Before_Path)
+        and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Base
+        and then not S.Buffer_Lifecycle.File_Info.Dirty
         and then Editor.Buffers.Global_Count = 1
         and then Editor.Buffers.Global_Active_Buffer /= Editor.Buffers.No_Buffer
         and then Editor.History.Undo_Stack.Length = Before_Undo
@@ -261,7 +261,7 @@ package body Editor.Files.Copy_Move_Association_Tests is
         and then not Ada.Directories.Exists (Path)
         and then Ada.Directories.Exists (Rename_Target)
         and then Ada.Directories.Exists (Target)
-        and then To_String (S.File_Info.Path) = Rename_Target,
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Rename_Target,
         "rename after copy must operate on original association, not the copied target");
 
       Editor.Clipboard.Clear;
@@ -317,9 +317,9 @@ package body Editor.Files.Copy_Move_Association_Tests is
       Active_Text := To_Unbounded_String (Buffer_Text (S));
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
-      S.Has_Reopen_Candidate := True;
-      S.Reopen_Candidate_Path := To_Unbounded_String (Reopen_Path);
-      S.Reopen_Candidate_Label := To_Unbounded_String ("reopen");
+      S.Buffer_Lifecycle.Has_Reopen_Candidate := True;
+      S.Buffer_Lifecycle.Reopen_Candidate_Path := To_Unbounded_String (Reopen_Path);
+      S.Buffer_Lifecycle.Reopen_Candidate_Label := To_Unbounded_String ("reopen");
 
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Copy_Buffer_File (S, Missing_Target);
@@ -329,18 +329,18 @@ package body Editor.Files.Copy_Move_Association_Tests is
       Assert (not Ada.Directories.Exists (Missing_Target)
         and then Ada.Directories.Exists (Active_Path)
         and then Read_Bytes (Active_Path) = "active disk"
-        and then To_String (S.File_Info.Path) = Active_Path
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Active_Path
         and then Buffer_Text (S) = To_String (Active_Text)
-        and then not S.File_Info.Dirty
+        and then not S.Buffer_Lifecycle.File_Info.Dirty
         and then Editor.History.Undo_Stack.Length = Before_Undo
         and then Editor.History.Redo_Stack.Length = Before_Redo
-        and then S.Has_Reopen_Candidate
-        and then To_String (S.Reopen_Candidate_Path) = Reopen_Path,
+        and then S.Buffer_Lifecycle.Has_Reopen_Candidate
+        and then To_String (S.Buffer_Lifecycle.Reopen_Candidate_Path) = Reopen_Path,
         "filesystem failure must preserve active association/text/dirty/history/reopen candidate");
 
       Assert (Editor.Buffers.Global_Contains (Inactive_Id)
         and then Editor.Buffers.Buffer
-          (Editor.Buffers.Global_Registry_For_UI, Inactive_Id).File_Info.Dirty
+          (Editor.Buffers.Global_Registry_For_UI, Inactive_Id).Buffer_Lifecycle.File_Info.Dirty
         and then Text_Buffer.UTF8_Text
           (Editor.Buffers.Buffer
              (Editor.Buffers.Global_Registry_For_UI, Inactive_Id).Buffer) =
@@ -384,8 +384,8 @@ package body Editor.Files.Copy_Move_Association_Tests is
       Editor.State.Init (S);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
       Before_Text := To_Unbounded_String (Buffer_Text (S));
-      Before_Path := S.File_Info.Path;
-      Before_Base := S.File_Info.Saved_Generation;
+      Before_Path := S.Buffer_Lifecycle.File_Info.Path;
+      Before_Base := S.Buffer_Lifecycle.File_Info.Saved_Generation;
 
       --  Source validation belongs to execution, not availability.  A file
       --  that disappears after the buffer was opened must fail atomically and
@@ -396,11 +396,11 @@ package body Editor.Files.Copy_Move_Association_Tests is
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Could not copy buffer file"
         and then not Ada.Directories.Exists (Target)
-        and then S.File_Info.Has_Path
-        and then To_String (S.File_Info.Path) = To_String (Before_Path)
+        and then S.Buffer_Lifecycle.File_Info.Has_Path
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = To_String (Before_Path)
         and then Buffer_Text (S) = To_String (Before_Text)
-        and then S.File_Info.Saved_Generation = Before_Base
-        and then not S.File_Info.Dirty,
+        and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Base
+        and then not S.Buffer_Lifecycle.File_Info.Dirty,
         "completeness: missing source must preserve association/text/baseline/dirty state");
 
       Write_Bytes (Path, "restored source");
@@ -411,9 +411,9 @@ package body Editor.Files.Copy_Move_Association_Tests is
       Assert (Found and then To_String (M.Text) = "Copy target already exists"
         and then Ada.Directories.Exists (Target_Dir)
         and then Ada.Directories.Kind (Target_Dir) = Ada.Directories.Directory
-        and then To_String (S.File_Info.Path) = To_String (Before_Path)
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = To_String (Before_Path)
         and then Buffer_Text (S) = To_String (Before_Text)
-        and then not S.File_Info.Dirty,
+        and then not S.Buffer_Lifecycle.File_Info.Dirty,
         "completeness: existing target directory must be treated as collision without mutation");
 
       Remove_If_Exists (Path);
@@ -454,8 +454,8 @@ package body Editor.Files.Copy_Move_Association_Tests is
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Unsaved changes require confirmation."
         and then not Ada.Directories.Exists (Target)
-        and then To_String (S.File_Info.Path) = Path
-        and then S.File_Info.Dirty,
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Path
+        and then S.Buffer_Lifecycle.File_Info.Dirty,
         "completeness: dirty lifecycle source must remain blocked before save");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
@@ -465,30 +465,30 @@ package body Editor.Files.Copy_Move_Association_Tests is
       Assert (Found and then To_String (M.Text) = "Buffer file copied"
         and then Read_Bytes (Path) = "lifecycle original saved"
         and then Read_Bytes (Target) = "lifecycle original saved"
-        and then To_String (S.File_Info.Path) = Path
-        and then not S.File_Info.Dirty,
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Path
+        and then not S.Buffer_Lifecycle.File_Info.Dirty,
         "completeness: copy after save must copy disk source and keep original association");
 
       Insert_Text_At (S, Buffer_Text (S)'Length, " unsaved");
       Execute_Revert_And_Confirm (S);
       Assert (Buffer_Text (S) = "lifecycle original saved"
-        and then To_String (S.File_Info.Path) = Path
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Path
         and then Read_Bytes (Target) = "lifecycle original saved"
-        and then not S.File_Info.Dirty,
+        and then not S.Buffer_Lifecycle.File_Info.Dirty,
         "completeness: revert after copy must reread the original associated path, not the copied file");
 
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, Rename_Path);
       Assert (Ada.Directories.Exists (Rename_Path)
         and then not Ada.Directories.Exists (Path)
         and then Ada.Directories.Exists (Target)
-        and then To_String (S.File_Info.Path) = Rename_Path,
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Rename_Path,
         "completeness: rename after copy must rename only the original associated source");
 
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
       Assert (not Ada.Directories.Exists (Rename_Path)
         and then Ada.Directories.Exists (Target)
-        and then not S.File_Info.Has_Path
-        and then S.File_Info.Dirty,
+        and then not S.Buffer_Lifecycle.File_Info.Has_Path
+        and then S.Buffer_Lifecycle.File_Info.Dirty,
         "completeness: delete after copy must delete the original association and leave copied target external");
 
       Remove_If_Exists (Path);
@@ -525,7 +525,7 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
       Write_Bytes (Existing, "existing target must survive");
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
-      S.Active_Buffer_Token := 0;
+      S.Buffer_Lifecycle.Active_Buffer_Token := 0;
 
       Editor.Executor.File_Operation_Commands.Execute_Copy_Buffer_File (S, "   ");
       M := Editor.Messages.Active_Message (S.Messages, Found);
@@ -536,7 +536,7 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
 
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "dirty untitled copy source");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Messages.Clear (S.Messages);
@@ -544,7 +544,7 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then To_String (M.Text) = "No file path for active buffer"
         and then Read_Bytes (Existing) = "existing target must survive"
-        and then S.File_Info.Dirty,
+        and then S.Buffer_Lifecycle.File_Info.Dirty,
         "no-path validation must precede dirty and target-collision validation");
 
       Editor.Buffers.Reset_Global_For_Test;
@@ -559,7 +559,7 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
       Assert (Found and then To_String (M.Text) = "Unsaved changes require confirmation."
         and then not Ada.Directories.Exists (Target)
         and then Read_Bytes (Active_Path) = "active disk"
-        and then S.File_Info.Dirty,
+        and then S.Buffer_Lifecycle.File_Info.Dirty,
         "dirty associated buffers must be blocked before missing-target validation or filesystem copy");
 
       Editor.Messages.Clear (S.Messages);
@@ -574,8 +574,8 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
       Editor.Executor.File_Operation_Commands.Execute_Copy_Buffer_File (S, Active_Path);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Copy target already exists"
-        and then To_String (S.File_Info.Path) = Active_Path
-        and then not S.File_Info.Dirty,
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Active_Path
+        and then not S.Buffer_Lifecycle.File_Info.Dirty,
         "source-as-target copy must be a deterministic non-mutating collision");
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Active_Path);
@@ -591,11 +591,11 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Buffer file copied"
         and then Read_Bytes (Target) = Read_Bytes (Active_Path)
-        and then To_String (S.File_Info.Path) = Active_Path
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Active_Path
         and then Editor.Buffers.Global_Active_Buffer = Active_Id
         and then Editor.Buffers.Global_Count = 2
         and then Editor.Buffers.Buffer
-          (Editor.Buffers.Global_Registry_For_UI, Inactive_Id).File_Info.Dirty,
+          (Editor.Buffers.Global_Registry_For_UI, Inactive_Id).Buffer_Lifecycle.File_Info.Dirty,
         "copy source must be execution-time active buffer, not switcher/quick-open/palette/inactive state");
 
       Remove_If_Exists (Active_Path);
@@ -655,23 +655,23 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text (S, "stable");
       Editor.Executor.Selection_Commands.Execute_Select_All_Selection_Command (S);
       Editor.Clipboard.Set_Text (To_Unbounded_String ("clipboard"));
-      S.Has_Reopen_Candidate := True;
-      S.Reopen_Candidate_Path := To_Unbounded_String (Reopen_Path);
-      S.Reopen_Candidate_Label := To_Unbounded_String ("reopen");
+      S.Buffer_Lifecycle.Has_Reopen_Candidate := True;
+      S.Buffer_Lifecycle.Reopen_Candidate_Path := To_Unbounded_String (Reopen_Path);
+      S.Buffer_Lifecycle.Reopen_Candidate_Label := To_Unbounded_String ("reopen");
       Editor.Navigation_History.Record_Explicit_Navigation
         (S.Navigation_History,
          (Buffer_Id => Natural (Editor.Buffers.Global_Active_Buffer),
           Has_File_Path => True,
-          File_Path => S.File_Info.Path,
-          Display_Path => S.File_Info.Path,
+          File_Path => S.Buffer_Lifecycle.File_Info.Path,
+          Display_Path => S.Buffer_Lifecycle.File_Info.Path,
           Line => 1,
           Column => 0,
           Viewport_Row => 0,
           Reason => Editor.Navigation_History.Navigation_Reason_Find_Next));
 
       Before_Text := To_Unbounded_String (Buffer_Text (S));
-      Before_Path := S.File_Info.Path;
-      Before_Base := S.File_Info.Saved_Generation;
+      Before_Path := S.Buffer_Lifecycle.File_Info.Path;
+      Before_Base := S.Buffer_Lifecycle.File_Info.Saved_Generation;
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
       Before_Back := S.Navigation_History.Back_Stack.Length;
@@ -697,9 +697,9 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability)
         and then Copy_Rows = 1
         and then not Ada.Directories.Exists (Target)
-        and then To_String (S.File_Info.Path) = To_String (Before_Path)
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = To_String (Before_Path)
         and then Buffer_Text (S) = To_String (Before_Text)
-        and then not S.File_Info.Dirty
+        and then not S.Buffer_Lifecycle.File_Info.Dirty
         and then S.Navigation_History.Back_Stack.Length = Before_Back
         and then S.Navigation_History.Forward_Stack.Length = Before_Fwd
         and then To_String (S.Active_Find_Query) = "transient"
@@ -714,10 +714,10 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
         and then Editor.Messages.Count (S.Messages) = 1
         and then Ada.Directories.Exists (Target)
         and then Read_Bytes (Target) = "transient disk"
-        and then To_String (S.File_Info.Path) = To_String (Before_Path)
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = To_String (Before_Path)
         and then Buffer_Text (S) = To_String (Before_Text)
-        and then S.File_Info.Saved_Generation = Before_Base
-        and then not S.File_Info.Dirty
+        and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Base
+        and then not S.Buffer_Lifecycle.File_Info.Dirty
         and then Editor.History.Undo_Stack.Length = Before_Undo
         and then Editor.History.Redo_Stack.Length = Before_Redo
         and then S.Navigation_History.Back_Stack.Length = Before_Back
@@ -728,8 +728,8 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
         and then To_String (S.Active_Find_Query) = "transient"
         and then To_String (S.Active_Replace_Text) = "stable"
         and then To_String (Editor.Clipboard.Get_Text) = "clipboard"
-        and then S.Has_Reopen_Candidate
-        and then To_String (S.Reopen_Candidate_Path) = Reopen_Path,
+        and then S.Buffer_Lifecycle.Has_Reopen_Candidate
+        and then To_String (S.Buffer_Lifecycle.Reopen_Candidate_Path) = Reopen_Path,
         "successful copy must preserve text, association, baseline, dirty, UI transient, history, clipboard, navigation, and reopen state");
 
       Editor.Messages.Clear (S.Messages);
@@ -737,10 +737,10 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Could not copy buffer file"
         and then Editor.Messages.Count (S.Messages) = 1
-        and then To_String (S.File_Info.Path) = To_String (Before_Path)
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = To_String (Before_Path)
         and then Buffer_Text (S) = To_String (Before_Text)
-        and then S.File_Info.Saved_Generation = Before_Base
-        and then not S.File_Info.Dirty
+        and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Base
+        and then not S.Buffer_Lifecycle.File_Info.Dirty
         and then Editor.History.Undo_Stack.Length = Before_Undo
         and then Editor.History.Redo_Stack.Length = Before_Redo
         and then S.Navigation_History.Back_Stack.Length = Before_Back
@@ -750,8 +750,8 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
         and then To_String (S.Active_Find_Query) = "transient"
         and then To_String (S.Active_Replace_Text) = "stable"
         and then To_String (Editor.Clipboard.Get_Text) = "clipboard"
-        and then S.Has_Reopen_Candidate
-        and then To_String (S.Reopen_Candidate_Path) = Reopen_Path,
+        and then S.Buffer_Lifecycle.Has_Reopen_Candidate
+        and then To_String (S.Buffer_Lifecycle.Reopen_Candidate_Path) = Reopen_Path,
         "filesystem copy failure must be non-mutating except for one copy failure message");
 
       Editor.Clipboard.Clear;
@@ -803,7 +803,7 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
       Editor.Executor.File_Operation_Commands.Execute_Copy_Buffer_File (S, Target);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Buffer file copied"
-        and then To_String (S.File_Info.Path) = Path
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Path
         and then Read_Bytes (Target) = "lifecycle original",
         "copy success must leave original association active");
 
@@ -811,49 +811,49 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
       Assert (Read_Bytes (Path) = "lifecycle original saved"
         and then Read_Bytes (Target) = "lifecycle original"
-        and then To_String (S.File_Info.Path) = Path
-        and then not S.File_Info.Dirty,
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Path
+        and then not S.Buffer_Lifecycle.File_Info.Dirty,
         "save after copy must write only the original associated path");
 
       Write_Bytes (Path, "lifecycle disk reload");
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
       Assert (Buffer_Text (S) = "lifecycle disk reload"
-        and then To_String (S.File_Info.Path) = Path
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Path
         and then Read_Bytes (Target) = "lifecycle original",
         "reload after copy must read the original associated path");
 
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty");
       Execute_Revert_And_Confirm (S);
       Assert (Buffer_Text (S) = "lifecycle disk reload"
-        and then To_String (S.File_Info.Path) = Path
-        and then not S.File_Info.Dirty,
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Path
+        and then not S.Buffer_Lifecycle.File_Info.Dirty,
         "revert after copy must use the original associated path and preserved baseline policy");
 
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, Rename_Path);
       Assert (Ada.Directories.Exists (Rename_Path)
         and then not Ada.Directories.Exists (Path)
         and then Ada.Directories.Exists (Target)
-        and then To_String (S.File_Info.Path) = Rename_Path,
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Rename_Path,
         "rename after copy must rename only the original associated source");
 
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
       Assert (not Ada.Directories.Exists (Rename_Path)
         and then Ada.Directories.Exists (Target)
-        and then not S.File_Info.Has_Path
-        and then S.File_Info.Dirty,
+        and then not S.Buffer_Lifecycle.File_Info.Has_Path
+        and then S.Buffer_Lifecycle.File_Info.Dirty,
         "delete after copy must delete only the original associated source");
 
       Editor.State.Load_Text (S, "save-as text");
-      S.File_Info.Has_Path := False;
-      S.File_Info.Path := Null_Unbounded_String;
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Has_Path := False;
+      S.Buffer_Lifecycle.File_Info.Path := Null_Unbounded_String;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, Save_As);
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Copy_Buffer_File (S, Target & ".second");
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Buffer file copied"
-        and then To_String (S.File_Info.Path) = Ada.Directories.Full_Name (Save_As)
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Ada.Directories.Full_Name (Save_As)
         and then Read_Bytes (Target & ".second") = "save-as text",
         "Save As remains the path-association operation that can make an untitled buffer eligible for copy");
 
@@ -956,9 +956,9 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
       Editor.Executor.File_Operation_Commands.Execute_Copy_Buffer_File (S, A_Copy);
       Expect_Message ("Buffer file copied", "clean associated A copies successfully");
       Assert (Read_Bytes (A_Copy) = "A disk"
-        and then To_String (S.File_Info.Path) = A_Path
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = A_Path
         and then Buffer_Text (S) = "A disk"
-        and then not S.File_Info.Dirty
+        and then not S.Buffer_Lifecycle.File_Info.Dirty
         and then Editor.Buffers.Global_Active_Buffer = A_Id
         and then Natural (Editor.Buffers.Global_Count) = Before_Count,
         "successful copy must use active source A, keep A associated, keep buffers open, and not open target");
@@ -968,8 +968,8 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
       Editor.Executor.File_Operation_Commands.Execute_Copy_Buffer_File (S, A_Dirty_Copy);
       Expect_Message ("Unsaved changes require confirmation.", "dirty A is blocked before target/filesystem work");
       Assert (not Ada.Directories.Exists (A_Dirty_Copy)
-        and then To_String (S.File_Info.Path) = A_Path
-        and then S.File_Info.Dirty
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = A_Path
+        and then S.Buffer_Lifecycle.File_Info.Dirty
         and then Buffer_Text (S) = "A disk dirty",
         "dirty-blocked copy preserves A text, association, and dirty state");
 
@@ -979,8 +979,8 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
       Editor.Executor.File_Operation_Commands.Execute_Copy_Buffer_File (S, A_Copy2);
       Expect_Message ("Copy target already exists", "existing target is a no-overwrite collision");
       Assert (Read_Bytes (A_Copy2) = "existing target"
-        and then To_String (S.File_Info.Path) = A_Path
-        and then not S.File_Info.Dirty,
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = A_Path
+        and then not S.Buffer_Lifecycle.File_Info.Dirty,
         "collision must not overwrite, Save As, or adopt target");
       Remove_If_Exists (A_Copy2);
       Editor.Messages.Clear (S.Messages);
@@ -988,7 +988,7 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
       Expect_Message ("Buffer file copied", "A copies again after collision target is removed");
 
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, A_Renamed);
-      Assert (To_String (S.File_Info.Path) = A_Renamed
+      Assert (To_String (S.Buffer_Lifecycle.File_Info.Path) = A_Renamed
         and then Ada.Directories.Exists (A_Renamed)
         and then Ada.Directories.Exists (A_Copy)
         and then Ada.Directories.Exists (A_Copy2),
@@ -997,7 +997,7 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
       Editor.Executor.File_Operation_Commands.Execute_Copy_Buffer_File (S, A1_Copy);
       Expect_Message ("Buffer file copied", "renamed A copies from renamed source");
       Assert (Read_Bytes (A1_Copy) = Read_Bytes (A_Renamed)
-        and then To_String (S.File_Info.Path) = A_Renamed,
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = A_Renamed,
         "post-rename copy source must remain the active buffer association");
 
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, B_Id);
@@ -1009,8 +1009,8 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
       Editor.Executor.File_Operation_Commands.Execute_Copy_Buffer_File (S, B_Copy);
       Expect_Message ("Buffer file copied", "B becomes eligible only through Save As");
       Assert (Read_Bytes (B_Copy) = "B untitled"
-        and then To_String (S.File_Info.Path) = Ada.Directories.Full_Name (B_Save_As)
-        and then not S.File_Info.Dirty,
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Ada.Directories.Full_Name (B_Save_As)
+        and then not S.Buffer_Lifecycle.File_Info.Dirty,
         "Save As remains the operation that gives B an association for later copy");
 
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, C_Id);
@@ -1020,9 +1020,9 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text (S, "");
       Editor.Executor.Selection_Commands.Execute_Select_All_Selection_Command (S);
       Editor.Clipboard.Set_Text (To_Unbounded_String ("clipboard"));
-      S.Has_Reopen_Candidate := True;
-      S.Reopen_Candidate_Path := To_Unbounded_String (A_Renamed);
-      S.Reopen_Candidate_Label := To_Unbounded_String ("reopen");
+      S.Buffer_Lifecycle.Has_Reopen_Candidate := True;
+      S.Buffer_Lifecycle.Reopen_Candidate_Path := To_Unbounded_String (A_Renamed);
+      S.Buffer_Lifecycle.Reopen_Candidate_Label := To_Unbounded_String ("reopen");
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Copy_Buffer_File (S, "   ");
       Expect_Message ("Invalid copy target", "invalid target is deterministic and non-mutating");
@@ -1033,25 +1033,25 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
       Editor.Executor.File_Operation_Commands.Execute_Copy_Buffer_File (S, C_Copy);
       Expect_Message ("Buffer file copied", "C copies successfully after failures");
       Assert (Read_Bytes (C_Copy) = "C disk"
-        and then To_String (S.File_Info.Path) = C_Path
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = C_Path
         and then Buffer_Text (S) = "C disk"
         and then To_String (S.Active_Find_Query) = ""
         and then To_String (S.Active_Replace_Text) = ""
         and then To_String (Editor.Clipboard.Get_Text) = "clipboard"
-        and then S.Has_Reopen_Candidate
-        and then To_String (S.Reopen_Candidate_Path) = A_Renamed
+        and then S.Buffer_Lifecycle.Has_Reopen_Candidate
+        and then To_String (S.Buffer_Lifecycle.Reopen_Candidate_Path) = A_Renamed
         and then Natural (Editor.Buffers.Global_Count) = Before_Count,
         "copy success/failure preserves Find/Replace, Clipboard, reopen candidate, association, text, and collection");
 
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
       Assert (not Ada.Directories.Exists (C_Path)
         and then Ada.Directories.Exists (C_Copy)
-        and then not S.File_Info.Has_Path
-        and then S.File_Info.Dirty,
+        and then not S.Buffer_Lifecycle.File_Info.Has_Path
+        and then S.Buffer_Lifecycle.File_Info.Dirty,
         "delete after copy deletes only C's original association");
       Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, C_Save_As);
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
-      Assert (To_String (S.File_Info.Path) = Ada.Directories.Full_Name (C_Save_As)
+      Assert (To_String (S.Buffer_Lifecycle.File_Info.Path) = Ada.Directories.Full_Name (C_Save_As)
         and then Read_Bytes (C_Copy) = "C disk"
         and then Natural (Editor.Buffers.Global_Count) = Before_Count,
         "Save As and reload after delete remain independent from copied target");
@@ -1139,22 +1139,22 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text (S, "side effect");
       Editor.Executor.Selection_Commands.Execute_Select_All_Selection_Command (S);
       Editor.Clipboard.Set_Text (To_Unbounded_String ("read-only clipboard"));
-      S.Has_Reopen_Candidate := True;
-      S.Reopen_Candidate_Path := To_Unbounded_String (Reopen_Path);
-      S.Reopen_Candidate_Label := To_Unbounded_String ("reopen");
+      S.Buffer_Lifecycle.Has_Reopen_Candidate := True;
+      S.Buffer_Lifecycle.Reopen_Candidate_Path := To_Unbounded_String (Reopen_Path);
+      S.Buffer_Lifecycle.Reopen_Candidate_Label := To_Unbounded_String ("reopen");
       Editor.Navigation_History.Record_Explicit_Navigation
         (S.Navigation_History,
          (Buffer_Id => Natural (Editor.Buffers.Global_Active_Buffer),
           Has_File_Path => True,
-          File_Path => S.File_Info.Path,
-          Display_Path => S.File_Info.Path,
+          File_Path => S.Buffer_Lifecycle.File_Info.Path,
+          Display_Path => S.Buffer_Lifecycle.File_Info.Path,
           Line => 1,
           Column => 0,
           Viewport_Row => 0,
           Reason => Editor.Navigation_History.Navigation_Reason_Go_To_Line));
       Before_Text := To_Unbounded_String (Buffer_Text (S));
-      Before_Path := S.File_Info.Path;
-      Before_Base := S.File_Info.Saved_Generation;
+      Before_Path := S.Buffer_Lifecycle.File_Info.Path;
+      Before_Base := S.Buffer_Lifecycle.File_Info.Saved_Generation;
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
       Before_Back := S.Navigation_History.Back_Stack.Length;
@@ -1182,9 +1182,9 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
         and then Ada.Directories.Exists (Path)
         and then Read_Bytes (Path) = "read only source"
         and then Buffer_Text (S) = To_String (Before_Text)
-        and then To_String (S.File_Info.Path) = To_String (Before_Path)
-        and then S.File_Info.Saved_Generation = Before_Base
-        and then not S.File_Info.Dirty
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = To_String (Before_Path)
+        and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Base
+        and then not S.Buffer_Lifecycle.File_Info.Dirty
         and then Editor.History.Undo_Stack.Length = Before_Undo
         and then Editor.History.Redo_Stack.Length = Before_Redo
         and then S.Navigation_History.Back_Stack.Length = Before_Back
@@ -1192,8 +1192,8 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
         and then To_String (Editor.Clipboard.Get_Text) = "read-only clipboard"
         and then To_String (S.Active_Find_Query) = "read only"
         and then To_String (S.Active_Replace_Text) = "side effect"
-        and then S.Has_Reopen_Candidate
-        and then To_String (S.Reopen_Candidate_Path) = Reopen_Path,
+        and then S.Buffer_Lifecycle.Has_Reopen_Candidate
+        and then To_String (S.Buffer_Lifecycle.Reopen_Candidate_Path) = Reopen_Path,
         "render, availability, palette projection, and workspace snapshot must not copy/probe target, mutate buffers, or repair copy state");
       Assert_Summary_Excludes ("Buffer file copied");
       Assert_Summary_Excludes ("last copy");
@@ -1214,15 +1214,15 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
         and then To_String (M.Text) = "Buffer file copied"
         and then Editor.Messages.Count (S.Messages) = 1
         and then Read_Bytes (Target) = "read only source"
-        and then To_String (S.File_Info.Path) = To_String (Before_Path)
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = To_String (Before_Path)
         and then Buffer_Text (S) = To_String (Before_Text)
-        and then S.File_Info.Saved_Generation = Before_Base
-        and then not S.File_Info.Dirty
+        and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Base
+        and then not S.Buffer_Lifecycle.File_Info.Dirty
         and then To_String (Editor.Clipboard.Get_Text) = "read-only clipboard"
         and then To_String (S.Active_Find_Query) = "read only"
         and then To_String (S.Active_Replace_Text) = "side effect"
-        and then S.Has_Reopen_Candidate
-        and then To_String (S.Reopen_Candidate_Path) = Reopen_Path,
+        and then S.Buffer_Lifecycle.Has_Reopen_Candidate
+        and then To_String (S.Buffer_Lifecycle.Reopen_Candidate_Path) = Reopen_Path,
         "successful copy must preserve feature state and emit only the copy success message");
       Assert_Summary_Excludes ("Buffer file copied");
       Assert_Summary_Excludes ("last copy");
@@ -1300,7 +1300,7 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
       Before_Text := To_Unbounded_String (Buffer_Text (S));
-      Before_Path := S.File_Info.Path;
+      Before_Path := S.Buffer_Lifecycle.File_Info.Path;
 
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Copy_Buffer_File (S, Target);
@@ -1311,19 +1311,19 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
         and then Editor.History.Undo_Stack.Length = Before_Undo
         and then Editor.History.Redo_Stack.Length = Before_Redo
         and then Buffer_Text (S) = To_String (Before_Text)
-        and then To_String (S.File_Info.Path) = To_String (Before_Path)
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = To_String (Before_Path)
         and then Read_Bytes (Target) = "history source",
         "successful copy must create no undo/redo entry and only the copy success message");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert (Ada.Directories.Exists (Target)
         and then Read_Bytes (Target) = "history source"
-        and then To_String (S.File_Info.Path) = To_String (Before_Path),
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = To_String (Before_Path),
         "edit.undo must not undo the filesystem copy or alter copy association");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert (Ada.Directories.Exists (Target)
         and then Read_Bytes (Target) = "history source"
-        and then To_String (S.File_Info.Path) = To_String (Before_Path),
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = To_String (Before_Path),
         "edit.redo must not redo or reinterpret the filesystem copy");
 
       Editor.Messages.Clear (S.Messages);
@@ -1333,7 +1333,7 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
         and then To_String (M.Text) = "Unsaved changes require confirmation."
         and then Editor.Messages.Count (S.Messages) = 1
         and then not Ada.Directories.Exists (Fail_Target)
-        and then To_String (S.File_Info.Path) = To_String (Before_Path),
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = To_String (Before_Path),
         "dirty post-redo state must block failed-target copy before target validation or filesystem work");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
@@ -1345,7 +1345,7 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
         and then Editor.Messages.Count (S.Messages) = 1
         and then not Ada.Directories.Exists (Fail_Target)
         and then Buffer_Text (S) = To_String (Before_Text)
-        and then To_String (S.File_Info.Path) = To_String (Before_Path)
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = To_String (Before_Path)
         and then Editor.History.Undo_Stack.Length = Before_Undo
         and then Editor.History.Redo_Stack.Length = Before_Redo,
         "filesystem copy failure preserves history stacks and emits only copy failure");
@@ -1391,7 +1391,7 @@ procedure Test_Copy_Source_Validation_And_Target_Canonicalization
       Write_Bytes (Reopen_Path, "reopen disk");
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
-      S.Active_Buffer_Token := 0;
+      S.Buffer_Lifecycle.Active_Buffer_Token := 0;
 
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Copy_Buffer_File (S, Target);
@@ -1403,9 +1403,9 @@ procedure Test_Copy_Source_Validation_And_Target_Canonicalization
       Editor.State.Init (S);
       Editor.Executor.File_Open_Commands.Execute_New_Buffer (S);
       Editor.State.Load_Text (S, "untitled dirty text");
-      S.File_Info.Has_Path := False;
-      S.File_Info.Path := Null_Unbounded_String;
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Has_Path := False;
+      S.Buffer_Lifecycle.File_Info.Path := Null_Unbounded_String;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Copy_Buffer_File (S, "   ");
@@ -1431,15 +1431,15 @@ procedure Test_Copy_Source_Validation_And_Target_Canonicalization
       Editor.Executor.File_Operation_Commands.Execute_Copy_Buffer_File (S, Active_Path);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Copy target already exists"
-        and then To_String (S.File_Info.Path) = Active_Path,
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Active_Path,
         "source-equals-target must remain a deterministic no-overwrite collision");
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Inactive_Path);
       Inactive_Id := Editor.Buffers.Global_Active_Buffer;
       Insert_Text_At (S, Buffer_Text (S)'Length, " inactive dirty");
-      S.Has_Reopen_Candidate := True;
-      S.Reopen_Candidate_Path := To_Unbounded_String (Reopen_Path);
-      S.Reopen_Candidate_Label := To_Unbounded_String ("reopen");
+      S.Buffer_Lifecycle.Has_Reopen_Candidate := True;
+      S.Buffer_Lifecycle.Reopen_Candidate_Path := To_Unbounded_String (Reopen_Path);
+      S.Buffer_Lifecycle.Reopen_Candidate_Label := To_Unbounded_String ("reopen");
       Editor.Executor.Command_Surface_Commands.Execute_Open_Command_Palette (S);
       Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, Active_Id);
@@ -1448,15 +1448,15 @@ procedure Test_Copy_Source_Validation_And_Target_Canonicalization
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Buffer file copied"
         and then Read_Bytes (Target) = Read_Bytes (Active_Path)
-        and then To_String (S.File_Info.Path) = Active_Path
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Active_Path
         and then Editor.Buffers.Global_Active_Buffer = Active_Id
         and then Editor.Buffers.Global_Count = 2
         and then Editor.Buffers.Buffer
-          (Editor.Buffers.Global_Registry_For_UI, Inactive_Id).File_Info.Dirty
+          (Editor.Buffers.Global_Registry_For_UI, Inactive_Id).Buffer_Lifecycle.File_Info.Dirty
         and then To_String (Editor.Buffers.Buffer
-          (Editor.Buffers.Global_Registry_For_UI, Inactive_Id).File_Info.Path) = Inactive_Path
-        and then S.Has_Reopen_Candidate
-        and then To_String (S.Reopen_Candidate_Path) = Reopen_Path,
+          (Editor.Buffers.Global_Registry_For_UI, Inactive_Id).Buffer_Lifecycle.File_Info.Path) = Inactive_Path
+        and then S.Buffer_Lifecycle.Has_Reopen_Candidate
+        and then To_String (S.Buffer_Lifecycle.Reopen_Candidate_Path) = Reopen_Path,
         "copy source must be execution-time active buffer only and must ignore UI/reopen/inactive fallbacks");
 
       Editor.Messages.Clear (S.Messages);
@@ -1532,9 +1532,9 @@ procedure Test_Copy_Source_Validation_And_Target_Canonicalization
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text (S, "overwrite policy");
       Editor.Executor.Selection_Commands.Execute_Select_All_Selection_Command (S);
       Editor.Clipboard.Set_Text (To_Unbounded_String ("clipboard copy history target path"));
-      S.Has_Reopen_Candidate := True;
-      S.Reopen_Candidate_Path := To_Unbounded_String (Reopen_Path);
-      S.Reopen_Candidate_Label := To_Unbounded_String ("removed copy cache");
+      S.Buffer_Lifecycle.Has_Reopen_Candidate := True;
+      S.Buffer_Lifecycle.Reopen_Candidate_Path := To_Unbounded_String (Reopen_Path);
+      S.Buffer_Lifecycle.Reopen_Candidate_Label := To_Unbounded_String ("removed copy cache");
       Editor.Executor.Selection_Commands.Execute_Clear_Selection_Command (S);
       Insert_Text_At (S, Buffer_Text (S)'Length, " edit");
       for I in 1 .. 5 loop
@@ -1542,8 +1542,8 @@ procedure Test_Copy_Source_Validation_And_Target_Canonicalization
       end loop;
 
       Before_Text := To_Unbounded_String (Buffer_Text (S));
-      Before_Path := S.File_Info.Path;
-      Before_Base := S.File_Info.Saved_Generation;
+      Before_Path := S.Buffer_Lifecycle.File_Info.Path;
+      Before_Base := S.Buffer_Lifecycle.File_Info.Saved_Generation;
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
 
@@ -1571,8 +1571,8 @@ procedure Test_Copy_Source_Validation_And_Target_Canonicalization
         and then not Ada.Directories.Exists (Target)
         and then not Ada.Directories.Exists (Fail_Target)
         and then Buffer_Text (S) = To_String (Before_Text)
-        and then To_String (S.File_Info.Path) = To_String (Before_Path)
-        and then S.File_Info.Saved_Generation = Before_Base
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = To_String (Before_Path)
+        and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Base
         and then Editor.History.Undo_Stack.Length = Before_Undo
         and then Editor.History.Redo_Stack.Length = Before_Redo,
         "render/availability/palette/workspace snapshot must not copy, probe, infer, or mutate copy state");
@@ -1598,15 +1598,15 @@ procedure Test_Copy_Source_Validation_And_Target_Canonicalization
         and then Editor.Messages.Count (S.Messages) = 1
         and then Read_Bytes (Target) = "persistence disk"
         and then Buffer_Text (S) = To_String (Before_Text)
-        and then To_String (S.File_Info.Path) = To_String (Before_Path)
-        and then S.File_Info.Saved_Generation = Before_Base
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = To_String (Before_Path)
+        and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Base
         and then Editor.History.Undo_Stack.Length = Before_Undo
         and then Editor.History.Redo_Stack.Length = Before_Redo
         and then To_String (Editor.Clipboard.Get_Text) = "clipboard copy history target path"
         and then To_String (S.Active_Find_Query) = "removed copy history"
         and then To_String (S.Active_Replace_Text) = "overwrite policy"
-        and then S.Has_Reopen_Candidate
-        and then To_String (S.Reopen_Candidate_Path) = Reopen_Path,
+        and then S.Buffer_Lifecycle.Has_Reopen_Candidate
+        and then To_String (S.Buffer_Lifecycle.Reopen_Candidate_Path) = Reopen_Path,
         "successful copy must be filesystem-only and preserve editor state exactly");
       Assert_Summary_Excludes ("Buffer file copied");
       Assert_Summary_Excludes ("last copy");
@@ -1629,8 +1629,8 @@ procedure Test_Copy_Source_Validation_And_Target_Canonicalization
         and then Editor.Messages.Count (S.Messages) = 1
         and then not Ada.Directories.Exists (Fail_Target)
         and then Buffer_Text (S) = To_String (Before_Text)
-        and then To_String (S.File_Info.Path) = To_String (Before_Path)
-        and then S.File_Info.Saved_Generation = Before_Base
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = To_String (Before_Path)
+        and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Base
         and then Editor.History.Undo_Stack.Length = Before_Undo
         and then Editor.History.Redo_Stack.Length = Before_Redo,
         "filesystem failure must preserve association, text, baseline, history, and omit target history");
@@ -1712,9 +1712,9 @@ procedure Test_Move_Canonical_State_And_Persistence_Cleanup
       Editor.Executor.Selection_Commands.Execute_Select_All_Selection_Command (S);
       Editor.Clipboard.Set_Text
         (To_Unbounded_String ("clipboard moved path target history"));
-      S.Has_Reopen_Candidate := True;
-      S.Reopen_Candidate_Path := To_Unbounded_String (Reopen_Path);
-      S.Reopen_Candidate_Label := To_Unbounded_String ("removed open-moved cache");
+      S.Buffer_Lifecycle.Has_Reopen_Candidate := True;
+      S.Buffer_Lifecycle.Reopen_Candidate_Path := To_Unbounded_String (Reopen_Path);
+      S.Buffer_Lifecycle.Reopen_Candidate_Label := To_Unbounded_String ("removed open-moved cache");
       Editor.Executor.Selection_Commands.Execute_Clear_Selection_Command (S);
       Insert_Text_At (S, Buffer_Text (S)'Length, " active edit");
       for I in 1 .. 12 loop
@@ -1722,7 +1722,7 @@ procedure Test_Move_Canonical_State_And_Persistence_Cleanup
       end loop;
 
       Before_Text := To_Unbounded_String (Buffer_Text (S));
-      Before_Base := S.File_Info.Saved_Generation;
+      Before_Base := S.Buffer_Lifecycle.File_Info.Saved_Generation;
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
 
@@ -1751,8 +1751,8 @@ procedure Test_Move_Canonical_State_And_Persistence_Cleanup
         and then not Ada.Directories.Exists (Target)
         and then not Ada.Directories.Exists (Fail_Target)
         and then Buffer_Text (S) = To_String (Before_Text)
-        and then To_String (S.File_Info.Path) = Active_Path
-        and then S.File_Info.Saved_Generation = Before_Base
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Active_Path
+        and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Base
         and then Editor.History.Undo_Stack.Length = Before_Undo
         and then Editor.History.Redo_Stack.Length = Before_Redo,
         "availability/palette/render/workspace snapshots must not infer, probe, move, or mutate move state");
@@ -1780,22 +1780,22 @@ procedure Test_Move_Canonical_State_And_Persistence_Cleanup
         and then Ada.Directories.Exists (Target)
         and then Read_Bytes (Target) = "active disk"
         and then Buffer_Text (S) = To_String (Before_Text)
-        and then To_String (S.File_Info.Path) = Target
-        and then S.File_Info.Saved_Generation = Before_Base
-        and then not S.File_Info.Dirty
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Target
+        and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Base
+        and then not S.Buffer_Lifecycle.File_Info.Dirty
         and then Editor.History.Undo_Stack.Length = Before_Undo
         and then Editor.History.Redo_Stack.Length = Before_Redo
         and then Editor.Buffers.Global_Active_Buffer = Active_Id
         and then Editor.Buffers.Global_Count = 2
         and then To_String (Editor.Buffers.Buffer
-          (Editor.Buffers.Global_Registry_For_UI, Inactive_Id).File_Info.Path) = Inactive_Path
+          (Editor.Buffers.Global_Registry_For_UI, Inactive_Id).Buffer_Lifecycle.File_Info.Path) = Inactive_Path
         and then Editor.Buffers.Buffer
-          (Editor.Buffers.Global_Registry_For_UI, Inactive_Id).File_Info.Dirty
+          (Editor.Buffers.Global_Registry_For_UI, Inactive_Id).Buffer_Lifecycle.File_Info.Dirty
         and then To_String (Editor.Clipboard.Get_Text) = "clipboard moved path target history"
         and then To_String (S.Active_Find_Query) = "removed move history"
         and then To_String (S.Active_Replace_Text) = "overwrite policy"
-        and then S.Has_Reopen_Candidate
-        and then To_String (S.Reopen_Candidate_Path) = Reopen_Path,
+        and then S.Buffer_Lifecycle.Has_Reopen_Candidate
+        and then To_String (S.Buffer_Lifecycle.Reopen_Candidate_Path) = Reopen_Path,
         "canonical move must move only active associated disk file, update association after success, and preserve editor state");
       Assert_Summary_Excludes ("Buffer file moved");
       Assert_Summary_Excludes ("last move");
@@ -1819,13 +1819,13 @@ procedure Test_Move_Canonical_State_And_Persistence_Cleanup
         and then Ada.Directories.Exists (Target)
         and then not Ada.Directories.Exists (Fail_Target)
         and then Buffer_Text (S) = To_String (Before_Text)
-        and then To_String (S.File_Info.Path) = Target
-        and then S.File_Info.Saved_Generation = Before_Base
-        and then not S.File_Info.Dirty
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Target
+        and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Base
+        and then not S.Buffer_Lifecycle.File_Info.Dirty
         and then Editor.History.Undo_Stack.Length = Before_Undo
         and then Editor.History.Redo_Stack.Length = Before_Redo
-        and then S.Has_Reopen_Candidate
-        and then To_String (S.Reopen_Candidate_Path) = Reopen_Path,
+        and then S.Buffer_Lifecycle.Has_Reopen_Candidate
+        and then To_String (S.Buffer_Lifecycle.Reopen_Candidate_Path) = Reopen_Path,
         "filesystem failure must preserve moved association, text, baseline, dirty state, history, and reopen candidate state");
       Assert_Summary_Excludes ("Could not move buffer file");
       Assert_Summary_Excludes ("last move");
@@ -1906,20 +1906,20 @@ procedure Test_Move_Canonical_State_And_Persistence_Cleanup
       Editor.Clipboard.Clear;
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
-      S.Active_Buffer_Token := 0;
+      S.Buffer_Lifecycle.Active_Buffer_Token := 0;
 
       Editor.Clipboard.Set_Text
         (To_Unbounded_String ("blocked clipboard move history"));
-      S.Has_Reopen_Candidate := True;
-      S.Reopen_Candidate_Path := To_Unbounded_String (Reopen_Path);
-      S.Reopen_Candidate_Label := To_Unbounded_String ("removed moved path");
+      S.Buffer_Lifecycle.Has_Reopen_Candidate := True;
+      S.Buffer_Lifecycle.Reopen_Candidate_Path := To_Unbounded_String (Reopen_Path);
+      S.Buffer_Lifecycle.Reopen_Candidate_Label := To_Unbounded_String ("removed moved path");
 
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, Target);
       Assert_Message ("No active buffer.", "no active buffer checked first");
       Assert (not Ada.Directories.Exists (Target)
-        and then S.Has_Reopen_Candidate
-        and then To_String (S.Reopen_Candidate_Path) = Reopen_Path
+        and then S.Buffer_Lifecycle.Has_Reopen_Candidate
+        and then To_String (S.Buffer_Lifecycle.Reopen_Candidate_Path) = Reopen_Path
         and then To_String (Editor.Clipboard.Get_Text) =
           "blocked clipboard move history",
         "no-active move must ignore target path, removed-name reopen state, and clipboard state");
@@ -1934,15 +1934,15 @@ procedure Test_Move_Canonical_State_And_Persistence_Cleanup
       Assert_Message ("No file path for active buffer",
         "no-path is retained before dirty and target validation");
       Assert (not Ada.Directories.Exists (Untitled_Tgt)
-        and then not S.File_Info.Has_Path
-        and then S.File_Info.Dirty
+        and then not S.Buffer_Lifecycle.File_Info.Has_Path
+        and then S.Buffer_Lifecycle.File_Info.Dirty
         and then Buffer_Text (S) = "untitled dirty text dirty",
         "dirty untitled move must report no-path and preserve text without creating target state");
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Source);
-      S.Has_Reopen_Candidate := True;
-      S.Reopen_Candidate_Path := To_Unbounded_String (Reopen_Path);
-      S.Reopen_Candidate_Label := To_Unbounded_String ("removed moved path");
+      S.Buffer_Lifecycle.Has_Reopen_Candidate := True;
+      S.Buffer_Lifecycle.Reopen_Candidate_Path := To_Unbounded_String (Reopen_Path);
+      S.Buffer_Lifecycle.Reopen_Candidate_Label := To_Unbounded_String ("removed moved path");
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "removed move history");
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Show (S);
@@ -1950,7 +1950,7 @@ procedure Test_Move_Canonical_State_And_Persistence_Cleanup
       Editor.Executor.Selection_Commands.Execute_Select_All_Selection_Command (S);
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty");
       Before_Text := To_Unbounded_String (Buffer_Text (S));
-      Before_Base := S.File_Info.Saved_Generation;
+      Before_Base := S.Buffer_Lifecycle.File_Info.Saved_Generation;
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
 
@@ -1960,23 +1960,23 @@ procedure Test_Move_Canonical_State_And_Persistence_Cleanup
         "dirty associated buffer checked before target validation");
       Assert (Ada.Directories.Exists (Source)
         and then not Ada.Directories.Exists (Dirty_Tgt)
-        and then To_String (S.File_Info.Path) = Source
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Source
         and then Buffer_Text (S) = To_String (Before_Text)
-        and then S.File_Info.Saved_Generation = Before_Base
-        and then S.File_Info.Dirty
+        and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Base
+        and then S.Buffer_Lifecycle.File_Info.Dirty
         and then Editor.History.Undo_Stack.Length = Before_Undo
         and then Editor.History.Redo_Stack.Length = Before_Redo
         and then To_String (S.Active_Find_Query) = "removed move history"
         and then To_String (S.Active_Replace_Text) = "target history overwrite"
         and then To_String (Editor.Clipboard.Get_Text) =
           "blocked clipboard move history"
-        and then S.Has_Reopen_Candidate
-        and then To_String (S.Reopen_Candidate_Path) = Reopen_Path,
+        and then S.Buffer_Lifecycle.Has_Reopen_Candidate
+        and then To_String (S.Buffer_Lifecycle.Reopen_Candidate_Path) = Reopen_Path,
         "dirty blocked move must preserve association, text, baseline, history, find/replace, clipboard, and reopen candidate");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
       Before_Text := To_Unbounded_String (Buffer_Text (S));
-      Before_Base := S.File_Info.Saved_Generation;
+      Before_Base := S.Buffer_Lifecycle.File_Info.Saved_Generation;
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
 
@@ -1985,10 +1985,10 @@ procedure Test_Move_Canonical_State_And_Persistence_Cleanup
       Assert_Message ("Invalid move target",
         "blank explicit target rejected without filesystem move");
       Assert (Ada.Directories.Exists (Source)
-        and then To_String (S.File_Info.Path) = Source
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Source
         and then Buffer_Text (S) = To_String (Before_Text)
-        and then S.File_Info.Saved_Generation = Before_Base
-        and then not S.File_Info.Dirty
+        and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Base
+        and then not S.Buffer_Lifecycle.File_Info.Dirty
         and then Editor.History.Undo_Stack.Length = Before_Undo
         and then Editor.History.Redo_Stack.Length = Before_Redo,
         "invalid target must not mutate canonical clean source state");
@@ -2003,18 +2003,18 @@ procedure Test_Move_Canonical_State_And_Persistence_Cleanup
       Assert (Ada.Directories.Exists (Source)
         and then Ada.Directories.Exists (Existing)
         and then Read_Bytes (Existing) = "collision target"
-        and then To_String (S.File_Info.Path) = Source
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Source
         and then Buffer_Text (S) = To_String (Before_Text)
-        and then S.File_Info.Saved_Generation = Before_Base
-        and then not S.File_Info.Dirty
+        and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Base
+        and then not S.Buffer_Lifecycle.File_Info.Dirty
         and then Editor.History.Undo_Stack.Length = Before_Undo
         and then Editor.History.Redo_Stack.Length = Before_Redo
         and then To_String (S.Active_Find_Query) = "removed move history"
         and then To_String (S.Active_Replace_Text) = "target history overwrite"
         and then To_String (Editor.Clipboard.Get_Text) =
           "blocked clipboard move history"
-        and then S.Has_Reopen_Candidate
-        and then To_String (S.Reopen_Candidate_Path) = Reopen_Path,
+        and then S.Buffer_Lifecycle.Has_Reopen_Candidate
+        and then To_String (S.Buffer_Lifecycle.Reopen_Candidate_Path) = Reopen_Path,
         "collision must preserve source, target, editor state, and removed-name-like transient state without overwrite");
       Assert_Summary_Excludes ("Move target already exists");
       Assert_Summary_Excludes ("last move");
@@ -2084,14 +2084,14 @@ procedure Test_Move_Canonical_State_And_Persistence_Cleanup
       begin
          Assert (Editor.Buffers.Global_Active_Buffer = Active_Id
            and then Editor.Buffers.Global_Count = Count_0
-           and then S.File_Info.Has_Path
-           and then To_String (S.File_Info.Path) = Expected_Path
+           and then S.Buffer_Lifecycle.File_Info.Has_Path
+           and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Expected_Path
            and then Buffer_Text (S) = Expected_Text
-           and then not S.File_Info.Dirty
+           and then not S.Buffer_Lifecycle.File_Info.Dirty
            and then Editor.Buffers.Buffer
-             (Editor.Buffers.Global_Registry_For_UI, Inactive_Id).File_Info.Dirty
+             (Editor.Buffers.Global_Registry_For_UI, Inactive_Id).Buffer_Lifecycle.File_Info.Dirty
            and then To_String (Editor.Buffers.Buffer
-             (Editor.Buffers.Global_Registry_For_UI, Inactive_Id).File_Info.Path) = Inactive_Path,
+             (Editor.Buffers.Global_Registry_For_UI, Inactive_Id).Buffer_Lifecycle.File_Info.Path) = Inactive_Path,
            "coherent active-buffer file operation state: " & Context);
       end Assert_Active_Buffer_File_Operations_Coherent;
    begin
@@ -2170,8 +2170,8 @@ procedure Test_Move_Canonical_State_And_Persistence_Cleanup
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
       Assert_Message ("Buffer file deleted", "delete clears only after filesystem success");
       Assert (not Ada.Directories.Exists (Move_Target)
-        and then not S.File_Info.Has_Path
-        and then S.File_Info.Dirty
+        and then not S.Buffer_Lifecycle.File_Info.Has_Path
+        and then S.Buffer_Lifecycle.File_Info.Dirty
         and then Buffer_Text (S) = "active disk"
         and then Editor.Buffers.Global_Active_Buffer = Active_Id
         and then Editor.Buffers.Global_Count = Count_0
@@ -2190,9 +2190,9 @@ procedure Test_Move_Canonical_State_And_Persistence_Cleanup
       Assert_Message ("No file path for active buffer", "move after delete sees no association");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, Deleted_Save);
-      Assert (S.File_Info.Has_Path
-        and then To_String (S.File_Info.Path) = Deleted_Save
-        and then not S.File_Info.Dirty
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Deleted_Save
+        and then not S.Buffer_Lifecycle.File_Info.Dirty
         and then Ada.Directories.Exists (Deleted_Save),
         "Save As after delete is the explicit operation that creates a new association");
 
@@ -2248,25 +2248,25 @@ procedure Test_Move_Canonical_State_And_Persistence_Cleanup
       procedure Snapshot_State is
       begin
          Before_Text := To_Unbounded_String (Buffer_Text (S));
-         Before_Path := S.File_Info.Path;
-         Before_Base := S.File_Info.Saved_Generation;
+         Before_Path := S.Buffer_Lifecycle.File_Info.Path;
+         Before_Base := S.Buffer_Lifecycle.File_Info.Saved_Generation;
          Before_Undo := Editor.History.Undo_Stack.Length;
          Before_Redo := Editor.History.Redo_Stack.Length;
       end Snapshot_State;
 
       procedure Assert_Preserved (Context : String) is
       begin
-         Assert (S.File_Info.Has_Path
-           and then To_String (S.File_Info.Path) = To_String (Before_Path)
+         Assert (S.Buffer_Lifecycle.File_Info.Has_Path
+           and then To_String (S.Buffer_Lifecycle.File_Info.Path) = To_String (Before_Path)
            and then Buffer_Text (S) = To_String (Before_Text)
-           and then S.File_Info.Saved_Generation = Before_Base
+           and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Base
            and then Editor.History.Undo_Stack.Length = Before_Undo
            and then Editor.History.Redo_Stack.Length = Before_Redo
            and then To_String (S.Active_Find_Query) = ""
            and then To_String (S.Active_Replace_Text) = "replacement"
            and then To_String (Editor.Clipboard.Get_Text) = "clipboard"
-           and then S.Has_Reopen_Candidate
-           and then To_String (S.Reopen_Candidate_Path) = Source,
+           and then S.Buffer_Lifecycle.Has_Reopen_Candidate
+           and then To_String (S.Buffer_Lifecycle.Reopen_Candidate_Path) = Source,
            "failed/blocked file operation preserves editor state: " & Context);
       end Assert_Preserved;
    begin
@@ -2289,9 +2289,9 @@ procedure Test_Move_Canonical_State_And_Persistence_Cleanup
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text (S, "replacement");
       Editor.Executor.Selection_Commands.Execute_Select_All_Selection_Command (S);
       Editor.Clipboard.Set_Text (To_Unbounded_String ("clipboard"));
-      S.Has_Reopen_Candidate := True;
-      S.Reopen_Candidate_Path := To_Unbounded_String (Source);
-      S.Reopen_Candidate_Label := To_Unbounded_String ("reopen candidate");
+      S.Buffer_Lifecycle.Has_Reopen_Candidate := True;
+      S.Buffer_Lifecycle.Reopen_Candidate_Path := To_Unbounded_String (Source);
+      S.Buffer_Lifecycle.Reopen_Candidate_Label := To_Unbounded_String ("reopen candidate");
 
       Snapshot_State;
       Editor.Messages.Clear (S.Messages);
@@ -2349,35 +2349,35 @@ procedure Test_Move_Canonical_State_And_Persistence_Cleanup
       Assert_Preserved ("dirty delete blocked");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
-      if S.File_Conflict_Prompt_Active then
+      if S.Buffer_Lifecycle.File_Conflict_Prompt_Active then
          Editor.Executor.Execute_Command
            (S, Editor.Command_Ids.Command_File_Conflict_Overwrite_Disk);
       end if;
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, Rename_Target);
       Assert_Message ("Buffer file renamed", "save makes rename eligible");
-      Assert (To_String (S.File_Info.Path) = Rename_Target
-        and then not S.File_Info.Dirty
+      Assert (To_String (S.Buffer_Lifecycle.File_Info.Path) = Rename_Target
+        and then not S.Buffer_Lifecycle.File_Info.Dirty
         and then Ada.Directories.Exists (Rename_Target),
         "successful save restores eligibility for active-buffer file operations");
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, Move_Target);
       Assert_Message ("Buffer file moved", "move after saved rename uses new association");
-      Assert (To_String (S.File_Info.Path) = Move_Target
+      Assert (To_String (S.Buffer_Lifecycle.File_Info.Path) = Move_Target
         and then Ada.Directories.Exists (Move_Target)
         and then not Ada.Directories.Exists (Rename_Target),
         "move after rename observes current association");
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
       Assert_Message ("Buffer file deleted", "delete after move uses moved association");
-      Assert (not S.File_Info.Has_Path
-        and then S.File_Info.Dirty
+      Assert (not S.Buffer_Lifecycle.File_Info.Has_Path
+        and then S.Buffer_Lifecycle.File_Info.Dirty
         and then not Ada.Directories.Exists (Move_Target),
         "delete after move clears association only after deleting moved file");
       Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, Delete_Save);
-      Assert (S.File_Info.Has_Path
-        and then To_String (S.File_Info.Path) = Delete_Save
-        and then not S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Delete_Save
+        and then not S.Buffer_Lifecycle.File_Info.Dirty,
         "Save As after delete creates clean associated buffer for later operations");
 
       Editor.Clipboard.Clear;
@@ -2438,18 +2438,18 @@ procedure Test_Move_Canonical_State_And_Persistence_Cleanup
       procedure Snapshot_State is
       begin
          Before_Text := To_Unbounded_String (Buffer_Text (S));
-         Before_Path := S.File_Info.Path;
-         Before_Base := S.File_Info.Saved_Generation;
+         Before_Path := S.Buffer_Lifecycle.File_Info.Path;
+         Before_Base := S.Buffer_Lifecycle.File_Info.Saved_Generation;
          Before_Undo := Editor.History.Undo_Stack.Length;
          Before_Redo := Editor.History.Redo_Stack.Length;
       end Snapshot_State;
 
       procedure Assert_Read_Only_Preserved (Context : String) is
       begin
-         Assert (S.File_Info.Has_Path
-           and then To_String (S.File_Info.Path) = To_String (Before_Path)
+         Assert (S.Buffer_Lifecycle.File_Info.Has_Path
+           and then To_String (S.Buffer_Lifecycle.File_Info.Path) = To_String (Before_Path)
            and then Buffer_Text (S) = To_String (Before_Text)
-           and then S.File_Info.Saved_Generation = Before_Base
+           and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Base
            and then Editor.History.Undo_Stack.Length = Before_Undo
            and then Editor.History.Redo_Stack.Length = Before_Redo
            and then Ada.Directories.Exists (To_String (Before_Path)),
@@ -2538,12 +2538,12 @@ procedure Test_Move_Canonical_State_And_Persistence_Cleanup
       Editor.Executor.File_Operation_Commands.Execute_Copy_Buffer_File (S, Copied);
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, Moved);
       Editor.Executor.Buffer_Close_Commands.Execute_Close_Active_Buffer (S);
-      Assert (S.Has_Reopen_Candidate
-        and then To_String (S.Reopen_Candidate_Path) = Moved,
+      Assert (S.Buffer_Lifecycle.Has_Reopen_Candidate
+        and then To_String (S.Buffer_Lifecycle.Reopen_Candidate_Path) = Moved,
         "only close creates reopen candidate and it references current moved association");
       Editor.Executor.File_Open_Commands.Execute_Reopen_Closed_Buffer (S);
-      Assert (S.File_Info.Has_Path
-        and then To_String (S.File_Info.Path) = Moved
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Moved
         and then Buffer_Text (S) = "readonly disk edited",
         "reopen after rename/copy/move uses current associated path and not copied target");
       Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, Reopened);
@@ -2551,7 +2551,7 @@ procedure Test_Move_Canonical_State_And_Persistence_Cleanup
       Workspace := Editor.State.Build_Workspace_Snapshot (S);
       Summary := To_Unbounded_String
         (Editor.Workspace_Persistence.Debug_Summary (Workspace));
-      Assert (not S.File_Info.Has_Path and then S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Has_Path and then S.Buffer_Lifecycle.File_Info.Dirty,
         "delete after reopened save-as applies retained no-associated-file state");
       Assert_Summary_Excludes ("Buffer file deleted");
       Assert_Summary_Excludes ("deleted path");
@@ -2616,28 +2616,28 @@ procedure Test_Final_Association_Lifecycle_And_Failure_Freeze
       procedure Snapshot_State is
       begin
          Before_Text := To_Unbounded_String (Buffer_Text (S));
-         Before_Path := S.File_Info.Path;
-         Before_Base := S.File_Info.Saved_Generation;
-         Before_Dirty := S.File_Info.Dirty;
+         Before_Path := S.Buffer_Lifecycle.File_Info.Path;
+         Before_Base := S.Buffer_Lifecycle.File_Info.Saved_Generation;
+         Before_Dirty := S.Buffer_Lifecycle.File_Info.Dirty;
          Before_Undo := Editor.History.Undo_Stack.Length;
          Before_Redo := Editor.History.Redo_Stack.Length;
       end Snapshot_State;
 
       procedure Assert_Failed_State_Preserved (Context : String) is
       begin
-         Assert (S.File_Info.Has_Path
-           and then To_String (S.File_Info.Path) = To_String (Before_Path)
+         Assert (S.Buffer_Lifecycle.File_Info.Has_Path
+           and then To_String (S.Buffer_Lifecycle.File_Info.Path) = To_String (Before_Path)
            and then Buffer_Text (S) = To_String (Before_Text)
-           and then S.File_Info.Saved_Generation = Before_Base
-           and then S.File_Info.Dirty = Before_Dirty
+           and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Base
+           and then S.Buffer_Lifecycle.File_Info.Dirty = Before_Dirty
            and then Editor.History.Undo_Stack.Length = Before_Undo
            and then Editor.History.Redo_Stack.Length = Before_Redo
            and then Editor.Buffers.Global_Active_Buffer = Active_Id
            and then Editor.Buffers.Global_Count = Count_0
            and then Editor.Buffers.Buffer
-             (Editor.Buffers.Global_Registry_For_UI, Inactive_Id).File_Info.Dirty
+             (Editor.Buffers.Global_Registry_For_UI, Inactive_Id).Buffer_Lifecycle.File_Info.Dirty
            and then To_String (Editor.Buffers.Buffer
-             (Editor.Buffers.Global_Registry_For_UI, Inactive_Id).File_Info.Path) = Inactive_Path,
+             (Editor.Buffers.Global_Registry_For_UI, Inactive_Id).Buffer_Lifecycle.File_Info.Path) = Inactive_Path,
            "failed filesystem operation mutated frozen state: " & Context);
       end Assert_Failed_State_Preserved;
 
@@ -2645,16 +2645,16 @@ procedure Test_Final_Association_Lifecycle_And_Failure_Freeze
         (Expected_Path : String;
          Context       : String) is
       begin
-         Assert (S.File_Info.Has_Path
-           and then To_String (S.File_Info.Path) = Expected_Path
+         Assert (S.Buffer_Lifecycle.File_Info.Has_Path
+           and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Expected_Path
            and then Buffer_Text (S) = "active disk"
-           and then not S.File_Info.Dirty
+           and then not S.Buffer_Lifecycle.File_Info.Dirty
            and then Editor.Buffers.Global_Active_Buffer = Active_Id
            and then Editor.Buffers.Global_Count = Count_0
            and then Editor.Buffers.Buffer
-             (Editor.Buffers.Global_Registry_For_UI, Inactive_Id).File_Info.Dirty
+             (Editor.Buffers.Global_Registry_For_UI, Inactive_Id).Buffer_Lifecycle.File_Info.Dirty
            and then To_String (Editor.Buffers.Buffer
-             (Editor.Buffers.Global_Registry_For_UI, Inactive_Id).File_Info.Path) = Inactive_Path,
+             (Editor.Buffers.Global_Registry_For_UI, Inactive_Id).Buffer_Lifecycle.File_Info.Path) = Inactive_Path,
            "active association/text/buffer collection freeze failed " & Context);
       end Assert_Clean_Active_State;
 
@@ -2746,24 +2746,24 @@ procedure Test_Final_Association_Lifecycle_And_Failure_Freeze
       Assert_Clean_Active_State (Moved, "after revert uses moved association");
 
       Editor.Executor.Buffer_Close_Commands.Execute_Close_Active_Buffer (S);
-      Assert (S.Has_Reopen_Candidate
-        and then To_String (S.Reopen_Candidate_Path) = Moved,
+      Assert (S.Buffer_Lifecycle.Has_Reopen_Candidate
+        and then To_String (S.Buffer_Lifecycle.Reopen_Candidate_Path) = Moved,
         "close remains the only lifecycle command creating reopen candidates");
       Editor.Executor.File_Open_Commands.Execute_Reopen_Closed_Buffer (S);
-      Assert (S.File_Info.Has_Path
-        and then To_String (S.File_Info.Path) = Moved
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Moved
         and then Buffer_Text (S) = "active disk",
         "reopen uses canonical file read and current moved association");
       Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, Reopened);
-      Assert (To_String (S.File_Info.Path) = Reopened
+      Assert (To_String (S.Buffer_Lifecycle.File_Info.Path) = Reopened
         and then Ada.Directories.Exists (Reopened),
         "Save As is the explicit path-changing text-write command");
 
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
       Assert_Message ("Buffer file deleted", "delete success");
-      Assert (not S.File_Info.Has_Path
-        and then S.File_Info.Dirty
+      Assert (not S.Buffer_Lifecycle.File_Info.Has_Path
+        and then S.Buffer_Lifecycle.File_Info.Dirty
         and then Buffer_Text (S) = "active disk"
         and then not Ada.Directories.Exists (Reopened)
         and then Ada.Directories.Exists (Copied),
@@ -2779,14 +2779,14 @@ procedure Test_Final_Association_Lifecycle_And_Failure_Freeze
       Assert_Message ("No file path for active buffer", "move after delete no-path before collision");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, Save_As_Path);
-      Assert (S.File_Info.Has_Path
-        and then To_String (S.File_Info.Path) = Save_As_Path
-        and then not S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Has_Path
+        and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Save_As_Path
+        and then not S.Buffer_Lifecycle.File_Info.Dirty,
         "after delete only Save As creates the new association used by later operations");
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
       Assert_Message ("Buffer file deleted", "delete after save-as target");
-      Assert (not S.File_Info.Has_Path
+      Assert (not S.Buffer_Lifecycle.File_Info.Has_Path
         and then not Ada.Directories.Exists (Save_As_Path),
         "delete after Save As uses the Save As association");
 

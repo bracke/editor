@@ -98,7 +98,7 @@ package body Editor.Executor.File_Save_Basic_Commands is
       Editor.Buffers.Ensure_Global_Registry (S);
 
       if Editor.Buffers.Global_Active_Buffer /= Editor.Buffers.No_Buffer then
-         if S.Active_Buffer_Token /= Natural (Editor.Buffers.Global_Active_Buffer) then
+         if S.Buffer_Lifecycle.Active_Buffer_Token /= Natural (Editor.Buffers.Global_Active_Buffer) then
             Editor.Buffers.Load_Global_Active_Into_State (S);
          else
             Editor.Buffers.Sync_Global_Active_From_State (S);
@@ -120,7 +120,7 @@ package body Editor.Executor.File_Save_Basic_Commands is
       --  the active buffer's associated path and never invents, prompts, or
       --  falls back to Save As, workspace, recent-project, project-root,
       --  switcher, quick-open, or file-tree paths.
-      return S.File_Info.Has_Path and then Length (S.File_Info.Path) > 0;
+      return S.Buffer_Lifecycle.File_Info.Has_Path and then Length (S.Buffer_Lifecycle.File_Info.Path) > 0;
    end Validate_Active_Buffer_Save_Target;
 
    function Serialize_Active_Buffer_Current_Text_For_Save
@@ -143,7 +143,7 @@ package body Editor.Executor.File_Save_Basic_Commands is
       --  settings, recent-projects, Save All, autosave, backup, and format-on
       --  save paths are outside this command.
       return Editor.Files.Save_File
-        (Path     => To_String (S.File_Info.Path),
+        (Path     => To_String (S.Buffer_Lifecycle.File_Info.Path),
          Contents => Serialize_Active_Buffer_Current_Text_For_Save (S));
    end Write_Active_Buffer_Text_To_File;
 
@@ -156,43 +156,43 @@ package body Editor.Executor.File_Save_Basic_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      S.File_Conflict_Prompt_Active := False;
-      S.File_Conflict_Prompt_Buffer := 0;
-      S.File_Conflict_Prompt_Path := Null_Unbounded_String;
-      S.File_Conflict_Prompt_Display := Null_Unbounded_String;
-      S.File_Conflict_Prompt_Kind := Editor.State.No_File_Conflict;
-      S.File_Conflict_Prompt_Dirty := False;
-      S.File_Conflict_Prompt_Buffer_Revision := 0;
-      S.File_Conflict_Prompt_Token_Label := Null_Unbounded_String;
-      S.File_Conflict_Close_After_Overwrite := False;
-      S.File_Conflict_Close_After_Overwrite_Buffer := 0;
-      S.File_Conflict_Close_After_Overwrite_Selected := False;
-      S.File_Conflict_Close_After_Overwrite_All_Buffers := False;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Active := False;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Buffer := 0;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Path := Null_Unbounded_String;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Display := Null_Unbounded_String;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Kind := Editor.State.No_File_Conflict;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Dirty := False;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Buffer_Revision := 0;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Token_Label := Null_Unbounded_String;
+      S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite := False;
+      S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite_Buffer := 0;
+      S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite_Selected := False;
+      S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite_All_Buffers := False;
    end Clear_File_Conflict_Prompt;
 
    function Active_File_External_Status
      (S : Editor.State.State_Type) return Editor.Files.File_External_Change_Status
    is
    begin
-      if not S.File_Info.Has_Path or else Length (S.File_Info.Path) = 0 then
+      if not S.Buffer_Lifecycle.File_Info.Has_Path or else Length (S.Buffer_Lifecycle.File_Info.Path) = 0 then
          return Editor.Files.File_External_Status_Unknown;
       end if;
       return Editor.Files.External_Change_Status
-        (To_String (S.File_Info.Path),
-         S.File_Info.File_Token_Known,
-         To_String (S.File_Info.File_Token_Label));
+        (To_String (S.Buffer_Lifecycle.File_Info.Path),
+         S.Buffer_Lifecycle.File_Info.File_Token_Known,
+         To_String (S.Buffer_Lifecycle.File_Info.File_Token_Label));
    end Active_File_External_Status;
 
    function Active_Save_Target_Is_Existing_Unwritable
      (S : Editor.State.State_Type) return Boolean
    is
       use type Ada.Directories.File_Kind;
-      Path : constant String := To_String (S.File_Info.Path);
+      Path : constant String := To_String (S.Buffer_Lifecycle.File_Info.Path);
    begin
       --  Command-boundary save preflight only.  This probes metadata and the
       --  host writability bit for the active file-backed target; it performs
       --  no write, chmod, repair, reload, or content mutation.
-      return S.File_Info.Has_Path
+      return S.Buffer_Lifecycle.File_Info.Has_Path
         and then Path'Length > 0
         and then Ada.Directories.Exists (Path)
         and then Ada.Directories.Kind (Path) = Ada.Directories.Ordinary_File
@@ -206,9 +206,9 @@ package body Editor.Executor.File_Save_Basic_Commands is
      (S : Editor.State.State_Type) return Boolean
    is
       use type Ada.Directories.File_Kind;
-      Path : constant String := To_String (S.File_Info.Path);
+      Path : constant String := To_String (S.Buffer_Lifecycle.File_Info.Path);
    begin
-      return S.File_Info.Has_Path
+      return S.Buffer_Lifecycle.File_Info.Has_Path
         and then Path'Length > 0
         and then Ada.Directories.Exists (Path)
         and then Ada.Directories.Kind (Path) /= Ada.Directories.Ordinary_File;
@@ -223,12 +223,12 @@ package body Editor.Executor.File_Save_Basic_Commands is
       Found : Boolean := False;
       Label : Unbounded_String := Null_Unbounded_String;
    begin
-      if S.File_Info.Has_Path and then Length (S.File_Info.Path) > 0 then
+      if S.Buffer_Lifecycle.File_Info.Has_Path and then Length (S.Buffer_Lifecycle.File_Info.Path) > 0 then
          Label := To_Unbounded_String
-           (Editor.Files.Current_Token_Label (To_String (S.File_Info.Path), Found));
+           (Editor.Files.Current_Token_Label (To_String (S.Buffer_Lifecycle.File_Info.Path), Found));
       end if;
-      S.File_Info.File_Token_Known := Found;
-      S.File_Info.File_Token_Label := Label;
+      S.Buffer_Lifecycle.File_Info.File_Token_Known := Found;
+      S.Buffer_Lifecycle.File_Info.File_Token_Label := Label;
    end Capture_Active_File_Token;
 
    function Conflict_Kind_For_Status
@@ -258,13 +258,13 @@ package body Editor.Executor.File_Save_Basic_Commands is
       Reason : String)
    is
    begin
-      S.File_Conflict_Prompt_Active := True;
-      S.File_Conflict_Prompt_Buffer := Natural (Editor.Buffers.Global_Active_Buffer);
-      S.File_Conflict_Prompt_Path := S.File_Info.Path;
-      S.File_Conflict_Prompt_Display := S.File_Info.Display_Name;
-      S.File_Conflict_Prompt_Kind := Kind;
-      S.File_Conflict_Prompt_Dirty := S.File_Info.Dirty;
-      S.File_Conflict_Prompt_Buffer_Revision :=
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Active := True;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Buffer := Natural (Editor.Buffers.Global_Active_Buffer);
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Path := S.Buffer_Lifecycle.File_Info.Path;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Display := S.Buffer_Lifecycle.File_Info.Display_Name;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Kind := Kind;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Dirty := S.Buffer_Lifecycle.File_Info.Dirty;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Buffer_Revision :=
         Editor.State.Current_Buffer_Revision (S);
       --  Capture the disk state observed when the prompt is opened.  This is
       --  a transient validation token only; it is not the buffer's last-loaded
@@ -274,21 +274,21 @@ package body Editor.Executor.File_Save_Basic_Commands is
          Found : Boolean := False;
          Label : constant String :=
            Editor.Files.Current_Token_Label
-             (To_String (S.File_Info.Path), Found);
+             (To_String (S.Buffer_Lifecycle.File_Info.Path), Found);
       begin
-         S.File_Conflict_Prompt_Token_Label :=
+         S.Buffer_Lifecycle.File_Conflict_Prompt_Token_Label :=
            (if Found then To_Unbounded_String (Label)
             else Null_Unbounded_String);
       end;
-      S.File_Info.External_Change_Surfaced :=
+      S.Buffer_Lifecycle.File_Info.External_Change_Surfaced :=
         Kind in Editor.State.External_Modified_While_Clean
           | Editor.State.External_Modified_While_Dirty
           | Editor.State.Backing_File_Replaced;
-      S.File_Info.Missing_Target_Surfaced :=
+      S.Buffer_Lifecycle.File_Info.Missing_Target_Surfaced :=
         Kind in Editor.State.Backing_File_Deleted_While_Clean
           | Editor.State.Backing_File_Deleted_While_Dirty
           | Editor.State.Save_Target_Parent_Missing;
-      S.File_Info.Unreadable_Target_Surfaced :=
+      S.Buffer_Lifecycle.File_Info.Unreadable_Target_Surfaced :=
         Kind = Editor.State.Backing_File_Unreadable;
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Executor.Shared_Services.Report_Warning (S, Reason);
@@ -302,20 +302,20 @@ package body Editor.Executor.File_Save_Basic_Commands is
       --  Canonical saved-baseline update path.  Call only after a
       --  successful active-buffer file write.  This is the only place where
       --  file.save clears dirty state or advances the saved generation.
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := Result.Path;
-      S.File_Info.Display_Name := Result.Display_Name;
-      S.File_Info.Dirty := False;
-      S.File_Info.Baseline_Valid := True;
-      S.File_Info.Saved_Generation := Editor.State.Current_Buffer_Revision (S);
-      S.File_Info.Last_Save_Failed := False;
-      S.File_Info.Last_Reload_Failed := False;
-      S.File_Info.Last_Revert_Failed := False;
-      S.File_Info.Missing_Target_Surfaced := False;
-      S.File_Info.Unreadable_Target_Surfaced := False;
-      S.File_Info.Unwritable_Target_Surfaced := False;
-      S.File_Info.External_Change_Surfaced := False;
-      S.File_Info.Blocked_Close_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := Result.Path;
+      S.Buffer_Lifecycle.File_Info.Display_Name := Result.Display_Name;
+      S.Buffer_Lifecycle.File_Info.Dirty := False;
+      S.Buffer_Lifecycle.File_Info.Baseline_Valid := True;
+      S.Buffer_Lifecycle.File_Info.Saved_Generation := Editor.State.Current_Buffer_Revision (S);
+      S.Buffer_Lifecycle.File_Info.Last_Save_Failed := False;
+      S.Buffer_Lifecycle.File_Info.Last_Reload_Failed := False;
+      S.Buffer_Lifecycle.File_Info.Last_Revert_Failed := False;
+      S.Buffer_Lifecycle.File_Info.Missing_Target_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.Unreadable_Target_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.Unwritable_Target_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.External_Change_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.Blocked_Close_Surfaced := False;
       Capture_Active_File_Token (S);
       Clear_File_Conflict_Prompt (S);
       Editor.State.Reset_Dirty_Line_Baseline (S);
@@ -347,9 +347,9 @@ package body Editor.Executor.File_Save_Basic_Commands is
       --  serialization, active-buffer file write, post-success baseline
       --  update, retained clean no-op, and deterministic failure reporting.
       Editor.Executor.Clear_Restore_Feedback_Current (S);
-      if S.File_Conflict_Prompt_Active
+      if S.Buffer_Lifecycle.File_Conflict_Prompt_Active
         or else (Editor.Executor.File_Lifecycle_Confirmation_Pending (S)
-                 and then not S.Dirty_Close_Prompt_Active)
+                 and then not S.Buffer_Lifecycle.Dirty_Close_Prompt_Active)
       then
          Editor.Executor.Shared_Services.Report_Warning (S, "Command unavailable while confirmation is pending");
          return;
@@ -360,8 +360,8 @@ package body Editor.Executor.File_Save_Basic_Commands is
          Editor.Executor.Shared_Services.Report_Info (S, "No active buffer.");
          return;
       elsif not Validate_Active_Buffer_Save_Target (S) then
-         S.File_Info.Last_Save_Failed := True;
-         S.File_Info.Missing_Target_Surfaced := True;
+         S.Buffer_Lifecycle.File_Info.Last_Save_Failed := True;
+         S.Buffer_Lifecycle.File_Info.Missing_Target_Surfaced := True;
          Editor.Buffers.Sync_Global_Active_From_State (S);
          Editor.Executor.Shared_Services.Report_Info (S, "No file path for active buffer");
          return;
@@ -371,7 +371,7 @@ package body Editor.Executor.File_Save_Basic_Commands is
          External_Status : constant Editor.Files.File_External_Change_Status :=
            Active_File_External_Status (S);
          Conflict_Kind : constant Editor.State_Buffer.File_Conflict_Kind :=
-           Conflict_Kind_For_Status (External_Status, S.File_Info.Dirty);
+           Conflict_Kind_For_Status (External_Status, S.Buffer_Lifecycle.File_Info.Dirty);
       begin
          --  requires command-boundary detection for both dirty and
          --  clean file-backed buffers.  A clean buffer has no edits to save,
@@ -397,8 +397,8 @@ package body Editor.Executor.File_Save_Basic_Commands is
       end;
 
       if Active_Save_Target_Is_Existing_Unwritable (S) then
-         S.File_Info.Last_Save_Failed := True;
-         S.File_Info.Unwritable_Target_Surfaced := True;
+         S.Buffer_Lifecycle.File_Info.Last_Save_Failed := True;
+         S.Buffer_Lifecycle.File_Info.Unwritable_Target_Surfaced := True;
          Editor.Buffers.Sync_Global_Active_From_State (S);
          Editor.Executor.Shared_Services.Report_Error (S, "File is not writable");
          return;
@@ -406,7 +406,7 @@ package body Editor.Executor.File_Save_Basic_Commands is
 
       Apply_Format_On_Save_If_Enabled (S);
 
-      if not S.File_Info.Dirty then
+      if not S.Buffer_Lifecycle.File_Info.Dirty then
          Editor.Executor.Shared_Services.Report_Info (S, "No changes to save");
          return;
       end if;
@@ -425,18 +425,18 @@ package body Editor.Executor.File_Save_Basic_Commands is
          end if;
          Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
          Editor.Buffers.Sync_Global_Active_From_State (S);
-         if S.File_Info.Has_Path and then Editor.Executor.Visible_Restore_Message_In_History (S) then
-            Editor.Executor.Shared_Services.Report_Success_Append (S, "Saved " & To_String (S.File_Info.Display_Name));
+         if S.Buffer_Lifecycle.File_Info.Has_Path and then Editor.Executor.Visible_Restore_Message_In_History (S) then
+            Editor.Executor.Shared_Services.Report_Success_Append (S, "Saved " & To_String (S.Buffer_Lifecycle.File_Info.Display_Name));
          else
             Editor.Executor.Shared_Services.Report_Success_Append (S, "Saved file");
          end if;
       else
-         S.File_Info.Last_Save_Failed := True;
-         S.File_Info.Missing_Target_Surfaced :=
+         S.Buffer_Lifecycle.File_Info.Last_Save_Failed := True;
+         S.Buffer_Lifecycle.File_Info.Missing_Target_Surfaced :=
            Result.Status in Editor.Files.File_Save_No_Current_Path
              | Editor.Files.File_Save_Invalid_Path
              | Editor.Files.File_Save_Parent_Unavailable;
-         S.File_Info.Unwritable_Target_Surfaced :=
+         S.Buffer_Lifecycle.File_Info.Unwritable_Target_Surfaced :=
            Result.Status in Editor.Files.File_Save_Permission_Denied
              | Editor.Files.File_Save_Write_Error
              | Editor.Files.File_Save_Is_Directory;
@@ -465,7 +465,7 @@ package body Editor.Executor.File_Save_Basic_Commands is
          return False;
       end if;
 
-      if S.Active_Buffer_Token = Natural (Active_Id) then
+      if S.Buffer_Lifecycle.Active_Buffer_Token = Natural (Active_Id) then
          Editor.Buffers.Sync_Global_Active_From_State (S);
       else
          Load_Global_Active_Preserving_Language_Index (S);
@@ -492,7 +492,7 @@ package body Editor.Executor.File_Save_Basic_Commands is
       --  history, workspace state, recent projects, file-tree selection,
       --  quick-open state, buffer-switcher state, display names, or reopen
       --  candidates.
-      return S.File_Info.Has_Path and then Length (S.File_Info.Path) > 0;
+      return S.Buffer_Lifecycle.File_Info.Has_Path and then Length (S.Buffer_Lifecycle.File_Info.Path) > 0;
    end Validate_Active_Buffer_Associated_Path_For_Reload;
 
    function Validate_Active_Buffer_Associated_Path_For_Revert
@@ -510,7 +510,7 @@ package body Editor.Executor.File_Save_Basic_Commands is
       --  Canonical dirty reload guard.  Dirty associated buffers are blocked
       --  before any filesystem read; reload never saves, Save As, discards,
       --  force-reloads, clears dirty state, or stores dirty text.
-      return S.File_Info.Dirty;
+      return S.Buffer_Lifecycle.File_Info.Dirty;
    end Dirty_Buffer_Reload_Blocked;
 
    function Read_Active_Buffer_Associated_File_For_Reload
@@ -519,7 +519,7 @@ package body Editor.Executor.File_Save_Basic_Commands is
       --  Canonical file-read integration.  This is the only filesystem read
       --  on the file.reload-buffer path and it is reached only by execution
       --  after no-active/no-path/dirty validation has succeeded.
-      return Editor.Files.Open_File (To_String (S.File_Info.Path));
+      return Editor.Files.Open_File (To_String (S.Buffer_Lifecycle.File_Info.Path));
    end Read_Active_Buffer_Associated_File_For_Reload;
 
    procedure Apply_Reloaded_Text_After_Read
@@ -565,7 +565,7 @@ package body Editor.Executor.File_Save_Basic_Commands is
       Reason : String)
    is
       Source_Path : constant String :=
-        (if S.File_Info.Has_Path then To_String (S.File_Info.Path) else "");
+        (if S.Buffer_Lifecycle.File_Info.Has_Path then To_String (S.Buffer_Lifecycle.File_Info.Path) else "");
       Relative_Path : constant String :=
         (if Source_Path'Length > 0
            and then Editor.Project.Has_Project (S.Project)
@@ -584,7 +584,7 @@ package body Editor.Executor.File_Save_Basic_Commands is
       Editor.Project_Search.Mark_Stale_Unconditionally (S.Project_Search);
       Editor.Project_Search.Mark_Replace_Preview_Stale (S.Project_Search);
       Editor.Feature_Diagnostics.Mark_Diagnostics_For_Buffer_Stale
-        (S.Feature_Diagnostics, S.Active_Buffer_Token);
+        (S.Feature_Diagnostics, S.Buffer_Lifecycle.Active_Buffer_Token);
 
       if Source_Path'Length > 0 then
          Editor.Feature_Diagnostics.Mark_Diagnostics_For_Source_Path_Stale
@@ -606,11 +606,11 @@ package body Editor.Executor.File_Save_Basic_Commands is
          Editor.Ada_Language_Service.Invalidate_Path
            (S.Language_Service, Source_Path);
       end if;
-      if S.Active_Buffer_Token /= 0 then
+      if S.Buffer_Lifecycle.Active_Buffer_Token /= 0 then
          Editor.Ada_Project_Index.Invalidate_Buffer
-           (S.Language_Index, S.Active_Buffer_Token);
+           (S.Language_Index, S.Buffer_Lifecycle.Active_Buffer_Token);
          Editor.Ada_Language_Service.Invalidate_Buffer
-           (S.Language_Service, S.Active_Buffer_Token);
+           (S.Language_Service, S.Buffer_Lifecycle.Active_Buffer_Token);
       end if;
 
       if To_String (S.Build_UI.Selected_Build_Candidate_Id)'Length > 0 then
@@ -634,20 +634,20 @@ package body Editor.Executor.File_Save_Basic_Commands is
    begin
       --  Canonical reload baseline/dirty update path.  It is invoked only
       --  after a successful read and active-buffer text replacement.
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := Reload_Path;
-      S.File_Info.Display_Name := Reload_Display;
-      S.File_Info.Dirty := False;
-      S.File_Info.Baseline_Valid := True;
-      S.File_Info.Saved_Generation := Editor.State.Current_Buffer_Revision (S);
-      S.File_Info.Last_Save_Failed := False;
-      S.File_Info.Last_Reload_Failed := False;
-      S.File_Info.Last_Revert_Failed := False;
-      S.File_Info.Missing_Target_Surfaced := False;
-      S.File_Info.Unreadable_Target_Surfaced := False;
-      S.File_Info.Unwritable_Target_Surfaced := False;
-      S.File_Info.External_Change_Surfaced := False;
-      S.File_Info.Blocked_Close_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := Reload_Path;
+      S.Buffer_Lifecycle.File_Info.Display_Name := Reload_Display;
+      S.Buffer_Lifecycle.File_Info.Dirty := False;
+      S.Buffer_Lifecycle.File_Info.Baseline_Valid := True;
+      S.Buffer_Lifecycle.File_Info.Saved_Generation := Editor.State.Current_Buffer_Revision (S);
+      S.Buffer_Lifecycle.File_Info.Last_Save_Failed := False;
+      S.Buffer_Lifecycle.File_Info.Last_Reload_Failed := False;
+      S.Buffer_Lifecycle.File_Info.Last_Revert_Failed := False;
+      S.Buffer_Lifecycle.File_Info.Missing_Target_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.Unreadable_Target_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.Unwritable_Target_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.External_Change_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.Blocked_Close_Surfaced := False;
       Capture_Active_File_Token (S);
       Clear_File_Conflict_Prompt (S);
       Editor.State.Reset_Dirty_Line_Baseline (S);
@@ -672,28 +672,28 @@ package body Editor.Executor.File_Save_Basic_Commands is
       elsif Dirty_Buffer_Reload_Blocked (S) then
          Editor.Executor.Pending_Transition_Policy.Set_Pending_Dirty_Transition (S,
             Editor.Executor.Pending_Transition_Policy.Pending_Target_For (Editor.Pending_Transitions.Pending_Reload_Active_Buffer,
-               Path => To_String (S.File_Info.Path),
-               Display => To_String (S.File_Info.Display_Name),
+               Path => To_String (S.Buffer_Lifecycle.File_Info.Path),
+               Display => To_String (S.Buffer_Lifecycle.File_Info.Display_Name),
                Buffer_Id => Editor.Buffers.Global_Active_Buffer),
             Editor.Dirty_Guards.Blocked
               ((Dirty_Count       => 1,
-                Untitled_Count    => (if S.File_Info.Has_Path then 0 else 1),
-                File_Backed_Count => (if S.File_Info.Has_Path then 1 else 0)),
+                Untitled_Count    => (if S.Buffer_Lifecycle.File_Info.Has_Path then 0 else 1),
+                File_Backed_Count => (if S.Buffer_Lifecycle.File_Info.Has_Path then 1 else 0)),
                "Dirty buffer cannot be reloaded"));
          return;
       end if;
 
       declare
-         Reload_Path    : constant Unbounded_String := S.File_Info.Path;
-         Reload_Display : constant Unbounded_String := S.File_Info.Display_Name;
+         Reload_Path    : constant Unbounded_String := S.Buffer_Lifecycle.File_Info.Path;
+         Reload_Display : constant Unbounded_String := S.Buffer_Lifecycle.File_Info.Display_Name;
       begin
          Result := Read_Active_Buffer_Associated_File_For_Reload (S);
 
          if not Editor.Files.Is_Success (Result) then
-            S.File_Info.Last_Reload_Failed := True;
-            S.File_Info.Missing_Target_Surfaced :=
+            S.Buffer_Lifecycle.File_Info.Last_Reload_Failed := True;
+            S.Buffer_Lifecycle.File_Info.Missing_Target_Surfaced :=
               Result.Status = Editor.Files.File_Open_Not_Found;
-            S.File_Info.Unreadable_Target_Surfaced :=
+            S.Buffer_Lifecycle.File_Info.Unreadable_Target_Surfaced :=
               Result.Status in Editor.Files.File_Open_Permission_Denied
                 | Editor.Files.File_Open_Read_Error
                 | Editor.Files.File_Open_Decode_Error
@@ -725,7 +725,7 @@ package body Editor.Executor.File_Save_Basic_Commands is
    begin
       --  Revert is the explicit dirty-buffer counterpart to reload.  Clean
       --  buffers are no-ops and are not reread here.
-      return S.File_Info.Dirty;
+      return S.Buffer_Lifecycle.File_Info.Dirty;
    end Dirty_Buffer_Revert_Eligible;
 
    function Read_Active_Buffer_Associated_File_For_Revert
@@ -734,7 +734,7 @@ package body Editor.Executor.File_Save_Basic_Commands is
       --  Reuse canonical file-read behavior.  This is reached only during
       --  command execution after active-buffer, associated-path, and dirty
       --  eligibility checks have succeeded.
-      return Editor.Files.Open_File (To_String (S.File_Info.Path));
+      return Editor.Files.Open_File (To_String (S.Buffer_Lifecycle.File_Info.Path));
    end Read_Active_Buffer_Associated_File_For_Revert;
 
    procedure Apply_Reverted_Text_After_Read
@@ -783,13 +783,13 @@ package body Editor.Executor.File_Save_Basic_Commands is
       else
          Editor.Executor.Pending_Transition_Policy.Set_Pending_Dirty_Transition (S,
             Editor.Executor.Pending_Transition_Policy.Pending_Target_For (Editor.Pending_Transitions.Pending_Revert_Active_Buffer,
-               Path => To_String (S.File_Info.Path),
-               Display => To_String (S.File_Info.Display_Name),
+               Path => To_String (S.Buffer_Lifecycle.File_Info.Path),
+               Display => To_String (S.Buffer_Lifecycle.File_Info.Display_Name),
                Buffer_Id => Editor.Buffers.Global_Active_Buffer),
             Editor.Dirty_Guards.Blocked
               ((Dirty_Count       => 1,
-                Untitled_Count    => (if S.File_Info.Has_Path then 0 else 1),
-                File_Backed_Count => (if S.File_Info.Has_Path then 1 else 0)),
+                Untitled_Count    => (if S.Buffer_Lifecycle.File_Info.Has_Path then 0 else 1),
+                File_Backed_Count => (if S.Buffer_Lifecycle.File_Info.Has_Path then 1 else 0)),
                (if Active_File_External_Status (S) =
                      Editor.Files.File_External_Status_Modified
                 then "Revert changes to disk version? Disk version has changed since file was opened."
@@ -833,7 +833,7 @@ package body Editor.Executor.File_Save_Basic_Commands is
          Result : Editor.Files.File_Save_Result;
       begin
          Status := Editor.Files.File_Save_No_Current_Path;
-         if not S.File_Info.Has_Path or else Length (S.File_Info.Path) = 0 then
+         if not S.Buffer_Lifecycle.File_Info.Has_Path or else Length (S.Buffer_Lifecycle.File_Info.Path) = 0 then
             return False;
          end if;
 
@@ -841,18 +841,18 @@ package body Editor.Executor.File_Save_Basic_Commands is
             External_Status : constant Editor.Files.File_External_Change_Status :=
               Active_File_External_Status (S);
          begin
-            if Conflict_Kind_For_Status (External_Status, S.File_Info.Dirty) /=
+            if Conflict_Kind_For_Status (External_Status, S.Buffer_Lifecycle.File_Info.Dirty) /=
               Editor.State.No_File_Conflict
               and then External_Status /= Editor.Files.File_External_Status_Missing
               and then not Active_Save_Target_Is_Existing_Nonregular (S)
             then
                Status := Editor.Files.File_Save_Write_Error;
-               S.File_Info.Last_Save_Failed := True;
-               S.File_Info.External_Change_Surfaced :=
+               S.Buffer_Lifecycle.File_Info.Last_Save_Failed := True;
+               S.Buffer_Lifecycle.File_Info.External_Change_Surfaced :=
                  External_Status = Editor.Files.File_External_Status_Modified;
-               S.File_Info.Missing_Target_Surfaced :=
+               S.Buffer_Lifecycle.File_Info.Missing_Target_Surfaced :=
                  External_Status = Editor.Files.File_External_Status_Missing;
-               S.File_Info.Unreadable_Target_Surfaced :=
+               S.Buffer_Lifecycle.File_Info.Unreadable_Target_Surfaced :=
                  External_Status in Editor.Files.File_External_Status_Unreadable
                    | Editor.Files.File_External_Status_Replaced;
                Editor.Buffers.Sync_Global_Active_From_State (S);
@@ -862,8 +862,8 @@ package body Editor.Executor.File_Save_Basic_Commands is
 
          if Active_Save_Target_Is_Existing_Unwritable (S) then
             Status := Editor.Files.File_Save_Permission_Denied;
-            S.File_Info.Last_Save_Failed := True;
-            S.File_Info.Unwritable_Target_Surfaced := True;
+            S.Buffer_Lifecycle.File_Info.Last_Save_Failed := True;
+            S.Buffer_Lifecycle.File_Info.Unwritable_Target_Surfaced := True;
             Editor.Buffers.Sync_Global_Active_From_State (S);
             return False;
          end if;
@@ -871,26 +871,26 @@ package body Editor.Executor.File_Save_Basic_Commands is
          Apply_Format_On_Save_If_Enabled (S);
 
          Result := Editor.Files.Save_File
-           (Path     => To_String (S.File_Info.Path),
+           (Path     => To_String (S.Buffer_Lifecycle.File_Info.Path),
             Contents => Editor.State.Current_Text (S));
 
          Status := Result.Status;
 
          if Editor.Files.Is_Success (Result) then
-            S.File_Info.Has_Path := True;
-            S.File_Info.Path := Result.Path;
-            S.File_Info.Display_Name := Result.Display_Name;
-            S.File_Info.Dirty := False;
-            S.File_Info.Baseline_Valid := True;
-            S.File_Info.Saved_Generation := Editor.State.Current_Buffer_Revision (S);
-            S.File_Info.Last_Save_Failed := False;
-            S.File_Info.Missing_Target_Surfaced := False;
-            S.File_Info.Blocked_Close_Surfaced := False;
-            S.File_Info.Last_Reload_Failed := False;
-            S.File_Info.Last_Revert_Failed := False;
-            S.File_Info.Unreadable_Target_Surfaced := False;
-            S.File_Info.Unwritable_Target_Surfaced := False;
-            S.File_Info.External_Change_Surfaced := False;
+            S.Buffer_Lifecycle.File_Info.Has_Path := True;
+            S.Buffer_Lifecycle.File_Info.Path := Result.Path;
+            S.Buffer_Lifecycle.File_Info.Display_Name := Result.Display_Name;
+            S.Buffer_Lifecycle.File_Info.Dirty := False;
+            S.Buffer_Lifecycle.File_Info.Baseline_Valid := True;
+            S.Buffer_Lifecycle.File_Info.Saved_Generation := Editor.State.Current_Buffer_Revision (S);
+            S.Buffer_Lifecycle.File_Info.Last_Save_Failed := False;
+            S.Buffer_Lifecycle.File_Info.Missing_Target_Surfaced := False;
+            S.Buffer_Lifecycle.File_Info.Blocked_Close_Surfaced := False;
+            S.Buffer_Lifecycle.File_Info.Last_Reload_Failed := False;
+            S.Buffer_Lifecycle.File_Info.Last_Revert_Failed := False;
+            S.Buffer_Lifecycle.File_Info.Unreadable_Target_Surfaced := False;
+            S.Buffer_Lifecycle.File_Info.Unwritable_Target_Surfaced := False;
+            S.Buffer_Lifecycle.File_Info.External_Change_Surfaced := False;
             Capture_Active_File_Token (S);
             Clear_File_Conflict_Prompt (S);
             File_Lifecycle_Invalidate_Derived_State
@@ -899,12 +899,12 @@ package body Editor.Executor.File_Save_Basic_Commands is
             Editor.Buffers.Sync_Global_Active_From_State (S);
             return True;
          else
-            S.File_Info.Last_Save_Failed := True;
-            S.File_Info.Missing_Target_Surfaced :=
+            S.Buffer_Lifecycle.File_Info.Last_Save_Failed := True;
+            S.Buffer_Lifecycle.File_Info.Missing_Target_Surfaced :=
               Result.Status in Editor.Files.File_Save_No_Current_Path
                 | Editor.Files.File_Save_Invalid_Path
                 | Editor.Files.File_Save_Parent_Unavailable;
-            S.File_Info.Unwritable_Target_Surfaced :=
+            S.Buffer_Lifecycle.File_Info.Unwritable_Target_Surfaced :=
               Result.Status in Editor.Files.File_Save_Permission_Denied
                 | Editor.Files.File_Save_Write_Error
                 | Editor.Files.File_Save_Is_Directory;
@@ -935,8 +935,8 @@ package body Editor.Executor.File_Save_Basic_Commands is
             begin
                if Summary.Id /= Editor.Buffers.No_Buffer then
                   Buffer_State := Editor.Buffers.Buffer (Registry, Summary.Id);
-                  if Buffer_State.File_Info.Dirty
-                    and then Buffer_State.File_Info.Has_Path
+                  if Buffer_State.Buffer_Lifecycle.File_Info.Dirty
+                    and then Buffer_State.Buffer_Lifecycle.File_Info.Has_Path
                   then
                      Editor.Buffers.Global_Set_Active_Buffer (Summary.Id);
                      Load_Current_Global_Active_Preserving_Language_Index;
@@ -947,9 +947,9 @@ package body Editor.Executor.File_Save_Basic_Commands is
                            Saved := Saved + 1;
                         elsif Status = Editor.Files.File_Save_Write_Error
                           and then
-                            (S.File_Info.External_Change_Surfaced
-                             or else S.File_Info.Missing_Target_Surfaced
-                             or else S.File_Info.Unreadable_Target_Surfaced)
+                            (S.Buffer_Lifecycle.File_Info.External_Change_Surfaced
+                             or else S.Buffer_Lifecycle.File_Info.Missing_Target_Surfaced
+                             or else S.Buffer_Lifecycle.File_Info.Unreadable_Target_Surfaced)
                         then
                            --  command-boundary conflict skips are
                            --  not failed writes.  They are deliberate

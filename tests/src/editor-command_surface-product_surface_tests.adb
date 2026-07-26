@@ -609,7 +609,7 @@ package body Editor.Command_Surface.Product_Surface_Tests is
       begin
          Editor.State.Init (S);
          Before_Project := Editor.Project.Has_Project (S.Project);
-         Before_Dirty := S.File_Info.Dirty;
+         Before_Dirty := S.Buffer_Lifecycle.File_Info.Dirty;
          Before_Pending := Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions);
 
          R := Editor.Executor.Execute_Command_With_Result (S, Id);
@@ -617,7 +617,7 @@ package body Editor.Command_Surface.Product_Surface_Tests is
                  Label & " must be executable in the empty global fixture");
          Assert (Editor.Project.Has_Project (S.Project) = Before_Project,
                  Label & " must not mutate project root state");
-         Assert (S.File_Info.Dirty = Before_Dirty,
+         Assert (S.Buffer_Lifecycle.File_Info.Dirty = Before_Dirty,
                  Label & " must not mutate file dirty state");
          Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions) = Before_Pending,
                  Label & " must not create or clear pending transitions");

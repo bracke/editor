@@ -745,7 +745,7 @@ package body Editor.Command_Surface.Tests is
       begin
          Editor.State.Init (S);
          Before_Project := Editor.Project.Has_Project (S.Project);
-         Before_Dirty   := S.File_Info.Dirty;
+         Before_Dirty   := S.Buffer_Lifecycle.File_Info.Dirty;
          Before_Pending := Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions);
 
          Assert (not Editor.Commands.Availability_Metadata.Is_Available
@@ -761,7 +761,7 @@ package body Editor.Command_Surface.Tests is
                  Label & " must emit exactly one unavailable message");
          Assert (Editor.Project.Has_Project (S.Project) = Before_Project,
                  Label & " must not change project root when unavailable");
-         Assert (S.File_Info.Dirty = Before_Dirty,
+         Assert (S.Buffer_Lifecycle.File_Info.Dirty = Before_Dirty,
                  Label & " must not change dirty state when unavailable");
          Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions) = Before_Pending,
                  Label & " must not create pending transitions when unavailable");

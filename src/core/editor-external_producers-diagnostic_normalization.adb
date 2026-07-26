@@ -137,10 +137,10 @@ package body Editor.External_Producers.Diagnostic_Normalization is
 
       if Editor.State.Has_Active_Buffer (S) then
          Consider
-           (S.Active_Buffer_Token,
-            S.File_Info.Has_Path,
-            To_String (S.File_Info.Path),
-            To_String (S.File_Info.Display_Name));
+           (S.Buffer_Lifecycle.Active_Buffer_Token,
+            S.Buffer_Lifecycle.File_Info.Has_Path,
+            To_String (S.Buffer_Lifecycle.File_Info.Path),
+            To_String (S.Buffer_Lifecycle.File_Info.Display_Name));
       end if;
 
       First := Editor.Buffers.First_Buffer (Registry);
@@ -151,9 +151,9 @@ package body Editor.External_Producers.Diagnostic_Normalization is
          begin
             Consider
               (Natural (Id),
-               B.File_Info.Has_Path,
-               To_String (B.File_Info.Path),
-               To_String (B.File_Info.Display_Name));
+               B.Buffer_Lifecycle.File_Info.Has_Path,
+               To_String (B.Buffer_Lifecycle.File_Info.Path),
+               To_String (B.Buffer_Lifecycle.File_Info.Display_Name));
          end;
 
          Id := Editor.Buffers.Next_Buffer (Registry, Id);
@@ -388,8 +388,8 @@ package body Editor.External_Producers.Diagnostic_Normalization is
         Item.Has_Target
         and then Item.Target_Buffer /= Editor.Feature_Diagnostics.No_Buffer
         and then
-          ((S.Active_Buffer_Token /= 0
-            and then Item.Target_Buffer = S.Active_Buffer_Token)
+          ((S.Buffer_Lifecycle.Active_Buffer_Token /= 0
+            and then Item.Target_Buffer = S.Buffer_Lifecycle.Active_Buffer_Token)
            or else Editor.Buffers.Global_Contains
              (Editor.Buffers.Buffer_Id (Item.Target_Buffer)));
       Line_Only_Valid : constant Boolean :=

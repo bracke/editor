@@ -145,7 +145,7 @@ package body Editor.Executor.Semantic_Outline_Targets is
       Matches : constant Editor.Ada_Project_Index.Index_Resolution_Result :=
         Editor.Ada_Project_Index.Resolve (S.Language_Index, Name);
       Path : constant String :=
-        (if S.File_Info.Has_Path then To_String (S.File_Info.Path) else "");
+        (if S.Buffer_Lifecycle.File_Info.Has_Path then To_String (S.Buffer_Lifecycle.File_Info.Path) else "");
    begin
       if Path'Length = 0 or else Matches.Overflow then
          return False;
@@ -208,14 +208,14 @@ package body Editor.Executor.Semantic_Outline_Targets is
       Freshness : Editor.Outline.Outline_Freshness;
    begin
       if not Current_File.Has_Path
-        or else S.Active_Buffer_Token = 0
+        or else S.Buffer_Lifecycle.Active_Buffer_Token = 0
       then
          return True;
       end if;
 
       Freshness := Editor.Outline.Freshness_For_Active_Buffer
         (S.Outline,
-         S.Active_Buffer_Token,
+         S.Buffer_Lifecycle.Active_Buffer_Token,
          Editor.State.Current_Buffer_Revision (S));
       return Freshness /= Editor.Outline.Outline_Stale;
    end Active_Outline_Source_Is_Current;

@@ -390,8 +390,8 @@ package body Editor.Build_Execution_Workflow is
    is
    begin
       return Result.Build_Result.Status = Editor.External_Producers.Build_Types.Build_Run_Not_Available
-        and then Before.Buffer_Revision = After.Buffer_Revision
-        and then Before.Active_Buffer_Token = After.Active_Buffer_Token
+        and then Before.Buffer_Lifecycle.Buffer_Revision = After.Buffer_Lifecycle.Buffer_Revision
+        and then Before.Buffer_Lifecycle.Active_Buffer_Token = After.Buffer_Lifecycle.Active_Buffer_Token
         and then not After.Latest_Build_Output_Details.Stdout_Available
         and then not After.Latest_Build_Output_Details.Stderr_Available
         and then Assert_Build_Output_Is_Bounded

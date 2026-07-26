@@ -68,7 +68,7 @@ package body Editor.Executor.Semantic_Navigation_Commands is
         Editor.Ada_Project_Index.Current_Analysis_Fingerprint
           (S.Language_Index,
            Path,
-           S.Active_Buffer_Token,
+           S.Buffer_Lifecycle.Active_Buffer_Token,
            Editor.State.Current_Buffer_Revision (S),
            Editor.State.Current_Lifecycle_Generation (S));
    begin
@@ -92,7 +92,7 @@ package body Editor.Executor.Semantic_Navigation_Commands is
       Req          : Editor.Ada_Language_Service.Semantic_Request_Id;
    begin
       if Current_File.Has_Path
-        and then S.Active_Buffer_Token /= 0
+        and then S.Buffer_Lifecycle.Active_Buffer_Token /= 0
       then
          declare
             Current_Path : constant String := To_String (Current_File.Path);
@@ -105,7 +105,7 @@ package body Editor.Executor.Semantic_Navigation_Commands is
                Editor.Ada_Language_Service.Semantic_Current_Request_Query_Key
                  (Editor.Ada_Language_Service.Semantic_Request_Goto_Declaration,
                   Name, Current_Path,
-                  S.Active_Buffer_Token,
+                  S.Buffer_Lifecycle.Active_Buffer_Token,
                   Editor.State.Current_Buffer_Revision (S),
                   Editor.State.Current_Lifecycle_Generation (S),
                   Fingerprint,
@@ -114,7 +114,7 @@ package body Editor.Executor.Semantic_Navigation_Commands is
             Target :=
               Editor.Ada_Language_Service.Request_Goto_Declaration_Current
                 (Service, Req, Name, Symbol.Kind, Current_Path,
-                 S.Active_Buffer_Token,
+                 S.Buffer_Lifecycle.Active_Buffer_Token,
                  Editor.State.Current_Buffer_Revision (S),
                  Editor.State.Current_Lifecycle_Generation (S),
                  Fingerprint);
@@ -192,8 +192,8 @@ package body Editor.Executor.Semantic_Navigation_Commands is
          return False;
       end if;
 
-      if not S.File_Info.Has_Path
-        or else not Same_Target_Path (To_String (S.File_Info.Path), Path)
+      if not S.Buffer_Lifecycle.File_Info.Has_Path
+        or else not Same_Target_Path (To_String (S.Buffer_Lifecycle.File_Info.Path), Path)
       then
          declare
             Saved_Index : constant Editor.Ada_Project_Index.Index_State :=
@@ -207,8 +207,8 @@ package body Editor.Executor.Semantic_Navigation_Commands is
          end;
       end if;
 
-      if not S.File_Info.Has_Path
-        or else not Same_Target_Path (To_String (S.File_Info.Path), Path)
+      if not S.Buffer_Lifecycle.File_Info.Has_Path
+        or else not Same_Target_Path (To_String (S.Buffer_Lifecycle.File_Info.Path), Path)
       then
          return False;
       end if;

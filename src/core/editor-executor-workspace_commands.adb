@@ -178,8 +178,8 @@ package body Editor.Executor.Workspace_Commands is
       function Current_State_Is_Disposable_Initial_Untitled return Boolean is
       begin
          return Editor.Buffers.Global_Count = 0
-           and then not S.File_Info.Has_Path
-           and then not S.File_Info.Dirty
+           and then not S.Buffer_Lifecycle.File_Info.Has_Path
+           and then not S.Buffer_Lifecycle.File_Info.Dirty
            and then Editor.State.Current_Text (S) = "";
       end Current_State_Is_Disposable_Initial_Untitled;
    begin
@@ -652,7 +652,7 @@ package body Editor.Executor.Workspace_Commands is
       --  buffer.  If a restore attempted file entries but all were stale or
       --  missing, keep the workflow on the File Tree instead of leaving focus
       --  on a stale overlay/panel from before restore.
-      if Restored_Files > 0 and then S.File_Info.Has_Path then
+      if Restored_Files > 0 and then S.Buffer_Lifecycle.File_Info.Has_Path then
          Editor.Focus_Management.Restore_Focus_To_Editor (S);
       elsif Summary.Files_Requested > 0 then
          Editor.Focus_Management.Set_Focus_Owner

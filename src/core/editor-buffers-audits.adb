@@ -339,7 +339,7 @@ package body Editor.Buffers.Audits is
       Result : Natural := 0;
    begin
       for Item of Registry.Items loop
-         if Item.State /= null and then not Item.State.File_Info.Has_Path then
+         if Item.State /= null and then not Item.State.Buffer_Lifecycle.File_Info.Has_Path then
             Result := Result + 1;
          end if;
       end loop;
@@ -411,7 +411,7 @@ package body Editor.Buffers.Audits is
       for Item of Registry.Items loop
          if Item.State /= null
            and then not Item.Pinned
-           and then not Item.State.File_Info.Dirty
+           and then not Item.State.Buffer_Lifecycle.File_Info.Dirty
          then
             Result := Result + 1;
          end if;
@@ -425,7 +425,7 @@ package body Editor.Buffers.Audits is
       Result : Natural := 0;
    begin
       for Item of Registry.Items loop
-         if Item.State /= null and then Item.State.File_Info.Dirty then
+         if Item.State /= null and then Item.State.Buffer_Lifecycle.File_Info.Dirty then
             Result := Result + 1;
          end if;
       end loop;
@@ -439,8 +439,8 @@ package body Editor.Buffers.Audits is
    begin
       for Item of Registry.Items loop
          if Item.State /= null
-           and then Item.State.File_Info.Dirty
-           and then Item.State.File_Info.Has_Path
+           and then Item.State.Buffer_Lifecycle.File_Info.Dirty
+           and then Item.State.Buffer_Lifecycle.File_Info.Has_Path
          then
             Result := Result + 1;
          end if;
@@ -455,8 +455,8 @@ package body Editor.Buffers.Audits is
    begin
       for Item of Registry.Items loop
          if Item.State /= null
-           and then Item.State.File_Info.Dirty
-           and then not Item.State.File_Info.Has_Path
+           and then Item.State.Buffer_Lifecycle.File_Info.Dirty
+           and then not Item.State.Buffer_Lifecycle.File_Info.Has_Path
          then
             Result := Result + 1;
          end if;
@@ -470,7 +470,7 @@ package body Editor.Buffers.Audits is
       Result : Natural := 0;
    begin
       for Item of Registry.Items loop
-         if Item.State /= null and then not Item.State.File_Info.Dirty then
+         if Item.State /= null and then not Item.State.Buffer_Lifecycle.File_Info.Dirty then
             Result := Result + 1;
          end if;
       end loop;
@@ -484,10 +484,10 @@ package body Editor.Buffers.Audits is
       Seen : Natural := 0;
    begin
       for Item of Registry.Items loop
-         if Item.State /= null and then Item.State.File_Info.Dirty then
+         if Item.State /= null and then Item.State.Buffer_Lifecycle.File_Info.Dirty then
             Seen := Seen + 1;
             if Seen = Index then
-               return To_String (Item.State.File_Info.Display_Name);
+               return To_String (Item.State.Buffer_Lifecycle.File_Info.Display_Name);
             end if;
          end if;
       end loop;
@@ -516,7 +516,7 @@ package body Editor.Buffers.Audits is
       for Item of Registry.Items loop
          if Item.State /= null
            and then not Item.Pinned
-           and then not Item.State.File_Info.Dirty
+           and then not Item.State.Buffer_Lifecycle.File_Info.Dirty
            and then (not Item.Has_Group or else To_String (Item.Group) /= Group)
          then
             Result := Result + 1;

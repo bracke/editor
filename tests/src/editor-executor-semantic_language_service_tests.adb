@@ -73,8 +73,8 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
         (S,
          "@outline procedure Run" & ASCII.LF &
          "body line" & ASCII.LF);
-      if S.Active_Buffer_Token = 0 then
-         S.Active_Buffer_Token := 1;
+      if S.Buffer_Lifecycle.Active_Buffer_Token = 0 then
+         S.Buffer_Lifecycle.Active_Buffer_Token := 1;
       end if;
 
       Result := Editor.Executor.Execute_Command_With_Result
@@ -103,9 +103,9 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
          (Start_Line => 2, Start_Column => 4, End_Line => 2, End_Column => 6));
       Editor.Ada_Project_Index.Put_Analysis
         (S.Language_Index, "/project/run.adb",
-         Buffer_Token         => S.Active_Buffer_Token,
-         Buffer_Revision      => S.Buffer_Revision,
-         Lifecycle_Generation => S.Lifecycle_Generation,
+         Buffer_Token         => S.Buffer_Lifecycle.Active_Buffer_Token,
+         Buffer_Revision      => S.Buffer_Lifecycle.Buffer_Revision,
+         Lifecycle_Generation => S.Buffer_Lifecycle.Lifecycle_Generation,
          Analysis             => Analysis);
 
       Avail := Editor.Executor.Command_Availability
@@ -138,7 +138,7 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
                 (S.Feature_Search_Results, 1),
               "open-buffer semantic reference row is navigable");
       Assert (Editor.Feature_Search_Results.Item_Target_Buffer
-                (S.Feature_Search_Results, 1) = S.Active_Buffer_Token,
+                (S.Feature_Search_Results, 1) = S.Buffer_Lifecycle.Active_Buffer_Token,
               "semantic reference row targets the live buffer token");
       Assert (Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel)
               and then Editor.Panels.Active_Bottom_Content (S.Panels) =
@@ -168,8 +168,8 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
         (S,
          "@outline procedure Run" & ASCII.LF &
          "body line" & ASCII.LF);
-      if S.Active_Buffer_Token = 0 then
-         S.Active_Buffer_Token := 1;
+      if S.Buffer_Lifecycle.Active_Buffer_Token = 0 then
+         S.Buffer_Lifecycle.Active_Buffer_Token := 1;
       end if;
 
       Result := Editor.Executor.Execute_Command_With_Result
@@ -198,15 +198,15 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
          (Start_Line => 3, Start_Column => 4, End_Line => 3, End_Column => 9));
       Editor.Ada_Project_Index.Put_Analysis
         (S.Language_Index, "/project/run.adb",
-         Buffer_Token         => S.Active_Buffer_Token,
-         Buffer_Revision      => S.Buffer_Revision,
-         Lifecycle_Generation => S.Lifecycle_Generation,
+         Buffer_Token         => S.Buffer_Lifecycle.Active_Buffer_Token,
+         Buffer_Revision      => S.Buffer_Lifecycle.Buffer_Revision,
+         Lifecycle_Generation => S.Buffer_Lifecycle.Lifecycle_Generation,
          Analysis             => Analysis);
       Editor.Ada_Project_Index.Put_Analysis
         (S.Language_Index, "/project/other.ads",
          Buffer_Token         => 22,
          Buffer_Revision      => 1,
-         Lifecycle_Generation => S.Lifecycle_Generation,
+         Lifecycle_Generation => S.Buffer_Lifecycle.Lifecycle_Generation,
          Analysis             => Other);
 
       Avail := Editor.Executor.Command_Availability
@@ -291,9 +291,9 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
          (Start_Line => 3, Start_Column => 4, End_Line => 3, End_Column => 6));
       Editor.Ada_Project_Index.Put_Analysis
         (S.Language_Index, "/project/run.adb",
-         Buffer_Token         => S.Active_Buffer_Token,
-         Buffer_Revision      => S.Buffer_Revision,
-         Lifecycle_Generation => S.Lifecycle_Generation,
+         Buffer_Token         => S.Buffer_Lifecycle.Active_Buffer_Token,
+         Buffer_Revision      => S.Buffer_Lifecycle.Buffer_Revision,
+         Lifecycle_Generation => S.Buffer_Lifecycle.Lifecycle_Generation,
          Analysis             => Analysis);
 
       Avail := Editor.Executor.Command_Availability
@@ -322,7 +322,7 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
                 (S.Feature_Search_Results, 1),
               "open-buffer semantic completion row is navigable");
       Assert (Editor.Feature_Search_Results.Item_Target_Buffer
-                (S.Feature_Search_Results, 1) = S.Active_Buffer_Token,
+                (S.Feature_Search_Results, 1) = S.Buffer_Lifecycle.Active_Buffer_Token,
               "semantic completion row targets the live buffer token");
       Assert (S.Semantic_Popup.Active
               and then S.Semantic_Popup.Kind = Editor.State_Semantic.Semantic_Completion_Popup,
@@ -419,9 +419,9 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
          Profile_Summary => "(Count : Natural)");
       Editor.Ada_Project_Index.Put_Analysis
         (S.Language_Index, "/project/run.ads",
-         Buffer_Token         => S.Active_Buffer_Token,
-         Buffer_Revision      => S.Buffer_Revision,
-         Lifecycle_Generation => S.Lifecycle_Generation,
+         Buffer_Token         => S.Buffer_Lifecycle.Active_Buffer_Token,
+         Buffer_Revision      => S.Buffer_Lifecycle.Buffer_Revision,
+         Lifecycle_Generation => S.Buffer_Lifecycle.Lifecycle_Generation,
          Analysis             => Analysis);
 
       Avail := Editor.Executor.Command_Availability
@@ -450,7 +450,7 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
                 (S.Feature_Search_Results, 1),
               "open-buffer semantic hover row is navigable");
       Assert (Editor.Feature_Search_Results.Item_Target_Buffer
-                (S.Feature_Search_Results, 1) = S.Active_Buffer_Token,
+                (S.Feature_Search_Results, 1) = S.Buffer_Lifecycle.Active_Buffer_Token,
               "semantic hover row targets the live buffer token");
       Assert (S.Semantic_Popup.Active
               and then S.Semantic_Popup.Kind = Editor.State_Semantic.Semantic_Hover_Popup,

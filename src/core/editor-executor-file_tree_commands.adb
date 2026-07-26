@@ -104,12 +104,12 @@ package body Editor.Executor.File_Tree_Commands is
             | Command_File_Tree_Expand_To_Active_File =>
             if not Has_Buffer then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
-            elsif not S.File_Info.Has_Path or else Length (S.File_Info.Path) = 0 then
+            elsif not S.Buffer_Lifecycle.File_Info.Has_Path or else Length (S.Buffer_Lifecycle.File_Info.Path) = 0 then
                return Editor.Commands.Availability_Metadata.Unavailable ("Active buffer has no file path");
             elsif not Has_Project then
                return Editor.Commands.Availability_Metadata.Unavailable ("No project open");
             elsif not Editor.Project.Is_Under_Project
-              (S.Project, To_String (S.File_Info.Path))
+              (S.Project, To_String (S.Buffer_Lifecycle.File_Info.Path))
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  ("Active file is outside the current project");

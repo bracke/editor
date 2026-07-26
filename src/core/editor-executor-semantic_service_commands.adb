@@ -52,7 +52,7 @@ package body Editor.Executor.Semantic_Service_Commands is
         Editor.Ada_Project_Index.Current_Analysis_Fingerprint
           (S.Language_Index,
            Path,
-           S.Active_Buffer_Token,
+           S.Buffer_Lifecycle.Active_Buffer_Token,
            Editor.State.Current_Buffer_Revision (S),
            Editor.State.Current_Lifecycle_Generation (S));
    begin
@@ -74,7 +74,7 @@ package body Editor.Executor.Semantic_Service_Commands is
       Req : Editor.Ada_Language_Service.Semantic_Request_Id;
    begin
       if Current_File.Has_Path
-        and then S.Active_Buffer_Token /= 0
+        and then S.Buffer_Lifecycle.Active_Buffer_Token /= 0
       then
          declare
             Current_Path : constant String := To_String (Current_File.Path);
@@ -87,13 +87,13 @@ package body Editor.Executor.Semantic_Service_Commands is
                Editor.Ada_Language_Service.Semantic_Current_Request_Query_Key
                  (Editor.Ada_Language_Service.Semantic_Request_Find_References,
                   Name, Current_Path,
-                  S.Active_Buffer_Token,
+                  S.Buffer_Lifecycle.Active_Buffer_Token,
                   Editor.State.Current_Buffer_Revision (S),
                   Editor.State.Current_Lifecycle_Generation (S),
                   Fingerprint));
             return Editor.Ada_Language_Service.Request_Find_Current_References
               (Service, Req, Name, Current_Path,
-               S.Active_Buffer_Token,
+               S.Buffer_Lifecycle.Active_Buffer_Token,
                Editor.State.Current_Buffer_Revision (S),
                Editor.State.Current_Lifecycle_Generation (S),
                Fingerprint);
@@ -133,7 +133,7 @@ package body Editor.Executor.Semantic_Service_Commands is
       Req : Editor.Ada_Language_Service.Semantic_Request_Id;
    begin
       if Current_File.Has_Path
-        and then S.Active_Buffer_Token /= 0
+        and then S.Buffer_Lifecycle.Active_Buffer_Token /= 0
       then
          declare
             Current_Path : constant String := To_String (Current_File.Path);
@@ -145,13 +145,13 @@ package body Editor.Executor.Semantic_Service_Commands is
                Editor.Ada_Language_Service.Semantic_Current_Request_Query_Key
                  (Editor.Ada_Language_Service.Semantic_Request_Hover,
                   Name, Current_Path,
-                  S.Active_Buffer_Token,
+                  S.Buffer_Lifecycle.Active_Buffer_Token,
                   Editor.State.Current_Buffer_Revision (S),
                   Editor.State.Current_Lifecycle_Generation (S),
                   Fingerprint));
             return Editor.Ada_Language_Service.Request_Hover_Current
               (Service, Req, Name, Current_Path,
-               S.Active_Buffer_Token,
+               S.Buffer_Lifecycle.Active_Buffer_Token,
                Editor.State.Current_Buffer_Revision (S),
                Editor.State.Current_Lifecycle_Generation (S),
                Fingerprint);
@@ -175,7 +175,7 @@ package body Editor.Executor.Semantic_Service_Commands is
       Req : Editor.Ada_Language_Service.Semantic_Request_Id;
    begin
       if Current_File.Has_Path
-        and then S.Active_Buffer_Token /= 0
+        and then S.Buffer_Lifecycle.Active_Buffer_Token /= 0
       then
          declare
             Current_Path : constant String := To_String (Current_File.Path);
@@ -187,14 +187,14 @@ package body Editor.Executor.Semantic_Service_Commands is
                Editor.Ada_Language_Service.Semantic_Current_Request_Query_Key
                  (Editor.Ada_Language_Service.Semantic_Request_Completion,
                   Prefix, Current_Path,
-                  S.Active_Buffer_Token,
+                  S.Buffer_Lifecycle.Active_Buffer_Token,
                   Editor.State.Current_Buffer_Revision (S),
                   Editor.State.Current_Lifecycle_Generation (S),
                   Fingerprint,
                   Detail => Positive'Image (Limit)));
             return Editor.Ada_Language_Service.Request_Complete_Current
               (Service, Req, Prefix, Current_Path,
-               S.Active_Buffer_Token,
+               S.Buffer_Lifecycle.Active_Buffer_Token,
                Editor.State.Current_Buffer_Revision (S),
                Editor.State.Current_Lifecycle_Generation (S),
                Fingerprint,

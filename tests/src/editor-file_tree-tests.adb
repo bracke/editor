@@ -1202,7 +1202,7 @@ package body Editor.File_Tree.Tests is
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, File_Path);
       Text_Buffer.Set_Text (S.Buffer, "a dirty edit");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Node := Editor.File_Tree.Find_By_Path (S.File_Tree, "a.txt", Found);
@@ -1218,7 +1218,7 @@ package body Editor.File_Tree.Tests is
               "rename dirty-buffer guard should report preserved dirty buffer text");
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "a dirty edit",
               "dirty-blocked rename must preserve active dirty buffer text");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "dirty-blocked rename must keep the buffer dirty");
       Assert (Ada.Directories.Exists (File_Path),
               "dirty-blocked rename must leave the source file in place");
@@ -1240,7 +1240,7 @@ package body Editor.File_Tree.Tests is
               "confirmed delete dirty-buffer guard should report preserved dirty buffer text");
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "a dirty edit",
               "dirty-blocked delete must preserve active dirty buffer text");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "dirty-blocked delete must keep the buffer dirty");
       Assert (Ada.Directories.Exists (File_Path),
               "dirty-blocked delete must leave the source file in place");

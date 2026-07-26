@@ -187,7 +187,7 @@ package body Editor.Outline.Structure_Range_Tests is
              Detail      => Ada.Strings.Unbounded.To_Unbounded_String ("line 99"),
              Depth       => 0,
              Target_Kind  => Buffer_Position_Target,
-             Buffer_Token => S.Registry_Token,
+             Buffer_Token => S.Buffer_Lifecycle.Registry_Token,
              Line         => 99,
              Column       => 1)));
       Select_Item (S.Outline, 1);

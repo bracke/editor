@@ -95,7 +95,7 @@ package body Editor.Lifecycle_Audit.Tests is
       Editor.State.Init (S);
       Editor.Recent_Projects.Clear (S.Recent_Projects);
       Install_Project (S, Editor.Test_Temp.Base & "/editor-a", "editor-a");
-      S.File_Info :=
+      S.Buffer_Lifecycle.File_Info :=
         (Has_Path     => True,
          Path         => To_Unbounded_String (Editor.Test_Temp.Base & "/editor-a/main.adb"),
          Display_Name => To_Unbounded_String ("main.adb"),
@@ -138,7 +138,7 @@ package body Editor.Lifecycle_Audit.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Install_Project (S, Editor.Test_Temp.Base & "/editor-a", "editor-a");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
 
       Before := Editor.Lifecycle_Audit.State_Summary (S);
       After := Editor.Lifecycle_Audit.State_Summary (S);
@@ -171,7 +171,7 @@ package body Editor.Lifecycle_Audit.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Install_Project (S, Editor.Test_Temp.Base & "/editor-a", "editor-a");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Pending_Transitions.Set_Pending
         (S.Pending_Transitions, Target, Dirty);
 
@@ -189,7 +189,7 @@ package body Editor.Lifecycle_Audit.Tests is
       Assert
         (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
          "building workspace snapshot must not clear pending transition");
-      Assert (S.File_Info.Dirty,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "building workspace snapshot must not save dirty text");
    end Test_Workspace_Snapshot_Excludes_Transient_Lifecycle_State;
 
@@ -223,7 +223,7 @@ package body Editor.Lifecycle_Audit.Tests is
       Editor.Settings.Set_Minimap_Visible (Model, False);
       Editor.State.Apply_Settings (S, Model);
       Install_Project (S, Editor.Test_Temp.Base & "/editor-a", "editor-a");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Pending_Transitions.Set_Pending
         (S.Pending_Transitions, Target, Dirty);
       Editor.Recent_Projects.Add_Or_Promote

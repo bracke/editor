@@ -45,8 +45,8 @@ package body Editor.Executor.Active_Find_Commands is
    is
    begin
       return Editor.State.Has_Active_Buffer (S)
-        and then (S.Buffer_Revision > 0
-                  or else S.File_Info.Has_Path
+        and then (S.Buffer_Lifecycle.Buffer_Revision > 0
+                  or else S.Buffer_Lifecycle.File_Info.Has_Path
                   or else Text_Buffer.Length (S.Buffer) > 0);
    end Has_Find_Target_Buffer;
 
@@ -316,9 +316,9 @@ package body Editor.Executor.Active_Find_Commands is
 
       Target :=
         (Buffer_Id      => Active_Feature_Buffer_Token (S),
-         Has_File_Path  => S.File_Info.Has_Path,
-         File_Path      => S.File_Info.Path,
-         Display_Path   => S.File_Info.Display_Name,
+         Has_File_Path  => S.Buffer_Lifecycle.File_Info.Has_Path,
+         File_Path      => S.Buffer_Lifecycle.File_Info.Path,
+         Display_Path   => S.Buffer_Lifecycle.File_Info.Display_Name,
          Line           => Natural (Match.Start_Row) + 1,
          Column         => Natural (Match.Start_Column),
          Viewport_Row   => Editor.View.Scroll_Y,

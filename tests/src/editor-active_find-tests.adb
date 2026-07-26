@@ -246,7 +246,7 @@ package body Editor.Active_Find.Tests is
         (Editor.Project_Search.Query (S.Project_Search) = "",
          "active Find prompt typing must not mutate the project search query field");
       Assert
-        (not S.File_Info.Dirty,
+        (not S.Buffer_Lifecycle.File_Info.Dirty,
          "typing in active Find prompt must not dirty the active buffer");
    end Test_Prompt_Text_Stays_Out_Of_Project_Search;
 
@@ -438,7 +438,7 @@ package body Editor.Active_Find.Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "alpha");
 
-      S.Active_Find_Source_Buffer_Token := S.Active_Buffer_Token + 1;
+      S.Active_Find_Source_Buffer_Token := S.Buffer_Lifecycle.Active_Buffer_Token + 1;
       S.Active_Find_Stale := False;
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
 
@@ -541,7 +541,7 @@ package body Editor.Active_Find.Tests is
       --  the effective active Find source identity.  Snapshot/render code
       --  must compare against the same effective identity used when Find
       --  recomputes matches, not only the raw Active_Buffer_Token field.
-      S.Active_Buffer_Token := 0;
+      S.Buffer_Lifecycle.Active_Buffer_Token := 0;
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
 
       Assert
@@ -889,7 +889,7 @@ package body Editor.Active_Find.Tests is
         and then not S.Active_Find_Stale
         and then S.Active_Find_Source_Buffer_Token /= 0
         and then S.Active_Find_Source_Buffer_Token =
-          (if S.Active_Buffer_Token /= 0 then S.Active_Buffer_Token else S.Registry_Token);
+          (if S.Buffer_Lifecycle.Active_Buffer_Token /= 0 then S.Buffer_Lifecycle.Active_Buffer_Token else S.Buffer_Lifecycle.Registry_Token);
    begin
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert
@@ -1069,7 +1069,7 @@ package body Editor.Active_Find.Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "alpha");
       Assert_Find_Coherent (S, "buffer A before switch");
 
-      S.File_Info.Dirty := False;
+      S.Buffer_Lifecycle.File_Info.Dirty := False;
       Editor.Executor.File_Open_Commands.Execute_New_Buffer (S);
       Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Ch := 'b';
@@ -1129,7 +1129,7 @@ package body Editor.Active_Find.Tests is
         (To_String (After.Active_Find_Query) = "abc"
          and then Natural (After.Active_Find_Matches.Length) = 2
          and then Editor.Project_Search.Query (After.Project_Search) = "project-query"
-         and then not After.File_Info.Dirty,
+         and then not After.Buffer_Lifecycle.File_Info.Dirty,
          "Find prompt text input must update active Find only and leave Project Search, separate search, and dirty state unchanged");
 
       Editor.Input_Bridge.Set_State_For_Test (After);
@@ -1210,27 +1210,27 @@ package body Editor.Active_Find.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, Original_Text);
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Set_Primary_Caret (S, Pos => 2, Anchor => 2);
 
       Editor.Executor.Find_Replace_Commands.Execute_Find_From_Active_Word (S);
       Assert
         (To_String (S.Active_Find_Query) = "UnsavedToken"
          and then Natural (S.Active_Find_Matches.Length) = 2
-         and then S.File_Info.Dirty
+         and then S.Buffer_Lifecycle.File_Info.Dirty
          and then Natural (S.Carets (S.Carets.First_Index).Pos) = 2,
          "find-from-active-word must search dirty in-memory text, preserve dirty state, and not move");
 
       Editor.Executor.Find_Replace_Commands.Execute_Find_Next (S);
       Assert
-        (S.File_Info.Dirty
+        (S.Buffer_Lifecycle.File_Info.Dirty
          and then S.Active_Find_Match.Start_Row = 2
          and then Editor.Navigation_History.Back_Count (S.Navigation_History) = 1,
          "find.next in a dirty buffer must only move the caret and record successful navigation");
 
       Editor.Executor.Find_Replace_Commands.Execute_Find_Previous (S);
       Assert
-        (S.File_Info.Dirty
+        (S.Buffer_Lifecycle.File_Info.Dirty
          and then S.Active_Find_Match.Start_Row = 0,
          "find.previous in a dirty buffer must not save, reload, discard, or clean the buffer");
    end Test_Dirty_Buffer_Find_Uses_Unsaved_Text_Only;
@@ -1292,7 +1292,7 @@ package body Editor.Active_Find.Tests is
       Assert
         (Length (After.Active_Find_Query) = 2
          and then To_String (After.Active_Find_Query) = "ab"
-         and then not After.File_Info.Dirty,
+         and then not After.Buffer_Lifecycle.File_Info.Dirty,
          "Backspace owned by active Find must edit the Find query, not the buffer");
 
       Editor.Input_Bridge.Set_State_For_Test (After);
@@ -2382,7 +2382,7 @@ package body Editor.Active_Find.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "Run run Runner");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Set_Primary_Caret (S, Pos => 0, Anchor => 0);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Toggle (S);
@@ -2392,7 +2392,7 @@ package body Editor.Active_Find.Tests is
       Back_Before := Editor.Navigation_History.Back_Count (S.Navigation_History);
 
       Assert
-        (S.File_Info.Dirty
+        (S.Buffer_Lifecycle.File_Info.Dirty
          and then S.Active_Find_Case_Sensitive
          and then S.Active_Find_Whole_Word
          and then Natural (S.Active_Find_Matches.Length) = 1
@@ -2401,7 +2401,7 @@ package body Editor.Active_Find.Tests is
 
       Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Clear (S);
       Assert
-        (S.File_Info.Dirty
+        (S.Buffer_Lifecycle.File_Info.Dirty
          and then (not S.Active_Find_Case_Sensitive)
          and then S.Active_Find_Whole_Word
          and then Natural (S.Active_Find_Matches.Length) = 2
@@ -2411,7 +2411,7 @@ package body Editor.Active_Find.Tests is
 
       Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Clear (S);
       Assert
-        (S.File_Info.Dirty
+        (S.Buffer_Lifecycle.File_Info.Dirty
          and then (not S.Active_Find_Whole_Word)
          and then Natural (S.Active_Find_Matches.Length) = 3
          and then Natural (S.Carets (S.Carets.First_Index).Pos) = Caret_Before
@@ -3107,10 +3107,10 @@ package body Editor.Active_Find.Tests is
         ((not S.Active_Find_Stale)
          and then Natural (S.Active_Find_Matches.Length) = 1
          and then Editor.Search.Has_Match (S.Active_Find_Match)
-         and then S.File_Info.Dirty,
+         and then S.Buffer_Lifecycle.File_Info.Dirty,
          "reveal-current must recompute against the current dirty in-memory text without saving or discarding edits");
 
-      S.File_Info.Dirty := False;
+      S.Buffer_Lifecycle.File_Info.Dirty := False;
       Editor.Executor.File_Open_Commands.Execute_New_Buffer (S);
       Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Ch := 'x';
@@ -3185,7 +3185,7 @@ package body Editor.Active_Find.Tests is
          and then To_Unbounded_String (Editor.Quick_Open.Query_Text (After.Quick_Open)) = Quick_Text
          and then To_Unbounded_String (Editor.Project_Search.Query (After.Project_Search)) = Project_Text
          and then Editor.Project_Search.Case_Sensitive (After.Project_Search) = Project_Case
-         and then not After.File_Info.Dirty,
+         and then not After.Buffer_Lifecycle.File_Info.Dirty,
          "Find-owned printable input must edit only the active Find query and leave other feature state intact");
 
       Editor.Input_Bridge.Set_State_For_Test (After);

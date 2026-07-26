@@ -355,7 +355,7 @@ procedure Editor_Product_Smoke is
          Source_Label  => "build ui direct quick fix",
          Source_Kind   => Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
          Has_Target    => True,
-         Target_Buffer => S.Active_Buffer_Token,
+         Target_Buffer => S.Buffer_Lifecycle.Active_Buffer_Token,
          Target_Line   => 3,
          Target_Column => 8,
          Has_Edit          => True,
@@ -396,7 +396,7 @@ procedure Editor_Product_Smoke is
          Source_Label  => "build ui keyboard quick fix",
          Source_Kind   => Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
          Has_Target    => True,
-         Target_Buffer => S.Active_Buffer_Token,
+         Target_Buffer => S.Buffer_Lifecycle.Active_Buffer_Token,
          Target_Line   => 3,
          Target_Column => 8,
          Has_Edit          => True,
@@ -446,7 +446,7 @@ procedure Editor_Product_Smoke is
          Source_Label  => "build ui disabled keyboard quick fix",
          Source_Kind   => Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
          Has_Target    => True,
-         Target_Buffer => S.Active_Buffer_Token,
+         Target_Buffer => S.Buffer_Lifecycle.Active_Buffer_Token,
          Target_Line   => 3,
          Target_Column => 8,
          Has_Edit          => True,
@@ -687,7 +687,7 @@ procedure Editor_Product_Smoke is
       Check (Editor.Quick_Open.Result_Count (S.Quick_Open) >= 1,
              "Quick Open did not find main.adb");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Accept_Quick_Open);
-      Check (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Main_Path,
+      Check (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Main_Path,
              "Quick Open activation did not open main.adb");
       Check (Editor.Focus_Management.Effective_Focus_Owner (S) =
                Editor.Focus_Management.Focus_Editor,
@@ -706,9 +706,9 @@ procedure Editor_Product_Smoke is
         (S, Editor.Focus_Management.Focus_File_Tree);
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_File_Tree_Open_Selected);
-      Check (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Unit_Path,
+      Check (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Unit_Path,
              "file tree activation did not open the expected buffer");
-      Unit_Token := S.Active_Buffer_Token;
+      Unit_Token := S.Buffer_Lifecycle.Active_Buffer_Token;
       Check (Editor.Focus_Management.Effective_Focus_Owner (S) =
                Editor.Focus_Management.Focus_Editor,
              "file tree activation did not return focus to editor");
@@ -718,9 +718,9 @@ procedure Editor_Product_Smoke is
    begin
       Editor.Executor.Execute_No_Log
         (S, Editor.Test_Helper.Insert (Editor.State.Current_Text (S)'Length, ' '));
-      Check (S.File_Info.Dirty, "editing did not mark the file dirty");
+      Check (S.Buffer_Lifecycle.File_Info.Dirty, "editing did not mark the file dirty");
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
-      Check (not S.File_Info.Dirty, "save did not clear dirty state");
+      Check (not S.Buffer_Lifecycle.File_Info.Dirty, "save did not clear dirty state");
       Check (Ada.Strings.Fixed.Index (Read_File (Unit_Path), "E2E_Token") > 0,
              "saved file no longer contains the expected token");
    end Run_Edit_Save_Scenario;
@@ -762,15 +762,15 @@ procedure Editor_Product_Smoke is
             Target_Row_Selected := True;
             Editor.Executor.Execute_Command
               (S, Editor.Command_Ids.Command_Diagnostics_Open_Selected);
-            exit when S.File_Info.Has_Path
-              and then To_String (S.File_Info.Path) = Unit_Path;
+            exit when S.Buffer_Lifecycle.File_Info.Has_Path
+              and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Unit_Path;
          end if;
       end loop;
       Check (Target_Row_Selected,
              "daily editing diagnostic projection did not expose a target row");
-      Check (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Unit_Path,
+      Check (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Unit_Path,
              "daily editing diagnostic did not navigate to smoke_unit.adb; active="
-             & (if S.File_Info.Has_Path then To_String (S.File_Info.Path) else "<none>")
+             & (if S.Buffer_Lifecycle.File_Info.Has_Path then To_String (S.Buffer_Lifecycle.File_Info.Path) else "<none>")
              & "; reason="
              & Editor.Feature_Diagnostics.Selected_Diagnostic_Open_Unavailable_Reason
                  (S.Feature_Diagnostics, S.Feature_Panel));
@@ -820,11 +820,11 @@ procedure Editor_Product_Smoke is
    procedure Run_Dirty_Lifecycle_Persistence_Scenario is
    begin
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Unit_Path);
-      Check (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Unit_Path,
+      Check (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Unit_Path,
              "dirty lifecycle smoke did not open smoke_unit.adb");
       Editor.Executor.Execute_No_Log
         (S, Editor.Test_Helper.Insert (Editor.State.Current_Text (S)'Length, ' '));
-      Check (S.File_Info.Dirty,
+      Check (S.Buffer_Lifecycle.File_Info.Dirty,
              "dirty lifecycle smoke edit did not mark the file dirty");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
@@ -943,13 +943,13 @@ begin
    Save_Restore_Clear_Workspace_State;
 
    Editor.Executor.File_Open_Commands.Execute_Open_File (S, Demo_Path);
-   Check (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Demo_Path,
+   Check (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Demo_Path,
           "direct open did not activate the outline smoke fixture");
-   Check (not S.File_Info.Dirty,
+   Check (not S.Buffer_Lifecycle.File_Info.Dirty,
           "opening outline smoke fixture should start clean");
    declare
       Text_Before_Outline : constant String := Editor.State.Current_Text (S);
-      Token_A             : constant Natural := S.Active_Buffer_Token;
+      Token_A             : constant Natural := S.Buffer_Lifecycle.Active_Buffer_Token;
       Revision_A          : constant Natural := Editor.State.Current_Buffer_Revision (S);
       Row                 : Natural := 0;
       Col                 : Natural := 0;
@@ -961,7 +961,7 @@ begin
              "outline is not current for the refreshed source buffer");
       Check (Editor.State.Current_Text (S) = Text_Before_Outline,
              "outline.refresh mutated buffer text");
-      Check (not S.File_Info.Dirty,
+      Check (not S.Buffer_Lifecycle.File_Info.Dirty,
              "outline.refresh changed clean dirty state");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_Next_Outline_Item);
@@ -986,12 +986,12 @@ begin
              "opening procedure outline row did not move caret to procedure declaration");
       Check (Editor.State.Current_Text (S) = Text_Before_Outline,
              "outline navigation mutated buffer text");
-      Check (not S.File_Info.Dirty,
+      Check (not S.Buffer_Lifecycle.File_Info.Dirty,
              "outline navigation changed clean dirty state");
 
       Editor.Executor.Execute_No_Log
         (S, Editor.Test_Helper.Insert (Editor.State.Current_Text (S)'Length, ' '));
-      Check (S.File_Info.Dirty,
+      Check (S.Buffer_Lifecycle.File_Info.Dirty,
              "outline smoke edit did not mark demo buffer dirty");
       Check (not Editor.Outline.Is_Current_For_Buffer
                (S.Outline, Token_A, Editor.State.Current_Buffer_Revision (S)),
@@ -1006,12 +1006,12 @@ begin
                (S.Outline, Token_A, Editor.State.Current_Buffer_Revision (S)),
              "outline.refresh did not make edited buffer current again");
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
-      Check (not S.File_Info.Dirty,
+      Check (not S.Buffer_Lifecycle.File_Info.Dirty,
              "saving outline smoke fixture did not clear dirty state");
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Unit_Path);
       Check (not Editor.Outline.Is_Current_For_Buffer
-               (S.Outline, S.Active_Buffer_Token, Editor.State.Current_Buffer_Revision (S)),
+               (S.Outline, S.Buffer_Lifecycle.Active_Buffer_Token, Editor.State.Current_Buffer_Revision (S)),
              "outline falsely reports current after switching buffers");
    end;
 
@@ -1219,9 +1219,9 @@ begin
    Editor.Navigation_History.Clear (S.Navigation_History);
    Editor.Navigation_History.Record_Explicit_Navigation
      (S.Navigation_History,
-      (Buffer_Id     => S.Active_Buffer_Token,
-       Has_File_Path => S.File_Info.Has_Path,
-       File_Path     => S.File_Info.Path,
+      (Buffer_Id     => S.Buffer_Lifecycle.Active_Buffer_Token,
+       Has_File_Path => S.Buffer_Lifecycle.File_Info.Has_Path,
+       File_Path     => S.Buffer_Lifecycle.File_Info.Path,
        Display_Path  => To_Unbounded_String ("src/main.adb"),
        Line          => 1,
        Column        => 0,
@@ -1229,21 +1229,21 @@ begin
        Reason        => Editor.Navigation_History.Navigation_Reason_Feature_Panel));
    Editor.Executor.Execute_Command
      (S, Editor.Command_Ids.Command_Diagnostics_Open_Selected);
-   Check (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Unit_Path,
+   Check (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Unit_Path,
           "Diagnostics open-selected did not open the diagnostic source target; active="
-          & (if S.File_Info.Has_Path then To_String (S.File_Info.Path) else "<none>")
+          & (if S.Buffer_Lifecycle.File_Info.Has_Path then To_String (S.Buffer_Lifecycle.File_Info.Path) else "<none>")
           & "; reason="
           & Editor.Feature_Diagnostics.Selected_Diagnostic_Open_Unavailable_Reason
               (S.Feature_Diagnostics, S.Feature_Panel));
    Check (Editor.Navigation_History.Back_Count (S.Navigation_History) > 0,
           "Diagnostics navigation did not record a back target");
    Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Back);
-   Check (S.File_Info.Has_Path,
+   Check (S.Buffer_Lifecycle.File_Info.Has_Path,
           "navigation back after Diagnostics did not retain a file-backed target");
    Check (Editor.Navigation_History.Forward_Count (S.Navigation_History) > 0,
           "navigation back after Diagnostics did not record a forward target");
    Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Forward);
-   Check (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Unit_Path,
+   Check (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Unit_Path,
           "navigation forward after Diagnostics did not return to the diagnostic target");
 
    Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Open_Command_Palette);

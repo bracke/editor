@@ -233,14 +233,14 @@ package body Editor.Diagnostics_Review_UX is
      (State : Editor.State.State_Type) return Boolean
    is
       Copy   : Editor.State.State_Type := State;
-      Token  : Natural := Copy.Active_Buffer_Token;
+      Token  : Natural := Copy.Buffer_Lifecycle.Active_Buffer_Token;
       Before : constant Natural :=
         Editor.Feature_Diagnostics.Row_Count (Copy.Feature_Diagnostics);
       Added  : constant Positive := Positive (Before + 1);
    begin
       if Token = Editor.Feature_Diagnostics.No_Buffer then
          Token := 1;
-         Copy.Active_Buffer_Token := Token;
+         Copy.Buffer_Lifecycle.Active_Buffer_Token := Token;
       end if;
 
       Editor.Feature_Diagnostics.Add_Diagnostic

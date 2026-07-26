@@ -38,24 +38,24 @@ package body Editor.Executor.Buffer_Close_Prompt_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      S.Dirty_Close_Prompt_Active := False;
-      S.Dirty_Close_Prompt_Scope := Editor.State.No_Dirty_Close_Scope;
-      S.Dirty_Close_Prompt_All_Buffers := False;
-      S.Dirty_Close_Prompt_Buffer := 0;
-      S.Dirty_Close_Prompt_Buffer_Count := 0;
-      S.Dirty_Close_Prompt_Buffer_Fingerprint := 0;
-      S.Dirty_Close_Prompt_Buffer_Ids :=
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Active := False;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Scope := Editor.State.No_Dirty_Close_Scope;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_All_Buffers := False;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer_Count := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer_Fingerprint := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer_Ids :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
-      S.Dirty_Close_Prompt_Dirty_Fingerprint := 0;
-      S.Dirty_Close_Prompt_Dirty_Buffer_Ids :=
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Dirty_Fingerprint := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Dirty_Buffer_Ids :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
-      S.Dirty_Close_Prompt_Dirty_Count := 0;
-      S.Dirty_Close_Prompt_File_Backed_Count := 0;
-      S.Dirty_Close_Prompt_Untitled_Count := 0;
-      S.Dirty_Close_Prompt_Conflicted_Count := 0;
-      S.Dirty_Close_Prompt_Unwritable_Count := 0;
-      S.Dirty_Close_Prompt_Missing_Count := 0;
-      S.Dirty_Close_Prompt_Save_Failure_Count := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Dirty_Count := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_File_Backed_Count := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Untitled_Count := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Conflicted_Count := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Unwritable_Count := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Missing_Count := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Save_Failure_Count := 0;
    end Clear_Dirty_Close_Prompt;
 
    procedure Finalize_Cleanup_Buffer_Close
@@ -77,7 +77,7 @@ package body Editor.Executor.Buffer_Close_Prompt_Commands is
       if Editor.Buffers.Global_Count = 0
         or else Editor.Buffers.Global_Active_Buffer = Editor.Buffers.No_Buffer
       then
-         S.Active_Buffer_Token := 0;
+         S.Buffer_Lifecycle.Active_Buffer_Token := 0;
       else
          declare
             Saved_Index : constant Editor.Ada_Project_Index.Index_State :=
@@ -267,7 +267,7 @@ package body Editor.Executor.Buffer_Close_Prompt_Commands is
    is
       Review : constant String :=
         Ada.Strings.Unbounded.To_String
-          (S.Dirty_Close_Prompt_Dirty_Buffer_Ids);
+          (S.Buffer_Lifecycle.Dirty_Close_Prompt_Dirty_Buffer_Ids);
       Registry : constant Editor.Buffers.Buffer_Registry :=
         Editor.Buffers.Global_Registry_For_UI;
       Count : constant Natural := Editor.Buffers.Buffer_Count (Registry);
@@ -294,7 +294,7 @@ package body Editor.Executor.Buffer_Close_Prompt_Commands is
    is
    begin
       return Dirty_Close_Dirty_Buffer_Id_List =
-        S.Dirty_Close_Prompt_Dirty_Buffer_Ids;
+        S.Buffer_Lifecycle.Dirty_Close_Prompt_Dirty_Buffer_Ids;
    end Dirty_Close_Current_Dirty_Set_Equals_Review;
 
    function Dirty_Close_Current_Open_Set_Was_Reviewed
@@ -302,12 +302,12 @@ package body Editor.Executor.Buffer_Close_Prompt_Commands is
    is
       Review : constant String :=
         Ada.Strings.Unbounded.To_String
-          (S.Dirty_Close_Prompt_Buffer_Ids);
+          (S.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer_Ids);
       Registry : constant Editor.Buffers.Buffer_Registry :=
         Editor.Buffers.Global_Registry_For_UI;
       Count : constant Natural := Editor.Buffers.Buffer_Count (Registry);
    begin
-      if Editor.Buffers.Global_Count /= S.Dirty_Close_Prompt_Buffer_Count then
+      if Editor.Buffers.Global_Count /= S.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer_Count then
          return False;
       end if;
 
@@ -333,7 +333,7 @@ package body Editor.Executor.Buffer_Close_Prompt_Commands is
    begin
       return Dirty_Close_Current_Open_Set_Was_Reviewed (S)
         and then Dirty_Close_Open_Buffer_Fingerprint =
-          S.Dirty_Close_Prompt_Buffer_Fingerprint;
+          S.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer_Fingerprint;
    end Dirty_Close_All_Buffer_Identity_Current;
 
    function Dirty_Close_All_Buffer_Review_Current
@@ -342,7 +342,7 @@ package body Editor.Executor.Buffer_Close_Prompt_Commands is
    begin
       return Dirty_Close_All_Buffer_Identity_Current (S)
         and then Dirty_Close_Dirty_Buffer_Fingerprint =
-          S.Dirty_Close_Prompt_Dirty_Fingerprint
+          S.Buffer_Lifecycle.Dirty_Close_Prompt_Dirty_Fingerprint
         and then Dirty_Close_Current_Dirty_Set_Equals_Review (S);
    end Dirty_Close_All_Buffer_Review_Current;
 
@@ -357,27 +357,27 @@ package body Editor.Executor.Buffer_Close_Prompt_Commands is
             return;
          end if;
          if Summary.External_Change_Surfaced then
-            S.Dirty_Close_Prompt_Conflicted_Count :=
-              S.Dirty_Close_Prompt_Conflicted_Count + 1;
+            S.Buffer_Lifecycle.Dirty_Close_Prompt_Conflicted_Count :=
+              S.Buffer_Lifecycle.Dirty_Close_Prompt_Conflicted_Count + 1;
          end if;
          if Summary.Last_Save_Failed then
-            S.Dirty_Close_Prompt_Save_Failure_Count :=
-              S.Dirty_Close_Prompt_Save_Failure_Count + 1;
+            S.Buffer_Lifecycle.Dirty_Close_Prompt_Save_Failure_Count :=
+              S.Buffer_Lifecycle.Dirty_Close_Prompt_Save_Failure_Count + 1;
          end if;
          if Summary.Unwritable_Target_Surfaced then
-            S.Dirty_Close_Prompt_Unwritable_Count :=
-              S.Dirty_Close_Prompt_Unwritable_Count + 1;
+            S.Buffer_Lifecycle.Dirty_Close_Prompt_Unwritable_Count :=
+              S.Buffer_Lifecycle.Dirty_Close_Prompt_Unwritable_Count + 1;
          end if;
          if Summary.Missing_Target_Surfaced then
-            S.Dirty_Close_Prompt_Missing_Count :=
-              S.Dirty_Close_Prompt_Missing_Count + 1;
+            S.Buffer_Lifecycle.Dirty_Close_Prompt_Missing_Count :=
+              S.Buffer_Lifecycle.Dirty_Close_Prompt_Missing_Count + 1;
          end if;
       end Include_Summary;
    begin
-      S.Dirty_Close_Prompt_Conflicted_Count := 0;
-      S.Dirty_Close_Prompt_Unwritable_Count := 0;
-      S.Dirty_Close_Prompt_Missing_Count := 0;
-      S.Dirty_Close_Prompt_Save_Failure_Count := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Conflicted_Count := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Unwritable_Count := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Missing_Count := 0;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Save_Failure_Count := 0;
 
       if All_Buffers then
          declare
@@ -403,22 +403,22 @@ package body Editor.Executor.Buffer_Close_Prompt_Commands is
       Summary     : Editor.Dirty_Guards.Dirty_Buffer_Summary)
    is
    begin
-      S.Dirty_Close_Prompt_Active := True;
-      S.Dirty_Close_Prompt_Scope := Scope;
-      S.Dirty_Close_Prompt_All_Buffers := All_Buffers;
-      S.Dirty_Close_Prompt_Buffer := Natural (Buffer_Id);
-      S.Dirty_Close_Prompt_Buffer_Count := Editor.Buffers.Global_Count;
-      S.Dirty_Close_Prompt_Buffer_Fingerprint :=
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Active := True;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Scope := Scope;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_All_Buffers := All_Buffers;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer := Natural (Buffer_Id);
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer_Count := Editor.Buffers.Global_Count;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer_Fingerprint :=
         Dirty_Close_Open_Buffer_Fingerprint;
-      S.Dirty_Close_Prompt_Buffer_Ids :=
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer_Ids :=
         Dirty_Close_Open_Buffer_Id_List;
-      S.Dirty_Close_Prompt_Dirty_Fingerprint :=
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Dirty_Fingerprint :=
         Dirty_Close_Dirty_Buffer_Fingerprint;
-      S.Dirty_Close_Prompt_Dirty_Buffer_Ids :=
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Dirty_Buffer_Ids :=
         Dirty_Close_Dirty_Buffer_Id_List;
-      S.Dirty_Close_Prompt_Dirty_Count := Summary.Dirty_Count;
-      S.Dirty_Close_Prompt_File_Backed_Count := Summary.File_Backed_Count;
-      S.Dirty_Close_Prompt_Untitled_Count := Summary.Untitled_Count;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Dirty_Count := Summary.Dirty_Count;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_File_Backed_Count := Summary.File_Backed_Count;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Untitled_Count := Summary.Untitled_Count;
       Capture_Dirty_Close_File_State_Counts (S, All_Buffers, Buffer_Id);
       Editor.Executor.Shared_Services.Report_Warning
         (S, Dirty_Close_Start_Message (All_Buffers, Summary));
@@ -451,7 +451,7 @@ package body Editor.Executor.Buffer_Close_Prompt_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if not S.Dirty_Close_Prompt_Active then
+      if not S.Buffer_Lifecycle.Dirty_Close_Prompt_Active then
          Editor.Executor.Shared_Services.Report_Info (S, "No close confirmation pending");
          return;
       end if;
@@ -511,7 +511,7 @@ package body Editor.Executor.Buffer_Close_Prompt_Commands is
       if Editor.Buffers.Global_Count > 0 then
          Editor.Buffers.Load_Global_Active_Into_State (S);
       else
-         S.Active_Buffer_Token := 0;
+         S.Buffer_Lifecycle.Active_Buffer_Token := 0;
       end if;
       Editor.Executor.Shared_Services.Report_Info (S, "Closed " & Natural_Text (Closed_Total) & " buffers");
    end Execute_Close_All_Buffers_Confirmed;
@@ -567,18 +567,18 @@ package body Editor.Executor.Buffer_Close_Prompt_Commands is
       Was_All      : Boolean := False;
       Was_Selected : Boolean := False;
    begin
-      if not S.Dirty_Close_Prompt_Active then
+      if not S.Buffer_Lifecycle.Dirty_Close_Prompt_Active then
          Editor.Executor.Shared_Services.Report_Info (S, "No close confirmation pending");
          return;
       end if;
 
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
-      Was_All := S.Dirty_Close_Prompt_All_Buffers;
+      Was_All := S.Buffer_Lifecycle.Dirty_Close_Prompt_All_Buffers;
       Was_Selected :=
-        S.Dirty_Close_Prompt_Scope = Editor.State.Selected_Buffer_Close_Scope;
+        S.Buffer_Lifecycle.Dirty_Close_Prompt_Scope = Editor.State.Selected_Buffer_Close_Scope;
 
-      if S.Dirty_Close_Prompt_All_Buffers
+      if S.Buffer_Lifecycle.Dirty_Close_Prompt_All_Buffers
         and then not Dirty_Close_All_Buffer_Review_Current (S)
       then
          if not Dirty_Close_All_Buffer_Identity_Current (S)
@@ -590,7 +590,7 @@ package body Editor.Executor.Buffer_Close_Prompt_Commands is
          end if;
       end if;
 
-      if S.Dirty_Close_Prompt_All_Buffers then
+      if S.Buffer_Lifecycle.Dirty_Close_Prompt_All_Buffers then
          while Editor.Buffers.Global_Count > 0 loop
             declare
                Id : constant Editor.Buffers.Buffer_Id :=
@@ -609,7 +609,7 @@ package body Editor.Executor.Buffer_Close_Prompt_Commands is
       else
          declare
             Target : constant Editor.Buffers.Buffer_Id :=
-              Editor.Buffers.Buffer_Id (S.Dirty_Close_Prompt_Buffer);
+              Editor.Buffers.Buffer_Id (S.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer);
          begin
             if Target = Editor.Buffers.No_Buffer
               or else not Editor.Buffers.Global_Contains (Target)
@@ -633,7 +633,7 @@ package body Editor.Executor.Buffer_Close_Prompt_Commands is
       end if;
 
       if Editor.Buffers.Global_Count = 0 then
-         S.Active_Buffer_Token := 0;
+         S.Buffer_Lifecycle.Active_Buffer_Token := 0;
       else
          Editor.Buffers.Load_Global_Active_Into_State (S);
       end if;
@@ -661,7 +661,7 @@ package body Editor.Executor.Buffer_Close_Prompt_Commands is
       Was_Selected    : Boolean := False;
       Closed          : Boolean := False;
    begin
-      if not S.Dirty_Close_Prompt_Active then
+      if not S.Buffer_Lifecycle.Dirty_Close_Prompt_Active then
          Editor.Executor.Shared_Services.Report_Info (S, "No close confirmation pending");
          return;
       end if;
@@ -669,11 +669,11 @@ package body Editor.Executor.Buffer_Close_Prompt_Commands is
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Original_Active := Editor.Buffers.Global_Active_Buffer;
-      Was_All := S.Dirty_Close_Prompt_All_Buffers;
+      Was_All := S.Buffer_Lifecycle.Dirty_Close_Prompt_All_Buffers;
       Was_Selected :=
-        S.Dirty_Close_Prompt_Scope = Editor.State.Selected_Buffer_Close_Scope;
+        S.Buffer_Lifecycle.Dirty_Close_Prompt_Scope = Editor.State.Selected_Buffer_Close_Scope;
 
-      if S.Dirty_Close_Prompt_All_Buffers
+      if S.Buffer_Lifecycle.Dirty_Close_Prompt_All_Buffers
         and then not Dirty_Close_All_Buffer_Review_Current (S)
       then
          if not Dirty_Close_All_Buffer_Identity_Current (S)
@@ -685,7 +685,7 @@ package body Editor.Executor.Buffer_Close_Prompt_Commands is
          end if;
       end if;
 
-      if S.Dirty_Close_Prompt_All_Buffers then
+      if S.Buffer_Lifecycle.Dirty_Close_Prompt_All_Buffers then
          declare
             Registry : constant Editor.Buffers.Buffer_Registry :=
               Editor.Buffers.Global_Registry_For_UI;
@@ -719,12 +719,12 @@ package body Editor.Executor.Buffer_Close_Prompt_Commands is
                            Editor.Buffers.Global_Set_Active_Buffer (Targets (Index));
                            Editor.Buffers.Load_Global_Active_Into_State (S);
                            Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
-                           if S.File_Conflict_Prompt_Active then
-                              S.File_Conflict_Close_After_Overwrite := True;
-                              S.File_Conflict_Close_After_Overwrite_Buffer :=
+                           if S.Buffer_Lifecycle.File_Conflict_Prompt_Active then
+                              S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite := True;
+                              S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite_Buffer :=
                                 Natural (Targets (Index));
-                              S.File_Conflict_Close_After_Overwrite_Selected := False;
-                              S.File_Conflict_Close_After_Overwrite_All_Buffers := True;
+                              S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite_Selected := False;
+                              S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite_All_Buffers := True;
                               Clear_Dirty_Close_Prompt (S);
                               Editor.Executor.Shared_Services.Report_Warning (S, "File conflict requires resolution");
                               return;
@@ -751,7 +751,7 @@ package body Editor.Executor.Buffer_Close_Prompt_Commands is
       else
          declare
             Target : constant Editor.Buffers.Buffer_Id :=
-              Editor.Buffers.Buffer_Id (S.Dirty_Close_Prompt_Buffer);
+              Editor.Buffers.Buffer_Id (S.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer);
          begin
             if not Editor.Buffers.Global_Contains (Target) then
                Clear_Dirty_Close_Prompt (S);
@@ -765,18 +765,18 @@ package body Editor.Executor.Buffer_Close_Prompt_Commands is
                   Failed := 1;
                end if;
             elsif not Editor.Buffers.Global_Summary_For (Target).Has_Path then
-               S.Dirty_Close_Prompt_Save_Failure_Count := 1;
+               S.Buffer_Lifecycle.Dirty_Close_Prompt_Save_Failure_Count := 1;
                Editor.Executor.Shared_Services.Report_Error (S, "Save As required before saving this buffer");
                return;
             else
                Editor.Buffers.Global_Set_Active_Buffer (Target);
                Editor.Buffers.Load_Global_Active_Into_State (S);
                Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
-               if S.File_Conflict_Prompt_Active then
-                  S.File_Conflict_Close_After_Overwrite := True;
-                  S.File_Conflict_Close_After_Overwrite_Buffer := Natural (Target);
-                  S.File_Conflict_Close_After_Overwrite_Selected := Was_Selected;
-                  S.File_Conflict_Close_After_Overwrite_All_Buffers := False;
+               if S.Buffer_Lifecycle.File_Conflict_Prompt_Active then
+                  S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite := True;
+                  S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite_Buffer := Natural (Target);
+                  S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite_Selected := Was_Selected;
+                  S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite_All_Buffers := False;
                   Clear_Dirty_Close_Prompt (S);
                   if Was_Selected
                     and then Original_Active /= Editor.Buffers.No_Buffer
@@ -784,43 +784,43 @@ package body Editor.Executor.Buffer_Close_Prompt_Commands is
                     and then Editor.Buffers.Global_Contains (Original_Active)
                   then
                      declare
-                        Prompt_Active : constant Boolean := S.File_Conflict_Prompt_Active;
-                        Prompt_Buffer : constant Natural := S.File_Conflict_Prompt_Buffer;
+                        Prompt_Active : constant Boolean := S.Buffer_Lifecycle.File_Conflict_Prompt_Active;
+                        Prompt_Buffer : constant Natural := S.Buffer_Lifecycle.File_Conflict_Prompt_Buffer;
                         Prompt_Path   : constant Unbounded_String :=
-                          S.File_Conflict_Prompt_Path;
+                          S.Buffer_Lifecycle.File_Conflict_Prompt_Path;
                         Prompt_Display : constant Unbounded_String :=
-                          S.File_Conflict_Prompt_Display;
+                          S.Buffer_Lifecycle.File_Conflict_Prompt_Display;
                         Prompt_Kind : constant Editor.State_Buffer.File_Conflict_Kind :=
-                          S.File_Conflict_Prompt_Kind;
+                          S.Buffer_Lifecycle.File_Conflict_Prompt_Kind;
                         Prompt_Dirty : constant Boolean :=
-                          S.File_Conflict_Prompt_Dirty;
+                          S.Buffer_Lifecycle.File_Conflict_Prompt_Dirty;
                         Prompt_Revision : constant Natural :=
-                          S.File_Conflict_Prompt_Buffer_Revision;
+                          S.Buffer_Lifecycle.File_Conflict_Prompt_Buffer_Revision;
                         Prompt_Token_Label : constant Unbounded_String :=
-                          S.File_Conflict_Prompt_Token_Label;
+                          S.Buffer_Lifecycle.File_Conflict_Prompt_Token_Label;
                         Resume_Close : constant Boolean :=
-                          S.File_Conflict_Close_After_Overwrite;
+                          S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite;
                         Resume_Buffer : constant Natural :=
-                          S.File_Conflict_Close_After_Overwrite_Buffer;
+                          S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite_Buffer;
                         Resume_Selected : constant Boolean :=
-                          S.File_Conflict_Close_After_Overwrite_Selected;
+                          S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite_Selected;
                         Resume_All : constant Boolean :=
-                          S.File_Conflict_Close_After_Overwrite_All_Buffers;
+                          S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite_All_Buffers;
                      begin
                         Editor.Buffers.Global_Set_Active_Buffer (Original_Active);
                         Editor.Buffers.Load_Global_Active_Into_State (S);
-                        S.File_Conflict_Prompt_Active := Prompt_Active;
-                        S.File_Conflict_Prompt_Buffer := Prompt_Buffer;
-                        S.File_Conflict_Prompt_Path := Prompt_Path;
-                        S.File_Conflict_Prompt_Display := Prompt_Display;
-                        S.File_Conflict_Prompt_Kind := Prompt_Kind;
-                        S.File_Conflict_Prompt_Dirty := Prompt_Dirty;
-                        S.File_Conflict_Prompt_Buffer_Revision := Prompt_Revision;
-                        S.File_Conflict_Prompt_Token_Label := Prompt_Token_Label;
-                        S.File_Conflict_Close_After_Overwrite := Resume_Close;
-                        S.File_Conflict_Close_After_Overwrite_Buffer := Resume_Buffer;
-                        S.File_Conflict_Close_After_Overwrite_Selected := Resume_Selected;
-                        S.File_Conflict_Close_After_Overwrite_All_Buffers := Resume_All;
+                        S.Buffer_Lifecycle.File_Conflict_Prompt_Active := Prompt_Active;
+                        S.Buffer_Lifecycle.File_Conflict_Prompt_Buffer := Prompt_Buffer;
+                        S.Buffer_Lifecycle.File_Conflict_Prompt_Path := Prompt_Path;
+                        S.Buffer_Lifecycle.File_Conflict_Prompt_Display := Prompt_Display;
+                        S.Buffer_Lifecycle.File_Conflict_Prompt_Kind := Prompt_Kind;
+                        S.Buffer_Lifecycle.File_Conflict_Prompt_Dirty := Prompt_Dirty;
+                        S.Buffer_Lifecycle.File_Conflict_Prompt_Buffer_Revision := Prompt_Revision;
+                        S.Buffer_Lifecycle.File_Conflict_Prompt_Token_Label := Prompt_Token_Label;
+                        S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite := Resume_Close;
+                        S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite_Buffer := Resume_Buffer;
+                        S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite_Selected := Resume_Selected;
+                        S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite_All_Buffers := Resume_All;
                      end;
                   end if;
                   Editor.Executor.Shared_Services.Report_Warning (S, "File conflict requires resolution");
@@ -854,7 +854,7 @@ package body Editor.Executor.Buffer_Close_Prompt_Commands is
       end if;
 
       if Editor.Buffers.Global_Count = 0 then
-         S.Active_Buffer_Token := 0;
+         S.Buffer_Lifecycle.Active_Buffer_Token := 0;
       elsif Failed = 0 then
          Editor.Buffers.Load_Global_Active_Into_State (S);
       end if;
@@ -877,14 +877,14 @@ package body Editor.Executor.Buffer_Close_Prompt_Commands is
                   Start_Dirty_Close_Prompt
                     (S, Editor.State.All_Buffers_Close_Scope, True,
                      Editor.Buffers.No_Buffer, Remaining);
-                  S.Dirty_Close_Prompt_Save_Failure_Count := Failed;
+                  S.Buffer_Lifecycle.Dirty_Close_Prompt_Save_Failure_Count := Failed;
                else
                   Clear_Dirty_Close_Prompt (S);
                end if;
             end;
             Editor.Executor.Shared_Services.Report_Error (S, "Save failed; some buffers remain open");
          else
-            S.Dirty_Close_Prompt_Save_Failure_Count := Failed;
+            S.Buffer_Lifecycle.Dirty_Close_Prompt_Save_Failure_Count := Failed;
             Editor.Executor.Shared_Services.Report_Error (S, "Save failed; buffer remains open");
          end if;
       end if;

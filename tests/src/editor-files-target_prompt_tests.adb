@@ -28,7 +28,7 @@ package body Editor.Files.Target_Prompt_Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "prompt text");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Command_Palette.Reset;
@@ -47,7 +47,7 @@ package body Editor.Files.Target_Prompt_Tests is
         "Save As prompt should expose the deterministic label");
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (S) = "",
         "prompt input must start empty and not infer a target");
-      Assert (Buffer_Text (S) = "prompt text" and then S.File_Info.Dirty,
+      Assert (Buffer_Text (S) = "prompt text" and then S.Buffer_Lifecycle.File_Info.Dirty,
         "prompt opening must not mutate buffer text or dirty state");
       Assert (Editor.Messages.Count (S.Messages) = 0,
         "prompt opening must not emit an underlying command outcome message");
@@ -83,7 +83,7 @@ package body Editor.Files.Target_Prompt_Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, Before_Text);
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
@@ -94,7 +94,7 @@ package body Editor.Files.Target_Prompt_Tests is
         "cancellation should clear pending file target prompt state");
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (S) = "",
         "cancellation should discard typed target text");
-      Assert (Buffer_Text (S) = Before_Text and then S.File_Info.Dirty,
+      Assert (Buffer_Text (S) = Before_Text and then S.Buffer_Lifecycle.File_Info.Dirty,
         "cancellation must not mutate active buffer text or dirty state");
       Assert (Editor.Messages.Count (S.Messages) = 0,
         "cancellation must not emit underlying file operation feedback");
@@ -135,7 +135,7 @@ package body Editor.Files.Target_Prompt_Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Source);
-      Assert (not S.File_Info.Dirty and then S.File_Info.Has_Path,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty and then S.Buffer_Lifecycle.File_Info.Has_Path,
         "fixture should be a clean associated active buffer");
       Editor.Messages.Clear (S.Messages);
 
@@ -146,7 +146,7 @@ package body Editor.Files.Target_Prompt_Tests is
       Assert (Read_Bytes (Source) = "source",
         "opening target prompts must not perform source filesystem mutation");
 
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Rename_Buffer_File);
       Assert (not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S),
         "dirty associated buffer should not open rename prompt under preferred policy");
@@ -171,7 +171,7 @@ package body Editor.Files.Target_Prompt_Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, Before_Text);
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File_As);
@@ -185,7 +185,7 @@ package body Editor.Files.Target_Prompt_Tests is
         "render snapshot should project prompt label");
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (S) = "render-target.txt",
         "render snapshot must not mutate prompt input");
-      Assert (Buffer_Text (S) = Before_Text and then S.File_Info.Dirty,
+      Assert (Buffer_Text (S) = Before_Text and then S.Buffer_Lifecycle.File_Info.Dirty,
         "render snapshot must not mutate buffer state");
       Assert (Editor.Messages.Count (S.Messages) = Before_Messages,
         "render snapshot must not emit command feedback");

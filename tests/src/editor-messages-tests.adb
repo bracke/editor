@@ -417,13 +417,13 @@ package body Editor.Messages.Tests is
       Cmd.Path := To_Unbounded_String (Seed_Path);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String (Editor.Test_Temp.Base & "");
-      S.File_Info.Display_Name := To_Unbounded_String ("tmp");
-      S.File_Info.Dirty := True;
-      S.File_Info.File_Token_Known := False;
-      S.File_Info.File_Token_Label := Null_Unbounded_String;
-      S.File_Info.External_Change_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Editor.Test_Temp.Base & "");
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("tmp");
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.File_Token_Known := False;
+      S.Buffer_Lifecycle.File_Info.File_Token_Label := Null_Unbounded_String;
+      S.Buffer_Lifecycle.File_Info.External_Change_Surfaced := False;
       Cmd.Kind := Editor.Command_Kinds.Save_File;
       Editor.Executor.Execute_No_Log (S, Cmd);
 

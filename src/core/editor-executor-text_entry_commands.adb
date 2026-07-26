@@ -550,7 +550,7 @@ package body Editor.Executor.Text_Entry_Commands is
       Sel_Stat : Editor.Selection.Selection_Validation_Status;
    begin
       if not Editor.State.Has_Active_Buffer (S)
-        and then S.Active_Buffer_Token /= 0
+        and then S.Buffer_Lifecycle.Active_Buffer_Token /= 0
       then
          Selection_Range :=
            (Has_Range => False, Start_Pos => 0, End_Pos => 0);

@@ -207,8 +207,8 @@ package body Editor.Executor.Quick_Open_Create_Commands is
            Editor.Executor.Current_Navigation_Location (S, Editor.Navigation_History.Navigation_Reason_Unknown);
       begin
          Editor.Executor.File_Open_Commands.Execute_Open_File (S, To_String (Abs_Path));
-         if S.File_Info.Has_Path
-           and then To_String (S.File_Info.Path) = To_String (Abs_Path)
+         if S.Buffer_Lifecycle.File_Info.Has_Path
+           and then To_String (S.Buffer_Lifecycle.File_Info.Path) = To_String (Abs_Path)
          then
             Editor.Executor.Record_Navigation_If_Target_Changed (S, Before_Location,
                Editor.Executor.Structured_File_Navigation_Target (To_String (Abs_Path)));
@@ -483,8 +483,8 @@ package body Editor.Executor.Quick_Open_Create_Commands is
            Editor.Executor.Current_Navigation_Location (S, Editor.Navigation_History.Navigation_Reason_Unknown);
       begin
          Editor.Executor.File_Open_Commands.Execute_Open_File (S, To_String (Abs_Path));
-         if S.File_Info.Has_Path
-           and then To_String (S.File_Info.Path) = To_String (Abs_Path)
+         if S.Buffer_Lifecycle.File_Info.Has_Path
+           and then To_String (S.Buffer_Lifecycle.File_Info.Path) = To_String (Abs_Path)
          then
             Editor.Executor.Record_Navigation_If_Target_Changed (S, Before_Location,
                Editor.Executor.Structured_File_Navigation_Target (To_String (Abs_Path)));

@@ -27,19 +27,19 @@ package body Editor.Core_Editing_Workflow is
 
    function Has_File_Path (S : Editor.State.State_Type) return Boolean is
    begin
-      return S.File_Info.Has_Path and then Length (S.File_Info.Path) > 0;
+      return S.Buffer_Lifecycle.File_Info.Has_Path and then Length (S.Buffer_Lifecycle.File_Info.Path) > 0;
    end Has_File_Path;
 
    function Buffer_Dirty_Label
      (S : Editor.State.State_Type) return String is
    begin
-      if S.File_Info.Dirty then
-         if S.File_Info.Last_Save_Failed then
+      if S.Buffer_Lifecycle.File_Info.Dirty then
+         if S.Buffer_Lifecycle.File_Info.Last_Save_Failed then
             return "Dirty - save failed";
          else
             return "Dirty";
          end if;
-      elsif S.File_Info.Last_Save_Failed then
+      elsif S.Buffer_Lifecycle.File_Info.Last_Save_Failed then
          --  A clean buffer can still surface a past lifecycle failure until the
          --  retained lifecycle cleanup path clears it.  Do not treat this as a
          --  dirty buffer and do not clear the flag here.
@@ -360,11 +360,11 @@ package body Editor.Core_Editing_Workflow is
             elsif not Has_File_Path (S) then
                return "No file path for active buffer";
             elsif Id = Editor.Command_Ids.Command_Reload_Active_Buffer
-              and then S.File_Info.Dirty
+              and then S.Buffer_Lifecycle.File_Info.Dirty
             then
                return "Dirty buffer cannot be reloaded";
             elsif Id = Editor.Command_Ids.Command_Revert_Active_Buffer
-              and then not S.File_Info.Dirty
+              and then not S.Buffer_Lifecycle.File_Info.Dirty
             then
                return "No changes to revert";
             else
@@ -542,26 +542,26 @@ package body Editor.Core_Editing_Workflow is
 
    function File_State_Coherent (S : Editor.State.State_Type) return Boolean is
    begin
-      if S.File_Info.Has_Path then
-         return Length (S.File_Info.Path) > 0
-           and then Length (S.File_Info.Display_Name) > 0;
+      if S.Buffer_Lifecycle.File_Info.Has_Path then
+         return Length (S.Buffer_Lifecycle.File_Info.Path) > 0
+           and then Length (S.Buffer_Lifecycle.File_Info.Display_Name) > 0;
       else
          --  Unbacked buffers must not retain a path payload.  A display name is
          --  still required so render/palette/switcher projections can identify
          --  the buffer without fabricating one.
-         return Length (S.File_Info.Path) = 0
-           and then Length (S.File_Info.Display_Name) > 0;
+         return Length (S.Buffer_Lifecycle.File_Info.Path) = 0
+           and then Length (S.Buffer_Lifecycle.File_Info.Display_Name) > 0;
       end if;
    end File_State_Coherent;
 
    function Dirty_State_Coherent (S : Editor.State.State_Type) return Boolean is
    begin
-      if not S.File_Info.Baseline_Valid then
-         return S.File_Info.Saved_Generation = 0
-           or else S.File_Info.Saved_Generation <= S.Buffer_Revision;
+      if not S.Buffer_Lifecycle.File_Info.Baseline_Valid then
+         return S.Buffer_Lifecycle.File_Info.Saved_Generation = 0
+           or else S.Buffer_Lifecycle.File_Info.Saved_Generation <= S.Buffer_Lifecycle.Buffer_Revision;
       end if;
 
-      return S.File_Info.Saved_Generation <= S.Buffer_Revision;
+      return S.Buffer_Lifecycle.File_Info.Saved_Generation <= S.Buffer_Lifecycle.Buffer_Revision;
    end Dirty_State_Coherent;
 
 
@@ -582,8 +582,8 @@ package body Editor.Core_Editing_Workflow is
       end Is_File_Target_Prompt_Command;
 
       Prompt_Command_Coherent : constant Boolean :=
-        (not S.File_Target_Prompt_Active)
-        or else Is_File_Target_Prompt_Command (S.File_Target_Prompt_Command);
+        (not S.Buffer_Lifecycle.File_Target_Prompt_Active)
+        or else Is_File_Target_Prompt_Command (S.Buffer_Lifecycle.File_Target_Prompt_Command);
       Pending_Coherent : constant Boolean :=
         (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions))
         or else Editor.Pending_Transitions.Target_Kind (S.Pending_Transitions) /=
@@ -606,7 +606,7 @@ package body Editor.Core_Editing_Workflow is
       --  be inspected without an active overlay in unit-level state fixtures,
       --  but it must never coexist underneath a different text-consuming
       --  overlay where ordinary typing could be misrouted into a buffer.
-      if S.File_Target_Prompt_Active then
+      if S.Buffer_Lifecycle.File_Target_Prompt_Active then
          return Active = Editor.Overlay_Focus.No_Overlay
            or else Active = Editor.Overlay_Focus.File_Target_Prompt_Overlay;
       end if;
@@ -665,7 +665,7 @@ package body Editor.Core_Editing_Workflow is
         (Editing_Availability_Reason
            (S, Editor.Command_Ids.Command_Reload_Active_Buffer) /=
          "Dirty buffer cannot be reloaded"
-         or else S.File_Info.Dirty)
+         or else S.Buffer_Lifecycle.File_Info.Dirty)
         and then
         (not Requires_File_Backed_Buffer
            (Editor.Command_Ids.Command_Save_File_As));

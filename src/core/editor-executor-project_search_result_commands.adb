@@ -689,8 +689,8 @@ package body Editor.Executor.Project_Search_Result_Commands is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Target_Path);
       Editor.Messages.Dismiss_Latest (S.Messages);
 
-      if not S.File_Info.Has_Path
-        or else To_String (S.File_Info.Path) /= Target_Path
+      if not S.Buffer_Lifecycle.File_Info.Has_Path
+        or else To_String (S.Buffer_Lifecycle.File_Info.Path) /= Target_Path
       then
          Report_Warning (S, "Could not open " & Relative_Path);
          Show_Search_Results_Panel (S);

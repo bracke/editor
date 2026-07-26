@@ -298,7 +298,7 @@ package body Editor.Configuration_Audit.Tests is
       Editor.Settings.Set_Command_Palette_Show_Keybindings (Model, False);
       Editor.State.Apply_Settings (S, Model);
       Install_Project (S, Editor.Test_Temp.Base & "/editor-a", "editor-a");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Recent_Projects.Clear (S.Recent_Projects);
       Editor.Recent_Projects.Add_Or_Promote
         (S.Recent_Projects, Editor.Test_Temp.Base & "/editor-a", "editor-a", 108);
@@ -502,7 +502,7 @@ package body Editor.Configuration_Audit.Tests is
       Simulate_Startup_Config_Load (S, Settings_Path, Keybindings_Path);
       Install_Project (S, Editor.Test_Temp.Base & "/editor-a", "editor-a");
       Editor.State.Load_Text (S, "dirty text");
-      S.File_Info :=
+      S.Buffer_Lifecycle.File_Info :=
         (Has_Path     => True,
          Path         => To_Unbounded_String (Editor.Test_Temp.Base & "/editor-a/main.adb"),
          Display_Name => To_Unbounded_String ("main.adb"),
@@ -1089,14 +1089,14 @@ package body Editor.Configuration_Audit.Tests is
       Result  : Editor.Configuration_Audit.Configuration_Audit_Result;
    begin
       Editor.Keybindings.Reset_To_Defaults;
-      S.File_Conflict_Prompt_Active := True;
-      S.File_Conflict_Prompt_Buffer := 91;
-      S.File_Conflict_Prompt_Path := To_Unbounded_String (Editor.Test_Temp.Base & "/editor-/conflicted.adb");
-      S.File_Conflict_Prompt_Display := To_Unbounded_String ("conflicted.adb");
-      S.File_Conflict_Prompt_Kind := Editor.State.External_Modified_While_Dirty;
-      S.File_Conflict_Prompt_Dirty := True;
-      S.File_Conflict_Prompt_Buffer_Revision := 17;
-      S.File_Conflict_Prompt_Token_Label := To_Unbounded_String ("opaque-conflict-token-91");
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Active := True;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Buffer := 91;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Path := To_Unbounded_String (Editor.Test_Temp.Base & "/editor-/conflicted.adb");
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Display := To_Unbounded_String ("conflicted.adb");
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Kind := Editor.State.External_Modified_While_Dirty;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Dirty := True;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Buffer_Revision := 17;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Token_Label := To_Unbounded_String ("opaque-conflict-token-91");
 
       Summary := Editor.Configuration_Audit.Buffer_Boundary_Audit_For
         (S, "workspace-format-version=1" & ASCII.LF);
@@ -1104,21 +1104,21 @@ package body Editor.Configuration_Audit.Tests is
               "file conflict prompt runtime state must stay inside the transient boundary");
       Assert (Summary.File_Conflict_Prompt_Transient,
               "file conflict prompt must be classified as transient only");
-      Assert (Summary.File_Conflict_Prompt_Buffer_Id_Not_Persisted,
+      Assert (Summary.Buffer_Lifecycle.File_Conflict_Prompt_Buffer_Id_Not_Persisted,
               "file conflict prompt buffer id must not cross persistence boundary");
-      Assert (Summary.File_Conflict_Prompt_Buffer_Id_Not_Command_Payload,
+      Assert (Summary.Buffer_Lifecycle.File_Conflict_Prompt_Buffer_Id_Not_Command_Payload,
               "file conflict prompt buffer id must not become a command payload");
-      Assert (Summary.File_Conflict_Prompt_Buffer_Id_Not_Keybinding_Payload,
+      Assert (Summary.Buffer_Lifecycle.File_Conflict_Prompt_Buffer_Id_Not_Keybinding_Payload,
               "file conflict prompt buffer id must not become a keybinding payload");
-      Assert (Summary.File_Conflict_Prompt_Buffer_Id_Not_Render_Payload,
+      Assert (Summary.Buffer_Lifecycle.File_Conflict_Prompt_Buffer_Id_Not_Render_Payload,
               "file conflict prompt buffer id must not be rendered as a structured payload");
       Assert (Summary.File_Conflict_Prompt_Token_Not_Persisted,
               "file conflict prompt token must not cross persistence boundary");
       Assert (Summary.File_Conflict_Prompt_Token_Not_Rendered,
               "file conflict prompt token must not be rendered as an opaque token");
-      Assert (Summary.File_Conflict_Prompt_Display_Hides_Runtime_Buffer_Id,
+      Assert (Summary.Buffer_Lifecycle.File_Conflict_Prompt_Display_Hides_Runtime_Buffer_Id,
               "file conflict prompt display must hide runtime buffer id markers");
-      Assert (Summary.File_Conflict_Prompt_Display_Hides_File_Token,
+      Assert (Summary.Buffer_Lifecycle.File_Conflict_Prompt_Display_Hides_File_Token,
               "file conflict prompt display must hide file token labels");
       Assert (Summary.File_Conflict_Prompt_Revalidated_Before_Mutation,
               "file conflict prompt must carry enough transient state for confirmation-time revalidation");
@@ -1139,14 +1139,14 @@ package body Editor.Configuration_Audit.Tests is
       Result  : Editor.Configuration_Audit.Configuration_Audit_Result;
    begin
       Editor.Keybindings.Reset_To_Defaults;
-      S.File_Conflict_Prompt_Active := True;
-      S.File_Conflict_Prompt_Buffer := 0;
-      S.File_Conflict_Prompt_Path := Null_Unbounded_String;
-      S.File_Conflict_Prompt_Display := To_Unbounded_String ("conflicted.adb");
-      S.File_Conflict_Prompt_Kind := Editor.State.External_Modified_While_Dirty;
-      S.File_Conflict_Prompt_Dirty := True;
-      S.File_Conflict_Prompt_Buffer_Revision := 17;
-      S.File_Conflict_Prompt_Token_Label := To_Unbounded_String ("opaque-conflict-token-91");
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Active := True;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Buffer := 0;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Path := Null_Unbounded_String;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Display := To_Unbounded_String ("conflicted.adb");
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Kind := Editor.State.External_Modified_While_Dirty;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Dirty := True;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Buffer_Revision := 17;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Token_Label := To_Unbounded_String ("opaque-conflict-token-91");
 
       Summary := Editor.Configuration_Audit.Buffer_Boundary_Audit_For
         (S, "workspace-format-version=1" & ASCII.LF);
@@ -1240,17 +1240,17 @@ package body Editor.Configuration_Audit.Tests is
    begin
       Editor.Keybindings.Reset_To_Defaults;
       Editor.State.Init (S);
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String (Editor.Test_Temp.Base & "/editor-/preserved.adb");
-      S.File_Info.Display_Name := To_Unbounded_String ("preserved.adb");
-      S.File_Info.Dirty := True;
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Editor.Test_Temp.Base & "/editor-/preserved.adb");
+      S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("preserved.adb");
+      S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
       Editor.Feature_Panel.Fixtures.Set_Placeholder_Rows (S.Feature_Panel);
       Editor.Feature_Panel.Select_First (S.Feature_Panel);
       Editor.Project_Search.Set_Query (S.Project_Search, "not persisted");
-      S.Dirty_Close_Prompt_Active := True;
-      S.Dirty_Close_Prompt_Buffer := 1234;
-      S.Dirty_Close_Prompt_Buffer_Ids := To_Unbounded_String ("1234");
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Active := True;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer := 1234;
+      S.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer_Ids := To_Unbounded_String ("1234");
 
       Snapshot := Editor.State.Build_Workspace_Snapshot (S);
       Serialized := To_Unbounded_String
@@ -1451,9 +1451,9 @@ package body Editor.Configuration_Audit.Tests is
       Before := Editor.Configuration_Audit.Configuration_State_Summary_For (S);
       Assert (not Before.Has_Project,
               "safe startup must leave no active project when workspace recovery fails");
-      Assert (not S.File_Info.Has_Path,
+      Assert (not S.Buffer_Lifecycle.File_Info.Has_Path,
               "safe startup must leave no fabricated active file path");
-      Assert (not S.File_Info.Dirty,
+      Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "safe startup must not fabricate dirty buffer text");
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "startup recovery must not restore pending confirmations");

@@ -36,18 +36,18 @@ package body Editor.Executor.File_Save_As_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      S.File_Conflict_Prompt_Active := False;
-      S.File_Conflict_Prompt_Buffer := 0;
-      S.File_Conflict_Prompt_Path := Null_Unbounded_String;
-      S.File_Conflict_Prompt_Display := Null_Unbounded_String;
-      S.File_Conflict_Prompt_Kind := Editor.State.No_File_Conflict;
-      S.File_Conflict_Prompt_Dirty := False;
-      S.File_Conflict_Prompt_Buffer_Revision := 0;
-      S.File_Conflict_Prompt_Token_Label := Null_Unbounded_String;
-      S.File_Conflict_Close_After_Overwrite := False;
-      S.File_Conflict_Close_After_Overwrite_Buffer := 0;
-      S.File_Conflict_Close_After_Overwrite_Selected := False;
-      S.File_Conflict_Close_After_Overwrite_All_Buffers := False;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Active := False;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Buffer := 0;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Path := Null_Unbounded_String;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Display := Null_Unbounded_String;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Kind := Editor.State.No_File_Conflict;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Dirty := False;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Buffer_Revision := 0;
+      S.Buffer_Lifecycle.File_Conflict_Prompt_Token_Label := Null_Unbounded_String;
+      S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite := False;
+      S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite_Buffer := 0;
+      S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite_Selected := False;
+      S.Buffer_Lifecycle.File_Conflict_Close_After_Overwrite_All_Buffers := False;
    end Clear_File_Conflict_Prompt;
 
    procedure Capture_Active_File_Token
@@ -56,12 +56,12 @@ package body Editor.Executor.File_Save_As_Commands is
       Found : Boolean := False;
       Label : Unbounded_String := Null_Unbounded_String;
    begin
-      if S.File_Info.Has_Path and then Length (S.File_Info.Path) > 0 then
+      if S.Buffer_Lifecycle.File_Info.Has_Path and then Length (S.Buffer_Lifecycle.File_Info.Path) > 0 then
          Label := To_Unbounded_String
-           (Editor.Files.Current_Token_Label (To_String (S.File_Info.Path), Found));
+           (Editor.Files.Current_Token_Label (To_String (S.Buffer_Lifecycle.File_Info.Path), Found));
       end if;
-      S.File_Info.File_Token_Known := Found;
-      S.File_Info.File_Token_Label := Label;
+      S.Buffer_Lifecycle.File_Info.File_Token_Known := Found;
+      S.Buffer_Lifecycle.File_Info.File_Token_Label := Label;
    end Capture_Active_File_Token;
 
    function Active_Buffer_Save_Target_Available
@@ -88,7 +88,7 @@ package body Editor.Executor.File_Save_As_Commands is
       Editor.Buffers.Ensure_Global_Registry (S);
 
       if Editor.Buffers.Global_Active_Buffer /= Editor.Buffers.No_Buffer then
-         if S.Active_Buffer_Token /= Natural (Editor.Buffers.Global_Active_Buffer) then
+         if S.Buffer_Lifecycle.Active_Buffer_Token /= Natural (Editor.Buffers.Global_Active_Buffer) then
             Editor.Buffers.Load_Global_Active_Into_State (S);
          else
             Editor.Buffers.Sync_Global_Active_From_State (S);
@@ -132,26 +132,26 @@ package body Editor.Executor.File_Save_As_Commands is
       Result : Editor.Files.File_Save_Result)
    is
    begin
-      S.File_Info.Has_Path := True;
-      S.File_Info.Path := Result.Path;
-      S.File_Info.Display_Name := Result.Display_Name;
+      S.Buffer_Lifecycle.File_Info.Has_Path := True;
+      S.Buffer_Lifecycle.File_Info.Path := Result.Path;
+      S.Buffer_Lifecycle.File_Info.Display_Name := Result.Display_Name;
    end Update_Active_Buffer_Path_After_Save_As;
 
    procedure Update_Saved_Baseline_After_Save_As
      (S : in out Editor.State.State_Type)
    is
    begin
-      S.File_Info.Dirty := False;
-      S.File_Info.Baseline_Valid := True;
-      S.File_Info.Saved_Generation := Editor.State.Current_Buffer_Revision (S);
-      S.File_Info.Last_Save_Failed := False;
-      S.File_Info.Last_Reload_Failed := False;
-      S.File_Info.Last_Revert_Failed := False;
-      S.File_Info.Missing_Target_Surfaced := False;
-      S.File_Info.Unreadable_Target_Surfaced := False;
-      S.File_Info.Unwritable_Target_Surfaced := False;
-      S.File_Info.External_Change_Surfaced := False;
-      S.File_Info.Blocked_Close_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.Dirty := False;
+      S.Buffer_Lifecycle.File_Info.Baseline_Valid := True;
+      S.Buffer_Lifecycle.File_Info.Saved_Generation := Editor.State.Current_Buffer_Revision (S);
+      S.Buffer_Lifecycle.File_Info.Last_Save_Failed := False;
+      S.Buffer_Lifecycle.File_Info.Last_Reload_Failed := False;
+      S.Buffer_Lifecycle.File_Info.Last_Revert_Failed := False;
+      S.Buffer_Lifecycle.File_Info.Missing_Target_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.Unreadable_Target_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.Unwritable_Target_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.External_Change_Surfaced := False;
+      S.Buffer_Lifecycle.File_Info.Blocked_Close_Surfaced := False;
       Editor.State.Reset_Dirty_Line_Baseline (S);
    end Update_Saved_Baseline_After_Save_As;
 
@@ -205,9 +205,9 @@ package body Editor.Executor.File_Save_As_Commands is
       Parent_Missing : Boolean := False;
    begin
       Editor.Executor.Clear_Restore_Feedback_Current (S);
-      if S.File_Conflict_Prompt_Active
+      if S.Buffer_Lifecycle.File_Conflict_Prompt_Active
         or else (Editor.Executor.File_Lifecycle_Confirmation_Pending (S)
-                 and then not S.Dirty_Close_Prompt_Active)
+                 and then not S.Buffer_Lifecycle.Dirty_Close_Prompt_Active)
       then
          Editor.Executor.Shared_Services.Report_Warning (S, "Command unavailable while confirmation is pending");
          return;
@@ -227,10 +227,10 @@ package body Editor.Executor.File_Save_As_Commands is
 
       Apply_Format_On_Save_If_Enabled (S);
 
-      Previous_File := S.File_Info;
-      Previous_Dirty := S.File_Info.Dirty;
-      Previous_Saved := S.File_Info.Saved_Generation;
-      Previous_Valid := S.File_Info.Baseline_Valid;
+      Previous_File := S.Buffer_Lifecycle.File_Info;
+      Previous_Dirty := S.Buffer_Lifecycle.File_Info.Dirty;
+      Previous_Saved := S.Buffer_Lifecycle.File_Info.Saved_Generation;
+      Previous_Valid := S.Buffer_Lifecycle.File_Info.Baseline_Valid;
 
       Parent_Missing := Save_As_Target_Parent_Missing (Path);
       Result := Write_Active_Buffer_Text_To_Save_As_Target (S, Path);
@@ -260,16 +260,16 @@ package body Editor.Executor.File_Save_As_Commands is
          Editor.Buffers.Sync_Global_Active_From_State (S);
          Editor.Executor.Shared_Services.Report_Success (S, "Saved file as");
       else
-         S.File_Info := Previous_File;
-         S.File_Info.Dirty := Previous_Dirty;
-         S.File_Info.Saved_Generation := Previous_Saved;
-         S.File_Info.Baseline_Valid := Previous_Valid;
-         S.File_Info.Last_Save_Failed := True;
-         S.File_Info.Missing_Target_Surfaced :=
+         S.Buffer_Lifecycle.File_Info := Previous_File;
+         S.Buffer_Lifecycle.File_Info.Dirty := Previous_Dirty;
+         S.Buffer_Lifecycle.File_Info.Saved_Generation := Previous_Saved;
+         S.Buffer_Lifecycle.File_Info.Baseline_Valid := Previous_Valid;
+         S.Buffer_Lifecycle.File_Info.Last_Save_Failed := True;
+         S.Buffer_Lifecycle.File_Info.Missing_Target_Surfaced :=
            Result.Status in Editor.Files.File_Save_No_Current_Path
              | Editor.Files.File_Save_Invalid_Path
              | Editor.Files.File_Save_Parent_Unavailable;
-         S.File_Info.Unwritable_Target_Surfaced :=
+         S.Buffer_Lifecycle.File_Info.Unwritable_Target_Surfaced :=
            Result.Status in Editor.Files.File_Save_Permission_Denied
              | Editor.Files.File_Save_Write_Error
              | Editor.Files.File_Save_Is_Directory;

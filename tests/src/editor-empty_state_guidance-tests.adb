@@ -805,7 +805,7 @@ package body Editor.Empty_State_Guidance.Tests is
       --  code.  This prevents from turning normal editor surfaces
       --  into persistent onboarding cards.
       Editor.Project.Apply_Open_Result (S.Project, Result);
-      S.Active_Buffer_Token := 1;
+      S.Buffer_Lifecycle.Active_Buffer_Token := 1;
       Main := Build_Main_Empty_State (S);
 
       Assert (Main.Kind = Ready_State,

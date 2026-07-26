@@ -30,12 +30,12 @@ package body Editor.Executor.Pending_Transition_Policy is
    begin
       if Editor.Buffers.Global_Count = 0 then
          Summary :=
-           (Dirty_Count       => (if State.File_Info.Dirty then 1 else 0),
+           (Dirty_Count       => (if State.Buffer_Lifecycle.File_Info.Dirty then 1 else 0),
             Untitled_Count    =>
-              (if State.File_Info.Dirty and then not State.File_Info.Has_Path
+              (if State.Buffer_Lifecycle.File_Info.Dirty and then not State.Buffer_Lifecycle.File_Info.Has_Path
                then 1 else 0),
             File_Backed_Count =>
-              (if State.File_Info.Dirty and then State.File_Info.Has_Path
+              (if State.Buffer_Lifecycle.File_Info.Dirty and then State.Buffer_Lifecycle.File_Info.Has_Path
                then 1 else 0));
       end if;
 
@@ -235,15 +235,15 @@ package body Editor.Executor.Pending_Transition_Policy is
                --  dirty resolution must make the transient confirmation stale
                --  rather than reloading/reverting a different backing file.
                if Target.Has_Path then
-                  return Buffer_State.File_Info.Has_Path
+                  return Buffer_State.Buffer_Lifecycle.File_Info.Has_Path
                     and then Editor.Recent_Projects.Normalized_Root_Path
-                      (To_String (Buffer_State.File_Info.Path)) =
+                      (To_String (Buffer_State.Buffer_Lifecycle.File_Info.Path)) =
                         To_String (Target.Path)
-                    and then Buffer_State.File_Info.Dirty
+                    and then Buffer_State.Buffer_Lifecycle.File_Info.Dirty
                     and then Editor.Executor.File_Lifecycle_Commands.Pending_File_State_Still_Current (Target);
                else
-                  return Buffer_State.File_Info.Has_Path
-                    and then Buffer_State.File_Info.Dirty
+                  return Buffer_State.Buffer_Lifecycle.File_Info.Has_Path
+                    and then Buffer_State.Buffer_Lifecycle.File_Info.Dirty
                     and then Editor.Executor.File_Lifecycle_Commands.Pending_File_State_Still_Current (Target);
                end if;
             end;
@@ -431,14 +431,14 @@ package body Editor.Executor.Pending_Transition_Policy is
          Editor.Buffers.Buffer_Id (Target.Buffer_Id));
 
       Summary :=
-        (Dirty_Count       => (if Buffer_State.File_Info.Dirty then 1 else 0),
+        (Dirty_Count       => (if Buffer_State.Buffer_Lifecycle.File_Info.Dirty then 1 else 0),
          Untitled_Count    =>
-           (if Buffer_State.File_Info.Dirty
-             and then not Buffer_State.File_Info.Has_Path
+           (if Buffer_State.Buffer_Lifecycle.File_Info.Dirty
+             and then not Buffer_State.Buffer_Lifecycle.File_Info.Has_Path
             then 1 else 0),
          File_Backed_Count =>
-           (if Buffer_State.File_Info.Dirty
-             and then Buffer_State.File_Info.Has_Path
+           (if Buffer_State.Buffer_Lifecycle.File_Info.Dirty
+             and then Buffer_State.Buffer_Lifecycle.File_Info.Has_Path
             then 1 else 0));
 
       return Editor.Dirty_Guards.Guard_Transition
