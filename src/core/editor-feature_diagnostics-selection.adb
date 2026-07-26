@@ -1,5 +1,6 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Commands;
+with Editor.Commands.Workflow_Messages;
 with Editor.Contextual_Help;
 with Editor.Feature_Diagnostics.Display;
 with Editor.Feature_Diagnostics.Item_Queries;
@@ -289,8 +290,8 @@ package body Editor.Feature_Diagnostics.Selection is
          return "Target no longer exists.";
       elsif Label = "Target line unavailable" then
          return "Diagnostic target line is unavailable";
-      elsif Label = Editor.Commands.Reason_Target_Stale then
-         return Editor.Commands.Reason_Target_Stale;
+      elsif Label = Editor.Commands.Workflow_Messages.Reason_Target_Stale then
+         return Editor.Commands.Workflow_Messages.Reason_Target_Stale;
       elsif Label'Length > 0 then
          return Label;
       else

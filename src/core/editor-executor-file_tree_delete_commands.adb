@@ -5,6 +5,7 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Buffers;
 use type Editor.Buffers.Buffer_Id;
 with Editor.Commands;
+with Editor.Commands.Workflow_Messages;
 with Editor.Executor;
 with Editor.Executor.Semantic_Index_Commands;
 with Editor.Executor.Shared_Services;
@@ -58,7 +59,7 @@ package body Editor.Executor.File_Tree_Delete_Commands is
         .File_Tree_Source_Matches_Filesystem (Summary)
       then
          Editor.Executor.Shared_Services.Report_Warning
-           (S, Editor.Commands.Reason_File_Tree_Item_Stale);
+           (S, Editor.Commands.Workflow_Messages.Reason_File_Tree_Item_Stale);
          return;
       elsif not Editor.Executor.File_Tree_Mutation_Commands
         .Delete_Confirmation_Accepted (Summary.Kind, Confirm)

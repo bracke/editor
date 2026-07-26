@@ -23,6 +23,7 @@ with Editor.Command_Palette;
 with Editor.Command_Route_Audit;
 with Editor.Command_Execution;
 with Editor.Commands;
+with Editor.Commands.Workflow_Messages;
 with Editor.Commands.Name_Metadata;
 with Editor.Configuration_Audit;
 with Editor.Executor;
@@ -502,7 +503,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Editor.Commands.Unavailable_Reason
                 (Editor.Executor.Command_Availability
                    (S, Editor.Commands.Command_Diagnostics_Open_Selected)) =
-              Editor.Commands.Reason_Target_Stale,
+              Editor.Commands.Workflow_Messages.Reason_Target_Stale,
               "Diagnostic stale-target wording matches Search stale-target wording after rename");
       Editor.Project.Refresh_Known_Files (S.Project, Project_Files);
       Assert (not Editor.Project.Has_Known_File (S.Project, "src/new_widget.adb"),
@@ -1022,7 +1023,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Editor.Dogfood_Workflow.Dogfood_Unavailable_Reason_Label
                 (Editor.Dogfood_Workflow.Dogfood_Surface_Diagnostics,
                  Editor.Dogfood_Workflow.Dogfood_State_Target_Unavailable) =
-              Editor.Commands.Reason_Target_Missing,
+              Editor.Commands.Workflow_Messages.Reason_Target_Missing,
               "Diagnostics target failure uses shared missing-target wording");
       Assert (Editor.Dogfood_Workflow.Dogfood_Unavailable_Reason_Label
                 (Editor.Dogfood_Workflow.Dogfood_Surface_Build,
@@ -1149,7 +1150,7 @@ package body Editor.Dogfood_Workflow.Tests is
               "recent-project open success message is specific");
       Assert (Editor.Dogfood_Workflow.Recent_Project_Open_Result_Label
                 (Editor.Dogfood_Workflow.Recent_Project_Path_Missing) =
-              Editor.Commands.Reason_Target_Missing,
+              Editor.Commands.Workflow_Messages.Reason_Target_Missing,
               "missing recent-project path message uses the shared missing-target label");
       Assert (Editor.Dogfood_Workflow.Workspace_Reload_Recovery_Label
                 (Editor.Dogfood_Workflow.Workspace_Some_Files_Not_Reopened) =
@@ -1165,7 +1166,7 @@ package body Editor.Dogfood_Workflow.Tests is
               "stale search activation fails with a deterministic message");
       Assert (Editor.Dogfood_Workflow.Stale_Target_Activation_Label
                 (Editor.Dogfood_Workflow.Stale_Target_Diagnostics) =
-              Editor.Commands.Reason_Target_Missing,
+              Editor.Commands.Workflow_Messages.Reason_Target_Missing,
               "stale diagnostics activation uses shared missing-target wording");
       Assert (Editor.Dogfood_Workflow.Assert_Repeated_Startup_Coherent,
               "repeated startup keeps empty transient surfaces and command discovery coherent");
@@ -1635,558 +1636,558 @@ package body Editor.Dogfood_Workflow.Tests is
         "commands=product" & ASCII.LF;
       S : Editor.State.State_Type;
    begin
-      Assert (Editor.Commands.Normalize_Workflow_Message ("No project open.") =
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message ("No project open.") =
               "No project open.",
               "real command/message normalizer canonicalizes no-project text");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("File Tree unavailable: no project open.") =
               "No project open.",
               "File Tree startup no-project wording uses the shared project label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Quick Open unavailable: no project open.") =
               "No project open.",
               "Quick Open startup no-project wording uses the shared project label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Project Search unavailable: no project open.") =
               "No project open.",
               "Project Search startup no-project wording uses the shared project label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Build unavailable: no project open or no build request ready.") =
               "No project open.",
               "Build startup no-project wording uses the shared project label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Search result is stale; run Project Search again.") =
-              Editor.Commands.Reason_Target_Stale,
+              Editor.Commands.Workflow_Messages.Reason_Target_Stale,
               "real command/message normalizer canonicalizes stale target text");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("No project open for build candidates") =
               "No project open.",
               "build candidate no-project wording uses the shared workflow label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Outline unavailable: no active buffer.") =
               "No active buffer.",
               "Outline no-active-buffer wording uses the shared active-buffer label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Search Results: no active buffer") =
               "No active buffer.",
               "Search Results no-active-buffer wording uses the shared active-buffer label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Build run unavailable: selected build candidate is stale") =
-              Editor.Commands.Reason_Target_Stale,
+              Editor.Commands.Workflow_Messages.Reason_Target_Stale,
               "Build stale-candidate wording uses the shared stale-target label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("No open buffers") =
               "No buffers open.",
               "Buffer List empty wording uses the shared open-buffer label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("No matching open buffers") =
               "No matching open buffers.",
               "Buffer List filtered empty wording is punctuated consistently");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Only one buffer open") =
               "No other buffer.",
               "single-buffer navigation wording uses the shared other-buffer label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("No previous buffer") =
               "No previous buffer.",
               "previous-buffer unavailable wording is punctuated consistently");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("No next buffer") =
               "No next buffer.",
               "next-buffer unavailable wording is punctuated consistently");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Selected row is not a buffer") =
               "Selected row is not a buffer.",
               "non-buffer row activation wording is punctuated consistently");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("No matching buffers") =
               "No matching open buffers.",
               "Buffer List filtered matcher wording uses the shared open-buffer label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("No marked buffers") =
               "No marked buffers.",
               "Buffer List marked-buffer empty wording is punctuated consistently");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("No pending marked targets") =
               "No pending close targets.",
               "Buffer List pending marked-close wording uses the shared close-target label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("No dirty-prune preview targets") =
               "No dirty-prune preview targets.",
               "Buffer List dirty-prune preview empty wording is punctuated consistently");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("No removed dirty-prune apply targets") =
               "No removed dirty-prune apply targets.",
               "Buffer List removed dirty-prune apply wording is punctuated consistently");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("No selection") =
               "No selected text",
               "selection/clipboard no-selection wording uses the shared selected-text label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("No clipboard to clear") =
               "Clipboard is empty",
               "clipboard clear empty-state wording uses the shared clipboard-empty label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Invalid selection.") =
               "Invalid selection",
               "clipboard invalid-selection wording avoids punctuation drift");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("No file tree node selected.") =
               "No file selected.",
               "File Tree missing-selection wording uses the shared file-selection label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("No result selected.") =
               "No file selected.",
               "Search/replace generic missing-selection wording uses the shared file-selection label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Search Results: no selected result") =
               "No file selected.",
               "Search Results panel missing-selection wording uses the shared file-selection label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("No Quick Open result selected.") =
               "No file selected.",
               "Quick Open missing-result wording uses the shared file-selection label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("No item selected.") =
               "No file selected.",
               "generic panel item selection wording uses the shared file-selection label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("No replacement selected") =
               "No file selected.",
               "replacement preview missing-selection wording uses the shared file-selection label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Search Results: no query") =
               "No search query.",
               "Search Results no-query wording uses the shared search-query label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("No matches found.") =
               "No search results.",
               "Project Search no-match wording uses the shared search-results label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Project Search shown") =
               "Project Search shown.",
               "Project Search show wording is punctuated consistently");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Project Search hidden") =
               "Project Search hidden.",
               "Project Search hide wording is punctuated consistently");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Invalid Project Search include filter") =
               "Invalid Project Search filter.",
               "Project Search invalid filter wording is canonical");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("No Project Search scope to clear") =
               "No Project Search filter to clear.",
               "Project Search empty filter-clear wording is canonical");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("No replacement preview") =
               "No replacement preview.",
               "Replace preview empty-state wording is punctuated consistently");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Replacement target changed; rerun search") =
-              Editor.Commands.Reason_Target_Stale,
+              Editor.Commands.Workflow_Messages.Reason_Target_Stale,
               "Replace preview changed-target wording uses the shared stale-target label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Replacement target is unavailable") =
-              Editor.Commands.Reason_Target_Missing,
+              Editor.Commands.Workflow_Messages.Reason_Target_Missing,
               "Replace preview unavailable-target wording uses the shared missing-target label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Replacement target is read-only") =
               "File is not writable.",
               "Replace preview read-only wording uses the shared writable-file label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Replacement target is not a regular file") =
               "Target is not a file.",
               "Replace preview non-file target wording is canonical");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Replacement target path is invalid") =
               "Invalid file path.",
               "Replace preview invalid-path wording is canonical");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Replacement text must be single-line") =
               "Replacement text must be single-line.",
               "Replace preview replacement-text validation is punctuated consistently");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Could not open file for replacement") =
               "Could not open file.",
               "Replace preview open failure uses one file-open failure label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Build request is not ready for consent") =
               "No build request ready.",
               "Build request readiness wording matches policy");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Build run unavailable: no build candidate selected") =
               "No build candidate selected.",
               "Build missing-candidate wording uses the shared Build selection label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Build run unavailable: review the request and acknowledge consent first") =
               "Build consent required.",
               "Build consent wording uses the shared consent-required label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Build unavailable: consent required.") =
               "Build consent required.",
               "Build result/output consent-required wording uses the shared consent label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Consent missing: review and acknowledge the build request") =
               "Build consent required.",
               "Build UI consent-missing detail uses the shared consent-required label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Build candidate applied to transient request; Consent missing: review and acknowledge the build request") =
               "Build consent required.",
               "Build candidate application consent detail uses the shared consent-required label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("No build candidates found.") =
               "No build candidates.",
               "Build candidate discovery empty-state wording is punctuated consistently");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Build run unavailable: choose a build tool first") =
               "No build tool selected.",
               "Build tool selection wording uses the shared actionable label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Build run unavailable: custom shell commands are not supported") =
               "No build request ready.",
               "Build unsupported command-shape wording uses the shared request label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Build run unavailable: arguments must be structured tokens, not shell text") =
               "No build request ready.",
               "Build structured-argument wording uses the shared request label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("candidate request could not be formed") =
               "No build request ready.",
               "Build candidate request-shape wording uses the shared request label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("candidate request is not structured argv") =
               "No build request ready.",
               "Build candidate argv wording uses the shared request label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Build run unavailable: no project working context selected") =
               "No project open.",
               "Build missing working-context wording uses the shared project label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Build working directory is required.") =
               "No project open.",
               "Build missing working-directory wording uses the shared project label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("No canonical project/workspace context") =
               "No project open.",
               "Build missing canonical working-context wording uses the shared project label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Project root unavailable") =
-              Editor.Commands.Reason_Target_Missing,
+              Editor.Commands.Workflow_Messages.Reason_Target_Missing,
               "Project-root unavailable wording uses the shared missing-target label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("candidate path missing or unavailable") =
-              Editor.Commands.Reason_Target_Missing,
+              Editor.Commands.Workflow_Messages.Reason_Target_Missing,
               "Build candidate missing-path wording uses the shared missing-target label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("candidate path outside project root") =
               "Target is outside the current project.",
               "Build candidate boundary wording uses the shared project-boundary label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("candidate must be refreshed") =
-              Editor.Commands.Reason_Target_Stale,
+              Editor.Commands.Workflow_Messages.Reason_Target_Stale,
               "Build candidate refresh wording uses the shared stale-target label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Build working directory is unavailable.") =
-              Editor.Commands.Reason_Target_Missing,
+              Editor.Commands.Workflow_Messages.Reason_Target_Missing,
               "Build unavailable working-directory wording uses the shared missing-target label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Build run unavailable: selected project working context is unavailable") =
-              Editor.Commands.Reason_Target_Missing,
+              Editor.Commands.Workflow_Messages.Reason_Target_Missing,
               "Build unavailable working-context wording uses the shared missing-target label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Build run unavailable: working context must come from the current project/workspace") =
               "Target is outside the current project.",
               "Build outside working-context wording uses the shared boundary label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Build working context canonical path required") =
               "Target is outside the current project.",
               "Build invalid canonical working-context wording uses the shared boundary label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Build run unavailable: execution backend is disabled") =
               "Build execution is unavailable.",
               "Build disabled-backend wording uses the shared execution-unavailable label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Build unavailable: execution backend disabled.") =
               "Build execution is unavailable.",
               "Build output-details disabled-backend wording uses the shared execution-unavailable label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Build output unavailable") =
               "No build output captured.",
               "Build output unavailable wording uses the shared no-output label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("No standard output captured") =
               "No stdout captured.",
               "Build stdout empty-state wording uses the shared stdout label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("No standard error captured") =
               "No stderr captured.",
               "Build stderr empty-state wording uses the shared stderr label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Consent stale: review the changed build request") =
               "Build consent is stale.",
               "Build stale-consent wording uses the shared stale-consent label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Build candidate file no longer exists") =
-              Editor.Commands.Reason_Target_Missing,
+              Editor.Commands.Workflow_Messages.Reason_Target_Missing,
               "Build missing-candidate-file wording uses the shared missing-target label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Parent directory unavailable") =
               "Parent directory is unavailable.",
               "File lifecycle parent-directory wording uses the shared recovery label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Parent directory does not exist: src/panels/") =
               "Parent directory is unavailable.",
               "Path-specific parent-directory failures are redacted to the shared recovery label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("File is not writable") =
               "File is not writable.",
               "File lifecycle unwritable wording is canonical");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("File is not readable") =
               "File is not readable.",
               "File lifecycle unreadable wording is canonical");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Could not reload buffer") =
               "Could not reload file.",
               "Reload failure wording uses file lifecycle terminology consistently");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Could not reload file; buffer unchanged") =
               "Could not reload file.",
               "Reload failure detail is normalized to one primary outcome");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Could not write file; buffer remains dirty") =
               "Could not save file.",
               "Write failure detail is normalized to the shared save failure label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Dirty buffer cannot be closed") =
               "Unsaved changes require confirmation.",
               "Dirty close guard wording uses the shared confirmation label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Cannot switch project with unsaved changes") =
               "Unsaved changes require confirmation.",
               "Project switch dirty guard wording uses the shared confirmation label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Cannot restore workspace with unsaved changes") =
               "Unsaved changes require confirmation.",
               "Workspace restore dirty guard wording uses the shared confirmation label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Save or resolve changes first") =
               "Unsaved changes require confirmation.",
               "Close-all dirty guard wording uses the shared confirmation label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Dirty buffer file cannot be renamed") =
               "Dirty buffer preserved.",
               "File Tree rename dirty-buffer guard reports preserved dirty text");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Delete blocked by unsaved changes") =
               "Dirty buffer preserved.",
               "File Tree delete dirty-buffer guard reports preserved dirty text");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Close canceled") =
               "Close cancelled.",
               "Dirty close cancel spelling is normalized");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Save failed; buffer remains open and dirty") =
               "Save failed; buffer remains open.",
               "Save-and-close failure wording uses one shared primary outcome");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Save As required before saving this buffer") =
               "Buffer has no file path.",
               "Unbacked buffer save wording uses the shared backing-file label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("File changed on disk; choose how to proceed.") =
               "File conflict requires resolution.",
               "external-change save prompt uses the shared file-conflict label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("File conflict detected; choose how to proceed.") =
               "File conflict requires resolution.",
               "generic file-conflict prompt wording uses the shared conflict label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Reload will discard unsaved changes. Disk version has changed since file was opened.") =
               "Reload will discard unsaved changes.",
               "reload conflict detail is normalized to one primary discard warning");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Kept buffer changes; file remains conflicted") =
               "Kept buffer changes; file remains conflicted.",
               "keep-buffer conflict action is punctuated consistently");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("File conflict canceled") =
               "File conflict cancelled.",
               "file-conflict cancel spelling is normalized");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Diagnostic target file is unavailable.") =
-              Editor.Commands.Reason_Target_Missing,
+              Editor.Commands.Workflow_Messages.Reason_Target_Missing,
               "Diagnostics missing-file wording uses the shared missing-target label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Target file missing or unavailable") =
-              Editor.Commands.Reason_Target_Missing,
+              Editor.Commands.Workflow_Messages.Reason_Target_Missing,
               "Diagnostics source-labelled missing target wording uses the shared missing-target label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Selected diagnostic has no source target") =
               "Selected diagnostic has no source target.",
               "source-less diagnostics navigation wording is punctuated consistently");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Outline target unavailable") =
-              Editor.Commands.Reason_Target_Missing,
+              Editor.Commands.Workflow_Messages.Reason_Target_Missing,
               "Outline target-unavailable wording uses the shared missing-target label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Diagnostic target line is unavailable") =
-              Editor.Commands.Reason_Target_Line_Unavailable,
+              Editor.Commands.Workflow_Messages.Reason_Target_Line_Unavailable,
               "Diagnostics missing-line wording uses the shared target-line label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Target path is outside the project") =
               "Target is outside the current project.",
               "outside-project target wording uses the shared boundary label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Workspace session malformed; no session restored.") =
               "No workspace restored.",
               "Workspace malformed-session wording uses the shared no-restore label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Workspace loaded with stale or unsupported structural entries ignored.") =
               "Workspace restored with missing entries skipped.",
               "Workspace partial-restore wording uses the shared skipped-entries label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Recent Projects list empty.") =
               "No recent projects.",
               "Recent Projects empty-list wording uses the shared empty label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Recent project is unavailable.") =
-              Editor.Commands.Reason_Target_Missing,
+              Editor.Commands.Workflow_Messages.Reason_Target_Missing,
               "Recent Projects unavailable-entry wording uses the shared missing-target label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Recent Projects loaded with invalid lightweight entries ignored.") =
               "Recent Projects loaded with invalid entries ignored.",
               "Recent Projects partial-load wording uses one shared warning label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Editor ready with configuration warnings.") =
               "Ready with configuration warnings.",
               "Startup warning wording does not leak product-shell phrasing into surfaces");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Settings file has an invalid format.") =
               "Settings file is invalid.",
               "Settings loader invalid-format wording uses one recovery label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Settings loaded with ignored invalid entries.") =
               "Settings loaded with invalid values reset to defaults.",
               "Settings partial-load wording uses one recovery label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Keybindings file malformed; default keybindings active.") =
               "Default keybindings active.",
               "Keybinding malformed-file wording uses the safe-default label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Keybindings loaded with ignored invalid entries.") =
               "Keybindings loaded with rejected bindings.",
               "Keybinding partial-load wording uses the rejected-bindings label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Keybinding entry is malformed.") =
               "Shortcut is invalid.",
               "Malformed keybinding entry wording uses the shortcut validation label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Reset all configuration requested. Run configuration.reset-all.confirm to confirm or configuration.reset-all.cancel to cancel; project files and dirty buffers will not be changed.") =
               "Reset all configuration requires confirmation.",
               "Configuration reset-all prompt wording is concise and actionable");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("All configuration domains reset after explicit confirmation.") =
               "All configuration domains reset.",
               "Configuration reset-all completion wording uses one outcome label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Command Palette is closed.") =
               "Command Palette closed.",
               "Command Palette closed-state wording is punctuated consistently");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("No commands match ""zzzz-no-command""") =
               "No matching commands.",
               "Command Palette no-match wording hides query-specific noise");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("No available commands") =
               "No available commands.",
               "Command Palette available-only empty state is punctuated consistently");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("No available commands match ""build""") =
               "No matching available commands.",
               "Command Palette available-only no-match wording keeps filter context");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("No command selected") =
               "No command selected.",
               "Command Palette missing-selection wording is punctuated consistently");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Selected setting is not editable") =
               "Selected setting is not editable.",
               "Settings non-editable wording is punctuated consistently");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Setting value is invalid") =
               "Invalid setting value.",
               "Settings validation wording uses one invalid-value label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Command is not bindable") =
               "Selected command is not bindable.",
               "Keybinding command bindability wording is canonical");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Keybinding conflict: shortcut already assigned") =
               "Shortcut is already assigned.",
               "Keybinding conflict wording uses one shortcut-conflict label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Keybinding assignment canceled") =
               "Keybinding assignment cancelled.",
               "Keybinding assignment cancel spelling is normalized");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("No bookmarks") =
               "No bookmarks.",
               "Bookmarks empty-state wording is punctuated consistently");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("No bookmarkable location") =
               "No bookmarkable location.",
               "Bookmarks no-location wording is punctuated consistently");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("No bookmark in active file") =
               "No bookmark in active file.",
               "Bookmarks in-file empty-state wording is punctuated consistently");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Bookmark target unavailable") =
-              Editor.Commands.Reason_Target_Missing,
+              Editor.Commands.Workflow_Messages.Reason_Target_Missing,
               "Bookmarks stale target wording shares the missing-target label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("No previous navigation location") =
               "No previous navigation location.",
               "Navigation back empty-history wording is punctuated consistently");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("No navigation history to clear") =
               "No navigation history.",
               "Navigation history clear empty-state wording uses one label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Navigation target unavailable.") =
-              Editor.Commands.Reason_Target_Missing,
+              Editor.Commands.Workflow_Messages.Reason_Target_Missing,
               "Navigation stale-target wording shares the missing-target label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Another prompt is active") =
               "Another prompt is active.",
               "Prompt concurrency wording is punctuated consistently");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Prompt canceled") =
               "Prompt cancelled.",
               "Prompt cancellation spelling is normalized");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Conflict prompt is stale") =
               "Prompt is stale.",
               "Stale prompt wording uses one prompt-stale label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("No close confirmation pending") =
               "No pending confirmation.",
               "Missing confirmation wording uses one no-pending label");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Reload/revert requires its own explicit confirmation") =
               "Reload or revert requires confirmation.",
               "Reload/revert confirmation wording avoids slash-heavy UI text");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Pending transition canceled") =
               "Pending transition cancelled.",
               "Project transition cancellation spelling is normalized");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Switch project canceled") =
               "Switch project cancelled.",
               "Project switch cancellation spelling is normalized");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Reload canceled") =
               "Reload cancelled.",
               "File reload cancellation spelling is normalized");
@@ -2201,7 +2202,7 @@ package body Editor.Dogfood_Workflow.Tests is
               "canonical no-project wording is exact");
       Assert (Editor.Dogfood_Workflow.Integrated_Workflow_Message
                 (Editor.Dogfood_Workflow.Workflow_Target_Stale) =
-              Editor.Commands.Reason_Target_Stale,
+              Editor.Commands.Workflow_Messages.Reason_Target_Stale,
               "stale target wording is shared across surfaces");
       Assert (Editor.Dogfood_Workflow.Integrated_Workflow_Message
                 (Editor.Dogfood_Workflow.Workflow_Confirmation_Pending) =
@@ -2400,40 +2401,40 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Editor.Dogfood_Workflow.Assert_Product_Surface_Coherent
                 (Product_Text),
               "product workflow surface has expected core commands");
-      Assert (Editor.Commands.Normalize_Workflow_Message ("File renamed") =
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message ("File renamed") =
               "File renamed.",
               "normalizes file rename status punctuation");
-      Assert (Editor.Commands.Normalize_Workflow_Message ("Directory renamed") =
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message ("Directory renamed") =
               "Directory renamed.",
               "normalizes directory rename status punctuation");
-      Assert (Editor.Commands.Normalize_Workflow_Message ("File deleted") =
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message ("File deleted") =
               "File deleted.",
               "normalizes file delete status punctuation");
-      Assert (Editor.Commands.Normalize_Workflow_Message ("Directory deleted") =
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message ("Directory deleted") =
               "Directory deleted.",
               "normalizes directory delete status punctuation");
-      Assert (Editor.Commands.Normalize_Workflow_Message ("Create file cancelled") =
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message ("Create file cancelled") =
               "Create file cancelled.",
               "normalizes create-file cancellation status punctuation");
-      Assert (Editor.Commands.Normalize_Workflow_Message ("Create directory cancelled") =
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message ("Create directory cancelled") =
               "Create directory cancelled.",
               "normalizes create-directory cancellation status punctuation");
-      Assert (Editor.Commands.Normalize_Workflow_Message ("Rename cancelled") =
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message ("Rename cancelled") =
               "Rename cancelled.",
               "normalizes rename cancellation status punctuation");
-      Assert (Editor.Commands.Normalize_Workflow_Message ("Delete cancelled") =
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message ("Delete cancelled") =
               "Delete cancelled.",
               "normalizes delete cancellation status punctuation");
-      Assert (Editor.Commands.Normalize_Workflow_Message ("Build UI shown") =
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message ("Build UI shown") =
               "Build Output shown.",
               "normalizes removed Build UI show status wording");
-      Assert (Editor.Commands.Normalize_Workflow_Message ("Item could not be renamed") =
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message ("Item could not be renamed") =
               "File or directory could not be renamed.",
               "normalizes generic rename failure wording");
-      Assert (Editor.Commands.Normalize_Workflow_Message ("No build output") =
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message ("No build output") =
               "No build output captured.",
               "normalizes build-output empty status to useful product wording");
-      Assert (Editor.Commands.Normalize_Workflow_Message ("Diagnostics shown") =
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message ("Diagnostics shown") =
               "Diagnostics shown.",
               "normalizes diagnostics panel show status punctuation");
       Assert (Editor.Feature_Diagnostics.Message_Diagnostics_Shown =
@@ -2442,29 +2443,29 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Editor.Feature_Diagnostics.Message_Diagnostics_Cleared =
               "Diagnostics cleared.",
               "diagnostics clear message is product-facing");
-      Assert (Editor.Commands.Normalize_Workflow_Message ("No diagnostics produced") =
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message ("No diagnostics produced") =
               "No diagnostics.",
               "normalizes build-produced empty diagnostics wording");
-      Assert (Editor.Commands.Normalize_Workflow_Message ("Backing file no longer exists") =
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message ("Backing file no longer exists") =
               "Backing file missing.",
               "normalizes backing-file loss to the product vocabulary");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Rename blocked by unsaved changes") =
               "Dirty buffer preserved.",
               "normalizes dirty File Tree rename blockers to preserved data wording");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Delete blocked by unsaved changes") =
               "Dirty buffer preserved.",
               "normalizes dirty File Tree delete blockers to preserved data wording");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Build panel is closed; open Build before running build.run") =
               "Build Output is closed; open Build Output before running build.run.",
               "normalizes removed build-surface availability wording");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Workspace state restored") =
               "Workspace restored.",
               "normalizes workspace restore success to product wording");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("Workspace state partially restored") =
               "Workspace restored with missing entries skipped.",
               "normalizes partial workspace restore to product wording");
@@ -2533,14 +2534,14 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Focus_Outline);
       Assert (Active_Message_Text (S) = "Outline focused.",
               "Outline focus status is punctuated and product-facing");
-      Assert (Editor.Commands.Normalize_Workflow_Message
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
                 ("No outline items item selected.") =
               "No file selected.",
               "normalizes old duplicated Outline selection wording");
-      Assert (Editor.Commands.Normalize_Workflow_Message ("Outline shown") =
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message ("Outline shown") =
               "Outline shown.",
               "normalizes old unpunctuated Outline show wording");
-      Assert (Editor.Commands.Normalize_Workflow_Message ("Outline focused") =
+      Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message ("Outline focused") =
               "Outline focused.",
               "normalizes old unpunctuated Outline focus wording");
       Assert (Editor.Commands.Descriptors.Descriptor

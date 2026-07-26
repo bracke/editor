@@ -1,5 +1,6 @@
 with Editor.Cursors;
 with Editor.Commands;
+with Editor.Commands.Workflow_Messages;
 with Editor.Diagnostics;
 with Editor.Folding;
 with Editor.Layout;
@@ -222,7 +223,7 @@ package body Editor.Executor.Diagnostics_Navigation_Commands is
       if Editor.Feature_Diagnostics.Item_Is_Stale
           (S.Feature_Diagnostics, Positive (Mapped))
       then
-         Report_Info (S, Editor.Commands.Reason_Target_Stale);
+         Report_Info (S, Editor.Commands.Workflow_Messages.Reason_Target_Stale);
          Editor.Render_Cache.Invalidate_All;
          return Editor.Command_Execution.No_Op
            (Editor.Commands.Command_Feature_Panel_Open_Selected);
@@ -299,8 +300,8 @@ package body Editor.Executor.Diagnostics_Navigation_Commands is
                Report_Info (S, "Target no longer exists.");
             elsif Reason = "Target line unavailable" then
                Report_Info (S, "Target line is unavailable.");
-            elsif Reason = Editor.Commands.Reason_Target_Stale then
-               Report_Info (S, Editor.Commands.Reason_Target_Stale);
+            elsif Reason = Editor.Commands.Workflow_Messages.Reason_Target_Stale then
+               Report_Info (S, Editor.Commands.Workflow_Messages.Reason_Target_Stale);
             elsif Reason'Length > 0 then
                Report_Info
                  (S, Reason & (if Reason (Reason'Last) = '.' then "" else "."));

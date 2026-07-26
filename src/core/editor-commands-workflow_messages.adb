@@ -226,17 +226,17 @@ package body Editor.Commands.Workflow_Messages is
         or else Trimmed = "No replacement preview."
       then
          return "No replacement preview.";
-      elsif Trimmed = Editor.Commands.Reason_Project_Search_Result_Stale
+      elsif Trimmed = Reason_Project_Search_Result_Stale
         or else Trimmed = "Search result is stale; rerun search"
-        or else Trimmed = Editor.Commands.Reason_Search_Result_Stale_Rerun
+        or else Trimmed = Reason_Search_Result_Stale_Rerun
         or else Trimmed = "Replacement target changed; rerun search"
         or else Trimmed = "Replacement target changed; rerun search."
         or else Trimmed = "Search results are stale"
         or else Trimmed = "Search results are stale."
         or else Trimmed = "Search results are stale; rerun search."
-        or else Trimmed = Editor.Commands.Reason_Replacement_Preview_Stale
+        or else Trimmed = Reason_Replacement_Preview_Stale
         or else Trimmed = "Replacement preview is stale."
-        or else Trimmed = Editor.Commands.Reason_Selected_Replacement_Stale
+        or else Trimmed = Reason_Selected_Replacement_Stale
         or else Trimmed = "Selected replacement is stale."
         or else Trimmed = "Selected result is stale."
         or else Trimmed = "Quick Open result is stale."

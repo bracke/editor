@@ -9,6 +9,7 @@ with Editor.Ada_Semantic_Diagnostic_Feed;
 with Editor.Ada_Semantic_Diagnostic_Index;
 with Editor.Build_Diagnostics;
 with Editor.Commands;
+with Editor.Commands.Workflow_Messages;
 with Editor.Commands.Name_Metadata;
 with Editor.Diagnostics_Review_UX;
 with Editor.External_Producers;
@@ -838,7 +839,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Assert (not Editor.Commands.Is_Available (A),
               "open-selected is unavailable before routing for out-of-range retained targets");
       Assert (Editor.Commands.Unavailable_Reason (A) =
-              Editor.Commands.Reason_Diagnostic_Target_Line_Outside_Buffer,
+              Editor.Commands.Workflow_Messages.Reason_Diagnostic_Target_Line_Outside_Buffer,
               "open-selected reports the retained line as out of range, not missing/source-less");
    end Test_External_Producer_Preserves_Invalid_Target_Position_Metadata;
 
@@ -938,7 +939,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Assert (not Editor.Commands.Is_Available (A),
               "open-selected is unavailable for source-labelled missing targets");
       Assert (Editor.Commands.Unavailable_Reason (A) =
-              Editor.Commands.Reason_Target_Missing,
+              Editor.Commands.Workflow_Messages.Reason_Target_Missing,
               "source-labelled missing target uses shared missing-target wording");
 
       Before_Count := Editor.Messages.Count (S.Messages);
@@ -950,7 +951,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
               "missing target activation emits one precise primary message");
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then Editor.Messages.Text (M) =
-              Editor.Commands.Reason_Target_Missing,
+              Editor.Commands.Workflow_Messages.Reason_Target_Missing,
               "missing target activation reports shared missing-target wording");
    end Test_Open_Selected_Missing_Target_Is_Distinct_From_Source_Less;
 
@@ -985,7 +986,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Assert (not Editor.Commands.Is_Available (A),
               "open-selected is unavailable before routing for known missing target buffers");
       Assert (Editor.Commands.Unavailable_Reason (A) =
-              Editor.Commands.Reason_Target_Missing,
+              Editor.Commands.Workflow_Messages.Reason_Target_Missing,
               "availability reports the same shared missing-target reason as activation");
    end Test_Open_Selected_Known_Missing_Buffer_Is_Unavailable_Pre_Route;
 
@@ -1467,7 +1468,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
         (S, Editor.Commands.Command_Feature_Panel_Open_Selected);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then Editor.Messages.Text (M) =
-                Editor.Commands.Reason_Target_Line_Unavailable,
+                Editor.Commands.Workflow_Messages.Reason_Target_Line_Unavailable,
               "missing-line Diagnostics activation uses the shared target-line sentence");
 
       Editor.Feature_Diagnostics.Clear_Diagnostics (S.Feature_Diagnostics);
@@ -1491,7 +1492,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
         (S, Editor.Commands.Command_Feature_Panel_Open_Selected);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then Editor.Messages.Text (M) =
-                Editor.Commands.Reason_Target_Missing,
+                Editor.Commands.Workflow_Messages.Reason_Target_Missing,
               "missing-file Diagnostics activation normalizes retained target labels into the shared missing-target sentence");
    end Test_Diagnostics_Open_Failure_Normalizes_Partial_Target_Messages;
 
@@ -2553,14 +2554,14 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Assert (not Editor.Commands.Is_Available (A),
               "stale diagnostic target is blocked before real navigation");
       Assert (Editor.Commands.Unavailable_Reason (A) =
-              Editor.Commands.Reason_Target_Stale,
+              Editor.Commands.Workflow_Messages.Reason_Target_Stale,
               "Diagnostics stale-target availability uses the Search-compatible canonical wording");
 
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Feature_Panel_Open_Selected);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then Editor.Messages.Text (M) =
-              Editor.Commands.Reason_Target_Stale,
+              Editor.Commands.Workflow_Messages.Reason_Target_Stale,
               "Diagnostics stale-target activation uses the same canonical primary outcome");
    end Test_Stale_Diagnostic_Target_Blocks_Real_Open_Route;
 

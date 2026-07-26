@@ -9,6 +9,7 @@ with Ada.Streams.Stream_IO;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
 with Editor.Commands;
+with Editor.Commands.Workflow_Messages;
 with Editor.Commands.Name_Metadata;
 with Editor.Keybindings;
 with Editor.File_Tree;
@@ -3119,7 +3120,7 @@ package body Editor.Quick_Open.Tests is
       Assert (A.Status = Editor.Commands.Command_Unavailable,
               "Quick Open must not activate a stale project match");
       Assert (Editor.Commands.Unavailable_Reason (A) =
-                Editor.Commands.Reason_Target_Missing,
+                Editor.Commands.Workflow_Messages.Reason_Target_Missing,
               "Quick Open stale activation should explain current-project boundary");
       Assert (not Editor.Project_Navigation.Assert_Project_Navigation_Workflows_Coherent
                     (S),

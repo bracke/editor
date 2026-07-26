@@ -10,6 +10,7 @@ with Editor.Buffers;
 with Editor.Command_Execution;
 with Editor.Command_Palette;
 with Editor.Commands;
+with Editor.Commands.Workflow_Messages;
 with Editor.Cursors;
 with Editor.Diagnostics;
 with Editor.Executor.Test_Support; use Editor.Executor.Test_Support;
@@ -428,7 +429,7 @@ package body Editor.Executor.UI_Tests is
 
       Assert (Result.Status = Editor.Executor.Command_No_Op,
               "stale targeted message activation remains non-mutating");
-      Assert (Latest_Message_Text (S) = Editor.Commands.Reason_Target_Missing,
+      Assert (Latest_Message_Text (S) = Editor.Commands.Workflow_Messages.Reason_Target_Missing,
               "stale target activation reports concise deterministic feedback");
       Assert (Ada.Strings.Fixed.Index (Latest_Message_Text (S), "generation") = 0,
               "target feedback must not expose projection generation details");

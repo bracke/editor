@@ -6,6 +6,7 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Build_Result_Summary;
 with Editor.Build_UI;
 with Editor.Commands;
+with Editor.Commands.Workflow_Messages;
 with Editor.Commands.Name_Metadata;
 with Editor.Configuration_Recovery;
 with Editor.Command_Palette;
@@ -378,7 +379,7 @@ package body Editor.Empty_State_Guidance.Tests is
       Assert (Snapshot.Kind = Selected_Unavailable_State,
               "selected missing Diagnostics targets need explicit recovery guidance");
       Assert (To_String (Snapshot.Primary_Message) =
-                Editor.Commands.Reason_Target_Missing,
+                Editor.Commands.Workflow_Messages.Reason_Target_Missing,
               "missing Diagnostics target guidance should use canonical missing-target wording");
       Assert (Contains_Command_Suggestion
                 (Snapshot, Editor.Commands.Command_Diagnostics_Clear_Selected),

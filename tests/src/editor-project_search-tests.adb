@@ -12,6 +12,7 @@ with Editor.Files;
 with Editor.Project_Search;
 with Editor.Project;
 with Editor.Commands;
+with Editor.Commands.Workflow_Messages;
 with Editor.Commands.Name_Metadata;
 with Editor.Buffers;
 with Editor.Command_Route_Audit;
@@ -2516,7 +2517,7 @@ package body Editor.Project_Search.Tests is
       Assert (A.Status = Editor.Commands.Command_Unavailable,
               "stale project search results must not activate silently");
       Assert (Editor.Commands.Unavailable_Reason (A) =
-                Editor.Commands.Reason_Target_Stale,
+                Editor.Commands.Workflow_Messages.Reason_Target_Stale,
               "stale activation should explain the stale result boundary");
 
       A := Editor.Executor.Command_Availability
@@ -2524,7 +2525,7 @@ package body Editor.Project_Search.Tests is
       Assert (A.Status = Editor.Commands.Command_Unavailable,
               "stale Project Search rows must not be reselection targets");
       Assert (Editor.Commands.Unavailable_Reason (A) =
-                Editor.Commands.Reason_Target_Stale,
+                Editor.Commands.Workflow_Messages.Reason_Target_Stale,
               "stale reselection should share the stale boundary reason");
 
       A := Editor.Executor.Command_Availability
@@ -2532,7 +2533,7 @@ package body Editor.Project_Search.Tests is
       Assert (A.Status = Editor.Commands.Command_Unavailable,
               "stale Project Search rows must not seed a scope payload");
       Assert (Editor.Commands.Unavailable_Reason (A) =
-                Editor.Commands.Reason_Target_Stale,
+                Editor.Commands.Workflow_Messages.Reason_Target_Stale,
               "stale scope derivation should share the stale boundary reason");
 
       Cleanup_Fixture (Root);

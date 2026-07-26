@@ -5,6 +5,7 @@ with Ada.Strings.Fixed; use Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Interfaces.C; use Interfaces.C;
 with Editor.Commands;
+with Editor.Commands.Workflow_Messages;
 with Editor.Cursors;
 with Editor.Input_Bridge;
 with Editor.Layout;
@@ -2103,7 +2104,7 @@ package body Editor.Status_Bar.Tests is
       Assert (Index (Right, "failed: Selected diagnostic has no source target.") > 0,
               "status must canonicalize source-less Diagnostics feedback");
       Snapshot.Command_Feedback :=
-        To_Unbounded_String (Editor.Commands.Reason_Diagnostic_Target_Line_Unavailable);
+        To_Unbounded_String (Editor.Commands.Workflow_Messages.Reason_Diagnostic_Target_Line_Unavailable);
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "failed: Target line is unavailable.") > 0,
               "status must canonicalize Diagnostics missing-line feedback");

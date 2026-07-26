@@ -55,10 +55,6 @@ package body Editor.Commands is
         (To_String (Availability.Reason));
    end Unavailable_Reason;
 
-   function Normalize_Workflow_Message
-     (Text : String) return String
-     renames Editor.Commands.Workflow_Messages.Normalize_Workflow_Message;
-
    function Requires_Context
      (Id : Command_Id) return Boolean
      renames Editor.Commands.Availability_Metadata.Requires_Context;

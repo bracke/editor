@@ -12,6 +12,7 @@ with Editor.Buffers;
 with Editor.Clipboard;
 with Editor.Command_Execution;
 with Editor.Commands;
+with Editor.Commands.Workflow_Messages;
 with Editor.Cursors;
 with Editor.Executor.Diagnostics_Navigation_Commands;
 with Editor.Executor.Panel_Focus_Commands;
@@ -196,7 +197,7 @@ package body Editor.Executor.Diagnostics_Commands is
                     (S.Feature_Diagnostics, Positive (Mapped))
                   then
                      return Editor.Commands.Unavailable
-                       (Editor.Commands.Reason_Target_Stale);
+                       (Editor.Commands.Workflow_Messages.Reason_Target_Stale);
                   elsif not Editor.Feature_Diagnostics.Validate_Diagnostic_Target
                       (S.Feature_Diagnostics, Positive (Mapped), Target_Buffer)
                     or else not Editor.Executor.Feature_Target_Position_Is_Valid
@@ -232,7 +233,7 @@ package body Editor.Executor.Diagnostics_Commands is
                             (S.Feature_Diagnostics, Positive (Mapped))))
                   then
                      return Editor.Commands.Unavailable
-                       (Editor.Commands.Reason_Diagnostic_Edit_Stale_Target);
+                       (Editor.Commands.Workflow_Messages.Reason_Diagnostic_Edit_Stale_Target);
                   end if;
                end;
             end if;
@@ -481,27 +482,27 @@ package body Editor.Executor.Diagnostics_Commands is
       elsif Target_Buffer = 0
         or else not Feature_Target_Buffer_Exists (S, Target_Buffer)
       then
-         return Editor.Commands.Reason_Target_Missing;
+         return Editor.Commands.Workflow_Messages.Reason_Target_Missing;
       elsif Line = 0 then
-         return Editor.Commands.Reason_Diagnostic_Target_Line_Unavailable;
+         return Editor.Commands.Workflow_Messages.Reason_Diagnostic_Target_Line_Unavailable;
       elsif Line_Count = 0 or else Line > Line_Count then
          if Editor.Feature_Diagnostics.Item_Is_Stale
            (S.Feature_Diagnostics, Positive (Mapped))
          then
-            return Editor.Commands.Reason_Target_Stale;
+            return Editor.Commands.Workflow_Messages.Reason_Target_Stale;
          else
-            return Editor.Commands.Reason_Diagnostic_Target_Line_Outside_Buffer
+            return Editor.Commands.Workflow_Messages.Reason_Diagnostic_Target_Line_Outside_Buffer
               & ".";
          end if;
       elsif Column = 0 then
-         return Editor.Commands.Reason_Diagnostic_Target_Column_Unavailable;
+         return Editor.Commands.Workflow_Messages.Reason_Diagnostic_Target_Column_Unavailable;
       elsif Column - 1 > Feature_Target_Line_Length (S, Target_Buffer, Line) then
          if Editor.Feature_Diagnostics.Item_Is_Stale
            (S.Feature_Diagnostics, Positive (Mapped))
          then
-            return Editor.Commands.Reason_Target_Stale;
+            return Editor.Commands.Workflow_Messages.Reason_Target_Stale;
          else
-            return Editor.Commands.Reason_Diagnostic_Target_Column_Outside_Line
+            return Editor.Commands.Workflow_Messages.Reason_Diagnostic_Target_Column_Outside_Line
               & ".";
          end if;
       else
@@ -607,7 +608,7 @@ package body Editor.Executor.Diagnostics_Commands is
         (S.Feature_Diagnostics, Positive (Diagnostic_Index))
       then
          return Editor.Commands.Unavailable
-           (Editor.Commands.Reason_Target_Stale);
+           (Editor.Commands.Workflow_Messages.Reason_Target_Stale);
       elsif not Editor.Feature_Diagnostics.Validate_Diagnostic_Target
           (S.Feature_Diagnostics, Positive (Diagnostic_Index), Target_Buffer)
         or else not Feature_Target_Position_Is_Valid

@@ -11,6 +11,7 @@ with Text_Buffer;
 with Editor.Buffers;
 with Editor.Command_Execution;
 with Editor.Commands; use Editor.Commands;
+with Editor.Commands.Workflow_Messages;
 with Editor.Cursors; use Editor.Cursors;
 with Editor.Executor.File_Open_Commands;
 with Editor.Executor.History;
@@ -215,7 +216,7 @@ package body Editor.Executor.Search_Commands is
                return Editor.Commands.Unavailable ("No project search results");
             elsif Editor.Project_Search.Is_Stale (S.Project_Search) then
                return Editor.Commands.Unavailable
-                 (Editor.Commands.Reason_Project_Search_Result_Stale);
+                 (Editor.Commands.Workflow_Messages.Reason_Project_Search_Result_Stale);
             elsif not Has_Selected_Search_Result then
                return Editor.Commands.Unavailable ("No search result selected.");
             elsif not Selected_Project_Search_Result_Still_Known then
@@ -232,7 +233,7 @@ package body Editor.Executor.Search_Commands is
                return Editor.Commands.Unavailable ("No project search results");
             elsif Editor.Project_Search.Is_Stale (S.Project_Search) then
                return Editor.Commands.Unavailable
-                 (Editor.Commands.Reason_Project_Search_Result_Stale);
+                 (Editor.Commands.Workflow_Messages.Reason_Project_Search_Result_Stale);
             end if;
             return Editor.Commands.Available;
 
@@ -251,7 +252,7 @@ package body Editor.Executor.Search_Commands is
                return Editor.Commands.Unavailable ("No search result selected.");
             elsif Editor.Project_Search.Is_Stale (S.Project_Search) then
                return Editor.Commands.Unavailable
-                 (Editor.Commands.Reason_Project_Search_Result_Stale);
+                 (Editor.Commands.Workflow_Messages.Reason_Project_Search_Result_Stale);
             elsif not Selected_Project_Search_Result_Still_Known then
                return Editor.Commands.Unavailable
                  ("Search result target unavailable.");
@@ -324,7 +325,7 @@ package body Editor.Executor.Search_Commands is
               (S.Project_Search)
             then
                return Editor.Commands.Unavailable
-                 (Editor.Commands.Reason_Replacement_Preview_Stale);
+                 (Editor.Commands.Workflow_Messages.Reason_Replacement_Preview_Stale);
             elsif not Editor.Project_Search.Replace_Text_Is_Valid
               (S.Project_Search)
             then
@@ -365,7 +366,7 @@ package body Editor.Executor.Search_Commands is
                        ("No replacement selected");
                   elsif Row.Stale then
                      return Editor.Commands.Unavailable
-                       (Editor.Commands.Reason_Selected_Replacement_Stale);
+                       (Editor.Commands.Workflow_Messages.Reason_Selected_Replacement_Stale);
                   elsif Row.Invalid then
                      return Editor.Commands.Unavailable
                        ("Selected replacement is invalid");
@@ -385,7 +386,7 @@ package body Editor.Executor.Search_Commands is
               (S.Project_Search)
             then
                return Editor.Commands.Unavailable
-                 (Editor.Commands.Reason_Replacement_Preview_Stale);
+                 (Editor.Commands.Workflow_Messages.Reason_Replacement_Preview_Stale);
             elsif not Editor.Project_Search.Replace_Text_Is_Valid
               (S.Project_Search)
             then
@@ -411,7 +412,7 @@ package body Editor.Executor.Search_Commands is
                        ("No replacement selected");
                   elsif Row.Stale then
                      return Editor.Commands.Unavailable
-                       (Editor.Commands.Reason_Selected_Replacement_Stale);
+                       (Editor.Commands.Workflow_Messages.Reason_Selected_Replacement_Stale);
                   elsif Row.Invalid then
                      return Editor.Commands.Unavailable
                        ("Selected replacement is invalid");
@@ -434,7 +435,7 @@ package body Editor.Executor.Search_Commands is
               (S.Project_Search)
             then
                return Editor.Commands.Unavailable
-                 (Editor.Commands.Reason_Replacement_Preview_Stale);
+                 (Editor.Commands.Workflow_Messages.Reason_Replacement_Preview_Stale);
             elsif not Editor.Project_Search.Replace_Text_Is_Valid
               (S.Project_Search)
             then
@@ -457,7 +458,7 @@ package body Editor.Executor.Search_Commands is
                return Editor.Commands.Unavailable ("No project search results");
             elsif Editor.Project_Search.Is_Stale (S.Project_Search) then
                return Editor.Commands.Unavailable
-                 (Editor.Commands.Reason_Project_Search_Result_Stale);
+                 (Editor.Commands.Workflow_Messages.Reason_Project_Search_Result_Stale);
             elsif not Search_Results_Has_Focus then
                return Editor.Commands.Unavailable ("Command not available here");
             elsif not Has_Selected_Search_Result then

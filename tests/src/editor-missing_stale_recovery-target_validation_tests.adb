@@ -3,6 +3,7 @@ with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 with AUnit.Assertions; use AUnit.Assertions;
 with Editor.Commands;
+with Editor.Commands.Workflow_Messages;
 with Editor.Missing_Stale_Recovery;
 with Editor.Test_Temp;
 
@@ -59,7 +60,7 @@ package body Editor.Missing_Stale_Recovery.Target_Validation_Tests is
               "unwritable reason is distinct");
       Assert (Editor.Missing_Stale_Recovery.Availability_Reason
                 (Editor.Missing_Stale_Recovery.Target_Stale) =
-                Editor.Commands.Reason_Target_Stale,
+                Editor.Commands.Workflow_Messages.Reason_Target_Stale,
               "stale target reason uses the canonical wording");
       Assert (Editor.Missing_Stale_Recovery.Outcome_Label
                 ((State   => Editor.Missing_Stale_Recovery.Target_Stale,

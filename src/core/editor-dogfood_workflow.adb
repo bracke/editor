@@ -1,6 +1,7 @@
 with Ada.Characters.Handling;
 with Ada.Strings.Fixed;
 with Editor.Commands;
+with Editor.Commands.Workflow_Messages;
 
 package body Editor.Dogfood_Workflow is
 
@@ -112,7 +113,7 @@ package body Editor.Dogfood_Workflow is
          when Dogfood_State_Stale =>
             case Surface is
                when Dogfood_Surface_Project_Search =>
-                  return Editor.Commands.Reason_Project_Search_Result_Stale;
+                  return Editor.Commands.Workflow_Messages.Reason_Project_Search_Result_Stale;
                when Dogfood_Surface_Outline =>
                   return "Outline may be stale; refresh Outline before navigating.";
                when Dogfood_Surface_Build =>
@@ -638,7 +639,7 @@ package body Editor.Dogfood_Workflow is
          when Workflow_No_File_Selected =>
             return "No file selected.";
          when Workflow_Target_Stale =>
-            return Editor.Commands.Reason_Target_Stale;
+            return Editor.Commands.Workflow_Messages.Reason_Target_Stale;
          when Workflow_Target_No_Longer_Exists =>
             return "Target no longer exists.";
          when Workflow_Backing_File_No_Longer_Exists =>
@@ -795,7 +796,7 @@ package body Editor.Dogfood_Workflow is
         and then Integrated_Workflow_Message (Workflow_No_Buffer_Selected) = "No buffer selected."
         and then Integrated_Workflow_Message (Workflow_No_File_Selected) = "No file selected."
         and then Integrated_Workflow_Message (Workflow_Target_Stale) =
-          Editor.Commands.Reason_Target_Stale
+          Editor.Commands.Workflow_Messages.Reason_Target_Stale
         and then Integrated_Workflow_Message (Workflow_Target_No_Longer_Exists) =
           "Target no longer exists."
         and then Integrated_Workflow_Message (Workflow_Backing_File_No_Longer_Exists) =

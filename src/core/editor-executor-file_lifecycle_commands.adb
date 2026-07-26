@@ -6,6 +6,7 @@ with Editor.Buffers;
 use type Editor.Buffers.Buffer_Id;
 with Editor.Command_Execution;
 with Editor.Commands;
+with Editor.Commands.Workflow_Messages;
 with Editor.Dirty_Guards;
 with Editor.Executor.Buffer_Close_Commands;
 with Editor.Executor.Buffer_Close_Prompt_Commands;
@@ -120,7 +121,7 @@ package body Editor.Executor.File_Lifecycle_Commands is
                            Result := Editor.Commands.Available;
                         else
                            Result := Editor.Commands.Unavailable
-                             (Editor.Commands.Reason_Close_Review_Stale);
+                             (Editor.Commands.Workflow_Messages.Reason_Close_Review_Stale);
                         end if;
                         return;
                      elsif not Editor.Executor.Buffer_Close_Prompt_Commands.Dirty_Close_All_Buffer_Review_Current (S) then
@@ -128,7 +129,7 @@ package body Editor.Executor.File_Lifecycle_Commands is
                           or else not Editor.Executor.Buffer_Close_Prompt_Commands.Dirty_Close_Current_Dirty_Set_Was_Reviewed (S)
                         then
                            Result := Editor.Commands.Unavailable
-                             (Editor.Commands.Reason_Close_Review_Stale);
+                             (Editor.Commands.Workflow_Messages.Reason_Close_Review_Stale);
                            return;
                         end if;
                      end if;
@@ -179,7 +180,7 @@ package body Editor.Executor.File_Lifecycle_Commands is
                        or else not Editor.Executor.Buffer_Close_Prompt_Commands.Dirty_Close_Current_Dirty_Set_Was_Reviewed (S)
                      then
                         Result := Editor.Commands.Unavailable
-                          (Editor.Commands.Reason_Close_Review_Stale);
+                          (Editor.Commands.Workflow_Messages.Reason_Close_Review_Stale);
                         return;
                      end if;
                   end if;

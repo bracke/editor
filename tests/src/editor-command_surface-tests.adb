@@ -17,6 +17,7 @@ with Editor.Command_Execution;
 with Editor.Command_Route_Audit;
 with Editor.Command_Surface;
 with Editor.Commands;
+with Editor.Commands.Workflow_Messages;
 with Editor.Commands.Project_File_Ids;
 with Editor.Commands.Navigation_Ids;
 with Editor.Commands.Editing_Ids;
@@ -351,7 +352,7 @@ package body Editor.Command_Surface.Tests is
         (Editor.Commands.Unavailable_Reason
            (Editor.Commands.Unavailable
               ("Diagnostic target column is outside the line.")) =
-         Editor.Commands.Reason_Diagnostic_Target_Column_Outside_Line,
+         Editor.Commands.Workflow_Messages.Reason_Diagnostic_Target_Column_Outside_Line,
          "invalid diagnostic columns must keep the column-specific reason");
    end Test_Unavailable_Reason_Consistency;
 

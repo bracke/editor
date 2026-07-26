@@ -8,6 +8,7 @@ with Editor.Ada_Language_Service;
 with Editor.Ada_Project_Index;
 with Editor.Buffers;
 with Editor.Commands;
+with Editor.Commands.Workflow_Messages;
 with Editor.Cursors;
 with Editor.Executor.Diagnostics_Commands;
 with Editor.Executor.Diagnostics_Navigation_Commands;
@@ -587,13 +588,13 @@ package body Editor.Executor.Diagnostics_Tests is
       Select_Diagnostic_By_Message (S, "invalid column quick fix");
 
       Assert_Unavailable
-        (Positive (Stale_Index), 1, Editor.Commands.Reason_Target_Stale);
+        (Positive (Stale_Index), 1, Editor.Commands.Workflow_Messages.Reason_Target_Stale);
       Assert_Unavailable
-        (Positive (Missing_Buffer_Index), 1, Editor.Commands.Reason_Target_Missing);
+        (Positive (Missing_Buffer_Index), 1, Editor.Commands.Workflow_Messages.Reason_Target_Missing);
       Assert_Unavailable
-        (Positive (Invalid_Line_Index), 1, Editor.Commands.Reason_Diagnostic_Target_Line_Outside_Buffer);
+        (Positive (Invalid_Line_Index), 1, Editor.Commands.Workflow_Messages.Reason_Diagnostic_Target_Line_Outside_Buffer);
       Assert_Unavailable
-        (Positive (Invalid_Column_Index), 1, Editor.Commands.Reason_Diagnostic_Target_Column_Outside_Line);
+        (Positive (Invalid_Column_Index), 1, Editor.Commands.Workflow_Messages.Reason_Diagnostic_Target_Column_Outside_Line);
       Assert_Unavailable
         (Positive (Inert_Index), 2, "Quick fix action has no valid edit or command");
       Assert_Unavailable
@@ -694,7 +695,7 @@ package body Editor.Executor.Diagnostics_Tests is
 
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "selected diagnostic action with no target is unavailable");
-      Assert (Latest_Message_Text (S) = Editor.Commands.Reason_Target_Missing,
+      Assert (Latest_Message_Text (S) = Editor.Commands.Workflow_Messages.Reason_Target_Missing,
               "missing-target selected diagnostic action reports diagnostic target reason");
 
       Editor.Buffers.Reset_Global_For_Test;
@@ -741,7 +742,7 @@ package body Editor.Executor.Diagnostics_Tests is
       Assert (Active_Caret_Line (S) = 1,
               "stale selected diagnostic action must not navigate");
       Assert
-        (Latest_Message_Text (S) = Editor.Commands.Reason_Target_Stale,
+        (Latest_Message_Text (S) = Editor.Commands.Workflow_Messages.Reason_Target_Stale,
          "stale selected diagnostic action reports canonical stale rejection");
 
       Editor.Buffers.Reset_Global_For_Test;

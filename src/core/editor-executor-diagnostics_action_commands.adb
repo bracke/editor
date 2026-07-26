@@ -9,6 +9,7 @@ with Editor.Buffers;
 with Editor.Clipboard;
 with Editor.Command_Execution;
 with Editor.Commands;
+with Editor.Commands.Workflow_Messages;
 with Editor.Executor.Diagnostics_Navigation_Commands;
 with Editor.Executor.History;
 with Editor.Executor.Shared_Services;
@@ -405,7 +406,7 @@ package body Editor.Executor.Diagnostics_Action_Commands is
                         Natural (Action_Result.Edit_End_Line) - 1)
                then
                   Shared_Services.Report_Info
-                    (S, Editor.Commands.Reason_Diagnostic_Edit_Stale_Target);
+                    (S, Editor.Commands.Workflow_Messages.Reason_Diagnostic_Edit_Stale_Target);
                   Editor.Render_Cache.Invalidate_All;
                   return Editor.Command_Execution.Unavailable (Id);
                end if;
@@ -422,7 +423,7 @@ package body Editor.Executor.Diagnostics_Action_Commands is
                     Natural (Action_Result.Edit_End_Column) - 1);
                if End_Pos < Pos then
                   Shared_Services.Report_Info
-                    (S, Editor.Commands.Reason_Diagnostic_Edit_Stale_Target);
+                    (S, Editor.Commands.Workflow_Messages.Reason_Diagnostic_Edit_Stale_Target);
                   Editor.Render_Cache.Invalidate_All;
                   return Editor.Command_Execution.Unavailable (Id);
                end if;

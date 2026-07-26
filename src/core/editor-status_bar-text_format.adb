@@ -342,7 +342,7 @@ package body Editor.Status_Bar.Text_Format is
         or else Text = "Diagnostics: Selected diagnostic has no source target."
       then
          return "Diagnostics: Selected diagnostic has no source target.";
-      elsif (Text = Editor.Commands.Reason_Target_Stale
+      elsif (Text = Editor.Commands.Workflow_Messages.Reason_Target_Stale
              and then (Raw_Text = "candidate must be refreshed"
                        or else Raw_Text = "candidate must be refreshed."))
         or else Text = "Build: candidate stale"

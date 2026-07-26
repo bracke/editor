@@ -3,6 +3,7 @@ with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Image_Helpers;
 with Editor.Commands;
+with Editor.Commands.Workflow_Messages;
 
 package body Editor.Feature_Diagnostics.Labels is
 
@@ -91,7 +92,7 @@ package body Editor.Feature_Diagnostics.Labels is
       elsif Item.Target_Buffer = No_Buffer then
          return "Target file missing";
       elsif Item.Is_Stale then
-         return Editor.Commands.Reason_Target_Stale;
+         return Editor.Commands.Workflow_Messages.Reason_Target_Stale;
       else
          return "";
       end if;

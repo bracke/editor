@@ -5,6 +5,7 @@ use type Editor.State.Dirty_Close_Scope;
 use type Editor.State.Semantic_Popup_Kind;
 with Editor.Cursors;    use Editor.Cursors;
 with Editor.Commands;   use Editor.Commands;
+with Editor.Commands.Workflow_Messages;
 with Editor.History;    use Editor.History;
 with Ada.Containers;    use Ada.Containers;
 
@@ -252,26 +253,26 @@ package body Editor.Executor is
       elsif Target_Buffer = 0
         or else not Feature_Target_Buffer_Exists (S, Target_Buffer)
       then
-         return Editor.Commands.Reason_Target_Missing;
+         return Editor.Commands.Workflow_Messages.Reason_Target_Missing;
       elsif Line = 0 then
-         return Editor.Commands.Reason_Diagnostic_Target_Line_Unavailable;
+         return Editor.Commands.Workflow_Messages.Reason_Diagnostic_Target_Line_Unavailable;
       elsif Line_Count = 0 or else Line > Line_Count then
          if Editor.Feature_Diagnostics.Item_Is_Stale
            (S.Feature_Diagnostics, Positive (Mapped))
          then
-            return Editor.Commands.Reason_Target_Stale;
+            return Editor.Commands.Workflow_Messages.Reason_Target_Stale;
          else
-            return Editor.Commands.Reason_Diagnostic_Target_Line_Outside_Buffer & ".";
+            return Editor.Commands.Workflow_Messages.Reason_Diagnostic_Target_Line_Outside_Buffer & ".";
          end if;
       elsif Column = 0 then
-         return Editor.Commands.Reason_Diagnostic_Target_Column_Unavailable;
+         return Editor.Commands.Workflow_Messages.Reason_Diagnostic_Target_Column_Unavailable;
       elsif Column - 1 > Feature_Target_Line_Length (S, Target_Buffer, Line) then
          if Editor.Feature_Diagnostics.Item_Is_Stale
            (S.Feature_Diagnostics, Positive (Mapped))
          then
-            return Editor.Commands.Reason_Target_Stale;
+            return Editor.Commands.Workflow_Messages.Reason_Target_Stale;
          else
-            return Editor.Commands.Reason_Diagnostic_Target_Column_Outside_Line & ".";
+            return Editor.Commands.Workflow_Messages.Reason_Diagnostic_Target_Column_Outside_Line & ".";
          end if;
       else
          return "Navigation target unavailable.";

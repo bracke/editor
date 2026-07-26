@@ -16,6 +16,7 @@ with Editor.Buffers;
 with Editor.Executor;
 with Editor.Executor.File_Open_Commands;
 with Editor.Commands;
+with Editor.Commands.Workflow_Messages;
 with Editor.Messages;
 with Editor.Feature_Diagnostics;
 with Editor.Quick_Open;
@@ -784,14 +785,14 @@ package body Editor.File_Tree.Tests is
       Rename_Cmd.Text := To_Unbounded_String ("renamed.txt");
       Editor.Executor.Execute_No_Log (S, Rename_Cmd);
       Msg := Editor.Messages.Active_Message (S.Messages, Msg_Found);
-      Assert (Msg_Found and then To_String (Msg.Text) = Editor.Commands.Reason_Target_Missing,
+      Assert (Msg_Found and then To_String (Msg.Text) = Editor.Commands.Workflow_Messages.Reason_Target_Missing,
               "rename must report missing selected source before canonical boundary checks");
 
       Editor.Messages.Clear (S.Messages);
       Delete_Cmd.Text := To_Unbounded_String ("confirm");
       Editor.Executor.Execute_No_Log (S, Delete_Cmd);
       Msg := Editor.Messages.Active_Message (S.Messages, Msg_Found);
-      Assert (Msg_Found and then To_String (Msg.Text) = Editor.Commands.Reason_Target_Missing,
+      Assert (Msg_Found and then To_String (Msg.Text) = Editor.Commands.Workflow_Messages.Reason_Target_Missing,
               "delete must report missing selected source before canonical boundary checks");
 
       Cleanup_Fixture (Root);

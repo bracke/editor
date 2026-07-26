@@ -11,6 +11,7 @@ with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Buffers;
 with Editor.Commands;
+with Editor.Commands.Workflow_Messages;
 with Editor.File_Tree;
 with Editor.Executor;
 with Editor.Executor.File_Open_Commands;
@@ -1351,7 +1352,7 @@ package body Editor.Project.Tests is
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Open_Selected_Recent_Project);
 
-      Assert (Last_Message_Text (S) = Editor.Commands.Reason_Target_Missing,
+      Assert (Last_Message_Text (S) = Editor.Commands.Workflow_Messages.Reason_Target_Missing,
               "opening a stale recent project must fail with the shared missing-target message");
       Assert (Editor.Recent_Projects.Count (S.Recent_Projects) = 1,
               "failed recent-project open must not remove the entry implicitly");

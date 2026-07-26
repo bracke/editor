@@ -12,6 +12,7 @@ with Editor.Buffers;
 use type Editor.Buffers.Buffer_Id;
 with Editor.Buffer_Switcher;
 with Editor.Commands;
+with Editor.Commands.Workflow_Messages;
 with Editor.Dirty_Guards;
 with Editor.Executor;
 with Editor.Executor.Shared_Services;
@@ -372,7 +373,7 @@ package body Editor.Executor.Buffer_Close_Commands is
                  (S, Editor.Buffers.Buffer_Id (Target.Buffer_Id));
             else
                Editor.Pending_Transitions.Clear (S.Pending_Transitions);
-               Editor.Executor.Shared_Services.Report_Warning (S, Editor.Commands.Reason_Close_Review_Stale);
+               Editor.Executor.Shared_Services.Report_Warning (S, Editor.Commands.Workflow_Messages.Reason_Close_Review_Stale);
             end if;
          when Editor.Pending_Transitions.Pending_Open_Project
             | Editor.Pending_Transitions.Pending_Switch_Project

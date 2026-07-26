@@ -5,6 +5,7 @@ use type Editor.State.Dirty_Close_Scope;
 use type Editor.State.Semantic_Popup_Kind;
 with Editor.Cursors;    use Editor.Cursors;
 with Editor.Commands;   use Editor.Commands;
+with Editor.Commands.Workflow_Messages;
 with Editor.History;    use Editor.History;
 with Ada.Containers;    use Ada.Containers;
 
@@ -393,7 +394,7 @@ package body Editor.Executor.Command_Result_Commands is
                  or else Id = Editor.Commands.Command_Confirm_Close_Discard)
               and then
                 (Reason = "Selected buffer is no longer open"
-                 or else Reason = Editor.Commands.Reason_Close_Review_Stale);
+                 or else Reason = Editor.Commands.Workflow_Messages.Reason_Close_Review_Stale);
          begin
             if not Allow_Stale_Close_Cleanup then
                if Id = Editor.Commands.Command_Build_Run

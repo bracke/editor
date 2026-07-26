@@ -20,6 +20,7 @@ with Editor.Feature_Diagnostics;
 with Editor.Feature_Diagnostics.Fixtures; use Editor.Feature_Diagnostics.Fixtures;
 with Editor.Feature_Panel;
 with Editor.Commands;
+with Editor.Commands.Workflow_Messages;
 with Editor.Commands.Build_Terminal_Ids;
 with Editor.Commands.Name_Metadata;
 with Editor.State;
@@ -1962,16 +1963,16 @@ package body Editor.Build_UI.Tests is
    begin
       Assert_Row_Reason
         ("stale quick fix row", 0, 1, 1, True,
-         Editor.Commands.Reason_Target_Stale);
+         Editor.Commands.Workflow_Messages.Reason_Target_Stale);
       Assert_Row_Reason
         ("missing buffer quick fix row", 9999, 1, 1, False,
-         Editor.Commands.Reason_Target_Missing);
+         Editor.Commands.Workflow_Messages.Reason_Target_Missing);
       Assert_Row_Reason
         ("invalid line quick fix row", 0, 99, 1, False,
-         Editor.Commands.Reason_Diagnostic_Target_Line_Outside_Buffer);
+         Editor.Commands.Workflow_Messages.Reason_Diagnostic_Target_Line_Outside_Buffer);
       Assert_Row_Reason
         ("invalid column quick fix row", 0, 1, 99, False,
-         Editor.Commands.Reason_Diagnostic_Target_Column_Outside_Line);
+         Editor.Commands.Workflow_Messages.Reason_Diagnostic_Target_Column_Outside_Line);
    end Test_Build_UI_Quick_Fix_Row_Disabled_Target_Reasons;
 
    procedure Test_Many_Diagnostics_With_Quick_Fix_Actions_Are_Bounded

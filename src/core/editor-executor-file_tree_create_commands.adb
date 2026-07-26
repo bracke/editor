@@ -7,6 +7,7 @@ with Ada.Text_IO;
 with Editor.Buffers;
 use type Editor.Buffers.Buffer_Id;
 with Editor.Commands;
+with Editor.Commands.Workflow_Messages;
 with Editor.Executor.File_Tree_Mutation_Commands;
 with Editor.Executor.Shared_Services;
 with Editor.File_Tree;
@@ -86,7 +87,7 @@ package body Editor.Executor.File_Tree_Create_Commands is
                 .File_Tree_Source_Matches_Filesystem (Selected_Summary)
             then
                Editor.Executor.Shared_Services.Report_Warning
-                 (S, Editor.Commands.Reason_File_Tree_Item_Stale);
+                 (S, Editor.Commands.Workflow_Messages.Reason_File_Tree_Item_Stale);
                return;
             elsif not Editor.Executor.File_Tree_Mutation_Commands
               .File_Tree_Source_Project_Bounded (S, Selected_Summary)
@@ -232,7 +233,7 @@ package body Editor.Executor.File_Tree_Create_Commands is
                 .File_Tree_Source_Matches_Filesystem (Selected_Summary)
             then
                Editor.Executor.Shared_Services.Report_Warning
-                 (S, Editor.Commands.Reason_File_Tree_Item_Stale);
+                 (S, Editor.Commands.Workflow_Messages.Reason_File_Tree_Item_Stale);
                return;
             elsif not Editor.Executor.File_Tree_Mutation_Commands
               .File_Tree_Source_Project_Bounded (S, Selected_Summary)

@@ -1,6 +1,7 @@
 with Editor.Buffers;
 use type Editor.Buffers.Buffer_Id;
 with Editor.Commands;
+with Editor.Commands.Workflow_Messages;
 with Editor.Ada_Language_Service;
 with Editor.Ada_Project_Index;
 with Editor.Dirty_Guards;
@@ -584,7 +585,7 @@ package body Editor.Executor.Buffer_Close_Prompt_Commands is
            or else not Dirty_Close_Current_Dirty_Set_Was_Reviewed (S)
          then
             Clear_Dirty_Close_Prompt (S);
-            Editor.Executor.Shared_Services.Report_Warning (S, Editor.Commands.Reason_Close_Review_Stale);
+            Editor.Executor.Shared_Services.Report_Warning (S, Editor.Commands.Workflow_Messages.Reason_Close_Review_Stale);
             return;
          end if;
       end if;
@@ -679,7 +680,7 @@ package body Editor.Executor.Buffer_Close_Prompt_Commands is
            or else not Dirty_Close_Current_Dirty_Set_Was_Reviewed (S)
          then
             Clear_Dirty_Close_Prompt (S);
-            Editor.Executor.Shared_Services.Report_Warning (S, Editor.Commands.Reason_Close_Review_Stale);
+            Editor.Executor.Shared_Services.Report_Warning (S, Editor.Commands.Workflow_Messages.Reason_Close_Review_Stale);
             return;
          end if;
       end if;
