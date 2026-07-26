@@ -2,6 +2,10 @@ with Editor.Ada_Token_Cursor;
 
 package Editor.Ada_Token_Cursor.Primary_Parsing is
 
+   procedure Parse_Primary
+     (Position : in out Editor.Ada_Token_Cursor.Cursor;
+      Result   : in out Editor.Ada_Token_Cursor.Grammar_Result);
+
    function Has_Top_Level_Arrow_Before_Association_End
      (Position : Editor.Ada_Token_Cursor.Cursor) return Boolean;
 

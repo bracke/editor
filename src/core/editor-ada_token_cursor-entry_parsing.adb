@@ -3,11 +3,13 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Ada_Token_Cursor.Range_Structure_Helpers;
 with Editor.Ada_Token_Cursor.Grammar_Helpers;
 with Editor.Ada_Token_Cursor.Navigation_Helpers;
+with Editor.Ada_Token_Cursor.Tokenization;
 with Editor.Ada_Token_Cursor.Type_Parsing;
 with Editor.Ada_Token_Cursor;
 use Editor.Ada_Token_Cursor;
 
 package body Editor.Ada_Token_Cursor.Entry_Parsing is
+   use Editor.Ada_Token_Cursor.Tokenization;
 
    function Current_Lower (Position : Cursor) return String
      renames Editor.Ada_Token_Cursor.Navigation_Helpers.Current_Lower;

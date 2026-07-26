@@ -54,6 +54,14 @@ package Editor.Ada_Token_Cursor.Type_Parsing is
      (Position : in out Editor.Ada_Token_Cursor.Cursor;
       Result   : in out Editor.Ada_Token_Cursor.Grammar_Result);
 
+   procedure Parse_Enumeration_Type_Definition
+     (Position : in out Editor.Ada_Token_Cursor.Cursor;
+      Result   : in out Editor.Ada_Token_Cursor.Grammar_Result);
+
+   procedure Parse_Record_Definition
+     (Position : in out Editor.Ada_Token_Cursor.Cursor;
+      Result   : in out Editor.Ada_Token_Cursor.Grammar_Result);
+
    procedure Parse_Type_Definition
      (Position : in out Editor.Ada_Token_Cursor.Cursor;
       Result   : in out Editor.Ada_Token_Cursor.Grammar_Result);

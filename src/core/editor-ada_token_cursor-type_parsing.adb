@@ -2,7 +2,9 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Ada_Token_Cursor.Expression_Parsing;
 with Editor.Ada_Token_Cursor.Grammar_Helpers;
 with Editor.Ada_Token_Cursor.Navigation_Helpers;
+with Editor.Ada_Token_Cursor.Parsing_Phases;
 with Editor.Ada_Token_Cursor.Selected_Name_Parsing;
+with Editor.Ada_Token_Cursor.Tokenization;
 with Editor.Ada_Token_Cursor; use Editor.Ada_Token_Cursor;
 
 
@@ -17,6 +19,7 @@ package body Editor.Ada_Token_Cursor.Type_Parsing is
 
    use Editor.Ada_Token_Cursor.Navigation_Helpers;
    use Editor.Ada_Token_Cursor.Expression_Parsing;
+   use Editor.Ada_Token_Cursor.Tokenization;
 
    procedure Add_Production
      (Result : in out Grammar_Result;
@@ -24,6 +27,26 @@ package body Editor.Ada_Token_Cursor.Type_Parsing is
       Tok    : Token_Info;
       Label  : String)
      renames Editor.Ada_Token_Cursor.Grammar_Helpers.Add_Production;
+
+   function Match_Keyword
+     (Position : in out Cursor;
+      Keyword  : String) return Boolean
+     renames Editor.Ada_Token_Cursor.Grammar_Helpers.Match_Keyword;
+
+   function Match_Symbol
+     (Position : in out Cursor;
+      Symbol   : String) return Boolean
+     renames Editor.Ada_Token_Cursor.Grammar_Helpers.Match_Symbol;
+
+   procedure Parse_Enumeration_Type_Definition
+     (Position : in out Cursor;
+      Result   : in out Grammar_Result)
+     renames Editor.Ada_Token_Cursor.Parsing_Phases.Parse_Enumeration_Type_Definition;
+
+   procedure Parse_Record_Definition
+     (Position : in out Cursor;
+      Result   : in out Grammar_Result)
+     renames Editor.Ada_Token_Cursor.Parsing_Phases.Parse_Record_Definition;
 
    procedure Parse_Selected_Name_Suffix
      (Position : in out Cursor;

@@ -6,6 +6,7 @@ with Editor.Ada_Token_Cursor.Grammar_Helpers;
 with Editor.Ada_Token_Cursor.Navigation_Helpers;
 with Editor.Ada_Token_Cursor.Generic_Instantiation_Parsing;
 with Editor.Ada_Token_Cursor.Renaming_Parsing;
+with Editor.Ada_Token_Cursor.Tokenization;
 with Editor.Ada_Token_Cursor.Type_Parsing;
 with Editor.Ada_Token_Cursor;
 use Editor.Ada_Token_Cursor;
@@ -29,13 +30,13 @@ package body Editor.Ada_Token_Cursor.Generic_Formal_Parsing is
 
    procedure Advance
      (Position : in out Cursor)
-     renames Editor.Ada_Token_Cursor.Advance;
+     renames Editor.Ada_Token_Cursor.Tokenization.Advance;
 
    function At_End (Position : Cursor) return Boolean
-     renames Editor.Ada_Token_Cursor.At_End;
+     renames Editor.Ada_Token_Cursor.Tokenization.At_End;
 
    function Current (Position : Cursor) return Token_Info
-     renames Editor.Ada_Token_Cursor.Current;
+     renames Editor.Ada_Token_Cursor.Tokenization.Current;
 
    function Match_Keyword
      (Position : in out Cursor;

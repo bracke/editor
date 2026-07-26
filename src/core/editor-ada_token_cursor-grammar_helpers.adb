@@ -1,6 +1,7 @@
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps.Constants;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.Ada_Token_Cursor.Tokenization;
 with Editor.Text_Helpers;
 
 package body Editor.Ada_Token_Cursor.Grammar_Helpers is
@@ -13,11 +14,11 @@ package body Editor.Ada_Token_Cursor.Grammar_Helpers is
       Keyword  : String) return Boolean
    is
    begin
-      if not Editor.Ada_Token_Cursor.At_End (Position)
-        and then To_String (Editor.Ada_Token_Cursor.Current (Position).Lower) = Lower (Keyword)
-        and then Editor.Ada_Token_Cursor.Current (Position).Kind = Editor.Ada_Token_Cursor.Token_Keyword
+      if not Editor.Ada_Token_Cursor.Tokenization.At_End (Position)
+        and then To_String (Editor.Ada_Token_Cursor.Tokenization.Current (Position).Lower) = Lower (Keyword)
+        and then Editor.Ada_Token_Cursor.Tokenization.Current (Position).Kind = Editor.Ada_Token_Cursor.Token_Keyword
       then
-         Editor.Ada_Token_Cursor.Advance (Position);
+         Editor.Ada_Token_Cursor.Tokenization.Advance (Position);
          return True;
       end if;
       return False;
@@ -28,10 +29,10 @@ package body Editor.Ada_Token_Cursor.Grammar_Helpers is
       Symbol   : String) return Boolean
    is
    begin
-      if not Editor.Ada_Token_Cursor.At_End (Position)
-        and then To_String (Editor.Ada_Token_Cursor.Current (Position).Text) = Symbol
+      if not Editor.Ada_Token_Cursor.Tokenization.At_End (Position)
+        and then To_String (Editor.Ada_Token_Cursor.Tokenization.Current (Position).Text) = Symbol
       then
-         Editor.Ada_Token_Cursor.Advance (Position);
+         Editor.Ada_Token_Cursor.Tokenization.Advance (Position);
          return True;
       end if;
       return False;

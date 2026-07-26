@@ -3,10 +3,15 @@ with Ada.Strings.Maps.Constants;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Text_Helpers;
 with Editor.Ada_Token_Cursor.Grammar_Helpers;
+with Editor.Ada_Token_Cursor.Primary_Parsing;
+with Editor.Ada_Token_Cursor.Tokenization;
 with Editor.Ada_Token_Cursor; use Editor.Ada_Token_Cursor;
 
 package body Editor.Ada_Token_Cursor.Expression_Parsing is
 
+   use Editor.Ada_Token_Cursor.Tokenization;
+   use Editor.Ada_Token_Cursor.Grammar_Helpers;
+   use Editor.Ada_Token_Cursor.Primary_Parsing;
    function Lower (S : String) return String
      renames Editor.Text_Helpers.Lower;
 

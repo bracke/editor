@@ -1,6 +1,7 @@
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps.Constants;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.Ada_Token_Cursor.Tokenization;
 with Editor.Text_Helpers;
 
 package body Editor.Ada_Token_Cursor.Navigation_Helpers is
@@ -33,27 +34,27 @@ package body Editor.Ada_Token_Cursor.Navigation_Helpers is
    function Current_Lower
      (Position : Editor.Ada_Token_Cursor.Cursor) return String is
    begin
-      return To_String (Editor.Ada_Token_Cursor.Current (Position).Lower);
+      return To_String (Editor.Ada_Token_Cursor.Tokenization.Current (Position).Lower);
    end Current_Lower;
 
    procedure Skip_Balanced_To_Semicolon
      (Position : in out Editor.Ada_Token_Cursor.Cursor) is
       Paren_Depth : Natural := 0;
    begin
-      while not Editor.Ada_Token_Cursor.At_End (Position) loop
+      while not Editor.Ada_Token_Cursor.Tokenization.At_End (Position) loop
          declare
-            T : constant String := To_String (Editor.Ada_Token_Cursor.Current (Position).Text);
+            T : constant String := To_String (Editor.Ada_Token_Cursor.Tokenization.Current (Position).Text);
          begin
             if T = "(" then
                Paren_Depth := Paren_Depth + 1;
             elsif T = ")" and then Paren_Depth > 0 then
                Paren_Depth := Paren_Depth - 1;
             elsif T = ";" and then Paren_Depth = 0 then
-               Editor.Ada_Token_Cursor.Advance (Position);
+               Editor.Ada_Token_Cursor.Tokenization.Advance (Position);
                exit;
             end if;
          end;
-         Editor.Ada_Token_Cursor.Advance (Position);
+         Editor.Ada_Token_Cursor.Tokenization.Advance (Position);
       end loop;
    end Skip_Balanced_To_Semicolon;
 
@@ -61,11 +62,11 @@ package body Editor.Ada_Token_Cursor.Navigation_Helpers is
      (Position : in out Editor.Ada_Token_Cursor.Cursor;
       Keyword  : String) is
    begin
-      while not Editor.Ada_Token_Cursor.At_End (Position) loop
+      while not Editor.Ada_Token_Cursor.Tokenization.At_End (Position) loop
          declare
             L : constant String := Current_Lower (Position);
          begin
-            Editor.Ada_Token_Cursor.Advance (Position);
+            Editor.Ada_Token_Cursor.Tokenization.Advance (Position);
             exit when L = Lower (Keyword);
          end;
       end loop;
@@ -78,9 +79,9 @@ package body Editor.Ada_Token_Cursor.Navigation_Helpers is
       Paren_Depth : Natural := 0;
       Wanted      : constant String := Lower (Text);
    begin
-      while not Editor.Ada_Token_Cursor.At_End (Probe) loop
+      while not Editor.Ada_Token_Cursor.Tokenization.At_End (Probe) loop
          declare
-            T : constant String := To_String (Editor.Ada_Token_Cursor.Current (Probe).Text);
+            T : constant String := To_String (Editor.Ada_Token_Cursor.Tokenization.Current (Probe).Text);
             L : constant String := Current_Lower (Probe);
          begin
             if L = Wanted or else T = Text then
@@ -92,7 +93,7 @@ package body Editor.Ada_Token_Cursor.Navigation_Helpers is
             elsif T = ";" and then Paren_Depth = 0 then
                return False;
             end if;
-            Editor.Ada_Token_Cursor.Advance (Probe);
+            Editor.Ada_Token_Cursor.Tokenization.Advance (Probe);
          end;
       end loop;
       return False;
@@ -109,10 +110,10 @@ package body Editor.Ada_Token_Cursor.Navigation_Helpers is
          return False;
       end if;
 
-      for Index in First .. Natural'Min (Last, Editor.Ada_Token_Cursor.Length (Stream)) loop
+      for Index in First .. Natural'Min (Last, Editor.Ada_Token_Cursor.Tokenization.Length (Stream)) loop
          declare
             Tok : constant Editor.Ada_Token_Cursor.Token_Info :=
-              Editor.Ada_Token_Cursor.Token_At (Stream, Index);
+              Editor.Ada_Token_Cursor.Tokenization.Token_At (Stream, Index);
             Raw : constant String := To_String (Tok.Text);
          begin
             if Lower (Raw) = Wanted or else Raw = Text then
@@ -130,9 +131,9 @@ package body Editor.Ada_Token_Cursor.Navigation_Helpers is
       Stop_3   : String := "") is
       Paren_Depth : Natural := 0;
    begin
-      while not Editor.Ada_Token_Cursor.At_End (Position) loop
+      while not Editor.Ada_Token_Cursor.Tokenization.At_End (Position) loop
          declare
-            T : constant String := To_String (Editor.Ada_Token_Cursor.Current (Position).Text);
+            T : constant String := To_String (Editor.Ada_Token_Cursor.Tokenization.Current (Position).Text);
             L : constant String := Current_Lower (Position);
          begin
             exit when Paren_Depth = 0
@@ -144,7 +145,7 @@ package body Editor.Ada_Token_Cursor.Navigation_Helpers is
             elsif T = ")" and then Paren_Depth > 0 then
                Paren_Depth := Paren_Depth - 1;
             end if;
-            Editor.Ada_Token_Cursor.Advance (Position);
+            Editor.Ada_Token_Cursor.Tokenization.Advance (Position);
          end;
       end loop;
    end Skip_Balanced_To;

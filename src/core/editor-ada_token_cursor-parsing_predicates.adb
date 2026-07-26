@@ -3,6 +3,7 @@ with Ada.Strings.Maps.Constants;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Text_Helpers;
 with Editor.Ada_Token_Cursor.Navigation_Helpers;
+with Editor.Ada_Token_Cursor.Tokenization;
 
 package body Editor.Ada_Token_Cursor.Parsing_Predicates is
 
@@ -43,13 +44,13 @@ package body Editor.Ada_Token_Cursor.Parsing_Predicates is
       Probe : Editor.Ada_Token_Cursor.Cursor := Position;
       Depth : Natural := 0;
    begin
-      if To_String (Editor.Ada_Token_Cursor.Current (Probe).Text) /= "(" then
+      if To_String (Editor.Ada_Token_Cursor.Tokenization.Current (Probe).Text) /= "(" then
          return False;
       end if;
 
-      while not Editor.Ada_Token_Cursor.At_End (Probe) loop
+      while not Editor.Ada_Token_Cursor.Tokenization.At_End (Probe) loop
          declare
-            T : constant String := To_String (Editor.Ada_Token_Cursor.Current (Probe).Text);
+            T : constant String := To_String (Editor.Ada_Token_Cursor.Tokenization.Current (Probe).Text);
          begin
             if T = "(" or else T = "[" then
                Depth := Depth + 1;
@@ -69,7 +70,7 @@ package body Editor.Ada_Token_Cursor.Parsing_Predicates is
                return True;
             end if;
          end;
-         Editor.Ada_Token_Cursor.Advance (Probe);
+         Editor.Ada_Token_Cursor.Tokenization.Advance (Probe);
       end loop;
       return False;
    end Parenthesized_Actual_Has_Top_Level_Arrow;
@@ -83,34 +84,34 @@ package body Editor.Ada_Token_Cursor.Parsing_Predicates is
          return False;
       end if;
 
-      Editor.Ada_Token_Cursor.Advance (Probe);
+      Editor.Ada_Token_Cursor.Tokenization.Advance (Probe);
 
       if Unit_Kind = "package" then
-         if Editor.Ada_Token_Cursor.Current (Probe).Kind /= Editor.Ada_Token_Cursor.Token_Identifier
-           and then Editor.Ada_Token_Cursor.Current (Probe).Kind /= Editor.Ada_Token_Cursor.Token_Keyword
+         if Editor.Ada_Token_Cursor.Tokenization.Current (Probe).Kind /= Editor.Ada_Token_Cursor.Token_Identifier
+           and then Editor.Ada_Token_Cursor.Tokenization.Current (Probe).Kind /= Editor.Ada_Token_Cursor.Token_Keyword
          then
             return False;
          end if;
 
-         Editor.Ada_Token_Cursor.Advance (Probe);
-         while not Editor.Ada_Token_Cursor.At_End (Probe)
-           and then To_String (Editor.Ada_Token_Cursor.Current (Probe).Text) = "."
+         Editor.Ada_Token_Cursor.Tokenization.Advance (Probe);
+         while not Editor.Ada_Token_Cursor.Tokenization.At_End (Probe)
+           and then To_String (Editor.Ada_Token_Cursor.Tokenization.Current (Probe).Text) = "."
          loop
-            Editor.Ada_Token_Cursor.Advance (Probe);
-            if Editor.Ada_Token_Cursor.Current (Probe).Kind = Editor.Ada_Token_Cursor.Token_Identifier
-              or else Editor.Ada_Token_Cursor.Current (Probe).Kind = Editor.Ada_Token_Cursor.Token_Keyword
+            Editor.Ada_Token_Cursor.Tokenization.Advance (Probe);
+            if Editor.Ada_Token_Cursor.Tokenization.Current (Probe).Kind = Editor.Ada_Token_Cursor.Token_Identifier
+              or else Editor.Ada_Token_Cursor.Tokenization.Current (Probe).Kind = Editor.Ada_Token_Cursor.Token_Keyword
             then
-               Editor.Ada_Token_Cursor.Advance (Probe);
+               Editor.Ada_Token_Cursor.Tokenization.Advance (Probe);
             else
                return False;
             end if;
          end loop;
       else
-         while not Editor.Ada_Token_Cursor.At_End (Probe)
+         while not Editor.Ada_Token_Cursor.Tokenization.At_End (Probe)
            and then Editor.Ada_Token_Cursor.Navigation_Helpers.Current_Lower (Probe) /= "is"
-           and then To_String (Editor.Ada_Token_Cursor.Current (Probe).Text) /= ";"
+           and then To_String (Editor.Ada_Token_Cursor.Tokenization.Current (Probe).Text) /= ";"
          loop
-            Editor.Ada_Token_Cursor.Advance (Probe);
+            Editor.Ada_Token_Cursor.Tokenization.Advance (Probe);
          end loop;
       end if;
 
@@ -118,7 +119,7 @@ package body Editor.Ada_Token_Cursor.Parsing_Predicates is
          return False;
       end if;
 
-      Editor.Ada_Token_Cursor.Advance (Probe);
+      Editor.Ada_Token_Cursor.Tokenization.Advance (Probe);
       return Editor.Ada_Token_Cursor.Navigation_Helpers.Current_Lower (Probe) = "new";
    end Starts_Generic_Instantiation;
 
@@ -127,9 +128,9 @@ package body Editor.Ada_Token_Cursor.Parsing_Predicates is
       Probe : Editor.Ada_Token_Cursor.Cursor := Position;
       Depth : Natural := 0;
    begin
-      while not Editor.Ada_Token_Cursor.At_End (Probe) loop
+      while not Editor.Ada_Token_Cursor.Tokenization.At_End (Probe) loop
          declare
-            T : constant String := To_String (Editor.Ada_Token_Cursor.Current (Probe).Text);
+            T : constant String := To_String (Editor.Ada_Token_Cursor.Tokenization.Current (Probe).Text);
          begin
             if T = "(" or else T = "[" then
                Depth := Depth + 1;
@@ -149,7 +150,7 @@ package body Editor.Ada_Token_Cursor.Parsing_Predicates is
                return True;
             end if;
          end;
-         Editor.Ada_Token_Cursor.Advance (Probe);
+         Editor.Ada_Token_Cursor.Tokenization.Advance (Probe);
       end loop;
       return False;
    end Formal_Package_Actual_Has_Top_Level_Arrow;
@@ -161,9 +162,9 @@ package body Editor.Ada_Token_Cursor.Parsing_Predicates is
       Top_Level_Tokens : Natural := 0;
       Saw_Operator : Boolean := False;
    begin
-      while not Editor.Ada_Token_Cursor.At_End (Probe) loop
+      while not Editor.Ada_Token_Cursor.Tokenization.At_End (Probe) loop
          declare
-            T : constant String := To_String (Editor.Ada_Token_Cursor.Current (Probe).Text);
+            T : constant String := To_String (Editor.Ada_Token_Cursor.Tokenization.Current (Probe).Text);
          begin
             if T = "(" or else T = "[" then
                Depth := Depth + 1;
@@ -192,7 +193,7 @@ package body Editor.Ada_Token_Cursor.Parsing_Predicates is
                end if;
             end if;
          end;
-         Editor.Ada_Token_Cursor.Advance (Probe);
+         Editor.Ada_Token_Cursor.Tokenization.Advance (Probe);
       end loop;
 
       return Top_Level_Tokens >= 2 and then not Saw_Operator;
@@ -203,9 +204,9 @@ package body Editor.Ada_Token_Cursor.Parsing_Predicates is
       Probe : Editor.Ada_Token_Cursor.Cursor := Position;
       Depth : Natural := 0;
    begin
-      while not Editor.Ada_Token_Cursor.At_End (Probe) loop
+      while not Editor.Ada_Token_Cursor.Tokenization.At_End (Probe) loop
          declare
-            T : constant String := To_String (Editor.Ada_Token_Cursor.Current (Probe).Text);
+            T : constant String := To_String (Editor.Ada_Token_Cursor.Tokenization.Current (Probe).Text);
             L : constant String :=
               Editor.Ada_Token_Cursor.Navigation_Helpers.Current_Lower (Probe);
          begin
@@ -227,7 +228,7 @@ package body Editor.Ada_Token_Cursor.Parsing_Predicates is
                return Editor.Ada_Token_Cursor.Navigation_Helpers.Lookahead_Lower (Probe, 1) /= "delta";
             end if;
          end;
-         Editor.Ada_Token_Cursor.Advance (Probe);
+         Editor.Ada_Token_Cursor.Tokenization.Advance (Probe);
       end loop;
       return False;
    end Has_Top_Level_With_Before_Association_End;
@@ -237,9 +238,9 @@ package body Editor.Ada_Token_Cursor.Parsing_Predicates is
       Probe : Editor.Ada_Token_Cursor.Cursor := Position;
       Depth : Natural := 0;
    begin
-      while not Editor.Ada_Token_Cursor.At_End (Probe) loop
+      while not Editor.Ada_Token_Cursor.Tokenization.At_End (Probe) loop
          declare
-            T : constant String := To_String (Editor.Ada_Token_Cursor.Current (Probe).Text);
+            T : constant String := To_String (Editor.Ada_Token_Cursor.Tokenization.Current (Probe).Text);
             L : constant String :=
               Editor.Ada_Token_Cursor.Navigation_Helpers.Current_Lower (Probe);
          begin
@@ -261,7 +262,7 @@ package body Editor.Ada_Token_Cursor.Parsing_Predicates is
                return Editor.Ada_Token_Cursor.Navigation_Helpers.Lookahead_Lower (Probe, 1) = "delta";
             end if;
          end;
-         Editor.Ada_Token_Cursor.Advance (Probe);
+         Editor.Ada_Token_Cursor.Tokenization.Advance (Probe);
       end loop;
       return False;
    end Has_Top_Level_With_Delta_Before_Association_End;

@@ -1,9 +1,11 @@
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps.Constants;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.Ada_Token_Cursor.Tokenization;
 with Editor.Text_Helpers;
 
 package body Editor.Ada_Token_Cursor.Contracts is
+   use Editor.Ada_Token_Cursor.Tokenization;
 
    function Current_Lower (Position : Cursor) return String is
    begin

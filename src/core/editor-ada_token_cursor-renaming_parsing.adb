@@ -2,12 +2,15 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Ada_Token_Cursor.Aspect_Parsing;
 with Editor.Ada_Token_Cursor.Grammar_Helpers;
 with Editor.Ada_Token_Cursor.Navigation_Helpers;
+with Editor.Ada_Token_Cursor.Primary_Parsing;
 with Editor.Ada_Token_Cursor.Selected_Name_Parsing;
+with Editor.Ada_Token_Cursor.Tokenization;
 with Editor.Ada_Token_Cursor; use Editor.Ada_Token_Cursor;
 
 package body Editor.Ada_Token_Cursor.Renaming_Parsing is
 
    use Editor.Ada_Token_Cursor.Navigation_Helpers;
+   use Editor.Ada_Token_Cursor.Tokenization;
    use Editor.Ada_Token_Cursor.Selected_Name_Parsing;
    use Editor.Ada_Token_Cursor.Aspect_Parsing;
 
@@ -115,7 +118,7 @@ package body Editor.Ada_Token_Cursor.Renaming_Parsing is
             "renamed selected target");
       end if;
 
-      Parse_Primary (Position, Result);
+      Editor.Ada_Token_Cursor.Primary_Parsing.Parse_Primary (Position, Result);
    end Parse_Renamed_Entity;
 
    procedure Add_Renaming_Defining_Name
@@ -136,7 +139,7 @@ package body Editor.Ada_Token_Cursor.Renaming_Parsing is
       Origin   : Token_Info;
       Label    : String) is
    begin
-      if Match_Keyword (Position, "renames") then
+      if Editor.Ada_Token_Cursor.Grammar_Helpers.Match_Keyword (Position, "renames") then
          if At_End (Position)
            or else To_String (Current (Position).Text) = ";"
            or else Current_Lower (Position) = "with"

@@ -2,11 +2,15 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Ada_Token_Cursor.Contracts;
 with Editor.Ada_Token_Cursor.Expression_Parsing;
 with Editor.Ada_Token_Cursor.Grammar_Helpers;
+with Editor.Ada_Token_Cursor.Tokenization;
 with Editor.Ada_Token_Cursor.Navigation_Helpers;
+with Editor.Ada_Token_Cursor.Type_Parsing;
 with Editor.Ada_Token_Cursor; use Editor.Ada_Token_Cursor;
 
 package body Editor.Ada_Token_Cursor.Parameter_Parsing is
 
+   use Editor.Ada_Token_Cursor.Tokenization;
+   use Editor.Ada_Token_Cursor.Grammar_Helpers;
    use Editor.Ada_Token_Cursor.Navigation_Helpers;
    use Editor.Ada_Token_Cursor.Expression_Parsing;
 
@@ -24,6 +28,11 @@ package body Editor.Ada_Token_Cursor.Parameter_Parsing is
    function At_Profile_Default_Reserved_Boundary
      (Position : Cursor) return Boolean
      renames Editor.Ada_Token_Cursor.Contracts.At_Profile_Default_Reserved_Boundary;
+
+   procedure Parse_Subtype_Indication
+     (Position : in out Cursor;
+      Result   : in out Grammar_Result)
+     renames Editor.Ada_Token_Cursor.Type_Parsing.Parse_Subtype_Indication;
 
    procedure Parse_Defining_Name_List
      (Position : in out Cursor;

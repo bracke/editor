@@ -1,12 +1,15 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Ada_Token_Cursor.Expression_Parsing;
 with Editor.Ada_Token_Cursor.Grammar_Helpers;
+with Editor.Ada_Token_Cursor.Tokenization;
 with Editor.Ada_Token_Cursor.Navigation_Helpers;
 with Editor.Ada_Token_Cursor.Parsing_Predicates;
 with Editor.Ada_Token_Cursor; use Editor.Ada_Token_Cursor;
 
 package body Editor.Ada_Token_Cursor.Generic_Actual_Parsing is
 
+   use Editor.Ada_Token_Cursor.Tokenization;
+   use Editor.Ada_Token_Cursor.Grammar_Helpers;
    use Editor.Ada_Token_Cursor.Expression_Parsing;
    use Editor.Ada_Token_Cursor.Navigation_Helpers;
 

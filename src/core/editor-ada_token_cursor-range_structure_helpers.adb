@@ -1,7 +1,9 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.Ada_Token_Cursor.Tokenization;
 with Editor.Text_Helpers;
 
 package body Editor.Ada_Token_Cursor.Range_Structure_Helpers is
+   use Editor.Ada_Token_Cursor.Tokenization;
 
    function Lower (S : String) return String
      renames Editor.Text_Helpers.Lower;

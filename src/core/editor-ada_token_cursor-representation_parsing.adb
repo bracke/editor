@@ -3,6 +3,7 @@ with Editor.Ada_Token_Cursor.Aggregate_Parsing;
 with Editor.Ada_Token_Cursor.Contracts;
 with Editor.Ada_Token_Cursor.Expression_Parsing;
 with Editor.Ada_Token_Cursor.Grammar_Helpers;
+with Editor.Ada_Token_Cursor.Tokenization;
 with Editor.Ada_Token_Cursor.Navigation_Helpers;
 with Editor.Ada_Token_Cursor.Selected_Name_Parsing;
 with Editor.Ada_Token_Cursor.Range_Structure_Helpers;
@@ -10,6 +11,8 @@ with Editor.Ada_Token_Cursor; use Editor.Ada_Token_Cursor;
 
 package body Editor.Ada_Token_Cursor.Representation_Parsing is
 
+   use Editor.Ada_Token_Cursor.Tokenization;
+   use Editor.Ada_Token_Cursor.Grammar_Helpers;
    use Editor.Ada_Token_Cursor.Navigation_Helpers;
    use Editor.Ada_Token_Cursor.Expression_Parsing;
    use Editor.Ada_Token_Cursor.Aggregate_Parsing;

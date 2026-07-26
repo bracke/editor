@@ -2,21 +2,33 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Text_Helpers;
 
 with Editor.Ada_Token_Cursor.Aggregate_Parsing;
+with Editor.Ada_Token_Cursor.Constraint_Parsing;
 with Editor.Ada_Token_Cursor.Range_Structure_Helpers;
 with Editor.Ada_Token_Cursor.Expression_Parsing;
 with Editor.Ada_Token_Cursor.Grammar_Helpers;
 with Editor.Ada_Token_Cursor.Navigation_Helpers;
+with Editor.Ada_Token_Cursor.Parsing_Phases;
 with Editor.Ada_Token_Cursor.Range_Structure_Helpers;
 with Editor.Ada_Token_Cursor.Selected_Name_Parsing;
+with Editor.Ada_Token_Cursor.Tokenization;
 with Editor.Ada_Token_Cursor.Type_Parsing;
 with Editor.Ada_Token_Cursor;
 use Editor.Ada_Token_Cursor;
 use Editor.Ada_Token_Cursor.Range_Structure_Helpers;
 
 package body Editor.Ada_Token_Cursor.Primary_Parsing is
+   use Editor.Ada_Token_Cursor.Constraint_Parsing;
+   use Editor.Ada_Token_Cursor.Grammar_Helpers;
+   use Editor.Ada_Token_Cursor.Tokenization;
+   use Editor.Ada_Token_Cursor.Type_Parsing;
 
    function Lower (S : String) return String
      renames Editor.Text_Helpers.Lower;
+
+   procedure Parse_Primary
+     (Position : in out Cursor;
+      Result   : in out Grammar_Result)
+     renames Editor.Ada_Token_Cursor.Parsing_Phases.Parse_Primary;
 
    function Current_Lower (Position : Cursor) return String
      renames Editor.Ada_Token_Cursor.Navigation_Helpers.Current_Lower;

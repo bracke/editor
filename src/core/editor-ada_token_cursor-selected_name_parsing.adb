@@ -1,10 +1,13 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Ada_Token_Cursor.Grammar_Helpers;
+with Editor.Ada_Token_Cursor.Tokenization;
 with Editor.Ada_Token_Cursor.Navigation_Helpers;
 with Editor.Ada_Token_Cursor; use Editor.Ada_Token_Cursor;
 
 package body Editor.Ada_Token_Cursor.Selected_Name_Parsing is
 
+   use Editor.Ada_Token_Cursor.Tokenization;
+   use Editor.Ada_Token_Cursor.Grammar_Helpers;
    use Editor.Ada_Token_Cursor.Navigation_Helpers;
 
    procedure Add_Production
