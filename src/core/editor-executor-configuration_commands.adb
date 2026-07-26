@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Editor.Executor.Shared_Services;
 use Editor.Executor.Shared_Services;
@@ -33,7 +34,7 @@ package body Editor.Executor.Configuration_Commands is
    function Configuration_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability
+      return Editor.Commands.Availability_Metadata.Command_Availability
    is
       pragma Unreferenced (S);
    begin
@@ -47,24 +48,24 @@ package body Editor.Executor.Configuration_Commands is
             | Command_Keybindings_Filter_Conflicts
             | Command_Keybindings_Filter_Unbound
             | Command_Keybindings_Clear_Filter =>
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Startup_Show_Summary =>
             if not Editor.Startup_Readiness.Has_Recorded_Startup_Summary then
-               return Editor.Commands.Unavailable ("No startup summary available.");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No startup summary available.");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Configuration_Recover_Show
             | Command_Configuration_Audit =>
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Configuration_Reset_All_Confirm
             | Command_Configuration_Reset_All_Cancel =>
             if not Editor.Configuration_Recovery.Has_Pending_Reset_All_Confirmation then
-               return Editor.Commands.Unavailable ("No recovery actions available.");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No recovery actions available.");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Configuration_Reset_Settings
             | Command_Configuration_Reset_Keybindings
@@ -76,19 +77,19 @@ package body Editor.Executor.Configuration_Commands is
             | Command_Configuration_Save_Clean_Workspace
             | Command_Configuration_Save_Clean_Recent_Projects =>
             if Editor.Configuration_Recovery.Has_Pending_Reset_All_Confirmation then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  ("Command unavailable while confirmation is pending");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Keybindings_Cancel_Capture =>
             if Editor.Keybinding_Management.Has_Pending_Reset
               or else Editor.Keybinding_Management.Current_Capture_State
                 /= Editor.Keybinding_Management.Capture_Inactive
             then
-               return Editor.Commands.Available;
+               return Editor.Commands.Availability_Metadata.Available;
             end if;
-            return Editor.Commands.Unavailable ("Shortcut capture is not active");
+            return Editor.Commands.Availability_Metadata.Unavailable ("Shortcut capture is not active");
 
          when Command_Save_Keybindings
             | Command_Reload_Keybindings =>
@@ -96,66 +97,66 @@ package body Editor.Executor.Configuration_Commands is
               or else Editor.Keybinding_Management.Current_Capture_State
                 /= Editor.Keybinding_Management.Capture_Inactive
             then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  ("Command unavailable while confirmation is pending");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Keybindings_Assign_Selected =>
             if not Editor.Keybinding_Management.Is_Visible then
-               return Editor.Commands.Unavailable ("Keybindings view is not open");
+               return Editor.Commands.Availability_Metadata.Unavailable ("Keybindings view is not open");
             elsif Editor.Keybinding_Management.Has_Pending_Reset then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  ("Command unavailable while confirmation is pending");
             elsif Editor.Keybinding_Management.Current_Capture_State
               /= Editor.Keybinding_Management.Capture_Inactive
             then
-               return Editor.Commands.Unavailable ("Shortcut capture is active");
+               return Editor.Commands.Availability_Metadata.Unavailable ("Shortcut capture is active");
             elsif Editor.Keybinding_Management.Selected_Command = Editor.Commands.No_Command then
-               return Editor.Commands.Unavailable ("No command selected");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No command selected");
             elsif not Editor.Keybindings.Is_Normal_Assignable_Command
               (Editor.Keybinding_Management.Selected_Command)
             then
-               return Editor.Commands.Unavailable ("Selected command is not bindable");
+               return Editor.Commands.Availability_Metadata.Unavailable ("Selected command is not bindable");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Keybindings_Remove_Selected =>
             if not Editor.Keybinding_Management.Is_Visible then
-               return Editor.Commands.Unavailable ("Keybindings view is not open");
+               return Editor.Commands.Availability_Metadata.Unavailable ("Keybindings view is not open");
             elsif Editor.Keybinding_Management.Has_Pending_Reset
               or else Editor.Keybinding_Management.Current_Capture_State
                 /= Editor.Keybinding_Management.Capture_Inactive
             then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  ("Command unavailable while confirmation is pending");
             elsif Editor.Keybinding_Management.Has_Selected_Chord then
-               return Editor.Commands.Available;
+               return Editor.Commands.Availability_Metadata.Available;
             elsif Editor.Keybinding_Management.Selected_Command = Editor.Commands.No_Command
             then
-               return Editor.Commands.Unavailable ("No keybinding selected");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No keybinding selected");
             elsif not Editor.Keybindings.Is_Normal_Assignable_Command
               (Editor.Keybinding_Management.Selected_Command)
             then
-               return Editor.Commands.Unavailable ("Selected command is not bindable");
+               return Editor.Commands.Availability_Metadata.Unavailable ("Selected command is not bindable");
             elsif Editor.Keybindings.Binding_Count_For_Command
               (Editor.Keybinding_Management.Selected_Command) = 0
             then
-               return Editor.Commands.Unavailable ("No user binding to remove");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No user binding to remove");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Keybindings_Reset_To_Defaults =>
             if Editor.Keybinding_Management.Current_Capture_State
               /= Editor.Keybinding_Management.Capture_Inactive
             then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  ("Command unavailable while confirmation is pending");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when others =>
-            return Editor.Commands.Unavailable
+            return Editor.Commands.Availability_Metadata.Unavailable
               ("Command is not a configuration command");
       end case;
    end Configuration_Command_Availability;

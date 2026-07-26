@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Executor.Shared_Services;
 use Editor.Executor.Shared_Services;
 with Ada.Strings.Fixed;
@@ -27,7 +28,7 @@ package body Editor.Executor.Navigation_Commands is
    function Navigation_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability
+      return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin
       case Id is
@@ -47,37 +48,37 @@ package body Editor.Executor.Navigation_Commands is
             | Editor.Commands.Command_Goto_Start
             | Editor.Commands.Command_Goto_End =>
             if not Editor.State.Has_Active_Buffer (S) then
-               return Editor.Commands.Unavailable ("No active buffer.");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Navigation_Back =>
             if not Editor.Navigation_History.Has_Back (S.Navigation_History) then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  ("No previous navigation location");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Navigation_Forward =>
             if not Editor.Navigation_History.Has_Forward
               (S.Navigation_History)
             then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  ("No next navigation location");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Navigation_History_Clear =>
             if not Editor.Navigation_History.Has_Back (S.Navigation_History)
               and then not Editor.Navigation_History.Has_Forward
                 (S.Navigation_History)
             then
-               return Editor.Commands.Unavailable ("No navigation history");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No navigation history");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when others =>
-            return Editor.Commands.Unavailable
+            return Editor.Commands.Availability_Metadata.Unavailable
               ("Command is not a navigation command");
       end case;
    end Navigation_Command_Availability;

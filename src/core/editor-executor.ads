@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.State;
@@ -86,13 +87,13 @@ package Editor.Executor is
    function Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability;
+      return Editor.Commands.Availability_Metadata.Command_Availability;
 
    function Diagnostic_Quick_Fix_Action_Availability
      (S                : Editor.State.State_Type;
       Diagnostic_Index : Natural;
       Action_Index     : Natural)
-      return Editor.Commands.Command_Availability;
+      return Editor.Commands.Availability_Metadata.Command_Availability;
 
    function Current_Semantic_Symbol_Name
      (State : Editor.State.State_Type) return String;

@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
@@ -18,19 +19,19 @@ package body Editor.Executor.Diagnostics_Suppressed_Commands is
    function Diagnostics_Suppressed_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability
+      return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin
       case Id is
          when Command_Diagnostic_Suppress_Selected =>
             if Editor.Feature_Diagnostics.Is_Empty (S.Feature_Diagnostics) then
-               return Editor.Commands.Unavailable ("No diagnostics");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No diagnostics");
             elsif not Editor.Feature_Diagnostics.Has_Selected_Diagnostic
               (S.Feature_Diagnostics, S.Feature_Panel)
             then
-               return Editor.Commands.Unavailable ("No diagnostic selected");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No diagnostic selected");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Diagnostic_Show_Suppressed
             | Command_Diagnostic_Restore_Last_Suppressed
@@ -39,12 +40,12 @@ package body Editor.Executor.Diagnostics_Suppressed_Commands is
             if Editor.Feature_Diagnostics.Suppressed_Diagnostic_Count
               (S.Feature_Diagnostics) = 0
             then
-               return Editor.Commands.Unavailable ("No suppressed diagnostics");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No suppressed diagnostics");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when others =>
-            return Editor.Commands.Unavailable
+            return Editor.Commands.Availability_Metadata.Unavailable
               ("Command is not a suppressed-diagnostics command");
       end case;
    end Diagnostics_Suppressed_Command_Availability;

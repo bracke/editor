@@ -20,41 +20,9 @@ with Editor.Commands.Workflow_Messages;
 
 package body Editor.Commands is
 
-   function Available return Command_Availability
-   is
-   begin
-      return Availability_Metadata.Available;
-   end Available;
-
-   function Unavailable
-     (Reason : String) return Command_Availability
-   is
-   begin
-      return
-        (Status => Command_Unavailable,
-         Reason => To_Unbounded_String
-           (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
-              (Reason)));
-   end Unavailable;
-
-   function Is_Available
-     (Availability : Command_Availability) return Boolean
-   is
-   begin
-      return Availability_Metadata.Is_Available (Availability);
-   end Is_Available;
-
    function Is_Concrete_Command
      (Id : Command_Id) return Boolean
      renames Editor.Commands.Availability_Metadata.Is_Concrete_Command;
-
-   function Unavailable_Reason
-     (Availability : Command_Availability) return String
-   is
-   begin
-      return Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
-        (To_String (Availability.Reason));
-   end Unavailable_Reason;
 
    function Requires_Context
      (Id : Command_Id) return Boolean

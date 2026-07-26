@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -29,7 +30,7 @@ package body Editor.Executor.Find_Replace_Commands is
    function Find_Replace_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability
+      return Editor.Commands.Availability_Metadata.Command_Availability
    is
       function Has_Buffer return Boolean is
       begin
@@ -50,73 +51,73 @@ package body Editor.Executor.Find_Replace_Commands is
             | Command_Find_Case_Clear
             | Command_Find_Whole_Word_Toggle
             | Command_Find_Whole_Word_Clear =>
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Find_From_Selection =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer.");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
             elsif not Has_Selection then
-               return Editor.Commands.Unavailable ("No selected text");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No selected text");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Find_From_Active_Word =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer.");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Find_Hide =>
             if not Active_Overlay_Is
               (S, Editor.Overlay_Focus.Active_Find_Prompt_Overlay)
               or else not S.Active_Find_Prompt
             then
-               return Editor.Commands.Unavailable ("No active overlay");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Replace_Hide =>
             if not S.Active_Replace_Prompt then
-               return Editor.Commands.Unavailable ("No active overlay");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Replace_Text_Set =>
             if not S.Active_Replace_Prompt then
-               return Editor.Commands.Unavailable ("No active overlay");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Replace_Text_Clear =>
             if not S.Active_Replace_Prompt then
-               return Editor.Commands.Unavailable ("No active overlay");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif Length (S.Active_Replace_Text) = 0
               and then Length (S.Active_Replace_Error_Message) = 0
             then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  ("No replacement text to clear");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Find_Query_Set =>
             if not Active_Overlay_Is
               (S, Editor.Overlay_Focus.Active_Find_Prompt_Overlay)
               or else not S.Active_Find_Prompt
             then
-               return Editor.Commands.Unavailable ("No active overlay");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Find_Query_Clear =>
             if not Active_Overlay_Is
               (S, Editor.Overlay_Focus.Active_Find_Prompt_Overlay)
               or else not S.Active_Find_Prompt
             then
-               return Editor.Commands.Unavailable ("No active overlay");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif Length (S.Active_Find_Query) = 0 then
-               return Editor.Commands.Unavailable ("No find query");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No find query");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Active_Find_Next
             | Command_Active_Find_Previous
@@ -128,14 +129,14 @@ package body Editor.Executor.Find_Replace_Commands is
             if not Editor.Executor.Active_Find_Commands.Has_Find_Target_Buffer
               (S)
             then
-               return Editor.Commands.Unavailable ("No active buffer.");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
             elsif Length (S.Active_Find_Query) = 0 then
-               return Editor.Commands.Unavailable ("No find query");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No find query");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when others =>
-            return Editor.Commands.Unavailable
+            return Editor.Commands.Availability_Metadata.Unavailable
               ("Command is not a find/replace command");
       end case;
    end Find_Replace_Command_Availability;

@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Classification;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
@@ -643,7 +644,7 @@ package body Editor.Outline.Lexical_Tests is
       pragma Unreferenced (T);
       S               : Editor.State.State_Type;
       Snap            : Editor.Render_Model.Render_Snapshot;
-      A               : Editor.Commands.Command_Availability;
+      A               : Editor.Commands.Availability_Metadata.Command_Availability;
       Outline_Before  : Natural;
       Panel_Before    : Editor.Feature_Panel.Feature_Panel_Fingerprint;
       Messages_Before : Natural;
@@ -674,7 +675,7 @@ package body Editor.Outline.Lexical_Tests is
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Refresh_Outline);
-      Assert (Editor.Commands.Is_Available (A),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "refresh availability remains available with an active buffer");
       Assert (Fingerprint (S.Outline) = Outline_Before,
               "availability does not scan changed Ada text");

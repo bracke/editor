@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Classification;
 with Editor.Commands.Payloads;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
@@ -18,7 +19,7 @@ with Editor.Ada_Diagnostic_Command_Projection;
 use type Editor.Commands.Command_Id;
 use type Editor.Commands.Descriptors.Command_Category;
 use type Editor.Commands.Descriptors.Command_Visibility;
-use type Editor.Commands.Command_Availability_Status;
+use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
 use type Editor.Command_Palette.Command_Palette_Row_Kind;
 use type Editor.Command_Palette.Command_Palette_Availability_Filter;
 use type Editor.Command_Palette.Command_Palette_Keybinding_Filter;
@@ -924,23 +925,23 @@ package body Editor.Command_Palette.Tests is
    procedure Test_Command_Availability_Result_Model
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      A : constant Editor.Commands.Command_Availability :=
-        Editor.Commands.Available;
-      U : constant Editor.Commands.Command_Availability :=
-        Editor.Commands.Unavailable ("No project open.");
+      A : constant Editor.Commands.Availability_Metadata.Command_Availability :=
+        Editor.Commands.Availability_Metadata.Available;
+      U : constant Editor.Commands.Availability_Metadata.Command_Availability :=
+        Editor.Commands.Availability_Metadata.Unavailable ("No project open.");
    begin
-      Assert (A.Status = Editor.Commands.Command_Available,
+      Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "Available must use Command_Available status");
-      Assert (Editor.Commands.Is_Available (A),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "Is_Available must return True for Available");
-      Assert (Editor.Commands.Unavailable_Reason (A) = "",
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "",
               "Available must have an empty reason");
 
-      Assert (U.Status = Editor.Commands.Command_Unavailable,
+      Assert (U.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
               "Unavailable must use Command_Unavailable status");
-      Assert (not Editor.Commands.Is_Available (U),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (U),
               "Is_Available must return False for Unavailable");
-      Assert (Editor.Commands.Unavailable_Reason (U) = "No project open.",
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (U) = "No project open.",
               "Unavailable_Reason must return the exact stable reason");
    end Test_Command_Availability_Result_Model;
 
@@ -976,29 +977,29 @@ package body Editor.Command_Palette.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      A : Editor.Commands.Command_Availability;
+      A : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Editor.State.Init (S);
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Accept_Quick_Open);
-      Assert (not Editor.Commands.Is_Available (A),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "Accept Quick Open must be unavailable without active overlay");
-      Assert (Editor.Commands.Unavailable_Reason (A) = "No active overlay",
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "No active overlay",
               "Accept Quick Open must report stable inactive-overlay reason");
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_File_Tree_Expand_Selected);
-      Assert (not Editor.Commands.Is_Available (A),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "File Tree Expand Selected must be unavailable without project");
-      Assert (Editor.Commands.Unavailable_Reason (A) = "No project open.",
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "No project open.",
               "File Tree Expand Selected must report stable no-project reason");
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Dismiss_Latest_Message);
-      Assert (not Editor.Commands.Is_Available (A),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "Dismiss Latest Message must be unavailable without messages");
-      Assert (Editor.Commands.Unavailable_Reason (A) = "No messages",
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "No messages",
               "Dismiss Latest Message must report stable empty-message reason");
    end Test_Hidden_Command_Availability_Reasons;
 
@@ -2805,7 +2806,7 @@ package body Editor.Command_Palette.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
       Before : Editor.Command_Palette.Command_Palette_Config;
       After : Editor.Command_Palette.Command_Palette_Config;
    begin
@@ -2813,9 +2814,9 @@ package body Editor.Command_Palette.Tests is
       Editor.Command_Palette.Reset;
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Palette_Show_Command_Help);
-      Assert (not Editor.Commands.Is_Available (Availability),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
               "Command help display is palette-local and must be unavailable while the palette is closed");
-      Assert (Editor.Commands.Unavailable_Reason (Availability) = "Command Palette closed.",
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability) = "Command Palette closed.",
               "Closed-palette help command must report a user-readable unavailable reason");
 
       Before := Editor.Command_Palette.Current_Config;
@@ -2828,7 +2829,7 @@ package body Editor.Command_Palette.Tests is
       Editor.Command_Palette.Open;
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Palette_Show_Command_Help);
-      Assert (Editor.Commands.Is_Available (Availability),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
               "Command help display should become available when the palette is open");
       Editor.Command_Palette.Reset;
    end Test_Show_Command_Help_Requires_Open_Palette;
@@ -3448,7 +3449,7 @@ package body Editor.Command_Palette.Tests is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
       Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
       Help : Editor.Command_Palette.Command_Help_Snapshot;
       Found : Boolean := False;
    begin
@@ -3484,7 +3485,7 @@ package body Editor.Command_Palette.Tests is
             Assert (To_String (Help.Availability_Label) = "Unavailable",
                     "Command help must show candidate availability");
             Assert (To_String (Help.Unavailable_Reason) =
-                      Editor.Commands.Unavailable_Reason (Availability),
+                      Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability),
                     "Command help unavailable reason must match the real Executor blocker");
          end if;
       end loop;
@@ -3520,7 +3521,7 @@ package body Editor.Command_Palette.Tests is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
       Suggestion : Editor.Empty_State_Guidance.Empty_State_Suggested_Command;
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Editor.State.Init (S);
 
@@ -3540,7 +3541,7 @@ package body Editor.Command_Palette.Tests is
       Assert (To_String (Suggestion.Stable_Name) = "file.save",
               "Suggested action must carry only the stable command name");
       Assert (To_String (Suggestion.Unavailable_Reason) =
-                Editor.Commands.Unavailable_Reason (Availability),
+                Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability),
               "Suggested action unavailable reason must match the real Executor blocker");
       Assert (Editor.Empty_State_Guidance.Suggestion_Is_Activation_Safe
                 (Suggestion),

@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Buffers;
 with Editor.Commands;
 with Editor.Executor;
@@ -15,46 +16,46 @@ package body Editor.Executor.Buffer_Navigation_Commands is
    function Buffer_Navigation_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability
+      return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin
       case Id is
          when Command_Next_Buffer_Group
             | Command_Previous_Buffer_Group =>
             if not Editor.Buffers.Global_Has_Buffer_Groups then
-               return Editor.Commands.Unavailable ("No buffer groups");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No buffer groups");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Next_Buffer | Command_Previous_Buffer =>
             if Editor.Buffers.Global_Count = 0 then
-               return Editor.Commands.Unavailable ("No open buffers");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No open buffers");
             elsif Editor.Buffers.Global_Count = 1 then
-               return Editor.Commands.Unavailable ("Only one buffer open");
+               return Editor.Commands.Availability_Metadata.Unavailable ("Only one buffer open");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Previous_Recent_Buffer =>
             if Editor.Buffers.Global_Count < 2 then
-               return Editor.Commands.Unavailable ("No previous buffer");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No previous buffer");
             elsif not Editor.Recent_Buffers.Has_Previous
               (S.Recent_Buffers,
                Natural (Editor.Buffers.Global_Active_Buffer))
             then
-               return Editor.Commands.Unavailable ("No previous buffer");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No previous buffer");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Next_Recent_Buffer =>
             if Editor.Buffers.Global_Count < 2 then
-               return Editor.Commands.Unavailable ("No next buffer");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No next buffer");
             elsif not Editor.Recent_Buffers.Has_Next (S.Recent_Buffers) then
-               return Editor.Commands.Unavailable ("No next buffer");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No next buffer");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when others =>
-            return Editor.Commands.Unavailable
+            return Editor.Commands.Availability_Metadata.Unavailable
               ("Command is not a buffer navigation command");
       end case;
    end Buffer_Navigation_Command_Availability;

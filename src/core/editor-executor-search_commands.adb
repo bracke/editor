@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Editor.Executor.Shared_Services;
 use Editor.Executor.Shared_Services;
@@ -61,7 +62,7 @@ package body Editor.Executor.Search_Commands is
    function Project_Search_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability
+      return Editor.Commands.Availability_Metadata.Command_Availability
    is
       function Has_Buffer return Boolean is
       begin
@@ -149,33 +150,33 @@ package body Editor.Executor.Search_Commands is
       case Id is
          when Command_Project_Search_From_Selection =>
             if not Has_Project then
-               return Editor.Commands.Unavailable ("No project open");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No project open");
             elsif Project_Search_File_Count = 0 then
-               return Editor.Commands.Unavailable ("No project open.");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No project open.");
             elsif not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer.");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
             elsif not Has_Selection then
-               return Editor.Commands.Unavailable ("No selected text");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No selected text");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Project_Search_From_Active_Word
             | Command_Project_Search_Active_Directory =>
             if not Has_Project then
-               return Editor.Commands.Unavailable ("No project open");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No project open");
             elsif Project_Search_File_Count = 0 then
-               return Editor.Commands.Unavailable ("No project open.");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No project open.");
             elsif not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer.");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Open_Project_Search_Bar
             | Command_Toggle_Project_Search_Bar =>
             if not Editor.Project.Has_Project (S.Project) then
-               return Editor.Commands.Unavailable ("No project open");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No project open");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Run_Project_Search_From_Bar =>
             if not Active_Overlay_Is
@@ -183,23 +184,23 @@ package body Editor.Executor.Search_Commands is
               or else not Editor.Project_Search_Bar.Is_Open
                 (S.Project_Search_Bar)
             then
-               return Editor.Commands.Unavailable ("No active overlay");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif Editor.Project_Search_Bar.Query_Text
               (S.Project_Search_Bar)'Length = 0
             then
-               return Editor.Commands.Unavailable ("No project search query");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No project search query");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Rerun_Project_Search | Command_Run_Project_Search =>
             if not Editor.Project.Has_Project (S.Project) then
-               return Editor.Commands.Unavailable ("No project open");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No project open");
             elsif Project_Search_File_Count = 0 then
-               return Editor.Commands.Unavailable ("No project open.");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No project open.");
             elsif Editor.Project_Search.Query (S.Project_Search)'Length = 0 then
-               return Editor.Commands.Unavailable ("No project search query");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No project search query");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Clear_Project_Search =>
             if not Has_Search_Results
@@ -207,57 +208,57 @@ package body Editor.Executor.Search_Commands is
               and then not Editor.Project_Search_Bar.Is_Open
                 (S.Project_Search_Bar)
             then
-               return Editor.Commands.Unavailable ("No project search");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No project search");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Open_Selected_Project_Search_Result =>
             if not Has_Search_Results then
-               return Editor.Commands.Unavailable ("No project search results");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No project search results");
             elsif Editor.Project_Search.Is_Stale (S.Project_Search) then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Commands.Workflow_Messages.Reason_Project_Search_Result_Stale);
             elsif not Has_Selected_Search_Result then
-               return Editor.Commands.Unavailable ("No search result selected.");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No search result selected.");
             elsif not Selected_Project_Search_Result_Still_Known then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  ("Search result target unavailable.");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Next_Project_Search_Result
             | Command_Previous_Project_Search_Result
             | Command_First_Project_Search_Result
             | Command_Last_Project_Search_Result =>
             if not Has_Search_Results then
-               return Editor.Commands.Unavailable ("No project search results");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No project search results");
             elsif Editor.Project_Search.Is_Stale (S.Project_Search) then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Commands.Workflow_Messages.Reason_Project_Search_Result_Stale);
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Reveal_Active_Project_Search_Result =>
             if not Has_Search_Results then
-               return Editor.Commands.Unavailable ("No project search results");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No project search results");
             elsif not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer.");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
             elsif Project_Search_File_Count = 0 then
-               return Editor.Commands.Unavailable ("No project files.");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No project files.");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Project_Search_Scope_Selected_Directory =>
             if not Has_Selected_Search_Result then
-               return Editor.Commands.Unavailable ("No search result selected.");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No search result selected.");
             elsif Editor.Project_Search.Is_Stale (S.Project_Search) then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Commands.Workflow_Messages.Reason_Project_Search_Result_Stale);
             elsif not Selected_Project_Search_Result_Still_Known then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  ("Search result target unavailable.");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Project_Search_Kind_Next
             | Command_Project_Search_Kind_Previous
@@ -272,41 +273,41 @@ package body Editor.Executor.Search_Commands is
             | Command_Project_Search_Include_Filter_Clear
             | Command_Project_Search_Exclude_Filter_Clear =>
             if not Has_Project then
-               return Editor.Commands.Unavailable ("No project open");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No project open");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Project_Search_Scope_Set =>
-            return Editor.Commands.Unavailable
+            return Editor.Commands.Availability_Metadata.Unavailable
               ("Command requires explicit search scope text");
 
          when Command_Project_Search_Include_Filter_Set
             | Command_Project_Search_Exclude_Filter_Set =>
-            return Editor.Commands.Unavailable
+            return Editor.Commands.Availability_Metadata.Unavailable
               ("Command requires explicit search filter text");
 
          when Command_Project_Search_Replace_Preview =>
             if not Has_Project then
-               return Editor.Commands.Unavailable ("No project open");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No project open");
             elsif not Has_Search_Results then
-               return Editor.Commands.Unavailable ("No search results");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No search results");
             elsif Editor.Project_Search.Is_Stale (S.Project_Search) then
-               return Editor.Commands.Unavailable ("Search results are stale");
+               return Editor.Commands.Availability_Metadata.Unavailable ("Search results are stale");
             elsif not Editor.Project_Search.Replace_Text_Is_Valid
               (S.Project_Search)
             then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  ("Replacement text must be single-line");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Project_Search_Replace_Clear_Preview =>
             if Editor.Project_Search.Replace_Preview_Count
               (S.Project_Search) = 0
             then
-               return Editor.Commands.Unavailable ("No replacement preview");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No replacement preview");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Project_Search_Replace_Toggle_Selected
             | Command_Project_Search_Replace_Include_Selected
@@ -316,26 +317,26 @@ package body Editor.Executor.Search_Commands is
             | Command_Project_Search_Replace_Include_All
             | Command_Project_Search_Replace_Exclude_All =>
             if not Has_Project then
-               return Editor.Commands.Unavailable ("No project open");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No project open");
             elsif Editor.Project_Search.Replace_Preview_Count
               (S.Project_Search) = 0
             then
-               return Editor.Commands.Unavailable ("No replacement preview");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No replacement preview");
             elsif Editor.Project_Search.Replace_Preview_Is_Stale
               (S.Project_Search)
             then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Commands.Workflow_Messages.Reason_Replacement_Preview_Stale);
             elsif not Editor.Project_Search.Replace_Text_Is_Valid
               (S.Project_Search)
             then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  ("Replacement text must be single-line");
             elsif Id = Command_Project_Search_Replace_Include_All
               and then Editor.Project_Search.Eligible_Replacement_Count
                 (S.Project_Search) = 0
             then
-               return Editor.Commands.Unavailable ("No eligible replacements");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No eligible replacements");
             elsif Editor.Project_Search.Selected_Replace_Preview_Index
               (S.Project_Search) = 0
               and then (Id = Command_Project_Search_Replace_Toggle_Selected
@@ -344,7 +345,7 @@ package body Editor.Executor.Search_Commands is
                         or else Id = Command_Project_Search_Replace_Include_File
                         or else Id = Command_Project_Search_Replace_Exclude_File)
             then
-               return Editor.Commands.Unavailable ("No replacement selected");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No replacement selected");
             elsif Id = Command_Project_Search_Replace_Toggle_Selected
               or else Id = Command_Project_Search_Replace_Include_Selected
               or else Id = Command_Project_Search_Replace_Exclude_Selected
@@ -362,40 +363,40 @@ package body Editor.Executor.Search_Commands is
                   if Row.Search_Result_Id =
                     Editor.Project_Search.No_Project_Search_Result
                   then
-                     return Editor.Commands.Unavailable
+                     return Editor.Commands.Availability_Metadata.Unavailable
                        ("No replacement selected");
                   elsif Row.Stale then
-                     return Editor.Commands.Unavailable
+                     return Editor.Commands.Availability_Metadata.Unavailable
                        (Editor.Commands.Workflow_Messages.Reason_Selected_Replacement_Stale);
                   elsif Row.Invalid then
-                     return Editor.Commands.Unavailable
+                     return Editor.Commands.Availability_Metadata.Unavailable
                        ("Selected replacement is invalid");
                   end if;
                end;
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Project_Search_Replace_Selected =>
             if not Has_Project then
-               return Editor.Commands.Unavailable ("No project open");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No project open");
             elsif Editor.Project_Search.Replace_Preview_Count
               (S.Project_Search) = 0
             then
-               return Editor.Commands.Unavailable ("No replacement preview");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No replacement preview");
             elsif Editor.Project_Search.Replace_Preview_Is_Stale
               (S.Project_Search)
             then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Commands.Workflow_Messages.Reason_Replacement_Preview_Stale);
             elsif not Editor.Project_Search.Replace_Text_Is_Valid
               (S.Project_Search)
             then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  ("Replacement text must be single-line");
             elsif Editor.Project_Search.Selected_Replace_Preview_Index
               (S.Project_Search) = 0
             then
-               return Editor.Commands.Unavailable ("No replacement selected");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No replacement selected");
             else
                declare
                   Row : constant Editor.Project_Search.Project_Replace_Preview_Row :=
@@ -408,84 +409,84 @@ package body Editor.Executor.Search_Commands is
                   if Row.Search_Result_Id =
                     Editor.Project_Search.No_Project_Search_Result
                   then
-                     return Editor.Commands.Unavailable
+                     return Editor.Commands.Availability_Metadata.Unavailable
                        ("No replacement selected");
                   elsif Row.Stale then
-                     return Editor.Commands.Unavailable
+                     return Editor.Commands.Availability_Metadata.Unavailable
                        (Editor.Commands.Workflow_Messages.Reason_Selected_Replacement_Stale);
                   elsif Row.Invalid then
-                     return Editor.Commands.Unavailable
+                     return Editor.Commands.Availability_Metadata.Unavailable
                        ("Selected replacement is invalid");
                   elsif not Row.Included then
-                     return Editor.Commands.Unavailable
+                     return Editor.Commands.Availability_Metadata.Unavailable
                        ("Selected replacement is excluded");
                   end if;
                end;
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Project_Search_Replace_All_Included =>
             if not Has_Project then
-               return Editor.Commands.Unavailable ("No project open");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No project open");
             elsif Editor.Project_Search.Replace_Preview_Count
               (S.Project_Search) = 0
             then
-               return Editor.Commands.Unavailable ("No replacement preview");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No replacement preview");
             elsif Editor.Project_Search.Replace_Preview_Is_Stale
               (S.Project_Search)
             then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Commands.Workflow_Messages.Reason_Replacement_Preview_Stale);
             elsif not Editor.Project_Search.Replace_Text_Is_Valid
               (S.Project_Search)
             then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  ("Replacement text must be single-line");
             elsif Editor.Project_Search.Included_Replacement_Count
               (S.Project_Search) = 0
             then
-               return Editor.Commands.Unavailable ("No included replacements");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No included replacements");
             elsif Editor.Project_Search.Included_Replacements_Overlap
               (S.Project_Search)
             then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  ("Replacement preview has overlapping matches");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Search_Results_Open_Selected =>
             if not Has_Search_Results then
-               return Editor.Commands.Unavailable ("No project search results");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No project search results");
             elsif Editor.Project_Search.Is_Stale (S.Project_Search) then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Commands.Workflow_Messages.Reason_Project_Search_Result_Stale);
             elsif not Search_Results_Has_Focus then
-               return Editor.Commands.Unavailable ("Command not available here");
+               return Editor.Commands.Availability_Metadata.Unavailable ("Command not available here");
             elsif not Has_Selected_Search_Result then
-               return Editor.Commands.Unavailable ("No search result selected.");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No search result selected.");
             elsif not Selected_Project_Search_Result_Still_Known then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  ("Search result target unavailable.");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Focus_Search_Results
             | Command_Show_Search_Results_Panel =>
             if not Has_Search_Results then
-               return Editor.Commands.Unavailable ("No project search results");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No project search results");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Search_Results_Move_Up
             | Command_Search_Results_Move_Down
             | Command_Search_Results_Page_Up
             | Command_Search_Results_Page_Down =>
             if not Has_Search_Results then
-               return Editor.Commands.Unavailable ("No project search results");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No project search results");
             elsif not Search_Results_Has_Focus then
-               return Editor.Commands.Unavailable ("Command not available here");
+               return Editor.Commands.Availability_Metadata.Unavailable ("Command not available here");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Close_Project_Search_Bar =>
             if not Active_Overlay_Is
@@ -493,21 +494,21 @@ package body Editor.Executor.Search_Commands is
               or else not Editor.Project_Search_Bar.Is_Open
                 (S.Project_Search_Bar)
             then
-               return Editor.Commands.Unavailable ("No active overlay");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Move_Project_Search_Selection_Up
             | Command_Move_Project_Search_Selection_Down =>
             if not Has_Search_Results then
-               return Editor.Commands.Unavailable ("No project search results");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No project search results");
             elsif not Has_Selected_Search_Result then
-               return Editor.Commands.Unavailable ("No search result selected.");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No search result selected.");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when others =>
-            return Editor.Commands.Unavailable
+            return Editor.Commands.Availability_Metadata.Unavailable
               ("Command is not a project-search command");
       end case;
    end Project_Search_Command_Availability;

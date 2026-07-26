@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
@@ -25,7 +26,7 @@ with Editor.Bookmarks;
 with Editor.Buffer_Switcher;
 
 use type Editor.Go_To_Line.Go_To_Line_Validation_Status;
-use type Editor.Commands.Command_Availability_Status;
+use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
 use type Editor.Commands.Command_Id;
 use type Editor.Commands.Descriptors.Command_Category;
 use type Editor.Commands.Descriptors.Command_Visibility;
@@ -58,7 +59,7 @@ package body Editor.Go_To_Line.Tests is
         Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Goto_Line);
       Found  : Boolean := False;
       Resolved : Editor.Commands.Command_Id := Editor.Commands.No_Command;
-      Avail  : Editor.Commands.Command_Availability;
+      Avail  : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
@@ -127,8 +128,8 @@ package body Editor.Go_To_Line.Tests is
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Goto_Line_Prefill_Current);
       Assert
-        (Avail.Status = Editor.Commands.Command_Unavailable
-         and then Editor.Commands.Unavailable_Reason (Avail) = "No active buffer.",
+        (Avail.Status = Editor.Commands.Availability_Metadata.Command_Unavailable
+         and then Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) = "No active buffer.",
          "prefill-current availability must require an active buffer without mutating state");
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Goto_Line_Prefill_Current);
@@ -141,7 +142,7 @@ package body Editor.Go_To_Line.Tests is
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Goto_Line);
       Assert
-        (Avail.Status = Editor.Commands.Command_Available,
+        (Avail.Status = Editor.Commands.Availability_Metadata.Command_Available,
          "go-to-line show availability must not require an active buffer");
       Assert
         (Editor.Go_To_Line.Is_Open (S.Go_To_Line)
@@ -153,8 +154,8 @@ package body Editor.Go_To_Line.Tests is
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Goto_Line_Prefill_Current);
       Assert
-        (Avail.Status = Editor.Commands.Command_Unavailable
-         and then Editor.Commands.Unavailable_Reason (Avail) = "No current caret location",
+        (Avail.Status = Editor.Commands.Availability_Metadata.Command_Unavailable
+         and then Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) = "No current caret location",
          "prefill-current availability must reject an active buffer without a current caret location");
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Goto_Line_Prefill_Current);
@@ -169,13 +170,13 @@ package body Editor.Go_To_Line.Tests is
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Accept_Goto_Line);
       Assert
-        (Avail.Status = Editor.Commands.Command_Available,
+        (Avail.Status = Editor.Commands.Availability_Metadata.Command_Available,
          "go-to-line accept availability must let the Executor handler report empty prompt failures");
       Editor.Go_To_Line.Set_Text (S.Go_To_Line, "2");
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Accept_Goto_Line);
       Assert
-        (Avail.Status = Editor.Commands.Command_Available,
+        (Avail.Status = Editor.Commands.Availability_Metadata.Command_Available,
          "go-to-line accept availability must allow non-empty prompt input");
    end Test_Command_Metadata_And_Availability;
 
@@ -504,7 +505,7 @@ package body Editor.Go_To_Line.Tests is
       Assert
         (Editor.Executor.Command_Availability
            (S, Editor.Commands.Command_Goto_Line_Query_Clear).Status
-         = Editor.Commands.Command_Available,
+         = Editor.Commands.Availability_Metadata.Command_Available,
          "query.clear must remain available for an empty query when it can clear a stale error");
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Goto_Line_Query_Clear);

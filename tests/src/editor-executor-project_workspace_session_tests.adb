@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Executor.Command_Palette_Projection;
@@ -514,10 +515,10 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
       Status     : Editor.Workspace_Persistence.Workspace_Persistence_Status;
       Summary    : Editor.Workspace_Persistence.Workspace_Restore_Summary;
       Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
-      Save_A     : Editor.Commands.Command_Availability;
-      Reload_A   : Editor.Commands.Command_Availability;
-      Close_A    : Editor.Commands.Command_Availability;
-      Feature_A  : Editor.Commands.Command_Availability;
+      Save_A     : Editor.Commands.Availability_Metadata.Command_Availability;
+      Reload_A   : Editor.Commands.Availability_Metadata.Command_Availability;
+      Close_A    : Editor.Commands.Availability_Metadata.Command_Availability;
+      Feature_A  : Editor.Commands.Availability_Metadata.Command_Availability;
       Saw_Save    : Boolean := False;
       Saw_Reload  : Boolean := False;
       Saw_Close   : Boolean := False;
@@ -557,13 +558,13 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
 
       Assert (Status = Editor.Workspace_Persistence.Workspace_Persistence_Ok,
               "restore fixture should succeed");
-      Assert (Editor.Commands.Is_Available (Save_A),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Save_A),
               "post-restore save availability should match restored file-backed active buffer");
-      Assert (Editor.Commands.Is_Available (Reload_A),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Reload_A),
               "post-restore reload availability should match clean file-backed active buffer");
-      Assert (Editor.Commands.Is_Available (Close_A),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Close_A),
               "post-restore close availability should match restored open buffer");
-      Assert (not Editor.Commands.Is_Available (Feature_A),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Feature_A),
               "post-restore Feature Panel activation should not revive stale rows");
       Assert (Saw_Save and then Saw_Reload and then Saw_Close,
               "Command Palette candidates should use restored availability without an extra refresh command");
@@ -1320,7 +1321,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
       Path   : constant String := Ada.Directories.Compose (Root, "a.txt");
       Id     : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Row    : Editor.Buffers.Buffer_Summary;
-      Avail  : Editor.Commands.Command_Availability;
+      Avail  : Editor.Commands.Availability_Metadata.Command_Availability;
       Recent_Before : Natural := 0;
    begin
       Build_Fixture (Root);
@@ -1347,7 +1348,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
               "typing after open should dirty the active buffer");
       Assert (Row.Is_Dirty,
               "open-buffer row should become dirty immediately after typing");
-      Assert (Editor.Commands.Is_Available (Avail),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "save availability should follow the dirty active buffer");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);

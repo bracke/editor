@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands;   use Editor.Commands;
 with Editor.Guided_Prompts;
 with Editor.Project;
@@ -39,7 +40,7 @@ package body Editor.Executor.Command_Kind_Availability_Commands is
    function Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability
+      return Editor.Commands.Availability_Metadata.Command_Availability
    is
       function Has_Buffer return Boolean is
       begin
@@ -52,8 +53,8 @@ package body Editor.Executor.Command_Kind_Availability_Commands is
       end Has_Project;
 
       Lifecycle_Handled : Boolean := False;
-      Lifecycle_Result  : Editor.Commands.Command_Availability :=
-        Editor.Commands.Available;
+      Lifecycle_Result  : Editor.Commands.Availability_Metadata.Command_Availability :=
+        Editor.Commands.Availability_Metadata.Available;
    begin
       --  while a destructive dirty lifecycle operation is waiting
       --  for explicit retry/cancel, other guarded lifecycle commands are
@@ -74,17 +75,17 @@ package body Editor.Executor.Command_Kind_Availability_Commands is
          --  transient prompt input or confirmation payload is active.
          case Id is
             when Command_Cancel =>
-               return Editor.Commands.Available;
+               return Editor.Commands.Availability_Metadata.Available;
             when Command_Restore_Workspace_State =>
-               return Editor.Commands.Available;
+               return Editor.Commands.Availability_Metadata.Available;
             when No_Command =>
-               return Editor.Commands.Unavailable ("No command");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No command");
             when others =>
                if Editor.Guided_Prompts.Is_Confirmation (S.Guided_Prompt) then
-                  return Editor.Commands.Unavailable
+                  return Editor.Commands.Availability_Metadata.Unavailable
                     ("Command unavailable while confirmation is pending");
                else
-                  return Editor.Commands.Unavailable ("Another prompt is active");
+                  return Editor.Commands.Availability_Metadata.Unavailable ("Another prompt is active");
                end if;
          end case;
       end if;
@@ -97,7 +98,7 @@ package body Editor.Executor.Command_Kind_Availability_Commands is
 
       case Id is
          when No_Command =>
-            return Editor.Commands.Unavailable ("No command selected");
+            return Editor.Commands.Availability_Metadata.Unavailable ("No command selected");
 
          when Command_Save_File .. Command_Move_Buffer_File
             | Command_Confirm_Close_Save .. Command_Cancel_Close
@@ -113,9 +114,9 @@ package body Editor.Executor.Command_Kind_Availability_Commands is
          when Command_Toggle_Bookmark
             =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer.");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Move_Left
             | Command_Move_Right

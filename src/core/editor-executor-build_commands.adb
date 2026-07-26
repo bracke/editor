@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Ada.Strings.Unbounded;
 
 with Editor.Build_Candidate_Refresh;
@@ -28,7 +29,7 @@ package body Editor.Executor.Build_Commands is
    function Build_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability
+      return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin
       case Id is
@@ -43,43 +44,43 @@ package body Editor.Executor.Build_Commands is
             | Editor.Commands.Command_Build_Toggle_Diagnostics_Ingestion
             | Editor.Commands.Command_Build_Cycle_Output_Limit
             | Editor.Commands.Command_Build_Clear_Consent =>
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Build_Refresh_Candidates =>
             if not Editor.Project.Has_Project (S.Project) then
-               return Editor.Commands.Unavailable ("No project open");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No project open");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Build_Result_Focus =>
             if not S.Latest_Build_Result.Has_Result then
-               return Editor.Commands.Unavailable ("No build result");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No build result");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Build_Output_Details_Focus
             | Editor.Commands.Command_Build_Output_Details_Select_Stdout
             | Editor.Commands.Command_Build_Output_Details_Select_Stderr
             | Editor.Commands.Command_Build_Output_Details_Select_Merged =>
             if not S.Latest_Build_Output_Details.Has_Output_Details then
-               return Editor.Commands.Unavailable ("No build output details");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No build output details");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Build_Select_First_Candidate
             | Editor.Commands.Command_Build_Select_Next_Candidate
             | Editor.Commands.Command_Build_Select_Previous_Candidate =>
             if Natural (S.Build_UI.Build_Candidates.Length) = 0 then
-               return Editor.Commands.Unavailable ("No build candidates");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No build candidates");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Build_Clear_Selected_Candidate =>
             if To_String (S.Build_UI.Selected_Build_Candidate_Id)'Length = 0 then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  ("No build candidate selected");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Build_Toggle_Option_Verbose
             | Editor.Commands.Command_Build_Toggle_Option_Keep_Going =>
@@ -87,10 +88,10 @@ package body Editor.Executor.Build_Commands is
               Editor.Build_UI.Build_UI_GPRbuild
               or else not S.Build_UI.Candidate_Applied_To_Request
             then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  ("Build option not supported for selected candidate");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Build_Acknowledge_Consent =>
             declare
@@ -98,12 +99,12 @@ package body Editor.Executor.Build_Commands is
             begin
                Editor.Build_UI.Acknowledge_Consent (Copy);
                if not Copy.Consent_Acknowledged then
-                  return Editor.Commands.Unavailable
+                  return Editor.Commands.Availability_Metadata.Unavailable
                     (Editor.Build_UI.Validation_Message
                        (Editor.Build_UI.Validate_Build_UI_State (S.Build_UI)));
                end if;
             end;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Build_Run =>
             return Editor.Build_Command.Build_Run_Availability (S);
@@ -112,11 +113,11 @@ package body Editor.Executor.Build_Commands is
             return Editor.Build_Command.Build_Cancel_Availability (S);
 
          when Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam =>
-            return Editor.Commands.Unavailable
+            return Editor.Commands.Availability_Metadata.Unavailable
               ("Build: structured command context required");
 
          when others =>
-            return Editor.Commands.Unavailable
+            return Editor.Commands.Availability_Metadata.Unavailable
               ("Command is not a build command");
       end case;
    end Build_Command_Availability;

@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Classification;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
@@ -895,7 +896,7 @@ procedure Test_Target_Prompt_Final_Input_Overlay_Audit_And_Persistence_Freeze
       After_Audit    : Editor.Configuration_Audit.Configuration_State_Summary;
       Workspace      : Editor.Workspace_Persistence.Workspace_Snapshot;
       Summary        : Unbounded_String;
-      Availability   : Editor.Commands.Command_Availability;
+      Availability   : Editor.Commands.Availability_Metadata.Command_Availability;
       Snap           : Editor.Render_Model.Render_Snapshot;
    begin
       Remove_If_Exists (Source);
@@ -944,7 +945,7 @@ procedure Test_Target_Prompt_Final_Input_Overlay_Audit_And_Persistence_Freeze
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Copy_Buffer_File);
-      Assert (Editor.Commands.Is_Available (Availability)
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability)
         and then Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S)
         and then Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (S) = Target,
         "availability checks must not open, confirm, cancel, seed, or mutate prompt state");
@@ -1294,8 +1295,8 @@ procedure Test_Target_Prompt_Metadata_Minimality_Guard
       S             : Editor.State.State_Type;
       Target        : constant String := Temp_Path ("metadata_read_target.txt");
       Before_Msgs   : Natural := 0;
-      Rename_Avail  : Editor.Commands.Command_Availability;
-      Save_As_Avail : Editor.Commands.Command_Availability;
+      Rename_Avail  : Editor.Commands.Availability_Metadata.Command_Availability;
+      Save_As_Avail : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Remove_If_Exists (Target);
       Editor.Buffers.Reset_Global_For_Test;
@@ -1328,7 +1329,7 @@ procedure Test_Target_Prompt_Metadata_Minimality_Guard
                 (Editor.Commands.Command_Rename_Buffer_File)
         and then Editor.Commands.Reference_Metadata.Command_Is_Target_Prompt_Capable
                 (Editor.Commands.Command_Rename_Buffer_File)
-        and then not Editor.Commands.Is_Available (Rename_Avail),
+        and then not Editor.Commands.Availability_Metadata.Is_Available (Rename_Avail),
         "explicit-target metadata must not imply runtime availability");
       Assert (Editor.Commands.Reference_Metadata.Command_Requires_Explicit_Target
                 (Editor.Commands.Command_Save_File_As)
@@ -1336,8 +1337,8 @@ procedure Test_Target_Prompt_Metadata_Minimality_Guard
                 (Editor.Commands.Command_Save_File_As)
         and then not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S),
         "metadata reads must not open the target prompt");
-      Assert (Editor.Commands.Is_Available (Save_As_Avail)
-          or else not Editor.Commands.Is_Available (Save_As_Avail),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Save_As_Avail)
+          or else not Editor.Commands.Availability_Metadata.Is_Available (Save_As_Avail),
         "availability remains an Executor-owned result, independent from metadata mapping");
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (S) = ""
         and then Editor.Messages.Count (S.Messages) = Before_Msgs

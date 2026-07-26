@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
@@ -211,7 +212,7 @@ package body Editor.Clipboard.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      A : Editor.Commands.Command_Availability;
+      A : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Reset_Transient_State;
       Editor.State.Init (S);
@@ -221,10 +222,10 @@ package body Editor.Clipboard.Tests is
 
       A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Copy);
       Assert
-        (not Editor.Commands.Is_Available (A),
+        (not Editor.Commands.Availability_Metadata.Is_Available (A),
          "copy without a selected range must be unavailable");
       Assert
-        (Editor.Commands.Unavailable_Reason (A) = "No selected text",
+        (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "No selected text",
          "copy without selection must report No selected text");
    end Test_No_Selection_Copy_Is_Unavailable;
 
@@ -334,7 +335,7 @@ package body Editor.Clipboard.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      A : Editor.Commands.Command_Availability;
+      A : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Reset_Transient_State;
       Editor.State.Init (S);
@@ -343,19 +344,19 @@ package body Editor.Clipboard.Tests is
 
       A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Paste);
       Assert
-        (not Editor.Commands.Is_Available (A),
+        (not Editor.Commands.Availability_Metadata.Is_Available (A),
          "paste with empty clipboard must be unavailable");
       Assert
-        (Editor.Commands.Unavailable_Reason (A) = "Clipboard is empty",
+        (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "Clipboard is empty",
          "paste with empty clipboard must report Clipboard is empty");
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Clipboard_Clear);
       Assert
-        (not Editor.Commands.Is_Available (A),
+        (not Editor.Commands.Availability_Metadata.Is_Available (A),
          "clipboard clear with empty clipboard must be unavailable");
       Assert
-        (Editor.Commands.Unavailable_Reason (A) = "Clipboard is empty",
+        (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "Clipboard is empty",
          "clipboard clear with empty clipboard must report Clipboard is empty");
    end Test_Empty_Clipboard_Availability;
 
@@ -444,7 +445,7 @@ package body Editor.Clipboard.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      A : Editor.Commands.Command_Availability;
+      A : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Reset_Transient_State;
       Editor.State.Init (S);
@@ -455,10 +456,10 @@ package body Editor.Clipboard.Tests is
       Set_Primary_Selection (S, 2, 99);
       A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Cut);
       Assert
-        (not Editor.Commands.Is_Available (A),
+        (not Editor.Commands.Availability_Metadata.Is_Available (A),
          "out-of-range cut selection must be unavailable");
       Assert
-        (Editor.Commands.Unavailable_Reason (A) = "Invalid selection",
+        (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "Invalid selection",
          "out-of-range cut selection must report Invalid selection");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Cut);
@@ -888,7 +889,7 @@ package body Editor.Clipboard.Tests is
       Before_Undo    : Natural;
       Before_Redo    : Natural;
       Before_Stale   : Boolean;
-      A              : Editor.Commands.Command_Availability;
+      A              : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Reset_Transient_State;
       Editor.State.Init (S);
@@ -907,17 +908,17 @@ package body Editor.Clipboard.Tests is
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snapshot);
       A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Copy);
-      Assert (Editor.Commands.Is_Available (A),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "copy availability must see the non-empty active selection");
       A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Cut);
-      Assert (Editor.Commands.Is_Available (A),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "cut availability must see the non-empty active selection");
       A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Paste);
-      Assert (Editor.Commands.Is_Available (A),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "paste availability must reflect Clipboard_Has_Text");
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Clipboard_Clear);
-      Assert (Editor.Commands.Is_Available (A),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "clipboard clear availability must reflect Clipboard_Has_Text");
 
       Assert (To_Unbounded_String (Editor.State.Current_Text (S)) = Before_Text,
@@ -1495,7 +1496,7 @@ package body Editor.Clipboard.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      A : Editor.Commands.Command_Availability;
+      A : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Reset_Transient_State;
       Editor.State.Init (S);
@@ -1505,22 +1506,22 @@ package body Editor.Clipboard.Tests is
 
       Set_Primary_Selection (S, 1, 4);
       A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Copy);
-      Assert (Editor.Commands.Is_Available (A),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "valid copy selection must be accepted by the canonical selection helper");
       A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Cut);
-      Assert (Editor.Commands.Is_Available (A),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "valid cut selection must be accepted by the canonical selection helper");
 
       Set_Primary_Selection (S, 1, 99);
       A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Copy);
-      Assert (not Editor.Commands.Is_Available (A),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "out-of-range copy selection must be rejected before extraction");
-      Assert (Editor.Commands.Unavailable_Reason (A) = "Invalid selection",
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "Invalid selection",
               "copy must report the canonical invalid-selection reason");
       A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Cut);
-      Assert (not Editor.Commands.Is_Available (A),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "out-of-range cut selection must be rejected before extraction");
-      Assert (Editor.Commands.Unavailable_Reason (A) = "Invalid selection",
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "Invalid selection",
               "cut must report the canonical invalid-selection reason");
 
       Assert_Clipboard_State (True, "existing",

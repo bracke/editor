@@ -293,7 +293,7 @@ package body Editor.Command_Surface.Tests is
       Before_Overlay : Editor.Overlay_Focus.Overlay_Target;
       Before_Focus : Editor.Panel_Focus.Focus_Target;
       Before_Bottom : Editor.Panel_Focus.Bottom_Focus_Content;
-      A : Editor.Commands.Command_Availability;
+      A : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Editor.State.Init (S);
       Before_Messages := Editor.Messages.Count (S.Messages);
@@ -304,10 +304,10 @@ package body Editor.Command_Surface.Tests is
 
       for I in 1 .. Editor.Commands.Command_Count loop
          A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_At (I));
-         if not Editor.Commands.Is_Available (A)
+         if not Editor.Commands.Availability_Metadata.Is_Available (A)
            and then Editor.Commands.Command_At (I) /= Editor.Commands.No_Command
          then
-            Assert (Editor.Commands.Unavailable_Reason (A)'Length > 0,
+            Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A)'Length > 0,
                     "unavailable concrete commands must include a reason: " &
                     Editor.Commands.Command_Id'Image (Editor.Commands.Command_At (I)));
          end if;
@@ -331,7 +331,7 @@ package body Editor.Command_Surface.Tests is
       S : Editor.State.State_Type;
       function Reason (Id : Editor.Commands.Command_Id) return String is
       begin
-         return Editor.Commands.Unavailable_Reason
+         return Editor.Commands.Availability_Metadata.Unavailable_Reason
            (Editor.Executor.Command_Availability (S, Id));
       end Reason;
    begin
@@ -354,8 +354,8 @@ package body Editor.Command_Surface.Tests is
       Assert (Reason (Editor.Commands.Command_Focus_File_Tree) = "No project open.",
               "Focus File Tree must use canonical No project open reason");
       Assert
-        (Editor.Commands.Unavailable_Reason
-           (Editor.Commands.Unavailable
+        (Editor.Commands.Availability_Metadata.Unavailable_Reason
+           (Editor.Commands.Availability_Metadata.Unavailable
               ("Diagnostic target column is outside the line.")) =
          Editor.Commands.Workflow_Messages.Reason_Diagnostic_Target_Column_Outside_Line,
          "invalid diagnostic columns must keep the column-specific reason");
@@ -658,7 +658,7 @@ package body Editor.Command_Surface.Tests is
       S : Editor.State.State_Type;
       function Reason (Id : Editor.Commands.Command_Id) return String is
       begin
-         return Editor.Commands.Unavailable_Reason
+         return Editor.Commands.Availability_Metadata.Unavailable_Reason
            (Editor.Executor.Command_Availability (S, Id));
       end Reason;
    begin
@@ -679,23 +679,23 @@ package body Editor.Command_Surface.Tests is
               "Discard Pending Transition must be disabled without a pending transition");
       Assert (Reason (Editor.Commands.Command_Save_All) = "No dirty file-backed buffers.",
               "Save All must be disabled without dirty file-backed buffers");
-      Assert (Editor.Commands.Is_Available
+      Assert (Editor.Commands.Availability_Metadata.Is_Available
                 (Editor.Executor.Command_Availability
                    (S, Editor.Commands.Command_Show_Recent_Projects)),
               "Show Recent Projects must remain available to display an empty state");
       Assert (Reason (Editor.Commands.Command_Clear_Recent_Projects) = "No recent projects.",
               "Clear Recent Projects must be disabled without recent projects");
 
-      Assert (Editor.Commands.Is_Available
+      Assert (Editor.Commands.Availability_Metadata.Is_Available
                 (Editor.Executor.Command_Availability (S, Editor.Commands.Command_Save_Settings)),
               "Save Settings must remain globally available");
-      Assert (Editor.Commands.Is_Available
+      Assert (Editor.Commands.Availability_Metadata.Is_Available
                 (Editor.Executor.Command_Availability (S, Editor.Commands.Command_Reload_Settings)),
               "Reload Settings must remain globally available");
-      Assert (Editor.Commands.Is_Available
+      Assert (Editor.Commands.Availability_Metadata.Is_Available
                 (Editor.Executor.Command_Availability (S, Editor.Commands.Command_Save_Keybindings)),
               "Save Keybindings must remain globally available");
-      Assert (Editor.Commands.Is_Available
+      Assert (Editor.Commands.Availability_Metadata.Is_Available
                 (Editor.Executor.Command_Availability (S, Editor.Commands.Command_Reload_Keybindings)),
               "Reload Keybindings must remain globally available");
    end Test_Disabled_State_Baseline;
@@ -747,7 +747,7 @@ package body Editor.Command_Surface.Tests is
          Before_Dirty   := S.File_Info.Dirty;
          Before_Pending := Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions);
 
-         Assert (not Editor.Commands.Is_Available
+         Assert (not Editor.Commands.Availability_Metadata.Is_Available
                    (Editor.Executor.Command_Availability (S, Id)),
                  Label & " must be unavailable in the empty fixture");
 
@@ -778,7 +778,7 @@ package body Editor.Command_Surface.Tests is
          Recent_State : Editor.State.State_Type;
       begin
          Editor.State.Init (Recent_State);
-         Assert (Editor.Commands.Is_Available
+         Assert (Editor.Commands.Availability_Metadata.Is_Available
                    (Editor.Executor.Command_Availability
                       (Recent_State, Editor.Commands.Command_Show_Recent_Projects)),
                  "Show Recent Projects remains executable to display the empty state");
@@ -789,7 +789,7 @@ package body Editor.Command_Surface.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      A : Editor.Commands.Command_Availability;
+      A : Editor.Commands.Availability_Metadata.Command_Availability;
       R : Editor.Executor.Command_Execution_Result;
       Id : Editor.Commands.Command_Id;
    begin
@@ -799,7 +799,7 @@ package body Editor.Command_Surface.Tests is
          A := Editor.Executor.Command_Availability (S, Id);
 
          if Id /= Editor.Commands.No_Command
-           and then not Editor.Commands.Is_Available (A)
+           and then not Editor.Commands.Availability_Metadata.Is_Available (A)
          then
             R := Editor.Executor.Execute_Command_With_Result (S, Id);
             Assert (R.Status = Editor.Executor.Command_Unavailable,
@@ -1118,7 +1118,7 @@ package body Editor.Command_Surface.Tests is
       for I in 1 .. Editor.Commands.Command_Count loop
          Id := Editor.Commands.Command_At (I);
          if Id /= Editor.Commands.No_Command
-           and then not Editor.Commands.Is_Available
+           and then not Editor.Commands.Availability_Metadata.Is_Available
              (Editor.Executor.Command_Availability (S, Id))
          then
             declare
@@ -1594,7 +1594,7 @@ package body Editor.Command_Surface.Tests is
       end Looks_Like_Fallback_Copy;
 
       D : Editor.Commands.Descriptors.Command_Descriptor;
-      A : Editor.Commands.Command_Availability;
+      A : Editor.Commands.Availability_Metadata.Command_Availability;
       S : Editor.State.State_Type;
    begin
       for Id of Product_Commands loop
@@ -1613,11 +1613,11 @@ package body Editor.Command_Surface.Tests is
                    or else D.Visibility = Editor.Commands.Descriptors.Hidden_Command,
                  "product command visibility is explicit");
          A := Editor.Executor.Command_Availability (S, Id);
-         if not Editor.Commands.Is_Available (A) then
-            Assert (Editor.Commands.Unavailable_Reason (A)'Length > 0,
+         if not Editor.Commands.Availability_Metadata.Is_Available (A) then
+            Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A)'Length > 0,
                     "unavailable product command reports a reason");
             Assert (not Contains_Internal_Term
-                      (Editor.Commands.Unavailable_Reason (A)),
+                      (Editor.Commands.Availability_Metadata.Unavailable_Reason (A)),
                     "unavailable reason avoids internal terms");
          end if;
       end loop;

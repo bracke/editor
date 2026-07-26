@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
@@ -52,7 +53,7 @@ package body Editor.Executor.Project_Lifecycle_Commands is
    function Project_Lifecycle_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability
+      return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin
       return Editor.Executor.Project_Lifecycle_Availability_Commands

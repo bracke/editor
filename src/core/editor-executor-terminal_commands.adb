@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Command_Execution;
 with Editor.Commands;
 with Editor.Executor;
@@ -19,16 +20,16 @@ package body Editor.Executor.Terminal_Commands is
    function Terminal_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability
+      return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin
       case Id is
          when Editor.Commands.Command_Run_Project
             | Editor.Commands.Command_Run_Tests =>
             if not Editor.Project.Has_Project (S.Project) then
-               return Editor.Commands.Unavailable ("No project is open.");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No project is open.");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Terminal_Toggle
             | Editor.Commands.Command_Terminal_Show
@@ -36,7 +37,7 @@ package body Editor.Executor.Terminal_Commands is
             | Editor.Commands.Command_Terminal_Focus
             | Editor.Commands.Command_Terminal_Clear
             | Editor.Commands.Command_Terminal_Clear_Output =>
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Terminal_Select_Next_Task
             | Editor.Commands.Command_Terminal_Select_Previous_Task
@@ -44,23 +45,23 @@ package body Editor.Executor.Terminal_Commands is
             if not Editor.Terminal_Tasks.Has_Selected_Task
               (S.Terminal_Tasks)
             then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  ("No terminal task selected");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Terminal_Rerun_Last_Task =>
             if not Editor.Terminal_Tasks.Can_Rerun_Last (S.Terminal_Tasks) then
-               return Editor.Commands.Unavailable ("No terminal task has run");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No terminal task has run");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Terminal_Cancel_Task =>
-            return Editor.Commands.Unavailable
+            return Editor.Commands.Availability_Metadata.Unavailable
               ("No cancellable terminal task is running");
 
          when others =>
-            return Editor.Commands.Unavailable
+            return Editor.Commands.Availability_Metadata.Unavailable
               ("Command is not a terminal command");
       end case;
    end Terminal_Command_Availability;

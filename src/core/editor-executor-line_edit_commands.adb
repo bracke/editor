@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Ada.Containers; use Ada.Containers;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -862,13 +863,13 @@ package body Editor.Executor.Line_Edit_Commands is
    function Line_Edit_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability
+      return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin
       if not Has_Buffer (S) then
-         return Editor.Commands.Unavailable ("No active buffer.");
+         return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
       elsif S.Carets.Length = 0 then
-         return Editor.Commands.Unavailable ("No caret location");
+         return Editor.Commands.Availability_Metadata.Unavailable ("No caret location");
       end if;
 
       case Id is
@@ -883,9 +884,9 @@ package body Editor.Executor.Line_Edit_Commands is
             | Editor.Commands.Command_Toggle_Line_Comment
             | Editor.Commands.Command_Line_Join_Next
             | Editor.Commands.Command_Line_Split_At_Caret =>
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
          when others =>
-            return Editor.Commands.Unavailable ("Not a line edit command");
+            return Editor.Commands.Availability_Metadata.Unavailable ("Not a line edit command");
       end case;
    end Line_Edit_Command_Availability;
 

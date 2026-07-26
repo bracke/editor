@@ -47,7 +47,7 @@ with Text_Buffer;
 package body Editor.Buffer_Switcher.Tests is
    use type Ada.Directories.File_Kind;
    use type Ada.Streams.Stream_Element_Offset;
-   use type Editor.Commands.Command_Availability_Status;
+   use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
    use type Editor.Commands.Command_Id;
    use type Editor.Keybindings.Binding_Result;
    use type Editor.Workspace_Persistence.Workspace_Persistence_Status;
@@ -2969,7 +2969,7 @@ package body Editor.Buffer_Switcher.Tests is
                  "every hint command id must resolve to a descriptor");
          Assert (Editor.Commands.Availability_Metadata.Has_Availability_Handler (Hint.Command_Id),
                  "every hint command id must be covered by executor availability");
-         Assert (Editor.Commands.Is_Available
+         Assert (Editor.Commands.Availability_Metadata.Is_Available
                    (Editor.Executor.Command_Availability (S, Hint.Command_Id)),
                  "displayed hint must be executor-available");
          Assert (Hint.Is_Enabled,
@@ -4182,7 +4182,7 @@ package body Editor.Buffer_Switcher.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      A : Editor.Commands.Command_Availability;
+      A : Editor.Commands.Availability_Metadata.Command_Availability;
       Config : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
       Alpha : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Beta  : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
@@ -4200,7 +4200,7 @@ package body Editor.Buffer_Switcher.Tests is
               "empty buffer list reports no open buffers");
 
       A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Next_Buffer);
-      Assert (A.Status = Editor.Commands.Command_Unavailable
+      Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Unavailable
                 and then To_String (A.Reason) = "No buffers open.",
               "next buffer is unavailable with no open buffers");
 
@@ -4208,14 +4208,14 @@ package body Editor.Buffer_Switcher.Tests is
         (Editor.Test_Temp.Base & "/scenario/alpha.adb", "alpha.adb", "procedure Alpha is begin null; end;", Alpha);
       Editor.Buffers.Global_Set_Active_Buffer (Alpha);
       A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Previous_Buffer);
-      Assert (A.Status = Editor.Commands.Command_Unavailable
+      Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Unavailable
                 and then To_String (A.Reason) = "No other buffer.",
               "previous buffer is unavailable with one open buffer");
 
       Editor.Buffers.Global_Add_File_Buffer
         (Editor.Test_Temp.Base & "/scenario/beta.adb", "beta.adb", "procedure Beta is begin null; end;", Beta);
       A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Next_Buffer);
-      Assert (A.Status = Editor.Commands.Command_Available,
+      Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "next buffer is available with multiple open buffers");
 
       Editor.Buffers.Reset_Global_For_Test;
@@ -4248,7 +4248,7 @@ package body Editor.Buffer_Switcher.Tests is
       Alpha  : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Beta   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Closed : Boolean := False;
-      A      : Editor.Commands.Command_Availability;
+      A      : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Editor.State.Initialize (S);
       Setup_Global_Switcher_State (S, Alpha, Beta);
@@ -4263,7 +4263,7 @@ package body Editor.Buffer_Switcher.Tests is
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Accept_Buffer_Switcher);
-      Assert (A.Status = Editor.Commands.Command_Unavailable
+      Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Unavailable
                 and then To_String (A.Reason) = "Selected buffer is no longer open",
               "switch-selected rejects stale closed buffer rows before mutation");
 
@@ -5246,7 +5246,7 @@ package body Editor.Buffer_Switcher.Tests is
             Id : constant Editor.Commands.Command_Id := Commands (I);
             D  : constant Editor.Commands.Descriptors.Command_Descriptor :=
               Editor.Commands.Descriptors.Descriptor (Id);
-            A  : Editor.Commands.Command_Availability;
+            A  : Editor.Commands.Availability_Metadata.Command_Availability;
          begin
             Assert (not Command_Has_Payload (Id),
                     "Buffer List command template must not carry buffer ids, paths, text, query, or edit payloads");

@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Ada.Containers;
 
@@ -181,39 +182,39 @@ package body Editor.Executor.Editing_Commands is
    function Editing_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability
+      return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin
       case Id is
          when Editor.Commands.Command_Undo =>
             if not Has_Buffer (S) then
-               return Editor.Commands.Unavailable ("No active buffer.");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
             elsif not Editor.Buffers.Global_Registry_Current_For (S) then
-               return Editor.Commands.Unavailable ("No edits to undo");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No edits to undo");
             elsif Editor.History.Undo_Stack.Is_Empty then
-               return Editor.Commands.Unavailable ("No edits to undo");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No edits to undo");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Redo =>
             if not Has_Buffer (S) then
-               return Editor.Commands.Unavailable ("No active buffer.");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
             elsif not Editor.Buffers.Global_Registry_Current_For (S) then
-               return Editor.Commands.Unavailable ("No edits to redo");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No edits to redo");
             elsif Editor.History.Redo_Stack.Is_Empty then
-               return Editor.Commands.Unavailable ("No edits to redo");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No edits to redo");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Edit_History_Clear =>
             if not Has_Buffer (S) then
-               return Editor.Commands.Unavailable ("No active buffer.");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
             elsif Editor.History.Undo_Stack.Is_Empty
               and then Editor.History.Redo_Stack.Is_Empty
             then
-               return Editor.Commands.Unavailable ("No edit history to clear");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No edit history to clear");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Copy
             | Editor.Commands.Command_Cut =>
@@ -221,61 +222,61 @@ package body Editor.Executor.Editing_Commands is
 
          when Editor.Commands.Command_Paste =>
             if not Has_Buffer (S) then
-               return Editor.Commands.Unavailable ("No active buffer.");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
             elsif not Editor.Clipboard.Has_Text then
-               return Editor.Commands.Unavailable ("Clipboard is empty");
+               return Editor.Commands.Availability_Metadata.Unavailable ("Clipboard is empty");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Clipboard_Clear =>
             if not Editor.Clipboard.Has_Text then
-               return Editor.Commands.Unavailable ("Clipboard is empty");
+               return Editor.Commands.Availability_Metadata.Unavailable ("Clipboard is empty");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Selection_Delete =>
             if not Has_Buffer (S) then
-               return Editor.Commands.Unavailable ("No active buffer.");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
             elsif S.Carets.Length = 0 then
-               return Editor.Commands.Unavailable ("No caret location");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No caret location");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Trim_Trailing_Whitespace
             | Editor.Commands.Command_Format_Buffer =>
             if not Has_Buffer (S) then
-               return Editor.Commands.Unavailable ("No active buffer.");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
             elsif S.Carets.Length = 0 then
-               return Editor.Commands.Unavailable ("No caret location");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No caret location");
             elsif not Trim_Trailing_Whitespace_Would_Change (S) then
-               return Editor.Commands.Unavailable ("No trailing whitespace");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No trailing whitespace");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Format_Selected_Text =>
             if not Has_Buffer (S) then
-               return Editor.Commands.Unavailable ("No active buffer.");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
             elsif S.Carets.Length = 0 then
-               return Editor.Commands.Unavailable ("No caret location");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No caret location");
             elsif not Editor.Selection.Has_Selection (S)
               and then not S.Rect_Select_Active
             then
-               return Editor.Commands.Unavailable ("No selection");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No selection");
             elsif not Trim_Trailing_Whitespace_Would_Change (S) then
-               return Editor.Commands.Unavailable ("No trailing whitespace");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No trailing whitespace");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Char_Delete_Previous
             | Editor.Commands.Command_Char_Delete_Next
             | Editor.Commands.Command_Word_Delete_Previous
             | Editor.Commands.Command_Word_Delete_Next =>
             if not Has_Buffer (S) then
-               return Editor.Commands.Unavailable ("No active buffer.");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
             elsif S.Carets.Length = 0 then
-               return Editor.Commands.Unavailable ("No caret location");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No caret location");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Line_Delete
             | Editor.Commands.Command_Line_Duplicate
@@ -293,7 +294,7 @@ package body Editor.Executor.Editing_Commands is
               (S, Id);
 
          when others =>
-            return Editor.Commands.Unavailable ("Not an editing command");
+            return Editor.Commands.Availability_Metadata.Unavailable ("Not an editing command");
       end case;
    end Editing_Command_Availability;
 

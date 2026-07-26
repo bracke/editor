@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with Editor.Buffers;
@@ -20,7 +21,7 @@ package body Editor.Executor.Buffer_Metadata_Commands is
    function Buffer_Metadata_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability
+      return Editor.Commands.Availability_Metadata.Command_Availability
    is
       function Has_Buffer return Boolean is
       begin
@@ -30,23 +31,23 @@ package body Editor.Executor.Buffer_Metadata_Commands is
       case Id is
          when Command_Pin_Buffer =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer.");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
             elsif Editor.Buffers.Global_Is_Buffer_Pinned
               (Editor.Buffers.Global_Active_Buffer)
             then
-               return Editor.Commands.Unavailable ("Buffer already pinned");
+               return Editor.Commands.Availability_Metadata.Unavailable ("Buffer already pinned");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Unpin_Buffer =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer.");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
             elsif not Editor.Buffers.Global_Is_Buffer_Pinned
               (Editor.Buffers.Global_Active_Buffer)
             then
-               return Editor.Commands.Unavailable ("Buffer is not pinned");
+               return Editor.Commands.Availability_Metadata.Unavailable ("Buffer is not pinned");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Toggle_Buffer_Pin
             | Command_Set_Buffer_Label
@@ -57,54 +58,54 @@ package body Editor.Executor.Buffer_Metadata_Commands is
             | Command_Show_Buffer_Note
             | Command_Assign_Buffer_Group =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer.");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Clear_Buffer_Label =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer.");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
             elsif not Editor.Buffers.Global_Has_Buffer_Label
               (Editor.Buffers.Global_Active_Buffer)
             then
-               return Editor.Commands.Unavailable ("Active buffer has no label");
+               return Editor.Commands.Availability_Metadata.Unavailable ("Active buffer has no label");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Clear_Buffer_Note =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer.");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
             elsif not Editor.Buffers.Global_Has_Buffer_Note
               (Editor.Buffers.Global_Active_Buffer)
             then
-               return Editor.Commands.Unavailable ("Active buffer has no note");
+               return Editor.Commands.Availability_Metadata.Unavailable ("Active buffer has no note");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Clear_Buffer_Group =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer.");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
             elsif not Editor.Buffers.Global_Has_Buffer_Group
               (Editor.Buffers.Global_Active_Buffer)
             then
-               return Editor.Commands.Unavailable ("Active buffer has no group");
+               return Editor.Commands.Availability_Metadata.Unavailable ("Active buffer has no group");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Switch_Buffer_Group =>
             if not Editor.Buffers.Global_Has_Buffer_Groups then
-               return Editor.Commands.Unavailable ("No buffer groups");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No buffer groups");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Show_All_Buffer_Groups =>
             if not Editor.Buffers.Global_Has_Active_Buffer_Group then
-               return Editor.Commands.Unavailable ("No active buffer group");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer group");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when others =>
-            return Editor.Commands.Unavailable
+            return Editor.Commands.Availability_Metadata.Unavailable
               ("Command is not a buffer metadata command");
       end case;
    end Buffer_Metadata_Command_Availability;

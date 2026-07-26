@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with Ada.Characters.Handling;
@@ -1203,8 +1204,8 @@ package body Editor.Outline.Navigation_Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Open_Availability : Editor.Commands.Command_Availability;
-      Declaration_Availability : Editor.Commands.Command_Availability;
+      Open_Availability : Editor.Commands.Availability_Metadata.Command_Availability;
+      Declaration_Availability : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text
@@ -1232,9 +1233,9 @@ package body Editor.Outline.Navigation_Tests is
       Declaration_Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Goto_Declaration);
 
-      Assert (not Editor.Commands.Is_Available (Open_Availability),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Open_Availability),
               "open-selected availability rejects out-of-range outline target");
-      Assert (not Editor.Commands.Is_Available (Declaration_Availability),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Declaration_Availability),
               "goto-declaration availability rejects out-of-range outline target");
    end Test_Declaration_Navigation_Availability_Rejects_Stale_Target;
 

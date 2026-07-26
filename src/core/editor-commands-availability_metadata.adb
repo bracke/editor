@@ -1,4 +1,5 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.Commands.Workflow_Messages;
 
 package body Editor.Commands.Availability_Metadata is
 
@@ -7,12 +8,31 @@ package body Editor.Commands.Availability_Metadata is
       return (Status => Command_Available, Reason => Null_Unbounded_String);
    end Available;
 
+   function Unavailable
+     (Reason : String) return Command_Availability
+   is
+   begin
+      return
+        (Status => Command_Unavailable,
+         Reason => To_Unbounded_String
+           (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
+              (Reason)));
+   end Unavailable;
+
    function Is_Available
      (Availability : Command_Availability) return Boolean
    is
    begin
       return Availability.Status = Command_Available;
    end Is_Available;
+
+   function Unavailable_Reason
+     (Availability : Command_Availability) return String
+   is
+   begin
+      return Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
+        (To_String (Availability.Reason));
+   end Unavailable_Reason;
 
    function Is_Concrete_Command
      (Id : Command_Id) return Boolean

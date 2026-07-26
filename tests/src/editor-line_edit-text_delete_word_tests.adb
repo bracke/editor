@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -37,7 +38,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
    use type Editor.Commands.Command_Id;
    use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Commands.Descriptors.Command_Visibility;
-   use type Editor.Commands.Command_Availability_Status;
+   use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
    use type Editor.Commands.Command_Kind;
    use type Editor.Keybindings.Keybinding_Validation_Status;
    use type Editor.Buffers.Buffer_Id;
@@ -790,7 +791,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       pragma Unreferenced (T);
       S          : Editor.State.State_Type;
       No_Buffer  : Editor.State.State_Type;
-      Avail      : Editor.Commands.Command_Availability;
+      Avail      : Editor.Commands.Availability_Metadata.Command_Availability;
       Snap       : Editor.Workspace_Persistence.Workspace_Snapshot;
       Summary    : Unbounded_String;
       Redo_Count : Natural := 0;
@@ -866,8 +867,8 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       S.Carets.Clear;
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Word_Delete_Next);
-      Assert (not Editor.Commands.Is_Available (Avail)
-              and then Editor.Commands.Unavailable_Reason (Avail) = "No caret location",
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail)
+              and then Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) = "No caret location",
               "no-caret availability must be deterministic");
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Word_Delete_Next);
@@ -877,8 +878,8 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Editor.State.Init (No_Buffer);
       Avail := Editor.Executor.Command_Availability
         (No_Buffer, Editor.Commands.Command_Word_Delete_Previous);
-      Assert (not Editor.Commands.Is_Available (Avail)
-              and then Editor.Commands.Unavailable_Reason (Avail) = "No active buffer.",
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail)
+              and then Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) = "No active buffer.",
               "no-active-buffer availability must be deterministic");
       Editor.Executor.Execute_Command
         (No_Buffer, Editor.Commands.Command_Word_Delete_Previous);
@@ -1077,7 +1078,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       pragma Unreferenced (T);
       S             : Editor.State.State_Type;
       Snap          : Editor.Render_Model.Render_Snapshot;
-      Avail         : Editor.Commands.Command_Availability;
+      Avail         : Editor.Commands.Availability_Metadata.Command_Availability;
       Before_Text   : Unbounded_String;
       Before_Caret  : Cursor_Index := 0;
       Before_Undo   : Natural := 0;
@@ -1111,11 +1112,11 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Word_Delete_Previous);
-      Assert (Editor.Commands.Is_Available (Avail),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "word delete availability must remain available with buffer and caret");
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Word_Delete_Next);
-      Assert (Editor.Commands.Is_Available (Avail),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "next word delete availability must remain available with buffer and caret");
       Assert (Snap.Length = Text_Buffer.Length (S.Buffer),
               "render snapshot length must derive from canonical buffer text");
@@ -1353,7 +1354,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       S              : Editor.State.State_Type;
       A              : Editor.Buffers.Buffer_Id;
       B              : Editor.Buffers.Buffer_Id;
-      Avail          : Editor.Commands.Command_Availability;
+      Avail          : Editor.Commands.Availability_Metadata.Command_Availability;
       Snap           : Editor.Workspace_Persistence.Workspace_Snapshot;
       Summary        : Unbounded_String;
       Before_Text    : Unbounded_String;
@@ -1428,7 +1429,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Word_Delete_Previous);
-      Assert (Editor.Commands.Is_Available (Avail),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "availability check must expose Word Delete with active buffer/caret");
       declare
          Candidates : Editor.Commands.Descriptors.Command_Descriptor_Vectors.Vector;
@@ -1725,7 +1726,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Before_Clip : Unbounded_String;
       Before_Back : Natural := 0;
       Before_Fwd  : Natural := 0;
-      Avail       : Editor.Commands.Command_Availability;
+      Avail       : Editor.Commands.Availability_Metadata.Command_Availability;
       Snap        : Editor.Render_Model.Render_Snapshot;
    begin
       Assert_Word_Delete_Transform
@@ -1769,7 +1770,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Word_Delete_Next);
-      Assert (Editor.Commands.Is_Available (Avail),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "canonical next Word Delete availability must remain available");
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert (Snap.Length = Text_Buffer.Length (S.Buffer),

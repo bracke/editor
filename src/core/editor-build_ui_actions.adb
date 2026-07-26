@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Ada_Diagnostic_Command_Projection;
@@ -296,14 +297,14 @@ package body Editor.Build_UI_Actions is
    function Build_UI_Operability_Snapshot
      (S : Editor.State.State_Type) return Editor.Build_UI.Build_UI_Render_Snapshot
    is
-      Availability : constant Editor.Commands.Command_Availability :=
+      Availability : constant Editor.Commands.Availability_Metadata.Command_Availability :=
         Editor.Build_Command.Build_Run_Availability (S);
       Snapshot : Editor.Build_UI.Build_UI_Render_Snapshot :=
         Editor.Build_UI.Build_Render_Snapshot
           (S.Build_UI, S.Latest_Build_Result, S.Latest_Build_Output_Details);
    begin
       Snapshot.Request_Valid := Snapshot.Run_Available;
-      Snapshot.Run_Available := Editor.Commands.Is_Available (Availability);
+      Snapshot.Run_Available := Editor.Commands.Availability_Metadata.Is_Available (Availability);
       Snapshot.Run_Command_Available := Snapshot.Run_Available;
       if Snapshot.Request_Valid then
          Snapshot.Request_Status_Label := To_Unbounded_String ("Build request valid");
@@ -318,10 +319,10 @@ package body Editor.Build_UI_Actions is
            To_Unbounded_String ("Run command available");
       else
          Snapshot.Run_Availability_Label := To_Unbounded_String
-           (Editor.Commands.Unavailable_Reason (Availability));
+           (Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability));
          Snapshot.Run_Command_Status_Label := To_Unbounded_String
            ("Run command unavailable: "
-            & Editor.Commands.Unavailable_Reason (Availability));
+            & Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability));
       end if;
       Snapshot.Request_Preview.Availability_Label :=
         Snapshot.Run_Availability_Label;
@@ -350,25 +351,25 @@ package body Editor.Build_UI_Actions is
                      else To_Unbounded_String (Disabled_Reason))));
          end Append_Action_Row;
 
-         Open_Availability : constant Editor.Commands.Command_Availability :=
+         Open_Availability : constant Editor.Commands.Availability_Metadata.Command_Availability :=
            Editor.Executor.Command_Availability
              (S, Editor.Commands.Command_Diagnostic_Open_Source);
-         Suppress_Availability : constant Editor.Commands.Command_Availability :=
+         Suppress_Availability : constant Editor.Commands.Availability_Metadata.Command_Availability :=
            Editor.Executor.Command_Availability
              (S, Editor.Commands.Command_Diagnostic_Suppress_Selected);
-         Restore_Availability : constant Editor.Commands.Command_Availability :=
+         Restore_Availability : constant Editor.Commands.Availability_Metadata.Command_Availability :=
            Editor.Executor.Command_Availability
              (S, Editor.Commands.Command_Diagnostic_Restore_Last_Suppressed);
-         Restore_Selected_Availability : constant Editor.Commands.Command_Availability :=
+         Restore_Selected_Availability : constant Editor.Commands.Availability_Metadata.Command_Availability :=
            Editor.Executor.Command_Availability
              (S, Editor.Commands.Command_Diagnostic_Restore_Selected_Suppressed);
-         Clear_Suppressed_Availability : constant Editor.Commands.Command_Availability :=
+         Clear_Suppressed_Availability : constant Editor.Commands.Availability_Metadata.Command_Availability :=
            Editor.Executor.Command_Availability
              (S, Editor.Commands.Command_Diagnostic_Clear_Suppressed);
-         Show_Suppressed_Availability : constant Editor.Commands.Command_Availability :=
+         Show_Suppressed_Availability : constant Editor.Commands.Availability_Metadata.Command_Availability :=
            Editor.Executor.Command_Availability
              (S, Editor.Commands.Command_Diagnostic_Show_Suppressed);
-         Quick_Fix_Availability : constant Editor.Commands.Command_Availability :=
+         Quick_Fix_Availability : constant Editor.Commands.Availability_Metadata.Command_Availability :=
            Editor.Executor.Command_Availability
              (S, Editor.Commands.Command_Diagnostic_Apply_Quick_Fix);
          Selected_Source : constant Natural :=
@@ -396,7 +397,7 @@ package body Editor.Build_UI_Actions is
          is
          begin
             return Selected_Source > 0
-              and then Editor.Commands.Is_Available
+              and then Editor.Commands.Availability_Metadata.Is_Available
                 (Editor.Executor.Diagnostic_Quick_Fix_Action_Availability
                    (S, Selected_Source, Action_Index));
          end Quick_Fix_Action_Available;
@@ -404,9 +405,9 @@ package body Editor.Build_UI_Actions is
          function Quick_Fix_Action_Unavailable_Reason
            (Action_Index : Natural) return String
          is
-            Availability : constant Editor.Commands.Command_Availability :=
+            Availability : constant Editor.Commands.Availability_Metadata.Command_Availability :=
               (if Selected_Source = 0
-               then Editor.Commands.Unavailable ("No diagnostic selected")
+               then Editor.Commands.Availability_Metadata.Unavailable ("No diagnostic selected")
                else Editor.Executor.Diagnostic_Quick_Fix_Action_Availability
                  (S, Selected_Source, Action_Index));
          begin
@@ -414,28 +415,28 @@ package body Editor.Build_UI_Actions is
                return "No diagnostic selected";
             elsif not Selected_Has_Quick_Fix then
                return "Selected diagnostic has no quick fix";
-            elsif not Editor.Commands.Is_Available (Availability) then
-               return Editor.Commands.Unavailable_Reason (Availability);
+            elsif not Editor.Commands.Availability_Metadata.Is_Available (Availability) then
+               return Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability);
             else
                return "";
             end if;
          end Quick_Fix_Action_Unavailable_Reason;
       begin
          Snapshot.Diagnostics_View.Open_Source_Available :=
-           Editor.Commands.Is_Available (Open_Availability);
+           Editor.Commands.Availability_Metadata.Is_Available (Open_Availability);
          Snapshot.Diagnostics_View.Open_Source_Unavailable_Reason :=
            (if Snapshot.Diagnostics_View.Open_Source_Available then
               Null_Unbounded_String
             else To_Unbounded_String
-              (Editor.Commands.Unavailable_Reason (Open_Availability)));
+              (Editor.Commands.Availability_Metadata.Unavailable_Reason (Open_Availability)));
 
          Snapshot.Diagnostics_View.Suppress_Available :=
-           Editor.Commands.Is_Available (Suppress_Availability);
+           Editor.Commands.Availability_Metadata.Is_Available (Suppress_Availability);
          Snapshot.Diagnostics_View.Suppress_Unavailable_Reason :=
            (if Snapshot.Diagnostics_View.Suppress_Available then
               Null_Unbounded_String
             else To_Unbounded_String
-              (Editor.Commands.Unavailable_Reason (Suppress_Availability)));
+              (Editor.Commands.Availability_Metadata.Unavailable_Reason (Suppress_Availability)));
 
          Snapshot.Diagnostics_View.Suppressed_Count_Label :=
            To_Unbounded_String
@@ -443,23 +444,23 @@ package body Editor.Build_UI_Actions is
               & Ada.Strings.Fixed.Trim
                   (Natural'Image (Suppressed_Count), Ada.Strings.Both));
          Snapshot.Diagnostics_View.Show_Suppressed_Available :=
-           Editor.Commands.Is_Available (Show_Suppressed_Availability);
+           Editor.Commands.Availability_Metadata.Is_Available (Show_Suppressed_Availability);
          Snapshot.Diagnostics_View.Show_Suppressed_Unavailable_Reason :=
            (if Snapshot.Diagnostics_View.Show_Suppressed_Available then
               Null_Unbounded_String
             else To_Unbounded_String
-              (Editor.Commands.Unavailable_Reason (Show_Suppressed_Availability)));
+              (Editor.Commands.Availability_Metadata.Unavailable_Reason (Show_Suppressed_Availability)));
          Snapshot.Diagnostics_View.Restore_Suppressed_Available :=
-           Editor.Commands.Is_Available (Restore_Availability);
+           Editor.Commands.Availability_Metadata.Is_Available (Restore_Availability);
          Snapshot.Diagnostics_View.Restore_Suppressed_Unavailable_Reason :=
            (if Snapshot.Diagnostics_View.Restore_Suppressed_Available then
               Null_Unbounded_String
             else To_Unbounded_String
-              (Editor.Commands.Unavailable_Reason (Restore_Availability)));
+              (Editor.Commands.Availability_Metadata.Unavailable_Reason (Restore_Availability)));
 
          Snapshot.Diagnostics_View.Quick_Fix_Available :=
            Selected_Has_Quick_Fix
-           and then Editor.Commands.Is_Available (Quick_Fix_Availability);
+           and then Editor.Commands.Availability_Metadata.Is_Available (Quick_Fix_Availability);
          if Selected_Has_Quick_Fix then
             Snapshot.Diagnostics_View.Quick_Fix_Label :=
               To_Unbounded_String
@@ -486,7 +487,7 @@ package body Editor.Build_UI_Actions is
             elsif not Selected_Has_Quick_Fix then
               To_Unbounded_String ("Selected diagnostic has no quick fix")
             else To_Unbounded_String
-              (Editor.Commands.Unavailable_Reason (Quick_Fix_Availability)));
+              (Editor.Commands.Availability_Metadata.Unavailable_Reason (Quick_Fix_Availability)));
 
          Snapshot.Diagnostics_View.Action_Summary_Label :=
            To_Unbounded_String
@@ -528,16 +529,16 @@ package body Editor.Build_UI_Actions is
              else
                 "Restore selected suppressed diagnostic"),
             Editor.Commands.Command_Diagnostic_Restore_Selected_Suppressed,
-            Editor.Commands.Is_Available (Restore_Selected_Availability),
-            Editor.Commands.Unavailable_Reason (Restore_Selected_Availability));
+            Editor.Commands.Availability_Metadata.Is_Available (Restore_Selected_Availability),
+            Editor.Commands.Availability_Metadata.Unavailable_Reason (Restore_Selected_Availability));
          Append_Action_Row
            ("Clear suppressed diagnostics ("
             & Ada.Strings.Fixed.Trim
                 (Natural'Image (Suppressed_Count), Ada.Strings.Both)
             & ")",
             Editor.Commands.Command_Diagnostic_Clear_Suppressed,
-            Editor.Commands.Is_Available (Clear_Suppressed_Availability),
-            Editor.Commands.Unavailable_Reason (Clear_Suppressed_Availability));
+            Editor.Commands.Availability_Metadata.Is_Available (Clear_Suppressed_Availability),
+            Editor.Commands.Availability_Metadata.Unavailable_Reason (Clear_Suppressed_Availability));
          if Selected_Source > 0
            and then Editor.Feature_Diagnostics.Item_Quick_Fix_Action_Count
              (S.Feature_Diagnostics, Positive (Selected_Source)) > 1

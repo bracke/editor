@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Ada.Strings.Unbounded;
 
 with Editor.Command_Execution;
@@ -31,7 +32,7 @@ package body Editor.Executor.Search_Results_Commands is
    function Search_Results_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability
+      return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin
       case Id is
@@ -40,45 +41,45 @@ package body Editor.Executor.Search_Results_Commands is
             | Command_Search_Results_Query_History_Next
             | Command_Search_Results_Toggle_Case_Sensitive
             | Command_Show_Search_Results_Feature =>
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Search_Results_Search_Active_Buffer =>
             if not Editor.State.Has_Active_Buffer (S)
               or else S.Registry_Token = 0
             then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Feature_Search_Results
                     .Message_Search_Active_Buffer_No_Active_Buffer);
             elsif Editor.Feature_Search_Results.Search_Input_Text
               (S.Feature_Search_Results)'Length = 0
               and then Length (S.Active_Find_Query) = 0
             then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Feature_Search_Results
                     .Message_Search_Active_Buffer_Empty_Query);
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Search_Results_Repeat_Active_Buffer =>
             if not Editor.Feature_Search_Results.Has_Query
               (S.Feature_Search_Results)
             then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Feature_Search_Results.Message_Search_Repeat_No_Query);
             elsif not Editor.State.Has_Active_Buffer (S)
               or else S.Registry_Token = 0
             then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Feature_Search_Results
                     .Message_Search_Active_Buffer_No_Active_Buffer);
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Clear_Search_Results_Feature =>
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when others =>
-            return Editor.Commands.Unavailable
+            return Editor.Commands.Availability_Metadata.Unavailable
               ("Command is not a search-results command");
       end case;
    end Search_Results_Command_Availability;

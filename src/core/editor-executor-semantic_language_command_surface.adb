@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with Editor.Ada_Language_Service;
@@ -29,7 +30,7 @@ package body Editor.Executor.Semantic_Language_Command_Surface is
    function Selected_Language_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability
+      return Editor.Commands.Availability_Metadata.Command_Availability
    is
       Symbol  : constant Editor.Executor.Semantic_Symbol_Selection
         .Selected_Semantic_Symbol :=
@@ -43,7 +44,7 @@ package body Editor.Executor.Semantic_Language_Command_Surface is
       Name    : constant String := To_String (Symbol.Name);
    begin
       if not Symbol.Available then
-         return Editor.Commands.Unavailable
+         return Editor.Commands.Availability_Metadata.Unavailable
            ("No semantic symbol at cursor or Outline selection.");
       end if;
 
@@ -62,7 +63,7 @@ package body Editor.Executor.Semantic_Language_Command_Surface is
                 (S, Id, Service, Name);
 
          when others =>
-            return Editor.Commands.Unavailable
+            return Editor.Commands.Availability_Metadata.Unavailable
               ("Unsupported language command.");
       end case;
    end Selected_Language_Command_Availability;

@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Ada.Containers;
 use type Ada.Containers.Count_Type;
 with Ada.Directories;
@@ -46,7 +47,7 @@ package body Editor.Executor.Command_Surface_Commands is
    function Command_Surface_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability
+      return Editor.Commands.Availability_Metadata.Command_Availability
    is
       function Has_Buffer return Boolean is
       begin
@@ -70,31 +71,31 @@ package body Editor.Executor.Command_Surface_Commands is
             | Command_Goto_Line_Toggle
             | Command_Open_Command_Palette
             | Command_Cancel =>
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Goto_Line_Prefill_Current =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer.");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
             elsif S.Carets.Length = 0
               or else Editor.State.Line_Count (S) = 0
             then
-               return Editor.Commands.Unavailable ("No current caret location");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No current caret location");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Open_Quick_Open =>
             if not Has_Project then
-               return Editor.Commands.Unavailable ("No project open.");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No project open.");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Toggle_Quick_Open =>
             if not Has_Project
               and then not Editor.Quick_Open.Is_Open (S.Quick_Open)
             then
-               return Editor.Commands.Unavailable ("No project open.");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No project open.");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Quick_Open_Reveal_Active
             | Command_Quick_Open_Scope_Active_Directory
@@ -123,36 +124,36 @@ package body Editor.Executor.Command_Surface_Commands is
             if not Active_Overlay_Is (Editor.Overlay_Focus.Go_To_Line_Overlay)
               or else not Editor.Go_To_Line.Is_Open (S.Go_To_Line)
             then
-               return Editor.Commands.Unavailable ("No active overlay");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Goto_Line_Query_Clear =>
             if not Active_Overlay_Is (Editor.Overlay_Focus.Go_To_Line_Overlay)
               or else not Editor.Go_To_Line.Is_Open (S.Go_To_Line)
             then
-               return Editor.Commands.Unavailable ("No active overlay");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif Ada.Strings.Fixed.Trim
               (Editor.Go_To_Line.Text (S.Go_To_Line),
                Ada.Strings.Both)'Length = 0
               and then not Editor.Go_To_Line.Has_Error (S.Go_To_Line)
             then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  ("No go-to-line query to clear");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Close_Goto_Line
             | Command_Accept_Goto_Line =>
             if not Active_Overlay_Is (Editor.Overlay_Focus.Go_To_Line_Overlay)
               or else not Editor.Go_To_Line.Is_Open (S.Go_To_Line)
             then
-               return Editor.Commands.Unavailable ("No active overlay");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when others =>
-            return Editor.Commands.Unavailable
+            return Editor.Commands.Availability_Metadata.Unavailable
               ("Command is not a command-surface command");
       end case;
    end Command_Surface_Command_Availability;

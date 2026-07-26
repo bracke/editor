@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Ada.Containers;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Strings;
@@ -212,7 +213,7 @@ package body Editor.Executor.Semantic_Service_Commands is
       Id      : Editor.Commands.Command_Id;
       Service : in out Editor.Ada_Language_Service.Service_State;
       Name    : String)
-      return Editor.Commands.Command_Availability
+      return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin
       case Id is
@@ -222,9 +223,9 @@ package body Editor.Executor.Semantic_Service_Commands is
                  Semantic_Find_References (S, Service, Name);
             begin
                if Result.Status = Editor.Ada_Language_Service.Service_Success then
-                  return Editor.Commands.Available;
+                  return Editor.Commands.Availability_Metadata.Available;
                end if;
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  ("References unavailable for " & Name & ": " &
                   Service_Status_Image (Result.Status) & ".");
             end;
@@ -235,9 +236,9 @@ package body Editor.Executor.Semantic_Service_Commands is
                  Semantic_Workspace_Symbols (Service, Name);
             begin
                if Result.Status = Editor.Ada_Language_Service.Service_Success then
-                  return Editor.Commands.Available;
+                  return Editor.Commands.Availability_Metadata.Available;
                end if;
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  ("Workspace symbols unavailable for " & Name & ": " &
                   Service_Status_Image (Result.Status) & ".");
             end;
@@ -248,9 +249,9 @@ package body Editor.Executor.Semantic_Service_Commands is
                  Semantic_Hover (S, Service, Name);
             begin
                if Result.Status = Editor.Ada_Language_Service.Service_Success then
-                  return Editor.Commands.Available;
+                  return Editor.Commands.Availability_Metadata.Available;
                end if;
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  ("Hover unavailable for " & Name & ": " &
                   Service_Status_Image (Result.Status) & ".");
             end;
@@ -261,15 +262,15 @@ package body Editor.Executor.Semantic_Service_Commands is
                  Semantic_Complete (S, Service, Name, 20);
             begin
                if Result.Status = Editor.Ada_Language_Service.Service_Success then
-                  return Editor.Commands.Available;
+                  return Editor.Commands.Availability_Metadata.Available;
                end if;
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  ("Completions unavailable for " & Name & ": " &
                   Service_Status_Image (Result.Status) & ".");
             end;
 
          when others =>
-            return Editor.Commands.Unavailable
+            return Editor.Commands.Availability_Metadata.Unavailable
               ("Unsupported semantic service command.");
       end case;
    end Semantic_Service_Command_Availability;

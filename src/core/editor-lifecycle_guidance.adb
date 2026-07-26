@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Classification;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -24,7 +25,7 @@ package body Editor.Lifecycle_Guidance is
       Id : Editor.Commands.Command_Id) return Boolean
    is
    begin
-      return Editor.Commands.Is_Available
+      return Editor.Commands.Availability_Metadata.Is_Available
         (Editor.Executor.Command_Availability (S, Id));
    end Available;
 

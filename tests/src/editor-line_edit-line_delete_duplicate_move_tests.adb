@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Classification;
 with Editor.Commands.Payloads;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
@@ -39,7 +40,7 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
    use type Editor.Commands.Command_Id;
    use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Commands.Descriptors.Command_Visibility;
-   use type Editor.Commands.Command_Availability_Status;
+   use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
    use type Editor.Commands.Command_Kind;
    use type Editor.Keybindings.Keybinding_Validation_Status;
    use type Editor.Buffers.Buffer_Id;
@@ -1612,7 +1613,7 @@ procedure Test_Line_Comment_Command_Descriptors
       Desc  : Editor.Commands.Descriptors.Command_Descriptor;
       Cmd   : Editor.Commands.Payloads.Command;
       S     : Editor.State.State_Type;
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
       Before_Text  : Unbounded_String;
       Before_Caret : Cursor_Index := 0;
       Before_Undo  : Natural := 0;

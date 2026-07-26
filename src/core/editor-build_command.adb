@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Directories;
 with Ada.Strings.Fixed;
@@ -60,7 +61,7 @@ package body Editor.Build_Command is
      renames Editor.Build_Command.Readiness.Build_Run_Recovery_Hint;
 
    function Build_Run_Availability
-     (State : Editor.State.State_Type) return Editor.Commands.Command_Availability
+     (State : Editor.State.State_Type) return Editor.Commands.Availability_Metadata.Command_Availability
      renames Editor.Build_Command.Readiness.Build_Run_Availability;
 
    function Has_Active_Public_Build_Job
@@ -68,7 +69,7 @@ package body Editor.Build_Command is
      renames Editor.Build_Command.Readiness.Has_Active_Public_Build_Job;
 
    function Build_Cancel_Availability
-     (State : Editor.State.State_Type) return Editor.Commands.Command_Availability
+     (State : Editor.State.State_Type) return Editor.Commands.Availability_Metadata.Command_Availability
      renames Editor.Build_Command.Readiness.Build_Cancel_Availability;
 
    procedure Begin_Public_Build_Job

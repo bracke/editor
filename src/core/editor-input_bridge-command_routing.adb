@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Editor.Focus_Management;
 with Editor.Executor;
@@ -47,11 +48,11 @@ package body Editor.Input_Bridge.Command_Routing is
       Id     : Editor.Commands.Command_Id;
       Report : not null access procedure (Message : String)) return Boolean
    is
-      Availability : constant Editor.Commands.Command_Availability :=
+      Availability : constant Editor.Commands.Availability_Metadata.Command_Availability :=
         Editor.Executor.Command_Availability (S, Id);
    begin
-      if not Editor.Commands.Is_Available (Availability) then
-         Report (Editor.Commands.Unavailable_Reason (Availability));
+      if not Editor.Commands.Availability_Metadata.Is_Available (Availability) then
+         Report (Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability));
          Editor.Render_Cache.Invalidate_All;
          return True;
       end if;
@@ -68,11 +69,11 @@ package body Editor.Input_Bridge.Command_Routing is
         (if Id = Editor.Commands.Command_Rename_Symbol_Apply
          then Editor.Commands.Command_Rename_Symbol_Preview
          else Id);
-      Availability : constant Editor.Commands.Command_Availability :=
+      Availability : constant Editor.Commands.Availability_Metadata.Command_Availability :=
         Editor.Executor.Command_Availability (S, Availability_Id);
    begin
-      if not Editor.Commands.Is_Available (Availability) then
-         Report (Editor.Commands.Unavailable_Reason (Availability));
+      if not Editor.Commands.Availability_Metadata.Is_Available (Availability) then
+         Report (Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability));
          Editor.Render_Cache.Invalidate_All;
          return True;
       end if;

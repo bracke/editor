@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -327,14 +328,14 @@ package body Editor.Build_Execution_Workflow is
          return False;
       end if;
 
-      if Editor.Commands.Is_Available
+      if Editor.Commands.Availability_Metadata.Is_Available
         (Editor.Build_Command.Build_Cancel_Availability (Copy))
       then
          return False;
       end if;
 
       Editor.Build_Command.Begin_Public_Build_Job (Copy, "audit");
-      return Editor.Commands.Is_Available
+      return Editor.Commands.Availability_Metadata.Is_Available
           (Editor.Build_Command.Build_Cancel_Availability (Copy))
         and then Editor.Build_Command.Assert_Build_Cancel_Command_Descriptor_Stable
         and then Editor.Build_Command.Assert_Build_Cancel_Requires_Active_Job

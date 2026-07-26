@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -37,7 +38,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
    use type Editor.Commands.Command_Id;
    use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Commands.Descriptors.Command_Visibility;
-   use type Editor.Commands.Command_Availability_Status;
+   use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
    use type Editor.Commands.Command_Kind;
    use type Editor.Keybindings.Keybinding_Validation_Status;
    use type Editor.Buffers.Buffer_Id;

@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
@@ -65,26 +66,26 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
    end Active_Buffer_Switcher_Overlay;
 
    function Selected_Open_Buffer_Availability
-     (S : Editor.State.State_Type) return Editor.Commands.Command_Availability
+     (S : Editor.State.State_Type) return Editor.Commands.Availability_Metadata.Command_Availability
    is
       Found : Boolean := False;
       Row   : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
    begin
       if not Active_Buffer_Switcher_Overlay (S) then
-         return Editor.Commands.Unavailable ("No active overlay");
+         return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
       end if;
 
       Row := Editor.Executor.Buffer_Switcher_Shared.Selected_Switcher_Buffer
         (S, Found);
       if not Found then
-         return Editor.Commands.Unavailable ("No buffer selected");
+         return Editor.Commands.Availability_Metadata.Unavailable ("No buffer selected");
       elsif Row.Id = Editor.Buffers.No_Buffer then
-         return Editor.Commands.Unavailable ("Selected row is not a buffer");
+         return Editor.Commands.Availability_Metadata.Unavailable ("Selected row is not a buffer");
       elsif not Editor.Buffers.Global_Contains (Row.Id) then
-         return Editor.Commands.Unavailable ("Selected buffer is no longer open");
+         return Editor.Commands.Availability_Metadata.Unavailable ("Selected buffer is no longer open");
       end if;
 
-      return Editor.Commands.Available;
+      return Editor.Commands.Availability_Metadata.Available;
    end Selected_Open_Buffer_Availability;
 
    function Has_Marked_Open_Buffers
@@ -98,7 +99,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
    function Buffer_Switcher_Mark_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability
+      return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin
       case Id is
@@ -119,117 +120,117 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
             | Editor.Commands.Command_Buffer_Switcher_Mark_Note_Set
             | Editor.Commands.Command_Buffer_Switcher_Mark_Note_Clear =>
             if not Active_Buffer_Switcher_Overlay (S) then
-               return Editor.Commands.Unavailable ("No active overlay");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif not Has_Marked_Open_Buffers (S) then
-               return Editor.Commands.Unavailable ("No marked buffers");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No marked buffers");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Buffer_Switcher_Mark_Review_Toggle
             | Editor.Commands.Command_Buffer_Switcher_Mark_Review_Show
             | Editor.Commands.Command_Buffer_Switcher_Mark_Review_Hide
             | Editor.Commands.Command_Buffer_Switcher_Mark_Summary =>
             if not Active_Buffer_Switcher_Overlay (S) then
-               return Editor.Commands.Unavailable ("No active overlay");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Buffer_Switcher_Mark_Confirm =>
             if Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) =
               Editor.Buffer_Switcher.Reviews.No_Pending_Marked_Action
             then
-               return Editor.Commands.Unavailable ("No pending marked action");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No pending marked action");
             elsif Editor.Buffer_Switcher.Pending_Marked_Open_Count
               (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI) = 0
             then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  ("No pending marked buffers remain open");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Buffer_Switcher_Mark_Cancel =>
             if Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) =
               Editor.Buffer_Switcher.Reviews.No_Pending_Marked_Action
             then
-               return Editor.Commands.Unavailable ("No pending marked action");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No pending marked action");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Buffer_Switcher_Mark_Next
             | Editor.Commands.Command_Buffer_Switcher_Mark_Previous =>
             if not Active_Buffer_Switcher_Overlay (S) then
-               return Editor.Commands.Unavailable ("No active overlay");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) = 0 then
-               return Editor.Commands.Unavailable ("No marked buffers");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No marked buffers");
             end if;
             for I in 1 .. Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) loop
                if Editor.Buffer_Switcher.Row_At (S.Buffer_Switcher, I).Is_Marked
                then
-                  return Editor.Commands.Available;
+                  return Editor.Commands.Availability_Metadata.Available;
                end if;
             end loop;
-            return Editor.Commands.Unavailable ("No marked buffers");
+            return Editor.Commands.Availability_Metadata.Unavailable ("No marked buffers");
 
          when Editor.Commands.Command_Buffer_Switcher_Mark_Invert_Visible
             | Editor.Commands.Command_Buffer_Switcher_Mark_Visible =>
             if not Active_Buffer_Switcher_Overlay (S) then
-               return Editor.Commands.Unavailable ("No active overlay");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) = 0 then
-               return Editor.Commands.Unavailable ("No visible buffers");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No visible buffers");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Buffer_Switcher_Mark_Clear_Visible =>
             if not Active_Buffer_Switcher_Overlay (S) then
-               return Editor.Commands.Unavailable ("No active overlay");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) = 0 then
-               return Editor.Commands.Unavailable ("No visible buffers");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No visible buffers");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Buffer_Switcher_Mark_Pinned =>
             if not Active_Buffer_Switcher_Overlay (S) then
-               return Editor.Commands.Unavailable ("No active overlay");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             end if;
             for I in 1 .. Editor.Buffers.Global_Count loop
                if Editor.Buffers.Global_Summary_At (I).Is_Pinned then
-                  return Editor.Commands.Available;
+                  return Editor.Commands.Availability_Metadata.Available;
                end if;
             end loop;
-            return Editor.Commands.Unavailable ("No pinned buffers");
+            return Editor.Commands.Availability_Metadata.Unavailable ("No pinned buffers");
 
          when Editor.Commands.Command_Buffer_Switcher_Mark_Group =>
             if not Active_Buffer_Switcher_Overlay (S) then
-               return Editor.Commands.Unavailable ("No active overlay");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif not Editor.Buffers.Global_Has_Buffer_Groups then
-               return Editor.Commands.Unavailable ("No buffer groups");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No buffer groups");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Buffer_Switcher_Mark_Label =>
             if not Active_Buffer_Switcher_Overlay (S) then
-               return Editor.Commands.Unavailable ("No active overlay");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             end if;
             for I in 1 .. Editor.Buffers.Global_Count loop
                if Editor.Buffers.Global_Summary_At (I).Has_Label then
-                  return Editor.Commands.Available;
+                  return Editor.Commands.Availability_Metadata.Available;
                end if;
             end loop;
-            return Editor.Commands.Unavailable ("No buffer labels");
+            return Editor.Commands.Availability_Metadata.Unavailable ("No buffer labels");
 
          when Editor.Commands.Command_Buffer_Switcher_Mark_Noted =>
             if not Active_Buffer_Switcher_Overlay (S) then
-               return Editor.Commands.Unavailable ("No active overlay");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             end if;
             for I in 1 .. Editor.Buffers.Global_Count loop
                if Editor.Buffers.Global_Summary_At (I).Has_Note then
-                  return Editor.Commands.Available;
+                  return Editor.Commands.Availability_Metadata.Available;
                end if;
             end loop;
-            return Editor.Commands.Unavailable ("No noted buffers");
+            return Editor.Commands.Availability_Metadata.Unavailable ("No noted buffers");
 
          when others =>
-            return Editor.Commands.Unavailable
+            return Editor.Commands.Availability_Metadata.Unavailable
               ("Not a buffer switcher mark command");
       end case;
    end Buffer_Switcher_Mark_Command_Availability;

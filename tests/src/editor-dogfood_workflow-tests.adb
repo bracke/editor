@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
@@ -68,7 +69,7 @@ package body Editor.Dogfood_Workflow.Tests is
    use type Editor.Build_Command.Build_Run_Readiness_Status;
    use type Editor.Build_UI.Public_Build_UI_Validation_Status;
    use type Editor.Command_Execution.Command_Execution_Status;
-   use type Editor.Commands.Command_Availability_Status;
+   use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
    use type Editor.Commands.Command_Id;
    use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Ada_Language_Service.Compiler_Diagnostic_Severity;
@@ -496,11 +497,11 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Feature_Diagnostics.Project_Rows
         (S.Feature_Diagnostics, S.Feature_Panel);
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, Diagnostic_Row);
-      Assert (not Editor.Commands.Is_Available
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available
                 (Editor.Executor.Command_Availability
                    (S, Editor.Commands.Command_Diagnostics_Open_Selected)),
               "stale diagnostic row cannot be opened after adjacent File Tree rename");
-      Assert (Editor.Commands.Unavailable_Reason
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason
                 (Editor.Executor.Command_Availability
                    (S, Editor.Commands.Command_Diagnostics_Open_Selected)) =
               Editor.Commands.Workflow_Messages.Reason_Target_Stale,
@@ -734,7 +735,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (S.Build_UI.Consent_Acknowledged,
               "build consent is explicitly acknowledged");
       Assert (Editor.Build_Command.Build_Run_Availability (S).Status =
-                Editor.Commands.Command_Available,
+                Editor.Commands.Availability_Metadata.Command_Available,
               "build.run is available once project, candidate, policy, and consent agree");
 
       Supplied_Process := Editor.External_Producers.Build_Requests.Build_Process_Run_Result
@@ -2191,7 +2192,7 @@ package body Editor.Dogfood_Workflow.Tests is
                 ("Reload canceled") =
               "Reload cancelled.",
               "File reload cancellation spelling is normalized");
-      Assert (Editor.Commands.Unavailable_Reason
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason
                 (Editor.Executor.Command_Availability
                    (S, Editor.Commands.Command_Open_Quick_Open)) =
               "No project open.",

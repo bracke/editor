@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands;
 with Editor.State;
 
@@ -6,7 +7,7 @@ package Editor.Executor.Find_Replace_Commands is
    function Find_Replace_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability;
+      return Editor.Commands.Availability_Metadata.Command_Availability;
 
    function Has_Find_Target_Buffer
      (S : Editor.State.State_Type) return Boolean;

@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Containers; use type Ada.Containers.Count_Type;
@@ -63,7 +64,7 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
       S        : Editor.State.State_Type;
       Analysis : LM.Analysis_Result;
       Ignored  : LM.Symbol_Id;
-      Avail    : Editor.Commands.Command_Availability;
+      Avail    : Editor.Commands.Availability_Metadata.Command_Availability;
       Result   : Editor.Executor.Command_Execution_Result;
    begin
       Init_Executor_Test_State (S);
@@ -108,7 +109,7 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Find_References);
-      Assert (Editor.Commands.Is_Available (Avail),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "semantic find references is available when the index can answer");
       Assert (Editor.Ada_Language_Service.Active_Semantic_Request
                 (S.Language_Service).Status =
@@ -158,7 +159,7 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
       Analysis : LM.Analysis_Result;
       Other    : LM.Analysis_Result;
       Ignored  : LM.Symbol_Id;
-      Avail    : Editor.Commands.Command_Availability;
+      Avail    : Editor.Commands.Availability_Metadata.Command_Availability;
       Result   : Editor.Executor.Command_Execution_Result;
    begin
       Init_Executor_Test_State (S);
@@ -209,7 +210,7 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Workspace_Symbols);
-      Assert (Editor.Commands.Is_Available (Avail),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "semantic workspace symbols are available when the index can answer");
       Assert (Editor.Ada_Language_Service.Active_Semantic_Request
                 (S.Language_Service).Status =
@@ -253,7 +254,7 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
       S        : Editor.State.State_Type;
       Analysis : LM.Analysis_Result;
       Ignored  : LM.Symbol_Id;
-      Avail    : Editor.Commands.Command_Availability;
+      Avail    : Editor.Commands.Availability_Metadata.Command_Availability;
       Result   : Editor.Executor.Command_Execution_Result;
       Snapshot : Editor.Render_Model.Render_Snapshot;
    begin
@@ -296,7 +297,7 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Show_Completions);
-      Assert (Editor.Commands.Is_Available (Avail),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "semantic completions are available when the index can answer");
 
       Result := Editor.Executor.Execute_Command_With_Result
@@ -391,7 +392,7 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
       S        : Editor.State.State_Type;
       Analysis : LM.Analysis_Result;
       Ignored  : LM.Symbol_Id;
-      Avail    : Editor.Commands.Command_Availability;
+      Avail    : Editor.Commands.Availability_Metadata.Command_Availability;
       Result   : Editor.Executor.Command_Execution_Result;
       Snapshot : Editor.Render_Model.Render_Snapshot;
    begin
@@ -424,7 +425,7 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Show_Hover);
-      Assert (Editor.Commands.Is_Available (Avail),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "semantic hover is available when the index can answer");
 
       Result := Editor.Executor.Execute_Command_With_Result

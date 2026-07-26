@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Fixed;
@@ -689,7 +690,7 @@ package body Editor.Build_Result_Summary.Tests is
                 (State.Latest_Build_Result),
               "render boundary remains side-effect-free");
       declare
-         Availability : constant Editor.Commands.Command_Availability :=
+         Availability : constant Editor.Commands.Availability_Metadata.Command_Availability :=
            Editor.Build_Command.Build_Run_Availability (State);
          pragma Unreferenced (Availability);
       begin

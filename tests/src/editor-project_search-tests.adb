@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Classification;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
@@ -36,7 +37,7 @@ package body Editor.Project_Search.Tests is
    use type Editor.Project_Search.Project_Replace_Preview_Status;
    use type Editor.Buffers.Buffer_Id;
    use type Editor.Search_Results.Search_Results_Row_Kind;
-   use type Editor.Commands.Command_Availability_Status;
+   use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
    use type Editor.Commands.Command_Id;
    use type Editor.Commands.Descriptors.Command_Visibility;
 
@@ -2492,7 +2493,7 @@ package body Editor.Project_Search.Tests is
       S       : Editor.State.State_Type;
       Opened  : Editor.Project.Project_Open_Result;
       Options : constant Editor.Project_Search.Project_Search_Options := (others => <>);
-      A       : Editor.Commands.Command_Availability;
+      A       : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Build_Fixture (Root);
       Editor.State.Init (S);
@@ -2509,31 +2510,31 @@ package body Editor.Project_Search.Tests is
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Open_Selected_Project_Search_Result);
-      Assert (A.Status = Editor.Commands.Command_Available,
+      Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "fresh selected project search result should be activatable");
 
       Editor.Project_Search.Mark_Stale (S.Project_Search);
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Open_Selected_Project_Search_Result);
-      Assert (A.Status = Editor.Commands.Command_Unavailable,
+      Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
               "stale project search results must not activate silently");
-      Assert (Editor.Commands.Unavailable_Reason (A) =
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) =
                 Editor.Commands.Workflow_Messages.Reason_Target_Stale,
               "stale activation should explain the stale result boundary");
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_First_Project_Search_Result);
-      Assert (A.Status = Editor.Commands.Command_Unavailable,
+      Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
               "stale Project Search rows must not be reselection targets");
-      Assert (Editor.Commands.Unavailable_Reason (A) =
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) =
                 Editor.Commands.Workflow_Messages.Reason_Target_Stale,
               "stale reselection should share the stale boundary reason");
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Project_Search_Scope_Selected_Directory);
-      Assert (A.Status = Editor.Commands.Command_Unavailable,
+      Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
               "stale Project Search rows must not seed a scope payload");
-      Assert (Editor.Commands.Unavailable_Reason (A) =
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) =
                 Editor.Commands.Workflow_Messages.Reason_Target_Stale,
               "stale scope derivation should share the stale boundary reason");
 
@@ -2957,7 +2958,7 @@ package body Editor.Project_Search.Tests is
       S       : Editor.State.State_Type;
       Opened  : Editor.Project.Project_Open_Result;
       Options : constant Editor.Project_Search.Project_Search_Options := (others => <>);
-      A       : Editor.Commands.Command_Availability;
+      A       : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Build_Fixture (Root);
       Editor.State.Init (S);
@@ -2978,18 +2979,18 @@ package body Editor.Project_Search.Tests is
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Next_Project_Search_Result);
-      Assert (A.Status = Editor.Commands.Command_Available,
+      Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "next-result command should be available when results exist even if none is selected");
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Previous_Project_Search_Result);
-      Assert (A.Status = Editor.Commands.Command_Available,
+      Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "previous-result command should be available when results exist even if none is selected");
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Open_Selected_Project_Search_Result);
-      Assert (A.Status = Editor.Commands.Command_Unavailable
-              and then Editor.Commands.Unavailable_Reason (A) = "No search result selected.",
+      Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Unavailable
+              and then Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "No search result selected.",
               "open-selected result should still require an actual selected result");
 
       Editor.Executor.Execute_Command

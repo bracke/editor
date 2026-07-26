@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Executor.Command_Palette_Projection;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -602,10 +603,10 @@ package body Editor.Executor.UI_Tests is
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id) return String
    is
-      A : constant Editor.Commands.Command_Availability :=
+      A : constant Editor.Commands.Availability_Metadata.Command_Availability :=
         Editor.Executor.Command_Availability (S, Id);
    begin
-      return Editor.Commands.Unavailable_Reason (A);
+      return Editor.Commands.Availability_Metadata.Unavailable_Reason (A);
    end Availability_Reason;
 
    procedure Assert_Unavailable_Reason
@@ -614,13 +615,13 @@ package body Editor.Executor.UI_Tests is
       Expected : String;
       Label    : String)
    is
-      A : constant Editor.Commands.Command_Availability :=
+      A : constant Editor.Commands.Availability_Metadata.Command_Availability :=
         Editor.Executor.Command_Availability (S, Id);
    begin
-      Assert (not Editor.Commands.Is_Available (A), Label & " must be unavailable");
-      Assert (Editor.Commands.Unavailable_Reason (A) = Expected,
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (A), Label & " must be unavailable");
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = Expected,
               Label & " reason expected '" & Expected & "' but got '" &
-              Editor.Commands.Unavailable_Reason (A) & "'");
+              Editor.Commands.Availability_Metadata.Unavailable_Reason (A) & "'");
    end Assert_Unavailable_Reason;
 
    procedure Test_Common_Availability_Reasons
@@ -707,7 +708,7 @@ package body Editor.Executor.UI_Tests is
       Before_Messages : Natural;
       Before_Feature_Rows : Natural;
       Before_File_Tree_Rows : Natural;
-      A : Editor.Commands.Command_Availability;
+      A : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Init_Executor_Test_State (S);
       Editor.State.Load_Text (S, "one" & Character'Val (10) & "two");
@@ -718,19 +719,19 @@ package body Editor.Executor.UI_Tests is
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Refresh_Outline);
-      Assert (Editor.Commands.Is_Available (A),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "refresh outline should be available with an active buffer");
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Search_Results_Search_Active_Buffer);
-      Assert (not Editor.Commands.Is_Available (A),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "search active buffer without query remains unavailable");
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Diagnostics_Open_Selected);
-      Assert (not Editor.Commands.Is_Available (A),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "diagnostics open selected remains unavailable without diagnostics");
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Diagnostics_Execute_Selected_Action);
-      Assert (not Editor.Commands.Is_Available (A),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "diagnostics selected action remains unavailable without diagnostics");
 
       Assert (Editor.State.Current_Text (S) = To_String (Before_Text),

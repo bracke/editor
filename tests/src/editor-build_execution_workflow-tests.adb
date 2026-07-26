@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with Ada.Directories;
@@ -920,14 +921,14 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("build.cancel", Found);
       Assert (Found and then Id = Editor.Commands.Command_Build_Cancel,
               "build.cancel is advertised once the active build-job model exists");
-      Assert (not Editor.Commands.Is_Available
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available
                 (Editor.Build_Command.Build_Cancel_Availability (S)),
               "build.cancel is unavailable without an active build job");
       Assert (Editor.Build_Execution_Workflow.Assert_Build_Cancel_Advertised_With_Active_Job_Model (S),
               "workflow coherence accepts build.cancel only with active job state");
       Editor.Build_Command.Begin_Public_Build_Job (S, "test build");
       Editor.Build_Command.Register_Public_Build_Test_Process (S);
-      Assert (Editor.Commands.Is_Available
+      Assert (Editor.Commands.Availability_Metadata.Is_Available
                 (Editor.Build_Command.Build_Cancel_Availability (S)),
               "build.cancel becomes available while a cancellable public build job is active");
       Result := Editor.Build_Command.Request_Public_Build_Cancel (S);
@@ -1081,8 +1082,8 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
            Stderr_Text => To_Unbounded_String ("err"),
            Exit_Code => 1,
            Has_Exit_Code => True);
-      First_Availability : Editor.Commands.Command_Availability;
-      Second_Availability : Editor.Commands.Command_Availability;
+      First_Availability : Editor.Commands.Availability_Metadata.Command_Availability;
+      Second_Availability : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       S.Latest_Build_Result := Before_Result;
       S.Latest_Build_Output_Details := Before_Output;
@@ -1090,8 +1091,8 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       First_Availability := Editor.Build_Command.Build_Run_Availability (S);
       Second_Availability := Editor.Build_Command.Build_Run_Availability (S);
 
-      Assert (Editor.Commands.Is_Available (First_Availability) =
-                Editor.Commands.Is_Available (Second_Availability),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (First_Availability) =
+                Editor.Commands.Availability_Metadata.Is_Available (Second_Availability),
               "build.run availability is stable across repeated checks");
       Assert (S.Latest_Build_Result.Has_Result
               and then To_String (S.Latest_Build_Result.Primary_Message) =

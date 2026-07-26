@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -616,7 +617,7 @@ package body Editor.Files.Save_Reload_Tests is
       pragma Unreferenced (T);
       S            : Editor.State.State_Type;
       Path         : constant String := Temp_Path ("pending_blocks_save_all.txt");
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
       Found        : Boolean := False;
       M            : Editor.Messages.Editor_Message;
    begin
@@ -633,25 +634,25 @@ package body Editor.Files.Save_Reload_Tests is
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Save_File);
-      Assert (not Editor.Commands.Is_Available (Availability),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "file-lifecycle confirmation should not advertise Save Current");
-      Assert (Editor.Commands.Unavailable_Reason (Availability) =
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability) =
         "Command unavailable while confirmation is pending.",
         "Save Current unavailable reason should match pending confirmation policy");
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Save_File_As);
-      Assert (not Editor.Commands.Is_Available (Availability),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "file-lifecycle confirmation should not advertise Save As");
-      Assert (Editor.Commands.Unavailable_Reason (Availability) =
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability) =
         "Command unavailable while confirmation is pending.",
         "Save As unavailable reason should match pending confirmation policy");
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Save_All);
-      Assert (not Editor.Commands.Is_Available (Availability),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "file-lifecycle confirmation should not advertise Save All");
-      Assert (Editor.Commands.Unavailable_Reason (Availability) =
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability) =
         "Command unavailable while confirmation is pending.",
         "Save All unavailable reason should match pending confirmation policy");
 
@@ -708,7 +709,7 @@ package body Editor.Files.Save_Reload_Tests is
       S            : Editor.State.State_Type;
       Path         : constant String := Temp_Path ("pending_blocks_target_routes.txt");
       Active_Id    : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
       Blocked      : constant Command_List :=
         (Editor.Commands.Command_Open_File,
          Editor.Commands.Command_Accept_Quick_Open,
@@ -743,10 +744,10 @@ package body Editor.Files.Save_Reload_Tests is
 
       for Command of Blocked loop
          Availability := Editor.Executor.Command_Availability (S, Command);
-         Assert (not Editor.Commands.Is_Available (Availability),
+         Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
            "lifecycle confirmation should hide target-changing command "
            & Editor.Commands.Name_Metadata.Stable_Command_Name (Command));
-         Assert (Editor.Commands.Unavailable_Reason (Availability) =
+         Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability) =
            "Command unavailable while confirmation is pending.",
            "target-changing command should use pending-confirmation reason");
       end loop;
@@ -775,7 +776,7 @@ package body Editor.Files.Save_Reload_Tests is
       type Command_List is array (Positive range <>) of Editor.Commands.Command_Id;
       S            : Editor.State.State_Type;
       Path         : constant String := Temp_Path ("pending_blocks_text_mutations.txt");
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
       Found        : Boolean := False;
       M            : Editor.Messages.Editor_Message;
       Blocked      : constant Command_List :=
@@ -818,10 +819,10 @@ package body Editor.Files.Save_Reload_Tests is
 
       for Command of Blocked loop
          Availability := Editor.Executor.Command_Availability (S, Command);
-         Assert (not Editor.Commands.Is_Available (Availability),
+         Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
            "lifecycle confirmation should hide text mutation command "
            & Editor.Commands.Name_Metadata.Stable_Command_Name (Command));
-         Assert (Editor.Commands.Unavailable_Reason (Availability) =
+         Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability) =
            "Command unavailable while confirmation is pending.",
            "text mutation command should use pending-confirmation reason");
       end loop;
@@ -1607,7 +1608,7 @@ package body Editor.Files.Save_Reload_Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "unsaved untitled");
@@ -1616,9 +1617,9 @@ package body Editor.Files.Save_Reload_Tests is
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Save_File);
 
-      Assert (not Editor.Commands.Is_Available (Availability),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "Save command should be unavailable for an untitled buffer");
-      Assert (Editor.Commands.Unavailable_Reason (Availability) = "No file path for active buffer",
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability) = "No file path for active buffer",
         "Save unavailable reason for untitled buffers should be deterministic");
    end Test_Save_Availability_Rejects_Untitled;
 
@@ -1627,7 +1628,7 @@ package body Editor.Files.Save_Reload_Tests is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
       Path : constant String := Temp_Path ("save_availability.txt");
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Remove_If_Exists (Path);
       Editor.State.Init (S);
@@ -1640,7 +1641,7 @@ package body Editor.Files.Save_Reload_Tests is
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Save_File);
 
-      Assert (Editor.Commands.Is_Available (Availability),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "Save command should be available for a file-backed buffer");
    end Test_Save_Availability_Allows_File_Backed_Buffer;
 

@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded;
 
@@ -24,7 +25,7 @@ package Editor.Executor.Clipboard is
 
    function Copy_Cut_Availability
      (S : Editor.State.State_Type)
-      return Editor.Commands.Command_Availability;
+      return Editor.Commands.Availability_Metadata.Command_Availability;
 
    function Last_Status return Clipboard_Execution_Status;
 

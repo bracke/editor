@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Characters.Handling;
@@ -159,7 +160,7 @@ package body Editor.Executor.Command_Palette_Projection is
 
          if Score > 0 then
             declare
-               A : constant Editor.Commands.Command_Availability :=
+               A : constant Editor.Commands.Availability_Metadata.Command_Availability :=
                  Editor.Executor.Availability.Command_Availability (S, D.Id);
             begin
                declare
@@ -174,7 +175,7 @@ package body Editor.Executor.Command_Palette_Projection is
                         Category           => D.Category,
                         Category_Label     => To_Unbounded_String
                           (Editor.Commands.Descriptors.Discoverability_Category_Label (D.Id)),
-                        Available          => Editor.Commands.Is_Available (A),
+                        Available          => Editor.Commands.Availability_Metadata.Is_Available (A),
                         Reason             => A.Reason,
                         Has_Keybinding     => D.Bindable and then Binding.Has_Binding,
                         Keybinding_Display => Binding.Display,

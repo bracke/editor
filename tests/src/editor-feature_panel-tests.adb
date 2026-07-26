@@ -136,7 +136,7 @@ package body Editor.Feature_Panel.Tests is
    begin
       Editor.State.Init (S);
       Assert (not Is_Visible (S.Feature_Panel), "feature panel starts hidden");
-      Assert (not Editor.Commands.Is_Available
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available
         (Editor.Executor.Command_Availability
           (S, Editor.Commands.Command_Hide_Feature_Panel)),
         "hide is unavailable when feature panel hidden");
@@ -158,7 +158,7 @@ package body Editor.Feature_Panel.Tests is
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "clear feature panel executes");
       Assert (Row_Count (S.Feature_Panel) = 0, "clear removes rows");
-      Assert (not Editor.Commands.Is_Available
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available
         (Editor.Executor.Command_Availability
           (S, Editor.Commands.Command_Clear_Feature_Panel)),
         "clear is unavailable after rows are cleared");
@@ -301,7 +301,7 @@ package body Editor.Feature_Panel.Tests is
       Before_Visible  : Boolean;
       Before_Focused  : Boolean;
       Before_Messages : Natural;
-      Availability    : Editor.Commands.Command_Availability;
+      Availability    : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Editor.State.Init (S);
       Set_Visible (S.Feature_Panel, True);
@@ -317,11 +317,11 @@ package body Editor.Feature_Panel.Tests is
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Clear_Feature_Panel);
-      Assert (Editor.Commands.Is_Available (Availability),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
               "clear feature panel availability sees clearable rows");
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Feature_Panel_Open_Selected);
-      Assert (not Editor.Commands.Is_Available (Availability),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
               "open selected availability rejects selected row without target");
 
       Assert (Row_Count (S.Feature_Panel) = Before_Rows,
@@ -558,13 +558,13 @@ package body Editor.Feature_Panel.Tests is
          Before : constant Feature_Panel_Fingerprint := Fingerprint (S.Feature_Panel);
          Snap   : constant Feature_Panel_Render_Snapshot :=
            Build_Render_Snapshot (S.Feature_Panel);
-         Avail  : constant Editor.Commands.Command_Availability :=
+         Avail  : constant Editor.Commands.Availability_Metadata.Command_Availability :=
            Editor.Executor.Command_Availability
              (S, Editor.Commands.Command_Feature_Panel_Open_Selected);
       begin
          Assert (Snapshot_Row_Count (Snap) = Row_Count (S.Feature_Panel),
                  "render snapshot sees rows");
-         Assert (not Editor.Commands.Is_Available (Avail),
+         Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail),
                  "open-selected availability rejects explicit row without target");
          Assert (Fingerprint (S.Feature_Panel) = Before,
                  "render snapshot and availability must be side-effect-free");
@@ -780,47 +780,47 @@ package body Editor.Feature_Panel.Tests is
       S : Editor.State.State_Type;
    begin
       Editor.State.Init (S);
-      Assert (not Editor.Commands.Is_Available
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available
         (Editor.Executor.Command_Availability
           (S, Editor.Commands.Command_Hide_Feature_Panel)),
         "hide is disabled before show");
-      Assert (not Editor.Commands.Is_Available
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available
         (Editor.Executor.Command_Availability
           (S, Editor.Commands.Command_Focus_Feature_Panel)),
         "focus is disabled while hidden");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Show_Feature_Panel);
-      Assert (not Editor.Commands.Is_Available
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available
         (Editor.Executor.Command_Availability
           (S, Editor.Commands.Command_Show_Feature_Panel)),
         "show becomes disabled after show");
-      Assert (Editor.Commands.Is_Available
+      Assert (Editor.Commands.Availability_Metadata.Is_Available
         (Editor.Executor.Command_Availability
           (S, Editor.Commands.Command_Hide_Feature_Panel)),
         "hide becomes available after show");
       declare
-         Focus_Availability : constant Editor.Commands.Command_Availability :=
+         Focus_Availability : constant Editor.Commands.Availability_Metadata.Command_Availability :=
            Editor.Executor.Command_Availability
              (S, Editor.Commands.Command_Focus_Feature_Panel);
       begin
-         Assert (Editor.Commands.Is_Available (Focus_Availability),
+         Assert (Editor.Commands.Availability_Metadata.Is_Available (Focus_Availability),
                  "focus becomes available after show: " &
-                 Editor.Commands.Unavailable_Reason (Focus_Availability));
+                 Editor.Commands.Availability_Metadata.Unavailable_Reason (Focus_Availability));
       end;
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Focus_Feature_Panel);
       Set_Placeholder_Rows (S.Feature_Panel);
       Select_First (S.Feature_Panel);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Clear_Feature_Panel);
-      Assert (not Editor.Commands.Is_Available
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available
         (Editor.Executor.Command_Availability
           (S, Editor.Commands.Command_Clear_Feature_Panel)),
         "clear disabled after clear");
-      Assert (not Editor.Commands.Is_Available
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available
         (Editor.Executor.Command_Availability
           (S, Editor.Commands.Command_Feature_Panel_Open_Selected)),
         "open selected disabled after clear");
-      Assert (not Editor.Commands.Is_Available
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available
         (Editor.Executor.Command_Availability
           (S, Editor.Commands.Command_Feature_Panel_Select_Next)),
         "select next disabled after clear");
@@ -4934,7 +4934,7 @@ package body Editor.Feature_Panel.Tests is
    is
       pragma Unreferenced (T);
       S            : Editor.State.State_Type;
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Editor.State.Init (S);
       Assert (Editor.Feature_Panel_Controller.Show_Feature (S, Outline_Feature),
@@ -4954,12 +4954,12 @@ package body Editor.Feature_Panel.Tests is
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Feature_Panel_Open_Selected);
-      Assert (not Editor.Commands.Is_Available (Availability),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
               "open-selected is unavailable with no selected feature row");
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Clear_Feature_Panel);
-      Assert (not Editor.Commands.Is_Available (Availability),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
               "clear is unavailable when only an empty-state row is visible");
    end Test_Empty_State_Rows_Are_Not_Selected_Or_Openable;
 
@@ -5077,7 +5077,7 @@ package body Editor.Feature_Panel.Tests is
    is
       pragma Unreferenced (T);
       S            : Editor.State.State_Type;
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
       Result       : Editor.Executor.Command_Execution_Result;
    begin
       Editor.State.Init (S);
@@ -5124,7 +5124,7 @@ package body Editor.Feature_Panel.Tests is
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Feature_Panel_Open_Selected);
-      Assert (Editor.Commands.Is_Available (Availability),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
               "open-selected is available after fresh Search recovery");
    end Test_Search_Rerun_After_Clear_Recovers_Fresh_Rows;
 

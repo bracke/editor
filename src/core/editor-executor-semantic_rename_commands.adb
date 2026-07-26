@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Ada.Containers;
 with Ada.Strings;
@@ -614,7 +615,7 @@ package body Editor.Executor.Semantic_Rename_Commands is
       Id      : Editor.Commands.Command_Id;
       Service : in out Editor.Ada_Language_Service.Service_State;
       Name    : String)
-      return Editor.Commands.Command_Availability
+      return Editor.Commands.Availability_Metadata.Command_Availability
    is
       Result : constant Editor.Ada_Language_Service.Rename_Preview :=
         Semantic_Rename_Preview (S, Service, Name, Name & "_Renamed");
@@ -624,9 +625,9 @@ package body Editor.Executor.Semantic_Rename_Commands is
             if Result.Status = Editor.Ada_Language_Service.Service_Success
               or else Result.Status = Editor.Ada_Language_Service.Service_Ambiguous
             then
-               return Editor.Commands.Available;
+               return Editor.Commands.Availability_Metadata.Available;
             end if;
-            return Editor.Commands.Unavailable
+            return Editor.Commands.Availability_Metadata.Unavailable
               ("Rename preview unavailable for " & Name & ": " &
                Service_Status_Image (Result.Status) & ".");
 
@@ -637,13 +638,13 @@ package body Editor.Executor.Semantic_Rename_Commands is
                if Rename_Preview_Is_Open_Buffers_Applyable
                  (S, Result, Reason)
                then
-                  return Editor.Commands.Available;
+                  return Editor.Commands.Availability_Metadata.Available;
                end if;
-               return Editor.Commands.Unavailable (To_String (Reason));
+               return Editor.Commands.Availability_Metadata.Unavailable (To_String (Reason));
             end;
 
          when others =>
-            return Editor.Commands.Unavailable
+            return Editor.Commands.Availability_Metadata.Unavailable
               ("Unsupported semantic rename command.");
       end case;
    end Semantic_Rename_Command_Availability;

@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Command_Execution;
 with Editor.Commands;
 with Editor.State;
@@ -7,7 +8,7 @@ package Editor.Executor.Configuration_Commands is
    function Configuration_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability;
+      return Editor.Commands.Availability_Metadata.Command_Availability;
 
    procedure Execute_Startup_Show_Summary
      (S : in out Editor.State.State_Type);

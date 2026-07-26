@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Ada.Characters.Handling;
 with Ada.Directories;
 use type Ada.Directories.File_Kind;
@@ -53,7 +54,7 @@ package body Editor.Executor.File_Tree_Commands is
    function File_Tree_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability
+      return Editor.Commands.Availability_Metadata.Command_Availability
    is
       function Has_Buffer return Boolean is
       begin
@@ -92,49 +93,49 @@ package body Editor.Executor.File_Tree_Commands is
             | Command_Refresh_Project_Files
             | Command_Focus_File_Tree =>
             if not Has_Project then
-               return Editor.Commands.Unavailable ("No project open");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No project open");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Project_Files_Summary =>
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Reveal_Active_File_In_Tree
             | Command_File_Tree_Expand_To_Active_File =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer.");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
             elsif not S.File_Info.Has_Path or else Length (S.File_Info.Path) = 0 then
-               return Editor.Commands.Unavailable ("Active buffer has no file path");
+               return Editor.Commands.Availability_Metadata.Unavailable ("Active buffer has no file path");
             elsif not Has_Project then
-               return Editor.Commands.Unavailable ("No project open");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No project open");
             elsif not Editor.Project.Is_Under_Project
               (S.Project, To_String (S.File_Info.Path))
             then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  ("Active file is outside the current project");
             elsif Editor.File_Tree.Is_Empty (S.File_Tree) then
-               return Editor.Commands.Unavailable ("File Tree unavailable");
+               return Editor.Commands.Availability_Metadata.Unavailable ("File Tree unavailable");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_File_Tree_Move_Up
             | Command_File_Tree_Move_Down
             | Command_File_Tree_Page_Up
             | Command_File_Tree_Page_Down =>
             if not Has_Project then
-               return Editor.Commands.Unavailable ("No project open");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No project open");
             elsif not Editor.Panel_Focus.File_Tree_Has_Focus (S.Panel_Focus) then
-               return Editor.Commands.Unavailable ("Command not available here");
+               return Editor.Commands.Availability_Metadata.Unavailable ("Command not available here");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_File_Tree_Open_Selected =>
             if not Has_Project then
-               return Editor.Commands.Unavailable ("No project open");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No project open");
             elsif not Editor.Panel_Focus.File_Tree_Has_Focus (S.Panel_Focus) then
-               return Editor.Commands.Unavailable ("Command not available here");
+               return Editor.Commands.Availability_Metadata.Unavailable ("Command not available here");
             elsif not File_Tree_Has_Selected_Row then
-               return Editor.Commands.Unavailable ("No File Tree node selected");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No File Tree node selected");
             else
                declare
                   Found : Boolean := False;
@@ -142,31 +143,31 @@ package body Editor.Executor.File_Tree_Commands is
                     Selected_File_Tree_Node (Found);
                begin
                   if not Found then
-                     return Editor.Commands.Unavailable ("No File Tree node selected");
+                     return Editor.Commands.Availability_Metadata.Unavailable ("No File Tree node selected");
                   elsif Node.Kind /= Editor.File_Tree.File_Node then
-                     return Editor.Commands.Unavailable
+                     return Editor.Commands.Availability_Metadata.Unavailable
                        ("Selected row is not a file");
                   elsif not Editor.Project.Is_Under_Project
                     (S.Project, To_String (Node.Absolute_Path))
                   then
-                     return Editor.Commands.Unavailable
+                     return Editor.Commands.Availability_Metadata.Unavailable
                        ("Target path is outside the project");
                   end if;
                end;
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_File_Tree_Create_File
             | Command_File_Tree_Create_Directory
             | Command_File_Tree_Rename_Selected
             | Command_File_Tree_Delete_Selected =>
             if not Has_Project then
-               return Editor.Commands.Unavailable ("No project open");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No project open");
             elsif not File_Tree_Has_Selected_Row
               and then Id /= Command_File_Tree_Create_File
               and then Id /= Command_File_Tree_Create_Directory
             then
-               return Editor.Commands.Unavailable ("No File Tree node selected");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No File Tree node selected");
             elsif Id = Command_File_Tree_Rename_Selected
               or else Id = Command_File_Tree_Delete_Selected
             then
@@ -176,35 +177,35 @@ package body Editor.Executor.File_Tree_Commands is
                     Selected_File_Tree_Node (Found);
                begin
                   if not Found then
-                     return Editor.Commands.Unavailable
+                     return Editor.Commands.Availability_Metadata.Unavailable
                        ("No File Tree node selected");
                   elsif not Editor.Project.Is_Under_Project
                     (S.Project, To_String (Node.Absolute_Path))
                   then
-                     return Editor.Commands.Unavailable
+                     return Editor.Commands.Availability_Metadata.Unavailable
                        ("Target path is outside the project");
                   elsif Node.Parent = Editor.File_Tree.No_File_Tree_Node then
                      if Id = Command_File_Tree_Rename_Selected then
-                        return Editor.Commands.Unavailable
+                        return Editor.Commands.Availability_Metadata.Unavailable
                           ("Cannot rename project root");
                      else
-                        return Editor.Commands.Unavailable
+                        return Editor.Commands.Availability_Metadata.Unavailable
                           ("Cannot delete project root");
                      end if;
                   end if;
                end;
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_File_Tree_Expand_Selected
             | Command_File_Tree_Collapse_Selected
             | Command_File_Tree_Toggle_Selected =>
             if not Has_Project then
-               return Editor.Commands.Unavailable ("No project open");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No project open");
             elsif not Editor.Panel_Focus.File_Tree_Has_Focus (S.Panel_Focus) then
-               return Editor.Commands.Unavailable ("Command not available here");
+               return Editor.Commands.Availability_Metadata.Unavailable ("Command not available here");
             elsif not File_Tree_Has_Selected_Row then
-               return Editor.Commands.Unavailable ("No File Tree node selected");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No File Tree node selected");
             else
                declare
                   Found : Boolean := False;
@@ -212,30 +213,30 @@ package body Editor.Executor.File_Tree_Commands is
                     Selected_File_Tree_Node (Found);
                begin
                   if not Found then
-                     return Editor.Commands.Unavailable ("No File Tree node selected");
+                     return Editor.Commands.Availability_Metadata.Unavailable ("No File Tree node selected");
                   elsif not Editor.Project.Is_Under_Project
                     (S.Project, To_String (Node.Absolute_Path))
                   then
-                     return Editor.Commands.Unavailable
+                     return Editor.Commands.Availability_Metadata.Unavailable
                        ("Target path is outside the project");
                   elsif Node.Kind /= Editor.File_Tree.Directory_Node then
-                     return Editor.Commands.Unavailable
+                     return Editor.Commands.Availability_Metadata.Unavailable
                        ("Selected row is not a directory");
                   end if;
                end;
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_File_Tree_Collapse_All =>
             if not Has_Project then
-               return Editor.Commands.Unavailable ("No project open");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No project open");
             elsif Editor.File_Tree.Is_Empty (S.File_Tree) then
-               return Editor.Commands.Unavailable ("File Tree unavailable");
+               return Editor.Commands.Availability_Metadata.Unavailable ("File Tree unavailable");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when others =>
-            return Editor.Commands.Unavailable
+            return Editor.Commands.Availability_Metadata.Unavailable
               ("Command is not a file tree command");
       end case;
    end File_Tree_Command_Availability;

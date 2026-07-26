@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -36,7 +37,7 @@ package body Editor.Line_Edit.Text_Delete_Tests is
    use type Editor.Commands.Command_Id;
    use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Commands.Descriptors.Command_Visibility;
-   use type Editor.Commands.Command_Availability_Status;
+   use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
    use type Editor.Commands.Command_Kind;
    use type Editor.Keybindings.Keybinding_Validation_Status;
    use type Editor.Buffers.Buffer_Id;
@@ -1001,7 +1002,7 @@ package body Editor.Line_Edit.Text_Delete_Tests is
       Before_Dirty   : Boolean := False;
       Before_Undo    : Natural := 0;
       Before_Redo    : Natural := 0;
-      Availability   : Editor.Commands.Command_Availability;
+      Availability   : Editor.Commands.Availability_Metadata.Command_Availability;
       Snapshot       : Editor.Render_Model.Render_Snapshot;
       Workspace      : Editor.Workspace_Persistence.Workspace_Snapshot;
       Summary        : Unbounded_String;
@@ -1395,7 +1396,7 @@ package body Editor.Line_Edit.Text_Delete_Tests is
       Before_Clip    : constant Unbounded_String := To_Unbounded_String ("CLIP");
       Before_Undo    : Natural := 0;
       Before_Redo    : Natural := 0;
-      Availability   : Editor.Commands.Command_Availability;
+      Availability   : Editor.Commands.Availability_Metadata.Command_Availability;
       Snapshot       : Editor.Render_Model.Render_Snapshot;
       Workspace      : Editor.Workspace_Persistence.Workspace_Snapshot;
       Summary        : Unbounded_String;

@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads; use Editor.Commands.Payloads;
 with Text_Buffer;
 with Editor.State;
@@ -295,7 +296,7 @@ package body Editor.Executor is
      (S                : Editor.State.State_Type;
       Diagnostic_Index : Natural;
       Action_Index     : Natural)
-      return Editor.Commands.Command_Availability
+      return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin
       return Editor.Executor.Diagnostics_Commands
@@ -579,7 +580,7 @@ package body Editor.Executor is
    function Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability
+      return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin
       return Editor.Executor.Availability.Command_Availability (S, Id);

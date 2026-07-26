@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Classification;
 with Editor.Commands.Payloads;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
@@ -29,7 +30,7 @@ with Editor.Render_Model;
 with Editor.State;
 with Guikit.Draw;
 use type Editor.Commands.Command_Id;
-use type Editor.Commands.Command_Availability_Status;
+use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
 use type Editor.Keybindings.Binding_Result;
 use type Editor.Keybindings.Keybinding_Validation_Status;
 use type Editor.Keybindings.Keybinding_Change_Status;
@@ -2201,7 +2202,7 @@ package body Editor.Keybindings.Tests is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
       Status : Editor.Keybinding_Management.Keybinding_Action_Status;
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
       Custom : constant Editor.Keybindings.Key_Chord :=
         Chord (Editor.Keybindings.Key_S, Ctrl => True, Alt => True);
       Actual : Editor.Commands.Command_Id := Editor.Commands.No_Command;
@@ -2237,12 +2238,12 @@ package body Editor.Keybindings.Tests is
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Keybindings_Assign_Selected);
-      Assert (Availability.Status = Editor.Commands.Command_Unavailable,
+      Assert (Availability.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
               "Executor availability must block assign during pending confirmation");
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Keybindings_Remove_Selected);
-      Assert (Availability.Status = Editor.Commands.Command_Unavailable,
+      Assert (Availability.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
               "Executor availability must block remove during pending confirmation");
 
       Assert (Editor.Keybindings.Resolve (Custom, Actual) = Editor.Keybindings.Bound_Command
@@ -2260,7 +2261,7 @@ package body Editor.Keybindings.Tests is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
       Status : Editor.Keybinding_Management.Keybinding_Action_Status;
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
       Custom : constant Editor.Keybindings.Key_Chord :=
         Chord (Editor.Keybindings.Key_S, Ctrl => True, Alt => True);
       Actual : Editor.Commands.Command_Id := Editor.Commands.No_Command;
@@ -2284,7 +2285,7 @@ package body Editor.Keybindings.Tests is
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Keybindings_Reset_To_Defaults);
-      Assert (Availability.Status = Editor.Commands.Command_Unavailable,
+      Assert (Availability.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
               "keybinding reset must be unavailable while capture is active");
 
       Editor.Keybinding_Management.Request_Reset_To_Defaults (Status);
@@ -2316,7 +2317,7 @@ package body Editor.Keybindings.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Editor.State.Init (S);
       Editor.Keybindings.Reset_To_Defaults;
@@ -2361,16 +2362,16 @@ package body Editor.Keybindings.Tests is
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Keybindings_Assign_Selected);
       Assert
-        (not Editor.Commands.Is_Available (Availability)
-         and then Editor.Commands.Unavailable_Reason (Availability) =
+        (not Editor.Commands.Availability_Metadata.Is_Available (Availability)
+         and then Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability) =
            "Keybindings view is not open",
          "assign availability must be precise when view is closed");
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Keybindings_Cancel_Capture);
       Assert
-        (not Editor.Commands.Is_Available (Availability)
-         and then Editor.Commands.Unavailable_Reason (Availability) =
+        (not Editor.Commands.Availability_Metadata.Is_Available (Availability)
+         and then Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability) =
            "Shortcut capture is not active",
          "cancel-capture availability must be precise when idle");
 
@@ -2383,8 +2384,8 @@ package body Editor.Keybindings.Tests is
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Keybindings_Assign_Selected);
       Assert
-        (not Editor.Commands.Is_Available (Availability)
-         and then Editor.Commands.Unavailable_Reason (Availability) =
+        (not Editor.Commands.Availability_Metadata.Is_Available (Availability)
+         and then Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability) =
            "No command selected.",
          "assign availability must require a selected command");
 
@@ -2399,7 +2400,7 @@ package body Editor.Keybindings.Tests is
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Keybindings_Cancel_Capture);
       Assert
-        (Editor.Commands.Is_Available (Availability),
+        (Editor.Commands.Availability_Metadata.Is_Available (Availability),
          "cancel-capture must become available during capture");
 
       Editor.Executor.Execute_Command

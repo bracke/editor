@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
@@ -128,11 +129,11 @@ package body Editor.Executor.Diagnostics_Action_Commands is
                 (S.Feature_Diagnostics, Positive (Item_Index))
             loop
                declare
-                  Availability : constant Editor.Commands.Command_Availability :=
+                  Availability : constant Editor.Commands.Availability_Metadata.Command_Availability :=
                     Editor.Executor.Diagnostic_Quick_Fix_Action_Availability
                       (S, Item_Index, Action_Index);
                begin
-                  if Editor.Commands.Is_Available (Availability) then
+                  if Editor.Commands.Availability_Metadata.Is_Available (Availability) then
                      Added_Actions := Added_Actions + 1;
                      Editor.Feature_Search_Results.Add_Search_Result
                        (S.Feature_Search_Results,
@@ -157,7 +158,7 @@ package body Editor.Executor.Diagnostics_Action_Commands is
                   elsif Length (First_Unavailable_Reason) = 0 then
                      First_Unavailable_Reason :=
                        To_Unbounded_String
-                         (Editor.Commands.Unavailable_Reason (Availability));
+                         (Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability));
                   end if;
                end;
             end loop;
@@ -188,13 +189,13 @@ package body Editor.Executor.Diagnostics_Action_Commands is
 
       if Id = Command_Diagnostic_Apply_Quick_Fix then
          declare
-            Availability : constant Editor.Commands.Command_Availability :=
+            Availability : constant Editor.Commands.Availability_Metadata.Command_Availability :=
               Editor.Executor.Diagnostic_Quick_Fix_Action_Availability
                 (S, Item_Index, Action_Index);
          begin
-            if not Editor.Commands.Is_Available (Availability) then
+            if not Editor.Commands.Availability_Metadata.Is_Available (Availability) then
                Shared_Services.Report_Info
-                 (S, Editor.Commands.Unavailable_Reason (Availability));
+                 (S, Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability));
                Editor.State.Clear_Quick_Fix_Workflow (S);
                Editor.Render_Cache.Invalidate_All;
                return Editor.Command_Execution.Unavailable (Id);

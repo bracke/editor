@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Classification;
 with Editor.Commands.Payloads;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
@@ -813,7 +814,7 @@ package body Editor.Selection.Tests is
       S : Editor.State.State_Type;
       Before_Text : constant String := "Alpha";
       Before_Clip : constant String := "clip";
-      A : Editor.Commands.Command_Availability;
+      A : Editor.Commands.Availability_Metadata.Command_Availability;
       Filtered : Editor.Commands.Descriptors.Command_Descriptor_Vectors.Vector;
    begin
       Editor.State.Init (S);
@@ -823,10 +824,10 @@ package body Editor.Selection.Tests is
       S.Carets.Append (Caret_State'(Pos => 5, Anchor => 0, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
       A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Copy);
-      Assert (Editor.Commands.Is_Available (A),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "copy availability should see the valid active selection");
       A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Select_Word);
-      Assert (Editor.Commands.Is_Available (A),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "current-word availability may be broad but must be side-effect free");
       Editor.Command_Palette.Filtered_Commands (Filtered);
       Assert (Filtered.Length > 0,
@@ -1001,7 +1002,7 @@ package body Editor.Selection.Tests is
       pragma Unreferenced (T);
       S        : Editor.State.State_Type;
       Snapshot : Editor.Render_Model.Render_Snapshot;
-      A        : Editor.Commands.Command_Availability;
+      A        : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "Alpha Beta Gamma");
@@ -1012,7 +1013,7 @@ package body Editor.Selection.Tests is
         (Caret_State'(Pos => 6, Anchor => 10, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
       A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Copy);
-      Assert (not Editor.Commands.Is_Available (A),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "copy availability must ignore secondary previous selection ranges");
       Assert (not Editor.Selection.Has_Selection (S),
               "canonical has-selection must use primary active selection only");
@@ -1024,7 +1025,7 @@ package body Editor.Selection.Tests is
       S.Carets.Append
         (Caret_State'(Pos => 99, Anchor => 6, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Copy);
-      Assert (not Editor.Commands.Is_Available (A),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "copy availability must reject invalid canonical selection ranges");
       Editor.Render_Model.Build_Render_Snapshot (S, Snapshot);
       Assert (Snapshot.Selection_Count = 0,

@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with Editor.Commands;
@@ -64,17 +65,17 @@ package body Editor.Executor.File_Target_Prompt_Commands is
      (S  : in out Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
    is
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       if not Command_Requires_File_Target_Prompt (Id) then
          return;
       end if;
 
       Availability := Editor.Executor.Command_Availability (S, Id);
-      if not Editor.Commands.Is_Available (Availability) then
+      if not Editor.Commands.Availability_Metadata.Is_Available (Availability) then
          declare
             Reason : constant String :=
-              Editor.Commands.Unavailable_Reason (Availability);
+              Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability);
          begin
             if Reason = "Command unavailable while confirmation is pending." then
                Editor.Executor.Shared_Services.Report_Warning (S, Reason);

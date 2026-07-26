@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Ada.Strings.Unbounded;
 with Editor.Buffers;
 with Editor.Command_Execution;
@@ -14,12 +15,12 @@ package Editor.Executor.File_Lifecycle_Commands is
      (S        : Editor.State.State_Type;
       Id       : Editor.Commands.Command_Id;
       Handled  : out Boolean;
-      Result   : out Editor.Commands.Command_Availability);
+      Result   : out Editor.Commands.Availability_Metadata.Command_Availability);
 
    function Lifecycle_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability;
+      return Editor.Commands.Availability_Metadata.Command_Availability;
 
    function Execute_Lifecycle_Result_Command
      (S  : in out Editor.State.State_Type;

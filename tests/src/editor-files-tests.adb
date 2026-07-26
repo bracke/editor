@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Descriptor_Metadata;
 with Editor.Commands.Payloads;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
@@ -893,9 +894,9 @@ package body Editor.Files.Tests is
       Before_Text   : constant String := "dirty reference separation";
       Static_Text    : constant String := Editor.Commands.Reference_Metadata.Command_Availability_Summary
         (Editor.Commands.Command_Reload_Active_Buffer);
-      No_Active      : Editor.Commands.Command_Availability;
-      Dirty_Avail    : Editor.Commands.Command_Availability;
-      Clean_Avail    : Editor.Commands.Command_Availability;
+      No_Active      : Editor.Commands.Availability_Metadata.Command_Availability;
+      Dirty_Avail    : Editor.Commands.Availability_Metadata.Command_Availability;
+      Clean_Avail    : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Remove_If_Exists (Path);
       Write_Bytes (Path, "disk reference separation");
@@ -920,7 +921,7 @@ package body Editor.Files.Tests is
 
       Dirty_Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Reload_Active_Buffer);
-      Assert (not Editor.Commands.Is_Available (Dirty_Avail),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Dirty_Avail),
         "Executor must remain authoritative for dirty reload availability");
       Assert (Editor.Commands.Reference_Metadata.Command_Availability_Summary
         (Editor.Commands.Command_Reload_Active_Buffer) = Static_Text,
@@ -935,14 +936,14 @@ package body Editor.Files.Tests is
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Clean_Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Reload_Active_Buffer);
-      Assert (Editor.Commands.Is_Available (Clean_Avail),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Clean_Avail),
         "clean associated buffer availability remains Executor-derived");
       Assert (Editor.Commands.Reference_Metadata.Command_Availability_Summary
         (Editor.Commands.Command_Reload_Active_Buffer) = Static_Text,
         "static reference availability must not follow Executor status");
       Assert (Editor.Messages.Count (S.Messages) = 0,
         "availability/reference checks must not emit command messages");
-      Assert (Editor.Commands.Unavailable_Reason (No_Active)'Length >= 0,
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (No_Active)'Length >= 0,
         "no-active availability object is observed only to keep Executor path live");
 
       Remove_If_Exists (Path);
@@ -974,7 +975,7 @@ package body Editor.Files.Tests is
               and then C.Effect_Classification =
                 Editor.Commands.Reference_Metadata.Command_Effect_Classification (C.Id),
               "palette reference projection must remain descriptor-derived");
-            Assert (C.Available = Editor.Commands.Is_Available
+            Assert (C.Available = Editor.Commands.Availability_Metadata.Is_Available
               (Editor.Executor.Command_Availability (S, C.Id)),
               "palette availability must remain Executor-derived");
          end if;
@@ -1423,9 +1424,9 @@ package body Editor.Files.Tests is
          Show_Help_Row                 => False);
       Before_Bindings    : Natural := 0;
       Before_Reference   : constant String := Editor.Commands.Reference_Metadata.Command_Summary (Editor.Commands.Command_Move_Buffer_File);
-      No_Active          : Editor.Commands.Command_Availability;
-      Dirty_Avail        : Editor.Commands.Command_Availability;
-      Clean_Avail        : Editor.Commands.Command_Availability;
+      No_Active          : Editor.Commands.Availability_Metadata.Command_Availability;
+      Dirty_Avail        : Editor.Commands.Availability_Metadata.Command_Availability;
+      Clean_Avail        : Editor.Commands.Availability_Metadata.Command_Availability;
       Path               : constant String := Temp_Path ("projection_availability.txt");
       Seen_Save          : Natural := 0;
       Seen_Move          : Natural := 0;
@@ -1453,7 +1454,7 @@ package body Editor.Files.Tests is
       Before_Bindings := Editor.Keybindings.Bound_Command_Count;
 
       No_Active := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Reload_Active_Buffer);
-      Assert (not Editor.Commands.Is_Available (No_Active),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (No_Active),
         "no-active availability remains Executor-derived");
       Assert (Editor.Commands.Reference_Metadata.Command_Summary (Editor.Commands.Command_Move_Buffer_File) = Before_Reference,
         "reference metadata must be stable in no-active state");
@@ -1469,7 +1470,7 @@ package body Editor.Files.Tests is
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Dirty_Avail := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Reload_Active_Buffer);
-      Assert (not Editor.Commands.Is_Available (Dirty_Avail),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Dirty_Avail),
         "dirty associated reload remains blocked by Executor availability");
       Assert (Read_Bytes (Path) = "clean disk text"
         and then Buffer_Text (S) = "dirty memory text"
@@ -1480,7 +1481,7 @@ package body Editor.Files.Tests is
       S.File_Info.Saved_Generation := Editor.State.Current_Buffer_Revision (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Clean_Avail := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Reload_Active_Buffer);
-      Assert (Editor.Commands.Is_Available (Clean_Avail),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Clean_Avail),
         "clean associated reload remains enabled only by Executor availability");
       Assert (Editor.Commands.Reference_Metadata.Command_Summary (Editor.Commands.Command_Move_Buffer_File) = Before_Reference,
         "reference metadata must not follow Executor availability state");
@@ -1888,7 +1889,7 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
       pragma Unreferenced (T);
       S            : Editor.State.State_Type;
       Path         : constant String := Temp_Path ("save_conflict.txt");
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Remove_If_Exists (Path);
       Write_Bytes (Path, "disk baseline");
@@ -1915,9 +1916,9 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Save_File);
-      Assert (not Editor.Commands.Is_Available (Availability),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "conflict prompt should make normal save unavailable");
-      Assert (Editor.Commands.Unavailable_Reason (Availability) =
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability) =
         "Command unavailable while confirmation is pending.",
         "conflict prompt should use the lifecycle confirmation reason");
 
@@ -2029,7 +2030,7 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
       pragma Unreferenced (T);
       S            : Editor.State.State_Type;
       Path         : constant String := Temp_Path ("clean_save_conflict.txt");
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Remove_If_Exists (Path);
       Write_Bytes (Path, "clean baseline");
@@ -2059,9 +2060,9 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_File_Conflict_Overwrite_Disk);
-      Assert (not Editor.Commands.Is_Available (Availability),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "clean conflict must not expose overwrite as available");
-      Assert (Editor.Commands.Unavailable_Reason (Availability) =
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability) =
         "Buffer is not dirty",
         "clean conflict overwrite should explain that the buffer is not dirty");
 

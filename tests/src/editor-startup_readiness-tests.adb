@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
@@ -23,7 +24,7 @@ package body Editor.Startup_Readiness.Tests is
 
    use type Editor.Commands.Command_Id;
    use type Editor.Commands.Command_Kind;
-   use type Editor.Commands.Command_Availability_Status;
+   use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
    use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Configuration_Recovery.Configuration_Domain;
    use type Editor.Workspace_Persistence.Workspace_Persistence_Status;
@@ -431,22 +432,22 @@ package body Editor.Startup_Readiness.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
       Summary : constant Startup_Summary := Build_First_Run_Summary;
    begin
       Clear_Startup_Summary;
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Startup_Show_Summary);
-      Assert (Availability.Status = Editor.Commands.Command_Unavailable,
+      Assert (Availability.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
               "startup summary command must be unavailable before startup records a summary");
-      Assert (Editor.Commands.Unavailable_Reason (Availability) =
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability) =
               "No startup summary available.",
               "startup summary availability must give deterministic reason");
 
       Record_Startup_Summary (Summary);
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Startup_Show_Summary);
-      Assert (Availability.Status = Editor.Commands.Command_Available,
+      Assert (Availability.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "startup summary command must become available after transient summary record");
       Assert (Has_Recorded_Startup_Summary,
               "availability check must not clear or mutate recorded startup summary");
@@ -896,7 +897,7 @@ package body Editor.Startup_Readiness.Tests is
               "recorded startup summary must use the bounded row model");
       Assert (Editor.Executor.Command_Availability
                 (S, Editor.Commands.Command_Startup_Show_Summary).Status =
-              Editor.Commands.Command_Available,
+              Editor.Commands.Availability_Metadata.Command_Available,
               "startup summary command must be available after state initialization");
       Clear_Startup_Summary;
    end Test_State_Init_Records_Startup_Summary;

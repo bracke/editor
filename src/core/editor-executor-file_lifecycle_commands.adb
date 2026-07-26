@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Executor.Shared_Services;
 use Editor.Executor.Shared_Services;
 with Ada.Strings.Unbounded;
@@ -61,7 +62,7 @@ package body Editor.Executor.File_Lifecycle_Commands is
 
    function Associated_File_Operation_Availability
      (S             : Editor.State.State_Type;
-      Dirty_Message : String) return Editor.Commands.Command_Availability
+      Dirty_Message : String) return Editor.Commands.Availability_Metadata.Command_Availability
    is
       Active_Id : constant Editor.Buffers.Buffer_Id :=
         Editor.Buffers.Global_Active_Buffer;
@@ -71,12 +72,12 @@ package body Editor.Executor.File_Lifecycle_Commands is
       if Editor.Buffers.Global_Count = 0
         or else Active_Id = Editor.Buffers.No_Buffer
       then
-         return Editor.Commands.Unavailable ("No active buffer.");
+         return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
       end if;
 
       if S.Active_Buffer_Token /= Natural (Active_Id) then
          if not Editor.Buffers.Global_Contains (Active_Id) then
-            return Editor.Commands.Unavailable ("No active buffer.");
+            return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
          end if;
 
          Effective_File :=
@@ -86,27 +87,27 @@ package body Editor.Executor.File_Lifecycle_Commands is
       end if;
 
       if not Effective_Has_Buffer then
-         return Editor.Commands.Unavailable ("No active buffer.");
+         return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
       elsif not Effective_File.Has_Path
         or else Length (Effective_File.Path) = 0
       then
-         return Editor.Commands.Unavailable ("No file path for active buffer");
+         return Editor.Commands.Availability_Metadata.Unavailable ("No file path for active buffer");
       elsif Effective_File.Dirty then
-         return Editor.Commands.Unavailable (Dirty_Message);
+         return Editor.Commands.Availability_Metadata.Unavailable (Dirty_Message);
       end if;
 
-      return Editor.Commands.Available;
+      return Editor.Commands.Availability_Metadata.Available;
    end Associated_File_Operation_Availability;
 
    procedure Lifecycle_Command_Availability
      (S        : Editor.State.State_Type;
       Id       : Editor.Commands.Command_Id;
       Handled  : out Boolean;
-      Result   : out Editor.Commands.Command_Availability)
+      Result   : out Editor.Commands.Availability_Metadata.Command_Availability)
    is
    begin
       Handled := True;
-      Result := Editor.Commands.Available;
+      Result := Editor.Commands.Availability_Metadata.Available;
 
       if S.Dirty_Close_Prompt_Active then
          case Id is
@@ -118,9 +119,9 @@ package body Editor.Executor.File_Lifecycle_Commands is
                   begin
                      if Current.Dirty_Count = 0 then
                         if Editor.Executor.Buffer_Close_Prompt_Commands.Dirty_Close_All_Buffer_Identity_Current (S) then
-                           Result := Editor.Commands.Available;
+                           Result := Editor.Commands.Availability_Metadata.Available;
                         else
-                           Result := Editor.Commands.Unavailable
+                           Result := Editor.Commands.Availability_Metadata.Unavailable
                              (Editor.Commands.Workflow_Messages.Reason_Close_Review_Stale);
                         end if;
                         return;
@@ -128,14 +129,14 @@ package body Editor.Executor.File_Lifecycle_Commands is
                         if not Editor.Executor.Buffer_Close_Prompt_Commands.Dirty_Close_All_Buffer_Identity_Current (S)
                           or else not Editor.Executor.Buffer_Close_Prompt_Commands.Dirty_Close_Current_Dirty_Set_Was_Reviewed (S)
                         then
-                           Result := Editor.Commands.Unavailable
+                           Result := Editor.Commands.Availability_Metadata.Unavailable
                              (Editor.Commands.Workflow_Messages.Reason_Close_Review_Stale);
                            return;
                         end if;
                      end if;
 
                      if Current.File_Backed_Count = 0 then
-                        Result := Editor.Commands.Unavailable
+                        Result := Editor.Commands.Availability_Metadata.Unavailable
                           ("Save As required before saving this buffer");
                         return;
                      end if;
@@ -148,7 +149,7 @@ package body Editor.Executor.File_Lifecycle_Commands is
                      if Target = Editor.Buffers.No_Buffer
                        or else not Editor.Buffers.Global_Contains (Target)
                      then
-                        Result := Editor.Commands.Unavailable
+                        Result := Editor.Commands.Availability_Metadata.Unavailable
                           ("Selected buffer is no longer open");
                         return;
                      else
@@ -157,10 +158,10 @@ package body Editor.Executor.File_Lifecycle_Commands is
                              Editor.Buffers.Global_Summary_For (Target);
                         begin
                            if not Summary.Is_Dirty then
-                              Result := Editor.Commands.Available;
+                              Result := Editor.Commands.Availability_Metadata.Available;
                               return;
                            elsif not Summary.Has_Path then
-                              Result := Editor.Commands.Unavailable
+                              Result := Editor.Commands.Availability_Metadata.Unavailable
                                 ("Save As required before saving this buffer");
                               return;
                            end if;
@@ -173,13 +174,13 @@ package body Editor.Executor.File_Lifecycle_Commands is
             when Command_Confirm_Close_Discard =>
                if S.Dirty_Close_Prompt_All_Buffers then
                   if Editor.Buffers.Global_Count = 0 then
-                     Result := Editor.Commands.Unavailable ("No buffers open");
+                     Result := Editor.Commands.Availability_Metadata.Unavailable ("No buffers open");
                      return;
                   elsif not Editor.Executor.Buffer_Close_Prompt_Commands.Dirty_Close_All_Buffer_Review_Current (S) then
                      if not Editor.Executor.Buffer_Close_Prompt_Commands.Dirty_Close_All_Buffer_Identity_Current (S)
                        or else not Editor.Executor.Buffer_Close_Prompt_Commands.Dirty_Close_Current_Dirty_Set_Was_Reviewed (S)
                      then
-                        Result := Editor.Commands.Unavailable
+                        Result := Editor.Commands.Availability_Metadata.Unavailable
                           (Editor.Commands.Workflow_Messages.Reason_Close_Review_Stale);
                         return;
                      end if;
@@ -192,7 +193,7 @@ package body Editor.Executor.File_Lifecycle_Commands is
                      if Target = Editor.Buffers.No_Buffer
                        or else not Editor.Buffers.Global_Contains (Target)
                      then
-                        Result := Editor.Commands.Unavailable
+                        Result := Editor.Commands.Availability_Metadata.Unavailable
                           ("Selected buffer is no longer open");
                         return;
                      end if;
@@ -204,10 +205,10 @@ package body Editor.Executor.File_Lifecycle_Commands is
                | Command_Cancel =>
                return;
             when No_Command =>
-               Result := Editor.Commands.Unavailable ("No command");
+               Result := Editor.Commands.Availability_Metadata.Unavailable ("No command");
                return;
             when others =>
-               Result := Editor.Commands.Unavailable
+               Result := Editor.Commands.Availability_Metadata.Unavailable
                  ("Command unavailable while confirmation is pending");
                return;
          end case;
@@ -217,7 +218,7 @@ package body Editor.Executor.File_Lifecycle_Commands is
          case Id is
             when Command_File_Conflict_Overwrite_Disk =>
                if not S.File_Conflict_Prompt_Dirty then
-                  Result := Editor.Commands.Unavailable ("Buffer is not dirty");
+                  Result := Editor.Commands.Availability_Metadata.Unavailable ("Buffer is not dirty");
                end if;
                return;
             when Command_File_Conflict_Keep_Buffer
@@ -226,10 +227,10 @@ package body Editor.Executor.File_Lifecycle_Commands is
                | Command_Cancel =>
                return;
             when No_Command =>
-               Result := Editor.Commands.Unavailable ("No command");
+               Result := Editor.Commands.Availability_Metadata.Unavailable ("No command");
                return;
             when others =>
-               Result := Editor.Commands.Unavailable
+               Result := Editor.Commands.Availability_Metadata.Unavailable
                  ("Command unavailable while confirmation is pending");
                return;
          end case;
@@ -290,7 +291,7 @@ package body Editor.Executor.File_Lifecycle_Commands is
                   | Command_Word_Delete_Next
                   | Command_Replace_Current
                   | Command_Replace_All =>
-                  Result := Editor.Commands.Unavailable
+                  Result := Editor.Commands.Availability_Metadata.Unavailable
                     ("Command unavailable while confirmation is pending");
                   return;
                when others =>
@@ -320,7 +321,7 @@ package body Editor.Executor.File_Lifecycle_Commands is
                | Command_Project_Search_Replace_Exclude_All
                | Command_Project_Search_Replace_Selected
                | Command_Project_Search_Replace_All_Included =>
-               Result := Editor.Commands.Unavailable
+               Result := Editor.Commands.Availability_Metadata.Unavailable
                  ("Command unavailable while confirmation is pending");
                return;
             when others =>
@@ -333,9 +334,9 @@ package body Editor.Executor.File_Lifecycle_Commands is
             | Command_Confirm_Close_Discard
             | Command_Cancel_Close =>
             if S.Dirty_Close_Prompt_Active then
-               Result := Editor.Commands.Available;
+               Result := Editor.Commands.Availability_Metadata.Available;
             else
-               Result := Editor.Commands.Unavailable
+               Result := Editor.Commands.Availability_Metadata.Unavailable
                  ("No close confirmation pending");
             end if;
             return;
@@ -344,7 +345,7 @@ package body Editor.Executor.File_Lifecycle_Commands is
             | Command_Retry_Pending_Transition
             | Command_Discard_Pending_Transition =>
             if not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions) then
-               Result := Editor.Commands.Unavailable
+               Result := Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Dirty_Guards.No_Pending_Transition_Message);
                return;
             end if;
@@ -356,7 +357,7 @@ package body Editor.Executor.File_Lifecycle_Commands is
                   if Target.Kind in Editor.Pending_Transitions.Pending_Reload_Active_Buffer
                       | Editor.Pending_Transitions.Pending_Revert_Active_Buffer
                   then
-                     Result := Editor.Commands.Unavailable
+                     Result := Editor.Commands.Availability_Metadata.Unavailable
                        ("Reload/revert requires its own explicit confirmation");
                      return;
                   end if;
@@ -377,7 +378,7 @@ package body Editor.Executor.File_Lifecycle_Commands is
                  and then S.Active_Buffer_Token /= Natural (Active_Id)
                then
                   if not Editor.Buffers.Global_Contains (Active_Id) then
-                     Result := Editor.Commands.Unavailable ("No active buffer.");
+                     Result := Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
                      return;
                   end if;
 
@@ -388,11 +389,11 @@ package body Editor.Executor.File_Lifecycle_Commands is
                end if;
 
                if not Effective_Has_Buffer then
-                  Result := Editor.Commands.Unavailable ("No active buffer.");
+                  Result := Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
                elsif not Effective_File.Has_Path
                  or else Length (Effective_File.Path) = 0
                then
-                  Result := Editor.Commands.Unavailable
+                  Result := Editor.Commands.Availability_Metadata.Unavailable
                     ("No file path for active buffer");
                end if;
                return;
@@ -403,7 +404,7 @@ package body Editor.Executor.File_Lifecycle_Commands is
             | Command_File_Conflict_Overwrite_Disk
             | Command_File_Conflict_Cancel =>
             if not S.File_Conflict_Prompt_Active then
-               Result := Editor.Commands.Unavailable ("No active file conflict");
+               Result := Editor.Commands.Availability_Metadata.Unavailable ("No active file conflict");
             end if;
             return;
 
@@ -417,13 +418,13 @@ package body Editor.Executor.File_Lifecycle_Commands is
                if Editor.Buffers.Global_Count = 0
                  or else Active_Id = Editor.Buffers.No_Buffer
                then
-                  Result := Editor.Commands.Unavailable ("No active buffer.");
+                  Result := Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
                   return;
                end if;
 
                if S.Active_Buffer_Token /= Natural (Active_Id) then
                   if not Editor.Buffers.Global_Contains (Active_Id) then
-                     Result := Editor.Commands.Unavailable ("No active buffer.");
+                     Result := Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
                      return;
                   end if;
 
@@ -434,14 +435,14 @@ package body Editor.Executor.File_Lifecycle_Commands is
                end if;
 
                if not Effective_Has_Buffer then
-                  Result := Editor.Commands.Unavailable ("No active buffer.");
+                  Result := Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
                elsif not Effective_File.Has_Path
                  or else Length (Effective_File.Path) = 0
                then
-                  Result := Editor.Commands.Unavailable
+                  Result := Editor.Commands.Availability_Metadata.Unavailable
                     ("No file path for active buffer");
                elsif Effective_File.Dirty then
-                  Result := Editor.Commands.Unavailable
+                  Result := Editor.Commands.Availability_Metadata.Unavailable
                     ("Dirty buffer cannot be reloaded");
                end if;
                return;
@@ -457,13 +458,13 @@ package body Editor.Executor.File_Lifecycle_Commands is
                if Editor.Buffers.Global_Count = 0
                  or else Active_Id = Editor.Buffers.No_Buffer
                then
-                  Result := Editor.Commands.Unavailable ("No active buffer.");
+                  Result := Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
                   return;
                end if;
 
                if S.Active_Buffer_Token /= Natural (Active_Id) then
                   if not Editor.Buffers.Global_Contains (Active_Id) then
-                     Result := Editor.Commands.Unavailable ("No active buffer.");
+                     Result := Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
                      return;
                   end if;
 
@@ -474,14 +475,14 @@ package body Editor.Executor.File_Lifecycle_Commands is
                end if;
 
                if not Effective_Has_Buffer then
-                  Result := Editor.Commands.Unavailable ("No active buffer.");
+                  Result := Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
                elsif not Effective_File.Has_Path
                  or else Length (Effective_File.Path) = 0
                then
-                  Result := Editor.Commands.Unavailable
+                  Result := Editor.Commands.Availability_Metadata.Unavailable
                     ("No file path for active buffer");
                elsif not Effective_File.Dirty then
-                  Result := Editor.Commands.Unavailable
+                  Result := Editor.Commands.Availability_Metadata.Unavailable
                     ("No changes to revert");
                end if;
                return;
@@ -511,7 +512,7 @@ package body Editor.Executor.File_Lifecycle_Commands is
             if Editor.Buffers.Global_Count = 0
               or else Editor.Buffers.Global_Active_Buffer = Editor.Buffers.No_Buffer
             then
-               Result := Editor.Commands.Unavailable ("No active buffer.");
+               Result := Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
             end if;
             return;
 
@@ -519,29 +520,29 @@ package body Editor.Executor.File_Lifecycle_Commands is
             if Editor.Buffers.Global_Dirty_File_Backed_Buffer_Count = 0
               and then not (S.File_Info.Dirty and then S.File_Info.Has_Path)
             then
-               Result := Editor.Commands.Unavailable
+               Result := Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Dirty_Guards.No_Dirty_File_Backed_Buffers_Message);
             end if;
             return;
 
          when Command_Close_All_Buffers =>
             if Editor.Buffers.Global_Count = 0 then
-               Result := Editor.Commands.Unavailable ("No buffers to close");
+               Result := Editor.Commands.Availability_Metadata.Unavailable ("No buffers to close");
             end if;
             return;
 
          when Command_Close_All_Clean_Buffers =>
             if Editor.Buffers.Global_Unpinned_Clean_Buffer_Count = 0 then
-               Result := Editor.Commands.Unavailable
+               Result := Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Dirty_Guards.No_Clean_Buffers_Message);
             end if;
             return;
 
          when Command_Reopen_Closed_Buffer =>
             if S.Has_Reopen_Candidate and then Length (S.Reopen_Candidate_Path) > 0 then
-               Result := Editor.Commands.Available;
+               Result := Editor.Commands.Availability_Metadata.Available;
             else
-               Result := Editor.Commands.Unavailable ("No closed buffer to reopen");
+               Result := Editor.Commands.Availability_Metadata.Unavailable ("No closed buffer to reopen");
             end if;
             return;
 
@@ -553,17 +554,17 @@ package body Editor.Executor.File_Lifecycle_Commands is
                if Editor.Buffers.Global_Count = 0
                  or else Active_Id = Editor.Buffers.No_Buffer
                then
-                  Result := Editor.Commands.Unavailable ("No active buffer.");
+                  Result := Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
                   return;
                elsif S.Active_Buffer_Token /= Natural (Active_Id)
                  and then not Editor.Buffers.Global_Contains (Active_Id)
                then
-                  Result := Editor.Commands.Unavailable ("No active buffer.");
+                  Result := Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
                   return;
                elsif not Has_Buffer (S)
                  and then S.Active_Buffer_Token = Natural (Active_Id)
                then
-                  Result := Editor.Commands.Unavailable ("No active buffer.");
+                  Result := Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
                   return;
                end if;
             end;
@@ -571,9 +572,9 @@ package body Editor.Executor.File_Lifecycle_Commands is
 
          when Command_Close_Other_Buffers =>
             if Editor.Buffers.Global_Count = 0 then
-               Result := Editor.Commands.Unavailable ("No active buffer.");
+               Result := Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
             elsif not Has_Buffer (S) then
-               Result := Editor.Commands.Unavailable ("No active buffer.");
+               Result := Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
             end if;
             return;
 
@@ -586,17 +587,17 @@ package body Editor.Executor.File_Lifecycle_Commands is
    function Lifecycle_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability
+      return Editor.Commands.Availability_Metadata.Command_Availability
    is
       Handled : Boolean := False;
-      Result  : Editor.Commands.Command_Availability :=
-        Editor.Commands.Available;
+      Result  : Editor.Commands.Availability_Metadata.Command_Availability :=
+        Editor.Commands.Availability_Metadata.Available;
    begin
       Lifecycle_Command_Availability (S, Id, Handled, Result);
       if Handled then
          return Result;
       end if;
-      return Editor.Commands.Unavailable
+      return Editor.Commands.Availability_Metadata.Unavailable
         ("Command is not a file lifecycle command");
    end Lifecycle_Command_Availability;
 

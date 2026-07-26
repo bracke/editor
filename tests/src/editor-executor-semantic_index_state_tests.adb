@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -67,7 +68,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       pragma Unreferenced (T);
 
       S      : Editor.State.State_Type;
-      Avail  : Editor.Commands.Command_Availability;
+      Avail  : Editor.Commands.Availability_Metadata.Command_Availability;
       Result : Editor.Executor.Command_Execution_Result;
    begin
       Init_Executor_Test_State (S);
@@ -88,33 +89,33 @@ package body Editor.Executor.Semantic_Index_State_Tests is
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Find_References);
-      Assert (not Editor.Commands.Is_Available (Avail),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "find references must not be offered without an index answer");
-      Assert (Editor.Commands.Unavailable_Reason (Avail) =
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) =
               "References unavailable for Run: unavailable.",
               "find references reports the language service reason");
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Show_Hover);
-      Assert (not Editor.Commands.Is_Available (Avail),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "hover must not be offered without an index answer");
-      Assert (Editor.Commands.Unavailable_Reason (Avail) =
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) =
               "Hover unavailable for Run: unavailable.",
               "hover reports the language service reason");
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Show_Completions);
-      Assert (not Editor.Commands.Is_Available (Avail),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "completions must not be offered without an index answer");
-      Assert (Editor.Commands.Unavailable_Reason (Avail) =
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) =
               "Completions unavailable for Run: unavailable.",
               "completions report the language service reason");
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Rename_Symbol_Preview);
-      Assert (not Editor.Commands.Is_Available (Avail),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "rename preview must not be offered without an index answer");
-      Assert (Editor.Commands.Unavailable_Reason (Avail) =
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) =
               "Rename preview unavailable for Run: unavailable.",
               "rename preview reports the language service reason");
 
@@ -137,7 +138,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       S        : Editor.State.State_Type;
       Analysis : LM.Analysis_Result;
       Ignored  : LM.Symbol_Id;
-      Avail    : Editor.Commands.Command_Availability;
+      Avail    : Editor.Commands.Availability_Metadata.Command_Availability;
       Result   : Editor.Executor.Command_Execution_Result;
    begin
       Init_Executor_Test_State (S);
@@ -175,7 +176,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Find_References);
-      Assert (Editor.Commands.Is_Available (Avail),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "hidden Outline does not block caret semantic command availability");
 
       Result := Editor.Executor.Execute_Command_With_Result
@@ -197,7 +198,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       S        : Editor.State.State_Type;
       Analysis : LM.Analysis_Result;
       Ignored  : LM.Symbol_Id;
-      Avail    : Editor.Commands.Command_Availability;
+      Avail    : Editor.Commands.Availability_Metadata.Command_Availability;
       Result   : Editor.Executor.Command_Execution_Result;
    begin
       Init_Executor_Test_State (S);
@@ -228,7 +229,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Goto_Declaration);
-      Assert (Editor.Commands.Is_Available (Avail),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "goto declaration is available from the caret symbol");
 
       Result := Editor.Executor.Execute_Command_With_Result
@@ -257,7 +258,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       S        : Editor.State.State_Type;
       Analysis : LM.Analysis_Result;
       Ignored  : LM.Symbol_Id;
-      Avail    : Editor.Commands.Command_Availability;
+      Avail    : Editor.Commands.Availability_Metadata.Command_Availability;
       Result   : Editor.Executor.Command_Execution_Result;
    begin
       Init_Executor_Test_State (S);
@@ -294,17 +295,17 @@ package body Editor.Executor.Semantic_Index_State_Tests is
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Find_References);
-      Assert (not Editor.Commands.Is_Available (Avail),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "overflowed references must not be offered");
-      Assert (Editor.Commands.Unavailable_Reason (Avail) =
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) =
               "References unavailable for Run: overflow.",
               "overflowed references report the bounded service reason");
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Rename_Symbol_Preview);
-      Assert (not Editor.Commands.Is_Available (Avail),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "overflowed rename preview must not be offered");
-      Assert (Editor.Commands.Unavailable_Reason (Avail) =
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) =
               "Rename preview unavailable for Run: overflow.",
               "overflowed rename reports the bounded service reason");
 
@@ -329,7 +330,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       S        : Editor.State.State_Type;
       Analysis : LM.Analysis_Result;
       Ignored  : LM.Symbol_Id;
-      Avail    : Editor.Commands.Command_Availability;
+      Avail    : Editor.Commands.Availability_Metadata.Command_Availability;
       Result   : Editor.Executor.Command_Execution_Result;
       Live_Token : constant Natural := 1;
       Stale_Revision : Natural;
@@ -369,41 +370,41 @@ package body Editor.Executor.Semantic_Index_State_Tests is
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Find_References);
-      Assert (not Editor.Commands.Is_Available (Avail),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "stale current references must not be offered");
-      Assert (Editor.Commands.Unavailable_Reason (Avail) =
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) =
               "References unavailable for Run: stale.",
               "stale current references report the stale service reason");
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Show_Hover);
-      Assert (not Editor.Commands.Is_Available (Avail),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "stale current hover must not be offered");
-      Assert (Editor.Commands.Unavailable_Reason (Avail) =
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) =
               "Hover unavailable for Run: stale.",
               "stale current hover reports the stale service reason");
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Show_Completions);
-      Assert (not Editor.Commands.Is_Available (Avail),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "stale current completions must not be offered");
-      Assert (Editor.Commands.Unavailable_Reason (Avail) =
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) =
               "Completions unavailable for Run: stale.",
               "stale current completions report the stale service reason");
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Rename_Symbol_Preview);
-      Assert (not Editor.Commands.Is_Available (Avail),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "stale current rename preview must not be offered");
-      Assert (Editor.Commands.Unavailable_Reason (Avail) =
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) =
               "Rename preview unavailable for Run: stale.",
               "stale current rename preview reports the stale service reason");
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Rename_Symbol_Apply);
-      Assert (not Editor.Commands.Is_Available (Avail),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "stale current rename apply must not be offered");
-      Assert (Editor.Commands.Unavailable_Reason (Avail) =
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) =
               "Rename apply unavailable for Run: stale.",
               "stale current rename apply reports the stale service reason");
 
@@ -453,9 +454,9 @@ package body Editor.Executor.Semantic_Index_State_Tests is
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Goto_Declaration);
-      Assert (not Editor.Commands.Is_Available (Avail),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "stale current caret goto declaration must not be offered");
-      Assert (Editor.Commands.Unavailable_Reason (Avail) =
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) =
               "Declaration unavailable for Run: stale.",
               "stale current caret goto declaration reports stale reason");
 
@@ -478,7 +479,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       S        : Editor.State.State_Type;
       Analysis : LM.Analysis_Result;
       Ignored  : LM.Symbol_Id;
-      Avail    : Editor.Commands.Command_Availability;
+      Avail    : Editor.Commands.Availability_Metadata.Command_Availability;
       Result   : Editor.Executor.Command_Execution_Result;
       Cmd      : Editor.Commands.Payloads.Command;
    begin
@@ -510,7 +511,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Find_References);
-      Assert (Editor.Commands.Is_Available (Avail),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "semantic stale-edit setup starts with an answerable index");
 
       Cmd.Kind := Editor.Commands.Insert_Text_Input;
@@ -524,9 +525,9 @@ package body Editor.Executor.Semantic_Index_State_Tests is
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Find_References);
-      Assert (not Editor.Commands.Is_Available (Avail),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "semantic commands must not be offered after editing indexed text");
-      Assert (Editor.Commands.Unavailable_Reason (Avail) =
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) =
               "References unavailable for Run: unavailable.",
               "stale edit invalidation reports the missing fresh index answer");
 
@@ -815,7 +816,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       First_Count  : Natural;
       Second_Count : Natural;
       Quick_Fix_Row : Natural := 0;
-      Action_Avail  : Editor.Commands.Command_Availability;
+      Action_Avail  : Editor.Commands.Availability_Metadata.Command_Availability;
       Shown         : Boolean;
    begin
       Editor.Buffers.Reset_Global_For_Test;
@@ -881,7 +882,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, Quick_Fix_Row);
       Action_Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Diagnostics_Execute_Selected_Action);
-      Assert (Editor.Commands.Is_Available (Action_Avail),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Action_Avail),
               "live semantic quick-fix action is available from Diagnostics");
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Commands.Command_Diagnostics_Execute_Selected_Action);
@@ -1082,7 +1083,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Sep_Path  : constant String := Ada.Directories.Compose (Root, "demo-run.adb");
       S : Editor.State.State_Type;
       Result : Editor.Executor.Command_Execution_Result;
-      Avail  : Editor.Commands.Command_Availability;
+      Avail  : Editor.Commands.Availability_Metadata.Command_Availability;
       Unit_Target : Editor.Ada_Project_Index.Unique_Target_Result;
       Symbol_Targets : Editor.Ada_Project_Index.Index_Resolution_Result;
       Spec_Row : Natural := 0;
@@ -1139,7 +1140,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Goto_Body);
-      Assert (Editor.Commands.Is_Available (Avail),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "indexed package spec row offers goto body");
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Commands.Command_Goto_Body);
@@ -1189,10 +1190,10 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               ", overflow=" & Boolean'Image (Unit_Target.Overflow));
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Goto_Spec);
-      Assert (Editor.Commands.Is_Available (Avail),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "indexed package body row offers goto spec from label '" &
               Editor.Outline.Item_Label (S.Outline, Body_Row) & "': " &
-              Editor.Commands.Unavailable_Reason (Avail));
+              Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail));
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Commands.Command_Goto_Spec);
       Assert (Result.Status = Editor.Executor.Command_Executed,
@@ -1234,10 +1235,10 @@ package body Editor.Executor.Semantic_Index_State_Tests is
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Goto_Spec);
-      Assert (Editor.Commands.Is_Available (Avail),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "indexed separate procedure body row offers goto spec from label '" &
               Editor.Outline.Item_Label (S.Outline, Sep_Row) & "': " &
-              Editor.Commands.Unavailable_Reason (Avail));
+              Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail));
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Commands.Command_Goto_Spec);
       Assert (Result.Status = Editor.Executor.Command_Executed,
@@ -1279,9 +1280,9 @@ package body Editor.Executor.Semantic_Index_State_Tests is
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Goto_Body);
-      Assert (not Editor.Commands.Is_Available (Avail),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "stale selected package spec row does not offer goto body");
-      Assert (Editor.Commands.Unavailable_Reason (Avail) =
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) =
               "Outline indexed target unavailable",
               "stale selected package spec row reports indexed target unavailable");
       Result := Editor.Executor.Execute_Command_With_Result

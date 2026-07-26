@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Classification;
 with Editor.Commands.Payloads;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
@@ -47,7 +48,7 @@ package body Editor.Buffers.Tests is
    use type Editor.Buffers.Buffer_Dirty_Category;
    use type Editor.Buffers.Buffer_Close_Eligibility;
    use type Editor.Buffers.Buffer_Workspace_Persistability;
-   use type Editor.Commands.Command_Availability_Status;
+   use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
    use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Commands.Command_Id;
@@ -1027,7 +1028,7 @@ package body Editor.Buffers.Tests is
       pragma Unreferenced (T);
       S           : Editor.State.State_Type;
       Cmd         : Editor.Commands.Payloads.Command;
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
       Core_Path   : constant String := Editor.Test_Temp.Base & "/editor_core_dirty.txt";
       Dirty_Path  : constant String := Editor.Test_Temp.Base & "/editor_dirty_outside.txt";
       Pin_Path    : constant String := Editor.Test_Temp.Base & "/editor_pinned_outside.txt";
@@ -1040,11 +1041,11 @@ package body Editor.Buffers.Tests is
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Clear_Buffer_Group);
-      Assert (Availability.Status = Editor.Commands.Command_Unavailable,
+      Assert (Availability.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
         "clear group should be unavailable without grouped active buffer");
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Next_Buffer_Group);
-      Assert (Availability.Status = Editor.Commands.Command_Unavailable,
+      Assert (Availability.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
         "cycle group should be unavailable without any groups");
       Assert (not Editor.Buffers.Global_Has_Buffer_Groups,
         "availability checks must not create group state");
@@ -1110,7 +1111,7 @@ package body Editor.Buffers.Tests is
       Cmd          : Editor.Commands.Payloads.Command;
       Id           : Editor.Buffers.Buffer_Id;
       Summary      : Editor.Buffers.Buffer_Summary;
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
       Found        : Boolean := False;
       M            : Editor.Messages.Editor_Message;
       Was_Dirty    : Boolean := False;
@@ -1138,7 +1139,7 @@ package body Editor.Buffers.Tests is
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Clear_Buffer_Note);
-      Assert (Availability.Status = Editor.Commands.Command_Unavailable,
+      Assert (Availability.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
         "clear note should be unavailable before a note exists");
       Assert (not Editor.Buffers.Global_Has_Buffer_Note (Id),
         "availability checks must not mutate note state");
@@ -1308,7 +1309,7 @@ package body Editor.Buffers.Tests is
       Cmd          : Editor.Commands.Payloads.Command;
       Id           : Editor.Buffers.Buffer_Id;
       Summary      : Editor.Buffers.Buffer_Summary;
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
       Found        : Boolean := False;
       M            : Editor.Messages.Editor_Message;
       Was_Dirty    : Boolean := False;
@@ -1336,7 +1337,7 @@ package body Editor.Buffers.Tests is
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Clear_Buffer_Label);
-      Assert (Availability.Status = Editor.Commands.Command_Unavailable,
+      Assert (Availability.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
         "clear label should be unavailable before a label exists");
       Assert (not Editor.Buffers.Global_Has_Buffer_Label (Id),
         "availability checks must not mutate label state");
@@ -1864,7 +1865,7 @@ package body Editor.Buffers.Tests is
       S            : Editor.State.State_Type;
       Id           : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Before_Count : Natural := 0;
-      A            : Editor.Commands.Command_Availability;
+      A            : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
@@ -1878,7 +1879,7 @@ package body Editor.Buffers.Tests is
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Close_Active_Buffer);
 
-      Assert (Editor.Commands.Is_Available (A),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
         "dirty active buffer close is available because execution opens explicit review");
       Assert (Editor.Buffers.Global_Count = Before_Count,
         "availability must not close or remove buffers");
@@ -1996,7 +1997,7 @@ package body Editor.Buffers.Tests is
       S     : Editor.State.State_Type;
       A_Id  : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id  : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      A     : Editor.Commands.Command_Availability;
+      A     : Editor.Commands.Availability_Metadata.Command_Availability;
       M     : Editor.Messages.Editor_Message;
       Found : Boolean := False;
    begin
@@ -2022,7 +2023,7 @@ package body Editor.Buffers.Tests is
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Close_Active_Buffer);
-      Assert (Editor.Commands.Is_Available (A),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
         "close availability must observe the clean active buffer, not stale dirty State");
 
       Editor.Executor.Buffer_Close_Commands.Execute_Close_Active_Buffer (S);
@@ -2312,7 +2313,7 @@ package body Editor.Buffers.Tests is
       Before_Redo    : Natural := 0;
       Before_Back    : Natural := 0;
       Before_Forward : Natural := 0;
-      A              : Editor.Commands.Command_Availability;
+      A              : Editor.Commands.Availability_Metadata.Command_Availability;
       Snap           : Editor.Render_Model.Render_Snapshot;
       Candidates     : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
    begin
@@ -2341,7 +2342,7 @@ package body Editor.Buffers.Tests is
         (S, Editor.Commands.Command_Close_Active_Buffer);
       Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
 
-      Assert (Editor.Commands.Is_Available (A),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
         "dirty close availability is available and still side-effect-free");
       Assert (Snap.Length = To_String (Before_Text)'Length,
         "render snapshot must observe text without repairing close state");
@@ -2558,7 +2559,7 @@ package body Editor.Buffers.Tests is
       Before_Redo    : Natural := 0;
       Before_Back    : Natural := 0;
       Before_Forward : Natural := 0;
-      A              : Editor.Commands.Command_Availability;
+      A              : Editor.Commands.Availability_Metadata.Command_Availability;
       Snap           : Editor.Render_Model.Render_Snapshot;
       Candidates     : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       M              : Editor.Messages.Editor_Message;
@@ -2600,7 +2601,7 @@ package body Editor.Buffers.Tests is
         (S, Editor.Commands.Command_Reopen_Closed_Buffer);
       Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
 
-      Assert (Editor.Commands.Is_Available (A),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
         "reopen availability must depend on candidate presence, not filesystem probing");
       Assert (S.Has_Reopen_Candidate
         and then To_String (S.Reopen_Candidate_Path) = Candidate_Path,
@@ -2888,7 +2889,7 @@ package body Editor.Buffers.Tests is
       Before_Redo   : Natural := 0;
       Before_Back   : Natural := 0;
       Before_Fwd    : Natural := 0;
-      A             : Editor.Commands.Command_Availability;
+      A             : Editor.Commands.Availability_Metadata.Command_Availability;
       Snap          : Editor.Render_Model.Render_Snapshot;
       Candidates    : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       M             : Editor.Messages.Editor_Message;
@@ -2925,7 +2926,7 @@ package body Editor.Buffers.Tests is
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Reopen_Closed_Buffer);
       Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
-      Assert (Editor.Commands.Is_Available (A),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
         "reopen availability must depend on candidate presence only");
       Assert (S.Has_Reopen_Candidate and then To_String (S.Reopen_Candidate_Path) = Path,
         "render/availability/palette must not consume candidate");

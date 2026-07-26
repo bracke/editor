@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -95,7 +96,7 @@ package body Editor.Files.Operations_Tests is
       Cmd_Id       : Editor.Commands.Command_Id;
       Found        : Boolean := False;
       Descriptor   : Editor.Commands.Descriptors.Command_Descriptor;
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
       M            : Editor.Messages.Editor_Message;
    begin
       Cmd_Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
@@ -120,7 +121,7 @@ package body Editor.Files.Operations_Tests is
       S.Active_Buffer_Token := 0;
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Move_Buffer_File);
-      Assert (not Editor.Commands.Is_Available (Availability),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "move unavailable without active buffer");
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, Target);
       M := Editor.Messages.Active_Message (S.Messages, Found);
@@ -134,7 +135,7 @@ package body Editor.Files.Operations_Tests is
       Editor.Messages.Clear (S.Messages);
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Move_Buffer_File);
-      Assert (not Editor.Commands.Is_Available (Availability),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "move unavailable for untitled active buffer");
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, Target);
       M := Editor.Messages.Active_Message (S.Messages, Found);
@@ -151,7 +152,7 @@ package body Editor.Files.Operations_Tests is
       Editor.Messages.Clear (S.Messages);
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Move_Buffer_File);
-      Assert (not Editor.Commands.Is_Available (Availability),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "move unavailable for dirty active associated buffer");
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, Target);
       M := Editor.Messages.Active_Message (S.Messages, Found);
@@ -449,7 +450,7 @@ package body Editor.Files.Operations_Tests is
       Reopen_Path  : constant String := Temp_Path ("p458_boundary_reopen.txt");
       Workspace    : Editor.Workspace_Persistence.Workspace_Snapshot;
       Summary      : Unbounded_String;
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
       Candidates   : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Before_Text  : Unbounded_String;
       Before_Path  : Unbounded_String;
@@ -517,7 +518,7 @@ package body Editor.Files.Operations_Tests is
       Workspace := Editor.State.Build_Workspace_Snapshot (S);
       Summary := To_Unbounded_String
         (Editor.Workspace_Persistence.Debug_Summary (Workspace));
-      Assert (Editor.Commands.Is_Available (Availability)
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability)
         and then Move_Rows = 1
         and then not Ada.Directories.Exists (Target)
         and then Buffer_Text (S) = To_String (Before_Text)
@@ -1016,7 +1017,7 @@ package body Editor.Files.Operations_Tests is
       Before_Base  : Natural;
       Before_Undo  : Ada.Containers.Count_Type;
       Before_Redo  : Ada.Containers.Count_Type;
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
       Candidates   : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Workspace    : Editor.Workspace_Persistence.Workspace_Snapshot;
       Summary      : Unbounded_String;
@@ -1078,7 +1079,7 @@ package body Editor.Files.Operations_Tests is
       Summary := To_Unbounded_String
         (Editor.Workspace_Persistence.Debug_Summary (Workspace));
 
-      Assert (Editor.Commands.Is_Available (Availability)
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability)
         and then Move_Rows = 1
         and then Ada.Directories.Exists (Path)
         and then not Ada.Directories.Exists (Target)

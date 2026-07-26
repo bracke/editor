@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Build_UI_Actions;
 with Editor.Command_Execution;
 with Editor.Commands;
@@ -20,7 +21,7 @@ package body Editor.Executor.Panel_Focus_Commands is
    function Panel_Focus_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability
+      return Editor.Commands.Availability_Metadata.Command_Availability
    is
       function Has_Buffer return Boolean is
       begin
@@ -32,7 +33,7 @@ package body Editor.Executor.Panel_Focus_Commands is
             | Editor.Commands.Command_Focus_Editor_Text
             | Editor.Commands.Command_Problems_Focus_Editor
             | Editor.Commands.Command_Toggle_Bottom_Panel_Focus =>
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Focus_Search_Results =>
             return Editor.Executor.Search_Commands
@@ -40,12 +41,12 @@ package body Editor.Executor.Panel_Focus_Commands is
 
          when Editor.Commands.Command_Focus_Problems =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer.");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when others =>
-            return Editor.Commands.Unavailable
+            return Editor.Commands.Availability_Metadata.Unavailable
               ("Command is not a panel/focus command");
       end case;
    end Panel_Focus_Command_Availability;

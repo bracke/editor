@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Command_Execution;
@@ -106,7 +107,7 @@ package body Editor.Empty_State_Guidance.Guided_Actions is
       declare
          D : constant Editor.Commands.Descriptors.Command_Descriptor :=
            Editor.Commands.Descriptors.Descriptor (Command);
-         A : constant Editor.Commands.Command_Availability :=
+         A : constant Editor.Commands.Availability_Metadata.Command_Availability :=
            Editor.Executor.Command_Availability (S, Command);
          Stable : constant String := Editor.Commands.Name_Metadata.Stable_Command_Name (Command);
       begin
@@ -122,7 +123,7 @@ package body Editor.Empty_State_Guidance.Guided_Actions is
          R.Title := D.Name;
          R.Short_Explanation := D.Description;
          R.Surface_Source_Label := To_Unbounded_String ("empty-state guidance");
-         R.Available := Editor.Commands.Is_Available (A);
+         R.Available := Editor.Commands.Availability_Metadata.Is_Available (A);
          R.Visible := True;
          R.Carries_Payload := False;
          R.Activation_Mode := Suggestion_Execute_Through_Executor;
@@ -137,7 +138,7 @@ package body Editor.Empty_State_Guidance.Guided_Actions is
                 ((if R.Available then "Available" else "Unavailable"), Command));
          if not R.Available then
             R.Unavailable_Reason :=
-              To_Unbounded_String (Editor.Commands.Unavailable_Reason (A));
+              To_Unbounded_String (Editor.Commands.Availability_Metadata.Unavailable_Reason (A));
             if Length (R.Unavailable_Reason) > 0 then
                R.Availability_Label :=
                  To_Unbounded_String
@@ -382,7 +383,7 @@ package body Editor.Empty_State_Guidance.Guided_Actions is
       Suggestion : Empty_State_Suggested_Command;
       Found      : Boolean := False;
       Resolved   : Editor.Commands.Command_Id := Editor.Commands.No_Command;
-      A          : Editor.Commands.Command_Availability;
+      A          : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       if Index > Snapshot.Suggestion_Count
         or else Index > Max_Empty_State_Suggestions
@@ -417,7 +418,7 @@ package body Editor.Empty_State_Guidance.Guided_Actions is
       end if;
 
       A := Editor.Executor.Command_Availability (S, Resolved);
-      if not Editor.Commands.Is_Available (A) then
+      if not Editor.Commands.Availability_Metadata.Is_Available (A) then
          return Editor.Executor.Execute_Command_With_Result (S, Resolved);
       end if;
 

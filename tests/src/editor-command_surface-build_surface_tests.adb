@@ -632,14 +632,14 @@ package body Editor.Command_Surface.Build_Surface_Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      A : Editor.Commands.Command_Availability;
+      A : Editor.Commands.Availability_Metadata.Command_Availability;
       R : Editor.Executor.Command_Execution_Result;
    begin
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam);
-      Assert (not Editor.Commands.Is_Available (A),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "bare user opt-in build command route is unavailable without structured context");
-      Assert (Editor.Commands.Unavailable_Reason (A) =
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) =
               "Build: structured command context required",
               "bare user opt-in build command reports deterministic missing-context feedback");
       R := Editor.Executor.Execute_Command_With_Result

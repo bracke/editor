@@ -43,7 +43,7 @@ package body Editor.Quick_Open.Tests is
    use type Editor.Commands.Command_Id;
    use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Commands.Descriptors.Command_Visibility;
-   use type Editor.Commands.Command_Availability_Status;
+   use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
    use type Editor.Keybindings.Keybinding_Change_Status;
    use type Editor.Keybindings.Binding_Result;
    use type Editor.File_Tree.File_Tree_Node_Id;
@@ -3074,7 +3074,7 @@ package body Editor.Quick_Open.Tests is
       S        : Editor.State.State_Type;
       Config   : constant Editor.Quick_Open.Quick_Open_Config := (others => <>);
       Open_Result : Editor.Project.Project_Open_Result;
-      A        : Editor.Commands.Command_Availability;
+      A        : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Delete_Tree_If_Exists (Root_One);
       Delete_Tree_If_Exists (Root_Two);
@@ -3102,7 +3102,7 @@ package body Editor.Quick_Open.Tests is
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Accept_Quick_Open);
-      Assert (A.Status = Editor.Commands.Command_Available,
+      Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "fresh Quick Open result remains activatable");
       Assert (Editor.Project_Navigation.Assert_Project_Navigation_Workflows_Coherent
                 (S),
@@ -3119,9 +3119,9 @@ package body Editor.Quick_Open.Tests is
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Accept_Quick_Open);
-      Assert (A.Status = Editor.Commands.Command_Unavailable,
+      Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
               "Quick Open must not activate a stale project match");
-      Assert (Editor.Commands.Unavailable_Reason (A) =
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) =
                 Editor.Commands.Workflow_Messages.Reason_Target_Missing,
               "Quick Open stale activation should explain current-project boundary");
       Assert (not Editor.Project_Navigation.Assert_Project_Navigation_Workflows_Coherent
@@ -3189,7 +3189,7 @@ package body Editor.Quick_Open.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      A : Editor.Commands.Command_Availability;
+      A : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Editor.State.Init (S);
       Editor.Quick_Open.Open (S.Quick_Open);
@@ -3199,16 +3199,16 @@ package body Editor.Quick_Open.Tests is
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Quick_Open_Next_Result);
-      Assert (A.Status = Editor.Commands.Command_Unavailable,
+      Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
               "next-result must be unavailable without a project");
-      Assert (Editor.Commands.Unavailable_Reason (A) = "No project open.",
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "No project open.",
               "next-result must not conflate no-project with no-files");
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Quick_Open_Previous_Result);
-      Assert (A.Status = Editor.Commands.Command_Unavailable,
+      Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
               "previous-result must be unavailable without a project");
-      Assert (Editor.Commands.Unavailable_Reason (A) = "No project open.",
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "No project open.",
               "previous-result must report no-project before no-files");
    end Test_No_Project_Selection_Commands_Report_No_Project;
 
@@ -3241,16 +3241,16 @@ package body Editor.Quick_Open.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      A : Editor.Commands.Command_Availability;
+      A : Editor.Commands.Availability_Metadata.Command_Availability;
 
       procedure Assert_No_Project_Availability
         (Command : Editor.Commands.Command_Id;
          Label   : String) is
       begin
          A := Editor.Executor.Command_Availability (S, Command);
-         Assert (A.Status = Editor.Commands.Command_Unavailable,
+         Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
                  "" & Label & " must be unavailable without a project");
-         Assert (Editor.Commands.Unavailable_Reason (A) = "No project open.",
+         Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "No project open.",
                  "" & Label & " must report no-project before local empty/filter state");
       end Assert_No_Project_Availability;
    begin

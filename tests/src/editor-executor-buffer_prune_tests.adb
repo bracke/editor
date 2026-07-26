@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -22,7 +23,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
 
    use type Editor.Buffers.Buffer_Id;
    use type Editor.Buffer_Switcher.Reviews.Pending_Marked_Action_Kind;
-   use type Editor.Commands.Command_Availability_Status;
+   use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
    use type Editor.State.Dirty_Close_Scope;
 
    overriding function Name
@@ -152,7 +153,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Cmd    : Editor.Commands.Payloads.Command;
-      Avail  : Editor.Commands.Command_Availability;
+      Avail  : Editor.Commands.Availability_Metadata.Command_Availability;
       Recent_Before : Natural := 0;
    begin
       Remove_Tree_If_Exists (Root);
@@ -169,7 +170,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Remove_Selected);
-      Assert (Avail.Status = Editor.Commands.Command_Unavailable,
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
               "remove-selected is unavailable without pending marked action");
 
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, A_Id);
@@ -178,7 +179,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Editor.Buffer_Switcher.Select_Buffer_Or_Row (S.Buffer_Switcher, B_Id, 1);
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Remove_Selected);
-      Assert (Avail.Status = Editor.Commands.Command_Unavailable,
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
               "remove-selected is unavailable when selected row is not a pending target");
       Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Remove_Selected);
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -230,7 +231,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       C_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Cmd    : Editor.Commands.Payloads.Command;
-      Avail  : Editor.Commands.Command_Availability;
+      Avail  : Editor.Commands.Availability_Metadata.Command_Availability;
       Recent_Before : Natural := 0;
       Before_Recent : Natural := 0;
    begin
@@ -264,7 +265,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Restore_Last_Pruned);
-      Assert (Avail.Status = Editor.Commands.Command_Unavailable,
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
               "restore-last is unavailable before any pending target is pruned");
 
       Editor.Buffer_Switcher.Select_Buffer_Or_Row (S.Buffer_Switcher, B_Id, 1);
@@ -706,7 +707,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       C_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Cmd    : Editor.Commands.Payloads.Command;
-      Avail  : Editor.Commands.Command_Availability;
+      Avail  : Editor.Commands.Availability_Metadata.Command_Availability;
       Recent_Before : Natural := 0;
    begin
       Remove_Tree_If_Exists (Root);
@@ -751,7 +752,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Remove_Selected);
-      Assert (Avail.Status = Editor.Commands.Command_Available,
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "dirty-remove-selected is available for a selected dirty pending target");
       Assert (Editor.Buffer_Switcher.Pending_Marked_Target_Count (S.Buffer_Switcher) = 3
               and then Editor.Buffer_Switcher.Pruned_Pending_Marked_Close_Target_Count (S.Buffer_Switcher) = 0
@@ -852,7 +853,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       C_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Cmd    : Editor.Commands.Payloads.Command;
-      Avail  : Editor.Commands.Command_Availability;
+      Avail  : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Remove_Tree_If_Exists (Root);
       Ada.Directories.Create_Directory (Root);
@@ -891,7 +892,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Editor.Buffer_Switcher.Select_Buffer_Or_Row (S.Buffer_Switcher, C_Id, 1);
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Remove_Selected);
-      Assert (Avail.Status = Editor.Commands.Command_Unavailable
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Unavailable
               and then Avail.Reason = "Selected buffer is not a pending close target",
               "availability rejects a dirty selected buffer that is not active pending close");
       Cmd := Editor.Commands.Payloads.Command_For_Id
@@ -908,7 +909,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Editor.Buffer_Switcher.Select_Buffer_Or_Row (S.Buffer_Switcher, A_Id, 1);
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Remove_Selected);
-      Assert (Avail.Status = Editor.Commands.Command_Unavailable
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Unavailable
               and then Avail.Reason = "Selected pending close target is not dirty",
               "availability rejects a clean selected pending target");
       Cmd := Editor.Commands.Payloads.Command_For_Id
@@ -946,7 +947,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       C_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       D_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Cmd    : Editor.Commands.Payloads.Command;
-      Avail  : Editor.Commands.Command_Availability;
+      Avail  : Editor.Commands.Availability_Metadata.Command_Availability;
       Recent_Before : Natural := 0;
    begin
       Remove_Tree_If_Exists (Root);
@@ -986,7 +987,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
 
       Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Preview);
       Avail := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Preview);
-      Assert (Avail.Status = Editor.Commands.Command_Available,
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "dirty-prune preview is available when dirty active pending targets exist");
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Latest_Message_Text (S) = "Dirty prune prepared: 2 of 3 pending close targets",
@@ -1238,7 +1239,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       C_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Cmd    : Editor.Commands.Payloads.Command;
-      Avail  : Editor.Commands.Command_Availability;
+      Avail  : Editor.Commands.Availability_Metadata.Command_Availability;
       Found  : Boolean := False;
       Row    : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
       Recent_Before : Natural := 0;
@@ -1284,7 +1285,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Editor.Buffer_Switcher.Select_Buffer_Or_Row (S.Buffer_Switcher, A_Id, 1);
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Remove_Selected);
-      Assert (Avail.Status = Editor.Commands.Command_Unavailable
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Unavailable
               and then Avail.Reason = "Selected buffer is not a dirty-prune preview target",
               "availability rejects selected rows outside the captured preview set");
       Cmd := Editor.Commands.Payloads.Command_For_Id
@@ -1312,7 +1313,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Remove_Selected);
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Remove_Selected);
-      Assert (Avail.Status = Editor.Commands.Command_Available,
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "remove-selected is available for a selected captured dirty-prune preview target");
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Dirty_Pending_Marked_Close_Prune_Target_Count (S.Buffer_Switcher) = 1
@@ -1390,7 +1391,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       C_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Cmd    : Editor.Commands.Payloads.Command;
-      Avail  : Editor.Commands.Command_Availability;
+      Avail  : Editor.Commands.Availability_Metadata.Command_Availability;
       Found  : Boolean := False;
       Row    : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
       Recent_Before : Natural := 0;
@@ -1418,7 +1419,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Restore_Last_Removed);
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Restore_Last_Removed);
-      Assert (Avail.Status = Editor.Commands.Command_Unavailable
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Unavailable
               and then Avail.Reason = "No pending dirty-prune action",
               "restore-last-removed is unavailable without a dirty-prune workflow");
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -1440,7 +1441,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Restore_Last_Removed);
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Restore_Last_Removed);
-      Assert (Avail.Status = Editor.Commands.Command_Unavailable
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Unavailable
               and then Avail.Reason = "No removed dirty-prune preview targets",
               "restore-last-removed is unavailable before any preview target removal");
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -1476,7 +1477,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Restore_Last_Removed);
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Restore_Last_Removed);
-      Assert (Avail.Status = Editor.Commands.Command_Available,
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "restore-last-removed is available after preview target removal");
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Latest_Message_Text (S) = "Restored beta.adb to dirty-prune preview"
@@ -1668,7 +1669,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       C_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Cmd    : Editor.Commands.Payloads.Command;
-      Avail  : Editor.Commands.Command_Availability;
+      Avail  : Editor.Commands.Availability_Metadata.Command_Availability;
       Recent_Before : Natural := 0;
    begin
       Remove_Tree_If_Exists (Root);
@@ -1711,7 +1712,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Stale_Summary);
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Stale_Summary);
-      Assert (Avail.Status = Editor.Commands.Command_Available,
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "stale summary is available with a dirty-prune preview");
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Latest_Message_Text (S) = "Dirty-prune stale targets: 1 of 2",
@@ -1723,7 +1724,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
         (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Clear_Stale);
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Clear_Stale);
-      Assert (Avail.Status = Editor.Commands.Command_Available,
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "clear-stale is available when the active preview contains stale targets");
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Latest_Message_Text (S) = "Cleared 1 stale dirty-prune preview targets",
@@ -1749,7 +1750,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Clear_Stale);
-      Assert (Avail.Status = Editor.Commands.Command_Unavailable
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Unavailable
               and then Avail.Reason = "No stale dirty-prune preview targets",
               "clear-stale availability is deterministic when no stale targets remain");
 

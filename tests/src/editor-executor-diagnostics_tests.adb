@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Fixed;
@@ -543,16 +544,16 @@ package body Editor.Executor.Diagnostics_Tests is
          Action_Index     : Natural;
          Expected_Reason  : String)
       is
-         Availability : constant Editor.Commands.Command_Availability :=
+         Availability : constant Editor.Commands.Availability_Metadata.Command_Availability :=
            Editor.Executor.Diagnostic_Quick_Fix_Action_Availability
              (S, Natural (Diagnostic_Index), Action_Index);
       begin
-         Assert (not Editor.Commands.Is_Available (Availability),
+         Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
                  "quick-fix action should be unavailable: " & Expected_Reason);
-         Assert (Editor.Commands.Unavailable_Reason (Availability) = Expected_Reason,
+         Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability) = Expected_Reason,
                  "quick-fix unavailable reason should be specific: expected "
                  & Expected_Reason & " got "
-                 & Editor.Commands.Unavailable_Reason (Availability));
+                 & Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability));
       end Assert_Unavailable;
    begin
       Init_Executor_Test_State (S);
@@ -600,7 +601,7 @@ package body Editor.Executor.Diagnostics_Tests is
       Assert_Unavailable
         (Positive (Inert_Index), 99, "Quick fix action unavailable");
       Assert
-        (Editor.Commands.Is_Available
+        (Editor.Commands.Availability_Metadata.Is_Available
            (Editor.Executor.Diagnostic_Quick_Fix_Action_Availability
               (S, Inert_Index, 1)),
          "valid quick-fix action remains available");
@@ -615,8 +616,8 @@ package body Editor.Executor.Diagnostics_Tests is
       S           : Editor.State.State_Type;
       Result      : Editor.Executor.Command_Execution_Result;
       Shown       : Boolean;
-      Open_Avail  : Editor.Commands.Command_Availability;
-      Action_Avail : Editor.Commands.Command_Availability;
+      Open_Avail  : Editor.Commands.Availability_Metadata.Command_Availability;
+      Action_Avail : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Init_Executor_Test_State (S);
       Editor.State.Load_Text
@@ -646,11 +647,11 @@ package body Editor.Executor.Diagnostics_Tests is
       Action_Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Diagnostics_Execute_Selected_Action);
 
-      Assert (Editor.Commands.Is_Available (Open_Avail),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Open_Avail),
               "diagnostic with no primary action can still be opened");
-      Assert (not Editor.Commands.Is_Available (Action_Avail),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Action_Avail),
               "diagnostic with no primary action must not advertise action execution");
-      Assert (Editor.Commands.Unavailable_Reason (Action_Avail) =
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Action_Avail) =
               "Diagnostic action unavailable",
               "no-action diagnostic availability reports action-specific reason");
 
@@ -840,7 +841,7 @@ package body Editor.Executor.Diagnostics_Tests is
       Analysis   : LM.Analysis_Result;
       Ignored    : LM.Symbol_Id;
       Result     : Editor.Executor.Command_Execution_Result;
-      Available  : Editor.Commands.Command_Availability;
+      Available  : Editor.Commands.Availability_Metadata.Command_Availability;
       Shown      : Boolean;
    begin
       Init_Executor_Test_State (S);
@@ -898,7 +899,7 @@ package body Editor.Executor.Diagnostics_Tests is
 
       Available := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Diagnostics_Execute_Selected_Action);
-      Assert (Editor.Commands.Is_Available (Available),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Available),
               "selected diagnostic edit action is available for inactive open buffer");
 
       Result := Editor.Executor.Execute_Command_With_Result
@@ -937,7 +938,7 @@ package body Editor.Executor.Diagnostics_Tests is
       pragma Unreferenced (T);
       S      : Editor.State.State_Type;
       Result : Editor.Executor.Command_Execution_Result;
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
       Shown  : Boolean;
    begin
       Init_Executor_Test_State (S);
@@ -973,10 +974,10 @@ package body Editor.Executor.Diagnostics_Tests is
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Diagnostics_Execute_Selected_Action);
-      Assert (not Editor.Commands.Is_Available (Availability),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
               "selected diagnostic edit action preflight rejects invalid edit end");
       Assert
-        (Editor.Commands.Unavailable_Reason (Availability) =
+        (Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability) =
          "Diagnostic edit unavailable: stale edit target",
          "invalid diagnostic edit end should report the executor rejection reason");
 

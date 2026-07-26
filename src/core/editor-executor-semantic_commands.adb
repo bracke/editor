@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Editor.Ada_Language_Service;
 with Editor.Command_Execution;
@@ -86,7 +87,7 @@ package body Editor.Executor.Semantic_Commands is
    function Semantic_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability
+      return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin
       case Id is
@@ -126,7 +127,7 @@ package body Editor.Executor.Semantic_Commands is
               .Semantic_Completion_Command_Availability (S, Id);
 
          when others =>
-            return Editor.Commands.Unavailable
+            return Editor.Commands.Availability_Metadata.Unavailable
               ("Unsupported semantic command.");
       end case;
    end Semantic_Command_Availability;

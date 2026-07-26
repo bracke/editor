@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Classification;
 with Editor.Commands.Payloads;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
@@ -547,7 +548,7 @@ package body Editor.Files.Save_Operation_Tests is
       Before_Text  : constant String := "dirty save-as render text";
       Before_Saved : Natural;
       Snap         : Editor.Render_Model.Render_Snapshot;
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Remove_If_Exists (Path);
       Write_Bytes (Path, "disk before save-as side-effect-free checks");
@@ -581,7 +582,7 @@ package body Editor.Files.Save_Operation_Tests is
 
       Assert (Snap.Is_Dirty,
         "render snapshot may observe Save As dirty state but must not clear it");
-      Assert (Editor.Commands.Is_Available (Availability),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "Save As availability may observe active-buffer presence without requiring a path payload");
       Assert (Read_Bytes (Path) = "disk before save-as side-effect-free checks",
         "render and Save As availability must not write or truncate files");
@@ -871,7 +872,7 @@ package body Editor.Files.Save_Operation_Tests is
       Before_Text  : constant String := "render availability save-as text";
       Before_Saved : Natural;
       Snap         : Editor.Render_Model.Render_Snapshot;
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
       Found        : Boolean := False;
       Id           : Editor.Commands.Command_Id := Editor.Commands.No_Command;
    begin
@@ -906,7 +907,7 @@ package body Editor.Files.Save_Operation_Tests is
 
       Assert (Snap.Is_Dirty and then To_String (Snap.File_Name) = "side_effect_target.txt",
         "render snapshot may observe Save As-relevant state without mutating it");
-      Assert (Editor.Commands.Is_Available (Availability),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "Save As availability remains a cheap command-surface check");
       Assert (Read_Bytes (Path) = "disk must remain untouched",
         "render and availability must not probe Save As by writing the target");
@@ -1396,7 +1397,7 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Path          : constant String := Temp_Path ("availability.txt");
       Before_Text   : constant String := "dirty availability text";
       Before_Saved  : Natural;
-      Availability  : Editor.Commands.Command_Availability;
+      Availability  : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Remove_If_Exists (Path);
       Write_Bytes (Path, "disk before availability");
@@ -1417,7 +1418,7 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Availability :=
         Editor.Executor.Command_Availability (S, Editor.Commands.Command_Save_File);
 
-      Assert (Editor.Commands.Is_Available (Availability),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "file.save availability should be available for a dirty file-backed buffer");
       Assert (Read_Bytes (Path) = "disk before availability",
         "availability must not probe by writing or truncating the target file");
@@ -1486,7 +1487,7 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Path_A       : constant String := Temp_Path ("avail_bind_a.txt");
       A            : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B            : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
       B_Copy       : Editor.State.State_Type;
    begin
       Remove_If_Exists (Path_A);
@@ -1511,9 +1512,9 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Availability :=
         Editor.Executor.Command_Availability (S, Editor.Commands.Command_Save_File);
 
-      Assert (not Editor.Commands.Is_Available (Availability),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "save availability must bind to the execution-time active buffer");
-      Assert (Editor.Commands.Unavailable_Reason (Availability) =
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability) =
         "No file path for active buffer",
         "active untitled buffer should drive save availability reason");
       Assert (Read_Bytes (Path_A) = "disk a",
@@ -1875,7 +1876,7 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Before_Text  : constant String := "dirty render text";
       Before_Saved : Natural;
       Snap         : Editor.Render_Model.Render_Snapshot;
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Remove_If_Exists (Path);
       Write_Bytes (Path, "disk before side-effect-free checks");
@@ -1909,7 +1910,7 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
 
       Assert (Snap.Is_Dirty,
         "render snapshot may observe dirty state but must not clean it");
-      Assert (Editor.Commands.Is_Available (Availability),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "save availability may observe a dirty file-backed active buffer");
       Assert (Read_Bytes (Path) = "disk before side-effect-free checks",
         "render and availability must not write or truncate the file");

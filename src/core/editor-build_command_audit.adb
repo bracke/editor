@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Build_Command;
@@ -25,17 +26,17 @@ package body Editor.Build_Command_Audit is
      (State : Editor.State.State_Type) return Boolean
    is
       Copy              : Editor.State.State_Type := State;
-      Before_Availability : constant Editor.Commands.Command_Availability :=
+      Before_Availability : constant Editor.Commands.Availability_Metadata.Command_Availability :=
         Editor.Build_Command.Build_Run_Availability (State);
       Before_Identity   : constant String :=
         Editor.Build_UI.Current_Request_Identity (State.Build_UI);
-      After_Availability : Editor.Commands.Command_Availability;
+      After_Availability : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       After_Availability := Editor.Build_Command.Build_Run_Availability (Copy);
-      return Editor.Commands.Is_Available (Before_Availability) =
-          Editor.Commands.Is_Available (After_Availability)
-        and then Editor.Commands.Unavailable_Reason (Before_Availability) =
-          Editor.Commands.Unavailable_Reason (After_Availability)
+      return Editor.Commands.Availability_Metadata.Is_Available (Before_Availability) =
+          Editor.Commands.Availability_Metadata.Is_Available (After_Availability)
+        and then Editor.Commands.Availability_Metadata.Unavailable_Reason (Before_Availability) =
+          Editor.Commands.Availability_Metadata.Unavailable_Reason (After_Availability)
         and then Editor.Build_UI.Current_Request_Identity (Copy.Build_UI) =
           Before_Identity;
    end Build_Run_Availability_Is_Side_Effect_Free;
@@ -122,12 +123,12 @@ package body Editor.Build_Command_Audit is
       Result.Build_Run_Public_Command_Descriptor :=
         Result.Build_Run_Descriptor_Stable;
       declare
-         Availability : constant Editor.Commands.Command_Availability :=
+         Availability : constant Editor.Commands.Availability_Metadata.Command_Availability :=
            Editor.Build_Command.Build_Run_Availability (State);
       begin
          Result.Build_Run_Availability_Readiness_Derived :=
-           (not Editor.Commands.Is_Available (Availability))
-           and then Editor.Commands.Unavailable_Reason (Availability) =
+           (not Editor.Commands.Availability_Metadata.Is_Available (Availability))
+           and then Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability) =
              Editor.Build_Command.Build_Run_Unavailable_Reason
                (Editor.Build_Command.Build_Run_Readiness (State));
       end;
@@ -322,11 +323,11 @@ package body Editor.Build_Command_Audit is
    is
       Copy : Editor.State.State_Type := State;
       No_Job_Available : constant Boolean :=
-        not Editor.Commands.Is_Available (Editor.Build_Command.Build_Cancel_Availability (Copy));
+        not Editor.Commands.Availability_Metadata.Is_Available (Editor.Build_Command.Build_Cancel_Availability (Copy));
    begin
       Editor.Build_Command.Begin_Public_Build_Job (Copy, "audit");
       return No_Job_Available
-        and then Editor.Commands.Is_Available (Editor.Build_Command.Build_Cancel_Availability (Copy));
+        and then Editor.Commands.Availability_Metadata.Is_Available (Editor.Build_Command.Build_Cancel_Availability (Copy));
    end Assert_Build_Cancel_Requires_Active_Job;
 
    function Assert_Build_Run_Command_Palette_Boundary

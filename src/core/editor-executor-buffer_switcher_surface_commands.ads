@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Buffer_Switcher;
 with Editor.Buffer_Switcher.Filters;
 with Editor.Commands;
@@ -8,7 +9,7 @@ package Editor.Executor.Buffer_Switcher_Surface_Commands is
    function Buffer_Switcher_Surface_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability;
+      return Editor.Commands.Availability_Metadata.Command_Availability;
 
    procedure Execute_Buffer_Switcher_Surface_Kind
      (S    : in out Editor.State.State_Type;

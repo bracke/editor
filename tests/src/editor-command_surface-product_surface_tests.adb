@@ -790,7 +790,7 @@ package body Editor.Command_Surface.Product_Surface_Tests is
       Id     : constant Editor.Commands.Command_Id :=
         Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("project.switch", Found);
       S      : Editor.State.State_Type;
-      Avail  : constant Editor.Commands.Command_Availability :=
+      Avail  : constant Editor.Commands.Availability_Metadata.Command_Availability :=
         Editor.Executor.Command_Availability
           (S, Editor.Commands.Command_Switch_Project);
    begin
@@ -810,9 +810,9 @@ package body Editor.Command_Surface.Product_Surface_Tests is
       Assert (not Editor.Commands.Classification.Is_Destructive_Command
                 (Editor.Commands.Command_Switch_Project),
               "switch project must not be classified as destructive by itself");
-      Assert (not Editor.Commands.Is_Available (Avail),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "switch project has no keybinding/palette path payload");
-      Assert (Editor.Commands.Unavailable_Reason (Avail) = "No target project selected",
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) = "No target project selected",
               "switch project unavailable reason must name missing target");
    end Test_Switch_Project_Command_Surface;
 

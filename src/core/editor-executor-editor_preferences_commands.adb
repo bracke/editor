@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Command_Execution;
 with Editor.Cursor;
 with Editor.Executor;
@@ -30,7 +31,7 @@ package body Editor.Executor.Editor_Preferences_Commands is
    function Editor_Preferences_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability
+      return Editor.Commands.Availability_Metadata.Command_Availability
    is
       pragma Unreferenced (S);
    begin
@@ -51,10 +52,10 @@ package body Editor.Executor.Editor_Preferences_Commands is
             | Editor.Commands.Command_Toggle_Syntax_Colouring
             | Editor.Commands.Command_Toggle_Diagnostics
             | Editor.Commands.Command_Toggle_Cursor_Style =>
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when others =>
-            return Editor.Commands.Unavailable
+            return Editor.Commands.Availability_Metadata.Unavailable
               ("Not an editor preference command");
       end case;
    end Editor_Preferences_Command_Availability;

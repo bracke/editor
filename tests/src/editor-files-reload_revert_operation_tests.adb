@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Classification;
 with Editor.Commands.Payloads;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
@@ -262,7 +263,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       pragma Unreferenced (T);
       S            : Editor.State.State_Type;
       Path         : constant String := Temp_Path ("reload_validation.txt");
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
       M            : Editor.Messages.Editor_Message;
       Found        : Boolean := False;
    begin
@@ -274,8 +275,8 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Reload_Active_Buffer);
-      Assert (not Editor.Commands.Is_Available (Availability)
-        and then Editor.Commands.Unavailable_Reason (Availability) = "No active buffer.",
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability)
+        and then Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability) = "No active buffer.",
         "reload availability must report no active buffer first");
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
       M := Editor.Messages.Active_Message (S.Messages, Found);
@@ -290,8 +291,8 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Editor.Messages.Clear (S.Messages);
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Reload_Active_Buffer);
-      Assert (not Editor.Commands.Is_Available (Availability)
-        and then Editor.Commands.Unavailable_Reason (Availability) = "No file path for active buffer",
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability)
+        and then Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability) = "No file path for active buffer",
         "no-path reload availability must precede dirty checks");
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
       M := Editor.Messages.Active_Message (S.Messages, Found);
@@ -310,7 +311,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Editor.Messages.Clear (S.Messages);
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Reload_Active_Buffer);
-      Assert (Editor.Commands.Is_Available (Availability),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "clean associated buffer should be reload-available without filesystem probing");
 
       Remove_If_Exists (Path);
@@ -598,7 +599,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Path         : constant String := Temp_Path ("availability_missing.txt");
       Before_Text  : Unbounded_String;
       Before_Gen   : Natural := 0;
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Remove_If_Exists (Path);
       Write_Bytes (Path, "availability baseline");
@@ -611,7 +612,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Reload_Active_Buffer);
-      Assert (Editor.Commands.Is_Available (Availability),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "reload availability must not probe for a missing associated file");
       Assert (Buffer_Text (S) = To_String (Before_Text)
         and then S.File_Info.Saved_Generation = Before_Gen
@@ -1361,7 +1362,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       B_Id         : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       M            : Editor.Messages.Editor_Message;
       Found        : Boolean := False;
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Remove_If_Exists (A_Path);
       Remove_If_Exists (B_Path);
@@ -1409,7 +1410,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Revert_Active_Buffer);
-      Assert (Editor.Commands.Is_Available (Availability),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "dirty associated active buffer must make revert available");
       Assert (Buffer_Text (S) = "A disk before dirty A" and then S.File_Info.Dirty,
         "revert availability must not read files or mutate text");
@@ -1588,7 +1589,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Before_Caret  : Editor.Cursors.Caret_State;
       Before_Undo   : Ada.Containers.Count_Type;
       Before_Redo   : Ada.Containers.Count_Type;
-      Availability  : Editor.Commands.Command_Availability;
+      Availability  : Editor.Commands.Availability_Metadata.Command_Availability;
       M             : Editor.Messages.Editor_Message;
       Found         : Boolean := False;
    begin
@@ -1617,8 +1618,8 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Revert_Active_Buffer);
-      Assert (not Editor.Commands.Is_Available (Availability)
-        and then Editor.Commands.Unavailable_Reason (Availability) = "No changes to revert",
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability)
+        and then Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability) = "No changes to revert",
         "clean associated revert availability must not probe the filesystem");
       Assert (To_Unbounded_String (Buffer_Text (S)) = Before_Text,
         "clean availability check must not mutate text");
@@ -1664,7 +1665,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       M        : Editor.Messages.Editor_Message;
       Found    : Boolean := False;
       Id       : Editor.Commands.Command_Id := Editor.Commands.No_Command;
-      Avail    : Editor.Commands.Command_Availability;
+      Avail    : Editor.Commands.Availability_Metadata.Command_Availability;
 
       procedure Assert_Message
         (Text : String; Severity : Editor.Messages.Message_Severity) is
@@ -1743,8 +1744,8 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Remove_If_Exists (Path);
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Revert_Active_Buffer);
-      Assert (not Editor.Commands.Is_Available (Avail)
-        and then Editor.Commands.Unavailable_Reason (Avail) = "No changes to revert",
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail)
+        and then Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) = "No changes to revert",
         "clean associated availability must stop before filesystem probing");
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Revert_Active_Buffer);
@@ -2094,7 +2095,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Path        : constant String := Temp_Path ("lifecycle.txt");
       Save_As     : constant String := Temp_Path ("lifecycle_save_as.txt");
       Snap        : Editor.Render_Model.Render_Snapshot;
-      Avail       : Editor.Commands.Command_Availability;
+      Avail       : Editor.Commands.Availability_Metadata.Command_Availability;
       Candidates  : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Palette_Found : Boolean := False;
       Before_Text : Unbounded_String;
@@ -2129,7 +2130,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       end if;
       Assert (Palette_Found,
         "Command Palette projection must still include canonical file.revert-buffer without executing it");
-      Assert (Editor.Commands.Is_Available (Avail),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
         "dirty associated revert availability may observe state but must not probe filesystem");
       Assert (Buffer_Text (S) = To_String (Before_Text)
         and then S.File_Info.Dirty = Before_Dirty

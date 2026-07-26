@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Text_Buffer;
 with Ada.Containers; use Ada.Containers;
 with Ada.Directories;
@@ -62,26 +63,26 @@ package body Editor.Executor.File_Open_Commands is
    function File_Open_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability
+      return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin
       case Id is
          when Command_New_Buffer =>
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Open_File | Command_Switch_Buffer =>
-            return Editor.Commands.Unavailable ("Command not available here");
+            return Editor.Commands.Availability_Metadata.Unavailable ("Command not available here");
 
          when Command_Reopen_Closed_Buffer =>
             if not S.Has_Reopen_Candidate
               or else Length (S.Reopen_Candidate_Path) = 0
             then
-               return Editor.Commands.Unavailable ("No closed buffer to reopen");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No closed buffer to reopen");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when others =>
-            return Editor.Commands.Unavailable
+            return Editor.Commands.Availability_Metadata.Unavailable
               ("Command is not a file open command");
       end case;
    end File_Open_Command_Availability;

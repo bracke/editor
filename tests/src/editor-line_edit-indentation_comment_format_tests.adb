@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Classification;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -38,7 +39,7 @@ package body Editor.Line_Edit.Indentation_Comment_Format_Tests is
    use type Editor.Commands.Command_Id;
    use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Commands.Descriptors.Command_Visibility;
-   use type Editor.Commands.Command_Availability_Status;
+   use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
    use type Editor.Commands.Command_Kind;
    use type Editor.Keybindings.Keybinding_Validation_Status;
    use type Editor.Buffers.Buffer_Id;
@@ -533,7 +534,7 @@ package body Editor.Line_Edit.Indentation_Comment_Format_Tests is
       S            : Editor.State.State_Type;
       After        : Editor.State.State_Type;
       Before_Text  : Unbounded_String;
-      Availability  : Editor.Commands.Command_Availability;
+      Availability  : Editor.Commands.Availability_Metadata.Command_Availability;
 
       function Ctrl_Alt (Key : Editor.Keybindings.Key_Code)
         return Editor.Keybindings.Key_Chord
@@ -1337,7 +1338,7 @@ procedure Test_Canonical_Line_Comment_Path_And_Persistence_Exclusion
       Before_Replace : Unbounded_String;
       Before_Clip    : Unbounded_String;
       Snap           : Editor.Render_Model.Editor_Snapshot;
-      Avail          : Editor.Commands.Command_Availability;
+      Avail          : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
@@ -1412,7 +1413,7 @@ procedure Test_Canonical_Line_Comment_Path_And_Persistence_Exclusion
               "render snapshot must derive from canonical buffer text only");
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Toggle_Line_Comment);
-      Assert (Editor.Commands.Is_Available (Avail),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "toggle availability must remain side-effect-free and available");
 
       Workspace_Snap := Editor.State.Build_Workspace_Snapshot (S);
@@ -1612,7 +1613,7 @@ procedure Test_Canonical_Line_Comment_Path_And_Persistence_Exclusion
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      A : Editor.Commands.Command_Availability;
+      A : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
@@ -1633,12 +1634,12 @@ procedure Test_Canonical_Line_Comment_Path_And_Persistence_Exclusion
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Format_Selected_Text);
       Assert
-        (A.Status = Editor.Commands.Command_Unavailable,
+        (A.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
          "format selection must require an active selection");
       Assert
-        (Editor.Commands.Unavailable_Reason (A) = "No selected text",
+        (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "No selected text",
          "format selection no-selection availability reason mismatch: "
-         & Editor.Commands.Unavailable_Reason (A));
+         & Editor.Commands.Availability_Metadata.Unavailable_Reason (A));
 
       Set_Primary_Selection (S, 7, 10);
 
@@ -1799,7 +1800,7 @@ procedure Test_Canonical_Line_Comment_Path_And_Persistence_Exclusion
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      A : Editor.Commands.Command_Availability;
+      A : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
@@ -1812,10 +1813,10 @@ procedure Test_Canonical_Line_Comment_Path_And_Persistence_Exclusion
         (S, Editor.Commands.Command_Trim_Trailing_Whitespace);
 
       Assert
-        (A.Status = Editor.Commands.Command_Unavailable,
+        (A.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
          "clean-buffer trim availability must be unavailable");
       Assert
-        (Editor.Commands.Unavailable_Reason (A) = "No trailing whitespace",
+        (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "No trailing whitespace",
          "clean-buffer trim availability reason mismatch");
       Assert_Buffer_Text
         (S, "alpha" & ASCII.LF & "beta",
@@ -1831,7 +1832,7 @@ procedure Test_Canonical_Line_Comment_Path_And_Persistence_Exclusion
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      A : Editor.Commands.Command_Availability;
+      A : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
@@ -1845,10 +1846,10 @@ procedure Test_Canonical_Line_Comment_Path_And_Persistence_Exclusion
         (S, Editor.Commands.Command_Trim_Trailing_Whitespace);
 
       Assert
-        (A.Status = Editor.Commands.Command_Unavailable,
+        (A.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
          "selected clean line trim availability must be unavailable");
       Assert
-        (Editor.Commands.Unavailable_Reason (A) = "No trailing whitespace",
+        (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "No trailing whitespace",
          "selected clean line trim availability reason mismatch");
       Assert_Buffer_Text
         (S, "one  " & ASCII.LF & "two" & ASCII.LF & "three  ",

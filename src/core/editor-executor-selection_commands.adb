@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Ada.Containers; use Ada.Containers;
 
@@ -27,7 +28,7 @@ package body Editor.Executor.Selection_Commands is
    function Selection_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability
+      return Editor.Commands.Availability_Metadata.Command_Availability
    is
       function Has_Buffer return Boolean is
       begin
@@ -55,24 +56,24 @@ package body Editor.Executor.Selection_Commands is
             | Editor.Commands.Command_Select_Page_Down
             | Editor.Commands.Command_Select_All =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer.");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Selection_Clear =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer.");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
             elsif S.Carets.Length = 0 then
-               return Editor.Commands.Unavailable ("No caret location");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No caret location");
             elsif not Editor.Selection.Has_Selection (S)
               and then not S.Rect_Select_Active
             then
-               return Editor.Commands.Unavailable ("No selection");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No selection");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when others =>
-            return Editor.Commands.Unavailable
+            return Editor.Commands.Availability_Metadata.Unavailable
               ("Command is not a selection command");
       end case;
    end Selection_Command_Availability;

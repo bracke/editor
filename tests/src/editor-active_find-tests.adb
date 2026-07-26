@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Classification;
 with Editor.Commands.Payloads;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
@@ -31,7 +32,7 @@ with Text_Buffer;
 use type Editor.Commands.Descriptors.Command_Category;
 use type Editor.Commands.Command_Id;
 use type Editor.Commands.Descriptors.Command_Visibility;
-use type Editor.Commands.Command_Availability_Status;
+use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
 use type Editor.Keybindings.Binding_Result;
 
 
@@ -819,7 +820,7 @@ package body Editor.Active_Find.Tests is
    is
       pragma Unreferenced (T);
       S        : Editor.State.State_Type;
-      A        : Editor.Commands.Command_Availability;
+      A        : Editor.Commands.Availability_Metadata.Command_Availability;
       Message  : Unbounded_String;
       Query    : Unbounded_String;
       Count    : Natural := 0;
@@ -838,8 +839,8 @@ package body Editor.Active_Find.Tests is
         (S, Editor.Commands.Command_Find_From_Selection);
 
       Assert
-        ((not Editor.Commands.Is_Available (A))
-         and then Editor.Commands.Unavailable_Reason (A) = "No selected text"
+        ((not Editor.Commands.Availability_Metadata.Is_Available (A))
+         and then Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "No selected text"
          and then S.Active_Find_Query = Query
          and then Natural (S.Active_Find_Matches.Length) = Count
          and then Natural (S.Carets (S.Carets.First_Index).Pos) = Caret
@@ -850,7 +851,7 @@ package body Editor.Active_Find.Tests is
         (S, Editor.Commands.Command_Find_From_Active_Word);
 
       Assert
-        (Editor.Commands.Is_Available (A)
+        (Editor.Commands.Availability_Metadata.Is_Available (A)
          and then S.Active_Find_Query = Query
          and then Natural (S.Active_Find_Matches.Length) = Count
          and then Natural (S.Carets (S.Carets.First_Index).Pos) = Caret
@@ -1466,7 +1467,7 @@ package body Editor.Active_Find.Tests is
    is
       pragma Unreferenced (T);
       S       : Editor.State.State_Type;
-      A       : Editor.Commands.Command_Availability;
+      A       : Editor.Commands.Availability_Metadata.Command_Availability;
       Query   : Unbounded_String;
       Count   : Natural := 0;
       Message : Unbounded_String;
@@ -1485,7 +1486,7 @@ package body Editor.Active_Find.Tests is
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Find_Case_Toggle);
       Assert
-        (Editor.Commands.Is_Available (A)
+        (Editor.Commands.Availability_Metadata.Is_Available (A)
          and then S.Active_Find_Query = Query
          and then Natural (S.Active_Find_Matches.Length) = Count
          and then S.Active_Find_Case_Sensitive = Case_Mode
@@ -1495,7 +1496,7 @@ package body Editor.Active_Find.Tests is
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Find_Case_Clear);
       Assert
-        (Editor.Commands.Is_Available (A)
+        (Editor.Commands.Availability_Metadata.Is_Available (A)
          and then S.Active_Find_Query = Query
          and then Natural (S.Active_Find_Matches.Length) = Count
          and then S.Active_Find_Case_Sensitive = Case_Mode
@@ -1724,7 +1725,7 @@ package body Editor.Active_Find.Tests is
    is
       pragma Unreferenced (T);
       S       : Editor.State.State_Type;
-      A       : Editor.Commands.Command_Availability;
+      A       : Editor.Commands.Availability_Metadata.Command_Availability;
       Query   : Unbounded_String;
       Count   : Natural := 0;
       Message : Unbounded_String;
@@ -1743,7 +1744,7 @@ package body Editor.Active_Find.Tests is
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Find_Whole_Word_Toggle);
       Assert
-        (Editor.Commands.Is_Available (A)
+        (Editor.Commands.Availability_Metadata.Is_Available (A)
          and then S.Active_Find_Query = Query
          and then Natural (S.Active_Find_Matches.Length) = Count
          and then S.Active_Find_Whole_Word = Whole
@@ -1753,7 +1754,7 @@ package body Editor.Active_Find.Tests is
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Find_Whole_Word_Clear);
       Assert
-        (Editor.Commands.Is_Available (A)
+        (Editor.Commands.Availability_Metadata.Is_Available (A)
          and then S.Active_Find_Query = Query
          and then Natural (S.Active_Find_Matches.Length) = Count
          and then S.Active_Find_Whole_Word = Whole
@@ -2682,7 +2683,7 @@ package body Editor.Active_Find.Tests is
    is
       pragma Unreferenced (T);
       S       : Editor.State.State_Type;
-      A       : Editor.Commands.Command_Availability;
+      A       : Editor.Commands.Availability_Metadata.Command_Availability;
       Caret   : Natural := 0;
       Query   : Unbounded_String;
       Count   : Natural := 0;
@@ -2705,7 +2706,7 @@ package body Editor.Active_Find.Tests is
       Message := To_Unbounded_String (Active_Message_Text (S));
       A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Find_Last);
       Assert
-        (Editor.Commands.Is_Available (A)
+        (Editor.Commands.Availability_Metadata.Is_Available (A)
          and then S.Active_Find_Query = Query
          and then Natural (S.Active_Find_Matches.Length) = Count
          and then Active_Message_Text (S) = To_String (Message),
@@ -3213,7 +3214,7 @@ package body Editor.Active_Find.Tests is
       pragma Unreferenced (T);
       S       : Editor.State.State_Type;
       Snap    : Editor.Render_Model.Render_Snapshot;
-      A       : Editor.Commands.Command_Availability;
+      A       : Editor.Commands.Availability_Metadata.Command_Availability;
       Query   : Unbounded_String;
       Count   : Natural := 0;
       Caret   : Natural := 0;
@@ -3233,7 +3234,7 @@ package body Editor.Active_Find.Tests is
       A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Find_Reveal_Current);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert
-        (Editor.Commands.Is_Available (A)
+        (Editor.Commands.Availability_Metadata.Is_Available (A)
          and then S.Active_Find_Query = Query
          and then Natural (S.Active_Find_Matches.Length) = Count
          and then Natural (S.Carets (S.Carets.First_Index).Pos) = Caret

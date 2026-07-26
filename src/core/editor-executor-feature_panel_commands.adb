@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Command_Execution;
 with Editor.Executor;
 with Editor.Executor.Shared_Services;
@@ -30,73 +31,73 @@ package body Editor.Executor.Feature_Panel_Commands is
    function Feature_Panel_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability
+      return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin
       case Id is
          when Editor.Commands.Command_Toggle_Feature_Panel =>
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Show_Feature_Panel =>
             if Editor.Feature_Panel.Is_Visible (S.Feature_Panel) then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Feature_Panel.Reason_Feature_Panel_Already_Shown);
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Hide_Feature_Panel =>
             if not Editor.Feature_Panel.Is_Visible (S.Feature_Panel) then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Feature_Panel.Reason_Feature_Panel_Hidden);
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Focus_Feature_Panel =>
             if not Editor.Feature_Panel.Is_Visible (S.Feature_Panel) then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Feature_Panel.Reason_Feature_Panel_Hidden);
             elsif Editor.Feature_Panel.Is_Focused (S.Feature_Panel) then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Feature_Panel.Reason_Feature_Panel_Already_Focused);
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Clear_Feature_Panel =>
             if not Editor.Feature_Panel.Feature_Can_Clear
               (Editor.Feature_Panel.Active_Feature (S.Feature_Panel))
             then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  ("Feature panel: no active feature");
             elsif not Editor.Feature_Panel.Has_Selectable_Row (S.Feature_Panel)
             then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Feature_Panel.Reason_No_Feature_Panel_Rows);
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Feature_Panel_Select_Next
             | Editor.Commands.Command_Feature_Panel_Select_Previous =>
             if not Editor.Feature_Panel.Is_Visible (S.Feature_Panel) then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Feature_Panel.Reason_Feature_Panel_Hidden);
             elsif not Editor.Feature_Panel.Has_Selectable_Row (S.Feature_Panel)
             then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Feature_Panel.Reason_No_Feature_Panel_Rows);
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Feature_Panel_Open_Selected =>
             if not Editor.Feature_Panel.Is_Visible (S.Feature_Panel) then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Feature_Panel.Reason_Feature_Panel_Hidden);
             elsif not Editor.Feature_Panel.Is_Known_Feature
               (Editor.Feature_Panel.Active_Feature (S.Feature_Panel))
             then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  ("Feature panel: no active feature");
             elsif not Editor.Feature_Panel.Has_Selection (S.Feature_Panel) then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Feature_Panel.Reason_No_Feature_Panel_Row_Selected);
             elsif not Editor.Feature_Panel.Row_Can_Open
               (S.Feature_Panel,
@@ -112,13 +113,13 @@ package body Editor.Executor.Feature_Panel_Commands is
                      Editor.Feature_Search_Results
                        .Diagnostic_Quick_Fix_Action_List)
             then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Feature_Panel.Message_Feature_Panel_Row_Has_No_Target);
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when others =>
-            return Editor.Commands.Unavailable
+            return Editor.Commands.Availability_Metadata.Unavailable
               ("Not a feature-panel command");
       end case;
    end Feature_Panel_Command_Availability;

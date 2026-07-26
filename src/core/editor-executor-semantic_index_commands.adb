@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Characters.Handling;
 with Ada.Strings;
@@ -405,7 +406,7 @@ package body Editor.Executor.Semantic_Index_Commands is
    function Semantic_Index_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability
+      return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin
       case Id is
@@ -413,17 +414,17 @@ package body Editor.Executor.Semantic_Index_Commands is
             | Editor.Commands.Command_Semantic_Refresh_Buffer
             | Editor.Commands.Command_Semantic_Refresh_Project_Index =>
             if not Editor.State.Has_Active_Buffer (S) then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Reason_No_Active_Buffer);
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Language_Index_Clear
             | Editor.Commands.Command_Language_Index_Status =>
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when others =>
-            return Editor.Commands.Unavailable
+            return Editor.Commands.Availability_Metadata.Unavailable
               ("Unsupported semantic index command.");
       end case;
    end Semantic_Index_Command_Availability;

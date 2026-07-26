@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
@@ -186,12 +187,12 @@ package body Editor.Pending_Transition_Bar.Surface_Rendering is
          declare
             Info : constant Editor.Pending_Transition_Bar.Pending_Bar_Action_Info :=
               Editor.Pending_Transition_Bar.Action (Snapshot, I);
-            Availability : constant Editor.Commands.Command_Availability :=
+            Availability : constant Editor.Commands.Availability_Metadata.Command_Availability :=
               Editor.Executor.Command_Availability (State, Info.Command);
          begin
             Editor.Pending_Transition_Bar.Set_Action_Availability
               (Snapshot, Info.Action,
-               Editor.Commands.Is_Available (Availability));
+               Editor.Commands.Availability_Metadata.Is_Available (Availability));
          end;
       end loop;
    end Enrich_Availability;

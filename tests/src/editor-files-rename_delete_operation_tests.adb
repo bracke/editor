@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
@@ -95,7 +96,7 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Id           : Editor.Commands.Command_Id;
       Found_Id     : Boolean := False;
       Descriptor   : Editor.Commands.Descriptors.Command_Descriptor;
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
       M            : Editor.Messages.Editor_Message;
       Found        : Boolean := False;
 
@@ -155,8 +156,8 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       S.Active_Buffer_Token := 0;
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Rename_Buffer_File);
-      Assert (not Editor.Commands.Is_Available (Availability)
-        and then Editor.Commands.Unavailable_Reason (Availability) = "No active buffer.",
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability)
+        and then Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability) = "No active buffer.",
         "rename availability must report no active buffer first");
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, Target);
       Assert_Message ("No active buffer.", Editor.Messages.Info_Message);
@@ -760,7 +761,7 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Path         : constant String := Temp_Path ("read_only_source.txt");
       Target       : constant String := Temp_Path ("read_only_target.txt");
       Snap         : Editor.Render_Model.Render_Snapshot;
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
       Candidates   : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Rows         : Natural := 0;
       Before_Text  : Unbounded_String;
@@ -791,7 +792,7 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       end if;
 
       Assert (not Snap.Is_Dirty
-        and then Editor.Commands.Is_Available (Availability)
+        and then Editor.Commands.Availability_Metadata.Is_Available (Availability)
         and then Rows = 1,
         "render, availability, and palette projection may observe only static active-buffer rename eligibility");
       Assert (Ada.Directories.Exists (Path)
@@ -806,7 +807,7 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Remove_If_Exists (Path);
       Availability :=
         Editor.Executor.Command_Availability (S, Editor.Commands.Command_Rename_Buffer_File);
-      Assert (Editor.Commands.Is_Available (Availability)
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability)
         and then To_String (S.File_Info.Path) = To_String (Before_Path)
         and then not Ada.Directories.Exists (Target),
         "availability must not probe source existence or target collision state");
@@ -1326,7 +1327,7 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Path          : constant String := Temp_Path ("boundary_source.txt");
       Target        : constant String := Temp_Path ("boundary_target.txt");
       Snap          : Editor.Render_Model.Render_Snapshot;
-      Availability  : Editor.Commands.Command_Availability;
+      Availability  : Editor.Commands.Availability_Metadata.Command_Availability;
       Candidates    : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Workspace     : Editor.Workspace_Persistence.Workspace_Snapshot;
       Summary       : Unbounded_String;
@@ -1381,7 +1382,7 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Summary := To_Unbounded_String (Editor.Workspace_Persistence.Debug_Summary (Workspace));
 
       Assert (not Snap.Is_Dirty
-        and then Editor.Commands.Is_Available (Availability)
+        and then Editor.Commands.Availability_Metadata.Is_Available (Availability)
         and then Rename_Rows = 1,
         "boundaries: render, availability, and palette projection observe rename without execution");
       Assert (Ada.Directories.Exists (Path)
@@ -1511,7 +1512,7 @@ procedure Test_Delete_Command_Surface_And_Validation
       Cmd_Id       : Editor.Commands.Command_Id;
       Found        : Boolean := False;
       Descriptor   : Editor.Commands.Descriptors.Command_Descriptor;
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
       M            : Editor.Messages.Editor_Message;
    begin
       Cmd_Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
@@ -1536,7 +1537,7 @@ procedure Test_Delete_Command_Surface_And_Validation
       S.Active_Buffer_Token := 0;
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Delete_Buffer_File);
-      Assert (not Editor.Commands.Is_Available (Availability),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "delete unavailable without active buffer");
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
       M := Editor.Messages.Active_Message (S.Messages, Found);
@@ -1550,7 +1551,7 @@ procedure Test_Delete_Command_Surface_And_Validation
       Editor.Messages.Clear (S.Messages);
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Delete_Buffer_File);
-      Assert (not Editor.Commands.Is_Available (Availability),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "delete unavailable for untitled active buffer");
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
       M := Editor.Messages.Active_Message (S.Messages, Found);
@@ -1564,7 +1565,7 @@ procedure Test_Delete_Command_Surface_And_Validation
       Editor.Messages.Clear (S.Messages);
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Delete_Buffer_File);
-      Assert (not Editor.Commands.Is_Available (Availability),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "delete unavailable for dirty active associated buffer");
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
       M := Editor.Messages.Active_Message (S.Messages, Found);
@@ -1770,7 +1771,7 @@ procedure Test_Delete_Validation_Order_And_Active_Source
       A_Path       : constant String := Temp_Path ("p450_active_source.txt");
       B_Path       : constant String := Temp_Path ("p450_inactive_source.txt");
       Before_Body  : constant String := "inactive target must remain";
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
       Found        : Boolean := False;
       M            : Editor.Messages.Editor_Message;
    begin
@@ -1795,7 +1796,7 @@ procedure Test_Delete_Validation_Order_And_Active_Source
         (S, Editor.Commands.Command_Delete_Buffer_File);
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
       M := Editor.Messages.Active_Message (S.Messages, Found);
-      Assert (not Editor.Commands.Is_Available (Availability)
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability)
         and then Found
         and then To_String (M.Text) = "No file path for active buffer"
         and then Buffer_Text (S) = "dirty untitled delete validation dirty",
@@ -1814,7 +1815,7 @@ procedure Test_Delete_Validation_Order_And_Active_Source
         (S, Editor.Commands.Command_Delete_Buffer_File);
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
       M := Editor.Messages.Active_Message (S.Messages, Found);
-      Assert (Editor.Commands.Is_Available (Availability)
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability)
         and then Found
         and then To_String (M.Text) = "Buffer file deleted"
         and then not Ada.Directories.Exists (A_Path)
@@ -1960,7 +1961,7 @@ procedure Test_Delete_Validation_Order_And_Active_Source
       Before_Text   : Unbounded_String;
       Before_Undo   : Ada.Containers.Count_Type;
       Before_Redo   : Ada.Containers.Count_Type;
-      Availability  : Editor.Commands.Command_Availability;
+      Availability  : Editor.Commands.Availability_Metadata.Command_Availability;
       Workspace     : Editor.Workspace_Persistence.Workspace_Snapshot;
       Summary       : Unbounded_String;
       Found         : Boolean := False;
@@ -2020,7 +2021,7 @@ procedure Test_Delete_Validation_Order_And_Active_Source
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Delete_Buffer_File);
-      Assert (not Editor.Commands.Is_Available (Availability),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "post-success availability must observe no path without filesystem repair");
 
       Editor.Messages.Clear (S.Messages);
@@ -2280,7 +2281,7 @@ procedure Test_Delete_Validation_Order_And_Active_Source
       Before_Redo   : Ada.Containers.Count_Type;
       Before_Back   : Ada.Containers.Count_Type;
       Before_Fwd    : Ada.Containers.Count_Type;
-      Availability  : Editor.Commands.Command_Availability;
+      Availability  : Editor.Commands.Availability_Metadata.Command_Availability;
       Candidates    : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Workspace     : Editor.Workspace_Persistence.Workspace_Snapshot;
       Summary       : Unbounded_String;
@@ -2357,7 +2358,7 @@ procedure Test_Delete_Validation_Order_And_Active_Source
          end loop;
       end if;
 
-      Assert (Editor.Commands.Is_Available (Availability)
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability)
         and then Delete_Rows = 1
         and then Ada.Directories.Exists (Path)
         and then S.File_Info.Has_Path
@@ -2448,7 +2449,7 @@ procedure Test_Delete_Cleanup_Preserves_Source_State_And_Persistence
       Before_Fwd     : Ada.Containers.Count_Type;
       Workspace      : Editor.Workspace_Persistence.Workspace_Snapshot;
       Summary        : Unbounded_String;
-      Availability   : Editor.Commands.Command_Availability;
+      Availability   : Editor.Commands.Availability_Metadata.Command_Availability;
       Found          : Boolean := False;
       M              : Editor.Messages.Editor_Message;
 
@@ -2502,7 +2503,7 @@ procedure Test_Delete_Cleanup_Preserves_Source_State_And_Persistence
       Summary := To_Unbounded_String
         (Editor.Workspace_Persistence.Debug_Summary (Workspace));
 
-      Assert (Editor.Commands.Is_Available (Availability)
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability)
         and then Ada.Directories.Exists (Active_Path)
         and then Ada.Directories.Exists (Inactive_Path)
         and then Ada.Directories.Exists (Reopen_Path)

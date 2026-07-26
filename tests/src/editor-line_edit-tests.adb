@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
@@ -38,7 +39,7 @@ package body Editor.Line_Edit.Tests is
    use type Editor.Commands.Command_Id;
    use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Commands.Descriptors.Command_Visibility;
-   use type Editor.Commands.Command_Availability_Status;
+   use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
    use type Editor.Commands.Command_Kind;
    use type Editor.Keybindings.Keybinding_Validation_Status;
    use type Editor.Buffers.Buffer_Id;
@@ -452,7 +453,7 @@ package body Editor.Line_Edit.Tests is
       Before_Undo   : Natural := 0;
       Before_Redo   : Natural := 0;
       Before_Message : Unbounded_String := Null_Unbounded_String;
-      Availability  : Editor.Commands.Command_Availability;
+      Availability  : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "one" & ASCII.LF & "two" & ASCII.LF & "three");
@@ -669,7 +670,7 @@ package body Editor.Line_Edit.Tests is
       Before_Text    : Unbounded_String;
       Before_Find    : Unbounded_String;
       Before_Replace : Unbounded_String;
-      Availability   : Editor.Commands.Command_Availability;
+      Availability   : Editor.Commands.Availability_Metadata.Command_Availability;
       Id             : Editor.Commands.Command_Id := Editor.Commands.No_Command;
       Found          : Boolean := False;
 
@@ -890,7 +891,7 @@ package body Editor.Line_Edit.Tests is
       Snap           : Editor.Render_Model.Render_Snapshot;
       Workspace_Snap : Editor.Workspace_Persistence.Workspace_Snapshot;
       Summary        : Unbounded_String;
-      A              : Editor.Commands.Command_Availability;
+      A              : Editor.Commands.Availability_Metadata.Command_Availability;
       Found          : Boolean := True;
       Id             : Editor.Commands.Command_Id := Editor.Commands.No_Command;
    begin
@@ -944,13 +945,13 @@ package body Editor.Line_Edit.Tests is
       S.Carets.Clear;
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Indent_Increase);
-      Assert (A.Status = Editor.Commands.Command_Unavailable
-              and then Editor.Commands.Unavailable_Reason (A) = "No caret location",
+      Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Unavailable
+              and then Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "No caret location",
               "indent increase availability without caret must be unavailable without mutation");
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Indent_Decrease);
-      Assert (A.Status = Editor.Commands.Command_Unavailable
-              and then Editor.Commands.Unavailable_Reason (A) = "No caret location",
+      Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Unavailable
+              and then Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "No caret location",
               "indent decrease availability without caret must be unavailable without mutation");
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "  Alpha" & ASCII.LF & "Beta",
               "no-caret availability must not mutate text");
@@ -983,7 +984,7 @@ package body Editor.Line_Edit.Tests is
       Before_Redo    : Natural := 0;
       Before_Back    : Natural := 0;
       Before_Fwd     : Natural := 0;
-      A              : Editor.Commands.Command_Availability;
+      A              : Editor.Commands.Availability_Metadata.Command_Availability;
       pragma Unreferenced (A);
    begin
       Editor.History.Undo_Stack.Clear;
@@ -1131,7 +1132,7 @@ package body Editor.Line_Edit.Tests is
       Snap           : Editor.Render_Model.Editor_Snapshot;
       Workspace_Snap : Editor.Workspace_Persistence.Workspace_Snapshot;
       Summary        : Unbounded_String;
-      Avail          : Editor.Commands.Command_Availability;
+      Avail          : Editor.Commands.Availability_Metadata.Command_Availability;
       Binding        : Editor.Keybindings.Binding_Result;
       Resolved       : Editor.Commands.Command_Id := Editor.Commands.No_Command;
 
@@ -1164,7 +1165,7 @@ package body Editor.Line_Edit.Tests is
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Comment_Line);
-      Assert (Editor.Commands.Is_Available (Avail),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "comment-line availability should be side-effect-free and available with buffer/caret");
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = To_String (Before_Text),
               "comment-line availability must not mutate text");
@@ -1174,8 +1175,8 @@ package body Editor.Line_Edit.Tests is
       Editor.State.Init (No_Buffer);
       Avail := Editor.Executor.Command_Availability
         (No_Buffer, Editor.Commands.Command_Toggle_Line_Comment);
-      Assert (not Editor.Commands.Is_Available (Avail)
-              and then Editor.Commands.Unavailable_Reason (Avail) = "No active buffer.",
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail)
+              and then Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) = "No active buffer.",
               "line-comment availability without an active buffer must use canonical no-active-buffer reason");
       Editor.Executor.Execute_Command
         (No_Buffer, Editor.Commands.Command_Toggle_Line_Comment);
@@ -1185,8 +1186,8 @@ package body Editor.Line_Edit.Tests is
       S.Carets.Clear;
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Toggle_Line_Comment);
-      Assert (not Editor.Commands.Is_Available (Avail)
-              and then Editor.Commands.Unavailable_Reason (Avail) = "No caret location",
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail)
+              and then Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) = "No caret location",
               "line-comment availability without a caret must use canonical no-caret reason");
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Toggle_Line_Comment);
@@ -1481,15 +1482,15 @@ package body Editor.Line_Edit.Tests is
          Why              : String)
       is
          S     : Editor.State.State_Type;
-         Avail : Editor.Commands.Command_Availability;
+         Avail : Editor.Commands.Availability_Metadata.Command_Availability;
       begin
          Editor.History.Undo_Stack.Clear;
          Editor.History.Redo_Stack.Clear;
          Editor.State.Init (S);
          Avail := Editor.Executor.Command_Availability (S, Id);
          Assert
-           (not Editor.Commands.Is_Available (Avail)
-            and then Editor.Commands.Unavailable_Reason (Avail) = "No active buffer.",
+           (not Editor.Commands.Availability_Metadata.Is_Available (Avail)
+            and then Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) = "No active buffer.",
             Why & ": availability must report no active buffer without side effects");
          Editor.Executor.Execute_Command (S, Id);
          Assert (Message_Text (S) = Expected_Message,
@@ -1534,7 +1535,7 @@ package body Editor.Line_Edit.Tests is
       Before_Undo    : Natural := 0;
       Before_Redo    : Natural := 0;
       Before_Caret   : Cursor_Index := 0;
-      Avail          : Editor.Commands.Command_Availability;
+      Avail          : Editor.Commands.Availability_Metadata.Command_Availability;
       Snap           : Editor.Render_Model.Editor_Snapshot;
    begin
       Assert_Stable_Name
@@ -1599,15 +1600,15 @@ package body Editor.Line_Edit.Tests is
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Comment_Line);
-      Assert (Editor.Commands.Is_Available (Avail),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "completeness comment-line availability should be available");
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Uncomment_Line);
-      Assert (Editor.Commands.Is_Available (Avail),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "completeness uncomment-line availability should be available");
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Toggle_Line_Comment);
-      Assert (Editor.Commands.Is_Available (Avail),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "completeness toggle availability should be available");
       Snap := Editor.Render_Model.Build_Snapshot (S);
       Assert (Snap.Length = Text_Buffer.Length (S.Buffer),
@@ -1726,7 +1727,7 @@ package body Editor.Line_Edit.Tests is
       Before_Undo    : Natural := 0;
       Before_Redo    : Natural := 0;
       Before_Caret   : Cursor_Index := 0;
-      Avail          : Editor.Commands.Command_Availability;
+      Avail          : Editor.Commands.Availability_Metadata.Command_Availability;
       Found          : Boolean := True;
       Id             : Editor.Commands.Command_Id := Editor.Commands.No_Command;
       Snap           : Editor.Render_Model.Editor_Snapshot;
@@ -1776,15 +1777,15 @@ package body Editor.Line_Edit.Tests is
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Comment_Line);
-      Assert (Editor.Commands.Is_Available (Avail),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "comment availability must be side-effect-free and available");
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Uncomment_Line);
-      Assert (Editor.Commands.Is_Available (Avail),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "uncomment availability must be side-effect-free and available");
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Toggle_Line_Comment);
-      Assert (Editor.Commands.Is_Available (Avail),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "toggle availability must be side-effect-free and available");
       Snap := Editor.Render_Model.Build_Snapshot (S);
       Assert (Snap.Length = Text_Buffer.Length (S.Buffer),
@@ -1860,7 +1861,7 @@ package body Editor.Line_Edit.Tests is
 
       procedure Assert_No_Buffer_Command is
          S     : Editor.State.State_Type;
-         Avail : Editor.Commands.Command_Availability;
+         Avail : Editor.Commands.Availability_Metadata.Command_Availability;
       begin
          Editor.History.Undo_Stack.Clear;
          Editor.History.Redo_Stack.Clear;
@@ -1868,8 +1869,8 @@ package body Editor.Line_Edit.Tests is
          Avail := Editor.Executor.Command_Availability
            (S, Editor.Commands.Command_Line_Split_At_Caret);
          Assert
-           (not Editor.Commands.Is_Available (Avail)
-            and then Editor.Commands.Unavailable_Reason (Avail) = "No active buffer.",
+           (not Editor.Commands.Availability_Metadata.Is_Available (Avail)
+            and then Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) = "No active buffer.",
             "split availability without active buffer must report no active buffer");
          Editor.Executor.Execute_Command
            (S, Editor.Commands.Command_Line_Split_At_Caret);
@@ -1882,7 +1883,7 @@ package body Editor.Line_Edit.Tests is
 
       procedure Assert_No_Caret_Command is
          S           : Editor.State.State_Type;
-         Avail       : Editor.Commands.Command_Availability;
+         Avail       : Editor.Commands.Availability_Metadata.Command_Availability;
          Before_Text : Unbounded_String;
       begin
          Editor.History.Undo_Stack.Clear;
@@ -1895,8 +1896,8 @@ package body Editor.Line_Edit.Tests is
          Avail := Editor.Executor.Command_Availability
            (S, Editor.Commands.Command_Line_Split_At_Caret);
          Assert
-           (not Editor.Commands.Is_Available (Avail)
-            and then Editor.Commands.Unavailable_Reason (Avail) = "No caret location",
+           (not Editor.Commands.Availability_Metadata.Is_Available (Avail)
+            and then Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) = "No caret location",
             "split availability without caret must report no caret location");
          Editor.Executor.Execute_Command
            (S, Editor.Commands.Command_Line_Split_At_Caret);
@@ -2074,7 +2075,7 @@ package body Editor.Line_Edit.Tests is
       pragma Unreferenced (T);
       S          : Editor.State.State_Type;
       After      : Editor.State.State_Type;
-      Avail      : Editor.Commands.Command_Availability;
+      Avail      : Editor.Commands.Availability_Metadata.Command_Availability;
       Before_Clip : constant Unbounded_String := To_Unbounded_String ("ROUTE-CLIP");
       Chord      : constant Editor.Keybindings.Key_Chord :=
         Editor.Keybindings.Key_Chord'
@@ -2091,8 +2092,8 @@ package body Editor.Line_Edit.Tests is
       Editor.State.Init (S);
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Line_Split_At_Caret);
-      Assert (not Editor.Commands.Is_Available (Avail)
-              and then Editor.Commands.Unavailable_Reason (Avail) = "No active buffer.",
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail)
+              and then Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) = "No active buffer.",
               "no-active-buffer availability is deterministic");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Split_At_Caret);
       Assert (Message_Text (S) = "No active buffer.",
@@ -2109,8 +2110,8 @@ package body Editor.Line_Edit.Tests is
       S.Carets.Clear;
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Line_Split_At_Caret);
-      Assert (not Editor.Commands.Is_Available (Avail)
-              and then Editor.Commands.Unavailable_Reason (Avail) = "No caret location",
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail)
+              and then Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) = "No caret location",
               "no-caret availability is deterministic");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Split_At_Caret);
       Assert_Buffer_Text (S, "AlphaBeta",

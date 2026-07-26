@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Diagnostics;
 with Editor.Command_Execution;
 with Editor.Commands;
@@ -25,12 +26,12 @@ package Editor.Executor.Diagnostics_Feature_Commands is
      (S                : Editor.State.State_Type;
       Diagnostic_Index : Natural;
       Action_Index     : Natural)
-      return Editor.Commands.Command_Availability;
+      return Editor.Commands.Availability_Metadata.Command_Availability;
 
    function Diagnostics_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability;
+      return Editor.Commands.Availability_Metadata.Command_Availability;
 
    function Execute_Diagnostics_Feature_Command
      (S  : in out Editor.State.State_Type;

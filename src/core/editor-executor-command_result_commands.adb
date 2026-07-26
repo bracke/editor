@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Text_Buffer;
 with Editor.State;
@@ -202,7 +203,7 @@ package body Editor.Executor.Command_Result_Commands is
       Id    : Editor.Commands.Command_Id;
       Shift : Boolean := False) return Command_Execution_Result
    is
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
       Cmd          : Editor.Commands.Payloads.Command;
       Before_Messages : Natural := 0;
       Before_Caret    : Editor.Cursors.Cursor_Index := 0;
@@ -385,9 +386,9 @@ package body Editor.Executor.Command_Result_Commands is
       end if;
 
       Availability := Command_Availability (S, Id);
-      if not Editor.Commands.Is_Available (Availability) then
+      if not Editor.Commands.Availability_Metadata.Is_Available (Availability) then
          declare
-            Reason : constant String := Editor.Commands.Unavailable_Reason (Availability);
+            Reason : constant String := Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability);
             Allow_Stale_Close_Cleanup : constant Boolean :=
               S.Dirty_Close_Prompt_Active
               and then

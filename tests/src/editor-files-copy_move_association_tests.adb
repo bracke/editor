@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -94,7 +95,7 @@ package body Editor.Files.Copy_Move_Association_Tests is
       Cmd_Id       : Editor.Commands.Command_Id;
       Found        : Boolean := False;
       Descriptor   : Editor.Commands.Descriptors.Command_Descriptor;
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
       M            : Editor.Messages.Editor_Message;
    begin
       Cmd_Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
@@ -119,7 +120,7 @@ package body Editor.Files.Copy_Move_Association_Tests is
       S.Active_Buffer_Token := 0;
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Copy_Buffer_File);
-      Assert (not Editor.Commands.Is_Available (Availability),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "copy unavailable without active buffer");
       Editor.Executor.File_Operation_Commands.Execute_Copy_Buffer_File (S, Target);
       M := Editor.Messages.Active_Message (S.Messages, Found);
@@ -133,7 +134,7 @@ package body Editor.Files.Copy_Move_Association_Tests is
       Editor.Messages.Clear (S.Messages);
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Copy_Buffer_File);
-      Assert (not Editor.Commands.Is_Available (Availability),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "copy unavailable for untitled active buffer");
       Editor.Executor.File_Operation_Commands.Execute_Copy_Buffer_File (S, Target);
       M := Editor.Messages.Active_Message (S.Messages, Found);
@@ -150,7 +151,7 @@ package body Editor.Files.Copy_Move_Association_Tests is
       Editor.Messages.Clear (S.Messages);
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Copy_Buffer_File);
-      Assert (not Editor.Commands.Is_Available (Availability),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "copy unavailable for dirty active associated buffer");
       Editor.Executor.File_Operation_Commands.Execute_Copy_Buffer_File (S, Target);
       M := Editor.Messages.Active_Message (S.Messages, Found);
@@ -629,7 +630,7 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
       Before_Back   : Ada.Containers.Count_Type;
       Before_Fwd    : Ada.Containers.Count_Type;
       Before_Caret  : Editor.Cursors.Caret_State;
-      Availability  : Editor.Commands.Command_Availability;
+      Availability  : Editor.Commands.Availability_Metadata.Command_Availability;
       Candidates    : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Found         : Boolean := False;
       M             : Editor.Messages.Editor_Message;
@@ -692,7 +693,7 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
          Editor.Input_Bridge.Set_State_For_Test (S);
          Editor.Render_Packet.Build_Render_Packet (Packet);
       end;
-      Assert (Editor.Commands.Is_Available (Availability)
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability)
         and then Copy_Rows = 1
         and then not Ada.Directories.Exists (Target)
         and then To_String (S.File_Info.Path) = To_String (Before_Path)
@@ -1105,7 +1106,7 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
       Before_Back    : Ada.Containers.Count_Type;
       Before_Fwd     : Ada.Containers.Count_Type;
       Snap           : Editor.Render_Model.Render_Snapshot;
-      Availability   : Editor.Commands.Command_Availability;
+      Availability   : Editor.Commands.Availability_Metadata.Command_Availability;
       Candidates     : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Copy_Rows      : Natural := 0;
       Workspace      : Editor.Workspace_Persistence.Workspace_Snapshot;
@@ -1173,7 +1174,7 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
       Summary := To_Unbounded_String
         (Editor.Workspace_Persistence.Debug_Summary (Workspace));
 
-      Assert (Editor.Commands.Is_Available (Availability)
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability)
         and then Copy_Rows = 1
         and then not Snap.Is_Dirty
         and then not Ada.Directories.Exists (Target)
@@ -1496,7 +1497,7 @@ procedure Test_Copy_Source_Validation_And_Target_Canonicalization
       Reopen_Path   : constant String := Temp_Path ("p456_persist_reopen.txt");
       Workspace     : Editor.Workspace_Persistence.Workspace_Snapshot;
       Summary       : Unbounded_String;
-      Availability  : Editor.Commands.Command_Availability;
+      Availability  : Editor.Commands.Availability_Metadata.Command_Availability;
       Candidates    : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Before_Text   : Unbounded_String;
       Before_Path   : Unbounded_String;
@@ -1564,7 +1565,7 @@ procedure Test_Copy_Source_Validation_And_Target_Canonicalization
       Workspace := Editor.State.Build_Workspace_Snapshot (S);
       Summary := To_Unbounded_String
         (Editor.Workspace_Persistence.Debug_Summary (Workspace));
-      Assert (Editor.Commands.Is_Available (Availability)
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability)
         and then Copy_Rows = 1
         and then not Ada.Directories.Exists (Target)
         and then not Ada.Directories.Exists (Fail_Target)
@@ -1672,7 +1673,7 @@ procedure Test_Move_Canonical_State_And_Persistence_Cleanup
       Before_Redo   : Ada.Containers.Count_Type;
       Workspace     : Editor.Workspace_Persistence.Workspace_Snapshot;
       Summary       : Unbounded_String;
-      Availability  : Editor.Commands.Command_Availability;
+      Availability  : Editor.Commands.Availability_Metadata.Command_Availability;
       Candidates    : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Move_Rows     : Natural := 0;
       Found         : Boolean := False;
@@ -1743,7 +1744,7 @@ procedure Test_Move_Canonical_State_And_Persistence_Cleanup
       Workspace := Editor.State.Build_Workspace_Snapshot (S);
       Summary := To_Unbounded_String
         (Editor.Workspace_Persistence.Debug_Summary (Workspace));
-      Assert (Editor.Commands.Is_Available (Availability)
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability)
         and then Move_Rows = 1
         and then Ada.Directories.Exists (Active_Path)
         and then not Ada.Directories.Exists (Target)
@@ -2413,7 +2414,7 @@ procedure Test_Move_Canonical_State_And_Persistence_Cleanup
       Reopened      : constant String := Temp_Path ("p461_readonly_reopened.txt");
       Workspace     : Editor.Workspace_Persistence.Workspace_Snapshot;
       Summary       : Unbounded_String;
-      Availability  : Editor.Commands.Command_Availability;
+      Availability  : Editor.Commands.Availability_Metadata.Command_Availability;
       Candidates    : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Before_Text   : Unbounded_String;
       Before_Path   : Unbounded_String;
@@ -2469,22 +2470,22 @@ procedure Test_Move_Canonical_State_And_Persistence_Cleanup
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Rename_Buffer_File);
-      Assert (Editor.Commands.Is_Available (Availability),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "rename availability observes clean associated active buffer");
       Assert_Read_Only_Preserved ("rename availability");
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Delete_Buffer_File);
-      Assert (Editor.Commands.Is_Available (Availability),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "delete availability observes clean associated active buffer");
       Assert_Read_Only_Preserved ("delete availability");
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Copy_Buffer_File);
-      Assert (Editor.Commands.Is_Available (Availability),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "copy availability observes clean associated active buffer");
       Assert_Read_Only_Preserved ("copy availability");
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Move_Buffer_File);
-      Assert (Editor.Commands.Is_Available (Availability),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "move availability observes clean associated active buffer");
       Assert_Read_Only_Preserved ("move availability");
 

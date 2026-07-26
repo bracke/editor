@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Classification;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
@@ -1033,7 +1034,7 @@ package body Editor.Bookmarks.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
       Before_Count : Natural := 0;
       Before_Selected : Natural := 0;
       Before_Visible : Boolean := False;
@@ -1057,15 +1058,15 @@ package body Editor.Bookmarks.Tests is
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Bookmark_Toggle_Current_Location);
-      Assert (Editor.Commands.Is_Available (Availability),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
               "toggle-current-location availability should be true for bookmarkable active buffer");
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Bookmark_Goto_Next);
-      Assert (Editor.Commands.Is_Available (Availability),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
               "goto-next availability should be true when bookmarks exist");
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Bookmark_Open_Selected);
-      Assert (Editor.Commands.Is_Available (Availability),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
               "open-selected availability should be true when a selected bookmark exists");
 
       Assert (Editor.Bookmarks.Count (S.Bookmarks) = Before_Count,
@@ -1139,7 +1140,7 @@ package body Editor.Bookmarks.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
       Added : Boolean := False;
       Found : Boolean := False;
       Selected : Editor.Bookmarks.Bookmark_Entry;
@@ -1168,7 +1169,7 @@ package body Editor.Bookmarks.Tests is
               "selected bookmark intentionally differs from canonical active buffer");
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Save_File);
-      Assert (Editor.Commands.Is_Available (Availability),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
               "file lifecycle availability still follows active buffer state, not bookmark selection");
       Assert_Bookmarks_File_Lifecycle_Observation_Coherent
         (S.Bookmarks, "selected row source boundary");
@@ -1615,7 +1616,7 @@ package body Editor.Bookmarks.Tests is
       Explicit_Target : constant String := Temp_Path ("explicit_target.txt");
       Before : Editor.Bookmarks.Bookmark_Snapshot;
       After : Editor.Bookmarks.Bookmark_Snapshot;
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
       Added : Boolean := False;
    begin
       Remove_If_Exists (Active);
@@ -1635,7 +1636,7 @@ package body Editor.Bookmarks.Tests is
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Rename_Buffer_File);
-      Assert (Editor.Commands.Is_Available (Availability),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
               "lifecycle availability is driven by canonical active buffer, not Bookmark selection");
       Editor.Executor.File_Target_Prompt_Commands.Execute_File_Target_Command
         (S, Editor.Commands.Command_Rename_Buffer_File, Explicit_Target);
@@ -1857,7 +1858,7 @@ package body Editor.Bookmarks.Tests is
       Before : Editor.Bookmarks.Bookmark_Snapshot;
       After_Select : Editor.Bookmarks.Bookmark_Snapshot;
       After_Copy : Editor.Bookmarks.Bookmark_Snapshot;
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
       Added : Boolean := False;
    begin
       Remove_If_Exists (Active);
@@ -1879,7 +1880,7 @@ package body Editor.Bookmarks.Tests is
               "Bookmark selection does not override active buffer source");
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Copy_Buffer_File);
-      Assert (Editor.Commands.Is_Available (Availability),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
               "lifecycle availability still follows canonical active buffer");
       Editor.Executor.File_Target_Prompt_Commands.Execute_File_Target_Command
         (S, Editor.Commands.Command_Copy_Buffer_File, Copy_Target);

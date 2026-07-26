@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -52,7 +53,7 @@ package body Editor.Executor.Semantic_Rename_Tests is
       S        : Editor.State.State_Type;
       Analysis : LM.Analysis_Result;
       Ignored  : LM.Symbol_Id;
-      Avail    : Editor.Commands.Command_Availability;
+      Avail    : Editor.Commands.Availability_Metadata.Command_Availability;
       Result   : Editor.Executor.Command_Execution_Result;
    begin
       Init_Executor_Test_State (S);
@@ -89,7 +90,7 @@ package body Editor.Executor.Semantic_Rename_Tests is
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Rename_Symbol_Preview);
-      Assert (Editor.Commands.Is_Available (Avail),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "semantic rename preview is available when the index can answer");
 
       Result := Editor.Executor.Execute_Command_With_Result
@@ -134,7 +135,7 @@ package body Editor.Executor.Semantic_Rename_Tests is
       S        : Editor.State.State_Type;
       Analysis : LM.Analysis_Result;
       Ignored  : LM.Symbol_Id;
-      Avail    : Editor.Commands.Command_Availability;
+      Avail    : Editor.Commands.Availability_Metadata.Command_Availability;
       Result   : Editor.Executor.Command_Execution_Result;
    begin
       Init_Executor_Test_State (S);
@@ -165,7 +166,7 @@ package body Editor.Executor.Semantic_Rename_Tests is
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Rename_Symbol_Apply);
-      Assert (Editor.Commands.Is_Available (Avail),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "semantic rename apply is available for conflict-free active-buffer edits");
 
       Result := Editor.Executor.Execute_Command_With_Result
@@ -543,7 +544,7 @@ package body Editor.Executor.Semantic_Rename_Tests is
       S        : Editor.State.State_Type;
       Analysis : LM.Analysis_Result;
       Ignored  : LM.Symbol_Id;
-      Avail    : Editor.Commands.Command_Availability;
+      Avail    : Editor.Commands.Availability_Metadata.Command_Availability;
       Result   : Editor.Executor.Command_Execution_Result;
    begin
       Init_Executor_Test_State (S);
@@ -577,9 +578,9 @@ package body Editor.Executor.Semantic_Rename_Tests is
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Rename_Symbol_Apply);
-      Assert (not Editor.Commands.Is_Available (Avail),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "semantic rename apply is unavailable when preview has conflicts");
-      Assert (Editor.Commands.Unavailable_Reason (Avail) =
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) =
               "Rename apply unavailable for Run: ambiguous.",
               "semantic rename apply reports conflict status through availability");
 

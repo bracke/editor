@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Classification;
 with Editor.Commands.Stable_Names;
 with Editor.Commands.Descriptor_Metadata;
@@ -272,7 +273,7 @@ package body Editor.Outline.Tests is
       Result : Editor.Executor.Command_Execution_Result;
    begin
       Editor.State.Init (S);
-      Assert (not Editor.Commands.Is_Available
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available
         (Editor.Executor.Command_Availability (S, Editor.Commands.Command_Refresh_Outline)),
         "refresh outline unavailable without active buffer");
       Editor.State.Load_Text
@@ -314,17 +315,17 @@ package body Editor.Outline.Tests is
       Result : Editor.Executor.Command_Execution_Result;
    begin
       Editor.State.Init (S);
-      Assert (Editor.Commands.Is_Available
+      Assert (Editor.Commands.Availability_Metadata.Is_Available
         (Editor.Executor.Command_Availability (S, Editor.Commands.Command_Show_Outline)),
         "show outline is available while feature panel is hidden");
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Commands.Command_Show_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "show outline executes once");
-      Assert (not Editor.Commands.Is_Available
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available
         (Editor.Executor.Command_Availability (S, Editor.Commands.Command_Show_Outline)),
         "show outline is unavailable after the panel is visible");
-      Assert (Editor.Commands.Unavailable_Reason
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason
         (Editor.Executor.Command_Availability (S, Editor.Commands.Command_Show_Outline)) =
           Editor.Outline.Reason_Feature_Panel_Already_Shown,
         "show outline disabled reason is canonical");
@@ -332,10 +333,10 @@ package body Editor.Outline.Tests is
         (S, Editor.Commands.Command_Focus_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "focus outline executes while visible and not focused");
-      Assert (not Editor.Commands.Is_Available
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available
         (Editor.Executor.Command_Availability (S, Editor.Commands.Command_Focus_Outline)),
         "focus outline is unavailable after focus");
-      Assert (Editor.Commands.Unavailable_Reason
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason
         (Editor.Executor.Command_Availability (S, Editor.Commands.Command_Focus_Outline)) =
           Editor.Outline.Reason_Feature_Panel_Already_Focused,
         "focus outline disabled reason is canonical");
@@ -367,7 +368,7 @@ package body Editor.Outline.Tests is
       Outline_Before : Natural;
       Panel_Before   : Editor.Feature_Panel.Feature_Panel_Fingerprint;
       Messages_Before : Natural;
-      A             : Editor.Commands.Command_Availability;
+      A             : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "@outline procedure Reset_Test" & ASCII.LF & "x");
@@ -377,7 +378,7 @@ package body Editor.Outline.Tests is
       Messages_Before := Editor.Messages.Count (S.Messages);
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Open_Selected_Outline_Item);
-      Assert (not Editor.Commands.Is_Available (A),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "open selected is unavailable until selection exists");
       Assert (Fingerprint (S.Outline) = Outline_Before,
               "availability preserves outline fingerprint");
@@ -533,7 +534,7 @@ package body Editor.Outline.Tests is
       Outline_Before  : Natural;
       Panel_Before    : Editor.Feature_Panel.Feature_Panel_Fingerprint;
       Messages_Before : Natural;
-      A               : Editor.Commands.Command_Availability;
+      A               : Editor.Commands.Availability_Metadata.Command_Availability;
       Outline_Commands : constant array (Positive range <>) of Editor.Commands.Command_Id :=
         (Editor.Commands.Command_Refresh_Outline,
          Editor.Commands.Command_Clear_Outline,
@@ -697,7 +698,7 @@ package body Editor.Outline.Tests is
       pragma Unreferenced (T);
       S      : Editor.State.State_Type;
       Result : Editor.Executor.Command_Execution_Result;
-      A      : Editor.Commands.Command_Availability;
+      A      : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "@outline package Old" & ASCII.LF & "x");
@@ -727,7 +728,7 @@ package body Editor.Outline.Tests is
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Clear_Outline);
-      Assert (not Editor.Commands.Is_Available (A),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "clear outline is unavailable after zero-item refresh");
    end Test_Zero_Item_Refresh_Clears_Rows;
 
@@ -765,7 +766,7 @@ package body Editor.Outline.Tests is
       Outline_Before  : Natural;
       Panel_Before    : Editor.Feature_Panel.Feature_Panel_Fingerprint;
       Messages_Before : Natural;
-      A               : Editor.Commands.Command_Availability;
+      A               : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "@outline package Initial" & ASCII.LF & "x");
@@ -780,7 +781,7 @@ package body Editor.Outline.Tests is
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Refresh_Outline);
 
-      Assert (Editor.Commands.Is_Available (A),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "refresh outline remains available with an active buffer");
       Assert (Fingerprint (S.Outline) = Outline_Before,
               "availability does not extract changed buffer text");

@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -36,7 +37,7 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
    use type Editor.Commands.Command_Id;
    use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Commands.Descriptors.Command_Visibility;
-   use type Editor.Commands.Command_Availability_Status;
+   use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
    use type Editor.Commands.Command_Kind;
    use type Editor.Keybindings.Keybinding_Validation_Status;
    use type Editor.Buffers.Buffer_Id;
@@ -407,7 +408,7 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
       Before_Clip    : Unbounded_String;
       Before_Back    : Natural := 0;
       Before_Forward : Natural := 0;
-      Avail          : Editor.Commands.Command_Availability;
+      Avail          : Editor.Commands.Availability_Metadata.Command_Availability;
       Summary        : Unbounded_String;
       Workspace_Snap : Editor.Workspace_Persistence.Workspace_Snapshot;
       pragma Unreferenced (Avail);
@@ -662,7 +663,7 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
       Before_Clip    : Unbounded_String;
       Before_Back    : Natural := 0;
       Before_Forward : Natural := 0;
-      Avail          : Editor.Commands.Command_Availability;
+      Avail          : Editor.Commands.Availability_Metadata.Command_Availability;
       Before_Text    : Unbounded_String;
       pragma Unreferenced (Avail);
    begin
@@ -895,7 +896,7 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
       Before_Text    : Unbounded_String;
       Before_Query   : constant Unbounded_String := To_Unbounded_String ("Beta Gamma");
       Before_Replace : constant Unbounded_String := To_Unbounded_String ("BETA GAMMA");
-      Avail          : Editor.Commands.Command_Availability;
+      Avail          : Editor.Commands.Availability_Metadata.Command_Availability;
       pragma Unreferenced (Avail);
    begin
       Editor.State.Init (S);
@@ -1676,7 +1677,7 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
       B_Id           : Editor.Buffers.Buffer_Id;
       Workspace_Snap : Editor.Workspace_Persistence.Workspace_Snapshot;
       Summary        : Unbounded_String;
-      Availability   : Editor.Commands.Command_Availability;
+      Availability   : Editor.Commands.Availability_Metadata.Command_Availability;
       Before_Text    : Unbounded_String;
       Before_Caret   : Cursor_Index := 0;
       Before_Undo    : Natural := 0;
@@ -1741,7 +1742,7 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Line_Split_At_Caret);
-      Assert (Editor.Commands.Is_Available (Availability),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
               "split availability should be available with active buffer and caret");
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = To_String (Before_Text),
               "availability must not mutate buffer text");
@@ -2046,7 +2047,7 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
       Before_Caret   : Cursor_Index := 0;
       Before_Undo    : Natural := 0;
       Before_Redo    : Natural := 0;
-      Availability   : Editor.Commands.Command_Availability;
+      Availability   : Editor.Commands.Availability_Metadata.Command_Availability;
       Found          : Boolean := False;
       Id             : Editor.Commands.Command_Id := Editor.Commands.No_Command;
 
@@ -2121,7 +2122,7 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Line_Split_At_Caret);
-      Assert (Editor.Commands.Is_Available (Availability),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
               "split availability available with active buffer/caret");
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = To_String (Before_Text),
               "availability must not mutate text");
@@ -2265,7 +2266,7 @@ procedure Test_Line_Split_Canonical_Behavior_And_State_Boundaries
       S           : Editor.State.State_Type;
       Before_Text : Unbounded_String;
       Before_Clip : constant Unbounded_String := To_Unbounded_String ("FAIL-CLIP");
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
       Before_Undo : Natural := 0;
       Before_Redo : Natural := 0;
    begin
@@ -2282,7 +2283,7 @@ procedure Test_Line_Split_Canonical_Behavior_And_State_Boundaries
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Line_Split_At_Caret);
-      Assert (Editor.Commands.Is_Available (Availability),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
               "canonical Line Split availability should be available before split");
       Assert_Buffer_Text (S, To_String (Before_Text),
                           "availability must not mutate text");

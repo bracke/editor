@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Command_Execution;
 with Editor.Commands;
 with Editor.Navigation;
@@ -9,7 +10,7 @@ package Editor.Executor.Selection_Commands is
    function Selection_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability;
+      return Editor.Commands.Availability_Metadata.Command_Availability;
 
    procedure Execute_Select_Line
      (S : in out Editor.State.State_Type);

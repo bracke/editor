@@ -1,8 +1,4 @@
-with Ada.Strings.Unbounded;
-
 package Editor.Commands is
-   use Ada.Strings.Unbounded;
-
    type Command_Id is
      (No_Command,
       Command_Move_Left,
@@ -593,26 +589,6 @@ package Editor.Commands is
       Command_Build_Run_User_Opt_In_Test_Seam,
       Command_Format_Selected_Text,
       Command_Toggle_Format_On_Save);
-
-   type Command_Availability_Status is
-     (Command_Available,
-      Command_Unavailable);
-
-   type Command_Availability is record
-      Status : Command_Availability_Status := Command_Available;
-      Reason : Unbounded_String := Null_Unbounded_String;
-   end record;
-
-   function Available return Command_Availability;
-
-   function Unavailable
-     (Reason : String) return Command_Availability;
-
-   function Is_Available
-     (Availability : Command_Availability) return Boolean;
-
-   function Unavailable_Reason
-     (Availability : Command_Availability) return String;
 
    --  Return the number of stable command ids in registry order.
    --  @return Count of Command_Id values including No_Command.

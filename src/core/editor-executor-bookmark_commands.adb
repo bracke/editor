@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Ada.Directories;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -31,7 +32,7 @@ package body Editor.Executor.Bookmark_Commands is
    function Bookmark_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability
+      return Editor.Commands.Availability_Metadata.Command_Availability
    is
       function Has_Buffer return Boolean is
       begin
@@ -41,74 +42,74 @@ package body Editor.Executor.Bookmark_Commands is
       case Id is
          when Command_Clear_Bookmarks =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer.");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
             elsif not Editor.Gutter_Markers.Has_Bookmarks (S.Gutter_Markers) then
-               return Editor.Commands.Unavailable ("No bookmarks");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No bookmarks");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Next_Bookmark
             | Command_Previous_Bookmark
             | Command_Clear_All_Bookmarks =>
             if Editor.Buffers.Global_Count = 0 then
                if not Editor.Gutter_Markers.Has_Bookmarks (S.Gutter_Markers) then
-                  return Editor.Commands.Unavailable ("No bookmarks");
+                  return Editor.Commands.Availability_Metadata.Unavailable ("No bookmarks");
                end if;
             elsif not Editor.Buffers.Global_Has_Bookmarks
               and then not Editor.Gutter_Markers.Has_Bookmarks (S.Gutter_Markers)
             then
-               return Editor.Commands.Unavailable ("No bookmarks");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No bookmarks");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Bookmark_Toggle_Current_Location =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer.");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
             elsif not S.File_Info.Has_Path then
-               return Editor.Commands.Unavailable ("No bookmarkable location");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No bookmarkable location");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Bookmark_Clear_All =>
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Bookmark_Next
             | Command_Bookmark_Previous
             | Command_Bookmark_Goto_Next
             | Command_Bookmark_Goto_Previous =>
             if not Editor.Bookmarks.Has_Bookmarks (S.Bookmarks) then
-               return Editor.Commands.Unavailable ("No bookmarks");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No bookmarks");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Bookmark_Open_Selected
             | Command_Bookmark_Remove_Selected =>
             if not Editor.Bookmarks.Has_Selected (S.Bookmarks) then
-               return Editor.Commands.Unavailable ("No selected bookmark");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No selected bookmark");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Bookmark_Reveal_Current =>
             if not Editor.State.Has_Active_Buffer (S) then
-               return Editor.Commands.Unavailable ("No active buffer.");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
             elsif not Editor.Bookmarks.Has_Bookmarks (S.Bookmarks) then
-               return Editor.Commands.Unavailable ("No bookmarks");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No bookmarks");
             elsif not S.File_Info.Has_Path then
-               return Editor.Commands.Unavailable ("No bookmarkable location");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No bookmarkable location");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Bookmark_Show | Command_Bookmark_Toggle =>
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Bookmark_Hide =>
             if not Editor.Bookmarks.Is_Visible (S.Bookmarks) then
-               return Editor.Commands.Unavailable ("Bookmarks hidden");
+               return Editor.Commands.Availability_Metadata.Unavailable ("Bookmarks hidden");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when others =>
-            return Editor.Commands.Unavailable
+            return Editor.Commands.Availability_Metadata.Unavailable
               ("Command is not a bookmark command");
       end case;
    end Bookmark_Command_Availability;

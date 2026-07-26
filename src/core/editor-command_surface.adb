@@ -192,9 +192,9 @@ package body Editor.Command_Surface is
    function Availability_Reasons_Are_Deterministic
      (State : Editor.State.State_Type) return Boolean
    is
-      use type Editor.Commands.Command_Availability_Status;
-      A : Editor.Commands.Command_Availability;
-      B : Editor.Commands.Command_Availability;
+      use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
+      A : Editor.Commands.Availability_Metadata.Command_Availability;
+      B : Editor.Commands.Availability_Metadata.Command_Availability;
       Id : Editor.Commands.Command_Id;
    begin
       for I in 1 .. Editor.Commands.Command_Count loop
@@ -208,7 +208,7 @@ package body Editor.Command_Surface is
             return False;
          end if;
 
-         if not Editor.Commands.Is_Available (A)
+         if not Editor.Commands.Availability_Metadata.Is_Available (A)
            and then Editor.Commands.Availability_Metadata.Is_Concrete_Command (Id)
            and then To_String (A.Reason)'Length = 0
          then

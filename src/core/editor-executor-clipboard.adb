@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Containers; use type Ada.Containers.Count_Type;
@@ -18,7 +19,7 @@ package body Editor.Executor.Clipboard is
 
    function Copy_Cut_Availability
      (S : Editor.State.State_Type)
-      return Editor.Commands.Command_Availability
+      return Editor.Commands.Availability_Metadata.Command_Availability
    is
       Selection_Range  : Editor.Selection.Active_Selection_Range;
       Status : constant Editor.Selection.Selection_Validation_Status :=
@@ -27,14 +28,14 @@ package body Editor.Executor.Clipboard is
    begin
       case Status is
          when Editor.Selection.Selection_No_Active_Buffer =>
-            return Editor.Commands.Unavailable ("No active buffer.");
+            return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
          when Editor.Selection.Selection_No_Caret
             | Editor.Selection.Selection_Empty =>
-            return Editor.Commands.Unavailable ("No selected text");
+            return Editor.Commands.Availability_Metadata.Unavailable ("No selected text");
          when Editor.Selection.Selection_Invalid =>
-            return Editor.Commands.Unavailable ("Invalid selection");
+            return Editor.Commands.Availability_Metadata.Unavailable ("Invalid selection");
          when Editor.Selection.Selection_Ok =>
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
       end case;
    end Copy_Cut_Availability;
 

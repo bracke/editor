@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -46,7 +47,7 @@ package body Editor.Executor.Search_Tests is
    use type Editor.Project_Search.Project_Search_File_Kind_Filter;
    use type Editor.Project_Search.Project_Search_Status;
    use type Editor.Search.Search_Match_Index;
-   use type Editor.Commands.Command_Availability_Status;
+   use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
    use type Editor.Commands.Command_Id;
 
    overriding function Name (T : Search_Test_Case) return AUnit.Message_String is
@@ -2095,7 +2096,7 @@ package body Editor.Executor.Search_Tests is
       Summary : Unbounded_String;
       Found : Boolean := True;
       Id : Editor.Commands.Command_Id := Editor.Commands.No_Command;
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
 
       procedure Check_Absent (Name : String) is
       begin
@@ -2130,7 +2131,7 @@ package body Editor.Executor.Search_Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Show (S);
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text (S, "Dispatch_Command");
       Availability := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Replace_All);
-      Assert (Availability.Status = Editor.Commands.Command_Available,
+      Assert (Availability.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "replace.all availability must report available for current active-buffer Replace state");
       Assert (Buffer_Text (S) = "Run Run"
               and then To_String (S.Active_Replace_Text) = "Dispatch_Command"

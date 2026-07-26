@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Command_Execution;
 with Editor.Commands;
 with Editor.State;
@@ -8,7 +9,7 @@ package Editor.Executor.Workspace_Commands is
    function Workspace_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability;
+      return Editor.Commands.Availability_Metadata.Command_Availability;
 
    function Restore_Summary_Message
      (Summary : Editor.Workspace_Persistence.Workspace_Restore_Summary;

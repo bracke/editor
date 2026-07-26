@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with Editor.Ada_Language_Model;
@@ -19,7 +20,7 @@ package Editor.Executor.Semantic_Navigation_Commands is
      (S      : Editor.State.State_Type;
       Id     : Editor.Commands.Command_Id;
       Symbol : Semantic_Symbol)
-      return Editor.Commands.Command_Availability;
+      return Editor.Commands.Availability_Metadata.Command_Availability;
 
    function Execute_Semantic_Navigation_Command
      (S      : in out Editor.State.State_Type;

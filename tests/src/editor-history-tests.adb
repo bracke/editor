@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -21,7 +22,7 @@ with Editor.Navigation_History;
 with Editor.Keybindings;
 with Editor.Instance;
 
-use type Editor.Commands.Command_Availability_Status;
+use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
 use type Editor.Commands.Descriptors.Command_Visibility;
 use type Editor.Keybindings.Binding_Result;
 
@@ -331,22 +332,22 @@ package body Editor.History.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      A : Editor.Commands.Command_Availability;
+      A : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Editor.State.Init (S);
       A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Undo);
-      Assert (A.Status = Editor.Commands.Command_Unavailable, "empty undo history is unavailable");
+      Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Unavailable, "empty undo history is unavailable");
 
       A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Redo);
-      Assert (A.Status = Editor.Commands.Command_Unavailable, "empty redo history is unavailable");
+      Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Unavailable, "empty redo history is unavailable");
 
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Insert (0, 'a'));
       A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Undo);
-      Assert (A.Status = Editor.Commands.Command_Available, "undo is available after edit");
+      Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Available, "undo is available after edit");
 
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Undo);
       A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Redo);
-      Assert (A.Status = Editor.Commands.Command_Available, "redo is available after undo");
+      Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Available, "redo is available after undo");
    end Test_Unavailable_Undo_Redo_Availability;
 
    -------------------------------------------------------------------------
@@ -410,7 +411,7 @@ package body Editor.History.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S     : Editor.State.State_Type;
-      A     : Editor.Commands.Command_Availability;
+      A     : Editor.Commands.Availability_Metadata.Command_Availability;
       M     : Editor.Messages.Editor_Message;
       Found : Boolean := False;
    begin
@@ -437,7 +438,7 @@ package body Editor.History.Tests is
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Insert (0, 'a'));
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Edit_History_Clear);
-      Assert (A.Status = Editor.Commands.Command_Available,
+      Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Available,
         "clear edit history is available when active buffer has undo history");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Edit_History_Clear);
@@ -1094,7 +1095,7 @@ package body Editor.History.Tests is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
       Snap : Editor.Render_Model.Render_Snapshot;
-      A : Editor.Commands.Command_Availability;
+      A : Editor.Commands.Availability_Metadata.Command_Availability;
       U : Natural;
       R : Natural;
       Before_Text : Unbounded_String;
@@ -1112,13 +1113,13 @@ package body Editor.History.Tests is
       Assert (Snap.Length = Text (S)'Length,
               "render snapshot reflects text without consuming history");
       A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Undo);
-      Assert (A.Status = Editor.Commands.Command_Unavailable,
+      Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
               "undo availability reports current empty undo stack");
       A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Redo);
-      Assert (A.Status = Editor.Commands.Command_Available,
+      Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "redo availability reports non-empty redo stack");
       A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Edit_History_Clear);
-      Assert (A.Status = Editor.Commands.Command_Available,
+      Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "history.clear availability reports non-empty history");
 
       Assert (Text (S) = To_String (Before_Text),

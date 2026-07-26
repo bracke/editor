@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -22,7 +23,7 @@ with Editor.State;
 package body Editor.Executor.Lifecycle_Tests is
 
    use type Editor.Buffers.Buffer_Id;
-   use type Editor.Commands.Command_Availability_Status;
+   use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
    use type Editor.Commands.Command_Id;
    use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.State.Dirty_Close_Scope;
@@ -136,7 +137,7 @@ package body Editor.Executor.Lifecycle_Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      A : Editor.Commands.Command_Availability;
+      A : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Init_Executor_Test_State (S);
@@ -145,7 +146,7 @@ package body Editor.Executor.Lifecycle_Tests is
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Reopen_Closed_Buffer);
       Assert
-        (not Editor.Commands.Is_Available (A),
+        (not Editor.Commands.Availability_Metadata.Is_Available (A),
          "reopen must be unavailable with no candidate");
       Assert
         (To_String (A.Reason) = "No closed buffer to reopen",
@@ -431,7 +432,7 @@ package body Editor.Executor.Lifecycle_Tests is
       Path         : constant String := Temp_Path ("stale_close_target.txt");
       Id           : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Closed       : Boolean := False;
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Remove_File_If_Exists (Path);
       Write_Text_File (Path, "baseline");
@@ -452,13 +453,13 @@ package body Editor.Executor.Lifecycle_Tests is
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Confirm_Close_Save);
-      Assert (Availability.Status = Editor.Commands.Command_Unavailable,
+      Assert (Availability.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
               "stale prompt target must not offer save-and-close");
       Assert (To_String (Availability.Reason) = "Selected buffer is no longer open",
               "stale prompt target reports precise unavailable reason");
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Confirm_Close_Discard);
-      Assert (Availability.Status = Editor.Commands.Command_Unavailable,
+      Assert (Availability.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
               "stale prompt target must not offer discard-and-close");
       Assert (To_String (Availability.Reason) = "Selected buffer is no longer open",
               "stale discard target reports precise unavailable reason");
@@ -699,7 +700,7 @@ package body Editor.Executor.Lifecycle_Tests is
       pragma Unreferenced (T);
       S    : Editor.State.State_Type;
       Path : constant String := Temp_Path ("reload_discard_unavailable.txt");
-      A    : Editor.Commands.Command_Availability;
+      A    : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Remove_File_If_Exists (Path);
       Write_Text_File (Path, "clean");
@@ -714,7 +715,7 @@ package body Editor.Executor.Lifecycle_Tests is
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Discard_Pending_Transition);
-      Assert (not Editor.Commands.Is_Available (A),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "discard pending must not be available for reload/revert confirmations");
 
       Remove_File_If_Exists (Path);
@@ -819,7 +820,7 @@ package body Editor.Executor.Lifecycle_Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      A : Editor.Commands.Command_Availability;
+      A : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Init_Executor_Test_State (S);
@@ -836,18 +837,18 @@ package body Editor.Executor.Lifecycle_Tests is
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Confirm_Close_Save);
-      Assert (not Editor.Commands.Is_Available (A),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "unbacked dirty close must not offer save-and-close without Save As");
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Confirm_Close_Discard);
-      Assert (Editor.Commands.Is_Available (A),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "unbacked dirty close must still offer explicit discard");
 
       S.File_Info.Dirty := False;
       Editor.Buffers.Sync_Global_Active_From_State (S);
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Confirm_Close_Save);
-      Assert (Editor.Commands.Is_Available (A),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "clean scratch close confirmation must be available after revalidation");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Cancel_Close);
@@ -868,7 +869,7 @@ package body Editor.Executor.Lifecycle_Tests is
    is
       pragma Unreferenced (T);
       S          : Editor.State.State_Type;
-      A          : Editor.Commands.Command_Availability;
+      A          : Editor.Commands.Availability_Metadata.Command_Availability;
       Snap       : Editor.Render_Model.Render_Snapshot;
       Path       : constant String := Temp_Path ("single_close_path_revalidate.txt");
       Scratch_Id : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
@@ -887,7 +888,7 @@ package body Editor.Executor.Lifecycle_Tests is
               "path-revalidation fixture starts scratch close review");
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Confirm_Close_Save);
-      Assert (not Editor.Commands.Is_Available (A),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "dirty scratch close initially hides save-and-close");
 
       S.File_Info.Has_Path := True;
@@ -897,7 +898,7 @@ package body Editor.Executor.Lifecycle_Tests is
       Editor.Buffers.Sync_Global_Active_From_State (S);
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Confirm_Close_Save);
-      Assert (Editor.Commands.Is_Available (A),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "save-and-close must be exposed when target gains a path");
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert (Snap.Dirty_Close_Save_Action_Available,
@@ -917,14 +918,14 @@ package body Editor.Executor.Lifecycle_Tests is
               "path-loss fixture restarts dirty close review");
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Confirm_Close_Save);
-      Assert (not Editor.Commands.Is_Available (A),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "save-and-close must be hidden when target loses its path");
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert (not Snap.Dirty_Close_Save_Action_Available,
               "render must hide save when close target loses its path");
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Confirm_Close_Discard);
-      Assert (Editor.Commands.Is_Available (A),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "discard remains available after live path loss");
 
       Remove_File_If_Exists (Path);
@@ -1006,7 +1007,7 @@ package body Editor.Executor.Lifecycle_Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      A : Editor.Commands.Command_Availability;
+      A : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Init_Executor_Test_State (S);
@@ -1033,16 +1034,16 @@ package body Editor.Executor.Lifecycle_Tests is
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Confirm_Close_Save);
-      Assert (not Editor.Commands.Is_Available (A),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "stale close-all review must not offer save-and-close");
-      Assert (Editor.Commands.Unavailable_Reason (A) = "Close review is stale",
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "Close review is stale",
               "stale close-all save reports precise reason");
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Confirm_Close_Discard);
-      Assert (not Editor.Commands.Is_Available (A),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "stale close-all review must not offer discard-and-close");
-      Assert (Editor.Commands.Unavailable_Reason (A) = "Close review is stale",
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "Close review is stale",
               "stale close-all discard reports precise reason");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Confirm_Close_Discard);
@@ -1063,7 +1064,7 @@ package body Editor.Executor.Lifecycle_Tests is
    is
       pragma Unreferenced (T);
       S      : Editor.State.State_Type;
-      A      : Editor.Commands.Command_Availability;
+      A      : Editor.Commands.Availability_Metadata.Command_Availability;
       First  : Editor.Buffers.Buffer_Id;
       Closed : Boolean := False;
    begin
@@ -1100,9 +1101,9 @@ package body Editor.Executor.Lifecycle_Tests is
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Confirm_Close_Discard);
-      Assert (not Editor.Commands.Is_Available (A),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "same-count replacement must not offer discard-and-close");
-      Assert (Editor.Commands.Unavailable_Reason (A) = "Close review is stale",
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "Close review is stale",
               "same-count replacement reports stale close review");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Confirm_Close_Discard);
@@ -1123,7 +1124,7 @@ package body Editor.Executor.Lifecycle_Tests is
    is
       pragma Unreferenced (T);
       S      : Editor.State.State_Type;
-      A      : Editor.Commands.Command_Availability;
+      A      : Editor.Commands.Availability_Metadata.Command_Availability;
       Second : Editor.Buffers.Buffer_Id;
    begin
       Editor.Buffers.Reset_Global_For_Test;
@@ -1158,16 +1159,16 @@ package body Editor.Executor.Lifecycle_Tests is
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Confirm_Close_Discard);
-      Assert (not Editor.Commands.Is_Available (A),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "newly dirty buffer must stale discard-and-close review");
-      Assert (Editor.Commands.Unavailable_Reason (A) = "Close review is stale",
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "Close review is stale",
               "newly dirty buffer reports stale close review");
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Confirm_Close_Save);
-      Assert (not Editor.Commands.Is_Available (A),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "newly dirty buffer must stale save-and-close review");
-      Assert (Editor.Commands.Unavailable_Reason (A) = "Close review is stale",
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "Close review is stale",
               "newly dirty save reports stale close review");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Confirm_Close_Discard);
@@ -1188,7 +1189,7 @@ package body Editor.Executor.Lifecycle_Tests is
    is
       pragma Unreferenced (T);
       S      : Editor.State.State_Type;
-      A      : Editor.Commands.Command_Availability;
+      A      : Editor.Commands.Availability_Metadata.Command_Availability;
       Snap   : Editor.Render_Model.Render_Snapshot;
       First  : Editor.Buffers.Buffer_Id;
       Second : Editor.Buffers.Buffer_Id;
@@ -1226,7 +1227,7 @@ package body Editor.Executor.Lifecycle_Tests is
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Confirm_Close_Save);
-      Assert (Editor.Commands.Is_Available (A),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "all-clean reviewed set must still offer save-and-close as close confirmation");
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
@@ -1251,7 +1252,7 @@ package body Editor.Executor.Lifecycle_Tests is
    is
       pragma Unreferenced (T);
       S      : Editor.State.State_Type;
-      A      : Editor.Commands.Command_Availability;
+      A      : Editor.Commands.Availability_Metadata.Command_Availability;
       Snap   : Editor.Render_Model.Render_Snapshot;
       First  : Editor.Buffers.Buffer_Id;
       Second : Editor.Buffers.Buffer_Id;
@@ -1287,7 +1288,7 @@ package body Editor.Executor.Lifecycle_Tests is
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Confirm_Close_Discard);
-      Assert (Editor.Commands.Is_Available (A),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "all-clean reviewed set must still offer discard as close confirmation");
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
@@ -1312,7 +1313,7 @@ package body Editor.Executor.Lifecycle_Tests is
    is
       pragma Unreferenced (T);
       S      : Editor.State.State_Type;
-      A      : Editor.Commands.Command_Availability;
+      A      : Editor.Commands.Availability_Metadata.Command_Availability;
       Snap   : Editor.Render_Model.Render_Snapshot;
       First  : Editor.Buffers.Buffer_Id;
    begin
@@ -1343,7 +1344,7 @@ package body Editor.Executor.Lifecycle_Tests is
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Confirm_Close_Discard);
-      Assert (Editor.Commands.Is_Available (A),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "reviewed dirty subset must still offer discard confirmation");
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
@@ -1368,7 +1369,7 @@ package body Editor.Executor.Lifecycle_Tests is
    is
       pragma Unreferenced (T);
       S     : Editor.State.State_Type;
-      A     : Editor.Commands.Command_Availability;
+      A     : Editor.Commands.Availability_Metadata.Command_Availability;
       Snap  : Editor.Render_Model.Render_Snapshot;
       First : Editor.Buffers.Buffer_Id;
    begin
@@ -1399,15 +1400,15 @@ package body Editor.Executor.Lifecycle_Tests is
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Confirm_Close_Save);
-      Assert (not Editor.Commands.Is_Available (A),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "reviewed scratch subset must not offer save-and-close");
-      Assert (Editor.Commands.Unavailable_Reason (A) =
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) =
               "Buffer has no file path.",
               "reviewed scratch subset reports Save As requirement");
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Confirm_Close_Discard);
-      Assert (Editor.Commands.Is_Available (A),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "reviewed scratch subset must still offer explicit discard");
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
@@ -1480,7 +1481,7 @@ package body Editor.Executor.Lifecycle_Tests is
       Path    : constant String := Temp_Path ("close_all_partial_save_failure.txt");
       File_Id : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Scratch : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      A       : Editor.Commands.Command_Availability;
+      A       : Editor.Commands.Availability_Metadata.Command_Availability;
       Result  : Editor.Files.File_Open_Result;
    begin
       Remove_File_If_Exists (Path);
@@ -1522,7 +1523,7 @@ package body Editor.Executor.Lifecycle_Tests is
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Confirm_Close_Discard);
-      Assert (Editor.Commands.Is_Available (A),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "rebuilt close-all review must still allow explicit discard of remaining dirty buffers");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Confirm_Close_Discard);

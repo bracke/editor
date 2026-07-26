@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -2961,7 +2962,7 @@ package body Editor.Input_Bridge.Tests is
    is
       pragma Unreferenced (T);
       S            : Editor.State.State_Type;
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
       Snapshot     : Editor.Guided_Prompts.Prompt_Snapshot;
    begin
       Editor.State.Init (S);
@@ -2969,7 +2970,7 @@ package body Editor.Input_Bridge.Tests is
         Editor.Executor.Command_Availability
           (S, Editor.Commands.Command_Open_Project);
 
-      Assert (Editor.Commands.Is_Available (Availability),
+      Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
               "Open Project must be selectable from the command palette");
 
       Editor.Input_Bridge.Set_State_For_Test (S);

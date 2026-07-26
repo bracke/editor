@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Ada.Directories;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
@@ -52,7 +53,7 @@ package body Editor.Executor.Workspace_Commands is
    function Workspace_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability
+      return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin
       case Id is
@@ -60,12 +61,12 @@ package body Editor.Executor.Workspace_Commands is
             | Command_Restore_Workspace_State
             | Command_Clear_Workspace_State =>
             if not Editor.Project.Has_Project (S.Project) then
-               return Editor.Commands.Unavailable ("No project open");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No project open");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when others =>
-            return Editor.Commands.Unavailable
+            return Editor.Commands.Availability_Metadata.Unavailable
               ("Command is not a workspace command");
       end case;
    end Workspace_Command_Availability;

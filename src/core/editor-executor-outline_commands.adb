@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded;
 
@@ -29,7 +30,7 @@ package body Editor.Executor.Outline_Commands is
    function Outline_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability
+      return Editor.Commands.Availability_Metadata.Command_Availability
    is
       function Has_Buffer return Boolean is
       begin
@@ -39,62 +40,62 @@ package body Editor.Executor.Outline_Commands is
       case Id is
          when Command_Refresh_Outline =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Reason_No_Active_Buffer);
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Clear_Outline =>
             if not Editor.Outline.Has_Items (S.Outline) then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Reason_No_Outline_Items);
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Show_Outline =>
             if Editor.Feature_Panel.Is_Visible (S.Feature_Panel)
               and then Editor.Feature_Panel.Active_Feature (S.Feature_Panel) =
                 Editor.Feature_Panel.Outline_Feature
             then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Reason_Feature_Panel_Already_Shown);
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Focus_Outline =>
             if not Editor.Feature_Panel.Is_Visible (S.Feature_Panel) then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Reason_Feature_Panel_Hidden);
             elsif Editor.Feature_Panel.Is_Focused (S.Feature_Panel) then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Reason_Feature_Panel_Already_Focused);
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Open_Selected_Outline_Item =>
             if not Editor.Feature_Panel.Is_Visible (S.Feature_Panel) then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Reason_Feature_Panel_Hidden);
             elsif not Editor.Executor.Has_Selected_Outline_Activation_Target (S) then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Reason_No_Outline_Item_Selected);
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Next_Outline_Symbol
             | Command_Previous_Outline_Symbol =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Reason_No_Active_Buffer);
             elsif Editor.Outline.Source_Class (S.Outline) /=
               Editor.Outline.Extracted_Outline
             then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Reason_No_Outline_Items);
             elsif Editor.Outline.Last_Extraction_Source_Class (S.Outline) =
               Editor.Outline.Stale_Extracted_Outline
             then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Message_Outline_Stale_Result_Discarded);
             else
                declare
@@ -104,12 +105,12 @@ package body Editor.Executor.Outline_Commands is
                   Buffer : constant Natural := Active_Feature_Buffer_Token (S);
                begin
                   if Buffer = 0 then
-                     return Editor.Commands.Unavailable
+                     return Editor.Commands.Availability_Metadata.Unavailable
                        (Editor.Outline.Reason_No_Active_Buffer);
                   elsif not Editor.Outline.Outline_Buffer_Identity_Matches
                     (S.Outline, Buffer)
                   then
-                     return Editor.Commands.Unavailable
+                     return Editor.Commands.Availability_Metadata.Unavailable
                        (Editor.Outline.Reason_Outline_Belongs_To_Another_Buffer);
                   end if;
 
@@ -124,27 +125,27 @@ package body Editor.Executor.Outline_Commands is
                   end if;
 
                   if Target = 0 then
-                     return Editor.Commands.Unavailable
+                     return Editor.Commands.Availability_Metadata.Unavailable
                        (Editor.Outline.Reason_No_Outline_Items);
                   end if;
                end;
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Select_Current_Outline_Symbol
             | Command_Reveal_Current_Outline_Symbol =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Reason_No_Active_Buffer);
             elsif Editor.Outline.Source_Class (S.Outline) /=
               Editor.Outline.Extracted_Outline
             then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Reason_No_Outline_Items);
             elsif Editor.Outline.Last_Extraction_Source_Class (S.Outline) =
               Editor.Outline.Stale_Extracted_Outline
             then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Message_Outline_Stale_Result_Discarded);
             else
                declare
@@ -154,12 +155,12 @@ package body Editor.Executor.Outline_Commands is
                   Buffer : constant Natural := Active_Feature_Buffer_Token (S);
                begin
                   if Buffer = 0 then
-                     return Editor.Commands.Unavailable
+                     return Editor.Commands.Availability_Metadata.Unavailable
                        (Editor.Outline.Reason_No_Active_Buffer);
                   elsif not Editor.Outline.Outline_Buffer_Identity_Matches
                     (S.Outline, Buffer)
                   then
-                     return Editor.Commands.Unavailable
+                     return Editor.Commands.Availability_Metadata.Unavailable
                        (Editor.Outline.Reason_Outline_Belongs_To_Another_Buffer);
                   end if;
 
@@ -169,43 +170,43 @@ package body Editor.Executor.Outline_Commands is
                     (S.Outline, Buffer, Row + 1, Col + 1);
 
                   if Target = 0 then
-                     return Editor.Commands.Unavailable
+                     return Editor.Commands.Availability_Metadata.Unavailable
                        (Editor.Outline.Message_Outline_No_Current_Symbol);
                   elsif Editor.Outline.Visible_Row_For_Outline_Row
                     (S.Outline, Target) = 0
                   then
-                     return Editor.Commands.Unavailable
+                     return Editor.Commands.Availability_Metadata.Unavailable
                        (Editor.Outline.Message_Outline_No_Matching_Symbols);
                   end if;
                end;
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Select_Next_Outline_Item
             | Command_Select_Previous_Outline_Item =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Reason_No_Active_Buffer);
             elsif Editor.Outline.Source_Class (S.Outline) /=
               Editor.Outline.Extracted_Outline
             then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Reason_No_Outline_Items);
             elsif Editor.Outline.Last_Extraction_Source_Class (S.Outline) =
               Editor.Outline.Stale_Extracted_Outline
             then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Message_Outline_Stale_Result_Discarded);
             elsif not Editor.Outline.Outline_Buffer_Identity_Matches
               (S.Outline, Active_Feature_Buffer_Token (S))
             then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Reason_Outline_Belongs_To_Another_Buffer);
             elsif not Editor.Outline.Has_Selectable_Filter_Match (S.Outline) then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Message_Outline_No_Matching_Symbols);
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Focus_Outline_Filter
             | Command_Filter_Outline
@@ -213,38 +214,38 @@ package body Editor.Executor.Outline_Commands is
             | Command_Outline_Filter_History_Previous
             | Command_Outline_Filter_History_Next =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Reason_No_Active_Buffer);
             elsif Editor.Outline.Source_Class (S.Outline) /=
               Editor.Outline.Extracted_Outline
             then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Reason_No_Outline_Items);
             elsif Editor.Outline.Last_Extraction_Source_Class (S.Outline) =
               Editor.Outline.Stale_Extracted_Outline
             then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Message_Outline_Stale_Result_Discarded);
             elsif not Editor.Outline.Outline_Buffer_Identity_Matches
               (S.Outline, Active_Feature_Buffer_Token (S))
             then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Reason_Outline_Belongs_To_Another_Buffer);
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Clear_Outline_Filter
             | Command_Clear_Outline_Filter_History =>
             if Editor.Outline.Source_Class (S.Outline) /=
               Editor.Outline.Extracted_Outline
             then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Reason_No_Outline_Items);
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when others =>
-            return Editor.Commands.Unavailable
+            return Editor.Commands.Availability_Metadata.Unavailable
               ("Command is not an outline command");
       end case;
    end Outline_Command_Availability;

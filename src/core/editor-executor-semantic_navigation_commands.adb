@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with Editor.Ada_Language_Service;
@@ -240,7 +241,7 @@ package body Editor.Executor.Semantic_Navigation_Commands is
      (S      : Editor.State.State_Type;
       Id     : Editor.Commands.Command_Id;
       Symbol : Semantic_Symbol)
-      return Editor.Commands.Command_Availability
+      return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin
       case Id is
@@ -249,7 +250,7 @@ package body Editor.Executor.Semantic_Navigation_Commands is
               and then Editor.Executor.Has_Selected_Outline_Activation_Target
                 (S)
             then
-               return Editor.Commands.Available;
+               return Editor.Commands.Availability_Metadata.Available;
             else
                declare
                   Service : Editor.Ada_Language_Service.Service_State :=
@@ -257,7 +258,7 @@ package body Editor.Executor.Semantic_Navigation_Commands is
                   Target  : Editor.Ada_Language_Service.Language_Target;
                begin
                   if not Symbol.Available then
-                     return Editor.Commands.Unavailable
+                     return Editor.Commands.Availability_Metadata.Unavailable
                        ("No semantic symbol at cursor or Outline selection.");
                   end if;
 
@@ -266,10 +267,10 @@ package body Editor.Executor.Semantic_Navigation_Commands is
                   if Target.Status =
                     Editor.Ada_Language_Service.Service_Success
                   then
-                     return Editor.Commands.Available;
+                     return Editor.Commands.Availability_Metadata.Available;
                   end if;
 
-                  return Editor.Commands.Unavailable
+                  return Editor.Commands.Availability_Metadata.Unavailable
                     ("Declaration unavailable for " &
                      To_String (Symbol.Name) & ": " &
                      Service_Status_Image (Target.Status) & ".");
@@ -279,7 +280,7 @@ package body Editor.Executor.Semantic_Navigation_Commands is
          when Editor.Commands.Command_Goto_Body
             | Editor.Commands.Command_Goto_Spec =>
             if not Editor.Feature_Panel.Is_Visible (S.Feature_Panel) then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Reason_Feature_Panel_Hidden);
             elsif not Editor.Feature_Panel.Has_Selection (S.Feature_Panel)
               or else not Editor.Outline.Validate_Outline_Row_For_Selection
@@ -287,16 +288,16 @@ package body Editor.Executor.Semantic_Navigation_Commands is
                  S.Feature_Panel,
                  Editor.Feature_Panel.Selected_Row (S.Feature_Panel))
             then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Reason_No_Outline_Item_Selected);
             elsif not Has_Indexed_Outline_Target (S, Id) then
-               return Editor.Commands.Unavailable
+               return Editor.Commands.Availability_Metadata.Unavailable
                  ("Outline indexed target unavailable");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when others =>
-            return Editor.Commands.Unavailable
+            return Editor.Commands.Availability_Metadata.Unavailable
               ("Unsupported semantic navigation command.");
       end case;
    end Semantic_Navigation_Command_Availability;

@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Ada.Strings.Unbounded;
 with Editor.Buffers;
 with Editor.Commands;
@@ -8,7 +9,7 @@ package Editor.Executor.File_Open_Commands is
    function File_Open_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability;
+      return Editor.Commands.Availability_Metadata.Command_Availability;
 
    procedure Execute_Open_File
      (S    : in out Editor.State.State_Type;

@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Command_Execution;
 with Editor.Commands;
 with Editor.External_Producers;
@@ -9,7 +10,7 @@ package Editor.Executor.Terminal_Commands is
    function Terminal_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability;
+      return Editor.Commands.Availability_Metadata.Command_Availability;
 
    procedure Ensure_Terminal_Project_Tasks
      (S : in out Editor.State.State_Type);

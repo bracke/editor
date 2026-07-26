@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Ada.Strings.Unbounded;
 
 with Editor.Clipboard;
@@ -21,7 +22,7 @@ package body Editor.Executor.Message_Commands is
    function Message_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability
+      return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin
       case Id is
@@ -35,27 +36,27 @@ package body Editor.Executor.Message_Commands is
             | Command_Clear_Info_Messages
             | Command_Clear_Warning_Messages
             | Command_Clear_Error_Messages =>
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Clear_Selected_Message
             | Command_Copy_Selected_Message_Text =>
             if Editor.Feature_Messages.Is_Empty (S.Feature_Messages) then
-               return Editor.Commands.Unavailable ("No messages");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No messages");
             elsif not Editor.Feature_Messages.Has_Selected_Message
               (S.Feature_Messages, S.Feature_Panel)
             then
-               return Editor.Commands.Unavailable ("No message selected");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No message selected");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Dismiss_Latest_Message | Command_Dismiss_All_Messages =>
             if Editor.Messages.Is_Empty (S.Messages) then
-               return Editor.Commands.Unavailable ("No messages");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No messages");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when others =>
-            return Editor.Commands.Unavailable
+            return Editor.Commands.Availability_Metadata.Unavailable
               ("Command is not a message command");
       end case;
    end Message_Command_Availability;

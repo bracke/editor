@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -27,7 +28,7 @@ package body Editor.File_Tree.Tests is
    use type Editor.File_Tree.File_Tree_Node_Id;
    use type Editor.File_Tree.File_Tree_Node_Kind;
    use type Editor.File_Tree.File_Tree_Scan_Status;
-   use type Editor.Commands.Command_Availability_Status;
+   use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
 
    package Stream_IO renames Ada.Streams.Stream_IO;
 
@@ -372,7 +373,7 @@ package body Editor.File_Tree.Tests is
       Root   : constant String := Temp_Path ("open_file_only");
       S      : Editor.State.State_Type;
       Opened : Editor.Project.Project_Open_Result;
-      A      : Editor.Commands.Command_Availability;
+      A      : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Build_Fixture (Root);
       Editor.State.Init (S);
@@ -386,9 +387,9 @@ package body Editor.File_Tree.Tests is
       Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, 2);
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_File_Tree_Open_Selected);
-      Assert (A.Status = Editor.Commands.Command_Unavailable,
+      Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
               "File Tree open-selected must reject directory rows");
-      Assert (Editor.Commands.Unavailable_Reason (A) =
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) =
                 "Selected row is not a file",
               "File Tree open-selected should use canonical file-only activation wording");
 
@@ -397,7 +398,7 @@ package body Editor.File_Tree.Tests is
       Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, 4);
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_File_Tree_Open_Selected);
-      Assert (A.Status = Editor.Commands.Command_Available,
+      Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "File Tree open-selected must accept real file rows");
 
       Cleanup_Fixture (Root);

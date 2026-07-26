@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Buffer_Switcher;
 with Editor.Buffer_Switcher.Rows;
 with Editor.Buffers;
@@ -37,25 +38,25 @@ package body Editor.Executor.Buffer_Switcher_Preview_Commands is
    end Selected_Row;
 
    function Selected_Open_Buffer_Availability
-     (S : Editor.State.State_Type) return Editor.Commands.Command_Availability
+     (S : Editor.State.State_Type) return Editor.Commands.Availability_Metadata.Command_Availability
    is
       Found : Boolean := False;
       Row   : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
    begin
       if not Active_Buffer_Switcher_Overlay (S) then
-         return Editor.Commands.Unavailable ("No active overlay");
+         return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
       end if;
 
       Row := Selected_Row (S, Found);
       if not Found then
-         return Editor.Commands.Unavailable ("No buffer selected");
+         return Editor.Commands.Availability_Metadata.Unavailable ("No buffer selected");
       elsif Row.Id = Editor.Buffers.No_Buffer then
-         return Editor.Commands.Unavailable ("Selected row is not a buffer");
+         return Editor.Commands.Availability_Metadata.Unavailable ("Selected row is not a buffer");
       elsif not Editor.Buffers.Global_Contains (Row.Id) then
-         return Editor.Commands.Unavailable ("Selected buffer is no longer open");
+         return Editor.Commands.Availability_Metadata.Unavailable ("Selected buffer is no longer open");
       end if;
 
-      return Editor.Commands.Available;
+      return Editor.Commands.Availability_Metadata.Available;
    end Selected_Open_Buffer_Availability;
 
    procedure Report_No_Selected_Switcher_Buffer
@@ -69,15 +70,15 @@ package body Editor.Executor.Buffer_Switcher_Preview_Commands is
      (S              : Editor.State.State_Type;
       Require_Row    : Boolean;
       Require_Open   : Boolean)
-      return Editor.Commands.Command_Availability
+      return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin
       if not Active_Buffer_Switcher_Overlay (S) then
-         return Editor.Commands.Unavailable ("No active overlay");
+         return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
       elsif Require_Open
         and then not Editor.Buffer_Switcher.Has_Preview (S.Buffer_Switcher)
       then
-         return Editor.Commands.Unavailable ("Switcher preview is hidden");
+         return Editor.Commands.Availability_Metadata.Unavailable ("Switcher preview is hidden");
       elsif Require_Row then
          declare
             Found : Boolean := False;
@@ -85,18 +86,18 @@ package body Editor.Executor.Buffer_Switcher_Preview_Commands is
               Selected_Row (S, Found);
          begin
             if not Found or else Row.Id = Editor.Buffers.No_Buffer then
-               return Editor.Commands.Unavailable ("No buffer selected");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No buffer selected");
             end if;
          end;
       end if;
 
-      return Editor.Commands.Available;
+      return Editor.Commands.Availability_Metadata.Available;
    end Visible_Preview_Availability;
 
    function Buffer_Switcher_Preview_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability
+      return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin
       case Id is
@@ -115,7 +116,7 @@ package body Editor.Executor.Buffer_Switcher_Preview_Commands is
               (S, Require_Row => True, Require_Open => True);
 
          when others =>
-            return Editor.Commands.Unavailable
+            return Editor.Commands.Availability_Metadata.Unavailable
               ("Not a buffer switcher preview command");
       end case;
    end Buffer_Switcher_Preview_Command_Availability;

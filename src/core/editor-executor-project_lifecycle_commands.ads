@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands;
 with Editor.Command_Execution;
 with Editor.State;
@@ -10,7 +11,7 @@ package Editor.Executor.Project_Lifecycle_Commands is
    function Project_Lifecycle_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability;
+      return Editor.Commands.Availability_Metadata.Command_Availability;
 
    procedure Apply_Project_Open_Workspace_Policy
      (S      : in out Editor.State.State_Type;

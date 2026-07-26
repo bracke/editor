@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
@@ -66,7 +67,7 @@ package body Editor.Executor.Semantic_Completion_Commands is
    function Semantic_Completion_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability
+      return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin
       case Id is
@@ -74,18 +75,18 @@ package body Editor.Executor.Semantic_Completion_Commands is
             | Editor.Commands.Command_Semantic_Completion_Select_Previous
             | Editor.Commands.Command_Semantic_Completion_Accept =>
             if Semantic_Completion_Popup_Is_Active (S) then
-               return Editor.Commands.Available;
+               return Editor.Commands.Availability_Metadata.Available;
             end if;
-            return Editor.Commands.Unavailable ("No completion menu is open.");
+            return Editor.Commands.Availability_Metadata.Unavailable ("No completion menu is open.");
 
          when Editor.Commands.Command_Semantic_Popup_Dismiss =>
             if Semantic_Popup_Is_Active (S) then
-               return Editor.Commands.Available;
+               return Editor.Commands.Availability_Metadata.Available;
             end if;
-            return Editor.Commands.Unavailable ("No semantic popup is open.");
+            return Editor.Commands.Availability_Metadata.Unavailable ("No semantic popup is open.");
 
          when others =>
-            return Editor.Commands.Unavailable ("Unsupported semantic popup/ completion command.");
+            return Editor.Commands.Availability_Metadata.Unavailable ("Unsupported semantic popup/ completion command.");
       end case;
    end Semantic_Completion_Command_Availability;
 

@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Build_Command.Projections;
 with Editor.Build_Candidates;
 with Editor.Build_Diagnostics;
@@ -134,14 +135,14 @@ package body Editor.Build_Command.Readiness is
    end Build_Run_Recovery_Hint;
 
    function Build_Run_Availability
-     (State : Editor.State.State_Type) return Editor.Commands.Command_Availability
+     (State : Editor.State.State_Type) return Editor.Commands.Availability_Metadata.Command_Availability
    is
       Status : constant Build_Run_Readiness_Status := Build_Run_Readiness (State);
    begin
       if Status = Build_Run_Readiness_Ready then
-         return Editor.Commands.Available;
+         return Editor.Commands.Availability_Metadata.Available;
       end if;
-      return Editor.Commands.Unavailable (Build_Run_Unavailable_Reason (Status));
+      return Editor.Commands.Availability_Metadata.Unavailable (Build_Run_Unavailable_Reason (Status));
    end Build_Run_Availability;
 
    function Has_Active_Public_Build_Job
@@ -152,13 +153,13 @@ package body Editor.Build_Command.Readiness is
    end Has_Active_Public_Build_Job;
 
    function Build_Cancel_Availability
-     (State : Editor.State.State_Type) return Editor.Commands.Command_Availability
+     (State : Editor.State.State_Type) return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin
       if State.Public_Build_Job_Active then
-         return Editor.Commands.Available;
+         return Editor.Commands.Availability_Metadata.Available;
       end if;
-      return Editor.Commands.Unavailable ("No active build job.");
+      return Editor.Commands.Availability_Metadata.Unavailable ("No active build job.");
    end Build_Cancel_Availability;
 
    function Validate_Build_Run_Invocation

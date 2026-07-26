@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
@@ -642,38 +643,38 @@ package body Editor.Command_Surface.Lifecycle_Surface_Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      A : Editor.Commands.Command_Availability;
+      A : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Save_File);
-      Assert (not Editor.Commands.Is_Available (A),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "save with no open buffer must be unavailable");
-      Assert (Editor.Commands.Unavailable_Reason (A) = "No active buffer.",
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "No active buffer.",
               "save with no open buffer must explain the missing active buffer");
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Close_Active_Buffer);
-      Assert (not Editor.Commands.Is_Available (A),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "close with no open buffer must be unavailable");
-      Assert (Editor.Commands.Unavailable_Reason (A) = "No active buffer.",
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "No active buffer.",
               "close with no open buffer must explain that there is no active buffer");
 
       Editor.Buffers.Ensure_Global_Registry (S);
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Save_File);
-      Assert (not Editor.Commands.Is_Available (A),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "save untitled without a target must be unavailable");
-      Assert (Editor.Commands.Unavailable_Reason (A) = "No file path for active buffer",
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "No file path for active buffer",
               "save untitled without save-as target must use No file path for active buffer");
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Reload_Active_Buffer);
-      Assert (not Editor.Commands.Is_Available (A),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "reload untitled must be unavailable");
-      Assert (Editor.Commands.Unavailable_Reason (A) = "No file path for active buffer",
+      Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "No file path for active buffer",
               "reload untitled must explain that no file path exists");
    end Test_File_Lifecycle_Availability_Reasons;
 

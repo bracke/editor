@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands;
 with Editor.External_Producers;
 with Editor.External_Producers.Build_Types;
@@ -40,13 +41,13 @@ package Editor.Build_Command is
      (Status : Build_Run_Readiness_Status) return String;
 
    function Build_Run_Availability
-     (State : Editor.State.State_Type) return Editor.Commands.Command_Availability;
+     (State : Editor.State.State_Type) return Editor.Commands.Availability_Metadata.Command_Availability;
 
    function Has_Active_Public_Build_Job
      (State : Editor.State.State_Type) return Boolean;
 
    function Build_Cancel_Availability
-     (State : Editor.State.State_Type) return Editor.Commands.Command_Availability;
+     (State : Editor.State.State_Type) return Editor.Commands.Availability_Metadata.Command_Availability;
 
    procedure Begin_Public_Build_Job
      (State : in out Editor.State.State_Type;

@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -28,7 +29,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
    use type Editor.Buffer_Switcher.Reviews.Pending_Marked_Action_Kind;
    use type Editor.Buffer_Switcher.Filters.Switcher_Metadata_Filter_Kind;
    use type Editor.Buffer_Switcher.Filters.Switcher_Sort_Mode;
-   use type Editor.Commands.Command_Availability_Status;
+   use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
    use type Editor.State.Dirty_Close_Scope;
 
    overriding function Name
@@ -148,7 +149,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       S      : Editor.State.State_Type;
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Before : Editor.Buffer_Switcher.Filters.Switcher_Metadata_Filter;
-      Avail  : Editor.Commands.Command_Availability;
+      Avail  : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Remove_Tree_If_Exists (Root);
       Ada.Directories.Create_Directory (Root);
@@ -167,23 +168,23 @@ package body Editor.Executor.Buffer_Switcher_Tests is
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Filter_Clear);
-      Assert (Avail.Status = Editor.Commands.Command_Available,
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "clear filter availability should be available in setup");
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Filter_Pinned);
-      Assert (Avail.Status = Editor.Commands.Command_Available,
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "pinned filter availability should be available in setup");
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Filter_Group);
-      Assert (Avail.Status = Editor.Commands.Command_Available,
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "group filter availability should be available in setup");
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Filter_Label);
-      Assert (Avail.Status = Editor.Commands.Command_Available,
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "label filter availability should be available in setup");
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Filter_Noted);
-      Assert (Avail.Status = Editor.Commands.Command_Available,
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "noted filter availability should be available in setup");
 
       Assert (Editor.Buffer_Switcher.Metadata_Filter (S.Buffer_Switcher).Kind = Before.Kind,
@@ -299,7 +300,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Before_Sort     : Editor.Buffer_Switcher.Filters.Switcher_Sort_Mode;
       Before_Recent_1 : Natural := 0;
       Before_Recent_2 : Natural := 0;
-      Avail           : Editor.Commands.Command_Availability;
+      Avail           : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Remove_Tree_If_Exists (Root);
       Ada.Directories.Create_Directory (Root);
@@ -325,35 +326,35 @@ package body Editor.Executor.Buffer_Switcher_Tests is
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Sort_Default);
-      Assert (Avail.Status = Editor.Commands.Command_Available,
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "default sort availability should be available with open buffers");
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Sort_Recent);
-      Assert (Avail.Status = Editor.Commands.Command_Available,
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "recent sort availability should be available with open buffers");
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Sort_Name);
-      Assert (Avail.Status = Editor.Commands.Command_Available,
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "name sort availability should be available with open buffers");
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Sort_Pinned);
-      Assert (Avail.Status = Editor.Commands.Command_Available,
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "pinned sort availability should be available with open buffers");
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Sort_Group);
-      Assert (Avail.Status = Editor.Commands.Command_Available,
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "group sort availability should not require existing groups");
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Sort_Label);
-      Assert (Avail.Status = Editor.Commands.Command_Available,
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "label sort availability should be available with open buffers");
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Sort_Next);
-      Assert (Avail.Status = Editor.Commands.Command_Available,
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "next sort availability should be available with open buffers");
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Sort_Previous);
-      Assert (Avail.Status = Editor.Commands.Command_Available,
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "previous sort availability should be available with open buffers");
 
       Assert (Editor.Buffer_Switcher.Sort_Mode (S.Buffer_Switcher) = Before_Sort,
@@ -1039,7 +1040,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       B_Path : constant String := Ada.Directories.Compose (Root, "beta.adb");
       S      : Editor.State.State_Type;
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Avail  : Editor.Commands.Command_Availability;
+      Avail  : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Remove_Tree_If_Exists (Root);
       Ada.Directories.Create_Directory (Root);
@@ -1059,15 +1060,15 @@ package body Editor.Executor.Buffer_Switcher_Tests is
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Preview_Next_Line);
-      Assert (Avail.Status = Editor.Commands.Command_Available,
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "preview next availability should be available with visible preview");
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Preview_Previous_Line);
-      Assert (Avail.Status = Editor.Commands.Command_Available,
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "preview previous availability should be available with visible preview");
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Preview_Center_Cursor);
-      Assert (Avail.Status = Editor.Commands.Command_Available,
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "preview center availability should be available with visible preview");
 
       Assert (Editor.Buffer_Switcher.Has_Preview (S.Buffer_Switcher),
@@ -1363,7 +1364,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       S      : Editor.State.State_Type;
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Avail  : Editor.Commands.Command_Availability;
+      Avail  : Editor.Commands.Availability_Metadata.Command_Availability;
       Before_Filter : Editor.Buffer_Switcher.Filters.Switcher_Metadata_Filter;
       Before_Sort   : Editor.Buffer_Switcher.Filters.Switcher_Sort_Mode;
    begin
@@ -1392,15 +1393,15 @@ package body Editor.Executor.Buffer_Switcher_Tests is
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Mark_Toggle);
-      Assert (Avail.Status = Editor.Commands.Command_Available,
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "mark toggle availability should be available with selected switcher row");
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
-      Assert (Avail.Status = Editor.Commands.Command_Available,
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "close marked availability should be available with marks");
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Mark_Invert_Visible);
-      Assert (Avail.Status = Editor.Commands.Command_Available,
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "invert visible availability should be available with visible rows");
 
       Assert (Editor.Buffer_Switcher.Is_Marked (S.Buffer_Switcher, A_Id),
@@ -1647,7 +1648,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       S         : Editor.State.State_Type;
       A_Id      : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Cmd       : Editor.Commands.Payloads.Command;
-      Avail     : Editor.Commands.Command_Availability;
+      Avail     : Editor.Commands.Availability_Metadata.Command_Availability;
       Long_Note : constant String (1 .. Editor.Buffers.Max_Buffer_Note_Length + 1) := (others => 'n');
    begin
       Remove_Tree_If_Exists (Root);
@@ -1661,13 +1662,13 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Mark_Label_Set);
-      Assert (Avail.Status = Editor.Commands.Command_Unavailable,
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
               "marked apply availability should require marked buffers");
 
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, A_Id);
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Mark_Label_Set);
-      Assert (Avail.Status = Editor.Commands.Command_Available,
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "marked apply availability should be available with marks");
       Assert (Editor.Buffer_Switcher.Is_Marked (S.Buffer_Switcher, A_Id),
               "availability must not mutate marks");
@@ -1876,7 +1877,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       S      : Editor.State.State_Type;
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Cmd    : Editor.Commands.Payloads.Command;
-      Avail  : Editor.Commands.Command_Availability;
+      Avail  : Editor.Commands.Availability_Metadata.Command_Availability;
       Recent_Before : Natural := 0;
    begin
       Remove_Tree_If_Exists (Root);
@@ -1890,7 +1891,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Mark_Pinned);
-      Assert (Avail.Status = Editor.Commands.Command_Unavailable,
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
               "mark pinned availability is deterministic with no pinned buffers");
       Assert (not Editor.Buffer_Switcher.Has_Marks (S.Buffer_Switcher),
               "mark preset availability must not mutate marks");
@@ -2063,7 +2064,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Before_Filter : Editor.Buffer_Switcher.Filters.Switcher_Metadata_Filter;
       Before_Sort   : Editor.Buffer_Switcher.Filters.Switcher_Sort_Mode;
-      Avail  : Editor.Commands.Command_Availability;
+      Avail  : Editor.Commands.Availability_Metadata.Command_Availability;
       Recent_Before : Natural := 0;
    begin
       Remove_Tree_If_Exists (Root);
@@ -2089,27 +2090,27 @@ package body Editor.Executor.Buffer_Switcher_Tests is
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Mark_Review_Toggle);
-      Assert (Avail.Status = Editor.Commands.Command_Available,
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "marked review toggle availability should be available in setup");
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Mark_Review_Show);
-      Assert (Avail.Status = Editor.Commands.Command_Available,
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "marked review show availability should be available in setup");
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Mark_Review_Hide);
-      Assert (Avail.Status = Editor.Commands.Command_Available,
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "marked review hide availability should be available in setup");
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Mark_Next);
-      Assert (Avail.Status = Editor.Commands.Command_Available,
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "marked next availability should find the current marked candidate");
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Mark_Previous);
-      Assert (Avail.Status = Editor.Commands.Command_Available,
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "marked previous availability should find the current marked candidate");
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Buffer_Switcher_Mark_Summary);
-      Assert (Avail.Status = Editor.Commands.Command_Available,
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "marked summary availability should be available in setup");
 
       Assert (Editor.Buffer_Switcher.Has_Marked_Review (S.Buffer_Switcher),
@@ -2366,7 +2367,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Cmd    : Editor.Commands.Payloads.Command;
-      Avail  : Editor.Commands.Command_Availability;
+      Avail  : Editor.Commands.Availability_Metadata.Command_Availability;
       Recent_Before : Natural := 0;
    begin
       Remove_Tree_If_Exists (Root);
@@ -2384,10 +2385,10 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Avail := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Buffer_Switcher_Mark_Confirm);
-      Assert (Avail.Status = Editor.Commands.Command_Available,
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "confirm availability should be available for pending close");
       Avail := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Buffer_Switcher_Mark_Cancel);
-      Assert (Avail.Status = Editor.Commands.Command_Available,
+      Assert (Avail.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "cancel availability should be available for pending close");
       Assert (Editor.Buffer_Switcher.Pending_Marked_Target_Count (S.Buffer_Switcher) = 1
               and then Editor.Buffer_Switcher.Pending_Marked_Target_At (S.Buffer_Switcher, 1) = A_Id,

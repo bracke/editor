@@ -30,7 +30,7 @@ package body Editor.Buffer_Switcher_Contextual_Hints is
         and then Editor.Commands.Availability_Metadata.Has_Availability_Handler (Id)
         and then (Editor.Commands.Classification.Is_Visible_In_Palette (Id)
                   or else Editor.Commands.Classification.Is_Bindable_Command (Id))
-        and then Editor.Commands.Is_Available
+        and then Editor.Commands.Availability_Metadata.Is_Available
           (Editor.Executor.Command_Availability (S, Id));
    end Hint_Command_Available;
 
@@ -61,7 +61,7 @@ package body Editor.Buffer_Switcher_Contextual_Hints is
       Show_Keybindings  : Boolean;
       Allow_Unavailable : Boolean := False)
    is
-      Availability : Editor.Commands.Command_Availability;
+      Availability : Editor.Commands.Availability_Metadata.Command_Availability;
       Hint         : Switcher_Contextual_Hint;
    begin
       if Natural (Hints.Length) >= Max_Hints
@@ -81,7 +81,7 @@ package body Editor.Buffer_Switcher_Contextual_Hints is
       end loop;
 
       Availability := Editor.Executor.Command_Availability (S, Id);
-      if not Editor.Commands.Is_Available (Availability) and then not Allow_Unavailable then
+      if not Editor.Commands.Availability_Metadata.Is_Available (Availability) and then not Allow_Unavailable then
          return;
       end if;
 
@@ -89,10 +89,10 @@ package body Editor.Buffer_Switcher_Contextual_Hints is
       Hint.Label := To_Unbounded_String (Editor.Commands.Descriptors.Label (Id));
       Hint.Keybinding_Text := To_Unbounded_String
         (Hint_Keybinding_Text (Id, Show_Keybindings));
-      Hint.Is_Enabled := Editor.Commands.Is_Available (Availability);
+      Hint.Is_Enabled := Editor.Commands.Availability_Metadata.Is_Available (Availability);
       if not Hint.Is_Enabled then
          Hint.Disabled_Reason := To_Unbounded_String
-           (Editor.Commands.Unavailable_Reason (Availability));
+           (Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability));
       end if;
       Hints.Append (Hint);
    end Add_Command;

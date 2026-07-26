@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Buffer_Switcher;
 with Editor.Buffer_Switcher.Filters;
 with Editor.Buffer_Switcher.Rows;
@@ -82,42 +83,42 @@ package body Editor.Executor.Buffer_Switcher_Surface_Commands is
    end Any_Noted_Buffer;
 
    function Selected_Open_Buffer_Availability
-     (S : Editor.State.State_Type) return Editor.Commands.Command_Availability
+     (S : Editor.State.State_Type) return Editor.Commands.Availability_Metadata.Command_Availability
    is
       Found : Boolean := False;
       Row   : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
    begin
       if not Active_Buffer_Switcher_Overlay (S) then
-         return Editor.Commands.Unavailable ("No active overlay");
+         return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
       end if;
 
       Row := Selected_Row (S, Found);
       if not Found then
-         return Editor.Commands.Unavailable ("No buffer selected");
+         return Editor.Commands.Availability_Metadata.Unavailable ("No buffer selected");
       elsif Row.Id = Editor.Buffers.No_Buffer then
-         return Editor.Commands.Unavailable ("Selected row is not a buffer");
+         return Editor.Commands.Availability_Metadata.Unavailable ("Selected row is not a buffer");
       elsif not Editor.Buffers.Global_Contains (Row.Id) then
-         return Editor.Commands.Unavailable ("Selected buffer is no longer open");
+         return Editor.Commands.Availability_Metadata.Unavailable ("Selected buffer is no longer open");
       end if;
 
-      return Editor.Commands.Available;
+      return Editor.Commands.Availability_Metadata.Available;
    end Selected_Open_Buffer_Availability;
 
    function Buffer_Switcher_Surface_Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
-      return Editor.Commands.Command_Availability
+      return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin
       case Id is
          when Editor.Commands.Command_Open_Buffer_Switcher =>
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Close_Buffer_Switcher =>
             if not Active_Buffer_Switcher_Overlay (S) then
-               return Editor.Commands.Unavailable ("No active overlay");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Accept_Buffer_Switcher =>
             return Selected_Open_Buffer_Availability (S);
@@ -125,38 +126,38 @@ package body Editor.Executor.Buffer_Switcher_Surface_Commands is
          when Editor.Commands.Command_Buffer_Switcher_Next_Result
             | Editor.Commands.Command_Buffer_Switcher_Previous_Result =>
             if not Active_Buffer_Switcher_Overlay (S) then
-               return Editor.Commands.Unavailable ("No active overlay");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) = 0 then
-               return Editor.Commands.Unavailable ("No buffer selected");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No buffer selected");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Buffer_Switcher_Filter_Clear =>
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Buffer_Switcher_Filter_Pinned =>
             if not Any_Pinned_Buffer then
-               return Editor.Commands.Unavailable ("No matching open buffers");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No matching open buffers");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Buffer_Switcher_Filter_Group =>
             if not Editor.Buffers.Global_Has_Buffer_Groups then
-               return Editor.Commands.Unavailable ("No buffer groups");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No buffer groups");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Buffer_Switcher_Filter_Label =>
             if not Any_Labelled_Buffer then
-               return Editor.Commands.Unavailable ("No buffer labels");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No buffer labels");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Buffer_Switcher_Filter_Noted =>
             if not Any_Noted_Buffer then
-               return Editor.Commands.Unavailable ("No matching open buffers");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No matching open buffers");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Commands.Command_Buffer_Switcher_Sort_Default
             | Editor.Commands.Command_Buffer_Switcher_Sort_Recent
@@ -169,12 +170,12 @@ package body Editor.Executor.Buffer_Switcher_Surface_Commands is
             if Editor.Buffers.Global_Count = 0
               and then not Editor.State.Has_Active_Buffer (S)
             then
-               return Editor.Commands.Unavailable ("No open buffers");
+               return Editor.Commands.Availability_Metadata.Unavailable ("No open buffers");
             end if;
-            return Editor.Commands.Available;
+            return Editor.Commands.Availability_Metadata.Available;
 
          when others =>
-            return Editor.Commands.Unavailable
+            return Editor.Commands.Availability_Metadata.Unavailable
               ("Not a buffer switcher surface command");
       end case;
    end Buffer_Switcher_Surface_Command_Availability;
