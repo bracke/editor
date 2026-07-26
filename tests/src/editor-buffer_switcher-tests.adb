@@ -46,6 +46,9 @@ package body Editor.Buffer_Switcher.Tests is
    use type Editor.Settings.Settings_Status;
    use type Editor.Recent_Projects.Recent_Project_Status;
    use type Editor.Keybinding_Config.Keybinding_Config_Status;
+   use type Editor.Buffer_Switcher.Switcher_Sort_Mode;
+   use type Editor.Buffer_Switcher.Switcher_Review_Mode;
+   use type Editor.Buffer_Switcher.Buffer_Project_Ownership_Kind;
 
 
    function Name (T : Buffer_Switcher_Test_Case) return AUnit.Message_String is

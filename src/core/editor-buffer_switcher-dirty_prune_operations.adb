@@ -7,6 +7,7 @@ package body Editor.Buffer_Switcher.Dirty_Prune_Operations is
 
    use type Editor.Buffer_Types.Buffer_Id;
    use type Editor.Buffers.Buffer_Dirty_Category;
+   use type Editor.Buffer_Switcher.Pending_Marked_Action_Kind;
 
    function Row_Is_Dirty_Prune_Apply_Target
      (State : Buffer_Switcher_State;

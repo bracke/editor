@@ -17,6 +17,10 @@ package body Editor.Buffer_Switcher is
    use type Editor.Buffers.Buffer_Close_Eligibility;
    use type Editor.Buffers.Buffer_Ownership_Kind;
    use type Editor.Buffers.Buffer_Dirty_Category;
+   use type Editor.Buffer_Switcher.Pending_Marked_Action_Kind;
+   use type Editor.Buffer_Switcher.Switcher_Metadata_Filter_Kind;
+   use type Editor.Buffer_Switcher.Switcher_Review_Mode;
+   use type Editor.Buffer_Switcher.Switcher_Sort_Mode;
    use type Ada.Containers.Count_Type;
 
    No_Recent_Rank : constant Natural := Natural'Last;

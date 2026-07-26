@@ -5,6 +5,8 @@ with Editor.Buffer_Switcher.Review_Operations;
 package body Editor.Buffer_Switcher.Pending_Close_Operations is
 
    use type Editor.Buffer_Types.Buffer_Id;
+   use type Editor.Buffer_Switcher.Pending_Marked_Action_Kind;
+   use type Editor.Buffer_Switcher.Switcher_Review_Mode;
 
    function Is_Pending_Marked_Close_Target
      (State : Buffer_Switcher_State;

@@ -12,6 +12,7 @@ package body Editor.Buffer_Switcher.Row_Operations is
    use type Editor.Buffers.Buffer_Close_Eligibility;
    use type Editor.Buffers.Buffer_Ownership_Kind;
    use type Editor.Buffers.Buffer_Dirty_Category;
+   use type Editor.Buffer_Switcher.Buffer_Project_Ownership_Kind;
    use type Ada.Containers.Count_Type;
 
    No_Recent_Rank : constant Natural := Natural'Last;

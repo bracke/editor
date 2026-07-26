@@ -3,6 +3,12 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 limited with Editor.Buffers;
 with Editor.Buffer_Types;
 use type Editor.Buffer_Types.Buffer_Id;
+with Editor.Buffer_Switcher_Model.Audits;
+with Editor.Buffer_Switcher_Model.Config;
+with Editor.Buffer_Switcher_Model.Filters;
+with Editor.Buffer_Switcher_Model.Reviews;
+with Editor.Buffer_Switcher_Model.Rows;
+use type Editor.Buffer_Switcher_Model.Rows.Buffer_Switcher_Row;
 with Editor.Input_Field;
 with Editor.Layout;
 with Editor.Project;
@@ -12,149 +18,99 @@ package Editor.Buffer_Switcher is
 
    type Buffer_Switcher_State is private;
 
-   type Pending_Marked_Action_Kind is
-     (No_Pending_Marked_Action,
-      Pending_Marked_Close);
+   subtype Pending_Marked_Action_Kind is
+     Editor.Buffer_Switcher_Model.Reviews.Pending_Marked_Action_Kind;
+   No_Pending_Marked_Action : constant Pending_Marked_Action_Kind :=
+     Editor.Buffer_Switcher_Model.Reviews.No_Pending_Marked_Action;
+   Pending_Marked_Close : constant Pending_Marked_Action_Kind :=
+     Editor.Buffer_Switcher_Model.Reviews.Pending_Marked_Close;
 
-   type Switcher_Metadata_Filter_Kind is
-     (No_Filter,
-      Pinned_Filter,
-      Group_Filter,
-      Label_Filter,
-      Noted_Filter,
-      Dirty_Filter,
-      Clean_Filter,
-      Missing_Or_Conflict_Filter,
-      Project_Owned_Filter,
-      Outside_Project_Filter,
-      Scratch_Filter);
+   subtype Switcher_Metadata_Filter_Kind is
+     Editor.Buffer_Switcher_Model.Filters.Switcher_Metadata_Filter_Kind;
+   No_Filter : constant Switcher_Metadata_Filter_Kind :=
+     Editor.Buffer_Switcher_Model.Filters.No_Filter;
+   Pinned_Filter : constant Switcher_Metadata_Filter_Kind :=
+     Editor.Buffer_Switcher_Model.Filters.Pinned_Filter;
+   Group_Filter : constant Switcher_Metadata_Filter_Kind :=
+     Editor.Buffer_Switcher_Model.Filters.Group_Filter;
+   Label_Filter : constant Switcher_Metadata_Filter_Kind :=
+     Editor.Buffer_Switcher_Model.Filters.Label_Filter;
+   Noted_Filter : constant Switcher_Metadata_Filter_Kind :=
+     Editor.Buffer_Switcher_Model.Filters.Noted_Filter;
+   Dirty_Filter : constant Switcher_Metadata_Filter_Kind :=
+     Editor.Buffer_Switcher_Model.Filters.Dirty_Filter;
+   Clean_Filter : constant Switcher_Metadata_Filter_Kind :=
+     Editor.Buffer_Switcher_Model.Filters.Clean_Filter;
+   Missing_Or_Conflict_Filter : constant Switcher_Metadata_Filter_Kind :=
+     Editor.Buffer_Switcher_Model.Filters.Missing_Or_Conflict_Filter;
+   Project_Owned_Filter : constant Switcher_Metadata_Filter_Kind :=
+     Editor.Buffer_Switcher_Model.Filters.Project_Owned_Filter;
+   Outside_Project_Filter : constant Switcher_Metadata_Filter_Kind :=
+     Editor.Buffer_Switcher_Model.Filters.Outside_Project_Filter;
+   Scratch_Filter : constant Switcher_Metadata_Filter_Kind :=
+     Editor.Buffer_Switcher_Model.Filters.Scratch_Filter;
 
-   type Switcher_Metadata_Filter is record
-      Kind : Switcher_Metadata_Filter_Kind := No_Filter;
-      Text : Ada.Strings.Unbounded.Unbounded_String := Ada.Strings.Unbounded.Null_Unbounded_String;
-   end record;
+   subtype Switcher_Metadata_Filter is
+     Editor.Buffer_Switcher_Model.Filters.Switcher_Metadata_Filter;
 
-   type Switcher_Sort_Mode is
-     (Default_Sort,
-      Recent_Sort,
-      Name_Sort,
-      Pinned_Sort,
-      Group_Sort,
-      Label_Sort);
+   subtype Switcher_Sort_Mode is
+     Editor.Buffer_Switcher_Model.Filters.Switcher_Sort_Mode;
+   Default_Sort : constant Switcher_Sort_Mode :=
+     Editor.Buffer_Switcher_Model.Filters.Default_Sort;
+   Recent_Sort : constant Switcher_Sort_Mode :=
+     Editor.Buffer_Switcher_Model.Filters.Recent_Sort;
+   Name_Sort : constant Switcher_Sort_Mode :=
+     Editor.Buffer_Switcher_Model.Filters.Name_Sort;
+   Pinned_Sort : constant Switcher_Sort_Mode :=
+     Editor.Buffer_Switcher_Model.Filters.Pinned_Sort;
+   Group_Sort : constant Switcher_Sort_Mode :=
+     Editor.Buffer_Switcher_Model.Filters.Group_Sort;
+   Label_Sort : constant Switcher_Sort_Mode :=
+     Editor.Buffer_Switcher_Model.Filters.Label_Sort;
 
-   type Switcher_Review_Mode is
-     (No_Review,
-      Marked_Review,
-      Pending_Marked_Close_Review,
-      Pruned_Pending_Close_Review,
-      Dirty_Pending_Close_Review,
-      Dirty_Prune_Preview_Review,
-      Removed_Dirty_Prune_Preview_Review,
-      Dirty_Prune_Apply_Review,
-      Removed_Dirty_Prune_Apply_Review);
+   subtype Switcher_Review_Mode is
+     Editor.Buffer_Switcher_Model.Reviews.Switcher_Review_Mode;
+   No_Review : constant Switcher_Review_Mode :=
+     Editor.Buffer_Switcher_Model.Reviews.No_Review;
+   Marked_Review : constant Switcher_Review_Mode :=
+     Editor.Buffer_Switcher_Model.Reviews.Marked_Review;
+   Pending_Marked_Close_Review : constant Switcher_Review_Mode :=
+     Editor.Buffer_Switcher_Model.Reviews.Pending_Marked_Close_Review;
+   Pruned_Pending_Close_Review : constant Switcher_Review_Mode :=
+     Editor.Buffer_Switcher_Model.Reviews.Pruned_Pending_Close_Review;
+   Dirty_Pending_Close_Review : constant Switcher_Review_Mode :=
+     Editor.Buffer_Switcher_Model.Reviews.Dirty_Pending_Close_Review;
+   Dirty_Prune_Preview_Review : constant Switcher_Review_Mode :=
+     Editor.Buffer_Switcher_Model.Reviews.Dirty_Prune_Preview_Review;
+   Removed_Dirty_Prune_Preview_Review : constant Switcher_Review_Mode :=
+     Editor.Buffer_Switcher_Model.Reviews.Removed_Dirty_Prune_Preview_Review;
+   Dirty_Prune_Apply_Review : constant Switcher_Review_Mode :=
+     Editor.Buffer_Switcher_Model.Reviews.Dirty_Prune_Apply_Review;
+   Removed_Dirty_Prune_Apply_Review : constant Switcher_Review_Mode :=
+     Editor.Buffer_Switcher_Model.Reviews.Removed_Dirty_Prune_Apply_Review;
 
-   type Switcher_Batch_State_Snapshot is record
-      Active_Review_Mode : Switcher_Review_Mode := No_Review;
-      Review_Display_Name : Ada.Strings.Unbounded.Unbounded_String := Ada.Strings.Unbounded.Null_Unbounded_String;
-      Review_Empty_Message : Ada.Strings.Unbounded.Unbounded_String := Ada.Strings.Unbounded.Null_Unbounded_String;
-      Marked_Count : Natural := 0;
-      Pending_Close_Count : Natural := 0;
-      Dirty_Pending_Close_Count : Natural := 0;
-      Pruned_Pending_Close_Count : Natural := 0;
-      Dirty_Prune_Preview_Count : Natural := 0;
-      Applicable_Dirty_Prune_Preview_Count : Natural := 0;
-      Removed_Dirty_Prune_Preview_Count : Natural := 0;
-      Open_Removed_Dirty_Prune_Preview_Count : Natural := 0;
-      Stale_Dirty_Prune_Preview_Count : Natural := 0;
-      Dirty_Prune_Apply_Count : Natural := 0;
-      Applicable_Dirty_Prune_Apply_Count : Natural := 0;
-      Removed_Dirty_Prune_Apply_Count : Natural := 0;
-      Open_Removed_Dirty_Prune_Apply_Count : Natural := 0;
-      Stale_Dirty_Prune_Apply_Count : Natural := 0;
-      Has_Pending_Marked_Close : Boolean := False;
-      Has_Dirty_Prune_Preview : Boolean := False;
-      Has_Dirty_Prune_Apply_Confirmation : Boolean := False;
-      Header_Badge_Text : Ada.Strings.Unbounded.Unbounded_String := Ada.Strings.Unbounded.Null_Unbounded_String;
-      Footer_Badge_Text : Ada.Strings.Unbounded.Unbounded_String := Ada.Strings.Unbounded.Null_Unbounded_String;
-   end record;
+   subtype Switcher_Batch_State_Snapshot is
+     Editor.Buffer_Switcher_Model.Reviews.Switcher_Batch_State_Snapshot;
 
-   type Buffer_Project_Ownership_Kind is
-     (Buffer_Project_Unknown,
-      Buffer_Project_Owned,
-      Buffer_Project_Outside,
-      Buffer_Project_Scratch,
-      Buffer_Project_No_Project);
+   subtype Buffer_Project_Ownership_Kind is
+     Editor.Buffer_Switcher_Model.Rows.Buffer_Project_Ownership_Kind;
+   Buffer_Project_Unknown : constant Buffer_Project_Ownership_Kind :=
+     Editor.Buffer_Switcher_Model.Rows.Buffer_Project_Unknown;
+   Buffer_Project_Owned : constant Buffer_Project_Ownership_Kind :=
+     Editor.Buffer_Switcher_Model.Rows.Buffer_Project_Owned;
+   Buffer_Project_Outside : constant Buffer_Project_Ownership_Kind :=
+     Editor.Buffer_Switcher_Model.Rows.Buffer_Project_Outside;
+   Buffer_Project_Scratch : constant Buffer_Project_Ownership_Kind :=
+     Editor.Buffer_Switcher_Model.Rows.Buffer_Project_Scratch;
+   Buffer_Project_No_Project : constant Buffer_Project_Ownership_Kind :=
+     Editor.Buffer_Switcher_Model.Rows.Buffer_Project_No_Project;
 
-   type Buffer_Switcher_Config is record
-      Max_Visible_Results      : Natural := 12;
-      Query_Field_Min_Columns  : Natural := 24;
-      Overlay_Width_In_Columns : Natural := 72;
-      Row_Height_In_Rows       : Natural := 1;
-      Header_Height_In_Rows    : Natural := 1;
-      Field_Height_In_Rows     : Natural := 1;
-      Result_Padding_Columns   : Natural := 1;
-      Preview_Max_Lines        : Natural := 7;
-   end record;
-
-
-   type Selected_Buffer_List_Audit is record
-      Row_Count                        : Natural := 0;
-      Selected_Row_Index               : Natural := 0;
-      Selected_Row_Valid               : Boolean := True;
-      Selected_Row_Is_Buffer           : Boolean := True;
-      Selected_Runtime_Id_Registered   : Boolean := True;
-      Selection_Cleared_When_No_Rows    : Boolean := True;
-      Selection_Index_Clamped_To_Rows   : Boolean := True;
-      Selection_Skips_Status_Rows       : Boolean := True;
-      Selection_Is_Transient            : Boolean := True;
-      Selection_Not_Persisted           : Boolean := True;
-      Selection_Not_Keybinding_Payload  : Boolean := True;
-      Selected_Buffer_Id                : Editor.Buffer_Types.Buffer_Id := Editor.Buffer_Types.No_Buffer;
-   end record;
-
-   type Buffer_Switcher_Row is record
-      Id           : Editor.Buffer_Types.Buffer_Id := Editor.Buffer_Types.No_Buffer;
-      Display_Label : Ada.Strings.Unbounded.Unbounded_String;
-      Is_Dirty     : Boolean := False;
-      Is_Active    : Boolean := False;
-      Has_Path     : Boolean := False;
-      Path          : Ada.Strings.Unbounded.Unbounded_String := Ada.Strings.Unbounded.Null_Unbounded_String;
-      Project_Ownership : Buffer_Project_Ownership_Kind := Buffer_Project_Unknown;
-      Project_Ownership_Label : Ada.Strings.Unbounded.Unbounded_String := Ada.Strings.Unbounded.Null_Unbounded_String;
-      --  render-facing metadata labels.  These fields are copied
-      --  from Buffer_Metadata_Snapshot during row recomputation so render can
-      --  display lifecycle/persistability/close markers without deriving or
-      --  mutating buffer state.
-      Lifecycle_Status_Label : Ada.Strings.Unbounded.Unbounded_String := Ada.Strings.Unbounded.Null_Unbounded_String;
-      Workspace_Persistability_Label : Ada.Strings.Unbounded.Unbounded_String := Ada.Strings.Unbounded.Null_Unbounded_String;
-      Close_Eligibility_Label : Ada.Strings.Unbounded.Unbounded_String := Ada.Strings.Unbounded.Null_Unbounded_String;
-      Stale_Backing_State : Boolean := False;
-      Is_Project_Owned  : Boolean := False;
-      Is_Outside_Project : Boolean := False;
-      Is_File_Backed : Boolean := False;
-      Is_Unbacked    : Boolean := False;
-      Last_Save_Failed   : Boolean := False;
-      Last_Reload_Failed : Boolean := False;
-      Last_Revert_Failed : Boolean := False;
-      Missing_Target_Surfaced    : Boolean := False;
-      Unreadable_Target_Surfaced : Boolean := False;
-      Unwritable_Target_Surfaced : Boolean := False;
-      External_Change_Surfaced   : Boolean := False;
-      Blocked_Close_Surfaced     : Boolean := False;
-      Is_Pinned    : Boolean := False;
-      Has_Group    : Boolean := False;
-      Group_Name   : Ada.Strings.Unbounded.Unbounded_String := Ada.Strings.Unbounded.Null_Unbounded_String;
-      Has_Label    : Boolean := False;
-      Label_Text   : Ada.Strings.Unbounded.Unbounded_String := Ada.Strings.Unbounded.Null_Unbounded_String;
-      Has_Note     : Boolean := False;
-      Is_Marked    : Boolean := False;
-      Is_Pending_Close_Target : Boolean := False;
-      Is_Ordinary_Pruned_Target : Boolean := False;
-      Is_Dirty_Prune_Preview_Target : Boolean := False;
-      Is_Removed_Dirty_Prune_Preview_Target : Boolean := False;
-      Is_Dirty_Prune_Apply_Target : Boolean := False;
-      Is_Removed_Dirty_Prune_Apply_Target : Boolean := False;
-   end record;
+   subtype Buffer_Switcher_Config is
+     Editor.Buffer_Switcher_Model.Config.Buffer_Switcher_Config;
+   subtype Selected_Buffer_List_Audit is
+     Editor.Buffer_Switcher_Model.Audits.Selected_Buffer_List_Audit;
+   subtype Buffer_Switcher_Row is
+     Editor.Buffer_Switcher_Model.Rows.Buffer_Switcher_Row;
 
    --  canonical projection seam: file-lifecycle-visible row
    --  fields are copied only from the current buffer summary snapshot.  This
