@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Characters.Handling;
@@ -12,7 +13,6 @@ with Editor.Ada_Live_Semantic_Diagnostics;
 with Editor.Ada_Project_Index;
 with Editor.Buffers;
 with Editor.Command_Execution;
-with Editor.Commands;
 with Editor.Executor;
 with Editor.Executor.Shared_Services;
 with Editor.Feature_Diagnostics;
@@ -28,7 +28,7 @@ with Editor.Syntax_Semantics;
 package body Editor.Executor.Semantic_Index_Commands is
 
    use Ada.Strings.Unbounded;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Files.File_Open_Status;
    use type Editor.Project.Project_File_Refresh_Status;
 
@@ -405,22 +405,22 @@ package body Editor.Executor.Semantic_Index_Commands is
 
    function Semantic_Index_Command_Availability
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin
       case Id is
-         when Editor.Commands.Command_Refresh_Outline_Project_Index
-            | Editor.Commands.Command_Semantic_Refresh_Buffer
-            | Editor.Commands.Command_Semantic_Refresh_Project_Index =>
+         when Editor.Command_Ids.Command_Refresh_Outline_Project_Index
+            | Editor.Command_Ids.Command_Semantic_Refresh_Buffer
+            | Editor.Command_Ids.Command_Semantic_Refresh_Project_Index =>
             if not Editor.State.Has_Active_Buffer (S) then
                return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Reason_No_Active_Buffer);
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
-         when Editor.Commands.Command_Language_Index_Clear
-            | Editor.Commands.Command_Language_Index_Status =>
+         when Editor.Command_Ids.Command_Language_Index_Clear
+            | Editor.Command_Ids.Command_Language_Index_Status =>
             return Editor.Commands.Availability_Metadata.Available;
 
          when others =>
@@ -431,18 +431,18 @@ package body Editor.Executor.Semantic_Index_Commands is
 
    function Execute_Semantic_Index_Command
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
    is
       function Result_After_Command
-        (Command : Editor.Commands.Command_Id)
+        (Command : Editor.Command_Ids.Command_Id)
          return Editor.Command_Execution.Command_Execution_Result is
       begin
          return Editor.Command_Execution.Executed (Command);
       end Result_After_Command;
    begin
       case Id is
-         when Editor.Commands.Command_Refresh_Outline_Project_Index =>
+         when Editor.Command_Ids.Command_Refresh_Outline_Project_Index =>
             declare
                Indexed_Files : Natural;
                Indexed_Symbols : Natural;
@@ -467,7 +467,7 @@ package body Editor.Executor.Semantic_Index_Commands is
                return Result_After_Command (Id);
             end;
 
-         when Editor.Commands.Command_Semantic_Refresh_Buffer =>
+         when Editor.Command_Ids.Command_Semantic_Refresh_Buffer =>
             declare
                Text : constant String := Editor.State.Current_Text (S);
                Label : constant String :=
@@ -519,7 +519,7 @@ package body Editor.Executor.Semantic_Index_Commands is
                return Result_After_Command (Id);
             end;
 
-         when Editor.Commands.Command_Semantic_Refresh_Project_Index =>
+         when Editor.Command_Ids.Command_Semantic_Refresh_Project_Index =>
             declare
                Indexed_Files : Natural;
                Indexed_Symbols : Natural;
@@ -544,7 +544,7 @@ package body Editor.Executor.Semantic_Index_Commands is
                return Result_After_Command (Id);
             end;
 
-         when Editor.Commands.Command_Language_Index_Clear =>
+         when Editor.Command_Ids.Command_Language_Index_Clear =>
             Clear_Service_Semantic_Diagnostics_From_Feature (S);
             Editor.Ada_Project_Index.Clear (S.Language_Index);
             Editor.Ada_Language_Service.Clear (S.Language_Service);
@@ -552,7 +552,7 @@ package body Editor.Executor.Semantic_Index_Commands is
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
 
-         when Editor.Commands.Command_Language_Index_Status =>
+         when Editor.Command_Ids.Command_Language_Index_Status =>
             declare
                Compiler : constant
                  Editor.Ada_Language_Service.Compiler_Backend_Status :=

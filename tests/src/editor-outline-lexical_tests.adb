@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Classification;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
@@ -16,7 +17,6 @@ with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Editor.Outline.Fixtures; use Editor.Outline.Fixtures;
 with Editor.Ada_Syntax_Core;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.Cursors;
 with Editor.Executor;
@@ -39,7 +39,7 @@ with Editor.Workspace_Persistence;
 
 package body Editor.Outline.Lexical_Tests is
 
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Executor.Command_Execution_Status;
    use type Editor.Outline.Outline_Item_Kind;
@@ -600,12 +600,12 @@ package body Editor.Outline.Lexical_Tests is
    is
       pragma Unreferenced (T);
       use Ada.Strings.Unbounded;
-      Covered : constant array (Positive range 1 .. 5) of Editor.Commands.Command_Id :=
-        (Editor.Commands.Command_Refresh_Outline,
-         Editor.Commands.Command_Open_Selected_Outline_Item,
-         Editor.Commands.Command_Next_Outline_Symbol,
-         Editor.Commands.Command_Previous_Outline_Symbol,
-         Editor.Commands.Command_Reveal_Current_Outline_Symbol);
+      Covered : constant array (Positive range 1 .. 5) of Editor.Command_Ids.Command_Id :=
+        (Editor.Command_Ids.Command_Refresh_Outline,
+         Editor.Command_Ids.Command_Open_Selected_Outline_Item,
+         Editor.Command_Ids.Command_Next_Outline_Symbol,
+         Editor.Command_Ids.Command_Previous_Outline_Symbol,
+         Editor.Command_Ids.Command_Reveal_Current_Outline_Symbol);
       D    : Editor.Commands.Descriptors.Command_Descriptor;
       Bind : Editor.Keybindings.Command_Keybinding_Info;
       Name : Unbounded_String := Null_Unbounded_String;
@@ -654,7 +654,7 @@ package body Editor.Outline.Lexical_Tests is
         (S, "package Real is" & ASCII.LF &
             "   procedure Old;" & ASCII.LF &
             "end Real;");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Refresh_Outline);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Item_Count (S.Outline) = 2,
               "boundary fixture starts from an explicit lexical-safe refresh");
 
@@ -674,7 +674,7 @@ package body Editor.Outline.Lexical_Tests is
       Messages_Before := Editor.Messages.Count (S.Messages);
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "refresh availability remains available with an active buffer");
       Assert (Fingerprint (S.Outline) = Outline_Before,
@@ -708,7 +708,7 @@ package body Editor.Outline.Lexical_Tests is
             "   -- package Fake_Comment is" & ASCII.LF &
             "   procedure Run;" & ASCII.LF &
             "end Real;");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Refresh_Outline);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Item_Count (S.Outline) = 3,
               "persistence fixture has lexical-safe outline rows before snapshot");
 

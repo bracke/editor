@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Classification;
 with Editor.Commands.Availability_Metadata;
@@ -10,14 +11,14 @@ with Editor.Commands.Build_Terminal_Ids;
 
 package body Editor.Keybindings is
 
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
 
    type Binding_Entry is record
       Used  : Boolean := False;
       Chord : Key_Chord :=
         (Key => Key_Left,
          Modifiers => (Ctrl => False, Shift => False, Alt => False, Meta => False));
-      Id    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Id    : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
    end record;
 
    Max_Bindings : constant Natural := 256;
@@ -56,7 +57,7 @@ package body Editor.Keybindings is
    end Clear;
 
    function Is_Normal_Assignable_Command
-     (Id : Editor.Commands.Command_Id) return Boolean
+     (Id : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       return Editor.Commands.Classification.Is_Bindable_Command (Id)
@@ -78,7 +79,7 @@ package body Editor.Keybindings is
 
    procedure Bind
      (Chord : Key_Chord;
-      Id    : Editor.Commands.Command_Id)
+      Id    : Editor.Command_Ids.Command_Id)
    is
    begin
       for I in Bindings'Range loop
@@ -100,7 +101,7 @@ package body Editor.Keybindings is
 
    procedure Assign
      (Chord  : Key_Chord;
-      Id     : Editor.Commands.Command_Id;
+      Id     : Editor.Command_Ids.Command_Id;
       Status : out Keybinding_Change_Status)
    is
       Free_Index : Natural := Bindings'First;
@@ -175,7 +176,7 @@ package body Editor.Keybindings is
    end Unbind;
 
    procedure Unbind_Command
-     (Id : Editor.Commands.Command_Id)
+     (Id : Editor.Command_Ids.Command_Id)
    is
    begin
       for I in Bindings'Range loop
@@ -200,7 +201,7 @@ package body Editor.Keybindings is
    procedure Register_Default_If_Free
      (Result  : in out Default_Keybinding_Registration_Result;
       Chord   : Key_Chord;
-      Command : Editor.Commands.Command_Id)
+      Command : Editor.Command_Ids.Command_Id)
    is
    begin
       Result.Requested_Count := Result.Requested_Count + 1;
@@ -222,22 +223,22 @@ package body Editor.Keybindings is
       --  and command-palette keys remain untouched.
       Register_Default_If_Free
         (Result, Chord (Key_F12, Ctrl => True),
-         Editor.Commands.Command_Refresh_Outline);
+         Editor.Command_Ids.Command_Refresh_Outline);
       Register_Default_If_Free
         (Result, Chord (Key_Enter, Alt => True),
-         Editor.Commands.Command_Open_Selected_Outline_Item);
+         Editor.Command_Ids.Command_Open_Selected_Outline_Item);
       Register_Default_If_Free
         (Result, Chord (Key_F3, Alt => True),
-         Editor.Commands.Command_Select_Next_Outline_Item);
+         Editor.Command_Ids.Command_Select_Next_Outline_Item);
       Register_Default_If_Free
         (Result, Chord (Key_F3, Alt => True, Shift => True),
-         Editor.Commands.Command_Select_Previous_Outline_Item);
+         Editor.Command_Ids.Command_Select_Previous_Outline_Item);
       Register_Default_If_Free
         (Result, Chord (Key_F12, Alt => True),
-         Editor.Commands.Command_Select_Current_Outline_Symbol);
+         Editor.Command_Ids.Command_Select_Current_Outline_Symbol);
       Register_Default_If_Free
         (Result, Chord (Key_F12, Alt => True, Shift => True),
-         Editor.Commands.Command_Reveal_Current_Outline_Symbol);
+         Editor.Command_Ids.Command_Reveal_Current_Outline_Symbol);
       return Result;
    end Register_Outline_Keybindings;
 
@@ -251,22 +252,22 @@ package body Editor.Keybindings is
       --  build.run remains unbound because it is explicit-consent gated.
       Register_Default_If_Free
         (Result, Chord (Key_F1),
-         Editor.Commands.Command_Palette_Show_Command_Help);
+         Editor.Command_Ids.Command_Palette_Show_Command_Help);
       Register_Default_If_Free
         (Result, Chord (Key_O, Ctrl => True),
-         Editor.Commands.Command_Open_File);
+         Editor.Command_Ids.Command_Open_File);
       Register_Default_If_Free
         (Result, Chord (Key_O, Ctrl => True, Alt => True),
-         Editor.Commands.Command_Open_Project);
+         Editor.Command_Ids.Command_Open_Project);
       Register_Default_If_Free
         (Result, Chord (Key_M, Ctrl => True, Alt => True),
-         Editor.Commands.Command_Diagnostics_Show);
+         Editor.Command_Ids.Command_Diagnostics_Show);
       return Result;
    end Register_Daily_Workflow_Keybindings;
 
    function Resolve
      (Chord : Key_Chord;
-      Id    : out Editor.Commands.Command_Id) return Binding_Result
+      Id    : out Editor.Command_Ids.Command_Id) return Binding_Result
    is
    begin
       for I in Bindings'Range loop
@@ -279,13 +280,13 @@ package body Editor.Keybindings is
                Id := Bindings (I).Id;
                return Bound_Command;
             else
-               Id := Editor.Commands.No_Command;
+               Id := Editor.Command_Ids.No_Command;
                return No_Binding;
             end if;
          end if;
       end loop;
 
-      Id := Editor.Commands.No_Command;
+      Id := Editor.Command_Ids.No_Command;
       return No_Binding;
    end Resolve;
 
@@ -490,7 +491,7 @@ package body Editor.Keybindings is
    end Format_Chord;
 
    function Binding_Count_For_Command
-     (Command : Editor.Commands.Command_Id) return Natural
+     (Command : Editor.Command_Ids.Command_Id) return Natural
    is
       Count : Natural := 0;
    begin
@@ -503,7 +504,7 @@ package body Editor.Keybindings is
    end Binding_Count_For_Command;
 
    function Binding_For_Command
-     (Command : Editor.Commands.Command_Id;
+     (Command : Editor.Command_Ids.Command_Id;
       Index   : Positive) return Key_Chord
    is
       Count : Natural := 0;
@@ -523,7 +524,7 @@ package body Editor.Keybindings is
    end Binding_For_Command;
 
    function Command_Name_Less
-     (Left, Right : Editor.Commands.Command_Id) return Boolean
+     (Left, Right : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       return Editor.Commands.Name_Metadata.Stable_Command_Name (Left)
@@ -531,7 +532,7 @@ package body Editor.Keybindings is
    end Command_Name_Less;
 
    function Has_Any_Binding
-     (Command : Editor.Commands.Command_Id) return Boolean
+     (Command : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       return Binding_Count_For_Command (Command) > 0;
@@ -541,19 +542,19 @@ package body Editor.Keybindings is
      (Index         : Positive;
       Want_Bound     : Boolean;
       Want_Unbound   : Boolean;
-      Assignable_Only : Boolean) return Editor.Commands.Command_Id
+      Assignable_Only : Boolean) return Editor.Command_Ids.Command_Id
    is
-      Best     : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Best     : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Best_Set : Boolean := False;
-      Seen     : array (Editor.Commands.Command_Id) of Boolean := (others => False);
+      Seen     : array (Editor.Command_Ids.Command_Id) of Boolean := (others => False);
       Wanted   : Natural := 0;
       Eligible : Boolean;
       pragma Unreferenced (Assignable_Only);
    begin
       loop
          Best_Set := False;
-         for Id in Editor.Commands.Command_Id loop
-            Eligible := Id /= Editor.Commands.No_Command
+         for Id in Editor.Command_Ids.Command_Id loop
+            Eligible := Id /= Editor.Command_Ids.No_Command
               and then not Seen (Id)
               and then Is_Normal_Assignable_Command (Id)
               and then ((Want_Bound and then Has_Any_Binding (Id))
@@ -575,14 +576,14 @@ package body Editor.Keybindings is
       end loop;
 
       pragma Assert (False, "Editor.Keybindings display command index out of range");
-      return Editor.Commands.No_Command;
+      return Editor.Command_Ids.No_Command;
    end Display_Command_At;
 
    function Bound_Command_Count return Natural
    is
       Count : Natural := 0;
    begin
-      for Id in Editor.Commands.Command_Id loop
+      for Id in Editor.Command_Ids.Command_Id loop
          if Is_Normal_Assignable_Command (Id)
            and then Has_Any_Binding (Id)
          then
@@ -593,7 +594,7 @@ package body Editor.Keybindings is
    end Bound_Command_Count;
 
    function Bound_Command_At
-     (Index : Positive) return Editor.Commands.Command_Id
+     (Index : Positive) return Editor.Command_Ids.Command_Id
    is
    begin
       return Display_Command_At
@@ -605,7 +606,7 @@ package body Editor.Keybindings is
    is
       Count : Natural := 0;
    begin
-      for Id in Editor.Commands.Command_Id loop
+      for Id in Editor.Command_Ids.Command_Id loop
          if Is_Normal_Assignable_Command (Id)
            and then not Has_Any_Binding (Id)
          then
@@ -616,7 +617,7 @@ package body Editor.Keybindings is
    end Unbound_Assignable_Command_Count;
 
    function Unbound_Assignable_Command_At
-     (Index : Positive) return Editor.Commands.Command_Id
+     (Index : Positive) return Editor.Command_Ids.Command_Id
    is
    begin
       return Display_Command_At
@@ -625,7 +626,7 @@ package body Editor.Keybindings is
    end Unbound_Assignable_Command_At;
 
    function Primary_Binding_For_Command
-     (Command : Editor.Commands.Command_Id) return Command_Keybinding_Info
+     (Command : Editor.Command_Ids.Command_Id) return Command_Keybinding_Info
    is
    begin
       for I in reverse Bindings'Range loop
@@ -644,8 +645,8 @@ package body Editor.Keybindings is
    function Validate return Keybinding_Validation_Result
    is
       Result : Keybinding_Validation_Result;
-      Resolved : Editor.Commands.Command_Id;
-      Command_Bound : array (Editor.Commands.Command_Id) of Boolean := (others => False);
+      Resolved : Editor.Command_Ids.Command_Id;
+      Command_Bound : array (Editor.Command_Ids.Command_Id) of Boolean := (others => False);
    begin
       for I in Bindings'Range loop
          if Bindings (I).Used then
@@ -677,7 +678,7 @@ package body Editor.Keybindings is
          end if;
       end loop;
 
-      for Id in Editor.Commands.Command_Id loop
+      for Id in Editor.Command_Ids.Command_Id loop
          if Editor.Commands.Classification.Is_Bindable_Command (Id) then
             if Command_Bound (Id) then
                Result.Validation_Summary.Bound_Command_Count :=
@@ -732,79 +733,79 @@ package body Editor.Keybindings is
    begin
       Clear;
 
-      Bind (Chord (Key_S, Ctrl => True), Editor.Commands.Command_Save_File);
+      Bind (Chord (Key_S, Ctrl => True), Editor.Command_Ids.Command_Save_File);
       Bind (Chord (Key_S, Ctrl => True, Shift => True),
-            Editor.Commands.Command_Save_File_As);
-      Bind (Chord (Key_F, Ctrl => True), Editor.Commands.Command_Find_Show);
-      Bind (Chord (Key_G, Ctrl => True), Editor.Commands.Command_Goto_Line);
-      Bind (Chord (Key_F, Ctrl => True, Shift => True), Editor.Commands.Command_Open_Project_Search_Bar);
-      Bind (Chord (Key_P, Ctrl => True), Editor.Commands.Command_Open_Quick_Open);
-      Bind (Chord (Key_P, Ctrl => True, Shift => True), Editor.Commands.Command_Open_Command_Palette);
-      Bind (Chord (Key_N, Ctrl => True), Editor.Commands.Command_New_Buffer);
-      Bind (Chord (Key_W, Ctrl => True), Editor.Commands.Command_Close_Active_Buffer);
-      Bind (Chord (Key_M, Ctrl => True, Shift => True), Editor.Commands.Command_Toggle_Problems_Panel);
-      Bind (Chord (Key_L, Ctrl => True), Editor.Commands.Command_Select_Line);
-      Bind (Chord (Key_A, Ctrl => True), Editor.Commands.Command_Select_All);
-      Bind (Chord (Key_C, Ctrl => True), Editor.Commands.Command_Copy);
-      Bind (Chord (Key_X, Ctrl => True), Editor.Commands.Command_Cut);
-      Bind (Chord (Key_V, Ctrl => True), Editor.Commands.Command_Paste);
+            Editor.Command_Ids.Command_Save_File_As);
+      Bind (Chord (Key_F, Ctrl => True), Editor.Command_Ids.Command_Find_Show);
+      Bind (Chord (Key_G, Ctrl => True), Editor.Command_Ids.Command_Goto_Line);
+      Bind (Chord (Key_F, Ctrl => True, Shift => True), Editor.Command_Ids.Command_Open_Project_Search_Bar);
+      Bind (Chord (Key_P, Ctrl => True), Editor.Command_Ids.Command_Open_Quick_Open);
+      Bind (Chord (Key_P, Ctrl => True, Shift => True), Editor.Command_Ids.Command_Open_Command_Palette);
+      Bind (Chord (Key_N, Ctrl => True), Editor.Command_Ids.Command_New_Buffer);
+      Bind (Chord (Key_W, Ctrl => True), Editor.Command_Ids.Command_Close_Active_Buffer);
+      Bind (Chord (Key_M, Ctrl => True, Shift => True), Editor.Command_Ids.Command_Toggle_Problems_Panel);
+      Bind (Chord (Key_L, Ctrl => True), Editor.Command_Ids.Command_Select_Line);
+      Bind (Chord (Key_A, Ctrl => True), Editor.Command_Ids.Command_Select_All);
+      Bind (Chord (Key_C, Ctrl => True), Editor.Command_Ids.Command_Copy);
+      Bind (Chord (Key_X, Ctrl => True), Editor.Command_Ids.Command_Cut);
+      Bind (Chord (Key_V, Ctrl => True), Editor.Command_Ids.Command_Paste);
 
       --  bookmark workflow bindings.  Function keys are represented
       --  explicitly so the runtime, bridge, resolver, and tests share the same
       --  command path.
-      Bind (Chord (Key_F2), Editor.Commands.Command_Next_Bookmark);
-      Bind (Chord (Key_F2, Shift => True), Editor.Commands.Command_Previous_Bookmark);
-      Bind (Chord (Key_F2, Ctrl => True), Editor.Commands.Command_Toggle_Bookmark);
-      Bind (Chord (Key_F2, Ctrl => True, Shift => True), Editor.Commands.Command_Clear_Bookmarks);
+      Bind (Chord (Key_F2), Editor.Command_Ids.Command_Next_Bookmark);
+      Bind (Chord (Key_F2, Shift => True), Editor.Command_Ids.Command_Previous_Bookmark);
+      Bind (Chord (Key_F2, Ctrl => True), Editor.Command_Ids.Command_Toggle_Bookmark);
+      Bind (Chord (Key_F2, Ctrl => True, Shift => True), Editor.Command_Ids.Command_Clear_Bookmarks);
 
       --  search navigation bindings.
-      Bind (Chord (Key_F3), Editor.Commands.Command_Active_Find_Next);
-      Bind (Chord (Key_F3, Shift => True), Editor.Commands.Command_Active_Find_Previous);
+      Bind (Chord (Key_F3), Editor.Command_Ids.Command_Active_Find_Next);
+      Bind (Chord (Key_F3, Shift => True), Editor.Command_Ids.Command_Active_Find_Previous);
 
-      Bind (Chord (Key_Tab, Ctrl => True), Editor.Commands.Command_Previous_Recent_Buffer);
-      Bind (Chord (Key_Tab, Ctrl => True, Shift => True), Editor.Commands.Command_Next_Recent_Buffer);
-      Bind (Chord (Key_Z, Ctrl => True), Editor.Commands.Command_Undo);
-      Bind (Chord (Key_Y, Ctrl => True), Editor.Commands.Command_Redo);
-      Bind (Chord (Key_Z, Ctrl => True, Shift => True), Editor.Commands.Command_Redo);
+      Bind (Chord (Key_Tab, Ctrl => True), Editor.Command_Ids.Command_Previous_Recent_Buffer);
+      Bind (Chord (Key_Tab, Ctrl => True, Shift => True), Editor.Command_Ids.Command_Next_Recent_Buffer);
+      Bind (Chord (Key_Z, Ctrl => True), Editor.Command_Ids.Command_Undo);
+      Bind (Chord (Key_Y, Ctrl => True), Editor.Command_Ids.Command_Redo);
+      Bind (Chord (Key_Z, Ctrl => True, Shift => True), Editor.Command_Ids.Command_Redo);
 
-      Bind (Chord (Key_Left, Alt => True), Editor.Commands.Command_Navigation_Back);
-      Bind (Chord (Key_Right, Alt => True), Editor.Commands.Command_Navigation_Forward);
+      Bind (Chord (Key_Left, Alt => True), Editor.Command_Ids.Command_Navigation_Back);
+      Bind (Chord (Key_Right, Alt => True), Editor.Command_Ids.Command_Navigation_Forward);
 
-      Bind (Chord (Key_Left), Editor.Commands.Command_Move_Left);
-      Bind (Chord (Key_Right), Editor.Commands.Command_Move_Right);
-      Bind (Chord (Key_Up), Editor.Commands.Command_Move_Up);
-      Bind (Chord (Key_Down), Editor.Commands.Command_Move_Down);
-      Bind (Chord (Key_Home), Editor.Commands.Command_Move_Line_Start);
-      Bind (Chord (Key_End), Editor.Commands.Command_Move_Line_End);
-      Bind (Chord (Key_Home, Ctrl => True), Editor.Commands.Command_Move_Document_Start);
-      Bind (Chord (Key_End, Ctrl => True), Editor.Commands.Command_Move_Document_End);
-      Bind (Chord (Key_Left, Ctrl => True), Editor.Commands.Command_Move_Word_Left);
-      Bind (Chord (Key_Right, Ctrl => True), Editor.Commands.Command_Move_Word_Right);
-      Bind (Chord (Key_Backspace, Ctrl => True), Editor.Commands.Command_Word_Delete_Previous);
-      Bind (Chord (Key_Delete, Ctrl => True), Editor.Commands.Command_Word_Delete_Next);
-      Bind (Chord (Key_Page_Up), Editor.Commands.Command_Page_Up);
-      Bind (Chord (Key_Page_Down), Editor.Commands.Command_Page_Down);
-      Bind (Chord (Key_Page_Up, Shift => True), Editor.Commands.Command_Select_Page_Up);
-      Bind (Chord (Key_Page_Down, Shift => True), Editor.Commands.Command_Select_Page_Down);
+      Bind (Chord (Key_Left), Editor.Command_Ids.Command_Move_Left);
+      Bind (Chord (Key_Right), Editor.Command_Ids.Command_Move_Right);
+      Bind (Chord (Key_Up), Editor.Command_Ids.Command_Move_Up);
+      Bind (Chord (Key_Down), Editor.Command_Ids.Command_Move_Down);
+      Bind (Chord (Key_Home), Editor.Command_Ids.Command_Move_Line_Start);
+      Bind (Chord (Key_End), Editor.Command_Ids.Command_Move_Line_End);
+      Bind (Chord (Key_Home, Ctrl => True), Editor.Command_Ids.Command_Move_Document_Start);
+      Bind (Chord (Key_End, Ctrl => True), Editor.Command_Ids.Command_Move_Document_End);
+      Bind (Chord (Key_Left, Ctrl => True), Editor.Command_Ids.Command_Move_Word_Left);
+      Bind (Chord (Key_Right, Ctrl => True), Editor.Command_Ids.Command_Move_Word_Right);
+      Bind (Chord (Key_Backspace, Ctrl => True), Editor.Command_Ids.Command_Word_Delete_Previous);
+      Bind (Chord (Key_Delete, Ctrl => True), Editor.Command_Ids.Command_Word_Delete_Next);
+      Bind (Chord (Key_Page_Up), Editor.Command_Ids.Command_Page_Up);
+      Bind (Chord (Key_Page_Down), Editor.Command_Ids.Command_Page_Down);
+      Bind (Chord (Key_Page_Up, Shift => True), Editor.Command_Ids.Command_Select_Page_Up);
+      Bind (Chord (Key_Page_Down, Shift => True), Editor.Command_Ids.Command_Select_Page_Down);
       --  the editor Backspace/Delete defaults target the canonical
       --  Character Delete command surface.  Overlay-local Backspace/Delete
       --  handling remains local to those overlays, but editor text deletion now
       --  enters through Executor as edit.char.delete-previous/next.
-      Bind (Chord (Key_Backspace), Editor.Commands.Command_Char_Delete_Previous);
-      Bind (Chord (Key_Delete), Editor.Commands.Command_Char_Delete_Next);
-      Bind (Chord (Key_Enter), Editor.Commands.Command_Insert_Newline);
-      Bind (Chord (Key_Escape), Editor.Commands.Command_Cancel);
+      Bind (Chord (Key_Backspace), Editor.Command_Ids.Command_Char_Delete_Previous);
+      Bind (Chord (Key_Delete), Editor.Command_Ids.Command_Char_Delete_Next);
+      Bind (Chord (Key_Enter), Editor.Command_Ids.Command_Insert_Newline);
+      Bind (Chord (Key_Escape), Editor.Command_Ids.Command_Cancel);
 
-      Bind (Chord (Key_Left, Shift => True), Editor.Commands.Command_Select_Left);
-      Bind (Chord (Key_Right, Shift => True), Editor.Commands.Command_Select_Right);
-      Bind (Chord (Key_Up, Shift => True), Editor.Commands.Command_Select_Up);
-      Bind (Chord (Key_Down, Shift => True), Editor.Commands.Command_Select_Down);
-      Bind (Chord (Key_Home, Shift => True), Editor.Commands.Command_Select_Line_Start);
-      Bind (Chord (Key_End, Shift => True), Editor.Commands.Command_Select_Line_End);
-      Bind (Chord (Key_Home, Ctrl => True, Shift => True), Editor.Commands.Command_Select_Document_Start);
-      Bind (Chord (Key_End, Ctrl => True, Shift => True), Editor.Commands.Command_Select_Document_End);
-      Bind (Chord (Key_Left, Ctrl => True, Shift => True), Editor.Commands.Command_Select_Word_Left);
-      Bind (Chord (Key_Right, Ctrl => True, Shift => True), Editor.Commands.Command_Select_Word_Right);
+      Bind (Chord (Key_Left, Shift => True), Editor.Command_Ids.Command_Select_Left);
+      Bind (Chord (Key_Right, Shift => True), Editor.Command_Ids.Command_Select_Right);
+      Bind (Chord (Key_Up, Shift => True), Editor.Command_Ids.Command_Select_Up);
+      Bind (Chord (Key_Down, Shift => True), Editor.Command_Ids.Command_Select_Down);
+      Bind (Chord (Key_Home, Shift => True), Editor.Command_Ids.Command_Select_Line_Start);
+      Bind (Chord (Key_End, Shift => True), Editor.Command_Ids.Command_Select_Line_End);
+      Bind (Chord (Key_Home, Ctrl => True, Shift => True), Editor.Command_Ids.Command_Select_Document_Start);
+      Bind (Chord (Key_End, Ctrl => True, Shift => True), Editor.Command_Ids.Command_Select_Document_End);
+      Bind (Chord (Key_Left, Ctrl => True, Shift => True), Editor.Command_Ids.Command_Select_Word_Left);
+      Bind (Chord (Key_Right, Ctrl => True, Shift => True), Editor.Command_Ids.Command_Select_Word_Right);
 
       declare
          Registered : constant Default_Keybinding_Registration_Result :=

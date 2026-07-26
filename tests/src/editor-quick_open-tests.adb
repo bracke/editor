@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Descriptor_Metadata;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
@@ -10,7 +11,6 @@ with Ada.Streams;
 with Ada.Streams.Stream_IO;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
-with Editor.Commands;
 with Editor.Commands.Workflow_Messages;
 with Editor.Commands.Name_Metadata;
 with Editor.Keybindings;
@@ -40,7 +40,7 @@ with Editor.Commands.Reference_Metadata;
 
 package body Editor.Quick_Open.Tests is
 
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
@@ -92,7 +92,7 @@ package body Editor.Quick_Open.Tests is
    end Chord;
 
    function Palette_Contains
-     (Id : Editor.Commands.Command_Id) return Boolean
+     (Id : Editor.Command_Ids.Command_Id) return Boolean
    is
       Descriptors : constant Editor.Commands.Descriptors.Command_Descriptor_Vectors.Vector :=
         Editor.Commands.Descriptors.Palette_Commands;
@@ -106,7 +106,7 @@ package body Editor.Quick_Open.Tests is
    end Palette_Contains;
 
    procedure Assert_Command_Surface
-     (Id              : Editor.Commands.Command_Id;
+     (Id              : Editor.Command_Ids.Command_Id;
       Stable_Name     : String;
       Category        : Editor.Commands.Descriptors.Command_Category;
       Visibility      : Editor.Commands.Descriptors.Command_Visibility;
@@ -118,7 +118,7 @@ package body Editor.Quick_Open.Tests is
       D     : constant Editor.Commands.Descriptors.Command_Descriptor :=
         Editor.Commands.Descriptors.Descriptor (Id);
       Found : Boolean := False;
-      Back  : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Back  : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
    begin
       Assert (Editor.Commands.Descriptor_Metadata.Has_Descriptor (Id),
               Stable_Name & " must have descriptor metadata");
@@ -149,10 +149,10 @@ package body Editor.Quick_Open.Tests is
 
    procedure Assert_Absent_Command_Not_Exposed (Stable_Name : String) is
       Found : Boolean := False;
-      Id    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Id    : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
    begin
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Stable_Name, Found);
-      Assert (not Found and then Id = Editor.Commands.No_Command,
+      Assert (not Found and then Id = Editor.Command_Ids.No_Command,
               Stable_Name & " must not resolve to a registered command");
    end Assert_Absent_Command_Not_Exposed;
 
@@ -1827,142 +1827,142 @@ package body Editor.Quick_Open.Tests is
       pragma Unreferenced (T);
    begin
       Assert_Command_Surface
-        (Editor.Commands.Command_Refresh_Project_Files,
+        (Editor.Command_Ids.Command_Refresh_Project_Files,
          "project.files.refresh",
          Editor.Commands.Descriptors.Project_Category,
          Editor.Commands.Descriptors.Palette_Command,
          True);
       Assert_Command_Surface
-        (Editor.Commands.Command_Project_Files_Summary,
+        (Editor.Command_Ids.Command_Project_Files_Summary,
          "project.files.summary",
          Editor.Commands.Descriptors.Project_Category,
          Editor.Commands.Descriptors.Palette_Command,
          True);
       Assert_Command_Surface
-        (Editor.Commands.Command_Open_Quick_Open,
+        (Editor.Command_Ids.Command_Open_Quick_Open,
          "quick-open.show",
          Editor.Commands.Descriptors.Project_Category,
          Editor.Commands.Descriptors.Palette_Command,
          True);
       Assert_Command_Surface
-        (Editor.Commands.Command_Close_Quick_Open,
+        (Editor.Command_Ids.Command_Close_Quick_Open,
          "project.quick-open.hide",
          Editor.Commands.Descriptors.Project_Category,
          Editor.Commands.Descriptors.Hidden_Command,
          True);
       Assert_Command_Surface
-        (Editor.Commands.Command_Toggle_Quick_Open,
+        (Editor.Command_Ids.Command_Toggle_Quick_Open,
          "project.quick-open.toggle",
          Editor.Commands.Descriptors.Project_Category,
          Editor.Commands.Descriptors.Palette_Command,
          True);
       Assert_Command_Surface
-        (Editor.Commands.Command_Quick_Open_Query_Set,
+        (Editor.Command_Ids.Command_Quick_Open_Query_Set,
          "project.quick-open.query.set",
          Editor.Commands.Descriptors.Project_Category,
          Editor.Commands.Descriptors.Hidden_Command,
          False);
       Assert_Command_Surface
-        (Editor.Commands.Command_Quick_Open_Query_Clear,
+        (Editor.Command_Ids.Command_Quick_Open_Query_Clear,
          "project.quick-open.query.clear",
          Editor.Commands.Descriptors.Project_Category,
          Editor.Commands.Descriptors.Hidden_Command,
          True);
       Assert_Command_Surface
-        (Editor.Commands.Command_Quick_Open_Next_Result,
+        (Editor.Command_Ids.Command_Quick_Open_Next_Result,
          "project.quick-open.next",
          Editor.Commands.Descriptors.Project_Category,
          Editor.Commands.Descriptors.Hidden_Command,
          True);
       Assert_Command_Surface
-        (Editor.Commands.Command_Quick_Open_Previous_Result,
+        (Editor.Command_Ids.Command_Quick_Open_Previous_Result,
          "project.quick-open.previous",
          Editor.Commands.Descriptors.Project_Category,
          Editor.Commands.Descriptors.Hidden_Command,
          True);
       Assert_Command_Surface
-        (Editor.Commands.Command_Accept_Quick_Open,
+        (Editor.Command_Ids.Command_Accept_Quick_Open,
          "quick-open.open-selected",
          Editor.Commands.Descriptors.Project_Category,
          Editor.Commands.Descriptors.Hidden_Command,
          True,
          Lifecycle => True);
       Assert_Command_Surface
-        (Editor.Commands.Command_Quick_Open_Kind_Next,
+        (Editor.Command_Ids.Command_Quick_Open_Kind_Next,
          "project.quick-open.kind.next",
          Editor.Commands.Descriptors.Project_Category,
          Editor.Commands.Descriptors.Hidden_Command,
          True);
       Assert_Command_Surface
-        (Editor.Commands.Command_Quick_Open_Kind_Previous,
+        (Editor.Command_Ids.Command_Quick_Open_Kind_Previous,
          "project.quick-open.kind.previous",
          Editor.Commands.Descriptors.Project_Category,
          Editor.Commands.Descriptors.Hidden_Command,
          True);
       Assert_Command_Surface
-        (Editor.Commands.Command_Quick_Open_Kind_Clear,
+        (Editor.Command_Ids.Command_Quick_Open_Kind_Clear,
          "project.quick-open.kind.clear",
          Editor.Commands.Descriptors.Project_Category,
          Editor.Commands.Descriptors.Hidden_Command,
          True);
       Assert_Command_Surface
-        (Editor.Commands.Command_Quick_Open_Scope_Set,
+        (Editor.Command_Ids.Command_Quick_Open_Scope_Set,
          "project.quick-open.scope.set",
          Editor.Commands.Descriptors.Project_Category,
          Editor.Commands.Descriptors.Hidden_Command,
          False);
       Assert_Command_Surface
-        (Editor.Commands.Command_Quick_Open_Scope_Clear,
+        (Editor.Command_Ids.Command_Quick_Open_Scope_Clear,
          "project.quick-open.scope.clear",
          Editor.Commands.Descriptors.Project_Category,
          Editor.Commands.Descriptors.Hidden_Command,
          True);
       Assert_Command_Surface
-        (Editor.Commands.Command_Quick_Open_Scope_From_Selected,
+        (Editor.Command_Ids.Command_Quick_Open_Scope_From_Selected,
          "project.quick-open.scope.from-selected",
          Editor.Commands.Descriptors.Project_Category,
          Editor.Commands.Descriptors.Hidden_Command,
          True);
       Assert_Command_Surface
-        (Editor.Commands.Command_Quick_Open_Scope_Parent,
+        (Editor.Command_Ids.Command_Quick_Open_Scope_Parent,
          "project.quick-open.scope.parent",
          Editor.Commands.Descriptors.Project_Category,
          Editor.Commands.Descriptors.Hidden_Command,
          True);
       Assert_Command_Surface
-        (Editor.Commands.Command_Quick_Open_Scope_Active_Directory,
+        (Editor.Command_Ids.Command_Quick_Open_Scope_Active_Directory,
          "project.quick-open.scope.active-directory",
          Editor.Commands.Descriptors.Project_Category,
          Editor.Commands.Descriptors.Palette_Command,
          True);
       Assert_Command_Surface
-        (Editor.Commands.Command_Quick_Open_Reveal_Active,
+        (Editor.Command_Ids.Command_Quick_Open_Reveal_Active,
          "project.quick-open.reveal-active",
          Editor.Commands.Descriptors.Project_Category,
          Editor.Commands.Descriptors.Palette_Command,
          True);
       Assert_Command_Surface
-        (Editor.Commands.Command_Quick_Open_Create_From_Query,
+        (Editor.Command_Ids.Command_Quick_Open_Create_From_Query,
          "project.quick-open.create-from-query",
          Editor.Commands.Descriptors.Project_Category,
          Editor.Commands.Descriptors.Hidden_Command,
          True,
          Lifecycle => True);
       Assert_Command_Surface
-        (Editor.Commands.Command_Quick_Open_Create_With_Parents_From_Query,
+        (Editor.Command_Ids.Command_Quick_Open_Create_With_Parents_From_Query,
          "project.quick-open.create-with-parents-from-query",
          Editor.Commands.Descriptors.Project_Category,
          Editor.Commands.Descriptors.Hidden_Command,
          True,
          Lifecycle => True);
       Assert_Command_Surface
-        (Editor.Commands.Command_Quick_Open_Priority_Toggle,
+        (Editor.Command_Ids.Command_Quick_Open_Priority_Toggle,
          "project.quick-open.priority.toggle",
          Editor.Commands.Descriptors.Project_Category,
          Editor.Commands.Descriptors.Palette_Command,
          True);
       Assert_Command_Surface
-        (Editor.Commands.Command_Quick_Open_Priority_Clear,
+        (Editor.Command_Ids.Command_Quick_Open_Priority_Clear,
          "project.quick-open.priority.clear",
          Editor.Commands.Descriptors.Project_Category,
          Editor.Commands.Descriptors.Palette_Command,
@@ -1975,12 +1975,12 @@ package body Editor.Quick_Open.Tests is
       Name_I : Unbounded_String;
       Name_J : Unbounded_String;
    begin
-      for I in Editor.Commands.Command_Id loop
-         if I /= Editor.Commands.Command_Id'Last
+      for I in Editor.Command_Ids.Command_Id loop
+         if I /= Editor.Command_Ids.Command_Id'Last
            and then Editor.Commands.Availability_Metadata.Is_Concrete_Command (I)
          then
             Name_I := To_Unbounded_String (Editor.Commands.Name_Metadata.Stable_Command_Name (I));
-            for J in Editor.Commands.Command_Id'Succ (I) .. Editor.Commands.Command_Id'Last loop
+            for J in Editor.Command_Ids.Command_Id'Succ (I) .. Editor.Command_Ids.Command_Id'Last loop
                if Editor.Commands.Availability_Metadata.Is_Concrete_Command (J) then
                   Name_J := To_Unbounded_String (Editor.Commands.Name_Metadata.Stable_Command_Name (J));
                   Assert (Name_I /= Name_J,
@@ -2007,38 +2007,38 @@ package body Editor.Quick_Open.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Status : Editor.Keybindings.Keybinding_Change_Status;
-      Actual : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Actual : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
    begin
       Editor.Keybindings.Reset_To_Defaults;
       Editor.Keybindings.Assign
         (Chord (Editor.Keybindings.Key_F12),
-         Editor.Commands.Command_Quick_Open_Create_From_Query,
+         Editor.Command_Ids.Command_Quick_Open_Create_From_Query,
          Status);
       Assert (Status = Editor.Keybindings.Keybinding_Change_Ok,
               "create-from-query must remain assignable when deliberately bound");
       Assert
         (Editor.Keybindings.Resolve (Chord (Editor.Keybindings.Key_F12), Actual)
          = Editor.Keybindings.Bound_Command
-         and then Actual = Editor.Commands.Command_Quick_Open_Create_From_Query,
+         and then Actual = Editor.Command_Ids.Command_Quick_Open_Create_From_Query,
          "assigned create-from-query chord must resolve to the command id");
 
       Editor.Keybindings.Assign
         (Chord (Editor.Keybindings.Key_F12, Shift => True),
-         Editor.Commands.Command_Quick_Open_Create_With_Parents_From_Query,
+         Editor.Command_Ids.Command_Quick_Open_Create_With_Parents_From_Query,
          Status);
       Assert (Status = Editor.Keybindings.Keybinding_Change_Ok,
               "create-with-parents-from-query must remain assignable");
 
       Editor.Keybindings.Assign
         (Chord (Editor.Keybindings.Key_F12, Ctrl => True),
-         Editor.Commands.Command_Quick_Open_Query_Set,
+         Editor.Command_Ids.Command_Quick_Open_Query_Set,
          Status);
       Assert (Status = Editor.Keybindings.Keybinding_Change_Non_Bindable_Target,
               "payload-style query.set must not be assignable through keybindings");
 
       Editor.Keybindings.Assign
         (Chord (Editor.Keybindings.Key_F12, Alt => True),
-         Editor.Commands.Command_Quick_Open_Scope_Set,
+         Editor.Command_Ids.Command_Quick_Open_Scope_Set,
          Status);
       Assert (Status = Editor.Keybindings.Keybinding_Change_Non_Bindable_Target,
               "payload-style scope.set must not be assignable through keybindings");
@@ -2049,97 +2049,97 @@ package body Editor.Quick_Open.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Show_D   : constant Editor.Commands.Descriptors.Command_Descriptor :=
-        Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Open_Quick_Open);
+        Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Open_Quick_Open);
       Toggle_D : constant Editor.Commands.Descriptors.Command_Descriptor :=
-        Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Toggle_Quick_Open);
+        Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Toggle_Quick_Open);
       Open_D   : constant Editor.Commands.Descriptors.Command_Descriptor :=
-        Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Accept_Quick_Open);
+        Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Accept_Quick_Open);
       Set_D    : constant Editor.Commands.Descriptors.Command_Descriptor :=
-        Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Quick_Open_Query_Set);
+        Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Quick_Open_Query_Set);
       Clear_D  : constant Editor.Commands.Descriptors.Command_Descriptor :=
-        Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Quick_Open_Query_Clear);
+        Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Quick_Open_Query_Clear);
       Kind_Next_D : constant Editor.Commands.Descriptors.Command_Descriptor :=
-        Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Quick_Open_Kind_Next);
+        Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Quick_Open_Kind_Next);
       Scope_Set_D : constant Editor.Commands.Descriptors.Command_Descriptor :=
-        Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Quick_Open_Scope_Set);
+        Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Quick_Open_Scope_Set);
       Scope_From_D : constant Editor.Commands.Descriptors.Command_Descriptor :=
-        Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Quick_Open_Scope_From_Selected);
+        Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Quick_Open_Scope_From_Selected);
       Scope_Parent_D : constant Editor.Commands.Descriptors.Command_Descriptor :=
-        Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Quick_Open_Scope_Parent);
+        Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Quick_Open_Scope_Parent);
       Reveal_Active_D : constant Editor.Commands.Descriptors.Command_Descriptor :=
-        Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Quick_Open_Reveal_Active);
+        Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Quick_Open_Reveal_Active);
       Scope_Active_D : constant Editor.Commands.Descriptors.Command_Descriptor :=
-        Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Quick_Open_Scope_Active_Directory);
+        Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Quick_Open_Scope_Active_Directory);
       Create_D : constant Editor.Commands.Descriptors.Command_Descriptor :=
-        Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Quick_Open_Create_From_Query);
+        Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Quick_Open_Create_From_Query);
       Create_Parents_D : constant Editor.Commands.Descriptors.Command_Descriptor :=
         Editor.Commands.Descriptors.Descriptor
-          (Editor.Commands.Command_Quick_Open_Create_With_Parents_From_Query);
+          (Editor.Command_Ids.Command_Quick_Open_Create_With_Parents_From_Query);
       Priority_Toggle_D : constant Editor.Commands.Descriptors.Command_Descriptor :=
         Editor.Commands.Descriptors.Descriptor
-          (Editor.Commands.Command_Quick_Open_Priority_Toggle);
+          (Editor.Command_Ids.Command_Quick_Open_Priority_Toggle);
       Priority_Clear_D : constant Editor.Commands.Descriptors.Command_Descriptor :=
         Editor.Commands.Descriptors.Descriptor
-          (Editor.Commands.Command_Quick_Open_Priority_Clear);
+          (Editor.Command_Ids.Command_Quick_Open_Priority_Clear);
    begin
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Open_Quick_Open) =
+                (Editor.Command_Ids.Command_Open_Quick_Open) =
               "quick-open.show",
               "Project Quick Open show command must have the canonical stable name");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Toggle_Quick_Open) =
+                (Editor.Command_Ids.Command_Toggle_Quick_Open) =
               "project.quick-open.toggle",
               "Project Quick Open toggle command must have the frozen stable name");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Accept_Quick_Open) =
+                (Editor.Command_Ids.Command_Accept_Quick_Open) =
               "quick-open.open-selected",
               "Project Quick Open open-selected command must have the canonical stable name");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Quick_Open_Query_Set) =
+                (Editor.Command_Ids.Command_Quick_Open_Query_Set) =
               "project.quick-open.query.set",
               "Project Quick Open query-set command must have the frozen stable name");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Quick_Open_Query_Clear) =
+                (Editor.Command_Ids.Command_Quick_Open_Query_Clear) =
               "project.quick-open.query.clear",
               "Project Quick Open query-clear command must have the frozen stable name");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Quick_Open_Kind_Next) =
+                (Editor.Command_Ids.Command_Quick_Open_Kind_Next) =
               "project.quick-open.kind.next",
               "Project Quick Open kind-next command must have the stable name");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Quick_Open_Scope_Set) =
+                (Editor.Command_Ids.Command_Quick_Open_Scope_Set) =
               "project.quick-open.scope.set",
               "Project Quick Open scope-set command must have the stable name");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Quick_Open_Scope_From_Selected) =
+                (Editor.Command_Ids.Command_Quick_Open_Scope_From_Selected) =
               "project.quick-open.scope.from-selected",
               "Project Quick Open scope-from-selected command must have the stable name");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Quick_Open_Scope_Parent) =
+                (Editor.Command_Ids.Command_Quick_Open_Scope_Parent) =
               "project.quick-open.scope.parent",
               "Project Quick Open scope-parent command must have the stable name");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Quick_Open_Reveal_Active) =
+                (Editor.Command_Ids.Command_Quick_Open_Reveal_Active) =
               "project.quick-open.reveal-active",
               "Project Quick Open reveal-active command must have the stable name");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Quick_Open_Scope_Active_Directory) =
+                (Editor.Command_Ids.Command_Quick_Open_Scope_Active_Directory) =
               "project.quick-open.scope.active-directory",
               "Project Quick Open scope-active-directory command must have the stable name");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Quick_Open_Create_From_Query) =
+                (Editor.Command_Ids.Command_Quick_Open_Create_From_Query) =
               "project.quick-open.create-from-query",
               "Project Quick Open create-from-query command must have the stable name");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Quick_Open_Create_With_Parents_From_Query) =
+                (Editor.Command_Ids.Command_Quick_Open_Create_With_Parents_From_Query) =
               "project.quick-open.create-with-parents-from-query",
               "Project Quick Open create-with-parents command must have the stable name");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Quick_Open_Priority_Toggle) =
+                (Editor.Command_Ids.Command_Quick_Open_Priority_Toggle) =
               "project.quick-open.priority.toggle",
               "Project Quick Open priority toggle command must have the stable name");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Quick_Open_Priority_Clear) =
+                (Editor.Command_Ids.Command_Quick_Open_Priority_Clear) =
               "project.quick-open.priority.clear",
               "Project Quick Open priority clear command must have the stable name");
 
@@ -2383,7 +2383,7 @@ package body Editor.Quick_Open.Tests is
 
       Editor.State.Init (App);
       App.File_Target_Prompt_Active := True;
-      App.File_Target_Prompt_Command := Editor.Commands.Command_Save_File_As;
+      App.File_Target_Prompt_Command := Editor.Command_Ids.Command_Save_File_As;
       App.File_Target_Prompt_Label := To_Unbounded_String ("Save As target");
       Editor.Input_Field.Insert_Text (App.File_Target_Prompt_Input, "/project/src/manual.adb");
       Editor.Quick_Open.Set_Query_Text (S, "/project/src/not-the-target.adb");
@@ -2616,7 +2616,7 @@ package body Editor.Quick_Open.Tests is
         ("/project/src/active.adb", "active.adb", "body", App_Source);
       Editor.Buffers.Global_Set_Active_Buffer (App_Source);
       Editor.Executor.File_Target_Prompt_Commands.Open_File_Target_Prompt
-        (App, Editor.Commands.Command_Move_Buffer_File);
+        (App, Editor.Command_Ids.Command_Move_Buffer_File);
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (App),
               "prompted move setup must open canonical target prompt");
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (App) = "",
@@ -2696,11 +2696,11 @@ package body Editor.Quick_Open.Tests is
       Editor.Command_Route_Audit.Record_Route
         (Audit,
          Editor.Command_Route_Audit.Route_From_Command_Palette,
-         Editor.Commands.Command_Save_File_As);
+         Editor.Command_Ids.Command_Save_File_As);
       Editor.Command_Route_Audit.Record_Route
         (Audit,
          Editor.Command_Route_Audit.Route_From_Keybinding,
-         Editor.Commands.Command_Move_Buffer_File);
+         Editor.Command_Ids.Command_Move_Buffer_File);
       Assert (Editor.Command_Route_Audit.Failure_Count (Audit) = 0,
               "route audit observes canonical file lifecycle routes without executing them");
       Assert (Editor.Command_Route_Audit.Summary (Audit)'Length > 0,
@@ -2856,7 +2856,7 @@ package body Editor.Quick_Open.Tests is
               "selected candidate remains Quick Open UI state");
 
       Editor.Executor.File_Target_Prompt_Commands.Execute_File_Target_Command
-        (S, Editor.Commands.Command_Save_File_As, Target_Path);
+        (S, Editor.Command_Ids.Command_Save_File_As, Target_Path);
       After := Editor.Quick_Open_Markers.Build_Snapshot
         (S.Quick_Open, S.Project, Editor.Buffers.Global_Registry_For_UI,
          S.Recent_Buffers);
@@ -2941,7 +2941,7 @@ package body Editor.Quick_Open.Tests is
       Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "src/");
       Editor.Quick_Open.Recompute_Results (S.Quick_Open, S.Project, Config);
       Editor.Executor.File_Target_Prompt_Commands.Execute_File_Target_Command
-        (S, Editor.Commands.Command_Rename_Buffer_File, Direct_Target);
+        (S, Editor.Command_Ids.Command_Rename_Buffer_File, Direct_Target);
       Direct_Snap := Editor.Quick_Open_Markers.Build_Snapshot
         (S.Quick_Open, S.Project, Editor.Buffers.Global_Registry_For_UI,
          S.Recent_Buffers);
@@ -2975,7 +2975,7 @@ package body Editor.Quick_Open.Tests is
               "setup must select target-like project candidate");
 
       Editor.Executor.File_Target_Prompt_Commands.Open_File_Target_Prompt
-        (S, Editor.Commands.Command_Rename_Buffer_File);
+        (S, Editor.Command_Ids.Command_Rename_Buffer_File);
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S),
               "canonical prompt must open through Executor");
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (S) = "",
@@ -3044,19 +3044,19 @@ package body Editor.Quick_Open.Tests is
       Editor.Command_Route_Audit.Record_Route
         (Audit,
          Editor.Command_Route_Audit.Route_From_Command_Palette,
-         Editor.Commands.Command_Save_File_As);
+         Editor.Command_Ids.Command_Save_File_As);
       Editor.Command_Route_Audit.Record_Route
         (Audit,
          Editor.Command_Route_Audit.Route_From_Keybinding,
-         Editor.Commands.Command_Rename_Buffer_File);
+         Editor.Command_Ids.Command_Rename_Buffer_File);
       Editor.Command_Route_Audit.Record_Route
         (Audit,
          Editor.Command_Route_Audit.Route_From_Keybinding,
-         Editor.Commands.Command_Copy_Buffer_File);
+         Editor.Command_Ids.Command_Copy_Buffer_File);
       Editor.Command_Route_Audit.Record_Route
         (Audit,
          Editor.Command_Route_Audit.Route_From_Command_Palette,
-         Editor.Commands.Command_Move_Buffer_File);
+         Editor.Command_Ids.Command_Move_Buffer_File);
       Assert (Editor.Command_Route_Audit.Failure_Count (Audit) = 0,
               "route audit inspects canonical Executor routes");
       Assert (Editor.Command_Route_Audit.Summary (Audit)'Length > 0,
@@ -3101,7 +3101,7 @@ package body Editor.Quick_Open.Tests is
               "setup must produce one current-project Quick Open result");
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Accept_Quick_Open);
+        (S, Editor.Command_Ids.Command_Accept_Quick_Open);
       Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "fresh Quick Open result remains activatable");
       Assert (Editor.Project_Navigation.Assert_Project_Navigation_Workflows_Coherent
@@ -3118,7 +3118,7 @@ package body Editor.Quick_Open.Tests is
       Editor.Project.Add_Known_File (S.Project, "main.adb", File_Two);
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Accept_Quick_Open);
+        (S, Editor.Command_Ids.Command_Accept_Quick_Open);
       Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
               "Quick Open must not activate a stale project match");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) =
@@ -3198,14 +3198,14 @@ package body Editor.Quick_Open.Tests is
          S.Panel_Focus);
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Quick_Open_Next_Result);
+        (S, Editor.Command_Ids.Command_Quick_Open_Next_Result);
       Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
               "next-result must be unavailable without a project");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "No project open.",
               "next-result must not conflate no-project with no-files");
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Quick_Open_Previous_Result);
+        (S, Editor.Command_Ids.Command_Quick_Open_Previous_Result);
       Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
               "previous-result must be unavailable without a project");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "No project open.",
@@ -3244,7 +3244,7 @@ package body Editor.Quick_Open.Tests is
       A : Editor.Commands.Availability_Metadata.Command_Availability;
 
       procedure Assert_No_Project_Availability
-        (Command : Editor.Commands.Command_Id;
+        (Command : Editor.Command_Ids.Command_Id;
          Label   : String) is
       begin
          A := Editor.Executor.Command_Availability (S, Command);
@@ -3262,17 +3262,17 @@ package body Editor.Quick_Open.Tests is
       Editor.Quick_Open.Set_Path_Scope (S.Quick_Open, "src/editor");
 
       Assert_No_Project_Availability
-        (Editor.Commands.Command_Quick_Open_Kind_Next, "kind-next");
+        (Editor.Command_Ids.Command_Quick_Open_Kind_Next, "kind-next");
       Assert_No_Project_Availability
-        (Editor.Commands.Command_Quick_Open_Kind_Previous, "kind-previous");
+        (Editor.Command_Ids.Command_Quick_Open_Kind_Previous, "kind-previous");
       Assert_No_Project_Availability
-        (Editor.Commands.Command_Quick_Open_Kind_Clear, "kind-clear");
+        (Editor.Command_Ids.Command_Quick_Open_Kind_Clear, "kind-clear");
       Assert_No_Project_Availability
-        (Editor.Commands.Command_Quick_Open_Scope_Clear, "scope-clear");
+        (Editor.Command_Ids.Command_Quick_Open_Scope_Clear, "scope-clear");
       Assert_No_Project_Availability
-        (Editor.Commands.Command_Quick_Open_Scope_From_Selected, "scope-from-selected");
+        (Editor.Command_Ids.Command_Quick_Open_Scope_From_Selected, "scope-from-selected");
       Assert_No_Project_Availability
-        (Editor.Commands.Command_Quick_Open_Scope_Parent, "scope-parent");
+        (Editor.Command_Ids.Command_Quick_Open_Scope_Parent, "scope-parent");
 
       Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Kind_Next (S);
       Assert (Editor.Quick_Open.File_Kind_Filter (S.Quick_Open) = Editor.Quick_Open.All_Files,

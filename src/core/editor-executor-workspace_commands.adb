@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Ada.Directories;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -52,7 +53,7 @@ package body Editor.Executor.Workspace_Commands is
 
    function Workspace_Command_Availability
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin
@@ -837,7 +838,7 @@ package body Editor.Executor.Workspace_Commands is
 
    function Execute_Workspace_Result_Command
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
    is
    begin

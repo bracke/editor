@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Ada.Strings.Fixed;
 
 package body Editor.Commands.Workflow_Messages is

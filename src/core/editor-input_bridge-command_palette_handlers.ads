@@ -1,5 +1,5 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Payloads;
-with Editor.Commands;
 with Editor.State;
 
 package Editor.Input_Bridge.Command_Palette_Handlers is
@@ -8,7 +8,7 @@ package Editor.Input_Bridge.Command_Palette_Handlers is
      (S              : in out Editor.State.State_Type;
       Cmd            : Editor.Commands.Payloads.Command;
       Execute        : not null access procedure
-        (Id : Editor.Commands.Command_Id);
+        (Id : Editor.Command_Ids.Command_Id);
       Report_Info    : not null access procedure (Message : String);
       Report_Warning : not null access procedure (Message : String))
       return Boolean;

@@ -1,12 +1,12 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
-with Editor.Commands;
 with Editor.State;
 
 package Editor.Executor.Bookmark_Commands is
 
    function Bookmark_Command_Availability
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Commands.Availability_Metadata.Command_Availability;
 
    procedure Execute_Toggle_Bookmark

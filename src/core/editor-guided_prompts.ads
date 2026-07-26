@@ -1,6 +1,6 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Ada.Strings.Unbounded;
 with Ada.Containers.Vectors;
-with Editor.Commands;
 with Editor.Input_Field;
 with Editor.Keybindings;
 
@@ -63,7 +63,7 @@ package Editor.Guided_Prompts is
       Lifecycle : Prompt_Lifecycle_State := Prompt_Inactive;
       Title : Unbounded_String := Null_Unbounded_String;
       Description : Unbounded_String := Null_Unbounded_String;
-      Owning_Command : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Owning_Command : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Input : Editor.Input_Field.Input_Field_State;
       Has_Captured_Chord : Boolean := False;
       Captured_Chord : Editor.Keybindings.Key_Chord :=
@@ -115,7 +115,7 @@ package Editor.Guided_Prompts is
    procedure Start
      (Prompt : in out Prompt_State;
       Kind : Prompt_Kind;
-      Owning_Command : Editor.Commands.Command_Id;
+      Owning_Command : Editor.Command_Ids.Command_Id;
       Title : String;
       Description : String;
       Target_Domain : String;

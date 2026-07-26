@@ -1,7 +1,7 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Classification;
 with Editor.Commands.Availability_Metadata;
 with Ada.Strings.Fixed;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.Command_Surface;
 with Editor.Ada_Syntax_Core;
@@ -23,15 +23,15 @@ package body Editor.Outline_Audit is
    use type Editor.Outline.Outline_Refresh_Status;
    use type Editor.Outline.Outline_Refresh_Failure_Kind;
    use type Editor.Outline.Outline_Target_Kind;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
 
 
    function Stable_Name_Routes
      (Name     : String;
-      Expected : Editor.Commands.Command_Id) return Boolean
+      Expected : Editor.Command_Ids.Command_Id) return Boolean
    is
       Found : Boolean := False;
-      Id    : Editor.Commands.Command_Id;
+      Id    : Editor.Command_Ids.Command_Id;
    begin
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
       return Found and then Id = Expected;
@@ -39,7 +39,7 @@ package body Editor.Outline_Audit is
 
    function Canonical_Stable_Name_Routes
      (Name     : String;
-      Expected : Editor.Commands.Command_Id) return Boolean
+      Expected : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       return Stable_Name_Routes (Name, Expected)
@@ -52,22 +52,22 @@ package body Editor.Outline_Audit is
    function Command_Surface_Check return Boolean is
    begin
       return Canonical_Stable_Name_Routes
-          ("outline.next-symbol", Editor.Commands.Command_Next_Outline_Symbol)
+          ("outline.next-symbol", Editor.Command_Ids.Command_Next_Outline_Symbol)
         and then Canonical_Stable_Name_Routes
-          ("outline.previous-symbol", Editor.Commands.Command_Previous_Outline_Symbol)
+          ("outline.previous-symbol", Editor.Command_Ids.Command_Previous_Outline_Symbol)
         and then Canonical_Stable_Name_Routes
           ("outline.reveal-current-symbol",
-           Editor.Commands.Command_Reveal_Current_Outline_Symbol)
+           Editor.Command_Ids.Command_Reveal_Current_Outline_Symbol)
         and then Canonical_Stable_Name_Routes
-          ("outline.filter.focus", Editor.Commands.Command_Focus_Outline_Filter)
+          ("outline.filter.focus", Editor.Command_Ids.Command_Focus_Outline_Filter)
         and then Canonical_Stable_Name_Routes
-          ("outline.filter.clear", Editor.Commands.Command_Clear_Outline_Filter)
+          ("outline.filter.clear", Editor.Command_Ids.Command_Clear_Outline_Filter)
         and then Stable_Name_Routes
           ("outline.filter.next-match",
-           Editor.Commands.Command_Select_Next_Outline_Item)
+           Editor.Command_Ids.Command_Select_Next_Outline_Item)
         and then Stable_Name_Routes
           ("outline.filter.previous-match",
-           Editor.Commands.Command_Select_Previous_Outline_Item);
+           Editor.Command_Ids.Command_Select_Previous_Outline_Item);
    end Command_Surface_Check;
 
    function Outline_Helper_Purity_Check

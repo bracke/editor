@@ -1,6 +1,6 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Build_UI;
-with Editor.Commands;
 with Editor.Diagnostics;
 with Editor.Feature_Diagnostics;
 with Editor.File_Tree;
@@ -10,7 +10,7 @@ with Editor.Empty_State_Guidance.Surfaces;
 
 package body Editor.Empty_State_Guidance.Audits is
 
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Executor.Command_Execution_Status;
 
    function Safe_Stable_Command_Name (Name : String) return Boolean is
@@ -106,7 +106,7 @@ package body Editor.Empty_State_Guidance.Audits is
      (Before : Editor.State.State_Type;
       After  : Editor.State.State_Type;
       Result : Editor.Executor.Command_Execution_Result;
-      Command : Editor.Commands.Command_Id) return Boolean
+      Command : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       return Result.Command = Command

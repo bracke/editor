@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Classification;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -26,7 +27,7 @@ package body Editor.Contextual_Help is
    end Truncate;
 
    function Shortcut_Text
-     (Command        : Editor.Commands.Command_Id;
+     (Command        : Editor.Command_Ids.Command_Id;
       Show_Shortcuts : Boolean) return String
    is
       Info : Editor.Keybindings.Command_Keybinding_Info;
@@ -48,7 +49,7 @@ package body Editor.Contextual_Help is
 
    function With_Shortcut
      (Text           : String;
-      Command        : Editor.Commands.Command_Id;
+      Command        : Editor.Command_Ids.Command_Id;
       Show_Shortcuts : Boolean) return String
    is
       Shortcut : constant String := Shortcut_Text (Command, Show_Shortcuts);
@@ -150,7 +151,7 @@ package body Editor.Contextual_Help is
          return "press shortcut, Enter to confirm, Esc to cancel";
       elsif Focus_Label = "Editor" then
          return With_Shortcut
-           ("editor focus", Editor.Commands.Command_Open_Command_Palette,
+           ("editor focus", Editor.Command_Ids.Command_Open_Command_Palette,
             Show_Shortcuts);
       else
          return "";
@@ -269,13 +270,13 @@ package body Editor.Contextual_Help is
          Primary := To_Unbounded_String
            (With_Shortcut
               ("Enter opens selected row",
-               Editor.Commands.Command_Feature_Panel_Open_Selected,
+               Editor.Command_Ids.Command_Feature_Panel_Open_Selected,
                Show_Shortcuts));
       elsif Row.Activatable then
          Primary := To_Unbounded_String
            (With_Shortcut
               ("Enter activates selected row",
-               Editor.Commands.Command_Feature_Panel_Open_Selected,
+               Editor.Command_Ids.Command_Feature_Panel_Open_Selected,
                Show_Shortcuts));
       else
          return "Selected row cannot be opened here";
@@ -295,7 +296,7 @@ package body Editor.Contextual_Help is
    end Selected_Row_Action_Hint;
 
    function Command_Row_Action_Hint
-     (Command         : Editor.Commands.Command_Id;
+     (Command         : Editor.Command_Ids.Command_Id;
       Available       : Boolean;
       Disabled_Reason : String;
       Show_Shortcuts  : Boolean) return String

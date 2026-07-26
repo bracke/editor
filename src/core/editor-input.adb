@@ -1,6 +1,6 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Payloads;
 with Editor.Command_Kinds; use Editor.Command_Kinds;
-with Editor.Commands; use Editor.Commands;
 with Editor.Unicode;
 with Editor.UTF8;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;

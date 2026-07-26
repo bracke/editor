@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -8,7 +9,6 @@ with Editor.Ada_Language_Model;
 with Editor.Ada_Language_Service;
 with Editor.Ada_Project_Index;
 with Editor.Buffers;
-with Editor.Commands;
 with Editor.Commands.Workflow_Messages;
 with Editor.Cursors;
 with Editor.Executor.Diagnostics_Commands;
@@ -72,7 +72,7 @@ package body Editor.Executor.Diagnostics_Tests is
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Diagnostics_Execute_Selected_Action);
+        (S, Editor.Command_Ids.Command_Diagnostics_Execute_Selected_Action);
 
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "selected diagnostic action executes through command surface");
@@ -120,7 +120,7 @@ package body Editor.Executor.Diagnostics_Tests is
          Editor.Feature_Diagnostics.Item_Display_Label (S.Feature_Diagnostics, 1));
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Diagnostics_Execute_Selected_Action);
+        (S, Editor.Command_Ids.Command_Diagnostics_Execute_Selected_Action);
 
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "selected diagnostic explain action executes through action model");
@@ -189,7 +189,7 @@ package body Editor.Executor.Diagnostics_Tests is
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Diagnostics_Execute_Selected_Action);
+        (S, Editor.Command_Ids.Command_Diagnostics_Execute_Selected_Action);
 
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "selected diagnostic edit action executes");
@@ -204,7 +204,7 @@ package body Editor.Executor.Diagnostics_Tests is
               "selected diagnostic edit action does not navigate");
 
       Undo_Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Undo);
+        (S, Editor.Command_Ids.Command_Undo);
       Assert (Undo_Result.Status = Editor.Executor.Command_Executed,
               "selected diagnostic edit action records undo history");
       Assert
@@ -278,7 +278,7 @@ package body Editor.Executor.Diagnostics_Tests is
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Diagnostic_Apply_Quick_Fix);
+        (S, Editor.Command_Ids.Command_Diagnostic_Apply_Quick_Fix);
 
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "multi-action quick fix opens a picker");
@@ -302,7 +302,7 @@ package body Editor.Executor.Diagnostics_Tests is
          "quick-fix picker exposes typed Search Results action-list kind");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Feature_Panel_Open_Selected);
+        (S, Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
 
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "opening selected quick-fix picker row executes the chosen action, got status" &
@@ -374,7 +374,7 @@ package body Editor.Executor.Diagnostics_Tests is
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Diagnostic_Apply_Quick_Fix);
+        (S, Editor.Command_Ids.Command_Diagnostic_Apply_Quick_Fix);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "multi-action quick fix opens picker for non-edit action test");
       Assert
@@ -472,7 +472,7 @@ package body Editor.Executor.Diagnostics_Tests is
 
          Editor.State.Start_Quick_Fix_Workflow (S, 1, Action_Index);
          Result := Editor.Executor.Execute_Command_With_Result
-           (S, Editor.Commands.Command_Diagnostic_Apply_Quick_Fix);
+           (S, Editor.Command_Ids.Command_Diagnostic_Apply_Quick_Fix);
 
          Assert
            (Result.Status = Editor.Executor.Command_Unavailable,
@@ -643,9 +643,9 @@ package body Editor.Executor.Diagnostics_Tests is
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
 
       Open_Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Diagnostics_Open_Selected);
+        (S, Editor.Command_Ids.Command_Diagnostics_Open_Selected);
       Action_Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Diagnostics_Execute_Selected_Action);
+        (S, Editor.Command_Ids.Command_Diagnostics_Execute_Selected_Action);
 
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Open_Avail),
               "diagnostic with no primary action can still be opened");
@@ -656,7 +656,7 @@ package body Editor.Executor.Diagnostics_Tests is
               "no-action diagnostic availability reports action-specific reason");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Diagnostics_Execute_Selected_Action);
+        (S, Editor.Command_Ids.Command_Diagnostics_Execute_Selected_Action);
 
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "no-action diagnostic execution is classified unavailable");
@@ -692,7 +692,7 @@ package body Editor.Executor.Diagnostics_Tests is
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Diagnostics_Execute_Selected_Action);
+        (S, Editor.Command_Ids.Command_Diagnostics_Execute_Selected_Action);
 
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "selected diagnostic action with no target is unavailable");
@@ -736,7 +736,7 @@ package body Editor.Executor.Diagnostics_Tests is
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Diagnostics_Execute_Selected_Action);
+        (S, Editor.Command_Ids.Command_Diagnostics_Execute_Selected_Action);
 
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "stale selected diagnostic action is unavailable");
@@ -796,7 +796,7 @@ package body Editor.Executor.Diagnostics_Tests is
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Diagnostics_Execute_Selected_Action);
+        (S, Editor.Command_Ids.Command_Diagnostics_Execute_Selected_Action);
 
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "selected diagnostic multi-line edit action executes");
@@ -815,7 +815,7 @@ package body Editor.Executor.Diagnostics_Tests is
               "selected diagnostic multi-line edit action does not navigate");
 
       Undo_Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Undo);
+        (S, Editor.Command_Ids.Command_Undo);
       Assert (Undo_Result.Status = Editor.Executor.Command_Executed,
               "selected diagnostic multi-line edit action records undo history");
       Assert
@@ -898,12 +898,12 @@ package body Editor.Executor.Diagnostics_Tests is
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
 
       Available := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Diagnostics_Execute_Selected_Action);
+        (S, Editor.Command_Ids.Command_Diagnostics_Execute_Selected_Action);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Available),
               "selected diagnostic edit action is available for inactive open buffer");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Diagnostics_Execute_Selected_Action);
+        (S, Editor.Command_Ids.Command_Diagnostics_Execute_Selected_Action);
 
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "selected diagnostic edit action executes for inactive open buffer");
@@ -973,7 +973,7 @@ package body Editor.Executor.Diagnostics_Tests is
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
 
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Diagnostics_Execute_Selected_Action);
+        (S, Editor.Command_Ids.Command_Diagnostics_Execute_Selected_Action);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
               "selected diagnostic edit action preflight rejects invalid edit end");
       Assert
@@ -982,7 +982,7 @@ package body Editor.Executor.Diagnostics_Tests is
          "invalid diagnostic edit end should report the executor rejection reason");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Diagnostics_Execute_Selected_Action);
+        (S, Editor.Command_Ids.Command_Diagnostics_Execute_Selected_Action);
 
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "selected diagnostic edit action rejects out-of-range edit end");
@@ -1034,7 +1034,7 @@ package body Editor.Executor.Diagnostics_Tests is
          Editor.Feature_Diagnostics.Item_Display_Label (S.Feature_Diagnostics, 1));
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Diagnostics_Execute_Selected_Action);
+        (S, Editor.Command_Ids.Command_Diagnostics_Execute_Selected_Action);
 
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "selected diagnostic review action executes through action model");

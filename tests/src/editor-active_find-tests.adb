@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Classification;
@@ -8,7 +9,6 @@ with Ada.Strings.Fixed;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases; use AUnit.Test_Cases.Registration;
 with Editor.Buffers;
-with Editor.Commands;
 with Editor.Commands.Navigation_Ids;
 with Editor.Commands.Name_Metadata;
 with Editor.Cursors;
@@ -31,7 +31,7 @@ with Editor.Workspace_Persistence;
 with Text_Buffer;
 
 use type Editor.Commands.Descriptors.Command_Category;
-use type Editor.Commands.Command_Id;
+use type Editor.Command_Ids.Command_Id;
 use type Editor.Commands.Descriptors.Command_Visibility;
 use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
 use type Editor.Keybindings.Binding_Result;
@@ -76,51 +76,51 @@ package body Editor.Active_Find.Tests is
    is
       pragma Unreferenced (T);
       Found : Boolean := False;
-      Id    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Id    : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       D     : constant Editor.Commands.Descriptors.Command_Descriptor :=
-        Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Find_Show);
+        Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Find_Show);
    begin
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Find_Show) = "edit.find.show",
+           (Editor.Command_Ids.Command_Find_Show) = "edit.find.show",
          "find show must have a stable edit.find.show name");
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Active_Find_Next) = "edit.find.next",
+           (Editor.Command_Ids.Command_Active_Find_Next) = "edit.find.next",
          "find next must have a stable edit.find.next name");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("edit.find.previous", Found);
       Assert
-        (Found and then Id = Editor.Commands.Command_Active_Find_Previous,
+        (Found and then Id = Editor.Command_Ids.Command_Active_Find_Previous,
          "stable edit.find.previous name must resolve to the active find command");
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Find_First) = "edit.find.first"
+           (Editor.Command_Ids.Command_Find_First) = "edit.find.first"
          and then Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Find_Last) = "edit.find.last"
+           (Editor.Command_Ids.Command_Find_Last) = "edit.find.last"
          and then Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Find_Reveal_Current) = "edit.find.reveal-current",
+           (Editor.Command_Ids.Command_Find_Reveal_Current) = "edit.find.reveal-current",
          "find first/last/reveal-current commands must have stable persisted names");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("edit.find.first", Found);
       Assert
-        (Found and then Id = Editor.Commands.Command_Find_First,
+        (Found and then Id = Editor.Command_Ids.Command_Find_First,
          "stable edit.find.first name must resolve");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("edit.find.last", Found);
       Assert
-        (Found and then Id = Editor.Commands.Command_Find_Last,
+        (Found and then Id = Editor.Command_Ids.Command_Find_Last,
          "stable edit.find.last name must resolve");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("edit.find.reveal-current", Found);
       Assert
-        (Found and then Id = Editor.Commands.Command_Find_Reveal_Current,
+        (Found and then Id = Editor.Command_Ids.Command_Find_Reveal_Current,
          "stable edit.find.reveal-current name must resolve");
       Assert
-        (Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Find_First).Bindable
-         and then Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Find_Last).Bindable
-         and then Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Find_Reveal_Current).Bindable
-         and then Editor.Commands.Classification.Is_Search_Command (Editor.Commands.Command_Find_Reveal_Current)
-         and then Editor.Commands.Navigation_Ids.Is_Navigation_Command (Editor.Commands.Command_Find_First)
-         and then Editor.Commands.Navigation_Ids.Is_Navigation_Command (Editor.Commands.Command_Find_Last)
+        (Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Find_First).Bindable
+         and then Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Find_Last).Bindable
+         and then Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Find_Reveal_Current).Bindable
+         and then Editor.Commands.Classification.Is_Search_Command (Editor.Command_Ids.Command_Find_Reveal_Current)
+         and then Editor.Commands.Navigation_Ids.Is_Navigation_Command (Editor.Command_Ids.Command_Find_First)
+         and then Editor.Commands.Navigation_Ids.Is_Navigation_Command (Editor.Command_Ids.Command_Find_Last)
          and then not Editor.Commands.Navigation_Ids.Is_Navigation_Command
-           (Editor.Commands.Command_Find_Reveal_Current),
+           (Editor.Command_Ids.Command_Find_Reveal_Current),
          "command descriptors must classify first/last as navigation search commands and reveal-current as non-navigation search state");
       Assert
         (D.Category = Editor.Commands.Descriptors.Search_Category
@@ -129,7 +129,7 @@ package body Editor.Active_Find.Tests is
          "find show must be a bindable visible Search command");
       Assert
         (not Editor.Commands.Descriptors.Descriptor
-           (Editor.Commands.Command_Find_Query_Set).Bindable,
+           (Editor.Command_Ids.Command_Find_Query_Set).Bindable,
          "payload-style find query setter must not be bindable");
       Assert
         (To_String (D.Name) = "Find",
@@ -574,29 +574,29 @@ package body Editor.Active_Find.Tests is
    is
       pragma Unreferenced (T);
       Found : Boolean := False;
-      Id    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Id    : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       D1    : constant Editor.Commands.Descriptors.Command_Descriptor :=
-        Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Find_From_Selection);
+        Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Find_From_Selection);
       D2    : constant Editor.Commands.Descriptors.Command_Descriptor :=
-        Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Find_From_Active_Word);
+        Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Find_From_Active_Word);
    begin
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Find_From_Selection) = "edit.find.from-selection",
+           (Editor.Command_Ids.Command_Find_From_Selection) = "edit.find.from-selection",
          "find from selection must have a stable command name");
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Find_From_Active_Word) = "edit.find.from-active-word",
+           (Editor.Command_Ids.Command_Find_From_Active_Word) = "edit.find.from-active-word",
          "find from active word must have a stable command name");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.find.from-selection", Found);
       Assert
-        (Found and then Id = Editor.Commands.Command_Find_From_Selection,
+        (Found and then Id = Editor.Command_Ids.Command_Find_From_Selection,
          "stable find-from-selection name must resolve");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.find.from-active-word", Found);
       Assert
-        (Found and then Id = Editor.Commands.Command_Find_From_Active_Word,
+        (Found and then Id = Editor.Command_Ids.Command_Find_From_Active_Word,
          "stable find-from-active-word name must resolve");
       Assert
         (D1.Category = Editor.Commands.Descriptors.Search_Category
@@ -794,7 +794,7 @@ package body Editor.Active_Find.Tests is
 
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Execute_Command_Id
-        (Editor.Commands.Command_Find_From_Selection);
+        (Editor.Command_Ids.Command_Find_From_Selection);
       After := Editor.Input_Bridge.Get_State_For_Test;
 
       Assert
@@ -806,7 +806,7 @@ package body Editor.Active_Find.Tests is
       Set_Primary_Caret (After, Pos => 0, Anchor => 0);
       Editor.Input_Bridge.Set_State_For_Test (After);
       Editor.Input_Bridge.Execute_Command_Id
-        (Editor.Commands.Command_Find_From_Active_Word);
+        (Editor.Command_Ids.Command_Find_From_Active_Word);
       After := Editor.Input_Bridge.Get_State_For_Test;
 
       Assert
@@ -837,7 +837,7 @@ package body Editor.Active_Find.Tests is
       Caret := Natural (S.Carets (S.Carets.First_Index).Pos);
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Find_From_Selection);
+        (S, Editor.Command_Ids.Command_Find_From_Selection);
 
       Assert
         ((not Editor.Commands.Availability_Metadata.Is_Available (A))
@@ -849,7 +849,7 @@ package body Editor.Active_Find.Tests is
          "find-from-selection availability must be a side-effect-free no-selection check");
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Find_From_Active_Word);
+        (S, Editor.Command_Ids.Command_Find_From_Active_Word);
 
       Assert
         (Editor.Commands.Availability_Metadata.Is_Available (A)
@@ -865,13 +865,13 @@ package body Editor.Active_Find.Tests is
    is
       pragma Unreferenced (T);
       Found : Boolean := True;
-      Id    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Id    : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
    begin
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.find.find-selection-next", Found);
 
       Assert
-        ((not Found) and then Id = Editor.Commands.No_Command,
+        ((not Found) and then Id = Editor.Command_Ids.No_Command,
          "omitted optional find-selection-next must not expose a descriptor, stable name, binding, palette, or Executor route");
    end Test_Optional_Find_Selection_Next_Not_Exposed;
 
@@ -1003,13 +1003,13 @@ package body Editor.Active_Find.Tests is
          and then Editor.Navigation_History.Back_Count (S.Navigation_History) = 1,
          "find.next after context query must move to the next match and record one previous location");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Navigation_Back);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Back);
       Assert
         (Natural (S.Carets (S.Carets.First_Index).Pos) = 0
          and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = 1,
          "navigation.back must return to the pre-find caret location and populate the forward stack");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Navigation_Forward);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Forward);
       Assert
         (S.Active_Find_Match.Start_Row = 2
          and then Natural (S.Carets (S.Carets.First_Index).Pos) =
@@ -1037,7 +1037,7 @@ package body Editor.Active_Find.Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Toggle (S);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Clear (S);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Next (S);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Navigation_Back);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Back);
       Assert
         (Editor.Navigation_History.Has_Forward (S.Navigation_History),
          "setup must leave a forward navigation target after back");
@@ -1181,13 +1181,13 @@ package body Editor.Active_Find.Tests is
    is
       pragma Unreferenced (T);
       Found : Boolean := True;
-      Id    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Id    : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
 
       procedure Check_Absent (Name : String) is
       begin
          Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
          Assert
-           ((not Found) and then Id = Editor.Commands.No_Command,
+           ((not Found) and then Id = Editor.Command_Ids.No_Command,
             Name & " must not be exposed by active-buffer Find consolidation");
       end Check_Absent;
    begin
@@ -1426,29 +1426,29 @@ package body Editor.Active_Find.Tests is
    is
       pragma Unreferenced (T);
       Found : Boolean := False;
-      Id    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Id    : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       D1    : constant Editor.Commands.Descriptors.Command_Descriptor :=
-        Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Find_Case_Toggle);
+        Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Find_Case_Toggle);
       D2    : constant Editor.Commands.Descriptors.Command_Descriptor :=
-        Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Find_Case_Clear);
+        Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Find_Case_Clear);
    begin
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Find_Case_Toggle) = "edit.find.case.toggle",
+           (Editor.Command_Ids.Command_Find_Case_Toggle) = "edit.find.case.toggle",
          "find case toggle must have a stable command name");
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Find_Case_Clear) = "edit.find.case.clear",
+           (Editor.Command_Ids.Command_Find_Case_Clear) = "edit.find.case.clear",
          "find case clear must have a stable command name");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.find.case.toggle", Found);
       Assert
-        (Found and then Id = Editor.Commands.Command_Find_Case_Toggle,
+        (Found and then Id = Editor.Command_Ids.Command_Find_Case_Toggle,
          "stable find-case-toggle name must resolve");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.find.case.clear", Found);
       Assert
-        (Found and then Id = Editor.Commands.Command_Find_Case_Clear,
+        (Found and then Id = Editor.Command_Ids.Command_Find_Case_Clear,
          "stable find-case-clear name must resolve");
       Assert
         (D1.Category = Editor.Commands.Descriptors.Search_Category
@@ -1485,7 +1485,7 @@ package body Editor.Active_Find.Tests is
       Case_Mode := S.Active_Find_Case_Sensitive;
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Find_Case_Toggle);
+        (S, Editor.Command_Ids.Command_Find_Case_Toggle);
       Assert
         (Editor.Commands.Availability_Metadata.Is_Available (A)
          and then S.Active_Find_Query = Query
@@ -1495,7 +1495,7 @@ package body Editor.Active_Find.Tests is
          "find-case-toggle availability must not mutate case, query, matches, or messages");
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Find_Case_Clear);
+        (S, Editor.Command_Ids.Command_Find_Case_Clear);
       Assert
         (Editor.Commands.Availability_Metadata.Is_Available (A)
          and then S.Active_Find_Query = Query
@@ -1651,7 +1651,7 @@ package body Editor.Active_Find.Tests is
 
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Execute_Command_Id
-        (Editor.Commands.Command_Find_Case_Toggle);
+        (Editor.Command_Ids.Command_Find_Case_Toggle);
       After := Editor.Input_Bridge.Get_State_For_Test;
       Assert
         (After.Active_Find_Case_Sensitive
@@ -1660,7 +1660,7 @@ package body Editor.Active_Find.Tests is
 
       Editor.Input_Bridge.Set_State_For_Test (After);
       Editor.Input_Bridge.Execute_Command_Id
-        (Editor.Commands.Command_Find_Case_Clear);
+        (Editor.Command_Ids.Command_Find_Case_Clear);
       After := Editor.Input_Bridge.Get_State_For_Test;
       Assert
         ((not After.Active_Find_Case_Sensitive)
@@ -1682,31 +1682,31 @@ package body Editor.Active_Find.Tests is
    is
       pragma Unreferenced (T);
       Found : Boolean := False;
-      Id    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Id    : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       D1    : constant Editor.Commands.Descriptors.Command_Descriptor :=
-        Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Find_Whole_Word_Toggle);
+        Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Find_Whole_Word_Toggle);
       D2    : constant Editor.Commands.Descriptors.Command_Descriptor :=
-        Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Find_Whole_Word_Clear);
+        Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Find_Whole_Word_Clear);
    begin
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Find_Whole_Word_Toggle) =
+           (Editor.Command_Ids.Command_Find_Whole_Word_Toggle) =
              "edit.find.whole-word.toggle",
          "find whole-word toggle must have a stable command name");
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Find_Whole_Word_Clear) =
+           (Editor.Command_Ids.Command_Find_Whole_Word_Clear) =
              "edit.find.whole-word.clear",
          "find whole-word clear must have a stable command name");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.find.whole-word.toggle", Found);
       Assert
-        (Found and then Id = Editor.Commands.Command_Find_Whole_Word_Toggle,
+        (Found and then Id = Editor.Command_Ids.Command_Find_Whole_Word_Toggle,
          "stable find whole-word toggle name must resolve");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.find.whole-word.clear", Found);
       Assert
-        (Found and then Id = Editor.Commands.Command_Find_Whole_Word_Clear,
+        (Found and then Id = Editor.Command_Ids.Command_Find_Whole_Word_Clear,
          "stable find whole-word clear name must resolve");
       Assert
         (D1.Category = Editor.Commands.Descriptors.Search_Category
@@ -1743,7 +1743,7 @@ package body Editor.Active_Find.Tests is
       Whole := S.Active_Find_Whole_Word;
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Find_Whole_Word_Toggle);
+        (S, Editor.Command_Ids.Command_Find_Whole_Word_Toggle);
       Assert
         (Editor.Commands.Availability_Metadata.Is_Available (A)
          and then S.Active_Find_Query = Query
@@ -1753,7 +1753,7 @@ package body Editor.Active_Find.Tests is
          "find whole-word toggle availability must not mutate Find state");
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Find_Whole_Word_Clear);
+        (S, Editor.Command_Ids.Command_Find_Whole_Word_Clear);
       Assert
         (Editor.Commands.Availability_Metadata.Is_Available (A)
          and then S.Active_Find_Query = Query
@@ -1920,7 +1920,7 @@ package body Editor.Active_Find.Tests is
 
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Execute_Command_Id
-        (Editor.Commands.Command_Find_Whole_Word_Clear);
+        (Editor.Command_Ids.Command_Find_Whole_Word_Clear);
       After := Editor.Input_Bridge.Get_State_For_Test;
       Assert
         ((not After.Active_Find_Whole_Word)
@@ -2254,7 +2254,7 @@ package body Editor.Active_Find.Tests is
 
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Execute_Command_Id
-        (Editor.Commands.Command_Find_Case_Toggle);
+        (Editor.Command_Ids.Command_Find_Case_Toggle);
       After := Editor.Input_Bridge.Get_State_For_Test;
       Assert
         (After.Active_Find_Case_Sensitive
@@ -2264,7 +2264,7 @@ package body Editor.Active_Find.Tests is
 
       Editor.Input_Bridge.Set_State_For_Test (After);
       Editor.Input_Bridge.Execute_Command_Id
-        (Editor.Commands.Command_Find_Whole_Word_Toggle);
+        (Editor.Command_Ids.Command_Find_Whole_Word_Toggle);
       After := Editor.Input_Bridge.Get_State_For_Test;
       Assert
         (After.Active_Find_Whole_Word
@@ -2275,9 +2275,9 @@ package body Editor.Active_Find.Tests is
 
       Editor.Input_Bridge.Set_State_For_Test (After);
       Editor.Input_Bridge.Execute_Command_Id
-        (Editor.Commands.Command_Find_Case_Clear);
+        (Editor.Command_Ids.Command_Find_Case_Clear);
       Editor.Input_Bridge.Execute_Command_Id
-        (Editor.Commands.Command_Find_Whole_Word_Clear);
+        (Editor.Command_Ids.Command_Find_Whole_Word_Clear);
       After := Editor.Input_Bridge.Get_State_For_Test;
       Assert
         ((not After.Active_Find_Case_Sensitive)
@@ -2573,7 +2573,7 @@ package body Editor.Active_Find.Tests is
          and then Active_Message_Text (S) = "Found last match 3 of 3",
          "find.last must select/move to the final current match, expose 3/3 status, and record one history entry");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Navigation_Back);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Back);
       Assert
         (Editor.Navigation_History.Forward_Count (S.Navigation_History) = 1,
          "navigation.back after find.last must populate forward history");
@@ -2611,7 +2611,7 @@ package body Editor.Active_Find.Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "alpha");
       Set_Primary_Caret (S, Pos => 8, Anchor => 8);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Last (S);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Navigation_Back);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Back);
       Back_Before := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Forward_Before := Editor.Navigation_History.Forward_Count (S.Navigation_History);
 
@@ -2705,7 +2705,7 @@ package body Editor.Active_Find.Tests is
       Query := S.Active_Find_Query;
       Count := Natural (S.Active_Find_Matches.Length);
       Message := To_Unbounded_String (Active_Message_Text (S));
-      A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Find_Last);
+      A := Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Find_Last);
       Assert
         (Editor.Commands.Availability_Metadata.Is_Available (A)
          and then S.Active_Find_Query = Query
@@ -2741,7 +2741,7 @@ package body Editor.Active_Find.Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Run");
 
       Editor.Input_Bridge.Set_State_For_Test (S);
-      Editor.Input_Bridge.Execute_Command_Id (Editor.Commands.Command_Find_Last);
+      Editor.Input_Bridge.Execute_Command_Id (Editor.Command_Ids.Command_Find_Last);
       After := Editor.Input_Bridge.Get_State_For_Test;
       Editor.Render_Model.Build_Render_Snapshot (After, Snap);
       Assert
@@ -2755,7 +2755,7 @@ package body Editor.Active_Find.Tests is
          "Input_Bridge find.last must route through Executor and use current case plus whole-word options");
 
       Editor.Input_Bridge.Set_State_For_Test (After);
-      Editor.Input_Bridge.Execute_Command_Id (Editor.Commands.Command_Find_First);
+      Editor.Input_Bridge.Execute_Command_Id (Editor.Command_Ids.Command_Find_First);
       After := Editor.Input_Bridge.Get_State_For_Test;
       Assert
         (Natural (After.Active_Find_Match.Index) = 1
@@ -2764,7 +2764,7 @@ package body Editor.Active_Find.Tests is
 
       Editor.Input_Bridge.Set_State_For_Test (After);
       Editor.Input_Bridge.Execute_Command_Id
-        (Editor.Commands.Command_Find_Reveal_Current);
+        (Editor.Command_Ids.Command_Find_Reveal_Current);
       After := Editor.Input_Bridge.Get_State_For_Test;
       Reveal_Message := To_Unbounded_String (Active_Message_Text (After));
       Assert
@@ -2802,18 +2802,18 @@ package body Editor.Active_Find.Tests is
    is
       pragma Unreferenced (T);
       Found : Boolean := True;
-      Id    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Id    : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
    begin
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.find.prefill-selection", Found);
       Assert
-        ((not Found) and then Id = Editor.Commands.No_Command,
+        ((not Found) and then Id = Editor.Command_Ids.No_Command,
          "must not expose duplicate selection-prefill aliases when find-from-selection is canonical");
 
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.find.prefill-active-word", Found);
       Assert
-        ((not Found) and then Id = Editor.Commands.No_Command,
+        ((not Found) and then Id = Editor.Command_Ids.No_Command,
          "must not expose duplicate active-word-prefill aliases when find-from-active-word is canonical");
    end Test_No_Duplicate_Prefill_Aliases;
 
@@ -3043,7 +3043,7 @@ package body Editor.Active_Find.Tests is
          and then Editor.Navigation_History.Back_Count (S.Navigation_History) = 2,
          "successful find.last movement must record history");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Navigation_Back);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Back);
       Assert
         (Editor.Navigation_History.Has_Forward (S.Navigation_History),
          "navigation.back after Find movement must populate forward stack");
@@ -3060,7 +3060,7 @@ package body Editor.Active_Find.Tests is
          and then Editor.Navigation_History.Has_Forward (S.Navigation_History),
          "failed find.first must neither record movement nor clear an existing forward stack");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Navigation_Forward);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Forward);
       Assert
         (not Editor.Navigation_History.Has_Forward (S.Navigation_History),
          "preserved forward target must remain usable after a failed Find movement command");
@@ -3232,7 +3232,7 @@ package body Editor.Active_Find.Tests is
       Caret := Natural (S.Carets (S.Carets.First_Index).Pos);
       Message := To_Unbounded_String (Active_Message_Text (S));
 
-      A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Find_Reveal_Current);
+      A := Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Find_Reveal_Current);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert
         (Editor.Commands.Availability_Metadata.Is_Available (A)
@@ -3275,13 +3275,13 @@ package body Editor.Active_Find.Tests is
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
       Summary  : Unbounded_String;
       Found    : Boolean := True;
-      Id       : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Id       : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
 
       procedure Check_Absent (Name : String) is
       begin
          Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
          Assert
-           ((not Found) and then Id = Editor.Commands.No_Command,
+           ((not Found) and then Id = Editor.Command_Ids.No_Command,
             Name & " must remain absent from descriptors, palette, bindings, input routes, and Executor dispatch");
       end Check_Absent;
    begin

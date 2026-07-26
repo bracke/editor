@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Cursor;
 with Editor.Focus_Management;
 with Editor.Render_Cache;
@@ -25,10 +26,10 @@ package body Editor.Input_Bridge.Pending_Transition_Key_Handlers is
      (S           : Editor.State.State_Type;
       Chord       : Editor.Keybindings.Key_Chord;
       Execute     : not null access procedure
-        (Id : Editor.Commands.Command_Id; Shift : Boolean);
+        (Id : Editor.Command_Ids.Command_Id; Shift : Boolean);
       Report_Info : not null access procedure (Text : String)) return Boolean
    is
-      Id : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Id : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
    begin
       if not Pending_Confirmation_Active (S) then
          return False;
@@ -37,14 +38,14 @@ package body Editor.Input_Bridge.Pending_Transition_Key_Handlers is
       if Editor.Keybindings.Resolve (Chord, Id) /=
         Editor.Keybindings.Bound_Command
       then
-         Id := Editor.Commands.No_Command;
+         Id := Editor.Command_Ids.No_Command;
       end if;
 
       case Chord.Key is
          when Editor.Keybindings.Key_Escape =>
-            Execute (Editor.Commands.Command_Cancel_Pending_Transition, False);
+            Execute (Editor.Command_Ids.Command_Cancel_Pending_Transition, False);
          when Editor.Keybindings.Key_Enter =>
-            Execute (Editor.Commands.Command_Retry_Pending_Transition, False);
+            Execute (Editor.Command_Ids.Command_Retry_Pending_Transition, False);
          when others =>
             if Editor.Focus_Management.Command_Allowed_While_Pending (Id) then
                Execute (Id, Chord.Modifiers.Shift);

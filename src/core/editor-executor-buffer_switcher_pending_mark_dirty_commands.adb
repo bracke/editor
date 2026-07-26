@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
@@ -5,7 +6,6 @@ with Editor.Buffer_Switcher;
 with Editor.Buffer_Switcher.Reviews;
 with Editor.Buffer_Switcher.Rows;
 with Editor.Buffers;
-with Editor.Commands;
 with Editor.Executor.Buffer_Switcher_Shared;
 with Editor.Executor.Shared_Services;
 with Editor.Render_Cache;
@@ -15,7 +15,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Dirty_Commands is
 
    use type Editor.Buffers.Buffer_Id;
    use type Editor.Buffer_Switcher.Reviews.Pending_Marked_Action_Kind;
-   use type Editor.Commands.Command_Kind;
+   use type Editor.Command_Kinds.Command_Kind;
 
    procedure Report_Info
      (S    : in out Editor.State.State_Type;
@@ -46,7 +46,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Dirty_Commands is
 
    procedure Execute_Buffer_Switcher_Pending_Mark_Dirty_Kind
      (S    : in out Editor.State.State_Type;
-      Kind : Editor.Commands.Command_Kind)
+      Kind : Editor.Command_Kinds.Command_Kind)
    is
    begin
       case Kind is

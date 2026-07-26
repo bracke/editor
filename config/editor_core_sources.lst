@@ -1337,6 +1337,8 @@ editor-command_route_audit.adb
 editor-command_route_audit.ads
 editor-command_surface.adb
 editor-command_surface.ads
+editor-command_ids.adb
+editor-command_ids.ads
 editor-command_kinds.ads
 editor-commands.adb
 editor-commands.ads

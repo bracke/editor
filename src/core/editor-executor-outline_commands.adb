@@ -1,10 +1,10 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded;
 
 with Editor.Buffers;
 with Editor.Command_Execution;
-with Editor.Commands;
 with Editor.Executor;
 with Editor.Executor.Semantic_Index_Commands;
 with Editor.Executor.Shared_Services;
@@ -23,13 +23,13 @@ package body Editor.Executor.Outline_Commands is
    use Ada.Strings.Unbounded;
    use Editor.Commands;
    use type Editor.Command_Execution.Command_Execution_Status;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Feature_Panel.Feature_Id;
    use type Editor.Outline.Outline_Source_Class;
 
    function Outline_Command_Availability
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Commands.Availability_Metadata.Command_Availability
    is
       function Has_Buffer return Boolean is
@@ -285,12 +285,12 @@ package body Editor.Executor.Outline_Commands is
       renames Editor.Executor.Sync_Current_Outline_Symbol_From_Caret;
 
    function Executed
-     (Id : Editor.Commands.Command_Id)
+     (Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
       renames Editor.Command_Execution.Executed;
 
    function No_Op
-     (Id : Editor.Commands.Command_Id)
+     (Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
       renames Editor.Command_Execution.No_Op;
 
@@ -303,7 +303,7 @@ package body Editor.Executor.Outline_Commands is
 
    function Execute_Refresh_Outline
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
    is
    begin
@@ -395,7 +395,7 @@ package body Editor.Executor.Outline_Commands is
 
    function Execute_Refresh_Outline_Project_Index
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
    is
       Indexed_Files   : Natural;
@@ -423,7 +423,7 @@ package body Editor.Executor.Outline_Commands is
 
    function Execute_Clear_Outline
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
    is
    begin
@@ -441,7 +441,7 @@ package body Editor.Executor.Outline_Commands is
 
    function Execute_Show_Outline
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
    is
    begin
@@ -462,7 +462,7 @@ package body Editor.Executor.Outline_Commands is
 
    function Execute_Focus_Outline
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
    is
    begin
@@ -475,7 +475,7 @@ package body Editor.Executor.Outline_Commands is
 
    function Execute_Open_Selected_Outline_Item
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
    is
    begin
@@ -536,7 +536,7 @@ package body Editor.Executor.Outline_Commands is
 
    function Execute_Reveal_Current_Outline_Symbol
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
    is
       Target : Natural := 0;
@@ -593,7 +593,7 @@ package body Editor.Executor.Outline_Commands is
 
    function Outline_Source_Is_Current
      (S : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Boolean
    is
    begin
@@ -616,7 +616,7 @@ package body Editor.Executor.Outline_Commands is
 
    function Execute_Outline_Symbol_Navigation
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
    is
       Row    : Natural := 0;
@@ -636,7 +636,7 @@ package body Editor.Executor.Outline_Commands is
 
       Editor.Navigation.Line_Column_For_Index
         (S, Natural (Safe_Caret (S)), Row, Col);
-      if Id = Editor.Commands.Command_Next_Outline_Symbol then
+      if Id = Editor.Command_Ids.Command_Next_Outline_Symbol then
          Target := Editor.Outline.Find_Next_Symbol_For_Position
            (S.Outline, Buffer, Row + 1, Col + 1, True);
       else
@@ -690,7 +690,7 @@ package body Editor.Executor.Outline_Commands is
 
    function Execute_Select_Current_Outline_Symbol
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
    is
       Row    : Natural := 0;
@@ -747,7 +747,7 @@ package body Editor.Executor.Outline_Commands is
 
    function Execute_Select_Outline_Item
      (S    : in out Editor.State.State_Type;
-      Id   : Editor.Commands.Command_Id;
+      Id   : Editor.Command_Ids.Command_Id;
       Next : Boolean)
       return Editor.Command_Execution.Command_Execution_Result
    is
@@ -784,7 +784,7 @@ package body Editor.Executor.Outline_Commands is
 
    function Execute_Focus_Outline_Filter
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
    is
    begin
@@ -801,7 +801,7 @@ package body Editor.Executor.Outline_Commands is
 
    function Execute_Filter_Outline
      (S   : in out Editor.State.State_Type;
-      Id  : Editor.Commands.Command_Id;
+      Id  : Editor.Command_Ids.Command_Id;
       Cmd : Editor.Commands.Payloads.Command)
       return Editor.Command_Execution.Command_Execution_Result
    is
@@ -822,7 +822,7 @@ package body Editor.Executor.Outline_Commands is
 
    function Execute_Clear_Outline_Filter
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
    is
    begin
@@ -834,7 +834,7 @@ package body Editor.Executor.Outline_Commands is
 
    function Execute_Toggle_Outline_Filter
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
    is
    begin
@@ -855,7 +855,7 @@ package body Editor.Executor.Outline_Commands is
 
    function Execute_Outline_Filter_History
      (S    : in out Editor.State.State_Type;
-      Id   : Editor.Commands.Command_Id;
+      Id   : Editor.Command_Ids.Command_Id;
       Next : Boolean)
       return Editor.Command_Execution.Command_Execution_Result
    is
@@ -879,7 +879,7 @@ package body Editor.Executor.Outline_Commands is
 
    function Execute_Clear_Outline_Filter_History
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
    is
    begin
@@ -890,49 +890,49 @@ package body Editor.Executor.Outline_Commands is
 
    function Execute_Outline_Command
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id;
+      Id : Editor.Command_Ids.Command_Id;
       Cmd : Editor.Commands.Payloads.Command)
       return Editor.Command_Execution.Command_Execution_Result
    is
    begin
       case Id is
-         when Editor.Commands.Command_Refresh_Outline =>
+         when Editor.Command_Ids.Command_Refresh_Outline =>
             return Execute_Refresh_Outline (S, Id);
-         when Editor.Commands.Command_Refresh_Outline_Project_Index =>
+         when Editor.Command_Ids.Command_Refresh_Outline_Project_Index =>
             return Execute_Refresh_Outline_Project_Index (S, Id);
-         when Editor.Commands.Command_Clear_Outline =>
+         when Editor.Command_Ids.Command_Clear_Outline =>
             return Execute_Clear_Outline (S, Id);
-         when Editor.Commands.Command_Show_Outline =>
+         when Editor.Command_Ids.Command_Show_Outline =>
             return Execute_Show_Outline (S, Id);
-         when Editor.Commands.Command_Focus_Outline =>
+         when Editor.Command_Ids.Command_Focus_Outline =>
             return Execute_Focus_Outline (S, Id);
-         when Editor.Commands.Command_Open_Selected_Outline_Item =>
+         when Editor.Command_Ids.Command_Open_Selected_Outline_Item =>
             return Execute_Open_Selected_Outline_Item (S, Id);
-         when Editor.Commands.Command_Reveal_Current_Outline_Symbol =>
+         when Editor.Command_Ids.Command_Reveal_Current_Outline_Symbol =>
             return Execute_Reveal_Current_Outline_Symbol (S, Id);
-         when Editor.Commands.Command_Next_Outline_Symbol =>
+         when Editor.Command_Ids.Command_Next_Outline_Symbol =>
             return Execute_Outline_Symbol_Navigation (S, Id);
-         when Editor.Commands.Command_Previous_Outline_Symbol =>
+         when Editor.Command_Ids.Command_Previous_Outline_Symbol =>
             return Execute_Outline_Symbol_Navigation (S, Id);
-         when Editor.Commands.Command_Select_Current_Outline_Symbol =>
+         when Editor.Command_Ids.Command_Select_Current_Outline_Symbol =>
             return Execute_Select_Current_Outline_Symbol (S, Id);
-         when Editor.Commands.Command_Select_Next_Outline_Item =>
+         when Editor.Command_Ids.Command_Select_Next_Outline_Item =>
             return Execute_Select_Outline_Item (S, Id, Next => True);
-         when Editor.Commands.Command_Select_Previous_Outline_Item =>
+         when Editor.Command_Ids.Command_Select_Previous_Outline_Item =>
             return Execute_Select_Outline_Item (S, Id, Next => False);
-         when Editor.Commands.Command_Focus_Outline_Filter =>
+         when Editor.Command_Ids.Command_Focus_Outline_Filter =>
             return Execute_Focus_Outline_Filter (S, Id);
-         when Editor.Commands.Command_Filter_Outline =>
+         when Editor.Command_Ids.Command_Filter_Outline =>
             return Execute_Filter_Outline (S, Id, Cmd);
-         when Editor.Commands.Command_Toggle_Outline_Filter =>
+         when Editor.Command_Ids.Command_Toggle_Outline_Filter =>
             return Execute_Toggle_Outline_Filter (S, Id);
-         when Editor.Commands.Command_Clear_Outline_Filter =>
+         when Editor.Command_Ids.Command_Clear_Outline_Filter =>
             return Execute_Clear_Outline_Filter (S, Id);
-         when Editor.Commands.Command_Outline_Filter_History_Previous =>
+         when Editor.Command_Ids.Command_Outline_Filter_History_Previous =>
             return Execute_Outline_Filter_History (S, Id, Next => False);
-         when Editor.Commands.Command_Outline_Filter_History_Next =>
+         when Editor.Command_Ids.Command_Outline_Filter_History_Next =>
             return Execute_Outline_Filter_History (S, Id, Next => True);
-         when Editor.Commands.Command_Clear_Outline_Filter_History =>
+         when Editor.Command_Ids.Command_Clear_Outline_Filter_History =>
             return Execute_Clear_Outline_Filter_History (S, Id);
          when others =>
             return No_Op (Id);
@@ -955,13 +955,13 @@ package body Editor.Executor.Outline_Commands is
       then
          Report_Target_Unavailable (S);
          Editor.Render_Cache.Invalidate_All;
-         return No_Op (Editor.Commands.Command_Open_Selected_Outline_Item);
+         return No_Op (Editor.Command_Ids.Command_Open_Selected_Outline_Item);
       end if;
 
       Editor.Outline.Select_Item (S.Outline, Mapped);
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, Row);
       Editor.Render_Cache.Invalidate_All;
-      return Executed (Editor.Commands.Command_Open_Selected_Outline_Item);
+      return Executed (Editor.Command_Ids.Command_Open_Selected_Outline_Item);
    end Execute_Outline_Row_Click;
 
    function Execute_Outline_Row_Activation
@@ -983,7 +983,7 @@ package body Editor.Executor.Outline_Commands is
       then
          Report_Target_Unavailable (S);
          Editor.Render_Cache.Invalidate_All;
-         return No_Op (Editor.Commands.Command_Open_Selected_Outline_Item);
+         return No_Op (Editor.Command_Ids.Command_Open_Selected_Outline_Item);
       end if;
 
       Click_Result := Execute_Outline_Row_Click
@@ -993,7 +993,7 @@ package body Editor.Executor.Outline_Commands is
       end if;
 
       return Execute_Open_Selected_Outline_Item
-        (S, Editor.Commands.Command_Open_Selected_Outline_Item);
+        (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
    end Execute_Outline_Row_Activation;
 
 end Editor.Executor.Outline_Commands;

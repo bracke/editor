@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Payloads;
 with Text_Buffer;
 with Ada.Containers; use Ada.Containers;
@@ -12,7 +13,6 @@ with Editor.Ada_Project_Index;
 with Editor.Buffers;
 use type Editor.Buffers.Buffer_Id;
 with Editor.Buffer_Switcher;
-with Editor.Commands;
 with Editor.Dirty_Guards;
 with Editor.Executor;
 with Editor.Executor.Shared_Services;
@@ -488,7 +488,7 @@ package body Editor.Executor.File_Save_Commands is
      (S : in out Editor.State.State_Type)
    is
       Cmd    : Editor.Commands.Payloads.Command :=
-        Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Format_Buffer);
+        Editor.Commands.Payloads.Command_For_Id (Editor.Command_Ids.Command_Format_Buffer);
    begin
       if not Editor.Settings.Format_On_Save then
          return;

@@ -2,7 +2,6 @@ with Ada.Characters.Handling;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Image_Helpers;
-with Editor.Commands;
 with Editor.Commands.Workflow_Messages;
 
 package body Editor.Feature_Diagnostics.Labels is

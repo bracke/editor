@@ -4,7 +4,6 @@ with Ada.Strings;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Ada_Semantic_Diagnostic_Feed;
-with Editor.Commands;
 with Editor.Contextual_Help;
 with Editor.Feature_Diagnostics.Messages;
 with Editor.Feature_Diagnostics.Labels;

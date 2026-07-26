@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
@@ -20,7 +21,7 @@ package body Editor.Executor.Semantic_Navigation_Commands is
 
    use type Editor.Ada_Language_Model.Symbol_Kind;
    use type Editor.Ada_Language_Service.Service_Status;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
 
    procedure Report_Info
      (S    : in out Editor.State.State_Type;
@@ -158,7 +159,7 @@ package body Editor.Executor.Semantic_Navigation_Commands is
 
    function Has_Indexed_Outline_Target
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id) return Boolean
+      Id : Editor.Command_Ids.Command_Id) return Boolean
    is
       Service : Editor.Ada_Language_Service.Service_State :=
         Current_Language_Service (S);
@@ -239,13 +240,13 @@ package body Editor.Executor.Semantic_Navigation_Commands is
 
    function Semantic_Navigation_Command_Availability
      (S      : Editor.State.State_Type;
-      Id     : Editor.Commands.Command_Id;
+      Id     : Editor.Command_Ids.Command_Id;
       Symbol : Semantic_Symbol)
       return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin
       case Id is
-         when Editor.Commands.Command_Goto_Declaration =>
+         when Editor.Command_Ids.Command_Goto_Declaration =>
             if Editor.Feature_Panel.Is_Visible (S.Feature_Panel)
               and then Editor.Executor.Has_Selected_Outline_Activation_Target
                 (S)
@@ -277,8 +278,8 @@ package body Editor.Executor.Semantic_Navigation_Commands is
                end;
             end if;
 
-         when Editor.Commands.Command_Goto_Body
-            | Editor.Commands.Command_Goto_Spec =>
+         when Editor.Command_Ids.Command_Goto_Body
+            | Editor.Command_Ids.Command_Goto_Spec =>
             if not Editor.Feature_Panel.Is_Visible (S.Feature_Panel) then
                return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Reason_Feature_Panel_Hidden);
@@ -304,19 +305,19 @@ package body Editor.Executor.Semantic_Navigation_Commands is
 
    function Execute_Semantic_Navigation_Command
      (S      : in out Editor.State.State_Type;
-      Id     : Editor.Commands.Command_Id;
+      Id     : Editor.Command_Ids.Command_Id;
       Symbol : Semantic_Symbol)
       return Editor.Command_Execution.Command_Execution_Result
    is
    begin
       case Id is
-         when Editor.Commands.Command_Goto_Declaration =>
+         when Editor.Command_Ids.Command_Goto_Declaration =>
             if Editor.Feature_Panel.Is_Visible (S.Feature_Panel)
               and then Editor.Executor.Has_Selected_Outline_Activation_Target
                 (S)
             then
                return Editor.Executor.Execute_Command_With_Result
-                 (S, Editor.Commands.Command_Open_Selected_Outline_Item);
+                 (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
             else
                declare
                   Target : Editor.Ada_Language_Service.Language_Target;
@@ -355,8 +356,8 @@ package body Editor.Executor.Semantic_Navigation_Commands is
                end;
             end if;
 
-         when Editor.Commands.Command_Goto_Body
-            | Editor.Commands.Command_Goto_Spec =>
+         when Editor.Command_Ids.Command_Goto_Body
+            | Editor.Command_Ids.Command_Goto_Spec =>
             declare
                Target : Editor.Executor.Semantic_Outline_Targets
                  .Outline_Indexed_Target;

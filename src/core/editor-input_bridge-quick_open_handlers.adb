@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -11,14 +12,14 @@ with Editor.View;
 
 package body Editor.Input_Bridge.Quick_Open_Handlers is
 
-   use type Editor.Commands.Command_Kind;
+   use type Editor.Command_Kinds.Command_Kind;
    use type Editor.Quick_Open.Quick_Open_Zone;
 
    function Handle_Quick_Open
      (S               : in out Editor.State.State_Type;
       Cmd             : Editor.Commands.Payloads.Command;
       Execute         : not null access procedure
-        (Id : Editor.Commands.Command_Id);
+        (Id : Editor.Command_Ids.Command_Id);
       Execute_Command : not null access procedure
         (Command : Editor.Commands.Payloads.Command)) return Boolean
    is
@@ -31,10 +32,10 @@ package body Editor.Input_Bridge.Quick_Open_Handlers is
       Cmd2   : Editor.Commands.Payloads.Command;
    begin
       if Cmd.Kind = Editor.Command_Kinds.Open_Quick_Open then
-         Execute (Editor.Commands.Command_Open_Quick_Open);
+         Execute (Editor.Command_Ids.Command_Open_Quick_Open);
          return True;
       elsif Cmd.Kind = Editor.Command_Kinds.Toggle_Quick_Open then
-         Execute (Editor.Commands.Command_Toggle_Quick_Open);
+         Execute (Editor.Command_Ids.Command_Toggle_Quick_Open);
          return True;
       end if;
 
@@ -50,12 +51,12 @@ package body Editor.Input_Bridge.Quick_Open_Handlers is
                Editor.Quick_Open.Select_All (S.Quick_Open);
                Editor.Render_Cache.Invalidate_All;
             elsif Cmd.Ch = ASCII.LF or else Cmd.Ch = ASCII.CR then
-               Execute (Editor.Commands.Command_Accept_Quick_Open);
+               Execute (Editor.Command_Ids.Command_Accept_Quick_Open);
             elsif Cmd.Ch = ASCII.HT then
                if Cmd.Shift then
-                  Execute (Editor.Commands.Command_Quick_Open_Previous_Result);
+                  Execute (Editor.Command_Ids.Command_Quick_Open_Previous_Result);
                else
-                  Execute (Editor.Commands.Command_Quick_Open_Next_Result);
+                  Execute (Editor.Command_Ids.Command_Quick_Open_Next_Result);
                end if;
             elsif Length (Cmd.Text) > 0 then
                Cmd2.Kind := Editor.Command_Kinds.Quick_Open_Insert_Text;
@@ -113,15 +114,15 @@ package body Editor.Input_Bridge.Quick_Open_Handlers is
             return True;
 
          when Editor.Command_Kinds.Move_Down | Editor.Command_Kinds.Quick_Open_Next_Result =>
-            Execute (Editor.Commands.Command_Quick_Open_Next_Result);
+            Execute (Editor.Command_Ids.Command_Quick_Open_Next_Result);
             return True;
 
          when Editor.Command_Kinds.Move_Up | Editor.Command_Kinds.Quick_Open_Previous_Result =>
-            Execute (Editor.Commands.Command_Quick_Open_Previous_Result);
+            Execute (Editor.Command_Ids.Command_Quick_Open_Previous_Result);
             return True;
 
          when Editor.Command_Kinds.Palette_Accept | Editor.Command_Kinds.Accept_Quick_Open =>
-            Execute (Editor.Commands.Command_Accept_Quick_Open);
+            Execute (Editor.Command_Ids.Command_Accept_Quick_Open);
             return True;
 
          when Editor.Command_Kinds.Quick_Open_Query_Set =>
@@ -130,19 +131,19 @@ package body Editor.Input_Bridge.Quick_Open_Handlers is
             return True;
 
          when Editor.Command_Kinds.Quick_Open_Query_Clear =>
-            Execute (Editor.Commands.Command_Quick_Open_Query_Clear);
+            Execute (Editor.Command_Ids.Command_Quick_Open_Query_Clear);
             return True;
 
          when Editor.Command_Kinds.Quick_Open_Kind_Next =>
-            Execute (Editor.Commands.Command_Quick_Open_Kind_Next);
+            Execute (Editor.Command_Ids.Command_Quick_Open_Kind_Next);
             return True;
 
          when Editor.Command_Kinds.Quick_Open_Kind_Previous =>
-            Execute (Editor.Commands.Command_Quick_Open_Kind_Previous);
+            Execute (Editor.Command_Ids.Command_Quick_Open_Kind_Previous);
             return True;
 
          when Editor.Command_Kinds.Quick_Open_Kind_Clear =>
-            Execute (Editor.Commands.Command_Quick_Open_Kind_Clear);
+            Execute (Editor.Command_Ids.Command_Quick_Open_Kind_Clear);
             return True;
 
          when Editor.Command_Kinds.Quick_Open_Scope_Set =>
@@ -151,61 +152,61 @@ package body Editor.Input_Bridge.Quick_Open_Handlers is
             return True;
 
          when Editor.Command_Kinds.Quick_Open_Scope_Clear =>
-            Execute (Editor.Commands.Command_Quick_Open_Scope_Clear);
+            Execute (Editor.Command_Ids.Command_Quick_Open_Scope_Clear);
             return True;
 
          when Editor.Command_Kinds.Quick_Open_Scope_From_Selected =>
-            Execute (Editor.Commands.Command_Quick_Open_Scope_From_Selected);
+            Execute (Editor.Command_Ids.Command_Quick_Open_Scope_From_Selected);
             return True;
 
          when Editor.Command_Kinds.Quick_Open_Scope_Parent =>
-            Execute (Editor.Commands.Command_Quick_Open_Scope_Parent);
+            Execute (Editor.Command_Ids.Command_Quick_Open_Scope_Parent);
             return True;
 
          when Editor.Command_Kinds.Quick_Open_Reveal_Active =>
-            Execute (Editor.Commands.Command_Quick_Open_Reveal_Active);
+            Execute (Editor.Command_Ids.Command_Quick_Open_Reveal_Active);
             return True;
 
          when Editor.Command_Kinds.Quick_Open_Scope_Active_Directory =>
-            Execute (Editor.Commands.Command_Quick_Open_Scope_Active_Directory);
+            Execute (Editor.Command_Ids.Command_Quick_Open_Scope_Active_Directory);
             return True;
 
          when Editor.Command_Kinds.Quick_Open_Create_From_Query =>
-            Execute (Editor.Commands.Command_Quick_Open_Create_From_Query);
+            Execute (Editor.Command_Ids.Command_Quick_Open_Create_From_Query);
             return True;
 
          when Editor.Command_Kinds.Quick_Open_Create_With_Parents_From_Query =>
-            Execute (Editor.Commands.Command_Quick_Open_Create_With_Parents_From_Query);
+            Execute (Editor.Command_Ids.Command_Quick_Open_Create_With_Parents_From_Query);
             return True;
 
          when Editor.Command_Kinds.Quick_Open_Priority_Toggle =>
-            Execute (Editor.Commands.Command_Quick_Open_Priority_Toggle);
+            Execute (Editor.Command_Ids.Command_Quick_Open_Priority_Toggle);
             return True;
 
          when Editor.Command_Kinds.Quick_Open_Priority_Clear =>
-            Execute (Editor.Commands.Command_Quick_Open_Priority_Clear);
+            Execute (Editor.Command_Ids.Command_Quick_Open_Priority_Clear);
             return True;
 
          when Editor.Command_Kinds.First_Project_Search_Result =>
-            Execute (Editor.Commands.Command_First_Project_Search_Result);
+            Execute (Editor.Command_Ids.Command_First_Project_Search_Result);
             return True;
 
          when Editor.Command_Kinds.Last_Project_Search_Result =>
-            Execute (Editor.Commands.Command_Last_Project_Search_Result);
+            Execute (Editor.Command_Ids.Command_Last_Project_Search_Result);
             return True;
 
          when Editor.Command_Kinds.Reveal_Active_Project_Search_Result =>
-            Execute (Editor.Commands.Command_Reveal_Active_Project_Search_Result);
+            Execute (Editor.Command_Ids.Command_Reveal_Active_Project_Search_Result);
             return True;
 
          when Editor.Command_Kinds.Project_Search_Scope_Selected_Directory =>
-            Execute (Editor.Commands.Command_Project_Search_Scope_Selected_Directory);
+            Execute (Editor.Command_Ids.Command_Project_Search_Scope_Selected_Directory);
             return True;
 
          when Editor.Command_Kinds.Clear_Extra_Carets
             | Editor.Command_Kinds.Palette_Cancel
             | Editor.Command_Kinds.Close_Quick_Open =>
-            Execute (Editor.Commands.Command_Close_Quick_Open);
+            Execute (Editor.Command_Ids.Command_Close_Quick_Open);
             return True;
 
          when Editor.Command_Kinds.Move_To_Point =>
@@ -215,7 +216,7 @@ package body Editor.Input_Bridge.Quick_Open_Handlers is
                Editor.Layout.Cell_W, Editor.Layout.Cell_H);
             case Hit.Zone is
                when Editor.Quick_Open.Outside_Quick_Open =>
-                  Execute (Editor.Commands.Command_Close_Quick_Open);
+                  Execute (Editor.Command_Ids.Command_Close_Quick_Open);
                when Editor.Quick_Open.Quick_Open_Query_Field_Zone =>
                   declare
                      G : constant Editor.Layout.Rect :=
@@ -237,7 +238,7 @@ package body Editor.Input_Bridge.Quick_Open_Handlers is
                   end;
                when Editor.Quick_Open.Quick_Open_Result_Row_Zone =>
                   while Editor.Quick_Open.Selected_Result_Index (S.Quick_Open) /= Hit.Result_Index loop
-                     Execute (Editor.Commands.Command_Quick_Open_Next_Result);
+                     Execute (Editor.Command_Ids.Command_Quick_Open_Next_Result);
                      exit when Editor.Quick_Open.Result_Count (S.Quick_Open) = 0;
                   end loop;
                when others =>

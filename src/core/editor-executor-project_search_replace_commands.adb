@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds; use Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.Executor.Shared_Services;
@@ -8,7 +9,6 @@ with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with Editor.Buffers;
-with Editor.Commands; use Editor.Commands;
 with Editor.Cursors; use Editor.Cursors;
 with Editor.Executor.History;
 with Editor.Files;

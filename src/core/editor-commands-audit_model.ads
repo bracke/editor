@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Ada.Containers.Vectors;
 
 package Editor.Commands.Audit_Model is

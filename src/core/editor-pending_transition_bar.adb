@@ -1,13 +1,13 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Dirty_Guards;
-with Editor.Commands;
 with Editor.Pending_Transitions;
 
 package body Editor.Pending_Transition_Bar is
 
    use type Editor.Pending_Transitions.Pending_Transition_Kind;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
 
    type Pending_Bar_Action_Order is array (Positive range <>) of Pending_Bar_Action;
 
@@ -161,22 +161,22 @@ package body Editor.Pending_Transition_Bar is
    end Snapshot_Summary;
 
    function Command_For_Action
-     (Action : Pending_Bar_Action) return Editor.Commands.Command_Id
+     (Action : Pending_Bar_Action) return Editor.Command_Ids.Command_Id
    is
    begin
       case Action is
          when No_Pending_Bar_Action =>
-            return Editor.Commands.No_Command;
+            return Editor.Command_Ids.No_Command;
          when Save_All_Action =>
-            return Editor.Commands.Command_Save_All;
+            return Editor.Command_Ids.Command_Save_All;
          when Close_All_Clean_Buffers_Action =>
-            return Editor.Commands.Command_Close_All_Clean_Buffers;
+            return Editor.Command_Ids.Command_Close_All_Clean_Buffers;
          when Retry_Pending_Transition_Action =>
-            return Editor.Commands.Command_Retry_Pending_Transition;
+            return Editor.Command_Ids.Command_Retry_Pending_Transition;
          when Discard_Pending_Transition_Action =>
-            return Editor.Commands.Command_Discard_Pending_Transition;
+            return Editor.Command_Ids.Command_Discard_Pending_Transition;
          when Cancel_Pending_Transition_Action =>
-            return Editor.Commands.Command_Cancel_Pending_Transition;
+            return Editor.Command_Ids.Command_Cancel_Pending_Transition;
       end case;
    end Command_For_Action;
 
@@ -350,7 +350,7 @@ package body Editor.Pending_Transition_Bar is
 
       for I in 1 .. Snapshot.Count loop
          if Snapshot.Actions (I).Action = No_Pending_Bar_Action
-           or else Snapshot.Actions (I).Command = Editor.Commands.No_Command
+           or else Snapshot.Actions (I).Command = Editor.Command_Ids.No_Command
            or else Snapshot.Actions (I).Command /=
              Command_For_Action (Snapshot.Actions (I).Action)
          then
@@ -377,7 +377,7 @@ package body Editor.Pending_Transition_Bar is
          elsif Snapshot.Actions (I).Action = Cancel_Pending_Transition_Action then
             Has_Cancel := True;
          elsif Snapshot.Actions (I).Is_Destructive
-           and then Snapshot.Actions (I).Command = Editor.Commands.No_Command
+           and then Snapshot.Actions (I).Command = Editor.Command_Ids.No_Command
          then
             return False;
          end if;
@@ -401,7 +401,7 @@ package body Editor.Pending_Transition_Bar is
    begin
       if Index > Snapshot.Count then
          return (Action         => No_Pending_Bar_Action,
-                 Command        => Editor.Commands.No_Command,
+                 Command        => Editor.Command_Ids.No_Command,
                  Label          => Null_Unbounded_String,
                  Available      => False,
                  Is_Destructive => False);

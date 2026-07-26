@@ -1,9 +1,9 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Classification;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Commands;
 with Editor.Commands.Build_Terminal_Ids;
 with Editor.Executor;
 with Editor.Keybindings;
@@ -23,7 +23,7 @@ package body Editor.Lifecycle_Guidance is
 
    function Available
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id) return Boolean
+      Id : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       return Editor.Commands.Availability_Metadata.Is_Available
@@ -38,7 +38,7 @@ package body Editor.Lifecycle_Guidance is
    end Show_Shortcuts;
 
    function Shortcut_Text
-     (Command        : Editor.Commands.Command_Id;
+     (Command        : Editor.Command_Ids.Command_Id;
       Show_Shortcuts : Boolean) return String
    is
       Info : Editor.Keybindings.Command_Keybinding_Info;
@@ -60,7 +60,7 @@ package body Editor.Lifecycle_Guidance is
 
    function With_Command_Shortcut
      (Text           : String;
-      Command        : Editor.Commands.Command_Id;
+      Command        : Editor.Command_Ids.Command_Id;
       Show_Shortcuts : Boolean) return String
    is
       Shortcut : constant String := Shortcut_Text (Command, Show_Shortcuts);
@@ -87,7 +87,7 @@ package body Editor.Lifecycle_Guidance is
    function Save_As_Supported return Boolean is
    begin
       return Editor.Commands.Descriptors.Descriptor
-        (Editor.Commands.Command_Save_File_As).Visibility =
+        (Editor.Command_Ids.Command_Save_File_As).Visibility =
           Editor.Commands.Descriptors.Palette_Command;
    end Save_As_Supported;
 
@@ -123,21 +123,21 @@ package body Editor.Lifecycle_Guidance is
             return "Dirty file - backing file not writable";
          elsif S.File_Info.Has_Path
            and then S.File_Info.Last_Save_Failed
-           and then Available (S, Editor.Commands.Command_Save_File)
+           and then Available (S, Editor.Command_Ids.Command_Save_File)
          then
             return With_Command_Shortcut
               ("Dirty file - retry save available",
-               Editor.Commands.Command_Save_File, Show_Shortcuts (S));
+               Editor.Command_Ids.Command_Save_File, Show_Shortcuts (S));
          elsif S.File_Info.Blocked_Close_Surfaced then
             return With_Command_Shortcut
               ("Close blocked - save before close",
-               Editor.Commands.Command_Save_File, Show_Shortcuts (S));
+               Editor.Command_Ids.Command_Save_File, Show_Shortcuts (S));
          elsif S.File_Info.Has_Path
-           and then Available (S, Editor.Commands.Command_Save_File)
+           and then Available (S, Editor.Command_Ids.Command_Save_File)
          then
             return With_Command_Shortcut
               ("Dirty file - save available",
-               Editor.Commands.Command_Save_File, Show_Shortcuts (S));
+               Editor.Command_Ids.Command_Save_File, Show_Shortcuts (S));
          elsif S.File_Info.Has_Path then
             return "Dirty file - save first";
          else
@@ -162,9 +162,9 @@ package body Editor.Lifecycle_Guidance is
          return "Backing file not writable";
       elsif not S.File_Info.Has_Path then
          return "Untitled clean buffer";
-      elsif Available (S, Editor.Commands.Command_Reload_Active_Buffer) then
+      elsif Available (S, Editor.Command_Ids.Command_Reload_Active_Buffer) then
          return With_Command_Shortcut
-           ("Clean file - reload available", Editor.Commands.Command_Reload_Active_Buffer,
+           ("Clean file - reload available", Editor.Command_Ids.Command_Reload_Active_Buffer,
             Show_Shortcuts (S));
       else
          return "Clean file";
@@ -200,28 +200,28 @@ package body Editor.Lifecycle_Guidance is
                return "Unsaved - backing file not writable; recover before close";
             elsif Summary.Has_Path
               and then Summary.Last_Save_Failed
-              and then Available (S, Editor.Commands.Command_Save_File)
+              and then Available (S, Editor.Command_Ids.Command_Save_File)
             then
                return With_Command_Shortcut
                  ("Unsaved - retry save available; normal close blocked",
-                  Editor.Commands.Command_Save_File, Show);
+                  Editor.Command_Ids.Command_Save_File, Show);
             elsif Summary.Blocked_Close_Surfaced then
                return With_Command_Shortcut
                  ("Unsaved - close blocked; save before close",
-                  Editor.Commands.Command_Save_File, Show);
+                  Editor.Command_Ids.Command_Save_File, Show);
             elsif Summary.Has_Path
-              and then Available (S, Editor.Commands.Command_Save_File)
+              and then Available (S, Editor.Command_Ids.Command_Save_File)
             then
                return With_Command_Shortcut
                  ("Unsaved - save available; normal close blocked",
-                  Editor.Commands.Command_Save_File, Show);
+                  Editor.Command_Ids.Command_Save_File, Show);
             elsif (not Summary.Has_Path)
               and then Save_As_Supported
-              and then Available (S, Editor.Commands.Command_Save_File_As)
+              and then Available (S, Editor.Command_Ids.Command_Save_File_As)
             then
                return With_Command_Shortcut
                  ("Unsaved - Save As available; normal close blocked",
-                  Editor.Commands.Command_Save_File_As, Show);
+                  Editor.Command_Ids.Command_Save_File_As, Show);
             else
                return "Unsaved - normal close blocked";
             end if;
@@ -263,9 +263,9 @@ package body Editor.Lifecycle_Guidance is
       then
          return With_Enter ("Backing file not writable - focus to recover", Show);
       elsif Summary.Is_Active then
-         if Available (S, Editor.Commands.Command_Close_Active_Buffer) then
+         if Available (S, Editor.Command_Ids.Command_Close_Active_Buffer) then
             return With_Command_Shortcut
-              ("Active buffer - close available", Editor.Commands.Command_Close_Active_Buffer,
+              ("Active buffer - close available", Editor.Command_Ids.Command_Close_Active_Buffer,
                Show);
          else
             return "Active buffer";

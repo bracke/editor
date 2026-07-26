@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Descriptor_Metadata;
@@ -10,7 +11,6 @@ with Ada.Containers;
 with Ada.Directories;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.Command_Palette;
 with Editor.Command_Route_Audit;
@@ -74,7 +74,7 @@ package body Editor.Files.Tests is
    use type Editor.Files.File_Open_Status;
    use type Editor.Files.File_Save_Status;
    use type Editor.Files.File_Move_Status;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Command_Palette.Command_Palette_Row_Kind;
@@ -536,19 +536,19 @@ package body Editor.Files.Tests is
    procedure Test_File_Lifecycle_Command_Reference_Metadata
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Covered : constant array (Positive range 1 .. 10) of Editor.Commands.Command_Id :=
-        (Editor.Commands.Command_Save_File,
-         Editor.Commands.Command_Save_File_As,
-         Editor.Commands.Command_Close_Active_Buffer,
-         Editor.Commands.Command_Reopen_Closed_Buffer,
-         Editor.Commands.Command_Reload_Active_Buffer,
-         Editor.Commands.Command_Revert_Active_Buffer,
-         Editor.Commands.Command_Rename_Buffer_File,
-         Editor.Commands.Command_Delete_Buffer_File,
-         Editor.Commands.Command_Copy_Buffer_File,
-         Editor.Commands.Command_Move_Buffer_File);
+      Covered : constant array (Positive range 1 .. 10) of Editor.Command_Ids.Command_Id :=
+        (Editor.Command_Ids.Command_Save_File,
+         Editor.Command_Ids.Command_Save_File_As,
+         Editor.Command_Ids.Command_Close_Active_Buffer,
+         Editor.Command_Ids.Command_Reopen_Closed_Buffer,
+         Editor.Command_Ids.Command_Reload_Active_Buffer,
+         Editor.Command_Ids.Command_Revert_Active_Buffer,
+         Editor.Command_Ids.Command_Rename_Buffer_File,
+         Editor.Command_Ids.Command_Delete_Buffer_File,
+         Editor.Command_Ids.Command_Copy_Buffer_File,
+         Editor.Command_Ids.Command_Move_Buffer_File);
       Desc  : Editor.Commands.Descriptors.Command_Descriptor;
-      Id    : Editor.Commands.Command_Id;
+      Id    : Editor.Command_Ids.Command_Id;
       Found : Boolean := False;
       Seen  : array (Editor.Commands.Descriptors.Command_Effect_Classification_Id) of Boolean :=
         (others => False);
@@ -565,7 +565,7 @@ package body Editor.Files.Tests is
       procedure Assert_Absent (Name : String) is
       begin
          Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
-         Assert (not Found and then Id = Editor.Commands.No_Command,
+         Assert (not Found and then Id = Editor.Command_Ids.No_Command,
            "absent/non-goal command must not gain reference surface: " & Name);
       end Assert_Absent;
    begin
@@ -610,25 +610,25 @@ package body Editor.Files.Tests is
       end loop;
 
       Assert_Contains (Editor.Commands.Reference_Metadata.Command_Filesystem_Effect_Summary
-        (Editor.Commands.Command_Save_File), "Writes", "file.save");
+        (Editor.Command_Ids.Command_Save_File), "Writes", "file.save");
       Assert_Contains (Editor.Commands.Reference_Metadata.Command_Mutation_Summary
-        (Editor.Commands.Command_Save_File_As), "association", "file.save-as");
+        (Editor.Command_Ids.Command_Save_File_As), "association", "file.save-as");
       Assert_Contains (Editor.Commands.Reference_Metadata.Command_Filesystem_Effect_Summary
-        (Editor.Commands.Command_Close_Active_Buffer), "no filesystem", "file.close-buffer");
+        (Editor.Command_Ids.Command_Close_Active_Buffer), "no filesystem", "file.close-buffer");
       Assert_Contains (Editor.Commands.Reference_Metadata.Command_Mutation_Summary
-        (Editor.Commands.Command_Reopen_Closed_Buffer), "reopen candidate", "file.reopen-closed-buffer");
+        (Editor.Command_Ids.Command_Reopen_Closed_Buffer), "reopen candidate", "file.reopen-closed-buffer");
       Assert_Contains (Editor.Commands.Reference_Metadata.Command_Non_Goal_Summary
-        (Editor.Commands.Command_Reload_Active_Buffer), "dirty text", "file.reload-buffer");
+        (Editor.Command_Ids.Command_Reload_Active_Buffer), "dirty text", "file.reload-buffer");
       Assert_Contains (Editor.Commands.Reference_Metadata.Command_Mutation_Summary
-        (Editor.Commands.Command_Revert_Active_Buffer), "dirty", "file.revert-buffer");
+        (Editor.Command_Ids.Command_Revert_Active_Buffer), "dirty", "file.revert-buffer");
       Assert_Contains (Editor.Commands.Reference_Metadata.Command_Non_Goal_Summary
-        (Editor.Commands.Command_Rename_Buffer_File), "overwrite", "file.rename-buffer-file");
+        (Editor.Command_Ids.Command_Rename_Buffer_File), "overwrite", "file.rename-buffer-file");
       Assert_Contains (Editor.Commands.Reference_Metadata.Command_State_Preservation_Summary
-        (Editor.Commands.Command_Delete_Buffer_File), "Preserves active text", "file.delete-buffer-file");
+        (Editor.Command_Ids.Command_Delete_Buffer_File), "Preserves active text", "file.delete-buffer-file");
       Assert_Contains (Editor.Commands.Reference_Metadata.Command_Mutation_Summary
-        (Editor.Commands.Command_Copy_Buffer_File), "Does not mutate", "file.copy-buffer-file");
+        (Editor.Command_Ids.Command_Copy_Buffer_File), "Does not mutate", "file.copy-buffer-file");
       Assert_Contains (Editor.Commands.Reference_Metadata.Command_Mutation_Summary
-        (Editor.Commands.Command_Move_Buffer_File), "association", "file.move-buffer-file");
+        (Editor.Command_Ids.Command_Move_Buffer_File), "association", "file.move-buffer-file");
 
       Assert_Absent ("file.force-save");
       Assert_Absent ("file.force-close-buffer");
@@ -683,11 +683,11 @@ package body Editor.Files.Tests is
          end if;
 
          case C.Id is
-            when Editor.Commands.Command_Save_File_As => Save_As_Rows := Save_As_Rows + 1;
-            when Editor.Commands.Command_Rename_Buffer_File => Rename_Rows := Rename_Rows + 1;
-            when Editor.Commands.Command_Delete_Buffer_File => Delete_Rows := Delete_Rows + 1;
-            when Editor.Commands.Command_Copy_Buffer_File => Copy_Rows := Copy_Rows + 1;
-            when Editor.Commands.Command_Move_Buffer_File => Move_Rows := Move_Rows + 1;
+            when Editor.Command_Ids.Command_Save_File_As => Save_As_Rows := Save_As_Rows + 1;
+            when Editor.Command_Ids.Command_Rename_Buffer_File => Rename_Rows := Rename_Rows + 1;
+            when Editor.Command_Ids.Command_Delete_Buffer_File => Delete_Rows := Delete_Rows + 1;
+            when Editor.Command_Ids.Command_Copy_Buffer_File => Copy_Rows := Copy_Rows + 1;
+            when Editor.Command_Ids.Command_Move_Buffer_File => Move_Rows := Move_Rows + 1;
             when others => null;
          end case;
       end Count_Row;
@@ -762,7 +762,7 @@ package body Editor.Files.Tests is
       end Assert_Not_Contains;
 
       procedure Assert_Field
-        (Id      : Editor.Commands.Command_Id;
+        (Id      : Editor.Command_Ids.Command_Id;
          Field   : String;
          Needle  : String;
          Context : String) is
@@ -784,78 +784,78 @@ package body Editor.Files.Tests is
          end if;
       end Assert_Field;
    begin
-      Assert_Field (Editor.Commands.Command_Save_File, "summary", "associated file path", "file.save");
-      Assert_Field (Editor.Commands.Command_Save_File, "mutation", "save baseline", "file.save");
-      Assert_Field (Editor.Commands.Command_Save_File, "mutation", "dirty state", "file.save");
-      Assert_Field (Editor.Commands.Command_Save_File, "filesystem", "Writes active buffer text", "file.save");
-      Assert_Field (Editor.Commands.Command_Save_File, "non-goal", "new target path", "file.save");
+      Assert_Field (Editor.Command_Ids.Command_Save_File, "summary", "associated file path", "file.save");
+      Assert_Field (Editor.Command_Ids.Command_Save_File, "mutation", "save baseline", "file.save");
+      Assert_Field (Editor.Command_Ids.Command_Save_File, "mutation", "dirty state", "file.save");
+      Assert_Field (Editor.Command_Ids.Command_Save_File, "filesystem", "Writes active buffer text", "file.save");
+      Assert_Field (Editor.Command_Ids.Command_Save_File, "non-goal", "new target path", "file.save");
 
-      Assert_Field (Editor.Commands.Command_Save_File_As, "summary", "explicit target path", "file.save-as");
-      Assert_Field (Editor.Commands.Command_Save_File_As, "mutation", "association", "file.save-as");
-      Assert_Field (Editor.Commands.Command_Save_File_As, "filesystem", "explicit target path", "file.save-as");
-      Assert_Field (Editor.Commands.Command_Save_File_As, "non-goal", "rename or move", "file.save-as");
+      Assert_Field (Editor.Command_Ids.Command_Save_File_As, "summary", "explicit target path", "file.save-as");
+      Assert_Field (Editor.Command_Ids.Command_Save_File_As, "mutation", "association", "file.save-as");
+      Assert_Field (Editor.Command_Ids.Command_Save_File_As, "filesystem", "explicit target path", "file.save-as");
+      Assert_Field (Editor.Command_Ids.Command_Save_File_As, "non-goal", "rename or move", "file.save-as");
 
-      Assert_Field (Editor.Commands.Command_Close_Active_Buffer, "summary", "safe", "file.close-buffer");
-      Assert_Field (Editor.Commands.Command_Close_Active_Buffer, "mutation", "open-buffer set", "file.close-buffer");
-      Assert_Field (Editor.Commands.Command_Close_Active_Buffer, "filesystem", "no filesystem operation", "file.close-buffer");
-      Assert_Field (Editor.Commands.Command_Close_Active_Buffer, "non-goal", "delete the associated file", "file.close-buffer");
+      Assert_Field (Editor.Command_Ids.Command_Close_Active_Buffer, "summary", "safe", "file.close-buffer");
+      Assert_Field (Editor.Command_Ids.Command_Close_Active_Buffer, "mutation", "open-buffer set", "file.close-buffer");
+      Assert_Field (Editor.Command_Ids.Command_Close_Active_Buffer, "filesystem", "no filesystem operation", "file.close-buffer");
+      Assert_Field (Editor.Command_Ids.Command_Close_Active_Buffer, "non-goal", "delete the associated file", "file.close-buffer");
 
-      Assert_Field (Editor.Commands.Command_Reopen_Closed_Buffer, "summary", "canonical file-open behavior", "file.reopen-closed-buffer");
-      Assert_Field (Editor.Commands.Command_Reopen_Closed_Buffer, "availability", "safe transient reopen candidate", "file.reopen-closed-buffer");
-      Assert_Field (Editor.Commands.Command_Reopen_Closed_Buffer, "filesystem", "Reads the reopen candidate", "file.reopen-closed-buffer");
-      Assert_Field (Editor.Commands.Command_Reopen_Closed_Buffer, "non-goal", "unsaved closed-buffer memory", "file.reopen-closed-buffer");
+      Assert_Field (Editor.Command_Ids.Command_Reopen_Closed_Buffer, "summary", "canonical file-open behavior", "file.reopen-closed-buffer");
+      Assert_Field (Editor.Command_Ids.Command_Reopen_Closed_Buffer, "availability", "safe transient reopen candidate", "file.reopen-closed-buffer");
+      Assert_Field (Editor.Command_Ids.Command_Reopen_Closed_Buffer, "filesystem", "Reads the reopen candidate", "file.reopen-closed-buffer");
+      Assert_Field (Editor.Command_Ids.Command_Reopen_Closed_Buffer, "non-goal", "unsaved closed-buffer memory", "file.reopen-closed-buffer");
 
-      Assert_Field (Editor.Commands.Command_Reload_Active_Buffer, "summary", "without discarding dirty text", "file.reload-buffer");
-      Assert_Field (Editor.Commands.Command_Reload_Active_Buffer, "availability", "active clean associated buffer", "file.reload-buffer");
-      Assert_Field (Editor.Commands.Command_Reload_Active_Buffer, "mutation", "active clean buffer text", "file.reload-buffer");
-      Assert_Field (Editor.Commands.Command_Reload_Active_Buffer, "non-goal", "Does not discard dirty text", "file.reload-buffer");
+      Assert_Field (Editor.Command_Ids.Command_Reload_Active_Buffer, "summary", "without discarding dirty text", "file.reload-buffer");
+      Assert_Field (Editor.Command_Ids.Command_Reload_Active_Buffer, "availability", "active clean associated buffer", "file.reload-buffer");
+      Assert_Field (Editor.Command_Ids.Command_Reload_Active_Buffer, "mutation", "active clean buffer text", "file.reload-buffer");
+      Assert_Field (Editor.Command_Ids.Command_Reload_Active_Buffer, "non-goal", "Does not discard dirty text", "file.reload-buffer");
 
-      Assert_Field (Editor.Commands.Command_Revert_Active_Buffer, "summary", "Explicitly discards unsaved changes", "file.revert-buffer");
-      Assert_Field (Editor.Commands.Command_Revert_Active_Buffer, "mutation", "clears dirty state", "file.revert-buffer");
-      Assert_Field (Editor.Commands.Command_Revert_Active_Buffer, "filesystem", "after explicit discard", "file.revert-buffer");
-      Assert_Field (Editor.Commands.Command_Revert_Active_Buffer, "non-goal", "recovery snapshots", "file.revert-buffer");
+      Assert_Field (Editor.Command_Ids.Command_Revert_Active_Buffer, "summary", "Explicitly discards unsaved changes", "file.revert-buffer");
+      Assert_Field (Editor.Command_Ids.Command_Revert_Active_Buffer, "mutation", "clears dirty state", "file.revert-buffer");
+      Assert_Field (Editor.Command_Ids.Command_Revert_Active_Buffer, "filesystem", "after explicit discard", "file.revert-buffer");
+      Assert_Field (Editor.Command_Ids.Command_Revert_Active_Buffer, "non-goal", "recovery snapshots", "file.revert-buffer");
 
-      Assert_Field (Editor.Commands.Command_Rename_Buffer_File, "summary", "updates association after filesystem success", "file.rename-buffer-file");
-      Assert_Field (Editor.Commands.Command_Rename_Buffer_File, "mutation", "preserves text", "file.rename-buffer-file");
-      Assert_Field (Editor.Commands.Command_Rename_Buffer_File, "filesystem", "Renames", "file.rename-buffer-file");
-      Assert_Field (Editor.Commands.Command_Rename_Buffer_File, "non-goal", "write buffer text", "file.rename-buffer-file");
+      Assert_Field (Editor.Command_Ids.Command_Rename_Buffer_File, "summary", "updates association after filesystem success", "file.rename-buffer-file");
+      Assert_Field (Editor.Command_Ids.Command_Rename_Buffer_File, "mutation", "preserves text", "file.rename-buffer-file");
+      Assert_Field (Editor.Command_Ids.Command_Rename_Buffer_File, "filesystem", "Renames", "file.rename-buffer-file");
+      Assert_Field (Editor.Command_Ids.Command_Rename_Buffer_File, "non-goal", "write buffer text", "file.rename-buffer-file");
 
-      Assert_Field (Editor.Commands.Command_Delete_Buffer_File, "summary", "clears association", "file.delete-buffer-file");
-      Assert_Field (Editor.Commands.Command_Delete_Buffer_File, "mutation", "leaves the buffer open", "file.delete-buffer-file");
-      Assert_Field (Editor.Commands.Command_Delete_Buffer_File, "filesystem", "Deletes", "file.delete-buffer-file");
-      Assert_Field (Editor.Commands.Command_Delete_Buffer_File, "non-goal", "close the buffer", "file.delete-buffer-file");
+      Assert_Field (Editor.Command_Ids.Command_Delete_Buffer_File, "summary", "clears association", "file.delete-buffer-file");
+      Assert_Field (Editor.Command_Ids.Command_Delete_Buffer_File, "mutation", "leaves the buffer open", "file.delete-buffer-file");
+      Assert_Field (Editor.Command_Ids.Command_Delete_Buffer_File, "filesystem", "Deletes", "file.delete-buffer-file");
+      Assert_Field (Editor.Command_Ids.Command_Delete_Buffer_File, "non-goal", "close the buffer", "file.delete-buffer-file");
 
-      Assert_Field (Editor.Commands.Command_Copy_Buffer_File, "summary", "without changing association", "file.copy-buffer-file");
-      Assert_Field (Editor.Commands.Command_Copy_Buffer_File, "mutation", "Preserves active buffer association", "file.copy-buffer-file");
-      Assert_Field (Editor.Commands.Command_Copy_Buffer_File, "filesystem", "Copies", "file.copy-buffer-file");
-      Assert_Field (Editor.Commands.Command_Copy_Buffer_File, "non-goal", "open the copied file", "file.copy-buffer-file");
+      Assert_Field (Editor.Command_Ids.Command_Copy_Buffer_File, "summary", "without changing association", "file.copy-buffer-file");
+      Assert_Field (Editor.Command_Ids.Command_Copy_Buffer_File, "mutation", "Preserves active buffer association", "file.copy-buffer-file");
+      Assert_Field (Editor.Command_Ids.Command_Copy_Buffer_File, "filesystem", "Copies", "file.copy-buffer-file");
+      Assert_Field (Editor.Command_Ids.Command_Copy_Buffer_File, "non-goal", "open the copied file", "file.copy-buffer-file");
 
-      Assert_Field (Editor.Commands.Command_Move_Buffer_File, "summary", "updates association after filesystem success", "file.move-buffer-file");
-      Assert_Field (Editor.Commands.Command_Move_Buffer_File, "mutation", "preserves text", "file.move-buffer-file");
-      Assert_Field (Editor.Commands.Command_Move_Buffer_File, "filesystem", "Moves", "file.move-buffer-file");
-      Assert_Field (Editor.Commands.Command_Move_Buffer_File, "non-goal", "write buffer text", "file.move-buffer-file");
+      Assert_Field (Editor.Command_Ids.Command_Move_Buffer_File, "summary", "updates association after filesystem success", "file.move-buffer-file");
+      Assert_Field (Editor.Command_Ids.Command_Move_Buffer_File, "mutation", "preserves text", "file.move-buffer-file");
+      Assert_Field (Editor.Command_Ids.Command_Move_Buffer_File, "filesystem", "Moves", "file.move-buffer-file");
+      Assert_Field (Editor.Command_Ids.Command_Move_Buffer_File, "non-goal", "write buffer text", "file.move-buffer-file");
 
       Assert_Not_Contains (Editor.Commands.Reference_Metadata.Command_Mutation_Summary
-        (Editor.Commands.Command_Copy_Buffer_File), "updates association", "file.copy-buffer-file");
+        (Editor.Command_Ids.Command_Copy_Buffer_File), "updates association", "file.copy-buffer-file");
       Assert_Not_Contains (Editor.Commands.Reference_Metadata.Command_Mutation_Summary
-        (Editor.Commands.Command_Delete_Buffer_File), "closes", "file.delete-buffer-file");
+        (Editor.Command_Ids.Command_Delete_Buffer_File), "closes", "file.delete-buffer-file");
       Assert_Not_Contains (Editor.Commands.Reference_Metadata.Command_Mutation_Summary
-        (Editor.Commands.Command_Rename_Buffer_File), "save baseline", "file.rename-buffer-file");
+        (Editor.Command_Ids.Command_Rename_Buffer_File), "save baseline", "file.rename-buffer-file");
       Assert_Not_Contains (Editor.Commands.Reference_Metadata.Command_Mutation_Summary
-        (Editor.Commands.Command_Move_Buffer_File), "save baseline", "file.move-buffer-file");
+        (Editor.Command_Ids.Command_Move_Buffer_File), "save baseline", "file.move-buffer-file");
    end Test_File_Lifecycle_Command_Reference_Accuracy_Matrix;
 
 
    procedure Test_Command_Reference_Surface_Does_Not_Expand
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Id    : Editor.Commands.Command_Id;
+      Id    : Editor.Command_Ids.Command_Id;
       Found : Boolean := False;
 
       procedure Assert_Absent (Name : String) is
       begin
          Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
-         Assert (not Found and then Id = Editor.Commands.No_Command,
+         Assert (not Found and then Id = Editor.Command_Ids.No_Command,
            "reference metadata must not expose absent command " & Name);
       end Assert_Absent;
    begin
@@ -894,7 +894,7 @@ package body Editor.Files.Tests is
       Path          : constant String := Temp_Path ("availability_reference.txt");
       Before_Text   : constant String := "dirty reference separation";
       Static_Text    : constant String := Editor.Commands.Reference_Metadata.Command_Availability_Summary
-        (Editor.Commands.Command_Reload_Active_Buffer);
+        (Editor.Command_Ids.Command_Reload_Active_Buffer);
       No_Active      : Editor.Commands.Availability_Metadata.Command_Availability;
       Dirty_Avail    : Editor.Commands.Availability_Metadata.Command_Availability;
       Clean_Avail    : Editor.Commands.Availability_Metadata.Command_Availability;
@@ -905,9 +905,9 @@ package body Editor.Files.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       No_Active := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Reload_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Reload_Active_Buffer);
       Assert (Editor.Commands.Reference_Metadata.Command_Availability_Summary
-        (Editor.Commands.Command_Reload_Active_Buffer) = Static_Text,
+        (Editor.Command_Ids.Command_Reload_Active_Buffer) = Static_Text,
         "static reference availability must not change in no-active state");
 
       Editor.State.Load_Text (S, Before_Text);
@@ -921,11 +921,11 @@ package body Editor.Files.Tests is
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Dirty_Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Reload_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Reload_Active_Buffer);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Dirty_Avail),
         "Executor must remain authoritative for dirty reload availability");
       Assert (Editor.Commands.Reference_Metadata.Command_Availability_Summary
-        (Editor.Commands.Command_Reload_Active_Buffer) = Static_Text,
+        (Editor.Command_Ids.Command_Reload_Active_Buffer) = Static_Text,
         "reference availability text must remain stable for dirty associated buffer");
       Assert (Read_Bytes (Path) = "disk reference separation"
         and then Buffer_Text (S) = Before_Text
@@ -936,11 +936,11 @@ package body Editor.Files.Tests is
       S.File_Info.Saved_Generation := Editor.State.Current_Buffer_Revision (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Clean_Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Reload_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Reload_Active_Buffer);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Clean_Avail),
         "clean associated buffer availability remains Executor-derived");
       Assert (Editor.Commands.Reference_Metadata.Command_Availability_Summary
-        (Editor.Commands.Command_Reload_Active_Buffer) = Static_Text,
+        (Editor.Command_Ids.Command_Reload_Active_Buffer) = Static_Text,
         "static reference availability must not follow Executor status");
       Assert (Editor.Messages.Count (S.Messages) = 0,
         "availability/reference checks must not emit command messages");
@@ -981,9 +981,9 @@ package body Editor.Files.Tests is
               "palette availability must remain Executor-derived");
          end if;
 
-         if C.Id = Editor.Commands.Command_Save_File then
+         if C.Id = Editor.Command_Ids.Command_Save_File then
             Save_Rows := Save_Rows + 1;
-         elsif C.Id = Editor.Commands.Command_Move_Buffer_File then
+         elsif C.Id = Editor.Command_Ids.Command_Move_Buffer_File then
             Move_Rows := Move_Rows + 1;
          end if;
       end Inspect;
@@ -1025,23 +1025,23 @@ package body Editor.Files.Tests is
    procedure Test_Command_Reference_Canonical_Metadata_Source
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Covered : constant array (Positive range 1 .. 10) of Editor.Commands.Command_Id :=
-        (Editor.Commands.Command_Save_File,
-         Editor.Commands.Command_Save_File_As,
-         Editor.Commands.Command_Close_Active_Buffer,
-         Editor.Commands.Command_Reopen_Closed_Buffer,
-         Editor.Commands.Command_Reload_Active_Buffer,
-         Editor.Commands.Command_Revert_Active_Buffer,
-         Editor.Commands.Command_Rename_Buffer_File,
-         Editor.Commands.Command_Delete_Buffer_File,
-         Editor.Commands.Command_Copy_Buffer_File,
-         Editor.Commands.Command_Move_Buffer_File);
+      Covered : constant array (Positive range 1 .. 10) of Editor.Command_Ids.Command_Id :=
+        (Editor.Command_Ids.Command_Save_File,
+         Editor.Command_Ids.Command_Save_File_As,
+         Editor.Command_Ids.Command_Close_Active_Buffer,
+         Editor.Command_Ids.Command_Reopen_Closed_Buffer,
+         Editor.Command_Ids.Command_Reload_Active_Buffer,
+         Editor.Command_Ids.Command_Revert_Active_Buffer,
+         Editor.Command_Ids.Command_Rename_Buffer_File,
+         Editor.Command_Ids.Command_Delete_Buffer_File,
+         Editor.Command_Ids.Command_Copy_Buffer_File,
+         Editor.Command_Ids.Command_Move_Buffer_File);
       Desc : Editor.Commands.Descriptors.Command_Descriptor;
-      Non_Canonical : constant array (Positive range 1 .. 4) of Editor.Commands.Command_Id :=
-        (Editor.Commands.Command_Open_File,
-         Editor.Commands.Command_Open_Project,
-         Editor.Commands.Command_Save_Settings,
-         Editor.Commands.Command_Open_Command_Palette);
+      Non_Canonical : constant array (Positive range 1 .. 4) of Editor.Command_Ids.Command_Id :=
+        (Editor.Command_Ids.Command_Open_File,
+         Editor.Command_Ids.Command_Open_Project,
+         Editor.Command_Ids.Command_Save_Settings,
+         Editor.Command_Ids.Command_Open_Command_Palette);
    begin
       Assert (Editor.Commands.Audits.File_Lifecycle_Command_Reference_Coherent,
         "canonical descriptor-owned reference metadata must remain coherent");
@@ -1106,20 +1106,20 @@ package body Editor.Files.Tests is
       Seen_Move      : Natural := 0;
       Before_Bindings : Natural := 0;
 
-      procedure Count (Id : Editor.Commands.Command_Id) is
+      procedure Count (Id : Editor.Command_Ids.Command_Id) is
       begin
          case Id is
-            when Editor.Commands.Command_Save_File =>
+            when Editor.Command_Ids.Command_Save_File =>
                Seen_Save := Seen_Save + 1;
-            when Editor.Commands.Command_Save_File_As =>
+            when Editor.Command_Ids.Command_Save_File_As =>
                Seen_Save_As := Seen_Save_As + 1;
-            when Editor.Commands.Command_Rename_Buffer_File =>
+            when Editor.Command_Ids.Command_Rename_Buffer_File =>
                Seen_Rename := Seen_Rename + 1;
-            when Editor.Commands.Command_Delete_Buffer_File =>
+            when Editor.Command_Ids.Command_Delete_Buffer_File =>
                Seen_Delete := Seen_Delete + 1;
-            when Editor.Commands.Command_Copy_Buffer_File =>
+            when Editor.Command_Ids.Command_Copy_Buffer_File =>
                Seen_Copy := Seen_Copy + 1;
-            when Editor.Commands.Command_Move_Buffer_File =>
+            when Editor.Command_Ids.Command_Move_Buffer_File =>
                Seen_Move := Seen_Move + 1;
             when others =>
                null;
@@ -1217,17 +1217,17 @@ package body Editor.Files.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
 
-      Covered : constant array (Positive range 1 .. 10) of Editor.Commands.Command_Id :=
-        (Editor.Commands.Command_Save_File,
-         Editor.Commands.Command_Save_File_As,
-         Editor.Commands.Command_Close_Active_Buffer,
-         Editor.Commands.Command_Reopen_Closed_Buffer,
-         Editor.Commands.Command_Reload_Active_Buffer,
-         Editor.Commands.Command_Revert_Active_Buffer,
-         Editor.Commands.Command_Rename_Buffer_File,
-         Editor.Commands.Command_Delete_Buffer_File,
-         Editor.Commands.Command_Copy_Buffer_File,
-         Editor.Commands.Command_Move_Buffer_File);
+      Covered : constant array (Positive range 1 .. 10) of Editor.Command_Ids.Command_Id :=
+        (Editor.Command_Ids.Command_Save_File,
+         Editor.Command_Ids.Command_Save_File_As,
+         Editor.Command_Ids.Command_Close_Active_Buffer,
+         Editor.Command_Ids.Command_Reopen_Closed_Buffer,
+         Editor.Command_Ids.Command_Reload_Active_Buffer,
+         Editor.Command_Ids.Command_Revert_Active_Buffer,
+         Editor.Command_Ids.Command_Rename_Buffer_File,
+         Editor.Command_Ids.Command_Delete_Buffer_File,
+         Editor.Command_Ids.Command_Copy_Buffer_File,
+         Editor.Command_Ids.Command_Move_Buffer_File);
 
       Expected_Names : constant array (Positive range 1 .. 10) of Unbounded_String :=
         (To_Unbounded_String ("file.save"),
@@ -1292,7 +1292,7 @@ package body Editor.Files.Tests is
          To_Unbounded_String ("workspace.copy-buffer-file"),
          To_Unbounded_String ("workspace.move-buffer-file"));
 
-      Found_Id : Editor.Commands.Command_Id;
+      Found_Id : Editor.Command_Ids.Command_Id;
       Found    : Boolean;
       Count    : Natural := 0;
 
@@ -1319,7 +1319,7 @@ package body Editor.Files.Tests is
       Assert (Editor.Commands.Audits.File_Lifecycle_Command_Reference_Coherent,
         "canonical command-reference coherence helper must pass before final freeze checks");
 
-      for Id in Editor.Commands.Command_Id loop
+      for Id in Editor.Command_Ids.Command_Id loop
          if Editor.Commands.Audits.Has_Command_Reference (Id) then
             Count := Count + 1;
             Assert (Editor.Commands.Reference_Metadata.Is_File_Lifecycle_Command (Id),
@@ -1331,7 +1331,7 @@ package body Editor.Files.Tests is
 
       for I in Covered'Range loop
          declare
-            Id   : constant Editor.Commands.Command_Id := Covered (I);
+            Id   : constant Editor.Command_Ids.Command_Id := Covered (I);
             Desc : constant Editor.Commands.Descriptors.Command_Descriptor := Editor.Commands.Descriptors.Descriptor (Id);
             Name : constant String := To_String (Expected_Names (I));
          begin
@@ -1371,26 +1371,26 @@ package body Editor.Files.Tests is
          end;
       end loop;
 
-      Assert_Field_Contains (Editor.Commands.Reference_Metadata.Command_Summary (Editor.Commands.Command_Save_File), "associated file path", "file.save summary");
-      Assert_Field_Contains (Editor.Commands.Reference_Metadata.Command_Non_Goal_Summary (Editor.Commands.Command_Save_File), "new target path", "file.save non-goal");
-      Assert_Field_Contains (Editor.Commands.Reference_Metadata.Command_Mutation_Summary (Editor.Commands.Command_Save_File_As), "association", "file.save-as mutation");
-      Assert_Field_Contains (Editor.Commands.Reference_Metadata.Command_Non_Goal_Summary (Editor.Commands.Command_Save_File_As), "rename or move", "file.save-as non-goal");
-      Assert_Field_Contains (Editor.Commands.Reference_Metadata.Command_Filesystem_Effect_Summary (Editor.Commands.Command_Close_Active_Buffer), "no filesystem operation", "file.close-buffer filesystem");
-      Assert_Field_Contains (Editor.Commands.Reference_Metadata.Command_Non_Goal_Summary (Editor.Commands.Command_Close_Active_Buffer), "delete the associated file", "file.close-buffer non-goal");
-      Assert_Field_Contains (Editor.Commands.Reference_Metadata.Command_Non_Goal_Summary (Editor.Commands.Command_Reopen_Closed_Buffer), "unsaved closed-buffer memory", "file.reopen-closed-buffer non-goal");
-      Assert_Field_Contains (Editor.Commands.Reference_Metadata.Command_Summary (Editor.Commands.Command_Reload_Active_Buffer), "without discarding dirty text", "file.reload-buffer summary");
-      Assert_Field_Contains (Editor.Commands.Reference_Metadata.Command_Non_Goal_Summary (Editor.Commands.Command_Revert_Active_Buffer), "recovery snapshots", "file.revert-buffer non-goal");
-      Assert_Field_Contains (Editor.Commands.Reference_Metadata.Command_Mutation_Summary (Editor.Commands.Command_Rename_Buffer_File), "after filesystem rename success", "file.rename-buffer-file mutation");
-      Assert_Field_Contains (Editor.Commands.Reference_Metadata.Command_Mutation_Summary (Editor.Commands.Command_Delete_Buffer_File), "Clears active buffer association", "file.delete-buffer-file mutation");
-      Assert_Field_Contains (Editor.Commands.Reference_Metadata.Command_Mutation_Summary (Editor.Commands.Command_Copy_Buffer_File), "Does not mutate association", "file.copy-buffer-file mutation");
-      Assert_Field_Contains (Editor.Commands.Reference_Metadata.Command_Mutation_Summary (Editor.Commands.Command_Move_Buffer_File), "after filesystem move success", "file.move-buffer-file mutation");
-      Assert_Field_Not_Contains (Editor.Commands.Reference_Metadata.Command_Mutation_Summary (Editor.Commands.Command_Copy_Buffer_File), "Updates active buffer association", "file.copy-buffer-file mutation");
-      Assert_Field_Not_Contains (Editor.Commands.Reference_Metadata.Command_Mutation_Summary (Editor.Commands.Command_Delete_Buffer_File), "Removes the active buffer", "file.delete-buffer-file mutation");
-      Assert_Field_Not_Contains (Editor.Commands.Reference_Metadata.Command_Non_Goal_Summary (Editor.Commands.Command_Rename_Buffer_File), "available", "file.rename-buffer-file non-goal");
+      Assert_Field_Contains (Editor.Commands.Reference_Metadata.Command_Summary (Editor.Command_Ids.Command_Save_File), "associated file path", "file.save summary");
+      Assert_Field_Contains (Editor.Commands.Reference_Metadata.Command_Non_Goal_Summary (Editor.Command_Ids.Command_Save_File), "new target path", "file.save non-goal");
+      Assert_Field_Contains (Editor.Commands.Reference_Metadata.Command_Mutation_Summary (Editor.Command_Ids.Command_Save_File_As), "association", "file.save-as mutation");
+      Assert_Field_Contains (Editor.Commands.Reference_Metadata.Command_Non_Goal_Summary (Editor.Command_Ids.Command_Save_File_As), "rename or move", "file.save-as non-goal");
+      Assert_Field_Contains (Editor.Commands.Reference_Metadata.Command_Filesystem_Effect_Summary (Editor.Command_Ids.Command_Close_Active_Buffer), "no filesystem operation", "file.close-buffer filesystem");
+      Assert_Field_Contains (Editor.Commands.Reference_Metadata.Command_Non_Goal_Summary (Editor.Command_Ids.Command_Close_Active_Buffer), "delete the associated file", "file.close-buffer non-goal");
+      Assert_Field_Contains (Editor.Commands.Reference_Metadata.Command_Non_Goal_Summary (Editor.Command_Ids.Command_Reopen_Closed_Buffer), "unsaved closed-buffer memory", "file.reopen-closed-buffer non-goal");
+      Assert_Field_Contains (Editor.Commands.Reference_Metadata.Command_Summary (Editor.Command_Ids.Command_Reload_Active_Buffer), "without discarding dirty text", "file.reload-buffer summary");
+      Assert_Field_Contains (Editor.Commands.Reference_Metadata.Command_Non_Goal_Summary (Editor.Command_Ids.Command_Revert_Active_Buffer), "recovery snapshots", "file.revert-buffer non-goal");
+      Assert_Field_Contains (Editor.Commands.Reference_Metadata.Command_Mutation_Summary (Editor.Command_Ids.Command_Rename_Buffer_File), "after filesystem rename success", "file.rename-buffer-file mutation");
+      Assert_Field_Contains (Editor.Commands.Reference_Metadata.Command_Mutation_Summary (Editor.Command_Ids.Command_Delete_Buffer_File), "Clears active buffer association", "file.delete-buffer-file mutation");
+      Assert_Field_Contains (Editor.Commands.Reference_Metadata.Command_Mutation_Summary (Editor.Command_Ids.Command_Copy_Buffer_File), "Does not mutate association", "file.copy-buffer-file mutation");
+      Assert_Field_Contains (Editor.Commands.Reference_Metadata.Command_Mutation_Summary (Editor.Command_Ids.Command_Move_Buffer_File), "after filesystem move success", "file.move-buffer-file mutation");
+      Assert_Field_Not_Contains (Editor.Commands.Reference_Metadata.Command_Mutation_Summary (Editor.Command_Ids.Command_Copy_Buffer_File), "Updates active buffer association", "file.copy-buffer-file mutation");
+      Assert_Field_Not_Contains (Editor.Commands.Reference_Metadata.Command_Mutation_Summary (Editor.Command_Ids.Command_Delete_Buffer_File), "Removes the active buffer", "file.delete-buffer-file mutation");
+      Assert_Field_Not_Contains (Editor.Commands.Reference_Metadata.Command_Non_Goal_Summary (Editor.Command_Ids.Command_Rename_Buffer_File), "available", "file.rename-buffer-file non-goal");
 
       for Name of Frozen_Absent loop
          Found_Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (To_String (Name), Found);
-         Assert (not Found and then Found_Id = Editor.Commands.No_Command,
+         Assert (not Found and then Found_Id = Editor.Command_Ids.No_Command,
            "absent removed/force/overwrite/open-target/project command must remain absent: " & To_String (Name));
       end loop;
    end Test_File_Lifecycle_Command_Reference_Final_Surface_Freeze;
@@ -1424,7 +1424,7 @@ package body Editor.Files.Tests is
          Show_Keybindings              => False,
          Show_Help_Row                 => False);
       Before_Bindings    : Natural := 0;
-      Before_Reference   : constant String := Editor.Commands.Reference_Metadata.Command_Summary (Editor.Commands.Command_Move_Buffer_File);
+      Before_Reference   : constant String := Editor.Commands.Reference_Metadata.Command_Summary (Editor.Command_Ids.Command_Move_Buffer_File);
       No_Active          : Editor.Commands.Availability_Metadata.Command_Availability;
       Dirty_Avail        : Editor.Commands.Availability_Metadata.Command_Availability;
       Clean_Avail        : Editor.Commands.Availability_Metadata.Command_Availability;
@@ -1438,11 +1438,11 @@ package body Editor.Files.Tests is
       Audit_Result       : Editor.Configuration_Audit.Configuration_Audit_Result;
       Route_Audit        : Editor.Command_Route_Audit.Route_Audit_Result;
 
-      procedure Count_Row (Id : Editor.Commands.Command_Id) is
+      procedure Count_Row (Id : Editor.Command_Ids.Command_Id) is
       begin
-         if Id = Editor.Commands.Command_Save_File then
+         if Id = Editor.Command_Ids.Command_Save_File then
             Seen_Save := Seen_Save + 1;
-         elsif Id = Editor.Commands.Command_Move_Buffer_File then
+         elsif Id = Editor.Command_Ids.Command_Move_Buffer_File then
             Seen_Move := Seen_Move + 1;
          end if;
       end Count_Row;
@@ -1454,10 +1454,10 @@ package body Editor.Files.Tests is
       Editor.Keybindings.Reset_To_Defaults;
       Before_Bindings := Editor.Keybindings.Bound_Command_Count;
 
-      No_Active := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Reload_Active_Buffer);
+      No_Active := Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Reload_Active_Buffer);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (No_Active),
         "no-active availability remains Executor-derived");
-      Assert (Editor.Commands.Reference_Metadata.Command_Summary (Editor.Commands.Command_Move_Buffer_File) = Before_Reference,
+      Assert (Editor.Commands.Reference_Metadata.Command_Summary (Editor.Command_Ids.Command_Move_Buffer_File) = Before_Reference,
         "reference metadata must be stable in no-active state");
 
       Editor.State.Load_Text (S, "dirty memory text");
@@ -1470,7 +1470,7 @@ package body Editor.Files.Tests is
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Dirty_Avail := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Reload_Active_Buffer);
+      Dirty_Avail := Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Reload_Active_Buffer);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Dirty_Avail),
         "dirty associated reload remains blocked by Executor availability");
       Assert (Read_Bytes (Path) = "clean disk text"
@@ -1481,17 +1481,17 @@ package body Editor.Files.Tests is
       S.File_Info.Dirty := False;
       S.File_Info.Saved_Generation := Editor.State.Current_Buffer_Revision (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
-      Clean_Avail := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Reload_Active_Buffer);
+      Clean_Avail := Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Reload_Active_Buffer);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Clean_Avail),
         "clean associated reload remains enabled only by Executor availability");
-      Assert (Editor.Commands.Reference_Metadata.Command_Summary (Editor.Commands.Command_Move_Buffer_File) = Before_Reference,
+      Assert (Editor.Commands.Reference_Metadata.Command_Summary (Editor.Command_Ids.Command_Move_Buffer_File) = Before_Reference,
         "reference metadata must not follow Executor availability state");
 
       Editor.Command_Palette.Reset;
       Editor.Command_Palette.Open;
       Editor.Command_Palette.Insert_Text ("file.save");
       Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
-      Editor.Command_Palette.Reconcile_Selection (Candidates, Editor.Commands.Command_Save_File);
+      Editor.Command_Palette.Reconcile_Selection (Candidates, Editor.Command_Ids.Command_Save_File);
 
       if not Candidates.Is_Empty then
          for I in Candidates.First_Index .. Candidates.Last_Index loop
@@ -1531,17 +1531,17 @@ package body Editor.Files.Tests is
       Assert (Render_Before.Length = Render_After.Length
         and then Render_Before.Is_Dirty = Render_After.Is_Dirty
         and then Render_Before.File_Name = Render_After.File_Name
-        and then Editor.Commands.Reference_Metadata.Command_Summary (Editor.Commands.Command_Move_Buffer_File) = Before_Reference,
+        and then Editor.Commands.Reference_Metadata.Command_Summary (Editor.Command_Ids.Command_Move_Buffer_File) = Before_Reference,
         "render snapshots must be deterministic and must not own or repair reference metadata");
 
       Before_Audit := Editor.Configuration_Audit.Configuration_State_Summary_For (S);
       Editor.Command_Route_Audit.Clear (Route_Audit);
       Editor.Command_Route_Audit.Record_Route
         (Route_Audit, Editor.Command_Route_Audit.Route_From_Command_Palette,
-         Editor.Commands.Command_Save_File);
+         Editor.Command_Ids.Command_Save_File);
       Editor.Command_Route_Audit.Record_Route
         (Route_Audit, Editor.Command_Route_Audit.Route_From_Keybinding,
-         Editor.Commands.Command_Save_File);
+         Editor.Command_Ids.Command_Save_File);
       After_Audit := Editor.Configuration_Audit.Configuration_State_Summary_For (S);
       Editor.Configuration_Audit.Expect_No_Runtime_Or_Lifecycle_Mutation
         (Audit_Result, Before_Audit, After_Audit, "command-reference route/configuration audit");
@@ -1575,7 +1575,7 @@ package body Editor.Files.Tests is
       Save_As    : constant String := Temp_Path ("behavior_save_as.txt");
       Copy_To    : constant String := Temp_Path ("behavior_copy.txt");
       Move_To    : constant String := Temp_Path ("behavior_move.txt");
-      Id         : Editor.Commands.Command_Id;
+      Id         : Editor.Command_Ids.Command_Id;
       Found      : Boolean;
 
       procedure Assert_Excluded (Needle : String) is
@@ -1656,7 +1656,7 @@ package body Editor.Files.Tests is
         "file.move-buffer-file smoke must update association after filesystem success without changing text");
 
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("file.move-buffer-file-overwrite", Found);
-      Assert (not Found and then Id = Editor.Commands.No_Command,
+      Assert (not Found and then Id = Editor.Command_Ids.No_Command,
         "behavior smoke must not expose overwrite command aliases");
       Assert (Editor.Commands.Audits.File_Lifecycle_Command_Reference_Coherent,
         "behavior smoke must leave static command-reference metadata coherent");
@@ -1725,7 +1725,7 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
       end Expect_Clean_Association;
 
       procedure Prompt_And_Confirm
-        (Id     : Editor.Commands.Command_Id;
+        (Id     : Editor.Command_Ids.Command_Id;
          Target : String;
          Label  : String) is
       begin
@@ -1740,7 +1740,7 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
          Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text (S, Target);
          Editor.Executor.File_Target_Prompt_Commands.Confirm_File_Target_Prompt (S);
          Assert (not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S)
-           and then S.File_Target_Prompt_Command = Editor.Commands.No_Command
+           and then S.File_Target_Prompt_Command = Editor.Command_Ids.No_Command
            and then Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (S) = "",
            "prompt confirmation must clear transient state for " &
            Editor.Commands.Name_Metadata.Stable_Command_Name (Id));
@@ -1836,19 +1836,19 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
       S.File_Info.Dirty := True;
       S.File_Info.Baseline_Valid := False;
       Editor.Buffers.Sync_Global_Active_From_State (S);
-      Prompt_And_Confirm (Editor.Commands.Command_Save_File_As, Prompt_Save_As, "Save As target");
+      Prompt_And_Confirm (Editor.Command_Ids.Command_Save_File_As, Prompt_Save_As, "Save As target");
       Expect_Clean_Association (Prompt_Save_As, Prompt_Text, "prompted save-as");
-      Prompt_And_Confirm (Editor.Commands.Command_Rename_Buffer_File, Prompt_Rename, "Rename target");
+      Prompt_And_Confirm (Editor.Command_Ids.Command_Rename_Buffer_File, Prompt_Rename, "Rename target");
       Expect_Clean_Association (Prompt_Rename, Prompt_Text, "prompted rename");
-      Prompt_And_Confirm (Editor.Commands.Command_Copy_Buffer_File, Prompt_Copy, "Copy target");
+      Prompt_And_Confirm (Editor.Command_Ids.Command_Copy_Buffer_File, Prompt_Copy, "Copy target");
       Expect_Clean_Association (Prompt_Rename, Prompt_Text, "prompted copy");
       Assert (Ada.Directories.Exists (Prompt_Copy)
         and then Read_Bytes (Prompt_Copy) = Prompt_Text,
         "prompted copy must not open or associate copied target");
-      Prompt_And_Confirm (Editor.Commands.Command_Move_Buffer_File, Prompt_Move, "Move target");
+      Prompt_And_Confirm (Editor.Command_Ids.Command_Move_Buffer_File, Prompt_Move, "Move target");
       Expect_Clean_Association (Prompt_Move, Prompt_Text, "prompted move");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy_Buffer_File);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy_Buffer_File);
       Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text (S, Direct_Copy & ".cancelled");
       Editor.Executor.File_Target_Prompt_Commands.Cancel_File_Target_Prompt (S);
       Assert (not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S)
@@ -1861,7 +1861,7 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
         and then not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S),
         "direct explicit-target execution after cancellation must bypass prompt and preserve association");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Move_Buffer_File);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Move_Buffer_File);
       Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text (S, Direct_Copy & ".cleanup");
       Editor.State.Reset_Project_Scoped_State (S);
       Assert (not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S)
@@ -1916,7 +1916,7 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
         "save conflict must not silently overwrite disk");
 
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Save_File);
+        (S, Editor.Command_Ids.Command_Save_File);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "conflict prompt should make normal save unavailable");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability) =
@@ -1924,7 +1924,7 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
         "conflict prompt should use the lifecycle confirmation reason");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_File_Conflict_Keep_Buffer);
+        (S, Editor.Command_Ids.Command_File_Conflict_Keep_Buffer);
       Assert (not S.File_Conflict_Prompt_Active,
         "keep-buffer should dismiss the conflict prompt");
       Assert (S.File_Info.Dirty,
@@ -1938,7 +1938,7 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
       Assert (S.File_Conflict_Prompt_Active,
         "later save should re-detect the unresolved external conflict");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_File_Conflict_Overwrite_Disk);
+        (S, Editor.Command_Ids.Command_File_Conflict_Overwrite_Disk);
       Assert (not S.File_Info.Dirty,
         "overwrite should clear dirty state only after successful write");
       Assert (not S.File_Conflict_Prompt_Active,
@@ -1989,7 +1989,7 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
         "dirty close should preserve the surviving buffer");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Confirm_Close_Save);
+        (S, Editor.Command_Ids.Command_Confirm_Close_Save);
       Assert (S.File_Conflict_Prompt_Active,
         "confirmed close-save should surface the file conflict prompt");
       Assert (not S.Dirty_Close_Prompt_Active,
@@ -2000,7 +2000,7 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
         "the buffer should remain open until overwrite resolves the conflict");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_File_Conflict_Overwrite_Disk);
+        (S, Editor.Command_Ids.Command_File_Conflict_Overwrite_Disk);
       Assert (not S.File_Conflict_Prompt_Active,
         "overwrite should clear the conflict prompt");
       Assert (not Editor.Buffers.Global_Contains (Buffer_Id),
@@ -2060,7 +2060,7 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
         "clean external conflict must not write disk");
 
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_File_Conflict_Overwrite_Disk);
+        (S, Editor.Command_Ids.Command_File_Conflict_Overwrite_Disk);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "clean conflict must not expose overwrite as available");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability) =
@@ -2068,7 +2068,7 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
         "clean conflict overwrite should explain that the buffer is not dirty");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_File_Conflict_Keep_Buffer);
+        (S, Editor.Command_Ids.Command_File_Conflict_Keep_Buffer);
       Assert (not S.File_Conflict_Prompt_Active,
         "keep-buffer should dismiss clean conflict prompt");
       Assert (not S.File_Info.Dirty,
@@ -2103,7 +2103,7 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
 
       Write_Bytes (Path, "externally replaced save-all disk content");
       Editor.Messages.Clear (S.Messages);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_All);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_All);
 
       Assert (S.File_Info.Dirty,
         "save-all conflict skip must leave the buffer dirty");
@@ -2149,7 +2149,7 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
       Assert (S.File_Conflict_Prompt_Active,
         "setup should create a file conflict prompt");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Cancel);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Cancel);
       Assert (not S.File_Conflict_Prompt_Active,
         "generic cancel should cancel the active file conflict prompt");
       Assert (S.File_Info.Dirty,
@@ -2192,7 +2192,7 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
         "replaced backing file conflict must preserve dirty text");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_File_Conflict_Cancel);
+        (S, Editor.Command_Ids.Command_File_Conflict_Cancel);
       Assert (not S.File_Conflict_Prompt_Active,
         "cancel should clear replaced-file conflict prompt");
       Assert (S.File_Info.Dirty,
@@ -2229,7 +2229,7 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
         "missing backing file should keep its specific conflict kind");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_File_Conflict_Keep_Buffer);
+        (S, Editor.Command_Ids.Command_File_Conflict_Keep_Buffer);
       Assert (not S.File_Conflict_Prompt_Active,
         "keep-buffer should dismiss missing-file prompt");
       Assert (S.File_Info.Missing_Target_Surfaced,
@@ -2274,7 +2274,7 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
       Write_Bytes (Path, "second external disk content with another size");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_File_Conflict_Overwrite_Disk);
+        (S, Editor.Command_Ids.Command_File_Conflict_Overwrite_Disk);
       Assert (not S.File_Conflict_Prompt_Active,
         "stale disk conflict prompt should be dismissed");
       Assert (S.File_Info.Dirty,
@@ -2319,7 +2319,7 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_File_Conflict_Overwrite_Disk);
+        (S, Editor.Command_Ids.Command_File_Conflict_Overwrite_Disk);
       Assert (not S.File_Conflict_Prompt_Active,
         "stale conflict prompt should be dismissed");
       Assert (S.File_Info.Dirty,
@@ -2362,7 +2362,7 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
 
       Write_Bytes (Path, "second reload disk version with another size");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Retry_Pending_Transition);
+        (S, Editor.Command_Ids.Command_Retry_Pending_Transition);
 
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
         "stale dirty reload confirmation should be dismissed");
@@ -2406,7 +2406,7 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
         "reload action setup must preserve dirty text before confirmation");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_File_Conflict_Reload_From_Disk);
+        (S, Editor.Command_Ids.Command_File_Conflict_Reload_From_Disk);
 
       Assert (not S.File_Conflict_Prompt_Active,
         "explicit conflict reload should clear the conflict prompt");

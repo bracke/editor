@@ -1,11 +1,11 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Payloads;
-with Editor.Commands;
 with Editor.State;
 
 package Editor.Input_Bridge.Build_UI_Pointer_Handlers is
 
    type Execute_Command_Access is not null access procedure
-     (Id : Editor.Commands.Command_Id);
+     (Id : Editor.Command_Ids.Command_Id);
 
    type Report_Info_Access is not null access procedure
      (Message : String);

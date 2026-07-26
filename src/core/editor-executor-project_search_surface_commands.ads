@@ -1,5 +1,4 @@
 with Editor.Commands.Payloads;
-with Editor.Commands;
 with Editor.State;
 
 package Editor.Executor.Project_Search_Surface_Commands is

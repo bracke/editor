@@ -1,5 +1,5 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Ada.Strings.Unbounded;
-with Editor.Commands;
 
 package Editor.Keybindings is
 
@@ -80,7 +80,7 @@ package Editor.Keybindings is
 
    procedure Bind
      (Chord : Key_Chord;
-      Id    : Editor.Commands.Command_Id);
+      Id    : Editor.Command_Ids.Command_Id);
 
    --  Assign Chord to Id for normal user-facing keybinding editing. This
    --  validates that Id is a concrete, bindable, non-internal, non-public-build
@@ -91,14 +91,14 @@ package Editor.Keybindings is
    --  construction and routing tests.
    procedure Assign
      (Chord  : Key_Chord;
-      Id     : Editor.Commands.Command_Id;
+      Id     : Editor.Command_Ids.Command_Id;
       Status : out Keybinding_Change_Status);
 
    procedure Unbind
      (Chord : Key_Chord);
 
    procedure Unbind_Command
-     (Id : Editor.Commands.Command_Id);
+     (Id : Editor.Command_Ids.Command_Id);
 
    --  Return whether a conservative default binding may be added without
    --  overwriting an existing user or default chord. This is deliberately
@@ -122,27 +122,27 @@ package Editor.Keybindings is
 
    function Resolve
      (Chord : Key_Chord;
-      Id    : out Editor.Commands.Command_Id) return Binding_Result;
+      Id    : out Editor.Command_Ids.Command_Id) return Binding_Result;
 
    --  Return the primary keybinding display for Command. The primary binding
    --  is the first distinct chord for Command in registry insertion order.
    --  @param Command Command identifier.
    --  @return Binding display information, or Has_Binding = False.
    function Primary_Binding_For_Command
-     (Command : Editor.Commands.Command_Id) return Command_Keybinding_Info;
+     (Command : Editor.Command_Ids.Command_Id) return Command_Keybinding_Info;
 
    --  Return the number of distinct chords currently bound to Command.
    --  @param Command Command identifier.
    --  @return Number of bindings in deterministic registry order.
    function Binding_Count_For_Command
-     (Command : Editor.Commands.Command_Id) return Natural;
+     (Command : Editor.Command_Ids.Command_Id) return Natural;
 
    --  Return the Index-th distinct chord for Command in registry order.
    --  @param Command Command identifier.
    --  @param Index One-based binding index.
    --  @return Key chord at Index.
    function Binding_For_Command
-     (Command : Editor.Commands.Command_Id;
+     (Command : Editor.Command_Ids.Command_Id;
       Index   : Positive) return Key_Chord;
 
    --  Return the number of commands that currently have at least one binding.
@@ -152,7 +152,7 @@ package Editor.Keybindings is
 
    --  Return the Index-th currently bound command in stable command-name order.
    function Bound_Command_At
-     (Index : Positive) return Editor.Commands.Command_Id;
+     (Index : Positive) return Editor.Command_Ids.Command_Id;
 
    --  Return the number of normal user-facing assignable commands that are
    --  currently unbound. Internal build test seams and any future public build
@@ -162,13 +162,13 @@ package Editor.Keybindings is
    --  Return the Index-th unbound assignable command in stable command-name
    --  order for keybinding editor display surfaces.
    function Unbound_Assignable_Command_At
-     (Index : Positive) return Editor.Commands.Command_Id;
+     (Index : Positive) return Editor.Command_Ids.Command_Id;
 
    --  Return True when Id may be targeted by normal user-facing keybinding
    --  assignment UI. This is stricter than bindability and excludes internal
    --  build test seams and public build commands.
    function Is_Normal_Assignable_Command
-     (Id : Editor.Commands.Command_Id) return Boolean;
+     (Id : Editor.Command_Ids.Command_Id) return Boolean;
 
    type Keybinding_Validation_Status is
      (Valid_Keybindings,

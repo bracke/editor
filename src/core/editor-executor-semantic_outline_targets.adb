@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Ada.Strings;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -10,7 +11,7 @@ package body Editor.Executor.Semantic_Outline_Targets is
 
    use type Editor.Ada_Language_Model.Symbol_Kind;
    use type Editor.Ada_Language_Service.Service_Status;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Outline.Outline_Freshness;
    use type Editor.Outline.Outline_Item_Kind;
 
@@ -220,7 +221,7 @@ package body Editor.Executor.Semantic_Outline_Targets is
 
    function Find_Indexed_Outline_Target
      (S             : Editor.State.State_Type;
-      Id            : Editor.Commands.Command_Id;
+      Id            : Editor.Command_Ids.Command_Id;
       Service       : in out Editor.Ada_Language_Service.Service_State;
       Track_Request : Boolean := False) return Outline_Indexed_Target
    is
@@ -263,7 +264,7 @@ package body Editor.Executor.Semantic_Outline_Targets is
       Row_Profile := To_Unbounded_String
         (Outline_Row_Profile (S, Positive (Outline_Row)));
 
-      if Id = Editor.Commands.Command_Goto_Body then
+      if Id = Editor.Command_Ids.Command_Goto_Body then
          if Row_Kind = Editor.Outline.Outline_Package then
             Wanted := Editor.Ada_Language_Model.Symbol_Package_Body;
          elsif Row_Kind = Editor.Outline.Outline_Procedure
@@ -277,7 +278,7 @@ package body Editor.Executor.Semantic_Outline_Targets is
          else
             return (others => <>);
          end if;
-      elsif Id = Editor.Commands.Command_Goto_Spec then
+      elsif Id = Editor.Command_Ids.Command_Goto_Spec then
          if Outline_Row_Is_Separate_Body (S, Positive (Outline_Row))
            or else Current_File_Has_Indexed_Separate_Body
              (S, To_String (Name))
@@ -305,11 +306,11 @@ package body Editor.Executor.Semantic_Outline_Targets is
             Req : constant Editor.Ada_Language_Service.Semantic_Request_Id :=
               Editor.Ada_Language_Service.Begin_Semantic_Request
                 (Service,
-                 (if Id = Editor.Commands.Command_Goto_Body
+                 (if Id = Editor.Command_Ids.Command_Goto_Body
                   then Editor.Ada_Language_Service.Semantic_Request_Goto_Body
                   else Editor.Ada_Language_Service.Semantic_Request_Goto_Spec),
                  Editor.Ada_Language_Service.Semantic_Request_Query_Key
-                   ((if Id = Editor.Commands.Command_Goto_Body
+                   ((if Id = Editor.Command_Ids.Command_Goto_Body
                      then Editor.Ada_Language_Service.Semantic_Request_Goto_Body
                      else Editor.Ada_Language_Service.Semantic_Request_Goto_Spec),
                     To_String (Name),
@@ -318,7 +319,7 @@ package body Editor.Executor.Semantic_Outline_Targets is
                       (Wanted)));
             Target_Set :
               constant Editor.Ada_Language_Service.Language_Target_Set :=
-              (if Id = Editor.Commands.Command_Goto_Body then
+              (if Id = Editor.Command_Ids.Command_Goto_Body then
                  Editor.Ada_Language_Service.Request_Goto_Body
                    (Service, Req, To_String (Name), Wanted,
                     To_String (Row_Profile))
@@ -358,7 +359,7 @@ package body Editor.Executor.Semantic_Outline_Targets is
               Editor.Ada_Project_Index.Resolve_Unique_Unit_Target
                 (S.Language_Index,
                  To_String (Name),
-                 (if Id = Editor.Commands.Command_Goto_Body then
+                 (if Id = Editor.Command_Ids.Command_Goto_Body then
                     Editor.Ada_Project_Index.Unit_Package_Body
                   else
                     Editor.Ada_Project_Index.Unit_Package_Spec));
@@ -379,7 +380,7 @@ package body Editor.Executor.Semantic_Outline_Targets is
       declare
          Target_Set :
            constant Editor.Ada_Language_Service.Language_Target_Set :=
-           (if Id = Editor.Commands.Command_Goto_Body then
+           (if Id = Editor.Command_Ids.Command_Goto_Body then
               Editor.Ada_Language_Service.Goto_Body
                 (Service, To_String (Name), Wanted, To_String (Row_Profile))
             else

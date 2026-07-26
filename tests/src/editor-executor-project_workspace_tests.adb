@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -13,7 +14,6 @@ with Editor.Buffers;
 with Editor.Build_Candidates;
 with Editor.Build_UI;
 with Editor.Command_Execution;
-with Editor.Commands;
 with Editor.Configuration_Audit;
 with Editor.Dirty_Guards;
 with Editor.Executor.Buffer_Switcher_Surface_Commands;
@@ -44,7 +44,7 @@ package body Editor.Executor.Project_Workspace_Tests is
    use type Editor.Buffers.Buffer_Id;
    use type Editor.Ada_Language_Service.Index_Status;
    use type Editor.Command_Execution.Command_Execution_Status;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Files.File_Open_Status;
    use type Editor.Build_UI.Build_Candidate_Refresh_Status;
    use type Editor.Outline.Outline_Refresh_Status;
@@ -84,7 +84,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       declare
          Result : constant Editor.Executor.Command_Execution_Result :=
            Editor.Executor.Execute_Command_With_Result
-             (S, Editor.Commands.Command_Close_Project);
+             (S, Editor.Command_Ids.Command_Close_Project);
          pragma Unreferenced (Result);
       begin
          null;
@@ -138,7 +138,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       declare
          Result : constant Editor.Executor.Command_Execution_Result :=
            Editor.Executor.Execute_Command_With_Result
-             (S, Editor.Commands.Command_Close_Project);
+             (S, Editor.Command_Ids.Command_Close_Project);
          pragma Unreferenced (Result);
       begin
          null;
@@ -194,7 +194,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       declare
          Result : constant Editor.Executor.Command_Execution_Result :=
            Editor.Executor.Execute_Command_With_Result
-             (S, Editor.Commands.Command_Close_Project);
+             (S, Editor.Command_Ids.Command_Close_Project);
          pragma Unreferenced (Result);
       begin
          null;
@@ -323,7 +323,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "blocked switch must capture a pending transition");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Cancel_Pending_Transition);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Cancel_Pending_Transition);
       Assert (Editor.Project.Root_Path (S.Project) = Ada.Directories.Full_Name (Root_A),
               "cancelled switch must still preserve active project");
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
@@ -609,7 +609,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       S.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_Project);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_Project);
 
       Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "pending-close setup must capture close confirmation");
@@ -666,7 +666,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       S.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_Project);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_Project);
 
       Assert (Editor.Project.Root_Path (S.Project) = Ada.Directories.Full_Name (Root),
               "blocked close must preserve active project");
@@ -678,7 +678,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "blocked close must capture a pending confirmation");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Cancel_Pending_Transition);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Cancel_Pending_Transition);
       Assert (Editor.Project.Root_Path (S.Project) = Ada.Directories.Full_Name (Root),
               "cancelled close must still preserve active project");
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
@@ -736,7 +736,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       S.File_Info.Dirty := False;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Retry_Pending_Transition);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Retry_Pending_Transition);
 
       Assert (Editor.Project.Has_Project (S.Project),
               "switch retry must leave an active project");
@@ -789,7 +789,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       S.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_Project);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_Project);
 
       Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "retry setup must create pending close");
@@ -797,7 +797,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       S.File_Info.Dirty := False;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Retry_Pending_Transition);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Retry_Pending_Transition);
 
       Assert (not Editor.Project.Has_Project (S.Project),
               "close retry must proceed after project dirty is resolved");
@@ -837,7 +837,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Assert (Editor.File_Tree.Visible_Row_Count (S.File_Tree) > 0,
               "setup must have project File Tree rows");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_Project);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_Project);
 
       Assert (not Editor.Project.Has_Project (S.Project),
               "clean close must clear active project");
@@ -891,7 +891,7 @@ package body Editor.Executor.Project_Workspace_Tests is
               "undo switch setup must switch projects");
       Assert (Natural (Editor.History.Undo_Stack.Length) = Undo_Before,
               "switch must preserve retained outside-buffer undo history");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert (Buffer_Text (S) = "outside",
               "outside-buffer undo must remain usable after project switch");
 
@@ -929,13 +929,13 @@ package body Editor.Executor.Project_Workspace_Tests is
       Assert (Undo_Before > 0,
               "undo preservation setup must create outside-buffer undo history");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_Project);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_Project);
 
       Assert (not Editor.Project.Has_Project (S.Project),
               "undo close setup must close the project");
       Assert (Natural (Editor.History.Undo_Stack.Length) = Undo_Before,
               "close must preserve retained outside-buffer undo history");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert (Buffer_Text (S) = "outside",
               "outside-buffer undo must remain usable after project close");
 
@@ -1029,7 +1029,7 @@ package body Editor.Executor.Project_Workspace_Tests is
                 (S.Recent_Buffers, Natural (Outside_Id)),
               "recent close setup must track outside buffer");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_Project);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_Project);
 
       Assert (not Editor.Project.Has_Project (S.Project),
               "recent close setup must close project");
@@ -1105,7 +1105,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "switch with dirty project buffer should create a pending transition");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Discard_Pending_Transition);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Discard_Pending_Transition);
 
       Assert (Editor.Project.Has_Project (S.Project),
               "switch discard should complete the project switch");
@@ -1153,7 +1153,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Boundary     : Editor.Configuration_Audit.Buffer_Boundary_Audit_Summary;
       Cmd          : constant Editor.Commands.Payloads.Command :=
         Editor.Commands.Payloads.Command_For_Id
-          (Editor.Commands.Command_Buffer_Switcher_Selected_Close);
+          (Editor.Command_Ids.Command_Buffer_Switcher_Selected_Close);
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Build_Fixture (Root);
@@ -1203,7 +1203,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Assert (S.Dirty_Close_Prompt_Scope = Editor.State.Selected_Buffer_Close_Scope,
               "preservation smoke: selected close scope is preserved");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Cancel);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Cancel);
       Assert (not S.Dirty_Close_Prompt_Active,
               "preservation smoke: cancel still exits dirty close review");
       Assert (Editor.Buffers.Global_Contains (Project_Id),

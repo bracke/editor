@@ -1,5 +1,5 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Ada.Strings.Unbounded;
-with Editor.Commands;
 with Editor.Executor;
 with Editor.State;
 
@@ -70,7 +70,7 @@ package Editor.Empty_State_Guidance is
    Max_Empty_State_Surfaces     : constant Natural := 9;
 
    type Empty_State_Suggested_Command is record
-      Command                 : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Command                 : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Stable_Name             : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
       Title                   : Ada.Strings.Unbounded.Unbounded_String :=
@@ -118,11 +118,11 @@ package Editor.Empty_State_Guidance is
 
    function Contains_Command_Suggestion
      (Snapshot : Empty_State_Snapshot;
-      Command  : Editor.Commands.Command_Id) return Boolean;
+      Command  : Editor.Command_Ids.Command_Id) return Boolean;
 
    function Command_Suggestion_From_Descriptor
      (S       : Editor.State.State_Type;
-      Command : Editor.Commands.Command_Id)
+      Command : Editor.Command_Ids.Command_Id)
       return Empty_State_Suggested_Command;
 
    function Stable_Name_Is_Display_Only
@@ -341,7 +341,7 @@ package Editor.Empty_State_Guidance is
      (Before : Editor.State.State_Type;
       After  : Editor.State.State_Type;
       Result : Editor.Executor.Command_Execution_Result;
-      Command : Editor.Commands.Command_Id) return Boolean;
+      Command : Editor.Command_Ids.Command_Id) return Boolean;
 
    function Assert_Major_Empty_State_Surface_Coverage
      (S : Editor.State.State_Type) return Boolean;

@@ -1,9 +1,9 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Ada.Directories;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.Keybindings;
 with Editor.Text_Helpers;
-use type Editor.Commands.Command_Id;
+use type Editor.Command_Ids.Command_Id;
 package body Editor.Guided_Prompts is
    use type Ada.Directories.File_Kind;
 
@@ -364,7 +364,7 @@ package body Editor.Guided_Prompts is
    procedure Start
      (Prompt : in out Prompt_State;
       Kind : Prompt_Kind;
-      Owning_Command : Editor.Commands.Command_Id;
+      Owning_Command : Editor.Command_Ids.Command_Id;
       Title : String;
       Description : String;
       Target_Domain : String;
@@ -642,7 +642,7 @@ package body Editor.Guided_Prompts is
       Prompt.Lifecycle := Prompt_Inactive;
       Prompt.Title := Null_Unbounded_String;
       Prompt.Description := Null_Unbounded_String;
-      Prompt.Owning_Command := Editor.Commands.No_Command;
+      Prompt.Owning_Command := Editor.Command_Ids.No_Command;
       Editor.Input_Field.Clear (Prompt.Input);
       Prompt.Has_Captured_Chord := False;
       Prompt.Validation := Validation_Empty_Input;
@@ -785,7 +785,7 @@ package body Editor.Guided_Prompts is
       return Before.Active
         and then not After.Active
         and then After.Kind = No_Prompt
-        and then After.Owning_Command = Editor.Commands.No_Command
+        and then After.Owning_Command = Editor.Command_Ids.No_Command
         and then Editor.Input_Field.Text (After.Input) = ""
         and then not After.Has_Captured_Chord
         and then After.Lifecycle = Prompt_Inactive;
@@ -799,7 +799,7 @@ package body Editor.Guided_Prompts is
       --  are display labels only, never serialized paths, queries, setting
       --  values, chords, row ids, or confirmation payloads.
       return not Prompt.Active or else
-        (Prompt.Owning_Command /= Editor.Commands.No_Command
+        (Prompt.Owning_Command /= Editor.Command_Ids.No_Command
          and then Length (Prompt.Target_Domain_Label) <= 64
          and then (if Prompt.Kind = No_Prompt then False else True));
    end Carries_No_Persisted_Payload;
@@ -812,7 +812,7 @@ package body Editor.Guided_Prompts is
       end if;
 
       return Prompt.Kind /= No_Prompt
-        and then Prompt.Owning_Command /= Editor.Commands.No_Command
+        and then Prompt.Owning_Command /= Editor.Command_Ids.No_Command
         and then Carries_No_Persisted_Payload (Prompt)
         and then Length (Prompt.Title) > 0
         and then Length (Prompt.Validation_Message) > 0

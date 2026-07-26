@@ -1,5 +1,5 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Ada.Strings.Unbounded;
-with Editor.Commands;
 with Editor.Pending_Transitions;
 
 package Editor.Pending_Transition_Bar is
@@ -27,7 +27,7 @@ package Editor.Pending_Transition_Bar is
 
    type Pending_Bar_Action_Info is record
       Action         : Pending_Bar_Action := No_Pending_Bar_Action;
-      Command        : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Command        : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Label          : Ada.Strings.Unbounded.Unbounded_String;
       Available      : Boolean := True;
       Is_Destructive : Boolean := False;
@@ -88,7 +88,7 @@ package Editor.Pending_Transition_Bar is
       Available : Boolean);
 
    function Command_For_Action
-     (Action : Pending_Bar_Action) return Editor.Commands.Command_Id;
+     (Action : Pending_Bar_Action) return Editor.Command_Ids.Command_Id;
 
    type Pending_Bar_Action_Rect is record
       Action : Pending_Bar_Action := No_Pending_Bar_Action;

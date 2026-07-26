@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -8,7 +9,7 @@ with Editor.Overlay_Focus;
 
 package body Editor.Input_Bridge.File_Target_Handlers is
 
-   use type Editor.Commands.Command_Kind;
+   use type Editor.Command_Kinds.Command_Kind;
 
    function Handle_File_Target_Prompt
      (S   : in out Editor.State.State_Type;

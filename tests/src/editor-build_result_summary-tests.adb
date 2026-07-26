@@ -10,7 +10,6 @@ with Editor.External_Producers.Build_Requests;
 with Editor.External_Producers.Diagnostic_Line_Parsing;
 with Editor.State;
 with Editor.Build_Command;
-with Editor.Commands;
 
 package body Editor.Build_Result_Summary.Tests is
 

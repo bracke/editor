@@ -1,9 +1,9 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds; use Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Text_Buffer;
 with Ada.Containers; use Ada.Containers;
 with Editor.State;
-with Editor.Commands; use Editor.Commands;
 with Editor.History; use Editor.History;
 with Editor.Executor;
 with Editor.Executor.Edits;

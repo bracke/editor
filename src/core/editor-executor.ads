@@ -1,8 +1,8 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.State;
-with Editor.Commands;
 with Text_Buffer; use Text_Buffer;
 with Editor.Cursors; use Editor.Cursors;
 with Editor.Buffers;
@@ -86,7 +86,7 @@ package Editor.Executor is
    --  @return availability flag and concise reason when unavailable.
    function Command_Availability
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Commands.Availability_Metadata.Command_Availability;
 
    function Diagnostic_Quick_Fix_Action_Availability
@@ -107,7 +107,7 @@ package Editor.Executor is
    --  @param Shift optional route modifier used by selection/navigation commands.
    procedure Execute_Command
      (S     : in out Editor.State.State_Type;
-      Id    : Editor.Commands.Command_Id;
+      Id    : Editor.Command_Ids.Command_Id;
       Shift : Boolean := False);
 
 
@@ -119,7 +119,7 @@ package Editor.Executor is
    --  @return Command execution status and command id.
    function Execute_Command_With_Result
      (S     : in out Editor.State.State_Type;
-      Id    : Editor.Commands.Command_Id;
+      Id    : Editor.Command_Ids.Command_Id;
       Shift : Boolean := False) return Command_Execution_Result;
 
    --  Execute the internal/test-only user-opt-in build test-seam command with

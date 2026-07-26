@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -72,9 +73,9 @@ package body Editor.Executor.Command_Kind_Routing is
          Handled := True;
       end Check_And_Mark_Handled;
 
-      procedure Run_Search_Results_Command (Id : Editor.Commands.Command_Id);
+      procedure Run_Search_Results_Command (Id : Editor.Command_Ids.Command_Id);
 
-      procedure Run_Search_Results_Command (Id : Editor.Commands.Command_Id)
+      procedure Run_Search_Results_Command (Id : Editor.Command_Ids.Command_Id)
       is
          Result : constant Editor.Command_Execution.Command_Execution_Result :=
            Editor.Executor.Search_Results_Commands
@@ -84,9 +85,9 @@ package body Editor.Executor.Command_Kind_Routing is
             null;
          end Run_Search_Results_Command;
 
-      procedure Run_Message_Command (Id : Editor.Commands.Command_Id);
+      procedure Run_Message_Command (Id : Editor.Command_Ids.Command_Id);
 
-      procedure Run_Message_Command (Id : Editor.Commands.Command_Id)
+      procedure Run_Message_Command (Id : Editor.Command_Ids.Command_Id)
       is
          Result : constant Editor.Command_Execution.Command_Execution_Result :=
            Editor.Executor.Message_Commands.Execute_Message_Command (S, Id);
@@ -95,9 +96,9 @@ package body Editor.Executor.Command_Kind_Routing is
          null;
       end Run_Message_Command;
 
-      procedure Run_Outline_Command (Id : Editor.Commands.Command_Id);
+      procedure Run_Outline_Command (Id : Editor.Command_Ids.Command_Id);
 
-      procedure Run_Outline_Command (Id : Editor.Commands.Command_Id)
+      procedure Run_Outline_Command (Id : Editor.Command_Ids.Command_Id)
       is
          Result : constant Editor.Command_Execution.Command_Execution_Result :=
            Editor.Executor.Outline_Commands.Execute_Outline_Command (S, Id, Cmd);
@@ -107,10 +108,10 @@ package body Editor.Executor.Command_Kind_Routing is
       end Run_Outline_Command;
 
       procedure Run_Editor_Preferences_Command
-        (Id : Editor.Commands.Command_Id);
+        (Id : Editor.Command_Ids.Command_Id);
 
       procedure Run_Editor_Preferences_Command
-        (Id : Editor.Commands.Command_Id)
+        (Id : Editor.Command_Ids.Command_Id)
       is
          Result : constant Editor.Command_Execution.Command_Execution_Result :=
            Editor.Executor.Editor_Preferences_Commands
@@ -120,9 +121,9 @@ package body Editor.Executor.Command_Kind_Routing is
          null;
       end Run_Editor_Preferences_Command;
 
-      procedure Run_Semantic_Command (Id : Editor.Commands.Command_Id);
+      procedure Run_Semantic_Command (Id : Editor.Command_Ids.Command_Id);
 
-      procedure Run_Semantic_Command (Id : Editor.Commands.Command_Id)
+      procedure Run_Semantic_Command (Id : Editor.Command_Ids.Command_Id)
       is
          Result : constant Editor.Command_Execution.Command_Execution_Result :=
            Editor.Executor.Semantic_Commands.Execute_Semantic_Command
@@ -133,10 +134,10 @@ package body Editor.Executor.Command_Kind_Routing is
       end Run_Semantic_Command;
 
       procedure Run_Diagnostics_Feature_Command
-        (Id : Editor.Commands.Command_Id);
+        (Id : Editor.Command_Ids.Command_Id);
 
       procedure Run_Diagnostics_Feature_Command
-        (Id : Editor.Commands.Command_Id)
+        (Id : Editor.Command_Ids.Command_Id)
       is
          Result : constant Editor.Command_Execution.Command_Execution_Result :=
            Editor.Executor.Diagnostics_Commands
@@ -444,7 +445,7 @@ package body Editor.Executor.Command_Kind_Routing is
             | Feature_Panel_Select_Previous
             | Feature_Panel_Open_Selected =>
             declare
-               procedure Run (Id : Editor.Commands.Command_Id) is
+               procedure Run (Id : Editor.Command_Ids.Command_Id) is
                   Result : constant Editor.Command_Execution.Command_Execution_Result :=
                     Editor.Executor.Feature_Panel_Commands.Execute_Feature_Panel_Command
                       (S, Id);

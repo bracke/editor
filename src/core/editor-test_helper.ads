@@ -1,4 +1,4 @@
-with Editor.Commands; use Editor.Commands;
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Payloads; use Editor.Commands.Payloads;
 
 package Editor.Test_Helper is

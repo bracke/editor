@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with Ada.Characters.Handling;
@@ -14,7 +15,6 @@ with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Editor.Outline.Fixtures; use Editor.Outline.Fixtures;
 with Editor.Ada_Syntax_Core;
-with Editor.Commands;
 with Editor.Cursors;
 with Editor.Executor;
 with Editor.Executor.File_Save_Commands;
@@ -36,7 +36,7 @@ with Editor.Workspace_Persistence;
 
 package body Editor.Outline.Structure_Range_Tests is
 
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Executor.Command_Execution_Status;
    use type Editor.Outline.Outline_Item_Kind;
@@ -196,7 +196,7 @@ package body Editor.Outline.Structure_Range_Tests is
       Before := S.Carets (S.Carets.First_Index).Pos;
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Open_Selected_Outline_Item);
+        (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "out-of-range outline target is rejected before execution");
       Assert (S.Carets (S.Carets.First_Index).Pos = Before,

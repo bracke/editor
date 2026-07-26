@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
@@ -18,7 +19,6 @@ with Editor.Build_Output_Details;
 with Editor.Build_UI_Panel_Layout;
 with Editor.C_API;
 with Editor.Command_Palette;
-with Editor.Commands;
 with Editor.Workspace_Persistence;
 with Editor.Navigation_History;
 with Editor.History;
@@ -68,7 +68,7 @@ package body Editor.Input_Bridge.Tests is
    use type Editor.Feature_Panel.Feature_Id;
    use type Editor.Input_Bridge.Text_Entry_Focus_Target;
    use type Editor.Input_Bridge.Text_Entry_Route_Result;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Problems.Problems_Group_Mode;
    use type Editor.Problems.Problems_Severity_Filter;
    use type Editor.Problems.Problems_Sort_Mode;
@@ -124,7 +124,7 @@ package body Editor.Input_Bridge.Tests is
    end Text_Command;
 
    function Kind_Command
-     (Kind : Editor.Commands.Command_Kind) return Editor.Commands.Payloads.Command
+     (Kind : Editor.Command_Kinds.Command_Kind) return Editor.Commands.Payloads.Command
    is
       Cmd : Editor.Commands.Payloads.Command;
    begin
@@ -1165,7 +1165,7 @@ package body Editor.Input_Bridge.Tests is
       Editor.Keybindings.Bind
         ((Key       => Editor.Keybindings.Key_Down,
           Modifiers => (others => False)),
-         Editor.Commands.Command_Focus_Editor_Text);
+         Editor.Command_Ids.Command_Focus_Editor_Text);
 
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "abc" & ASCII.LF & "def" & ASCII.LF & "ghi");
@@ -1217,7 +1217,7 @@ package body Editor.Input_Bridge.Tests is
       Editor.Keybindings.Bind
         ((Key       => Editor.Keybindings.Key_Down,
           Modifiers => (others => False)),
-         Editor.Commands.Command_Focus_Editor_Text);
+         Editor.Command_Ids.Command_Focus_Editor_Text);
 
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "terminal focus");
@@ -1264,7 +1264,7 @@ package body Editor.Input_Bridge.Tests is
       Editor.Keybindings.Bind
         ((Key       => Editor.Keybindings.Key_Down,
           Modifiers => (others => False)),
-         Editor.Commands.Command_Focus_Editor_Text);
+         Editor.Command_Ids.Command_Focus_Editor_Text);
 
       Editor.State.Init (S);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
@@ -1301,7 +1301,7 @@ package body Editor.Input_Bridge.Tests is
       Editor.Keybindings.Bind
         ((Key       => Editor.Keybindings.Key_Down,
           Modifiers => (others => False)),
-         Editor.Commands.Command_Focus_Editor_Text);
+         Editor.Command_Ids.Command_Focus_Editor_Text);
 
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "recent focus");
@@ -1341,7 +1341,7 @@ package body Editor.Input_Bridge.Tests is
       Editor.Keybindings.Bind
         ((Key       => Editor.Keybindings.Key_Down,
           Modifiers => (others => False)),
-         Editor.Commands.Command_Focus_Editor_Text);
+         Editor.Command_Ids.Command_Focus_Editor_Text);
 
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "output details focus");
@@ -1843,7 +1843,7 @@ package body Editor.Input_Bridge.Tests is
 
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Execute_Command_Id
-        (Editor.Commands.Command_Reload_Active_Buffer);
+        (Editor.Command_Ids.Command_Reload_Active_Buffer);
       After := Editor.Input_Bridge.Get_State_For_Test;
 
       Assert (Editor.State.Current_Text (After) = "new",
@@ -2242,7 +2242,7 @@ package body Editor.Input_Bridge.Tests is
    procedure Assert_Text_Entry_Workflow_Coherent
      (Cmd              : Editor.Commands.Payloads.Command;
       Expected_Route   : Editor.Input_Bridge.Text_Entry_Route_Result;
-      Expected_Command : Editor.Commands.Command_Id;
+      Expected_Command : Editor.Command_Ids.Command_Id;
       Message          : String)
    is
    begin
@@ -2293,37 +2293,37 @@ package body Editor.Input_Bridge.Tests is
       Assert_Text_Entry_Workflow_Coherent
         (Text_Command ("x"),
          Editor.Input_Bridge.Routed_To_Text_Insert,
-         Editor.Commands.No_Command,
+         Editor.Command_Ids.No_Command,
          "ordinary editor payload");
       Assert_Text_Entry_Workflow_Coherent
         (Kind_Command (Editor.Command_Kinds.Delete_Selection_Range),
          Editor.Input_Bridge.Routed_To_Selection_Delete,
-         Editor.Commands.Command_Selection_Delete,
+         Editor.Command_Ids.Command_Selection_Delete,
          "explicit selection delete");
       Assert_Text_Entry_Workflow_Coherent
         (Kind_Command (Editor.Command_Kinds.Delete_Previous_Character),
          Editor.Input_Bridge.Routed_To_Delete_Previous_Character,
-         Editor.Commands.Command_Char_Delete_Previous,
+         Editor.Command_Ids.Command_Char_Delete_Previous,
          "previous-character delete");
       Assert_Text_Entry_Workflow_Coherent
         (Kind_Command (Editor.Command_Kinds.Delete_Next_Character),
          Editor.Input_Bridge.Routed_To_Delete_Next_Character,
-         Editor.Commands.Command_Char_Delete_Next,
+         Editor.Command_Ids.Command_Char_Delete_Next,
          "next-character delete");
       Assert_Text_Entry_Workflow_Coherent
         (Kind_Command (Editor.Command_Kinds.Delete_Previous_Word),
          Editor.Input_Bridge.Routed_To_Delete_Previous_Word,
-         Editor.Commands.Command_Word_Delete_Previous,
+         Editor.Command_Ids.Command_Word_Delete_Previous,
          "previous-word delete");
       Assert_Text_Entry_Workflow_Coherent
         (Kind_Command (Editor.Command_Kinds.Delete_Next_Word),
          Editor.Input_Bridge.Routed_To_Delete_Next_Word,
-         Editor.Commands.Command_Word_Delete_Next,
+         Editor.Command_Ids.Command_Word_Delete_Next,
          "next-word delete");
       Assert_Text_Entry_Workflow_Coherent
         (Kind_Command (Editor.Command_Kinds.Split_Current_Line_At_Caret),
          Editor.Input_Bridge.Routed_To_Line_Split,
-         Editor.Commands.Command_Line_Split_At_Caret,
+         Editor.Command_Ids.Command_Line_Split_At_Caret,
          "explicit line split");
       Assert
         (Editor.Input_Bridge.Preview_Text_Entry_Route
@@ -2361,12 +2361,12 @@ package body Editor.Input_Bridge.Tests is
       Assert_Text_Entry_Workflow_Coherent
         (Text_Command ("q"),
          Editor.Input_Bridge.Routed_To_Overlay_Input,
-         Editor.Commands.No_Command,
+         Editor.Command_Ids.No_Command,
          "overlay ordinary payload");
       Assert_Text_Entry_Workflow_Coherent
         (Kind_Command (Editor.Command_Kinds.Delete_Previous_Character),
          Editor.Input_Bridge.Routed_To_Overlay_Input,
-         Editor.Commands.No_Command,
+         Editor.Command_Ids.No_Command,
          "overlay previous-character delete");
 
       Editor.Executor.Quick_Open_Commands.Execute_Close_Quick_Open (After);
@@ -2379,7 +2379,7 @@ package body Editor.Input_Bridge.Tests is
       Assert_Text_Entry_Workflow_Coherent
         (Text_Command ("q"),
          Editor.Input_Bridge.No_Editor_Text_Focus,
-         Editor.Commands.No_Command,
+         Editor.Command_Ids.No_Command,
          "no focused text owner");
       Editor.Buffers.Reset_Global_For_Test;
    end Test_Focus_Resolution_And_Route_Matrix;
@@ -2686,7 +2686,7 @@ package body Editor.Input_Bridge.Tests is
       Editor.Input_Bridge.Set_State_For_Test (S);
 
       Editor.Input_Bridge.Execute_Command_Id
-        (Editor.Commands.Command_Insert_Newline);
+        (Editor.Command_Ids.Command_Insert_Newline);
       S := Editor.Input_Bridge.Get_State_For_Test;
       Assert
         (Editor.State.Current_Text (S) = "a" & ASCII.LF & "b",
@@ -2703,7 +2703,7 @@ package body Editor.Input_Bridge.Tests is
          "setup must make overlay/input focus outrank editor focus");
 
       Editor.Input_Bridge.Execute_Command_Id
-        (Editor.Commands.Command_Char_Delete_Previous);
+        (Editor.Command_Ids.Command_Char_Delete_Previous);
       S := Editor.Input_Bridge.Get_State_For_Test;
       Assert
         (Editor.State.Current_Text (S) = "a" & ASCII.LF & "b",
@@ -2723,7 +2723,7 @@ package body Editor.Input_Bridge.Tests is
       Editor.Guided_Prompts.Start
         (Prompt,
          Editor.Guided_Prompts.File_Tree_Create_File_Prompt,
-         Editor.Commands.Command_File_Tree_Create_File,
+         Editor.Command_Ids.Command_File_Tree_Create_File,
          "Create File",
          "Enter a file name or project-relative path inside the active project.",
          "File Tree",
@@ -2739,7 +2739,7 @@ package body Editor.Input_Bridge.Tests is
       Editor.Guided_Prompts.Start
         (Prompt,
          Editor.Guided_Prompts.File_Tree_Create_Directory_Prompt,
-         Editor.Commands.Command_File_Tree_Create_Directory,
+         Editor.Command_Ids.Command_File_Tree_Create_Directory,
          "Create Directory",
          "Enter a directory name or project-relative path inside the active project.",
          "File Tree",
@@ -2770,7 +2770,7 @@ package body Editor.Input_Bridge.Tests is
       Editor.Guided_Prompts.Start
         (Prompt,
          Editor.Guided_Prompts.File_Tree_Create_File_Prompt,
-         Editor.Commands.Command_File_Tree_Create_File,
+         Editor.Command_Ids.Command_File_Tree_Create_File,
          "Create File",
          "Enter a file name or project-relative path inside the active project.",
          "File Tree",
@@ -2784,7 +2784,7 @@ package body Editor.Input_Bridge.Tests is
       Editor.Guided_Prompts.Start
         (Prompt,
          Editor.Guided_Prompts.File_Tree_Create_Directory_Prompt,
-         Editor.Commands.Command_File_Tree_Create_Directory,
+         Editor.Command_Ids.Command_File_Tree_Create_Directory,
          "Create Directory",
          "Enter a directory name or project-relative path inside the active project.",
          "File Tree",
@@ -2796,7 +2796,7 @@ package body Editor.Input_Bridge.Tests is
       Editor.Guided_Prompts.Start
         (Prompt,
          Editor.Guided_Prompts.File_Tree_Rename_Prompt,
-         Editor.Commands.Command_File_Tree_Rename_Selected,
+         Editor.Command_Ids.Command_File_Tree_Rename_Selected,
          "Rename File or Directory",
          "Enter a new name for the selected file or directory.",
          "File Tree",
@@ -2816,7 +2816,7 @@ package body Editor.Input_Bridge.Tests is
       Editor.Guided_Prompts.Start
         (Prompt,
          Editor.Guided_Prompts.File_Tree_Rename_Prompt,
-         Editor.Commands.Command_File_Tree_Rename_Selected,
+         Editor.Command_Ids.Command_File_Tree_Rename_Selected,
          "Rename File or Directory",
          "Enter a new name for the selected file or directory.",
          "File Tree",
@@ -2849,7 +2849,7 @@ package body Editor.Input_Bridge.Tests is
       Editor.Guided_Prompts.Start
         (Prompt,
          Editor.Guided_Prompts.File_Tree_Create_File_Prompt,
-         Editor.Commands.Command_File_Tree_Create_File,
+         Editor.Command_Ids.Command_File_Tree_Create_File,
          "Create File",
          "Enter a file name or project-relative path inside the active project.",
          "File Tree",
@@ -2864,7 +2864,7 @@ package body Editor.Input_Bridge.Tests is
       Editor.Guided_Prompts.Start
         (Prompt,
          Editor.Guided_Prompts.File_Tree_Create_Directory_Prompt,
-         Editor.Commands.Command_File_Tree_Create_Directory,
+         Editor.Command_Ids.Command_File_Tree_Create_Directory,
          "Create Directory",
          "Enter a directory name or project-relative path inside the active project.",
          "File Tree",
@@ -2879,7 +2879,7 @@ package body Editor.Input_Bridge.Tests is
       Editor.Guided_Prompts.Start
         (Prompt,
          Editor.Guided_Prompts.File_Tree_Rename_Prompt,
-         Editor.Commands.Command_File_Tree_Rename_Selected,
+         Editor.Command_Ids.Command_File_Tree_Rename_Selected,
          "Rename File or Directory",
          "Enter a new name for the selected file or directory.",
          "File Tree",
@@ -2903,7 +2903,7 @@ package body Editor.Input_Bridge.Tests is
       Editor.Guided_Prompts.Start
         (Prompt,
          Editor.Guided_Prompts.File_Tree_Create_File_Prompt,
-         Editor.Commands.Command_File_Tree_Create_File,
+         Editor.Command_Ids.Command_File_Tree_Create_File,
          "Create File",
          "Enter a file name or project-relative path inside the active project.",
          "File Tree",
@@ -2921,7 +2921,7 @@ package body Editor.Input_Bridge.Tests is
       Editor.Guided_Prompts.Start
         (Prompt,
          Editor.Guided_Prompts.File_Tree_Create_Directory_Prompt,
-         Editor.Commands.Command_File_Tree_Create_Directory,
+         Editor.Command_Ids.Command_File_Tree_Create_Directory,
          "Create Directory",
          "Enter a directory name or project-relative path inside the active project.",
          "File Tree",
@@ -2947,7 +2947,7 @@ package body Editor.Input_Bridge.Tests is
       Editor.State.Init (S);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Execute_Command_Id
-        (Editor.Commands.Command_File_Tree_Create_File);
+        (Editor.Command_Ids.Command_File_Tree_Create_File);
       S := Editor.Input_Bridge.Get_State_For_Test;
 
       Assert (not Editor.Guided_Prompts.Is_Active (S.Guided_Prompt),
@@ -2969,14 +2969,14 @@ package body Editor.Input_Bridge.Tests is
       Editor.State.Init (S);
       Availability :=
         Editor.Executor.Command_Availability
-          (S, Editor.Commands.Command_Open_Project);
+          (S, Editor.Command_Ids.Command_Open_Project);
 
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
               "Open Project must be selectable from the command palette");
 
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Execute_Command_Id
-        (Editor.Commands.Command_Open_Project);
+        (Editor.Command_Ids.Command_Open_Project);
       S := Editor.Input_Bridge.Get_State_For_Test;
       Snapshot := Editor.Guided_Prompts.Snapshot (S.Guided_Prompt);
 
@@ -3037,7 +3037,7 @@ package body Editor.Input_Bridge.Tests is
       Editor.Guided_Prompts.Start
         (Prompt,
          Editor.Guided_Prompts.Project_Open_Prompt,
-         Editor.Commands.Command_Open_Project,
+         Editor.Command_Ids.Command_Open_Project,
          "Open Project",
          "Enter project path.",
          "Project",
@@ -3087,7 +3087,7 @@ package body Editor.Input_Bridge.Tests is
       Editor.State.Init (S);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Execute_Command_Id
-        (Editor.Commands.Command_Open_Project);
+        (Editor.Command_Ids.Command_Open_Project);
       S := Editor.Input_Bridge.Get_State_For_Test;
 
       Editor.Guided_Prompts.Update_Input (S.Guided_Prompt, Root);
@@ -3149,7 +3149,7 @@ package body Editor.Input_Bridge.Tests is
       Editor.State.Init (S);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Execute_Command_Id
-        (Editor.Commands.Command_Open_Project);
+        (Editor.Command_Ids.Command_Open_Project);
       S := Editor.Input_Bridge.Get_State_For_Test;
 
       Editor.Guided_Prompts.Update_Input (S.Guided_Prompt, Root);
@@ -3229,7 +3229,7 @@ package body Editor.Input_Bridge.Tests is
 
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Execute_Command_Id
-        (Editor.Commands.Command_File_Tree_Rename_Selected);
+        (Editor.Command_Ids.Command_File_Tree_Rename_Selected);
       S := Editor.Input_Bridge.Get_State_For_Test;
       Snapshot := Editor.Guided_Prompts.Snapshot (S.Guided_Prompt);
 
@@ -3278,7 +3278,7 @@ package body Editor.Input_Bridge.Tests is
 
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Execute_Command_Id
-        (Editor.Commands.Command_File_Tree_Delete_Selected);
+        (Editor.Command_Ids.Command_File_Tree_Delete_Selected);
       S := Editor.Input_Bridge.Get_State_For_Test;
       Snapshot := Editor.Guided_Prompts.Snapshot (S.Guided_Prompt);
 
@@ -3316,7 +3316,7 @@ package body Editor.Input_Bridge.Tests is
       Msg       : Editor.Messages.Editor_Message;
 
       procedure Assert_Cancel_Message
-        (Id       : Editor.Commands.Command_Id;
+        (Id       : Editor.Command_Ids.Command_Id;
          Expected : String)
       is
       begin
@@ -3327,7 +3327,7 @@ package body Editor.Input_Bridge.Tests is
                  "cancel-message setup must start the prompt");
 
          Editor.Input_Bridge.Set_State_For_Test (S);
-         Editor.Input_Bridge.Execute_Command_Id (Editor.Commands.Command_Cancel);
+         Editor.Input_Bridge.Execute_Command_Id (Editor.Command_Ids.Command_Cancel);
          S := Editor.Input_Bridge.Get_State_For_Test;
 
          Assert (not Editor.Guided_Prompts.Is_Active (S.Guided_Prompt),
@@ -3346,10 +3346,10 @@ package body Editor.Input_Bridge.Tests is
       S.File_Tree := Editor.File_Tree.Scan_Project (Root);
 
       Assert_Cancel_Message
-        (Editor.Commands.Command_File_Tree_Create_File,
+        (Editor.Command_Ids.Command_File_Tree_Create_File,
          "Create file cancelled.");
       Assert_Cancel_Message
-        (Editor.Commands.Command_File_Tree_Create_Directory,
+        (Editor.Command_Ids.Command_File_Tree_Create_Directory,
          "Create directory cancelled.");
 
       Node := Editor.File_Tree.Find_By_Path (S.File_Tree, "a.txt", Found);
@@ -3359,10 +3359,10 @@ package body Editor.Input_Bridge.Tests is
       Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
 
       Assert_Cancel_Message
-        (Editor.Commands.Command_File_Tree_Rename_Selected,
+        (Editor.Command_Ids.Command_File_Tree_Rename_Selected,
          "Rename cancelled.");
       Assert_Cancel_Message
-        (Editor.Commands.Command_File_Tree_Delete_Selected,
+        (Editor.Command_Ids.Command_File_Tree_Delete_Selected,
          "Delete cancelled.");
 
       Cleanup_Fixture (Root);

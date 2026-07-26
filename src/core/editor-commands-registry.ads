@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 package Editor.Commands.Registry is
 
    function First_Command return Command_Id;

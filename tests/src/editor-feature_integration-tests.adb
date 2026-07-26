@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
@@ -10,7 +11,6 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Command_Domain;
 with Editor.Command_Palette;
 with Editor.Command_Route_Audit;
-with Editor.Commands;
 with Editor.Executor;
 with Editor.Executor.Command_Palette_Projection;
 with Editor.Keybinding_Config;
@@ -23,7 +23,7 @@ with Editor.State;
 
 package body Editor.Feature_Integration.Tests is
 
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Feature_Integration.Feature_Integration_Status;
    use type Editor.Keybinding_Config.Keybinding_Config_Status;
@@ -53,7 +53,7 @@ package body Editor.Feature_Integration.Tests is
       pragma Unreferenced (T);
       Result   : Feature_Integration_Result;
       Contract : Feature_Command_Contract :=
-        (Command                  => Editor.Commands.Command_Open_Command_Palette,
+        (Command                  => Editor.Command_Ids.Command_Open_Command_Palette,
          Kind                     => Feature_Destructive,
          Has_Descriptor           => False,
          Has_Stable_Name          => False,
@@ -98,7 +98,7 @@ package body Editor.Feature_Integration.Tests is
       Domains (Domain_Feature_Runtime_State) := True;
       Domains (Domain_Feature_Panel_State) := True;
       Contract :=
-        (Command                  => Editor.Commands.Command_Toggle_Problems_Panel,
+        (Command                  => Editor.Command_Ids.Command_Toggle_Problems_Panel,
          Kind                     => Feature_View_Toggle,
          Has_Descriptor           => True,
          Has_Stable_Name          => True,
@@ -125,9 +125,9 @@ package body Editor.Feature_Integration.Tests is
       pragma Unreferenced (T);
       Result   : Feature_Integration_Result;
       Contract : constant Feature_Route_Contract :=
-        (Source                  => Editor.Commands.Command_Toggle_Problems_Panel,
-         Expected_Command        => Editor.Commands.Command_Toggle_Problems_Panel,
-         Actual_Command          => Editor.Commands.Command_Toggle_Minimap,
+        (Source                  => Editor.Command_Ids.Command_Toggle_Problems_Panel,
+         Expected_Command        => Editor.Command_Ids.Command_Toggle_Problems_Panel,
+         Actual_Command          => Editor.Command_Ids.Command_Toggle_Minimap,
          Reached_Executor        => True,
          Mutated_Before_Executor => True,
          Executor_Dispatch_Count => 2);
@@ -158,15 +158,15 @@ package body Editor.Feature_Integration.Tests is
         (Result   => Result,
          Source   => Editor.Command_Route_Audit.Route_From_Feature_Panel,
          Kind     => Editor.Command_Route_Audit.Route_Bypassed_Executor,
-         Expected => Editor.Commands.Command_Toggle_Problems_Panel,
-         Actual   => Editor.Commands.Command_Toggle_Problems_Panel,
+         Expected => Editor.Command_Ids.Command_Toggle_Problems_Panel,
+         Actual   => Editor.Command_Ids.Command_Toggle_Problems_Panel,
          Message  => "feature panel mutated selection before Executor");
       Editor.Command_Route_Audit.Record_Route_Failure
         (Result   => Result,
          Source   => Editor.Command_Route_Audit.Route_From_Keybinding,
          Kind     => Editor.Command_Route_Audit.Route_Dispatched_More_Than_Once,
-         Expected => Editor.Commands.Command_Toggle_Problems_Panel,
-         Actual   => Editor.Commands.Command_Toggle_Problems_Panel,
+         Expected => Editor.Command_Ids.Command_Toggle_Problems_Panel,
+         Actual   => Editor.Command_Ids.Command_Toggle_Problems_Panel,
          Message  => "command reached Executor twice");
       Text := To_Unbounded_String (Editor.Command_Route_Audit.Summary (Result));
 
@@ -287,7 +287,7 @@ package body Editor.Feature_Integration.Tests is
       Path   : constant String := Temp_Path ("unknown_feature_command");
       Config : Editor.Keybinding_Config.Keybinding_Config_Model;
       Status : Editor.Keybinding_Config.Keybinding_Config_Status;
-      Actual : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Actual : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
    begin
       Write_File
         (Path,
@@ -311,7 +311,7 @@ package body Editor.Feature_Integration.Tests is
            ((Key => Editor.Keybindings.Key_P,
              Modifiers => (Ctrl => True, Alt => True, Shift => False, Meta => False)),
             Actual) = Editor.Keybindings.Bound_Command
-         and then Actual = Editor.Commands.Command_Toggle_Problems_Panel,
+         and then Actual = Editor.Command_Ids.Command_Toggle_Problems_Panel,
          "known feature-like panel command must remain bindable");
       Editor.Keybindings.Reset_To_Defaults;
    end Test_Feature_Keybinding_Unknown_Command_Is_Rejected;
@@ -330,7 +330,7 @@ package body Editor.Feature_Integration.Tests is
       Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
 
       for C of Candidates loop
-         if C.Id = Editor.Commands.Command_Toggle_Problems_Panel then
+         if C.Id = Editor.Command_Ids.Command_Toggle_Problems_Panel then
             Found := True;
             D := Editor.Commands.Descriptors.Descriptor (C.Id);
             Assert (To_String (C.Label) = To_String (D.Name),
@@ -370,13 +370,13 @@ package body Editor.Feature_Integration.Tests is
       Key_Before := Editor.Command_Domain.Active_Keybindings_Fingerprint;
       Settings_Before := Editor.Command_Domain.Settings_Fingerprint (S);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Open_Command_Palette);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Toggle_Problems_Panel);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Search_Results_Move_Down);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Toggle_Minimap);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Reload_Keybindings);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_All);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Cancel_Pending_Transition);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Open_Command_Palette);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Toggle_Problems_Panel);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Search_Results_Move_Down);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Toggle_Minimap);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Reload_Keybindings);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_All);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Cancel_Pending_Transition);
 
       Metadata_After := Editor.Command_Domain.Command_Metadata_Fingerprint;
       Key_After := Editor.Command_Domain.Active_Keybindings_Fingerprint;
@@ -393,7 +393,7 @@ package body Editor.Feature_Integration.Tests is
 
       Before := S;
       After := S;
-      Editor.Executor.Execute_Command (After, Editor.Commands.Command_Toggle_Problems_Panel);
+      Editor.Executor.Execute_Command (After, Editor.Command_Ids.Command_Toggle_Problems_Panel);
       Allowed (Editor.Command_Domain.Domain_Panel_State) := True;
       Allowed (Editor.Command_Domain.Domain_Messages) := True;
       Editor.Command_Domain.Assert_Command_Mutates_Only
@@ -438,13 +438,13 @@ package body Editor.Feature_Integration.Tests is
    begin
       Clear (Result);
       Add_Failure
-        (Result, Editor.Commands.Command_Focus_Feature_Panel,
+        (Result, Editor.Command_Ids.Command_Focus_Feature_Panel,
          "Feature_Panel: missing disabled reason for Focus");
       Add_Failure
-        (Result, Editor.Commands.Command_Feature_Panel_Open_Selected,
+        (Result, Editor.Command_Ids.Command_Feature_Panel_Open_Selected,
          "Feature_Panel: missing route test for Open Selected");
       Add_Failure
-        (Result, Editor.Commands.Command_Save_Workspace_State,
+        (Result, Editor.Command_Ids.Command_Save_Workspace_State,
          "Feature_Panel: missing persistence exclusion check");
       Assert (Status (Result) = Feature_Integration_Failed,
               "sample next-feature readiness failures must fail the audit");

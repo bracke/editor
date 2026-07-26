@@ -1,3 +1,5 @@
+with Editor.Command_Kinds;
+with Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -8,7 +10,6 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Text_IO;
 with Editor.Clipboard;
 with Editor.Command_Palette;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.Buffers;
 with Editor.Cursors; use Editor.Cursors;
@@ -34,11 +35,11 @@ with Text_Buffer;
 package body Editor.Line_Edit.Line_Join_Split_Tests is
 
    use type Editor.Keybinding_Config.Keybinding_Config_Status;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
-   use type Editor.Commands.Command_Kind;
+   use type Editor.Command_Kinds.Command_Kind;
    use type Editor.Keybindings.Keybinding_Validation_Status;
    use type Editor.Buffers.Buffer_Id;
    use type Editor.Keybindings.Binding_Result;
@@ -261,12 +262,12 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
 
       if Direction = Word_Delete_Test_Previous then
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Word_Delete_Previous);
+           (S, Editor.Command_Ids.Command_Word_Delete_Previous);
          Assert (Message_Text (S) = "Deleted previous word",
                  Why & ": delete-previous message mismatch");
       else
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Word_Delete_Next);
+           (S, Editor.Command_Ids.Command_Word_Delete_Next);
          Assert (Message_Text (S) = "Deleted next word",
                  Why & ": delete-next message mismatch");
       end if;
@@ -288,10 +289,10 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
       Assert_Navigation_Counts (S, 0, 0,
                                 Why & ": word delete must not record navigation");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text (S, Before_Text,
                           Why & ": undo must restore exact pre-delete text after removing " & Removed_Text);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert_Buffer_Text (S, Expected_Text,
                           Why & ": redo must restore exact post-delete text");
    end Assert_Word_Delete_Transform;
@@ -313,8 +314,8 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
       Editor.State.Load_Text (S, "Seed Word");
       Set_Caret (S, Cursor_Index (Text_Buffer.Length (S.Buffer)));
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Word_Delete_Previous);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+        (S, Editor.Command_Ids.Command_Word_Delete_Previous);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Redo_Count := Natural (Editor.History.Redo_Stack.Length);
 
       Editor.State.Load_Text (S, Before_Text);
@@ -322,10 +323,10 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
 
       if Direction = Word_Delete_Test_Previous then
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Word_Delete_Previous);
+           (S, Editor.Command_Ids.Command_Word_Delete_Previous);
       else
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Word_Delete_Next);
+           (S, Editor.Command_Ids.Command_Word_Delete_Next);
       end if;
 
       Assert_Buffer_Text (S, Before_Text, Why);
@@ -352,7 +353,7 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
       Set_Caret (S, 5);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Join_Next);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Join_Next);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) =
               "one" & ASCII.LF & "two three",
               "join-next must join caret line with following line");
@@ -361,11 +362,11 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
               "successful join must create one undo entry");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert (Natural (Editor.History.Redo_Stack.Length) = 1,
               "undo after join must create redo entry");
       Set_Caret (S, Cursor_Index (Text_Buffer.Length (S.Buffer)));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Join_Next);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Join_Next);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) =
               "one" & ASCII.LF & "two" & ASCII.LF & "three",
               "last-line join must no-op");
@@ -380,7 +381,7 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
       Set_Caret (S, 0);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Join_Next);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Join_Next);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "single",
               "single-line buffer join must no-op");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 0,
@@ -393,7 +394,7 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
       Editor.State.Set_Dirty (S, False);
       Editor.History.Undo_Stack.Clear;
       Set_Caret (S, 0);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Join_Next);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Join_Next);
       Assert (Message_Text (S) = "Nothing to join",
               "empty-buffer join no-op message mismatch");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 0,
@@ -427,7 +428,7 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
       Before_Forward := Editor.Navigation_History.Forward_Count (S.Navigation_History);
 
       Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Line_Join_Next);
+        (S, Editor.Command_Ids.Command_Line_Join_Next);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) =
               "alpha" & ASCII.LF & "beta" & ASCII.LF & "gamma",
               "join availability must not mutate text");
@@ -438,7 +439,7 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
 
       Set_Caret (S, 6);
       Set_Primary_Selection (S, 0, 6);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Join_Next);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Join_Next);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) =
               "alpha" & ASCII.LF & "beta gamma",
               "join must operate on caret line only, not selected text");
@@ -470,30 +471,30 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
    is
       pragma Unreferenced (T);
       Found : Boolean := False;
-      Id    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Id    : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       S     : Editor.State.State_Type;
       Snap  : Editor.Workspace_Persistence.Workspace_Snapshot;
       Text  : Unbounded_String;
    begin
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.line.join-selection", Found);
-      Assert (not Found and then Id = Editor.Commands.No_Command,
+      Assert (not Found and then Id = Editor.Command_Ids.No_Command,
               "must not add selected-line join command aliases");
 
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.join.smart", Found);
-      Assert (not Found and then Id = Editor.Commands.No_Command,
+      Assert (not Found and then Id = Editor.Command_Ids.No_Command,
               "must not add smart/language-aware join aliases");
 
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.paragraph.reflow", Found);
-      Assert (not Found and then Id = Editor.Commands.No_Command,
+      Assert (not Found and then Id = Editor.Command_Ids.No_Command,
               "must not add paragraph reflow aliases");
 
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "left" & ASCII.LF & "right");
       Set_Caret (S, 0);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Join_Next);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Join_Next);
       Snap := Editor.State.Build_Workspace_Snapshot (S);
       Text := To_Unbounded_String (Editor.Workspace_Persistence.Debug_Summary (Snap));
       Assert
@@ -524,7 +525,7 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
       Editor.Keybindings.Bind
-        (Chord, Editor.Commands.Command_Line_Join_Next);
+        (Chord, Editor.Command_Ids.Command_Line_Join_Next);
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "one" & ASCII.LF & "two" & ASCII.LF & "three");
       Set_Caret (S, 4);
@@ -562,7 +563,7 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
          Set_Caret (S, Caret);
 
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Line_Join_Next);
+           (S, Editor.Command_Ids.Command_Line_Join_Next);
 
          Assert (Text_Buffer.UTF8_Text (S.Buffer) = Expected,
                  Why & ": exact joined text mismatch");
@@ -573,10 +574,10 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
          Assert (Natural (Editor.History.Redo_Stack.Length) = 0,
                  Why & ": successful join must leave redo empty");
 
-         Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+         Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
          Assert (Text_Buffer.UTF8_Text (S.Buffer) = Input,
                  Why & ": undo must restore exact pre-join text");
-         Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+         Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
          Assert (Text_Buffer.UTF8_Text (S.Buffer) = Expected,
                  Why & ": redo must restore exact post-join text");
       end Check;
@@ -621,13 +622,13 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
       Editor.History.Redo_Stack.Clear;
 
       Set_Caret (S, 0);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Join_Next);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Join_Next);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert (Natural (Editor.History.Redo_Stack.Length) = 1,
               "undo after join must populate redo before no-op checks");
 
       Set_Caret (S, Cursor_Index (Text_Buffer.Length (S.Buffer)));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Join_Next);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Join_Next);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "one" & ASCII.LF & "two",
               "last-line join no-op must preserve exact text");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 0,
@@ -641,7 +642,7 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
       S.Active_Find_Query := To_Unbounded_String ("one two");
       S.Active_Find_Stale := False;
       S.Active_Replace_Text := To_Unbounded_String ("ONE TWO");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Join_Next);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Join_Next);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "one two",
               "successful join after undo must produce expected text");
       Assert (Natural (Editor.History.Redo_Stack.Length) = 0,
@@ -682,7 +683,7 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
       Before_Forward := Editor.Navigation_History.Forward_Count (S.Navigation_History);
 
       Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Line_Join_Next);
+        (S, Editor.Command_Ids.Command_Line_Join_Next);
       Assert (To_Unbounded_String (Text_Buffer.UTF8_Text (S.Buffer)) = Before_Text,
               "join availability must not mutate active-buffer text");
       Assert (Editor.Selection.Has_Selection (S),
@@ -695,7 +696,7 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
 
       Set_Caret (S, 8);
       Set_Primary_Selection (S, 0, 16);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Join_Next);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Join_Next);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) =
               "Alpha" & ASCII.LF & "Beta Gamma",
               "join must operate only on caret line, not selected-line span");
@@ -737,38 +738,38 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
       Editor.History.Redo_Stack.Clear;
 
       Set_Caret (S, 0);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Indent_Increase);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Join_Next);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Indent_Increase);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Join_Next);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) =
               "  Alpha   Beta" & ASCII.LF & "Gamma",
               "indent then join must preserve second-line indentation as ordinary text");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Duplicate);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Duplicate);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) =
               "  Alpha   Beta" & ASCII.LF &
               "  Alpha   Beta" & ASCII.LF & "Gamma",
               "duplicate-line after join must use the joined logical line");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Comment_Line);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Comment_Line);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) =
               "  Alpha   Beta" & ASCII.LF &
               "  -- Alpha   Beta" & ASCII.LF & "Gamma",
               "comment-line after join must treat joined text as ordinary current line");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) =
               "  Alpha   Beta" & ASCII.LF &
               "  Alpha   Beta" & ASCII.LF & "Gamma",
               "undo must restore exact pre-comment mixed workflow text");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) =
               "  Alpha   Beta" & ASCII.LF & "Gamma",
               "undo must restore exact pre-duplicate mixed workflow text");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) =
               "  Alpha" & ASCII.LF & "  Beta" & ASCII.LF & "Gamma",
               "undo must restore exact pre-join mixed workflow text");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) =
               "  Alpha   Beta" & ASCII.LF & "Gamma",
               "redo must restore exact post-join mixed workflow text");
@@ -799,19 +800,19 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
          Editor.Clipboard.Set_Text (Before_Clip);
          Set_Caret (S, Caret);
 
-         Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Join_Next);
+         Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Join_Next);
          Assert_Line_Join_Coherent
            (S, Expected, Expected_Lines, Expected_Row, Expected_Col,
             1, 0, "Joined line", True, False, Before_Clip, 0, 0, Why);
 
-         Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+         Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
          Assert_Buffer_Text (S, Input, Why & ": undo must restore exact input");
          Assert (Natural (Editor.History.Redo_Stack.Length) = 1,
                  Why & ": undo must create one redo entry");
          Assert (Editor.Clipboard.Get_Text = Before_Clip,
                  Why & ": undo must not change Clipboard");
 
-         Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+         Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
          Assert_Buffer_Text (S, Expected, Why & ": redo must restore exact join output");
          Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
                  Why & ": redo must restore one undo entry");
@@ -831,7 +832,7 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
          Editor.History.Redo_Stack.Clear;
          Set_Caret (S, Caret);
          Editor.Clipboard.Set_Text (Before_Clip);
-         Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Join_Next);
+         Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Join_Next);
 
          Assert_Buffer_Text (S, Input, Why & ": no-op must preserve text");
          Assert (Natural (Editor.History.Undo_Stack.Length) = 0,
@@ -920,7 +921,7 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
       Assert (Snap.Selection_Count = 1,
               "render snapshot must expose the pre-join selection without consuming it");
       Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Line_Join_Next);
+        (S, Editor.Command_Ids.Command_Line_Join_Next);
       Assert (To_Unbounded_String (Buffer_Text (S)) = Before_Text,
               "availability must not mutate text");
       Assert (Editor.Selection.Has_Selection (S),
@@ -932,7 +933,7 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
 
       Set_Primary_Selection
         (S, 0, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 1, 2)));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Join_Next);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Join_Next);
 
       Assert_Line_Join_Coherent
         (S, "Alpha" & ASCII.LF & "Beta Gamma", 2, 1, 2,
@@ -954,10 +955,10 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
       Assert (Snap.Active_Find_Match_Count = 0,
               "render snapshot must not render stale pre-join Find ranges");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text (S, "Alpha" & ASCII.LF & "Beta" & ASCII.LF & "Gamma",
                           "undo restores exact pre-join text");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert_Buffer_Text (S, "Alpha" & ASCII.LF & "Beta Gamma",
                           "redo restores exact post-join text");
       Assert (Editor.Clipboard.Get_Text = Before_Clip,
@@ -981,22 +982,22 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
       Editor.Clipboard.Set_Text (Before_Clip);
 
       Set_Caret (S, 0);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Join_Next);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Join_Next);
       Assert_Buffer_Text (S, "one two", "initial join for redo invalidation");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text (S, "one" & ASCII.LF & "two",
                           "undo before redo invalidation restores baseline");
       Set_Caret (S, 0);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Indent_Increase);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Indent_Increase);
       Assert (Natural (Editor.History.Redo_Stack.Length) = 0,
               "ordinary successful edit after undo clears redo stack");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 1, 0)));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Join_Next);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Join_Next);
       Assert (Natural (Editor.History.Redo_Stack.Length) = 1,
               "no-op last-line join must preserve redo stack");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert_Buffer_Text (S, "  one" & ASCII.LF & "two",
                           "redo after no-op join restores preserved redo edit");
 
@@ -1009,30 +1010,30 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
       Editor.Clipboard.Set_Text (Before_Clip);
 
       Set_Caret (S, 0);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Duplicate);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Duplicate);
       Assert_Buffer_Text (S, "Alpha" & ASCII.LF & "Alpha" & ASCII.LF &
                           "  Beta" & ASCII.LF & "Gamma",
                           "duplicate-line precondition");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Join_Next);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Join_Next);
       Assert_Buffer_Text (S, "Alpha" & ASCII.LF & "Alpha   Beta" & ASCII.LF & "Gamma",
                           "duplicate-line then join uses canonical logical boundary");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Comment_Line);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Comment_Line);
       Assert_Buffer_Text (S, "Alpha" & ASCII.LF & "-- Alpha   Beta" & ASCII.LF & "Gamma",
                           "comment-line after join treats joined line as plain text");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Uncomment_Line);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Uncomment_Line);
       Assert_Buffer_Text (S, "Alpha" & ASCII.LF & "Alpha   Beta" & ASCII.LF & "Gamma",
                           "uncomment-line after join removes only canonical prefix marker");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Indent_Increase);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Indent_Increase);
       Assert_Buffer_Text (S, "Alpha" & ASCII.LF & "  Alpha   Beta" & ASCII.LF & "Gamma",
                           "indent after join operates on joined logical line");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Indent_Decrease);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Indent_Decrease);
       Assert_Buffer_Text (S, "Alpha" & ASCII.LF & "Alpha   Beta" & ASCII.LF & "Gamma",
                           "outdent after join operates on joined logical line");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Move_Down);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Move_Down);
       Assert_Buffer_Text (S, "Alpha" & ASCII.LF & "Gamma" & ASCII.LF & "Alpha   Beta",
                           "move-down after join keeps line boundaries deterministic");
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 1, 0)));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Delete);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Delete);
       Assert_Buffer_Text (S, "Alpha" & ASCII.LF & "Alpha   Beta",
                           "delete-line after join deletes the selected current logical line only");
       Assert (Editor.Clipboard.Get_Text = Before_Clip,
@@ -1049,7 +1050,7 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
       Candidates     : Editor.Commands.Descriptors.Command_Descriptor_Vectors.Vector;
       Join_Count     : Natural := 0;
       Found          : Boolean := False;
-      Id             : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Id             : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Before_Clip    : constant Unbounded_String := To_Unbounded_String ("CLIP");
       Before_Back    : Natural := 0;
       Before_Fwd     : Natural := 0;
@@ -1059,7 +1060,7 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
       procedure Assert_Not_Exposed (Name : String) is
       begin
          Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
-         Assert ((not Found) and then Id = Editor.Commands.No_Command,
+         Assert ((not Found) and then Id = Editor.Command_Ids.No_Command,
                  "non-goal command must not be exposed: " & Name);
       end Assert_Not_Exposed;
    begin
@@ -1077,7 +1078,7 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
       Set_Caret (S, 0);
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Join_Next);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Join_Next);
       Assert_Buffer_Text (S, "Alpha Beta" & ASCII.LF & "Gamma",
                           "join in buffer A changes only buffer A");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
@@ -1090,17 +1091,17 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
       Assert (Natural (Editor.History.Undo_Stack.Length) = 0,
               "buffer B undo stack remains unchanged after buffer A join");
       Set_Caret (S, 0);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Join_Next);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Join_Next);
       Assert_Buffer_Text (S, "Delta Epsilon" & ASCII.LF & "Zeta",
                           "buffer B joins independently");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text (S, "Delta" & ASCII.LF & "Epsilon" & ASCII.LF & "Zeta",
                           "undo in buffer B affects only buffer B");
 
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, A_Id);
       Assert_Buffer_Text (S, "Alpha Beta" & ASCII.LF & "Gamma",
                           "switching back preserves buffer A joined text");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text (S, "Alpha" & ASCII.LF & "Beta" & ASCII.LF & "Gamma",
                           "undo in buffer A affects only buffer A");
 
@@ -1119,7 +1120,7 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
       Editor.Command_Palette.Reset;
       Editor.Command_Palette.Filtered_Commands (Candidates);
       for C of Candidates loop
-         if C.Id = Editor.Commands.Command_Line_Join_Next then
+         if C.Id = Editor.Command_Ids.Command_Line_Join_Next then
             Join_Count := Join_Count + 1;
          end if;
       end loop;
@@ -1129,7 +1130,7 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
                           "command palette projection must not join text");
 
       Set_Caret (S, 0);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Join_Next);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Join_Next);
       Assert_Buffer_Text (S, "Quick Open" & ASCII.LF & "Search",
                           "route coverage command id must execute canonical join");
       Assert (Editor.Clipboard.Get_Text = Before_Clip,
@@ -1185,7 +1186,7 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
       Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Join_Next);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Join_Next);
       Assert_Line_Join_Coherent
         (S,
          "Alpha  " & ASCII.HT & "Beta" & ASCII.LF & "Gamma",
@@ -1207,10 +1208,10 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
       Assert (R.Selection_Count = 0,
               "render snapshot must not expose stale Line Join selection state");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text (S, "Alpha " & ASCII.LF & ASCII.HT & "Beta" & ASCII.LF & "Gamma",
                           "undo must restore captured pre-join text");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert_Buffer_Text (S, "Alpha  " & ASCII.HT & "Beta" & ASCII.LF & "Gamma",
                           "redo must restore captured post-join text without re-running join logic");
 
@@ -1251,7 +1252,7 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
          Set_Caret (S, Caret);
 
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Line_Split_At_Caret);
+           (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
 
          Assert_Buffer_Text (S, Expected, Why);
          Assert_Caret_Row_Col (S, Expected_Row, 0, Why);
@@ -1264,9 +1265,9 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
          Assert (Editor.State.Is_Dirty (S),
                  Why & ": text-changing split must dirty the buffer");
 
-         Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+         Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
          Assert_Buffer_Text (S, Input, Why & " undo");
-         Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+         Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
          Assert_Buffer_Text (S, Expected, Why & " redo");
       end Check;
    begin
@@ -1328,7 +1329,7 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Line_Split_At_Caret);
+        (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
 
       Assert_Line_Join_Coherent
         (S,
@@ -1352,11 +1353,11 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
       Assert (R.Selection_Count = 0,
               "render snapshot must not expose stale split selection state");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Join_Next);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Join_Next);
       Assert_Buffer_Text
         (S, "Alpha" & ASCII.LF & "Beta Gamma",
          "split must coexist with canonical Line Join policy");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text
         (S, "Alpha" & ASCII.LF & "Beta" & ASCII.LF & "Gamma",
          "undo after mixed split/join must restore split text");
@@ -1374,7 +1375,7 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
          "workspace persistence must exclude Line Split transient state/settings");
 
       Editor.Keybindings.Bind
-        (Chord, Editor.Commands.Command_Line_Split_At_Caret);
+        (Chord, Editor.Command_Ids.Command_Line_Split_At_Caret);
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "oneTwo");
       Set_Caret (S, 3);
@@ -1417,7 +1418,7 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
          Before_Redo := Natural (Editor.History.Redo_Stack.Length);
 
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Line_Split_At_Caret);
+           (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
 
          Assert_Buffer_Text (S, Expected, Why);
          Assert_Caret_Row_Col (S, Expected_Row, 0, Why);
@@ -1430,9 +1431,9 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
          Assert (Editor.State.Is_Dirty (S),
                  Why & ": successful split must dirty a clean buffer");
 
-         Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+         Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
          Assert_Buffer_Text (S, Input, Why & " undo restores exact source text");
-         Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+         Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
          Assert_Buffer_Text (S, Expected, Why & " redo restores exact split text");
       end Check;
    begin
@@ -1511,7 +1512,7 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Line_Split_At_Caret);
+        (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
 
       Assert_Line_Join_Coherent
         (S,
@@ -1526,7 +1527,7 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
       Assert (S.Active_Find_Stale,
               "split must invalidate active Find ranges through canonical text-edit hook");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy);
       Assert (Editor.Clipboard.Get_Text = Before_Clip,
               "copy after split must observe cleared selection and preserve clipboard text");
 
@@ -1542,7 +1543,7 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
         (S, Before_Back, Before_Fwd,
          "render/copy after split must not mutate navigation history");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text
         (S, "AlphaBeta" & ASCII.LF & "Gamma",
          "undo after split restores exact text before selection split");
@@ -1554,7 +1555,7 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
       Set_Caret (S, Cursor_Index (Text_Buffer.Length (S.Buffer) + 20));
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Line_Split_At_Caret);
+        (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
       Assert (Message_Text (S) = "Could not split line",
               "invalid injected caret split must fail deterministically");
       Assert_Buffer_Text
@@ -1589,19 +1590,19 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
       Editor.History.Redo_Stack.Clear;
       Set_Caret (S, 5);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Line_Split_At_Caret);
+        (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
       Assert_Buffer_Text
         (S, "Alpha" & ASCII.LF & "Beta" & ASCII.LF & "Gamma",
          "split creates one canonical logical boundary before join");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Join_Next);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Join_Next);
       Assert_Buffer_Text
         (S, "Alpha" & ASCII.LF & "Beta Gamma",
          "split then join follows join separator policy and is not a semantic inverse");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text
         (S, "Alpha" & ASCII.LF & "Beta" & ASCII.LF & "Gamma",
          "undo mixed split/join restores exact pre-join split text");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert_Buffer_Text
         (S, "Alpha" & ASCII.LF & "Beta Gamma",
          "redo mixed split/join restores exact joined text");
@@ -1613,15 +1614,15 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
       Editor.History.Redo_Stack.Clear;
       Set_Caret (S, 2);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Line_Split_At_Caret);
+        (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
       Assert_Buffer_Text
         (S, "  " & ASCII.LF & "AlphaBeta",
          "split inside leading whitespace does not auto-indent or copy indentation");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Indent_Increase);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Indent_Increase);
       Assert_Buffer_Text
         (S, "  " & ASCII.LF & "  AlphaBeta",
          "indent after split affects caret's new logical line only");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text
         (S, "  " & ASCII.LF & "AlphaBeta",
          "undo indent after split restores exact split text");
@@ -1633,15 +1634,15 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
       Editor.History.Redo_Stack.Clear;
       Set_Caret (S, 3);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Line_Split_At_Caret);
+        (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
       Assert_Buffer_Text
         (S, "-- " & ASCII.LF & "AlphaBeta",
          "split treats comment markers as plain text");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Toggle_Line_Comment);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Toggle_Line_Comment);
       Assert_Buffer_Text
         (S, "-- " & ASCII.LF & "-- AlphaBeta",
          "toggle comment after split operates on caret's new logical line only");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text
         (S, "-- " & ASCII.LF & "AlphaBeta",
          "undo comment after split restores exact split text");
@@ -1653,16 +1654,16 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
       Editor.History.Redo_Stack.Clear;
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 1, 3)));
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Line_Split_At_Caret);
+        (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
       Assert_Buffer_Text
         (S, "Top" & ASCII.LF & "Mid" & ASCII.LF & "Tail" & ASCII.LF & "Bottom",
          "split after line editing setup uses logical line text only");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Duplicate);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Duplicate);
       Assert_Buffer_Text
         (S, "Top" & ASCII.LF & "Mid" & ASCII.LF & "Tail" & ASCII.LF & "Tail" & ASCII.LF & "Bottom",
          "duplicate-line after split uses post-split current logical line");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text
         (S, "Top" & ASCII.LF & "MidTail" & ASCII.LF & "Bottom",
          "mixed line-edit undo chain restores exact original text");
@@ -1697,7 +1698,7 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Line_Split_At_Caret);
+        (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
       Assert_Buffer_Text
         (S, "Gamma" & ASCII.LF & "Delta",
          "split mutates only active buffer B");
@@ -1713,7 +1714,7 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
               "inactive buffer A does not inherit buffer B split undo entry");
       Set_Caret (S, 5);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Line_Split_At_Caret);
+        (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
       Assert_Buffer_Text
         (S, "Alpha" & ASCII.LF & "Beta",
          "buffer A split operates independently after switch");
@@ -1723,7 +1724,7 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
       Assert_Buffer_Text
         (S, "Gamma" & ASCII.LF & "Delta",
          "switching back preserves buffer B split text");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text
         (S, "GammaDelta",
          "undo in buffer B affects only buffer B split entry");
@@ -1741,7 +1742,7 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
       Before_Undo := Natural (Editor.History.Undo_Stack.Length);
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Line_Split_At_Caret);
+        (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
               "split availability should be available with active buffer and caret");
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = To_String (Before_Text),
@@ -1799,7 +1800,7 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
          Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
 
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Line_Split_At_Caret);
+           (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
 
          Assert_Line_Join_Coherent
            (S, Expected, Expected_Line_Count, Expected_Row, 0,
@@ -1807,11 +1808,11 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
             To_Unbounded_String ("MATRIX-CLIP"), Before_Back, Before_Fwd,
             Why);
 
-         Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+         Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
          Assert_Buffer_Text (S, Input, Why & " undo exact text");
          Assert (Natural (Editor.History.Redo_Stack.Length) = 1,
                  Why & ": undo leaves redo entry");
-         Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+         Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
          Assert_Buffer_Text (S, Expected, Why & " redo exact text");
       end Check;
    begin
@@ -1874,7 +1875,7 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Line_Split_At_Caret);
+        (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
 
       Assert_Line_Join_Coherent
         (S,
@@ -1898,29 +1899,29 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
       Assert (R.Selection_Count = 0,
               "render snapshot must not expose stale selection");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy);
       Assert (Editor.Clipboard.Get_Text = Before_Clip,
               "copy after cleared split selection must preserve clipboard");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text
         (S, "AlphaBeta" & ASCII.LF & "Gamma",
          "undo restores exact pre-split text");
       Assert (Natural (Editor.History.Redo_Stack.Length) = 1,
               "undo exposes one redo entry");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert_Buffer_Text
         (S, "Alpha" & ASCII.LF & "Beta" & ASCII.LF & "Gamma",
          "redo restores exact post-split text");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Before_Text := To_Unbounded_String (Text_Buffer.UTF8_Text (S.Buffer));
       Before_Dirty := Editor.State.Is_Dirty (S);
       Before_Undo := Natural (Editor.History.Undo_Stack.Length);
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
       Set_Caret (S, Cursor_Index (Text_Buffer.Length (S.Buffer) + 40));
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Line_Split_At_Caret);
+        (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
       Assert (Message_Text (S) = "Could not split line",
               "failed injected-caret split must report deterministic failure");
       Assert_Buffer_Text (S, To_String (Before_Text),
@@ -1939,10 +1940,10 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
 
       Set_Caret (S, Cursor_Index (Text_Buffer.Length (S.Buffer)));
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Line_Split_At_Caret);
+        (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
       Assert (Natural (Editor.History.Redo_Stack.Length) = 0,
               "successful split after undo clears redo stack");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert (Message_Text (S) = "No edits to redo",
               "redo after successful split reports empty redo stack");
    end Test_Line_Split_Undo_Redo_Dirty_Find_Clipboard_Navigation_Render;
@@ -1959,16 +1960,16 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
       Set_Caret (S, 5);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Split_At_Caret);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
       Assert_Buffer_Text (S, "Alpha" & ASCII.LF & "Beta" & ASCII.LF & "Gamma",
                           "split before join exact text");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Join_Next);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Join_Next);
       Assert_Buffer_Text (S, "Alpha" & ASCII.LF & "Beta Gamma",
                           "join after split follows separate join separator policy");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text (S, "Alpha" & ASCII.LF & "Beta" & ASCII.LF & "Gamma",
                           "undo join restores split text");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text (S, "AlphaBeta" & ASCII.LF & "Gamma",
                           "undo split restores original text");
 
@@ -1978,21 +1979,21 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 1, 3)));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Duplicate);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Duplicate);
       Assert_Buffer_Text
         (S, "Top" & ASCII.LF & "MidTail" & ASCII.LF & "MidTail" & ASCII.LF & "Bottom",
          "duplicate-line setup exact text");
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 1, 3)));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Split_At_Caret);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
       Assert_Buffer_Text
         (S, "Top" & ASCII.LF & "Mid" & ASCII.LF & "Tail" & ASCII.LF & "MidTail" & ASCII.LF & "Bottom",
          "split after duplicate uses current logical line only");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Move_Down);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Move_Down);
       Assert_Buffer_Text
         (S, "Top" & ASCII.LF & "Mid" & ASCII.LF & "MidTail" & ASCII.LF & "Tail" & ASCII.LF & "Bottom",
          "move-down after split uses post-split current line");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text
         (S, "Top" & ASCII.LF & "MidTail" & ASCII.LF & "MidTail" & ASCII.LF & "Bottom",
          "undo mixed line-edit/split chain exact text");
@@ -2003,14 +2004,14 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
       Set_Caret (S, 2);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Split_At_Caret);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
       Assert_Buffer_Text (S, "  " & ASCII.LF & "AlphaBeta",
                           "split inside indentation preserves sides exactly");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Indent_Increase);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Indent_Increase);
       Assert_Buffer_Text (S, "  " & ASCII.LF & "  AlphaBeta",
                           "indent after split affects caret line only");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Indent_Decrease);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Indent_Decrease);
       Assert_Buffer_Text (S, "  " & ASCII.LF & "AlphaBeta",
                           "outdent after split leaves unindented caret line unchanged");
 
@@ -2020,14 +2021,14 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
       Set_Caret (S, 3);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Split_At_Caret);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
       Assert_Buffer_Text (S, "-- " & ASCII.LF & "AlphaBeta",
                           "split treats comment marker as plain text");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Toggle_Line_Comment);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Toggle_Line_Comment);
       Assert_Buffer_Text (S, "-- " & ASCII.LF & "-- AlphaBeta",
                           "toggle comment after split owns comment marker behavior");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Uncomment_Line);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Uncomment_Line);
       Assert_Buffer_Text (S, "-- " & ASCII.LF & "AlphaBeta",
                           "uncomment after split does not infer marker across boundary");
    end Test_Line_Split_Mixed_Command_Coexistence_Workflows;
@@ -2049,12 +2050,12 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
       Before_Redo    : Natural := 0;
       Availability   : Editor.Commands.Availability_Metadata.Command_Availability;
       Found          : Boolean := False;
-      Id             : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Id             : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
 
       procedure Assert_Not_Exposed (Name : String) is
       begin
          Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
-         Assert ((not Found) and then Id = Editor.Commands.No_Command,
+         Assert ((not Found) and then Id = Editor.Command_Ids.No_Command,
                  "non-goal Line Split command must not be exposed: " & Name);
       end Assert_Not_Exposed;
    begin
@@ -2071,7 +2072,7 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
       Set_Caret (S, 5);
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Split_At_Caret);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
       Assert_Buffer_Text (S, "Gamma" & ASCII.LF & "Delta",
                           "split mutates active buffer B only");
       Editor.Buffers.Sync_Global_Active_From_State (S);
@@ -2082,7 +2083,7 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
       Assert (Natural (Editor.History.Undo_Stack.Length) = 0,
               "inactive buffer A has no inherited split undo entry");
       Set_Caret (S, 5);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Split_At_Caret);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
       Assert_Buffer_Text (S, "Alpha" & ASCII.LF & "Beta",
                           "buffer A split is independent");
       Editor.Buffers.Sync_Global_Active_From_State (S);
@@ -2090,7 +2091,7 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, B_Id);
       Assert_Buffer_Text (S, "Gamma" & ASCII.LF & "Delta",
                           "buffer B retains its own split text");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text (S, "GammaDelta",
                           "undo in buffer B affects only buffer B");
 
@@ -2111,7 +2112,7 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
       Editor.Command_Palette.Reset;
       Editor.Command_Palette.Filtered_Commands (Candidates);
       for C of Candidates loop
-         if C.Id = Editor.Commands.Command_Line_Split_At_Caret then
+         if C.Id = Editor.Command_Ids.Command_Line_Split_At_Caret then
             Split_Count := Split_Count + 1;
          end if;
       end loop;
@@ -2121,7 +2122,7 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
               "command palette projection must not split text");
 
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Line_Split_At_Caret);
+        (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
               "split availability available with active buffer/caret");
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = To_String (Before_Text),
@@ -2132,7 +2133,7 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
               and then Natural (Editor.History.Redo_Stack.Length) = Before_Redo,
               "availability must not mutate history");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Split_At_Caret);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
       Assert_Buffer_Text (S, "Feature" & ASCII.LF & "AlphaBeta" & ASCII.LF & "Tail",
                           "feature-populated split exact text");
       Assert (S.Active_Find_Query = To_Unbounded_String ("Feature"),
@@ -2194,7 +2195,7 @@ procedure Test_Line_Split_Canonical_Behavior_And_State_Boundaries
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Split_At_Caret);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
 
       Assert_Buffer_Text
         (S,
@@ -2249,10 +2250,10 @@ procedure Test_Line_Split_Canonical_Behavior_And_State_Boundaries
          and then Index (Summary, "formatting split") = 0,
          "workspace persistence must exclude canonical and removed Line Split state");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text (S, "  -- AlphaBeta" & ASCII.LF & "Tail",
                           "undo restores captured before text without replaying split");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert_Buffer_Text
         (S,
          "  -- Alph" & ASCII.LF & "aBeta" & ASCII.LF & "Tail",
@@ -2282,7 +2283,7 @@ procedure Test_Line_Split_Canonical_Behavior_And_State_Boundaries
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
 
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Line_Split_At_Caret);
+        (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
               "canonical Line Split availability should be available before split");
       Assert_Buffer_Text (S, To_String (Before_Text),
@@ -2291,7 +2292,7 @@ procedure Test_Line_Split_Canonical_Behavior_And_State_Boundaries
               and then Natural (Editor.History.Redo_Stack.Length) = Before_Redo,
               "availability must not mutate Undo/Redo stacks");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Insert_Newline);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Insert_Newline);
       Assert_Buffer_Text (S, "Alpha" & ASCII.LF & "Beta",
                           "ordinary Insert Newline remains separate but uses canonical text edit semantics");
       Assert (Message_Text (S) /= "Split line",
@@ -2315,7 +2316,7 @@ procedure Test_Line_Split_Canonical_Behavior_And_State_Boundaries
       Before_Undo := Natural (Editor.History.Undo_Stack.Length);
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Split_At_Caret);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
       Assert_Buffer_Text (S, "StaleAlphaBeta",
                           "failed split must preserve buffer text");
       Assert (Message_Text (S) = "Could not split line",
@@ -2346,7 +2347,7 @@ procedure Test_Line_Split_Canonical_Behavior_And_State_Boundaries
       S.Active_Find_Stale := False;
       Set_Caret (S, 5);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Insert_Newline);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Insert_Newline);
 
       Assert_Buffer_Text
         (S, "Alpha" & ASCII.LF & "Beta",
@@ -2358,11 +2359,11 @@ procedure Test_Line_Split_Canonical_Behavior_And_State_Boundaries
       Assert (S.Active_Find_Stale,
               "line-boundary insertion invalidates Find through text-edit hook");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text
         (S, "AlphaBeta",
          "undo restores text before line-boundary insertion");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert_Buffer_Text
         (S, "Alpha" & ASCII.LF & "Beta",
          "redo restores exact line-boundary payload");
@@ -2408,7 +2409,7 @@ procedure Test_Line_Split_Canonical_Behavior_And_State_Boundaries
          Editor.History.Redo_Stack.Clear;
          Set_Caret (S, Caret);
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Line_Join_Next);
+           (S, Editor.Command_Ids.Command_Line_Join_Next);
          Assert (Text_Buffer.UTF8_Text (S.Buffer) = Expected,
                  Why & ": joined text mismatch");
          Assert (Message_Text (S) = "Joined line",
@@ -2417,10 +2418,10 @@ procedure Test_Line_Split_Canonical_Behavior_And_State_Boundaries
                  Why & ": join must create one undo entry");
          Assert (Editor.State.Is_Dirty (S),
                  Why & ": join must dirty clean buffer");
-         Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+         Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
          Assert (Text_Buffer.UTF8_Text (S.Buffer) = Input,
                  Why & ": undo must restore exact input");
-         Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+         Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
          Assert (Text_Buffer.UTF8_Text (S.Buffer) = Expected,
                  Why & ": redo must restore exact joined text");
       end Check;

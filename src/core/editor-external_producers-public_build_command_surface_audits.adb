@@ -1,8 +1,8 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Classification;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Containers;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.State;
 with Editor.External_Producers.Diagnostic_Line_Pipeline;
@@ -23,7 +23,7 @@ package body Editor.External_Producers.Public_Build_Command_Surface_Audits is
      Editor.External_Producers.Public_Build_Input_Validation;
 
    use type Ada.Containers.Count_Type;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Commands.Descriptors.Command_Category;
 
@@ -78,7 +78,7 @@ package body Editor.External_Producers.Public_Build_Command_Surface_Audits is
    is
       Name  : constant String := To_String (Surface_Entry.Stable_Id);
       Found : Boolean := False;
-      Id    : constant Editor.Commands.Command_Id :=
+      Id    : constant Editor.Command_Ids.Command_Id :=
         Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
       pragma Unreferenced (Id);
    begin
@@ -158,7 +158,7 @@ package body Editor.External_Producers.Public_Build_Command_Surface_Audits is
       Surface_Entries : constant Public_Build_Command_Surface_Array :=
         Build_Public_Build_Command_Surface;
       Found : Boolean;
-      Id    : Editor.Commands.Command_Id;
+      Id    : Editor.Command_Ids.Command_Id;
       pragma Unreferenced (Id);
    begin
       for Surface_Entry of Surface_Entries loop
@@ -175,7 +175,7 @@ package body Editor.External_Producers.Public_Build_Command_Surface_Audits is
    is
       Names : constant Command_Id_Vector := Public_Build_Command_Surface_Ids;
       Found : Boolean;
-      Id    : Editor.Commands.Command_Id;
+      Id    : Editor.Command_Ids.Command_Id;
       pragma Unreferenced (Id);
       Count : Natural := 0;
    begin
@@ -192,14 +192,14 @@ package body Editor.External_Producers.Public_Build_Command_Surface_Audits is
    procedure Assert_Public_Build_Surface_Ids_Not_Reused
    is
       Found : Boolean;
-      Id    : Editor.Commands.Command_Id;
+      Id    : Editor.Command_Ids.Command_Id;
       Names : constant Command_Id_Vector := Public_Build_Command_Surface_Ids;
    begin
       for Name of Names loop
          Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
            (To_String (Name), Found);
          if To_String (Name) = "build.run" then
-            if not Found or else Id /= Editor.Commands.Command_Build_Run then
+            if not Found or else Id /= Editor.Command_Ids.Command_Build_Run then
                raise Program_Error with "public build.run command missing";
             end if;
          elsif Found then
@@ -209,7 +209,7 @@ package body Editor.External_Producers.Public_Build_Command_Surface_Audits is
 
       if Is_Public_Build_Surface_Id
            (Editor.Commands.Name_Metadata.Stable_Command_Name
-              (Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam))
+              (Editor.Command_Ids.Command_Build_Run_User_Opt_In_Test_Seam))
       then
          raise Program_Error with "public build id public-name list includes internal test seam";
       end if;
@@ -234,11 +234,11 @@ package body Editor.External_Producers.Public_Build_Command_Surface_Audits is
 
    function Command_Surface_Has_Public_Build_Command return Boolean
    is
-      Id : Editor.Commands.Command_Id;
+      Id : Editor.Command_Ids.Command_Id;
       D  : Editor.Commands.Descriptors.Command_Descriptor;
    begin
-      for I in 1 .. Editor.Commands.Command_Count loop
-         Id := Editor.Commands.Command_At (I);
+      for I in 1 .. Editor.Command_Ids.Command_Count loop
+         Id := Editor.Command_Ids.Command_At (I);
          D := Editor.Commands.Descriptors.Descriptor (Id);
          if Is_Public_Build_Surface_Id (Editor.Commands.Name_Metadata.Stable_Command_Name (Id))
            and then D.Visibility = Editor.Commands.Descriptors.Palette_Command
@@ -257,7 +257,7 @@ package body Editor.External_Producers.Public_Build_Command_Surface_Audits is
 
       function Name_Not_Registered (Name : String) return Boolean is
          Found : Boolean;
-         Id    : constant Editor.Commands.Command_Id :=
+         Id    : constant Editor.Command_Ids.Command_Id :=
            Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
          pragma Unreferenced (Id);
       begin
@@ -848,7 +848,7 @@ package body Editor.External_Producers.Public_Build_Command_Surface_Audits is
         and then Summary.Default_Execution_Disabled;
       Result.No_Public_Bindable_Command :=
         not Editor.Commands.Classification.Is_Bindable_Command
-          (Editor.Commands.Command_Build_Run)
+          (Editor.Command_Ids.Command_Build_Run)
         and then not Readiness.Has_Default_Public_Build_Keybinding;
       Result.No_Public_Persistence_State := True;
       Result.No_Default_Execution := Summary.Default_Execution_Disabled;

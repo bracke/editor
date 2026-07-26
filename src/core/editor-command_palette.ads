@@ -1,8 +1,8 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
-with Editor.Commands;
 with Editor.Input_Field;
 
 
@@ -16,7 +16,7 @@ package Editor.Command_Palette is
       Query                   : Ada.Strings.Unbounded.Unbounded_String;
       Selected_Item            : Natural := 0;
       Selected_Candidate_Index : Natural := 0;
-      Selected_Command_Id      : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Selected_Command_Id      : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Top_Row                  : Natural := 1;
    end record;
 
@@ -52,7 +52,7 @@ package Editor.Command_Palette is
       Command_Palette_Empty_Row);
 
    type Related_Command_Help_Item is record
-      Command     : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Command     : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Stable_Name : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
       Title       : Ada.Strings.Unbounded.Unbounded_String :=
@@ -182,7 +182,7 @@ package Editor.Command_Palette is
    --  transient guided-action entry point: it carries only a stable command
    --  id, suppresses hidden/internal commands, and persists no palette state.
    procedure Open_With_Command
-     (Command : Editor.Commands.Command_Id);
+     (Command : Editor.Command_Ids.Command_Id);
 
    procedure Close;
    procedure Toggle;
@@ -230,7 +230,7 @@ package Editor.Command_Palette is
    procedure Filtered_Commands
      (Result : out Editor.Commands.Descriptors.Command_Descriptor_Vectors.Vector);
 
-   function Selected_Command return Editor.Commands.Command_Id;
+   function Selected_Command return Editor.Command_Ids.Command_Id;
 
    function Has_Selected_Command return Boolean;
 
@@ -288,7 +288,7 @@ package Editor.Command_Palette is
    procedure Clear_Command_State_Contexts;
 
    procedure Set_Command_State_Context
-     (Command : Editor.Commands.Command_Id;
+     (Command : Editor.Command_Ids.Command_Id;
       Text    : String);
 
    function Related_Command_Is_Activation_Safe
@@ -301,14 +301,14 @@ package Editor.Command_Palette is
      (Help : Command_Help_Snapshot) return Boolean;
 
    function Descriptor_Registry_Order
-     (Id : Editor.Commands.Command_Id) return Natural;
+     (Id : Editor.Command_Ids.Command_Id) return Natural;
 
    procedure Sort_Candidates
      (Candidates : in out Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector);
 
    procedure Reconcile_Selection
      (Candidates             : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
-      Preferred_Command      : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Preferred_Command      : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Prefer_First_Available : Boolean := True);
 
    function Build_Snapshot

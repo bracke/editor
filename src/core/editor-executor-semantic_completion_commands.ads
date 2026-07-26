@@ -1,6 +1,6 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.State;
-with Editor.Commands;
 
 package Editor.Executor.Semantic_Completion_Commands is
 
@@ -12,7 +12,7 @@ package Editor.Executor.Semantic_Completion_Commands is
 
    function Semantic_Completion_Command_Availability
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Commands.Availability_Metadata.Command_Availability;
 
    procedure Clear_Semantic_Popup

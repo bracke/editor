@@ -1,7 +1,7 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Fixed; use Ada.Strings.Fixed;
-with Editor.Commands;
 with Editor.Feature_Panel;
 with Editor.Keybindings;
 with Editor.Status_Bar;
@@ -58,8 +58,8 @@ package body Editor.Contextual_Help.Tests is
       Chord : constant Editor.Keybindings.Key_Chord :=
         (Key       => Editor.Keybindings.Key_P,
          Modifiers => (Ctrl => True, Shift => False, Alt => False, Meta => False));
-      Command : constant Editor.Commands.Command_Id :=
-        Editor.Commands.Command_Open_Command_Palette;
+      Command : constant Editor.Command_Ids.Command_Id :=
+        Editor.Command_Ids.Command_Open_Command_Palette;
    begin
       Editor.Keybindings.Clear;
       Assert (Shortcut_Text (Command, True) = "",
@@ -86,8 +86,8 @@ package body Editor.Contextual_Help.Tests is
       Chord : constant Editor.Keybindings.Key_Chord :=
         (Key       => Editor.Keybindings.Key_F12,
          Modifiers => (Ctrl => True, Shift => False, Alt => False, Meta => False));
-      Command : constant Editor.Commands.Command_Id :=
-        Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam;
+      Command : constant Editor.Command_Ids.Command_Id :=
+        Editor.Command_Ids.Command_Build_Run_User_Opt_In_Test_Seam;
    begin
       Editor.Keybindings.Clear;
       Editor.Keybindings.Bind (Chord, Command);
@@ -106,23 +106,23 @@ package body Editor.Contextual_Help.Tests is
 
       Assert
         (Shortcut_Text
-           (Editor.Commands.Command_Palette_Show_Command_Help, True) = "F1",
+           (Editor.Command_Ids.Command_Palette_Show_Command_Help, True) = "F1",
          "Command help must expose the F1 daily workflow shortcut");
       Assert
         (With_Shortcut
-           ("Open file", Editor.Commands.Command_Open_File, True) =
+           ("Open file", Editor.Command_Ids.Command_Open_File, True) =
          "Open file [Ctrl+O]",
          "Open File help text must expose the Ctrl+O daily workflow shortcut");
       Assert
         (Shortcut_Text
-           (Editor.Commands.Command_Open_Project, True) = "Ctrl+Alt+O",
+           (Editor.Command_Ids.Command_Open_Project, True) = "Ctrl+Alt+O",
          "Open Project help must expose the Ctrl+Alt+O daily workflow shortcut");
       Assert
         (Shortcut_Text
-           (Editor.Commands.Command_Diagnostics_Show, True) = "Ctrl+Alt+M",
+           (Editor.Command_Ids.Command_Diagnostics_Show, True) = "Ctrl+Alt+M",
          "Diagnostics help must expose the Ctrl+Alt+M daily workflow shortcut");
       Assert
-        (Shortcut_Text (Editor.Commands.Command_Build_Run, True) = "",
+        (Shortcut_Text (Editor.Command_Ids.Command_Build_Run, True) = "",
          "Run Build must remain unhinted because it is intentionally unbound");
    end Test_Daily_Workflow_Defaults_Appear_In_Help;
 
@@ -216,11 +216,11 @@ package body Editor.Contextual_Help.Tests is
       Assert (Index (Selected_Row_Action_Hint (Open_Row, False), "opens") > 0,
               "Openable rows must describe Enter activation");
       Assert (Command_Row_Action_Hint
-                (Editor.Commands.Command_Save_File, True, "", False) =
+                (Editor.Command_Ids.Command_Save_File, True, "", False) =
               "Enter runs selected command",
               "Available command rows must describe Enter execution");
       Assert (Command_Row_Action_Hint
-                (Editor.Commands.Command_Save_File, False, "No active buffer.", True) =
+                (Editor.Command_Ids.Command_Save_File, False, "No active buffer.", True) =
               "No active buffer.",
               "Disabled command rows must project the disabled reason");
       Assert (File_Tree_Row_Action_Hint (False, False, False) =

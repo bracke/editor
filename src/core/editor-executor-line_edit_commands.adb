@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Command_Kinds; use Editor.Command_Kinds;
 with Editor.Commands.Payloads;
@@ -7,7 +8,6 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Text_Buffer;
 
 with Editor.Buffers;
-with Editor.Commands;
 with Editor.Executor.Edits;
 with Editor.Executor.History;
 with Editor.Executor.Shared_Services;
@@ -26,7 +26,7 @@ package body Editor.Executor.Line_Edit_Commands is
 
    use Editor.Commands;
    use Editor.Executor.Edits;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Messages.Message_Severity;
    use type Editor.Selection.Selection_Validation_Status;
 
@@ -338,7 +338,7 @@ package body Editor.Executor.Line_Edit_Commands is
    function Result_After_Command
      (S       : Editor.State.State_Type;
       Before  : Natural;
-      Command : Editor.Commands.Command_Id)
+      Command : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
    is
       Found : Boolean := False;
@@ -362,7 +362,7 @@ package body Editor.Executor.Line_Edit_Commands is
 
    procedure Report_Line_Edit_Status
      (S       : in out Editor.State.State_Type;
-      Command : Editor.Commands.Command_Id;
+      Command : Editor.Command_Ids.Command_Id;
       Status  : Editor.Executor.Edits.Line_Edit_Status)
    is
    begin
@@ -463,26 +463,26 @@ package body Editor.Executor.Line_Edit_Commands is
             Report_Info (S, "No caret location");
          when Editor.Executor.Edits.Line_Edit_Failed =>
             case Command is
-               when Editor.Commands.Command_Line_Delete =>
+               when Editor.Command_Ids.Command_Line_Delete =>
                   Report_Error (S, "Could not delete line");
-               when Editor.Commands.Command_Line_Duplicate =>
+               when Editor.Command_Ids.Command_Line_Duplicate =>
                   Report_Error (S, "Could not duplicate line");
-               when Editor.Commands.Command_Line_Move_Up =>
+               when Editor.Command_Ids.Command_Line_Move_Up =>
                   Report_Error (S, "Could not move line up");
-               when Editor.Commands.Command_Line_Move_Down =>
+               when Editor.Command_Ids.Command_Line_Move_Down =>
                   Report_Error (S, "Could not move line down");
-               when Editor.Commands.Command_Indent_Increase =>
+               when Editor.Command_Ids.Command_Indent_Increase =>
                   Report_Error (S, "Could not indent line");
-               when Editor.Commands.Command_Indent_Decrease =>
+               when Editor.Command_Ids.Command_Indent_Decrease =>
                   Report_Error (S, "Could not outdent line");
-               when Editor.Commands.Command_Comment_Line
-                  | Editor.Commands.Command_Toggle_Line_Comment =>
+               when Editor.Command_Ids.Command_Comment_Line
+                  | Editor.Command_Ids.Command_Toggle_Line_Comment =>
                   Report_Error (S, "Could not comment line");
-               when Editor.Commands.Command_Uncomment_Line =>
+               when Editor.Command_Ids.Command_Uncomment_Line =>
                   Report_Error (S, "Could not uncomment line");
-               when Editor.Commands.Command_Line_Join_Next =>
+               when Editor.Command_Ids.Command_Line_Join_Next =>
                   Report_Error (S, "Could not join line");
-               when Editor.Commands.Command_Line_Split_At_Caret =>
+               when Editor.Command_Ids.Command_Line_Split_At_Caret =>
                   Report_Error (S, "Could not split line");
                when others =>
                   Report_Error (S, "Could not edit line");
@@ -863,7 +863,7 @@ package body Editor.Executor.Line_Edit_Commands is
 
    function Line_Edit_Command_Availability
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin
@@ -874,17 +874,17 @@ package body Editor.Executor.Line_Edit_Commands is
       end if;
 
       case Id is
-         when Editor.Commands.Command_Line_Delete
-            | Editor.Commands.Command_Line_Duplicate
-            | Editor.Commands.Command_Line_Move_Up
-            | Editor.Commands.Command_Line_Move_Down
-            | Editor.Commands.Command_Indent_Increase
-            | Editor.Commands.Command_Indent_Decrease
-            | Editor.Commands.Command_Comment_Line
-            | Editor.Commands.Command_Uncomment_Line
-            | Editor.Commands.Command_Toggle_Line_Comment
-            | Editor.Commands.Command_Line_Join_Next
-            | Editor.Commands.Command_Line_Split_At_Caret =>
+         when Editor.Command_Ids.Command_Line_Delete
+            | Editor.Command_Ids.Command_Line_Duplicate
+            | Editor.Command_Ids.Command_Line_Move_Up
+            | Editor.Command_Ids.Command_Line_Move_Down
+            | Editor.Command_Ids.Command_Indent_Increase
+            | Editor.Command_Ids.Command_Indent_Decrease
+            | Editor.Command_Ids.Command_Comment_Line
+            | Editor.Command_Ids.Command_Uncomment_Line
+            | Editor.Command_Ids.Command_Toggle_Line_Comment
+            | Editor.Command_Ids.Command_Line_Join_Next
+            | Editor.Command_Ids.Command_Line_Split_At_Caret =>
             return Editor.Commands.Availability_Metadata.Available;
          when others =>
             return Editor.Commands.Availability_Metadata.Unavailable ("Not a line edit command");
@@ -893,7 +893,7 @@ package body Editor.Executor.Line_Edit_Commands is
 
    function Execute_Line_Edit_Command
      (S     : in out Editor.State.State_Type;
-      Id    : Editor.Commands.Command_Id;
+      Id    : Editor.Command_Ids.Command_Id;
       Shift : Boolean := False)
       return Editor.Command_Execution.Command_Execution_Result
    is
@@ -902,17 +902,17 @@ package body Editor.Executor.Line_Edit_Commands is
       Line_Status     : Editor.Executor.Edits.Line_Edit_Status;
    begin
       case Id is
-         when Editor.Commands.Command_Line_Delete
-            | Editor.Commands.Command_Line_Duplicate
-            | Editor.Commands.Command_Line_Move_Up
-            | Editor.Commands.Command_Line_Move_Down
-            | Editor.Commands.Command_Indent_Increase
-            | Editor.Commands.Command_Indent_Decrease
-            | Editor.Commands.Command_Comment_Line
-            | Editor.Commands.Command_Uncomment_Line
-            | Editor.Commands.Command_Toggle_Line_Comment
-            | Editor.Commands.Command_Line_Join_Next
-            | Editor.Commands.Command_Line_Split_At_Caret =>
+         when Editor.Command_Ids.Command_Line_Delete
+            | Editor.Command_Ids.Command_Line_Duplicate
+            | Editor.Command_Ids.Command_Line_Move_Up
+            | Editor.Command_Ids.Command_Line_Move_Down
+            | Editor.Command_Ids.Command_Indent_Increase
+            | Editor.Command_Ids.Command_Indent_Decrease
+            | Editor.Command_Ids.Command_Comment_Line
+            | Editor.Command_Ids.Command_Uncomment_Line
+            | Editor.Command_Ids.Command_Toggle_Line_Comment
+            | Editor.Command_Ids.Command_Line_Join_Next
+            | Editor.Command_Ids.Command_Line_Split_At_Caret =>
             Cmd := Editor.Commands.Payloads.Command_For_Id (Id, Shift);
             Editor.Executor.Execute_No_Log_With_Status
               (S, Cmd, Line_Status);

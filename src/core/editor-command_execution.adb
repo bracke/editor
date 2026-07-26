@@ -1,12 +1,12 @@
-with Editor.Commands;
+with Editor.Command_Ids; use Editor.Command_Ids;
 
 package body Editor.Command_Execution is
 
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
 
    function Make_Result
      (Status  : Command_Execution_Status;
-      Command : Editor.Commands.Command_Id)
+      Command : Editor.Command_Ids.Command_Id)
       return Command_Execution_Result
    is
    begin
@@ -14,18 +14,18 @@ package body Editor.Command_Execution is
    end Make_Result;
 
    function Executed
-     (Command : Editor.Commands.Command_Id)
+     (Command : Editor.Command_Ids.Command_Id)
       return Command_Execution_Result
    is
    begin
-      if Command = Editor.Commands.No_Command then
+      if Command = Editor.Command_Ids.No_Command then
          return No_Op (Command);
       end if;
       return Make_Result (Command_Executed, Command);
    end Executed;
 
    function Unavailable
-     (Command : Editor.Commands.Command_Id)
+     (Command : Editor.Command_Ids.Command_Id)
       return Command_Execution_Result
    is
    begin
@@ -33,7 +33,7 @@ package body Editor.Command_Execution is
    end Unavailable;
 
    function Failed
-     (Command : Editor.Commands.Command_Id)
+     (Command : Editor.Command_Ids.Command_Id)
       return Command_Execution_Result
    is
    begin
@@ -41,7 +41,7 @@ package body Editor.Command_Execution is
    end Failed;
 
    function Cancelled
-     (Command : Editor.Commands.Command_Id)
+     (Command : Editor.Command_Ids.Command_Id)
       return Command_Execution_Result
    is
    begin
@@ -49,7 +49,7 @@ package body Editor.Command_Execution is
    end Cancelled;
 
    function No_Op
-     (Command : Editor.Commands.Command_Id)
+     (Command : Editor.Command_Ids.Command_Id)
       return Command_Execution_Result
    is
    begin
@@ -101,7 +101,7 @@ package body Editor.Command_Execution is
      (Result : Command_Execution_Result) return String
    is
    begin
-      return Editor.Commands.Command_Id'Image (Result.Command)
+      return Editor.Command_Ids.Command_Id'Image (Result.Command)
         & ":" & Status_Name (Result.Status);
    end Summary;
 

@@ -1,6 +1,5 @@
 with Ada.Characters.Handling;
 with Ada.Strings.Fixed;
-with Editor.Commands;
 with Editor.Commands.Workflow_Messages;
 
 package body Editor.Dogfood_Workflow is

@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Classification;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Audit_Model; use Editor.Commands.Audit_Model;
@@ -14,7 +15,6 @@ with Editor.Command_Domain;
 with Editor.Command_Integration_Checklist;
 with Editor.Command_Palette;
 with Editor.Command_Route_Audit;
-with Editor.Commands;
 with Editor.Executor;
 with Editor.Executor.Command_Palette_Projection;
 with Editor.Keybinding_Config;
@@ -32,7 +32,7 @@ with Editor.Commands.Audits;
 
 package body Editor.Command_Extension_Readiness.Tests is
 
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Keybinding_Config.Keybinding_Config_Status;
@@ -63,9 +63,9 @@ package body Editor.Command_Extension_Readiness.Tests is
       pragma Unreferenced (T);
       D : Editor.Commands.Descriptors.Command_Descriptor;
    begin
-      for I in 1 .. Editor.Commands.Command_Count loop
+      for I in 1 .. Editor.Command_Ids.Command_Count loop
          declare
-            Id : constant Editor.Commands.Command_Id := Editor.Commands.Command_At (I);
+            Id : constant Editor.Command_Ids.Command_Id := Editor.Command_Ids.Command_At (I);
          begin
             if Editor.Commands.Availability_Metadata.Is_Concrete_Command (Id) then
                Editor.Command_Integration_Checklist.Assert_Ready_For_User_Command (Id);
@@ -98,15 +98,15 @@ package body Editor.Command_Extension_Readiness.Tests is
       Failures.Append
         (Editor.Commands.Audit_Model.Command_Audit_Failure'
            (Kind => Editor.Commands.Audit_Model.Missing_Stable_Name,
-          Command => Editor.Commands.Command_Save_Keybindings));
+          Command => Editor.Command_Ids.Command_Save_Keybindings));
       Failures.Append
         (Editor.Commands.Audit_Model.Command_Audit_Failure'
            (Kind => Editor.Commands.Audit_Model.Missing_Classification,
-          Command => Editor.Commands.Command_Reset_Settings_To_Defaults));
+          Command => Editor.Command_Ids.Command_Reset_Settings_To_Defaults));
       Failures.Append
         (Editor.Commands.Audit_Model.Command_Audit_Failure'
            (Kind => Editor.Commands.Audit_Model.Route_Bypasses_Executor,
-          Command => Editor.Commands.Command_Open_Project));
+          Command => Editor.Command_Ids.Command_Open_Project));
 
       Summary := To_Unbounded_String (Editor.Commands.Audits.Command_Audit_Summary (Failures));
       Assert (Contains (To_String (Summary), "Command audit failed"),
@@ -137,7 +137,7 @@ package body Editor.Command_Extension_Readiness.Tests is
       Metadata_Before := Editor.Command_Domain.Command_Metadata_Fingerprint;
       Settings_Before := Editor.Command_Domain.Settings_Fingerprint (S);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Configuration_Reset_Settings);
+        (S, Editor.Command_Ids.Command_Configuration_Reset_Settings);
       Metadata_After := Editor.Command_Domain.Command_Metadata_Fingerprint;
       Settings_After := Editor.Command_Domain.Settings_Fingerprint (S);
 
@@ -160,7 +160,7 @@ package body Editor.Command_Extension_Readiness.Tests is
       Editor.Settings.Set_Minimap_Visible (Before.Settings, False);
       After := Before;
       Editor.Executor.Execute_Command
-        (After, Editor.Commands.Command_Reset_Settings_To_Defaults);
+        (After, Editor.Command_Ids.Command_Reset_Settings_To_Defaults);
       Allowed (Editor.Command_Domain.Domain_Settings_Runtime) := True;
       Allowed (Editor.Command_Domain.Domain_Messages) := True;
       Editor.Command_Domain.Assert_Command_Mutates_Only
@@ -187,7 +187,7 @@ package body Editor.Command_Extension_Readiness.Tests is
       After := Before;
 
       Editor.Executor.Execute_Command
-        (After, Editor.Commands.Command_Select_Next_Recent_Project);
+        (After, Editor.Command_Ids.Command_Select_Next_Recent_Project);
 
       B := Editor.Command_Domain.Summary (Before);
       A := Editor.Command_Domain.Summary (After);
@@ -216,7 +216,7 @@ package body Editor.Command_Extension_Readiness.Tests is
       Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
 
       for C of Candidates loop
-         if C.Id = Editor.Commands.Command_Save_File then
+         if C.Id = Editor.Command_Ids.Command_Save_File then
             Found := True;
             D := Editor.Commands.Descriptors.Descriptor (C.Id);
             Assert (To_String (C.Label) = To_String (D.Name),
@@ -237,7 +237,7 @@ package body Editor.Command_Extension_Readiness.Tests is
       Path   : constant String := Temp_Path ("future_commands");
       Config : Editor.Keybinding_Config.Keybinding_Config_Model;
       Status : Editor.Keybinding_Config.Keybinding_Config_Status;
-      Actual : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Actual : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
    begin
       Write_File
         (Path,
@@ -257,7 +257,7 @@ package body Editor.Command_Extension_Readiness.Tests is
            ((Key => Editor.Keybindings.Key_S,
              Modifiers => (Ctrl => True, Alt => True, Shift => False, Meta => False)),
             Actual) = Editor.Keybindings.Bound_Command
-         and then Actual = Editor.Commands.Command_Save_File,
+         and then Actual = Editor.Command_Ids.Command_Save_File,
          "partial keybinding load must preserve valid commands");
       Assert
         (Editor.Keybindings.Resolve
@@ -280,8 +280,8 @@ package body Editor.Command_Extension_Readiness.Tests is
         (Result   => Result,
          Source   => Editor.Command_Route_Audit.Route_From_Command_Palette,
          Kind     => Editor.Command_Route_Audit.Route_Bypassed_Executor,
-         Expected => Editor.Commands.Command_Open_Project,
-         Actual   => Editor.Commands.Command_Open_Project,
+         Expected => Editor.Command_Ids.Command_Open_Project,
+         Actual   => Editor.Command_Ids.Command_Open_Project,
          Message  => "future route mutated state before Executor");
       Text := To_Unbounded_String (Editor.Command_Route_Audit.Summary (Result));
       Assert (Editor.Command_Route_Audit.Failure_Count (Result) = 1,
@@ -296,18 +296,18 @@ package body Editor.Command_Extension_Readiness.Tests is
    is
       pragma Unreferenced (T);
       D : constant Editor.Commands.Descriptors.Command_Descriptor :=
-        Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Insert_Newline);
+        Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Insert_Newline);
    begin
       Assert (D.Visibility = Editor.Commands.Descriptors.Hidden_Command,
               "hidden command fixture must remain hidden");
       Assert (D.Bindable,
               "hidden does not imply non-bindable");
       Assert (Editor.Commands.Classification.Is_Bindable_Command
-                (Editor.Commands.Command_Insert_Newline),
+                (Editor.Command_Ids.Command_Insert_Newline),
               "hidden bindable command must be accepted by bindability policy");
-      Assert (not Editor.Commands.Classification.Is_Bindable_Command (Editor.Commands.No_Command),
+      Assert (not Editor.Commands.Classification.Is_Bindable_Command (Editor.Command_Ids.No_Command),
               "No_Command must never be bindable");
-      Assert (not Editor.Commands.Availability_Metadata.Is_Concrete_Command (Editor.Commands.No_Command),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Concrete_Command (Editor.Command_Ids.No_Command),
               "No_Command must never be executable as a normal command");
    end Test_Hidden_Command_Policy;
 

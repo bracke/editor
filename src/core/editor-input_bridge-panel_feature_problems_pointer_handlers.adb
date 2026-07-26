@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.Diagnostics;
@@ -18,7 +19,7 @@ with Editor.View;
 
 package body Editor.Input_Bridge.Panel_Feature_Problems_Pointer_Handlers is
 
-   use type Editor.Commands.Command_Kind;
+   use type Editor.Command_Kinds.Command_Kind;
    use type Editor.Diagnostics.Diagnostic_Index;
    use type Editor.Feature_Panel.Feature_Id;
    use type Editor.Panels.Bottom_Panel_Content;
@@ -28,7 +29,7 @@ package body Editor.Input_Bridge.Panel_Feature_Problems_Pointer_Handlers is
    use type Editor.Problems.Problems_Sort_Mode;
 
    function Is_Minimap_Pointer_Command
-     (Kind : Editor.Commands.Command_Kind) return Boolean
+     (Kind : Editor.Command_Kinds.Command_Kind) return Boolean
    is
    begin
       return Pointer_Routing.Is_Minimap_Pointer_Command (Kind);
@@ -286,27 +287,27 @@ package body Editor.Input_Bridge.Panel_Feature_Problems_Pointer_Handlers is
                        (S.Problems_View) =
                      Editor.Problems.Problems_Show_Errors
                   then
-                     Execute.all (Editor.Commands.Command_Problems_Filter_All);
+                     Execute.all (Editor.Command_Ids.Command_Problems_Filter_All);
                   else
-                     Execute.all (Editor.Commands.Command_Problems_Filter_Errors);
+                     Execute.all (Editor.Command_Ids.Command_Problems_Filter_Errors);
                   end if;
 
                   when Editor.Problems.Problems_Header_Sort_Action =>
                   case S.Problems_View.Sort_Mode is
                      when Editor.Problems.Problems_Sort_By_Location =>
-                        Execute.all (Editor.Commands.Command_Problems_Sort_By_Severity);
+                        Execute.all (Editor.Command_Ids.Command_Problems_Sort_By_Severity);
                      when Editor.Problems.Problems_Sort_By_Severity =>
-                        Execute.all (Editor.Commands.Command_Problems_Sort_By_Source);
+                        Execute.all (Editor.Command_Ids.Command_Problems_Sort_By_Source);
                      when Editor.Problems.Problems_Sort_By_Source =>
-                        Execute.all (Editor.Commands.Command_Problems_Sort_By_Location);
+                        Execute.all (Editor.Command_Ids.Command_Problems_Sort_By_Location);
                   end case;
 
                   when Editor.Problems.Problems_Header_Group_Action =>
                   case S.Problems_View.Group_Mode is
                      when Editor.Problems.Problems_Group_By_Severity =>
-                        Execute.all (Editor.Commands.Command_Problems_Group_By_Source);
+                        Execute.all (Editor.Command_Ids.Command_Problems_Group_By_Source);
                      when Editor.Problems.Problems_Group_By_Source =>
-                        Execute.all (Editor.Commands.Command_Problems_Group_By_Severity);
+                        Execute.all (Editor.Command_Ids.Command_Problems_Group_By_Severity);
                   end case;
                end case;
             end;

@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.Cursor;
@@ -34,7 +35,7 @@ package body Editor.Input_Bridge.Project_Search_Key_Handlers is
      (S               : in out Editor.State.State_Type;
       Chord           : Editor.Keybindings.Key_Chord;
       Execute         : not null access procedure
-        (Id : Editor.Commands.Command_Id);
+        (Id : Editor.Command_Ids.Command_Id);
       Execute_Command : not null access procedure
         (Command : Editor.Commands.Payloads.Command)) return Boolean
    is
@@ -49,16 +50,16 @@ package body Editor.Input_Bridge.Project_Search_Key_Handlers is
       case Chord.Key is
          when Editor.Keybindings.Key_Enter =>
             if Chord.Modifiers.Ctrl then
-               Execute (Editor.Commands.Command_Open_Selected_Project_Search_Result);
+               Execute (Editor.Command_Ids.Command_Open_Selected_Project_Search_Result);
             else
-               Execute (Editor.Commands.Command_Run_Project_Search_From_Bar);
+               Execute (Editor.Command_Ids.Command_Run_Project_Search_From_Bar);
             end if;
          when Editor.Keybindings.Key_Tab =>
             Editor.Project_Search_Bar.Toggle_Active_Field (S.Project_Search_Bar);
             Sync_Project_Search_Replace_Mode_From_Bar (S);
             Editor.Render_Cache.Invalidate_All;
          when Editor.Keybindings.Key_Escape =>
-            Execute (Editor.Commands.Command_Close_Project_Search_Bar);
+            Execute (Editor.Command_Ids.Command_Close_Project_Search_Bar);
          when Editor.Keybindings.Key_Backspace =>
             Cmd.Kind := Editor.Command_Kinds.Project_Search_Bar_Backspace;
             Execute_Command (Cmd);
@@ -84,9 +85,9 @@ package body Editor.Input_Bridge.Project_Search_Key_Handlers is
                Execute_Command (Cmd);
             end if;
          when Editor.Keybindings.Key_Down =>
-            Execute (Editor.Commands.Command_Move_Project_Search_Selection_Down);
+            Execute (Editor.Command_Ids.Command_Move_Project_Search_Selection_Down);
          when Editor.Keybindings.Key_Up =>
-            Execute (Editor.Commands.Command_Move_Project_Search_Selection_Up);
+            Execute (Editor.Command_Ids.Command_Move_Project_Search_Selection_Up);
          when others =>
             null;
       end case;

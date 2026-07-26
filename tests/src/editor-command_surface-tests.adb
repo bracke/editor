@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Registry;
 with Editor.Commands.Classification;
@@ -22,7 +23,6 @@ with Editor.Command_Palette;
 with Editor.Command_Execution;
 with Editor.Command_Route_Audit;
 with Editor.Command_Surface;
-with Editor.Commands;
 with Editor.Commands.Workflow_Messages;
 with Editor.Commands.Project_File_Ids;
 with Editor.Commands.Navigation_Ids;
@@ -64,12 +64,12 @@ package body Editor.Command_Surface.Tests is
    use Editor.External_Producers.Build_Types;
    use Editor.External_Producers.Public_Build_Types;
 
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Commands.Descriptors.Command_Family_Id;
    use type Editor.Commands.Descriptors.Command_Effect_Classification_Id;
-   use type Editor.Commands.Command_Kind;
+   use type Editor.Command_Kinds.Command_Kind;
    use type Editor.Keybindings.Keybinding_Validation_Status;
    use type Editor.Overlay_Focus.Overlay_Target;
    use type Editor.Panel_Focus.Focus_Target;
@@ -113,23 +113,23 @@ package body Editor.Command_Surface.Tests is
    is
       pragma Unreferenced (T);
 
-      procedure Check (Id : Editor.Commands.Command_Id; Label : String) is
+      procedure Check (Id : Editor.Command_Ids.Command_Id; Label : String) is
       begin
          Assert (not Editor.Commands.Availability_Metadata.Requires_Context (Id),
                  Label & " must not require structured command context");
       end Check;
    begin
-      Check (Editor.Commands.Command_Open_Selected_Recent_Project,
+      Check (Editor.Command_Ids.Command_Open_Selected_Recent_Project,
              "open selected recent project");
-      Check (Editor.Commands.Command_Remove_Selected_Recent_Project,
+      Check (Editor.Command_Ids.Command_Remove_Selected_Recent_Project,
              "remove selected recent project");
-      Check (Editor.Commands.Command_Remove_Missing_Recent_Projects,
+      Check (Editor.Command_Ids.Command_Remove_Missing_Recent_Projects,
              "remove missing recent projects");
-      Check (Editor.Commands.Command_Select_Next_Recent_Project,
+      Check (Editor.Command_Ids.Command_Select_Next_Recent_Project,
              "select next recent project");
-      Check (Editor.Commands.Command_Select_Previous_Recent_Project,
+      Check (Editor.Command_Ids.Command_Select_Previous_Recent_Project,
              "select previous recent project");
-      Assert (Editor.Commands.Availability_Metadata.Requires_Context (Editor.Commands.Command_Open_Project),
+      Assert (Editor.Commands.Availability_Metadata.Requires_Context (Editor.Command_Ids.Command_Open_Project),
               "plain project.open remains the explicit path-payload command");
    end Test_Recent_Project_Selected_Row_Commands_Are_No_Payload;
 
@@ -139,23 +139,23 @@ package body Editor.Command_Surface.Tests is
       D : Editor.Commands.Descriptors.Command_Descriptor;
    begin
       Assert
-        (not Editor.Commands.Availability_Metadata.Is_Concrete_Command (Editor.Commands.No_Command),
+        (not Editor.Commands.Availability_Metadata.Is_Concrete_Command (Editor.Command_Ids.No_Command),
          "No_Command must not be concrete");
 
       Assert
-        (Editor.Commands.Descriptors.Descriptor (Editor.Commands.No_Command).Visibility =
+        (Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.No_Command).Visibility =
            Editor.Commands.Descriptors.Hidden_Command,
          "No_Command must stay hidden");
 
       Assert
-        (Editor.Commands.Descriptors.Descriptor (Editor.Commands.No_Command).Category =
+        (Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.No_Command).Category =
            Editor.Commands.Descriptors.Internal_Category,
          "No_Command must stay internal");
 
-      for I in 1 .. Editor.Commands.Command_Count loop
-         D := Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_At (I));
+      for I in 1 .. Editor.Command_Ids.Command_Count loop
+         D := Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_At (I));
          Assert
-           (D.Id = Editor.Commands.Command_At (I),
+           (D.Id = Editor.Command_Ids.Command_At (I),
             "descriptor id must match registry id for " & Editor.Commands.Descriptors.Label (D.Id));
          Assert
            (Editor.Commands.Audits.Descriptor_Is_Complete (D.Id),
@@ -241,18 +241,18 @@ package body Editor.Command_Surface.Tests is
    procedure Test_Static_Command_Invariants
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Seen_Palette_Label : array (Editor.Commands.Command_Id) of Boolean := (others => False);
+      Seen_Palette_Label : array (Editor.Command_Ids.Command_Id) of Boolean := (others => False);
       pragma Unreferenced (Seen_Palette_Label);
-      Id : Editor.Commands.Command_Id;
+      Id : Editor.Command_Ids.Command_Id;
       D  : Editor.Commands.Descriptors.Command_Descriptor;
    begin
-      Assert (Editor.Commands.Registry.First_Command = Editor.Commands.Command_Id'First,
+      Assert (Editor.Commands.Registry.First_Command = Editor.Command_Ids.Command_Id'First,
               "First_Command must match enumeration first value");
-      Assert (Editor.Commands.Registry.Last_Command = Editor.Commands.Command_Id'Last,
+      Assert (Editor.Commands.Registry.Last_Command = Editor.Command_Ids.Command_Id'Last,
               "Last_Command must match enumeration last value");
 
-      for I in 1 .. Editor.Commands.Command_Count loop
-         Id := Editor.Commands.Command_At (I);
+      for I in 1 .. Editor.Command_Ids.Command_Count loop
+         Id := Editor.Command_Ids.Command_At (I);
          D := Editor.Commands.Descriptors.Descriptor (Id);
 
          Assert (Editor.Commands.Registry.Is_Valid_Command (Id),
@@ -262,20 +262,20 @@ package body Editor.Command_Surface.Tests is
 
          if Editor.Commands.Availability_Metadata.Is_Concrete_Command (Id) then
             Assert (Editor.Commands.Descriptor_Metadata.Has_Stable_User_Label (Id),
-                    "concrete command must have stable user label: " & Editor.Commands.Command_Id'Image (Id));
+                    "concrete command must have stable user label: " & Editor.Command_Ids.Command_Id'Image (Id));
             Assert (To_String (D.Name) = Trimmed (To_String (D.Name)),
-                    "command label must be trimmed: " & Editor.Commands.Command_Id'Image (Id));
+                    "command label must be trimmed: " & Editor.Command_Ids.Command_Id'Image (Id));
             Assert (To_String (D.Name) /= "TODO"
                     and then To_String (D.Name) /= "Command"
                     and then To_String (D.Name) /= "Unnamed",
-                    "command label must not be a surface entry: " & Editor.Commands.Command_Id'Image (Id));
+                    "command label must not be a surface entry: " & Editor.Command_Ids.Command_Id'Image (Id));
          end if;
 
          if Editor.Commands.Classification.Visible_In_Command_Palette (Id) then
             Assert (To_String (D.Description) = Trimmed (To_String (D.Description)),
-                    "palette description must be trimmed: " & Editor.Commands.Command_Id'Image (Id));
+                    "palette description must be trimmed: " & Editor.Command_Ids.Command_Id'Image (Id));
             Assert (D.Category /= Editor.Commands.Descriptors.Internal_Category,
-                    "palette-visible command must not be internal: " & Editor.Commands.Command_Id'Image (Id));
+                    "palette-visible command must not be internal: " & Editor.Command_Ids.Command_Id'Image (Id));
             Assert (Editor.Commands.Descriptors.Category_Label (D.Category)'Length > 0,
                     "palette-visible command category must have a label");
             Assert (Editor.Commands.Descriptors.Category_Label (D.Category) =
@@ -303,14 +303,14 @@ package body Editor.Command_Surface.Tests is
       Before_Focus := Editor.Panel_Focus.Target (S.Panel_Focus);
       Before_Bottom := Editor.Panel_Focus.Bottom_Content (S.Panel_Focus);
 
-      for I in 1 .. Editor.Commands.Command_Count loop
-         A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_At (I));
+      for I in 1 .. Editor.Command_Ids.Command_Count loop
+         A := Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_At (I));
          if not Editor.Commands.Availability_Metadata.Is_Available (A)
-           and then Editor.Commands.Command_At (I) /= Editor.Commands.No_Command
+           and then Editor.Command_Ids.Command_At (I) /= Editor.Command_Ids.No_Command
          then
             Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A)'Length > 0,
                     "unavailable concrete commands must include a reason: " &
-                    Editor.Commands.Command_Id'Image (Editor.Commands.Command_At (I)));
+                    Editor.Command_Ids.Command_Id'Image (Editor.Command_Ids.Command_At (I)));
          end if;
       end loop;
 
@@ -330,7 +330,7 @@ package body Editor.Command_Surface.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      function Reason (Id : Editor.Commands.Command_Id) return String is
+      function Reason (Id : Editor.Command_Ids.Command_Id) return String is
       begin
          return Editor.Commands.Availability_Metadata.Unavailable_Reason
            (Editor.Executor.Command_Availability (S, Id));
@@ -338,21 +338,21 @@ package body Editor.Command_Surface.Tests is
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
-      Assert (Reason (Editor.Commands.Command_Save_File) = "No active buffer.",
+      Assert (Reason (Editor.Command_Ids.Command_Save_File) = "No active buffer.",
               "Save File with no buffer must use canonical No active buffer reason");
-      Assert (Reason (Editor.Commands.Command_Close_Active_Buffer) = "No active buffer.",
+      Assert (Reason (Editor.Command_Ids.Command_Close_Active_Buffer) = "No active buffer.",
               "Close Buffer with no open buffer must use canonical No active buffer reason");
-      Assert (Reason (Editor.Commands.Command_Next_Diagnostic) = "No diagnostics.",
+      Assert (Reason (Editor.Command_Ids.Command_Next_Diagnostic) = "No diagnostics.",
               "Next Diagnostic must use canonical No diagnostics reason");
-      Assert (Reason (Editor.Commands.Command_Previous_Diagnostic) = "No diagnostics.",
+      Assert (Reason (Editor.Command_Ids.Command_Previous_Diagnostic) = "No diagnostics.",
               "Previous Diagnostic must use canonical No diagnostics reason");
-      Assert (Reason (Editor.Commands.Command_Next_Bookmark) = "No bookmarks.",
+      Assert (Reason (Editor.Command_Ids.Command_Next_Bookmark) = "No bookmarks.",
               "Next Bookmark must use canonical No bookmarks reason");
-      Assert (Reason (Editor.Commands.Command_Previous_Bookmark) = "No bookmarks.",
+      Assert (Reason (Editor.Command_Ids.Command_Previous_Bookmark) = "No bookmarks.",
               "Previous Bookmark must use canonical No bookmarks reason");
-      Assert (Reason (Editor.Commands.Command_Clear_All_Bookmarks) = "No bookmarks.",
+      Assert (Reason (Editor.Command_Ids.Command_Clear_All_Bookmarks) = "No bookmarks.",
               "Clear All Bookmarks must use canonical No bookmarks reason");
-      Assert (Reason (Editor.Commands.Command_Focus_File_Tree) = "No project open.",
+      Assert (Reason (Editor.Command_Ids.Command_Focus_File_Tree) = "No project open.",
               "Focus File Tree must use canonical No project open reason");
       Assert
         (Editor.Commands.Availability_Metadata.Unavailable_Reason
@@ -428,7 +428,7 @@ package body Editor.Command_Surface.Tests is
       Before_Overlay := Editor.Overlay_Focus.Active_Overlay (S.Overlay_Focus);
       Before_Focus := Editor.Panel_Focus.Target (S.Panel_Focus);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File);
       Assert (Editor.Messages.Count (S.Messages) = 1,
               "guarded unavailable Save File must emit exactly one message");
       Assert (Editor.Overlay_Focus.Active_Overlay (S.Overlay_Focus) = Before_Overlay,
@@ -481,11 +481,11 @@ package body Editor.Command_Surface.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
    begin
-      Assert (not Editor.Commands.Classification.Visible_In_Command_Palette (Editor.Commands.Command_Move_Left),
+      Assert (not Editor.Commands.Classification.Visible_In_Command_Palette (Editor.Command_Ids.Command_Move_Left),
               "raw movement commands must remain hidden from palette");
-      Assert (Editor.Commands.Audits.Descriptor_Is_Complete (Editor.Commands.Command_Move_Left),
+      Assert (Editor.Commands.Audits.Descriptor_Is_Complete (Editor.Command_Ids.Command_Move_Left),
               "hidden commands must still have complete descriptors");
-      Assert (Editor.Commands.Descriptor_Metadata.Has_Stable_User_Label (Editor.Commands.Command_Move_Left),
+      Assert (Editor.Commands.Descriptor_Metadata.Has_Stable_User_Label (Editor.Command_Ids.Command_Move_Left),
               "hidden commands must still have stable labels");
    end Test_Hidden_Command_Behavior;
 
@@ -514,33 +514,33 @@ package body Editor.Command_Surface.Tests is
       pragma Unreferenced (T);
       D : Editor.Commands.Descriptors.Command_Descriptor;
    begin
-      Assert (not Editor.Commands.Descriptor_Metadata.Has_Descriptor (Editor.Commands.No_Command)
-              or else not Editor.Commands.Availability_Metadata.Is_Concrete_Command (Editor.Commands.No_Command),
+      Assert (not Editor.Commands.Descriptor_Metadata.Has_Descriptor (Editor.Command_Ids.No_Command)
+              or else not Editor.Commands.Availability_Metadata.Is_Concrete_Command (Editor.Command_Ids.No_Command),
               "No_Command may have sentinel metadata only");
 
-      for I in 1 .. Editor.Commands.Command_Count loop
+      for I in 1 .. Editor.Command_Ids.Command_Count loop
          declare
-            Id : constant Editor.Commands.Command_Id := Editor.Commands.Command_At (I);
+            Id : constant Editor.Command_Ids.Command_Id := Editor.Command_Ids.Command_At (I);
          begin
             D := Editor.Commands.Descriptors.Descriptor (Id);
-            Assert (D.Id = Id, "descriptor id mismatch for " & Editor.Commands.Command_Id'Image (Id));
+            Assert (D.Id = Id, "descriptor id mismatch for " & Editor.Command_Ids.Command_Id'Image (Id));
             Assert (Editor.Commands.Descriptor_Metadata.Has_Descriptor (Id),
                     "every command id must have registry metadata");
 
             if Editor.Commands.Availability_Metadata.Is_Concrete_Command (Id) then
                Assert (Editor.Commands.Audits.Descriptor_Is_Complete (Id),
-                       "concrete descriptor must be complete: " & Editor.Commands.Command_Id'Image (Id));
+                       "concrete descriptor must be complete: " & Editor.Command_Ids.Command_Id'Image (Id));
                Assert (Length (D.Name) > 0, "concrete command must have label");
                Assert (Length (D.Description) > 0,
-                       "concrete command must have description: " & Editor.Commands.Command_Id'Image (Id));
+                       "concrete command must have description: " & Editor.Command_Ids.Command_Id'Image (Id));
                Assert (Editor.Commands.Availability_Metadata.Has_Availability_Handler (Id),
                        "concrete command must have an availability handler: " &
-                       Editor.Commands.Command_Id'Image (Id));
+                       Editor.Command_Ids.Command_Id'Image (Id));
                Assert (D.Bindable = Editor.Commands.Classification.Is_Bindable_Command (Id),
                        "descriptor bindable flag must mirror helper");
                Assert (D.Destructive = Editor.Commands.Classification.Is_Destructive_Command (Id),
                        "descriptor destructive flag must mirror helper: " &
-                       Editor.Commands.Command_Id'Image (Id));
+                       Editor.Command_Ids.Command_Id'Image (Id));
                Assert (D.Lifecycle = Editor.Commands.Classification.Is_Lifecycle_Command (Id),
                        "descriptor lifecycle flag must mirror helper");
                Assert (D.Configuration = Editor.Commands.Classification.Is_Configuration_Command (Id),
@@ -553,23 +553,23 @@ package body Editor.Command_Surface.Tests is
    procedure Test_Stable_Command_Name_Coverage
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Seen  : array (Editor.Commands.Command_Id) of Boolean := (others => False);
+      Seen  : array (Editor.Command_Ids.Command_Id) of Boolean := (others => False);
       Found : Boolean := False;
-      Round : Editor.Commands.Command_Id;
+      Round : Editor.Command_Ids.Command_Id;
    begin
-      Assert (not Editor.Commands.Classification.Is_Bindable_Command (Editor.Commands.No_Command),
+      Assert (not Editor.Commands.Classification.Is_Bindable_Command (Editor.Command_Ids.No_Command),
               "No_Command must not be bindable");
-      Assert (not Editor.Commands.Stable_Names.Has_Stable_Name (Editor.Commands.No_Command),
+      Assert (not Editor.Commands.Stable_Names.Has_Stable_Name (Editor.Command_Ids.No_Command),
               "No_Command must not advertise a persisted binding name");
 
-      for I in 1 .. Editor.Commands.Command_Count loop
+      for I in 1 .. Editor.Command_Ids.Command_Count loop
          declare
-            Id   : constant Editor.Commands.Command_Id := Editor.Commands.Command_At (I);
+            Id   : constant Editor.Command_Ids.Command_Id := Editor.Command_Ids.Command_At (I);
             Name : constant String := Editor.Commands.Name_Metadata.Stable_Command_Name (Id);
          begin
             if Editor.Commands.Classification.Is_Bindable_Command (Id) then
                Assert (Editor.Commands.Stable_Names.Has_Stable_Name (Id),
-                       "bindable command must have stable name: " & Editor.Commands.Command_Id'Image (Id));
+                       "bindable command must have stable name: " & Editor.Command_Ids.Command_Id'Image (Id));
                Assert (Is_Lower_Kebab_Name (Name),
                        "stable command name must be lowercase kebab-case: " & Name);
                Round := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
@@ -587,45 +587,45 @@ package body Editor.Command_Surface.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
    begin
-      Assert (Editor.Commands.Classification.Is_Destructive_Command (Editor.Commands.Command_Clear_Workspace_State),
+      Assert (Editor.Commands.Classification.Is_Destructive_Command (Editor.Command_Ids.Command_Clear_Workspace_State),
               "clear workspace state must be destructive");
-      Assert (Editor.Commands.Classification.Is_Destructive_Command (Editor.Commands.Command_Clear_Recent_Projects),
+      Assert (Editor.Commands.Classification.Is_Destructive_Command (Editor.Command_Ids.Command_Clear_Recent_Projects),
               "clear recent projects must be destructive");
-      Assert (Editor.Commands.Classification.Is_Destructive_Command (Editor.Commands.Command_Reset_Settings_To_Defaults),
+      Assert (Editor.Commands.Classification.Is_Destructive_Command (Editor.Command_Ids.Command_Reset_Settings_To_Defaults),
               "reset settings must be destructive");
-      Assert (Editor.Commands.Classification.Is_Destructive_Command (Editor.Commands.Command_Keybindings_Reset_To_Defaults),
+      Assert (Editor.Commands.Classification.Is_Destructive_Command (Editor.Command_Ids.Command_Keybindings_Reset_To_Defaults),
               "reset keybindings must be destructive");
-      Assert (Editor.Commands.Classification.Is_Lifecycle_Command (Editor.Commands.Command_Open_Project),
+      Assert (Editor.Commands.Classification.Is_Lifecycle_Command (Editor.Command_Ids.Command_Open_Project),
               "open project must be a lifecycle command");
-      Assert (Editor.Commands.Classification.Is_Lifecycle_Command (Editor.Commands.Command_Save_Workspace_State),
+      Assert (Editor.Commands.Classification.Is_Lifecycle_Command (Editor.Command_Ids.Command_Save_Workspace_State),
               "save workspace state must be a lifecycle command");
-      Assert (Editor.Commands.Classification.Is_Configuration_Command (Editor.Commands.Command_Save_Settings),
+      Assert (Editor.Commands.Classification.Is_Configuration_Command (Editor.Command_Ids.Command_Save_Settings),
               "save settings must be a configuration command");
-      Assert (Editor.Commands.Classification.Is_Configuration_Command (Editor.Commands.Command_Save_Keybindings),
+      Assert (Editor.Commands.Classification.Is_Configuration_Command (Editor.Command_Ids.Command_Save_Keybindings),
               "save keybindings must be a configuration command");
-      Assert (not Editor.Commands.Classification.Is_Configuration_Command (Editor.Commands.Command_Save_File),
+      Assert (not Editor.Commands.Classification.Is_Configuration_Command (Editor.Command_Ids.Command_Save_File),
               "file-content save must not be a configuration command");
-      Assert (not Editor.Commands.Classification.Is_Configuration_Command (Editor.Commands.Command_Save_Workspace_State),
+      Assert (not Editor.Commands.Classification.Is_Configuration_Command (Editor.Command_Ids.Command_Save_Workspace_State),
               "workspace save must not be a configuration command");
    end Test_Command_Classification_Invariants;
 
    procedure Test_Save_Command_Descriptions_Are_Distinct
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      function Desc (Id : Editor.Commands.Command_Id) return String is
+      function Desc (Id : Editor.Command_Ids.Command_Id) return String is
       begin
          return To_String (Editor.Commands.Descriptors.Descriptor (Id).Description);
       end Desc;
    begin
-      Assert (Ada.Strings.Fixed.Index (Desc (Editor.Commands.Command_Save_All), "file-backed") > 0,
+      Assert (Ada.Strings.Fixed.Index (Desc (Editor.Command_Ids.Command_Save_All), "file-backed") > 0,
               "Save All description must identify file-content saving");
-      Assert (Ada.Strings.Fixed.Index (Desc (Editor.Commands.Command_Save_Workspace_State), "workspace/session") > 0,
+      Assert (Ada.Strings.Fixed.Index (Desc (Editor.Command_Ids.Command_Save_Workspace_State), "workspace/session") > 0,
               "Save Workspace State description must identify structural/session state");
-      Assert (Ada.Strings.Fixed.Index (Desc (Editor.Commands.Command_Save_Workspace_State), "does not save dirty file contents") > 0,
+      Assert (Ada.Strings.Fixed.Index (Desc (Editor.Command_Ids.Command_Save_Workspace_State), "does not save dirty file contents") > 0,
               "Save Workspace State must explicitly not claim file-content saving");
-      Assert (Ada.Strings.Fixed.Index (Desc (Editor.Commands.Command_Save_Settings), "preferences") > 0,
+      Assert (Ada.Strings.Fixed.Index (Desc (Editor.Command_Ids.Command_Save_Settings), "preferences") > 0,
               "Save Settings description must identify global preferences");
-      Assert (Ada.Strings.Fixed.Index (Desc (Editor.Commands.Command_Save_Keybindings), "keybinding") > 0,
+      Assert (Ada.Strings.Fixed.Index (Desc (Editor.Command_Ids.Command_Save_Keybindings), "keybinding") > 0,
               "Save Keybindings description must identify global keybindings");
    end Test_Save_Command_Descriptions_Are_Distinct;
 
@@ -637,16 +637,16 @@ package body Editor.Command_Surface.Tests is
    begin
       Editor.State.Init (S);
 
-      R := Editor.Executor.Execute_Command_With_Result (S, Editor.Commands.No_Command);
+      R := Editor.Executor.Execute_Command_With_Result (S, Editor.Command_Ids.No_Command);
       Assert (R.Status = Editor.Executor.Command_No_Op,
               "No_Command execution result must be no-op");
       Assert (Editor.Messages.Count (S.Messages) = 0,
               "No_Command must not emit user-facing feedback");
 
-      R := Editor.Executor.Execute_Command_With_Result (S, Editor.Commands.Command_Save_File);
+      R := Editor.Executor.Execute_Command_With_Result (S, Editor.Command_Ids.Command_Save_File);
       Assert (R.Status = Editor.Executor.Command_Unavailable,
               "unavailable command execution result must be Command_Unavailable");
-      Assert (R.Command = Editor.Commands.Command_Save_File,
+      Assert (R.Command = Editor.Command_Ids.Command_Save_File,
               "execution result must preserve command id");
       Assert (Editor.Messages.Count (S.Messages) = 1,
               "unavailable command must emit one message");
@@ -657,7 +657,7 @@ package body Editor.Command_Surface.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      function Reason (Id : Editor.Commands.Command_Id) return String is
+      function Reason (Id : Editor.Command_Ids.Command_Id) return String is
       begin
          return Editor.Commands.Availability_Metadata.Unavailable_Reason
            (Editor.Executor.Command_Availability (S, Id));
@@ -666,38 +666,38 @@ package body Editor.Command_Surface.Tests is
       Editor.State.Init (S);
       Editor.Recent_Projects.Clear (S.Recent_Projects);
 
-      Assert (Reason (Editor.Commands.Command_Close_Project) = "No project open.",
+      Assert (Reason (Editor.Command_Ids.Command_Close_Project) = "No project open.",
               "Close Project must be disabled without a project");
-      Assert (Reason (Editor.Commands.Command_Save_Workspace_State) = "No project open.",
+      Assert (Reason (Editor.Command_Ids.Command_Save_Workspace_State) = "No project open.",
               "Save Workspace State must be disabled without a project");
-      Assert (Reason (Editor.Commands.Command_Restore_Workspace_State) = "No project open.",
+      Assert (Reason (Editor.Command_Ids.Command_Restore_Workspace_State) = "No project open.",
               "Restore Workspace State must be disabled without a project");
-      Assert (Reason (Editor.Commands.Command_Retry_Pending_Transition) = "No pending transition",
+      Assert (Reason (Editor.Command_Ids.Command_Retry_Pending_Transition) = "No pending transition",
               "Retry Pending Transition must be disabled without a pending transition");
-      Assert (Reason (Editor.Commands.Command_Cancel_Pending_Transition) = "No pending transition",
+      Assert (Reason (Editor.Command_Ids.Command_Cancel_Pending_Transition) = "No pending transition",
               "Cancel Pending Transition must be disabled without a pending transition");
-      Assert (Reason (Editor.Commands.Command_Discard_Pending_Transition) = "No pending transition",
+      Assert (Reason (Editor.Command_Ids.Command_Discard_Pending_Transition) = "No pending transition",
               "Discard Pending Transition must be disabled without a pending transition");
-      Assert (Reason (Editor.Commands.Command_Save_All) = "No dirty file-backed buffers.",
+      Assert (Reason (Editor.Command_Ids.Command_Save_All) = "No dirty file-backed buffers.",
               "Save All must be disabled without dirty file-backed buffers");
       Assert (Editor.Commands.Availability_Metadata.Is_Available
                 (Editor.Executor.Command_Availability
-                   (S, Editor.Commands.Command_Show_Recent_Projects)),
+                   (S, Editor.Command_Ids.Command_Show_Recent_Projects)),
               "Show Recent Projects must remain available to display an empty state");
-      Assert (Reason (Editor.Commands.Command_Clear_Recent_Projects) = "No recent projects.",
+      Assert (Reason (Editor.Command_Ids.Command_Clear_Recent_Projects) = "No recent projects.",
               "Clear Recent Projects must be disabled without recent projects");
 
       Assert (Editor.Commands.Availability_Metadata.Is_Available
-                (Editor.Executor.Command_Availability (S, Editor.Commands.Command_Save_Settings)),
+                (Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Save_Settings)),
               "Save Settings must remain globally available");
       Assert (Editor.Commands.Availability_Metadata.Is_Available
-                (Editor.Executor.Command_Availability (S, Editor.Commands.Command_Reload_Settings)),
+                (Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Reload_Settings)),
               "Reload Settings must remain globally available");
       Assert (Editor.Commands.Availability_Metadata.Is_Available
-                (Editor.Executor.Command_Availability (S, Editor.Commands.Command_Save_Keybindings)),
+                (Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Save_Keybindings)),
               "Save Keybindings must remain globally available");
       Assert (Editor.Commands.Availability_Metadata.Is_Available
-                (Editor.Executor.Command_Availability (S, Editor.Commands.Command_Reload_Keybindings)),
+                (Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Reload_Keybindings)),
               "Reload Keybindings must remain globally available");
    end Test_Disabled_State_Baseline;
 
@@ -707,27 +707,27 @@ package body Editor.Command_Surface.Tests is
       pragma Unreferenced (T);
       R : Editor.Command_Execution.Command_Execution_Result;
    begin
-      R := Editor.Command_Execution.Executed (Editor.Commands.Command_Save_Settings);
+      R := Editor.Command_Execution.Executed (Editor.Command_Ids.Command_Save_Settings);
       Assert (R.Status = Editor.Command_Execution.Command_Executed,
               "Executed helper must classify successful commands");
-      Assert (R.Command = Editor.Commands.Command_Save_Settings,
+      Assert (R.Command = Editor.Command_Ids.Command_Save_Settings,
               "Executed helper must preserve command id");
       Assert (Editor.Command_Execution.Is_Terminal (R),
               "execution results must describe terminal invocations");
 
-      R := Editor.Command_Execution.Executed (Editor.Commands.No_Command);
+      R := Editor.Command_Execution.Executed (Editor.Command_Ids.No_Command);
       Assert (R.Status = Editor.Command_Execution.Command_No_Op,
               "No_Command must never be classified as executed");
 
-      R := Editor.Command_Execution.Unavailable (Editor.Commands.Command_Save_File);
+      R := Editor.Command_Execution.Unavailable (Editor.Command_Ids.Command_Save_File);
       Assert (R.Status = Editor.Command_Execution.Command_Unavailable,
               "Unavailable helper must classify unavailable commands");
 
-      R := Editor.Command_Execution.Failed (Editor.Commands.Command_Save_File);
+      R := Editor.Command_Execution.Failed (Editor.Command_Ids.Command_Save_File);
       Assert (R.Status = Editor.Command_Execution.Command_Failed,
               "Failed helper must classify failed commands");
 
-      R := Editor.Command_Execution.No_Op (Editor.Commands.Command_Dismiss_All_Messages);
+      R := Editor.Command_Execution.No_Op (Editor.Command_Ids.Command_Dismiss_All_Messages);
       Assert (R.Status = Editor.Command_Execution.Command_No_Op,
               "No_Op helper must classify intentional no-op commands");
    end Test_Command_Execution_Result_Terminology;
@@ -736,7 +736,7 @@ package body Editor.Command_Surface.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
 
-      procedure Check (Id : Editor.Commands.Command_Id; Label : String) is
+      procedure Check (Id : Editor.Command_Ids.Command_Id; Label : String) is
          S       : Editor.State.State_Type;
          Before_Project : Boolean;
          Before_Dirty   : Boolean;
@@ -767,12 +767,12 @@ package body Editor.Command_Surface.Tests is
                  Label & " must not create pending transitions when unavailable");
       end Check;
    begin
-      Check (Editor.Commands.Command_Save_File, "Save File");
-      Check (Editor.Commands.Command_Close_Project, "Close Project");
-      Check (Editor.Commands.Command_Restore_Workspace_State, "Restore Workspace State");
-      Check (Editor.Commands.Command_Retry_Pending_Transition, "Retry Pending Transition");
-      Check (Editor.Commands.Command_Discard_Pending_Transition, "Discard Pending Transition");
-      Check (Editor.Commands.Command_Save_All, "Save All");
+      Check (Editor.Command_Ids.Command_Save_File, "Save File");
+      Check (Editor.Command_Ids.Command_Close_Project, "Close Project");
+      Check (Editor.Command_Ids.Command_Restore_Workspace_State, "Restore Workspace State");
+      Check (Editor.Command_Ids.Command_Retry_Pending_Transition, "Retry Pending Transition");
+      Check (Editor.Command_Ids.Command_Discard_Pending_Transition, "Discard Pending Transition");
+      Check (Editor.Command_Ids.Command_Save_All, "Save All");
       --  removed-name discard-buffer is no longer a public command
       --  surface and is covered by the revert cleanup tests.
       declare
@@ -781,7 +781,7 @@ package body Editor.Command_Surface.Tests is
          Editor.State.Init (Recent_State);
          Assert (Editor.Commands.Availability_Metadata.Is_Available
                    (Editor.Executor.Command_Availability
-                      (Recent_State, Editor.Commands.Command_Show_Recent_Projects)),
+                      (Recent_State, Editor.Command_Ids.Command_Show_Recent_Projects)),
                  "Show Recent Projects remains executable to display the empty state");
       end;
    end Test_Unavailable_Commands_Are_Side_Effect_Limited;
@@ -792,64 +792,64 @@ package body Editor.Command_Surface.Tests is
       S : Editor.State.State_Type;
       A : Editor.Commands.Availability_Metadata.Command_Availability;
       R : Editor.Executor.Command_Execution_Result;
-      Id : Editor.Commands.Command_Id;
+      Id : Editor.Command_Ids.Command_Id;
    begin
-      for I in 1 .. Editor.Commands.Command_Count loop
+      for I in 1 .. Editor.Command_Ids.Command_Count loop
          Editor.State.Init (S);
-         Id := Editor.Commands.Command_At (I);
+         Id := Editor.Command_Ids.Command_At (I);
          A := Editor.Executor.Command_Availability (S, Id);
 
-         if Id /= Editor.Commands.No_Command
+         if Id /= Editor.Command_Ids.No_Command
            and then not Editor.Commands.Availability_Metadata.Is_Available (A)
          then
             R := Editor.Executor.Execute_Command_With_Result (S, Id);
             Assert (R.Status = Editor.Executor.Command_Unavailable,
                     "unavailable command must execute as unavailable: " &
-                    Editor.Commands.Command_Id'Image (Id));
+                    Editor.Command_Ids.Command_Id'Image (Id));
             Assert (Editor.Messages.Count (S.Messages) = 1,
                     "unavailable command must emit one primary message: " &
-                    Editor.Commands.Command_Id'Image (Id));
+                    Editor.Command_Ids.Command_Id'Image (Id));
          end if;
       end loop;
    end Test_Availability_And_Execution_Result_Consistency;
 
    function Executor_Owns_Break_Group_Command
-     (Id : Editor.Commands.Command_Id) return Boolean
+     (Id : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       case Id is
-         when Editor.Commands.Command_Dismiss_Latest_Message
-            | Editor.Commands.Command_Dismiss_All_Messages
-            | Editor.Commands.Command_Open_File
-            | Editor.Commands.Command_Toggle_Line_Numbers
-            | Editor.Commands.Command_Set_Absolute_Line_Numbers
-            | Editor.Commands.Command_Set_Relative_Line_Numbers
-            | Editor.Commands.Command_Set_Hybrid_Line_Numbers
-            | Editor.Commands.Command_Toggle_Current_Line_Highlight
-            | Editor.Commands.Command_Toggle_Syntax_Colouring
-            | Editor.Commands.Command_Toggle_Diagnostics
-            | Editor.Commands.Command_Toggle_Cursor_Style
-            | Editor.Commands.Command_Edit_History_Clear
-            | Editor.Commands.Command_Select_All
-            | Editor.Commands.Command_Selection_Clear
-            | Editor.Commands.Command_Build_Run
-            | Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Confirm
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Cancel
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Summary
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Next
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Previous
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Toggle
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Show
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Hide
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Remove_Selected
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Restore_Last_Removed
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Summary
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Next
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Previous
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Clear_Stale
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Stale_Summary
-            | Editor.Commands.No_Command =>
+         when Editor.Command_Ids.Command_Dismiss_Latest_Message
+            | Editor.Command_Ids.Command_Dismiss_All_Messages
+            | Editor.Command_Ids.Command_Open_File
+            | Editor.Command_Ids.Command_Toggle_Line_Numbers
+            | Editor.Command_Ids.Command_Set_Absolute_Line_Numbers
+            | Editor.Command_Ids.Command_Set_Relative_Line_Numbers
+            | Editor.Command_Ids.Command_Set_Hybrid_Line_Numbers
+            | Editor.Command_Ids.Command_Toggle_Current_Line_Highlight
+            | Editor.Command_Ids.Command_Toggle_Syntax_Colouring
+            | Editor.Command_Ids.Command_Toggle_Diagnostics
+            | Editor.Command_Ids.Command_Toggle_Cursor_Style
+            | Editor.Command_Ids.Command_Edit_History_Clear
+            | Editor.Command_Ids.Command_Select_All
+            | Editor.Command_Ids.Command_Selection_Clear
+            | Editor.Command_Ids.Command_Build_Run
+            | Editor.Command_Ids.Command_Build_Run_User_Opt_In_Test_Seam
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Confirm
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Cancel
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Summary
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Next
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Previous
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Toggle
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Show
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Hide
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Remove_Selected
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Restore_Last_Removed
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Summary
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Next
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Previous
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Clear_Stale
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Stale_Summary
+            | Editor.Command_Ids.No_Command =>
             return True;
          when others =>
             return False;
@@ -859,16 +859,16 @@ package body Editor.Command_Surface.Tests is
    procedure Test_Command_For_Id_Fallback_Coverage_Audit
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Id  : Editor.Commands.Command_Id;
+      Id  : Editor.Command_Ids.Command_Id;
       Cmd : Editor.Commands.Payloads.Command;
    begin
-      for I in 1 .. Editor.Commands.Command_Count loop
-         Id := Editor.Commands.Command_At (I);
+      for I in 1 .. Editor.Command_Ids.Command_Count loop
+         Id := Editor.Command_Ids.Command_At (I);
          Cmd := Editor.Commands.Payloads.Command_For_Id (Id);
          if Cmd.Kind = Editor.Command_Kinds.Break_Group then
             Assert (Executor_Owns_Break_Group_Command (Id),
                     "Break_Group command id must be explicitly executor-owned: " &
-                    Editor.Commands.Command_Id'Image (Id));
+                    Editor.Command_Ids.Command_Id'Image (Id));
          end if;
       end loop;
    end Test_Command_For_Id_Fallback_Coverage_Audit;
@@ -885,9 +885,9 @@ package body Editor.Command_Surface.Tests is
       Editor.State.Init (Palette_State);
 
       Direct_Result := Editor.Executor.Execute_Command_With_Result
-        (Direct_State, Editor.Commands.Command_Save_All);
+        (Direct_State, Editor.Command_Ids.Command_Save_All);
       Palette_Result := Editor.Executor.Execute_Command_With_Result
-        (Palette_State, Editor.Commands.Command_Save_All);
+        (Palette_State, Editor.Command_Ids.Command_Save_All);
 
       Assert (Direct_Result.Status = Palette_Result.Status,
               "palette-equivalent Save All route must observe the executor result");
@@ -902,7 +902,7 @@ package body Editor.Command_Surface.Tests is
       pragma Unreferenced (T);
       R : Editor.Command_Execution.Command_Execution_Result;
    begin
-      R := Editor.Command_Execution.Executed (Editor.Commands.Command_Save_Settings);
+      R := Editor.Command_Execution.Executed (Editor.Command_Ids.Command_Save_Settings);
       Assert (Editor.Command_Execution.Is_Success (R),
               "Command_Executed must be the only success status");
       Assert (Editor.Command_Execution.Status_Name (R.Status) = "executed",
@@ -910,7 +910,7 @@ package body Editor.Command_Surface.Tests is
       Assert (Editor.Command_Execution.Summary (R) = "COMMAND_SAVE_SETTINGS:executed",
               "execution summary must combine command image and status name");
 
-      R := Editor.Command_Execution.No_Op (Editor.Commands.No_Command);
+      R := Editor.Command_Execution.No_Op (Editor.Command_Ids.No_Command);
       Assert (not Editor.Command_Execution.Is_Success (R),
               "Command_No_Op must be terminal but not a mutation success");
       Assert (not Editor.Command_Execution.Is_User_Blocking (R),
@@ -918,19 +918,19 @@ package body Editor.Command_Surface.Tests is
       Assert (Editor.Command_Execution.Status_Name (R.Status) = "no-op",
               "no-op status name must be stable");
 
-      R := Editor.Command_Execution.Unavailable (Editor.Commands.Command_Save_File);
+      R := Editor.Command_Execution.Unavailable (Editor.Command_Ids.Command_Save_File);
       Assert (Editor.Command_Execution.Is_User_Blocking (R),
               "Command_Unavailable must be a guarded user-blocking outcome");
       Assert (Editor.Command_Execution.Status_Name (R.Status) = "unavailable",
               "unavailable status name must be stable");
 
-      R := Editor.Command_Execution.Failed (Editor.Commands.Command_Reload_Settings);
+      R := Editor.Command_Execution.Failed (Editor.Command_Ids.Command_Reload_Settings);
       Assert (Editor.Command_Execution.Is_User_Blocking (R),
               "Command_Failed must be a user-blocking attempted failure");
       Assert (Editor.Command_Execution.Status_Name (R.Status) = "failed",
               "failed status name must be stable");
 
-      R := Editor.Command_Execution.Cancelled (Editor.Commands.Command_Cancel);
+      R := Editor.Command_Execution.Cancelled (Editor.Command_Ids.Command_Cancel);
       Assert (not Editor.Command_Execution.Is_Success (R),
               "Command_Cancelled must not be a mutation success");
       Assert (not Editor.Command_Execution.Is_User_Blocking (R),
@@ -975,91 +975,91 @@ package body Editor.Command_Surface.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
    begin
-      Assert (Editor.Commands.Project_File_Ids.Is_File_Content_Save_Command (Editor.Commands.Command_Save_File),
+      Assert (Editor.Commands.Project_File_Ids.Is_File_Content_Save_Command (Editor.Command_Ids.Command_Save_File),
               "Save File must be classified as file-content-save");
-      Assert (Editor.Commands.Project_File_Ids.Is_File_Content_Save_Command (Editor.Commands.Command_Save_All),
+      Assert (Editor.Commands.Project_File_Ids.Is_File_Content_Save_Command (Editor.Command_Ids.Command_Save_All),
               "Save All must be classified as file-content-save");
-      Assert (not Editor.Commands.Project_File_Ids.Is_File_Content_Save_Command (Editor.Commands.Command_Save_Workspace_State),
+      Assert (not Editor.Commands.Project_File_Ids.Is_File_Content_Save_Command (Editor.Command_Ids.Command_Save_Workspace_State),
               "Workspace structural save must not be classified as file-content-save");
 
-      Assert (Editor.Commands.Project_File_Ids.Is_Workspace_Structural_Save_Command (Editor.Commands.Command_Save_Workspace_State),
+      Assert (Editor.Commands.Project_File_Ids.Is_Workspace_Structural_Save_Command (Editor.Command_Ids.Command_Save_Workspace_State),
               "Save Workspace State must be classified as workspace-structural-save");
-      Assert (Editor.Commands.Classification.Is_Global_Settings_Save_Command (Editor.Commands.Command_Save_Settings),
+      Assert (Editor.Commands.Classification.Is_Global_Settings_Save_Command (Editor.Command_Ids.Command_Save_Settings),
               "Save Settings must be classified as global-settings-save");
-      Assert (Editor.Commands.Classification.Is_Global_Keybindings_Save_Command (Editor.Commands.Command_Save_Keybindings),
+      Assert (Editor.Commands.Classification.Is_Global_Keybindings_Save_Command (Editor.Command_Ids.Command_Save_Keybindings),
               "Save Keybindings must be classified as global-keybindings-save");
 
-      Assert (Editor.Commands.Navigation_Ids.Is_Navigation_Command (Editor.Commands.Command_Move_Left),
+      Assert (Editor.Commands.Navigation_Ids.Is_Navigation_Command (Editor.Command_Ids.Command_Move_Left),
               "Move Left must be classified as navigation");
-      Assert (Editor.Commands.Classification.Is_Search_Command (Editor.Commands.Command_Active_Find_Next),
+      Assert (Editor.Commands.Classification.Is_Search_Command (Editor.Command_Ids.Command_Active_Find_Next),
               "Find Next must be classified as search");
-      Assert (Editor.Commands.Classification.Is_Search_Command (Editor.Commands.Command_Replace_All),
+      Assert (Editor.Commands.Classification.Is_Search_Command (Editor.Command_Ids.Command_Replace_All),
               "Replace All must be classified as search");
-      Assert (Editor.Commands.Editing_Ids.Is_Editing_Command (Editor.Commands.Command_Replace_Current),
+      Assert (Editor.Commands.Editing_Ids.Is_Editing_Command (Editor.Command_Ids.Command_Replace_Current),
               "Replace Current must be classified as text-editing");
-      Assert (Editor.Commands.Availability_Metadata.Requires_Context (Editor.Commands.Command_Replace_Current),
+      Assert (Editor.Commands.Availability_Metadata.Requires_Context (Editor.Command_Ids.Command_Replace_Current),
               "Replace Current must require active-buffer/find context");
-      Assert (Editor.Commands.Availability_Metadata.Requires_Context (Editor.Commands.Command_Replace_Text_Set),
+      Assert (Editor.Commands.Availability_Metadata.Requires_Context (Editor.Command_Ids.Command_Replace_Text_Set),
               "Replace Text Set must require prompt/payload context");
-      Assert (Editor.Commands.Classification.Is_Panel_Focus_Command (Editor.Commands.Command_Focus_Problems),
+      Assert (Editor.Commands.Classification.Is_Panel_Focus_Command (Editor.Command_Ids.Command_Focus_Problems),
               "Focus Problems must be classified as panel-focus");
-      Assert (Editor.Commands.Editing_Ids.Is_Editing_Command (Editor.Commands.Command_Insert_Newline),
+      Assert (Editor.Commands.Editing_Ids.Is_Editing_Command (Editor.Command_Ids.Command_Insert_Newline),
               "Insert Newline must be classified as text-editing");
 
-      Assert (not Editor.Commands.Classification.Is_Configuration_Command (Editor.Commands.Command_Save_File),
+      Assert (not Editor.Commands.Classification.Is_Configuration_Command (Editor.Command_Ids.Command_Save_File),
               "file-content saving must remain separate from configuration");
-      Assert (not Editor.Commands.Classification.Is_Lifecycle_Command (Editor.Commands.Command_Save_Settings),
+      Assert (not Editor.Commands.Classification.Is_Lifecycle_Command (Editor.Command_Ids.Command_Save_Settings),
               "settings saving must remain separate from lifecycle");
    end Test_Command_Classification_Groups;
 
    procedure Test_Command_Registry_Baseline
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Id    : Editor.Commands.Command_Id;
-      Other : Editor.Commands.Command_Id;
+      Id    : Editor.Command_Ids.Command_Id;
+      Other : Editor.Command_Ids.Command_Id;
       Found : Boolean := False;
       D     : Editor.Commands.Descriptors.Command_Descriptor;
    begin
-      for I in 1 .. Editor.Commands.Command_Count loop
-         Id := Editor.Commands.Command_At (I);
+      for I in 1 .. Editor.Command_Ids.Command_Count loop
+         Id := Editor.Command_Ids.Command_At (I);
          D := Editor.Commands.Descriptors.Descriptor (Id);
 
          Assert (Editor.Commands.Descriptor_Metadata.Has_Descriptor (Id),
                  "command registry baseline missing descriptor for " &
-                 Editor.Commands.Command_Id'Image (Id));
+                 Editor.Command_Ids.Command_Id'Image (Id));
 
          if Editor.Commands.Availability_Metadata.Is_Concrete_Command (Id) then
             Assert (Length (D.Name) > 0,
-                    "concrete command missing label: " & Editor.Commands.Command_Id'Image (Id));
+                    "concrete command missing label: " & Editor.Command_Ids.Command_Id'Image (Id));
             Assert (Length (D.Description) > 0,
-                    "concrete command missing description: " & Editor.Commands.Command_Id'Image (Id));
+                    "concrete command missing description: " & Editor.Command_Ids.Command_Id'Image (Id));
             Assert (Editor.Commands.Availability_Metadata.Has_Availability_Handler (Id),
                     "concrete command missing availability handler marker: " &
-                    Editor.Commands.Command_Id'Image (Id));
+                    Editor.Command_Ids.Command_Id'Image (Id));
             Assert (Editor.Commands.Audits.Descriptor_Is_Complete (Id),
                     "concrete command descriptor incomplete: " &
-                    Editor.Commands.Command_Id'Image (Id));
+                    Editor.Command_Ids.Command_Id'Image (Id));
          end if;
 
          if Editor.Commands.Classification.Is_Bindable_Command (Id) then
             Assert (Editor.Commands.Stable_Names.Has_Stable_Name (Id),
                     "bindable command missing stable name: " &
-                    Editor.Commands.Command_Id'Image (Id));
+                    Editor.Command_Ids.Command_Id'Image (Id));
             Other := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
               (Editor.Commands.Name_Metadata.Stable_Command_Name (Id), Found);
             Assert (Found and then Other = Id,
                     "stable command name must round-trip for " &
-                    Editor.Commands.Command_Id'Image (Id));
+                    Editor.Command_Ids.Command_Id'Image (Id));
 
-            if I < Editor.Commands.Command_Count then
-               for J in I + 1 .. Editor.Commands.Command_Count loop
-                  Other := Editor.Commands.Command_At (J);
+            if I < Editor.Command_Ids.Command_Count then
+               for J in I + 1 .. Editor.Command_Ids.Command_Count loop
+                  Other := Editor.Command_Ids.Command_At (J);
                   if Editor.Commands.Classification.Is_Bindable_Command (Other) then
                      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name (Id) /=
                                Editor.Commands.Name_Metadata.Stable_Command_Name (Other),
                              "duplicate stable command name between " &
-                             Editor.Commands.Command_Id'Image (Id) & " and " &
-                             Editor.Commands.Command_Id'Image (Other));
+                             Editor.Command_Ids.Command_Id'Image (Id) & " and " &
+                             Editor.Command_Ids.Command_Id'Image (Other));
                   end if;
                end loop;
             end if;
@@ -1068,7 +1068,7 @@ package body Editor.Command_Surface.Tests is
          if Editor.Commands.Classification.Visible_In_Command_Palette (Id) then
             Assert (D.Category /= Editor.Commands.Descriptors.Internal_Category,
                     "visible command must not use Internal category: " &
-                    Editor.Commands.Command_Id'Image (Id));
+                    Editor.Command_Ids.Command_Id'Image (Id));
          end if;
       end loop;
    end Test_Command_Registry_Baseline;
@@ -1083,7 +1083,7 @@ package body Editor.Command_Surface.Tests is
    begin
       Editor.State.Init (S);
       R := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Retry_Pending_Transition);
+        (S, Editor.Command_Ids.Command_Retry_Pending_Transition);
 
       Assert (R.Status = Editor.Executor.Command_Unavailable,
               "Retry Pending Transition without pending state must be unavailable");
@@ -1107,18 +1107,18 @@ package body Editor.Command_Surface.Tests is
       pragma Unreferenced (T);
       S  : Editor.State.State_Type;
       R  : Editor.Executor.Command_Execution_Result;
-      Id : Editor.Commands.Command_Id;
+      Id : Editor.Command_Ids.Command_Id;
    begin
       Editor.State.Init (S);
-      R := Editor.Executor.Execute_Command_With_Result (S, Editor.Commands.No_Command);
+      R := Editor.Executor.Execute_Command_With_Result (S, Editor.Command_Ids.No_Command);
       Assert (R.Status = Editor.Executor.Command_No_Op,
               "No_Command must remain the sentinel no-op");
       Assert (Editor.Messages.Count (S.Messages) = 0,
               "No_Command must not emit messages");
 
-      for I in 1 .. Editor.Commands.Command_Count loop
-         Id := Editor.Commands.Command_At (I);
-         if Id /= Editor.Commands.No_Command
+      for I in 1 .. Editor.Command_Ids.Command_Count loop
+         Id := Editor.Command_Ids.Command_At (I);
+         if Id /= Editor.Command_Ids.No_Command
            and then not Editor.Commands.Availability_Metadata.Is_Available
              (Editor.Executor.Command_Availability (S, Id))
          then
@@ -1129,7 +1129,7 @@ package body Editor.Command_Surface.Tests is
                R := Editor.Executor.Execute_Command_With_Result (Local, Id);
                Assert (R.Status /= Editor.Executor.Command_No_Op,
                        "concrete unavailable command must not hide behind no-op: " &
-                       Editor.Commands.Command_Id'Image (Id));
+                       Editor.Command_Ids.Command_Id'Image (Id));
             end;
          end if;
       end loop;
@@ -1141,11 +1141,11 @@ package body Editor.Command_Surface.Tests is
      (Name : String)
    is
       Found : Boolean;
-      Id    : constant Editor.Commands.Command_Id :=
+      Id    : constant Editor.Command_Ids.Command_Id :=
         Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
    begin
       if Name = "build.run" then
-         Assert (Found and then Id = Editor.Commands.Command_Build_Run,
+         Assert (Found and then Id = Editor.Command_Ids.Command_Build_Run,
                  "build.run must be the single guarded public build command");
       else
          Assert (not Found,
@@ -1330,7 +1330,7 @@ package body Editor.Command_Surface.Tests is
    end Cell;
 
    function Switcher_Command_Is_In_Reference
-     (Id : Editor.Commands.Command_Id) return Boolean
+     (Id : Editor.Command_Ids.Command_Id) return Boolean
    is
       Stable : constant String := Editor.Commands.Name_Metadata.Stable_Command_Name (Id);
    begin
@@ -1365,7 +1365,7 @@ package body Editor.Command_Surface.Tests is
       end if;
    end Classification_Label;
 
-   function Hint_Label (Id : Editor.Commands.Command_Id) return String is
+   function Hint_Label (Id : Editor.Command_Ids.Command_Id) return String is
       use Editor.Commands;
    begin
       case Id is
@@ -1474,7 +1474,7 @@ package body Editor.Command_Surface.Tests is
    procedure Assert_Row_Matches_Descriptor (Line : String) is
       Stable : constant String := Cell (Line, 1);
       Found  : Boolean := False;
-      Id     : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Id     : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       D      : Editor.Commands.Descriptors.Command_Descriptor;
    begin
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Stable, Found);
@@ -1510,57 +1510,57 @@ package body Editor.Command_Surface.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      type Command_Array is array (Positive range <>) of Editor.Commands.Command_Id;
+      type Command_Array is array (Positive range <>) of Editor.Command_Ids.Command_Id;
       Product_Commands : constant Command_Array :=
-        (Editor.Commands.Command_Open_Project,
-         Editor.Commands.Command_Close_Project,
-         Editor.Commands.Command_Switch_Project,
-         Editor.Commands.Command_Show_Recent_Projects,
-         Editor.Commands.Command_Open_File,
-         Editor.Commands.Command_Save_File,
-         Editor.Commands.Command_Save_File_As,
-         Editor.Commands.Command_Reload_Active_Buffer,
-         Editor.Commands.Command_Revert_Active_Buffer,
-         Editor.Commands.Command_Refresh_File_Tree,
-         Editor.Commands.Command_File_Tree_Open_Selected,
-         Editor.Commands.Command_File_Tree_Create_File,
-         Editor.Commands.Command_File_Tree_Create_Directory,
-         Editor.Commands.Command_File_Tree_Rename_Selected,
-         Editor.Commands.Command_File_Tree_Delete_Selected,
-         Editor.Commands.Command_Open_Quick_Open,
-         Editor.Commands.Command_Run_Project_Search,
-         Editor.Commands.Command_Open_Selected_Project_Search_Result,
-         Editor.Commands.Command_Show_Outline,
-         Editor.Commands.Command_Refresh_Outline_Project_Index,
-         Editor.Commands.Command_Goto_Declaration,
-         Editor.Commands.Command_Goto_Body,
-         Editor.Commands.Command_Goto_Spec,
-         Editor.Commands.Command_Find_References,
-         Editor.Commands.Command_Show_Hover,
-         Editor.Commands.Command_Show_Completions,
-         Editor.Commands.Command_Semantic_Completion_Select_Next,
-         Editor.Commands.Command_Semantic_Completion_Select_Previous,
-         Editor.Commands.Command_Semantic_Completion_Accept,
-         Editor.Commands.Command_Semantic_Popup_Dismiss,
-         Editor.Commands.Command_Rename_Symbol_Preview,
-         Editor.Commands.Command_Rename_Symbol_Apply,
-         Editor.Commands.Command_Semantic_Refresh_Buffer,
-         Editor.Commands.Command_Semantic_Refresh_Project_Index,
-         Editor.Commands.Command_Language_Index_Clear,
-         Editor.Commands.Command_Language_Index_Status,
-         Editor.Commands.Command_Open_Selected_Outline_Item,
-         Editor.Commands.Command_Build_Run,
-         Editor.Commands.Command_Build_UI_Show,
-         Editor.Commands.Command_Build_UI_Toggle,
-         Editor.Commands.Command_Build_UI_Hide,
-         Editor.Commands.Command_Build_UI_Focus,
-         Editor.Commands.Command_Diagnostics_Show,
-         Editor.Commands.Command_Diagnostics_Execute_Selected_Action,
-         Editor.Commands.Command_Next_Buffer,
-         Editor.Commands.Command_Previous_Buffer,
-         Editor.Commands.Command_Close_Active_Buffer,
-         Editor.Commands.Command_Close_All_Clean_Buffers,
-         Editor.Commands.Command_Restore_Workspace_State);
+        (Editor.Command_Ids.Command_Open_Project,
+         Editor.Command_Ids.Command_Close_Project,
+         Editor.Command_Ids.Command_Switch_Project,
+         Editor.Command_Ids.Command_Show_Recent_Projects,
+         Editor.Command_Ids.Command_Open_File,
+         Editor.Command_Ids.Command_Save_File,
+         Editor.Command_Ids.Command_Save_File_As,
+         Editor.Command_Ids.Command_Reload_Active_Buffer,
+         Editor.Command_Ids.Command_Revert_Active_Buffer,
+         Editor.Command_Ids.Command_Refresh_File_Tree,
+         Editor.Command_Ids.Command_File_Tree_Open_Selected,
+         Editor.Command_Ids.Command_File_Tree_Create_File,
+         Editor.Command_Ids.Command_File_Tree_Create_Directory,
+         Editor.Command_Ids.Command_File_Tree_Rename_Selected,
+         Editor.Command_Ids.Command_File_Tree_Delete_Selected,
+         Editor.Command_Ids.Command_Open_Quick_Open,
+         Editor.Command_Ids.Command_Run_Project_Search,
+         Editor.Command_Ids.Command_Open_Selected_Project_Search_Result,
+         Editor.Command_Ids.Command_Show_Outline,
+         Editor.Command_Ids.Command_Refresh_Outline_Project_Index,
+         Editor.Command_Ids.Command_Goto_Declaration,
+         Editor.Command_Ids.Command_Goto_Body,
+         Editor.Command_Ids.Command_Goto_Spec,
+         Editor.Command_Ids.Command_Find_References,
+         Editor.Command_Ids.Command_Show_Hover,
+         Editor.Command_Ids.Command_Show_Completions,
+         Editor.Command_Ids.Command_Semantic_Completion_Select_Next,
+         Editor.Command_Ids.Command_Semantic_Completion_Select_Previous,
+         Editor.Command_Ids.Command_Semantic_Completion_Accept,
+         Editor.Command_Ids.Command_Semantic_Popup_Dismiss,
+         Editor.Command_Ids.Command_Rename_Symbol_Preview,
+         Editor.Command_Ids.Command_Rename_Symbol_Apply,
+         Editor.Command_Ids.Command_Semantic_Refresh_Buffer,
+         Editor.Command_Ids.Command_Semantic_Refresh_Project_Index,
+         Editor.Command_Ids.Command_Language_Index_Clear,
+         Editor.Command_Ids.Command_Language_Index_Status,
+         Editor.Command_Ids.Command_Open_Selected_Outline_Item,
+         Editor.Command_Ids.Command_Build_Run,
+         Editor.Command_Ids.Command_Build_UI_Show,
+         Editor.Command_Ids.Command_Build_UI_Toggle,
+         Editor.Command_Ids.Command_Build_UI_Hide,
+         Editor.Command_Ids.Command_Build_UI_Focus,
+         Editor.Command_Ids.Command_Diagnostics_Show,
+         Editor.Command_Ids.Command_Diagnostics_Execute_Selected_Action,
+         Editor.Command_Ids.Command_Next_Buffer,
+         Editor.Command_Ids.Command_Previous_Buffer,
+         Editor.Command_Ids.Command_Close_Active_Buffer,
+         Editor.Command_Ids.Command_Close_All_Clean_Buffers,
+         Editor.Command_Ids.Command_Restore_Workspace_State);
 
       function Contains_Internal_Term (Text : String) return Boolean is
          Lower : constant String := Ada.Characters.Handling.To_Lower (Text);
@@ -1624,10 +1624,10 @@ package body Editor.Command_Surface.Tests is
       end loop;
 
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Build_Run) = "build.run",
+                (Editor.Command_Ids.Command_Build_Run) = "build.run",
               "build.run command id remains canonical");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Switch_Project) = "project.switch",
+                (Editor.Command_Ids.Command_Switch_Project) = "project.switch",
               "project.switch command id remains canonical");
 
       for Id in Editor.Commands.Registry.First_Command .. Editor.Commands.Registry.Last_Command loop
@@ -1769,13 +1769,13 @@ package body Editor.Command_Surface.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Seen  : array (Editor.Commands.Command_Id) of Boolean := (others => False);
+      Seen  : array (Editor.Command_Ids.Command_Id) of Boolean := (others => False);
       Found : Boolean;
-      Round : Editor.Commands.Command_Id;
+      Round : Editor.Command_Ids.Command_Id;
    begin
-      for I in 1 .. Editor.Commands.Command_Count loop
+      for I in 1 .. Editor.Command_Ids.Command_Count loop
          declare
-            Id : constant Editor.Commands.Command_Id := Editor.Commands.Command_At (I);
+            Id : constant Editor.Command_Ids.Command_Id := Editor.Command_Ids.Command_At (I);
             Name : constant String := Editor.Commands.Name_Metadata.Stable_Command_Name (Id);
          begin
             if Editor.Commands.Availability_Metadata.Is_Concrete_Command (Id) then
@@ -1795,13 +1795,13 @@ package body Editor.Command_Surface.Tests is
    is
       pragma Unreferenced (T);
       Found : Boolean;
-      Id : Editor.Commands.Command_Id;
+      Id : Editor.Command_Ids.Command_Id;
    begin
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (" FILE.SAVE ", Found);
-      Assert (Found and then Id = Editor.Commands.Command_Save_File,
+      Assert (Found and then Id = Editor.Command_Ids.Command_Save_File,
               "command id lookup must preserve trim/lowercase canonicalization for dot-scoped stable ids");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("file.save", Found);
-      Assert (Found and then Id = Editor.Commands.Command_Save_File,
+      Assert (Found and then Id = Editor.Command_Ids.Command_Save_File,
               "canonical stable id lookup must still resolve exact lowercase names");
    end Test_Command_Surface_Command_Ids_Follow_Canonicalization_Policy;
 

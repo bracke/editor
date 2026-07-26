@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Executor.Shared_Services;
 use Editor.Executor.Shared_Services;
@@ -12,7 +13,6 @@ with Editor.Ada_Project_Index;
 with Editor.Buffers;
 with Editor.Clipboard;
 with Editor.Command_Execution;
-with Editor.Commands;
 with Editor.Commands.Workflow_Messages;
 with Editor.Executor.Diagnostics_Commands;
 with Editor.Executor.Diagnostics_Navigation_Commands;
@@ -58,7 +58,7 @@ package body Editor.Executor.Diagnostics_Feature_Commands is
 
    function Diagnostics_Command_Availability
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin
@@ -619,18 +619,18 @@ package body Editor.Executor.Diagnostics_Feature_Commands is
 
    function Execute_Diagnostics_Feature_Command
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
    is
       function Result_After_Command
-        (Command : Editor.Commands.Command_Id)
+        (Command : Editor.Command_Ids.Command_Id)
          return Editor.Command_Execution.Command_Execution_Result is
       begin
          return Editor.Command_Execution.Executed (Command);
       end Result_After_Command;
    begin
       case Id is
-         when Editor.Commands.Command_Diagnostics_Show =>
+         when Editor.Command_Ids.Command_Diagnostics_Show =>
             if not Editor.Feature_Panel_Controller.Show_Feature
               (S, Editor.Feature_Panel.Diagnostics_Feature)
             then
@@ -645,7 +645,7 @@ package body Editor.Executor.Diagnostics_Feature_Commands is
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
 
-         when Editor.Commands.Command_Diagnostics_Clear =>
+         when Editor.Command_Ids.Command_Diagnostics_Clear =>
             if Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0 then
                Editor.Feature_Diagnostics.Show_All (S.Feature_Diagnostics);
                Editor.Feature_Diagnostics.Reconcile_Diagnostics_After_Row_Change
@@ -661,7 +661,7 @@ package body Editor.Executor.Diagnostics_Feature_Commands is
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
 
-         when Editor.Commands.Command_Diagnostics_Toggle_Info =>
+         when Editor.Command_Ids.Command_Diagnostics_Toggle_Info =>
             Editor.Feature_Diagnostics.Toggle_Info_Visible (S.Feature_Diagnostics);
             Editor.Feature_Diagnostics.Reconcile_Diagnostics_After_Filter_Change
               (S.Feature_Diagnostics, S.Feature_Panel);
@@ -675,7 +675,7 @@ package body Editor.Executor.Diagnostics_Feature_Commands is
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
 
-         when Editor.Commands.Command_Diagnostics_Toggle_Warnings =>
+         when Editor.Command_Ids.Command_Diagnostics_Toggle_Warnings =>
             Editor.Feature_Diagnostics.Toggle_Warnings_Visible (S.Feature_Diagnostics);
             Editor.Feature_Diagnostics.Reconcile_Diagnostics_After_Filter_Change
               (S.Feature_Diagnostics, S.Feature_Panel);
@@ -689,7 +689,7 @@ package body Editor.Executor.Diagnostics_Feature_Commands is
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
 
-         when Editor.Commands.Command_Diagnostics_Toggle_Errors =>
+         when Editor.Command_Ids.Command_Diagnostics_Toggle_Errors =>
             Editor.Feature_Diagnostics.Toggle_Errors_Visible (S.Feature_Diagnostics);
             Editor.Feature_Diagnostics.Reconcile_Diagnostics_After_Filter_Change
               (S.Feature_Diagnostics, S.Feature_Panel);
@@ -703,7 +703,7 @@ package body Editor.Executor.Diagnostics_Feature_Commands is
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
 
-         when Editor.Commands.Command_Diagnostics_Show_All =>
+         when Editor.Command_Ids.Command_Diagnostics_Show_All =>
             Editor.Feature_Diagnostics.Show_All (S.Feature_Diagnostics);
             Editor.Feature_Diagnostics.Reconcile_Diagnostics_After_Filter_Change
               (S.Feature_Diagnostics, S.Feature_Panel);
@@ -711,7 +711,7 @@ package body Editor.Executor.Diagnostics_Feature_Commands is
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
 
-         when Editor.Commands.Command_Diagnostics_Clear_Filter =>
+         when Editor.Command_Ids.Command_Diagnostics_Clear_Filter =>
             if not Editor.Feature_Diagnostics.Filter_Active (S.Feature_Diagnostics) then
                Report_Info (S, Editor.Feature_Diagnostics.Message_No_Filter_Active);
                Editor.Render_Cache.Invalidate_All;
@@ -724,7 +724,7 @@ package body Editor.Executor.Diagnostics_Feature_Commands is
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
 
-         when Editor.Commands.Command_Diagnostics_Filter_Errors =>
+         when Editor.Command_Ids.Command_Diagnostics_Filter_Errors =>
             Editor.Feature_Diagnostics.Filter_Errors_Only (S.Feature_Diagnostics);
             Editor.Feature_Diagnostics.Reconcile_Diagnostics_After_Filter_Change
               (S.Feature_Diagnostics, S.Feature_Panel);
@@ -732,7 +732,7 @@ package body Editor.Executor.Diagnostics_Feature_Commands is
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
 
-         when Editor.Commands.Command_Diagnostics_Filter_Warnings =>
+         when Editor.Command_Ids.Command_Diagnostics_Filter_Warnings =>
             Editor.Feature_Diagnostics.Filter_Warnings_Only (S.Feature_Diagnostics);
             Editor.Feature_Diagnostics.Reconcile_Diagnostics_After_Filter_Change
               (S.Feature_Diagnostics, S.Feature_Panel);
@@ -740,7 +740,7 @@ package body Editor.Executor.Diagnostics_Feature_Commands is
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
 
-         when Editor.Commands.Command_Diagnostics_Filter_Info_Notes =>
+         when Editor.Command_Ids.Command_Diagnostics_Filter_Info_Notes =>
             Editor.Feature_Diagnostics.Filter_Info_And_Notes_Only (S.Feature_Diagnostics);
             Editor.Feature_Diagnostics.Reconcile_Diagnostics_After_Filter_Change
               (S.Feature_Diagnostics, S.Feature_Panel);
@@ -748,7 +748,7 @@ package body Editor.Executor.Diagnostics_Feature_Commands is
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
 
-         when Editor.Commands.Command_Diagnostics_Filter_Source =>
+         when Editor.Command_Ids.Command_Diagnostics_Filter_Source =>
             if Editor.Feature_Diagnostics.Is_Empty (S.Feature_Diagnostics) then
                Report_Info (S, Editor.Feature_Diagnostics.Message_No_Diagnostics);
                Editor.Render_Cache.Invalidate_All;
@@ -780,7 +780,7 @@ package body Editor.Executor.Diagnostics_Feature_Commands is
                return Result_After_Command (Id);
             end;
 
-         when Editor.Commands.Command_Diagnostics_Filter_Build =>
+         when Editor.Command_Ids.Command_Diagnostics_Filter_Build =>
             if Editor.Feature_Diagnostics.Is_Empty (S.Feature_Diagnostics) then
                Report_Info (S, Editor.Feature_Diagnostics.Message_No_Diagnostics);
                Editor.Render_Cache.Invalidate_All;
@@ -799,7 +799,7 @@ package body Editor.Executor.Diagnostics_Feature_Commands is
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
 
-         when Editor.Commands.Command_Diagnostics_Clear_Build =>
+         when Editor.Command_Ids.Command_Diagnostics_Clear_Build =>
             declare
                Previous_Id : constant Editor.Feature_Diagnostics.Diagnostic_Id :=
                  Editor.Feature_Diagnostics.Selected_Diagnostic_Id
@@ -826,8 +826,8 @@ package body Editor.Executor.Diagnostics_Feature_Commands is
                end if;
             end;
 
-         when Editor.Commands.Command_Diagnostics_Open_Selected
-            | Editor.Commands.Command_Diagnostic_Open_Source =>
+         when Editor.Command_Ids.Command_Diagnostics_Open_Selected
+            | Editor.Command_Ids.Command_Diagnostic_Open_Source =>
             declare
                Row : constant Natural := Editor.Feature_Panel.Selected_Row (S.Feature_Panel);
                Result : Editor.Command_Execution.Command_Execution_Result :=
@@ -845,20 +845,20 @@ package body Editor.Executor.Diagnostics_Feature_Commands is
                return Editor.Command_Execution.No_Op (Id);
             end;
 
-         when Editor.Commands.Command_Diagnostic_Suppress_Selected
-            | Editor.Commands.Command_Diagnostic_Show_Suppressed
-            | Editor.Commands.Command_Diagnostic_Restore_Last_Suppressed
-            | Editor.Commands.Command_Diagnostic_Restore_Selected_Suppressed
-            | Editor.Commands.Command_Diagnostic_Clear_Suppressed =>
+         when Editor.Command_Ids.Command_Diagnostic_Suppress_Selected
+            | Editor.Command_Ids.Command_Diagnostic_Show_Suppressed
+            | Editor.Command_Ids.Command_Diagnostic_Restore_Last_Suppressed
+            | Editor.Command_Ids.Command_Diagnostic_Restore_Selected_Suppressed
+            | Editor.Command_Ids.Command_Diagnostic_Clear_Suppressed =>
             return Editor.Executor.Diagnostics_Suppressed_Commands
               .Execute_Diagnostics_Suppressed_Command (S, Id);
 
-         when Editor.Commands.Command_Diagnostics_Execute_Selected_Action
-            | Editor.Commands.Command_Diagnostic_Apply_Quick_Fix =>
+         when Editor.Command_Ids.Command_Diagnostics_Execute_Selected_Action
+            | Editor.Command_Ids.Command_Diagnostic_Apply_Quick_Fix =>
             return Editor.Executor.Diagnostics_Action_Commands
               .Execute_Diagnostics_Action_Command (S, Id);
 
-         when Editor.Commands.Command_Diagnostics_Select_Next =>
+         when Editor.Command_Ids.Command_Diagnostics_Select_Next =>
             if Editor.Feature_Panel.Active_Feature (S.Feature_Panel) /=
               Editor.Feature_Panel.Diagnostics_Feature
             then
@@ -884,7 +884,7 @@ package body Editor.Executor.Diagnostics_Feature_Commands is
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
 
-         when Editor.Commands.Command_Diagnostics_Select_Previous =>
+         when Editor.Command_Ids.Command_Diagnostics_Select_Previous =>
             if Editor.Feature_Panel.Active_Feature (S.Feature_Panel) /=
               Editor.Feature_Panel.Diagnostics_Feature
             then
@@ -910,7 +910,7 @@ package body Editor.Executor.Diagnostics_Feature_Commands is
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
 
-         when Editor.Commands.Command_Diagnostics_Clear_Selected =>
+         when Editor.Command_Ids.Command_Diagnostics_Clear_Selected =>
             if Editor.Feature_Diagnostics.Clear_Selected_Diagnostic
               (S.Feature_Diagnostics, S.Feature_Panel)
             then
@@ -924,7 +924,7 @@ package body Editor.Executor.Diagnostics_Feature_Commands is
             Editor.Render_Cache.Invalidate_All;
             return Editor.Command_Execution.No_Op (Id);
 
-         when Editor.Commands.Command_Diagnostics_Copy_Selected_Text =>
+         when Editor.Command_Ids.Command_Diagnostics_Copy_Selected_Text =>
             declare
                Text : constant String := Editor.Feature_Diagnostics.Selected_Diagnostic_Text
                  (S.Feature_Diagnostics, S.Feature_Panel);
@@ -941,7 +941,7 @@ package body Editor.Executor.Diagnostics_Feature_Commands is
                return Result_After_Command (Id);
             end;
 
-         when Editor.Commands.Command_Diagnostics_Clear_Info =>
+         when Editor.Command_Ids.Command_Diagnostics_Clear_Info =>
             declare
                Previous_Id : constant Editor.Feature_Diagnostics.Diagnostic_Id :=
                  Editor.Feature_Diagnostics.Selected_Diagnostic_Id
@@ -968,7 +968,7 @@ package body Editor.Executor.Diagnostics_Feature_Commands is
                end if;
             end;
 
-         when Editor.Commands.Command_Diagnostics_Clear_Warnings =>
+         when Editor.Command_Ids.Command_Diagnostics_Clear_Warnings =>
             declare
                Previous_Id : constant Editor.Feature_Diagnostics.Diagnostic_Id :=
                  Editor.Feature_Diagnostics.Selected_Diagnostic_Id
@@ -995,7 +995,7 @@ package body Editor.Executor.Diagnostics_Feature_Commands is
                end if;
             end;
 
-         when Editor.Commands.Command_Diagnostics_Clear_Errors =>
+         when Editor.Command_Ids.Command_Diagnostics_Clear_Errors =>
             declare
                Previous_Id : constant Editor.Feature_Diagnostics.Diagnostic_Id :=
                  Editor.Feature_Diagnostics.Selected_Diagnostic_Id
@@ -1022,7 +1022,7 @@ package body Editor.Executor.Diagnostics_Feature_Commands is
                end if;
             end;
 
-         when Editor.Commands.Command_Diagnostics_Toggle_Editor_Source =>
+         when Editor.Command_Ids.Command_Diagnostics_Toggle_Editor_Source =>
             Editor.Feature_Diagnostics.Toggle_Source_Visible
               (S.Feature_Diagnostics, Editor.Feature_Diagnostics.Editor_Diagnostic_Source);
             Editor.Feature_Diagnostics.Reconcile_Diagnostics_After_Filter_Change
@@ -1041,7 +1041,7 @@ package body Editor.Executor.Diagnostics_Feature_Commands is
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
 
-         when Editor.Commands.Command_Diagnostics_Toggle_File_Source =>
+         when Editor.Command_Ids.Command_Diagnostics_Toggle_File_Source =>
             Editor.Feature_Diagnostics.Toggle_Source_Visible
               (S.Feature_Diagnostics, Editor.Feature_Diagnostics.File_Diagnostic_Source);
             Editor.Feature_Diagnostics.Reconcile_Diagnostics_After_Filter_Change
@@ -1060,7 +1060,7 @@ package body Editor.Executor.Diagnostics_Feature_Commands is
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
 
-         when Editor.Commands.Command_Diagnostics_Toggle_Project_Source =>
+         when Editor.Command_Ids.Command_Diagnostics_Toggle_Project_Source =>
             Editor.Feature_Diagnostics.Toggle_Source_Visible
               (S.Feature_Diagnostics, Editor.Feature_Diagnostics.Project_Diagnostic_Source);
             Editor.Feature_Diagnostics.Reconcile_Diagnostics_After_Filter_Change
@@ -1079,7 +1079,7 @@ package body Editor.Executor.Diagnostics_Feature_Commands is
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
 
-         when Editor.Commands.Command_Diagnostics_Toggle_External_Source =>
+         when Editor.Command_Ids.Command_Diagnostics_Toggle_External_Source =>
             Editor.Feature_Diagnostics.Toggle_Source_Visible
               (S.Feature_Diagnostics, Editor.Feature_Diagnostics.External_Diagnostic_Source);
             Editor.Feature_Diagnostics.Reconcile_Diagnostics_After_Filter_Change
@@ -1098,7 +1098,7 @@ package body Editor.Executor.Diagnostics_Feature_Commands is
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
 
-         when Editor.Commands.Command_Diagnostics_Toggle_Unknown_Source =>
+         when Editor.Command_Ids.Command_Diagnostics_Toggle_Unknown_Source =>
             Editor.Feature_Diagnostics.Toggle_Source_Visible
               (S.Feature_Diagnostics, Editor.Feature_Diagnostics.Unknown_Diagnostic_Source);
             Editor.Feature_Diagnostics.Reconcile_Diagnostics_After_Filter_Change

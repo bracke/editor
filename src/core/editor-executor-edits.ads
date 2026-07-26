@@ -2,7 +2,6 @@ with Editor.Commands.Payloads;
 with Ada.Containers; use Ada.Containers;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.State;
-with Editor.Commands;
 with Editor.Cursors; use Editor.Cursors;
 with Editor.Executor_Edit_Status;
 

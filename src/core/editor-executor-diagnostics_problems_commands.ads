@@ -1,6 +1,5 @@
 with Editor.Problems;
 with Editor.State;
-with Editor.Commands;
 
 package Editor.Executor.Diagnostics_Problems_Commands is
 

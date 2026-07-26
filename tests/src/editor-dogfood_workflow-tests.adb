@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
@@ -24,7 +25,6 @@ with Editor.Buffers;
 with Editor.Command_Palette;
 with Editor.Command_Route_Audit;
 with Editor.Command_Execution;
-with Editor.Commands;
 with Editor.Commands.Workflow_Messages;
 with Editor.Commands.Name_Metadata;
 with Editor.Configuration_Audit;
@@ -71,7 +71,7 @@ package body Editor.Dogfood_Workflow.Tests is
    use type Editor.Build_UI.Public_Build_UI_Validation_Status;
    use type Editor.Command_Execution.Command_Execution_Status;
    use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Ada_Language_Service.Compiler_Diagnostic_Severity;
    use type Editor.External_Producers.Build_Types.Build_Run_Status;
@@ -238,7 +238,7 @@ package body Editor.Dogfood_Workflow.Tests is
 
    procedure Run_File_Tree_Text_Prompt_Command
      (S              : in out Editor.State.State_Type;
-      Id             : Editor.Commands.Command_Id;
+      Id             : Editor.Command_Ids.Command_Id;
       Text           : String;
       Expected_Kind  : Editor.Guided_Prompts.Prompt_Kind;
       Expected_Title : String)
@@ -260,7 +260,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Guided_Prompts.Update_Input (S.Guided_Prompt, Text);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Execute_Command_Id
-        (Editor.Commands.Command_Insert_Newline);
+        (Editor.Command_Ids.Command_Insert_Newline);
       S := Editor.Input_Bridge.Get_State_For_Test;
       Assert (not Editor.Guided_Prompts.Is_Active (S.Guided_Prompt),
               Expected_Title & " prompt completes and clears transient input");
@@ -273,7 +273,7 @@ package body Editor.Dogfood_Workflow.Tests is
    begin
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Execute_Command_Id
-        (Editor.Commands.Command_File_Tree_Delete_Selected);
+        (Editor.Command_Ids.Command_File_Tree_Delete_Selected);
       S := Editor.Input_Bridge.Get_State_For_Test;
       Snapshot := Editor.Guided_Prompts.Snapshot (S.Guided_Prompt);
       Assert (Snapshot.Active, "delete confirmation prompt starts");
@@ -282,7 +282,7 @@ package body Editor.Dogfood_Workflow.Tests is
 
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Execute_Command_Id
-        (Editor.Commands.Command_Insert_Newline);
+        (Editor.Command_Ids.Command_Insert_Newline);
       S := Editor.Input_Bridge.Get_State_For_Test;
       Assert (not Editor.Guided_Prompts.Is_Active (S.Guided_Prompt),
               "delete confirmation completes and clears transient state");
@@ -362,7 +362,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_File_Tree);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_File_Tree_Open_Selected);
+        (S, Editor.Command_Ids.Command_File_Tree_Open_Selected);
       Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Source_Path,
               "file-tree activation opens the expected source file");
       Assert (Editor.Focus_Management.Effective_Focus_Owner (S) =
@@ -390,7 +390,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_Quick_Open);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Accept_Quick_Open);
+        (S, Editor.Command_Ids.Command_Accept_Quick_Open);
       Assert (To_String (S.File_Info.Path) = Source_Path,
               "Quick Open activation/focus uses the canonical file-open path");
       Assert (Editor.Focus_Management.Effective_Focus_Owner (S) =
@@ -415,7 +415,7 @@ package body Editor.Dogfood_Workflow.Tests is
         (S, Editor.Focus_Management.Focus_File_Tree);
       Run_File_Tree_Text_Prompt_Command
         (S,
-         Editor.Commands.Command_File_Tree_Create_File,
+         Editor.Command_Ids.Command_File_Tree_Create_File,
          "src/new_widget.adb",
          Editor.Guided_Prompts.File_Tree_Create_File_Prompt,
          "create file");
@@ -468,7 +468,7 @@ package body Editor.Dogfood_Workflow.Tests is
 
       Run_File_Tree_Text_Prompt_Command
         (S,
-         Editor.Commands.Command_File_Tree_Rename_Selected,
+         Editor.Command_Ids.Command_File_Tree_Rename_Selected,
          "renamed_widget.adb",
          Editor.Guided_Prompts.File_Tree_Rename_Prompt,
          "rename file");
@@ -500,11 +500,11 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, Diagnostic_Row);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available
                 (Editor.Executor.Command_Availability
-                   (S, Editor.Commands.Command_Diagnostics_Open_Selected)),
+                   (S, Editor.Command_Ids.Command_Diagnostics_Open_Selected)),
               "stale diagnostic row cannot be opened after adjacent File Tree rename");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason
                 (Editor.Executor.Command_Availability
-                   (S, Editor.Commands.Command_Diagnostics_Open_Selected)) =
+                   (S, Editor.Command_Ids.Command_Diagnostics_Open_Selected)) =
               Editor.Commands.Workflow_Messages.Reason_Target_Stale,
               "Diagnostic stale-target wording matches Search stale-target wording after rename");
       Editor.Project.Refresh_Known_Files (S.Project, Project_Files);
@@ -553,7 +553,7 @@ package body Editor.Dogfood_Workflow.Tests is
       --  and leave focus on the File Tree so the user can refresh/correct it.
       Run_File_Tree_Text_Prompt_Command
         (S,
-         Editor.Commands.Command_File_Tree_Create_File,
+         Editor.Command_Ids.Command_File_Tree_Create_File,
          "src/stale_widget.adb",
          Editor.Guided_Prompts.File_Tree_Create_File_Prompt,
          "create stale-test file");
@@ -568,7 +568,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Remove_File_If_Exists (Root & "/src/stale_widget.adb");
       Run_File_Tree_Text_Prompt_Command
         (S,
-         Editor.Commands.Command_File_Tree_Rename_Selected,
+         Editor.Command_Ids.Command_File_Tree_Rename_Selected,
          "should_not_exist.adb",
          Editor.Guided_Prompts.File_Tree_Rename_Prompt,
          "stale rename");
@@ -584,7 +584,7 @@ package body Editor.Dogfood_Workflow.Tests is
       --  must still block filesystem mutation while dirty text is open.
       Run_File_Tree_Text_Prompt_Command
         (S,
-         Editor.Commands.Command_File_Tree_Create_File,
+         Editor.Command_Ids.Command_File_Tree_Create_File,
          "src/dirty_block.adb",
          Editor.Guided_Prompts.File_Tree_Create_File_Prompt,
          "create dirty-block file");
@@ -608,7 +608,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
       Run_File_Tree_Text_Prompt_Command
         (S,
-         Editor.Commands.Command_File_Tree_Rename_Selected,
+         Editor.Command_Ids.Command_File_Tree_Rename_Selected,
          "dirty_block_renamed.adb",
          Editor.Guided_Prompts.File_Tree_Rename_Prompt,
          "dirty rename block");
@@ -679,7 +679,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_Project_Search_Results);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Search_Results_Open_Selected);
+        (S, Editor.Command_Ids.Command_Search_Results_Open_Selected);
       Assert (Editor.Focus_Management.Effective_Focus_Owner (S) =
                 Editor.Focus_Management.Focus_Editor,
               "Search result activation returns focus to editor text through Executor");
@@ -687,7 +687,7 @@ package body Editor.Dogfood_Workflow.Tests is
         (S, Editor.Focus_Management.Focus_Project_Search_Results);
       Editor.Project_Search.Mark_Stale (S.Project_Search);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Search_Results_Open_Selected);
+        (S, Editor.Command_Ids.Command_Search_Results_Open_Selected);
       Assert (Editor.Focus_Management.Effective_Focus_Owner (S) =
                 Editor.Focus_Management.Focus_Project_Search_Results,
               "failed stale Search activation keeps focus on Search results for correction");
@@ -696,7 +696,7 @@ package body Editor.Dogfood_Workflow.Tests is
 
       --  Build UI candidate refresh, explicit command-route selection, consent,
       --  deterministic bounded run, Diagnostics ingestion, and diagnostic target open.
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Build_UI_Show);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Build_UI_Show);
       Assert (S.Build_UI.Build_UI_Visible,
               "Build UI is shown through the public command route");
       Context := Editor.Build_Working_Context.Current_Project_Root (Root);
@@ -710,7 +710,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (To_String (S.Build_UI.Selected_Build_Candidate_Id)'Length = 0,
               "candidate refresh does not auto-select");
       Build_Run := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Build_Select_Next_Candidate);
+        (S, Editor.Command_Ids.Command_Build_Select_Next_Candidate);
       Assert (Build_Run.Status = Editor.Command_Execution.Command_Executed,
               "Build candidate selection executes through Executor");
       Assert (To_String (S.Build_UI.Selected_Build_Candidate_Id)'Length > 0,
@@ -721,7 +721,7 @@ package body Editor.Dogfood_Workflow.Tests is
               "candidate selection does not auto-consent");
       if not S.Build_UI.Show_Diagnostics_On_Result then
          Build_Run := Editor.Executor.Execute_Command_With_Result
-           (S, Editor.Commands.Command_Build_Toggle_Diagnostics_Ingestion);
+           (S, Editor.Command_Ids.Command_Build_Toggle_Diagnostics_Ingestion);
          Assert (Build_Run.Status = Editor.Command_Execution.Command_Executed,
                  "build diagnostics ingestion is enabled through Executor");
       end if;
@@ -730,7 +730,7 @@ package body Editor.Dogfood_Workflow.Tests is
       S.Public_Build_Execution_Policy :=
         Editor.Build_Runner_Policy.Build_Execution_Bounded_Process;
       Build_Run := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Build_Acknowledge_Consent);
+        (S, Editor.Command_Ids.Command_Build_Acknowledge_Consent);
       Assert (Build_Run.Status = Editor.Command_Execution.Command_Executed,
               "build consent is acknowledged through Executor");
       Assert (S.Build_UI.Consent_Acknowledged,
@@ -770,7 +770,7 @@ package body Editor.Dogfood_Workflow.Tests is
               and then Compiler_Diagnostic.Column = 4,
               "public build.run preserves compiler diagnostic source location");
       Build_Run := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Semantic_Refresh_Project_Index);
+        (S, Editor.Command_Ids.Command_Semantic_Refresh_Project_Index);
       Assert (Build_Run.Status = Editor.Command_Execution.Command_Executed,
               "semantic project refresh executes after public build.run");
       Compiler_Status :=
@@ -814,7 +814,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_Diagnostics);
       Diagnostic_Open := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Diagnostics_Open_Selected);
+        (S, Editor.Command_Ids.Command_Diagnostics_Open_Selected);
       Assert (Diagnostic_Open.Status = Editor.Command_Execution.Command_Executed,
               "diagnostic target opens through Diagnostics command routing");
       Assert (Editor.Focus_Management.Effective_Focus_Owner (S) =
@@ -878,7 +878,7 @@ package body Editor.Dogfood_Workflow.Tests is
       --  must clear pre-restore Search, Outline, Diagnostics, Build, Quick
       --  Open, prompt, and runtime-only details.
       Workspace_Save := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Save_Workspace_State);
+        (S, Editor.Command_Ids.Command_Save_Workspace_State);
       Assert (Workspace_Save.Status = Editor.Command_Execution.Command_Executed,
               "workspace structural save executes through Executor");
       Assert (Ada.Directories.Exists
@@ -923,13 +923,13 @@ package body Editor.Dogfood_Workflow.Tests is
          "pre-restore diagnostic",
          Source_Label => "pre-restore",
          Build_Produced => True);
-      Editor.Executor.Execute_Command (S2, Editor.Commands.Command_Build_UI_Show);
+      Editor.Executor.Execute_Command (S2, Editor.Command_Ids.Command_Build_UI_Show);
       S2.Latest_Build_Result := Saved_Latest_Build_Result;
       S2.Latest_Build_Output_Details := Saved_Latest_Build_Output_Details;
       Editor.Guided_Prompts.Start
         (S2.Guided_Prompt,
          Editor.Guided_Prompts.Search_Query_Prompt,
-         Editor.Commands.Command_Run_Project_Search,
+         Editor.Command_Ids.Command_Run_Project_Search,
          "Project Search",
          "Enter search text.",
          "Project Search");
@@ -952,7 +952,7 @@ package body Editor.Dogfood_Workflow.Tests is
               "restart precondition has transient prompt state");
 
       Workspace_Restore := Editor.Executor.Execute_Command_With_Result
-        (S2, Editor.Commands.Command_Restore_Workspace_State);
+        (S2, Editor.Command_Ids.Command_Restore_Workspace_State);
       Assert (Workspace_Restore.Status = Editor.Command_Execution.Command_Executed,
               "workspace restore executes through Executor");
       Assert (Editor.Project.Has_Project (S2.Project)
@@ -1236,7 +1236,7 @@ package body Editor.Dogfood_Workflow.Tests is
               "conflict prompt does not overwrite the external disk version");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_File_Conflict_Cancel);
+        (S, Editor.Command_Ids.Command_File_Conflict_Cancel);
       Assert (not S.File_Conflict_Prompt_Active,
               "cancel clears the file-conflict prompt");
       Assert (S.File_Info.Dirty,
@@ -1248,7 +1248,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (S.File_Conflict_Prompt_Active,
               "saving again revalidates the still-conflicted backing file");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_File_Conflict_Keep_Buffer);
+        (S, Editor.Command_Ids.Command_File_Conflict_Keep_Buffer);
       Assert (not S.File_Conflict_Prompt_Active,
               "keep-buffer dismisses the conflict prompt");
       Assert (S.File_Info.Dirty and then S.File_Info.External_Change_Surfaced,
@@ -1293,7 +1293,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (S.File_Conflict_Prompt_Active,
               "overwrite path starts from a fresh validated conflict prompt");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_File_Conflict_Overwrite_Disk);
+        (S, Editor.Command_Ids.Command_File_Conflict_Overwrite_Disk);
       Assert (not S.File_Conflict_Prompt_Active,
               "overwrite clears the conflict prompt");
       Assert (not S.File_Info.Dirty,
@@ -1324,7 +1324,7 @@ package body Editor.Dogfood_Workflow.Tests is
                 Editor.State.Backing_File_Deleted_While_Dirty,
               "external deletion is classified as missing backing file while dirty");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_File_Conflict_Cancel);
+        (S, Editor.Command_Ids.Command_File_Conflict_Cancel);
       Assert (not S.File_Conflict_Prompt_Active,
               "missing-file conflict cancel clears the prompt");
       Assert (S.File_Info.Dirty,
@@ -1362,10 +1362,10 @@ package body Editor.Dogfood_Workflow.Tests is
                                        ASCII.LF));
       Write_File (Source_Path, "external replacement before close" & ASCII.LF);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_Active_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_Active_Buffer);
       Assert (S.Dirty_Close_Prompt_Active,
               "closing a dirty file-backed buffer opens dirty-close review");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Confirm_Close_Save);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Confirm_Close_Save);
       Assert (not S.Dirty_Close_Prompt_Active,
               "save-and-close conflict exits dirty-close review");
       Assert (S.File_Conflict_Prompt_Active,
@@ -1386,7 +1386,7 @@ package body Editor.Dogfood_Workflow.Tests is
               "save-and-close conflict records an explicit close-after-overwrite handoff only after user confirmation");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_File_Conflict_Overwrite_Disk);
+        (S, Editor.Command_Ids.Command_File_Conflict_Overwrite_Disk);
       Assert (not S.File_Conflict_Prompt_Active,
               "overwrite confirmation after save-and-close clears conflict prompt");
       Assert (not Editor.Buffers.Global_Contains (Target),
@@ -1549,7 +1549,7 @@ package body Editor.Dogfood_Workflow.Tests is
               "dirty blocked switch preserves Project A Build state");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Cancel_Pending_Transition);
+        (S, Editor.Command_Ids.Command_Cancel_Pending_Transition);
       Assert (Editor.Project.Root_Path (S.Project) = To_String (Project_A_Root),
               "cancelled switch leaves Project A active");
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
@@ -1568,7 +1568,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "second dirty switch attempt captures pending transition");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Discard_Pending_Transition);
+        (S, Editor.Command_Ids.Command_Discard_Pending_Transition);
 
       Assert (Editor.Project.Has_Project (S.Project),
               "confirmed switch leaves an active project");
@@ -2195,7 +2195,7 @@ package body Editor.Dogfood_Workflow.Tests is
               "File reload cancellation spelling is normalized");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason
                 (Editor.Executor.Command_Availability
-                   (S, Editor.Commands.Command_Open_Quick_Open)) =
+                   (S, Editor.Command_Ids.Command_Open_Quick_Open)) =
               "No project open.",
               "Executor availability exposes canonical no-project wording");
       Assert (Editor.Dogfood_Workflow.Integrated_Workflow_Message
@@ -2485,27 +2485,27 @@ package body Editor.Dogfood_Workflow.Tests is
       Workspace_Command_Result : Editor.Command_Execution.Command_Execution_Result;
    begin
       Assert (Editor.Focus_Management.Command_Returns_Focus_To_Editor
-                (Editor.Commands.Command_Open_File),
+                (Editor.Command_Ids.Command_Open_File),
               "explicit file-open command returns focus to the editor buffer");
       Assert (Editor.Focus_Management.Command_Returns_Focus_To_Editor
-                (Editor.Commands.Command_File_Tree_Open_Selected),
+                (Editor.Command_Ids.Command_File_Tree_Open_Selected),
               "File Tree activation returns focus to the editor buffer");
       Assert (Editor.Focus_Management.Command_Returns_Focus_To_Editor
-                (Editor.Commands.Command_Search_Results_Open_Selected),
+                (Editor.Command_Ids.Command_Search_Results_Open_Selected),
               "search-result activation returns focus to the editor buffer");
       Assert (Editor.Focus_Management.Command_Returns_Focus_To_Editor
-                (Editor.Commands.Command_Open_Selected_Outline_Item),
+                (Editor.Command_Ids.Command_Open_Selected_Outline_Item),
               "outline activation returns focus to the editor buffer");
       Assert (Editor.Focus_Management.Focus_Target_For_Surface_Command
-                (Editor.Commands.Command_Show_Outline) =
+                (Editor.Command_Ids.Command_Show_Outline) =
               Editor.Focus_Management.Focus_Outline,
               "Show Outline has a deterministic focus target");
       Assert (Editor.Focus_Management.Focus_Target_For_Surface_Command
-                (Editor.Commands.Command_Diagnostics_Show) =
+                (Editor.Command_Ids.Command_Diagnostics_Show) =
               Editor.Focus_Management.Focus_Diagnostics,
               "Show Diagnostics has a deterministic focus target");
       Assert (Editor.Focus_Management.Focus_Target_For_Surface_Command
-                (Editor.Commands.Command_Build_UI_Show) =
+                (Editor.Command_Ids.Command_Build_UI_Show) =
               Editor.Focus_Management.Focus_Build_UI,
               "Build Output entry uses the build surface focus target");
       Assert (Editor.Focus_Management.Focus_Owner_Label
@@ -2516,24 +2516,24 @@ package body Editor.Dogfood_Workflow.Tests is
               "active panel label is product-facing Build Output");
 
       Editor.State.Init (S);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Build_UI_Show);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Build_UI_Show);
       Assert (Active_Message_Text (S) = "Build Output shown.",
               "build output show status is product-facing");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Build_UI_Focus);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Build_UI_Focus);
       Assert (Active_Message_Text (S) = "Build Output focused.",
               "build output focus status is product-facing");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Build_UI_Hide);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Build_UI_Hide);
       Assert (Active_Message_Text (S) = "Build Output hidden.",
               "build output hide status is product-facing");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Diagnostics_Show);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Diagnostics_Show);
       Assert (Active_Message_Text (S) = "No diagnostics.",
               "diagnostics show reports the useful empty diagnostics state");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Show_Outline);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Show_Outline);
       Assert (Active_Message_Text (S) = "Outline shown.",
               "Outline show status is punctuated and product-facing");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Focus_Outline);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Focus_Outline);
       Assert (Active_Message_Text (S) = "Outline focused.",
               "Outline focus status is punctuated and product-facing");
       Assert (Editor.Commands.Workflow_Messages.Normalize_Workflow_Message
@@ -2547,35 +2547,35 @@ package body Editor.Dogfood_Workflow.Tests is
               "Outline focused.",
               "normalizes old unpunctuated Outline focus wording");
       Assert (Editor.Commands.Descriptors.Descriptor
-                (Editor.Commands.Command_Refresh_Outline).Name =
+                (Editor.Command_Ids.Command_Refresh_Outline).Name =
               "Refresh Outline",
               "Outline refresh label is product-facing");
       Assert (Editor.Commands.Descriptors.Descriptor
-                (Editor.Commands.Command_Open_Selected_Outline_Item).Description =
+                (Editor.Command_Ids.Command_Open_Selected_Outline_Item).Description =
               "Open the selected Outline item.",
               "Outline activation description avoids implementation metadata wording");
       Assert (Editor.Commands.Descriptors.Descriptor
-                (Editor.Commands.Command_Select_Current_Outline_Symbol).Name =
+                (Editor.Command_Ids.Command_Select_Current_Outline_Symbol).Name =
               "Select Current Outline Symbol",
               "current-symbol Outline command label is product-facing");
       Assert (Editor.Commands.Descriptors.Descriptor
-                (Editor.Commands.Command_Reveal_Current_Outline_Symbol).Name =
+                (Editor.Command_Ids.Command_Reveal_Current_Outline_Symbol).Name =
               "Reveal Current Outline Symbol",
               "reveal-current Outline command label is product-facing");
       Assert (Editor.Commands.Descriptors.Descriptor
-                (Editor.Commands.Command_Next_Outline_Symbol).Name =
+                (Editor.Command_Ids.Command_Next_Outline_Symbol).Name =
               "Next Outline Symbol",
               "next-symbol Outline command label is product-facing");
       Assert (Editor.Commands.Descriptors.Descriptor
-                (Editor.Commands.Command_Previous_Outline_Symbol).Name =
+                (Editor.Command_Ids.Command_Previous_Outline_Symbol).Name =
               "Previous Outline Symbol",
               "previous-symbol Outline command label is product-facing");
       Assert (Editor.Commands.Descriptors.Descriptor
-                (Editor.Commands.Command_Focus_Outline_Filter).Name =
+                (Editor.Command_Ids.Command_Focus_Outline_Filter).Name =
               "Focus Outline Filter",
               "Outline filter focus label is product-facing");
       Assert (Editor.Commands.Descriptors.Descriptor
-                (Editor.Commands.Command_Clear_Outline_Filter).Name =
+                (Editor.Command_Ids.Command_Clear_Outline_Filter).Name =
               "Clear Outline Filter",
               "Outline filter clear label is product-facing");
 
@@ -2591,14 +2591,14 @@ package body Editor.Dogfood_Workflow.Tests is
         (S, Editor.Focus_Management.Focus_File_Tree);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Execute_Command_Id
-        (Editor.Commands.Command_File_Tree_Create_File);
+        (Editor.Command_Ids.Command_File_Tree_Create_File);
       S := Editor.Input_Bridge.Get_State_For_Test;
       Assert (Editor.Guided_Prompts.Is_Active (S.Guided_Prompt),
               "create-file prompt starts through the product command path");
       Editor.Guided_Prompts.Update_Input
         (S.Guided_Prompt, "src/cancelled_from_prompt.adb");
       Editor.Input_Bridge.Set_State_For_Test (S);
-      Editor.Input_Bridge.Execute_Command_Id (Editor.Commands.Command_Cancel);
+      Editor.Input_Bridge.Execute_Command_Id (Editor.Command_Ids.Command_Cancel);
       S := Editor.Input_Bridge.Get_State_For_Test;
       Assert (not Editor.Guided_Prompts.Is_Active (S.Guided_Prompt),
               "prompt cancellation clears transient prompt state");
@@ -2618,7 +2618,7 @@ package body Editor.Dogfood_Workflow.Tests is
         (Editor.Workspace_Persistence.Session_File_Path (Root),
          "not a workspace snapshot" & ASCII.LF);
       Workspace_Command_Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Restore_Workspace_State);
+        (S, Editor.Command_Ids.Command_Restore_Workspace_State);
       Assert (Workspace_Command_Result.Status =
                 Editor.Command_Execution.Command_Failed,
               "invalid workspace restore fails through the product command path");
@@ -2683,7 +2683,7 @@ package body Editor.Dogfood_Workflow.Tests is
 
       Run_File_Tree_Text_Prompt_Command
         (S,
-         Editor.Commands.Command_File_Tree_Rename_Selected,
+         Editor.Command_Ids.Command_File_Tree_Rename_Selected,
          "clean_open_renamed.adb",
          Editor.Guided_Prompts.File_Tree_Rename_Prompt,
          "rename clean open file");
@@ -2876,7 +2876,7 @@ package body Editor.Dogfood_Workflow.Tests is
 
       Run_File_Tree_Text_Prompt_Command
         (S,
-         Editor.Commands.Command_File_Tree_Rename_Selected,
+         Editor.Command_Ids.Command_File_Tree_Rename_Selected,
          "rename_dir_done",
          Editor.Guided_Prompts.File_Tree_Rename_Prompt,
          "rename directory containing active open buffer");
@@ -2981,7 +2981,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_Quick_Open);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Accept_Quick_Open);
+        (S, Editor.Command_Ids.Command_Accept_Quick_Open);
       Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Main_Path,
               "main workflow smoke Quick Open opens main.adb");
       Expect_Active_Message_Contains
@@ -3007,7 +3007,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_Project_Search_Results);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Search_Results_Open_Selected);
+        (S, Editor.Command_Ids.Command_Search_Results_Open_Selected);
       Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Source_Path,
               "main workflow smoke Project Search opens the result target");
       Expect_Active_Message_Contains
@@ -3026,7 +3026,7 @@ package body Editor.Dogfood_Workflow.Tests is
         ("Saved file",
          "main workflow smoke reports save feedback");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Build_UI_Show);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Build_UI_Show);
       Context := Editor.Build_Working_Context.Current_Project_Root (Root);
       Build_Refresh := Editor.Build_Candidate_Refresh.Refresh_Build_Candidates
         (S.Build_UI, Context);
@@ -3034,19 +3034,19 @@ package body Editor.Dogfood_Workflow.Tests is
                 Editor.Build_Candidate_Refresh.Build_Candidate_Refresh_Succeeded,
               "main workflow smoke discovers build candidates");
       Build_Run := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Build_Select_Next_Candidate);
+        (S, Editor.Command_Ids.Command_Build_Select_Next_Candidate);
       Assert (Build_Run.Status = Editor.Command_Execution.Command_Executed,
               "main workflow smoke selects a build candidate");
       if not S.Build_UI.Show_Diagnostics_On_Result then
          Build_Run := Editor.Executor.Execute_Command_With_Result
-           (S, Editor.Commands.Command_Build_Toggle_Diagnostics_Ingestion);
+           (S, Editor.Command_Ids.Command_Build_Toggle_Diagnostics_Ingestion);
          Assert (Build_Run.Status = Editor.Command_Execution.Command_Executed,
                  "main workflow smoke enables build Diagnostics ingestion");
       end if;
       S.Public_Build_Execution_Policy :=
         Editor.Build_Runner_Policy.Build_Execution_Bounded_Process;
       Build_Run := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Build_Acknowledge_Consent);
+        (S, Editor.Command_Ids.Command_Build_Acknowledge_Consent);
       Assert (Build_Run.Status = Editor.Command_Execution.Command_Executed,
               "main workflow smoke acknowledges build consent");
       Supplied_Process := Editor.External_Producers.Build_Requests.Build_Process_Run_Result
@@ -3068,7 +3068,7 @@ package body Editor.Dogfood_Workflow.Tests is
 
       Editor.Feature_Diagnostics.Project_Rows (S.Feature_Diagnostics, S.Feature_Panel);
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Diagnostics_Show);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Diagnostics_Show);
       Assert (Editor.Focus_Management.Effective_Focus_Owner (S) =
                 Editor.Focus_Management.Focus_Diagnostics,
               "main workflow smoke inspects Diagnostics");
@@ -3076,14 +3076,14 @@ package body Editor.Dogfood_Workflow.Tests is
         ("Diagnostics shown",
          "main workflow smoke reports Diagnostics inspection feedback");
       Diagnostic_Open := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Diagnostics_Open_Selected);
+        (S, Editor.Command_Ids.Command_Diagnostics_Open_Selected);
       Assert (Diagnostic_Open.Status = Editor.Command_Execution.Command_Executed,
               "main workflow smoke opens a Diagnostic target");
       Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) > 0,
               "main workflow smoke records navigation history before back");
 
       Back_Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Navigation_Back);
+        (S, Editor.Command_Ids.Command_Navigation_Back);
       Assert (Back_Result.Status = Editor.Command_Execution.Command_Executed,
               "main workflow smoke navigates back");
       Assert (S.File_Info.Has_Path,
@@ -3151,7 +3151,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_File_Tree);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_File_Tree_Open_Selected);
+        (S, Editor.Command_Ids.Command_File_Tree_Open_Selected);
       Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Source_Path,
               "daily loop opens File Tree selection into the editor");
       Assert (Editor.Focus_Management.Effective_Focus_Owner (S) =
@@ -3183,13 +3183,13 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_Quick_Open);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Accept_Quick_Open);
+        (S, Editor.Command_Ids.Command_Accept_Quick_Open);
       Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Main_Path,
               "daily loop Quick Open opens the requested second buffer");
       Assert (Editor.Buffers.Global_Count >= 2,
               "daily loop has multiple buffers after Quick Open");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Next_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Next_Buffer);
       Assert (S.File_Info.Has_Path,
               "daily loop next-buffer keeps an active file-backed buffer");
       Assert (Editor.Focus_Management.Effective_Focus_Owner (S) =
@@ -3213,7 +3213,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_Project_Search_Results);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Search_Results_Open_Selected);
+        (S, Editor.Command_Ids.Command_Search_Results_Open_Selected);
       Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Source_Path,
               "daily loop Project Search result opens the source buffer");
       Assert (Editor.Focus_Management.Effective_Focus_Owner (S) =
@@ -3241,12 +3241,12 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_Outline);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Open_Selected_Outline_Item);
+        (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
       Assert (Editor.Focus_Management.Effective_Focus_Owner (S) =
                 Editor.Focus_Management.Focus_Editor,
               "daily loop Outline activation focuses editor");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Build_UI_Show);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Build_UI_Show);
       Context := Editor.Build_Working_Context.Current_Project_Root (Root);
       Build_Refresh := Editor.Build_Candidate_Refresh.Refresh_Build_Candidates
         (S.Build_UI, Context);
@@ -3254,12 +3254,12 @@ package body Editor.Dogfood_Workflow.Tests is
                 Editor.Build_Candidate_Refresh.Build_Candidate_Refresh_Succeeded,
               "daily loop discovers build candidates");
       Build_Run := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Build_Select_Next_Candidate);
+        (S, Editor.Command_Ids.Command_Build_Select_Next_Candidate);
       Assert (Build_Run.Status = Editor.Command_Execution.Command_Executed,
               "daily loop explicitly selects a build candidate");
       if not S.Build_UI.Show_Diagnostics_On_Result then
          Build_Run := Editor.Executor.Execute_Command_With_Result
-           (S, Editor.Commands.Command_Build_Toggle_Diagnostics_Ingestion);
+           (S, Editor.Command_Ids.Command_Build_Toggle_Diagnostics_Ingestion);
          Assert (Build_Run.Status = Editor.Command_Execution.Command_Executed,
                  "daily loop enables build diagnostics ingestion");
       end if;
@@ -3268,7 +3268,7 @@ package body Editor.Dogfood_Workflow.Tests is
       S.Public_Build_Execution_Policy :=
         Editor.Build_Runner_Policy.Build_Execution_Bounded_Process;
       Build_Run := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Build_Acknowledge_Consent);
+        (S, Editor.Command_Ids.Command_Build_Acknowledge_Consent);
       Assert (Build_Run.Status = Editor.Command_Execution.Command_Executed,
               "daily loop acknowledges build consent");
       Supplied_Process := Editor.External_Producers.Build_Requests.Build_Process_Run_Result
@@ -3292,7 +3292,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_Diagnostics);
       Diagnostic_Open := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Diagnostics_Open_Selected);
+        (S, Editor.Command_Ids.Command_Diagnostics_Open_Selected);
       Assert (Diagnostic_Open.Status = Editor.Command_Execution.Command_Executed,
               "daily loop opens a diagnostic target");
       Assert (Editor.Focus_Management.Effective_Focus_Owner (S) =
@@ -3300,12 +3300,12 @@ package body Editor.Dogfood_Workflow.Tests is
               "daily loop diagnostic activation focuses editor");
 
       Workspace_Save := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Save_Workspace_State);
+        (S, Editor.Command_Ids.Command_Save_Workspace_State);
       Assert (Workspace_Save.Status = Editor.Command_Execution.Command_Executed,
               "daily loop saves workspace before closing");
 
       Closed_Buffer := Editor.Buffers.Global_Active_Buffer;
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_Active_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_Active_Buffer);
       Assert (not Editor.Buffers.Global_Contains (Closed_Buffer),
               "daily loop closes the active clean buffer");
       Assert (Editor.Buffers.Global_Count >= 1,
@@ -3314,7 +3314,7 @@ package body Editor.Dogfood_Workflow.Tests is
                 Editor.Focus_Management.Focus_Editor,
               "daily loop close-buffer keeps editor focus when another buffer remains");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_Project);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_Project);
       Assert (not Editor.Project.Has_Project (S.Project),
               "daily loop closes the project after clean buffers are safe");
       Assert (Editor.Buffers.Global_Count = 0,
@@ -3323,7 +3323,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.State.Init (S2);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S2, Root);
       Workspace_Restore := Editor.Executor.Execute_Command_With_Result
-        (S2, Editor.Commands.Command_Restore_Workspace_State);
+        (S2, Editor.Command_Ids.Command_Restore_Workspace_State);
       Assert (Workspace_Restore.Status = Editor.Command_Execution.Command_Executed,
               "daily loop restores workspace after project reopen");
       Assert (Editor.Project.Has_Project (S2.Project)
@@ -3451,7 +3451,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (To_Unbounded_String (Editor.State.Current_Text (S)) = Before_Text
                 and then S.File_Info.Dirty,
               "dirty reload prompt preserves dirty text before a decision");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Cancel_Pending_Transition);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Cancel_Pending_Transition);
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "cancelled dirty reload clears only the pending decision");
       Assert (To_Unbounded_String (Editor.State.Current_Text (S)) = Before_Text
@@ -3461,7 +3461,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
       Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "dirty reload can be requested again after cancellation");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Retry_Pending_Transition);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Retry_Pending_Transition);
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "confirmed dirty reload clears the pending decision");
       Assert (Editor.State.Current_Text (S) = "confirmed reload from disk"
@@ -3477,7 +3477,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (To_Unbounded_String (Editor.State.Current_Text (S)) = Before_Text
                 and then S.File_Info.Dirty,
               "dirty revert prompt preserves dirty text before a decision");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Cancel_Pending_Transition);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Cancel_Pending_Transition);
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "cancelled dirty revert clears only the pending decision");
       Assert (To_Unbounded_String (Editor.State.Current_Text (S)) = Before_Text
@@ -3487,7 +3487,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Executor.File_Save_Basic_Commands.Execute_Revert_Active_Buffer (S);
       Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "dirty revert can be requested again after cancellation");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Retry_Pending_Transition);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Retry_Pending_Transition);
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "confirmed dirty revert clears the pending decision");
       Assert (Editor.State.Current_Text (S) = "confirmed revert from disk"
@@ -3509,7 +3509,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Executor.File_Save_Basic_Commands.Execute_Revert_Active_Buffer (S);
       Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "dirty revert with a missing file still requires explicit confirmation");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Retry_Pending_Transition);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Retry_Pending_Transition);
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "failed missing-file revert clears the stale decision after reporting failure");
       Assert (To_Unbounded_String (Editor.State.Current_Text (S)) = Before_Text
@@ -3536,10 +3536,10 @@ package body Editor.Dogfood_Workflow.Tests is
 
       procedure Assert_Resolves
         (Name     : String;
-         Expected : Editor.Commands.Command_Id;
+         Expected : Editor.Command_Ids.Command_Id;
          Message  : String)
       is
-         Actual : constant Editor.Commands.Command_Id :=
+         Actual : constant Editor.Command_Ids.Command_Id :=
            Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
       begin
          Assert (Found, Message & " is accepted as a product command name");
@@ -3550,127 +3550,127 @@ package body Editor.Dogfood_Workflow.Tests is
         (Name    : String;
          Message : String)
       is
-         Actual : constant Editor.Commands.Command_Id :=
+         Actual : constant Editor.Command_Ids.Command_Id :=
            Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
       begin
          Assert (not Found, Message & " must not resolve");
-         Assert (Actual = Editor.Commands.No_Command,
+         Assert (Actual = Editor.Command_Ids.No_Command,
                  Message & " must return No_Command");
       end Assert_Removed_Name_Rejected;
    begin
       Assert_Resolves ("command-palette.show-command-help",
-                       Editor.Commands.Command_Palette_Show_Command_Help,
+                       Editor.Command_Ids.Command_Palette_Show_Command_Help,
                        "command-palette.show-command-help");
       Assert_Resolves ("project.open",
-                       Editor.Commands.Command_Open_Project,
+                       Editor.Command_Ids.Command_Open_Project,
                        "project.open");
       Assert_Resolves ("project.close",
-                       Editor.Commands.Command_Close_Project,
+                       Editor.Command_Ids.Command_Close_Project,
                        "project.close");
       Assert_Resolves ("project.switch",
-                       Editor.Commands.Command_Switch_Project,
+                       Editor.Command_Ids.Command_Switch_Project,
                        "project.switch");
       Assert_Resolves ("project.reopen-recent",
-                       Editor.Commands.Command_Open_Selected_Recent_Project,
+                       Editor.Command_Ids.Command_Open_Selected_Recent_Project,
                        "project.reopen-recent");
       Assert_Resolves ("file.open",
-                       Editor.Commands.Command_Open_File,
+                       Editor.Command_Ids.Command_Open_File,
                        "file.open");
       Assert_Resolves ("file.save",
-                       Editor.Commands.Command_Save_File,
+                       Editor.Command_Ids.Command_Save_File,
                        "file.save");
       Assert_Resolves ("file.save-as",
-                       Editor.Commands.Command_Save_File_As,
+                       Editor.Command_Ids.Command_Save_File_As,
                        "file.save-as");
       Assert_Resolves ("file.reload-buffer",
-                       Editor.Commands.Command_Reload_Active_Buffer,
+                       Editor.Command_Ids.Command_Reload_Active_Buffer,
                        "file.reload-buffer");
       Assert_Resolves ("file.revert-buffer",
-                       Editor.Commands.Command_Revert_Active_Buffer,
+                       Editor.Command_Ids.Command_Revert_Active_Buffer,
                        "file.revert-buffer");
       Assert_Resolves ("file-tree.refresh",
-                       Editor.Commands.Command_Refresh_File_Tree,
+                       Editor.Command_Ids.Command_Refresh_File_Tree,
                        "file-tree.refresh");
       Assert_Resolves ("file-tree.open-selected",
-                       Editor.Commands.Command_File_Tree_Open_Selected,
+                       Editor.Command_Ids.Command_File_Tree_Open_Selected,
                        "file-tree.open-selected");
       Assert_Resolves ("file-tree.create-file",
-                       Editor.Commands.Command_File_Tree_Create_File,
+                       Editor.Command_Ids.Command_File_Tree_Create_File,
                        "file-tree.create-file");
       Assert_Resolves ("file-tree.create-directory",
-                       Editor.Commands.Command_File_Tree_Create_Directory,
+                       Editor.Command_Ids.Command_File_Tree_Create_Directory,
                        "file-tree.create-directory");
       Assert_Resolves ("file-tree.rename-selected",
-                       Editor.Commands.Command_File_Tree_Rename_Selected,
+                       Editor.Command_Ids.Command_File_Tree_Rename_Selected,
                        "file-tree.rename-selected");
       Assert_Removed_Name_Rejected ("file-tree.rename",
                                     "file-tree.rename compatibility alias");
       Assert_Resolves ("file-tree.delete-selected",
-                       Editor.Commands.Command_File_Tree_Delete_Selected,
+                       Editor.Command_Ids.Command_File_Tree_Delete_Selected,
                        "file-tree.delete-selected");
       Assert_Removed_Name_Rejected ("file-tree.delete",
                                     "file-tree.delete compatibility alias");
       Assert_Resolves ("quick-open.show",
-                       Editor.Commands.Command_Open_Quick_Open,
+                       Editor.Command_Ids.Command_Open_Quick_Open,
                        "quick-open.show");
       Assert_Resolves ("quick-open.open-selected",
-                       Editor.Commands.Command_Accept_Quick_Open,
+                       Editor.Command_Ids.Command_Accept_Quick_Open,
                        "quick-open.open-selected");
       Assert_Resolves ("project.search.run",
-                       Editor.Commands.Command_Run_Project_Search,
+                       Editor.Command_Ids.Command_Run_Project_Search,
                        "project.search.run");
       Assert_Removed_Name_Rejected ("search.project",
                                     "search.project compatibility alias");
       Assert_Resolves ("project.search.open-selected",
-                       Editor.Commands.Command_Open_Selected_Project_Search_Result,
+                       Editor.Command_Ids.Command_Open_Selected_Project_Search_Result,
                        "project.search.open-selected");
       Assert_Removed_Name_Rejected ("search.open-selected",
                                     "search.open-selected compatibility alias");
       Assert_Resolves ("outline.show",
-                       Editor.Commands.Command_Show_Outline,
+                       Editor.Command_Ids.Command_Show_Outline,
                        "outline.show");
       Assert_Resolves ("build.run",
-                       Editor.Commands.Command_Build_Run,
+                       Editor.Command_Ids.Command_Build_Run,
                        "build.run");
       Assert_Resolves ("build.ui.show",
-                       Editor.Commands.Command_Build_UI_Show,
+                       Editor.Command_Ids.Command_Build_UI_Show,
                        "build.ui.show");
       Assert_Removed_Name_Rejected ("build.output.show",
                                     "build.output.show compatibility alias");
       Assert_Resolves ("build.ui.toggle",
-                       Editor.Commands.Command_Build_UI_Toggle,
+                       Editor.Command_Ids.Command_Build_UI_Toggle,
                        "build.ui.toggle");
       Assert_Removed_Name_Rejected ("build.output.toggle",
                                     "build.output.toggle compatibility alias");
       Assert_Resolves ("build.ui.hide",
-                       Editor.Commands.Command_Build_UI_Hide,
+                       Editor.Command_Ids.Command_Build_UI_Hide,
                        "build.ui.hide");
       Assert_Removed_Name_Rejected ("build.output.hide",
                                     "build.output.hide compatibility alias");
       Assert_Resolves ("build.ui.focus",
-                       Editor.Commands.Command_Build_UI_Focus,
+                       Editor.Command_Ids.Command_Build_UI_Focus,
                        "build.ui.focus");
       Assert_Removed_Name_Rejected ("build.output.focus",
                                     "build.output.focus compatibility alias");
       Assert_Resolves ("diagnostics.show",
-                       Editor.Commands.Command_Diagnostics_Show,
+                       Editor.Command_Ids.Command_Diagnostics_Show,
                        "diagnostics.show");
       Assert_Resolves ("buffer.switch-next",
-                       Editor.Commands.Command_Next_Buffer,
+                       Editor.Command_Ids.Command_Next_Buffer,
                        "buffer.switch-next");
       Assert_Resolves ("buffer.switch-previous",
-                       Editor.Commands.Command_Previous_Buffer,
+                       Editor.Command_Ids.Command_Previous_Buffer,
                        "buffer.switch-previous");
       Assert_Resolves ("file.close-buffer",
-                       Editor.Commands.Command_Close_Active_Buffer,
+                       Editor.Command_Ids.Command_Close_Active_Buffer,
                        "file.close-buffer");
       Assert_Resolves ("file.close-clean-buffers",
-                       Editor.Commands.Command_Close_All_Clean_Buffers,
+                       Editor.Command_Ids.Command_Close_All_Clean_Buffers,
                        "file.close-clean-buffers");
       Assert_Removed_Name_Rejected ("buffer.close-all-clean",
                                     "buffer.close-all-clean compatibility alias");
       Assert_Resolves ("workspace.restore",
-                       Editor.Commands.Command_Restore_Workspace_State,
+                       Editor.Command_Ids.Command_Restore_Workspace_State,
                        "workspace.restore");
 
       Assert_Removed_Name_Rejected ("command_palette.show_command_help",
@@ -3721,13 +3721,13 @@ package body Editor.Dogfood_Workflow.Tests is
             declare
                Name : constant String :=
                  Editor.Dogfood_Workflow.Product_Workflow_Command (Step);
-               Id : constant Editor.Commands.Command_Id :=
+               Id : constant Editor.Command_Ids.Command_Id :=
                  Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
                D  : Editor.Commands.Descriptors.Command_Descriptor;
             begin
                Assert (Found,
                        "documented product command resolves: " & Name);
-               Assert (Id /= Editor.Commands.No_Command,
+               Assert (Id /= Editor.Command_Ids.No_Command,
                        "documented product command has an implementation: " & Name);
                D := Editor.Commands.Descriptors.Descriptor (Id);
                Assert
@@ -3752,12 +3752,12 @@ package body Editor.Dogfood_Workflow.Tests is
          Expected_Visible : Boolean)
       is
          Found : Boolean := False;
-         Id    : constant Editor.Commands.Command_Id :=
+         Id    : constant Editor.Command_Ids.Command_Id :=
            Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
          D     : Editor.Commands.Descriptors.Command_Descriptor;
       begin
          Assert (Found, Name & " resolves as a product command name");
-         Assert (Id /= Editor.Commands.No_Command,
+         Assert (Id /= Editor.Command_Ids.No_Command,
                  Name & " resolves to a real command");
          D := Editor.Commands.Descriptors.Descriptor (Id);
          Assert (To_String (D.Name)'Length > 0,
@@ -3812,7 +3812,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Check ("file.close-clean-buffers", "Close All Clean Buffers", True);
       Check ("workspace.restore", "Restore Workspace", True);
 
-      for Id in Editor.Commands.Command_Id loop
+      for Id in Editor.Command_Ids.Command_Id loop
          declare
             D : constant Editor.Commands.Descriptors.Command_Descriptor :=
               Editor.Commands.Descriptors.Descriptor (Id);
@@ -3838,7 +3838,7 @@ package body Editor.Dogfood_Workflow.Tests is
       pragma Unreferenced (T);
 
       procedure Expect_Label
-        (Id       : Editor.Commands.Command_Id;
+        (Id       : Editor.Command_Ids.Command_Id;
          Expected : String;
          Message  : String)
       is
@@ -3854,61 +3854,61 @@ package body Editor.Dogfood_Workflow.Tests is
                  Message & " description avoids internal terminology");
       end Expect_Label;
    begin
-      Expect_Label (Editor.Commands.Command_Close_Quick_Open,
+      Expect_Label (Editor.Command_Ids.Command_Close_Quick_Open,
                     "Hide Quick Open",
                     "Quick Open hide label is product-facing");
-      Expect_Label (Editor.Commands.Command_Toggle_Quick_Open,
+      Expect_Label (Editor.Command_Ids.Command_Toggle_Quick_Open,
                     "Toggle Quick Open",
                     "Quick Open toggle label is product-facing");
-      Expect_Label (Editor.Commands.Command_Quick_Open_Next_Result,
+      Expect_Label (Editor.Command_Ids.Command_Quick_Open_Next_Result,
                     "Next Quick Open Result",
                     "Quick Open next-result label is product-facing");
-      Expect_Label (Editor.Commands.Command_Quick_Open_Previous_Result,
+      Expect_Label (Editor.Command_Ids.Command_Quick_Open_Previous_Result,
                     "Previous Quick Open Result",
                     "Quick Open previous-result label is product-facing");
-      Expect_Label (Editor.Commands.Command_Quick_Open_Query_Set,
+      Expect_Label (Editor.Command_Ids.Command_Quick_Open_Query_Set,
                     "Set Quick Open Query",
                     "Quick Open query-set label is product-facing");
-      Expect_Label (Editor.Commands.Command_Quick_Open_Query_Clear,
+      Expect_Label (Editor.Command_Ids.Command_Quick_Open_Query_Clear,
                     "Clear Quick Open Query",
                     "Quick Open query-clear label is product-facing");
-      Expect_Label (Editor.Commands.Command_Quick_Open_Kind_Next,
+      Expect_Label (Editor.Command_Ids.Command_Quick_Open_Kind_Next,
                     "Next Quick Open File Kind",
                     "Quick Open next-kind label is product-facing");
-      Expect_Label (Editor.Commands.Command_Quick_Open_Kind_Previous,
+      Expect_Label (Editor.Command_Ids.Command_Quick_Open_Kind_Previous,
                     "Previous Quick Open File Kind",
                     "Quick Open previous-kind label is product-facing");
-      Expect_Label (Editor.Commands.Command_Quick_Open_Kind_Clear,
+      Expect_Label (Editor.Command_Ids.Command_Quick_Open_Kind_Clear,
                     "Clear Quick Open File Kind",
                     "Quick Open kind-clear label is product-facing");
-      Expect_Label (Editor.Commands.Command_Quick_Open_Scope_Set,
+      Expect_Label (Editor.Command_Ids.Command_Quick_Open_Scope_Set,
                     "Set Quick Open Scope",
                     "Quick Open scope-set label is product-facing");
-      Expect_Label (Editor.Commands.Command_Quick_Open_Scope_Clear,
+      Expect_Label (Editor.Command_Ids.Command_Quick_Open_Scope_Clear,
                     "Clear Quick Open Scope",
                     "Quick Open scope-clear label is product-facing");
-      Expect_Label (Editor.Commands.Command_Quick_Open_Scope_From_Selected,
+      Expect_Label (Editor.Command_Ids.Command_Quick_Open_Scope_From_Selected,
                     "Scope Quick Open to Selected Directory",
                     "Quick Open selected-scope label is product-facing");
-      Expect_Label (Editor.Commands.Command_Quick_Open_Scope_Parent,
+      Expect_Label (Editor.Command_Ids.Command_Quick_Open_Scope_Parent,
                     "Quick Open Parent Scope",
                     "Quick Open parent-scope label is product-facing");
-      Expect_Label (Editor.Commands.Command_Quick_Open_Reveal_Active,
+      Expect_Label (Editor.Command_Ids.Command_Quick_Open_Reveal_Active,
                     "Reveal Active File in Quick Open",
                     "Quick Open reveal-active label is product-facing");
-      Expect_Label (Editor.Commands.Command_Quick_Open_Scope_Active_Directory,
+      Expect_Label (Editor.Command_Ids.Command_Quick_Open_Scope_Active_Directory,
                     "Scope Quick Open to Active Directory",
                     "Quick Open active-directory scope label is product-facing");
-      Expect_Label (Editor.Commands.Command_Quick_Open_Create_From_Query,
+      Expect_Label (Editor.Command_Ids.Command_Quick_Open_Create_From_Query,
                     "Create File from Quick Open Query",
                     "Quick Open create-from-query label is product-facing");
-      Expect_Label (Editor.Commands.Command_Quick_Open_Create_With_Parents_From_Query,
+      Expect_Label (Editor.Command_Ids.Command_Quick_Open_Create_With_Parents_From_Query,
                     "Create File with Parent Directories from Quick Open Query",
                     "Quick Open create-with-parents label is product-facing");
-      Expect_Label (Editor.Commands.Command_Quick_Open_Priority_Toggle,
+      Expect_Label (Editor.Command_Ids.Command_Quick_Open_Priority_Toggle,
                     "Toggle Quick Open Recent Priority",
                     "Quick Open priority-toggle label is product-facing");
-      Expect_Label (Editor.Commands.Command_Quick_Open_Priority_Clear,
+      Expect_Label (Editor.Command_Ids.Command_Quick_Open_Priority_Clear,
                     "Clear Quick Open Priority",
                     "Quick Open priority-clear label is product-facing");
    end Test_Quick_Open_Product_Surface_Coherent;
@@ -3919,7 +3919,7 @@ package body Editor.Dogfood_Workflow.Tests is
       pragma Unreferenced (T);
 
       procedure Expect_Clean
-        (Id       : Editor.Commands.Command_Id;
+        (Id       : Editor.Command_Ids.Command_Id;
          Expected : String;
          Message  : String)
       is
@@ -3945,49 +3945,49 @@ package body Editor.Dogfood_Workflow.Tests is
                  Message & " description avoids classifier wording");
       end Expect_Clean;
    begin
-      Expect_Clean (Editor.Commands.Command_Diagnostics_Toggle_Info,
+      Expect_Clean (Editor.Command_Ids.Command_Diagnostics_Toggle_Info,
                     "Toggle Info Diagnostics",
                     "Diagnostics info toggle is product-facing");
-      Expect_Clean (Editor.Commands.Command_Diagnostics_Toggle_Warnings,
+      Expect_Clean (Editor.Command_Ids.Command_Diagnostics_Toggle_Warnings,
                     "Toggle Warning Diagnostics",
                     "Diagnostics warning toggle is product-facing");
-      Expect_Clean (Editor.Commands.Command_Diagnostics_Toggle_Errors,
+      Expect_Clean (Editor.Command_Ids.Command_Diagnostics_Toggle_Errors,
                     "Toggle Error Diagnostics",
                     "Diagnostics error toggle is product-facing");
-      Expect_Clean (Editor.Commands.Command_Diagnostics_Filter_Errors,
+      Expect_Clean (Editor.Command_Ids.Command_Diagnostics_Filter_Errors,
                     "Show Error Diagnostics",
                     "Diagnostics error filter is product-facing");
-      Expect_Clean (Editor.Commands.Command_Diagnostics_Filter_Warnings,
+      Expect_Clean (Editor.Command_Ids.Command_Diagnostics_Filter_Warnings,
                     "Show Warning Diagnostics",
                     "Diagnostics warning filter is product-facing");
-      Expect_Clean (Editor.Commands.Command_Diagnostics_Filter_Info_Notes,
+      Expect_Clean (Editor.Command_Ids.Command_Diagnostics_Filter_Info_Notes,
                     "Show Info and Note Diagnostics",
                     "Diagnostics info filter is product-facing");
-      Expect_Clean (Editor.Commands.Command_Diagnostics_Filter_Source,
+      Expect_Clean (Editor.Command_Ids.Command_Diagnostics_Filter_Source,
                     "Show Diagnostics from Selected Source",
                     "Diagnostics source filter is product-facing");
-      Expect_Clean (Editor.Commands.Command_Diagnostics_Filter_Build,
+      Expect_Clean (Editor.Command_Ids.Command_Diagnostics_Filter_Build,
                     "Show Build Diagnostics",
                     "Diagnostics build filter is product-facing");
-      Expect_Clean (Editor.Commands.Command_Diagnostics_Open_Selected,
+      Expect_Clean (Editor.Command_Ids.Command_Diagnostics_Open_Selected,
                     "Open Selected Diagnostic",
                     "Diagnostics open-selected command is product-facing");
-      Expect_Clean (Editor.Commands.Command_Diagnostics_Clear_Selected,
+      Expect_Clean (Editor.Command_Ids.Command_Diagnostics_Clear_Selected,
                     "Clear Selected Diagnostic",
                     "Diagnostics clear-selected command is product-facing");
-      Expect_Clean (Editor.Commands.Command_Diagnostics_Toggle_Editor_Source,
+      Expect_Clean (Editor.Command_Ids.Command_Diagnostics_Toggle_Editor_Source,
                     "Toggle Editor Diagnostics",
                     "Diagnostics editor-source toggle is product-facing");
-      Expect_Clean (Editor.Commands.Command_Diagnostics_Toggle_File_Source,
+      Expect_Clean (Editor.Command_Ids.Command_Diagnostics_Toggle_File_Source,
                     "Toggle File Diagnostics",
                     "Diagnostics file-source toggle is product-facing");
-      Expect_Clean (Editor.Commands.Command_Diagnostics_Toggle_Project_Source,
+      Expect_Clean (Editor.Command_Ids.Command_Diagnostics_Toggle_Project_Source,
                     "Toggle Project Diagnostics",
                     "Diagnostics project-source toggle is product-facing");
-      Expect_Clean (Editor.Commands.Command_Diagnostics_Toggle_External_Source,
+      Expect_Clean (Editor.Command_Ids.Command_Diagnostics_Toggle_External_Source,
                     "Toggle External Diagnostics",
                     "Diagnostics external-source toggle is product-facing");
-      Expect_Clean (Editor.Commands.Command_Diagnostics_Toggle_Unknown_Source,
+      Expect_Clean (Editor.Command_Ids.Command_Diagnostics_Toggle_Unknown_Source,
                     "Toggle Unknown Diagnostics",
                     "Diagnostics unknown-source toggle is product-facing");
    end Test_Diagnostics_Product_Surface_Coherent;
@@ -3999,7 +3999,7 @@ package body Editor.Dogfood_Workflow.Tests is
       pragma Unreferenced (T);
 
       procedure Expect_Clean
-        (Id       : Editor.Commands.Command_Id;
+        (Id       : Editor.Command_Ids.Command_Id;
          Expected : String;
          Message  : String)
       is
@@ -4017,34 +4017,34 @@ package body Editor.Dogfood_Workflow.Tests is
                  Message & " description avoids implementation wording");
       end Expect_Clean;
    begin
-      Expect_Clean (Editor.Commands.Command_Open_Buffer_Switcher,
+      Expect_Clean (Editor.Command_Ids.Command_Open_Buffer_Switcher,
                     "Show Open Buffer List",
                     "Open Buffer List show label is product-facing");
-      Expect_Clean (Editor.Commands.Command_Close_Buffer_Switcher,
+      Expect_Clean (Editor.Command_Ids.Command_Close_Buffer_Switcher,
                     "Hide Open Buffer List",
                     "Open Buffer List hide label is product-facing");
-      Expect_Clean (Editor.Commands.Command_Buffer_Switcher_Filter_Clear,
+      Expect_Clean (Editor.Command_Ids.Command_Buffer_Switcher_Filter_Clear,
                     "Clear Open Buffer List Filter",
                     "Open Buffer List filter-clear label is product-facing");
-      Expect_Clean (Editor.Commands.Command_Buffer_Switcher_Filter_Pinned,
+      Expect_Clean (Editor.Command_Ids.Command_Buffer_Switcher_Filter_Pinned,
                     "Filter Open Buffer List to Pinned Buffers",
                     "Open Buffer List pinned-filter label is product-facing");
-      Expect_Clean (Editor.Commands.Command_Buffer_Switcher_Sort_Default,
+      Expect_Clean (Editor.Command_Ids.Command_Buffer_Switcher_Sort_Default,
                     "Sort Open Buffer List Default",
                     "Open Buffer List default-sort label is product-facing");
-      Expect_Clean (Editor.Commands.Command_Buffer_Switcher_Sort_Recent,
+      Expect_Clean (Editor.Command_Ids.Command_Buffer_Switcher_Sort_Recent,
                     "Sort Open Buffer List by Recent",
                     "Open Buffer List recent-sort label is product-facing");
-      Expect_Clean (Editor.Commands.Command_Buffer_Switcher_Selected_Close,
+      Expect_Clean (Editor.Command_Ids.Command_Buffer_Switcher_Selected_Close,
                     "Close Selected Buffer List Row",
                     "Open Buffer List selected-close label is product-facing");
-      Expect_Clean (Editor.Commands.Command_Buffer_Switcher_Preview_Show,
+      Expect_Clean (Editor.Command_Ids.Command_Buffer_Switcher_Preview_Show,
                     "Show Open Buffer List Preview",
                     "Open Buffer List preview label is product-facing");
-      Expect_Clean (Editor.Commands.Command_Buffer_Switcher_Mark_Toggle,
+      Expect_Clean (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Toggle,
                     "Toggle Selected Buffer Mark",
                     "Open Buffer List mark label is product-facing");
-      Expect_Clean (Editor.Commands.Command_Buffer_Switcher_Mark_Summary,
+      Expect_Clean (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Summary,
                     "Summarize Buffer Marks",
                     "Open Buffer List mark-summary label is product-facing");
    end Test_Open_Buffer_List_Product_Surface_Coherent;
@@ -4089,10 +4089,10 @@ package body Editor.Dogfood_Workflow.Tests is
       Append_Text (ASCII.LF & "-- dirty close cancel");
       Dirty_Text := To_Unbounded_String (Editor.State.Current_Text (S));
       Dirty_Id := Editor.Buffers.Global_Active_Buffer;
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_Active_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_Active_Buffer);
       Assert (S.Dirty_Close_Prompt_Active,
               "dirty close opens explicit dirty-buffer review");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Cancel_Close);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Cancel_Close);
       Assert (not S.Dirty_Close_Prompt_Active,
               "dirty close cancel clears only the close review");
       Assert (Editor.Buffers.Global_Contains (Dirty_Id),
@@ -4119,10 +4119,10 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Dirty_Path);
       Assert (Editor.Buffers.Global_Active_Buffer = Dirty_Id,
               "discard scenario returns to dirty buffer before close");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_Active_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_Active_Buffer);
       Assert (S.Dirty_Close_Prompt_Active,
               "dirty close discard path opens review");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Confirm_Close_Discard);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Confirm_Close_Discard);
       Assert (not S.Dirty_Close_Prompt_Active,
               "dirty close discard resolves review");
       Assert (not Editor.Buffers.Global_Contains (Dirty_Id),
@@ -4145,10 +4145,10 @@ package body Editor.Dogfood_Workflow.Tests is
       Append_Text (ASCII.LF & "-- project close cancel");
       Dirty_Text := To_Unbounded_String (Editor.State.Current_Text (S));
       Dirty_Id := Editor.Buffers.Global_Active_Buffer;
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_Project);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_Project);
       Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "dirty project close captures pending decision");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Cancel_Pending_Transition);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Cancel_Pending_Transition);
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "dirty project close cancel clears only the pending decision");
       Assert (Editor.Project.Has_Project (S.Project)
@@ -4178,7 +4178,7 @@ package body Editor.Dogfood_Workflow.Tests is
               "dirty project switch captures pending decision");
       Assert (Editor.Project.Root_Path (S.Project) = Ada.Directories.Full_Name (Root_A),
               "dirty project switch does not activate the target before confirmation");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Cancel_Pending_Transition);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Cancel_Pending_Transition);
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "dirty project switch cancel clears the pending decision");
       Assert (Editor.Project.Root_Path (S.Project) = Ada.Directories.Full_Name (Root_A),

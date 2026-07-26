@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -5,7 +6,6 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Buffer_Switcher;
 with Editor.Buffer_Switcher.Rows;
 with Editor.Buffers;
-with Editor.Commands;
 with Editor.Executor;
 with Editor.Executor.Buffer_Switcher_Shared;
 with Editor.Executor.Shared_Services;
@@ -17,7 +17,7 @@ with Editor.Render_Cache;
 package body Editor.Executor.Buffer_Switcher_Mark_Metadata_Commands is
 
    use type Editor.Buffers.Buffer_Id;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Messages.Message_Severity;
 
    procedure Report_Info
@@ -551,7 +551,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Metadata_Commands is
 
    procedure Execute_Buffer_Switcher_Mark_Metadata_Kind
      (S    : in out Editor.State.State_Type;
-      Kind : Editor.Commands.Command_Kind;
+      Kind : Editor.Command_Kinds.Command_Kind;
       Text : String)
    is
    begin

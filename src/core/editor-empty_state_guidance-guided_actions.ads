@@ -1,5 +1,5 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Ada.Strings.Unbounded;
-with Editor.Commands;
 with Editor.Executor;
 with Editor.State;
 
@@ -7,7 +7,7 @@ package Editor.Empty_State_Guidance.Guided_Actions is
 
    function Command_Suggestion_From_Descriptor
      (S       : Editor.State.State_Type;
-      Command : Editor.Commands.Command_Id)
+      Command : Editor.Command_Ids.Command_Id)
       return Empty_State_Suggested_Command;
 
    function Stable_Name_Is_Display_Only

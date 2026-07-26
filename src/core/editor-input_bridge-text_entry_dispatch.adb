@@ -1,7 +1,6 @@
 with Editor.Command_Kinds;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
-with Editor.Commands;
 with Editor.Commands.Payloads;
 with Editor.Guided_Prompts;
 with Editor.Input_Bridge.Keybinding_Handlers;

@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -5,7 +6,6 @@ with Ada.Directories;
 with Ada.Text_IO;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Settings;
-with Editor.Commands;
 with Editor.Input_Bridge;
 with Editor.Keybindings;
 with Editor.Settings_Management;
@@ -18,7 +18,7 @@ package body Editor.Settings_Management.Tests is
    use type Editor.Settings_Management.Setting_Category;
    use type Editor.Settings_Management.Setting_Value_Kind;
    use type Editor.Settings_Management.Settings_Command_Action;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Settings.Settings_Status;
 
    function Key
@@ -865,14 +865,14 @@ package body Editor.Settings_Management.Tests is
                     "each settings route should be either executor-backed or typed surface-only");
 
             if Row.Executor_Backend then
-               Assert (Row.Executor_Command /= Editor.Commands.No_Command,
+               Assert (Row.Executor_Command /= Editor.Command_Ids.No_Command,
                        "executor-backed route should carry a concrete command id");
                Assert (Row.Palette_Addressable,
                        "executor-backed route should remain command-palette addressable");
                Assert (Row.Keybinding_Addressable,
                        "executor-backed route should remain keybinding addressable by stable name only");
             else
-               Assert (Row.Executor_Command = Editor.Commands.No_Command,
+               Assert (Row.Executor_Command = Editor.Command_Ids.No_Command,
                        "typed surface route must not fabricate an executor command id");
                Assert (not Row.Palette_Addressable,
                        "typed surface route must not be command-palette payload-addressable");

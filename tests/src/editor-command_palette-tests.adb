@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Classification;
@@ -14,10 +15,9 @@ with Interfaces.C;
 with Editor.Command_Palette;
 with Editor.Executor;
 with Editor.Executor.Command_Palette_Projection;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.Ada_Diagnostic_Command_Projection;
-use type Editor.Commands.Command_Id;
+use type Editor.Command_Ids.Command_Id;
 use type Editor.Commands.Descriptors.Command_Category;
 use type Editor.Commands.Descriptors.Command_Visibility;
 use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
@@ -57,7 +57,7 @@ package body Editor.Command_Palette.Tests is
 
 
    function Descriptor_Exists
-     (Id : Editor.Commands.Command_Id) return Boolean
+     (Id : Editor.Command_Ids.Command_Id) return Boolean
    is
       Descriptors : constant Editor.Commands.Descriptors.Command_Descriptor_Vectors.Vector :=
         Editor.Commands.Descriptors.Palette_Commands;
@@ -73,7 +73,7 @@ package body Editor.Command_Palette.Tests is
 
    function Help_Has_Related_Command
      (Help : Editor.Command_Palette.Command_Help_Snapshot;
-      Id   : Editor.Commands.Command_Id) return Boolean
+      Id   : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       for I in 1 .. Help.Related_Command_Count loop
@@ -90,7 +90,7 @@ package body Editor.Command_Palette.Tests is
       Failure_Text : String)
    is
       Found : Boolean := False;
-      Id    : constant Editor.Commands.Command_Id :=
+      Id    : constant Editor.Command_Ids.Command_Id :=
         Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
           (To_String (Stable_Name), Found);
    begin
@@ -170,7 +170,7 @@ package body Editor.Command_Palette.Tests is
       Editor.Command_Palette.Filtered_Commands (Filtered);
       Assert (Filtered.Length > 0,
               "Query 'sa' must match Save File");
-      Assert (Filtered.Element (0).Id = Editor.Commands.Command_Save_File,
+      Assert (Filtered.Element (0).Id = Editor.Command_Ids.Command_Save_File,
               "Save File should be the first descriptor matched by 'sa'");
       Assert (To_String (Editor.Command_Palette.Current.Query) = "sa",
               "Typing must append printable characters to query");
@@ -282,7 +282,7 @@ package body Editor.Command_Palette.Tests is
    end Test_Render_Layers_When_Open_And_Closed;
 
    function Palette_Contains
-     (Id : Editor.Commands.Command_Id) return Boolean
+     (Id : Editor.Command_Ids.Command_Id) return Boolean
    is
       Descriptors : constant Editor.Commands.Descriptors.Command_Descriptor_Vectors.Vector :=
         Editor.Commands.Descriptors.Palette_Commands;
@@ -299,17 +299,17 @@ package body Editor.Command_Palette.Tests is
    procedure Test_Command_Descriptor_Registry_Coverage
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Seen : array (Editor.Commands.Command_Id) of Boolean := (others => False);
+      Seen : array (Editor.Command_Ids.Command_Id) of Boolean := (others => False);
       D    : Editor.Commands.Descriptors.Command_Descriptor;
    begin
-      Assert (Editor.Commands.Command_Count =
-                Editor.Commands.Command_Id'Pos (Editor.Commands.Command_Id'Last) -
-                Editor.Commands.Command_Id'Pos (Editor.Commands.Command_Id'First) + 1,
+      Assert (Editor.Command_Ids.Command_Count =
+                Editor.Command_Ids.Command_Id'Pos (Editor.Command_Ids.Command_Id'Last) -
+                Editor.Command_Ids.Command_Id'Pos (Editor.Command_Ids.Command_Id'First) + 1,
               "Command_Count must cover every Command_Id value");
 
-      for I in 1 .. Editor.Commands.Command_Count loop
+      for I in 1 .. Editor.Command_Ids.Command_Count loop
          declare
-            Id : constant Editor.Commands.Command_Id := Editor.Commands.Command_At (I);
+            Id : constant Editor.Command_Ids.Command_Id := Editor.Command_Ids.Command_At (I);
          begin
             Assert (not Seen (Id),
                     "Command_At must not return duplicate command ids");
@@ -321,7 +321,7 @@ package body Editor.Command_Palette.Tests is
             Assert (Length (D.Name) > 0,
                     "Every command descriptor must have a stable label");
 
-            if Id = Editor.Commands.No_Command then
+            if Id = Editor.Command_Ids.No_Command then
                Assert (D.Visibility = Editor.Commands.Descriptors.Hidden_Command,
                        "No_Command must be hidden");
             elsif D.Visibility = Editor.Commands.Descriptors.Palette_Command then
@@ -333,7 +333,7 @@ package body Editor.Command_Palette.Tests is
          end;
       end loop;
 
-      for Id in Editor.Commands.Command_Id loop
+      for Id in Editor.Command_Ids.Command_Id loop
          Assert (Seen (Id),
                  "Command_At must cover every Command_Id exactly once");
       end loop;
@@ -344,18 +344,18 @@ package body Editor.Command_Palette.Tests is
       pragma Unreferenced (T);
    begin
       Assert (Editor.Commands.Classification.Visible_In_Command_Palette
-                (Editor.Commands.Command_Save_File),
+                (Editor.Command_Ids.Command_Save_File),
               "Save File should be palette-visible through descriptor metadata");
-      Assert (Palette_Contains (Editor.Commands.Command_Save_File),
+      Assert (Palette_Contains (Editor.Command_Ids.Command_Save_File),
               "Palette candidates must include palette-visible Save File");
       Assert (not Editor.Commands.Classification.Visible_In_Command_Palette
-                (Editor.Commands.Command_Move_Left),
+                (Editor.Command_Ids.Command_Move_Left),
               "Raw movement commands should be hidden from the palette");
-      Assert (not Palette_Contains (Editor.Commands.Command_Move_Left),
+      Assert (not Palette_Contains (Editor.Command_Ids.Command_Move_Left),
               "Palette candidates must exclude hidden raw movement commands");
-      Assert (Editor.Commands.Descriptors.Label (Editor.Commands.Command_Save_File) =
+      Assert (Editor.Commands.Descriptors.Label (Editor.Command_Ids.Command_Save_File) =
                 To_String (Editor.Commands.Descriptors.Descriptor
-                  (Editor.Commands.Command_Save_File).Name),
+                  (Editor.Command_Ids.Command_Save_File).Name),
               "Label helper must read from the centralized descriptor");
    end Test_Palette_Uses_Descriptor_Visibility;
 
@@ -363,363 +363,363 @@ package body Editor.Command_Palette.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
    begin
-      Assert (Descriptor_Exists (Editor.Commands.Command_New_Buffer),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_New_Buffer),
               "New Buffer descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Close_Active_Buffer),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Close_Active_Buffer),
               "Close Buffer descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Next_Buffer),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Next_Buffer),
               "Next Buffer descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Previous_Buffer),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Previous_Buffer),
               "Previous Buffer descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Previous_Recent_Buffer),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Previous_Recent_Buffer),
               "Previous Recent Buffer descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Next_Recent_Buffer),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Next_Recent_Buffer),
               "Next Recent Buffer descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Save_File),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Save_File),
               "Save descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Save_File_As),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Save_File_As),
               "Save As descriptor must be projected after target acquisition is canonical");
-      Assert (Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Save_File_As).Visibility =
+      Assert (Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Save_File_As).Visibility =
                 Editor.Commands.Descriptors.Palette_Command,
               "canonical Save As descriptor is palette-visible through the target prompt route");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Toggle_Problems_Panel),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Toggle_Problems_Panel),
               "Toggle Problems descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Focus_Problems),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Focus_Problems),
               "Focus Problems descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Problems_Open_Selected),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Problems_Open_Selected),
               "Open Selected Problem descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Problems_Move_Up),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Problems_Move_Up),
               "Move Problem Selection Up descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Problems_Move_Down),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Problems_Move_Down),
               "Move Problem Selection Down descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Filter_Clear),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Filter_Clear),
               "Clear Buffer Switcher Filter descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Filter_Pinned),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Filter_Pinned),
               "Pinned Buffer Switcher Filter descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Filter_Group),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Filter_Group),
               "Group Buffer Switcher Filter descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Filter_Label),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Filter_Label),
               "Label Buffer Switcher Filter descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Filter_Noted),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Filter_Noted),
               "Noted Buffer Switcher Filter descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Sort_Default),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Sort_Default),
               "Default Buffer Switcher Sort descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Sort_Recent),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Sort_Recent),
               "Recent Buffer Switcher Sort descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Sort_Name),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Sort_Name),
               "Name Buffer Switcher Sort descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Sort_Pinned),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Sort_Pinned),
               "Pinned Buffer Switcher Sort descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Sort_Group),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Sort_Group),
               "Group Buffer Switcher Sort descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Sort_Label),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Sort_Label),
               "Label Buffer Switcher Sort descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Sort_Next),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Sort_Next),
               "Next Buffer Switcher Sort descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Sort_Previous),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Sort_Previous),
               "Previous Buffer Switcher Sort descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Selected_Close),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Selected_Close),
               "Selected Buffer Switcher Close descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Selected_Pin),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Selected_Pin),
               "Selected Buffer Switcher Pin descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Selected_Unpin),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Selected_Unpin),
               "Selected Buffer Switcher Unpin descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Selected_Toggle_Pin),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Selected_Toggle_Pin),
               "Selected Buffer Switcher Toggle Pin descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Selected_Group_Assign),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Selected_Group_Assign),
               "Selected Buffer Switcher Assign Group descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Selected_Group_Clear),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Selected_Group_Clear),
               "Selected Buffer Switcher Clear Group descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Selected_Label_Set),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Selected_Label_Set),
               "Selected Buffer Switcher Set Label descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Selected_Label_Clear),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Selected_Label_Clear),
               "Selected Buffer Switcher Clear Label descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Selected_Note_Set),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Selected_Note_Set),
               "Selected Buffer Switcher Set Note descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Selected_Note_Clear),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Selected_Note_Clear),
               "Selected Buffer Switcher Clear Note descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Preview_Toggle),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Preview_Toggle),
               "Buffer Switcher Preview Toggle descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Preview_Show),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Preview_Show),
               "Buffer Switcher Preview Show descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Preview_Hide),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Preview_Hide),
               "Buffer Switcher Preview Hide descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Preview_Next_Line),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Preview_Next_Line),
               "Buffer Switcher Preview Next Line descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Preview_Previous_Line),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Preview_Previous_Line),
               "Buffer Switcher Preview Previous Line descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Preview_Center_Cursor),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Preview_Center_Cursor),
               "Buffer Switcher Preview Center Cursor descriptor must exist");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Filter_Clear) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Filter_Clear) =
               "buffers.switcher.filter.clear",
               "clear switcher filter stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Filter_Pinned) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Filter_Pinned) =
               "buffers.switcher.filter.pinned",
               "pinned switcher filter stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Filter_Group) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Filter_Group) =
               "buffers.switcher.filter.group",
               "group switcher filter stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Filter_Label) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Filter_Label) =
               "buffers.switcher.filter.label",
               "label switcher filter stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Filter_Noted) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Filter_Noted) =
               "buffers.switcher.filter.noted",
               "noted switcher filter stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Sort_Default) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Sort_Default) =
               "buffers.switcher.sort.default",
               "default switcher sort stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Sort_Recent) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Sort_Recent) =
               "buffers.switcher.sort.recent",
               "recent switcher sort stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Sort_Name) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Sort_Name) =
               "buffers.switcher.sort.name",
               "name switcher sort stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Sort_Pinned) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Sort_Pinned) =
               "buffers.switcher.sort.pinned",
               "pinned switcher sort stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Sort_Group) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Sort_Group) =
               "buffers.switcher.sort.group",
               "group switcher sort stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Sort_Label) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Sort_Label) =
               "buffers.switcher.sort.label",
               "label switcher sort stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Sort_Next) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Sort_Next) =
               "buffers.switcher.sort.next",
               "next switcher sort stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Sort_Previous) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Sort_Previous) =
               "buffers.switcher.sort.previous",
               "previous switcher sort stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Selected_Close) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Selected_Close) =
               "buffers.switcher.selected.close",
               "selected switcher close stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Selected_Pin) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Selected_Pin) =
               "buffers.switcher.selected.pin",
               "selected switcher pin stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Selected_Unpin) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Selected_Unpin) =
               "buffers.switcher.selected.unpin",
               "selected switcher unpin stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Selected_Toggle_Pin) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Selected_Toggle_Pin) =
               "buffers.switcher.selected.toggle-pin",
               "selected switcher toggle pin stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Selected_Group_Assign) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Selected_Group_Assign) =
               "buffers.switcher.selected.group.assign",
               "selected switcher assign group stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Selected_Group_Clear) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Selected_Group_Clear) =
               "buffers.switcher.selected.group.clear",
               "selected switcher clear group stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Selected_Label_Set) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Selected_Label_Set) =
               "buffers.switcher.selected.label.set",
               "selected switcher set label stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Selected_Label_Clear) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Selected_Label_Clear) =
               "buffers.switcher.selected.label.clear",
               "selected switcher clear label stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Selected_Note_Set) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Selected_Note_Set) =
               "buffers.switcher.selected.note.set",
               "selected switcher set note stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Selected_Note_Clear) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Selected_Note_Clear) =
               "buffers.switcher.selected.note.clear",
               "selected switcher clear note stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Preview_Toggle) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Preview_Toggle) =
               "buffers.switcher.preview.toggle",
               "switcher preview toggle stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Preview_Show) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Preview_Show) =
               "buffers.switcher.preview.show",
               "switcher preview show stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Preview_Hide) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Preview_Hide) =
               "buffers.switcher.preview.hide",
               "switcher preview hide stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Preview_Next_Line) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Preview_Next_Line) =
               "buffers.switcher.preview.next-line",
               "switcher preview next line stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Preview_Previous_Line) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Preview_Previous_Line) =
               "buffers.switcher.preview.previous-line",
               "switcher preview previous line stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Preview_Center_Cursor) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Preview_Center_Cursor) =
               "buffers.switcher.preview.center-cursor",
               "switcher preview center cursor stable name must be persisted-command safe");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Visible),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Visible),
               "mark visible descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Clear_Visible),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Clear_Visible),
               "clear visible marks descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Pinned),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Pinned),
               "mark pinned descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Group),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Group),
               "mark group descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Label),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Label),
               "mark label descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Noted),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Noted),
               "mark noted descriptor must exist");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Mark_Visible) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Visible) =
               "buffers.switcher.mark.visible",
               "mark visible stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Mark_Clear_Visible) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Clear_Visible) =
               "buffers.switcher.mark.clear-visible",
               "clear visible stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Mark_Pinned) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Pinned) =
               "buffers.switcher.mark.pinned",
               "mark pinned stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Mark_Group) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Group) =
               "buffers.switcher.mark.group",
               "mark group stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Mark_Label) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Label) =
               "buffers.switcher.mark.label",
               "mark label stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Mark_Noted) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Noted) =
               "buffers.switcher.mark.noted",
               "mark noted stable name must be persisted-command safe");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Group_Assign),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Group_Assign),
               "marked group assign descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Group_Clear),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Group_Clear),
               "marked group clear descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Label_Set),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Label_Set),
               "marked label set descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Label_Clear),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Label_Clear),
               "marked label clear descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Note_Set),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Note_Set),
               "marked note set descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Note_Clear),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Note_Clear),
               "marked note clear descriptor must exist");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Mark_Group_Assign) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Group_Assign) =
               "buffers.switcher.mark.group.assign",
               "marked group assign stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Mark_Group_Clear) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Group_Clear) =
               "buffers.switcher.mark.group.clear",
               "marked group clear stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Mark_Label_Set) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Label_Set) =
               "buffers.switcher.mark.label.set",
               "marked label set stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Mark_Label_Clear) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Label_Clear) =
               "buffers.switcher.mark.label.clear",
               "marked label clear stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Mark_Note_Set) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Note_Set) =
               "buffers.switcher.mark.note.set",
               "marked note set stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Mark_Note_Clear) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Note_Clear) =
               "buffers.switcher.mark.note.clear",
               "marked note clear stable name must be persisted-command safe");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Confirm),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Confirm),
               "marked confirm descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Cancel),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Cancel),
               "marked cancel descriptor must exist");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Mark_Confirm) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Confirm) =
               "buffers.switcher.mark.confirm",
               "marked confirm stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Mark_Cancel) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Cancel) =
               "buffers.switcher.mark.cancel",
               "marked cancel stable name must be persisted-command safe");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Review_Toggle),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Review_Toggle),
               "marked review toggle descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Review_Show),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Review_Show),
               "marked review show descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Review_Hide),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Review_Hide),
               "marked review hide descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Next),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Next),
               "marked next descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Previous),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Previous),
               "marked previous descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Summary),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Summary),
               "marked summary descriptor must exist");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Mark_Review_Toggle) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Review_Toggle) =
               "buffers.switcher.mark.review.toggle",
               "marked review toggle stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Mark_Review_Show) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Review_Show) =
               "buffers.switcher.mark.review.show",
               "marked review show stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Mark_Review_Hide) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Review_Hide) =
               "buffers.switcher.mark.review.hide",
               "marked review hide stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Mark_Next) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Next) =
               "buffers.switcher.mark.next",
               "marked next stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Mark_Previous) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Previous) =
               "buffers.switcher.mark.previous",
               "marked previous stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Mark_Summary) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Summary) =
               "buffers.switcher.mark.summary",
               "marked summary stable name must be persisted-command safe");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Review_Toggle),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Review_Toggle),
               "pending marked review toggle descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Review_Show),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Review_Show),
               "pending marked review show descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Review_Hide),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Review_Hide),
               "pending marked review hide descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Next),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Next),
               "pending marked next descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Previous),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Previous),
               "pending marked previous descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Summary),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Summary),
               "pending marked summary descriptor must exist");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Review_Toggle) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Review_Toggle) =
               "buffers.switcher.pending-mark.review.toggle",
               "pending marked review toggle stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Review_Show) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Review_Show) =
               "buffers.switcher.pending-mark.review.show",
               "pending marked review show stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Review_Hide) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Review_Hide) =
               "buffers.switcher.pending-mark.review.hide",
               "pending marked review hide stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Next) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Next) =
               "buffers.switcher.pending-mark.next",
               "pending marked next stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Previous) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Previous) =
               "buffers.switcher.pending-mark.previous",
               "pending marked previous stable name must be persisted-command safe");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Summary) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Summary) =
               "buffers.switcher.pending-mark.summary",
               "pending marked summary stable name must be persisted-command safe");
    end Test_Buffer_Command_Descriptors_Exist;
@@ -737,22 +737,22 @@ package body Editor.Command_Palette.Tests is
       Editor.Buffers.Ensure_Global_Registry (S);
       First := Editor.Buffers.Global_Active_Buffer;
 
-      Editor.Input_Bridge.Execute_Command_Id (Editor.Commands.Command_New_Buffer);
+      Editor.Input_Bridge.Execute_Command_Id (Editor.Command_Ids.Command_New_Buffer);
       Second := Editor.Buffers.Global_Active_Buffer;
       Assert (Editor.Buffers.Global_Count = 2,
               "New Buffer command id should create a buffer through dispatch");
       Assert (Second /= First,
               "New Buffer command id should activate the new buffer");
 
-      Editor.Input_Bridge.Execute_Command_Id (Editor.Commands.Command_Previous_Buffer);
+      Editor.Input_Bridge.Execute_Command_Id (Editor.Command_Ids.Command_Previous_Buffer);
       Assert (Editor.Buffers.Global_Active_Buffer = First,
               "Previous Buffer command id should dispatch to executor switching");
 
-      Editor.Input_Bridge.Execute_Command_Id (Editor.Commands.Command_Next_Buffer);
+      Editor.Input_Bridge.Execute_Command_Id (Editor.Command_Ids.Command_Next_Buffer);
       Assert (Editor.Buffers.Global_Active_Buffer = Second,
               "Next Buffer command id should dispatch to executor switching");
 
-      Editor.Input_Bridge.Execute_Command_Id (Editor.Commands.Command_Close_Active_Buffer);
+      Editor.Input_Bridge.Execute_Command_Id (Editor.Command_Ids.Command_Close_Active_Buffer);
       Assert (Editor.Buffers.Global_Count = 1,
               "Close Buffer command id should close the active clean buffer");
    end Test_Buffer_Command_Id_Dispatch;
@@ -789,7 +789,7 @@ package body Editor.Command_Palette.Tests is
       Editor.Input_Bridge.Set_State_For_Test (S);
 
       Editor.Input_Bridge.Execute_Command_Id
-        (Editor.Commands.Command_Diagnostics_Execute_Selected_Action);
+        (Editor.Command_Ids.Command_Diagnostics_Execute_Selected_Action);
       After := Editor.Input_Bridge.Get_State_For_Test;
       Msg := Editor.Messages.Active_Message (After.Messages, Found);
 
@@ -815,7 +815,7 @@ package body Editor.Command_Palette.Tests is
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Input_Bridge.Set_State_For_Test (S);
 
-      Editor.Input_Bridge.Execute_Command_Id (Editor.Commands.Command_Save_File_As);
+      Editor.Input_Bridge.Execute_Command_Id (Editor.Command_Ids.Command_Save_File_As);
       Editor.Input_Bridge.Get_Render_Snapshot (Snap);
 
       Assert (Snap.File_Target_Prompt_Visible
@@ -834,9 +834,9 @@ package body Editor.Command_Palette.Tests is
       Found : Boolean := False;
       M     : Editor.Messages.Editor_Message;
    begin
-      Assert (Palette_Contains (Editor.Commands.Command_Dismiss_All_Messages),
+      Assert (Palette_Contains (Editor.Command_Ids.Command_Dismiss_All_Messages),
               "Dismiss All Messages must be palette-visible");
-      Assert (not Palette_Contains (Editor.Commands.Command_Dismiss_Latest_Message),
+      Assert (not Palette_Contains (Editor.Command_Ids.Command_Dismiss_Latest_Message),
               "Dismiss Latest Message must remain hidden from palette candidates");
 
       Editor.State.Init (S);
@@ -845,14 +845,14 @@ package body Editor.Command_Palette.Tests is
       Editor.Input_Bridge.Set_State_For_Test (S);
 
       Editor.Input_Bridge.Execute_Command_Id
-        (Editor.Commands.Command_Dismiss_Latest_Message);
+        (Editor.Command_Ids.Command_Dismiss_Latest_Message);
       Editor.Input_Bridge.Get_Render_Snapshot (Snap);
       M := Editor.Messages.Active_Message (Snap.Messages, Found);
       Assert (Found and then To_String (M.Text) = "one",
               "Dismiss Latest Message must remove only the newest transient message");
 
       Editor.Input_Bridge.Execute_Command_Id
-        (Editor.Commands.Command_Dismiss_All_Messages);
+        (Editor.Command_Ids.Command_Dismiss_All_Messages);
       Editor.Input_Bridge.Get_Render_Snapshot (Snap);
       Assert (not Editor.Messages.Has_Messages (Snap.Messages),
               "Dismiss All Messages must clear transient message state");
@@ -863,15 +863,15 @@ package body Editor.Command_Palette.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
    begin
-      Assert (Descriptor_Exists (Editor.Commands.Command_Toggle_Bookmark),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Toggle_Bookmark),
               "Toggle Bookmark descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Next_Bookmark),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Next_Bookmark),
               "Next Bookmark descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Previous_Bookmark),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Previous_Bookmark),
               "Previous Bookmark descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Clear_Bookmarks),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Clear_Bookmarks),
               "Clear Buffer Bookmarks descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Clear_All_Bookmarks),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Clear_All_Bookmarks),
               "Clear All Bookmarks descriptor must exist");
    end Test_Bookmark_Command_Descriptors_Exist;
 
@@ -885,7 +885,7 @@ package body Editor.Command_Palette.Tests is
       Editor.State.Load_Text (S, "a" & ASCII.LF & "b" & ASCII.LF & "c");
       Editor.Input_Bridge.Set_State_For_Test (S);
 
-      Editor.Input_Bridge.Execute_Command_Id (Editor.Commands.Command_Toggle_Bookmark);
+      Editor.Input_Bridge.Execute_Command_Id (Editor.Command_Ids.Command_Toggle_Bookmark);
       Editor.Input_Bridge.Get_Render_Snapshot (Snap);
       Assert (Editor.Gutter_Markers.Has_Marker
         (Snap.Gutter_Markers, 0, Editor.Gutter_Markers.Bookmark_Marker),
@@ -896,17 +896,17 @@ package body Editor.Command_Palette.Tests is
       Editor.Gutter_Markers.Add_Marker
         (S.Gutter_Markers, 2, Editor.Gutter_Markers.Bookmark_Marker);
       Editor.Input_Bridge.Set_State_For_Test (S);
-      Editor.Input_Bridge.Execute_Command_Id (Editor.Commands.Command_Next_Bookmark);
+      Editor.Input_Bridge.Execute_Command_Id (Editor.Command_Ids.Command_Next_Bookmark);
       Editor.Input_Bridge.Get_Render_Snapshot (Snap);
       Assert (Snap.Caret_Count > 0 and then Natural (Snap.Caret_Pos (1)) = 4,
               "Next Bookmark command id should move to the next bookmark");
 
-      Editor.Input_Bridge.Execute_Command_Id (Editor.Commands.Command_Previous_Bookmark);
+      Editor.Input_Bridge.Execute_Command_Id (Editor.Command_Ids.Command_Previous_Bookmark);
       Editor.Input_Bridge.Get_Render_Snapshot (Snap);
       Assert (Snap.Caret_Count > 0 and then Natural (Snap.Caret_Pos (1)) = 0,
               "Previous Bookmark command id should move to the previous bookmark");
 
-      Editor.Input_Bridge.Execute_Command_Id (Editor.Commands.Command_Clear_Bookmarks);
+      Editor.Input_Bridge.Execute_Command_Id (Editor.Command_Ids.Command_Clear_Bookmarks);
       Editor.Input_Bridge.Get_Render_Snapshot (Snap);
       Assert (not Editor.Gutter_Markers.Has_Bookmarks (Snap.Gutter_Markers),
               "Clear Buffer Bookmarks command id should remove active-buffer bookmarks");
@@ -914,7 +914,7 @@ package body Editor.Command_Palette.Tests is
       Editor.Gutter_Markers.Add_Marker
         (S.Gutter_Markers, 1, Editor.Gutter_Markers.Bookmark_Marker);
       Editor.Input_Bridge.Set_State_For_Test (S);
-      Editor.Input_Bridge.Execute_Command_Id (Editor.Commands.Command_Clear_All_Bookmarks);
+      Editor.Input_Bridge.Execute_Command_Id (Editor.Command_Ids.Command_Clear_All_Bookmarks);
       Editor.Input_Bridge.Get_Render_Snapshot (Snap);
       Assert (not Editor.Gutter_Markers.Has_Bookmarks (Snap.Gutter_Markers),
               "Clear All Bookmarks command id should remove active-buffer bookmarks");
@@ -961,7 +961,7 @@ package body Editor.Command_Palette.Tests is
       Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
 
       for Candidate of Candidates loop
-         if Candidate.Id = Editor.Commands.Command_Open_Quick_Open then
+         if Candidate.Id = Editor.Command_Ids.Command_Open_Quick_Open then
             Found := True;
             Assert (not Candidate.Available,
                     "Quick Open must be disabled without an open project");
@@ -983,21 +983,21 @@ package body Editor.Command_Palette.Tests is
       Editor.State.Init (S);
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Accept_Quick_Open);
+        (S, Editor.Command_Ids.Command_Accept_Quick_Open);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "Accept Quick Open must be unavailable without active overlay");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "No active overlay",
               "Accept Quick Open must report stable inactive-overlay reason");
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_File_Tree_Expand_Selected);
+        (S, Editor.Command_Ids.Command_File_Tree_Expand_Selected);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "File Tree Expand Selected must be unavailable without project");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "No project open.",
               "File Tree Expand Selected must report stable no-project reason");
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Dismiss_Latest_Message);
+        (S, Editor.Command_Ids.Command_Dismiss_Latest_Message);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "Dismiss Latest Message must be unavailable without messages");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "No messages",
@@ -1089,7 +1089,7 @@ package body Editor.Command_Palette.Tests is
       Editor.Command_Palette.Open;
       Candidates.Append
         (Editor.Commands.Palette_Model.Command_Palette_Candidate'
-           (Id             => Editor.Commands.Command_Save_File,
+           (Id             => Editor.Command_Ids.Command_Save_File,
           Label          => To_Unbounded_String ("Save File"),
           Description    => To_Unbounded_String ("Save the active buffer"),
           Category       => Editor.Commands.Descriptors.File_Category,
@@ -1105,7 +1105,7 @@ package body Editor.Command_Palette.Tests is
           Registry_Order => 1));
       Candidates.Append
         (Editor.Commands.Palette_Model.Command_Palette_Candidate'
-           (Id             => Editor.Commands.Command_Active_Find_Next,
+           (Id             => Editor.Command_Ids.Command_Active_Find_Next,
           Label          => To_Unbounded_String ("Find Next"),
           Description    => To_Unbounded_String ("Move to next match"),
           Category       => Editor.Commands.Descriptors.Search_Category,
@@ -1152,7 +1152,7 @@ package body Editor.Command_Palette.Tests is
       Editor.Command_Palette.Open;
       Candidates.Append
         (Editor.Commands.Palette_Model.Command_Palette_Candidate'
-           (Id             => Editor.Commands.Command_Active_Find_Next,
+           (Id             => Editor.Command_Ids.Command_Active_Find_Next,
           Label          => To_Unbounded_String ("Find Next"),
           Description    => To_Unbounded_String ("Move to next match"),
           Category       => Editor.Commands.Descriptors.Search_Category,
@@ -1168,7 +1168,7 @@ package body Editor.Command_Palette.Tests is
           Registry_Order => 20));
       Candidates.Append
         (Editor.Commands.Palette_Model.Command_Palette_Candidate'
-           (Id             => Editor.Commands.Command_Save_File,
+           (Id             => Editor.Command_Ids.Command_Save_File,
           Label          => To_Unbounded_String ("Save File"),
           Description    => To_Unbounded_String ("Save the active buffer"),
           Category       => Editor.Commands.Descriptors.File_Category,
@@ -1184,7 +1184,7 @@ package body Editor.Command_Palette.Tests is
           Registry_Order => 10));
       Candidates.Append
         (Editor.Commands.Palette_Model.Command_Palette_Candidate'
-           (Id             => Editor.Commands.Command_Save_File_As,
+           (Id             => Editor.Command_Ids.Command_Save_File_As,
           Label          => To_Unbounded_String ("Save As"),
           Description    => To_Unbounded_String ("Save the active buffer to a path"),
           Category       => Editor.Commands.Descriptors.File_Category,
@@ -1229,7 +1229,7 @@ package body Editor.Command_Palette.Tests is
       Editor.Command_Palette.Insert_Text ("save");
       Candidates.Append
         (Editor.Commands.Palette_Model.Command_Palette_Candidate'
-           (Id             => Editor.Commands.Command_Save_File,
+           (Id             => Editor.Command_Ids.Command_Save_File,
           Label          => To_Unbounded_String ("Save File"),
           Description    => To_Unbounded_String ("Save the active buffer"),
           Category       => Editor.Commands.Descriptors.File_Category,
@@ -1245,7 +1245,7 @@ package body Editor.Command_Palette.Tests is
           Registry_Order => 10));
       Candidates.Append
         (Editor.Commands.Palette_Model.Command_Palette_Candidate'
-           (Id             => Editor.Commands.Command_Save_File_As,
+           (Id             => Editor.Command_Ids.Command_Save_File_As,
           Label          => To_Unbounded_String ("Save As"),
           Description    => To_Unbounded_String ("Save the active buffer to a path"),
           Category       => Editor.Commands.Descriptors.File_Category,
@@ -1282,7 +1282,7 @@ package body Editor.Command_Palette.Tests is
       Editor.Command_Palette.Open;
       Candidates.Append
         (Editor.Commands.Palette_Model.Command_Palette_Candidate'
-           (Id             => Editor.Commands.Command_Save_File,
+           (Id             => Editor.Command_Ids.Command_Save_File,
           Label          => To_Unbounded_String ("Save File"),
           Description    => To_Unbounded_String ("Save the active buffer"),
           Category       => Editor.Commands.Descriptors.File_Category,
@@ -1298,7 +1298,7 @@ package body Editor.Command_Palette.Tests is
           Registry_Order => 10));
       Candidates.Append
         (Editor.Commands.Palette_Model.Command_Palette_Candidate'
-           (Id             => Editor.Commands.Command_Active_Find_Next,
+           (Id             => Editor.Command_Ids.Command_Active_Find_Next,
           Label          => To_Unbounded_String ("Find Next"),
           Description    => To_Unbounded_String ("Move to next match"),
           Category       => Editor.Commands.Descriptors.Search_Category,
@@ -1314,7 +1314,7 @@ package body Editor.Command_Palette.Tests is
           Registry_Order => 20));
 
       Editor.Command_Palette.Reconcile_Selection
-        (Candidates, Editor.Commands.Command_Active_Find_Next);
+        (Candidates, Editor.Command_Ids.Command_Active_Find_Next);
       Snapshot := Editor.Command_Palette.Build_Snapshot (Candidates, Config);
       Editor.Command_Palette.Ensure_Selected_Row_Visible (Snapshot, 2);
 
@@ -1333,7 +1333,7 @@ package body Editor.Command_Palette.Tests is
       Editor.Command_Palette.Open;
       Candidates.Append
         (Editor.Commands.Palette_Model.Command_Palette_Candidate'
-           (Id             => Editor.Commands.Command_Save_File,
+           (Id             => Editor.Command_Ids.Command_Save_File,
           Label          => To_Unbounded_String ("Save File"),
           Description    => To_Unbounded_String ("Save the active buffer"),
           Category       => Editor.Commands.Descriptors.File_Category,
@@ -1371,7 +1371,7 @@ package body Editor.Command_Palette.Tests is
       Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
 
       for Candidate of Candidates loop
-         if Candidate.Id = Editor.Commands.Command_Save_File then
+         if Candidate.Id = Editor.Command_Ids.Command_Save_File then
             Found := True;
             Assert (Candidate.Has_Keybinding,
                     "Save File candidate must carry keybinding metadata");
@@ -1399,7 +1399,7 @@ package body Editor.Command_Palette.Tests is
       Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
 
       for Candidate of Candidates loop
-         if Candidate.Id = Editor.Commands.Command_Build_Run then
+         if Candidate.Id = Editor.Command_Ids.Command_Build_Run then
             Found := True;
             Assert (not Candidate.Has_Keybinding,
                     "Unbound command candidate must not report a keybinding");
@@ -1417,7 +1417,7 @@ package body Editor.Command_Palette.Tests is
       pragma Unreferenced (T);
 
       procedure Expect_Descriptor
-        (Id          : Editor.Commands.Command_Id;
+        (Id          : Editor.Command_Ids.Command_Id;
          Label       : String;
          Description : String;
          Category    : Editor.Commands.Descriptors.Command_Category)
@@ -1427,7 +1427,7 @@ package body Editor.Command_Palette.Tests is
       begin
          Assert (To_String (D.Name) = Label,
                  "workflow command label must be explicit for " &
-                 Editor.Commands.Command_Id'Image (Id));
+                 Editor.Command_Ids.Command_Id'Image (Id));
          Assert
            (Ada.Strings.Fixed.Index (To_String (D.Description), Description) /= 0,
             "workflow command description must include '" & Description & "'");
@@ -1438,19 +1438,19 @@ package body Editor.Command_Palette.Tests is
       end Expect_Descriptor;
    begin
       Expect_Descriptor
-        (Editor.Commands.Command_Build_Run,
+        (Editor.Command_Ids.Command_Build_Run,
          "Run Build", "selected build request", Editor.Commands.Descriptors.Project_Category);
       Expect_Descriptor
-        (Editor.Commands.Command_Diagnostics_Show,
+        (Editor.Command_Ids.Command_Diagnostics_Show,
          "Show Diagnostics", "Diagnostics panel", Editor.Commands.Descriptors.Panel_Category);
       Expect_Descriptor
-        (Editor.Commands.Command_Retry_Pending_Transition,
+        (Editor.Command_Ids.Command_Retry_Pending_Transition,
          "Retry Pending Transition", "blocked operation", Editor.Commands.Descriptors.Project_Category);
       Expect_Descriptor
-        (Editor.Commands.Command_Navigation_Back,
+        (Editor.Command_Ids.Command_Navigation_Back,
          "Navigation Back", "previous editor navigation location", Editor.Commands.Descriptors.Navigation_Category);
       Expect_Descriptor
-        (Editor.Commands.Command_Navigation_Forward,
+        (Editor.Command_Ids.Command_Navigation_Forward,
          "Navigation Forward", "next editor navigation location", Editor.Commands.Descriptors.Navigation_Category);
    end Test_Editor_Workflow_Command_Descriptors_Are_Discoverable;
 
@@ -1460,12 +1460,12 @@ package body Editor.Command_Palette.Tests is
       pragma Unreferenced (T);
 
       procedure Expect_Command
-        (Id          : Editor.Commands.Command_Id;
+        (Id          : Editor.Command_Ids.Command_Id;
          Stable_Name : String;
          Category    : Editor.Commands.Descriptors.Command_Category)
       is
          Found     : Boolean := False;
-         Roundtrip : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+         Roundtrip : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
          D         : constant Editor.Commands.Descriptors.Command_Descriptor :=
            Editor.Commands.Descriptors.Descriptor (Id);
       begin
@@ -1490,38 +1490,38 @@ package body Editor.Command_Palette.Tests is
       end Expect_Command;
    begin
       Expect_Command
-        (Editor.Commands.Command_Focus_Problems,
+        (Editor.Command_Ids.Command_Focus_Problems,
          "problems.focus", Editor.Commands.Descriptors.Panel_Category);
       Expect_Command
-        (Editor.Commands.Command_Problems_Open_Selected,
+        (Editor.Command_Ids.Command_Problems_Open_Selected,
          "problems.open-selected", Editor.Commands.Descriptors.Selection_Category);
       Expect_Command
-        (Editor.Commands.Command_Problems_Filter_All,
+        (Editor.Command_Ids.Command_Problems_Filter_All,
          "problems.filter.all", Editor.Commands.Descriptors.Diagnostics_Category);
       Expect_Command
-        (Editor.Commands.Command_Problems_Filter_Errors,
+        (Editor.Command_Ids.Command_Problems_Filter_Errors,
          "problems.filter.errors", Editor.Commands.Descriptors.Diagnostics_Category);
       Expect_Command
-        (Editor.Commands.Command_Problems_Filter_Warnings,
+        (Editor.Command_Ids.Command_Problems_Filter_Warnings,
          "problems.filter.warnings", Editor.Commands.Descriptors.Diagnostics_Category);
       Expect_Command
-        (Editor.Commands.Command_Problems_Filter_Info,
+        (Editor.Command_Ids.Command_Problems_Filter_Info,
          "problems.filter.info", Editor.Commands.Descriptors.Diagnostics_Category);
       Expect_Command
-        (Editor.Commands.Command_Problems_Filter_Hints,
+        (Editor.Command_Ids.Command_Problems_Filter_Hints,
          "problems.filter.hints", Editor.Commands.Descriptors.Diagnostics_Category);
 
       Expect_Command
-        (Editor.Commands.Command_Build_Refresh_Candidates,
+        (Editor.Command_Ids.Command_Build_Refresh_Candidates,
          "build.refresh-candidates", Editor.Commands.Descriptors.Project_Category);
       Expect_Command
-        (Editor.Commands.Command_Build_Select_First_Candidate,
+        (Editor.Command_Ids.Command_Build_Select_First_Candidate,
          "build.select-first-candidate", Editor.Commands.Descriptors.Project_Category);
       Expect_Command
-        (Editor.Commands.Command_Build_Select_Next_Candidate,
+        (Editor.Command_Ids.Command_Build_Select_Next_Candidate,
          "build.select-next-candidate", Editor.Commands.Descriptors.Project_Category);
       Expect_Command
-        (Editor.Commands.Command_Build_Select_Previous_Candidate,
+        (Editor.Command_Ids.Command_Build_Select_Previous_Candidate,
          "build.select-previous-candidate", Editor.Commands.Descriptors.Project_Category);
    end Test_Problems_And_Build_Command_Families_Are_Audited;
 
@@ -1541,7 +1541,7 @@ package body Editor.Command_Palette.Tests is
       Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
 
       for Candidate of Candidates loop
-         if Candidate.Id = Editor.Commands.Command_Open_Quick_Open then
+         if Candidate.Id = Editor.Command_Ids.Command_Open_Quick_Open then
             Found := True;
             Assert (not Candidate.Available,
                     "Quick Open must be unavailable without project");
@@ -1572,7 +1572,7 @@ package body Editor.Command_Palette.Tests is
          Found : Boolean := False;
       begin
          for Candidate of Candidates loop
-            if Candidate.Id = Editor.Commands.Command_Save_File then
+            if Candidate.Id = Editor.Command_Ids.Command_Save_File then
                Found := True;
                Assert (To_String (Candidate.Keybinding_Display) = "Ctrl+S",
                        "Keybinding match must carry active keybinding display");
@@ -1607,7 +1607,7 @@ package body Editor.Command_Palette.Tests is
 
       Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
       for Candidate of Candidates loop
-         if Candidate.Id = Editor.Commands.Command_Save_File then
+         if Candidate.Id = Editor.Command_Ids.Command_Save_File then
             Found_Save := True;
          end if;
       end loop;
@@ -1617,7 +1617,7 @@ package body Editor.Command_Palette.Tests is
       Found_Save := False;
       Editor.Command_Palette.Filtered_Commands (Results);
       for D of Results loop
-         if D.Id = Editor.Commands.Command_Save_File then
+         if D.Id = Editor.Command_Ids.Command_Save_File then
             Found_Save := True;
          end if;
       end loop;
@@ -1638,7 +1638,7 @@ package body Editor.Command_Palette.Tests is
    is
    begin
       return
-        (Id                 => Editor.Commands.Command_Save_File,
+        (Id                 => Editor.Command_Ids.Command_Save_File,
          Label              => To_Unbounded_String (Label),
          Description        => To_Unbounded_String (Description),
          Category           => Editor.Commands.Descriptors.File_Category,
@@ -1868,7 +1868,7 @@ package body Editor.Command_Palette.Tests is
             Binding     => "",
             Description => "Save to a path"));
       Editor.Command_Palette.Reconcile_Selection
-        (Candidates, Editor.Commands.Command_Save_File);
+        (Candidates, Editor.Command_Ids.Command_Save_File);
       Snapshot := Editor.Command_Palette.Build_Snapshot (Candidates, Config);
 
       Assert (Length (Editor.Command_Palette.Row (Snapshot, 2).Secondary_Text) = 0,
@@ -1957,12 +1957,12 @@ package body Editor.Command_Palette.Tests is
       Editor.Command_Palette.Filtered_Commands (Filtered);
       Assert (Filtered.Length > 0,
               "Stable command id query must produce palette descriptors");
-      Assert (Filtered.Element (0).Id = Editor.Commands.Command_Save_File,
+      Assert (Filtered.Element (0).Id = Editor.Command_Ids.Command_Save_File,
               "Stable command id query should match Save File");
 
       Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
       for Candidate of Candidates loop
-         if Candidate.Id = Editor.Commands.Command_Save_File then
+         if Candidate.Id = Editor.Command_Ids.Command_Save_File then
             Found_In_Executor := True;
          end if;
       end loop;
@@ -1973,13 +1973,13 @@ package body Editor.Command_Palette.Tests is
    procedure Test_Query_Change_Preserves_Visible_Command
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Initial_Selected : Editor.Commands.Command_Id;
+      Initial_Selected : Editor.Command_Ids.Command_Id;
    begin
       Editor.Command_Palette.Reset;
       Editor.Command_Palette.Open;
       Editor.Command_Palette.Insert_Text ("save");
       Initial_Selected := Editor.Command_Palette.Current.Selected_Command_Id;
-      Assert (Initial_Selected = Editor.Commands.Command_Save_File,
+      Assert (Initial_Selected = Editor.Command_Ids.Command_Save_File,
               "Initial save query should select Save File");
 
       Editor.Command_Palette.Insert_Text (" file");
@@ -2006,7 +2006,7 @@ package body Editor.Command_Palette.Tests is
       Editor.Command_Palette.Open;
       Candidates.Append
         (Editor.Commands.Palette_Model.Command_Palette_Candidate'
-           (Id                 => Editor.Commands.Command_Save_File,
+           (Id                 => Editor.Command_Ids.Command_Save_File,
           Label              => To_Unbounded_String ("Save File"),
           Description        => To_Unbounded_String ("Save the active buffer"),
           Category           => Editor.Commands.Descriptors.File_Category,
@@ -2046,13 +2046,13 @@ package body Editor.Command_Palette.Tests is
 
       Editor.Command_Palette.Filtered_Commands (Filtered);
       for Descriptor of Filtered loop
-         Assert (Descriptor.Id /= Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam,
+         Assert (Descriptor.Id /= Editor.Command_Ids.Command_Build_Run_User_Opt_In_Test_Seam,
                  "Build test-seam command must not be exposed by descriptor filtering");
       end loop;
 
       Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
       for Candidate of Candidates loop
-         Assert (Candidate.Id /= Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam,
+         Assert (Candidate.Id /= Editor.Command_Ids.Command_Build_Run_User_Opt_In_Test_Seam,
                  "Build test-seam command must not be exposed by executor palette candidates");
       end loop;
    end Test_Palette_Query_Does_Not_Expose_Public_Build;
@@ -2185,7 +2185,7 @@ package body Editor.Command_Palette.Tests is
       Help   : Editor.Command_Palette.Command_Help_Snapshot;
    begin
       Editor.Command_Palette.Reset;
-      Candidate.Id := Editor.Commands.Command_Save_File;
+      Candidate.Id := Editor.Command_Ids.Command_Save_File;
       Candidate.Has_Keybinding := True;
       Candidate.Keybinding_Display := To_Unbounded_String ("Ctrl+S");
 
@@ -2243,7 +2243,7 @@ package body Editor.Command_Palette.Tests is
          Candidates.Clear;
          Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
          for Candidate of Candidates loop
-            if Candidate.Id = Editor.Commands.Command_Save_File then
+            if Candidate.Id = Editor.Command_Ids.Command_Save_File then
                if Candidate.Has_Keybinding then
                   return To_String (Candidate.Keybinding_Display);
                else
@@ -2265,14 +2265,14 @@ package body Editor.Command_Palette.Tests is
 
       Editor.Keybindings.Assign
         (Chord (Editor.Keybindings.Key_S, Ctrl => True, Alt => True),
-         Editor.Commands.Command_Save_File,
+         Editor.Command_Ids.Command_Save_File,
          Status);
       Assert (Status = Editor.Keybindings.Keybinding_Change_Ok,
               "Assigning a replacement Save File shortcut must succeed");
       Assert (Save_Binding = "Ctrl+Alt+S",
               "Assigned shortcut should immediately appear in palette candidates");
 
-      Editor.Keybindings.Unbind_Command (Editor.Commands.Command_Save_File);
+      Editor.Keybindings.Unbind_Command (Editor.Command_Ids.Command_Save_File);
       Assert (Save_Binding = "",
               "Removing a command shortcut should remove palette shortcut display");
 
@@ -2287,13 +2287,13 @@ package body Editor.Command_Palette.Tests is
       pragma Unreferenced (T);
    begin
       Assert (Editor.Commands.Descriptors.Discoverability_Category_Label
-                (Editor.Commands.Command_Build_Run) = "Build",
+                (Editor.Command_Ids.Command_Build_Run) = "Build",
               "Build commands must present a Build discoverability category");
       Assert (Editor.Commands.Descriptors.Discoverability_Category_Label
-                (Editor.Commands.Command_Show_Recent_Projects) = "Recent Projects",
+                (Editor.Command_Ids.Command_Show_Recent_Projects) = "Recent Projects",
               "Recent Project commands must present a Recent Projects category");
       Assert (Editor.Commands.Descriptors.Discoverability_Category_Label
-                (Editor.Commands.Command_Open_Command_Palette) = "Command Palette",
+                (Editor.Command_Ids.Command_Open_Command_Palette) = "Command Palette",
               "Command palette commands must present a Command Palette category");
    end Test_Discoverability_Category_Refinements;
 
@@ -2311,7 +2311,7 @@ package body Editor.Command_Palette.Tests is
       Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
 
       for Candidate of Candidates loop
-         if Candidate.Id = Editor.Commands.Command_Build_Run then
+         if Candidate.Id = Editor.Command_Ids.Command_Build_Run then
             Found_Build_Run := True;
             Assert (To_String (Candidate.Category_Label) = "Build",
                     "Build Run candidate must display the refined Build category label");
@@ -2336,7 +2336,7 @@ package body Editor.Command_Palette.Tests is
            Reason      => "Consent required");
       Help : Editor.Command_Palette.Command_Help_Snapshot;
    begin
-      Candidate.Id := Editor.Commands.Command_Build_Run;
+      Candidate.Id := Editor.Command_Ids.Command_Build_Run;
       Candidate.Category_Label := To_Unbounded_String ("Build");
       Candidate.Has_Keybinding := False;
 
@@ -2369,7 +2369,7 @@ package body Editor.Command_Palette.Tests is
            Reason      => "Consent required");
       Help : Editor.Command_Palette.Command_Help_Snapshot;
    begin
-      Candidate.Id := Editor.Commands.Command_Build_Run;
+      Candidate.Id := Editor.Command_Ids.Command_Build_Run;
       Candidate.Category_Label := To_Unbounded_String ("Build");
       Help := Editor.Command_Palette.Build_Command_Help (Candidate);
 
@@ -2393,7 +2393,7 @@ package body Editor.Command_Palette.Tests is
       pragma Unreferenced (T);
 
       function Help_For
-        (Command : Editor.Commands.Command_Id;
+        (Command : Editor.Command_Ids.Command_Id;
          Label   : String) return Editor.Command_Palette.Command_Help_Snapshot
       is
          Candidate : Editor.Commands.Palette_Model.Command_Palette_Candidate :=
@@ -2412,46 +2412,46 @@ package body Editor.Command_Palette.Tests is
       Help : Editor.Command_Palette.Command_Help_Snapshot;
    begin
       Help := Help_For
-        (Editor.Commands.Command_Problems_Filter_Errors,
+        (Editor.Command_Ids.Command_Problems_Filter_Errors,
          "Show Problem Errors");
       Assert (Help_Has_Related_Command
-                (Help, Editor.Commands.Command_Problems_Sort_By_Severity),
+                (Help, Editor.Command_Ids.Command_Problems_Sort_By_Severity),
               "Problems filter help should point to sort controls");
       Assert (Help_Has_Related_Command
-                (Help, Editor.Commands.Command_Problems_Group_By_Source),
+                (Help, Editor.Command_Ids.Command_Problems_Group_By_Source),
               "Problems filter help should point to group controls");
 
       Help := Help_For
-        (Editor.Commands.Command_Diagnostics_Show,
+        (Editor.Command_Ids.Command_Diagnostics_Show,
          "Show Diagnostics");
       Assert (Help_Has_Related_Command
-                (Help, Editor.Commands.Command_Diagnostics_Open_Selected),
+                (Help, Editor.Command_Ids.Command_Diagnostics_Open_Selected),
               "Diagnostics help should point to open selected diagnostic");
       Assert (Help_Has_Related_Command
-                (Help, Editor.Commands.Command_Diagnostic_Open_Source),
+                (Help, Editor.Command_Ids.Command_Diagnostic_Open_Source),
               "Diagnostics help should point to diagnostic row source action");
       Assert (Help_Has_Related_Command
-                (Help, Editor.Commands.Command_Diagnostic_Show_Suppressed),
+                (Help, Editor.Command_Ids.Command_Diagnostic_Show_Suppressed),
               "Diagnostics help should point to suppressed diagnostic review");
       Assert (Help_Has_Related_Command
-                (Help, Editor.Commands.Command_Problems_Filter_Errors),
+                (Help, Editor.Command_Ids.Command_Problems_Filter_Errors),
               "Diagnostics help should point to Problems review controls");
 
       Help := Help_For
-        (Editor.Commands.Command_Build_UI_Show,
+        (Editor.Command_Ids.Command_Build_UI_Show,
          "Show Build Output");
       Assert (Help_Has_Related_Command
-                (Help, Editor.Commands.Command_Build_Refresh_Candidates),
+                (Help, Editor.Command_Ids.Command_Build_Refresh_Candidates),
               "Build UI help should point to refresh candidates");
       Assert (Help_Has_Related_Command
-                (Help, Editor.Commands.Command_Build_Run),
+                (Help, Editor.Command_Ids.Command_Build_Run),
               "Build UI help should point to run build");
 
       Help := Help_For
-        (Editor.Commands.Command_Refresh_File_Tree,
+        (Editor.Command_Ids.Command_Refresh_File_Tree,
          "Refresh File Tree");
       Assert (Help_Has_Related_Command
-                (Help, Editor.Commands.Command_Open_Quick_Open),
+                (Help, Editor.Command_Ids.Command_Open_Quick_Open),
               "File tree help should point to Quick Open");
    end Test_Related_Command_Help_Covers_Editor_Workflow_Families;
 
@@ -2459,10 +2459,10 @@ package body Editor.Command_Palette.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Item : Editor.Command_Palette.Related_Command_Help_Item :=
-        (Command         => Editor.Commands.Command_Open_Project,
+        (Command         => Editor.Command_Ids.Command_Open_Project,
          Stable_Name     => To_Unbounded_String ("project.open:/tmp/project"),
          Title           => Editor.Commands.Descriptors.Descriptor
-                              (Editor.Commands.Command_Open_Project).Name,
+                              (Editor.Command_Ids.Command_Open_Project).Name,
          Visible         => True,
          Carries_Payload => False);
    begin
@@ -2486,7 +2486,7 @@ package body Editor.Command_Palette.Tests is
            Reason      => "");
       Help : Editor.Command_Palette.Command_Help_Snapshot;
    begin
-      Candidate.Id := Editor.Commands.Command_Open_Project;
+      Candidate.Id := Editor.Command_Ids.Command_Open_Project;
       Candidate.Category_Label := To_Unbounded_String ("Project");
       Help := Editor.Command_Palette.Build_Command_Help (Candidate);
 
@@ -2510,7 +2510,7 @@ package body Editor.Command_Palette.Tests is
            Reason      => "Consent required");
       Help : Editor.Command_Palette.Command_Help_Snapshot;
    begin
-      Candidate.Id := Editor.Commands.Command_Build_Run;
+      Candidate.Id := Editor.Command_Ids.Command_Build_Run;
       Candidate.Category_Label := To_Unbounded_String ("Build");
       Help := Editor.Command_Palette.Build_Command_Help (Candidate);
 
@@ -2552,7 +2552,7 @@ package body Editor.Command_Palette.Tests is
       Outline_Surface := Editor.Status_Bar.Outline_Surface (Snapshot);
       Workspace_Surface := Editor.Status_Bar.Workspace_Surface (Snapshot);
 
-      Candidate.Id := Editor.Commands.Command_Refresh_Outline;
+      Candidate.Id := Editor.Command_Ids.Command_Refresh_Outline;
       Candidate.Category_Label := To_Unbounded_String ("Navigate");
       Help := Editor.Command_Palette.Build_Command_Help (Candidate);
 
@@ -2563,7 +2563,7 @@ package body Editor.Command_Palette.Tests is
         (Help, Outline_Surface.Reveal_Current_Command,
          "outline help must include status surface reveal-current action");
 
-      Candidate.Id := Editor.Commands.Command_Restore_Workspace_State;
+      Candidate.Id := Editor.Command_Ids.Command_Restore_Workspace_State;
       Candidate.Label := To_Unbounded_String ("Restore Workspace State");
       Candidate.Category_Label := To_Unbounded_String ("Workspace");
       Help := Editor.Command_Palette.Build_Command_Help (Candidate);
@@ -2592,7 +2592,7 @@ package body Editor.Command_Palette.Tests is
            Description => "Submit the transient structured build request",
            Reason      => "Consent required");
    begin
-      Candidate.Id := Editor.Commands.Command_Build_Run;
+      Candidate.Id := Editor.Command_Ids.Command_Build_Run;
       Candidate.Category_Label := To_Unbounded_String ("Build");
       Candidate.Has_Keybinding := False;
       Candidates.Append (Candidate);
@@ -2600,7 +2600,7 @@ package body Editor.Command_Palette.Tests is
       Editor.Command_Palette.Reset;
       Editor.Command_Palette.Open;
       Editor.Command_Palette.Set_Command_State_Context
-        (Editor.Commands.Command_Build_Run, "Current Build UI state: visible.");
+        (Editor.Command_Ids.Command_Build_Run, "Current Build UI state: visible.");
       Config.Show_Help_Row := True;
       Snapshot := Editor.Command_Palette.Build_Snapshot (Candidates, Config);
 
@@ -2650,10 +2650,10 @@ package body Editor.Command_Palette.Tests is
       Assert (Editor.Commands.Audits.Command_Discoverability_Coherent,
               "command discoverability metadata must be coherent");
       Assert (Editor.Commands.Audits.Has_Discoverability_Metadata
-                (Editor.Commands.Command_Build_Run),
+                (Editor.Command_Ids.Command_Build_Run),
               "Build Run must have complete discoverability metadata");
       Assert (not Editor.Commands.Classification.Visible_In_Command_Palette
-                (Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam),
+                (Editor.Command_Ids.Command_Build_Run_User_Opt_In_Test_Seam),
               "Internal build test-seam commands must stay hidden from normal palette discovery");
    end Test_Discoverability_Metadata_Audit;
 
@@ -2670,7 +2670,7 @@ package body Editor.Command_Palette.Tests is
       Editor.Command_Palette.Insert_Text ("Ctrl+Alt+S");
       Editor.Command_Palette.Filtered_Commands (Results);
       for D of Results loop
-         if D.Id = Editor.Commands.Command_Save_File then
+         if D.Id = Editor.Command_Ids.Command_Save_File then
             Found_Save := True;
          end if;
       end loop;
@@ -2680,14 +2680,14 @@ package body Editor.Command_Palette.Tests is
 
       Editor.Keybindings.Assign
         (Chord (Editor.Keybindings.Key_S, Ctrl => True, Alt => True),
-         Editor.Commands.Command_Save_File,
+         Editor.Command_Ids.Command_Save_File,
          Status);
       Assert (Status = Editor.Keybindings.Keybinding_Change_Ok,
               "Rebinding Save File to Ctrl+Alt+S must succeed");
 
       Editor.Command_Palette.Filtered_Commands (Results);
       for D of Results loop
-         if D.Id = Editor.Commands.Command_Save_File then
+         if D.Id = Editor.Command_Ids.Command_Save_File then
             Found_Save := True;
          end if;
       end loop;
@@ -2775,7 +2775,7 @@ package body Editor.Command_Palette.Tests is
       Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
 
       for Candidate of Candidates loop
-         if Candidate.Id = Editor.Commands.Command_Palette_Show_Command_Help then
+         if Candidate.Id = Editor.Command_Ids.Command_Palette_Show_Command_Help then
             Found := True;
             Assert (To_String (Candidate.Category_Label) = "Command Palette",
                     "Help command must use the Command Palette discoverability category");
@@ -2787,7 +2787,7 @@ package body Editor.Command_Palette.Tests is
       Assert (Found,
               "Stable command name search must find command-palette.show-command-help");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Palette_Show_Command_Help) =
+                (Editor.Command_Ids.Command_Palette_Show_Command_Help) =
               "command-palette.show-command-help",
               "Help command must have the requested stable command name");
 
@@ -2795,7 +2795,7 @@ package body Editor.Command_Palette.Tests is
       Assert (not Before.Show_Help_Row,
               "Help rows start disabled before executing the help command");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Palette_Show_Command_Help);
+        (S, Editor.Command_Ids.Command_Palette_Show_Command_Help);
       After := Editor.Command_Palette.Current_Config;
       Assert (After.Show_Help_Row,
               "Executing the help command must toggle only transient help display state");
@@ -2814,7 +2814,7 @@ package body Editor.Command_Palette.Tests is
       Editor.State.Init (S);
       Editor.Command_Palette.Reset;
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Palette_Show_Command_Help);
+        (S, Editor.Command_Ids.Command_Palette_Show_Command_Help);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
               "Command help display is palette-local and must be unavailable while the palette is closed");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability) = "Command Palette closed.",
@@ -2822,14 +2822,14 @@ package body Editor.Command_Palette.Tests is
 
       Before := Editor.Command_Palette.Current_Config;
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Palette_Show_Command_Help);
+        (S, Editor.Command_Ids.Command_Palette_Show_Command_Help);
       After := Editor.Command_Palette.Current_Config;
       Assert (Before.Show_Help_Row = After.Show_Help_Row,
               "Executing unavailable command help must not mutate transient help state");
 
       Editor.Command_Palette.Open;
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Palette_Show_Command_Help);
+        (S, Editor.Command_Ids.Command_Palette_Show_Command_Help);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
               "Command help display should become available when the palette is open");
       Editor.Command_Palette.Reset;
@@ -2862,9 +2862,9 @@ package body Editor.Command_Palette.Tests is
            Description => "Toggle help for the selected command",
            Reason      => "");
    begin
-      Hidden_Unavailable.Id := Editor.Commands.Command_Save_File;
-      First_Visible.Id := Editor.Commands.Command_Open_Command_Palette;
-      Second_Visible.Id := Editor.Commands.Command_Palette_Show_Command_Help;
+      Hidden_Unavailable.Id := Editor.Command_Ids.Command_Save_File;
+      First_Visible.Id := Editor.Command_Ids.Command_Open_Command_Palette;
+      Second_Visible.Id := Editor.Command_Ids.Command_Palette_Show_Command_Help;
 
       Editor.Command_Palette.Reset;
       Editor.Command_Palette.Open;
@@ -2875,12 +2875,12 @@ package body Editor.Command_Palette.Tests is
 
       Editor.Command_Palette.Reconcile_Selection (Candidates);
       Assert (Editor.Command_Palette.Current.Selected_Command_Id =
-                Editor.Commands.Command_Open_Command_Palette,
+                Editor.Command_Ids.Command_Open_Command_Palette,
               "Selection should start on the first rendered visible command");
 
       Editor.Command_Palette.Move_Selection_By_Candidates (Candidates, 1);
       Assert (Editor.Command_Palette.Current.Selected_Command_Id =
-                Editor.Commands.Command_Palette_Show_Command_Help,
+                Editor.Command_Ids.Command_Palette_Show_Command_Help,
               "Keyboard selection must move through rendered visible candidates and skip hidden unavailable commands");
       Editor.Command_Palette.Reset;
    end Test_Keyboard_Selection_Uses_Visible_Candidates;
@@ -2897,7 +2897,7 @@ package body Editor.Command_Palette.Tests is
            Reason      => "No file tree selection");
       Help : Editor.Command_Palette.Command_Help_Snapshot;
    begin
-      Candidate.Id := Editor.Commands.Command_File_Tree_Delete_Selected;
+      Candidate.Id := Editor.Command_Ids.Command_File_Tree_Delete_Selected;
       Candidate.Category_Label := To_Unbounded_String ("File Tree");
       Candidate.Has_Keybinding := False;
 
@@ -2952,10 +2952,10 @@ package body Editor.Command_Palette.Tests is
            Description => "Run the configured build request.",
            Reason      => "Consent required");
    begin
-      Available_Candidate.Id := Editor.Commands.Command_Save_File;
+      Available_Candidate.Id := Editor.Command_Ids.Command_Save_File;
       Available_Candidate.Category_Label := To_Unbounded_String ("File");
       Available_Candidate.Has_Keybinding := True;
-      Unavailable_Candidate.Id := Editor.Commands.Command_Build_Run;
+      Unavailable_Candidate.Id := Editor.Command_Ids.Command_Build_Run;
       Unavailable_Candidate.Category_Label := To_Unbounded_String ("Build");
       Unavailable_Candidate.Has_Keybinding := False;
       Candidates.Append (Unavailable_Candidate);
@@ -2968,12 +2968,12 @@ package body Editor.Command_Palette.Tests is
 
       Assert (Natural (Visible.Length) = 1,
               "Visible candidate projection must honor hidden unavailable commands");
-      Assert (Visible.Element (0).Id = Editor.Commands.Command_Save_File,
+      Assert (Visible.Element (0).Id = Editor.Command_Ids.Command_Save_File,
               "Filtered visible candidate sequence must match rendered rows");
 
       Editor.Command_Palette.Reconcile_Selection (Candidates);
       Assert (Editor.Command_Palette.Current.Selected_Command_Id =
-                Editor.Commands.Command_Save_File,
+                Editor.Command_Ids.Command_Save_File,
               "Selection reconciliation must not keep a hidden unavailable command selected");
 
       Config.Show_Unavailable_Commands := False;
@@ -2981,7 +2981,7 @@ package body Editor.Command_Palette.Tests is
       Assert (Editor.Command_Palette.Candidate_Count (Snapshot) = 1,
               "Snapshot candidates must match visible rendered candidate sequence");
       Assert (Editor.Command_Palette.Candidate (Snapshot, 0).Id =
-                Editor.Commands.Command_Save_File,
+                Editor.Command_Ids.Command_Save_File,
               "Snapshot must expose the same command that input can execute");
       Editor.Command_Palette.Reset;
    end Test_Visibility_Filter_Controls_Selection_And_Snapshot;
@@ -3009,10 +3009,10 @@ package body Editor.Command_Palette.Tests is
            Reason      => "Consent required");
       Found_Selected_Save : Boolean := False;
    begin
-      Save_Candidate.Id := Editor.Commands.Command_Save_File;
+      Save_Candidate.Id := Editor.Command_Ids.Command_Save_File;
       Save_Candidate.Category_Label := To_Unbounded_String ("File");
       Save_Candidate.Has_Keybinding := True;
-      Build_Candidate.Id := Editor.Commands.Command_Build_Run;
+      Build_Candidate.Id := Editor.Command_Ids.Command_Build_Run;
       Build_Candidate.Category_Label := To_Unbounded_String ("Build");
       Build_Candidate.Has_Keybinding := False;
 
@@ -3024,11 +3024,11 @@ package body Editor.Command_Palette.Tests is
       Editor.Command_Palette.Set_Show_Unavailable_Commands (True);
       Editor.Command_Palette.Reconcile_Selection
         (Candidates,
-         Preferred_Command      => Editor.Commands.Command_Build_Run,
+         Preferred_Command      => Editor.Command_Ids.Command_Build_Run,
          Prefer_First_Available => False);
 
       Assert (Editor.Command_Palette.Current.Selected_Command_Id =
-                Editor.Commands.Command_Build_Run,
+                Editor.Command_Ids.Command_Build_Run,
               "Test setup must select the second, later-hidden command");
 
       Config.Show_Unavailable_Commands := False;
@@ -3086,10 +3086,10 @@ package body Editor.Command_Palette.Tests is
       pragma Unreferenced (T);
    begin
       Assert (Editor.Commands.Audits.Has_Discoverability_Metadata
-                (Editor.Commands.Command_Open_Command_Palette),
+                (Editor.Command_Ids.Command_Open_Command_Palette),
               "Hidden command descriptors may be minimal but must retain stable audit identity");
       Assert (not Editor.Commands.Classification.Visible_In_Command_Palette
-                (Editor.Commands.Command_Open_Command_Palette),
+                (Editor.Command_Ids.Command_Open_Command_Palette),
               "Hidden command descriptors must not leak into normal palette discovery");
       Assert (Editor.Commands.Audits.Command_Discoverability_Coherent,
               "Discovery coherence must validate visible metadata and hidden exclusion together");
@@ -3125,7 +3125,7 @@ package body Editor.Command_Palette.Tests is
 
       function Result_Contains
         (Results : Editor.Commands.Descriptors.Command_Descriptor_Vectors.Vector;
-         Id      : Editor.Commands.Command_Id) return Boolean
+         Id      : Editor.Command_Ids.Command_Id) return Boolean
       is
       begin
          for D of Results loop
@@ -3138,7 +3138,7 @@ package body Editor.Command_Palette.Tests is
 
       procedure Assert_Query_Finds
         (Query : String;
-         Id    : Editor.Commands.Command_Id;
+         Id    : Editor.Command_Ids.Command_Id;
          Label : String)
       is
          Results : Editor.Commands.Descriptors.Command_Descriptor_Vectors.Vector;
@@ -3154,60 +3154,60 @@ package body Editor.Command_Palette.Tests is
       end Assert_Query_Finds;
    begin
       Assert_Query_Finds
-        ("open", Editor.Commands.Command_Open_Project, "Open Project");
+        ("open", Editor.Command_Ids.Command_Open_Project, "Open Project");
       Assert_Query_Finds
-        ("save", Editor.Commands.Command_Save_File, "Save File");
+        ("save", Editor.Command_Ids.Command_Save_File, "Save File");
       Assert_Query_Finds
-        ("build", Editor.Commands.Command_Build_Run, "Run Build");
+        ("build", Editor.Command_Ids.Command_Build_Run, "Run Build");
       Assert_Query_Finds
-        ("run", Editor.Commands.Command_Run_Project, "Run Project");
+        ("run", Editor.Command_Ids.Command_Run_Project, "Run Project");
       Assert_Query_Finds
-        ("tests", Editor.Commands.Command_Run_Tests, "Run Tests");
+        ("tests", Editor.Command_Ids.Command_Run_Tests, "Run Tests");
       Assert_Query_Finds
-        ("terminal", Editor.Commands.Command_Terminal_Show, "Show Terminal");
+        ("terminal", Editor.Command_Ids.Command_Terminal_Show, "Show Terminal");
       Assert_Query_Finds
-        ("rename", Editor.Commands.Command_Rename_Symbol_Preview,
+        ("rename", Editor.Command_Ids.Command_Rename_Symbol_Preview,
          "Preview Rename Symbol");
       Assert_Query_Finds
-        ("format", Editor.Commands.Command_Format_Buffer, "Format Buffer");
+        ("format", Editor.Command_Ids.Command_Format_Buffer, "Format Buffer");
       Assert_Query_Finds
-        ("search", Editor.Commands.Command_Open_Project_Search_Bar,
+        ("search", Editor.Command_Ids.Command_Open_Project_Search_Bar,
          "Show Project Search");
       Assert_Query_Finds
-        ("outline", Editor.Commands.Command_Refresh_Outline,
+        ("outline", Editor.Command_Ids.Command_Refresh_Outline,
          "Refresh Outline");
       Assert_Query_Finds
-        ("diagnostics", Editor.Commands.Command_Diagnostics_Show,
+        ("diagnostics", Editor.Command_Ids.Command_Diagnostics_Show,
          "Show Diagnostics");
       Assert_Query_Finds
-        ("problems", Editor.Commands.Command_Problems_Filter_Errors,
+        ("problems", Editor.Command_Ids.Command_Problems_Filter_Errors,
          "Show Problem Errors");
       Assert_Query_Finds
-        ("errors", Editor.Commands.Command_Problems_Filter_Errors,
+        ("errors", Editor.Command_Ids.Command_Problems_Filter_Errors,
          "Show Problem Errors");
       Assert_Query_Finds
-        ("warnings", Editor.Commands.Command_Problems_Filter_Warnings,
+        ("warnings", Editor.Command_Ids.Command_Problems_Filter_Warnings,
          "Show Problem Warnings");
       Assert_Query_Finds
-        ("buffer", Editor.Commands.Command_Open_Buffer_Switcher,
+        ("buffer", Editor.Command_Ids.Command_Open_Buffer_Switcher,
          "Show Open Buffer List");
       Assert_Query_Finds
-        ("command", Editor.Commands.Command_Palette_Show_Command_Help,
+        ("command", Editor.Command_Ids.Command_Palette_Show_Command_Help,
          "Command Palette Help");
       Assert_Query_Finds
-        ("file", Editor.Commands.Command_Open_Quick_Open,
+        ("file", Editor.Command_Ids.Command_Open_Quick_Open,
          "Quick Open");
       Assert_Query_Finds
-        ("navigation", Editor.Commands.Command_Navigation_Back,
+        ("navigation", Editor.Command_Ids.Command_Navigation_Back,
          "Navigation Back");
       Assert_Query_Finds
-        ("workspace", Editor.Commands.Command_Save_Workspace_State,
+        ("workspace", Editor.Command_Ids.Command_Save_Workspace_State,
          "Save Workspace State");
       Assert_Query_Finds
-        ("recovery", Editor.Commands.Command_Configuration_Recover_Show,
+        ("recovery", Editor.Command_Ids.Command_Configuration_Recover_Show,
          "Show Configuration Recovery");
       Assert_Query_Finds
-        ("settings", Editor.Commands.Command_Reset_Settings_To_Defaults,
+        ("settings", Editor.Command_Ids.Command_Reset_Settings_To_Defaults,
          "Reset Settings to Defaults");
    end Test_Common_User_Terms_Discover_Core_Commands;
 
@@ -3217,14 +3217,14 @@ package body Editor.Command_Palette.Tests is
 
       procedure Assert_Query_Ranks_First
         (Query : String;
-         Id    : Editor.Commands.Command_Id;
+         Id    : Editor.Command_Ids.Command_Id;
          Label : String)
       is
          S : Editor.State.State_Type;
          Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
          Stable : constant String := Editor.Commands.Name_Metadata.Stable_Command_Name (Id);
          Found : Boolean := False;
-         Roundtrip : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+         Roundtrip : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       begin
          Roundtrip := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Stable, Found);
          Assert (Found and then Roundtrip = Id,
@@ -3244,30 +3244,30 @@ package body Editor.Command_Palette.Tests is
       end Assert_Query_Ranks_First;
    begin
       Assert_Query_Ranks_First
-        ("open", Editor.Commands.Command_Open_Project, "Open Project");
+        ("open", Editor.Command_Ids.Command_Open_Project, "Open Project");
       Assert_Query_Ranks_First
-        ("save", Editor.Commands.Command_Save_File, "Save File");
+        ("save", Editor.Command_Ids.Command_Save_File, "Save File");
       Assert_Query_Ranks_First
-        ("file", Editor.Commands.Command_Open_Quick_Open, "Quick Open");
+        ("file", Editor.Command_Ids.Command_Open_Quick_Open, "Quick Open");
       Assert_Query_Ranks_First
-        ("build", Editor.Commands.Command_Build_Run, "Run Build");
+        ("build", Editor.Command_Ids.Command_Build_Run, "Run Build");
       Assert_Query_Ranks_First
-        ("search", Editor.Commands.Command_Open_Project_Search_Bar,
+        ("search", Editor.Command_Ids.Command_Open_Project_Search_Bar,
          "Show Project Search");
       Assert_Query_Ranks_First
-        ("outline", Editor.Commands.Command_Refresh_Outline,
+        ("outline", Editor.Command_Ids.Command_Refresh_Outline,
          "Refresh Outline");
       Assert_Query_Ranks_First
-        ("diagnostics", Editor.Commands.Command_Diagnostics_Show,
+        ("diagnostics", Editor.Command_Ids.Command_Diagnostics_Show,
          "Show Diagnostics");
       Assert_Query_Ranks_First
-        ("navigation", Editor.Commands.Command_Navigation_Back,
+        ("navigation", Editor.Command_Ids.Command_Navigation_Back,
          "Navigation Back");
       Assert_Query_Ranks_First
-        ("workspace", Editor.Commands.Command_Save_Workspace_State,
+        ("workspace", Editor.Command_Ids.Command_Save_Workspace_State,
          "Save Workspace State");
       Assert_Query_Ranks_First
-        ("settings", Editor.Commands.Command_Reset_Settings_To_Defaults,
+        ("settings", Editor.Command_Ids.Command_Reset_Settings_To_Defaults,
          "Reset Settings to Defaults");
    end Test_Common_User_Terms_Rank_Daily_Commands_First;
 
@@ -3277,7 +3277,7 @@ package body Editor.Command_Palette.Tests is
 
       procedure Assert_Query_Ranks_First
         (Query : String;
-         Id    : Editor.Commands.Command_Id;
+         Id    : Editor.Command_Ids.Command_Id;
          Label : String)
       is
          S : Editor.State.State_Type;
@@ -3297,40 +3297,40 @@ package body Editor.Command_Palette.Tests is
       end Assert_Query_Ranks_First;
    begin
       Assert_Query_Ranks_First
-        ("run tests", Editor.Commands.Command_Run_Tests,
+        ("run tests", Editor.Command_Ids.Command_Run_Tests,
          "Run Tests");
       Assert_Query_Ranks_First
-        ("open file", Editor.Commands.Command_Open_Quick_Open,
+        ("open file", Editor.Command_Ids.Command_Open_Quick_Open,
          "Quick Open");
       Assert_Query_Ranks_First
-        ("show diagnostics", Editor.Commands.Command_Diagnostics_Show,
+        ("show diagnostics", Editor.Command_Ids.Command_Diagnostics_Show,
          "Show Diagnostics");
       Assert_Query_Ranks_First
-        ("issues", Editor.Commands.Command_Diagnostics_Show,
+        ("issues", Editor.Command_Ids.Command_Diagnostics_Show,
          "Show Diagnostics");
       Assert_Query_Ranks_First
-        ("compile", Editor.Commands.Command_Build_Run,
+        ("compile", Editor.Command_Ids.Command_Build_Run,
          "Run Build");
       Assert_Query_Ranks_First
-        ("make", Editor.Commands.Command_Build_Run,
+        ("make", Editor.Command_Ids.Command_Build_Run,
          "Run Build");
       Assert_Query_Ranks_First
-        ("refresh project", Editor.Commands.Command_Refresh_File_Tree,
+        ("refresh project", Editor.Command_Ids.Command_Refresh_File_Tree,
          "Refresh File Tree");
       Assert_Query_Ranks_First
-        ("filter errors", Editor.Commands.Command_Problems_Filter_Errors,
+        ("filter errors", Editor.Command_Ids.Command_Problems_Filter_Errors,
          "Show Problem Errors");
       Assert_Query_Ranks_First
-        ("sort problems", Editor.Commands.Command_Problems_Sort_By_Severity,
+        ("sort problems", Editor.Command_Ids.Command_Problems_Sort_By_Severity,
          "Sort Problems by Severity");
       Assert_Query_Ranks_First
-        ("group problems", Editor.Commands.Command_Problems_Group_By_Source,
+        ("group problems", Editor.Command_Ids.Command_Problems_Group_By_Source,
          "Group Problems by Source");
       Assert_Query_Ranks_First
-        ("restore workspace", Editor.Commands.Command_Restore_Workspace_State,
+        ("restore workspace", Editor.Command_Ids.Command_Restore_Workspace_State,
          "Restore Workspace State");
       Assert_Query_Ranks_First
-        ("open session", Editor.Commands.Command_Restore_Workspace_State,
+        ("open session", Editor.Command_Ids.Command_Restore_Workspace_State,
          "Restore Workspace State");
    end Test_Multi_Word_User_Intents_Rank_Daily_Commands_First;
 
@@ -3340,7 +3340,7 @@ package body Editor.Command_Palette.Tests is
 
       procedure Assert_Query_Top_Band_Contains
         (Query : String;
-         Id    : Editor.Commands.Command_Id;
+         Id    : Editor.Command_Ids.Command_Id;
          Label : String)
       is
          S : Editor.State.State_Type;
@@ -3370,77 +3370,77 @@ package body Editor.Command_Palette.Tests is
       end Assert_Query_Top_Band_Contains;
    begin
       Assert_Query_Top_Band_Contains
-        ("file", Editor.Commands.Command_Open_Quick_Open, "Quick Open");
+        ("file", Editor.Command_Ids.Command_Open_Quick_Open, "Quick Open");
       Assert_Query_Top_Band_Contains
-        ("file", Editor.Commands.Command_Save_File, "Save File");
+        ("file", Editor.Command_Ids.Command_Save_File, "Save File");
       Assert_Query_Top_Band_Contains
-        ("search", Editor.Commands.Command_Open_Project_Search_Bar,
+        ("search", Editor.Command_Ids.Command_Open_Project_Search_Bar,
          "Show Project Search");
       Assert_Query_Top_Band_Contains
-        ("search", Editor.Commands.Command_Run_Project_Search,
+        ("search", Editor.Command_Ids.Command_Run_Project_Search,
          "Run Project Search");
       Assert_Query_Top_Band_Contains
-        ("run", Editor.Commands.Command_Run_Project,
+        ("run", Editor.Command_Ids.Command_Run_Project,
          "Run Project");
       Assert_Query_Top_Band_Contains
-        ("run", Editor.Commands.Command_Terminal_Run_Selected_Task,
+        ("run", Editor.Command_Ids.Command_Terminal_Run_Selected_Task,
          "Terminal: Run Selected Task");
       Assert_Query_Top_Band_Contains
-        ("tests", Editor.Commands.Command_Run_Tests,
+        ("tests", Editor.Command_Ids.Command_Run_Tests,
          "Run Tests");
       Assert_Query_Top_Band_Contains
-        ("terminal", Editor.Commands.Command_Terminal_Show,
+        ("terminal", Editor.Command_Ids.Command_Terminal_Show,
          "Show Terminal");
       Assert_Query_Top_Band_Contains
-        ("terminal", Editor.Commands.Command_Terminal_Run_Selected_Task,
+        ("terminal", Editor.Command_Ids.Command_Terminal_Run_Selected_Task,
          "Terminal: Run Selected Task");
       Assert_Query_Top_Band_Contains
-        ("rename", Editor.Commands.Command_Rename_Symbol_Preview,
+        ("rename", Editor.Command_Ids.Command_Rename_Symbol_Preview,
          "Preview Rename Symbol");
       Assert_Query_Top_Band_Contains
-        ("rename", Editor.Commands.Command_Rename_Symbol_Apply,
+        ("rename", Editor.Command_Ids.Command_Rename_Symbol_Apply,
          "Apply Rename Symbol");
       Assert_Query_Top_Band_Contains
-        ("format", Editor.Commands.Command_Format_Buffer,
+        ("format", Editor.Command_Ids.Command_Format_Buffer,
          "Format Buffer");
       Assert_Query_Top_Band_Contains
-        ("format", Editor.Commands.Command_Format_Selected_Text,
+        ("format", Editor.Command_Ids.Command_Format_Selected_Text,
          "Format Selection");
       Assert_Query_Top_Band_Contains
-        ("problems", Editor.Commands.Command_Problems_Filter_All,
+        ("problems", Editor.Command_Ids.Command_Problems_Filter_All,
          "Show All Problems");
       Assert_Query_Top_Band_Contains
-        ("problems", Editor.Commands.Command_Problems_Filter_Errors,
+        ("problems", Editor.Command_Ids.Command_Problems_Filter_Errors,
          "Show Problem Errors");
       Assert_Query_Top_Band_Contains
-        ("errors", Editor.Commands.Command_Problems_Filter_Errors,
+        ("errors", Editor.Command_Ids.Command_Problems_Filter_Errors,
          "Show Problem Errors");
       Assert_Query_Top_Band_Contains
-        ("warnings", Editor.Commands.Command_Problems_Filter_Warnings,
+        ("warnings", Editor.Command_Ids.Command_Problems_Filter_Warnings,
          "Show Problem Warnings");
       Assert_Query_Top_Band_Contains
-        ("info", Editor.Commands.Command_Problems_Filter_Info,
+        ("info", Editor.Command_Ids.Command_Problems_Filter_Info,
          "Show Problem Info");
       Assert_Query_Top_Band_Contains
-        ("hints", Editor.Commands.Command_Problems_Filter_Hints,
+        ("hints", Editor.Command_Ids.Command_Problems_Filter_Hints,
          "Show Problem Hints");
       Assert_Query_Top_Band_Contains
-        ("workspace", Editor.Commands.Command_Save_Workspace_State,
+        ("workspace", Editor.Command_Ids.Command_Save_Workspace_State,
          "Save Workspace State");
       Assert_Query_Top_Band_Contains
-        ("workspace", Editor.Commands.Command_Restore_Workspace_State,
+        ("workspace", Editor.Command_Ids.Command_Restore_Workspace_State,
          "Restore Workspace State");
       Assert_Query_Top_Band_Contains
-        ("recovery", Editor.Commands.Command_Configuration_Recover_Show,
+        ("recovery", Editor.Command_Ids.Command_Configuration_Recover_Show,
          "Show Configuration Recovery");
       Assert_Query_Top_Band_Contains
-        ("restore", Editor.Commands.Command_Restore_Workspace_State,
+        ("restore", Editor.Command_Ids.Command_Restore_Workspace_State,
          "Restore Workspace State");
       Assert_Query_Top_Band_Contains
-        ("settings", Editor.Commands.Command_Reset_Settings_To_Defaults,
+        ("settings", Editor.Command_Ids.Command_Reset_Settings_To_Defaults,
          "Reset Settings to Defaults");
       Assert_Query_Top_Band_Contains
-        ("settings", Editor.Commands.Command_Configuration_Reset_Keybindings,
+        ("settings", Editor.Command_Ids.Command_Configuration_Reset_Keybindings,
          "Reset Keybindings");
    end Test_Common_User_Terms_Rank_Related_Commands_In_Top_Band;
 
@@ -3460,26 +3460,26 @@ package body Editor.Command_Palette.Tests is
       Editor.Command_Palette.Insert_Text ("save");
       Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Save_File);
+        (S, Editor.Command_Ids.Command_Save_File);
 
       for C of Candidates loop
-         if C.Id = Editor.Commands.Command_Save_File then
+         if C.Id = Editor.Command_Ids.Command_Save_File then
             Found := True;
             Help := Editor.Command_Palette.Build_Command_Help (C);
 
             Assert (To_String (Help.Title) =
                       To_String (Editor.Commands.Descriptors.Descriptor
-                        (Editor.Commands.Command_Save_File).Name),
+                        (Editor.Command_Ids.Command_Save_File).Name),
                     "Command help title must come from descriptor metadata");
             Assert (To_String (Help.Stable_Name) = "file.save",
                     "Command help must show the stable command name");
             Assert (To_String (Help.Category_Label) =
                       Editor.Commands.Descriptors.Discoverability_Category_Label
-                        (Editor.Commands.Command_Save_File),
+                        (Editor.Command_Ids.Command_Save_File),
                     "Command help must show the same discoverability category as palette rows");
             Assert (To_String (Help.Description) =
                       To_String (Editor.Commands.Descriptors.Descriptor
-                        (Editor.Commands.Command_Save_File).Description),
+                        (Editor.Command_Ids.Command_Save_File).Description),
                     "Command help must show descriptor description metadata");
             Assert (Length (Help.Keybinding_Label) > 0,
                     "Command help must always show keybinding state, even when unbound");
@@ -3510,7 +3510,7 @@ package body Editor.Command_Palette.Tests is
       for D of Results loop
          Assert (D.Visibility = Editor.Commands.Descriptors.Palette_Command,
                  "Command discovery must only project visible palette commands");
-         Assert (D.Id /= Editor.Commands.Command_Dismiss_Latest_Message,
+         Assert (D.Id /= Editor.Command_Ids.Command_Dismiss_Latest_Message,
                  "Hidden/internal message-dismiss commands must not leak into palette discovery");
       end loop;
       Editor.Command_Palette.Reset;
@@ -3527,9 +3527,9 @@ package body Editor.Command_Palette.Tests is
       Editor.State.Init (S);
 
       Suggestion := Editor.Empty_State_Guidance.Command_Suggestion_From_Descriptor
-        (S, Editor.Commands.Command_Save_File);
+        (S, Editor.Command_Ids.Command_Save_File);
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Save_File);
+        (S, Editor.Command_Ids.Command_Save_File);
 
       Assert (Suggestion.Visible,
               "Visible descriptor-backed commands must be available to guided suggestions");
@@ -3537,7 +3537,7 @@ package body Editor.Command_Palette.Tests is
               "Guided suggestions must remain stable-command-name only");
       Assert (To_String (Suggestion.Title) =
                 To_String (Editor.Commands.Descriptors.Descriptor
-                  (Editor.Commands.Command_Save_File).Name),
+                  (Editor.Command_Ids.Command_Save_File).Name),
               "Suggested action label must match the Command Palette title");
       Assert (To_String (Suggestion.Stable_Name) = "file.save",
               "Suggested action must carry only the stable command name");

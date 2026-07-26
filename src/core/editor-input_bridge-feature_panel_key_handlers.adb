@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Cursor;
 with Editor.Feature_Panel;
 with Editor.Feature_Search_Results;
@@ -37,19 +38,19 @@ package body Editor.Input_Bridge.Feature_Panel_Key_Handlers is
      (S       : in out Editor.State.State_Type;
       Chord   : Editor.Keybindings.Key_Chord;
       Execute : not null access procedure
-        (Id : Editor.Commands.Command_Id)) return Boolean
+        (Id : Editor.Command_Ids.Command_Id)) return Boolean
    is
    begin
       case Chord.Key is
          when Editor.Keybindings.Key_Up =>
             Execute
-              (Editor.Commands.Command_Search_Results_Query_History_Previous);
+              (Editor.Command_Ids.Command_Search_Results_Query_History_Previous);
          when Editor.Keybindings.Key_Down =>
             Execute
-              (Editor.Commands.Command_Search_Results_Query_History_Next);
+              (Editor.Command_Ids.Command_Search_Results_Query_History_Next);
          when Editor.Keybindings.Key_Enter =>
             Execute
-              (Editor.Commands.Command_Search_Results_Search_Active_Buffer);
+              (Editor.Command_Ids.Command_Search_Results_Search_Active_Buffer);
          when Editor.Keybindings.Key_Escape =>
             Editor.Feature_Search_Results.Deactivate_Search_Query_Input
               (S.Feature_Search_Results);
@@ -73,29 +74,29 @@ package body Editor.Input_Bridge.Feature_Panel_Key_Handlers is
      (S       : in out Editor.State.State_Type;
       Chord   : Editor.Keybindings.Key_Chord;
       Execute : not null access procedure
-        (Id : Editor.Commands.Command_Id)) return Boolean
+        (Id : Editor.Command_Ids.Command_Id)) return Boolean
    is
    begin
       case Chord.Key is
          when Editor.Keybindings.Key_Up =>
             if Chord.Modifiers.Ctrl or else Chord.Modifiers.Alt then
                Execute
-                 (Editor.Commands.Command_Outline_Filter_History_Previous);
+                 (Editor.Command_Ids.Command_Outline_Filter_History_Previous);
             else
                Execute
-                 (Editor.Commands.Command_Select_Previous_Outline_Item);
+                 (Editor.Command_Ids.Command_Select_Previous_Outline_Item);
             end if;
          when Editor.Keybindings.Key_Down =>
             if Chord.Modifiers.Ctrl or else Chord.Modifiers.Alt then
                Execute
-                 (Editor.Commands.Command_Outline_Filter_History_Next);
+                 (Editor.Command_Ids.Command_Outline_Filter_History_Next);
             else
                Execute
-                 (Editor.Commands.Command_Select_Next_Outline_Item);
+                 (Editor.Command_Ids.Command_Select_Next_Outline_Item);
             end if;
          when Editor.Keybindings.Key_Enter =>
             Editor.Outline.Commit_Filter_To_History (S.Outline);
-            Execute (Editor.Commands.Command_Open_Selected_Outline_Item);
+            Execute (Editor.Command_Ids.Command_Open_Selected_Outline_Item);
          when Editor.Keybindings.Key_Escape =>
             if Editor.Outline.Filter_Text (S.Outline) /= "" then
                Editor.Outline.Clear_Filter_Text (S.Outline);
@@ -132,14 +133,14 @@ package body Editor.Input_Bridge.Feature_Panel_Key_Handlers is
      (S       : in out Editor.State.State_Type;
       Chord   : Editor.Keybindings.Key_Chord;
       Execute : not null access procedure
-        (Id : Editor.Commands.Command_Id))
+        (Id : Editor.Command_Ids.Command_Id))
    is
    begin
       case Chord.Key is
          when Editor.Keybindings.Key_Up =>
-            Execute (Editor.Commands.Command_Feature_Panel_Select_Previous);
+            Execute (Editor.Command_Ids.Command_Feature_Panel_Select_Previous);
          when Editor.Keybindings.Key_Down =>
-            Execute (Editor.Commands.Command_Feature_Panel_Select_Next);
+            Execute (Editor.Command_Ids.Command_Feature_Panel_Select_Next);
          when Editor.Keybindings.Key_Enter =>
             if Editor.Feature_Panel.Selected_Row (S.Feature_Panel) /= 0
               and then Editor.Outline.Feature_Row_Maps_To_Item
@@ -147,12 +148,12 @@ package body Editor.Input_Bridge.Feature_Panel_Key_Handlers is
                  S.Feature_Panel,
                  Editor.Feature_Panel.Selected_Row (S.Feature_Panel))
             then
-               Execute (Editor.Commands.Command_Open_Selected_Outline_Item);
+               Execute (Editor.Command_Ids.Command_Open_Selected_Outline_Item);
             else
-               Execute (Editor.Commands.Command_Feature_Panel_Open_Selected);
+               Execute (Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
             end if;
          when Editor.Keybindings.Key_Escape =>
-            Execute (Editor.Commands.Command_Focus_Editor_Text);
+            Execute (Editor.Command_Ids.Command_Focus_Editor_Text);
          when others =>
             null;
       end case;
@@ -162,7 +163,7 @@ package body Editor.Input_Bridge.Feature_Panel_Key_Handlers is
      (S       : in out Editor.State.State_Type;
       Chord   : Editor.Keybindings.Key_Chord;
       Execute : not null access procedure
-        (Id : Editor.Commands.Command_Id)) return Boolean
+        (Id : Editor.Command_Ids.Command_Id)) return Boolean
    is
    begin
       if not Editor.Feature_Panel.Is_Focused (S.Feature_Panel) then
@@ -170,7 +171,7 @@ package body Editor.Input_Bridge.Feature_Panel_Key_Handlers is
       end if;
 
       if not Editor.Feature_Panel.Is_Visible (S.Feature_Panel) then
-         Execute (Editor.Commands.Command_Focus_Editor_Text);
+         Execute (Editor.Command_Ids.Command_Focus_Editor_Text);
       elsif Editor.Feature_Search_Results.Search_Input_Is_Active
         (S.Feature_Search_Results)
       then

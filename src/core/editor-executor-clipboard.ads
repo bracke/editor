@@ -3,7 +3,6 @@ with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded;
 
 with Editor.State;
-with Editor.Commands;
 
 package Editor.Executor.Clipboard is
 

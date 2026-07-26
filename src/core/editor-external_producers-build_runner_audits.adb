@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Classification;
 with Editor.Commands.Availability_Metadata;
@@ -6,7 +7,6 @@ with Ada.Containers;
 with Ada.Strings; use Ada.Strings;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Commands;
 with Editor.Commands.Build_Terminal_Ids;
 with Editor.Keybindings;
 with Editor.State;
@@ -691,22 +691,22 @@ package body Editor.External_Producers.Build_Runner_Audits is
       Result : Build_Execution_Consent_Audit_Result;
       D : constant Editor.Commands.Descriptors.Command_Descriptor :=
         Editor.Commands.Descriptors.Descriptor
-          (Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam);
+          (Editor.Command_Ids.Command_Build_Run_User_Opt_In_Test_Seam);
    begin
       Result.Has_Public_Build_Command :=
         Editor.Commands.Build_Terminal_Ids.Is_Public_Build_Command
-          (Editor.Commands.Command_Build_Run);
+          (Editor.Command_Ids.Command_Build_Run);
       Result.Has_Default_Build_Keybinding :=
         Editor.Keybindings.Primary_Binding_For_Command
-          (Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam).Has_Binding;
+          (Editor.Command_Ids.Command_Build_Run_User_Opt_In_Test_Seam).Has_Binding;
       Result.Internal_Command_Requires_Context :=
         D.Category = Editor.Commands.Descriptors.Internal_Category
         and then D.Visibility = Editor.Commands.Descriptors.Hidden_Command
         and then not D.Bindable
         and then Editor.Commands.Availability_Metadata.Requires_Context
-          (Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam)
+          (Editor.Command_Ids.Command_Build_Run_User_Opt_In_Test_Seam)
         and then not Editor.Commands.Classification.Visible_In_Command_Palette
-          (Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam);
+          (Editor.Command_Ids.Command_Build_Run_User_Opt_In_Test_Seam);
       Result.Internal_Command_Requires_Provenance :=
         Validate_User_Opt_In_Build_Command_Context
           (Empty_User_Opt_In_Build_Command_Context) =

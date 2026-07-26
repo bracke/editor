@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Command_Kinds; use Editor.Command_Kinds;
 with Editor.Commands.Payloads; use Editor.Commands.Payloads;
@@ -6,7 +7,6 @@ with Editor.State;
 use type Editor.State.Dirty_Close_Scope;
 use type Editor.State.Semantic_Popup_Kind;
 with Editor.Cursors;    use Editor.Cursors;
-with Editor.Commands;   use Editor.Commands;
 with Editor.Commands.Workflow_Messages;
 with Editor.History;    use Editor.History;
 with Ada.Containers;    use Ada.Containers;
@@ -580,7 +580,7 @@ package body Editor.Executor is
    end Current_Semantic_Symbol_Name;
    function Command_Availability
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin
@@ -695,7 +695,7 @@ package body Editor.Executor is
    end Report_Workspace_Load_Status;
    function Execute_Command_With_Result
      (S     : in out Editor.State.State_Type;
-      Id    : Editor.Commands.Command_Id;
+      Id    : Editor.Command_Ids.Command_Id;
       Shift : Boolean := False) return Command_Execution_Result
    is
    begin
@@ -722,7 +722,7 @@ package body Editor.Executor is
    end Execute_User_Opt_In_Build_Command;
    procedure Execute_Command
      (S     : in out Editor.State.State_Type;
-      Id    : Editor.Commands.Command_Id;
+      Id    : Editor.Command_Ids.Command_Id;
       Shift : Boolean := False)
    is
       Owner_Before : constant Editor.Focus_Management.Focus_Owner :=

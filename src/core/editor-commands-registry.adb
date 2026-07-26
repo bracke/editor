@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Descriptor_Metadata;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
@@ -39,7 +40,7 @@ package body Editor.Commands.Registry is
    function Concrete_Command_Count return Natural
    is
    begin
-      return Editor.Commands.Command_Count - 1;
+      return Editor.Command_Ids.Command_Count - 1;
    end Concrete_Command_Count;
 
    procedure For_Each_Command
@@ -65,9 +66,9 @@ package body Editor.Commands.Registry is
    is
       Count : Natural := 0;
    begin
-      for I in 1 .. Editor.Commands.Command_Count loop
+      for I in 1 .. Editor.Command_Ids.Command_Count loop
          if Editor.Commands.Descriptor_Metadata.Descriptor
-           (Editor.Commands.Command_At (I)).Visibility = Palette_Command
+           (Editor.Command_Ids.Command_At (I)).Visibility = Palette_Command
          then
             Count := Count + 1;
          end if;
@@ -86,8 +87,8 @@ package body Editor.Commands.Registry is
         (Index <= Palette_Command_Count,
          "Editor.Commands.Registry.Palette_Command_At index out of range");
 
-      for I in 1 .. Editor.Commands.Command_Count loop
-         Id := Editor.Commands.Command_At (I);
+      for I in 1 .. Editor.Command_Ids.Command_Count loop
+         Id := Editor.Command_Ids.Command_At (I);
          if Editor.Commands.Descriptor_Metadata.Descriptor (Id).Visibility =
            Palette_Command
          then

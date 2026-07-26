@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -13,7 +14,7 @@ with Editor.Commands.Name_Metadata;
 
 package body Editor.Empty_State_Guidance.Guided_Actions is
 
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Commands.Descriptors.Command_Visibility;
 
    function Safe_Stable_Command_Name (Name : String) return Boolean is
@@ -28,12 +29,12 @@ package body Editor.Empty_State_Guidance.Guided_Actions is
    end Safe_Stable_Command_Name;
 
    function Suggested_Action_Guard_Label
-     (Command : Editor.Commands.Command_Id) return String
+     (Command : Editor.Command_Ids.Command_Id) return String
    is
       D : constant Editor.Commands.Descriptors.Command_Descriptor :=
         Editor.Commands.Descriptors.Descriptor (Command);
    begin
-      if Command = Editor.Commands.Command_Build_Acknowledge_Consent then
+      if Command = Editor.Command_Ids.Command_Build_Acknowledge_Consent then
          return "Consent required";
       elsif D.Target_Prompt_Capable or else D.Requires_Explicit_Target then
          return "Requires input";
@@ -50,7 +51,7 @@ package body Editor.Empty_State_Guidance.Guided_Actions is
 
    function Suggested_Action_Label_With_Guard
      (Base    : String;
-      Command : Editor.Commands.Command_Id) return String
+      Command : Editor.Command_Ids.Command_Id) return String
    is
       Guard : constant String := Suggested_Action_Guard_Label (Command);
    begin
@@ -64,25 +65,25 @@ package body Editor.Empty_State_Guidance.Guided_Actions is
    end Suggested_Action_Label_With_Guard;
 
    function Pending_Confirmation_Blocks_Suggestion
-     (Command : Editor.Commands.Command_Id) return Boolean
+     (Command : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       if not Editor.Configuration_Recovery.Has_Pending_Reset_All_Confirmation then
          return False;
       end if;
 
-      return Command /= Editor.Commands.Command_Configuration_Reset_All_Confirm
-        and then Command /= Editor.Commands.Command_Configuration_Reset_All_Cancel;
+      return Command /= Editor.Command_Ids.Command_Configuration_Reset_All_Confirm
+        and then Command /= Editor.Command_Ids.Command_Configuration_Reset_All_Cancel;
    end Pending_Confirmation_Blocks_Suggestion;
 
    function Command_Is_Visible_In_Guidance
-     (Command : Editor.Commands.Command_Id) return Boolean
+     (Command : Editor.Command_Ids.Command_Id) return Boolean
    is
       D : constant Editor.Commands.Descriptors.Command_Descriptor :=
         Editor.Commands.Descriptors.Descriptor (Command);
    begin
       return D.Visibility = Editor.Commands.Descriptors.Palette_Command
-        or else Command = Editor.Commands.Command_Open_Command_Palette;
+        or else Command = Editor.Command_Ids.Command_Open_Command_Palette;
    end Command_Is_Visible_In_Guidance;
 
    function Suggestion_Is_Selectable
@@ -95,12 +96,12 @@ package body Editor.Empty_State_Guidance.Guided_Actions is
 
    function Command_Suggestion_From_Descriptor
      (S       : Editor.State.State_Type;
-      Command : Editor.Commands.Command_Id)
+      Command : Editor.Command_Ids.Command_Id)
       return Empty_State_Suggested_Command
    is
       R : Empty_State_Suggested_Command;
    begin
-      if Command = Editor.Commands.No_Command then
+      if Command = Editor.Command_Ids.No_Command then
          return R;
       end if;
 
@@ -128,7 +129,7 @@ package body Editor.Empty_State_Guidance.Guided_Actions is
          R.Carries_Payload := False;
          R.Activation_Mode := Suggestion_Execute_Through_Executor;
 
-         if Command = Editor.Commands.Command_Open_Command_Palette then
+         if Command = Editor.Command_Ids.Command_Open_Command_Palette then
             R.Activation_Mode := Suggestion_Open_In_Command_Palette;
          end if;
 
@@ -156,11 +157,11 @@ package body Editor.Empty_State_Guidance.Guided_Actions is
      (Suggestion : Empty_State_Suggested_Command) return Boolean
    is
       Found    : Boolean := False;
-      Resolved : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Resolved : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Name     : constant String := To_String (Suggestion.Stable_Name);
    begin
       if not Suggestion.Visible
-        or else Suggestion.Command = Editor.Commands.No_Command
+        or else Suggestion.Command = Editor.Command_Ids.No_Command
         or else Suggestion.Carries_Payload
         or else not Stable_Name_Is_Display_Only (Name)
       then
@@ -186,14 +187,14 @@ package body Editor.Empty_State_Guidance.Guided_Actions is
      (Name : String) return Boolean
    is
       Found    : Boolean := False;
-      Resolved : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Resolved : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
    begin
       if not Safe_Stable_Command_Name (Name) then
          return False;
       end if;
 
       Resolved := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
-      if not Found or else Resolved = Editor.Commands.No_Command then
+      if not Found or else Resolved = Editor.Command_Ids.No_Command then
          return False;
       end if;
 
@@ -323,7 +324,7 @@ package body Editor.Empty_State_Guidance.Guided_Actions is
    is
       Suggestion : Empty_State_Suggested_Command;
       Found      : Boolean := False;
-      Resolved   : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Resolved   : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
    begin
       if Index > Snapshot.Suggestion_Count
         or else Index > Max_Empty_State_Suggestions
@@ -341,7 +342,7 @@ package body Editor.Empty_State_Guidance.Guided_Actions is
       Resolved := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         (To_String (Suggestion.Stable_Name), Found);
       if not Found
-        or else Resolved = Editor.Commands.No_Command
+        or else Resolved = Editor.Command_Ids.No_Command
         or else Resolved /= Suggestion.Command
       then
          return False;
@@ -351,7 +352,7 @@ package body Editor.Empty_State_Guidance.Guided_Actions is
          return False;
       end if;
 
-      if Resolved = Editor.Commands.Command_Open_Command_Palette then
+      if Resolved = Editor.Command_Ids.Command_Open_Command_Palette then
          Editor.Command_Palette.Open;
          return Editor.Command_Palette.Is_Open;
       else
@@ -382,29 +383,29 @@ package body Editor.Empty_State_Guidance.Guided_Actions is
    is
       Suggestion : Empty_State_Suggested_Command;
       Found      : Boolean := False;
-      Resolved   : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Resolved   : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       A          : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       if Index > Snapshot.Suggestion_Count
         or else Index > Max_Empty_State_Suggestions
       then
-         return Editor.Command_Execution.No_Op (Editor.Commands.No_Command);
+         return Editor.Command_Execution.No_Op (Editor.Command_Ids.No_Command);
       end if;
 
       Suggestion := Snapshot.Suggestions (Index);
       if not Assert_Suggested_Action_Index_Is_Activatable (Snapshot, Index)
         or else not Suggestion_Is_Activation_Safe (Suggestion)
       then
-         return Editor.Command_Execution.No_Op (Editor.Commands.No_Command);
+         return Editor.Command_Execution.No_Op (Editor.Command_Ids.No_Command);
       end if;
 
       Resolved := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         (To_String (Suggestion.Stable_Name), Found);
       if not Found
-        or else Resolved = Editor.Commands.No_Command
+        or else Resolved = Editor.Command_Ids.No_Command
         or else Resolved /= Suggestion.Command
       then
-         return Editor.Command_Execution.No_Op (Editor.Commands.No_Command);
+         return Editor.Command_Execution.No_Op (Editor.Command_Ids.No_Command);
       end if;
 
       if Suggestion.Activation_Mode /= Suggestion_Execute_Through_Executor then
@@ -436,14 +437,14 @@ package body Editor.Empty_State_Guidance.Guided_Actions is
       if Index > Snapshot.Suggestion_Count
         or else Index > Max_Empty_State_Suggestions
       then
-         return Editor.Command_Execution.No_Op (Editor.Commands.No_Command);
+         return Editor.Command_Execution.No_Op (Editor.Command_Ids.No_Command);
       end if;
 
       Suggestion := Snapshot.Suggestions (Index);
       if not Assert_Suggested_Action_Index_Is_Activatable (Snapshot, Index)
         or else not Suggestion_Is_Activation_Safe (Suggestion)
       then
-         return Editor.Command_Execution.No_Op (Editor.Commands.No_Command);
+         return Editor.Command_Execution.No_Op (Editor.Command_Ids.No_Command);
       end if;
 
       if Pending_Confirmation_Blocks_Suggestion (Suggestion.Command) then
@@ -458,10 +459,10 @@ package body Editor.Empty_State_Guidance.Guided_Actions is
          when Suggestion_Open_In_Command_Palette =>
             if Open_Suggested_Command_In_Command_Palette (Snapshot, Index) then
                return Editor.Command_Execution.Executed
-                 (Editor.Commands.Command_Open_Command_Palette);
+                 (Editor.Command_Ids.Command_Open_Command_Palette);
             else
                return Editor.Command_Execution.Failed
-                 (Editor.Commands.Command_Open_Command_Palette);
+                 (Editor.Command_Ids.Command_Open_Command_Palette);
             end if;
          when Suggestion_Execute_Through_Executor =>
             return Execute_Suggested_Command (S, Snapshot, Index);
@@ -476,7 +477,7 @@ package body Editor.Empty_State_Guidance.Guided_Actions is
       Selected : constant Natural := Suggested_Action_Selected_Index (Snapshot);
    begin
       if Selected = 0 then
-         return Editor.Command_Execution.No_Op (Editor.Commands.No_Command);
+         return Editor.Command_Execution.No_Op (Editor.Command_Ids.No_Command);
       end if;
 
       return Execute_Suggested_Command (S, Snapshot, Positive (Selected));
@@ -490,7 +491,7 @@ package body Editor.Empty_State_Guidance.Guided_Actions is
       Selected : constant Natural := Suggested_Action_Selected_Index (Snapshot);
    begin
       if Selected = 0 then
-         return Editor.Command_Execution.No_Op (Editor.Commands.No_Command);
+         return Editor.Command_Execution.No_Op (Editor.Command_Ids.No_Command);
       end if;
 
       return Activate_Suggested_Command (S, Snapshot, Positive (Selected));

@@ -1,6 +1,6 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Command_Execution;
-with Editor.Commands;
 with Editor.Navigation;
 with Editor.Selection;
 with Editor.State;
@@ -9,7 +9,7 @@ package Editor.Executor.Selection_Commands is
 
    function Selection_Command_Availability
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Commands.Availability_Metadata.Command_Availability;
 
    procedure Execute_Select_Line
@@ -41,7 +41,7 @@ package Editor.Executor.Selection_Commands is
 
    function Execute_Selection_Result_Command
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result;
 
    procedure Execute_Select_Word_At

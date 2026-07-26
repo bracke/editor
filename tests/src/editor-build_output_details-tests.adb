@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -14,7 +15,6 @@ with Editor.Build_Command;
 with Editor.Build_Candidates;
 with Editor.Build_Output_Details_Audit;
 with Editor.Command_Execution;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.Executor;
 with Editor.Input_Bridge;
@@ -24,7 +24,7 @@ package body Editor.Build_Output_Details.Tests is
 
    use type Editor.Build_Output_Details.Build_Output_Details_Kind;
    use type Editor.Build_Output_Details.Build_Output_Stream_Selection;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Build_Result_Summary.Build_Result_Summary_Kind;
    use type Editor.External_Producers.Build_Types.Build_Run_Status;
    use type Editor.Build_Runner_Policy.Build_Execution_Policy;
@@ -333,17 +333,17 @@ package body Editor.Build_Output_Details.Tests is
       After : Editor.State.State_Type;
       Result : Editor.Command_Execution.Command_Execution_Result;
       Found : Boolean := False;
-      Id : Editor.Commands.Command_Id;
+      Id : Editor.Command_Ids.Command_Id;
    begin
       Editor.State.Init (S);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Build_Result_Focus);
+        (S, Editor.Command_Ids.Command_Build_Result_Focus);
       Assert (Result.Status = Editor.Command_Execution.Command_Unavailable,
               "build result focus is unavailable before a result exists");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Build_Output_Details_Focus);
+        (S, Editor.Command_Ids.Command_Build_Output_Details_Focus);
       Assert (Result.Status = Editor.Command_Execution.Command_Unavailable,
               "output details focus is unavailable before output exists");
 
@@ -368,39 +368,39 @@ package body Editor.Build_Output_Details.Tests is
         ("build.output-details.select-stdout", Found);
       Assert (Found
               and then Id =
-                Editor.Commands.Command_Build_Output_Details_Select_Stdout,
+                Editor.Command_Ids.Command_Build_Output_Details_Select_Stdout,
               "output details stdout command has a stable id");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Build_Result_Focus);
+        (S, Editor.Command_Ids.Command_Build_Result_Focus);
       Assert (Result.Status = Editor.Command_Execution.Command_Executed,
               "build result focus routes through Executor");
       Assert (S.Latest_Build_Result_Focused,
               "build result focus command focuses the result surface");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Build_Output_Details_Focus);
+        (S, Editor.Command_Ids.Command_Build_Output_Details_Focus);
       Assert (Result.Status = Editor.Command_Execution.Command_Executed,
               "output details focus routes through Executor");
       Assert (S.Latest_Build_Output_Details.Build_Output_Details_Focused,
               "output details focus command focuses the details surface");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Build_Output_Details_Select_Stdout);
+        (S, Editor.Command_Ids.Command_Build_Output_Details_Select_Stdout);
       Assert (Result.Status = Editor.Command_Execution.Command_Executed
               and then S.Latest_Build_Output_Details.Selected_Output_Stream =
                 Editor.Build_Output_Details.Build_Output_Stream_Stdout,
               "stdout selection command updates the selected output stream");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Build_Output_Details_Select_Stderr);
+        (S, Editor.Command_Ids.Command_Build_Output_Details_Select_Stderr);
       Assert (Result.Status = Editor.Command_Execution.Command_Executed
               and then S.Latest_Build_Output_Details.Selected_Output_Stream =
                 Editor.Build_Output_Details.Build_Output_Stream_Stderr,
               "stderr selection command updates the selected output stream");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Build_Output_Details_Select_Merged);
+        (S, Editor.Command_Ids.Command_Build_Output_Details_Select_Merged);
       Assert (Result.Status = Editor.Command_Execution.Command_Executed
               and then S.Latest_Build_Output_Details.Selected_Output_Stream =
                 Editor.Build_Output_Details.Build_Output_Stream_Merged,

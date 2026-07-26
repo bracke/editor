@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
@@ -10,7 +11,6 @@ with Editor.Ada_Project_Index;
 with Editor.Buffers;
 with Editor.Clipboard;
 with Editor.Command_Execution;
-with Editor.Commands;
 with Editor.Commands.Workflow_Messages;
 with Editor.Executor.Diagnostics_Navigation_Commands;
 with Editor.Executor.History;
@@ -42,7 +42,7 @@ package body Editor.Executor.Diagnostics_Action_Commands is
    use type Editor.Panel_Focus.Bottom_Focus_Content;
 
    function Result_After_Command
-     (Command : Editor.Commands.Command_Id)
+     (Command : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result is
    begin
       return Editor.Command_Execution.Executed (Command);
@@ -77,7 +77,7 @@ package body Editor.Executor.Diagnostics_Action_Commands is
 
    function Execute_Diagnostics_Action_Command
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
    is
       package Action_Execution renames Editor.Ada_Diagnostic_Action_Execution;

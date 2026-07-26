@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Classification;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
@@ -8,7 +9,6 @@ with Ada.Containers;
 with Ada.Directories;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.Command_Palette;
 with Editor.Command_Route_Audit;
@@ -70,7 +70,7 @@ package body Editor.Files.Target_Prompt_Metadata_Tests is
    use type Editor.Files.File_Open_Status;
    use type Editor.Files.File_Save_Status;
    use type Editor.Files.File_Move_Status;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Command_Palette.Command_Palette_Row_Kind;
@@ -107,16 +107,16 @@ package body Editor.Files.Target_Prompt_Metadata_Tests is
       Editor.State.Init (S);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Source);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Active);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Previous_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Previous_Buffer);
       Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Source,
         "fixture should start prompt from source A");
       Editor.Messages.Clear (S.Messages);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy_Buffer_File);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy_Buffer_File);
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S),
         "copy without target should open prompt before active-buffer switch");
       Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text (S, Target);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Next_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Next_Buffer);
       Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Active,
         "fixture should switch active buffer before prompt confirmation");
       Editor.Messages.Clear (S.Messages);
@@ -160,13 +160,13 @@ package body Editor.Files.Target_Prompt_Metadata_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Source);
       Editor.Messages.Clear (S.Messages);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Rename_Buffer_File);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Rename_Buffer_File);
       Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text (S, "rename-target-should-be-discarded.txt");
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S)
         and then Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Label (S) = "Rename target",
         "first eligible target command should own prompt");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy_Buffer_File);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy_Buffer_File);
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S),
         "second eligible target command should leave one prompt active");
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Label (S) = "Copy target",
@@ -208,7 +208,7 @@ package body Editor.Files.Target_Prompt_Metadata_Tests is
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File_As);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File_As);
       Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text
         (S, "prompt-target-must-not-persist.txt");
       Workspace := Editor.State.Build_Workspace_Snapshot (S);
@@ -238,16 +238,16 @@ package body Editor.Files.Target_Prompt_Metadata_Tests is
       Source      : constant String := Temp_Path ("matrix_source.txt");
       Before_Text : constant String := "matrix source";
 
-      function Is_Target_Command (Id : Editor.Commands.Command_Id) return Boolean is
+      function Is_Target_Command (Id : Editor.Command_Ids.Command_Id) return Boolean is
       begin
-         return Id = Editor.Commands.Command_Save_File_As
-           or else Id = Editor.Commands.Command_Rename_Buffer_File
-           or else Id = Editor.Commands.Command_Copy_Buffer_File
-           or else Id = Editor.Commands.Command_Move_Buffer_File;
+         return Id = Editor.Command_Ids.Command_Save_File_As
+           or else Id = Editor.Command_Ids.Command_Rename_Buffer_File
+           or else Id = Editor.Command_Ids.Command_Copy_Buffer_File
+           or else Id = Editor.Command_Ids.Command_Move_Buffer_File;
       end Is_Target_Command;
 
       procedure Assert_Opens_Empty_Prompt
-        (Id    : Editor.Commands.Command_Id;
+        (Id    : Editor.Command_Ids.Command_Id;
          Label : String)
       is
       begin
@@ -287,21 +287,21 @@ package body Editor.Files.Target_Prompt_Metadata_Tests is
       S.Active_Find_Query := To_Unbounded_String (Editor.Test_Temp.Base & "/from-find.adb");
       S.Active_Replace_Text := To_Unbounded_String (Editor.Test_Temp.Base & "/from-replace.adb");
 
-      for Id in Editor.Commands.Command_Id loop
+      for Id in Editor.Command_Ids.Command_Id loop
          Assert (Editor.Executor.Shared_Services.Command_Requires_Explicit_Target (Id) = Is_Target_Command (Id),
            "target-prompt-capable command set must be exactly save-as/rename/copy/move");
       end loop;
 
-      Assert_Opens_Empty_Prompt (Editor.Commands.Command_Save_File_As, "Save As target");
-      Assert_Opens_Empty_Prompt (Editor.Commands.Command_Rename_Buffer_File, "Rename target");
-      Assert_Opens_Empty_Prompt (Editor.Commands.Command_Copy_Buffer_File, "Copy target");
-      Assert_Opens_Empty_Prompt (Editor.Commands.Command_Move_Buffer_File, "Move target");
+      Assert_Opens_Empty_Prompt (Editor.Command_Ids.Command_Save_File_As, "Save As target");
+      Assert_Opens_Empty_Prompt (Editor.Command_Ids.Command_Rename_Buffer_File, "Rename target");
+      Assert_Opens_Empty_Prompt (Editor.Command_Ids.Command_Copy_Buffer_File, "Copy target");
+      Assert_Opens_Empty_Prompt (Editor.Command_Ids.Command_Move_Buffer_File, "Move target");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File);
       Assert (not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S),
         "file.save must never open a target prompt");
       Editor.Messages.Clear (S.Messages);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Delete_Buffer_File);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Delete_Buffer_File);
       Assert (not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S),
         "file.delete-buffer-file must never open a target prompt");
 
@@ -345,7 +345,7 @@ package body Editor.Files.Target_Prompt_Metadata_Tests is
       Before_Redo := Editor.History.Redo_Stack.Length;
       Before_Caret := S.Carets (0);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File_As);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File_As);
       Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text (S, Target & "xy");
       Editor.Executor.File_Target_Prompt_Commands.Backspace_File_Target_Prompt (S);
       Editor.Executor.File_Target_Prompt_Commands.Move_File_Target_Prompt_Cursor_Left (S);
@@ -371,7 +371,7 @@ package body Editor.Files.Target_Prompt_Metadata_Tests is
       Editor.Executor.File_Target_Prompt_Commands.Cancel_File_Target_Prompt (S);
       Assert (not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S)
         and then Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (S) = ""
-        and then S.File_Target_Prompt_Command = Editor.Commands.No_Command,
+        and then S.File_Target_Prompt_Command = Editor.Command_Ids.No_Command,
         "cancellation should clear command and transient input");
       Assert (not Ada.Directories.Exists (Target)
         and then Buffer_Text (S) = Before_Text
@@ -380,7 +380,7 @@ package body Editor.Files.Target_Prompt_Metadata_Tests is
       Assert (Editor.Messages.Count (S.Messages) = 0,
         "cancellation must not emit invalid-target, failure, or success messages");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File_As);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File_As);
       Editor.Executor.File_Target_Prompt_Commands.Confirm_File_Target_Prompt (S);
       Assert (not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S),
         "confirmation should clear prompt before canonical command dispatch outcome");
@@ -410,7 +410,7 @@ package body Editor.Files.Target_Prompt_Metadata_Tests is
       Count_Copy    : Natural := 0;
       Count_Move    : Natural := 0;
       Found         : Boolean := False;
-      Id            : Editor.Commands.Command_Id;
+      Id            : Editor.Command_Ids.Command_Id;
       Route_Audit   : Editor.Command_Route_Audit.Route_Audit_Result;
       Config_Before : Editor.Configuration_Audit.Configuration_State_Summary;
       Config_After  : Editor.Configuration_Audit.Configuration_State_Summary;
@@ -430,13 +430,13 @@ package body Editor.Files.Target_Prompt_Metadata_Tests is
             declare
                C : constant Editor.Commands.Palette_Model.Command_Palette_Candidate := Candidates.Element (I);
             begin
-               if C.Id = Editor.Commands.Command_Save_File_As then
+               if C.Id = Editor.Command_Ids.Command_Save_File_As then
                   Count_Save_As := Count_Save_As + 1;
-               elsif C.Id = Editor.Commands.Command_Rename_Buffer_File then
+               elsif C.Id = Editor.Command_Ids.Command_Rename_Buffer_File then
                   Count_Rename := Count_Rename + 1;
-               elsif C.Id = Editor.Commands.Command_Copy_Buffer_File then
+               elsif C.Id = Editor.Command_Ids.Command_Copy_Buffer_File then
                   Count_Copy := Count_Copy + 1;
-               elsif C.Id = Editor.Commands.Command_Move_Buffer_File then
+               elsif C.Id = Editor.Command_Ids.Command_Move_Buffer_File then
                   Count_Move := Count_Move + 1;
                end if;
             end;
@@ -449,32 +449,32 @@ package body Editor.Files.Target_Prompt_Metadata_Tests is
         "Command Palette projection must be side-effect-free and must not open prompts");
 
       Editor.Command_Palette.Insert_Text (Editor.Test_Temp.Base & "/query-must-not-be-target.adb");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File_As);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File_As);
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S)
         and then Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (S) = "",
         "Command Palette/keybinding canonical invocation path should open empty prompt, not query text");
       Editor.Executor.File_Target_Prompt_Commands.Cancel_File_Target_Prompt (S);
 
-      Assert (Editor.Commands.Classification.Is_Bindable_Command (Editor.Commands.Command_Save_File_As)
-        and then Editor.Commands.Classification.Is_Bindable_Command (Editor.Commands.Command_Rename_Buffer_File)
-        and then Editor.Commands.Classification.Is_Bindable_Command (Editor.Commands.Command_Copy_Buffer_File)
-        and then Editor.Commands.Classification.Is_Bindable_Command (Editor.Commands.Command_Move_Buffer_File),
+      Assert (Editor.Commands.Classification.Is_Bindable_Command (Editor.Command_Ids.Command_Save_File_As)
+        and then Editor.Commands.Classification.Is_Bindable_Command (Editor.Command_Ids.Command_Rename_Buffer_File)
+        and then Editor.Commands.Classification.Is_Bindable_Command (Editor.Command_Ids.Command_Copy_Buffer_File)
+        and then Editor.Commands.Classification.Is_Bindable_Command (Editor.Command_Ids.Command_Move_Buffer_File),
         "keybinding routes should continue to target canonical bindable command names only");
 
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("file.save-as-prompted", Found);
-      Assert (not Found and then Id = Editor.Commands.No_Command,
+      Assert (not Found and then Id = Editor.Command_Ids.No_Command,
         "prompted save-as alias must remain absent");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("file.rename-buffer-file-prompted", Found);
-      Assert (not Found and then Id = Editor.Commands.No_Command,
+      Assert (not Found and then Id = Editor.Command_Ids.No_Command,
         "prompted rename alias must remain absent");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("file.copy-buffer-file-prompted", Found);
-      Assert (not Found and then Id = Editor.Commands.No_Command,
+      Assert (not Found and then Id = Editor.Command_Ids.No_Command,
         "prompted copy alias must remain absent");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("file.move-buffer-file-prompted", Found);
-      Assert (not Found and then Id = Editor.Commands.No_Command,
+      Assert (not Found and then Id = Editor.Command_Ids.No_Command,
         "prompted move alias must remain absent");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Rename_Buffer_File);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Rename_Buffer_File);
       Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text (S, "rename-text-must-be-cleared");
       Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
       Assert (not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S)
@@ -483,14 +483,14 @@ package body Editor.Files.Target_Prompt_Metadata_Tests is
       Assert (not Ada.Directories.Exists ("rename-text-must-be-cleared"),
         "overlay supersession must not submit target prompt text");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy_Buffer_File);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy_Buffer_File);
       Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text (S, "audit-text-must-remain-local");
       Config_Before := Editor.Configuration_Audit.Configuration_State_Summary_For (S);
       Editor.Command_Route_Audit.Clear (Route_Audit);
       Editor.Command_Route_Audit.Record_Route
         (Route_Audit,
          Editor.Command_Route_Audit.Route_From_Command_Palette,
-         Editor.Commands.Command_Copy_Buffer_File);
+         Editor.Command_Ids.Command_Copy_Buffer_File);
       Config_After := Editor.Configuration_Audit.Configuration_State_Summary_For (S);
       Assert (Editor.Command_Route_Audit.Failure_Count (Route_Audit) = 0,
         "inert route audit should not report failures for canonical command route recording");
@@ -551,7 +551,7 @@ package body Editor.Files.Target_Prompt_Metadata_Tests is
 
       Editor.Buffers.Global_Set_Active_Buffer (A);
       Editor.Buffers.Load_Global_Active_Into_State (S);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File_As);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File_As);
       Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text (S, Target);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert (Snap.File_Target_Prompt_Visible
@@ -608,7 +608,7 @@ package body Editor.Files.Target_Prompt_Metadata_Tests is
         and then not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S),
         "direct explicit-target Move must bypass prompt and update canonical association");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy_Buffer_File);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy_Buffer_File);
       Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text (S, "lifecycle-discarded-target.txt");
       Editor.State.Reset_Project_Scoped_State (S);
       Assert (not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S)
@@ -666,9 +666,9 @@ procedure Test_Target_Prompt_No_Inference_State_And_Persistence_Cleanup
       S.Active_Replace_Text := To_Unbounded_String (Editor.Test_Temp.Base & "/replace-target.adb");
       S.Reopen_Candidate_Path := To_Unbounded_String (Editor.Test_Temp.Base & "/reopen-target.adb");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File_As);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File_As);
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S)
-        and then S.File_Target_Prompt_Command = Editor.Commands.Command_Save_File_As,
+        and then S.File_Target_Prompt_Command = Editor.Command_Ids.Command_Save_File_As,
         "canonical invocation without target should open one pending save-as prompt");
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (S) = "",
         "prompt input must not be inferred from palette, clipboard, find/replace, or reopen state");
@@ -705,17 +705,17 @@ procedure Test_Target_Prompt_No_Inference_State_And_Persistence_Cleanup
 
       Editor.Executor.File_Target_Prompt_Commands.Cancel_File_Target_Prompt (S);
       Assert (not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S)
-        and then S.File_Target_Prompt_Command = Editor.Commands.No_Command
+        and then S.File_Target_Prompt_Command = Editor.Command_Ids.No_Command
         and then Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (S) = ""
         and then not Ada.Directories.Exists (Target)
         and then Editor.Messages.Count (S.Messages) = 0,
         "canonical cancellation must clear command/input and emit no lifecycle outcome");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File_As);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File_As);
       Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text (S, Target);
       Editor.State.Reset_Project_Scoped_State (S);
       Assert (not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S)
-        and then S.File_Target_Prompt_Command = Editor.Commands.No_Command
+        and then S.File_Target_Prompt_Command = Editor.Command_Ids.No_Command
         and then Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (S) = ""
         and then not Ada.Directories.Exists (Target),
         "lifecycle cleanup must use canonical state clearing and never confirm typed targets");
@@ -763,7 +763,7 @@ procedure Test_Target_Prompt_No_Inference_State_And_Persistence_Cleanup
 
       Editor.Buffers.Global_Set_Active_Buffer (A);
       Editor.Buffers.Load_Global_Active_Into_State (S);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File_As);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File_As);
       Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text (S, Prompt_Target);
       Editor.Buffers.Global_Set_Active_Buffer (B);
       Editor.Buffers.Load_Global_Active_Into_State (S);
@@ -771,7 +771,7 @@ procedure Test_Target_Prompt_No_Inference_State_And_Persistence_Cleanup
       Assert (Read_Bytes (Prompt_Target) = "source b",
         "confirmation must route exact submitted target through Executor using active buffer at confirmation");
       Assert (not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S)
-        and then S.File_Target_Prompt_Command = Editor.Commands.No_Command
+        and then S.File_Target_Prompt_Command = Editor.Command_Ids.No_Command
         and then Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (S) = "",
         "confirmation must clear canonical transient prompt state");
       M := Editor.Messages.Active_Message (S.Messages, Found);
@@ -914,9 +914,9 @@ procedure Test_Target_Prompt_Final_Input_Overlay_Audit_And_Persistence_Freeze
       S.Active_Replace_Text := To_Unbounded_String (Editor.Test_Temp.Base & "/replace-must-not-be-target.txt");
       S.Reopen_Candidate_Path := To_Unbounded_String (Editor.Test_Temp.Base & "/reopen-must-not-be-target.txt");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy_Buffer_File);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy_Buffer_File);
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S)
-        and then S.File_Target_Prompt_Command = Editor.Commands.Command_Copy_Buffer_File
+        and then S.File_Target_Prompt_Command = Editor.Command_Ids.Command_Copy_Buffer_File
         and then Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Label (S) = "Copy target"
         and then Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (S) = ""
         and then Buffer_Text (S) = Before_Text
@@ -944,7 +944,7 @@ procedure Test_Target_Prompt_Final_Input_Overlay_Audit_And_Persistence_Freeze
         "render snapshot must mirror prompt state without mutating or validating it");
 
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Copy_Buffer_File);
+        (S, Editor.Command_Ids.Command_Copy_Buffer_File);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability)
         and then Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S)
         and then Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (S) = Target,
@@ -969,13 +969,13 @@ procedure Test_Target_Prompt_Final_Input_Overlay_Audit_And_Persistence_Freeze
       Editor.State.Init (Restored);
       Editor.Executor.Restore_Workspace_Snapshot (Restored, Workspace, Restore_Status);
       Assert (not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (Restored)
-        and then Restored.File_Target_Prompt_Command = Editor.Commands.No_Command
+        and then Restored.File_Target_Prompt_Command = Editor.Command_Ids.No_Command
         and then Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (Restored) = "",
         "workspace reload must drop any prompt-active runtime state");
 
       Editor.Executor.File_Target_Prompt_Commands.Cancel_File_Target_Prompt (S);
       Assert (not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S)
-        and then S.File_Target_Prompt_Command = Editor.Commands.No_Command
+        and then S.File_Target_Prompt_Command = Editor.Command_Ids.No_Command
         and then Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (S) = ""
         and then not Ada.Directories.Exists (Target)
         and then Buffer_Text (S) = Before_Text
@@ -983,7 +983,7 @@ procedure Test_Target_Prompt_Final_Input_Overlay_Audit_And_Persistence_Freeze
         and then Editor.Messages.Count (S.Messages) = 0,
         "cancellation must clear prompt state without command execution, filesystem work, or messages");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Move_Buffer_File);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Move_Buffer_File);
       Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text (S, Target);
       Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
       Assert (not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S)
@@ -992,11 +992,11 @@ procedure Test_Target_Prompt_Final_Input_Overlay_Audit_And_Persistence_Freeze
         and then To_String (S.File_Info.Path) = Source,
         "overlay supersession must use canonical prompt cleanup and must not submit pending input");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Rename_Buffer_File);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Rename_Buffer_File);
       Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text (S, Target);
       Editor.State.Reset_Project_Scoped_State (S);
       Assert (not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S)
-        and then S.File_Target_Prompt_Command = Editor.Commands.No_Command
+        and then S.File_Target_Prompt_Command = Editor.Command_Ids.No_Command
         and then Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (S) = ""
         and then not Ada.Directories.Exists (Target)
         and then Ada.Directories.Exists (Source),
@@ -1049,9 +1049,9 @@ procedure Test_Target_Prompt_Final_Input_Overlay_Audit_And_Persistence_Freeze
 
       Editor.Buffers.Global_Set_Active_Buffer (A);
       Editor.Buffers.Load_Global_Active_Into_State (S);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File_As);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File_As);
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S)
-        and then S.File_Target_Prompt_Command = Editor.Commands.Command_Save_File_As,
+        and then S.File_Target_Prompt_Command = Editor.Command_Ids.Command_Save_File_As,
         "save-as without explicit target should open the canonical transient prompt");
       Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text (S, Prompt_Target);
       Editor.Buffers.Global_Set_Active_Buffer (B);
@@ -1060,7 +1060,7 @@ procedure Test_Target_Prompt_Final_Input_Overlay_Audit_And_Persistence_Freeze
       Assert (Read_Bytes (Prompt_Target) = "source b",
         "confirmation must dispatch through Executor using active buffer at confirmation and exact submitted target");
       Assert (not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S)
-        and then S.File_Target_Prompt_Command = Editor.Commands.No_Command
+        and then S.File_Target_Prompt_Command = Editor.Command_Ids.No_Command
         and then Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (S) = "",
         "confirmation must clear the canonical transient prompt state");
       M := Editor.Messages.Active_Message (S.Messages, Found);
@@ -1070,10 +1070,10 @@ procedure Test_Target_Prompt_Final_Input_Overlay_Audit_And_Persistence_Freeze
         "confirmation must emit exactly one canonical underlying command outcome message");
 
       Editor.Messages.Clear (S.Messages);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File);
       Assert (not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S),
         "file.save must remain prompt-free");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Delete_Buffer_File);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Delete_Buffer_File);
       Assert (not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S),
         "file.delete-buffer-file must remain prompt-free even though it is a file lifecycle command");
 
@@ -1149,11 +1149,11 @@ procedure Test_Target_Prompt_Metadata_Boundaries_And_Behavior_Freeze
       Before_Msgs := Editor.Messages.Count (S.Messages);
 
       Assert (Editor.Commands.Reference_Metadata.Command_Requires_Explicit_Target
-                (Editor.Commands.Command_Save_File_As)
+                (Editor.Command_Ids.Command_Save_File_As)
         and then Editor.Commands.Reference_Metadata.Command_Is_Target_Prompt_Capable
-                (Editor.Commands.Command_Save_File_As)
+                (Editor.Command_Ids.Command_Save_File_As)
         and then Editor.Commands.Reference_Metadata.Command_Target_Prompt_Label
-                (Editor.Commands.Command_Save_File_As) = "Save As target",
+                (Editor.Command_Ids.Command_Save_File_As) = "Save As target",
         "reading minimal metadata must be a pure descriptor/accessor operation");
       Assert (not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S)
         and then Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (S) = ""
@@ -1175,13 +1175,13 @@ procedure Test_Target_Prompt_Metadata_Boundaries_And_Behavior_Freeze
             begin
                Assert (Ada.Strings.Fixed.Index (Name, "prompt") = 0,
                  "Command Palette must not expose prompted aliases");
-               if C.Id = Editor.Commands.Command_Save_File_As then
+               if C.Id = Editor.Command_Ids.Command_Save_File_As then
                   Save_As_Rows := Save_As_Rows + 1;
-               elsif C.Id = Editor.Commands.Command_Rename_Buffer_File then
+               elsif C.Id = Editor.Command_Ids.Command_Rename_Buffer_File then
                   Rename_Rows := Rename_Rows + 1;
-               elsif C.Id = Editor.Commands.Command_Copy_Buffer_File then
+               elsif C.Id = Editor.Command_Ids.Command_Copy_Buffer_File then
                   Copy_Rows := Copy_Rows + 1;
-               elsif C.Id = Editor.Commands.Command_Move_Buffer_File then
+               elsif C.Id = Editor.Command_Ids.Command_Move_Buffer_File then
                   Move_Rows := Move_Rows + 1;
                end if;
             end;
@@ -1194,9 +1194,9 @@ procedure Test_Target_Prompt_Metadata_Boundaries_And_Behavior_Freeze
         and then Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (S) = "",
         "Command Palette query text must not become target prompt input");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File_As);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File_As);
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S)
-        and then S.File_Target_Prompt_Command = Editor.Commands.Command_Save_File_As
+        and then S.File_Target_Prompt_Command = Editor.Command_Ids.Command_Save_File_As
         and then Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Label (S) = "Save As target"
         and then Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (S) = "",
         "no-target invocation must still open the canonical prompt using the minimal label");
@@ -1250,7 +1250,7 @@ procedure Test_Target_Prompt_Metadata_Minimality_Guard
            Forbidden & "' leaked into " & Context);
       end Reject_In;
 
-      procedure Check_Command_Text (Id : Editor.Commands.Command_Id) is
+      procedure Check_Command_Text (Id : Editor.Command_Ids.Command_Id) is
          D       : constant Editor.Commands.Descriptors.Command_Descriptor :=
            Editor.Commands.Descriptors.Descriptor (Id);
          Context : constant String := Editor.Commands.Name_Metadata.Stable_Command_Name (Id);
@@ -1283,7 +1283,7 @@ procedure Test_Target_Prompt_Metadata_Minimality_Guard
          Reject_In (Text, "overwrite prompt", Context);
       end Check_Command_Text;
    begin
-      for Id in Editor.Commands.Command_Id loop
+      for Id in Editor.Command_Ids.Command_Id loop
          Check_Command_Text (Id);
       end loop;
    end Test_Target_Prompt_Metadata_Minimality_Guard;
@@ -1304,7 +1304,7 @@ procedure Test_Target_Prompt_Metadata_Minimality_Guard
       Editor.Messages.Clear (S.Messages);
       Before_Msgs := Editor.Messages.Count (S.Messages);
 
-      for Id in Editor.Commands.Command_Id loop
+      for Id in Editor.Command_Ids.Command_Id loop
          declare
             D : constant Editor.Commands.Descriptors.Command_Descriptor :=
               Editor.Commands.Descriptors.Descriptor (Id);
@@ -1321,20 +1321,20 @@ procedure Test_Target_Prompt_Metadata_Minimality_Guard
       end loop;
 
       Rename_Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Rename_Buffer_File);
+        (S, Editor.Command_Ids.Command_Rename_Buffer_File);
       Save_As_Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Save_File_As);
+        (S, Editor.Command_Ids.Command_Save_File_As);
 
       Assert (Editor.Commands.Reference_Metadata.Command_Requires_Explicit_Target
-                (Editor.Commands.Command_Rename_Buffer_File)
+                (Editor.Command_Ids.Command_Rename_Buffer_File)
         and then Editor.Commands.Reference_Metadata.Command_Is_Target_Prompt_Capable
-                (Editor.Commands.Command_Rename_Buffer_File)
+                (Editor.Command_Ids.Command_Rename_Buffer_File)
         and then not Editor.Commands.Availability_Metadata.Is_Available (Rename_Avail),
         "explicit-target metadata must not imply runtime availability");
       Assert (Editor.Commands.Reference_Metadata.Command_Requires_Explicit_Target
-                (Editor.Commands.Command_Save_File_As)
+                (Editor.Command_Ids.Command_Save_File_As)
         and then Editor.Commands.Reference_Metadata.Command_Is_Target_Prompt_Capable
-                (Editor.Commands.Command_Save_File_As)
+                (Editor.Command_Ids.Command_Save_File_As)
         and then not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S),
         "metadata reads must not open the target prompt");
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Save_As_Avail)
@@ -1398,13 +1398,13 @@ procedure Test_Target_Prompt_Metadata_Minimality_Guard
                  and then Ada.Strings.Fixed.Index (To_String (C.Description), "prompt_reference") = 0
                  and then Ada.Strings.Fixed.Index (To_String (C.Reference_Summary), "prompt_reference") = 0,
                  "Command Palette projection must not synthesize prompt-reference prose");
-               if C.Id = Editor.Commands.Command_Save_File_As then
+               if C.Id = Editor.Command_Ids.Command_Save_File_As then
                   Save_As_Rows := Save_As_Rows + 1;
-               elsif C.Id = Editor.Commands.Command_Rename_Buffer_File then
+               elsif C.Id = Editor.Command_Ids.Command_Rename_Buffer_File then
                   Rename_Rows := Rename_Rows + 1;
-               elsif C.Id = Editor.Commands.Command_Copy_Buffer_File then
+               elsif C.Id = Editor.Command_Ids.Command_Copy_Buffer_File then
                   Copy_Rows := Copy_Rows + 1;
-               elsif C.Id = Editor.Commands.Command_Move_Buffer_File then
+               elsif C.Id = Editor.Command_Ids.Command_Move_Buffer_File then
                   Move_Rows := Move_Rows + 1;
                end if;
             end;
@@ -1421,7 +1421,7 @@ procedure Test_Target_Prompt_Metadata_Minimality_Guard
       Editor.Command_Route_Audit.Record_Route
         (Route_Audit,
          Editor.Command_Route_Audit.Route_From_Command_Palette,
-         Editor.Commands.Command_Save_File_As);
+         Editor.Command_Ids.Command_Save_File_As);
       After_Audit := Editor.Configuration_Audit.Configuration_State_Summary_For (S);
       Editor.Configuration_Audit.Expect_No_Runtime_Or_Lifecycle_Mutation
         (Audit_Result, Before_Audit, After_Audit,
@@ -1431,7 +1431,7 @@ procedure Test_Target_Prompt_Metadata_Minimality_Guard
         and then not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S),
         "route/configuration audits must be side-effect-free and must not open prompts");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File_As);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File_As);
       Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text (S, Target);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert (Snap.File_Target_Prompt_Visible
@@ -1476,23 +1476,23 @@ procedure Test_Target_Prompt_Metadata_Minimality_Guard
       pragma Unreferenced (T);
 
       type Expected_Metadata is record
-         Id       : Editor.Commands.Command_Id;
+         Id       : Editor.Command_Ids.Command_Id;
          Required : Boolean;
          Capable  : Boolean;
          Label    : Unbounded_String;
       end record;
 
       Expected : constant array (Positive range 1 .. 10) of Expected_Metadata :=
-        ((Editor.Commands.Command_Save_File, False, False, Null_Unbounded_String),
-         (Editor.Commands.Command_Save_File_As, True, True, To_Unbounded_String ("Save As target")),
-         (Editor.Commands.Command_Close_Active_Buffer, False, False, Null_Unbounded_String),
-         (Editor.Commands.Command_Reopen_Closed_Buffer, False, False, Null_Unbounded_String),
-         (Editor.Commands.Command_Reload_Active_Buffer, False, False, Null_Unbounded_String),
-         (Editor.Commands.Command_Revert_Active_Buffer, False, False, Null_Unbounded_String),
-         (Editor.Commands.Command_Rename_Buffer_File, True, True, To_Unbounded_String ("Rename target")),
-         (Editor.Commands.Command_Delete_Buffer_File, False, False, Null_Unbounded_String),
-         (Editor.Commands.Command_Copy_Buffer_File, True, True, To_Unbounded_String ("Copy target")),
-         (Editor.Commands.Command_Move_Buffer_File, True, True, To_Unbounded_String ("Move target")));
+        ((Editor.Command_Ids.Command_Save_File, False, False, Null_Unbounded_String),
+         (Editor.Command_Ids.Command_Save_File_As, True, True, To_Unbounded_String ("Save As target")),
+         (Editor.Command_Ids.Command_Close_Active_Buffer, False, False, Null_Unbounded_String),
+         (Editor.Command_Ids.Command_Reopen_Closed_Buffer, False, False, Null_Unbounded_String),
+         (Editor.Command_Ids.Command_Reload_Active_Buffer, False, False, Null_Unbounded_String),
+         (Editor.Command_Ids.Command_Revert_Active_Buffer, False, False, Null_Unbounded_String),
+         (Editor.Command_Ids.Command_Rename_Buffer_File, True, True, To_Unbounded_String ("Rename target")),
+         (Editor.Command_Ids.Command_Delete_Buffer_File, False, False, Null_Unbounded_String),
+         (Editor.Command_Ids.Command_Copy_Buffer_File, True, True, To_Unbounded_String ("Copy target")),
+         (Editor.Command_Ids.Command_Move_Buffer_File, True, True, To_Unbounded_String ("Move target")));
 
       Prompt_Capable_Count : Natural := 0;
    begin
@@ -1535,7 +1535,7 @@ procedure Test_Target_Prompt_Metadata_Minimality_Guard
       Assert (Prompt_Capable_Count = 4,
         "only Save As, Rename, Copy, and Move may be prompt-capable");
 
-      for Id in Editor.Commands.Command_Id loop
+      for Id in Editor.Command_Ids.Command_Id loop
          if Editor.Commands.Reference_Metadata.Command_Is_Target_Prompt_Capable (Id) then
             Assert (Editor.Commands.Reference_Metadata.Is_File_Lifecycle_Command (Id)
               and then Editor.Commands.Reference_Metadata.Command_Requires_Explicit_Target (Id)
@@ -1566,9 +1566,9 @@ procedure Test_Metadata_Cleanup_Behavior_And_Persistence_Smoke
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Source);
       Editor.Messages.Clear (S.Messages);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File_As);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File_As);
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S)
-        and then S.File_Target_Prompt_Command = Editor.Commands.Command_Save_File_As
+        and then S.File_Target_Prompt_Command = Editor.Command_Ids.Command_Save_File_As
         and then Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Label (S) = "Save As target"
         and then Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (S) = "",
         "cleanup must preserve canonical Save As prompt opening");
@@ -1620,7 +1620,7 @@ procedure Test_Metadata_Cleanup_Behavior_And_Persistence_Smoke
       pragma Unreferenced (T);
 
       type Expected_Metadata is record
-         Id       : Editor.Commands.Command_Id;
+         Id       : Editor.Command_Ids.Command_Id;
          Name     : Unbounded_String;
          Required : Boolean;
          Capable  : Boolean;
@@ -1628,16 +1628,16 @@ procedure Test_Metadata_Cleanup_Behavior_And_Persistence_Smoke
       end record;
 
       Expected : constant array (Positive range 1 .. 10) of Expected_Metadata :=
-        ((Editor.Commands.Command_Save_File, To_Unbounded_String ("file.save"), False, False, Null_Unbounded_String),
-         (Editor.Commands.Command_Save_File_As, To_Unbounded_String ("file.save-as"), True, True, To_Unbounded_String ("Save As target")),
-         (Editor.Commands.Command_Close_Active_Buffer, To_Unbounded_String ("file.close-buffer"), False, False, Null_Unbounded_String),
-         (Editor.Commands.Command_Reopen_Closed_Buffer, To_Unbounded_String ("file.reopen-closed-buffer"), False, False, Null_Unbounded_String),
-         (Editor.Commands.Command_Reload_Active_Buffer, To_Unbounded_String ("file.reload-buffer"), False, False, Null_Unbounded_String),
-         (Editor.Commands.Command_Revert_Active_Buffer, To_Unbounded_String ("file.revert-buffer"), False, False, Null_Unbounded_String),
-         (Editor.Commands.Command_Rename_Buffer_File, To_Unbounded_String ("file.rename-buffer-file"), True, True, To_Unbounded_String ("Rename target")),
-         (Editor.Commands.Command_Delete_Buffer_File, To_Unbounded_String ("file.delete-buffer-file"), False, False, Null_Unbounded_String),
-         (Editor.Commands.Command_Copy_Buffer_File, To_Unbounded_String ("file.copy-buffer-file"), True, True, To_Unbounded_String ("Copy target")),
-         (Editor.Commands.Command_Move_Buffer_File, To_Unbounded_String ("file.move-buffer-file"), True, True, To_Unbounded_String ("Move target")));
+        ((Editor.Command_Ids.Command_Save_File, To_Unbounded_String ("file.save"), False, False, Null_Unbounded_String),
+         (Editor.Command_Ids.Command_Save_File_As, To_Unbounded_String ("file.save-as"), True, True, To_Unbounded_String ("Save As target")),
+         (Editor.Command_Ids.Command_Close_Active_Buffer, To_Unbounded_String ("file.close-buffer"), False, False, Null_Unbounded_String),
+         (Editor.Command_Ids.Command_Reopen_Closed_Buffer, To_Unbounded_String ("file.reopen-closed-buffer"), False, False, Null_Unbounded_String),
+         (Editor.Command_Ids.Command_Reload_Active_Buffer, To_Unbounded_String ("file.reload-buffer"), False, False, Null_Unbounded_String),
+         (Editor.Command_Ids.Command_Revert_Active_Buffer, To_Unbounded_String ("file.revert-buffer"), False, False, Null_Unbounded_String),
+         (Editor.Command_Ids.Command_Rename_Buffer_File, To_Unbounded_String ("file.rename-buffer-file"), True, True, To_Unbounded_String ("Rename target")),
+         (Editor.Command_Ids.Command_Delete_Buffer_File, To_Unbounded_String ("file.delete-buffer-file"), False, False, Null_Unbounded_String),
+         (Editor.Command_Ids.Command_Copy_Buffer_File, To_Unbounded_String ("file.copy-buffer-file"), True, True, To_Unbounded_String ("Copy target")),
+         (Editor.Command_Ids.Command_Move_Buffer_File, To_Unbounded_String ("file.move-buffer-file"), True, True, To_Unbounded_String ("Move target")));
 
       Prompt_Capable_Count : Natural := 0;
       Required_Count       : Natural := 0;
@@ -1649,7 +1649,7 @@ procedure Test_Metadata_Cleanup_Behavior_And_Persistence_Smoke
            "' leaked into " & Context);
       end Reject_In;
 
-      procedure Assert_Descriptor_Minimal (Id : Editor.Commands.Command_Id) is
+      procedure Assert_Descriptor_Minimal (Id : Editor.Command_Ids.Command_Id) is
          D       : constant Editor.Commands.Descriptors.Command_Descriptor :=
            Editor.Commands.Descriptors.Descriptor (Id);
          Context : constant String := Editor.Commands.Name_Metadata.Stable_Command_Name (Id);
@@ -1733,12 +1733,12 @@ procedure Test_Metadata_Cleanup_Behavior_And_Persistence_Smoke
       Assert (Required_Count = 4 and then Prompt_Capable_Count = 4,
         "only Save As, Rename, Copy, and Move may require and support target prompts");
 
-      for Id in Editor.Commands.Command_Id loop
+      for Id in Editor.Command_Ids.Command_Id loop
          if Editor.Commands.Reference_Metadata.Command_Is_Target_Prompt_Capable (Id) then
-            Assert (Id in Editor.Commands.Command_Save_File_As
-                       | Editor.Commands.Command_Rename_Buffer_File
-                       | Editor.Commands.Command_Copy_Buffer_File
-                       | Editor.Commands.Command_Move_Buffer_File
+            Assert (Id in Editor.Command_Ids.Command_Save_File_As
+                       | Editor.Command_Ids.Command_Rename_Buffer_File
+                       | Editor.Command_Ids.Command_Copy_Buffer_File
+                       | Editor.Command_Ids.Command_Move_Buffer_File
               and then Editor.Commands.Reference_Metadata.Command_Requires_Explicit_Target (Id)
               and then Editor.Commands.Reference_Metadata.Command_Target_Prompt_Label (Id)'Length > 0,
               "no command outside the frozen file target set may become prompt-capable");
@@ -1767,15 +1767,15 @@ procedure Test_Render_Audit_Persistence_And_Behavior_Final_Freeze
       Route_Audit   : Editor.Command_Route_Audit.Route_Audit_Result;
 
       type Prompt_Command is record
-         Id    : Editor.Commands.Command_Id;
+         Id    : Editor.Command_Ids.Command_Id;
          Label : Unbounded_String;
       end record;
 
       Prompt_Commands : constant array (Positive range 1 .. 4) of Prompt_Command :=
-        ((Editor.Commands.Command_Save_File_As, To_Unbounded_String ("Save As target")),
-         (Editor.Commands.Command_Rename_Buffer_File, To_Unbounded_String ("Rename target")),
-         (Editor.Commands.Command_Copy_Buffer_File, To_Unbounded_String ("Copy target")),
-         (Editor.Commands.Command_Move_Buffer_File, To_Unbounded_String ("Move target")));
+        ((Editor.Command_Ids.Command_Save_File_As, To_Unbounded_String ("Save As target")),
+         (Editor.Command_Ids.Command_Rename_Buffer_File, To_Unbounded_String ("Rename target")),
+         (Editor.Command_Ids.Command_Copy_Buffer_File, To_Unbounded_String ("Copy target")),
+         (Editor.Command_Ids.Command_Move_Buffer_File, To_Unbounded_String ("Move target")));
    begin
       Remove_If_Exists (Source);
       Remove_If_Exists (Prompt_Target);
@@ -1791,7 +1791,7 @@ procedure Test_Render_Audit_Persistence_And_Behavior_Final_Freeze
       Editor.Command_Route_Audit.Record_Route
         (Route_Audit,
          Editor.Command_Route_Audit.Route_From_Command_Palette,
-         Editor.Commands.Command_Save_File_As);
+         Editor.Command_Ids.Command_Save_File_As);
       After_Audit := Editor.Configuration_Audit.Configuration_State_Summary_For (S);
       Editor.Configuration_Audit.Expect_No_Runtime_Or_Lifecycle_Mutation
         (Audit_Result, Before_Audit, After_Audit,
@@ -1821,16 +1821,16 @@ procedure Test_Render_Audit_Persistence_And_Behavior_Final_Freeze
            Editor.Commands.Name_Metadata.Stable_Command_Name (P.Id));
       end loop;
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File);
       Assert (not Editor.Commands.Reference_Metadata.Command_Is_Target_Prompt_Capable
-                (Editor.Commands.Command_Delete_Buffer_File)
+                (Editor.Command_Ids.Command_Delete_Buffer_File)
         and then not Editor.Commands.Reference_Metadata.Command_Requires_Explicit_Target
-                (Editor.Commands.Command_Delete_Buffer_File)
+                (Editor.Command_Ids.Command_Delete_Buffer_File)
         and then not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S)
         and then Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (S) = "",
         "non-target file lifecycle commands must not open target prompts");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File_As);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File_As);
       Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text (S, Prompt_Target);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert (Snap.File_Target_Prompt_Visible

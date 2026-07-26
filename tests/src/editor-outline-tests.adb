@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Classification;
 with Editor.Commands.Stable_Names;
@@ -18,7 +19,6 @@ with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Editor.Outline.Fixtures; use Editor.Outline.Fixtures;
 with Editor.Ada_Syntax_Core;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.Cursors;
 with Editor.Executor;
@@ -41,7 +41,7 @@ with Editor.Workspace_Persistence;
 
 package body Editor.Outline.Tests is
 
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Executor.Command_Execution_Status;
    use type Editor.Outline.Outline_Item_Kind;
@@ -238,18 +238,18 @@ package body Editor.Outline.Tests is
    is
       pragma Unreferenced (T);
       Found : Boolean := False;
-      Id    : Editor.Commands.Command_Id;
+      Id    : Editor.Command_Ids.Command_Id;
    begin
-      Assert (Editor.Commands.Descriptors.Category (Editor.Commands.Command_Refresh_Outline) =
+      Assert (Editor.Commands.Descriptors.Category (Editor.Command_Ids.Command_Refresh_Outline) =
                 Editor.Commands.Descriptors.Panel_Category,
               "refresh outline is a panel command");
-      Assert (Editor.Commands.Classification.Is_Visible_In_Palette (Editor.Commands.Command_Refresh_Outline),
+      Assert (Editor.Commands.Classification.Is_Visible_In_Palette (Editor.Command_Ids.Command_Refresh_Outline),
               "refresh outline appears in command palette");
-      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Refresh_Outline) =
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Command_Ids.Command_Refresh_Outline) =
                 "outline.refresh",
               "refresh outline stable name is canonical dot form");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("outline.open-selected", Found);
-      Assert (Found and then Id = Editor.Commands.Command_Open_Selected_Outline_Item,
+      Assert (Found and then Id = Editor.Command_Ids.Command_Open_Selected_Outline_Item,
               "open selected outline canonical stable name round trips");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("refresh-outline", Found);
       Assert (not Found, "old refresh-outline spelling is not a stable command");
@@ -261,7 +261,7 @@ package body Editor.Outline.Tests is
       Assert (not Found, "old focus-outline spelling is not a stable command");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("open-selected-outline-item", Found);
       Assert (not Found, "old open-selected-outline-item spelling is not a stable command");
-      Assert (Editor.Commands.Classification.Is_Bindable_Command (Editor.Commands.Command_Show_Outline),
+      Assert (Editor.Commands.Classification.Is_Bindable_Command (Editor.Command_Ids.Command_Show_Outline),
               "show outline is bindable without a default chord");
    end Test_Command_Metadata_And_Stable_Names;
 
@@ -274,14 +274,14 @@ package body Editor.Outline.Tests is
    begin
       Editor.State.Init (S);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available
-        (Editor.Executor.Command_Availability (S, Editor.Commands.Command_Refresh_Outline)),
+        (Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Refresh_Outline)),
         "refresh outline unavailable without active buffer");
       Editor.State.Load_Text
         (S, "@outline package Demo" & ASCII.LF &
             "@outline procedure Run" & ASCII.LF &
             "end Demo;");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "refresh outline executes through executor");
       Assert (Item_Count (S.Outline) = 2, "refresh extracts marker outline state");
@@ -295,7 +295,7 @@ package body Editor.Outline.Tests is
               "refresh emits canonical outline message");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Clear_Outline);
+        (S, Editor.Command_Ids.Command_Clear_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "clear outline executes through executor");
       Assert (Item_Count (S.Outline) = 0, "clear removes outline state");
@@ -316,28 +316,28 @@ package body Editor.Outline.Tests is
    begin
       Editor.State.Init (S);
       Assert (Editor.Commands.Availability_Metadata.Is_Available
-        (Editor.Executor.Command_Availability (S, Editor.Commands.Command_Show_Outline)),
+        (Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Show_Outline)),
         "show outline is available while feature panel is hidden");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Show_Outline);
+        (S, Editor.Command_Ids.Command_Show_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "show outline executes once");
       Assert (not Editor.Commands.Availability_Metadata.Is_Available
-        (Editor.Executor.Command_Availability (S, Editor.Commands.Command_Show_Outline)),
+        (Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Show_Outline)),
         "show outline is unavailable after the panel is visible");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason
-        (Editor.Executor.Command_Availability (S, Editor.Commands.Command_Show_Outline)) =
+        (Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Show_Outline)) =
           Editor.Outline.Reason_Feature_Panel_Already_Shown,
         "show outline disabled reason is canonical");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Focus_Outline);
+        (S, Editor.Command_Ids.Command_Focus_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "focus outline executes while visible and not focused");
       Assert (not Editor.Commands.Availability_Metadata.Is_Available
-        (Editor.Executor.Command_Availability (S, Editor.Commands.Command_Focus_Outline)),
+        (Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Focus_Outline)),
         "focus outline is unavailable after focus");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason
-        (Editor.Executor.Command_Availability (S, Editor.Commands.Command_Focus_Outline)) =
+        (Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Focus_Outline)) =
           Editor.Outline.Reason_Feature_Panel_Already_Focused,
         "focus outline disabled reason is canonical");
    end Test_Show_And_Focus_Availability;
@@ -351,9 +351,9 @@ package body Editor.Outline.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "@outline procedure Reset_Test" & ASCII.LF & "x");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Refresh_Outline);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
       F := Fingerprint (S.Outline);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Clear_Feature_Panel);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Clear_Feature_Panel);
       Assert (Fingerprint (S.Outline) = F,
               "generic clear feature panel does not clear outline source state");
       Assert (Editor.Feature_Panel.Row_Count (S.Feature_Panel) = 0,
@@ -372,12 +372,12 @@ package body Editor.Outline.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "@outline procedure Reset_Test" & ASCII.LF & "x");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Refresh_Outline);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
       Outline_Before := Fingerprint (S.Outline);
       Panel_Before := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
       Messages_Before := Editor.Messages.Count (S.Messages);
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Open_Selected_Outline_Item);
+        (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "open selected is unavailable until selection exists");
       Assert (Fingerprint (S.Outline) = Outline_Before,
@@ -396,24 +396,24 @@ package body Editor.Outline.Tests is
       Config : Editor.Keybinding_Config.Keybinding_Config_Model;
       Chord  : Editor.Keybindings.Key_Chord;
       Found  : Boolean := False;
-      Id     : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Id     : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "@outline procedure Reset_Test" & ASCII.LF & "x");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Refresh_Outline);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
       Editor.State.Apply_Settings (S, S.Settings);
       Assert (Item_Count (S.Outline) = 1, "settings application does not clear extracted outline");
       Editor.Keybindings.Reset_To_Defaults;
       Assert (Editor.Keybindings.Primary_Binding_For_Command
-        (Editor.Commands.Command_Refresh_Outline).Has_Binding,
+        (Editor.Command_Ids.Command_Refresh_Outline).Has_Binding,
         "outline refresh participates in optional default keybindings");
       Editor.Keybinding_Config.Clear (Config);
       Chord := Editor.Keybindings.Parse_Chord ("Ctrl+Alt+F1", Found);
       Assert (Found, "outline custom chord parses");
-      Editor.Keybinding_Config.Bind (Config, Editor.Commands.Command_Refresh_Outline, Chord);
+      Editor.Keybinding_Config.Bind (Config, Editor.Command_Ids.Command_Refresh_Outline, Chord);
       Editor.Keybinding_Config.Apply_To_Runtime (Config);
       Assert (Editor.Keybindings.Resolve (Chord, Id) = Editor.Keybindings.Bound_Command
-        and then Id = Editor.Commands.Command_Refresh_Outline,
+        and then Id = Editor.Command_Ids.Command_Refresh_Outline,
         "custom outline chord resolves to command id");
       Editor.State.Reset_Project_Scoped_State (S);
       Assert (Item_Count (S.Outline) = 0, "project-scoped reset clears outline");
@@ -434,10 +434,10 @@ package body Editor.Outline.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "@outline procedure Reset_Test" & ASCII.LF & "x");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Refresh_Outline);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
       Outline_Before := Fingerprint (S.Outline);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Clear_Feature_Panel);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Clear_Feature_Panel);
       Assert (Fingerprint (S.Outline) = Outline_Before,
               "clear feature panel preserves outline content owner state");
       Assert (Editor.Feature_Panel.Row_Count (S.Feature_Panel) = 0,
@@ -446,7 +446,7 @@ package body Editor.Outline.Tests is
               "clear feature panel clears selection");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Clear_Outline);
+        (S, Editor.Command_Ids.Command_Clear_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "clear outline remains available while outline state exists");
       Assert (Item_Count (S.Outline) = 0,
@@ -466,7 +466,7 @@ package body Editor.Outline.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "@outline procedure Reset_Test" & ASCII.LF & "x");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Refresh_Outline);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
       Editor.Feature_Panel.Select_First (S.Feature_Panel);
       Summary := Editor.State.Project_Scoped_State_Summary_For (S);
 
@@ -535,12 +535,12 @@ package body Editor.Outline.Tests is
       Panel_Before    : Editor.Feature_Panel.Feature_Panel_Fingerprint;
       Messages_Before : Natural;
       A               : Editor.Commands.Availability_Metadata.Command_Availability;
-      Outline_Commands : constant array (Positive range <>) of Editor.Commands.Command_Id :=
-        (Editor.Commands.Command_Refresh_Outline,
-         Editor.Commands.Command_Clear_Outline,
-         Editor.Commands.Command_Show_Outline,
-         Editor.Commands.Command_Focus_Outline,
-         Editor.Commands.Command_Open_Selected_Outline_Item);
+      Outline_Commands : constant array (Positive range <>) of Editor.Command_Ids.Command_Id :=
+        (Editor.Command_Ids.Command_Refresh_Outline,
+         Editor.Command_Ids.Command_Clear_Outline,
+         Editor.Command_Ids.Command_Show_Outline,
+         Editor.Command_Ids.Command_Focus_Outline,
+         Editor.Command_Ids.Command_Open_Selected_Outline_Item);
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "availability must not populate outline");
@@ -571,7 +571,7 @@ package body Editor.Outline.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "@outline procedure Reset_Test" & ASCII.LF & "x");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Refresh_Outline);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Item_Count (S.Outline) = 1,
               "fixture has refreshed extracted outline items");
 
@@ -581,7 +581,7 @@ package body Editor.Outline.Tests is
       Assert (Editor.Feature_Panel.Row_Count (S.Feature_Panel) = 0,
               "project-scoped reset clears feature-panel rows");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Show_Outline);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Show_Outline);
       Assert (Item_Count (S.Outline) = 0,
               "show outline after reset does not auto-refresh extracted items");
       Assert (Editor.Feature_Panel.Row_Count (S.Feature_Panel) = 0,
@@ -702,14 +702,14 @@ package body Editor.Outline.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "@outline package Old" & ASCII.LF & "x");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Refresh_Outline);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Item_Count (S.Outline) = 1,
               "fixture starts with extracted outline item");
 
       Editor.Feature_Panel.Select_First (S.Feature_Panel);
       Editor.State.Load_Text (S, "ordinary text without markers");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
 
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "zero-item refresh is successful, not failed");
@@ -727,7 +727,7 @@ package body Editor.Outline.Tests is
               "zero-item refresh emits the canonical success message");
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Clear_Outline);
+        (S, Editor.Command_Ids.Command_Clear_Outline);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "clear outline is unavailable after zero-item refresh");
    end Test_Zero_Item_Refresh_Clears_Rows;
@@ -744,7 +744,7 @@ package body Editor.Outline.Tests is
       Editor.State.Load_Text (S, "@outline procedure Dirty_Run" & ASCII.LF & "body");
       Editor.State.Set_Dirty (S, True);
       Caret_Count_Before := Natural (S.Carets.Length);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Refresh_Outline);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
 
       Assert (Editor.State.Is_Dirty (S),
               "refresh outline does not clear dirty state");
@@ -770,7 +770,7 @@ package body Editor.Outline.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "@outline package Initial" & ASCII.LF & "x");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Refresh_Outline);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
       Outline_Before := Fingerprint (S.Outline);
       Panel_Before := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
       Messages_Before := Editor.Messages.Count (S.Messages);
@@ -779,7 +779,7 @@ package body Editor.Outline.Tests is
         (S, "@outline package Changed_But_Not_Refreshed" & ASCII.LF & "x");
       Messages_Before := Editor.Messages.Count (S.Messages);
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
 
       Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "refresh outline remains available with an active buffer");
@@ -803,7 +803,7 @@ package body Editor.Outline.Tests is
       Editor.State.Load_Text
         (S, "@outline section Setup" & ASCII.LF &
             "@outline procedure Run" & ASCII.LF & "body");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Refresh_Outline);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
 
       Assert (Editor.Feature_Panel.Row_Kind (S.Feature_Panel, 1) =
                 Editor.Feature_Panel.Feature_Row_Header,
@@ -819,7 +819,7 @@ package body Editor.Outline.Tests is
       Active_Before := Editor.State.Has_Active_Buffer (S);
       Editor.Feature_Panel.Select_First (S.Feature_Panel);
       Editor.Feature_Panel.Select_Next (S.Feature_Panel);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Open_Selected_Outline_Item);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
 
       Assert (Editor.State.Current_Text (S) =
                 "@outline section Setup" & ASCII.LF &
@@ -1090,19 +1090,19 @@ package body Editor.Outline.Tests is
       pragma Unreferenced (T);
    begin
       Assert (Editor.Commands.Classification.Is_Visible_In_Palette
-                (Editor.Commands.Command_Open_Selected_Outline_Item),
+                (Editor.Command_Ids.Command_Open_Selected_Outline_Item),
               "open selected outline item is discoverable in the command palette");
       Assert (Editor.Commands.Classification.Is_Visible_In_Palette
-                (Editor.Commands.Command_Select_Next_Outline_Item),
+                (Editor.Command_Ids.Command_Select_Next_Outline_Item),
               "select next outline item is discoverable in the command palette");
       Assert (Editor.Commands.Classification.Is_Visible_In_Palette
-                (Editor.Commands.Command_Select_Previous_Outline_Item),
+                (Editor.Command_Ids.Command_Select_Previous_Outline_Item),
               "select previous outline item is discoverable in the command palette");
       Assert (Editor.Commands.Classification.Is_Visible_In_Palette
-                (Editor.Commands.Command_Reveal_Current_Outline_Symbol),
+                (Editor.Command_Ids.Command_Reveal_Current_Outline_Symbol),
               "reveal current outline symbol is discoverable in the command palette");
       Assert (Editor.Commands.Descriptors.Label
-                (Editor.Commands.Command_Reveal_Current_Outline_Symbol) =
+                (Editor.Command_Ids.Command_Reveal_Current_Outline_Symbol) =
               "Reveal Current Outline Symbol",
               "reveal current symbol has a concise palette label");
    end Test_Command_Palette_Registers_Outline_Navigation;
@@ -1120,12 +1120,12 @@ package body Editor.Outline.Tests is
         (S, "@outline package Demo" & ASCII.LF &
             "@outline procedure Later" & ASCII.LF & "body");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Focus_Outline);
+        (S, Editor.Command_Ids.Command_Focus_Outline);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Select_Next_Outline_Item);
+        (S, Editor.Command_Ids.Command_Select_Next_Outline_Item);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "select-next executes");
       Assert (Editor.Feature_Panel.Is_Focused (S.Feature_Panel),
@@ -1144,14 +1144,14 @@ package body Editor.Outline.Tests is
         (S, "@outline package Demo" & ASCII.LF &
             "@outline procedure Later" & ASCII.LF & "body");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Focus_Outline);
+        (S, Editor.Command_Ids.Command_Focus_Outline);
       Select_Item (S.Outline, 2);
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, 2);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Select_Previous_Outline_Item);
+        (S, Editor.Command_Ids.Command_Select_Previous_Outline_Item);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "select-previous executes");
       Assert (Editor.Feature_Panel.Is_Focused (S.Feature_Panel),
@@ -1162,7 +1162,7 @@ package body Editor.Outline.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Id : Editor.Commands.Command_Id;
+      Id : Editor.Command_Ids.Command_Id;
       Chord : constant Editor.Keybindings.Key_Chord :=
         (Key       => Editor.Keybindings.Key_F3,
          Modifiers =>
@@ -1171,7 +1171,7 @@ package body Editor.Outline.Tests is
       Editor.Keybindings.Reset_To_Defaults;
       Assert (Editor.Keybindings.Resolve (Chord, Id) = Editor.Keybindings.Bound_Command,
               "outline keybinding should resolve through registry");
-      Assert (Id = Editor.Commands.Command_Select_Next_Outline_Item,
+      Assert (Id = Editor.Command_Ids.Command_Select_Next_Outline_Item,
               "outline keybinding should target the same command id as palette invocation");
       Assert (Editor.Commands.Classification.Is_Visible_In_Palette (Id),
               "keybound outline command should remain visible in the command palette");
@@ -1363,26 +1363,26 @@ package body Editor.Outline.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      type Command_Id_Array is array (Positive range <>) of Editor.Commands.Command_Id;
+      type Command_Id_Array is array (Positive range <>) of Editor.Command_Ids.Command_Id;
       Outline_Commands : constant Command_Id_Array :=
-        (Editor.Commands.Command_Refresh_Outline,
-         Editor.Commands.Command_Clear_Outline,
-         Editor.Commands.Command_Show_Outline,
-         Editor.Commands.Command_Focus_Outline,
-         Editor.Commands.Command_Open_Selected_Outline_Item,
-         Editor.Commands.Command_Select_Current_Outline_Symbol,
-         Editor.Commands.Command_Reveal_Current_Outline_Symbol,
-         Editor.Commands.Command_Select_Next_Outline_Item,
-         Editor.Commands.Command_Select_Previous_Outline_Item,
-         Editor.Commands.Command_Focus_Outline_Filter,
-         Editor.Commands.Command_Filter_Outline,
-         Editor.Commands.Command_Clear_Outline_Filter,
-         Editor.Commands.Command_Toggle_Outline_Filter,
-         Editor.Commands.Command_Outline_Filter_History_Previous,
-         Editor.Commands.Command_Outline_Filter_History_Next,
-         Editor.Commands.Command_Clear_Outline_Filter_History);
+        (Editor.Command_Ids.Command_Refresh_Outline,
+         Editor.Command_Ids.Command_Clear_Outline,
+         Editor.Command_Ids.Command_Show_Outline,
+         Editor.Command_Ids.Command_Focus_Outline,
+         Editor.Command_Ids.Command_Open_Selected_Outline_Item,
+         Editor.Command_Ids.Command_Select_Current_Outline_Symbol,
+         Editor.Command_Ids.Command_Reveal_Current_Outline_Symbol,
+         Editor.Command_Ids.Command_Select_Next_Outline_Item,
+         Editor.Command_Ids.Command_Select_Previous_Outline_Item,
+         Editor.Command_Ids.Command_Focus_Outline_Filter,
+         Editor.Command_Ids.Command_Filter_Outline,
+         Editor.Command_Ids.Command_Clear_Outline_Filter,
+         Editor.Command_Ids.Command_Toggle_Outline_Filter,
+         Editor.Command_Ids.Command_Outline_Filter_History_Previous,
+         Editor.Command_Ids.Command_Outline_Filter_History_Next,
+         Editor.Command_Ids.Command_Clear_Outline_Filter_History);
       Found : Boolean := False;
-      Round_Trip : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Round_Trip : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
    begin
       for I in Outline_Commands'Range loop
          Assert (Editor.Commands.Descriptor_Metadata.Has_Descriptor (Outline_Commands (I)),
@@ -1498,24 +1498,24 @@ package body Editor.Outline.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      type Command_Id_Array is array (Positive range <>) of Editor.Commands.Command_Id;
+      type Command_Id_Array is array (Positive range <>) of Editor.Command_Ids.Command_Id;
       Outline_Commands : constant Command_Id_Array :=
-        (Editor.Commands.Command_Refresh_Outline,
-         Editor.Commands.Command_Clear_Outline,
-         Editor.Commands.Command_Show_Outline,
-         Editor.Commands.Command_Focus_Outline,
-         Editor.Commands.Command_Open_Selected_Outline_Item,
-         Editor.Commands.Command_Select_Current_Outline_Symbol,
-         Editor.Commands.Command_Reveal_Current_Outline_Symbol,
-         Editor.Commands.Command_Select_Next_Outline_Item,
-         Editor.Commands.Command_Select_Previous_Outline_Item,
-         Editor.Commands.Command_Focus_Outline_Filter,
-         Editor.Commands.Command_Filter_Outline,
-         Editor.Commands.Command_Clear_Outline_Filter,
-         Editor.Commands.Command_Toggle_Outline_Filter,
-         Editor.Commands.Command_Outline_Filter_History_Previous,
-         Editor.Commands.Command_Outline_Filter_History_Next,
-         Editor.Commands.Command_Clear_Outline_Filter_History);
+        (Editor.Command_Ids.Command_Refresh_Outline,
+         Editor.Command_Ids.Command_Clear_Outline,
+         Editor.Command_Ids.Command_Show_Outline,
+         Editor.Command_Ids.Command_Focus_Outline,
+         Editor.Command_Ids.Command_Open_Selected_Outline_Item,
+         Editor.Command_Ids.Command_Select_Current_Outline_Symbol,
+         Editor.Command_Ids.Command_Reveal_Current_Outline_Symbol,
+         Editor.Command_Ids.Command_Select_Next_Outline_Item,
+         Editor.Command_Ids.Command_Select_Previous_Outline_Item,
+         Editor.Command_Ids.Command_Focus_Outline_Filter,
+         Editor.Command_Ids.Command_Filter_Outline,
+         Editor.Command_Ids.Command_Clear_Outline_Filter,
+         Editor.Command_Ids.Command_Toggle_Outline_Filter,
+         Editor.Command_Ids.Command_Outline_Filter_History_Previous,
+         Editor.Command_Ids.Command_Outline_Filter_History_Next,
+         Editor.Command_Ids.Command_Clear_Outline_Filter_History);
    begin
       for I in Outline_Commands'Range loop
          Assert (Editor.Commands.Descriptor_Metadata.Has_Descriptor (Outline_Commands (I)),
@@ -1563,21 +1563,21 @@ package body Editor.Outline.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      type Command_Id_Array is array (Positive range <>) of Editor.Commands.Command_Id;
+      type Command_Id_Array is array (Positive range <>) of Editor.Command_Ids.Command_Id;
       Outline_Commands : constant Command_Id_Array :=
-        (Editor.Commands.Command_Refresh_Outline,
-         Editor.Commands.Command_Clear_Outline,
-         Editor.Commands.Command_Open_Selected_Outline_Item,
-         Editor.Commands.Command_Select_Next_Outline_Item,
-         Editor.Commands.Command_Select_Previous_Outline_Item,
-         Editor.Commands.Command_Select_Current_Outline_Symbol,
-         Editor.Commands.Command_Reveal_Current_Outline_Symbol,
-         Editor.Commands.Command_Focus_Outline_Filter,
-         Editor.Commands.Command_Filter_Outline,
-         Editor.Commands.Command_Clear_Outline_Filter,
-         Editor.Commands.Command_Outline_Filter_History_Previous,
-         Editor.Commands.Command_Outline_Filter_History_Next,
-         Editor.Commands.Command_Clear_Outline_Filter_History);
+        (Editor.Command_Ids.Command_Refresh_Outline,
+         Editor.Command_Ids.Command_Clear_Outline,
+         Editor.Command_Ids.Command_Open_Selected_Outline_Item,
+         Editor.Command_Ids.Command_Select_Next_Outline_Item,
+         Editor.Command_Ids.Command_Select_Previous_Outline_Item,
+         Editor.Command_Ids.Command_Select_Current_Outline_Symbol,
+         Editor.Command_Ids.Command_Reveal_Current_Outline_Symbol,
+         Editor.Command_Ids.Command_Focus_Outline_Filter,
+         Editor.Command_Ids.Command_Filter_Outline,
+         Editor.Command_Ids.Command_Clear_Outline_Filter,
+         Editor.Command_Ids.Command_Outline_Filter_History_Previous,
+         Editor.Command_Ids.Command_Outline_Filter_History_Next,
+         Editor.Command_Ids.Command_Clear_Outline_Filter_History);
       S      : Editor.State.State_Type;
       Result : Editor.Executor.Command_Execution_Result;
    begin
@@ -1602,21 +1602,21 @@ package body Editor.Outline.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      type Command_Id_Array is array (Positive range <>) of Editor.Commands.Command_Id;
+      type Command_Id_Array is array (Positive range <>) of Editor.Command_Ids.Command_Id;
       Outline_Commands : constant Command_Id_Array :=
-        (Editor.Commands.Command_Refresh_Outline,
-         Editor.Commands.Command_Clear_Outline,
-         Editor.Commands.Command_Open_Selected_Outline_Item,
-         Editor.Commands.Command_Select_Next_Outline_Item,
-         Editor.Commands.Command_Select_Previous_Outline_Item,
-         Editor.Commands.Command_Select_Current_Outline_Symbol,
-         Editor.Commands.Command_Reveal_Current_Outline_Symbol,
-         Editor.Commands.Command_Focus_Outline_Filter,
-         Editor.Commands.Command_Filter_Outline,
-         Editor.Commands.Command_Clear_Outline_Filter,
-         Editor.Commands.Command_Outline_Filter_History_Previous,
-         Editor.Commands.Command_Outline_Filter_History_Next,
-         Editor.Commands.Command_Clear_Outline_Filter_History);
+        (Editor.Command_Ids.Command_Refresh_Outline,
+         Editor.Command_Ids.Command_Clear_Outline,
+         Editor.Command_Ids.Command_Open_Selected_Outline_Item,
+         Editor.Command_Ids.Command_Select_Next_Outline_Item,
+         Editor.Command_Ids.Command_Select_Previous_Outline_Item,
+         Editor.Command_Ids.Command_Select_Current_Outline_Symbol,
+         Editor.Command_Ids.Command_Reveal_Current_Outline_Symbol,
+         Editor.Command_Ids.Command_Focus_Outline_Filter,
+         Editor.Command_Ids.Command_Filter_Outline,
+         Editor.Command_Ids.Command_Clear_Outline_Filter,
+         Editor.Command_Ids.Command_Outline_Filter_History_Previous,
+         Editor.Command_Ids.Command_Outline_Filter_History_Next,
+         Editor.Command_Ids.Command_Clear_Outline_Filter_History);
       S      : Editor.State.State_Type;
       Result : Editor.Executor.Command_Execution_Result;
    begin
@@ -1627,7 +1627,7 @@ package body Editor.Outline.Tests is
                "@outline procedure Run" & ASCII.LF &
                "end Demo;");
          Result := Editor.Executor.Execute_Command_With_Result
-           (S, Editor.Commands.Command_Refresh_Outline);
+           (S, Editor.Command_Ids.Command_Refresh_Outline);
          Assert (Result.Status = Editor.Executor.Command_Executed,
                  "setup refresh produces extracted rows");
          Apply_Filter (S.Outline, "run");
@@ -1651,7 +1651,7 @@ package body Editor.Outline.Tests is
                  "closed-project command keeps outline state consistent");
          Assert (Filter_History_Count (S.Outline) = 0,
                  "closed-project command must not resurrect filter history");
-         if Id /= Editor.Commands.Command_Refresh_Outline then
+         if Id /= Editor.Command_Ids.Command_Refresh_Outline then
             Assert (Item_Count (S.Outline) = 0,
                     "closed-project non-refresh command must not resurrect stale outline rows");
             Assert (not Filter_Input_Is_Active (S.Outline),
@@ -1820,7 +1820,7 @@ package body Editor.Outline.Tests is
         (S, "ordinary text without Ada outline declarations" & ASCII.LF &
             "still just display-only content");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "empty Ada outline refresh still succeeds");
       Assert (Item_Count (S.Outline) = 0,
@@ -1840,7 +1840,7 @@ package body Editor.Outline.Tests is
       Before := S.Carets (0).Pos;
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Open_Selected_Outline_Item);
+        (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
       Assert (Result.Status /= Editor.Executor.Command_Executed,
               "activating an empty-state row does not navigate");
       Assert (S.Carets (0).Pos = Before,
@@ -1896,7 +1896,7 @@ package body Editor.Outline.Tests is
    begin
       Editor.State.Init (S);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Show_Outline);
+        (S, Editor.Command_Ids.Command_Show_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "show outline remains an explicit UI workflow with no active buffer");
       Assert (Outline_Empty_State_Label (S.Outline) = "No active buffer.",
@@ -1925,95 +1925,95 @@ package body Editor.Outline.Tests is
    is
       pragma Unreferenced (T);
       Found : Boolean := False;
-      Id    : Editor.Commands.Command_Id;
+      Id    : Editor.Command_Ids.Command_Id;
    begin
-      Assert (Editor.Commands.Descriptors.Label (Editor.Commands.Command_Next_Outline_Symbol) =
+      Assert (Editor.Commands.Descriptors.Label (Editor.Command_Ids.Command_Next_Outline_Symbol) =
                 "Next Outline Symbol",
               "next symbol command has a palette label");
-      Assert (Editor.Commands.Descriptors.Label (Editor.Commands.Command_Previous_Outline_Symbol) =
+      Assert (Editor.Commands.Descriptors.Label (Editor.Command_Ids.Command_Previous_Outline_Symbol) =
                 "Previous Outline Symbol",
               "previous symbol command has a palette label");
-      Assert (Editor.Commands.Descriptors.Category (Editor.Commands.Command_Next_Outline_Symbol) =
+      Assert (Editor.Commands.Descriptors.Category (Editor.Command_Ids.Command_Next_Outline_Symbol) =
                 Editor.Commands.Descriptors.Navigation_Category,
               "next symbol is categorized as navigation");
-      Assert (Editor.Commands.Descriptors.Category (Editor.Commands.Command_Previous_Outline_Symbol) =
+      Assert (Editor.Commands.Descriptors.Category (Editor.Command_Ids.Command_Previous_Outline_Symbol) =
                 Editor.Commands.Descriptors.Navigation_Category,
               "previous symbol is categorized as navigation");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("outline.next-symbol", Found);
-      Assert (Found and then Id = Editor.Commands.Command_Next_Outline_Symbol,
+      Assert (Found and then Id = Editor.Command_Ids.Command_Next_Outline_Symbol,
               "next symbol stable name round trips without payload");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("outline.previous-symbol", Found);
-      Assert (Found and then Id = Editor.Commands.Command_Previous_Outline_Symbol,
+      Assert (Found and then Id = Editor.Command_Ids.Command_Previous_Outline_Symbol,
               "previous symbol stable name round trips without payload");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Reveal_Current_Outline_Symbol) =
+                (Editor.Command_Ids.Command_Reveal_Current_Outline_Symbol) =
                 "outline.reveal-current-symbol",
               "reveal-current command has canonical no-payload stable name");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Select_Current_Outline_Symbol) =
+                (Editor.Command_Ids.Command_Select_Current_Outline_Symbol) =
                 "outline.select-current-symbol",
               "select-current command has canonical no-payload stable name");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Select_Next_Outline_Item) =
+                (Editor.Command_Ids.Command_Select_Next_Outline_Item) =
                 "outline.select-next",
               "select-next command has canonical no-payload stable name");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Select_Previous_Outline_Item) =
+                (Editor.Command_Ids.Command_Select_Previous_Outline_Item) =
                 "outline.select-previous",
               "select-previous command has canonical no-payload stable name");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Focus_Outline_Filter) =
+                (Editor.Command_Ids.Command_Focus_Outline_Filter) =
                 "outline.filter.focus",
               "focus filter command has canonical no-payload stable name");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Clear_Outline_Filter) =
+                (Editor.Command_Ids.Command_Clear_Outline_Filter) =
                 "outline.filter.clear",
               "clear filter command has canonical no-payload stable name");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("outline.reveal-current-symbol", Found);
-      Assert (Found and then Id = Editor.Commands.Command_Reveal_Current_Outline_Symbol,
+      Assert (Found and then Id = Editor.Command_Ids.Command_Reveal_Current_Outline_Symbol,
               "reveal-current stable alias routes without payload");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("outline.select-current-symbol", Found);
-      Assert (Found and then Id = Editor.Commands.Command_Select_Current_Outline_Symbol,
+      Assert (Found and then Id = Editor.Command_Ids.Command_Select_Current_Outline_Symbol,
               "select-current stable alias routes without payload");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("select-current-outline-symbol", Found);
-      Assert (not Found and then Id = Editor.Commands.No_Command,
+      Assert (not Found and then Id = Editor.Command_Ids.No_Command,
               "legacy select-current alias is not loadable");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("outline.select-next", Found);
-      Assert (Found and then Id = Editor.Commands.Command_Select_Next_Outline_Item,
+      Assert (Found and then Id = Editor.Command_Ids.Command_Select_Next_Outline_Item,
               "select-next stable alias routes without payload");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("select-next-outline-item", Found);
-      Assert (not Found and then Id = Editor.Commands.No_Command,
+      Assert (not Found and then Id = Editor.Command_Ids.No_Command,
               "legacy select-next alias is not loadable");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("outline.select-previous", Found);
-      Assert (Found and then Id = Editor.Commands.Command_Select_Previous_Outline_Item,
+      Assert (Found and then Id = Editor.Command_Ids.Command_Select_Previous_Outline_Item,
               "select-previous stable alias routes without payload");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("select-previous-outline-item", Found);
-      Assert (not Found and then Id = Editor.Commands.No_Command,
+      Assert (not Found and then Id = Editor.Command_Ids.No_Command,
               "legacy select-previous alias is not loadable");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("outline.filter.next-match", Found);
-      Assert (Found and then Id = Editor.Commands.Command_Select_Next_Outline_Item,
+      Assert (Found and then Id = Editor.Command_Ids.Command_Select_Next_Outline_Item,
               "filter next-match alias routes to existing filtered selection command");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("outline.filter.previous-match", Found);
-      Assert (Found and then Id = Editor.Commands.Command_Select_Previous_Outline_Item,
+      Assert (Found and then Id = Editor.Command_Ids.Command_Select_Previous_Outline_Item,
               "filter previous-match alias routes to existing filtered selection command");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("outline.filter.focus", Found);
-      Assert (Found and then Id = Editor.Commands.Command_Focus_Outline_Filter,
+      Assert (Found and then Id = Editor.Command_Ids.Command_Focus_Outline_Filter,
               "filter focus alias routes without payload");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("outline.filter.clear", Found);
-      Assert (Found and then Id = Editor.Commands.Command_Clear_Outline_Filter,
+      Assert (Found and then Id = Editor.Command_Ids.Command_Clear_Outline_Filter,
               "filter clear alias routes without payload");
    end Test_Command_Surface_Registers_Navigation_Commands;
 

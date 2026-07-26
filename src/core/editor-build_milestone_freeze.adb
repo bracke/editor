@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Build_Candidates;
@@ -8,7 +9,6 @@ with Editor.Build_Public_Request;
 with Editor.Build_Runner_Policy;
 with Editor.Build_UI;
 with Editor.Build_Working_Context;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.External_Producers;
 with Editor.External_Producers.Build_Types;
@@ -335,9 +335,9 @@ package body Editor.Build_Milestone_Freeze is
           (State)
         and then Editor.Build_Command.Assert_Build_Run_Keybinding_Boundary
         and then not Editor.Commands.Descriptors.Descriptor
-          (Editor.Commands.Command_Build_Run).Bindable
+          (Editor.Command_Ids.Command_Build_Run).Bindable
         and then Editor.Commands.Name_Metadata.Stable_Command_Name
-          (Editor.Commands.Command_Build_Run) = "build.run";
+          (Editor.Command_Ids.Command_Build_Run) = "build.run";
    end Assert_Public_Build_Frontdoor_Boundaries_Frozen;
 
    function Assert_Public_Build_Persistence_Excluded_Frozen

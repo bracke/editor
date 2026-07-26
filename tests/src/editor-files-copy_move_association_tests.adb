@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
@@ -6,7 +7,6 @@ with Ada.Containers;
 with Ada.Directories;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.Command_Palette;
 with Editor.Command_Route_Audit;
@@ -66,7 +66,7 @@ package body Editor.Files.Copy_Move_Association_Tests is
    use type Editor.Files.File_Open_Status;
    use type Editor.Files.File_Save_Status;
    use type Editor.Files.File_Move_Status;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Command_Palette.Command_Palette_Row_Kind;
@@ -92,7 +92,7 @@ package body Editor.Files.Copy_Move_Association_Tests is
       Path         : constant String := Temp_Path ("p453_surface.txt");
       Target       : constant String := Temp_Path ("p453_surface_copy.txt");
       Existing     : constant String := Temp_Path ("p453_surface_existing.txt");
-      Cmd_Id       : Editor.Commands.Command_Id;
+      Cmd_Id       : Editor.Command_Ids.Command_Id;
       Found        : Boolean := False;
       Descriptor   : Editor.Commands.Descriptors.Command_Descriptor;
       Availability : Editor.Commands.Availability_Metadata.Command_Availability;
@@ -100,14 +100,14 @@ package body Editor.Files.Copy_Move_Association_Tests is
    begin
       Cmd_Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("file.copy-buffer-file", Found);
-      Assert (Found and then Cmd_Id = Editor.Commands.Command_Copy_Buffer_File,
+      Assert (Found and then Cmd_Id = Editor.Command_Ids.Command_Copy_Buffer_File,
         "file.copy-buffer-file must resolve to canonical command id");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-        (Editor.Commands.Command_Copy_Buffer_File) = "file.copy-buffer-file",
+        (Editor.Command_Ids.Command_Copy_Buffer_File) = "file.copy-buffer-file",
         "copy must expose canonical stable command name");
 
       Descriptor := Editor.Commands.Descriptors.Descriptor
-        (Editor.Commands.Command_Copy_Buffer_File);
+        (Editor.Command_Ids.Command_Copy_Buffer_File);
       Assert (Descriptor.Category = Editor.Commands.Descriptors.File_Category
         and then Descriptor.Visibility = Editor.Commands.Descriptors.Palette_Command
         and then Descriptor.Bindable
@@ -119,7 +119,7 @@ package body Editor.Files.Copy_Move_Association_Tests is
       Editor.State.Init (S);
       S.Active_Buffer_Token := 0;
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Copy_Buffer_File);
+        (S, Editor.Command_Ids.Command_Copy_Buffer_File);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "copy unavailable without active buffer");
       Editor.Executor.File_Operation_Commands.Execute_Copy_Buffer_File (S, Target);
@@ -133,7 +133,7 @@ package body Editor.Files.Copy_Move_Association_Tests is
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Messages.Clear (S.Messages);
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Copy_Buffer_File);
+        (S, Editor.Command_Ids.Command_Copy_Buffer_File);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "copy unavailable for untitled active buffer");
       Editor.Executor.File_Operation_Commands.Execute_Copy_Buffer_File (S, Target);
@@ -150,7 +150,7 @@ package body Editor.Files.Copy_Move_Association_Tests is
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty");
       Editor.Messages.Clear (S.Messages);
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Copy_Buffer_File);
+        (S, Editor.Command_Ids.Command_Copy_Buffer_File);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "copy unavailable for dirty active associated buffer");
       Editor.Executor.File_Operation_Commands.Execute_Copy_Buffer_File (S, Target);
@@ -678,11 +678,11 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
       Before_Caret := S.Carets (0);
 
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Copy_Buffer_File);
+        (S, Editor.Command_Ids.Command_Copy_Buffer_File);
       Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
       if not Candidates.Is_Empty then
          for I in Candidates.First_Index .. Candidates.Last_Index loop
-            if Candidates (I).Id = Editor.Commands.Command_Copy_Buffer_File then
+            if Candidates (I).Id = Editor.Command_Ids.Command_Copy_Buffer_File then
                Copy_Rows := Copy_Rows + 1;
             end if;
          end loop;
@@ -1161,11 +1161,11 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Copy_Buffer_File);
+        (S, Editor.Command_Ids.Command_Copy_Buffer_File);
       Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
       if not Candidates.Is_Empty then
          for I in Candidates.First_Index .. Candidates.Last_Index loop
-            if Candidates (I).Id = Editor.Commands.Command_Copy_Buffer_File then
+            if Candidates (I).Id = Editor.Command_Ids.Command_Copy_Buffer_File then
                Copy_Rows := Copy_Rows + 1;
             end if;
          end loop;
@@ -1265,7 +1265,7 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
       M            : Editor.Messages.Editor_Message;
 
       procedure Assert_Absent (Name : String) is
-         Id : Editor.Commands.Command_Id;
+         Id : Editor.Command_Ids.Command_Id;
       begin
          Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
          Assert (not Found,
@@ -1294,7 +1294,7 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
       Insert_Text_At (S, Buffer_Text (S)'Length, " edit");
       for I in 1 .. 5 loop
-         Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+         Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       end loop;
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
@@ -1314,12 +1314,12 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
         and then Read_Bytes (Target) = "history source",
         "successful copy must create no undo/redo entry and only the copy success message");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert (Ada.Directories.Exists (Target)
         and then Read_Bytes (Target) = "history source"
         and then To_String (S.File_Info.Path) = To_String (Before_Path),
         "edit.undo must not undo the filesystem copy or alter copy association");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert (Ada.Directories.Exists (Target)
         and then Read_Bytes (Target) = "history source"
         and then To_String (S.File_Info.Path) = To_String (Before_Path),
@@ -1335,7 +1335,7 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
         and then To_String (S.File_Info.Path) = To_String (Before_Path),
         "dirty post-redo state must block failed-target copy before target validation or filesystem work");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Copy_Buffer_File (S, Fail_Target);
       M := Editor.Messages.Active_Message (S.Messages, Found);
@@ -1537,7 +1537,7 @@ procedure Test_Copy_Source_Validation_And_Target_Canonicalization
       Editor.Executor.Selection_Commands.Execute_Clear_Selection_Command (S);
       Insert_Text_At (S, Buffer_Text (S)'Length, " edit");
       for I in 1 .. 5 loop
-         Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+         Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       end loop;
 
       Before_Text := To_Unbounded_String (Buffer_Text (S));
@@ -1547,11 +1547,11 @@ procedure Test_Copy_Source_Validation_And_Target_Canonicalization
       Before_Redo := Editor.History.Redo_Stack.Length;
 
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Copy_Buffer_File);
+        (S, Editor.Command_Ids.Command_Copy_Buffer_File);
       Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
       if not Candidates.Is_Empty then
          for I in Candidates.First_Index .. Candidates.Last_Index loop
-            if Candidates (I).Id = Editor.Commands.Command_Copy_Buffer_File then
+            if Candidates (I).Id = Editor.Command_Ids.Command_Copy_Buffer_File then
                Copy_Rows := Copy_Rows + 1;
             end if;
          end loop;
@@ -1717,7 +1717,7 @@ procedure Test_Move_Canonical_State_And_Persistence_Cleanup
       Editor.Executor.Selection_Commands.Execute_Clear_Selection_Command (S);
       Insert_Text_At (S, Buffer_Text (S)'Length, " active edit");
       for I in 1 .. 12 loop
-         Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+         Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       end loop;
 
       Before_Text := To_Unbounded_String (Buffer_Text (S));
@@ -1726,11 +1726,11 @@ procedure Test_Move_Canonical_State_And_Persistence_Cleanup
       Before_Redo := Editor.History.Redo_Stack.Length;
 
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Move_Buffer_File);
+        (S, Editor.Command_Ids.Command_Move_Buffer_File);
       Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
       if not Candidates.Is_Empty then
          for I in Candidates.First_Index .. Candidates.Last_Index loop
-            if Candidates (I).Id = Editor.Commands.Command_Move_Buffer_File then
+            if Candidates (I).Id = Editor.Command_Ids.Command_Move_Buffer_File then
                Move_Rows := Move_Rows + 1;
             end if;
          end loop;
@@ -2350,7 +2350,7 @@ procedure Test_Move_Canonical_State_And_Persistence_Cleanup
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
       if S.File_Conflict_Prompt_Active then
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_File_Conflict_Overwrite_Disk);
+           (S, Editor.Command_Ids.Command_File_Conflict_Overwrite_Disk);
       end if;
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, Rename_Target);
@@ -2469,22 +2469,22 @@ procedure Test_Move_Canonical_State_And_Persistence_Cleanup
       Snapshot_State;
 
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Rename_Buffer_File);
+        (S, Editor.Command_Ids.Command_Rename_Buffer_File);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "rename availability observes clean associated active buffer");
       Assert_Read_Only_Preserved ("rename availability");
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Delete_Buffer_File);
+        (S, Editor.Command_Ids.Command_Delete_Buffer_File);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "delete availability observes clean associated active buffer");
       Assert_Read_Only_Preserved ("delete availability");
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Copy_Buffer_File);
+        (S, Editor.Command_Ids.Command_Copy_Buffer_File);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "copy availability observes clean associated active buffer");
       Assert_Read_Only_Preserved ("copy availability");
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Move_Buffer_File);
+        (S, Editor.Command_Ids.Command_Move_Buffer_File);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "move availability observes clean associated active buffer");
       Assert_Read_Only_Preserved ("move availability");
@@ -2493,13 +2493,13 @@ procedure Test_Move_Canonical_State_And_Persistence_Cleanup
       if not Candidates.Is_Empty then
          for I in Candidates.First_Index .. Candidates.Last_Index loop
             case Candidates (I).Id is
-               when Editor.Commands.Command_Rename_Buffer_File =>
+               when Editor.Command_Ids.Command_Rename_Buffer_File =>
                   Rename_Rows := Rename_Rows + 1;
-               when Editor.Commands.Command_Delete_Buffer_File =>
+               when Editor.Command_Ids.Command_Delete_Buffer_File =>
                   Delete_Rows := Delete_Rows + 1;
-               when Editor.Commands.Command_Copy_Buffer_File =>
+               when Editor.Command_Ids.Command_Copy_Buffer_File =>
                   Copy_Rows := Copy_Rows + 1;
-               when Editor.Commands.Command_Move_Buffer_File =>
+               when Editor.Command_Ids.Command_Move_Buffer_File =>
                   Move_Rows := Move_Rows + 1;
                when others =>
                   null;

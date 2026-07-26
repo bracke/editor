@@ -1,7 +1,6 @@
 with Ada.Directories;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Commands;
 with Editor.Commands.Workflow_Messages;
 
 package body Editor.Missing_Stale_Recovery.Target_Messages is

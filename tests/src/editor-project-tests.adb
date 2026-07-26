@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Payloads;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
@@ -10,7 +11,6 @@ with Ada.Streams.Stream_IO;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Buffers;
-with Editor.Commands;
 with Editor.Commands.Workflow_Messages;
 with Editor.File_Tree;
 with Editor.Executor;
@@ -39,7 +39,7 @@ package body Editor.Project.Tests is
    use type Editor.Project.Project_Open_Status;
    use type Editor.Project.Project_File_Refresh_Status;
    use type Editor.Quick_Open.Quick_Open_Priority_Mode;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Buffers.Buffer_Id;
    use type Editor.Messages.Message_Severity;
    use type Editor.Recent_Projects.Recent_Project_Status;
@@ -121,7 +121,7 @@ package body Editor.Project.Tests is
       return False;
    end Project_Search_Has_Result_Path;
 
-   function Descriptor_Exists (Id : Editor.Commands.Command_Id) return Boolean is
+   function Descriptor_Exists (Id : Editor.Command_Ids.Command_Id) return Boolean is
       Descriptors : constant Editor.Commands.Descriptors.Command_Descriptor_Vectors.Vector :=
         Editor.Commands.Descriptors.Palette_Commands;
    begin
@@ -720,7 +720,7 @@ package body Editor.Project.Tests is
         (S.Recent_Projects, Editor.Test_Temp.Base & "/editor", "editor", 1);
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Clear_Recent_Projects);
+        (S, Editor.Command_Ids.Command_Clear_Recent_Projects);
 
       Assert (Editor.Recent_Projects.Count (S.Recent_Projects) = 0,
               "Clear Recent Projects command must clear the in-memory list");
@@ -737,7 +737,7 @@ package body Editor.Project.Tests is
       pragma Unreferenced (T);
       S   : Editor.State.State_Type;
       Cmd : Editor.Commands.Payloads.Command :=
-        Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Open_Project);
+        Editor.Commands.Payloads.Command_For_Id (Editor.Command_Ids.Command_Open_Project);
    begin
       Editor.State.Init (S);
 
@@ -754,32 +754,32 @@ package body Editor.Project.Tests is
    is
       pragma Unreferenced (T);
    begin
-      Assert (Descriptor_Exists (Editor.Commands.Command_Open_Project),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Open_Project),
               "Open Project descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Close_Project),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Close_Project),
               "Close Project palette descriptor must exist");
-      Assert (Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Clear_Project).Id =
-                Editor.Commands.Command_Clear_Project,
+      Assert (Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Clear_Project).Id =
+                Editor.Command_Ids.Command_Clear_Project,
               "Clear Project Context descriptor must exist as hidden/internal command");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Refresh_File_Tree),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Refresh_File_Tree),
               "Refresh File Tree descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Show_Recent_Projects),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Show_Recent_Projects),
               "Show Recent Projects descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Clear_Recent_Projects),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Clear_Recent_Projects),
               "Clear Recent Projects descriptor must exist");
       Assert (Editor.Commands.Descriptors.Descriptor
-                (Editor.Commands.Command_Remove_Selected_Recent_Project).Id =
-              Editor.Commands.Command_Remove_Selected_Recent_Project,
+                (Editor.Command_Ids.Command_Remove_Selected_Recent_Project).Id =
+              Editor.Command_Ids.Command_Remove_Selected_Recent_Project,
               "Remove Selected Recent Project descriptor must exist as hidden/internal command");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Remove_Missing_Recent_Projects),
+      Assert (Descriptor_Exists (Editor.Command_Ids.Command_Remove_Missing_Recent_Projects),
               "Remove Missing Recent Projects descriptor must exist");
       Assert (Editor.Commands.Descriptors.Descriptor
-                (Editor.Commands.Command_Select_Next_Recent_Project).Id =
-              Editor.Commands.Command_Select_Next_Recent_Project,
+                (Editor.Command_Ids.Command_Select_Next_Recent_Project).Id =
+              Editor.Command_Ids.Command_Select_Next_Recent_Project,
               "Select Next Recent Project descriptor must exist as hidden/internal command");
       Assert (Editor.Commands.Descriptors.Descriptor
-                (Editor.Commands.Command_Select_Previous_Recent_Project).Id =
-              Editor.Commands.Command_Select_Previous_Recent_Project,
+                (Editor.Command_Ids.Command_Select_Previous_Recent_Project).Id =
+              Editor.Command_Ids.Command_Select_Previous_Recent_Project,
               "Select Previous Recent Project descriptor must exist as hidden/internal command");
    end Test_Command_Palette_Project_Descriptors_Exist;
 
@@ -1350,7 +1350,7 @@ package body Editor.Project.Tests is
 
       Remove_If_Exists (Root);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Open_Selected_Recent_Project);
+        (S, Editor.Command_Ids.Command_Open_Selected_Recent_Project);
 
       Assert (Last_Message_Text (S) = Editor.Commands.Workflow_Messages.Reason_Target_Missing,
               "opening a stale recent project must fail with the shared missing-target message");

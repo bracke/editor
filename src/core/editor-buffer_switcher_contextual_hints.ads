@@ -1,12 +1,12 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
-with Editor.Commands;
 with Editor.State;
 
 package Editor.Buffer_Switcher_Contextual_Hints is
 
    type Switcher_Contextual_Hint is record
-      Command_Id      : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Command_Id      : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Label           : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
       Keybinding_Text : Ada.Strings.Unbounded.Unbounded_String :=
@@ -36,10 +36,10 @@ package Editor.Buffer_Switcher_Contextual_Hints is
 
    function Hint_Command_Available
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id) return Boolean;
+      Id : Editor.Command_Ids.Command_Id) return Boolean;
 
    function Hint_Keybinding_Text
-     (Id               : Editor.Commands.Command_Id;
+     (Id               : Editor.Command_Ids.Command_Id;
       Show_Keybindings : Boolean) return String;
 
 end Editor.Buffer_Switcher_Contextual_Hints;

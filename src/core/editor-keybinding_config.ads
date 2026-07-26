@@ -1,4 +1,4 @@
-with Editor.Commands;
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Keybindings;
 
 package Editor.Keybinding_Config is
@@ -77,7 +77,7 @@ package Editor.Keybinding_Config is
    --  @param Chord key chord to persist
    procedure Bind
      (Config  : in out Keybinding_Config_Model;
-      Command : Editor.Commands.Command_Id;
+      Command : Editor.Command_Ids.Command_Id;
       Chord   : Editor.Keybindings.Key_Chord);
 
    --  Explicitly unbind Command in the persisted model.
@@ -85,7 +85,7 @@ package Editor.Keybinding_Config is
    --  @param Command stable concrete command id
    procedure Unbind
      (Config  : in out Keybinding_Config_Model;
-      Command : Editor.Commands.Command_Id);
+      Command : Editor.Command_Ids.Command_Id);
 
    --  Return the number of explicitly bound commands.
    --  @param Config keybinding configuration to inspect
@@ -99,7 +99,7 @@ package Editor.Keybinding_Config is
    --  @return command id at Index
    function Command_At
      (Config : Keybinding_Config_Model;
-      Index  : Positive) return Editor.Commands.Command_Id;
+      Index  : Positive) return Editor.Command_Ids.Command_Id;
 
    --  Return the chord for Command, if Command is explicitly bound.
    --  @param Config keybinding configuration to inspect
@@ -108,7 +108,7 @@ package Editor.Keybinding_Config is
    --  @return bound chord, or a harmless default when not Found
    function Chord_For
      (Config  : Keybinding_Config_Model;
-      Command : Editor.Commands.Command_Id;
+      Command : Editor.Command_Ids.Command_Id;
       Found   : out Boolean) return Editor.Keybindings.Key_Chord;
 
    --  Normalize duplicate/conflicting bindings into a deterministic table.
@@ -173,7 +173,7 @@ private
          Modifiers => (Ctrl => False, Shift => False, Alt => False, Meta => False));
    end record;
 
-   type Binding_Array is array (Editor.Commands.Command_Id) of Keybinding_Entry;
+   type Binding_Array is array (Editor.Command_Ids.Command_Id) of Keybinding_Entry;
 
    type Keybinding_Config_Model is record
       Format_Version : Natural := 1;

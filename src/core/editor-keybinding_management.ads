@@ -1,5 +1,5 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Ada.Strings.Unbounded;
-with Editor.Commands;
 with Editor.Keybindings;
 
 package Editor.Keybinding_Management is
@@ -29,7 +29,7 @@ package Editor.Keybinding_Management is
       Keybinding_Action_IO_Failed);
 
    type Keybinding_Row_Snapshot is record
-      Command             : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Command             : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Command_Title       : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
       Stable_Command_Name : Ada.Strings.Unbounded.Unbounded_String :=
@@ -58,7 +58,7 @@ package Editor.Keybinding_Management is
    type Keybinding_Chord_Row_Snapshot is record
       Chord_Label         : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
-      Command             : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Command             : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Command_Title       : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
       Stable_Command_Name : Ada.Strings.Unbounded.Unbounded_String :=
@@ -104,7 +104,7 @@ package Editor.Keybinding_Management is
       Last_Load_Duplicate_Chords   : Natural := 0;
       Capture                    : Keybinding_Capture_State := Capture_Inactive;
       Has_Pending_Conflict       : Boolean := False;
-      Pending_Conflict_Command   : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Pending_Conflict_Command   : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Pending_Conflict_Chord     : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
       Has_Pending_Reset          : Boolean := False;
@@ -115,7 +115,7 @@ package Editor.Keybinding_Management is
       Focused              : Boolean := False;
       Query_Present        : Boolean := False;
       Filter               : Keybinding_Filter := Filter_All;
-      Selected_Command     : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Selected_Command     : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Has_Selected_Chord   : Boolean := False;
       Selected_Chord_Label : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
@@ -152,11 +152,11 @@ package Editor.Keybinding_Management is
    procedure Clear_Filter;
    function Current_Filter return Keybinding_Filter;
 
-   procedure Select_Command (Command : Editor.Commands.Command_Id);
+   procedure Select_Command (Command : Editor.Command_Ids.Command_Id);
    procedure Select_Next_Row;
    procedure Select_Previous_Row;
    procedure Clear_Selection;
-   function Selected_Command return Editor.Commands.Command_Id;
+   function Selected_Command return Editor.Command_Ids.Command_Id;
 
    function Row_Count return Natural;
    function Row_At (Index : Positive) return Keybinding_Row_Snapshot;
@@ -176,7 +176,7 @@ package Editor.Keybinding_Management is
    procedure Cancel_Capture (Status : out Keybinding_Action_Status);
 
    function Has_Pending_Conflict return Boolean;
-   function Pending_Conflict_Command return Editor.Commands.Command_Id;
+   function Pending_Conflict_Command return Editor.Command_Ids.Command_Id;
    function Pending_Conflict_Chord return String;
 
    procedure Confirm_Pending_Assignment

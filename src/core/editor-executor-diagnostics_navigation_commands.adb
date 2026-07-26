@@ -1,5 +1,5 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Cursors;
-with Editor.Commands;
 with Editor.Commands.Workflow_Messages;
 with Editor.Diagnostics;
 with Editor.Folding;
@@ -208,7 +208,7 @@ package body Editor.Executor.Diagnostics_Navigation_Commands is
          Report_Info (S, "Navigation target unavailable.");
          Editor.Render_Cache.Invalidate_All;
          return Editor.Command_Execution.No_Op
-           (Editor.Commands.Command_Feature_Panel_Open_Selected);
+           (Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
       end if;
 
       Target_Buffer := Editor.Feature_Diagnostics.Item_Target_Buffer
@@ -226,7 +226,7 @@ package body Editor.Executor.Diagnostics_Navigation_Commands is
          Report_Info (S, Editor.Commands.Workflow_Messages.Reason_Target_Stale);
          Editor.Render_Cache.Invalidate_All;
          return Editor.Command_Execution.No_Op
-           (Editor.Commands.Command_Feature_Panel_Open_Selected);
+           (Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
       elsif not Editor.Feature_Diagnostics.Validate_Diagnostic_Target
           (S.Feature_Diagnostics, Positive (Mapped), Target_Buffer)
         or else not Editor.Executor.Feature_Target_Position_Is_Valid
@@ -238,7 +238,7 @@ package body Editor.Executor.Diagnostics_Navigation_Commands is
                Effective_Target_Column_One_Based));
          Editor.Render_Cache.Invalidate_All;
          return Editor.Command_Execution.No_Op
-           (Editor.Commands.Command_Feature_Panel_Open_Selected);
+           (Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
       end if;
 
       if not Editor.Executor.Focus_Feature_Target_Buffer
@@ -247,7 +247,7 @@ package body Editor.Executor.Diagnostics_Navigation_Commands is
          Report_Info (S, "Diagnostic target file is unavailable.");
          Editor.Render_Cache.Invalidate_All;
          return Editor.Command_Execution.No_Op
-           (Editor.Commands.Command_Feature_Panel_Open_Selected);
+           (Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
       end if;
 
       Target_Row := Natural'Min
@@ -260,7 +260,7 @@ package body Editor.Executor.Diagnostics_Navigation_Commands is
         (S, Target_Row, Target_Column);
       Editor.Render_Cache.Invalidate_All;
       return Editor.Command_Execution.Executed
-        (Editor.Commands.Command_Feature_Panel_Open_Selected);
+        (Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
    end Execute_Mapped_Diagnostic_Activation;
 
    function Execute_Diagnostic_Row_Activation
@@ -278,12 +278,12 @@ package body Editor.Executor.Diagnostics_Navigation_Commands is
          Report_Info (S, "No selection");
          Editor.Render_Cache.Invalidate_All;
          return Editor.Command_Execution.No_Op
-           (Editor.Commands.Command_Feature_Panel_Open_Selected);
+           (Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
       elsif Mapped = 0 then
          Report_Info (S, "Selected diagnostic is no longer available.");
          Editor.Render_Cache.Invalidate_All;
          return Editor.Command_Execution.No_Op
-           (Editor.Commands.Command_Feature_Panel_Open_Selected);
+           (Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
       elsif not Editor.Feature_Diagnostics.Item_Has_Target
         (S.Feature_Diagnostics, Positive (Mapped))
       then
@@ -311,14 +311,14 @@ package body Editor.Executor.Diagnostics_Navigation_Commands is
          end;
          Editor.Render_Cache.Invalidate_All;
          return Editor.Command_Execution.No_Op
-           (Editor.Commands.Command_Feature_Panel_Open_Selected);
+           (Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
       elsif not Editor.Feature_Panel.Row_Is_Activatable
         (S.Feature_Panel, Positive (Row))
       then
          Report_Info (S, "Navigation target unavailable.");
          Editor.Render_Cache.Invalidate_All;
          return Editor.Command_Execution.No_Op
-           (Editor.Commands.Command_Feature_Panel_Open_Selected);
+           (Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
       end if;
 
       return Execute_Mapped_Diagnostic_Activation

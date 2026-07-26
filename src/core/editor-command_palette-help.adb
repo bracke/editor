@@ -1,6 +1,6 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Commands;
 with Editor.Commands.Descriptors;
 with Editor.Commands.Name_Metadata;
 with Editor.Keybindings;
@@ -8,11 +8,11 @@ with Editor.Text_Helpers;
 
 package body Editor.Command_Palette.Help is
 
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Commands.Descriptors.Command_Visibility;
 
    type Command_State_Context_Array is
-     array (Editor.Commands.Command_Id) of Unbounded_String;
+     array (Editor.Command_Ids.Command_Id) of Unbounded_String;
    Command_State_Contexts : Command_State_Context_Array :=
      (others => Null_Unbounded_String);
 
@@ -62,12 +62,12 @@ package body Editor.Command_Palette.Help is
    end Product_Facing_Classification_Label;
 
    function Related_Command_From_Descriptor
-     (Command : Editor.Commands.Command_Id) return Related_Command_Help_Item
+     (Command : Editor.Command_Ids.Command_Id) return Related_Command_Help_Item
    is
       Stable : constant String := Editor.Commands.Name_Metadata.Stable_Command_Name (Command);
       D      : Editor.Commands.Descriptors.Command_Descriptor;
    begin
-      if Command = Editor.Commands.No_Command
+      if Command = Editor.Command_Ids.No_Command
         or else Stable'Length = 0
       then
          return Empty_Related_Command_Help_Item;
@@ -88,7 +88,7 @@ package body Editor.Command_Palette.Help is
 
    procedure Add_Related_Command
      (Help    : in out Command_Help_Snapshot;
-      Command : Editor.Commands.Command_Id)
+      Command : Editor.Command_Ids.Command_Id)
    is
       Item : constant Related_Command_Help_Item :=
         Related_Command_From_Descriptor (Command);
@@ -114,75 +114,75 @@ package body Editor.Command_Palette.Help is
 
    procedure Add_Related_Commands_For
      (Help : in out Command_Help_Snapshot;
-      Id   : Editor.Commands.Command_Id)
+      Id   : Editor.Command_Ids.Command_Id)
    is
    begin
       case Id is
-         when Editor.Commands.Command_Open_Project =>
-            Add_Related_Command (Help, Editor.Commands.Command_Show_Recent_Projects);
-            Add_Related_Command (Help, Editor.Commands.Command_Restore_Workspace_State);
-         when Editor.Commands.Command_Restore_Workspace_State =>
-            Add_Related_Command (Help, Editor.Commands.Command_Save_Workspace_State);
-            Add_Related_Command (Help, Editor.Commands.Command_Clear_Workspace_State);
-         when Editor.Commands.Command_Build_Run =>
-            Add_Related_Command (Help, Editor.Commands.Command_Build_UI_Focus);
-            Add_Related_Command (Help, Editor.Commands.Command_Build_Acknowledge_Consent);
-            Add_Related_Command (Help, Editor.Commands.Command_Build_UI_Show);
-         when Editor.Commands.Command_Build_UI_Show |
-              Editor.Commands.Command_Build_UI_Focus =>
-            Add_Related_Command (Help, Editor.Commands.Command_Build_Refresh_Candidates);
-            Add_Related_Command (Help, Editor.Commands.Command_Build_Acknowledge_Consent);
-            Add_Related_Command (Help, Editor.Commands.Command_Build_Run);
-         when Editor.Commands.Command_Problems_Filter_All |
-              Editor.Commands.Command_Problems_Filter_Errors |
-              Editor.Commands.Command_Problems_Filter_Warnings |
-              Editor.Commands.Command_Problems_Filter_Info |
-              Editor.Commands.Command_Problems_Filter_Hints =>
-            Add_Related_Command (Help, Editor.Commands.Command_Problems_Sort_By_Severity);
-            Add_Related_Command (Help, Editor.Commands.Command_Problems_Group_By_Source);
-            Add_Related_Command (Help, Editor.Commands.Command_Problems_Open_Selected);
-         when Editor.Commands.Command_Problems_Sort_By_Location |
-              Editor.Commands.Command_Problems_Sort_By_Severity |
-              Editor.Commands.Command_Problems_Sort_By_Source |
-              Editor.Commands.Command_Problems_Group_By_Severity |
-              Editor.Commands.Command_Problems_Group_By_Source =>
-            Add_Related_Command (Help, Editor.Commands.Command_Problems_Filter_All);
-            Add_Related_Command (Help, Editor.Commands.Command_Problems_Filter_Errors);
-            Add_Related_Command (Help, Editor.Commands.Command_Problems_Open_Selected);
-         when Editor.Commands.Command_Refresh_Outline =>
-            Add_Related_Command (Help, Editor.Commands.Command_Open_Selected_Outline_Item);
-            Add_Related_Command (Help, Editor.Commands.Command_Reveal_Current_Outline_Symbol);
-            Add_Related_Command (Help, Editor.Commands.Command_Clear_Outline_Filter);
-         when Editor.Commands.Command_Diagnostics_Show =>
-            Add_Related_Command (Help, Editor.Commands.Command_Diagnostics_Open_Selected);
-            Add_Related_Command (Help, Editor.Commands.Command_Diagnostic_Open_Source);
-            Add_Related_Command (Help, Editor.Commands.Command_Diagnostic_Show_Suppressed);
-            Add_Related_Command (Help, Editor.Commands.Command_Problems_Filter_Errors);
-         when Editor.Commands.Command_Diagnostics_Open_Selected |
-              Editor.Commands.Command_Diagnostic_Open_Source |
-              Editor.Commands.Command_Diagnostic_Apply_Quick_Fix |
-              Editor.Commands.Command_Diagnostic_Suppress_Selected |
-              Editor.Commands.Command_Diagnostic_Show_Suppressed |
-              Editor.Commands.Command_Diagnostic_Restore_Last_Suppressed |
-              Editor.Commands.Command_Diagnostic_Restore_Selected_Suppressed |
-              Editor.Commands.Command_Diagnostic_Clear_Suppressed =>
-            Add_Related_Command (Help, Editor.Commands.Command_Next_Diagnostic);
-            Add_Related_Command (Help, Editor.Commands.Command_Previous_Diagnostic);
-            Add_Related_Command (Help, Editor.Commands.Command_Diagnostic_Apply_Quick_Fix);
-            Add_Related_Command (Help, Editor.Commands.Command_Diagnostic_Suppress_Selected);
-            Add_Related_Command (Help, Editor.Commands.Command_Diagnostic_Show_Suppressed);
-            Add_Related_Command (Help, Editor.Commands.Command_Diagnostic_Restore_Last_Suppressed);
-            Add_Related_Command (Help, Editor.Commands.Command_Diagnostic_Restore_Selected_Suppressed);
-            Add_Related_Command (Help, Editor.Commands.Command_Diagnostic_Clear_Suppressed);
-         when Editor.Commands.Command_Refresh_File_Tree =>
-            Add_Related_Command (Help, Editor.Commands.Command_Open_Quick_Open);
-            Add_Related_Command (Help, Editor.Commands.Command_File_Tree_Open_Selected);
-            Add_Related_Command (Help, Editor.Commands.Command_Open_Project);
-         when Editor.Commands.Command_Keybindings_Assign_Selected =>
-            Add_Related_Command (Help, Editor.Commands.Command_Keybindings_Remove_Selected);
-            Add_Related_Command (Help, Editor.Commands.Command_Keybindings_Reset_To_Defaults);
-         when Editor.Commands.Command_Reset_Settings_To_Defaults =>
-            Add_Related_Command (Help, Editor.Commands.Command_Configuration_Audit);
+         when Editor.Command_Ids.Command_Open_Project =>
+            Add_Related_Command (Help, Editor.Command_Ids.Command_Show_Recent_Projects);
+            Add_Related_Command (Help, Editor.Command_Ids.Command_Restore_Workspace_State);
+         when Editor.Command_Ids.Command_Restore_Workspace_State =>
+            Add_Related_Command (Help, Editor.Command_Ids.Command_Save_Workspace_State);
+            Add_Related_Command (Help, Editor.Command_Ids.Command_Clear_Workspace_State);
+         when Editor.Command_Ids.Command_Build_Run =>
+            Add_Related_Command (Help, Editor.Command_Ids.Command_Build_UI_Focus);
+            Add_Related_Command (Help, Editor.Command_Ids.Command_Build_Acknowledge_Consent);
+            Add_Related_Command (Help, Editor.Command_Ids.Command_Build_UI_Show);
+         when Editor.Command_Ids.Command_Build_UI_Show |
+              Editor.Command_Ids.Command_Build_UI_Focus =>
+            Add_Related_Command (Help, Editor.Command_Ids.Command_Build_Refresh_Candidates);
+            Add_Related_Command (Help, Editor.Command_Ids.Command_Build_Acknowledge_Consent);
+            Add_Related_Command (Help, Editor.Command_Ids.Command_Build_Run);
+         when Editor.Command_Ids.Command_Problems_Filter_All |
+              Editor.Command_Ids.Command_Problems_Filter_Errors |
+              Editor.Command_Ids.Command_Problems_Filter_Warnings |
+              Editor.Command_Ids.Command_Problems_Filter_Info |
+              Editor.Command_Ids.Command_Problems_Filter_Hints =>
+            Add_Related_Command (Help, Editor.Command_Ids.Command_Problems_Sort_By_Severity);
+            Add_Related_Command (Help, Editor.Command_Ids.Command_Problems_Group_By_Source);
+            Add_Related_Command (Help, Editor.Command_Ids.Command_Problems_Open_Selected);
+         when Editor.Command_Ids.Command_Problems_Sort_By_Location |
+              Editor.Command_Ids.Command_Problems_Sort_By_Severity |
+              Editor.Command_Ids.Command_Problems_Sort_By_Source |
+              Editor.Command_Ids.Command_Problems_Group_By_Severity |
+              Editor.Command_Ids.Command_Problems_Group_By_Source =>
+            Add_Related_Command (Help, Editor.Command_Ids.Command_Problems_Filter_All);
+            Add_Related_Command (Help, Editor.Command_Ids.Command_Problems_Filter_Errors);
+            Add_Related_Command (Help, Editor.Command_Ids.Command_Problems_Open_Selected);
+         when Editor.Command_Ids.Command_Refresh_Outline =>
+            Add_Related_Command (Help, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
+            Add_Related_Command (Help, Editor.Command_Ids.Command_Reveal_Current_Outline_Symbol);
+            Add_Related_Command (Help, Editor.Command_Ids.Command_Clear_Outline_Filter);
+         when Editor.Command_Ids.Command_Diagnostics_Show =>
+            Add_Related_Command (Help, Editor.Command_Ids.Command_Diagnostics_Open_Selected);
+            Add_Related_Command (Help, Editor.Command_Ids.Command_Diagnostic_Open_Source);
+            Add_Related_Command (Help, Editor.Command_Ids.Command_Diagnostic_Show_Suppressed);
+            Add_Related_Command (Help, Editor.Command_Ids.Command_Problems_Filter_Errors);
+         when Editor.Command_Ids.Command_Diagnostics_Open_Selected |
+              Editor.Command_Ids.Command_Diagnostic_Open_Source |
+              Editor.Command_Ids.Command_Diagnostic_Apply_Quick_Fix |
+              Editor.Command_Ids.Command_Diagnostic_Suppress_Selected |
+              Editor.Command_Ids.Command_Diagnostic_Show_Suppressed |
+              Editor.Command_Ids.Command_Diagnostic_Restore_Last_Suppressed |
+              Editor.Command_Ids.Command_Diagnostic_Restore_Selected_Suppressed |
+              Editor.Command_Ids.Command_Diagnostic_Clear_Suppressed =>
+            Add_Related_Command (Help, Editor.Command_Ids.Command_Next_Diagnostic);
+            Add_Related_Command (Help, Editor.Command_Ids.Command_Previous_Diagnostic);
+            Add_Related_Command (Help, Editor.Command_Ids.Command_Diagnostic_Apply_Quick_Fix);
+            Add_Related_Command (Help, Editor.Command_Ids.Command_Diagnostic_Suppress_Selected);
+            Add_Related_Command (Help, Editor.Command_Ids.Command_Diagnostic_Show_Suppressed);
+            Add_Related_Command (Help, Editor.Command_Ids.Command_Diagnostic_Restore_Last_Suppressed);
+            Add_Related_Command (Help, Editor.Command_Ids.Command_Diagnostic_Restore_Selected_Suppressed);
+            Add_Related_Command (Help, Editor.Command_Ids.Command_Diagnostic_Clear_Suppressed);
+         when Editor.Command_Ids.Command_Refresh_File_Tree =>
+            Add_Related_Command (Help, Editor.Command_Ids.Command_Open_Quick_Open);
+            Add_Related_Command (Help, Editor.Command_Ids.Command_File_Tree_Open_Selected);
+            Add_Related_Command (Help, Editor.Command_Ids.Command_Open_Project);
+         when Editor.Command_Ids.Command_Keybindings_Assign_Selected =>
+            Add_Related_Command (Help, Editor.Command_Ids.Command_Keybindings_Remove_Selected);
+            Add_Related_Command (Help, Editor.Command_Ids.Command_Keybindings_Reset_To_Defaults);
+         when Editor.Command_Ids.Command_Reset_Settings_To_Defaults =>
+            Add_Related_Command (Help, Editor.Command_Ids.Command_Configuration_Audit);
          when others =>
             null;
       end case;
@@ -192,12 +192,12 @@ package body Editor.Command_Palette.Help is
      (Item : Related_Command_Help_Item) return Boolean
    is
       Found    : Boolean := False;
-      Resolved : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Resolved : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Name     : constant String := To_String (Item.Stable_Name);
    begin
       if not Item.Visible
         or else Item.Carries_Payload
-        or else Item.Command = Editor.Commands.No_Command
+        or else Item.Command = Editor.Command_Ids.No_Command
         or else Name'Length = 0
         or else Ada.Strings.Unbounded.Index (To_Unbounded_String (Name), " ") /= 0
         or else Ada.Strings.Unbounded.Index (To_Unbounded_String (Name), ":") /= 0
@@ -346,11 +346,11 @@ package body Editor.Command_Palette.Help is
    end Clear_Command_State_Contexts;
 
    procedure Set_Command_State_Context
-     (Command : Editor.Commands.Command_Id;
+     (Command : Editor.Command_Ids.Command_Id;
       Text    : String)
    is
    begin
-      if Command /= Editor.Commands.No_Command then
+      if Command /= Editor.Command_Ids.No_Command then
          Command_State_Contexts (Command) := To_Unbounded_String (Text);
       end if;
    end Set_Command_State_Context;

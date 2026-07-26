@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Classification;
 with Editor.Commands.Stable_Names;
 with Editor.Commands.Descriptor_Metadata;
@@ -6,7 +7,6 @@ with Editor.Commands.Audit_Model; use Editor.Commands.Audit_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Commands;
 
 
 
@@ -15,13 +15,13 @@ with Editor.Commands.Audits;
 
 package body Editor.Command_Integration_Checklist is
 
-   function Prefix (Id : Editor.Commands.Command_Id) return String is
+   function Prefix (Id : Editor.Command_Ids.Command_Id) return String is
    begin
-      return Editor.Commands.Command_Id'Image (Id) & ": ";
+      return Editor.Command_Ids.Command_Id'Image (Id) & ": ";
    end Prefix;
 
    procedure Assert_Ready_For_User_Command
-     (Id : Editor.Commands.Command_Id)
+     (Id : Editor.Command_Ids.Command_Id)
    is
       Failure : Editor.Commands.Audit_Model.Command_Audit_Failure;
       Found   : Boolean := False;
@@ -47,7 +47,7 @@ package body Editor.Command_Integration_Checklist is
    end Assert_Ready_For_User_Command;
 
    procedure Assert_Ready_For_Bindable_Command
-     (Id : Editor.Commands.Command_Id)
+     (Id : Editor.Command_Ids.Command_Id)
    is
    begin
       Assert_Ready_For_User_Command (Id);
@@ -58,7 +58,7 @@ package body Editor.Command_Integration_Checklist is
    end Assert_Ready_For_Bindable_Command;
 
    procedure Assert_Ready_For_Destructive_Command
-     (Id : Editor.Commands.Command_Id)
+     (Id : Editor.Command_Ids.Command_Id)
    is
       D : constant Editor.Commands.Descriptors.Command_Descriptor :=
         Editor.Commands.Descriptors.Descriptor (Id);
@@ -69,7 +69,7 @@ package body Editor.Command_Integration_Checklist is
    end Assert_Ready_For_Destructive_Command;
 
    procedure Assert_Ready_For_Configuration_Command
-     (Id : Editor.Commands.Command_Id)
+     (Id : Editor.Command_Ids.Command_Id)
    is
       D : constant Editor.Commands.Descriptors.Command_Descriptor :=
         Editor.Commands.Descriptors.Descriptor (Id);
@@ -80,7 +80,7 @@ package body Editor.Command_Integration_Checklist is
    end Assert_Ready_For_Configuration_Command;
 
    procedure Assert_Ready_For_Lifecycle_Command
-     (Id : Editor.Commands.Command_Id)
+     (Id : Editor.Command_Ids.Command_Id)
    is
       D : constant Editor.Commands.Descriptors.Command_Descriptor :=
         Editor.Commands.Descriptors.Descriptor (Id);

@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Ada.Containers;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -210,14 +211,14 @@ package body Editor.Executor.Semantic_Service_Commands is
 
    function Semantic_Service_Command_Availability
      (S       : Editor.State.State_Type;
-      Id      : Editor.Commands.Command_Id;
+      Id      : Editor.Command_Ids.Command_Id;
       Service : in out Editor.Ada_Language_Service.Service_State;
       Name    : String)
       return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin
       case Id is
-         when Editor.Commands.Command_Find_References =>
+         when Editor.Command_Ids.Command_Find_References =>
             declare
                Result : constant Editor.Ada_Language_Service.Language_Target_Set :=
                  Semantic_Find_References (S, Service, Name);
@@ -230,7 +231,7 @@ package body Editor.Executor.Semantic_Service_Commands is
                   Service_Status_Image (Result.Status) & ".");
             end;
 
-         when Editor.Commands.Command_Workspace_Symbols =>
+         when Editor.Command_Ids.Command_Workspace_Symbols =>
             declare
                Result : constant Editor.Ada_Language_Service.Language_Target_Set :=
                  Semantic_Workspace_Symbols (Service, Name);
@@ -243,7 +244,7 @@ package body Editor.Executor.Semantic_Service_Commands is
                   Service_Status_Image (Result.Status) & ".");
             end;
 
-         when Editor.Commands.Command_Show_Hover =>
+         when Editor.Command_Ids.Command_Show_Hover =>
             declare
                Result : constant Editor.Ada_Language_Service.Hover_Result :=
                  Semantic_Hover (S, Service, Name);
@@ -256,7 +257,7 @@ package body Editor.Executor.Semantic_Service_Commands is
                   Service_Status_Image (Result.Status) & ".");
             end;
 
-         when Editor.Commands.Command_Show_Completions =>
+         when Editor.Command_Ids.Command_Show_Completions =>
             declare
                Result : constant Editor.Ada_Language_Service.Completion_Result :=
                  Semantic_Complete (S, Service, Name, 20);
@@ -282,7 +283,7 @@ package body Editor.Executor.Semantic_Service_Commands is
 
    function Execute_Semantic_Service_Command
      (S    : in out Editor.State.State_Type;
-      Id   : Editor.Commands.Command_Id;
+      Id   : Editor.Command_Ids.Command_Id;
       Name : String)
       return Editor.Command_Execution.Command_Execution_Result
    is
@@ -294,7 +295,7 @@ package body Editor.Executor.Semantic_Service_Commands is
       Ensure_Current_Language_Service (S);
 
       case Id is
-         when Editor.Commands.Command_Find_References =>
+         when Editor.Command_Ids.Command_Find_References =>
             declare
                Result : constant Editor.Ada_Language_Service.Language_Target_Set :=
                  Semantic_Find_References (S, S.Language_Service, Name);
@@ -361,7 +362,7 @@ package body Editor.Executor.Semantic_Service_Commands is
                return Editor.Command_Execution.Unavailable (Id);
             end;
 
-         when Editor.Commands.Command_Workspace_Symbols =>
+         when Editor.Command_Ids.Command_Workspace_Symbols =>
             declare
                Result : constant Editor.Ada_Language_Service.Language_Target_Set :=
                  Semantic_Workspace_Symbols (S.Language_Service, Name);
@@ -429,7 +430,7 @@ package body Editor.Executor.Semantic_Service_Commands is
                return Editor.Command_Execution.Unavailable (Id);
             end;
 
-         when Editor.Commands.Command_Show_Hover =>
+         when Editor.Command_Ids.Command_Show_Hover =>
             declare
                Result : constant Editor.Ada_Language_Service.Hover_Result :=
                  Semantic_Hover (S, S.Language_Service, Name);
@@ -502,7 +503,7 @@ package body Editor.Executor.Semantic_Service_Commands is
                return Editor.Command_Execution.Unavailable (Id);
             end;
 
-         when Editor.Commands.Command_Show_Completions =>
+         when Editor.Command_Ids.Command_Show_Completions =>
             declare
                Result : constant Editor.Ada_Language_Service.Completion_Result :=
                  Semantic_Complete (S, S.Language_Service, Name, 20);

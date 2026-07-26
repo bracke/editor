@@ -1,7 +1,7 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds; use Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.State;
-with Editor.Commands;   use Editor.Commands;
 with Editor.Cursors;    use Editor.Cursors;
 with Editor.Navigation; use Editor.Navigation;
 with Ada.Containers; use Ada.Containers;
@@ -60,7 +60,7 @@ package body Editor.Executor.Navigation is
       S.Carets.Append (Primary);
    end Keep_Only_Primary_Caret;
 
-   function Is_Select_Command (Kind : Editor.Commands.Command_Kind) return Boolean is
+   function Is_Select_Command (Kind : Editor.Command_Kinds.Command_Kind) return Boolean is
    begin
       return Kind in Select_Word_Left
                    | Select_Word_Right

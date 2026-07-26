@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
@@ -12,7 +13,6 @@ with Editor.Ada_Language_Model;
 with Editor.Ada_Language_Service;
 with Editor.Ada_Project_Index;
 with Editor.Buffers;
-with Editor.Commands;
 with Editor.Cursors;
 with Editor.Executor.Buffer_Switcher_Surface_Commands;
 with Editor.Executor.File_Save_Commands;
@@ -79,7 +79,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
          "body line" & ASCII.LF);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic availability fixture refreshes Outline");
 
@@ -89,7 +89,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
 
       Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Find_References);
+        (S, Editor.Command_Ids.Command_Find_References);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "find references must not be offered without an index answer");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) =
@@ -97,7 +97,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               "find references reports the language service reason");
 
       Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Show_Hover);
+        (S, Editor.Command_Ids.Command_Show_Hover);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "hover must not be offered without an index answer");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) =
@@ -105,7 +105,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               "hover reports the language service reason");
 
       Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Show_Completions);
+        (S, Editor.Command_Ids.Command_Show_Completions);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "completions must not be offered without an index answer");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) =
@@ -113,7 +113,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               "completions report the language service reason");
 
       Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Rename_Symbol_Preview);
+        (S, Editor.Command_Ids.Command_Rename_Symbol_Preview);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "rename preview must not be offered without an index answer");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) =
@@ -121,7 +121,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               "rename preview reports the language service reason");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Find_References);
+        (S, Editor.Command_Ids.Command_Find_References);
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "executing unavailable semantic commands remains blocked");
       Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 0,
@@ -149,7 +149,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
          "body line" & ASCII.LF);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic hidden-panel fixture refreshes Outline");
 
@@ -176,12 +176,12 @@ package body Editor.Executor.Semantic_Index_State_Tests is
             Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
       Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Find_References);
+        (S, Editor.Command_Ids.Command_Find_References);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "hidden Outline does not block caret semantic command availability");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Find_References);
+        (S, Editor.Command_Ids.Command_Find_References);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "hidden Outline still allows caret semantic command execution");
       Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 1,
@@ -229,12 +229,12 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Editor.Feature_Panel.Set_Visible (S.Feature_Panel, False);
 
       Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Goto_Declaration);
+        (S, Editor.Command_Ids.Command_Goto_Declaration);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "goto declaration is available from the caret symbol");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Goto_Declaration);
+        (S, Editor.Command_Ids.Command_Goto_Declaration);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "goto declaration executes from the caret symbol");
       Assert (Editor.Ada_Language_Service.Active_Semantic_Request
@@ -269,7 +269,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
          "body line" & ASCII.LF);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic overflow fixture refreshes Outline");
 
@@ -295,7 +295,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
          Analysis             => Analysis);
 
       Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Find_References);
+        (S, Editor.Command_Ids.Command_Find_References);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "overflowed references must not be offered");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) =
@@ -303,7 +303,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               "overflowed references report the bounded service reason");
 
       Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Rename_Symbol_Preview);
+        (S, Editor.Command_Ids.Command_Rename_Symbol_Preview);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "overflowed rename preview must not be offered");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) =
@@ -311,7 +311,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               "overflowed rename reports the bounded service reason");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Find_References);
+        (S, Editor.Command_Ids.Command_Find_References);
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "overflowed semantic execution remains blocked");
       Assert (Latest_Message_Text (S) = "References unavailable for Run: overflow.",
@@ -343,7 +343,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
          "body line" & ASCII.LF);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic stale-current fixture refreshes Outline");
 
@@ -370,7 +370,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
          Analysis             => Analysis);
 
       Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Find_References);
+        (S, Editor.Command_Ids.Command_Find_References);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "stale current references must not be offered");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) =
@@ -378,7 +378,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               "stale current references report the stale service reason");
 
       Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Show_Hover);
+        (S, Editor.Command_Ids.Command_Show_Hover);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "stale current hover must not be offered");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) =
@@ -386,7 +386,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               "stale current hover reports the stale service reason");
 
       Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Show_Completions);
+        (S, Editor.Command_Ids.Command_Show_Completions);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "stale current completions must not be offered");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) =
@@ -394,7 +394,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               "stale current completions report the stale service reason");
 
       Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Rename_Symbol_Preview);
+        (S, Editor.Command_Ids.Command_Rename_Symbol_Preview);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "stale current rename preview must not be offered");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) =
@@ -402,7 +402,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               "stale current rename preview reports the stale service reason");
 
       Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Rename_Symbol_Apply);
+        (S, Editor.Command_Ids.Command_Rename_Symbol_Apply);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "stale current rename apply must not be offered");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) =
@@ -410,7 +410,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               "stale current rename apply reports the stale service reason");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Find_References);
+        (S, Editor.Command_Ids.Command_Find_References);
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "stale current semantic execution remains blocked");
       Assert (Latest_Message_Text (S) = "References unavailable for Run: stale.",
@@ -419,28 +419,28 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               "stale current references must not project stale Search Results");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Show_Hover);
+        (S, Editor.Command_Ids.Command_Show_Hover);
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "stale current hover execution remains blocked");
       Assert (Latest_Message_Text (S) = "Hover unavailable for Run: stale.",
               "stale current hover execution reports the stale service reason");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Show_Completions);
+        (S, Editor.Command_Ids.Command_Show_Completions);
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "stale current completion execution remains blocked");
       Assert (Latest_Message_Text (S) = "Completions unavailable for Run: stale.",
               "stale current completion execution reports the stale service reason");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Rename_Symbol_Preview);
+        (S, Editor.Command_Ids.Command_Rename_Symbol_Preview);
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "stale current rename preview execution remains blocked");
       Assert (Latest_Message_Text (S) = "Rename preview unavailable for Run: stale.",
               "stale current rename preview execution reports the stale service reason");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Rename_Symbol_Apply);
+        (S, Editor.Command_Ids.Command_Rename_Symbol_Apply);
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "stale current rename apply execution remains blocked");
       Assert (Latest_Message_Text (S) = "Rename apply unavailable for Run: stale.",
@@ -454,7 +454,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
             Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
       Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Goto_Declaration);
+        (S, Editor.Command_Ids.Command_Goto_Declaration);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "stale current caret goto declaration must not be offered");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) =
@@ -462,7 +462,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               "stale current caret goto declaration reports stale reason");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Goto_Declaration);
+        (S, Editor.Command_Ids.Command_Goto_Declaration);
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "stale current caret goto declaration remains blocked");
       Assert (Latest_Message_Text (S) = "Declaration unavailable for Run: stale.",
@@ -491,7 +491,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
          "body line" & ASCII.LF);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic stale-edit fixture refreshes Outline");
 
@@ -511,7 +511,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
          Analysis             => Analysis);
 
       Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Find_References);
+        (S, Editor.Command_Ids.Command_Find_References);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "semantic stale-edit setup starts with an answerable index");
 
@@ -525,7 +525,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Find_References);
+        (S, Editor.Command_Ids.Command_Find_References);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "semantic commands must not be offered after editing indexed text");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) =
@@ -533,7 +533,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               "stale edit invalidation reports the missing fresh index answer");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Find_References);
+        (S, Editor.Command_Ids.Command_Find_References);
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "stale edit semantic execution remains blocked");
       Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 0,
@@ -578,7 +578,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Main_Path);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline_Project_Index);
+        (S, Editor.Command_Ids.Command_Refresh_Outline_Project_Index);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "language project index refresh command executes");
       Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
@@ -594,7 +594,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               "language project index refresh reports user-facing summary");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Language_Index_Status);
+        (S, Editor.Command_Ids.Command_Language_Index_Status);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "language index status command executes");
       Msg := To_Unbounded_String (Latest_Message_Text (S));
@@ -639,7 +639,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Editor.Ada_Language_Service.Put_Compiler_Diagnostic_Lines
         (S.Language_Service, Lines, Tool_Name => "gnat", Run_Fingerprint => 76);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Language_Index_Status);
+        (S, Editor.Command_Ids.Command_Language_Index_Status);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "language index status command executes after clean compiler run");
       Msg := To_Unbounded_String (Latest_Message_Text (S));
@@ -662,7 +662,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Editor.Ada_Language_Service.Put_Compiler_Diagnostic_Lines
         (S.Language_Service, Lines, Tool_Name => "gnat", Run_Fingerprint => 77);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Language_Index_Status);
+        (S, Editor.Command_Ids.Command_Language_Index_Status);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "language index status command executes with compiler backend");
       Msg := To_Unbounded_String (Latest_Message_Text (S));
@@ -677,7 +677,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               "language index status reports compiler diagnostics for the active file only");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Language_Index_Clear);
+        (S, Editor.Command_Ids.Command_Language_Index_Clear);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "language index clear command executes");
       Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) = 0,
@@ -691,7 +691,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               "language index clear reports deterministic feedback");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Language_Index_Status);
+        (S, Editor.Command_Ids.Command_Language_Index_Status);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "language index status command executes after clear");
       Msg := To_Unbounded_String (Latest_Message_Text (S));
@@ -710,7 +710,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               "language index status reports not-ready capabilities after clear");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Semantic_Refresh_Project_Index);
+        (S, Editor.Command_Ids.Command_Semantic_Refresh_Project_Index);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic project index refresh command executes");
       Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
@@ -840,7 +840,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Semantic_Refresh_Project_Index);
+        (S, Editor.Command_Ids.Command_Semantic_Refresh_Project_Index);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic refresh executes for active Ada file");
       Assert (Editor.Ada_Language_Service.Semantic_Diagnostic_Count_For_Path
@@ -882,17 +882,17 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Assert (Shown, "Diagnostics feature is shown for live semantic quick-fix execution");
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, Quick_Fix_Row);
       Action_Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Diagnostics_Execute_Selected_Action);
+        (S, Editor.Command_Ids.Command_Diagnostics_Execute_Selected_Action);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Action_Avail),
               "live semantic quick-fix action is available from Diagnostics");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Diagnostics_Execute_Selected_Action);
+        (S, Editor.Command_Ids.Command_Diagnostics_Execute_Selected_Action);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "live semantic quick-fix executes through the Diagnostics command");
 
       First_Count := Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Semantic_Refresh_Project_Index);
+        (S, Editor.Command_Ids.Command_Semantic_Refresh_Project_Index);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "repeated semantic refresh executes");
       Second_Count := Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics);
@@ -900,7 +900,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               "repeated semantic refresh replaces live Diagnostics rows without duplicates");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Language_Index_Status);
+        (S, Editor.Command_Ids.Command_Language_Index_Status);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "language index status executes after live semantic diagnostics");
       Assert (Ada.Strings.Fixed.Index
@@ -910,7 +910,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               "language index status reports semantic diagnostics totals and active-file count");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Language_Index_Clear);
+        (S, Editor.Command_Ids.Command_Language_Index_Clear);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "language index clear executes after live diagnostics");
       Assert (Editor.Ada_Language_Service.Semantic_Diagnostic_Count
@@ -959,7 +959,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Semantic_Refresh_Buffer);
+        (S, Editor.Command_Ids.Command_Semantic_Refresh_Buffer);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic buffer refresh executes for active Ada file");
       Assert (Editor.Ada_Project_Index.Contains_Path (S.Language_Index, Path),
@@ -978,7 +978,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
 
       First_Count := Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Semantic_Refresh_Buffer);
+        (S, Editor.Command_Ids.Command_Semantic_Refresh_Buffer);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "repeated semantic buffer refresh executes");
       Second_Count := Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics);
@@ -986,7 +986,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               "repeated semantic buffer refresh replaces live Diagnostics rows without duplicates");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Language_Index_Clear);
+        (S, Editor.Command_Ids.Command_Language_Index_Clear);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "language index clear executes after buffer live diagnostics");
       Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
@@ -1027,7 +1027,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Semantic_Refresh_Project_Index);
+        (S, Editor.Command_Ids.Command_Semantic_Refresh_Project_Index);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic project refresh executes for cross-unit fixture");
 
@@ -1117,12 +1117,12 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Spec_Path);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Semantic_Refresh_Project_Index);
+        (S, Editor.Command_Ids.Command_Semantic_Refresh_Project_Index);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "indexed body/spec fixture refreshes semantic project index");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "indexed body/spec fixture refreshes spec Outline");
       for I in 1 .. Editor.Outline.Item_Count (S.Outline) loop
@@ -1140,11 +1140,11 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, Spec_Row);
 
       Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Goto_Body);
+        (S, Editor.Command_Ids.Command_Goto_Body);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "indexed package spec row offers goto body");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Goto_Body);
+        (S, Editor.Command_Ids.Command_Goto_Body);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "indexed package spec row navigates to body");
       Assert (S.File_Info.Has_Path
@@ -1161,7 +1161,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               "goto body execution records a completed semantic request");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "indexed body/spec fixture refreshes body Outline");
       for I in 1 .. Editor.Outline.Item_Count (S.Outline) loop
@@ -1190,13 +1190,13 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               ", ambiguous=" & Boolean'Image (Unit_Target.Ambiguous) &
               ", overflow=" & Boolean'Image (Unit_Target.Overflow));
       Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Goto_Spec);
+        (S, Editor.Command_Ids.Command_Goto_Spec);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "indexed package body row offers goto spec from label '" &
               Editor.Outline.Item_Label (S.Outline, Body_Row) & "': " &
               Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail));
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Goto_Spec);
+        (S, Editor.Command_Ids.Command_Goto_Spec);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "indexed package body row navigates to spec");
       Assert (S.File_Info.Has_Path
@@ -1214,7 +1214,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Sep_Path);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "indexed body/spec fixture refreshes separate subunit Outline");
       for I in 1 .. Editor.Outline.Item_Count (S.Outline) loop
@@ -1235,13 +1235,13 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, Sep_Row);
 
       Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Goto_Spec);
+        (S, Editor.Command_Ids.Command_Goto_Spec);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "indexed separate procedure body row offers goto spec from label '" &
               Editor.Outline.Item_Label (S.Outline, Sep_Row) & "': " &
               Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail));
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Goto_Spec);
+        (S, Editor.Command_Ids.Command_Goto_Spec);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "indexed separate procedure body row navigates to parent spec");
       Assert (S.File_Info.Has_Path
@@ -1257,7 +1257,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Spec_Path);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "stale body/spec fixture refreshes spec Outline again");
       Spec_Row := 0;
@@ -1280,14 +1280,14 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               "command-kind text edits invalidate language service with project index");
 
       Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Goto_Body);
+        (S, Editor.Command_Ids.Command_Goto_Body);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "stale selected package spec row does not offer goto body");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) =
               "Outline indexed target unavailable",
               "stale selected package spec row reports indexed target unavailable");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Goto_Body);
+        (S, Editor.Command_Ids.Command_Goto_Body);
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "stale selected package spec row cannot execute goto body");
 
@@ -1334,7 +1334,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Lib_Path);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Semantic_Refresh_Project_Index);
+        (S, Editor.Command_Ids.Command_Semantic_Refresh_Project_Index);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "language index buffer-switcher fixture refreshes project index");
       Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
@@ -1404,7 +1404,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Lib_Path);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Semantic_Refresh_Project_Index);
+        (S, Editor.Command_Ids.Command_Semantic_Refresh_Project_Index);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "language index navigation fixture refreshes project index");
       Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
@@ -1419,7 +1419,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               "language index navigation fixture records previous lib buffer");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Navigation_Back);
+        (S, Editor.Command_Ids.Command_Navigation_Back);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "navigate back executes for indexed open buffer target");
       Assert (S.File_Info.Has_Path
@@ -1476,14 +1476,14 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Lib_Path);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Semantic_Refresh_Project_Index);
+        (S, Editor.Command_Ids.Command_Semantic_Refresh_Project_Index);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "language index close-active fixture refreshes project index");
       Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
               "language index close-active fixture indexed both files");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Close_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Close_Active_Buffer);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "close active buffer executes for clean indexed source");
       Assert (S.File_Info.Has_Path
@@ -1539,7 +1539,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Main_Path);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Semantic_Refresh_Project_Index);
+        (S, Editor.Command_Ids.Command_Semantic_Refresh_Project_Index);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "language index new-buffer fixture refreshes project index");
       Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
@@ -1611,14 +1611,14 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, Main_Id);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Semantic_Refresh_Project_Index);
+        (S, Editor.Command_Ids.Command_Semantic_Refresh_Project_Index);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "language index save-all fixture refreshes project index");
       Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
               "language index save-all fixture indexed both files");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Save_All);
+        (S, Editor.Command_Ids.Command_Save_All);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "save all executes for inactive dirty file-backed buffer");
       Assert (S.File_Info.Has_Path
@@ -1683,14 +1683,14 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Semantic_Refresh_Project_Index);
+        (S, Editor.Command_Ids.Command_Semantic_Refresh_Project_Index);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "save-file fixture refreshes project language index");
       Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
               "save-file fixture indexed both files");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Save_File);
+        (S, Editor.Command_Ids.Command_Save_File);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "save file executes for dirty file-backed buffer");
       Assert (not S.File_Info.Dirty,
@@ -1757,7 +1757,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Semantic_Refresh_Project_Index);
+        (S, Editor.Command_Ids.Command_Semantic_Refresh_Project_Index);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "reload confirmation fixture refreshes project language index");
       Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
@@ -1773,7 +1773,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "dirty reload creates a confirmation prompt");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Retry_Pending_Transition);
+        (S, Editor.Command_Ids.Command_Retry_Pending_Transition);
 
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "reload confirmation clears the prompt");
@@ -1841,18 +1841,18 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Semantic_Refresh_Project_Index);
+        (S, Editor.Command_Ids.Command_Semantic_Refresh_Project_Index);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "revert confirmation fixture refreshes project language index");
       Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
               "revert confirmation fixture indexed both files");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Revert_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Revert_Active_Buffer);
       Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "dirty revert creates a confirmation prompt");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Retry_Pending_Transition);
+        (S, Editor.Command_Ids.Command_Retry_Pending_Transition);
 
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "revert confirmation clears the prompt");
@@ -1919,7 +1919,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Semantic_Refresh_Project_Index);
+        (S, Editor.Command_Ids.Command_Semantic_Refresh_Project_Index);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "file-conflict reload fixture refreshes project language index");
       Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
@@ -1931,12 +1931,12 @@ package body Editor.Executor.Semantic_Index_State_Tests is
          "   procedure Run;" & ASCII.LF &
          "   procedure From_Disk;" & ASCII.LF &
          "end Lib;" & ASCII.LF);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File);
       Assert (S.File_Conflict_Prompt_Active,
               "save conflict opens file conflict prompt");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_File_Conflict_Reload_From_Disk);
+        (S, Editor.Command_Ids.Command_File_Conflict_Reload_From_Disk);
 
       Assert (not S.File_Conflict_Prompt_Active,
               "file-conflict reload clears prompt");
@@ -2004,7 +2004,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Semantic_Refresh_Project_Index);
+        (S, Editor.Command_Ids.Command_Semantic_Refresh_Project_Index);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "file-conflict overwrite fixture refreshes project language index");
       Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
@@ -2016,12 +2016,12 @@ package body Editor.Executor.Semantic_Index_State_Tests is
          "   procedure Run;" & ASCII.LF &
          "   procedure External;" & ASCII.LF &
          "end Lib;" & ASCII.LF);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File);
       Assert (S.File_Conflict_Prompt_Active,
               "save conflict opens overwrite prompt");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_File_Conflict_Overwrite_Disk);
+        (S, Editor.Command_Ids.Command_File_Conflict_Overwrite_Disk);
 
       Assert (not S.File_Conflict_Prompt_Active,
               "file-conflict overwrite clears prompt");
@@ -2086,7 +2086,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Lib_Path);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Semantic_Refresh_Project_Index);
+        (S, Editor.Command_Ids.Command_Semantic_Refresh_Project_Index);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "diagnostic-open fixture refreshes project language index");
       Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
@@ -2109,7 +2109,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Diagnostics_Open_Selected);
+        (S, Editor.Command_Ids.Command_Diagnostics_Open_Selected);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "diagnostic open selected executes for inactive target buffer");
       Assert (Editor.Buffers.Global_Active_Buffer = Main_Id,

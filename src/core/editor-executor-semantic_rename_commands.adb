@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
@@ -10,7 +11,6 @@ with Editor.Ada_Language_Model;
 with Editor.Ada_Project_Index;
 with Editor.Buffers;
 with Editor.Command_Execution;
-with Editor.Commands;
 with Editor.Executor;
 with Editor.Executor.History;
 with Editor.Executor.Shared_Services;
@@ -295,14 +295,14 @@ package body Editor.Executor.Semantic_Rename_Commands is
 
    function Execute_Semantic_Rename_Command
      (S         : in out Editor.State.State_Type;
-      Id        : Editor.Commands.Command_Id;
+      Id        : Editor.Command_Ids.Command_Id;
       Name      : String;
       Rename_To : String)
       return Editor.Command_Execution.Command_Execution_Result
    is
    begin
       case Id is
-         when Editor.Commands.Command_Rename_Symbol_Preview =>
+         when Editor.Command_Ids.Command_Rename_Symbol_Preview =>
             declare
                Result : constant Editor.Ada_Language_Service.Rename_Preview :=
                  Semantic_Rename_Preview
@@ -409,7 +409,7 @@ package body Editor.Executor.Semantic_Rename_Commands is
                return Editor.Command_Execution.Unavailable (Id);
             end;
 
-         when Editor.Commands.Command_Rename_Symbol_Apply =>
+         when Editor.Command_Ids.Command_Rename_Symbol_Apply =>
             declare
                Result : constant Editor.Ada_Language_Service.Rename_Preview :=
                  Semantic_Rename_Preview
@@ -613,7 +613,7 @@ package body Editor.Executor.Semantic_Rename_Commands is
 
    function Semantic_Rename_Command_Availability
      (S       : Editor.State.State_Type;
-      Id      : Editor.Commands.Command_Id;
+      Id      : Editor.Command_Ids.Command_Id;
       Service : in out Editor.Ada_Language_Service.Service_State;
       Name    : String)
       return Editor.Commands.Availability_Metadata.Command_Availability
@@ -622,7 +622,7 @@ package body Editor.Executor.Semantic_Rename_Commands is
         Semantic_Rename_Preview (S, Service, Name, Name & "_Renamed");
    begin
       case Id is
-         when Editor.Commands.Command_Rename_Symbol_Preview =>
+         when Editor.Command_Ids.Command_Rename_Symbol_Preview =>
             if Result.Status = Editor.Ada_Language_Service.Service_Success
               or else Result.Status = Editor.Ada_Language_Service.Service_Ambiguous
             then
@@ -632,7 +632,7 @@ package body Editor.Executor.Semantic_Rename_Commands is
               ("Rename preview unavailable for " & Name & ": " &
                Service_Status_Image (Result.Status) & ".");
 
-         when Editor.Commands.Command_Rename_Symbol_Apply =>
+         when Editor.Command_Ids.Command_Rename_Symbol_Apply =>
             declare
                Reason : Unbounded_String;
             begin

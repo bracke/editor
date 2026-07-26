@@ -1,5 +1,5 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
-with Editor.Commands;
 with Editor.Commands.Payloads;
 with Editor.Cursor;
 with Editor.Executor.Clipboard;
@@ -21,7 +21,7 @@ with Editor.View;
 
 package body Editor.Input_Bridge.Keyboard_Dispatch is
 
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Keybindings.Binding_Result;
 
    procedure Handle_Key_Chord
@@ -33,13 +33,13 @@ package body Editor.Input_Bridge.Keyboard_Dispatch is
       Handle_Command_Palette     : not null access function
         (Cmd : Editor.Commands.Payloads.Command) return Boolean;
       Execute_Command_Id         : not null access procedure
-        (Id : Editor.Commands.Command_Id; Shift : Boolean))
+        (Id : Editor.Command_Ids.Command_Id; Shift : Boolean))
    is
-      Id  : Editor.Commands.Command_Id;
+      Id  : Editor.Command_Ids.Command_Id;
       Cmd : Editor.Commands.Payloads.Command;
 
       procedure Execute_Command_Id_Default
-        (Command_Id : Editor.Commands.Command_Id)
+        (Command_Id : Editor.Command_Ids.Command_Id)
       is
       begin
          Execute_Command_Id (Command_Id, False);
@@ -53,7 +53,7 @@ package body Editor.Input_Bridge.Keyboard_Dispatch is
       end Execute_Instance_Command_Default;
 
       procedure Execute_Command_Id_With_Shift
-        (Command_Id : Editor.Commands.Command_Id;
+        (Command_Id : Editor.Command_Ids.Command_Id;
          Shift      : Boolean)
       is
       begin
@@ -63,7 +63,7 @@ package body Editor.Input_Bridge.Keyboard_Dispatch is
       procedure Execute_Active_Find_Previous_Default is
       begin
          Execute_Command_Id
-           (Editor.Commands.Command_Active_Find_Previous, False);
+           (Editor.Command_Ids.Command_Active_Find_Previous, False);
       end Execute_Active_Find_Previous_Default;
 
       procedure Hide_Active_Find_Default is
@@ -140,24 +140,24 @@ package body Editor.Input_Bridge.Keyboard_Dispatch is
          elsif Editor.Overlay_Focus.Is_Active
            (Instance.State.Overlay_Focus,
             Editor.Overlay_Focus.Active_Find_Prompt_Overlay)
-           and then (Id = Editor.Commands.Command_Active_Find_Next
-                     or else Id = Editor.Commands.Command_Active_Find_Previous
-                     or else Id = Editor.Commands.Command_Find_First
-                     or else Id = Editor.Commands.Command_Find_Last
-                     or else Id = Editor.Commands.Command_Find_Reveal_Current
-                     or else Id = Editor.Commands.Command_Find_From_Selection
-                     or else Id = Editor.Commands.Command_Find_From_Active_Word
-                     or else Id = Editor.Commands.Command_Find_Query_Clear
-                     or else Id = Editor.Commands.Command_Find_Case_Toggle
-                     or else Id = Editor.Commands.Command_Find_Case_Clear
-                     or else Id = Editor.Commands.Command_Find_Whole_Word_Toggle
-                     or else Id = Editor.Commands.Command_Find_Whole_Word_Clear
-                     or else Id = Editor.Commands.Command_Replace_Show
-                     or else Id = Editor.Commands.Command_Replace_Hide
-                     or else Id = Editor.Commands.Command_Replace_Toggle
-                     or else Id = Editor.Commands.Command_Replace_Text_Clear
-                     or else Id = Editor.Commands.Command_Replace_Current
-                     or else Id = Editor.Commands.Command_Replace_All)
+           and then (Id = Editor.Command_Ids.Command_Active_Find_Next
+                     or else Id = Editor.Command_Ids.Command_Active_Find_Previous
+                     or else Id = Editor.Command_Ids.Command_Find_First
+                     or else Id = Editor.Command_Ids.Command_Find_Last
+                     or else Id = Editor.Command_Ids.Command_Find_Reveal_Current
+                     or else Id = Editor.Command_Ids.Command_Find_From_Selection
+                     or else Id = Editor.Command_Ids.Command_Find_From_Active_Word
+                     or else Id = Editor.Command_Ids.Command_Find_Query_Clear
+                     or else Id = Editor.Command_Ids.Command_Find_Case_Toggle
+                     or else Id = Editor.Command_Ids.Command_Find_Case_Clear
+                     or else Id = Editor.Command_Ids.Command_Find_Whole_Word_Toggle
+                     or else Id = Editor.Command_Ids.Command_Find_Whole_Word_Clear
+                     or else Id = Editor.Command_Ids.Command_Replace_Show
+                     or else Id = Editor.Command_Ids.Command_Replace_Hide
+                     or else Id = Editor.Command_Ids.Command_Replace_Toggle
+                     or else Id = Editor.Command_Ids.Command_Replace_Text_Clear
+                     or else Id = Editor.Command_Ids.Command_Replace_Current
+                     or else Id = Editor.Command_Ids.Command_Replace_All)
          then
             Execute_Command_Id (Id, Chord.Modifiers.Shift);
             Editor.Cursor.Notify_Input
@@ -171,13 +171,13 @@ package body Editor.Input_Bridge.Keyboard_Dispatch is
                when Editor.Keybindings.Key_Enter =>
                   if Chord.Modifiers.Shift then
                      Execute_Command_Id
-                       (Editor.Commands.Command_Active_Find_Previous, False);
+                       (Editor.Command_Ids.Command_Active_Find_Previous, False);
                   else
                      Execute_Command_Id
-                       (Editor.Commands.Command_Active_Find_Next, False);
+                       (Editor.Command_Ids.Command_Active_Find_Next, False);
                   end if;
                when Editor.Keybindings.Key_Escape =>
-                  Execute_Command_Id (Editor.Commands.Command_Find_Hide, False);
+                  Execute_Command_Id (Editor.Command_Ids.Command_Find_Hide, False);
                when Editor.Keybindings.Key_Tab =>
                   null;
                when Editor.Keybindings.Key_Backspace =>

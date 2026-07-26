@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
@@ -6,7 +7,6 @@ with Ada.Containers; use Ada.Containers;
 with Text_Buffer;
 with Editor.Buffers;
 with Editor.Command_Execution;
-with Editor.Commands;
 with Editor.Cursors; use Editor.Cursors;
 with Editor.Executor;
 with Editor.Executor.Shared_Services;
@@ -28,7 +28,7 @@ package body Editor.Executor.Selection_Commands is
 
    function Selection_Command_Availability
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Commands.Availability_Metadata.Command_Availability
    is
       function Has_Buffer return Boolean is
@@ -37,31 +37,31 @@ package body Editor.Executor.Selection_Commands is
       end Has_Buffer;
    begin
       case Id is
-         when Editor.Commands.Command_Select_Left
-            | Editor.Commands.Command_Select_Right
-            | Editor.Commands.Command_Select_Up
-            | Editor.Commands.Command_Select_Down
-            | Editor.Commands.Command_Select_Word_Left
-            | Editor.Commands.Command_Select_Word_Right
-            | Editor.Commands.Command_Select_Word
-            | Editor.Commands.Command_Select_Line
-            | Editor.Commands.Command_Start_Rectangular_Selection
-            | Editor.Commands.Command_Clear_Rectangular_Selection
-            | Editor.Commands.Command_Extend_Selection_Line_Up
-            | Editor.Commands.Command_Extend_Selection_Line_Down
-            | Editor.Commands.Command_Select_Line_Start
-            | Editor.Commands.Command_Select_Line_End
-            | Editor.Commands.Command_Select_Document_Start
-            | Editor.Commands.Command_Select_Document_End
-            | Editor.Commands.Command_Select_Page_Up
-            | Editor.Commands.Command_Select_Page_Down
-            | Editor.Commands.Command_Select_All =>
+         when Editor.Command_Ids.Command_Select_Left
+            | Editor.Command_Ids.Command_Select_Right
+            | Editor.Command_Ids.Command_Select_Up
+            | Editor.Command_Ids.Command_Select_Down
+            | Editor.Command_Ids.Command_Select_Word_Left
+            | Editor.Command_Ids.Command_Select_Word_Right
+            | Editor.Command_Ids.Command_Select_Word
+            | Editor.Command_Ids.Command_Select_Line
+            | Editor.Command_Ids.Command_Start_Rectangular_Selection
+            | Editor.Command_Ids.Command_Clear_Rectangular_Selection
+            | Editor.Command_Ids.Command_Extend_Selection_Line_Up
+            | Editor.Command_Ids.Command_Extend_Selection_Line_Down
+            | Editor.Command_Ids.Command_Select_Line_Start
+            | Editor.Command_Ids.Command_Select_Line_End
+            | Editor.Command_Ids.Command_Select_Document_Start
+            | Editor.Command_Ids.Command_Select_Document_End
+            | Editor.Command_Ids.Command_Select_Page_Up
+            | Editor.Command_Ids.Command_Select_Page_Down
+            | Editor.Command_Ids.Command_Select_All =>
             if not Has_Buffer then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
-         when Editor.Commands.Command_Selection_Clear =>
+         when Editor.Command_Ids.Command_Selection_Clear =>
             if not Has_Buffer then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
             elsif S.Carets.Length = 0 then
@@ -322,13 +322,13 @@ package body Editor.Executor.Selection_Commands is
 
    function Execute_Selection_Result_Command
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
    is
       Before_Messages : constant Natural := Editor.Messages.Count (S.Messages);
 
       function Result_After_Command
-        (Command : Editor.Commands.Command_Id)
+        (Command : Editor.Command_Ids.Command_Id)
          return Editor.Command_Execution.Command_Execution_Result
       is
          Found : Boolean := False;
@@ -353,13 +353,13 @@ package body Editor.Executor.Selection_Commands is
       end Result_After_Command;
    begin
       case Id is
-         when Editor.Commands.Command_Select_All =>
+         when Editor.Command_Ids.Command_Select_All =>
             Execute_Select_All_Selection_Command (S);
 
-         when Editor.Commands.Command_Selection_Clear =>
+         when Editor.Command_Ids.Command_Selection_Clear =>
             Execute_Clear_Selection_Command (S);
 
-         when Editor.Commands.Command_Select_Word =>
+         when Editor.Command_Ids.Command_Select_Word =>
             Execute_Select_Current_Word_Command (S);
 
          when others =>

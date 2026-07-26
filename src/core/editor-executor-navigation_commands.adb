@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Executor.Shared_Services;
 use Editor.Executor.Shared_Services;
@@ -27,39 +28,39 @@ package body Editor.Executor.Navigation_Commands is
 
    function Navigation_Command_Availability
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin
       case Id is
-         when Editor.Commands.Command_Move_Left
-            | Editor.Commands.Command_Move_Right
-            | Editor.Commands.Command_Move_Up
-            | Editor.Commands.Command_Move_Down
-            | Editor.Commands.Command_Move_Line_Start
-            | Editor.Commands.Command_Move_Line_End
-            | Editor.Commands.Command_Move_Document_Start
-            | Editor.Commands.Command_Move_Document_End
-            | Editor.Commands.Command_Move_Word_Left
-            | Editor.Commands.Command_Move_Word_Right
-            | Editor.Commands.Command_Page_Up
-            | Editor.Commands.Command_Page_Down
-            | Editor.Commands.Command_Insert_Newline
-            | Editor.Commands.Command_Goto_Start
-            | Editor.Commands.Command_Goto_End =>
+         when Editor.Command_Ids.Command_Move_Left
+            | Editor.Command_Ids.Command_Move_Right
+            | Editor.Command_Ids.Command_Move_Up
+            | Editor.Command_Ids.Command_Move_Down
+            | Editor.Command_Ids.Command_Move_Line_Start
+            | Editor.Command_Ids.Command_Move_Line_End
+            | Editor.Command_Ids.Command_Move_Document_Start
+            | Editor.Command_Ids.Command_Move_Document_End
+            | Editor.Command_Ids.Command_Move_Word_Left
+            | Editor.Command_Ids.Command_Move_Word_Right
+            | Editor.Command_Ids.Command_Page_Up
+            | Editor.Command_Ids.Command_Page_Down
+            | Editor.Command_Ids.Command_Insert_Newline
+            | Editor.Command_Ids.Command_Goto_Start
+            | Editor.Command_Ids.Command_Goto_End =>
             if not Editor.State.Has_Active_Buffer (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
-         when Editor.Commands.Command_Navigation_Back =>
+         when Editor.Command_Ids.Command_Navigation_Back =>
             if not Editor.Navigation_History.Has_Back (S.Navigation_History) then
                return Editor.Commands.Availability_Metadata.Unavailable
                  ("No previous navigation location");
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
-         when Editor.Commands.Command_Navigation_Forward =>
+         when Editor.Command_Ids.Command_Navigation_Forward =>
             if not Editor.Navigation_History.Has_Forward
               (S.Navigation_History)
             then
@@ -68,7 +69,7 @@ package body Editor.Executor.Navigation_Commands is
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
-         when Editor.Commands.Command_Navigation_History_Clear =>
+         when Editor.Command_Ids.Command_Navigation_History_Clear =>
             if not Editor.Navigation_History.Has_Back (S.Navigation_History)
               and then not Editor.Navigation_History.Has_Forward
                 (S.Navigation_History)

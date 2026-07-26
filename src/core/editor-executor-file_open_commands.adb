@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Text_Buffer;
 with Ada.Containers; use Ada.Containers;
@@ -12,7 +13,6 @@ with Editor.Ada_Project_Index;
 with Editor.Buffers;
 use type Editor.Buffers.Buffer_Id;
 with Editor.Buffer_Switcher;
-with Editor.Commands;
 with Editor.Dirty_Guards;
 with Editor.Executor;
 with Editor.Executor.Semantic_Index_Commands;
@@ -62,7 +62,7 @@ package body Editor.Executor.File_Open_Commands is
 
    function File_Open_Command_Availability
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin

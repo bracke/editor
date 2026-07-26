@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.Buffers;
@@ -16,12 +17,12 @@ with Editor.View;
 
 package body Editor.Input_Bridge.Panel_Bars_Pointer_Handlers is
 
-   use type Editor.Commands.Command_Kind;
+   use type Editor.Command_Kinds.Command_Kind;
    use type Editor.Buffers.Buffer_Id;
    use type Editor.Panels.Panel_Id;
 
    function Is_Minimap_Pointer_Command
-     (Kind : Editor.Commands.Command_Kind) return Boolean
+     (Kind : Editor.Command_Kinds.Command_Kind) return Boolean
    is
    begin
       return Pointer_Routing.Is_Minimap_Pointer_Command (Kind);

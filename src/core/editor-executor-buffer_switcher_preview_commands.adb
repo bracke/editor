@@ -1,10 +1,10 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Buffer_Switcher;
 with Editor.Buffer_Switcher.Rows;
 with Editor.Buffers;
 with Editor.Command_Execution;
-with Editor.Commands;
 with Editor.Executor;
 with Editor.Executor.Shared_Services;
 use Editor.Executor.Shared_Services;
@@ -16,8 +16,8 @@ with Editor.Render_Cache;
 package body Editor.Executor.Buffer_Switcher_Preview_Commands is
 
    use type Editor.Buffers.Buffer_Id;
-   use type Editor.Commands.Command_Id;
-   use type Editor.Commands.Command_Kind;
+   use type Editor.Command_Ids.Command_Id;
+   use type Editor.Command_Kinds.Command_Kind;
    use type Editor.Messages.Message_Severity;
 
    function Active_Buffer_Switcher_Overlay
@@ -97,22 +97,22 @@ package body Editor.Executor.Buffer_Switcher_Preview_Commands is
 
    function Buffer_Switcher_Preview_Command_Availability
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin
       case Id is
-         when Editor.Commands.Command_Buffer_Switcher_Preview_Toggle
-            | Editor.Commands.Command_Buffer_Switcher_Preview_Show =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Preview_Toggle
+            | Editor.Command_Ids.Command_Buffer_Switcher_Preview_Show =>
             return Selected_Open_Buffer_Availability (S);
 
-         when Editor.Commands.Command_Buffer_Switcher_Preview_Hide =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Preview_Hide =>
             return Visible_Preview_Availability
               (S, Require_Row => False, Require_Open => True);
 
-         when Editor.Commands.Command_Buffer_Switcher_Preview_Next_Line
-            | Editor.Commands.Command_Buffer_Switcher_Preview_Previous_Line
-            | Editor.Commands.Command_Buffer_Switcher_Preview_Center_Cursor =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Preview_Next_Line
+            | Editor.Command_Ids.Command_Buffer_Switcher_Preview_Previous_Line
+            | Editor.Command_Ids.Command_Buffer_Switcher_Preview_Center_Cursor =>
             return Visible_Preview_Availability
               (S, Require_Row => True, Require_Open => True);
 
@@ -204,7 +204,7 @@ package body Editor.Executor.Buffer_Switcher_Preview_Commands is
 
    procedure Execute_Buffer_Switcher_Preview_Kind
      (S    : in out Editor.State.State_Type;
-      Kind : Editor.Commands.Command_Kind)
+      Kind : Editor.Command_Kinds.Command_Kind)
    is
    begin
       case Kind is
@@ -227,13 +227,13 @@ package body Editor.Executor.Buffer_Switcher_Preview_Commands is
 
    function Execute_Buffer_Switcher_Preview_Command
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
    is
       Before_Messages : constant Natural := Editor.Messages.Count (S.Messages);
 
       function Result_After_Command
-        (Command : Editor.Commands.Command_Id)
+        (Command : Editor.Command_Ids.Command_Id)
          return Editor.Command_Execution.Command_Execution_Result
       is
          Found : Boolean := False;
@@ -258,17 +258,17 @@ package body Editor.Executor.Buffer_Switcher_Preview_Commands is
       end Result_After_Command;
    begin
       case Id is
-         when Editor.Commands.Command_Buffer_Switcher_Preview_Toggle =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Preview_Toggle =>
             Execute_Buffer_Switcher_Preview_Toggle (S);
-         when Editor.Commands.Command_Buffer_Switcher_Preview_Show =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Preview_Show =>
             Execute_Buffer_Switcher_Preview_Show (S);
-         when Editor.Commands.Command_Buffer_Switcher_Preview_Hide =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Preview_Hide =>
             Execute_Buffer_Switcher_Preview_Hide (S);
-         when Editor.Commands.Command_Buffer_Switcher_Preview_Next_Line =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Preview_Next_Line =>
             Execute_Buffer_Switcher_Preview_Next_Line (S);
-         when Editor.Commands.Command_Buffer_Switcher_Preview_Previous_Line =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Preview_Previous_Line =>
             Execute_Buffer_Switcher_Preview_Previous_Line (S);
-         when Editor.Commands.Command_Buffer_Switcher_Preview_Center_Cursor =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Preview_Center_Cursor =>
             Execute_Buffer_Switcher_Preview_Center_Cursor (S);
          when others =>
             return Editor.Command_Execution.No_Op (Id);

@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.Cursor;
@@ -21,7 +22,7 @@ package body Editor.Input_Bridge.Quick_Open_Key_Handlers is
      (S               : in out Editor.State.State_Type;
       Chord           : Editor.Keybindings.Key_Chord;
       Execute         : not null access procedure
-        (Id : Editor.Commands.Command_Id);
+        (Id : Editor.Command_Ids.Command_Id);
       Execute_Command : not null access procedure
         (Command : Editor.Commands.Payloads.Command)) return Boolean
    is
@@ -35,14 +36,14 @@ package body Editor.Input_Bridge.Quick_Open_Key_Handlers is
 
       case Chord.Key is
          when Editor.Keybindings.Key_Enter =>
-            Execute (Editor.Commands.Command_Accept_Quick_Open);
+            Execute (Editor.Command_Ids.Command_Accept_Quick_Open);
          when Editor.Keybindings.Key_Escape =>
-            Execute (Editor.Commands.Command_Close_Quick_Open);
+            Execute (Editor.Command_Ids.Command_Close_Quick_Open);
          when Editor.Keybindings.Key_Tab =>
             if Chord.Modifiers.Shift then
-               Execute (Editor.Commands.Command_Quick_Open_Previous_Result);
+               Execute (Editor.Command_Ids.Command_Quick_Open_Previous_Result);
             else
-               Execute (Editor.Commands.Command_Quick_Open_Next_Result);
+               Execute (Editor.Command_Ids.Command_Quick_Open_Next_Result);
             end if;
          when Editor.Keybindings.Key_Backspace =>
             Cmd.Kind := Editor.Command_Kinds.Quick_Open_Backspace;
@@ -69,9 +70,9 @@ package body Editor.Input_Bridge.Quick_Open_Key_Handlers is
                Execute_Command (Cmd);
             end if;
          when Editor.Keybindings.Key_Down =>
-            Execute (Editor.Commands.Command_Quick_Open_Next_Result);
+            Execute (Editor.Command_Ids.Command_Quick_Open_Next_Result);
          when Editor.Keybindings.Key_Up =>
-            Execute (Editor.Commands.Command_Quick_Open_Previous_Result);
+            Execute (Editor.Command_Ids.Command_Quick_Open_Previous_Result);
          when others =>
             null;
       end case;

@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Text_Buffer;
 with Ada.Containers; use Ada.Containers;
 with Editor.Cursors; use Editor.Cursors;
@@ -43,7 +44,6 @@ with Editor.Outline;
 with Editor.Keybindings;
 with Editor.Keybinding_Config;
 with Editor.Startup_Readiness;
-with Editor.Commands;
 with Editor.Navigation_History;
 with Editor.Build_UI;
 with Editor.Build_Result_Summary;
@@ -189,7 +189,7 @@ package body Editor.State is
    procedure Clear_File_Target_Prompt (S : in out State_Type) is
    begin
       S.File_Target_Prompt_Active := False;
-      S.File_Target_Prompt_Command := Editor.Commands.No_Command;
+      S.File_Target_Prompt_Command := Editor.Command_Ids.No_Command;
       S.File_Target_Prompt_Label := Null_Unbounded_String;
       Editor.Input_Field.Clear (S.File_Target_Prompt_Input);
    end Clear_File_Target_Prompt;

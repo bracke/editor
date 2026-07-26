@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
@@ -12,7 +13,6 @@ with Ada.Directories;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with Editor.Clipboard;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.Buffers;
 with Editor.Input_Field;
@@ -30,7 +30,7 @@ with Editor.Executor.History;
 with Editor.Executor.Clipboard;
 with Editor.Executor.Project_Lifecycle_Commands;
 use type Editor.Executor.Clipboard.Clipboard_Execution_Status;
-use type Editor.Commands.Command_Id;
+use type Editor.Command_Ids.Command_Id;
 use type Editor.Commands.Descriptors.Command_Category;
 use type Editor.Commands.Descriptors.Command_Visibility;
 use type Ada.Containers.Count_Type;
@@ -156,31 +156,31 @@ package body Editor.Clipboard.Tests is
       pragma Unreferenced (T);
    begin
       Assert
-        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Copy) =
+        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Command_Ids.Command_Copy) =
          "edit.copy",
          "copy must have the stable command name");
       Assert
-        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Cut) =
+        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Command_Ids.Command_Cut) =
          "edit.cut",
          "cut must have the stable command name");
       Assert
-        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Paste) =
+        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Command_Ids.Command_Paste) =
          "edit.paste",
          "paste must have the stable command name");
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Clipboard_Clear) =
+           (Editor.Command_Ids.Command_Clipboard_Clear) =
          "edit.clipboard.clear",
          "clipboard clear must have the stable command name");
       Assert
-        (Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Copy).Category =
+        (Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Copy).Category =
          Editor.Commands.Descriptors.Edit_Category,
          "copy must be an Edit command");
       Assert
-        (Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Cut).Bindable,
+        (Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Cut).Bindable,
          "cut must be bindable");
       Assert
-        (Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Paste).Visibility =
+        (Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Paste).Visibility =
          Editor.Commands.Descriptors.Palette_Command,
          "paste must be visible in the command palette");
    end Test_Command_Metadata;
@@ -196,7 +196,7 @@ package body Editor.Clipboard.Tests is
       Reset_Transient_State;
 
       Set_Primary_Selection (S, 1, 4);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy);
 
       Assert
         (To_String (Editor.Clipboard.Get_Text) = "bcd",
@@ -221,7 +221,7 @@ package body Editor.Clipboard.Tests is
       Reset_Transient_State;
       Set_Primary_Caret (S, 3);
 
-      A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Copy);
+      A := Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Copy);
       Assert
         (not Editor.Commands.Availability_Metadata.Is_Available (A),
          "copy without a selected range must be unavailable");
@@ -241,7 +241,7 @@ package body Editor.Clipboard.Tests is
       Reset_Transient_State;
 
       Set_Primary_Selection (S, 1, 4);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Cut);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Cut);
 
       Assert
         (To_String (Editor.Clipboard.Get_Text) = "bcd",
@@ -253,7 +253,7 @@ package body Editor.Clipboard.Tests is
         (not Editor.History.Undo_Stack.Is_Empty,
          "cut must create one undoable edit when text changes");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert
         (Editor.State.Current_Text (S) = "abcdef",
          "undo after cut must restore deleted text");
@@ -261,7 +261,7 @@ package body Editor.Clipboard.Tests is
         (To_String (Editor.Clipboard.Get_Text) = "bcd",
          "undo must not mutate clipboard contents");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert
         (Editor.State.Current_Text (S) = "aef",
          "redo after cut must delete the text again");
@@ -282,7 +282,7 @@ package body Editor.Clipboard.Tests is
       Editor.Clipboard.Set_Text (To_Unbounded_String ("cd"));
 
       Set_Primary_Caret (S, 2);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Paste);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Paste);
       Assert
         (Editor.State.Current_Text (S) = "abcdef",
          "paste with no selection must insert at the caret");
@@ -292,12 +292,12 @@ package body Editor.Clipboard.Tests is
 
       Set_Primary_Selection (S, 2, 4);
       Editor.Clipboard.Set_Text (To_Unbounded_String ("XY"));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Paste);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Paste);
       Assert
         (Editor.State.Current_Text (S) = "abXYef",
          "paste with selection must replace the selected text");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert
         (Editor.State.Current_Text (S) = "abcdef",
          "undo after paste-over-selection must restore previous text");
@@ -319,7 +319,7 @@ package body Editor.Clipboard.Tests is
       Editor.Clipboard.Set_Text (To_Unbounded_String ("cd"));
 
       Set_Primary_Selection (S, 2, 4);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Paste);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Paste);
 
       Assert
         (Editor.State.Current_Text (S) = "abcdef",
@@ -343,7 +343,7 @@ package body Editor.Clipboard.Tests is
       Editor.Executor.Execute_No_Log (S, Paste ("abcdef"));
       Reset_Transient_State;
 
-      A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Paste);
+      A := Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Paste);
       Assert
         (not Editor.Commands.Availability_Metadata.Is_Available (A),
          "paste with empty clipboard must be unavailable");
@@ -352,7 +352,7 @@ package body Editor.Clipboard.Tests is
          "paste with empty clipboard must report Clipboard is empty");
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Clipboard_Clear);
+        (S, Editor.Command_Ids.Command_Clipboard_Clear);
       Assert
         (not Editor.Commands.Availability_Metadata.Is_Available (A),
          "clipboard clear with empty clipboard must be unavailable");
@@ -373,20 +373,20 @@ package body Editor.Clipboard.Tests is
 
       Set_Primary_Caret (S, 1);
       Editor.Executor.Execute_No_Log (S, Paste ("B"));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert
         (not Editor.History.Redo_Stack.Is_Empty,
          "setup must leave redo available after undo");
 
       Set_Primary_Selection (S, 0, 1);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy);
       Assert
         (not Editor.History.Redo_Stack.Is_Empty,
          "copy after undo must preserve redo history");
 
       Editor.Clipboard.Set_Text (To_Unbounded_String ("C"));
       Set_Primary_Caret (S, 1);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Paste);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Paste);
       Assert
         (Editor.History.Redo_Stack.Is_Empty,
          "successful paste after undo must clear redo history");
@@ -403,7 +403,7 @@ package body Editor.Clipboard.Tests is
       Reset_Transient_State;
       Editor.Clipboard.Set_Text (To_Unbounded_String ("abc"));
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Clipboard_Clear);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Clipboard_Clear);
       Assert
         (not Editor.Clipboard.Has_Text,
          "clipboard clear must clear transient clipboard text");
@@ -424,7 +424,7 @@ package body Editor.Clipboard.Tests is
       Reset_Transient_State;
 
       Set_Primary_Selection (S, 4, 1);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy);
       Assert
         (To_String (Editor.Clipboard.Get_Text) = "bcd",
          "backward copy must extract the same text as a forward selection");
@@ -433,7 +433,7 @@ package body Editor.Clipboard.Tests is
          "backward copy must not mutate text");
 
       Set_Primary_Selection (S, 4, 1);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Cut);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Cut);
       Assert
         (To_String (Editor.Clipboard.Get_Text) = "bcd",
          "backward cut must publish the normalized selected text");
@@ -455,7 +455,7 @@ package body Editor.Clipboard.Tests is
       Editor.Clipboard.Set_Text (To_Unbounded_String ("old"));
 
       Set_Primary_Selection (S, 2, 99);
-      A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Cut);
+      A := Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Cut);
       Assert
         (not Editor.Commands.Availability_Metadata.Is_Available (A),
          "out-of-range cut selection must be unavailable");
@@ -463,7 +463,7 @@ package body Editor.Clipboard.Tests is
         (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "Invalid selection",
          "out-of-range cut selection must report Invalid selection");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Cut);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Cut);
       Assert
         (Editor.State.Current_Text (S) = "abcdef",
          "failed cut must not mutate buffer text");
@@ -487,7 +487,7 @@ package body Editor.Clipboard.Tests is
       Editor.Clipboard.Set_Text (To_Unbounded_String ("old"));
 
       Set_Primary_Selection (S, 1, 4);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy);
       Assert
         (Editor.Executor.Clipboard.Last_Status =
            Editor.Executor.Clipboard.Clipboard_Copied,
@@ -498,7 +498,7 @@ package body Editor.Clipboard.Tests is
 
       Editor.Clipboard.Set_Text (To_Unbounded_String ("x" & ASCII.LF & "y"));
       Set_Primary_Caret (S, 1);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Paste);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Paste);
       Assert
         (Editor.Executor.Clipboard.Last_Status =
            Editor.Executor.Clipboard.Clipboard_Pasted,
@@ -520,18 +520,18 @@ package body Editor.Clipboard.Tests is
 
       Set_Primary_Caret (S, 1);
       Editor.Executor.Execute_No_Log (S, Paste ("B"));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert
         (not Editor.History.Redo_Stack.Is_Empty,
          "setup must leave redo available after undo");
 
       Set_Primary_Selection (S, 0, 1);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy);
       Assert
         (not Editor.History.Redo_Stack.Is_Empty,
          "copy after undo must preserve redo history");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Clipboard_Clear);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Clipboard_Clear);
       Assert
         (not Editor.History.Redo_Stack.Is_Empty,
          "clipboard clear after undo must preserve redo history");
@@ -549,14 +549,14 @@ package body Editor.Clipboard.Tests is
 
       Set_Primary_Caret (S, 2);
       Editor.Executor.Execute_No_Log (S, Paste ("C"));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert
         (not Editor.History.Redo_Stack.Is_Empty,
          "setup must leave redo available after undo");
 
       Editor.Clipboard.Set_Text (To_Unbounded_String ("B"));
       Set_Primary_Selection (S, 1, 2);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Paste);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Paste);
       Assert
         (Editor.State.Current_Text (S) = "AB",
          "no-op paste over identical selected text must preserve buffer text");
@@ -577,13 +577,13 @@ package body Editor.Clipboard.Tests is
 
       Set_Primary_Caret (S, 3);
       Editor.Executor.Execute_No_Log (S, Paste ("D"));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert
         (not Editor.History.Redo_Stack.Is_Empty,
          "setup must leave redo available after undo");
 
       Set_Primary_Selection (S, 1, 2);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Cut);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Cut);
       Assert
         (Editor.State.Current_Text (S) = "AC",
          "successful cut after undo must mutate the buffer");
@@ -608,14 +608,14 @@ package body Editor.Clipboard.Tests is
 
       Set_Primary_Caret (S, 2);
       Editor.Executor.Execute_No_Log (S, Paste ("C"));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert
         (not Editor.History.Redo_Stack.Is_Empty,
          "setup must leave redo available after undo");
 
       Editor.Clipboard.Set_Text (To_Unbounded_String ("Z"));
       Set_Primary_Selection (S, 1, 99);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Paste);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Paste);
 
       Assert
         (Editor.Executor.Clipboard.Last_Status =
@@ -647,22 +647,22 @@ package body Editor.Clipboard.Tests is
 
       Editor.Clipboard.Set_Text (To_Unbounded_String ("Z"));
       Set_Primary_Caret (S, 2);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Paste);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Paste);
       Assert
         (To_String (Editor.Clipboard.Get_Text) = "Z",
          "paste must not clear or rewrite clipboard text");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert
         (To_String (Editor.Clipboard.Get_Text) = "Z",
          "undo after paste must not mutate clipboard text");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert
         (To_String (Editor.Clipboard.Get_Text) = "Z",
          "redo after paste must not mutate clipboard text");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Edit_History_Clear);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Edit_History_Clear);
       Assert
         (To_String (Editor.Clipboard.Get_Text) = "Z",
          "history clear must not mutate clipboard text");
@@ -694,7 +694,7 @@ package body Editor.Clipboard.Tests is
       Before_Redo := Redo_Count;
 
       Set_Primary_Selection (S, 6, 10);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy);
 
       Assert_Clipboard_State (True, "Beta", "copy workflow");
       Assert (Editor.State.Current_Text (S) = "Alpha Beta Gamma",
@@ -726,7 +726,7 @@ package body Editor.Clipboard.Tests is
       Editor.Clipboard.Set_Text (To_Unbounded_String ("Beta"));
 
       Set_Primary_Selection (Forward, 6, 7);
-      Editor.Executor.Execute_Command (Forward, Editor.Commands.Command_Paste);
+      Editor.Executor.Execute_Command (Forward, Editor.Command_Ids.Command_Paste);
 
       Reset_Transient_State;
       Editor.State.Init (Backward);
@@ -735,7 +735,7 @@ package body Editor.Clipboard.Tests is
       Editor.Clipboard.Set_Text (To_Unbounded_String ("Beta"));
 
       Set_Primary_Selection (Backward, 7, 6);
-      Editor.Executor.Execute_Command (Backward, Editor.Commands.Command_Paste);
+      Editor.Executor.Execute_Command (Backward, Editor.Command_Ids.Command_Paste);
 
       Assert (Editor.State.Current_Text (Forward) = "Alpha Beta Gamma",
               "forward paste-over-selection must replace the selected range");
@@ -764,7 +764,7 @@ package body Editor.Clipboard.Tests is
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
 
       Set_Primary_Caret (S, 6);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Paste);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Paste);
 
       Assert (Editor.State.Current_Text (S) = "Alpha Beta Gamma",
               "paste at caret must insert clipboard text at the insertion point");
@@ -779,13 +779,13 @@ package body Editor.Clipboard.Tests is
       Assert (Active_Message_Text (S) = "Pasted clipboard",
               "paste must emit one primary pasted message");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert (Editor.State.Current_Text (S) = "Alpha  Gamma",
               "undo after paste must remove inserted clipboard text");
       Assert_Clipboard_State (True, "Beta",
                               "undo after paste must not mutate clipboard");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert (Editor.State.Current_Text (S) = "Alpha Beta Gamma",
               "redo after paste must reinsert clipboard text");
       Assert_Clipboard_State (True, "Beta",
@@ -811,7 +811,7 @@ package body Editor.Clipboard.Tests is
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
 
       Set_Primary_Selection (S, 6, 10);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Cut);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Cut);
 
       Assert_Clipboard_State (True, "Beta",
                               "successful cut must publish only after deletion");
@@ -828,12 +828,12 @@ package body Editor.Clipboard.Tests is
       Assert (Active_Message_Text (S) = "Cut selection",
               "cut must emit one primary cut message");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert (Editor.State.Current_Text (S) = "Alpha Beta Gamma",
               "undo after cut must restore the exact prior text");
       Assert_Clipboard_State (True, "Beta", "undo after cut");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert (Editor.State.Current_Text (S) = "Alpha  Gamma",
               "redo after cut must reapply the deletion");
       Assert_Clipboard_State (True, "Beta", "redo after cut");
@@ -850,13 +850,13 @@ package body Editor.Clipboard.Tests is
       Reset_Transient_State;
       Set_Primary_Caret (S, 2);
       Editor.Executor.Execute_No_Log (S, Paste ("C"));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert (not Editor.History.Redo_Stack.Is_Empty,
               "setup must leave redo available after undo");
 
       Editor.Clipboard.Set_Text (To_Unbounded_String ("Previous"));
       Set_Primary_Selection (S, 1, 99);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Cut);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Cut);
       Assert
         (Active_Message_Text (S) = "Invalid selection",
          "failed cut must report invalid selection through command availability");
@@ -868,7 +868,7 @@ package body Editor.Clipboard.Tests is
               "failed cut must preserve redo stack");
 
       Set_Primary_Selection (S, 1, 99);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Paste);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Paste);
       Assert (Editor.Executor.Clipboard.Last_Status =
                 Editor.Executor.Clipboard.Clipboard_Invalid_Selection,
               "failed paste must report invalid selection");
@@ -908,17 +908,17 @@ package body Editor.Clipboard.Tests is
       Before_Stale := S.Active_Find_Stale;
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snapshot);
-      A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Copy);
+      A := Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Copy);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "copy availability must see the non-empty active selection");
-      A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Cut);
+      A := Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Cut);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "cut availability must see the non-empty active selection");
-      A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Paste);
+      A := Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Paste);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "paste availability must reflect Clipboard_Has_Text");
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Clipboard_Clear);
+        (S, Editor.Command_Ids.Command_Clipboard_Clear);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "clipboard clear availability must reflect Clipboard_Has_Text");
 
@@ -948,7 +948,7 @@ package body Editor.Clipboard.Tests is
       Buffer_A := Editor.Buffers.Global_Active_Buffer;
 
       Set_Primary_Selection (S, 0, 5);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy);
       Assert_Clipboard_State (True, "Alpha", "copy before buffer switch");
       Assert (Undo_Count = 0,
               "copy in buffer A must not create an undo entry");
@@ -958,7 +958,7 @@ package body Editor.Clipboard.Tests is
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
       Set_Primary_Caret (S, 4);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Paste);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Paste);
 
       Assert (Editor.State.Current_Text (S) = "BetaAlpha",
               "paste after active-buffer switch must mutate the new active buffer only");
@@ -967,7 +967,7 @@ package body Editor.Clipboard.Tests is
       Assert (Undo_Count = 1,
               "paste in buffer B must create buffer-local undo history");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert (Editor.State.Current_Text (S) = "Beta",
               "undo in buffer B must undo only the paste");
 
@@ -990,7 +990,7 @@ package body Editor.Clipboard.Tests is
       Buffer_A := Editor.Buffers.Global_Active_Buffer;
 
       Set_Primary_Selection (S, 0, 5);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy);
       Assert_Clipboard_State (True, "Alpha",
                               "clipboard populated before buffer close");
 
@@ -1000,7 +1000,7 @@ package body Editor.Clipboard.Tests is
       Editor.History.Redo_Stack.Clear;
       Editor.Executor.Buffer_Close_Commands.Execute_Close_Buffer (S, Buffer_A);
       Set_Primary_Caret (S, 4);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Paste);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Paste);
 
       Assert (Editor.State.Current_Text (S) = "BetaAlpha",
               "clipboard must remain pasteable after source buffer close");
@@ -1022,7 +1022,7 @@ package body Editor.Clipboard.Tests is
       Before_Text : Unbounded_String;
       Before_Clip : Unbounded_String;
 
-      function Candidate_Available (Id : Editor.Commands.Command_Id) return Boolean is
+      function Candidate_Available (Id : Editor.Command_Ids.Command_Id) return Boolean is
       begin
          if Candidates.Is_Empty then
             return False;
@@ -1035,9 +1035,9 @@ package body Editor.Clipboard.Tests is
          return False;
       end Candidate_Available;
 
-      procedure Assert_Stable (Name : String; Expected : Editor.Commands.Command_Id) is
+      procedure Assert_Stable (Name : String; Expected : Editor.Command_Ids.Command_Id) is
          Found : Boolean := False;
-         Id    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+         Id    : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       begin
          Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
          Assert (Found and then Id = Expected,
@@ -1055,18 +1055,18 @@ package body Editor.Clipboard.Tests is
       Before_Clip := Editor.Clipboard.Get_Text;
       Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
 
-      Assert_Stable ("edit.copy", Editor.Commands.Command_Copy);
-      Assert_Stable ("edit.cut", Editor.Commands.Command_Cut);
-      Assert_Stable ("edit.paste", Editor.Commands.Command_Paste);
+      Assert_Stable ("edit.copy", Editor.Command_Ids.Command_Copy);
+      Assert_Stable ("edit.cut", Editor.Command_Ids.Command_Cut);
+      Assert_Stable ("edit.paste", Editor.Command_Ids.Command_Paste);
       Assert_Stable ("edit.clipboard.clear",
-                     Editor.Commands.Command_Clipboard_Clear);
-      Assert (Candidate_Available (Editor.Commands.Command_Copy),
+                     Editor.Command_Ids.Command_Clipboard_Clear);
+      Assert (Candidate_Available (Editor.Command_Ids.Command_Copy),
               "command palette must project copy availability without extraction side effects");
-      Assert (Candidate_Available (Editor.Commands.Command_Cut),
+      Assert (Candidate_Available (Editor.Command_Ids.Command_Cut),
               "command palette must project cut availability without mutation");
-      Assert (Candidate_Available (Editor.Commands.Command_Paste),
+      Assert (Candidate_Available (Editor.Command_Ids.Command_Paste),
               "command palette must project paste availability from Clipboard_Has_Text");
-      Assert (Candidate_Available (Editor.Commands.Command_Clipboard_Clear),
+      Assert (Candidate_Available (Editor.Command_Ids.Command_Clipboard_Clear),
               "command palette must project clipboard.clear availability from Clipboard_Has_Text");
       Assert (To_Unbounded_String (Editor.State.Current_Text (S)) = Before_Text,
               "command palette projection must not mutate active-buffer text");
@@ -1109,11 +1109,11 @@ package body Editor.Clipboard.Tests is
       Before_Recent_Count := Editor.Recent_Buffers.Count (S.Recent_Buffers);
 
       Set_Primary_Selection (S, 6, 10);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Cut);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Cut);
       Set_Primary_Caret (S, Natural (Editor.State.Current_Text (S)'Length));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Paste);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Clipboard_Clear);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Paste);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Clipboard_Clear);
 
       Assert (Editor.Go_To_Line.Text (S.Go_To_Line) = Before_Goto_Text,
               "clipboard commands must not mutate Go To Line state");
@@ -1163,11 +1163,11 @@ package body Editor.Clipboard.Tests is
       Assert (Editor.Clipboard.Has_Text,
               "setup must leave clipboard populated before lifecycle cleanup");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_Project);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_Project);
 
       Assert_Clipboard_State (False, "",
                               "project lifecycle cleanup must clear clipboard");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Paste);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Paste);
       Assert (Active_Message_Text (S) = "No active buffer."
               or else Active_Message_Text (S) = "Clipboard is empty",
               "paste after lifecycle cleanup must not restore clipboard text");
@@ -1189,7 +1189,7 @@ package body Editor.Clipboard.Tests is
       Snap    : Editor.Workspace_Persistence.Workspace_Snapshot;
       Summary : Unbounded_String;
       Found   : Boolean := True;
-      Id      : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Id      : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
    begin
       Reset_Transient_State;
       Editor.State.Init (S);
@@ -1206,27 +1206,27 @@ package body Editor.Clipboard.Tests is
               "workspace snapshot debug summary must not contain clipboard fields");
 
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("edit.copy-line", Found);
-      Assert (not Found and then Id = Editor.Commands.No_Command,
+      Assert (not Found and then Id = Editor.Command_Ids.No_Command,
               "copy-line must not be exposed as a command");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("edit.cut-line", Found);
-      Assert (not Found and then Id = Editor.Commands.No_Command,
+      Assert (not Found and then Id = Editor.Command_Ids.No_Command,
               "cut-line must not be exposed as a command");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("edit.copy-rich", Found);
-      Assert (not Found and then Id = Editor.Commands.No_Command,
+      Assert (not Found and then Id = Editor.Command_Ids.No_Command,
               "rich-text copy must not be exposed");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("edit.paste-special", Found);
-      Assert (not Found and then Id = Editor.Commands.No_Command,
+      Assert (not Found and then Id = Editor.Command_Ids.No_Command,
               "paste-special must not be exposed");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("edit.paste-history", Found);
-      Assert (not Found and then Id = Editor.Commands.No_Command,
+      Assert (not Found and then Id = Editor.Command_Ids.No_Command,
               "paste-history must not be exposed");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.system-clipboard.sync", Found);
-      Assert (not Found and then Id = Editor.Commands.No_Command,
+      Assert (not Found and then Id = Editor.Command_Ids.No_Command,
               "system clipboard synchronization must not be exposed");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.clipboard.persist", Found);
-      Assert (not Found and then Id = Editor.Commands.No_Command,
+      Assert (not Found and then Id = Editor.Command_Ids.No_Command,
               "persistent clipboard command must not be exposed");
    end Test_Persistence_And_Non_Goal_Command_Exclusion;
 
@@ -1254,13 +1254,13 @@ package body Editor.Clipboard.Tests is
       Reset_Transient_State;
       Editor.State.Init (S);
       Editor.Keybindings.Bind
-        (Ctrl (Editor.Keybindings.Key_C), Editor.Commands.Command_Copy);
+        (Ctrl (Editor.Keybindings.Key_C), Editor.Command_Ids.Command_Copy);
       Editor.Keybindings.Bind
-        (Ctrl (Editor.Keybindings.Key_X), Editor.Commands.Command_Cut);
+        (Ctrl (Editor.Keybindings.Key_X), Editor.Command_Ids.Command_Cut);
       Editor.Keybindings.Bind
-        (Ctrl (Editor.Keybindings.Key_V), Editor.Commands.Command_Paste);
+        (Ctrl (Editor.Keybindings.Key_V), Editor.Command_Ids.Command_Paste);
       Editor.Keybindings.Bind
-        (Ctrl (Editor.Keybindings.Key_L), Editor.Commands.Command_Clipboard_Clear);
+        (Ctrl (Editor.Keybindings.Key_L), Editor.Command_Ids.Command_Clipboard_Clear);
 
       Editor.Executor.Execute_No_Log (S, Paste ("Alpha Beta Gamma"));
       Reset_Transient_State;
@@ -1328,21 +1328,21 @@ package body Editor.Clipboard.Tests is
       Reset_Transient_State;
 
       Set_Primary_Selection (S, 6, 10);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy);
       Assert_Message_Count ("Copied selection", "copy");
 
       Set_Primary_Selection (S, 6, 10);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Cut);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Cut);
       Assert_Message_Count ("Cut selection", "cut");
 
       Set_Primary_Caret (S, 6);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Paste);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Paste);
       Assert_Message_Count ("Pasted clipboard", "paste");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Clipboard_Clear);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Clipboard_Clear);
       Assert_Message_Count ("Clipboard cleared", "clipboard.clear");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Paste);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Paste);
       Assert_Message_Count ("Clipboard is empty", "failed paste");
    end Test_Clipboard_Commands_Emit_One_Primary_Message;
 
@@ -1358,13 +1358,13 @@ package body Editor.Clipboard.Tests is
       Reset_Transient_State;
 
       Set_Primary_Selection (S, 6, 10);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy);
       Assert (not Editor.State.Is_Dirty (S),
               "copy must not dirty a clean buffer");
       Assert (Undo_Count = 0 and then Redo_Count = 0,
               "copy must not change edit history in the dirty matrix");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Clipboard_Clear);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Clipboard_Clear);
       Assert (not Editor.State.Is_Dirty (S),
               "clipboard.clear must not dirty a clean buffer");
       Assert (Undo_Count = 0 and then Redo_Count = 0,
@@ -1372,7 +1372,7 @@ package body Editor.Clipboard.Tests is
 
       Editor.Clipboard.Set_Text (To_Unbounded_String ("Beta"));
       Set_Primary_Selection (S, 6, 10);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Paste);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Paste);
       Assert (Editor.State.Current_Text (S) = "Alpha Beta Gamma",
               "no-op paste over identical selection must preserve buffer text");
       Assert (not Editor.State.Is_Dirty (S),
@@ -1406,7 +1406,7 @@ package body Editor.Clipboard.Tests is
 
       Editor.Clipboard.Set_Text (To_Unbounded_String ("Beta"));
       Set_Primary_Caret (S, 6);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Paste);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Paste);
 
       Assert (Editor.State.Current_Text (S) = "Alpha Beta Gamma",
               "paste must insert text before Find/Replace invalidation assertions");
@@ -1417,14 +1417,14 @@ package body Editor.Clipboard.Tests is
               and then Length (S.Active_Replace_Error_Message) = 0,
               "paste invalidation must preserve Replace prompt text without corruption");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert (not S.Active_Find_Stale and then S.Active_Find_Matches.Is_Empty,
               "undo after paste must recompute restored Find state without stale ranges");
       Assert (S.Active_Replace_Prompt
               and then To_String (S.Active_Replace_Text) = "Delta",
               "undo after paste must not corrupt Replace text");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert (not S.Active_Find_Stale
               and then Natural (S.Active_Find_Matches.Length) = 1,
               "redo after paste must recompute Find state for restored pasted text");
@@ -1454,7 +1454,7 @@ package body Editor.Clipboard.Tests is
       Editor.Clipboard.Set_Text (To_Unbounded_String ("Clip"));
       Before_Text := To_Unbounded_String (Editor.State.Current_Text (S));
       Set_Primary_Caret (S, 0);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Paste);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Paste);
       Assert (To_Unbounded_String (Editor.State.Current_Text (S)) /= Before_Text,
               "paste availability and inserted text must come from canonical Clipboard_Has_Text/Text");
       Assert_Clipboard_State (True, "Clip",
@@ -1466,7 +1466,7 @@ package body Editor.Clipboard.Tests is
       pragma Unreferenced (T);
 
       procedure Assert_Only_Canonical_Clipboard_Targets is
-         Id   : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+         Id   : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
          Name : Unbounded_String := Null_Unbounded_String;
       begin
          if Editor.Keybindings.Bound_Command_Count > 0 then
@@ -1479,10 +1479,10 @@ package body Editor.Clipboard.Tests is
                  or else Ada.Strings.Unbounded.Index (Name, "clipboard") /= 0
                then
                   Assert
-                    (Id = Editor.Commands.Command_Copy
-                     or else Id = Editor.Commands.Command_Cut
-                     or else Id = Editor.Commands.Command_Paste
-                     or else Id = Editor.Commands.Command_Clipboard_Clear,
+                    (Id = Editor.Command_Ids.Command_Copy
+                     or else Id = Editor.Command_Ids.Command_Cut
+                     or else Id = Editor.Command_Ids.Command_Paste
+                     or else Id = Editor.Command_Ids.Command_Clipboard_Clear,
                      To_String (Name) & " must be a canonical Clipboard command if bound");
                end if;
             end loop;
@@ -1506,20 +1506,20 @@ package body Editor.Clipboard.Tests is
       Editor.Clipboard.Set_Text (To_Unbounded_String ("existing"));
 
       Set_Primary_Selection (S, 1, 4);
-      A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Copy);
+      A := Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Copy);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "valid copy selection must be accepted by the canonical selection helper");
-      A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Cut);
+      A := Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Cut);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "valid cut selection must be accepted by the canonical selection helper");
 
       Set_Primary_Selection (S, 1, 99);
-      A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Copy);
+      A := Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Copy);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "out-of-range copy selection must be rejected before extraction");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "Invalid selection",
               "copy must report the canonical invalid-selection reason");
-      A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Cut);
+      A := Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Cut);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "out-of-range cut selection must be rejected before extraction");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "Invalid selection",

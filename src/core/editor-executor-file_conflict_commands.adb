@@ -8,7 +8,6 @@ with Editor.Ada_Project_Index;
 with Editor.Buffers;
 use type Editor.Buffers.Buffer_Id;
 with Editor.Cursors;
-with Editor.Commands;
 with Editor.Dirty_Guards;
 with Editor.Executor.Buffer_Close_Commands;
 with Editor.Executor.Buffer_Close_Prompt_Commands;

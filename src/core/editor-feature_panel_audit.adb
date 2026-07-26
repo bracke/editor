@@ -1,10 +1,10 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Classification;
 with Editor.Commands.Stable_Names;
 with Editor.Commands.Descriptor_Metadata;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Audit_Model; use Editor.Commands.Audit_Model;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Commands;
 with Editor.Command_Surface;
 with Editor.Feature_Panel_Controller;
 with Editor.Feature_Messages;
@@ -24,7 +24,7 @@ package body Editor.Feature_Panel_Audit is
 
    use type Editor.Feature_Panel.Feature_Id;
    use type Editor.Feature_Panel.Feature_Panel_Fingerprint;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Producer_Contracts.Producer_Result_Status;
 
    function Non_Empty (Text : String) return Boolean is
@@ -45,7 +45,7 @@ package body Editor.Feature_Panel_Audit is
    end Descriptor_Index_For;
 
    function Command_Audit_Passes
-     (Id : Editor.Commands.Command_Id) return Boolean
+     (Id : Editor.Command_Ids.Command_Id) return Boolean
    is
       Found   : Boolean := False;
       Failure : Editor.Commands.Audit_Model.Command_Audit_Failure;
@@ -73,110 +73,110 @@ package body Editor.Feature_Panel_Audit is
    begin
       case Feature is
          when Editor.Feature_Panel.Outline_Feature =>
-            return Command_Audit_Passes (Editor.Commands.Command_Show_Outline)
-              and then Command_Audit_Passes (Editor.Commands.Command_Focus_Outline)
-              and then Command_Audit_Passes (Editor.Commands.Command_Clear_Outline)
+            return Command_Audit_Passes (Editor.Command_Ids.Command_Show_Outline)
+              and then Command_Audit_Passes (Editor.Command_Ids.Command_Focus_Outline)
+              and then Command_Audit_Passes (Editor.Command_Ids.Command_Clear_Outline)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Open_Selected_Outline_Item);
+                (Editor.Command_Ids.Command_Open_Selected_Outline_Item);
          when Editor.Feature_Panel.Messages_Feature =>
-            return Command_Audit_Passes (Editor.Commands.Command_Show_Messages)
-              and then Command_Audit_Passes (Editor.Commands.Command_Clear_Messages)
+            return Command_Audit_Passes (Editor.Command_Ids.Command_Show_Messages)
+              and then Command_Audit_Passes (Editor.Command_Ids.Command_Clear_Messages)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Clear_Selected_Message)
+                (Editor.Command_Ids.Command_Clear_Selected_Message)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Copy_Selected_Message_Text)
+                (Editor.Command_Ids.Command_Copy_Selected_Message_Text)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Clear_Info_Messages)
+                (Editor.Command_Ids.Command_Clear_Info_Messages)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Clear_Warning_Messages)
+                (Editor.Command_Ids.Command_Clear_Warning_Messages)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Clear_Error_Messages)
+                (Editor.Command_Ids.Command_Clear_Error_Messages)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Toggle_Message_Info)
+                (Editor.Command_Ids.Command_Toggle_Message_Info)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Toggle_Message_Warnings)
+                (Editor.Command_Ids.Command_Toggle_Message_Warnings)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Toggle_Message_Errors)
+                (Editor.Command_Ids.Command_Toggle_Message_Errors)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Show_All_Messages)
+                (Editor.Command_Ids.Command_Show_All_Messages)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Clear_Message_Filter)
+                (Editor.Command_Ids.Command_Clear_Message_Filter)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Dismiss_Latest_Message)
+                (Editor.Command_Ids.Command_Dismiss_Latest_Message)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Dismiss_All_Messages);
+                (Editor.Command_Ids.Command_Dismiss_All_Messages);
          when Editor.Feature_Panel.Search_Results_Feature =>
             return Command_Audit_Passes
-                (Editor.Commands.Command_Show_Search_Results_Feature)
+                (Editor.Command_Ids.Command_Show_Search_Results_Feature)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Clear_Search_Results_Feature)
+                (Editor.Command_Ids.Command_Clear_Search_Results_Feature)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Search_Results_Search_Active_Buffer)
+                (Editor.Command_Ids.Command_Search_Results_Search_Active_Buffer)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Search_Results_Repeat_Active_Buffer)
+                (Editor.Command_Ids.Command_Search_Results_Repeat_Active_Buffer)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Search_Results_Focus_Query)
+                (Editor.Command_Ids.Command_Search_Results_Focus_Query)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Search_Results_Query_History_Previous)
+                (Editor.Command_Ids.Command_Search_Results_Query_History_Previous)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Search_Results_Query_History_Next)
+                (Editor.Command_Ids.Command_Search_Results_Query_History_Next)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Search_Results_Toggle_Case_Sensitive)
+                (Editor.Command_Ids.Command_Search_Results_Toggle_Case_Sensitive)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Search_Results_Open_Selected);
+                (Editor.Command_Ids.Command_Search_Results_Open_Selected);
          when Editor.Feature_Panel.Diagnostics_Feature =>
-            return Command_Audit_Passes (Editor.Commands.Command_Diagnostics_Show)
-              and then Command_Audit_Passes (Editor.Commands.Command_Diagnostics_Clear)
+            return Command_Audit_Passes (Editor.Command_Ids.Command_Diagnostics_Show)
+              and then Command_Audit_Passes (Editor.Command_Ids.Command_Diagnostics_Clear)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Diagnostics_Toggle_Info)
+                (Editor.Command_Ids.Command_Diagnostics_Toggle_Info)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Diagnostics_Toggle_Warnings)
+                (Editor.Command_Ids.Command_Diagnostics_Toggle_Warnings)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Diagnostics_Toggle_Errors)
+                (Editor.Command_Ids.Command_Diagnostics_Toggle_Errors)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Diagnostics_Show_All)
+                (Editor.Command_Ids.Command_Diagnostics_Show_All)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Diagnostics_Clear_Filter)
+                (Editor.Command_Ids.Command_Diagnostics_Clear_Filter)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Diagnostics_Open_Selected)
+                (Editor.Command_Ids.Command_Diagnostics_Open_Selected)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Diagnostics_Select_Next)
+                (Editor.Command_Ids.Command_Diagnostics_Select_Next)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Diagnostics_Select_Previous)
+                (Editor.Command_Ids.Command_Diagnostics_Select_Previous)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Diagnostics_Clear_Selected)
+                (Editor.Command_Ids.Command_Diagnostics_Clear_Selected)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Diagnostics_Copy_Selected_Text)
+                (Editor.Command_Ids.Command_Diagnostics_Copy_Selected_Text)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Diagnostics_Clear_Info)
+                (Editor.Command_Ids.Command_Diagnostics_Clear_Info)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Diagnostics_Clear_Warnings)
+                (Editor.Command_Ids.Command_Diagnostics_Clear_Warnings)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Diagnostics_Clear_Errors)
+                (Editor.Command_Ids.Command_Diagnostics_Clear_Errors)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Diagnostics_Filter_Errors)
+                (Editor.Command_Ids.Command_Diagnostics_Filter_Errors)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Diagnostics_Filter_Warnings)
+                (Editor.Command_Ids.Command_Diagnostics_Filter_Warnings)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Diagnostics_Filter_Info_Notes)
+                (Editor.Command_Ids.Command_Diagnostics_Filter_Info_Notes)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Diagnostics_Filter_Source)
+                (Editor.Command_Ids.Command_Diagnostics_Filter_Source)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Diagnostics_Filter_Build)
+                (Editor.Command_Ids.Command_Diagnostics_Filter_Build)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Diagnostics_Clear_Build)
+                (Editor.Command_Ids.Command_Diagnostics_Clear_Build)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Diagnostics_Toggle_Editor_Source)
+                (Editor.Command_Ids.Command_Diagnostics_Toggle_Editor_Source)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Diagnostics_Toggle_File_Source)
+                (Editor.Command_Ids.Command_Diagnostics_Toggle_File_Source)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Diagnostics_Toggle_Project_Source)
+                (Editor.Command_Ids.Command_Diagnostics_Toggle_Project_Source)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Diagnostics_Toggle_External_Source)
+                (Editor.Command_Ids.Command_Diagnostics_Toggle_External_Source)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Diagnostics_Toggle_Unknown_Source)
+                (Editor.Command_Ids.Command_Diagnostics_Toggle_Unknown_Source)
               and then Command_Audit_Passes
-                (Editor.Commands.Command_Feature_Panel_Open_Selected);
+                (Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
          when Editor.Feature_Panel.Unknown_Feature =>
             return False;
       end case;
@@ -215,17 +215,17 @@ package body Editor.Feature_Panel_Audit is
 
    function Generic_Command_Surface_Passes return Boolean is
    begin
-      return Command_Audit_Passes (Editor.Commands.Command_Toggle_Feature_Panel)
-        and then Command_Audit_Passes (Editor.Commands.Command_Show_Feature_Panel)
-        and then Command_Audit_Passes (Editor.Commands.Command_Hide_Feature_Panel)
-        and then Command_Audit_Passes (Editor.Commands.Command_Focus_Feature_Panel)
-        and then Command_Audit_Passes (Editor.Commands.Command_Clear_Feature_Panel)
+      return Command_Audit_Passes (Editor.Command_Ids.Command_Toggle_Feature_Panel)
+        and then Command_Audit_Passes (Editor.Command_Ids.Command_Show_Feature_Panel)
+        and then Command_Audit_Passes (Editor.Command_Ids.Command_Hide_Feature_Panel)
+        and then Command_Audit_Passes (Editor.Command_Ids.Command_Focus_Feature_Panel)
+        and then Command_Audit_Passes (Editor.Command_Ids.Command_Clear_Feature_Panel)
         and then Command_Audit_Passes
-          (Editor.Commands.Command_Feature_Panel_Select_Next)
+          (Editor.Command_Ids.Command_Feature_Panel_Select_Next)
         and then Command_Audit_Passes
-          (Editor.Commands.Command_Feature_Panel_Select_Previous)
+          (Editor.Command_Ids.Command_Feature_Panel_Select_Previous)
         and then Command_Audit_Passes
-          (Editor.Commands.Command_Feature_Panel_Open_Selected);
+          (Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
    end Generic_Command_Surface_Passes;
 
    function Feature_Command_Surface_Covers_All_Features return Boolean

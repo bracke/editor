@@ -1,4 +1,3 @@
-with Editor.Commands;
 with Editor.Feature_Panel;
 
 package Editor.Feature_Diagnostics.Selection is

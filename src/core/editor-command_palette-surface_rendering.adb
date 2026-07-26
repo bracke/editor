@@ -1,6 +1,6 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
-with Editor.Commands;
 with Editor.Executor.Command_Palette_Projection;
 with Editor.Overlay_Focus;
 with Editor.Render_Layers;
@@ -13,7 +13,7 @@ package body Editor.Command_Palette.Surface_Rendering is
    use Editor.Render_Packet.Guikit_Adapters;
    use type Guikit.Draw.Render_Color;
 
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
 
    procedure Build_Frame
      (Palette        : Editor.Command_Palette.Palette_State;
@@ -104,14 +104,14 @@ package body Editor.Command_Palette.Surface_Rendering is
         ((2 + Visible_Count) * Cell_H
          + Editor.Theme.Palette_Outer_Padding_Y);
 
-      if Palette.Selected_Command_Id /= Editor.Commands.No_Command
+      if Palette.Selected_Command_Id /= Editor.Command_Ids.No_Command
         and then Guikit.Command_Palette.Result_Count (Guikit_Palette) > 0
       then
          declare
             Results : constant Guikit.Command_Palette.Command_Vectors.Vector :=
               Guikit.Command_Palette.Results (Guikit_Palette);
             Target : constant Natural :=
-              Editor.Commands.Command_Id'Pos (Palette.Selected_Command_Id);
+              Editor.Command_Ids.Command_Id'Pos (Palette.Selected_Command_Id);
          begin
             for I in Results.First_Index .. Results.Last_Index loop
                if Results.Element (I).Id = Target then

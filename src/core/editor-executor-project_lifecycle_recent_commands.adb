@@ -1,8 +1,8 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with Editor.Command_Execution;
-with Editor.Commands;
 with Editor.Executor.Shared_Services;
 use Editor.Executor.Shared_Services;
 with Editor.Focus_Management;
@@ -40,7 +40,7 @@ package body Editor.Executor.Project_Lifecycle_Recent_Commands is
 
    function Result_After_Command
      (S               : Editor.State.State_Type;
-      Command         : Editor.Commands.Command_Id;
+      Command         : Editor.Command_Ids.Command_Id;
       Before_Messages : Natural)
       return Editor.Command_Execution.Command_Execution_Result
    is
@@ -262,23 +262,23 @@ package body Editor.Executor.Project_Lifecycle_Recent_Commands is
 
    function Execute_Project_Lifecycle_Recent_Result_Command
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
    is
       Before_Messages : constant Natural := Editor.Messages.Count (S.Messages);
    begin
       case Id is
-         when Editor.Commands.Command_Show_Recent_Projects =>
+         when Editor.Command_Ids.Command_Show_Recent_Projects =>
             Execute_Show_Recent_Projects (S);
-         when Editor.Commands.Command_Clear_Recent_Projects =>
+         when Editor.Command_Ids.Command_Clear_Recent_Projects =>
             Execute_Clear_Recent_Projects (S);
-         when Editor.Commands.Command_Remove_Selected_Recent_Project =>
+         when Editor.Command_Ids.Command_Remove_Selected_Recent_Project =>
             Execute_Remove_Selected_Recent_Project (S);
-         when Editor.Commands.Command_Remove_Missing_Recent_Projects =>
+         when Editor.Command_Ids.Command_Remove_Missing_Recent_Projects =>
             Execute_Remove_Missing_Recent_Projects (S);
-         when Editor.Commands.Command_Select_Next_Recent_Project =>
+         when Editor.Command_Ids.Command_Select_Next_Recent_Project =>
             Execute_Select_Next_Recent_Project (S);
-         when Editor.Commands.Command_Select_Previous_Recent_Project =>
+         when Editor.Command_Ids.Command_Select_Previous_Recent_Project =>
             Execute_Select_Previous_Recent_Project (S);
          when others =>
             raise Program_Error with

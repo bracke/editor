@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Classification;
@@ -7,7 +8,6 @@ with AUnit.Assertions;  use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Containers;    use Ada.Containers;
-with Editor.Commands;   use Editor.Commands;
 with Editor.State;
 with Editor.Executor;
 with Editor.Executor.File_Open_Commands;
@@ -68,33 +68,33 @@ package body Editor.Selection.Tests is
       pragma Unreferenced (T);
    begin
       Assert
-        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Select_All) =
+        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Command_Ids.Command_Select_All) =
          "selection.select-all",
          "select-all must have stable persisted command name");
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Selection_Clear) =
+           (Editor.Command_Ids.Command_Selection_Clear) =
          "selection.clear",
          "clear-selection must have stable persisted command name");
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Select_Word) =
+           (Editor.Command_Ids.Command_Select_Word) =
          "selection.select-word",
          "select-word must have the canonical command name");
       Assert
-        (Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Select_All).Category =
+        (Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Select_All).Category =
          Editor.Commands.Descriptors.Selection_Category,
          "select-all belongs to the Selection category");
       Assert
-        (Editor.Commands.Classification.Is_Bindable_Command (Editor.Commands.Command_Select_All),
+        (Editor.Commands.Classification.Is_Bindable_Command (Editor.Command_Ids.Command_Select_All),
          "select-all must be bindable");
       Assert
         (Editor.Commands.Classification.Is_Bindable_Command
-           (Editor.Commands.Command_Selection_Clear),
+           (Editor.Command_Ids.Command_Selection_Clear),
          "clear-selection must be bindable");
       Assert
         (Editor.Commands.Classification.Is_Bindable_Command
-           (Editor.Commands.Command_Select_Word),
+           (Editor.Command_Ids.Command_Select_Word),
          "canonical select-word command must be bindable");
    end Test_Selection_Command_Descriptors;
 
@@ -104,7 +104,7 @@ package body Editor.Selection.Tests is
    procedure Test_Default_Keybinding_Select_All
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Actual : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Actual : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
    begin
       Editor.Keybindings.Reset_To_Defaults;
 
@@ -114,7 +114,7 @@ package body Editor.Selection.Tests is
              Modifiers =>
                (Ctrl => True, Shift => False, Alt => False, Meta => False)),
             Actual) = Editor.Keybindings.Bound_Command
-         and then Actual = Editor.Commands.Command_Select_All,
+         and then Actual = Editor.Command_Ids.Command_Select_All,
          "Ctrl+A must route to canonical select-all command id");
    end Test_Default_Keybinding_Select_All;
 
@@ -131,7 +131,7 @@ package body Editor.Selection.Tests is
       Undo_Count := Natural (Editor.History.Undo_Stack.Length);
       Redo_Count := Natural (Editor.History.Redo_Stack.Length);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_All);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_All);
 
       Assert (S.Carets (S.Carets.First_Index).Anchor = 0,
               "select-all anchor must be beginning of buffer");
@@ -158,8 +158,8 @@ package body Editor.Selection.Tests is
       Editor.State.Load_Text (S, "abcdef");
       Editor.Clipboard.Clear;
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_All);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_All);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy);
 
       Assert (Editor.Clipboard.Has_Text, "copy after select-all must populate clipboard");
       Assert (To_String (Editor.Clipboard.Get_Text) = "abcdef",
@@ -180,7 +180,7 @@ package body Editor.Selection.Tests is
       Editor.State.Set_Dirty (S, False);
       Undo_Count := Natural (Editor.History.Undo_Stack.Length);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Clear);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Clear);
 
       Assert (S.Carets (S.Carets.First_Index).Pos = 4,
               "clear-selection must preserve the active caret endpoint");
@@ -208,13 +208,13 @@ package body Editor.Selection.Tests is
         (Caret_State'(Pos => 5, Anchor => 5, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Select_Word);
+        (S, Editor.Command_Ids.Command_Select_Word);
 
       Assert (S.Carets (S.Carets.First_Index).Anchor = 3,
               "current-word must anchor at token start");
       Assert (S.Carets (S.Carets.First_Index).Pos = 18,
               "current-word must place caret at token end");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy);
       Assert (To_String (Editor.Clipboard.Get_Text) = "Execute_Command",
               "current-word then copy must copy exactly the selected token");
 
@@ -222,8 +222,8 @@ package body Editor.Selection.Tests is
       S.Carets.Append
         (Caret_State'(Pos => 23, Anchor => 23, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Select_Word);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
+        (S, Editor.Command_Ids.Command_Select_Word);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy);
       Assert (To_String (Editor.Clipboard.Get_Text) = "Bar",
               "caret after Foo dot must select only Bar");
 
@@ -231,8 +231,8 @@ package body Editor.Selection.Tests is
       S.Carets.Append
         (Caret_State'(Pos => 27, Anchor => 27, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Select_Word);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
+        (S, Editor.Command_Ids.Command_Select_Word);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy);
       Assert (To_String (Editor.Clipboard.Get_Text) = "A_B2",
               "current-word must include underscores and digits");
    end Test_Current_Word_Selects_Strict_Ascii_Token;
@@ -252,7 +252,7 @@ package body Editor.Selection.Tests is
         (S.Carets.First_Index,
          (Pos => 4, Anchor => 0, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Select_Word);
+        (S, Editor.Command_Ids.Command_Select_Word);
 
       Assert (S.Carets (S.Carets.First_Index).Anchor = 0
               and then S.Carets (S.Carets.First_Index).Pos = 4,
@@ -272,7 +272,7 @@ package body Editor.Selection.Tests is
       Editor.State.Load_Text (S, "");
       Editor.Clipboard.Clear;
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_All);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_All);
 
       Assert (S.Carets (S.Carets.First_Index).Anchor = 0
               and then S.Carets (S.Carets.First_Index).Pos = 0,
@@ -298,7 +298,7 @@ package body Editor.Selection.Tests is
       S.Carets.Append
         (Caret_State'(Pos => 3, Anchor => 3, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Select_Word);
+        (S, Editor.Command_Ids.Command_Select_Word);
       Assert (Last_Message_Text (S) = "No selectable word at cursor",
               "caret on punctuation must not select preceding word");
 
@@ -306,8 +306,8 @@ package body Editor.Selection.Tests is
       S.Carets.Append
         (Caret_State'(Pos => 13, Anchor => 13, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Select_Word);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
+        (S, Editor.Command_Ids.Command_Select_Word);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy);
       Assert (To_String (Editor.Clipboard.Get_Text) = "Execute_Command",
               "underscore token must be copied exactly after current-word");
 
@@ -315,8 +315,8 @@ package body Editor.Selection.Tests is
       S.Carets.Append
         (Caret_State'(Pos => 27, Anchor => 27, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Select_Word);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
+        (S, Editor.Command_Ids.Command_Select_Word);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy);
       Assert (To_String (Editor.Clipboard.Get_Text) = "A_B2",
               "EOF caret must select the preceding token only");
    end Test_Current_Word_EOF_And_Punctuation_Boundaries;
@@ -336,7 +336,7 @@ package body Editor.Selection.Tests is
       Assert (not Editor.Selection.Has_Selection (S),
               "invalid stale range must not be reported as a selection");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy);
       Assert (To_String (Editor.Clipboard.Get_Text) = "old",
               "copy must not consume invalid stale selection text");
       Assert (Last_Message_Text (S) = "Invalid selection"
@@ -358,18 +358,18 @@ package body Editor.Selection.Tests is
         (Caret_State'(Pos => 1, Anchor => 1, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
       Editor.Executor.Execute_No_Log (S, Paste ("B"));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert (Natural (Editor.History.Redo_Stack.Length) = 1,
               "precondition: undo must leave one redo entry");
 
       S.Carets.Clear;
       S.Carets.Append
         (Caret_State'(Pos => 1, Anchor => 0, Virtual_Column => 0, Anchor_Virtual_Column => 0));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Clear);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Clear);
 
       Assert (Natural (Editor.History.Redo_Stack.Length) = 1,
               "clear-selection must preserve redo stack");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert (Editor.State.Current_Text (S) = "AB",
               "redo must still work after a selection-only command");
    end Test_Clear_Selection_Preserves_Redo;
@@ -386,14 +386,14 @@ package body Editor.Selection.Tests is
       Buffer_A := Editor.Buffers.Global_Active_Buffer;
       Editor.Clipboard.Clear;
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_All);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_All);
       Editor.Executor.File_Open_Commands.Execute_New_Buffer (S);
       Editor.State.Load_Text (S, "Beta");
       S.Carets.Clear;
       S.Carets.Append
         (Caret_State'(Pos => 4, Anchor => 4, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy);
       Assert (not Editor.Clipboard.Has_Text,
               "copy in Buffer B must not consume Buffer A selection");
       Assert (Last_Message_Text (S) = "No selected text",
@@ -416,9 +416,9 @@ package body Editor.Selection.Tests is
         (Caret_State'(Pos => 8, Anchor => 8, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Select_Word);
+        (S, Editor.Command_Ids.Command_Select_Word);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Find_From_Selection);
+        (S, Editor.Command_Ids.Command_Find_From_Selection);
 
       Assert (To_String (S.Active_Find_Query) = "Beta_2",
               "find-from-selection must consume exact current-word selection text");
@@ -427,7 +427,7 @@ package body Editor.Selection.Tests is
 
 
    function Command_With_Text
-     (Kind : Editor.Commands.Command_Kind;
+     (Kind : Editor.Command_Kinds.Command_Kind;
       Text : String) return Editor.Commands.Payloads.Command
    is
       Cmd : Editor.Commands.Payloads.Command;
@@ -456,7 +456,7 @@ package body Editor.Selection.Tests is
    is
    begin
       Editor.Clipboard.Clear;
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy);
       if Editor.Clipboard.Has_Text then
          return To_String (Editor.Clipboard.Get_Text);
       else
@@ -507,7 +507,7 @@ package body Editor.Selection.Tests is
       Before_Undo := Natural (Editor.History.Undo_Stack.Length);
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_All);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_All);
 
       Assert_Primary_Range (S, 0, 16,
                             "select-all must cover current in-memory text");
@@ -520,17 +520,17 @@ package body Editor.Selection.Tests is
       Assert (Editor.State.Is_Dirty (S),
               "select-all/copy must not clean a dirty buffer");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Cut);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Cut);
       Assert (Editor.State.Current_Text (S) = "",
               "cut after select-all must delete exactly the selected buffer text");
       Assert (To_String (Editor.Clipboard.Get_Text) = "Alpha Beta Gamma",
               "cut must publish the pre-cut full selection");
       Assert (Natural (Editor.History.Undo_Stack.Length) = Before_Undo + 1,
               "cut must be the only undoable operation in the workflow");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert (Editor.State.Current_Text (S) = "Alpha Beta Gamma",
               "undo must restore text removed by select-all cut");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert (Editor.State.Current_Text (S) = "",
               "redo must reapply the select-all cut");
    end Test_Select_All_Current_Text_And_Clipboard_Workflow;
@@ -547,22 +547,22 @@ package body Editor.Selection.Tests is
       Editor.History.Redo_Stack.Clear;
       Editor.Clipboard.Set_Text (To_Unbounded_String ("Replacement"));
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_All);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Paste);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_All);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Paste);
       Assert (Editor.State.Current_Text (S) = "Replacement",
               "paste over select-all must replace the full active selection");
       Assert (To_String (Editor.Clipboard.Get_Text) = "Replacement",
               "paste must not consume or mutate clipboard text");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
               "paste-over-selection must create exactly one undo entry");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert (Editor.State.Current_Text (S) = "Alpha Beta Gamma",
               "undo must restore the full pre-paste buffer");
       Redo_Count := Natural (Editor.History.Redo_Stack.Length);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_All);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_All);
       Editor.Clipboard.Set_Text (To_Unbounded_String ("Alpha Beta Gamma"));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Paste);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Paste);
       Assert (Editor.State.Current_Text (S) = "Alpha Beta Gamma",
               "no-op paste over identical select-all text must leave buffer unchanged");
       Assert (Natural (Editor.History.Redo_Stack.Length) = Redo_Count,
@@ -588,20 +588,20 @@ package body Editor.Selection.Tests is
       Before_Undo := Natural (Editor.History.Undo_Stack.Length);
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Clear);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Clear);
 
       Assert_Primary_Range (S, 5, 5,
                             "clear-selection must collapse to the caret endpoint");
       Assert_Selection_Command_No_Edit_Effects
         (S, "Alpha Beta", False, Before_Undo, Before_Redo, True, "X",
          "clear-selection");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy);
       Assert (To_String (Editor.Clipboard.Get_Text) = "X",
               "copy after clear-selection must not replace clipboard text");
       Assert (Last_Message_Text (S) = "No selected text",
               "copy after clear-selection must report no selected text");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Paste);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Paste);
       Assert (Editor.State.Current_Text (S) = "AlphaX Beta",
               "paste after clear-selection must insert at caret, not replace the old selection");
    end Test_Clear_Selection_Workflow_And_Caret_Insert;
@@ -618,37 +618,37 @@ package body Editor.Selection.Tests is
 
       S.Carets.Clear;
       S.Carets.Append (Caret_State'(Pos => 0, Anchor => 0, Virtual_Column => 0, Anchor_Virtual_Column => 0));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_Word);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_Word);
       Assert (Selected_Text_By_Copy (S) = "Execute_Command",
               "current-word at token start must include underscore token");
 
       S.Carets.Clear;
       S.Carets.Append (Caret_State'(Pos => 18, Anchor => 18, Virtual_Column => 0, Anchor_Virtual_Column => 0));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_Word);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_Word);
       Assert (Selected_Text_By_Copy (S) = "A_B2",
               "current-word on digit/underscore token must select A_B2");
 
       S.Carets.Clear;
       S.Carets.Append (Caret_State'(Pos => 24, Anchor => 24, Virtual_Column => 0, Anchor_Virtual_Column => 0));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_Word);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_Word);
       Assert (Selected_Text_By_Copy (S) = "Foo",
               "current-word before dot must select only Foo");
 
       S.Carets.Clear;
       S.Carets.Append (Caret_State'(Pos => 28, Anchor => 28, Virtual_Column => 0, Anchor_Virtual_Column => 0));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_Word);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_Word);
       Assert (Selected_Text_By_Copy (S) = "Bar",
               "current-word after dot must select only Bar");
 
       S.Carets.Clear;
       S.Carets.Append (Caret_State'(Pos => 34, Anchor => 34, Virtual_Column => 0, Anchor_Virtual_Column => 0));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_Word);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_Word);
       Assert (Last_Message_Text (S) = "No selectable word at cursor",
               "current-word on semicolon/punctuation must fail deterministically");
 
       S.Carets.Clear;
       S.Carets.Append (Caret_State'(Pos => 56, Anchor => 56, Virtual_Column => 0, Anchor_Virtual_Column => 0));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_Word);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_Word);
       Assert (Selected_Text_By_Copy (S) = "snake_case_42",
               "current-word must preserve full snake_case_42 token");
    end Test_Current_Word_Boundary_Matrix;
@@ -665,8 +665,8 @@ package body Editor.Selection.Tests is
       S.Carets.Clear;
       S.Carets.Append (Caret_State'(Pos => 8, Anchor => 8, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_Word);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_Word);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy);
       Assert (To_String (Editor.Clipboard.Get_Text) = "Execute_Command",
               "copy must consume exact current-word selection");
       Assert (Editor.State.Current_Text (S) = "call Execute_Command;",
@@ -674,17 +674,17 @@ package body Editor.Selection.Tests is
       Assert (Natural (Editor.History.Undo_Stack.Length) = 0,
               "current-word and copy must not create undo entries");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Cut);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Cut);
       Assert (Editor.State.Current_Text (S) = "call ;",
               "cut must delete only the current-word token");
       Assert (To_String (Editor.Clipboard.Get_Text) = "Execute_Command",
               "current-word cut must keep token in clipboard");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
               "current-word cut must create exactly one undo entry");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert (Editor.State.Current_Text (S) = "call Execute_Command;",
               "undo must restore current-word cut token");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert (Editor.State.Current_Text (S) = "call ;",
               "redo must reapply current-word cut token deletion");
    end Test_Current_Word_Clipboard_Cut_Paste_Workflow;
@@ -700,20 +700,20 @@ package body Editor.Selection.Tests is
       S.Carets.Clear;
       S.Carets.Append (Caret_State'(Pos => 8, Anchor => 8, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_Word);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_Word);
       Assert (To_String (S.Active_Find_Query) = "",
               "select-word must not mutate Find state directly");
       Assert (To_String (S.Active_Replace_Text) = "Gamma",
               "select-word must not mutate Replace text");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Find_From_Selection);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Find_From_Selection);
       Assert (To_String (S.Active_Find_Query) = "Beta",
               "find-from-selection must consume canonical current selection");
       Assert (To_String (S.Active_Replace_Text) = "Gamma",
               "find-from-selection must not disturb Replace text");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Clear);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Clear);
       S.Active_Find_Query := To_Unbounded_String ("Beta");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Find_From_Selection);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Find_From_Selection);
       Assert (To_String (S.Active_Find_Query) = "Beta",
               "failed find-from-selection after clear must preserve Find query");
       Assert (Last_Message_Text (S) = "No selected text",
@@ -734,19 +734,19 @@ package body Editor.Selection.Tests is
       Editor.Executor.Execute_No_Log
         (S, Command_With_Text (Editor.Command_Kinds.Active_Replace_Text_Set, "Delta"));
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_All);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_All);
       Assert (To_String (S.Active_Find_Query) = "Beta",
               "select-all must not mutate Find query before Replace");
       Assert (To_String (S.Active_Replace_Text) = "Delta",
               "select-all must not mutate Replace text before Replace");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Replace_All);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Replace_All);
       Assert (Editor.State.Current_Text (S) = "Alpha Delta Delta Gamma",
               "replace-all must operate from Find state, not active selection text");
       Assert (not Editor.Selection.Has_Selection (S),
               "selection must be validly cleared/collapsed after replace-all edit invalidation");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
               "replace-all, not selection commands, must create the undo entry");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy);
       Assert (Last_Message_Text (S) = "No selected text",
               "copy after replace invalidation must not extract stale select-all text");
    end Test_Selection_With_Replace_And_Edit_Invalidation;
@@ -763,18 +763,18 @@ package body Editor.Selection.Tests is
       Buffer_A := Editor.Buffers.Global_Active_Buffer;
       Editor.Clipboard.Clear;
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_All);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_All);
       Editor.Executor.File_Open_Commands.Execute_New_Buffer (S);
       Editor.State.Load_Text (S, "Beta");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy);
       Assert (not Editor.Clipboard.Has_Text,
               "Buffer B copy must not consume Buffer A selection");
       Assert (Last_Message_Text (S) = "No selected text",
               "Buffer B without selection must report no selected text");
 
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, Buffer_A);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Clear);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Clear);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy);
       Assert (not Editor.Clipboard.Has_Text,
               "Buffer A clear-selection must affect only Buffer A and leave no copyable stale selection");
    end Test_Active_Buffer_Isolation_And_Reopen_Cleanup;
@@ -792,19 +792,19 @@ package body Editor.Selection.Tests is
       S.Carets.Clear;
       S.Carets.Append (Caret_State'(Pos => 1, Anchor => 1, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Editor.Executor.Execute_No_Log (S, Paste ("B"));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Redo_Count := Natural (Editor.History.Redo_Stack.Length);
       Assert (Redo_Count = 1, "precondition: undo leaves redo entry");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_All);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Clear);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_All);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Clear);
       S.Carets.Clear;
       S.Carets.Append (Caret_State'(Pos => 0, Anchor => 0, Virtual_Column => 0, Anchor_Virtual_Column => 0));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_Word);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_Word);
 
       Assert (Natural (Editor.History.Redo_Stack.Length) = Redo_Count,
               "selection commands must preserve redo stack");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert (Editor.State.Current_Text (S) = "AB",
               "redo must remain available after selection-only commands");
    end Test_Selection_Commands_Preserve_Redo_And_Navigation_History;
@@ -824,10 +824,10 @@ package body Editor.Selection.Tests is
       S.Carets.Clear;
       S.Carets.Append (Caret_State'(Pos => 5, Anchor => 0, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
-      A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Copy);
+      A := Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Copy);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "copy availability should see the valid active selection");
-      A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Select_Word);
+      A := Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Select_Word);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "current-word availability may be broad but must be side-effect free");
       Editor.Command_Palette.Filtered_Commands (Filtered);
@@ -846,27 +846,27 @@ package body Editor.Selection.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Found : Boolean := True;
-      Id    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Id    : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
    begin
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.selection.expand", Found);
-      Assert ((not Found) and then Id = Editor.Commands.No_Command,
+      Assert ((not Found) and then Id = Editor.Command_Ids.No_Command,
               "must not expose selection expansion command");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.selection.block", Found);
-      Assert ((not Found) and then Id = Editor.Commands.No_Command,
+      Assert ((not Found) and then Id = Editor.Command_Ids.No_Command,
               "must not expose block selection command");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.selection.multi-cursor.add", Found);
-      Assert ((not Found) and then Id = Editor.Commands.No_Command,
+      Assert ((not Found) and then Id = Editor.Command_Ids.No_Command,
               "must not expose multi-cursor selection command");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.copy-line", Found);
-      Assert ((not Found) and then Id = Editor.Commands.No_Command,
+      Assert ((not Found) and then Id = Editor.Command_Ids.No_Command,
               "must not expose copy-line without selection");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.cut-line", Found);
-      Assert ((not Found) and then Id = Editor.Commands.No_Command,
+      Assert ((not Found) and then Id = Editor.Command_Ids.No_Command,
               "must not expose cut-line without selection");
    end Test_Non_Goal_Selection_Commands_Are_Not_Exposed;
 
@@ -882,11 +882,11 @@ package body Editor.Selection.Tests is
       Editor.Command_Palette.Filtered_Commands (Candidates);
 
       for C of Candidates loop
-         if C.Id = Editor.Commands.Command_Select_All then
+         if C.Id = Editor.Command_Ids.Command_Select_All then
             Select_All_Count := Select_All_Count + 1;
-         elsif C.Id = Editor.Commands.Command_Selection_Clear then
+         elsif C.Id = Editor.Command_Ids.Command_Selection_Clear then
             Clear_Count := Clear_Count + 1;
-         elsif C.Id = Editor.Commands.Command_Select_Word then
+         elsif C.Id = Editor.Command_Ids.Command_Select_Word then
             Select_Word_Count := Select_Word_Count + 1;
          end if;
       end loop;
@@ -949,10 +949,10 @@ package body Editor.Selection.Tests is
       S.Carets.Append
         (Caret_State'(Pos => 10, Anchor => 6, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy);
       Assert (To_String (Editor.Clipboard.Get_Text) = "Beta",
               "copy must consume canonical normalized active selection");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Find_From_Selection);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Find_From_Selection);
       Assert (To_String (S.Active_Find_Query) = "Beta",
               "find-from-selection must consume canonical selected text");
 
@@ -961,10 +961,10 @@ package body Editor.Selection.Tests is
          (Pos => 99, Anchor => 6, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Editor.Clipboard.Set_Text (To_Unbounded_String ("old"));
       S.Active_Find_Query := To_Unbounded_String ("old-query");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy);
       Assert (To_String (Editor.Clipboard.Get_Text) = "old",
               "invalid canonical selection must not replace clipboard text");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Find_From_Selection);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Find_From_Selection);
       Assert (To_String (S.Active_Find_Query) = "old-query",
               "invalid canonical selection must not replace Find query");
    end Test_Clipboard_And_Find_Consume_Canonical_Selection;
@@ -1013,7 +1013,7 @@ package body Editor.Selection.Tests is
       S.Carets.Append
         (Caret_State'(Pos => 6, Anchor => 10, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
-      A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Copy);
+      A := Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Copy);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "copy availability must ignore secondary previous selection ranges");
       Assert (not Editor.Selection.Has_Selection (S),
@@ -1025,7 +1025,7 @@ package body Editor.Selection.Tests is
       S.Carets.Clear;
       S.Carets.Append
         (Caret_State'(Pos => 99, Anchor => 6, Virtual_Column => 0, Anchor_Virtual_Column => 0));
-      A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Copy);
+      A := Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Copy);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "copy availability must reject invalid canonical selection ranges");
       Editor.Render_Model.Build_Render_Snapshot (S, Snapshot);

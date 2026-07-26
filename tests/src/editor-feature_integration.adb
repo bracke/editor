@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Classification;
 with Editor.Commands.Descriptor_Metadata;
 with Editor.Commands.Availability_Metadata;
@@ -9,12 +10,12 @@ with Editor.Commands.Name_Metadata;
 
 package body Editor.Feature_Integration is
 
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Commands.Descriptors.Command_Category;
 
    procedure Append_Failure
      (Result  : in out Feature_Integration_Result;
-      Command : Editor.Commands.Command_Id;
+      Command : Editor.Command_Ids.Command_Id;
       Message : String)
    is
    begin
@@ -23,7 +24,7 @@ package body Editor.Feature_Integration is
          Append (Result.Text, "Feature integration audit failed:");
       end if;
       Append (Result.Text, ASCII.LF & "  ");
-      Append (Result.Text, Editor.Commands.Command_Id'Image (Command));
+      Append (Result.Text, Editor.Command_Ids.Command_Id'Image (Command));
       Append (Result.Text, ": ");
       Append (Result.Text, Message);
    end Append_Failure;
@@ -38,7 +39,7 @@ package body Editor.Feature_Integration is
 
    procedure Add_Failure
      (Result  : in out Feature_Integration_Result;
-      Command : Editor.Commands.Command_Id;
+      Command : Editor.Command_Ids.Command_Id;
       Message : String)
    is
    begin
@@ -50,7 +51,7 @@ package body Editor.Feature_Integration is
       Contract : Feature_Command_Contract)
    is
    begin
-      if Contract.Command = Editor.Commands.No_Command then
+      if Contract.Command = Editor.Command_Ids.No_Command then
          Add_Failure (Result, Contract.Command, "feature command has no command id");
       end if;
 
@@ -102,7 +103,7 @@ package body Editor.Feature_Integration is
          Add_Failure
            (Result, Contract.Expected_Command,
             "feature route dispatched wrong Command_Id; actual=" &
-            Editor.Commands.Command_Id'Image (Contract.Actual_Command));
+            Editor.Command_Ids.Command_Id'Image (Contract.Actual_Command));
       end if;
 
       if not Contract.Reached_Executor then
@@ -127,37 +128,37 @@ package body Editor.Feature_Integration is
    is
    begin
       if not Contract.Has_Explicit_Layer then
-         Add_Failure (Result, Editor.Commands.No_Command,
+         Add_Failure (Result, Editor.Command_Ids.No_Command,
                       "feature render projection has no explicit render layer");
       end if;
 
       if not Contract.Uses_Theme_Colours then
-         Add_Failure (Result, Editor.Commands.No_Command,
+         Add_Failure (Result, Editor.Command_Ids.No_Command,
                       "feature render projection does not use Theme colours/accessors");
       end if;
 
       if Contract.Mutates_Feature_State then
-         Add_Failure (Result, Editor.Commands.No_Command,
+         Add_Failure (Result, Editor.Command_Ids.No_Command,
                       "feature render projection mutates feature state");
       end if;
 
       if Contract.Mutates_Command_State then
-         Add_Failure (Result, Editor.Commands.No_Command,
+         Add_Failure (Result, Editor.Command_Ids.No_Command,
                       "feature render projection mutates command state");
       end if;
 
       if Contract.Mutates_Configuration_State then
-         Add_Failure (Result, Editor.Commands.No_Command,
+         Add_Failure (Result, Editor.Command_Ids.No_Command,
                       "feature render projection mutates configuration state");
       end if;
 
       if Contract.Mutates_Lifecycle_State then
-         Add_Failure (Result, Editor.Commands.No_Command,
+         Add_Failure (Result, Editor.Command_Ids.No_Command,
                       "feature render projection mutates lifecycle state");
       end if;
 
       if Contract.Corrupts_Existing_Layer_Order then
-         Add_Failure (Result, Editor.Commands.No_Command,
+         Add_Failure (Result, Editor.Command_Ids.No_Command,
                       "feature render projection corrupts existing layer order");
       end if;
    end Validate_Render_Projection;
@@ -168,32 +169,32 @@ package body Editor.Feature_Integration is
    is
    begin
       if not Contract.Explicit_Scope_Declared then
-         Add_Failure (Result, Editor.Commands.No_Command,
+         Add_Failure (Result, Editor.Command_Ids.No_Command,
                       "feature persistence scope is not explicit");
       end if;
 
       if Contract.Persists_Dirty_Text then
-         Add_Failure (Result, Editor.Commands.No_Command,
+         Add_Failure (Result, Editor.Command_Ids.No_Command,
                       "feature persistence must not persist dirty text");
       end if;
 
       if Contract.Persists_Pending_State then
-         Add_Failure (Result, Editor.Commands.No_Command,
+         Add_Failure (Result, Editor.Command_Ids.No_Command,
                       "feature persistence must not persist pending transitions");
       end if;
 
       if Contract.Persists_To_Keybindings then
-         Add_Failure (Result, Editor.Commands.No_Command,
+         Add_Failure (Result, Editor.Command_Ids.No_Command,
                       "feature runtime/configuration state leaked into keybinding config");
       end if;
 
       if Contract.Persists_To_Settings and then not Contract.Explicit_Scope_Declared then
-         Add_Failure (Result, Editor.Commands.No_Command,
+         Add_Failure (Result, Editor.Command_Ids.No_Command,
                       "feature settings persistence must be explicitly mapped");
       end if;
 
       if Contract.Persists_To_Workspace and then not Contract.Explicit_Scope_Declared then
-         Add_Failure (Result, Editor.Commands.No_Command,
+         Add_Failure (Result, Editor.Command_Ids.No_Command,
                       "feature workspace persistence must be explicitly structural/session scoped");
       end if;
    end Validate_Persistence_Contract;
@@ -203,16 +204,16 @@ package body Editor.Feature_Integration is
      (Result : in out Feature_Integration_Result)
    is
       Found : Boolean := False;
-      Round : Editor.Commands.Command_Id := Editor.Commands.No_Command;
-      Feature_Commands : constant array (Positive range <>) of Editor.Commands.Command_Id :=
-        (Editor.Commands.Command_Toggle_Feature_Panel,
-         Editor.Commands.Command_Show_Feature_Panel,
-         Editor.Commands.Command_Hide_Feature_Panel,
-         Editor.Commands.Command_Focus_Feature_Panel,
-         Editor.Commands.Command_Clear_Feature_Panel,
-         Editor.Commands.Command_Feature_Panel_Select_Next,
-         Editor.Commands.Command_Feature_Panel_Select_Previous,
-         Editor.Commands.Command_Feature_Panel_Open_Selected);
+      Round : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
+      Feature_Commands : constant array (Positive range <>) of Editor.Command_Ids.Command_Id :=
+        (Editor.Command_Ids.Command_Toggle_Feature_Panel,
+         Editor.Command_Ids.Command_Show_Feature_Panel,
+         Editor.Command_Ids.Command_Hide_Feature_Panel,
+         Editor.Command_Ids.Command_Focus_Feature_Panel,
+         Editor.Command_Ids.Command_Clear_Feature_Panel,
+         Editor.Command_Ids.Command_Feature_Panel_Select_Next,
+         Editor.Command_Ids.Command_Feature_Panel_Select_Previous,
+         Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
    begin
       for Id of Feature_Commands loop
          if not Editor.Commands.Descriptor_Metadata.Has_Descriptor (Id) then
@@ -233,11 +234,11 @@ package body Editor.Feature_Integration is
 
       declare
          Removed_Found : Boolean := True;
-         Removed_Id    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+         Removed_Id    : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       begin
          Removed_Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
            ("populate-feature-panel-placeholder", Removed_Found);
-         if Removed_Found or else Removed_Id /= Editor.Commands.No_Command then
+         if Removed_Found or else Removed_Id /= Editor.Command_Ids.No_Command then
             Add_Failure
               (Result, Removed_Id,
                "Feature_Panel: removed placeholder population command must be removed");
@@ -251,17 +252,17 @@ package body Editor.Feature_Integration is
      (Result : in out Feature_Integration_Result)
    is
       Found : Boolean := False;
-      Round : Editor.Commands.Command_Id := Editor.Commands.No_Command;
-      Outline_Commands : constant array (Positive range <>) of Editor.Commands.Command_Id :=
-        (Editor.Commands.Command_Refresh_Outline,
-         Editor.Commands.Command_Clear_Outline,
-         Editor.Commands.Command_Show_Outline,
-         Editor.Commands.Command_Focus_Outline,
-         Editor.Commands.Command_Open_Selected_Outline_Item,
-         Editor.Commands.Command_Select_Current_Outline_Symbol,
-         Editor.Commands.Command_Reveal_Current_Outline_Symbol,
-         Editor.Commands.Command_Select_Next_Outline_Item,
-         Editor.Commands.Command_Select_Previous_Outline_Item);
+      Round : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
+      Outline_Commands : constant array (Positive range <>) of Editor.Command_Ids.Command_Id :=
+        (Editor.Command_Ids.Command_Refresh_Outline,
+         Editor.Command_Ids.Command_Clear_Outline,
+         Editor.Command_Ids.Command_Show_Outline,
+         Editor.Command_Ids.Command_Focus_Outline,
+         Editor.Command_Ids.Command_Open_Selected_Outline_Item,
+         Editor.Command_Ids.Command_Select_Current_Outline_Symbol,
+         Editor.Command_Ids.Command_Reveal_Current_Outline_Symbol,
+         Editor.Command_Ids.Command_Select_Next_Outline_Item,
+         Editor.Command_Ids.Command_Select_Previous_Outline_Item);
    begin
       for Id of Outline_Commands loop
          if not Editor.Commands.Descriptor_Metadata.Has_Descriptor (Id) then

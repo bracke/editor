@@ -1,7 +1,7 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Diagnostics;
 with Editor.Command_Execution;
-with Editor.Commands;
 with Editor.Feature_Diagnostics;
 with Editor.Problems;
 with Editor.State;
@@ -30,12 +30,12 @@ package Editor.Executor.Diagnostics_Commands is
 
    function Diagnostics_Command_Availability
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Commands.Availability_Metadata.Command_Availability;
 
    function Execute_Diagnostics_Feature_Command
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result;
 
    function Execute_Diagnostic_Row_Activation

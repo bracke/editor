@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Buffers;
 with Editor.Executor;
@@ -8,45 +9,45 @@ with Editor.Render_Cache;
 
 package body Editor.Input_Bridge.Command_Prompt_Routing is
 
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.File_Tree.File_Tree_Node_Id;
 
    function Command_Starts_Guided_Prompt
-     (Id : Editor.Commands.Command_Id) return Boolean is
+     (Id : Editor.Command_Ids.Command_Id) return Boolean is
    begin
       case Id is
-         when Editor.Commands.Command_Open_Project
-            | Editor.Commands.Command_Switch_Project
-            | Editor.Commands.Command_Restore_Workspace_State
-            | Editor.Commands.Command_Save_Workspace_State
-            | Editor.Commands.Command_Run_Project_Search
-            | Editor.Commands.Command_Run_Project_Search_From_Bar
-            | Editor.Commands.Command_Project_Search_Replace_Preview
-            | Editor.Commands.Command_Keybindings_Assign_Selected
-            | Editor.Commands.Command_File_Tree_Create_File
-            | Editor.Commands.Command_File_Tree_Create_Directory
-            | Editor.Commands.Command_File_Tree_Rename_Selected
-            | Editor.Commands.Command_Rename_Symbol_Preview
-            | Editor.Commands.Command_Rename_Symbol_Apply
-            | Editor.Commands.Command_Delete_Buffer_File
-            | Editor.Commands.Command_Revert_Active_Buffer
-            | Editor.Commands.Command_File_Tree_Delete_Selected
-            | Editor.Commands.Command_Project_Search_Replace_All_Included
-            | Editor.Commands.Command_Reset_Settings_To_Defaults
-            | Editor.Commands.Command_Configuration_Reset_Settings
-            | Editor.Commands.Command_Configuration_Reset_Keybindings
-            | Editor.Commands.Command_Configuration_Reset_Workspace
-            | Editor.Commands.Command_Configuration_Reset_Recent_Projects
-            | Editor.Commands.Command_Configuration_Reset_All
-            | Editor.Commands.Command_Keybindings_Reset_To_Defaults
-            | Editor.Commands.Command_Clear_Workspace_State
-            | Editor.Commands.Command_Close_Project
-            | Editor.Commands.Command_Clear_Project
-            | Editor.Commands.Command_Clear_Recent_Projects
-            | Editor.Commands.Command_Close_All_Buffers
-            | Editor.Commands.Command_Close_All_Clean_Buffers
-            | Editor.Commands.Command_Close_Other_Buffers
-            | Editor.Commands.Command_Diagnostics_Clear =>
+         when Editor.Command_Ids.Command_Open_Project
+            | Editor.Command_Ids.Command_Switch_Project
+            | Editor.Command_Ids.Command_Restore_Workspace_State
+            | Editor.Command_Ids.Command_Save_Workspace_State
+            | Editor.Command_Ids.Command_Run_Project_Search
+            | Editor.Command_Ids.Command_Run_Project_Search_From_Bar
+            | Editor.Command_Ids.Command_Project_Search_Replace_Preview
+            | Editor.Command_Ids.Command_Keybindings_Assign_Selected
+            | Editor.Command_Ids.Command_File_Tree_Create_File
+            | Editor.Command_Ids.Command_File_Tree_Create_Directory
+            | Editor.Command_Ids.Command_File_Tree_Rename_Selected
+            | Editor.Command_Ids.Command_Rename_Symbol_Preview
+            | Editor.Command_Ids.Command_Rename_Symbol_Apply
+            | Editor.Command_Ids.Command_Delete_Buffer_File
+            | Editor.Command_Ids.Command_Revert_Active_Buffer
+            | Editor.Command_Ids.Command_File_Tree_Delete_Selected
+            | Editor.Command_Ids.Command_Project_Search_Replace_All_Included
+            | Editor.Command_Ids.Command_Reset_Settings_To_Defaults
+            | Editor.Command_Ids.Command_Configuration_Reset_Settings
+            | Editor.Command_Ids.Command_Configuration_Reset_Keybindings
+            | Editor.Command_Ids.Command_Configuration_Reset_Workspace
+            | Editor.Command_Ids.Command_Configuration_Reset_Recent_Projects
+            | Editor.Command_Ids.Command_Configuration_Reset_All
+            | Editor.Command_Ids.Command_Keybindings_Reset_To_Defaults
+            | Editor.Command_Ids.Command_Clear_Workspace_State
+            | Editor.Command_Ids.Command_Close_Project
+            | Editor.Command_Ids.Command_Clear_Project
+            | Editor.Command_Ids.Command_Clear_Recent_Projects
+            | Editor.Command_Ids.Command_Close_All_Buffers
+            | Editor.Command_Ids.Command_Close_All_Clean_Buffers
+            | Editor.Command_Ids.Command_Close_Other_Buffers
+            | Editor.Command_Ids.Command_Diagnostics_Clear =>
             return True;
          when others =>
             return False;
@@ -54,29 +55,29 @@ package body Editor.Input_Bridge.Command_Prompt_Routing is
    end Command_Starts_Guided_Prompt;
 
    function Command_Starts_Confirmation_Prompt
-     (Id : Editor.Commands.Command_Id) return Boolean is
+     (Id : Editor.Command_Ids.Command_Id) return Boolean is
    begin
       case Id is
-         when Editor.Commands.Command_Delete_Buffer_File
-            | Editor.Commands.Command_Revert_Active_Buffer
-            | Editor.Commands.Command_File_Tree_Delete_Selected
-            | Editor.Commands.Command_Project_Search_Replace_All_Included
-            | Editor.Commands.Command_Reset_Settings_To_Defaults
-            | Editor.Commands.Command_Configuration_Reset_Settings
-            | Editor.Commands.Command_Configuration_Reset_Keybindings
-            | Editor.Commands.Command_Configuration_Reset_Workspace
-            | Editor.Commands.Command_Configuration_Reset_Recent_Projects
-            | Editor.Commands.Command_Configuration_Reset_All
-            | Editor.Commands.Command_Keybindings_Reset_To_Defaults
-            | Editor.Commands.Command_Clear_Workspace_State
-            | Editor.Commands.Command_Close_Project
-            | Editor.Commands.Command_Clear_Project
-            | Editor.Commands.Command_Clear_Recent_Projects
-            | Editor.Commands.Command_Close_Active_Buffer
-            | Editor.Commands.Command_Close_All_Buffers
-            | Editor.Commands.Command_Close_All_Clean_Buffers
-            | Editor.Commands.Command_Close_Other_Buffers
-            | Editor.Commands.Command_Diagnostics_Clear =>
+         when Editor.Command_Ids.Command_Delete_Buffer_File
+            | Editor.Command_Ids.Command_Revert_Active_Buffer
+            | Editor.Command_Ids.Command_File_Tree_Delete_Selected
+            | Editor.Command_Ids.Command_Project_Search_Replace_All_Included
+            | Editor.Command_Ids.Command_Reset_Settings_To_Defaults
+            | Editor.Command_Ids.Command_Configuration_Reset_Settings
+            | Editor.Command_Ids.Command_Configuration_Reset_Keybindings
+            | Editor.Command_Ids.Command_Configuration_Reset_Workspace
+            | Editor.Command_Ids.Command_Configuration_Reset_Recent_Projects
+            | Editor.Command_Ids.Command_Configuration_Reset_All
+            | Editor.Command_Ids.Command_Keybindings_Reset_To_Defaults
+            | Editor.Command_Ids.Command_Clear_Workspace_State
+            | Editor.Command_Ids.Command_Close_Project
+            | Editor.Command_Ids.Command_Clear_Project
+            | Editor.Command_Ids.Command_Clear_Recent_Projects
+            | Editor.Command_Ids.Command_Close_Active_Buffer
+            | Editor.Command_Ids.Command_Close_All_Buffers
+            | Editor.Command_Ids.Command_Close_All_Clean_Buffers
+            | Editor.Command_Ids.Command_Close_Other_Buffers
+            | Editor.Command_Ids.Command_Diagnostics_Clear =>
             return True;
          when others =>
             return False;
@@ -85,12 +86,12 @@ package body Editor.Input_Bridge.Command_Prompt_Routing is
 
    procedure Start_Guided_Prompt_For_Command
      (S           : in out Editor.State.State_Type;
-      Id          : Editor.Commands.Command_Id;
+      Id          : Editor.Command_Ids.Command_Id;
       Report_Info : not null access procedure (Text : String))
    is
    begin
       case Id is
-         when Editor.Commands.Command_Open_Project =>
+         when Editor.Command_Ids.Command_Open_Project =>
             Editor.Guided_Prompts.Start
               (S.Guided_Prompt,
                Editor.Guided_Prompts.Project_Open_Prompt,
@@ -102,7 +103,7 @@ package body Editor.Input_Bridge.Command_Prompt_Routing is
                Confirm_Label => "Open",
                Lifecycle_Command => True);
             Report_Info ("Enter project path.");
-         when Editor.Commands.Command_Switch_Project =>
+         when Editor.Command_Ids.Command_Switch_Project =>
             Editor.Guided_Prompts.Start
               (S.Guided_Prompt,
                Editor.Guided_Prompts.Project_Switch_Prompt,
@@ -114,7 +115,7 @@ package body Editor.Input_Bridge.Command_Prompt_Routing is
                Confirm_Label => "Switch",
                Lifecycle_Command => True);
             Report_Info ("Enter project path.");
-         when Editor.Commands.Command_Restore_Workspace_State =>
+         when Editor.Command_Ids.Command_Restore_Workspace_State =>
             Editor.Guided_Prompts.Start
               (S.Guided_Prompt,
                Editor.Guided_Prompts.Workspace_Load_Prompt,
@@ -125,7 +126,7 @@ package body Editor.Input_Bridge.Command_Prompt_Routing is
                Confirm_Label => "Load",
                Lifecycle_Command => True);
             Report_Info ("Enter workspace path.");
-         when Editor.Commands.Command_Save_Workspace_State =>
+         when Editor.Command_Ids.Command_Save_Workspace_State =>
             Editor.Guided_Prompts.Start
               (S.Guided_Prompt,
                Editor.Guided_Prompts.Workspace_Save_Prompt,
@@ -135,8 +136,8 @@ package body Editor.Input_Bridge.Command_Prompt_Routing is
                "Workspace",
                Confirm_Label => "Save");
             Report_Info ("Enter workspace path.");
-         when Editor.Commands.Command_Run_Project_Search
-            | Editor.Commands.Command_Run_Project_Search_From_Bar =>
+         when Editor.Command_Ids.Command_Run_Project_Search
+            | Editor.Command_Ids.Command_Run_Project_Search_From_Bar =>
             Editor.Guided_Prompts.Start
               (S.Guided_Prompt,
                Editor.Guided_Prompts.Search_Query_Prompt,
@@ -146,7 +147,7 @@ package body Editor.Input_Bridge.Command_Prompt_Routing is
                "Project Search",
                Confirm_Label => "Search");
             Report_Info ("Enter search text.");
-         when Editor.Commands.Command_Project_Search_Replace_Preview =>
+         when Editor.Command_Ids.Command_Project_Search_Replace_Preview =>
             Editor.Guided_Prompts.Start
               (S.Guided_Prompt,
                Editor.Guided_Prompts.Replace_Text_Prompt,
@@ -156,7 +157,7 @@ package body Editor.Input_Bridge.Command_Prompt_Routing is
                "Project Search Replace",
                Confirm_Label => "Preview");
             Report_Info ("Enter replacement text.");
-         when Editor.Commands.Command_Keybindings_Assign_Selected =>
+         when Editor.Command_Ids.Command_Keybindings_Assign_Selected =>
             Editor.Guided_Prompts.Start
               (S.Guided_Prompt,
                Editor.Guided_Prompts.Keybinding_Capture_Prompt,
@@ -166,7 +167,7 @@ package body Editor.Input_Bridge.Command_Prompt_Routing is
                "Keybindings",
                Confirm_Label => "Assign");
             Report_Info ("Press keybinding chord.");
-         when Editor.Commands.Command_File_Tree_Create_File =>
+         when Editor.Command_Ids.Command_File_Tree_Create_File =>
             Editor.Guided_Prompts.Start
               (S.Guided_Prompt,
                Editor.Guided_Prompts.File_Tree_Create_File_Prompt,
@@ -176,7 +177,7 @@ package body Editor.Input_Bridge.Command_Prompt_Routing is
                "File Tree",
                Confirm_Label => "Create");
             Report_Info ("Enter file name.");
-         when Editor.Commands.Command_File_Tree_Create_Directory =>
+         when Editor.Command_Ids.Command_File_Tree_Create_Directory =>
             Editor.Guided_Prompts.Start
               (S.Guided_Prompt,
                Editor.Guided_Prompts.File_Tree_Create_Directory_Prompt,
@@ -186,7 +187,7 @@ package body Editor.Input_Bridge.Command_Prompt_Routing is
                "File Tree",
                Confirm_Label => "Create");
             Report_Info ("Enter directory name.");
-         when Editor.Commands.Command_File_Tree_Rename_Selected =>
+         when Editor.Command_Ids.Command_File_Tree_Rename_Selected =>
             Editor.Guided_Prompts.Start
               (S.Guided_Prompt,
                Editor.Guided_Prompts.File_Tree_Rename_Prompt,
@@ -215,8 +216,8 @@ package body Editor.Input_Bridge.Command_Prompt_Routing is
                end if;
             end;
             Report_Info ("Enter new name.");
-         when Editor.Commands.Command_Rename_Symbol_Preview
-            | Editor.Commands.Command_Rename_Symbol_Apply =>
+         when Editor.Command_Ids.Command_Rename_Symbol_Preview
+            | Editor.Command_Ids.Command_Rename_Symbol_Apply =>
             declare
                Symbol : constant String :=
                  Editor.Executor.Current_Semantic_Symbol_Name (S);
@@ -229,7 +230,7 @@ package body Editor.Input_Bridge.Command_Prompt_Routing is
                   "Enter the new Ada identifier for the selected symbol.",
                   "Ada Semantics",
                   Confirm_Label =>
-                    (if Id = Editor.Commands.Command_Rename_Symbol_Apply
+                    (if Id = Editor.Command_Ids.Command_Rename_Symbol_Apply
                      then "Rename"
                      else "Preview"));
                if Symbol'Length > 0 then
@@ -237,7 +238,7 @@ package body Editor.Input_Bridge.Command_Prompt_Routing is
                end if;
             end;
             Report_Info ("Enter new symbol name.");
-         when Editor.Commands.Command_File_Tree_Delete_Selected =>
+         when Editor.Command_Ids.Command_File_Tree_Delete_Selected =>
             declare
                Selected_Row : constant Natural :=
                  Editor.File_Tree_View.Selected_Row_Index (S.File_Tree_View);
@@ -287,24 +288,24 @@ package body Editor.Input_Bridge.Command_Prompt_Routing is
                   Affected_Count => 1);
                Report_Info ("Confirmation required.");
             end;
-         when Editor.Commands.Command_Delete_Buffer_File
-            | Editor.Commands.Command_Revert_Active_Buffer
-            | Editor.Commands.Command_Project_Search_Replace_All_Included
-            | Editor.Commands.Command_Reset_Settings_To_Defaults
-            | Editor.Commands.Command_Configuration_Reset_Settings
-            | Editor.Commands.Command_Configuration_Reset_Keybindings
-            | Editor.Commands.Command_Configuration_Reset_Workspace
-            | Editor.Commands.Command_Configuration_Reset_Recent_Projects
-            | Editor.Commands.Command_Configuration_Reset_All
-            | Editor.Commands.Command_Keybindings_Reset_To_Defaults
-            | Editor.Commands.Command_Clear_Workspace_State
-            | Editor.Commands.Command_Close_Project
-            | Editor.Commands.Command_Clear_Project
-            | Editor.Commands.Command_Clear_Recent_Projects
-            | Editor.Commands.Command_Close_All_Buffers
-            | Editor.Commands.Command_Close_All_Clean_Buffers
-            | Editor.Commands.Command_Close_Other_Buffers
-            | Editor.Commands.Command_Diagnostics_Clear =>
+         when Editor.Command_Ids.Command_Delete_Buffer_File
+            | Editor.Command_Ids.Command_Revert_Active_Buffer
+            | Editor.Command_Ids.Command_Project_Search_Replace_All_Included
+            | Editor.Command_Ids.Command_Reset_Settings_To_Defaults
+            | Editor.Command_Ids.Command_Configuration_Reset_Settings
+            | Editor.Command_Ids.Command_Configuration_Reset_Keybindings
+            | Editor.Command_Ids.Command_Configuration_Reset_Workspace
+            | Editor.Command_Ids.Command_Configuration_Reset_Recent_Projects
+            | Editor.Command_Ids.Command_Configuration_Reset_All
+            | Editor.Command_Ids.Command_Keybindings_Reset_To_Defaults
+            | Editor.Command_Ids.Command_Clear_Workspace_State
+            | Editor.Command_Ids.Command_Close_Project
+            | Editor.Command_Ids.Command_Clear_Project
+            | Editor.Command_Ids.Command_Clear_Recent_Projects
+            | Editor.Command_Ids.Command_Close_All_Buffers
+            | Editor.Command_Ids.Command_Close_All_Clean_Buffers
+            | Editor.Command_Ids.Command_Close_Other_Buffers
+            | Editor.Command_Ids.Command_Diagnostics_Clear =>
             Editor.Guided_Prompts.Start
               (S.Guided_Prompt,
                Editor.Guided_Prompts.Confirmation_Prompt,

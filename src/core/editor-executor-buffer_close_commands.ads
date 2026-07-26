@@ -1,5 +1,4 @@
 with Editor.Buffers;
-with Editor.Commands;
 with Editor.State;
 
 package Editor.Executor.Buffer_Close_Commands is

@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Ada.Strings.Fixed;
@@ -8,7 +9,6 @@ with Editor.Buffer_Switcher.Reviews;
 with Editor.Buffer_Switcher.Rows;
 with Editor.Buffers;
 with Editor.Command_Execution;
-with Editor.Commands;
 with Editor.Executor;
 with Editor.Executor.Buffer_Close_Prompt_Commands;
 with Editor.Executor.Buffer_Switcher_Mark_Metadata_Commands;
@@ -23,7 +23,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
 
    use type Editor.Buffers.Buffer_Id;
    use type Editor.Buffer_Switcher.Reviews.Pending_Marked_Action_Kind;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Messages.Message_Severity;
 
    procedure Report_Info
@@ -99,27 +99,27 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
 
    function Buffer_Switcher_Mark_Command_Availability
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin
       case Id is
-         when Editor.Commands.Command_Buffer_Switcher_Mark_Toggle
-            | Editor.Commands.Command_Buffer_Switcher_Mark_Set
-            | Editor.Commands.Command_Buffer_Switcher_Mark_Clear =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Toggle
+            | Editor.Command_Ids.Command_Buffer_Switcher_Mark_Set
+            | Editor.Command_Ids.Command_Buffer_Switcher_Mark_Clear =>
             return Selected_Open_Buffer_Availability (S);
 
-         when Editor.Commands.Command_Buffer_Switcher_Mark_Clear_All
-            | Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked
-            | Editor.Commands.Command_Buffer_Switcher_Mark_Pin_Marked
-            | Editor.Commands.Command_Buffer_Switcher_Mark_Unpin_Marked
-            | Editor.Commands.Command_Buffer_Switcher_Mark_Clear_Metadata
-            | Editor.Commands.Command_Buffer_Switcher_Mark_Group_Assign
-            | Editor.Commands.Command_Buffer_Switcher_Mark_Group_Clear
-            | Editor.Commands.Command_Buffer_Switcher_Mark_Label_Set
-            | Editor.Commands.Command_Buffer_Switcher_Mark_Label_Clear
-            | Editor.Commands.Command_Buffer_Switcher_Mark_Note_Set
-            | Editor.Commands.Command_Buffer_Switcher_Mark_Note_Clear =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Clear_All
+            | Editor.Command_Ids.Command_Buffer_Switcher_Mark_Close_Marked
+            | Editor.Command_Ids.Command_Buffer_Switcher_Mark_Pin_Marked
+            | Editor.Command_Ids.Command_Buffer_Switcher_Mark_Unpin_Marked
+            | Editor.Command_Ids.Command_Buffer_Switcher_Mark_Clear_Metadata
+            | Editor.Command_Ids.Command_Buffer_Switcher_Mark_Group_Assign
+            | Editor.Command_Ids.Command_Buffer_Switcher_Mark_Group_Clear
+            | Editor.Command_Ids.Command_Buffer_Switcher_Mark_Label_Set
+            | Editor.Command_Ids.Command_Buffer_Switcher_Mark_Label_Clear
+            | Editor.Command_Ids.Command_Buffer_Switcher_Mark_Note_Set
+            | Editor.Command_Ids.Command_Buffer_Switcher_Mark_Note_Clear =>
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif not Has_Marked_Open_Buffers (S) then
@@ -127,16 +127,16 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
-         when Editor.Commands.Command_Buffer_Switcher_Mark_Review_Toggle
-            | Editor.Commands.Command_Buffer_Switcher_Mark_Review_Show
-            | Editor.Commands.Command_Buffer_Switcher_Mark_Review_Hide
-            | Editor.Commands.Command_Buffer_Switcher_Mark_Summary =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Review_Toggle
+            | Editor.Command_Ids.Command_Buffer_Switcher_Mark_Review_Show
+            | Editor.Command_Ids.Command_Buffer_Switcher_Mark_Review_Hide
+            | Editor.Command_Ids.Command_Buffer_Switcher_Mark_Summary =>
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
-         when Editor.Commands.Command_Buffer_Switcher_Mark_Confirm =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Confirm =>
             if Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) =
               Editor.Buffer_Switcher.Reviews.No_Pending_Marked_Action
             then
@@ -149,7 +149,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
-         when Editor.Commands.Command_Buffer_Switcher_Mark_Cancel =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Cancel =>
             if Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) =
               Editor.Buffer_Switcher.Reviews.No_Pending_Marked_Action
             then
@@ -157,8 +157,8 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
-         when Editor.Commands.Command_Buffer_Switcher_Mark_Next
-            | Editor.Commands.Command_Buffer_Switcher_Mark_Previous =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Next
+            | Editor.Command_Ids.Command_Buffer_Switcher_Mark_Previous =>
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) = 0 then
@@ -172,8 +172,8 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
             end loop;
             return Editor.Commands.Availability_Metadata.Unavailable ("No marked buffers");
 
-         when Editor.Commands.Command_Buffer_Switcher_Mark_Invert_Visible
-            | Editor.Commands.Command_Buffer_Switcher_Mark_Visible =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Invert_Visible
+            | Editor.Command_Ids.Command_Buffer_Switcher_Mark_Visible =>
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) = 0 then
@@ -181,7 +181,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
-         when Editor.Commands.Command_Buffer_Switcher_Mark_Clear_Visible =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Clear_Visible =>
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) = 0 then
@@ -189,7 +189,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
-         when Editor.Commands.Command_Buffer_Switcher_Mark_Pinned =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Pinned =>
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             end if;
@@ -200,7 +200,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
             end loop;
             return Editor.Commands.Availability_Metadata.Unavailable ("No pinned buffers");
 
-         when Editor.Commands.Command_Buffer_Switcher_Mark_Group =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Group =>
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif not Editor.Buffers.Global_Has_Buffer_Groups then
@@ -208,7 +208,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
-         when Editor.Commands.Command_Buffer_Switcher_Mark_Label =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Label =>
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             end if;
@@ -219,7 +219,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
             end loop;
             return Editor.Commands.Availability_Metadata.Unavailable ("No buffer labels");
 
-         when Editor.Commands.Command_Buffer_Switcher_Mark_Noted =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Noted =>
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             end if;
@@ -712,13 +712,13 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
 
    function Execute_Buffer_Switcher_Mark_Command
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
    is
       Before_Messages : constant Natural := Editor.Messages.Count (S.Messages);
 
       function Result_After_Command
-        (Command : Editor.Commands.Command_Id)
+        (Command : Editor.Command_Ids.Command_Id)
          return Editor.Command_Execution.Command_Execution_Result
       is
          Found : Boolean := False;
@@ -743,63 +743,63 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
       end Result_After_Command;
    begin
       case Id is
-         when Editor.Commands.Command_Buffer_Switcher_Mark_Toggle =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Toggle =>
             Execute_Buffer_Switcher_Mark_Toggle (S);
-         when Editor.Commands.Command_Buffer_Switcher_Mark_Set =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Set =>
             Execute_Buffer_Switcher_Mark_Set (S);
-         when Editor.Commands.Command_Buffer_Switcher_Mark_Clear =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Clear =>
             Execute_Buffer_Switcher_Mark_Clear (S);
-         when Editor.Commands.Command_Buffer_Switcher_Mark_Clear_All =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Clear_All =>
             Execute_Buffer_Switcher_Mark_Clear_All (S);
-         when Editor.Commands.Command_Buffer_Switcher_Mark_Invert_Visible =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Invert_Visible =>
             Execute_Buffer_Switcher_Mark_Invert_Visible (S);
-         when Editor.Commands.Command_Buffer_Switcher_Mark_Visible =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Visible =>
             Execute_Buffer_Switcher_Mark_Visible (S);
-         when Editor.Commands.Command_Buffer_Switcher_Mark_Clear_Visible =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Clear_Visible =>
             Execute_Buffer_Switcher_Mark_Clear_Visible (S);
-         when Editor.Commands.Command_Buffer_Switcher_Mark_Pinned =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Pinned =>
             Execute_Buffer_Switcher_Mark_Pinned (S);
-         when Editor.Commands.Command_Buffer_Switcher_Mark_Group =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Group =>
             Report_Info (S, "No group name");
-         when Editor.Commands.Command_Buffer_Switcher_Mark_Label =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Label =>
             Report_Info (S, "No label text");
-         when Editor.Commands.Command_Buffer_Switcher_Mark_Noted =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Noted =>
             Execute_Buffer_Switcher_Mark_Noted (S);
-         when Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Close_Marked =>
             Execute_Buffer_Switcher_Mark_Close_Marked (S);
-         when Editor.Commands.Command_Buffer_Switcher_Mark_Pin_Marked =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Pin_Marked =>
             Execute_Buffer_Switcher_Mark_Pin_Marked (S);
-         when Editor.Commands.Command_Buffer_Switcher_Mark_Unpin_Marked =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Unpin_Marked =>
             Execute_Buffer_Switcher_Mark_Unpin_Marked (S);
-         when Editor.Commands.Command_Buffer_Switcher_Mark_Clear_Metadata =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Clear_Metadata =>
             Execute_Buffer_Switcher_Mark_Clear_Metadata (S);
-         when Editor.Commands.Command_Buffer_Switcher_Mark_Group_Assign =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Group_Assign =>
             Report_Info (S, "No group name");
-         when Editor.Commands.Command_Buffer_Switcher_Mark_Group_Clear =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Group_Clear =>
             Execute_Buffer_Switcher_Mark_Group_Clear (S);
-         when Editor.Commands.Command_Buffer_Switcher_Mark_Label_Set =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Label_Set =>
             Report_Info (S, "No label text");
-         when Editor.Commands.Command_Buffer_Switcher_Mark_Label_Clear =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Label_Clear =>
             Execute_Buffer_Switcher_Mark_Label_Clear (S);
-         when Editor.Commands.Command_Buffer_Switcher_Mark_Note_Set =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Note_Set =>
             Report_Info (S, "No note text");
-         when Editor.Commands.Command_Buffer_Switcher_Mark_Note_Clear =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Note_Clear =>
             Execute_Buffer_Switcher_Mark_Note_Clear (S);
-         when Editor.Commands.Command_Buffer_Switcher_Mark_Review_Toggle =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Review_Toggle =>
             Execute_Buffer_Switcher_Mark_Review_Toggle (S);
-         when Editor.Commands.Command_Buffer_Switcher_Mark_Review_Show =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Review_Show =>
             Execute_Buffer_Switcher_Mark_Review_Show (S);
-         when Editor.Commands.Command_Buffer_Switcher_Mark_Review_Hide =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Review_Hide =>
             Execute_Buffer_Switcher_Mark_Review_Hide (S);
-         when Editor.Commands.Command_Buffer_Switcher_Mark_Next =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Next =>
             Execute_Buffer_Switcher_Mark_Next (S);
-         when Editor.Commands.Command_Buffer_Switcher_Mark_Previous =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Previous =>
             Execute_Buffer_Switcher_Mark_Previous (S);
-         when Editor.Commands.Command_Buffer_Switcher_Mark_Summary =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Summary =>
             Execute_Buffer_Switcher_Mark_Summary (S);
-         when Editor.Commands.Command_Buffer_Switcher_Mark_Confirm =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Confirm =>
             Execute_Buffer_Switcher_Mark_Confirm (S);
-         when Editor.Commands.Command_Buffer_Switcher_Mark_Cancel =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Cancel =>
             Execute_Buffer_Switcher_Mark_Cancel (S);
          when others =>
             return Editor.Command_Execution.No_Op (Id);
@@ -811,7 +811,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
 
    procedure Execute_Buffer_Switcher_Mark_Kind
      (S    : in out Editor.State.State_Type;
-      Kind : Editor.Commands.Command_Kind;
+      Kind : Editor.Command_Kinds.Command_Kind;
       Text : String)
    is
    begin

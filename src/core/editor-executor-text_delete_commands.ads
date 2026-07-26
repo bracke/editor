@@ -1,5 +1,4 @@
 with Editor.Commands.Payloads;
-with Editor.Commands;
 with Editor.Cursors;
 with Editor.Executor.Edits;
 with Editor.State;

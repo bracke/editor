@@ -1,5 +1,5 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Payloads;
-with Editor.Commands;
 with Editor.State;
 
 package Editor.Input_Bridge.Pointer_Surface_Handlers is
@@ -24,13 +24,13 @@ package Editor.Input_Bridge.Pointer_Surface_Handlers is
      (S       : in out Editor.State.State_Type;
       Cmd     : Editor.Commands.Payloads.Command;
       Execute : not null access procedure
-        (Id : Editor.Commands.Command_Id)) return Boolean;
+        (Id : Editor.Command_Ids.Command_Id)) return Boolean;
 
    function Handle_Build_UI_Panel_Pointer
      (S           : in out Editor.State.State_Type;
       Cmd         : Editor.Commands.Payloads.Command;
       Execute     : not null access procedure
-        (Id : Editor.Commands.Command_Id);
+        (Id : Editor.Command_Ids.Command_Id);
       Report_Info : not null access procedure (Message : String))
       return Boolean;
 
@@ -62,6 +62,6 @@ package Editor.Input_Bridge.Pointer_Surface_Handlers is
      (S       : in out Editor.State.State_Type;
       Cmd     : Editor.Commands.Payloads.Command;
       Execute : not null access procedure
-        (Id : Editor.Commands.Command_Id)) return Boolean;
+        (Id : Editor.Command_Ids.Command_Id)) return Boolean;
 
 end Editor.Input_Bridge.Pointer_Surface_Handlers;

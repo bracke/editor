@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Command_Execution;
 with Editor.Cursor;
@@ -30,28 +31,28 @@ package body Editor.Executor.Editor_Preferences_Commands is
 
    function Editor_Preferences_Command_Availability
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Commands.Availability_Metadata.Command_Availability
    is
       pragma Unreferenced (S);
    begin
       case Id is
-         when Editor.Commands.Command_Toggle_Theme
-            | Editor.Commands.Command_Set_Theme_Light
-            | Editor.Commands.Command_Set_Theme_Dark
-            | Editor.Commands.Command_Toggle_Minimap
-            | Editor.Commands.Command_Toggle_Scrollbars
-            | Editor.Commands.Command_Toggle_Line_Numbers
-            | Editor.Commands.Command_Toggle_Format_On_Save
-            | Editor.Commands.Command_Toggle_Line_Number_Mode
-            | Editor.Commands.Command_Set_Absolute_Line_Numbers
-            | Editor.Commands.Command_Set_Relative_Line_Numbers
-            | Editor.Commands.Command_Set_Hybrid_Line_Numbers
-            | Editor.Commands.Command_Toggle_Current_Line_Highlight
-            | Editor.Commands.Command_Toggle_Cursor_Blink
-            | Editor.Commands.Command_Toggle_Syntax_Colouring
-            | Editor.Commands.Command_Toggle_Diagnostics
-            | Editor.Commands.Command_Toggle_Cursor_Style =>
+         when Editor.Command_Ids.Command_Toggle_Theme
+            | Editor.Command_Ids.Command_Set_Theme_Light
+            | Editor.Command_Ids.Command_Set_Theme_Dark
+            | Editor.Command_Ids.Command_Toggle_Minimap
+            | Editor.Command_Ids.Command_Toggle_Scrollbars
+            | Editor.Command_Ids.Command_Toggle_Line_Numbers
+            | Editor.Command_Ids.Command_Toggle_Format_On_Save
+            | Editor.Command_Ids.Command_Toggle_Line_Number_Mode
+            | Editor.Command_Ids.Command_Set_Absolute_Line_Numbers
+            | Editor.Command_Ids.Command_Set_Relative_Line_Numbers
+            | Editor.Command_Ids.Command_Set_Hybrid_Line_Numbers
+            | Editor.Command_Ids.Command_Toggle_Current_Line_Highlight
+            | Editor.Command_Ids.Command_Toggle_Cursor_Blink
+            | Editor.Command_Ids.Command_Toggle_Syntax_Colouring
+            | Editor.Command_Ids.Command_Toggle_Diagnostics
+            | Editor.Command_Ids.Command_Toggle_Cursor_Style =>
             return Editor.Commands.Availability_Metadata.Available;
 
          when others =>
@@ -62,13 +63,13 @@ package body Editor.Executor.Editor_Preferences_Commands is
 
    function Execute_Editor_Preferences_Command
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
    is
       Before_Messages : constant Natural := Editor.Messages.Count (S.Messages);
 
       function Result_After_Command
-        (Command : Editor.Commands.Command_Id)
+        (Command : Editor.Command_Ids.Command_Id)
          return Editor.Command_Execution.Command_Execution_Result
       is
          Found : Boolean := False;
@@ -93,13 +94,13 @@ package body Editor.Executor.Editor_Preferences_Commands is
       end Result_After_Command;
    begin
       case Id is
-         when Editor.Commands.Command_Toggle_Theme =>
+         when Editor.Command_Ids.Command_Toggle_Theme =>
             Editor.Theme.Toggle_Theme;
             Report_Success (S, "Theme changed");
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
 
-         when Editor.Commands.Command_Set_Theme_Light =>
+         when Editor.Command_Ids.Command_Set_Theme_Light =>
             declare
                Found : Boolean := False;
             begin
@@ -113,7 +114,7 @@ package body Editor.Executor.Editor_Preferences_Commands is
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
 
-         when Editor.Commands.Command_Set_Theme_Dark =>
+         when Editor.Command_Ids.Command_Set_Theme_Dark =>
             declare
                Found : Boolean := False;
             begin
@@ -127,7 +128,7 @@ package body Editor.Executor.Editor_Preferences_Commands is
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
 
-         when Editor.Commands.Command_Toggle_Minimap =>
+         when Editor.Command_Ids.Command_Toggle_Minimap =>
             Editor.Minimap.Set_Enabled (not Editor.Minimap.Enabled);
             Editor.Settings.Set_Show_Minimap (Editor.Minimap.Enabled);
             Report_Info
@@ -138,7 +139,7 @@ package body Editor.Executor.Editor_Preferences_Commands is
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
 
-         when Editor.Commands.Command_Toggle_Scrollbars =>
+         when Editor.Command_Ids.Command_Toggle_Scrollbars =>
             Editor.Scrollbars.Set_Enabled (not Editor.Scrollbars.Enabled);
             Report_Info
               (S,
@@ -148,12 +149,12 @@ package body Editor.Executor.Editor_Preferences_Commands is
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
 
-         when Editor.Commands.Command_Toggle_Line_Numbers =>
+         when Editor.Command_Ids.Command_Toggle_Line_Numbers =>
             Editor.Settings.Toggle_Show_Line_Numbers;
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
 
-         when Editor.Commands.Command_Toggle_Format_On_Save =>
+         when Editor.Command_Ids.Command_Toggle_Format_On_Save =>
             Editor.Settings.Toggle_Format_On_Save;
             Report_Info
               (S,
@@ -162,38 +163,38 @@ package body Editor.Executor.Editor_Preferences_Commands is
                 else "Format on save disabled"));
             return Result_After_Command (Id);
 
-         when Editor.Commands.Command_Toggle_Line_Number_Mode =>
+         when Editor.Command_Ids.Command_Toggle_Line_Number_Mode =>
             Editor.Line_Numbers.Toggle_Mode;
             Report_Info (S, "Line number mode changed");
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
 
-         when Editor.Commands.Command_Set_Absolute_Line_Numbers =>
+         when Editor.Command_Ids.Command_Set_Absolute_Line_Numbers =>
             Editor.Line_Numbers.Set_Current
               ((Mode => Editor.Line_Numbers.Absolute_Line_Numbers));
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
 
-         when Editor.Commands.Command_Set_Relative_Line_Numbers =>
+         when Editor.Command_Ids.Command_Set_Relative_Line_Numbers =>
             Editor.Line_Numbers.Set_Current
               ((Mode => Editor.Line_Numbers.Relative_Line_Numbers));
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
 
-         when Editor.Commands.Command_Set_Hybrid_Line_Numbers =>
+         when Editor.Command_Ids.Command_Set_Hybrid_Line_Numbers =>
             Editor.Line_Numbers.Set_Current
               ((Mode => Editor.Line_Numbers.Hybrid_Line_Numbers));
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
 
-         when Editor.Commands.Command_Toggle_Current_Line_Highlight =>
+         when Editor.Command_Ids.Command_Toggle_Current_Line_Highlight =>
             Editor.Settings.Toggle_Highlight_Current_Line;
             Editor.Settings.Set_Highlight_Current_Gutter
               (Editor.Settings.Highlight_Current_Line);
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
 
-         when Editor.Commands.Command_Toggle_Cursor_Blink =>
+         when Editor.Command_Ids.Command_Toggle_Cursor_Blink =>
             Editor.Settings.Toggle_Cursor_Blink_Enabled;
             Report_Info
               (S,
@@ -203,17 +204,17 @@ package body Editor.Executor.Editor_Preferences_Commands is
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
 
-         when Editor.Commands.Command_Toggle_Syntax_Colouring =>
+         when Editor.Command_Ids.Command_Toggle_Syntax_Colouring =>
             Editor.Settings.Toggle_Use_Syntax_Colouring;
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
 
-         when Editor.Commands.Command_Toggle_Diagnostics =>
+         when Editor.Command_Ids.Command_Toggle_Diagnostics =>
             Editor.Settings.Toggle_Show_Diagnostics;
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
 
-         when Editor.Commands.Command_Toggle_Cursor_Style =>
+         when Editor.Command_Ids.Command_Toggle_Cursor_Style =>
             declare
                Cursor_Config : Editor.Cursor.Cursor_Config :=
                  Editor.Cursor.Current;

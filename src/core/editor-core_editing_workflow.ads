@@ -1,4 +1,4 @@
-with Editor.Commands;
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.State;
 
 package Editor.Core_Editing_Workflow is
@@ -37,41 +37,41 @@ package Editor.Core_Editing_Workflow is
    --  workflow surface.  This is descriptor classification only and never
    --  executes a command.
    function Is_Core_Editing_Command
-     (Id : Editor.Commands.Command_Id) return Boolean;
+     (Id : Editor.Command_Ids.Command_Id) return Boolean;
 
    --  Return whether the command is a buffer lifecycle/navigation command in
    --  the editing loop: open/new/close/reopen/switch.  This helper
    --  deliberately excludes project lifecycle, build, diagnostics, search,
    --  and panel-local commands.
    function Is_Buffer_Lifecycle_Command
-     (Id : Editor.Commands.Command_Id) return Boolean;
+     (Id : Editor.Command_Ids.Command_Id) return Boolean;
 
    --  Return whether the command is a caret/navigation operation in the
    --  editing loop.  Overlay/query setup commands for goto-line are included
    --  because they parameterize a bounded caret move but do not mutate text.
    function Is_Caret_Navigation_Command
-     (Id : Editor.Commands.Command_Id) return Boolean;
+     (Id : Editor.Command_Ids.Command_Id) return Boolean;
 
    --  Return whether the command creates, extends, clears, or consumes an
    --  active-buffer selection.  Copy/cut/delete are included because their
    --  availability depends on a normalized selection range.
    function Is_Selection_Command
-     (Id : Editor.Commands.Command_Id) return Boolean;
+     (Id : Editor.Command_Ids.Command_Id) return Boolean;
 
    --  Return whether the command mutates active-buffer text without being a
    --  file lifecycle save/reload/rename/copy/move command.
    function Is_Text_Editing_Command
-     (Id : Editor.Commands.Command_Id) return Boolean;
+     (Id : Editor.Command_Ids.Command_Id) return Boolean;
 
    --  Return whether the command writes or discards active-buffer text.  This
    --  helper is used by route/audit tests to distinguish caret-only commands
    --  from commands that must dirty, save, reload, or explicitly discard text.
    function Mutates_Or_Replaces_Buffer_Text
-     (Id : Editor.Commands.Command_Id) return Boolean;
+     (Id : Editor.Command_Ids.Command_Id) return Boolean;
 
    --  Return whether the command requires an active file-backed buffer path.
    function Requires_File_Backed_Buffer
-     (Id : Editor.Commands.Command_Id) return Boolean;
+     (Id : Editor.Command_Ids.Command_Id) return Boolean;
 
    --  Return the stable, user-readable reason that a core editing/file command
    --  would be unavailable from the supplied state.  Empty means available.
@@ -80,7 +80,7 @@ package Editor.Core_Editing_Workflow is
    --  state.
    function Editing_Availability_Reason
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id) return String;
+      Id : Editor.Command_Ids.Command_Id) return String;
 
    --  Inspect the active editing state for invariants: file-backed
    --  identity, dirty baseline, caret/selection bounds, persistence exclusions,

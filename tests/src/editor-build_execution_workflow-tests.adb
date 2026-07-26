@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
@@ -17,7 +18,6 @@ with Editor.Build_Runner_Policy;
 with Editor.Build_UI;
 with Editor.Build_Working_Context;
 with Editor.Command_Execution;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.Executor;
 with Editor.External_Producers;
@@ -41,7 +41,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
    use type Editor.Build_Output_Details.Build_Output_Details_Kind;
    use type Editor.Build_Runner_Policy.Build_Cancellation_State;
    use type Editor.Command_Execution.Command_Execution_Status;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
 
    overriding function Name
      (T : Build_Execution_Workflow_Test_Case) return AUnit.Message_String
@@ -686,10 +686,10 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
    begin
       Editor.Build_UI.Clear_Selected_Build_Candidate (S.Build_UI);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Build_Run);
+        (S, Editor.Command_Ids.Command_Build_Run);
 
       Assert (Result.Status = Editor.Command_Execution.Command_Unavailable
-              and then Result.Command = Editor.Commands.Command_Build_Run,
+              and then Result.Command = Editor.Command_Ids.Command_Build_Run,
               "Executor route returns unavailable for pre-run build.run rejection");
       Assert (Editor.Messages.Count (S.Messages) = Before_Count + 1,
               "Executor route emits exactly one primary command outcome message");
@@ -914,12 +914,12 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
       Found : Boolean := False;
-      Id : Editor.Commands.Command_Id;
+      Id : Editor.Command_Ids.Command_Id;
       Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Editor.State.Initialize (S);
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("build.cancel", Found);
-      Assert (Found and then Id = Editor.Commands.Command_Build_Cancel,
+      Assert (Found and then Id = Editor.Command_Ids.Command_Build_Cancel,
               "build.cancel is advertised once the active build-job model exists");
       Assert (not Editor.Commands.Availability_Metadata.Is_Available
                 (Editor.Build_Command.Build_Cancel_Availability (S)),
@@ -1111,13 +1111,13 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
    is
       pragma Unreferenced (T);
       Run_Descriptor : constant Editor.Commands.Descriptors.Command_Descriptor :=
-        Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Build_Run);
+        Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Build_Run);
    begin
       Assert (Editor.Build_Execution_Workflow.Assert_Build_Command_Surface_Has_No_Execution_Payloads,
               "build.run descriptor exposes only a canonical command, not request/candidate/result payloads");
       Assert (not Run_Descriptor.Bindable,
               "build.run remains unavailable to payload-free keybindings until a safe default exists");
-      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Build_Run) = "build.run",
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Command_Ids.Command_Build_Run) = "build.run",
               "Command Palette route uses the canonical stable command name only");
       Assert (Editor.Build_Execution_Workflow.Assert_Build_Keybindings_Have_No_Run_Payloads,
               "keybinding surface carries no Build request or result identifiers");
@@ -1228,7 +1228,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
    begin
       Editor.Build_UI.Clear_Selected_Build_Candidate (S.Build_UI);
       First_Exec := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Build_Run);
+        (S, Editor.Command_Ids.Command_Build_Run);
       First_Result := S.Latest_Build_Result;
       First_Message_Count := Editor.Messages.Count (S.Messages);
 
@@ -1241,7 +1241,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
 
       Editor.Project.Clear (S.Project);
       Second_Exec := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Build_Run);
+        (S, Editor.Command_Ids.Command_Build_Run);
 
       Assert (Second_Exec.Status = Editor.Command_Execution.Command_Unavailable,
               "second preflight rejection also returns through Executor as unavailable");

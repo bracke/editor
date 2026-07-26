@@ -1,5 +1,4 @@
 with Editor.Commands.Availability_Metadata;
-with Editor.Commands;
 with Editor.External_Producers;
 with Editor.External_Producers.Build_Types;
 with Editor.External_Producers.Build_Requests;

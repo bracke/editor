@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Classification;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Characters.Handling;
@@ -7,13 +8,12 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Text_IO;
 with Editor.Image_Helpers;
 with Editor.Theme;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 
 
 package body Editor.Settings_Management is
 
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Settings.Settings_Status;
 
@@ -1498,19 +1498,19 @@ package body Editor.Settings_Management is
       --  they carry no key/value payload from keybindings or Command Palette
       --  and operate only on the transient selected settings row.
       Append (Catalog_Row
-        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Save_Settings),
+        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Command_Ids.Command_Save_Settings),
          "Save Settings",
          "Saves supported global preferences only.",
          Settings_Action_Save,
          True, False, False, False, False));
       Append (Catalog_Row
-        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Reload_Settings),
+        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Command_Ids.Command_Reload_Settings),
          "Load Settings",
          "Loads supported global preferences with validation.",
          Settings_Action_Load,
          True, False, False, False, False));
       Append (Catalog_Row
-        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Reset_Settings_To_Defaults),
+        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Command_Ids.Command_Reset_Settings_To_Defaults),
          "Reset All Settings",
          "Requests confirmation before resetting global preferences to defaults.",
          Settings_Action_Reset_All,
@@ -1610,7 +1610,7 @@ package body Editor.Settings_Management is
    function Route_Row
      (Stable_Name            : String;
       Action                 : Settings_Command_Action;
-      Executor_Command       : Editor.Commands.Command_Id;
+      Executor_Command       : Editor.Command_Ids.Command_Id;
       Executor_Backend       : Boolean;
       Typed_Surface          : Boolean;
       Palette_Addressable    : Boolean;
@@ -1659,48 +1659,48 @@ package body Editor.Settings_Management is
       end Append;
    begin
       Append (Route_Row
-        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Save_Settings),
+        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Command_Ids.Command_Save_Settings),
          Settings_Action_Save,
-         Editor.Commands.Command_Save_Settings,
+         Editor.Command_Ids.Command_Save_Settings,
          True, False, True, True, False));
       Append (Route_Row
-        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Reload_Settings),
+        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Command_Ids.Command_Reload_Settings),
          Settings_Action_Load,
-         Editor.Commands.Command_Reload_Settings,
+         Editor.Command_Ids.Command_Reload_Settings,
          True, False, True, True, False));
       Append (Route_Row
-        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Reset_Settings_To_Defaults),
+        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Command_Ids.Command_Reset_Settings_To_Defaults),
          Settings_Action_Reset_All,
-         Editor.Commands.Command_Reset_Settings_To_Defaults,
+         Editor.Command_Ids.Command_Reset_Settings_To_Defaults,
          True, False, True, True, False));
 
       Append (Route_Row
         ("settings.show", Settings_Action_Show,
-         Editor.Commands.No_Command, False, True, False, False, False));
+         Editor.Command_Ids.No_Command, False, True, False, False, False));
       Append (Route_Row
         ("settings.focus", Settings_Action_Focus,
-         Editor.Commands.No_Command, False, True, False, False, False));
+         Editor.Command_Ids.No_Command, False, True, False, False, False));
       Append (Route_Row
         ("settings.toggle-selected", Settings_Action_Toggle_Selected,
-         Editor.Commands.No_Command, False, True, False, False, False));
+         Editor.Command_Ids.No_Command, False, True, False, False, False));
       Append (Route_Row
         ("settings.cycle-selected", Settings_Action_Cycle_Selected,
-         Editor.Commands.No_Command, False, True, False, False, False));
+         Editor.Command_Ids.No_Command, False, True, False, False, False));
       Append (Route_Row
         ("settings.set-selected-value", Settings_Action_Set_Selected_Value,
-         Editor.Commands.No_Command, False, True, False, False, True));
+         Editor.Command_Ids.No_Command, False, True, False, False, True));
       Append (Route_Row
         ("settings.reset-selected", Settings_Action_Reset_Selected,
-         Editor.Commands.No_Command, False, True, False, False, False));
+         Editor.Command_Ids.No_Command, False, True, False, False, False));
       Append (Route_Row
         ("settings.reset-all.confirm", Settings_Action_Confirm_Reset_All,
-         Editor.Commands.No_Command, False, True, False, False, False));
+         Editor.Command_Ids.No_Command, False, True, False, False, False));
       Append (Route_Row
         ("settings.reset-all.cancel", Settings_Action_Cancel_Reset_All,
-         Editor.Commands.No_Command, False, True, False, False, False));
+         Editor.Command_Ids.No_Command, False, True, False, False, False));
       Append (Route_Row
         ("configuration.show-audit", Settings_Action_Show_Audit,
-         Editor.Commands.No_Command, False, True, False, False, False));
+         Editor.Command_Ids.No_Command, False, True, False, False, False));
 
       return Result;
    end Build_Settings_Command_Routes;
@@ -1736,14 +1736,14 @@ package body Editor.Settings_Management is
             end if;
 
             if Row.Executor_Backend then
-               if Row.Executor_Command = Editor.Commands.No_Command
+               if Row.Executor_Command = Editor.Command_Ids.No_Command
                  or else not Row.Palette_Addressable
                  or else not Row.Keybinding_Addressable
                then
                   return False;
                end if;
             else
-               if Row.Executor_Command /= Editor.Commands.No_Command
+               if Row.Executor_Command /= Editor.Command_Ids.No_Command
                  or else Row.Palette_Addressable
                  or else Row.Keybinding_Addressable
                then
@@ -1851,12 +1851,12 @@ package body Editor.Settings_Management is
 
 
    function Is_Settings_Management_Command
-     (Id : Editor.Commands.Command_Id) return Boolean
+     (Id : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
-      return Id in Editor.Commands.Command_Save_Settings
-                 | Editor.Commands.Command_Reload_Settings
-                 | Editor.Commands.Command_Reset_Settings_To_Defaults;
+      return Id in Editor.Command_Ids.Command_Save_Settings
+                 | Editor.Command_Ids.Command_Reload_Settings
+                 | Editor.Command_Ids.Command_Reset_Settings_To_Defaults;
    end Is_Settings_Management_Command;
 
    procedure Audit_Settings_Command_Surface
@@ -1864,7 +1864,7 @@ package body Editor.Settings_Management is
    is
    begin
       Result := (others => <>);
-      for Id in Editor.Commands.Command_Id loop
+      for Id in Editor.Command_Ids.Command_Id loop
          if Is_Settings_Management_Command (Id) then
             Result.Settings_Command_Count := Result.Settings_Command_Count + 1;
             declare
@@ -2033,7 +2033,7 @@ package body Editor.Settings_Management is
 
    function Assert_Settings_Keybindings_And_Palette_Carry_No_Payloads return Boolean is
    begin
-      for Id in Editor.Commands.Command_Id loop
+      for Id in Editor.Command_Ids.Command_Id loop
          if Is_Settings_Management_Command (Id) then
             declare
                D : constant Editor.Commands.Descriptors.Command_Descriptor := Editor.Commands.Descriptors.Descriptor (Id);

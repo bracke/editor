@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Executor.Command_Palette_Projection;
@@ -10,7 +11,6 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Buffers;
 with Editor.Command_Execution;
 with Editor.Command_Palette;
-with Editor.Commands;
 with Editor.Commands.Workflow_Messages;
 with Editor.Cursors;
 with Editor.Diagnostics;
@@ -43,7 +43,7 @@ with Text_Buffer;
 package body Editor.Executor.UI_Tests is
 
    use type Editor.Command_Execution.Command_Execution_Status;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Overlay_Focus.Overlay_Target;
    use type Editor.Panel_Focus.Focus_Target;
    use type Editor.Panel_Focus.Bottom_Focus_Content;
@@ -319,7 +319,7 @@ package body Editor.Executor.UI_Tests is
       Build_Fixture (Root);
       Init_Executor_Test_State (S);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Focus_File_Tree);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Focus_File_Tree);
       Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
 
       Editor.Executor.Quick_Open_Commands.Execute_Close_Quick_Open (S);
@@ -374,7 +374,7 @@ package body Editor.Executor.UI_Tests is
       Before := Text_Buffer.Length (S.Buffer);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Save_File);
+        (S, Editor.Command_Ids.Command_Save_File);
 
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "save without active buffer must be unavailable");
@@ -396,7 +396,7 @@ package body Editor.Executor.UI_Tests is
       Init_Executor_Test_State (S);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam);
+        (S, Editor.Command_Ids.Command_Build_Run_User_Opt_In_Test_Seam);
 
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "public build test seam route remains unavailable");
@@ -449,7 +449,7 @@ package body Editor.Executor.UI_Tests is
       Before := Editor.Messages.Count (S.Messages);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Cancel);
+        (S, Editor.Command_Ids.Command_Cancel);
 
       Assert (Result.Status = Editor.Executor.Command_No_Op,
               "cancel with nothing cancellable is an intentional no-op");
@@ -472,7 +472,7 @@ package body Editor.Executor.UI_Tests is
         (S, Editor.Overlay_Focus.Command_Palette_Overlay);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Cancel);
+        (S, Editor.Command_Ids.Command_Cancel);
 
       Assert (Result.Status = Editor.Executor.Command_Cancelled,
               "Escape/cancel against an active palette is cancellation");
@@ -495,39 +495,39 @@ package body Editor.Executor.UI_Tests is
       Init_Executor_Test_State (S);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Show_Feature_Panel);
+        (S, Editor.Command_Ids.Command_Show_Feature_Panel);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "initial show feature panel succeeds");
 
       Before := Editor.Messages.Count (S.Messages);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Show_Feature_Panel);
+        (S, Editor.Command_Ids.Command_Show_Feature_Panel);
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "showing an already visible feature panel is unavailable");
       Assert (Editor.Messages.Count (S.Messages) >= Before,
               "already-visible show reports through availability");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Focus_Feature_Panel);
+        (S, Editor.Command_Ids.Command_Focus_Feature_Panel);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "initial focus feature panel succeeds");
 
       Before := Editor.Messages.Count (S.Messages);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Focus_Feature_Panel);
+        (S, Editor.Command_Ids.Command_Focus_Feature_Panel);
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "focusing an already focused feature panel is unavailable");
       Assert (Editor.Messages.Count (S.Messages) >= Before,
               "already-focused focus reports through availability");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Hide_Feature_Panel);
+        (S, Editor.Command_Ids.Command_Hide_Feature_Panel);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "initial hide feature panel succeeds");
 
       Before := Editor.Messages.Count (S.Messages);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Hide_Feature_Panel);
+        (S, Editor.Command_Ids.Command_Hide_Feature_Panel);
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "hiding an already hidden feature panel is unavailable");
       Assert (Editor.Messages.Count (S.Messages) >= Before,
@@ -546,21 +546,21 @@ package body Editor.Executor.UI_Tests is
       Before := Editor.Messages.Count (S.Messages);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Clear_Messages);
+        (S, Editor.Command_Ids.Command_Clear_Messages);
       Assert (Result.Status = Editor.Executor.Command_No_Op,
               "clearing empty Messages is a no-op");
       Assert (Editor.Messages.Count (S.Messages) = Before,
               "empty Messages clear remains quiet");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Diagnostics_Clear);
+        (S, Editor.Command_Ids.Command_Diagnostics_Clear);
       Assert (Result.Status = Editor.Executor.Command_No_Op,
               "clearing empty Diagnostics is a no-op");
       Assert (Editor.Messages.Count (S.Messages) = Before,
               "empty Diagnostics clear remains quiet");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Clear_Search_Results_Feature);
+        (S, Editor.Command_Ids.Command_Clear_Search_Results_Feature);
       Assert (Result.Status = Editor.Executor.Command_No_Op,
               "clearing empty Search Results is a no-op");
       Assert (Editor.Messages.Count (S.Messages) = Before,
@@ -577,20 +577,20 @@ package body Editor.Executor.UI_Tests is
    begin
       Init_Executor_Test_State (S);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_New_Buffer);
+        (S, Editor.Command_Ids.Command_New_Buffer);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "new buffer setup succeeds");
       Before_Dirty := S.File_Info.Dirty;
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Move_Left);
+        (S, Editor.Command_Ids.Command_Move_Left);
       Assert (Result.Status = Editor.Executor.Command_No_Op,
               "moving left at the start of the buffer is a no-op");
       Assert (S.File_Info.Dirty = Before_Dirty,
               "boundary navigation must not dirty the buffer");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Previous_Buffer);
+        (S, Editor.Command_Ids.Command_Previous_Buffer);
       Assert (Result.Status = Editor.Executor.Command_No_Op,
               "previous buffer with only one buffer is a no-op");
       Assert (S.File_Info.Dirty = Before_Dirty,
@@ -601,7 +601,7 @@ package body Editor.Executor.UI_Tests is
 
    function Availability_Reason
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id) return String
+      Id : Editor.Command_Ids.Command_Id) return String
    is
       A : constant Editor.Commands.Availability_Metadata.Command_Availability :=
         Editor.Executor.Command_Availability (S, Id);
@@ -611,7 +611,7 @@ package body Editor.Executor.UI_Tests is
 
    procedure Assert_Unavailable_Reason
      (S        : Editor.State.State_Type;
-      Id       : Editor.Commands.Command_Id;
+      Id       : Editor.Command_Ids.Command_Id;
       Expected : String;
       Label    : String)
    is
@@ -635,35 +635,35 @@ package body Editor.Executor.UI_Tests is
       Init_Executor_Test_State (S);
 
       Assert_Unavailable_Reason
-        (S, Editor.Commands.Command_Save_File, "No active buffer.",
+        (S, Editor.Command_Ids.Command_Save_File, "No active buffer.",
          "buffer command without active buffer");
       Assert_Unavailable_Reason
-        (S, Editor.Commands.No_Command, "No command selected.",
+        (S, Editor.Command_Ids.No_Command, "No command selected.",
          "empty command invocation");
       Assert_Unavailable_Reason
-        (S, Editor.Commands.Command_Close_Project, "No project open.",
+        (S, Editor.Command_Ids.Command_Close_Project, "No project open.",
          "project command without project");
       Assert_Unavailable_Reason
-        (S, Editor.Commands.Command_Diagnostics_Open_Selected,
+        (S, Editor.Command_Ids.Command_Diagnostics_Open_Selected,
          "No diagnostics.", "diagnostic activation without diagnostics");
       Assert_Unavailable_Reason
-        (S, Editor.Commands.Command_Diagnostics_Execute_Selected_Action,
+        (S, Editor.Command_Ids.Command_Diagnostics_Execute_Selected_Action,
          "No diagnostics.", "diagnostic action without diagnostics");
       Assert_Unavailable_Reason
-        (S, Editor.Commands.Command_Clear_Selected_Message,
+        (S, Editor.Command_Ids.Command_Clear_Selected_Message,
          "No messages", "message action without messages");
 
       Editor.State.Load_Text (S, "alpha beta");
       Assert_Unavailable_Reason
-        (S, Editor.Commands.Command_Project_Search_From_Selection,
+        (S, Editor.Command_Ids.Command_Project_Search_From_Selection,
          "No project open.", "selection command without project");
 
       Build_Fixture (Root);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Focus_File_Tree);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Focus_File_Tree);
       Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, 0);
       Assert_Unavailable_Reason
-        (S, Editor.Commands.Command_File_Tree_Open_Selected,
+        (S, Editor.Command_Ids.Command_File_Tree_Open_Selected,
          "No file selected.", "file tree activation without selection");
       Cleanup_Fixture (Root);
    exception
@@ -683,11 +683,11 @@ package body Editor.Executor.UI_Tests is
    begin
       Init_Executor_Test_State (S);
       Reason := To_Unbounded_String
-        (Availability_Reason (S, Editor.Commands.Command_Save_File));
+        (Availability_Reason (S, Editor.Command_Ids.Command_Save_File));
       Before := Text_Buffer.Length (S.Buffer);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Save_File);
+        (S, Editor.Command_Ids.Command_Save_File);
 
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "unavailable save command must be classified unavailable");
@@ -718,19 +718,19 @@ package body Editor.Executor.UI_Tests is
       Before_File_Tree_Rows := Editor.File_Tree.Visible_Row_Count (S.File_Tree);
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "refresh outline should be available with an active buffer");
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Search_Results_Search_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Search_Results_Search_Active_Buffer);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "search active buffer without query remains unavailable");
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Diagnostics_Open_Selected);
+        (S, Editor.Command_Ids.Command_Diagnostics_Open_Selected);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "diagnostics open selected remains unavailable without diagnostics");
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Diagnostics_Execute_Selected_Action);
+        (S, Editor.Command_Ids.Command_Diagnostics_Execute_Selected_Action);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "diagnostics selected action remains unavailable without diagnostics");
 
@@ -758,11 +758,11 @@ package body Editor.Executor.UI_Tests is
       Editor.Command_Palette.Open;
       Editor.Command_Palette.Insert_Text ("save file");
       Expected := To_Unbounded_String
-        (Availability_Reason (S, Editor.Commands.Command_Save_File));
+        (Availability_Reason (S, Editor.Command_Ids.Command_Save_File));
 
       Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
       for Candidate of Candidates loop
-         if Candidate.Id = Editor.Commands.Command_Save_File then
+         if Candidate.Id = Editor.Command_Ids.Command_Save_File then
             Found := True;
             Assert (not Candidate.Available,
                     "palette must show Save File disabled without active buffer");

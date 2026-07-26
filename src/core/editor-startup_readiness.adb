@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
@@ -5,7 +6,6 @@ with Ada.Directories;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Image_Helpers;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.Configuration_Recovery;
 
@@ -19,8 +19,8 @@ package body Editor.Startup_Readiness is
    use type Editor.Workspace_Persistence.Workspace_Persistence_Status;
    use type Editor.Recent_Projects.Recent_Project_Status;
    use type Editor.Workspace_Persistence.Workspace_Diagnostic_Kind;
-   use type Editor.Commands.Command_Id;
-   use type Editor.Commands.Command_Kind;
+   use type Editor.Command_Ids.Command_Id;
+   use type Editor.Command_Kinds.Command_Kind;
    use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Configuration_Recovery.Configuration_Domain;
 
@@ -1145,29 +1145,29 @@ package body Editor.Startup_Readiness is
    function Assert_Startup_Keybindings_Have_No_Payloads return Boolean is
    begin
       return Editor.Commands.Name_Metadata.Stable_Command_Name
-        (Editor.Commands.Command_Startup_Show_Summary) =
+        (Editor.Command_Ids.Command_Startup_Show_Summary) =
         "startup.show-summary"
         and then Editor.Commands.Name_Metadata.Stable_Command_Name
-          (Editor.Commands.Command_Configuration_Recover_Show) =
+          (Editor.Command_Ids.Command_Configuration_Recover_Show) =
           "configuration.recover-show"
         and then Editor.Commands.Name_Metadata.Stable_Command_Name
-          (Editor.Commands.Command_Configuration_Audit) = "configuration.audit"
+          (Editor.Command_Ids.Command_Configuration_Audit) = "configuration.audit"
         and then not Editor.Commands.Descriptors.Descriptor
-          (Editor.Commands.Command_Startup_Show_Summary).Requires_Explicit_Target
+          (Editor.Command_Ids.Command_Startup_Show_Summary).Requires_Explicit_Target
         and then not Editor.Commands.Descriptors.Descriptor
-          (Editor.Commands.Command_Startup_Show_Summary).Target_Prompt_Capable;
+          (Editor.Command_Ids.Command_Startup_Show_Summary).Target_Prompt_Capable;
    end Assert_Startup_Keybindings_Have_No_Payloads;
 
 
    function Assert_Startup_Display_Commands_Route_Through_Executor return Boolean is
       Startup_Descriptor : constant Editor.Commands.Descriptors.Command_Descriptor :=
-        Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Startup_Show_Summary);
+        Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Startup_Show_Summary);
       Recovery_Descriptor : constant Editor.Commands.Descriptors.Command_Descriptor :=
-        Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Configuration_Recover_Show);
+        Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Configuration_Recover_Show);
       Startup_Command : constant Editor.Commands.Payloads.Command :=
-        Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Startup_Show_Summary);
+        Editor.Commands.Payloads.Command_For_Id (Editor.Command_Ids.Command_Startup_Show_Summary);
       Recovery_Command : constant Editor.Commands.Payloads.Command :=
-        Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Configuration_Recover_Show);
+        Editor.Commands.Payloads.Command_For_Id (Editor.Command_Ids.Command_Configuration_Recover_Show);
    begin
       return Startup_Descriptor.Visibility = Editor.Commands.Descriptors.Palette_Command
         and then Recovery_Descriptor.Visibility = Editor.Commands.Descriptors.Palette_Command

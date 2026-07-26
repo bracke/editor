@@ -1,6 +1,6 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Command_Execution;
-with Editor.Commands;
 with Editor.State;
 with Editor.Workspace_Persistence;
 
@@ -8,7 +8,7 @@ package Editor.Executor.Workspace_Commands is
 
    function Workspace_Command_Availability
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Commands.Availability_Metadata.Command_Availability;
 
    function Restore_Summary_Message
@@ -56,7 +56,7 @@ package Editor.Executor.Workspace_Commands is
 
    function Execute_Workspace_Result_Command
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result;
 
 end Editor.Executor.Workspace_Commands;

@@ -1,7 +1,6 @@
 with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.State;
-with Editor.Commands;
 with Editor.Cursors;    use Editor.Cursors;
 with Editor.Navigation; use Editor.Navigation;
 with Ada.Containers;    use Ada.Containers;

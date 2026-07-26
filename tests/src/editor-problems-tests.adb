@@ -1,8 +1,8 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Commands;
 with Editor.Cursors;
 with Editor.Diagnostics;
 with Editor.Executor;
@@ -322,7 +322,7 @@ package body Editor.Problems.Tests is
          Message => "missing ;");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Problems_Filter_Errors);
+        (S, Editor.Command_Ids.Command_Problems_Filter_Errors);
       Assert
         (Editor.Problems.Severity_Filter (S.Problems_View) =
          Editor.Problems.Problems_Show_Errors,
@@ -333,7 +333,7 @@ package body Editor.Problems.Tests is
          "Problems filter command should reveal the Problems panel");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Problems_Filter_All);
+        (S, Editor.Command_Ids.Command_Problems_Filter_All);
       Assert
         (Editor.Problems.Severity_Filter (S.Problems_View) =
          Editor.Problems.Problems_Show_All,
@@ -359,7 +359,7 @@ package body Editor.Problems.Tests is
          Message => "missing ;");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Problems_Sort_By_Severity);
+        (S, Editor.Command_Ids.Command_Problems_Sort_By_Severity);
       Assert
         (S.Problems_View.Sort_Mode =
          Editor.Problems.Problems_Sort_By_Severity,
@@ -370,28 +370,28 @@ package body Editor.Problems.Tests is
          "Problems sort command should reveal the Problems panel");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Problems_Sort_By_Source);
+        (S, Editor.Command_Ids.Command_Problems_Sort_By_Source);
       Assert
         (S.Problems_View.Sort_Mode =
          Editor.Problems.Problems_Sort_By_Source,
          "Problems sort command should select source sort");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Problems_Group_By_Source);
+        (S, Editor.Command_Ids.Command_Problems_Group_By_Source);
       Assert
         (S.Problems_View.Group_Mode =
          Editor.Problems.Problems_Group_By_Source,
          "Problems group command should select source grouping");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Problems_Group_By_Severity);
+        (S, Editor.Command_Ids.Command_Problems_Group_By_Severity);
       Assert
         (S.Problems_View.Group_Mode =
          Editor.Problems.Problems_Group_By_Severity,
          "Problems group command should select severity grouping");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Problems_Sort_By_Location);
+        (S, Editor.Command_Ids.Command_Problems_Sort_By_Location);
       Assert
         (S.Problems_View.Sort_Mode =
          Editor.Problems.Problems_Sort_By_Location,
@@ -417,9 +417,9 @@ package body Editor.Problems.Tests is
          Message => "smoke error");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Problems_Filter_Errors);
+        (S, Editor.Command_Ids.Command_Problems_Filter_Errors);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Problems_Move_Down);
+        (S, Editor.Command_Ids.Command_Problems_Move_Down);
 
       Snapshot := Editor.Problems.Build_Snapshot (S.Diagnostics);
       Filtered := Editor.Problems.Filtered_Snapshot (Snapshot, S.Problems_View);
@@ -459,9 +459,9 @@ package body Editor.Problems.Tests is
          "Problems target parity should explain missing source targets");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Problems_Filter_Errors);
+        (S, Editor.Command_Ids.Command_Problems_Filter_Errors);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Problems_Open_Selected);
+        (S, Editor.Command_Ids.Command_Problems_Open_Selected);
       Assert
         (not S.Active_Diagnostic.Has_Active,
          "Problems open-selected must not activate a diagnostic without target");
@@ -473,9 +473,9 @@ package body Editor.Problems.Tests is
          Severity => Editor.Diagnostics.Error,
          Message => "located error");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Problems_Filter_Errors);
+        (S, Editor.Command_Ids.Command_Problems_Filter_Errors);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Problems_Open_Selected);
+        (S, Editor.Command_Ids.Command_Problems_Open_Selected);
       Assert
         (S.Active_Diagnostic.Has_Active and then S.Active_Diagnostic.Index = 1,
          "Problems open-selected should activate the filtered located diagnostic");

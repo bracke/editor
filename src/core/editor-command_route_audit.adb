@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Buffer_Switcher.Rows;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
@@ -23,8 +24,8 @@ package body Editor.Command_Route_Audit is
       Result.Failures := 0;
       Result.Last_Source := Route_From_Test;
       Result.Last_Kind := Route_Custom_Failure;
-      Result.Last_Expected := Editor.Commands.No_Command;
-      Result.Last_Actual := Editor.Commands.No_Command;
+      Result.Last_Expected := Editor.Command_Ids.No_Command;
+      Result.Last_Actual := Editor.Command_Ids.No_Command;
       Result.Last_Message := Null_Unbounded_String;
       Result.Failure_Log := Null_Unbounded_String;
    end Clear;
@@ -32,7 +33,7 @@ package body Editor.Command_Route_Audit is
    procedure Record_Route
      (Result  : in out Route_Audit_Result;
       Source  : Route_Source;
-      Command : Editor.Commands.Command_Id)
+      Command : Editor.Command_Ids.Command_Id)
    is
    begin
       Result.Routes := Result.Routes + 1;
@@ -41,7 +42,7 @@ package body Editor.Command_Route_Audit is
            (Result   => Result,
             Source   => Source,
             Kind     => Route_Targeted_Non_Concrete_Command,
-            Expected => Editor.Commands.No_Command,
+            Expected => Editor.Command_Ids.No_Command,
             Actual   => Command,
             Message  => "route target is not a concrete command");
       end if;
@@ -49,7 +50,7 @@ package body Editor.Command_Route_Audit is
 
    procedure Record_Command_Palette_Route
      (Result                   : in out Route_Audit_Result;
-      Command                  : Editor.Commands.Command_Id;
+      Command                  : Editor.Command_Ids.Command_Id;
       Routed_Through_Executor  : Boolean;
       Used_Stable_Command_Name : Boolean;
       Carried_Payload          : Boolean)
@@ -88,7 +89,7 @@ package body Editor.Command_Route_Audit is
 
    procedure Record_Keybinding_Management_Route
      (Result                   : in out Route_Audit_Result;
-      Command                  : Editor.Commands.Command_Id;
+      Command                  : Editor.Command_Ids.Command_Id;
       Routed_Through_Executor  : Boolean;
       Used_Stable_Command_Name : Boolean;
       Carried_Payload          : Boolean)
@@ -127,7 +128,7 @@ package body Editor.Command_Route_Audit is
 
    procedure Record_Suggested_Action_Route
      (Result                               : in out Route_Audit_Result;
-      Command                              : Editor.Commands.Command_Id;
+      Command                              : Editor.Command_Ids.Command_Id;
       Routed_Through_Executor              : Boolean;
       Used_Stable_Command_Name             : Boolean;
       Availability_Checked                 : Boolean;
@@ -188,7 +189,7 @@ package body Editor.Command_Route_Audit is
    procedure Record_Buffer_Workflow_Route
      (Result                  : in out Route_Audit_Result;
       Source                  : Route_Source;
-      Command                 : Editor.Commands.Command_Id;
+      Command                 : Editor.Command_Ids.Command_Id;
       Routed_Through_Executor : Boolean;
       Availability_Checked    : Boolean;
       Carried_Buffer_Payload  : Boolean)
@@ -227,7 +228,7 @@ package body Editor.Command_Route_Audit is
    procedure Record_Command_UI_Route
      (Result                   : in out Route_Audit_Result;
       Source                   : Route_Source;
-      Command                  : Editor.Commands.Command_Id;
+      Command                  : Editor.Command_Ids.Command_Id;
       Dispatch_Count           : Natural;
       Routed_Through_Executor  : Boolean;
       Used_Stable_Command_Name : Boolean;
@@ -434,7 +435,7 @@ package body Editor.Command_Route_Audit is
    procedure Reject_If_Buffer_Payload_Text
      (Result  : in out Route_Audit_Result;
       Source  : Route_Source;
-      Command : Editor.Commands.Command_Id;
+      Command : Editor.Command_Ids.Command_Id;
       Text    : String;
       Context : String)
    is
@@ -493,13 +494,13 @@ package body Editor.Command_Route_Audit is
    is
    begin
       Reject_If_Buffer_Payload_Text
-        (Result, Route_From_Command_Palette, Editor.Commands.No_Command,
+        (Result, Route_From_Command_Palette, Editor.Command_Ids.No_Command,
          To_String (Row.Primary_Text), "command palette primary text");
       Reject_If_Buffer_Payload_Text
-        (Result, Route_From_Command_Palette, Editor.Commands.No_Command,
+        (Result, Route_From_Command_Palette, Editor.Command_Ids.No_Command,
          To_String (Row.Secondary_Text), "command palette secondary text");
       Reject_If_Buffer_Payload_Text
-        (Result, Route_From_Command_Palette, Editor.Commands.No_Command,
+        (Result, Route_From_Command_Palette, Editor.Command_Ids.No_Command,
          To_String (Row.Keybinding_Text), "command palette keybinding text");
    end Inspect_Command_Palette_Row_No_Buffer_Payload;
 
@@ -541,7 +542,7 @@ package body Editor.Command_Route_Audit is
    is
       Validation : constant Editor.Keybindings.Keybinding_Validation_Result :=
         Editor.Keybindings.Validate;
-      Command    : Editor.Commands.Command_Id;
+      Command    : Editor.Command_Ids.Command_Id;
       Binding    : Editor.Keybindings.Key_Chord;
    begin
       if Editor.Keybindings.Status (Validation)
@@ -579,20 +580,20 @@ package body Editor.Command_Route_Audit is
    is
    begin
       Reject_If_Buffer_Payload_Text
-        (Result, Route_From_Tab_Bar, Editor.Commands.No_Command,
+        (Result, Route_From_Tab_Bar, Editor.Command_Ids.No_Command,
          To_String (Row.Display_Label), "Buffer List display label");
       Reject_If_Buffer_Payload_Text
-        (Result, Route_From_Tab_Bar, Editor.Commands.No_Command,
+        (Result, Route_From_Tab_Bar, Editor.Command_Ids.No_Command,
          To_String (Row.Path), "Buffer List path label");
       Reject_If_Buffer_Payload_Text
-        (Result, Route_From_Tab_Bar, Editor.Commands.No_Command,
+        (Result, Route_From_Tab_Bar, Editor.Command_Ids.No_Command,
          To_String (Row.Project_Ownership_Label),
          "Buffer List ownership label");
       Reject_If_Buffer_Payload_Text
-        (Result, Route_From_Tab_Bar, Editor.Commands.No_Command,
+        (Result, Route_From_Tab_Bar, Editor.Command_Ids.No_Command,
          To_String (Row.Group_Name), "Buffer List group label");
       Reject_If_Buffer_Payload_Text
-        (Result, Route_From_Tab_Bar, Editor.Commands.No_Command,
+        (Result, Route_From_Tab_Bar, Editor.Command_Ids.No_Command,
          To_String (Row.Label_Text), "Buffer List custom label");
    end Inspect_Buffer_Switcher_Row_No_Buffer_Payload;
 
@@ -608,13 +609,13 @@ package body Editor.Command_Route_Audit is
 
       Record_Buffer_Workflow_Route
         (Result, Route_From_Tab_Bar,
-         Editor.Commands.Command_Accept_Buffer_Switcher,
+         Editor.Command_Ids.Command_Accept_Buffer_Switcher,
          Routed_Through_Executor => True,
          Availability_Checked    => True,
          Carried_Buffer_Payload  => False);
       Record_Buffer_Workflow_Route
         (Result, Route_From_Tab_Bar,
-         Editor.Commands.Command_Buffer_Switcher_Selected_Close,
+         Editor.Command_Ids.Command_Buffer_Switcher_Selected_Close,
          Routed_Through_Executor => True,
          Availability_Checked    => True,
          Carried_Buffer_Payload  => False);
@@ -631,7 +632,7 @@ package body Editor.Command_Route_Audit is
            (Result  => Result,
             Source  => Source,
             Kind    => Route_Carried_Command_Payload,
-            Actual  => Editor.Commands.No_Command,
+            Actual  => Editor.Command_Ids.No_Command,
             Message => "serialized route text contains a forbidden runtime buffer identity field");
       end if;
    end Inspect_Serialized_Route_Text_No_Buffer_Payload;
@@ -641,10 +642,10 @@ package body Editor.Command_Route_Audit is
       Buffer_Switcher_State : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Serialized_Workspace  : String := "")
    is
-      Command : Editor.Commands.Command_Id;
+      Command : Editor.Command_Ids.Command_Id;
    begin
-      for I in 1 .. Editor.Commands.Command_Count loop
-         Command := Editor.Commands.Command_At (I);
+      for I in 1 .. Editor.Command_Ids.Command_Count loop
+         Command := Editor.Command_Ids.Command_At (I);
          if Editor.Commands.Availability_Metadata.Is_Concrete_Command (Command) then
             Inspect_Command_Descriptor_No_Buffer_Payload
               (Result, Route_From_Command_Palette,
@@ -676,8 +677,8 @@ package body Editor.Command_Route_Audit is
      (Result   : in out Route_Audit_Result;
       Source   : Route_Source;
       Kind     : Route_Audit_Failure_Kind;
-      Expected : Editor.Commands.Command_Id := Editor.Commands.No_Command;
-      Actual   : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Expected : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
+      Actual   : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Message  : String := "")
    is
    begin
@@ -696,9 +697,9 @@ package body Editor.Command_Route_Audit is
       Append (Result.Failure_Log, ASCII.LF & "    ");
       Append (Result.Failure_Log, Route_Audit_Failure_Kind'Image (Kind));
       Append (Result.Failure_Log, " expected=");
-      Append (Result.Failure_Log, Editor.Commands.Command_Id'Image (Expected));
+      Append (Result.Failure_Log, Editor.Command_Ids.Command_Id'Image (Expected));
       Append (Result.Failure_Log, " actual=");
-      Append (Result.Failure_Log, Editor.Commands.Command_Id'Image (Actual));
+      Append (Result.Failure_Log, Editor.Command_Ids.Command_Id'Image (Actual));
       if Message'Length > 0 then
          Append (Result.Failure_Log, ASCII.LF & "    ");
          Append (Result.Failure_Log, Message);
@@ -725,9 +726,9 @@ package body Editor.Command_Route_Audit is
       Append (Text, " source=");
       Append (Text, Route_Source'Image (Result.Last_Source));
       Append (Text, " expected=");
-      Append (Text, Editor.Commands.Command_Id'Image (Result.Last_Expected));
+      Append (Text, Editor.Command_Ids.Command_Id'Image (Result.Last_Expected));
       Append (Text, " actual=");
-      Append (Text, Editor.Commands.Command_Id'Image (Result.Last_Actual));
+      Append (Text, Editor.Command_Ids.Command_Id'Image (Result.Last_Actual));
       if Length (Result.Last_Message) > 0 then
          Append (Text, " message=");
          Append (Text, To_String (Result.Last_Message));

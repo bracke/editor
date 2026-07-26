@@ -3,7 +3,6 @@ with Editor.Commands.Payloads;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Interfaces.C; use Interfaces.C;
-with Editor.Commands;
 with Editor.Cursors;
 with Editor.Diagnostics;
 with Editor.Dirty_Lines;

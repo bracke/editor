@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
@@ -11,7 +12,6 @@ with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Buffers;
 with Editor.Command_Execution;
-with Editor.Commands;
 with Editor.Executor.File_Tree_Commands;
 with Editor.Executor.File_Tree_Navigation_Commands;
 with Editor.Executor.File_Save_Commands;
@@ -38,7 +38,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
 
    use type Editor.Buffers.Buffer_Id;
    use type Editor.Command_Execution.Command_Execution_Status;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Files.File_Open_Status;
    use type Editor.Pending_Transitions.Pending_Transition_Kind;
    use type Editor.Workspace_Persistence.Workspace_Persistence_Status;
@@ -541,18 +541,18 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
       Editor.Workspace_Persistence.Set_Active_File_Path (Snapshot, "a.txt", True);
 
       Editor.Executor.Restore_Workspace_Snapshot (S, Snapshot, Status, Summary);
-      Save_A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Save_File);
-      Reload_A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Reload_Active_Buffer);
-      Close_A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Close_Active_Buffer);
-      Feature_A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Feature_Panel_Open_Selected);
+      Save_A := Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Save_File);
+      Reload_A := Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Reload_Active_Buffer);
+      Close_A := Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Close_Active_Buffer);
+      Feature_A := Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
       Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
 
       for C of Candidates loop
-         if C.Id = Editor.Commands.Command_Save_File then
+         if C.Id = Editor.Command_Ids.Command_Save_File then
             Saw_Save := C.Available;
-         elsif C.Id = Editor.Commands.Command_Reload_Active_Buffer then
+         elsif C.Id = Editor.Command_Ids.Command_Reload_Active_Buffer then
             Saw_Reload := C.Available;
-         elsif C.Id = Editor.Commands.Command_Close_Active_Buffer then
+         elsif C.Id = Editor.Command_Ids.Command_Close_Active_Buffer then
             Saw_Close := C.Available;
          end if;
       end loop;
@@ -620,7 +620,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
       Assert (Editor.Buffers.Global_Summary_For (Editor.Buffers.Global_Active_Buffer).Is_Dirty,
               "first edit after restore should update open-buffer dirty marker");
 
-      Result := Editor.Executor.Execute_Command_With_Result (S, Editor.Commands.Command_Save_File);
+      Result := Editor.Executor.Execute_Command_With_Result (S, Editor.Command_Ids.Command_Save_File);
       Reloaded := Editor.Files.Open_File (File_A);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "first save after restore should execute through normal save path");
@@ -676,7 +676,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
       Editor.Executor.Restore_Workspace_Snapshot (S, Snapshot, Status, Summary);
 
       Write_Text_File (File_A, "changed");
-      Result := Editor.Executor.Execute_Command_With_Result (S, Editor.Commands.Command_Reload_Active_Buffer);
+      Result := Editor.Executor.Execute_Command_With_Result (S, Editor.Command_Ids.Command_Reload_Active_Buffer);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "first reload after clean restore should execute");
       Assert (Editor.State.Current_Text (S) = "changed",
@@ -690,7 +690,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
       Cmd.Code := Wide_Wide_Character'Val (0);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Before := To_Unbounded_String (Editor.State.Current_Text (S));
-      Result := Editor.Executor.Execute_Command_With_Result (S, Editor.Commands.Command_Reload_Active_Buffer);
+      Result := Editor.Executor.Execute_Command_With_Result (S, Editor.Command_Ids.Command_Reload_Active_Buffer);
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "dirty restored buffer reload should be blocked before replacement");
       Assert (To_String (Before) = Editor.State.Current_Text (S),
@@ -744,16 +744,16 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
       Editor.Workspace_Persistence.Set_Active_File_Path (Snapshot, "a.txt", True);
       Editor.Executor.Restore_Workspace_Snapshot (S, Snapshot, Status, Summary);
 
-      Result := Editor.Executor.Execute_Command_With_Result (S, Editor.Commands.Command_Next_Buffer);
+      Result := Editor.Executor.Execute_Command_With_Result (S, Editor.Command_Ids.Command_Next_Buffer);
       Assert (Result.Status = Editor.Executor.Command_Executed
                 and then To_String (S.File_Info.Display_Name) = "b.txt",
               "next buffer after restore should follow restored order");
-      Result := Editor.Executor.Execute_Command_With_Result (S, Editor.Commands.Command_Previous_Buffer);
+      Result := Editor.Executor.Execute_Command_With_Result (S, Editor.Command_Ids.Command_Previous_Buffer);
       Assert (Result.Status = Editor.Executor.Command_Executed
                 and then To_String (S.File_Info.Display_Name) = "a.txt",
               "previous buffer after restore should follow restored order");
 
-      Result := Editor.Executor.Execute_Command_With_Result (S, Editor.Commands.Command_Close_Active_Buffer);
+      Result := Editor.Executor.Execute_Command_With_Result (S, Editor.Command_Ids.Command_Close_Active_Buffer);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "first close after clean restore should execute");
       Assert (To_String (S.File_Info.Display_Name) = "b.txt",
@@ -801,7 +801,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
       Init_Executor_Test_State (S);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Restore_Workspace_State);
+        (S, Editor.Command_Ids.Command_Restore_Workspace_State);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "explicit restore should execute");
       Assert (S.Post_Restore_Feedback_Current,
@@ -867,13 +867,13 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
       Init_Executor_Test_State (S);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Restore_Workspace_State);
+        (S, Editor.Command_Ids.Command_Restore_Workspace_State);
       Assert (Result.Status = Editor.Executor.Command_Executed
                 and then S.Post_Restore_Feedback_Current,
               "restore feedback should start as current command feedback");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Save_File);
+        (S, Editor.Command_Ids.Command_Save_File);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "save after restore should execute normally");
       Assert (not S.Post_Restore_Feedback_Current,
@@ -956,7 +956,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
               "clear workspace should open confirmation before cancel");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Cancel_Pending_Transition);
+        (S, Editor.Command_Ids.Command_Cancel_Pending_Transition);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "cancel pending transition should execute");
       Assert (Ada.Directories.Exists (Path),
@@ -992,7 +992,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
               "clear workspace should stage confirmation before retry");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Retry_Pending_Transition);
+        (S, Editor.Command_Ids.Command_Retry_Pending_Transition);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "retry should confirm clear workspace");
       Assert (not Ada.Directories.Exists (Path),
@@ -1028,7 +1028,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
 
       Ada.Directories.Delete_File (Path);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Retry_Pending_Transition);
+        (S, Editor.Command_Ids.Command_Retry_Pending_Transition);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "retry stale clear workspace should return a command outcome");
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
@@ -1075,7 +1075,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
       Init_Executor_Test_State (S);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Restore_Workspace_State);
+        (S, Editor.Command_Ids.Command_Restore_Workspace_State);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "restored-file fixture should restore session");
       Assert (S.Post_Restore_Feedback_Current,
@@ -1089,7 +1089,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
 
       procedure Expect_Command_Clears
         (Suffix  : String;
-         Command : Editor.Commands.Command_Id)
+         Command : Editor.Command_Ids.Command_Id)
       is
          Root   : constant String := Temp_Path ("restore_clear_" & Suffix);
          S      : Editor.State.State_Type;
@@ -1119,16 +1119,16 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
    begin
       Expect_Command_Clears
         ("quick_open",
-         Editor.Commands.Command_Open_Quick_Open);
+         Editor.Command_Ids.Command_Open_Quick_Open);
       Expect_Command_Clears
         ("command_palette",
-         Editor.Commands.Command_Open_Command_Palette);
+         Editor.Command_Ids.Command_Open_Command_Palette);
       Expect_Command_Clears
         ("diagnostics",
-         Editor.Commands.Command_Diagnostics_Show);
+         Editor.Command_Ids.Command_Diagnostics_Show);
       Expect_Command_Clears
         ("build_ui",
-         Editor.Commands.Command_Build_UI_Show);
+         Editor.Command_Ids.Command_Build_UI_Show);
 
       Prepare_Restored_File (Project_Root, S);
       Build_Fixture (Next_Root);
@@ -1173,7 +1173,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
 
       Before := Editor.Messages.Count (S.Messages);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Save_File);
+        (S, Editor.Command_Ids.Command_Save_File);
       Latest := To_Unbounded_String (Latest_Message_Text (S));
 
       Assert (Result.Status = Editor.Executor.Command_Executed,
@@ -1341,7 +1341,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
         (S, Editor.Test_Helper.Insert (Buffer_Text (S)'Length, 'Z'));
       Row := Editor.Buffers.Global_Summary_For (Id);
       Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Save_File);
+        (S, Editor.Command_Ids.Command_Save_File);
 
       Assert (Buffer_Text (S) = "aZ",
               "typing after open should edit the active buffer only");

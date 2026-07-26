@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
@@ -6,7 +7,6 @@ with Ada.Containers;
 with Ada.Directories;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.Command_Palette;
 with Editor.Command_Route_Audit;
@@ -65,7 +65,7 @@ package body Editor.Files.Operations_Tests is
    use type Editor.Files.File_Open_Status;
    use type Editor.Files.File_Save_Status;
    use type Editor.Files.File_Move_Status;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Command_Palette.Command_Palette_Row_Kind;
@@ -93,7 +93,7 @@ package body Editor.Files.Operations_Tests is
       Path         : constant String := Temp_Path ("p457_surface.txt");
       Target       : constant String := Temp_Path ("p457_surface_moved.txt");
       Existing     : constant String := Temp_Path ("p457_surface_existing.txt");
-      Cmd_Id       : Editor.Commands.Command_Id;
+      Cmd_Id       : Editor.Command_Ids.Command_Id;
       Found        : Boolean := False;
       Descriptor   : Editor.Commands.Descriptors.Command_Descriptor;
       Availability : Editor.Commands.Availability_Metadata.Command_Availability;
@@ -101,14 +101,14 @@ package body Editor.Files.Operations_Tests is
    begin
       Cmd_Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("file.move-buffer-file", Found);
-      Assert (Found and then Cmd_Id = Editor.Commands.Command_Move_Buffer_File,
+      Assert (Found and then Cmd_Id = Editor.Command_Ids.Command_Move_Buffer_File,
         "file.move-buffer-file must resolve to canonical command id");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-        (Editor.Commands.Command_Move_Buffer_File) = "file.move-buffer-file",
+        (Editor.Command_Ids.Command_Move_Buffer_File) = "file.move-buffer-file",
         "move must expose canonical stable command name");
 
       Descriptor := Editor.Commands.Descriptors.Descriptor
-        (Editor.Commands.Command_Move_Buffer_File);
+        (Editor.Command_Ids.Command_Move_Buffer_File);
       Assert (Descriptor.Category = Editor.Commands.Descriptors.File_Category
         and then Descriptor.Visibility = Editor.Commands.Descriptors.Palette_Command
         and then Descriptor.Bindable
@@ -120,7 +120,7 @@ package body Editor.Files.Operations_Tests is
       Editor.State.Init (S);
       S.Active_Buffer_Token := 0;
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Move_Buffer_File);
+        (S, Editor.Command_Ids.Command_Move_Buffer_File);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "move unavailable without active buffer");
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, Target);
@@ -134,7 +134,7 @@ package body Editor.Files.Operations_Tests is
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Messages.Clear (S.Messages);
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Move_Buffer_File);
+        (S, Editor.Command_Ids.Command_Move_Buffer_File);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "move unavailable for untitled active buffer");
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, Target);
@@ -151,7 +151,7 @@ package body Editor.Files.Operations_Tests is
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty");
       Editor.Messages.Clear (S.Messages);
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Move_Buffer_File);
+        (S, Editor.Command_Ids.Command_Move_Buffer_File);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "move unavailable for dirty active associated buffer");
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, Target);
@@ -489,7 +489,7 @@ package body Editor.Files.Operations_Tests is
       Editor.Executor.Selection_Commands.Execute_Clear_Selection_Command (S);
       Insert_Text_At (S, Buffer_Text (S)'Length, " edit");
       for I in 1 .. 5 loop
-         Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+         Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       end loop;
 
       Before_Text := To_Unbounded_String (Buffer_Text (S));
@@ -500,11 +500,11 @@ package body Editor.Files.Operations_Tests is
       Before_Caret := S.Carets (0);
 
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Move_Buffer_File);
+        (S, Editor.Command_Ids.Command_Move_Buffer_File);
       Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
       if not Candidates.Is_Empty then
          for I in Candidates.First_Index .. Candidates.Last_Index loop
-            if Candidates (I).Id = Editor.Commands.Command_Move_Buffer_File then
+            if Candidates (I).Id = Editor.Command_Ids.Command_Move_Buffer_File then
                Move_Rows := Move_Rows + 1;
             end if;
          end loop;
@@ -939,7 +939,7 @@ package body Editor.Files.Operations_Tests is
           Reason => Editor.Navigation_History.Navigation_Reason_Go_To_Line));
       Editor.Executor.Selection_Commands.Execute_Clear_Selection_Command (S);
       Insert_Text_At (S, Buffer_Text (S)'Length, "!");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert (not S.File_Info.Dirty,
         "transient setup: undo should return active buffer to saved baseline before move");
 
@@ -978,13 +978,13 @@ package body Editor.Files.Operations_Tests is
         and then Editor.Buffers.Global_Count = Before_Count,
         "transient: successful move preserves undo/redo, Find/Replace, Clipboard, selection/caret, navigation, reopen candidate, text, baseline, dirty state, and buffer collection");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert (Buffer_Text (S) = "transient source!"
         and then S.File_Info.Dirty
         and then To_String (S.File_Info.Path) = Target
         and then Ada.Directories.Exists (Target),
         "transient: redo after move is an edit redo against moved association, not a filesystem move redo");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert (Buffer_Text (S) = "transient source"
         and then not S.File_Info.Dirty
         and then To_String (S.File_Info.Path) = Target,
@@ -1022,13 +1022,13 @@ package body Editor.Files.Operations_Tests is
       Workspace    : Editor.Workspace_Persistence.Workspace_Snapshot;
       Summary      : Unbounded_String;
       Move_Rows    : Natural := 0;
-      Cmd_Id       : Editor.Commands.Command_Id;
+      Cmd_Id       : Editor.Command_Ids.Command_Id;
       Has_Name     : Boolean := False;
 
       procedure Assert_Absent (Name : String) is
       begin
          Cmd_Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Has_Name);
-         Assert (not Has_Name and then Cmd_Id = Editor.Commands.No_Command,
+         Assert (not Has_Name and then Cmd_Id = Editor.Command_Ids.No_Command,
            "non-goal command must be absent: " & Name);
       end Assert_Absent;
 
@@ -1060,11 +1060,11 @@ package body Editor.Files.Operations_Tests is
       Before_Redo := Editor.History.Redo_Stack.Length;
 
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Move_Buffer_File);
+        (S, Editor.Command_Ids.Command_Move_Buffer_File);
       Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
       if not Candidates.Is_Empty then
          for I in Candidates.First_Index .. Candidates.Last_Index loop
-            if Candidates (I).Id = Editor.Commands.Command_Move_Buffer_File then
+            if Candidates (I).Id = Editor.Command_Ids.Command_Move_Buffer_File then
                Move_Rows := Move_Rows + 1;
             end if;
          end loop;
@@ -1537,7 +1537,7 @@ package body Editor.Files.Operations_Tests is
         "Status Bar should expose ordinary dirty state after blocked reload");
       if Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions) then
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Cancel_Pending_Transition);
+           (S, Editor.Command_Ids.Command_Cancel_Pending_Transition);
       end if;
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
@@ -1578,7 +1578,7 @@ package body Editor.Files.Operations_Tests is
         "Status Bar should expose current blocked-close recovery hint");
       if S.Dirty_Close_Prompt_Active then
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Cancel_Close);
+           (S, Editor.Command_Ids.Command_Cancel_Close);
       end if;
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);

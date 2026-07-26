@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Ada.Containers;
 use type Ada.Containers.Count_Type;
@@ -13,7 +14,6 @@ with Editor.Buffers;
 use type Editor.Buffers.Buffer_Id;
 with Editor.Command_Execution;
 with Editor.Command_Palette;
-with Editor.Commands; use Editor.Commands;
 with Editor.Cursors;
 with Editor.Executor;
 with Editor.Executor.Buffer_Close_Prompt_Commands;
@@ -113,7 +113,7 @@ package body Editor.Executor.Quick_Open_Commands is
 
    function Command_Surface_Command_Availability
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Commands.Availability_Metadata.Command_Availability
    is
       function Has_Buffer return Boolean is

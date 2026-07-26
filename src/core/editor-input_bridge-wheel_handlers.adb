@@ -3,7 +3,6 @@ with Editor.Buffers;
 with Editor.Build_UI;
 with Editor.Build_UI_Panel_Layout;
 with Editor.Command_Palette;
-with Editor.Commands;
 with Editor.Cursors;
 with Editor.Executor.Command_Palette_Projection;
 with Editor.Feature_Panel;

@@ -1,5 +1,5 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Ada.Strings.Unbounded;
-with Editor.Commands;
 
 package Editor.Feature_Integration is
 
@@ -30,7 +30,7 @@ package Editor.Feature_Integration is
    No_Feature_Domains : constant Feature_Side_Effect_Domain_Set := (others => False);
 
    type Feature_Command_Contract is record
-      Command                    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Command                    : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Kind                       : Feature_Command_Kind := Feature_Internal;
       Has_Descriptor             : Boolean := False;
       Has_Stable_Name            : Boolean := False;
@@ -45,9 +45,9 @@ package Editor.Feature_Integration is
    end record;
 
    type Feature_Route_Contract is record
-      Source                    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
-      Expected_Command          : Editor.Commands.Command_Id := Editor.Commands.No_Command;
-      Actual_Command            : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Source                    : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
+      Expected_Command          : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
+      Actual_Command            : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Reached_Executor          : Boolean := False;
       Mutated_Before_Executor   : Boolean := False;
       Executor_Dispatch_Count   : Natural := 0;
@@ -83,7 +83,7 @@ package Editor.Feature_Integration is
    --  Add one feature-integration failure associated with a command id.
    procedure Add_Failure
      (Result  : in out Feature_Integration_Result;
-      Command : Editor.Commands.Command_Id;
+      Command : Editor.Command_Ids.Command_Id;
       Message : String);
 
    --  Validate fake/test-owned feature command metadata and executor seams.

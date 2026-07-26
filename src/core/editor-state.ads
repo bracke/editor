@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Text_Buffer;
 with Editor.Cursors;
 with Ada.Containers.Vectors;
@@ -36,7 +37,6 @@ with Editor.Outline;
 with Editor.Navigation_History;
 with Editor.Recent_Buffers;
 with Editor.Bookmarks;
-with Editor.Commands;
 with Editor.Build_UI;
 with Editor.Terminal_Tasks;
 with Editor.Build_Runner_Policy;
@@ -281,8 +281,8 @@ package Editor.State is
       --  state only and is never persisted, used for save-as/rename/copy/move
       --  parameter acquisition before canonical Executor execution.
       File_Target_Prompt_Active : Boolean := False;
-      File_Target_Prompt_Command : Editor.Commands.Command_Id :=
-        Editor.Commands.No_Command;
+      File_Target_Prompt_Command : Editor.Command_Ids.Command_Id :=
+        Editor.Command_Ids.No_Command;
       File_Target_Prompt_Label : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
       File_Target_Prompt_Input : Editor.Input_Field.Input_Field_State;

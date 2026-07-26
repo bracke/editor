@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Executor.Shared_Services;
 use Editor.Executor.Shared_Services;
@@ -12,7 +13,6 @@ with Editor.Ada_Project_Index;
 with Editor.Buffers;
 with Editor.Clipboard;
 with Editor.Command_Execution;
-with Editor.Commands;
 with Editor.Commands.Workflow_Messages;
 with Editor.Cursors;
 with Editor.Executor.Diagnostics_Navigation_Commands;
@@ -61,7 +61,7 @@ package body Editor.Executor.Diagnostics_Commands is
 
    function Diagnostics_Command_Availability
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin
@@ -662,7 +662,7 @@ package body Editor.Executor.Diagnostics_Commands is
 
    function Execute_Diagnostics_Feature_Command
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
    is
    begin

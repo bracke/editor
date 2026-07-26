@@ -9,7 +9,6 @@ with Editor.State;
 with Editor.Render_Model;
 with Editor.Buffers;
 with Editor.Executor;
-with Editor.Commands;
 with Editor.Test_Helper;
 with Editor.History;
 with Text_Buffer;

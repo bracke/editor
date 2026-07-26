@@ -1,4 +1,4 @@
-with Editor.Commands;
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Payloads;
 with Editor.Instance;
 with Editor.Keybindings;
@@ -14,6 +14,6 @@ package Editor.Input_Bridge.Keyboard_Dispatch is
       Handle_Command_Palette     : not null access function
         (Cmd : Editor.Commands.Payloads.Command) return Boolean;
       Execute_Command_Id         : not null access procedure
-        (Id : Editor.Commands.Command_Id; Shift : Boolean));
+        (Id : Editor.Command_Ids.Command_Id; Shift : Boolean));
 
 end Editor.Input_Bridge.Keyboard_Dispatch;

@@ -1,6 +1,5 @@
 with Editor.Commands.Classification;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Commands;
 with Editor.Commands.Descriptors;
 with Editor.Keybindings;
 with Editor.Text_Helpers;

@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Classification;
 with Editor.Commands.Availability_Metadata;
@@ -14,7 +15,6 @@ with Editor.Pending_Transitions;
 with Editor.Dirty_Guards;
 with Ada.Text_IO;
 with Ada.Directories;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.Cursors;
 with Editor.Clipboard;
@@ -46,7 +46,7 @@ with Text_Buffer;
 
 package body Editor.Feature_Panel.Tests is
 
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Executor.Command_Execution_Status;
    use type Editor.Keybindings.Binding_Result;
@@ -106,25 +106,25 @@ package body Editor.Feature_Panel.Tests is
    is
       pragma Unreferenced (T);
       Found : Boolean := False;
-      Id    : Editor.Commands.Command_Id;
+      Id    : Editor.Command_Ids.Command_Id;
    begin
-      Assert (Editor.Commands.Descriptors.Category (Editor.Commands.Command_Toggle_Feature_Panel) =
+      Assert (Editor.Commands.Descriptors.Category (Editor.Command_Ids.Command_Toggle_Feature_Panel) =
                 Editor.Commands.Descriptors.Panel_Category,
               "toggle feature panel must be in Panels category");
       Assert (Editor.Commands.Classification.Is_Visible_In_Palette
-                (Editor.Commands.Command_Toggle_Feature_Panel),
+                (Editor.Command_Ids.Command_Toggle_Feature_Panel),
               "toggle feature panel is command-palette visible");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Toggle_Feature_Panel) =
+                (Editor.Command_Ids.Command_Toggle_Feature_Panel) =
                 "toggle-feature-panel",
               "feature stable name is lowercase kebab-case");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("toggle-feature-panel", Found);
-      Assert (Found and then Id = Editor.Commands.Command_Toggle_Feature_Panel,
+      Assert (Found and then Id = Editor.Command_Ids.Command_Toggle_Feature_Panel,
               "feature stable name round trips");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("populate-feature-panel-placeholder", Found);
-      Assert (not Found and then Id = Editor.Commands.No_Command,
+      Assert (not Found and then Id = Editor.Command_Ids.No_Command,
               "removed placeholder population command is removed");
    end Test_Command_Metadata_Stable_Names;
 
@@ -139,11 +139,11 @@ package body Editor.Feature_Panel.Tests is
       Assert (not Is_Visible (S.Feature_Panel), "feature panel starts hidden");
       Assert (not Editor.Commands.Availability_Metadata.Is_Available
         (Editor.Executor.Command_Availability
-          (S, Editor.Commands.Command_Hide_Feature_Panel)),
+          (S, Editor.Command_Ids.Command_Hide_Feature_Panel)),
         "hide is unavailable when feature panel hidden");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Toggle_Feature_Panel);
+        (S, Editor.Command_Ids.Command_Toggle_Feature_Panel);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "toggle feature panel executes");
       Assert (Is_Visible (S.Feature_Panel), "toggle shows feature panel");
@@ -155,13 +155,13 @@ package body Editor.Feature_Panel.Tests is
               "explicit fixture helper populates placeholder rows");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Clear_Feature_Panel);
+        (S, Editor.Command_Ids.Command_Clear_Feature_Panel);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "clear feature panel executes");
       Assert (Row_Count (S.Feature_Panel) = 0, "clear removes rows");
       Assert (not Editor.Commands.Availability_Metadata.Is_Available
         (Editor.Executor.Command_Availability
-          (S, Editor.Commands.Command_Clear_Feature_Panel)),
+          (S, Editor.Command_Ids.Command_Clear_Feature_Panel)),
         "clear is unavailable after rows are cleared");
    end Test_Command_Availability_And_Execution;
 
@@ -200,22 +200,22 @@ package body Editor.Feature_Panel.Tests is
       Chord := Editor.Keybindings.Parse_Chord ("Ctrl+Alt+O", Found);
       Assert (Found, "test chord parses");
       Editor.Keybinding_Config.Bind
-        (Config, Editor.Commands.Command_Toggle_Feature_Panel, Chord);
+        (Config, Editor.Command_Ids.Command_Toggle_Feature_Panel, Chord);
       Editor.Keybinding_Config.Apply_To_Runtime (Config);
       Assert (Editor.Keybindings.Primary_Binding_For_Command
-        (Editor.Commands.Command_Toggle_Feature_Panel).Has_Binding,
+        (Editor.Command_Ids.Command_Toggle_Feature_Panel).Has_Binding,
         "runtime keybinding reverse lookup sees feature command binding");
       Assert (Ada.Strings.Unbounded.To_String
         (Editor.Keybindings.Primary_Binding_For_Command
-          (Editor.Commands.Command_Toggle_Feature_Panel).Display) = "Ctrl+Alt+O",
+          (Editor.Command_Ids.Command_Toggle_Feature_Panel).Display) = "Ctrl+Alt+O",
         "runtime keybinding display uses custom feature chord");
       declare
          Removed_Found : Boolean := True;
-         Removed_Id    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+         Removed_Id    : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       begin
          Removed_Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
            ("populate-feature-panel-placeholder", Removed_Found);
-         Assert (not Removed_Found and then Removed_Id = Editor.Commands.No_Command,
+         Assert (not Removed_Found and then Removed_Id = Editor.Command_Ids.No_Command,
                  "removed placeholder command cannot be keybound because it is removed");
       end;
    end Test_Keybinding_Config_Accepts_Bindable_Feature_Command;
@@ -278,14 +278,14 @@ package body Editor.Feature_Panel.Tests is
       Select_First (S.Feature_Panel);
       Before_Messages := Editor.Messages.Count (S.Messages);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Feature_Panel_Select_Next);
+        (S, Editor.Command_Ids.Command_Feature_Panel_Select_Next);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "selection command executes when visible with rows");
       Assert (Editor.Messages.Count (S.Messages) = Before_Messages,
               "selection command emits no message");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Feature_Panel_Open_Selected);
+        (S, Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "placeholder open is unavailable because the selected row has no target");
       Assert (Editor.Messages.Count (S.Messages) = Before_Messages + 1,
@@ -317,11 +317,11 @@ package body Editor.Feature_Panel.Tests is
       Before_Messages := Editor.Messages.Count (S.Messages);
 
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Clear_Feature_Panel);
+        (S, Editor.Command_Ids.Command_Clear_Feature_Panel);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
               "clear feature panel availability sees clearable rows");
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Feature_Panel_Open_Selected);
+        (S, Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
               "open selected availability rejects selected row without target");
 
@@ -379,36 +379,36 @@ package body Editor.Feature_Panel.Tests is
    begin
       Editor.State.Init (S);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Hide_Feature_Panel);
+        (S, Editor.Command_Ids.Command_Hide_Feature_Panel);
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "hide hidden feature panel is explicitly unavailable");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Show_Feature_Panel);
+        (S, Editor.Command_Ids.Command_Show_Feature_Panel);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "show hidden feature panel executes");
       Before := Fingerprint (S.Feature_Panel);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Show_Feature_Panel);
+        (S, Editor.Command_Ids.Command_Show_Feature_Panel);
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "show visible feature panel is explicitly unavailable");
       Assert (Fingerprint (S.Feature_Panel) = Before,
               "unavailable show does not mutate feature-panel state");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Focus_Feature_Panel);
+        (S, Editor.Command_Ids.Command_Focus_Feature_Panel);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "focus visible feature panel executes");
       Before := Fingerprint (S.Feature_Panel);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Focus_Feature_Panel);
+        (S, Editor.Command_Ids.Command_Focus_Feature_Panel);
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "focus already focused feature panel is unavailable");
       Assert (Fingerprint (S.Feature_Panel) = Before,
               "unavailable focus does not mutate feature-panel state");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Clear_Feature_Panel);
+        (S, Editor.Command_Ids.Command_Clear_Feature_Panel);
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "clear empty feature panel is unavailable");
    end Test_Explicit_Unavailable_Command_Policy;
@@ -457,7 +457,7 @@ package body Editor.Feature_Panel.Tests is
               "command-palette + rows fixture is available");
       Assert (Row_Count (Custom_Keybinding_Rows.Feature_Panel) = 3
               and then Editor.Keybindings.Primary_Binding_For_Command
-                (Editor.Commands.Command_Toggle_Feature_Panel).Has_Binding,
+                (Editor.Command_Ids.Command_Toggle_Feature_Panel).Has_Binding,
               "custom-keybindings + rows fixture is available");
    end Test_Fixture_Builders;
 
@@ -534,13 +534,13 @@ package body Editor.Feature_Panel.Tests is
       Assert_Invariant_After_Representative_Sequence (S, "initial state");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Show_Feature_Panel);
+        (S, Editor.Command_Ids.Command_Show_Feature_Panel);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "show executes from hidden state");
       Assert_Invariant_After_Representative_Sequence (S, "after show");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Focus_Feature_Panel);
+        (S, Editor.Command_Ids.Command_Focus_Feature_Panel);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "focus executes when visible");
       Assert_Invariant_After_Representative_Sequence (S, "after focus");
@@ -561,7 +561,7 @@ package body Editor.Feature_Panel.Tests is
            Build_Render_Snapshot (S.Feature_Panel);
          Avail  : constant Editor.Commands.Availability_Metadata.Command_Availability :=
            Editor.Executor.Command_Availability
-             (S, Editor.Commands.Command_Feature_Panel_Open_Selected);
+             (S, Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
       begin
          Assert (Snapshot_Row_Count (Snap) = Row_Count (S.Feature_Panel),
                  "render snapshot sees rows");
@@ -572,13 +572,13 @@ package body Editor.Feature_Panel.Tests is
       end;
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Clear_Feature_Panel);
+        (S, Editor.Command_Ids.Command_Clear_Feature_Panel);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "clear executes with rows");
       Assert_Invariant_After_Representative_Sequence (S, "after clear");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Hide_Feature_Panel);
+        (S, Editor.Command_Ids.Command_Hide_Feature_Panel);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "hide executes when visible");
       Assert_Invariant_After_Representative_Sequence (S, "after hide");
@@ -588,17 +588,17 @@ package body Editor.Feature_Panel.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Feature_Commands : constant array (Positive range <>) of Editor.Commands.Command_Id :=
-        (Editor.Commands.Command_Toggle_Feature_Panel,
-         Editor.Commands.Command_Show_Feature_Panel,
-         Editor.Commands.Command_Hide_Feature_Panel,
-         Editor.Commands.Command_Focus_Feature_Panel,
-         Editor.Commands.Command_Clear_Feature_Panel,
-         Editor.Commands.Command_Feature_Panel_Select_Next,
-         Editor.Commands.Command_Feature_Panel_Select_Previous,
-         Editor.Commands.Command_Feature_Panel_Open_Selected);
+      Feature_Commands : constant array (Positive range <>) of Editor.Command_Ids.Command_Id :=
+        (Editor.Command_Ids.Command_Toggle_Feature_Panel,
+         Editor.Command_Ids.Command_Show_Feature_Panel,
+         Editor.Command_Ids.Command_Hide_Feature_Panel,
+         Editor.Command_Ids.Command_Focus_Feature_Panel,
+         Editor.Command_Ids.Command_Clear_Feature_Panel,
+         Editor.Command_Ids.Command_Feature_Panel_Select_Next,
+         Editor.Command_Ids.Command_Feature_Panel_Select_Previous,
+         Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
       Found : Boolean := False;
-      Round : Editor.Commands.Command_Id;
+      Round : Editor.Command_Ids.Command_Id;
       D     : Editor.Commands.Descriptors.Command_Descriptor;
    begin
       for Id of Feature_Commands loop
@@ -618,19 +618,19 @@ package body Editor.Feature_Panel.Tests is
 
       declare
          Removed_Found : Boolean := True;
-         Removed_Id    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+         Removed_Id    : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       begin
          Removed_Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
            ("populate-feature-panel-placeholder", Removed_Found);
-         Assert (not Removed_Found and then Removed_Id = Editor.Commands.No_Command,
+         Assert (not Removed_Found and then Removed_Id = Editor.Command_Ids.No_Command,
                  "removed placeholder population command is removed");
       end;
       Assert (Editor.Commands.Classification.Is_Bindable_Command
-                (Editor.Commands.Command_Toggle_Feature_Panel),
+                (Editor.Command_Ids.Command_Toggle_Feature_Panel),
               "toggle feature panel remains explicitly bindable");
       Editor.Keybindings.Reset_To_Defaults;
       Assert (not Editor.Keybindings.Primary_Binding_For_Command
-                (Editor.Commands.Command_Toggle_Feature_Panel).Has_Binding,
+                (Editor.Command_Ids.Command_Toggle_Feature_Panel).Has_Binding,
               "keeps no default feature-panel keybinding");
    end Test_Command_Set_Frozen;
 
@@ -657,7 +657,7 @@ package body Editor.Feature_Panel.Tests is
               "no-target message is canonical");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Hide_Feature_Panel);
+        (S, Editor.Command_Ids.Command_Hide_Feature_Panel);
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "hide hidden is unavailable");
       Msg := Editor.Messages.Active_Message (S.Messages, Found);
@@ -666,11 +666,11 @@ package body Editor.Feature_Panel.Tests is
               "unavailable execution reports canonical disabled reason");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Show_Feature_Panel);
+        (S, Editor.Command_Ids.Command_Show_Feature_Panel);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "show hidden executes");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Show_Feature_Panel);
+        (S, Editor.Command_Ids.Command_Show_Feature_Panel);
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "show visible is unavailable");
       Msg := Editor.Messages.Active_Message (S.Messages, Found);
@@ -679,11 +679,11 @@ package body Editor.Feature_Panel.Tests is
               "show disabled reason is canonical");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Focus_Feature_Panel);
+        (S, Editor.Command_Ids.Command_Focus_Feature_Panel);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "focus visible executes");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Focus_Feature_Panel);
+        (S, Editor.Command_Ids.Command_Focus_Feature_Panel);
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "focus already-focused is unavailable");
       Msg := Editor.Messages.Active_Message (S.Messages, Found);
@@ -783,47 +783,47 @@ package body Editor.Feature_Panel.Tests is
       Editor.State.Init (S);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available
         (Editor.Executor.Command_Availability
-          (S, Editor.Commands.Command_Hide_Feature_Panel)),
+          (S, Editor.Command_Ids.Command_Hide_Feature_Panel)),
         "hide is disabled before show");
       Assert (not Editor.Commands.Availability_Metadata.Is_Available
         (Editor.Executor.Command_Availability
-          (S, Editor.Commands.Command_Focus_Feature_Panel)),
+          (S, Editor.Command_Ids.Command_Focus_Feature_Panel)),
         "focus is disabled while hidden");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Show_Feature_Panel);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Show_Feature_Panel);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available
         (Editor.Executor.Command_Availability
-          (S, Editor.Commands.Command_Show_Feature_Panel)),
+          (S, Editor.Command_Ids.Command_Show_Feature_Panel)),
         "show becomes disabled after show");
       Assert (Editor.Commands.Availability_Metadata.Is_Available
         (Editor.Executor.Command_Availability
-          (S, Editor.Commands.Command_Hide_Feature_Panel)),
+          (S, Editor.Command_Ids.Command_Hide_Feature_Panel)),
         "hide becomes available after show");
       declare
          Focus_Availability : constant Editor.Commands.Availability_Metadata.Command_Availability :=
            Editor.Executor.Command_Availability
-             (S, Editor.Commands.Command_Focus_Feature_Panel);
+             (S, Editor.Command_Ids.Command_Focus_Feature_Panel);
       begin
          Assert (Editor.Commands.Availability_Metadata.Is_Available (Focus_Availability),
                  "focus becomes available after show: " &
                  Editor.Commands.Availability_Metadata.Unavailable_Reason (Focus_Availability));
       end;
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Focus_Feature_Panel);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Focus_Feature_Panel);
       Set_Placeholder_Rows (S.Feature_Panel);
       Select_First (S.Feature_Panel);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Clear_Feature_Panel);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Clear_Feature_Panel);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available
         (Editor.Executor.Command_Availability
-          (S, Editor.Commands.Command_Clear_Feature_Panel)),
+          (S, Editor.Command_Ids.Command_Clear_Feature_Panel)),
         "clear disabled after clear");
       Assert (not Editor.Commands.Availability_Metadata.Is_Available
         (Editor.Executor.Command_Availability
-          (S, Editor.Commands.Command_Feature_Panel_Open_Selected)),
+          (S, Editor.Command_Ids.Command_Feature_Panel_Open_Selected)),
         "open selected disabled after clear");
       Assert (not Editor.Commands.Availability_Metadata.Is_Available
         (Editor.Executor.Command_Availability
-          (S, Editor.Commands.Command_Feature_Panel_Select_Next)),
+          (S, Editor.Command_Ids.Command_Feature_Panel_Select_Next)),
         "select next disabled after clear");
    end Test_Command_Palette_Post_Command_Refresh;
 
@@ -928,7 +928,7 @@ package body Editor.Feature_Panel.Tests is
    begin
       Editor.State.Init (S);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Show_Messages);
+        (S, Editor.Command_Ids.Command_Show_Messages);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "messages.show executes through the normal executor path");
       Assert (Editor.Feature_Panel.Is_Visible (S.Feature_Panel),
@@ -955,13 +955,13 @@ package body Editor.Feature_Panel.Tests is
             "@outline procedure Run" & ASCII.LF &
             "end Demo;");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "outline refresh executes before messages switch");
       Outline_Fingerprint := Editor.Outline.Fingerprint (S.Outline);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Show_Messages);
+        (S, Editor.Command_Ids.Command_Show_Messages);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "messages.show executes after outline projection");
       Assert (Editor.Outline.Fingerprint (S.Outline) = Outline_Fingerprint,
@@ -990,7 +990,7 @@ package body Editor.Feature_Panel.Tests is
             "@outline procedure Run" & ASCII.LF &
             "end Demo;");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "outline refresh executes before messages clear isolation test");
       Outline_Count := Editor.Outline.Item_Count (S.Outline);
@@ -998,11 +998,11 @@ package body Editor.Feature_Panel.Tests is
         (S.Feature_Messages, Editor.Feature_Messages.Info_Message,
          "Project opened");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Show_Messages);
+        (S, Editor.Command_Ids.Command_Show_Messages);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "messages.show projects existing message state before clear");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Clear_Messages);
+        (S, Editor.Command_Ids.Command_Clear_Messages);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "messages.clear executes through the normal executor path");
       Assert (Editor.Feature_Messages.Row_Count (S.Feature_Messages) = 0,
@@ -1026,18 +1026,18 @@ package body Editor.Feature_Panel.Tests is
             "@outline procedure Run" & ASCII.LF &
             "end Demo;");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "outline refresh executes before outline clear isolation test");
       Editor.Feature_Messages.Add_Message
         (S.Feature_Messages, Editor.Feature_Messages.Info_Message,
          "Project opened");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Show_Messages);
+        (S, Editor.Command_Ids.Command_Show_Messages);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "messages.show projects messages state before outline clear");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Clear_Outline);
+        (S, Editor.Command_Ids.Command_Clear_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "outline clear executes while messages state exists");
       Assert (Editor.Feature_Messages.Row_Count (S.Feature_Messages) = 1,
@@ -1252,7 +1252,7 @@ package body Editor.Feature_Panel.Tests is
             "@outline procedure Run" & ASCII.LF &
             "end Demo;");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "outline refresh executes before mixed feature switch test");
       Outline_Count := Editor.Outline.Item_Count (S.Outline);
@@ -1261,7 +1261,7 @@ package body Editor.Feature_Panel.Tests is
         (S.Feature_Messages, Editor.Feature_Messages.Warning_Message,
          "File changed on disk");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Show_Messages);
+        (S, Editor.Command_Ids.Command_Show_Messages);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "messages.show executes during mixed feature switch test");
       Assert (Editor.Feature_Messages.Row_Count (S.Feature_Messages) = 1,
@@ -1281,47 +1281,47 @@ package body Editor.Feature_Panel.Tests is
    is
       pragma Unreferenced (T);
       Found : Boolean := False;
-      Id    : Editor.Commands.Command_Id;
+      Id    : Editor.Command_Ids.Command_Id;
    begin
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-        (Editor.Commands.Command_Show_Messages) = "show-messages",
+        (Editor.Command_Ids.Command_Show_Messages) = "show-messages",
         "messages.show stable command id remains kebab-case");
       Assert (Editor.Commands.Classification.Is_Visible_In_Palette
-        (Editor.Commands.Command_Show_Messages),
+        (Editor.Command_Ids.Command_Show_Messages),
         "messages.show is command-palette visible");
       Assert (Editor.Commands.Classification.Is_Visible_In_Palette
-        (Editor.Commands.Command_Clear_Messages),
+        (Editor.Command_Ids.Command_Clear_Messages),
         "messages.clear is command-palette visible");
       Assert (Editor.Commands.Classification.Is_Visible_In_Palette
-        (Editor.Commands.Command_Toggle_Message_Info),
+        (Editor.Command_Ids.Command_Toggle_Message_Info),
         "messages.toggle-info is command-palette visible");
       Assert (Editor.Commands.Classification.Is_Visible_In_Palette
-        (Editor.Commands.Command_Toggle_Message_Warnings),
+        (Editor.Command_Ids.Command_Toggle_Message_Warnings),
         "messages.toggle-warnings is command-palette visible");
       Assert (Editor.Commands.Classification.Is_Visible_In_Palette
-        (Editor.Commands.Command_Toggle_Message_Errors),
+        (Editor.Command_Ids.Command_Toggle_Message_Errors),
         "messages.toggle-errors is command-palette visible");
       Assert (Editor.Commands.Classification.Is_Visible_In_Palette
-        (Editor.Commands.Command_Show_All_Messages),
+        (Editor.Command_Ids.Command_Show_All_Messages),
         "messages.show-all is command-palette visible");
       Assert (Editor.Commands.Classification.Is_Visible_In_Palette
-        (Editor.Commands.Command_Clear_Message_Filter),
+        (Editor.Command_Ids.Command_Clear_Message_Filter),
         "messages.clear-filter is command-palette visible");
       Editor.Keybindings.Reset_To_Defaults;
       Assert (not Editor.Keybindings.Primary_Binding_For_Command
-        (Editor.Commands.Command_Show_Messages).Has_Binding,
+        (Editor.Command_Ids.Command_Show_Messages).Has_Binding,
         "messages.show has no default keybinding in the scaffold phase");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("clear-messages", Found);
-      Assert (Found and then Id = Editor.Commands.Command_Clear_Messages,
+      Assert (Found and then Id = Editor.Command_Ids.Command_Clear_Messages,
               "messages.clear stable name round trips through command registry");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("toggle-message-info", Found);
-      Assert (Found and then Id = Editor.Commands.Command_Toggle_Message_Info,
+      Assert (Found and then Id = Editor.Command_Ids.Command_Toggle_Message_Info,
               "messages.toggle-info stable name round trips through command registry");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("show-all-messages", Found);
-      Assert (Found and then Id = Editor.Commands.Command_Show_All_Messages,
+      Assert (Found and then Id = Editor.Command_Ids.Command_Show_All_Messages,
               "messages.show-all stable name round trips through command registry");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("clear-message-filter", Found);
-      Assert (Found and then Id = Editor.Commands.Command_Clear_Message_Filter,
+      Assert (Found and then Id = Editor.Command_Ids.Command_Clear_Message_Filter,
               "messages.clear-filter stable name round trips through command registry");
    end Test_Messages_Command_Metadata;
 
@@ -1500,20 +1500,20 @@ package body Editor.Feature_Panel.Tests is
             "@outline procedure Run" & ASCII.LF &
             "end Demo;");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "outline refresh executes before messages filter isolation test");
       Outline_Count := Editor.Outline.Item_Count (S.Outline);
       Editor.Feature_Messages.Add_Message
         (S.Feature_Messages, Editor.Feature_Messages.Info_Message, "Project opened");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Toggle_Message_Info);
+        (S, Editor.Command_Ids.Command_Toggle_Message_Info);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "messages severity toggle executes through command registry");
       Assert (Editor.Outline.Item_Count (S.Outline) = Outline_Count,
               "messages filter commands do not mutate outline source rows");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Show_All_Messages);
+        (S, Editor.Command_Ids.Command_Show_All_Messages);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "messages.show-all executes through command registry");
       Assert (Editor.Outline.Item_Count (S.Outline) = Outline_Count,
@@ -1680,7 +1680,7 @@ package body Editor.Feature_Panel.Tests is
             "@outline procedure Run" & ASCII.LF &
             "end Demo;");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "outline refresh executes before producer isolation test");
       Outline_Count := Editor.Outline.Item_Count (S.Outline);
@@ -1818,7 +1818,7 @@ package body Editor.Feature_Panel.Tests is
          "selected message copy text includes severity, source, and repeat count");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Copy_Selected_Message_Text);
+        (S, Editor.Command_Ids.Command_Copy_Selected_Message_Text);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "copy-selected command executes for selected Messages row");
       Assert (Editor.Clipboard.Get_Text =
@@ -1836,15 +1836,15 @@ package body Editor.Feature_Panel.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text
         (S, "procedure Main is" & ASCII.LF & "begin" & ASCII.LF & "   null;" & ASCII.LF & "end Main;");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Refresh_Outline);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
       Outline_Count := Editor.Outline.Item_Count (S.Outline);
 
       Editor.Feature_Messages.Add_Message
         (S.Feature_Messages, Editor.Feature_Messages.Error_Message, "failed", "main.adb");
       Editor.Feature_Messages.Project_Rows (S.Feature_Messages, S.Feature_Panel);
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, 2);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Clear_Selected_Message);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Clear_Error_Messages);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Clear_Selected_Message);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Clear_Error_Messages);
 
       Assert (Editor.Outline.Item_Count (S.Outline) = Outline_Count,
               "Messages action commands must not mutate outline source rows");
@@ -1924,7 +1924,7 @@ package body Editor.Feature_Panel.Tests is
         (S, "@outline package Demo" & ASCII.LF &
             "@outline procedure Run" & ASCII.LF &
             "end Demo;");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Refresh_Outline);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Row_Count (S.Feature_Panel) >= 2,
               "outline projection exists before cross-feature validation");
       Assert (Row_Label (S.Feature_Panel, 1) /= "Messages",
@@ -2012,7 +2012,7 @@ package body Editor.Feature_Panel.Tests is
         (S, "@outline package Demo" & ASCII.LF &
             "@outline procedure Run" & ASCII.LF &
             "end Demo;");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Refresh_Outline);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Editor.Feature_Panel_Controller.Show_Feature
         (S, Outline_Feature),
         "show outline succeeds through centralized feature switch");
@@ -2118,7 +2118,7 @@ package body Editor.Feature_Panel.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "@outline package Demo" & ASCII.LF);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Refresh_Outline);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
       Editor.Feature_Messages.Add_Message
         (S.Feature_Messages, Editor.Feature_Messages.Info_Message,
          "hello", Source_Kind => Editor.Feature_Messages.Editor_Source);
@@ -2164,7 +2164,7 @@ package body Editor.Feature_Panel.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "@outline package Demo" & ASCII.LF);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Refresh_Outline);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
       Editor.Feature_Messages.Add_Message
         (S.Feature_Messages, Editor.Feature_Messages.Info_Message,
          "message", Source_Kind => Editor.Feature_Messages.Editor_Source);
@@ -2174,7 +2174,7 @@ package body Editor.Feature_Panel.Tests is
         (S.Feature_Search_Results, "hit two", "demo", False);
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Show_Search_Results_Feature);
+        (S, Editor.Command_Ids.Command_Show_Search_Results_Feature);
       Assert (Active_Feature (S.Feature_Panel) = Search_Results_Feature,
               "search results show switches active feature");
       Assert (Row_Count (S.Feature_Panel) = 2,
@@ -2188,7 +2188,7 @@ package body Editor.Feature_Panel.Tests is
               "showing search results does not mutate Messages");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Clear_Search_Results_Feature);
+        (S, Editor.Command_Ids.Command_Clear_Search_Results_Feature);
       Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 0,
               "search results clear removes source rows");
       Assert (Editor.Outline.Has_Items (S.Outline),
@@ -2284,7 +2284,7 @@ package body Editor.Feature_Panel.Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "refresh");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Search_Results_Search_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Search_Results_Search_Active_Buffer);
 
       Assert (Active_Feature (S.Feature_Panel) = Search_Results_Feature,
               "active-buffer search switches to Search Results feature");
@@ -2311,13 +2311,13 @@ package body Editor.Feature_Panel.Tests is
       Editor.State.Load_Text (S, "alpha beta" & ASCII.LF);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "alpha");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Search_Results_Search_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Search_Results_Search_Active_Buffer);
       Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 1,
               "setup found initial result");
 
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "missing");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Search_Results_Search_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Search_Results_Search_Active_Buffer);
       Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 0,
               "zero-match search replaces and clears previous rows");
       Assert (Editor.Feature_Search_Results.Has_Query (S.Feature_Search_Results),
@@ -2337,7 +2337,7 @@ package body Editor.Feature_Panel.Tests is
       Editor.State.Load_Text (S, "one" & ASCII.LF & "target here" & ASCII.LF);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "target");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Search_Results_Search_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Search_Results_Search_Active_Buffer);
 
       Result := Editor.Executor.Search_Results_Commands.Execute_Search_Result_Row_Activation (S, 1);
       Assert (Result.Status = Editor.Executor.Command_Executed,
@@ -2361,13 +2361,13 @@ package body Editor.Feature_Panel.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "@outline package Demo" & ASCII.LF & "refresh" & ASCII.LF);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Refresh_Outline);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
       Editor.Feature_Messages.Add_Message
         (S.Feature_Messages, Editor.Feature_Messages.Info_Message,
          "message", Source_Kind => Editor.Feature_Messages.Editor_Source);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "refresh");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Search_Results_Search_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Search_Results_Search_Active_Buffer);
 
       Assert (Editor.Outline.Has_Items (S.Outline),
               "active-buffer search does not mutate Outline");
@@ -2416,7 +2416,7 @@ package body Editor.Feature_Panel.Tests is
       Editor.State.Load_Text (S, "buffer text" & ASCII.LF);
       Before := To_Unbounded_String (Editor.State.Current_Text (S));
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Search_Results_Focus_Query);
+        (S, Editor.Command_Ids.Command_Search_Results_Focus_Query);
       Editor.Feature_Search_Results.Insert_Search_Input_Character
         (S.Feature_Search_Results, 'x');
       Editor.Feature_Search_Results.Project_Rows
@@ -2441,14 +2441,14 @@ package body Editor.Feature_Panel.Tests is
          "beta" & ASCII.LF);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "alpha");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Search_Results_Search_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Search_Results_Search_Active_Buffer);
       Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 1,
               "repeat setup found one result");
       Editor.State.Replace_Buffer_Contents (S, "alpha" & ASCII.LF & "alpha" & ASCII.LF);
       Assert (Editor.Feature_Search_Results.Results_Stale (S.Feature_Search_Results),
               "buffer edits mark previous active-buffer search results stale");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Search_Results_Repeat_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Search_Results_Repeat_Active_Buffer);
       Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 2,
               "repeat reruns last query against current active buffer");
       Assert (not Editor.Feature_Search_Results.Results_Stale (S.Feature_Search_Results),
@@ -2465,10 +2465,10 @@ package body Editor.Feature_Panel.Tests is
       Editor.State.Load_Text (S, "hit" & ASCII.LF & "hit" & ASCII.LF);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "hit");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Search_Results_Search_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Search_Results_Search_Active_Buffer);
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, 2);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Search_Results_Repeat_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Search_Results_Repeat_Active_Buffer);
       Assert (Editor.Feature_Panel.Selected_Row (S.Feature_Panel) = 2,
               "repeat preserves the same selected match when it still exists");
    end Test_Repeat_Preserves_Selection_When_Possible;
@@ -2565,10 +2565,10 @@ package body Editor.Feature_Panel.Tests is
       Editor.State.Load_Text (S, "hit" & ASCII.LF & "hit" & ASCII.LF);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "hit");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Search_Results_Search_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Search_Results_Search_Active_Buffer);
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, 2);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Search_Results_Search_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Search_Results_Search_Active_Buffer);
       Assert (Selected_Row (S.Feature_Panel) = 2,
               "explicit rerun of same active-buffer query preserves selected match identity");
    end Test_Search_Rerun_Same_Query_Preserves_Selected_Match;
@@ -2583,10 +2583,10 @@ package body Editor.Feature_Panel.Tests is
       Editor.State.Load_Text (S, "alpha" & ASCII.LF & "beta" & ASCII.LF & "beta" & ASCII.LF);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "alpha");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Search_Results_Search_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Search_Results_Search_Active_Buffer);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "beta");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Search_Results_Search_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Search_Results_Search_Active_Buffer);
       Assert (Selected_Row (S.Feature_Panel) = 1,
               "different query selects the first new result by default");
    end Test_Search_Rerun_Different_Query_Selects_First;
@@ -2721,7 +2721,7 @@ package body Editor.Feature_Panel.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "@outline package Demo" & ASCII.LF & "needle" & ASCII.LF);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Refresh_Outline);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
       Editor.Feature_Messages.Add_Message
         (S.Feature_Messages, Editor.Feature_Messages.Info_Message,
          "message", Source_Kind => Editor.Feature_Messages.Editor_Source);
@@ -2861,7 +2861,7 @@ package body Editor.Feature_Panel.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "@outline package Demo" & ASCII.LF & "needle" & ASCII.LF);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Refresh_Outline);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
       Editor.Feature_Messages.Add_Message
         (S.Feature_Messages, Editor.Feature_Messages.Info_Message,
          "message", Source_Kind => Editor.Feature_Messages.Editor_Source);
@@ -2871,7 +2871,7 @@ package body Editor.Feature_Panel.Tests is
 
       Assert (Editor.Feature_Panel_Controller.Show_Feature (S, Messages_Feature),
               "can activate Messages before generic clear");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Clear_Feature_Panel);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Clear_Feature_Panel);
 
       Assert (Editor.Feature_Messages.Row_Count (S.Feature_Messages) = 0,
               "clear-active clears active Messages state");
@@ -2891,20 +2891,20 @@ package body Editor.Feature_Panel.Tests is
       Editor.State.Init (S);
       Editor.Feature_Panel_Controller.Reset_All_Features_For_Workspace_Close (S);
 
-      D := Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Show_Outline);
-      Assert (D.Id = Editor.Commands.Command_Show_Outline,
+      D := Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Show_Outline);
+      Assert (D.Id = Editor.Command_Ids.Command_Show_Outline,
               "workspace close preserves Outline command registration");
-      D := Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Show_Messages);
-      Assert (D.Id = Editor.Commands.Command_Show_Messages,
+      D := Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Show_Messages);
+      Assert (D.Id = Editor.Command_Ids.Command_Show_Messages,
               "workspace close preserves Messages command registration");
-      D := Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Show_Search_Results_Feature);
-      Assert (D.Id = Editor.Commands.Command_Show_Search_Results_Feature,
+      D := Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Show_Search_Results_Feature);
+      Assert (D.Id = Editor.Command_Ids.Command_Show_Search_Results_Feature,
               "workspace close preserves Search Results command registration");
-      D := Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Diagnostics_Show);
-      Assert (D.Id = Editor.Commands.Command_Diagnostics_Show,
+      D := Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Diagnostics_Show);
+      Assert (D.Id = Editor.Command_Ids.Command_Diagnostics_Show,
               "workspace close preserves Diagnostics command registration");
-      D := Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Feature_Panel_Open_Selected);
-      Assert (D.Id = Editor.Commands.Command_Feature_Panel_Open_Selected,
+      D := Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
+      Assert (D.Id = Editor.Command_Ids.Command_Feature_Panel_Open_Selected,
               "workspace close preserves generic feature-panel command registration");
    end Test_Feature_Workspace_Close_Preserves_Command_Registrations;
 
@@ -2921,7 +2921,7 @@ package body Editor.Feature_Panel.Tests is
          "@outline package Demo" & ASCII.LF &
          "@outline procedure Run" & ASCII.LF &
          "beta" & ASCII.LF);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Refresh_Outline);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
       Editor.Feature_Messages.Add_Message
         (S.Feature_Messages, Editor.Feature_Messages.Info_Message,
          "message", Source_Kind => Editor.Feature_Messages.Editor_Source);
@@ -2936,7 +2936,7 @@ package body Editor.Feature_Panel.Tests is
         (S.Feature_Diagnostics, Editor.Feature_Diagnostics.Diagnostic_Info,
          "diagnostic two", "scaffold", Has_Target => False);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Diagnostics_Show);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Diagnostics_Show);
       Assert (Active_Feature (S.Feature_Panel) = Diagnostics_Feature,
               "diagnostics.show switches active feature");
       Assert (Row_Count (S.Feature_Panel) = 2,
@@ -2953,7 +2953,7 @@ package body Editor.Feature_Panel.Tests is
       Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 1,
               "diagnostics.show does not mutate Search Results");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Diagnostics_Clear);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Diagnostics_Clear);
       Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
               "diagnostics.clear removes Diagnostics rows");
       Assert (Editor.Outline.Has_Items (S.Outline),
@@ -3176,7 +3176,7 @@ package body Editor.Feature_Panel.Tests is
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, 3);
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Diagnostics_Toggle_Warnings);
+        (S, Editor.Command_Ids.Command_Diagnostics_Toggle_Warnings);
       Assert (Row_Count (S.Feature_Panel) = 2,
               "warning toggle hides warning rows only from projection");
       Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 3,
@@ -3189,7 +3189,7 @@ package body Editor.Feature_Panel.Tests is
               "severity-filtered header shows visible and source counts");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Diagnostics_Show_All);
+        (S, Editor.Command_Ids.Command_Diagnostics_Show_All);
       Assert (Row_Count (S.Feature_Panel) = 3,
               "diagnostics.show-all restores all severities and sources");
       Assert (not Editor.Feature_Diagnostics.Filter_Active (S.Feature_Diagnostics),
@@ -3249,7 +3249,7 @@ package body Editor.Feature_Panel.Tests is
       Select_Row (S.Feature_Panel, 3);
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Diagnostics_Clear_Selected);
+        (S, Editor.Command_Ids.Command_Diagnostics_Clear_Selected);
       Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 2,
               "clear-selected removes one source diagnostic row");
       Assert (Editor.Feature_Diagnostics.Item_Id (S.Feature_Diagnostics, 1) = 1
@@ -3260,7 +3260,7 @@ package body Editor.Feature_Panel.Tests is
               "clear-selected reconciles selection to the same visible slot when possible");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Diagnostics_Clear_Selected);
+        (S, Editor.Command_Ids.Command_Diagnostics_Clear_Selected);
       Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 1,
               "second clear-selected removes selected next diagnostic");
       Assert (Selected_Row (S.Feature_Panel) = 1
@@ -3390,7 +3390,7 @@ package body Editor.Feature_Panel.Tests is
         (S,
          "@outline package alpha" & ASCII.LF &
          "@outline procedure beta" & ASCII.LF);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Refresh_Outline);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
       Editor.Feature_Messages.Add_Message
         (S.Feature_Messages, Editor.Feature_Messages.Info_Message,
          "message", Source_Kind => Editor.Feature_Messages.Editor_Source);
@@ -3402,9 +3402,9 @@ package body Editor.Feature_Panel.Tests is
               "diagnostics projection is visible before isolation checks");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Diagnostics_Copy_Selected_Text);
+        (S, Editor.Command_Ids.Command_Diagnostics_Copy_Selected_Text);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Diagnostics_Clear_Errors);
+        (S, Editor.Command_Ids.Command_Diagnostics_Clear_Errors);
       Assert (Editor.Outline.Has_Items (S.Outline),
               "diagnostics action commands do not affect Outline");
       Assert (Editor.Feature_Messages.Row_Count (S.Feature_Messages) = 1,
@@ -3431,14 +3431,14 @@ package body Editor.Feature_Panel.Tests is
               "diagnostics feedback test shows diagnostics panel");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Diagnostics_Toggle_Info);
+        (S, Editor.Command_Ids.Command_Diagnostics_Toggle_Info);
       Msg := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then Editor.Messages.Text (Msg) =
               Editor.Feature_Diagnostics.Message_Info_Hidden,
               "hiding info emits the compact deterministic feedback string");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Diagnostics_Toggle_Info);
+        (S, Editor.Command_Ids.Command_Diagnostics_Toggle_Info);
       Msg := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then Editor.Messages.Text (Msg) =
               Editor.Feature_Diagnostics.Message_Info_Shown,
@@ -3468,7 +3468,7 @@ package body Editor.Feature_Panel.Tests is
               "text filter exposes only the matching diagnostic before delete");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Diagnostics_Clear_Selected);
+        (S, Editor.Command_Ids.Command_Diagnostics_Clear_Selected);
       Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 1,
               "clear-selected removes the filtered selected source row");
       Assert (Row_Count (S.Feature_Panel) = 1
@@ -4250,7 +4250,7 @@ package body Editor.Feature_Panel.Tests is
       Editor.State.Init (S);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Diagnostics_Select_Next);
+        (S, Editor.Command_Ids.Command_Diagnostics_Select_Next);
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "Diagnostics next with no rows is explicitly unavailable");
       Assert (Editor.Feature_Panel.Active_Feature (S.Feature_Panel) /=
@@ -4269,7 +4269,7 @@ package body Editor.Feature_Panel.Tests is
       Editor.Feature_Diagnostics.Project_Rows
         (S.Feature_Diagnostics, S.Feature_Panel);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Diagnostics_Select_Previous);
+        (S, Editor.Command_Ids.Command_Diagnostics_Select_Previous);
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "Diagnostics previous with all rows filtered is explicitly unavailable");
       Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 1,
@@ -4742,7 +4742,7 @@ package body Editor.Feature_Panel.Tests is
       Editor.Buffers.Load_Global_Active_Into_State (S);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "needle");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Search_Results_Search_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Search_Results_Search_Active_Buffer);
 
       Assert
         (Editor.Feature_Search_Results.Item_Target_Buffer
@@ -4760,7 +4760,7 @@ package body Editor.Feature_Panel.Tests is
          "switching buffers does not retarget Search Results rows");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Feature_Panel_Open_Selected);
+        (S, Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
 
       Assert
         (Editor.Buffers.Global_Active_Buffer = A_Id,
@@ -4811,7 +4811,7 @@ package body Editor.Feature_Panel.Tests is
       end;
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Feature_Panel_Open_Selected);
+        (S, Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
 
       Assert
         (Editor.Buffers.Global_Active_Buffer = B_Id,
@@ -4837,7 +4837,7 @@ package body Editor.Feature_Panel.Tests is
          "@outline package Demo" & ASCII.LF &
          "@outline procedure Run" & ASCII.LF &
          "body" & ASCII.LF);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Refresh_Outline);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
 
       Assert (Editor.Feature_Panel_Controller.Show_Feature (S, Outline_Feature),
               "can show Outline rows");
@@ -4954,12 +4954,12 @@ package body Editor.Feature_Panel.Tests is
               "selecting an empty state leaves no selected row");
 
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Feature_Panel_Open_Selected);
+        (S, Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
               "open-selected is unavailable with no selected feature row");
 
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Clear_Feature_Panel);
+        (S, Editor.Command_Ids.Command_Clear_Feature_Panel);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
               "clear is unavailable when only an empty-state row is visible");
    end Test_Empty_State_Rows_Are_Not_Selected_Or_Openable;
@@ -5009,20 +5009,20 @@ package body Editor.Feature_Panel.Tests is
          "@outline package Demo" & ASCII.LF &
          "@outline procedure Run" & ASCII.LF &
          "needle" & ASCII.LF);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Refresh_Outline);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Editor.Outline.Item_Count (S.Outline) >= 2,
               "setup has Outline rows");
 
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "needle");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Search_Results_Search_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Search_Results_Search_Active_Buffer);
       Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 1,
               "setup has Search Results rows");
 
       Assert (Editor.Feature_Panel_Controller.Show_Feature (S, Search_Results_Feature),
               "active feature can be Search Results");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Clear_Feature_Panel);
+        (S, Editor.Command_Ids.Command_Clear_Feature_Panel);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "clear active Search Results executes");
       Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 0,
@@ -5090,7 +5090,7 @@ package body Editor.Feature_Panel.Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "needle");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Search_Results_Search_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Search_Results_Search_Active_Buffer);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "initial Search execution succeeds");
       Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 2,
@@ -5099,7 +5099,7 @@ package body Editor.Feature_Panel.Tests is
       Select_Row (S.Feature_Panel, 2);
       Scroll_By (S.Feature_Panel, 20);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Clear_Search_Results_Feature);
+        (S, Editor.Command_Ids.Command_Clear_Search_Results_Feature);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "Search clear executes");
       Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 0,
@@ -5107,7 +5107,7 @@ package body Editor.Feature_Panel.Tests is
 
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "needle");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Search_Results_Search_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Search_Results_Search_Active_Buffer);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "Search rerun after clear executes");
       Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 2,
@@ -5124,7 +5124,7 @@ package body Editor.Feature_Panel.Tests is
          "recovered Search row has fresh buffer-aware target metadata");
 
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Feature_Panel_Open_Selected);
+        (S, Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
               "open-selected is available after fresh Search recovery");
    end Test_Search_Rerun_After_Clear_Recovers_Fresh_Rows;
@@ -5139,7 +5139,7 @@ package body Editor.Feature_Panel.Tests is
       Editor.State.Load_Text (S, "needle" & ASCII.LF & "body" & ASCII.LF);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "needle");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Search_Results_Search_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Search_Results_Search_Active_Buffer);
       Assert (Active_Feature (S.Feature_Panel) = Search_Results_Feature,
               "setup has Search Results active");
 
@@ -5205,7 +5205,7 @@ package body Editor.Feature_Panel.Tests is
          "@outline procedure Run" & ASCII.LF);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "initial Outline refresh executes");
       Assert (Row_Count (S.Feature_Panel) = 2,
@@ -5217,7 +5217,7 @@ package body Editor.Feature_Panel.Tests is
          "@outline package Second" & ASCII.LF &
          "@outline function Compute" & ASCII.LF);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "second Outline refresh executes");
       Assert (Row_Count (S.Feature_Panel) = 2,
@@ -5252,7 +5252,7 @@ package body Editor.Feature_Panel.Tests is
          "needle two" & ASCII.LF);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "needle");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Search_Results_Search_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Search_Results_Search_Active_Buffer);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "initial Search rerun executes");
       Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 2,
@@ -5263,7 +5263,7 @@ package body Editor.Feature_Panel.Tests is
 
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "absent");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Search_Results_Search_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Search_Results_Search_Active_Buffer);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "Search rows-to-no-results rerun executes");
       Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 0,
@@ -5283,7 +5283,7 @@ package body Editor.Feature_Panel.Tests is
 
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "needle");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Search_Results_Search_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Search_Results_Search_Active_Buffer);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "Search no-results-to-rows rerun executes");
       Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 2,
@@ -5660,7 +5660,7 @@ package body Editor.Feature_Panel.Tests is
       Before_Caret := S.Carets.Element (S.Carets.First_Index).Pos;
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
 
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "Outline refresh executes normally");
@@ -5695,7 +5695,7 @@ package body Editor.Feature_Panel.Tests is
    end Insert_Command;
 
    function Simple_Command
-     (Kind : Editor.Commands.Command_Kind) return Editor.Commands.Payloads.Command
+     (Kind : Editor.Command_Kinds.Command_Kind) return Editor.Commands.Payloads.Command
    is
       Cmd : Editor.Commands.Payloads.Command;
    begin
@@ -5970,7 +5970,7 @@ package body Editor.Feature_Panel.Tests is
 
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "alpha");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Search_Results_Search_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Search_Results_Search_Active_Buffer);
       Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 1,
               "setup creates one live Search result");
 

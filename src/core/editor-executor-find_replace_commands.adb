@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Command_Kinds; use Editor.Command_Kinds;
 with Editor.Commands.Payloads;
@@ -5,7 +6,6 @@ with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with Editor.Buffers;
-with Editor.Commands; use Editor.Commands;
 with Editor.Cursors; use Editor.Cursors;
 with Editor.Executor.Active_Find_Commands;
 with Editor.Executor.Active_Replace_Commands;
@@ -30,7 +30,7 @@ package body Editor.Executor.Find_Replace_Commands is
 
    function Find_Replace_Command_Availability
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Commands.Availability_Metadata.Command_Availability
    is
       function Has_Buffer return Boolean is

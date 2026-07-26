@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Ada.Command_Line;
 with Ada.Directories;
@@ -15,7 +16,6 @@ with Editor.Build_UI;
 with Editor.Build_UI_Actions;
 with Editor.Command_Execution;
 with Editor.Command_Palette;
-with Editor.Commands;
 with Editor.Diagnostics;
 with Editor.Executor;
 with Editor.Executor.Command_Surface_Commands;
@@ -67,7 +67,7 @@ procedure Editor_Product_Smoke is
    use type Editor.Build_Candidate_Refresh.Build_Candidate_Refresh_Status;
    use type Editor.Build_UI.Public_Build_UI_Validation_Status;
    use type Editor.Command_Execution.Command_Execution_Status;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Diagnostics.Diagnostic_Index;
    use type Editor.Feature_Panel.Feature_Id;
    use type Editor.Problems.Problems_Group_Mode;
@@ -290,7 +290,7 @@ procedure Editor_Product_Smoke is
       end Latest_Message;
 
    begin
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Build_UI_Show);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Build_UI_Show);
       Check (S.Build_UI.Build_UI_Visible,
              "Build UI show command did not make Build Output visible");
 
@@ -301,7 +301,7 @@ procedure Editor_Product_Smoke is
              "Build UI did not expose missing-candidate recovery guidance");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Build_Refresh_Candidates);
+        (S, Editor.Command_Ids.Command_Build_Refresh_Candidates);
       Check
         (S.Build_UI.Candidate_Refresh_Status =
            Editor.Build_UI.Build_Candidate_Refresh_Succeeded
@@ -318,7 +318,7 @@ procedure Editor_Product_Smoke is
                "build.select-next-candidate",
              "Build UI refresh did not expose the select-candidate command name");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Build_Select_First_Candidate);
+        (S, Editor.Command_Ids.Command_Build_Select_First_Candidate);
       Snapshot := Editor.Build_UI_Actions.Build_UI_Operability_Snapshot (S);
       Check (Editor.Build_UI.Validate_Build_UI_State (S.Build_UI) =
                Editor.Build_UI.Build_UI_Rejected_Missing_Consent,
@@ -328,7 +328,7 @@ procedure Editor_Product_Smoke is
              "Build UI did not expose consent recovery guidance");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Build_Acknowledge_Consent);
+        (S, Editor.Command_Ids.Command_Build_Acknowledge_Consent);
       Snapshot := Editor.Build_UI_Actions.Build_UI_Operability_Snapshot (S);
       Check (Editor.Build_UI.Validate_Build_UI_State (S.Build_UI) =
                Editor.Build_UI.Build_UI_Valid,
@@ -338,7 +338,7 @@ procedure Editor_Product_Smoke is
       Check (To_String (Snapshot.Run_Recovery_Hint) = "Run build",
              "Build UI did not expose runnable recovery guidance after consent");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Build_Cancel);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Build_Cancel);
       Check (S.Build_UI.Build_UI_Visible,
              "Build cancel command should not hide Build Output");
 
@@ -501,9 +501,9 @@ procedure Editor_Product_Smoke is
    procedure Run_Command_Palette_Ranking_Scenario is
       procedure Execute_First_Query
         (Query    : String;
-         Expected : Editor.Commands.Command_Id)
+         Expected : Editor.Command_Ids.Command_Id)
       is
-         Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+         Candidates : Editor.Command_Ids.Command_Palette_Candidate_Vectors.Vector;
       begin
          Editor.Command_Palette.Reset;
          Editor.Command_Palette.Open;
@@ -518,9 +518,9 @@ procedure Editor_Product_Smoke is
 
       procedure Check_Query
         (Query    : String;
-         Expected : Editor.Commands.Command_Id)
+         Expected : Editor.Command_Ids.Command_Id)
       is
-         Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+         Candidates : Editor.Command_Ids.Command_Palette_Candidate_Vectors.Vector;
       begin
          Editor.Command_Palette.Reset;
          Editor.Command_Palette.Open;
@@ -533,30 +533,30 @@ procedure Editor_Product_Smoke is
          Editor.Command_Palette.Reset;
       end Check_Query;
    begin
-      Check_Query ("open", Editor.Commands.Command_Open_Project);
-      Check_Query ("save", Editor.Commands.Command_Save_File);
-      Check_Query ("file", Editor.Commands.Command_Open_Quick_Open);
-      Check_Query ("build", Editor.Commands.Command_Build_Run);
-      Check_Query ("search", Editor.Commands.Command_Open_Project_Search_Bar);
-      Check_Query ("outline", Editor.Commands.Command_Refresh_Outline);
-      Check_Query ("diagnostics", Editor.Commands.Command_Diagnostics_Show);
-      Check_Query ("navigation", Editor.Commands.Command_Navigation_Back);
-      Check_Query ("workspace", Editor.Commands.Command_Save_Workspace_State);
-      Check_Query ("settings", Editor.Commands.Command_Reset_Settings_To_Defaults);
-      Check_Query ("run tests", Editor.Commands.Command_Run_Tests);
-      Check_Query ("compile", Editor.Commands.Command_Build_Run);
-      Check_Query ("make", Editor.Commands.Command_Build_Run);
-      Check_Query ("open file", Editor.Commands.Command_Open_Quick_Open);
-      Check_Query ("show diagnostics", Editor.Commands.Command_Diagnostics_Show);
-      Check_Query ("issues", Editor.Commands.Command_Diagnostics_Show);
-      Check_Query ("filter errors", Editor.Commands.Command_Problems_Filter_Errors);
-      Check_Query ("sort problems", Editor.Commands.Command_Problems_Sort_By_Severity);
-      Check_Query ("group problems", Editor.Commands.Command_Problems_Group_By_Source);
-      Check_Query ("refresh project", Editor.Commands.Command_Refresh_File_Tree);
-      Check_Query ("restore workspace", Editor.Commands.Command_Restore_Workspace_State);
-      Check_Query ("open session", Editor.Commands.Command_Restore_Workspace_State);
+      Check_Query ("open", Editor.Command_Ids.Command_Open_Project);
+      Check_Query ("save", Editor.Command_Ids.Command_Save_File);
+      Check_Query ("file", Editor.Command_Ids.Command_Open_Quick_Open);
+      Check_Query ("build", Editor.Command_Ids.Command_Build_Run);
+      Check_Query ("search", Editor.Command_Ids.Command_Open_Project_Search_Bar);
+      Check_Query ("outline", Editor.Command_Ids.Command_Refresh_Outline);
+      Check_Query ("diagnostics", Editor.Command_Ids.Command_Diagnostics_Show);
+      Check_Query ("navigation", Editor.Command_Ids.Command_Navigation_Back);
+      Check_Query ("workspace", Editor.Command_Ids.Command_Save_Workspace_State);
+      Check_Query ("settings", Editor.Command_Ids.Command_Reset_Settings_To_Defaults);
+      Check_Query ("run tests", Editor.Command_Ids.Command_Run_Tests);
+      Check_Query ("compile", Editor.Command_Ids.Command_Build_Run);
+      Check_Query ("make", Editor.Command_Ids.Command_Build_Run);
+      Check_Query ("open file", Editor.Command_Ids.Command_Open_Quick_Open);
+      Check_Query ("show diagnostics", Editor.Command_Ids.Command_Diagnostics_Show);
+      Check_Query ("issues", Editor.Command_Ids.Command_Diagnostics_Show);
+      Check_Query ("filter errors", Editor.Command_Ids.Command_Problems_Filter_Errors);
+      Check_Query ("sort problems", Editor.Command_Ids.Command_Problems_Sort_By_Severity);
+      Check_Query ("group problems", Editor.Command_Ids.Command_Problems_Group_By_Source);
+      Check_Query ("refresh project", Editor.Command_Ids.Command_Refresh_File_Tree);
+      Check_Query ("restore workspace", Editor.Command_Ids.Command_Restore_Workspace_State);
+      Check_Query ("open session", Editor.Command_Ids.Command_Restore_Workspace_State);
 
-      Execute_First_Query ("diagnostics", Editor.Commands.Command_Diagnostics_Show);
+      Execute_First_Query ("diagnostics", Editor.Command_Ids.Command_Diagnostics_Show);
       Check
         (Editor.Feature_Panel.Active_Feature (S.Feature_Panel) =
          Editor.Feature_Panel.Diagnostics_Feature,
@@ -564,7 +564,7 @@ procedure Editor_Product_Smoke is
       Editor.Command_Palette.Reset;
 
       Execute_First_Query
-        ("command", Editor.Commands.Command_Palette_Show_Command_Help);
+        ("command", Editor.Command_Ids.Command_Palette_Show_Command_Help);
       Check
         (Editor.Command_Palette.Current_Config.Show_Help_Row,
          "command palette help candidate did not execute");
@@ -593,7 +593,7 @@ procedure Editor_Product_Smoke is
            Editor.Pending_Transitions.Pending_Clear_Workspace_State,
          "clear workspace state did not stage a destructive confirmation");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Retry_Pending_Transition);
+        (S, Editor.Command_Ids.Command_Retry_Pending_Transition);
       Check (not Ada.Directories.Exists (Session_Path),
              "confirmed clear workspace state did not delete the session file");
    end Confirm_Clear_Workspace_State;
@@ -686,7 +686,7 @@ procedure Editor_Product_Smoke is
       Editor.Quick_Open.Recompute_Results (S.Quick_Open, S.File_Tree, (others => <>));
       Check (Editor.Quick_Open.Result_Count (S.Quick_Open) >= 1,
              "Quick Open did not find main.adb");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Accept_Quick_Open);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Accept_Quick_Open);
       Check (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Main_Path,
              "Quick Open activation did not open main.adb");
       Check (Editor.Focus_Management.Effective_Focus_Owner (S) =
@@ -705,7 +705,7 @@ procedure Editor_Product_Smoke is
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_File_Tree);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_File_Tree_Open_Selected);
+        (S, Editor.Command_Ids.Command_File_Tree_Open_Selected);
       Check (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Unit_Path,
              "file tree activation did not open the expected buffer");
       Unit_Token := S.Active_Buffer_Token;
@@ -751,7 +751,7 @@ procedure Editor_Product_Smoke is
          Target_Buffer => Unit_Token,
          Target_Line   => 4,
          Target_Column => 7);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Diagnostics_Show);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Diagnostics_Show);
       Editor.Feature_Diagnostics.Project_Rows (S.Feature_Diagnostics, S.Feature_Panel);
       Check (Editor.Feature_Panel.Row_Count (S.Feature_Panel) >= 1,
              "daily editing diagnostic did not project into Diagnostics");
@@ -761,7 +761,7 @@ procedure Editor_Product_Smoke is
             Editor.Feature_Panel.Select_Row (S.Feature_Panel, I);
             Target_Row_Selected := True;
             Editor.Executor.Execute_Command
-              (S, Editor.Commands.Command_Diagnostics_Open_Selected);
+              (S, Editor.Command_Ids.Command_Diagnostics_Open_Selected);
             exit when S.File_Info.Has_Path
               and then To_String (S.File_Info.Path) = Unit_Path;
          end if;
@@ -833,7 +833,7 @@ procedure Editor_Product_Smoke is
          Needs_Path   => True,
          Needs_Buffer => True);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Cancel_Pending_Transition);
+        (S, Editor.Command_Ids.Command_Cancel_Pending_Transition);
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Revert_Active_Buffer (S);
       Check_Pending
@@ -841,7 +841,7 @@ procedure Editor_Product_Smoke is
          Needs_Path   => True,
          Needs_Buffer => True);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Cancel_Pending_Transition);
+        (S, Editor.Command_Ids.Command_Cancel_Pending_Transition);
 
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Other_Root);
       Check_Pending
@@ -954,7 +954,7 @@ begin
       Row                 : Natural := 0;
       Col                 : Natural := 0;
    begin
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Refresh_Outline);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
       Check (Editor.Outline.Item_Count (S.Outline) >= 3,
              "outline.refresh returned no real Ada declaration rows");
       Check (Editor.Outline.Is_Current_For_Buffer (S.Outline, Token_A, Revision_A),
@@ -964,22 +964,22 @@ begin
       Check (not S.File_Info.Dirty,
              "outline.refresh changed clean dirty state");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_Next_Outline_Item);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Open_Selected_Outline_Item);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_Next_Outline_Item);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
       Editor.State.Row_Col_For_Index
         (S, S.Carets (S.Carets.First_Index).Pos, Row, Col);
       Check (Row = 0 and then Col = 0,
              "opening package outline row did not move caret to package declaration");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_Next_Outline_Item);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Open_Selected_Outline_Item);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_Next_Outline_Item);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
       Editor.State.Row_Col_For_Index
         (S, S.Carets (S.Carets.First_Index).Pos, Row, Col);
       Check (Row = 1,
              "opening type outline row did not move caret to type declaration");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_Next_Outline_Item);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Open_Selected_Outline_Item);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_Next_Outline_Item);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
       Editor.State.Row_Col_For_Index
         (S, S.Carets (S.Carets.First_Index).Pos, Row, Col);
       Check (Row = 3,
@@ -1001,7 +1001,7 @@ begin
              Editor.Outline.Outline_Stale,
              "edited buffer did not mark outline stale");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Refresh_Outline);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
       Check (Editor.Outline.Is_Current_For_Buffer
                (S.Outline, Token_A, Editor.State.Current_Buffer_Revision (S)),
              "outline.refresh did not make edited buffer current again");
@@ -1070,7 +1070,7 @@ begin
          Detail => "Open diagnostic explanation",
          Primary_Action_Kind =>
            Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_Explain_Diagnostic);
-   Editor.Executor.Execute_Command (S, Editor.Commands.Command_Diagnostics_Show);
+   Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Diagnostics_Show);
    Check (Editor.Focus_Management.Effective_Focus_Owner (S) =
             Editor.Focus_Management.Focus_Diagnostics,
           "Diagnostics show did not focus the Diagnostics panel");
@@ -1095,7 +1095,7 @@ begin
    Editor.Feature_Panel.Select_Row
      (S.Feature_Panel, Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics));
    Editor.Executor.Execute_Command
-     (S, Editor.Commands.Command_Diagnostic_Apply_Quick_Fix);
+     (S, Editor.Command_Ids.Command_Diagnostic_Apply_Quick_Fix);
    if Ada.Strings.Fixed.Index
         (Editor.State.Current_Text
            (Editor.Buffers.Global_Buffer
@@ -1103,7 +1103,7 @@ begin
          "null; -- quickfix") = 0
    then
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Feature_Panel_Open_Selected);
+        (S, Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
    end if;
    Check
      (Ada.Strings.Fixed.Index
@@ -1128,18 +1128,18 @@ begin
       Severity => Editor.Diagnostics.Error,
       Message => "smoke error");
    Editor.Executor.Execute_Command
-     (S, Editor.Commands.Command_Problems_Filter_Errors);
+     (S, Editor.Command_Ids.Command_Problems_Filter_Errors);
    Check
      (Editor.Problems.Severity_Filter (S.Problems_View) =
       Editor.Problems.Problems_Show_Errors,
       "Problems filter command did not select errors");
    Editor.Executor.Execute_Command
-     (S, Editor.Commands.Command_Problems_Open_Selected);
+     (S, Editor.Command_Ids.Command_Problems_Open_Selected);
    Check
      (S.Active_Diagnostic.Has_Active and then S.Active_Diagnostic.Index = 2,
       "Problems open-selected did not open the filtered error row");
    Editor.Executor.Execute_Command
-     (S, Editor.Commands.Command_Problems_Filter_All);
+     (S, Editor.Command_Ids.Command_Problems_Filter_All);
    Check
      (Editor.Problems.Severity_Filter (S.Problems_View) =
       Editor.Problems.Problems_Show_All,
@@ -1159,7 +1159,7 @@ begin
       Editor.Panels.Set_Current_Size
         (S.Panels, Editor.Panels.Bottom_Panel, 6);
       Editor.Panels.Set_Current (S.Panels);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Focus_Problems);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Focus_Problems);
       Editor.Command_Palette.Reset;
       Editor.Input_Bridge.Reset;
       Editor.Input_Bridge.Set_State_For_Test (S);
@@ -1179,7 +1179,7 @@ begin
          Editor.Problems.Problems_Header_Filter_Action,
          "Problems header left zone did not map to filter");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Problems_Filter_Errors);
+        (S, Editor.Command_Ids.Command_Problems_Filter_Errors);
       Check
         (Editor.Problems.Severity_Filter (S.Problems_View) =
          Editor.Problems.Problems_Show_Errors,
@@ -1192,7 +1192,7 @@ begin
          Editor.Problems.Problems_Header_Sort_Action,
          "Problems header middle zone did not map to sort");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Problems_Sort_By_Severity);
+        (S, Editor.Command_Ids.Command_Problems_Sort_By_Severity);
       Check
         (S.Problems_View.Sort_Mode =
          Editor.Problems.Problems_Sort_By_Severity,
@@ -1205,7 +1205,7 @@ begin
          Editor.Problems.Problems_Header_Group_Action,
          "Problems header right zone did not map to group");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Problems_Group_By_Source);
+        (S, Editor.Command_Ids.Command_Problems_Group_By_Source);
       Check
         (S.Problems_View.Group_Mode =
          Editor.Problems.Problems_Group_By_Source,
@@ -1228,7 +1228,7 @@ begin
        Viewport_Row  => 0,
        Reason        => Editor.Navigation_History.Navigation_Reason_Feature_Panel));
    Editor.Executor.Execute_Command
-     (S, Editor.Commands.Command_Diagnostics_Open_Selected);
+     (S, Editor.Command_Ids.Command_Diagnostics_Open_Selected);
    Check (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Unit_Path,
           "Diagnostics open-selected did not open the diagnostic source target; active="
           & (if S.File_Info.Has_Path then To_String (S.File_Info.Path) else "<none>")
@@ -1237,16 +1237,16 @@ begin
               (S.Feature_Diagnostics, S.Feature_Panel));
    Check (Editor.Navigation_History.Back_Count (S.Navigation_History) > 0,
           "Diagnostics navigation did not record a back target");
-   Editor.Executor.Execute_Command (S, Editor.Commands.Command_Navigation_Back);
+   Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Back);
    Check (S.File_Info.Has_Path,
           "navigation back after Diagnostics did not retain a file-backed target");
    Check (Editor.Navigation_History.Forward_Count (S.Navigation_History) > 0,
           "navigation back after Diagnostics did not record a forward target");
-   Editor.Executor.Execute_Command (S, Editor.Commands.Command_Navigation_Forward);
+   Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Forward);
    Check (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Unit_Path,
           "navigation forward after Diagnostics did not return to the diagnostic target");
 
-   Editor.Executor.Execute_Command (S, Editor.Commands.Command_Open_Command_Palette);
+   Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Open_Command_Palette);
    Check (Editor.Command_Palette.Is_Open,
           "command palette command did not open the palette");
    Editor.Command_Palette.Close;

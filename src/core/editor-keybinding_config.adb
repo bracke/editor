@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Ada.Directories;
 with Ada.Environment_Variables;
 with Ada.Strings.Fixed;
@@ -8,7 +9,7 @@ with Editor.Commands.Name_Metadata;
 
 package body Editor.Keybinding_Config is
 
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Keybindings.Binding_Result;
    use type Editor.Keybindings.Key_Code;
 
@@ -145,7 +146,7 @@ package body Editor.Keybinding_Config is
    procedure Add_Default
      (Config  : in out Keybinding_Config_Model;
       Key     : Editor.Keybindings.Key_Code;
-      Command : Editor.Commands.Command_Id;
+      Command : Editor.Command_Ids.Command_Id;
       Ctrl    : Boolean := False;
       Shift   : Boolean := False;
       Alt     : Boolean := False;
@@ -161,79 +162,79 @@ package body Editor.Keybinding_Config is
    begin
       Clear (Config);
 
-      Add_Default (Config, Editor.Keybindings.Key_S, Editor.Commands.Command_Save_File, Ctrl => True);
-      Add_Default (Config, Editor.Keybindings.Key_S, Editor.Commands.Command_Save_File_As, Ctrl => True, Shift => True);
-      Add_Default (Config, Editor.Keybindings.Key_F, Editor.Commands.Command_Find_Show, Ctrl => True);
-      Add_Default (Config, Editor.Keybindings.Key_G, Editor.Commands.Command_Goto_Line, Ctrl => True);
-      Add_Default (Config, Editor.Keybindings.Key_F, Editor.Commands.Command_Open_Project_Search_Bar, Ctrl => True, Shift => True);
-      Add_Default (Config, Editor.Keybindings.Key_P, Editor.Commands.Command_Open_Quick_Open, Ctrl => True);
-      Add_Default (Config, Editor.Keybindings.Key_P, Editor.Commands.Command_Open_Command_Palette, Ctrl => True, Shift => True);
-      Add_Default (Config, Editor.Keybindings.Key_N, Editor.Commands.Command_New_Buffer, Ctrl => True);
-      Add_Default (Config, Editor.Keybindings.Key_W, Editor.Commands.Command_Close_Active_Buffer, Ctrl => True);
-      Add_Default (Config, Editor.Keybindings.Key_M, Editor.Commands.Command_Toggle_Problems_Panel, Ctrl => True, Shift => True);
-      Add_Default (Config, Editor.Keybindings.Key_L, Editor.Commands.Command_Select_Line, Ctrl => True);
-      Add_Default (Config, Editor.Keybindings.Key_A, Editor.Commands.Command_Select_All, Ctrl => True);
-      Add_Default (Config, Editor.Keybindings.Key_C, Editor.Commands.Command_Copy, Ctrl => True);
-      Add_Default (Config, Editor.Keybindings.Key_X, Editor.Commands.Command_Cut, Ctrl => True);
-      Add_Default (Config, Editor.Keybindings.Key_V, Editor.Commands.Command_Paste, Ctrl => True);
+      Add_Default (Config, Editor.Keybindings.Key_S, Editor.Command_Ids.Command_Save_File, Ctrl => True);
+      Add_Default (Config, Editor.Keybindings.Key_S, Editor.Command_Ids.Command_Save_File_As, Ctrl => True, Shift => True);
+      Add_Default (Config, Editor.Keybindings.Key_F, Editor.Command_Ids.Command_Find_Show, Ctrl => True);
+      Add_Default (Config, Editor.Keybindings.Key_G, Editor.Command_Ids.Command_Goto_Line, Ctrl => True);
+      Add_Default (Config, Editor.Keybindings.Key_F, Editor.Command_Ids.Command_Open_Project_Search_Bar, Ctrl => True, Shift => True);
+      Add_Default (Config, Editor.Keybindings.Key_P, Editor.Command_Ids.Command_Open_Quick_Open, Ctrl => True);
+      Add_Default (Config, Editor.Keybindings.Key_P, Editor.Command_Ids.Command_Open_Command_Palette, Ctrl => True, Shift => True);
+      Add_Default (Config, Editor.Keybindings.Key_N, Editor.Command_Ids.Command_New_Buffer, Ctrl => True);
+      Add_Default (Config, Editor.Keybindings.Key_W, Editor.Command_Ids.Command_Close_Active_Buffer, Ctrl => True);
+      Add_Default (Config, Editor.Keybindings.Key_M, Editor.Command_Ids.Command_Toggle_Problems_Panel, Ctrl => True, Shift => True);
+      Add_Default (Config, Editor.Keybindings.Key_L, Editor.Command_Ids.Command_Select_Line, Ctrl => True);
+      Add_Default (Config, Editor.Keybindings.Key_A, Editor.Command_Ids.Command_Select_All, Ctrl => True);
+      Add_Default (Config, Editor.Keybindings.Key_C, Editor.Command_Ids.Command_Copy, Ctrl => True);
+      Add_Default (Config, Editor.Keybindings.Key_X, Editor.Command_Ids.Command_Cut, Ctrl => True);
+      Add_Default (Config, Editor.Keybindings.Key_V, Editor.Command_Ids.Command_Paste, Ctrl => True);
 
-      Add_Default (Config, Editor.Keybindings.Key_F1, Editor.Commands.Command_Palette_Show_Command_Help);
-      Add_Default (Config, Editor.Keybindings.Key_O, Editor.Commands.Command_Open_File, Ctrl => True);
-      Add_Default (Config, Editor.Keybindings.Key_O, Editor.Commands.Command_Open_Project, Ctrl => True, Alt => True);
-      Add_Default (Config, Editor.Keybindings.Key_M, Editor.Commands.Command_Diagnostics_Show, Ctrl => True, Alt => True);
+      Add_Default (Config, Editor.Keybindings.Key_F1, Editor.Command_Ids.Command_Palette_Show_Command_Help);
+      Add_Default (Config, Editor.Keybindings.Key_O, Editor.Command_Ids.Command_Open_File, Ctrl => True);
+      Add_Default (Config, Editor.Keybindings.Key_O, Editor.Command_Ids.Command_Open_Project, Ctrl => True, Alt => True);
+      Add_Default (Config, Editor.Keybindings.Key_M, Editor.Command_Ids.Command_Diagnostics_Show, Ctrl => True, Alt => True);
 
-      Add_Default (Config, Editor.Keybindings.Key_F2, Editor.Commands.Command_Next_Bookmark);
-      Add_Default (Config, Editor.Keybindings.Key_F2, Editor.Commands.Command_Previous_Bookmark, Shift => True);
-      Add_Default (Config, Editor.Keybindings.Key_F2, Editor.Commands.Command_Toggle_Bookmark, Ctrl => True);
-      Add_Default (Config, Editor.Keybindings.Key_F2, Editor.Commands.Command_Clear_Bookmarks, Ctrl => True, Shift => True);
-      Add_Default (Config, Editor.Keybindings.Key_F3, Editor.Commands.Command_Active_Find_Next);
-      Add_Default (Config, Editor.Keybindings.Key_F3, Editor.Commands.Command_Active_Find_Previous, Shift => True);
+      Add_Default (Config, Editor.Keybindings.Key_F2, Editor.Command_Ids.Command_Next_Bookmark);
+      Add_Default (Config, Editor.Keybindings.Key_F2, Editor.Command_Ids.Command_Previous_Bookmark, Shift => True);
+      Add_Default (Config, Editor.Keybindings.Key_F2, Editor.Command_Ids.Command_Toggle_Bookmark, Ctrl => True);
+      Add_Default (Config, Editor.Keybindings.Key_F2, Editor.Command_Ids.Command_Clear_Bookmarks, Ctrl => True, Shift => True);
+      Add_Default (Config, Editor.Keybindings.Key_F3, Editor.Command_Ids.Command_Active_Find_Next);
+      Add_Default (Config, Editor.Keybindings.Key_F3, Editor.Command_Ids.Command_Active_Find_Previous, Shift => True);
 
-      Add_Default (Config, Editor.Keybindings.Key_Tab, Editor.Commands.Command_Previous_Recent_Buffer, Ctrl => True);
-      Add_Default (Config, Editor.Keybindings.Key_Tab, Editor.Commands.Command_Next_Recent_Buffer, Ctrl => True, Shift => True);
-      Add_Default (Config, Editor.Keybindings.Key_Z, Editor.Commands.Command_Undo, Ctrl => True);
-      Add_Default (Config, Editor.Keybindings.Key_Y, Editor.Commands.Command_Redo, Ctrl => True);
-      Add_Default (Config, Editor.Keybindings.Key_Z, Editor.Commands.Command_Redo, Ctrl => True, Shift => True);
-      Add_Default (Config, Editor.Keybindings.Key_Left, Editor.Commands.Command_Navigation_Back, Alt => True);
-      Add_Default (Config, Editor.Keybindings.Key_Right, Editor.Commands.Command_Navigation_Forward, Alt => True);
+      Add_Default (Config, Editor.Keybindings.Key_Tab, Editor.Command_Ids.Command_Previous_Recent_Buffer, Ctrl => True);
+      Add_Default (Config, Editor.Keybindings.Key_Tab, Editor.Command_Ids.Command_Next_Recent_Buffer, Ctrl => True, Shift => True);
+      Add_Default (Config, Editor.Keybindings.Key_Z, Editor.Command_Ids.Command_Undo, Ctrl => True);
+      Add_Default (Config, Editor.Keybindings.Key_Y, Editor.Command_Ids.Command_Redo, Ctrl => True);
+      Add_Default (Config, Editor.Keybindings.Key_Z, Editor.Command_Ids.Command_Redo, Ctrl => True, Shift => True);
+      Add_Default (Config, Editor.Keybindings.Key_Left, Editor.Command_Ids.Command_Navigation_Back, Alt => True);
+      Add_Default (Config, Editor.Keybindings.Key_Right, Editor.Command_Ids.Command_Navigation_Forward, Alt => True);
 
-      Add_Default (Config, Editor.Keybindings.Key_Left, Editor.Commands.Command_Move_Left);
-      Add_Default (Config, Editor.Keybindings.Key_Right, Editor.Commands.Command_Move_Right);
-      Add_Default (Config, Editor.Keybindings.Key_Up, Editor.Commands.Command_Move_Up);
-      Add_Default (Config, Editor.Keybindings.Key_Down, Editor.Commands.Command_Move_Down);
-      Add_Default (Config, Editor.Keybindings.Key_Home, Editor.Commands.Command_Move_Line_Start);
-      Add_Default (Config, Editor.Keybindings.Key_End, Editor.Commands.Command_Move_Line_End);
-      Add_Default (Config, Editor.Keybindings.Key_Home, Editor.Commands.Command_Move_Document_Start, Ctrl => True);
-      Add_Default (Config, Editor.Keybindings.Key_End, Editor.Commands.Command_Move_Document_End, Ctrl => True);
-      Add_Default (Config, Editor.Keybindings.Key_Left, Editor.Commands.Command_Move_Word_Left, Ctrl => True);
-      Add_Default (Config, Editor.Keybindings.Key_Right, Editor.Commands.Command_Move_Word_Right, Ctrl => True);
-      Add_Default (Config, Editor.Keybindings.Key_Backspace, Editor.Commands.Command_Word_Delete_Previous, Ctrl => True);
-      Add_Default (Config, Editor.Keybindings.Key_Delete, Editor.Commands.Command_Word_Delete_Next, Ctrl => True);
-      Add_Default (Config, Editor.Keybindings.Key_Page_Up, Editor.Commands.Command_Page_Up);
-      Add_Default (Config, Editor.Keybindings.Key_Page_Down, Editor.Commands.Command_Page_Down);
-      Add_Default (Config, Editor.Keybindings.Key_Page_Up, Editor.Commands.Command_Select_Page_Up, Shift => True);
-      Add_Default (Config, Editor.Keybindings.Key_Page_Down, Editor.Commands.Command_Select_Page_Down, Shift => True);
-      Add_Default (Config, Editor.Keybindings.Key_Backspace, Editor.Commands.Command_Char_Delete_Previous);
-      Add_Default (Config, Editor.Keybindings.Key_Delete, Editor.Commands.Command_Char_Delete_Next);
-      Add_Default (Config, Editor.Keybindings.Key_Enter, Editor.Commands.Command_Insert_Newline);
-      Add_Default (Config, Editor.Keybindings.Key_Escape, Editor.Commands.Command_Cancel);
-      Add_Default (Config, Editor.Keybindings.Key_Left, Editor.Commands.Command_Select_Left, Shift => True);
-      Add_Default (Config, Editor.Keybindings.Key_Right, Editor.Commands.Command_Select_Right, Shift => True);
-      Add_Default (Config, Editor.Keybindings.Key_Up, Editor.Commands.Command_Select_Up, Shift => True);
-      Add_Default (Config, Editor.Keybindings.Key_Down, Editor.Commands.Command_Select_Down, Shift => True);
-      Add_Default (Config, Editor.Keybindings.Key_Home, Editor.Commands.Command_Select_Line_Start, Shift => True);
-      Add_Default (Config, Editor.Keybindings.Key_End, Editor.Commands.Command_Select_Line_End, Shift => True);
-      Add_Default (Config, Editor.Keybindings.Key_Home, Editor.Commands.Command_Select_Document_Start, Ctrl => True, Shift => True);
-      Add_Default (Config, Editor.Keybindings.Key_End, Editor.Commands.Command_Select_Document_End, Ctrl => True, Shift => True);
-      Add_Default (Config, Editor.Keybindings.Key_Left, Editor.Commands.Command_Select_Word_Left, Ctrl => True, Shift => True);
-      Add_Default (Config, Editor.Keybindings.Key_Right, Editor.Commands.Command_Select_Word_Right, Ctrl => True, Shift => True);
+      Add_Default (Config, Editor.Keybindings.Key_Left, Editor.Command_Ids.Command_Move_Left);
+      Add_Default (Config, Editor.Keybindings.Key_Right, Editor.Command_Ids.Command_Move_Right);
+      Add_Default (Config, Editor.Keybindings.Key_Up, Editor.Command_Ids.Command_Move_Up);
+      Add_Default (Config, Editor.Keybindings.Key_Down, Editor.Command_Ids.Command_Move_Down);
+      Add_Default (Config, Editor.Keybindings.Key_Home, Editor.Command_Ids.Command_Move_Line_Start);
+      Add_Default (Config, Editor.Keybindings.Key_End, Editor.Command_Ids.Command_Move_Line_End);
+      Add_Default (Config, Editor.Keybindings.Key_Home, Editor.Command_Ids.Command_Move_Document_Start, Ctrl => True);
+      Add_Default (Config, Editor.Keybindings.Key_End, Editor.Command_Ids.Command_Move_Document_End, Ctrl => True);
+      Add_Default (Config, Editor.Keybindings.Key_Left, Editor.Command_Ids.Command_Move_Word_Left, Ctrl => True);
+      Add_Default (Config, Editor.Keybindings.Key_Right, Editor.Command_Ids.Command_Move_Word_Right, Ctrl => True);
+      Add_Default (Config, Editor.Keybindings.Key_Backspace, Editor.Command_Ids.Command_Word_Delete_Previous, Ctrl => True);
+      Add_Default (Config, Editor.Keybindings.Key_Delete, Editor.Command_Ids.Command_Word_Delete_Next, Ctrl => True);
+      Add_Default (Config, Editor.Keybindings.Key_Page_Up, Editor.Command_Ids.Command_Page_Up);
+      Add_Default (Config, Editor.Keybindings.Key_Page_Down, Editor.Command_Ids.Command_Page_Down);
+      Add_Default (Config, Editor.Keybindings.Key_Page_Up, Editor.Command_Ids.Command_Select_Page_Up, Shift => True);
+      Add_Default (Config, Editor.Keybindings.Key_Page_Down, Editor.Command_Ids.Command_Select_Page_Down, Shift => True);
+      Add_Default (Config, Editor.Keybindings.Key_Backspace, Editor.Command_Ids.Command_Char_Delete_Previous);
+      Add_Default (Config, Editor.Keybindings.Key_Delete, Editor.Command_Ids.Command_Char_Delete_Next);
+      Add_Default (Config, Editor.Keybindings.Key_Enter, Editor.Command_Ids.Command_Insert_Newline);
+      Add_Default (Config, Editor.Keybindings.Key_Escape, Editor.Command_Ids.Command_Cancel);
+      Add_Default (Config, Editor.Keybindings.Key_Left, Editor.Command_Ids.Command_Select_Left, Shift => True);
+      Add_Default (Config, Editor.Keybindings.Key_Right, Editor.Command_Ids.Command_Select_Right, Shift => True);
+      Add_Default (Config, Editor.Keybindings.Key_Up, Editor.Command_Ids.Command_Select_Up, Shift => True);
+      Add_Default (Config, Editor.Keybindings.Key_Down, Editor.Command_Ids.Command_Select_Down, Shift => True);
+      Add_Default (Config, Editor.Keybindings.Key_Home, Editor.Command_Ids.Command_Select_Line_Start, Shift => True);
+      Add_Default (Config, Editor.Keybindings.Key_End, Editor.Command_Ids.Command_Select_Line_End, Shift => True);
+      Add_Default (Config, Editor.Keybindings.Key_Home, Editor.Command_Ids.Command_Select_Document_Start, Ctrl => True, Shift => True);
+      Add_Default (Config, Editor.Keybindings.Key_End, Editor.Command_Ids.Command_Select_Document_End, Ctrl => True, Shift => True);
+      Add_Default (Config, Editor.Keybindings.Key_Left, Editor.Command_Ids.Command_Select_Word_Left, Ctrl => True, Shift => True);
+      Add_Default (Config, Editor.Keybindings.Key_Right, Editor.Command_Ids.Command_Select_Word_Right, Ctrl => True, Shift => True);
 
-      Add_Default (Config, Editor.Keybindings.Key_F12, Editor.Commands.Command_Refresh_Outline, Ctrl => True);
-      Add_Default (Config, Editor.Keybindings.Key_Enter, Editor.Commands.Command_Open_Selected_Outline_Item, Alt => True);
-      Add_Default (Config, Editor.Keybindings.Key_F3, Editor.Commands.Command_Select_Next_Outline_Item, Alt => True);
-      Add_Default (Config, Editor.Keybindings.Key_F3, Editor.Commands.Command_Select_Previous_Outline_Item, Alt => True, Shift => True);
-      Add_Default (Config, Editor.Keybindings.Key_F12, Editor.Commands.Command_Select_Current_Outline_Symbol, Alt => True);
-      Add_Default (Config, Editor.Keybindings.Key_F12, Editor.Commands.Command_Reveal_Current_Outline_Symbol, Alt => True, Shift => True);
+      Add_Default (Config, Editor.Keybindings.Key_F12, Editor.Command_Ids.Command_Refresh_Outline, Ctrl => True);
+      Add_Default (Config, Editor.Keybindings.Key_Enter, Editor.Command_Ids.Command_Open_Selected_Outline_Item, Alt => True);
+      Add_Default (Config, Editor.Keybindings.Key_F3, Editor.Command_Ids.Command_Select_Next_Outline_Item, Alt => True);
+      Add_Default (Config, Editor.Keybindings.Key_F3, Editor.Command_Ids.Command_Select_Previous_Outline_Item, Alt => True, Shift => True);
+      Add_Default (Config, Editor.Keybindings.Key_F12, Editor.Command_Ids.Command_Select_Current_Outline_Symbol, Alt => True);
+      Add_Default (Config, Editor.Keybindings.Key_F12, Editor.Command_Ids.Command_Reveal_Current_Outline_Symbol, Alt => True, Shift => True);
 
       Normalize (Config);
    end Populate_Built_In_Defaults;
@@ -243,7 +244,7 @@ package body Editor.Keybinding_Config is
    is
    begin
       Config.Format_Version := 1;
-      for Id in Editor.Commands.Command_Id loop
+      for Id in Editor.Command_Ids.Command_Id loop
          Config.Entries (Id).State := Entry_Absent;
       end loop;
    end Clear;
@@ -270,10 +271,10 @@ package body Editor.Keybinding_Config is
    procedure Remove_Chord_Owner
      (Config  : in out Keybinding_Config_Model;
       Chord   : Editor.Keybindings.Key_Chord;
-      Except  : Editor.Commands.Command_Id)
+      Except  : Editor.Command_Ids.Command_Id)
    is
    begin
-      for Id in Editor.Commands.Command_Id loop
+      for Id in Editor.Command_Ids.Command_Id loop
          if Id /= Except
            and then Config.Entries (Id).State = Entry_Bound
            and then Same_Chord (Config.Entries (Id).Chord, Chord)
@@ -285,7 +286,7 @@ package body Editor.Keybinding_Config is
 
    procedure Bind
      (Config  : in out Keybinding_Config_Model;
-      Command : Editor.Commands.Command_Id;
+      Command : Editor.Command_Ids.Command_Id;
       Chord   : Editor.Keybindings.Key_Chord)
    is
    begin
@@ -299,7 +300,7 @@ package body Editor.Keybinding_Config is
 
    procedure Unbind
      (Config  : in out Keybinding_Config_Model;
-      Command : Editor.Commands.Command_Id)
+      Command : Editor.Command_Ids.Command_Id)
    is
    begin
       if Editor.Keybindings.Is_Normal_Assignable_Command (Command) then
@@ -308,7 +309,7 @@ package body Editor.Keybinding_Config is
    end Unbind;
 
 
-   function Name_Less (Left, Right : Editor.Commands.Command_Id) return Boolean is
+   function Name_Less (Left, Right : Editor.Command_Ids.Command_Id) return Boolean is
    begin
       return Editor.Commands.Name_Metadata.Stable_Command_Name (Left)
         < Editor.Commands.Name_Metadata.Stable_Command_Name (Right);
@@ -317,17 +318,17 @@ package body Editor.Keybinding_Config is
    function Sorted_Command_At
      (Config : Keybinding_Config_Model;
       Index  : Positive;
-      Include_Unbound : Boolean := False) return Editor.Commands.Command_Id
+      Include_Unbound : Boolean := False) return Editor.Command_Ids.Command_Id
    is
-      Best       : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Best       : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Best_Set   : Boolean;
-      Seen       : array (Editor.Commands.Command_Id) of Boolean := (others => False);
+      Seen       : array (Editor.Command_Ids.Command_Id) of Boolean := (others => False);
       Wanted     : Natural := 0;
    begin
       loop
          Best_Set := False;
-         for Id in Editor.Commands.Command_Id loop
-            if Id /= Editor.Commands.No_Command
+         for Id in Editor.Command_Ids.Command_Id loop
+            if Id /= Editor.Command_Ids.No_Command
               and then not Seen (Id)
               and then (Config.Entries (Id).State = Entry_Bound
                         or else (Include_Unbound and then Config.Entries (Id).State = Entry_Unbound))
@@ -345,7 +346,7 @@ package body Editor.Keybinding_Config is
          end if;
       end loop;
       pragma Assert (False, "Editor.Keybinding_Config sorted command index out of range");
-      return Editor.Commands.No_Command;
+      return Editor.Command_Ids.No_Command;
    end Sorted_Command_At;
 
    function Binding_Count
@@ -353,7 +354,7 @@ package body Editor.Keybinding_Config is
    is
       Count : Natural := 0;
    begin
-      for Id in Editor.Commands.Command_Id loop
+      for Id in Editor.Command_Ids.Command_Id loop
          if Config.Entries (Id).State = Entry_Bound then
             Count := Count + 1;
          end if;
@@ -363,7 +364,7 @@ package body Editor.Keybinding_Config is
 
    function Command_At
      (Config : Keybinding_Config_Model;
-      Index  : Positive) return Editor.Commands.Command_Id
+      Index  : Positive) return Editor.Command_Ids.Command_Id
    is
    begin
       return Sorted_Command_At (Config, Index);
@@ -371,7 +372,7 @@ package body Editor.Keybinding_Config is
 
    function Chord_For
      (Config  : Keybinding_Config_Model;
-      Command : Editor.Commands.Command_Id;
+      Command : Editor.Command_Ids.Command_Id;
       Found   : out Boolean) return Editor.Keybindings.Key_Chord
    is
    begin
@@ -384,8 +385,8 @@ package body Editor.Keybinding_Config is
    is
    begin
       Config.Format_Version := 1;
-      for Id in Editor.Commands.Command_Id loop
-         if Id = Editor.Commands.No_Command
+      for Id in Editor.Command_Ids.Command_Id loop
+         if Id = Editor.Command_Ids.No_Command
            or else (Config.Entries (Id).State /= Entry_Absent
                     and then not Editor.Keybindings.Is_Normal_Assignable_Command (Id))
          then
@@ -408,7 +409,7 @@ package body Editor.Keybinding_Config is
       if L.Format_Version /= R.Format_Version then
          return False;
       end if;
-      for Id in Editor.Commands.Command_Id loop
+      for Id in Editor.Command_Ids.Command_Id loop
          if L.Entries (Id).State /= R.Entries (Id).State then
             return False;
          elsif L.Entries (Id).State = Entry_Bound
@@ -425,7 +426,7 @@ package body Editor.Keybinding_Config is
    is
    begin
       Clear (Config);
-      for Id in Editor.Commands.Command_Id loop
+      for Id in Editor.Command_Ids.Command_Id loop
          if Editor.Keybindings.Is_Normal_Assignable_Command (Id)
            and then Editor.Keybindings.Binding_Count_For_Command (Id) > 0
          then
@@ -449,7 +450,7 @@ package body Editor.Keybinding_Config is
       Populate_Built_In_Defaults (Defaults);
 
       Config := Active;
-      for Id in Editor.Commands.Command_Id loop
+      for Id in Editor.Command_Ids.Command_Id loop
          if Editor.Keybindings.Is_Normal_Assignable_Command (Id)
            and then Defaults.Entries (Id).State = Entry_Bound
            and then Active.Entries (Id).State = Entry_Absent
@@ -467,7 +468,7 @@ package body Editor.Keybinding_Config is
    begin
       Normalize (C);
       Editor.Keybindings.Reset_To_Defaults;
-      for Id in Editor.Commands.Command_Id loop
+      for Id in Editor.Command_Ids.Command_Id loop
          case C.Entries (Id).State is
             when Entry_Absent =>
                null;
@@ -535,8 +536,8 @@ package body Editor.Keybinding_Config is
       declare
          Count : Natural := 0;
       begin
-         for Id in Editor.Commands.Command_Id loop
-            if Id /= Editor.Commands.No_Command
+         for Id in Editor.Command_Ids.Command_Id loop
+            if Id /= Editor.Command_Ids.No_Command
               and then C.Entries (Id).State /= Entry_Absent
             then
                Count := Count + 1;
@@ -544,7 +545,7 @@ package body Editor.Keybinding_Config is
          end loop;
          for N in 1 .. Count loop
             declare
-               Id : constant Editor.Commands.Command_Id :=
+               Id : constant Editor.Command_Ids.Command_Id :=
                  Sorted_Command_At (C, N, Include_Unbound => True);
             begin
                Ada.Text_IO.Put
@@ -711,7 +712,7 @@ package body Editor.Keybinding_Config is
                      Val : constant String := Editor.Text_Helpers.Trim (L (Eq + 1 .. L'Last));
                      Found_Command : Boolean := False;
                      Found_Chord   : Boolean := False;
-                     Id : constant Editor.Commands.Command_Id :=
+                     Id : constant Editor.Command_Ids.Command_Id :=
                        Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
                          (Key, Found_Command);
                      Chord : Editor.Keybindings.Key_Chord;
@@ -733,7 +734,7 @@ package body Editor.Keybinding_Config is
                            if Config.Entries (Id).State /= Entry_Absent then
                               Mark_Partial (Status, Duplicate_Command);
                            end if;
-                           for Other in Editor.Commands.Command_Id loop
+                           for Other in Editor.Command_Ids.Command_Id loop
                               if Other /= Id
                                 and then Config.Entries (Other).State = Entry_Bound
                                 and then Same_Chord (Config.Entries (Other).Chord, Chord)

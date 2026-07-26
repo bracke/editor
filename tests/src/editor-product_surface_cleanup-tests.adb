@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -6,7 +7,6 @@ with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
 with Editor.Build_Candidates;
 with Editor.Build_UI;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.Feature_Panel;
 with Editor.Feature_Panel.Fixtures; use Editor.Feature_Panel.Fixtures;
@@ -24,7 +24,7 @@ with Editor.State;
 package body Editor.Product_Surface_Cleanup.Tests is
 
    use type Editor.Commands.Descriptors.Command_Visibility;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
 
    function Product_Surface_Text_Is_Placeholder (Text : String) return Boolean is
       Lower : String := Text;
@@ -73,11 +73,11 @@ package body Editor.Product_Surface_Cleanup.Tests is
    is
       pragma Unreferenced (T);
       Found : Boolean := True;
-      Id    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Id    : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
    begin
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("populate-feature-panel-placeholder", Found);
-      Assert (not Found and then Id = Editor.Commands.No_Command,
+      Assert (not Found and then Id = Editor.Command_Ids.No_Command,
               "removed placeholder population command is not registered");
       Assert (not Editor.Product_Surface_Cleanup.Demo_Command_Exposed_To_Product_Surface,
               "no demo command is exposed to palette or keybindings");
@@ -195,15 +195,15 @@ package body Editor.Product_Surface_Cleanup.Tests is
    begin
       Editor.State.Initialize (S);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Show_Feature_Panel);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Focus_Feature_Panel);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Toggle_Feature_Panel);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Clear_Feature_Panel);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Toggle_Problems_Panel);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Focus_Problems);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Open_Quick_Open);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Focus_File_Tree);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Open_Project_Search_Bar);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Show_Feature_Panel);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Focus_Feature_Panel);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Toggle_Feature_Panel);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Clear_Feature_Panel);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Toggle_Problems_Panel);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Focus_Problems);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Open_Quick_Open);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Focus_File_Tree);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Open_Project_Search_Bar);
 
       Assert (Editor.Feature_Panel.Row_Count (S.Feature_Panel) = 0,
               "Feature Panel show/focus/toggle/clear do not create placeholder rows");

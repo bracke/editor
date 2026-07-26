@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Classification;
 with Editor.Commands.Descriptor_Metadata;
 with Ada.Containers;
@@ -15,7 +16,7 @@ package body Editor.Core_Editing_Workflow is
 
    use type Editor.Cursors.Cursor_Index;
    use type Ada.Containers.Count_Type;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Pending_Transitions.Pending_Transition_Kind;
    use type Editor.Overlay_Focus.Overlay_Target;
 
@@ -60,94 +61,94 @@ package body Editor.Core_Editing_Workflow is
 
 
    function Is_Core_Editing_Command
-     (Id : Editor.Commands.Command_Id) return Boolean is
+     (Id : Editor.Command_Ids.Command_Id) return Boolean is
    begin
       case Id is
-         when Editor.Commands.Command_Open_File
-            | Editor.Commands.Command_New_Buffer
-            | Editor.Commands.Command_Close_Active_Buffer
-            | Editor.Commands.Command_Reopen_Closed_Buffer
-            | Editor.Commands.Command_Close_Other_Buffers
-            | Editor.Commands.Command_Close_All_Clean_Buffers
-            | Editor.Commands.Command_Next_Buffer
-            | Editor.Commands.Command_Previous_Buffer
-            | Editor.Commands.Command_Previous_Recent_Buffer
-            | Editor.Commands.Command_Next_Recent_Buffer
-            | Editor.Commands.Command_Switch_Buffer
-            | Editor.Commands.Command_Save_File
-            | Editor.Commands.Command_Save_File_As
-            | Editor.Commands.Command_Save_All
-            | Editor.Commands.Command_Reload_Active_Buffer
-            | Editor.Commands.Command_Revert_Active_Buffer
-            | Editor.Commands.Command_Rename_Buffer_File
-            | Editor.Commands.Command_Delete_Buffer_File
-            | Editor.Commands.Command_Copy_Buffer_File
-            | Editor.Commands.Command_Move_Buffer_File
-            | Editor.Commands.Command_Move_Left
-            | Editor.Commands.Command_Move_Right
-            | Editor.Commands.Command_Move_Up
-            | Editor.Commands.Command_Move_Down
-            | Editor.Commands.Command_Move_Line_Start
-            | Editor.Commands.Command_Move_Line_End
-            | Editor.Commands.Command_Move_Document_Start
-            | Editor.Commands.Command_Move_Document_End
-            | Editor.Commands.Command_Goto_Start
-            | Editor.Commands.Command_Goto_End
-            | Editor.Commands.Command_Goto_Line
-            | Editor.Commands.Command_Goto_Line_Toggle
-            | Editor.Commands.Command_Goto_Line_Prefill_Current
-            | Editor.Commands.Command_Goto_Line_Query_Set
-            | Editor.Commands.Command_Goto_Line_Query_Clear
-            | Editor.Commands.Command_Close_Goto_Line
-            | Editor.Commands.Command_Accept_Goto_Line
-            | Editor.Commands.Command_Move_Word_Left
-            | Editor.Commands.Command_Move_Word_Right
-            | Editor.Commands.Command_Page_Up
-            | Editor.Commands.Command_Page_Down
-            | Editor.Commands.Command_Select_Left
-            | Editor.Commands.Command_Select_Right
-            | Editor.Commands.Command_Select_Up
-            | Editor.Commands.Command_Select_Down
-            | Editor.Commands.Command_Start_Rectangular_Selection
-            | Editor.Commands.Command_Clear_Rectangular_Selection
-            | Editor.Commands.Command_Extend_Selection_Line_Up
-            | Editor.Commands.Command_Extend_Selection_Line_Down
-            | Editor.Commands.Command_Select_Word_Left
-            | Editor.Commands.Command_Select_Word_Right
-            | Editor.Commands.Command_Select_Word
-            | Editor.Commands.Command_Select_Line
-            | Editor.Commands.Command_Select_Line_Start
-            | Editor.Commands.Command_Select_Line_End
-            | Editor.Commands.Command_Select_Document_Start
-            | Editor.Commands.Command_Select_Document_End
-            | Editor.Commands.Command_Select_Page_Up
-            | Editor.Commands.Command_Select_Page_Down
-            | Editor.Commands.Command_Select_All
-            | Editor.Commands.Command_Selection_Clear
-            | Editor.Commands.Command_Selection_Delete
-            | Editor.Commands.Command_Copy
-            | Editor.Commands.Command_Cut
-            | Editor.Commands.Command_Paste
-            | Editor.Commands.Command_Undo
-            | Editor.Commands.Command_Redo
-            | Editor.Commands.Command_Edit_History_Clear
-            | Editor.Commands.Command_Insert_Newline
-            | Editor.Commands.Command_Line_Delete
-            | Editor.Commands.Command_Line_Duplicate
-            | Editor.Commands.Command_Line_Move_Up
-            | Editor.Commands.Command_Line_Move_Down
-            | Editor.Commands.Command_Indent_Increase
-            | Editor.Commands.Command_Indent_Decrease
-            | Editor.Commands.Command_Comment_Line
-            | Editor.Commands.Command_Uncomment_Line
-            | Editor.Commands.Command_Toggle_Line_Comment
-            | Editor.Commands.Command_Line_Join_Next
-            | Editor.Commands.Command_Line_Split_At_Caret
-            | Editor.Commands.Command_Trim_Trailing_Whitespace
-            | Editor.Commands.Command_Char_Delete_Previous
-            | Editor.Commands.Command_Char_Delete_Next
-            | Editor.Commands.Command_Word_Delete_Previous
-            | Editor.Commands.Command_Word_Delete_Next =>
+         when Editor.Command_Ids.Command_Open_File
+            | Editor.Command_Ids.Command_New_Buffer
+            | Editor.Command_Ids.Command_Close_Active_Buffer
+            | Editor.Command_Ids.Command_Reopen_Closed_Buffer
+            | Editor.Command_Ids.Command_Close_Other_Buffers
+            | Editor.Command_Ids.Command_Close_All_Clean_Buffers
+            | Editor.Command_Ids.Command_Next_Buffer
+            | Editor.Command_Ids.Command_Previous_Buffer
+            | Editor.Command_Ids.Command_Previous_Recent_Buffer
+            | Editor.Command_Ids.Command_Next_Recent_Buffer
+            | Editor.Command_Ids.Command_Switch_Buffer
+            | Editor.Command_Ids.Command_Save_File
+            | Editor.Command_Ids.Command_Save_File_As
+            | Editor.Command_Ids.Command_Save_All
+            | Editor.Command_Ids.Command_Reload_Active_Buffer
+            | Editor.Command_Ids.Command_Revert_Active_Buffer
+            | Editor.Command_Ids.Command_Rename_Buffer_File
+            | Editor.Command_Ids.Command_Delete_Buffer_File
+            | Editor.Command_Ids.Command_Copy_Buffer_File
+            | Editor.Command_Ids.Command_Move_Buffer_File
+            | Editor.Command_Ids.Command_Move_Left
+            | Editor.Command_Ids.Command_Move_Right
+            | Editor.Command_Ids.Command_Move_Up
+            | Editor.Command_Ids.Command_Move_Down
+            | Editor.Command_Ids.Command_Move_Line_Start
+            | Editor.Command_Ids.Command_Move_Line_End
+            | Editor.Command_Ids.Command_Move_Document_Start
+            | Editor.Command_Ids.Command_Move_Document_End
+            | Editor.Command_Ids.Command_Goto_Start
+            | Editor.Command_Ids.Command_Goto_End
+            | Editor.Command_Ids.Command_Goto_Line
+            | Editor.Command_Ids.Command_Goto_Line_Toggle
+            | Editor.Command_Ids.Command_Goto_Line_Prefill_Current
+            | Editor.Command_Ids.Command_Goto_Line_Query_Set
+            | Editor.Command_Ids.Command_Goto_Line_Query_Clear
+            | Editor.Command_Ids.Command_Close_Goto_Line
+            | Editor.Command_Ids.Command_Accept_Goto_Line
+            | Editor.Command_Ids.Command_Move_Word_Left
+            | Editor.Command_Ids.Command_Move_Word_Right
+            | Editor.Command_Ids.Command_Page_Up
+            | Editor.Command_Ids.Command_Page_Down
+            | Editor.Command_Ids.Command_Select_Left
+            | Editor.Command_Ids.Command_Select_Right
+            | Editor.Command_Ids.Command_Select_Up
+            | Editor.Command_Ids.Command_Select_Down
+            | Editor.Command_Ids.Command_Start_Rectangular_Selection
+            | Editor.Command_Ids.Command_Clear_Rectangular_Selection
+            | Editor.Command_Ids.Command_Extend_Selection_Line_Up
+            | Editor.Command_Ids.Command_Extend_Selection_Line_Down
+            | Editor.Command_Ids.Command_Select_Word_Left
+            | Editor.Command_Ids.Command_Select_Word_Right
+            | Editor.Command_Ids.Command_Select_Word
+            | Editor.Command_Ids.Command_Select_Line
+            | Editor.Command_Ids.Command_Select_Line_Start
+            | Editor.Command_Ids.Command_Select_Line_End
+            | Editor.Command_Ids.Command_Select_Document_Start
+            | Editor.Command_Ids.Command_Select_Document_End
+            | Editor.Command_Ids.Command_Select_Page_Up
+            | Editor.Command_Ids.Command_Select_Page_Down
+            | Editor.Command_Ids.Command_Select_All
+            | Editor.Command_Ids.Command_Selection_Clear
+            | Editor.Command_Ids.Command_Selection_Delete
+            | Editor.Command_Ids.Command_Copy
+            | Editor.Command_Ids.Command_Cut
+            | Editor.Command_Ids.Command_Paste
+            | Editor.Command_Ids.Command_Undo
+            | Editor.Command_Ids.Command_Redo
+            | Editor.Command_Ids.Command_Edit_History_Clear
+            | Editor.Command_Ids.Command_Insert_Newline
+            | Editor.Command_Ids.Command_Line_Delete
+            | Editor.Command_Ids.Command_Line_Duplicate
+            | Editor.Command_Ids.Command_Line_Move_Up
+            | Editor.Command_Ids.Command_Line_Move_Down
+            | Editor.Command_Ids.Command_Indent_Increase
+            | Editor.Command_Ids.Command_Indent_Decrease
+            | Editor.Command_Ids.Command_Comment_Line
+            | Editor.Command_Ids.Command_Uncomment_Line
+            | Editor.Command_Ids.Command_Toggle_Line_Comment
+            | Editor.Command_Ids.Command_Line_Join_Next
+            | Editor.Command_Ids.Command_Line_Split_At_Caret
+            | Editor.Command_Ids.Command_Trim_Trailing_Whitespace
+            | Editor.Command_Ids.Command_Char_Delete_Previous
+            | Editor.Command_Ids.Command_Char_Delete_Next
+            | Editor.Command_Ids.Command_Word_Delete_Previous
+            | Editor.Command_Ids.Command_Word_Delete_Next =>
             return True;
          when others =>
             return False;
@@ -155,20 +156,20 @@ package body Editor.Core_Editing_Workflow is
    end Is_Core_Editing_Command;
 
    function Is_Buffer_Lifecycle_Command
-     (Id : Editor.Commands.Command_Id) return Boolean is
+     (Id : Editor.Command_Ids.Command_Id) return Boolean is
    begin
       case Id is
-         when Editor.Commands.Command_Open_File
-            | Editor.Commands.Command_New_Buffer
-            | Editor.Commands.Command_Close_Active_Buffer
-            | Editor.Commands.Command_Reopen_Closed_Buffer
-            | Editor.Commands.Command_Close_Other_Buffers
-            | Editor.Commands.Command_Close_All_Clean_Buffers
-            | Editor.Commands.Command_Next_Buffer
-            | Editor.Commands.Command_Previous_Buffer
-            | Editor.Commands.Command_Previous_Recent_Buffer
-            | Editor.Commands.Command_Next_Recent_Buffer
-            | Editor.Commands.Command_Switch_Buffer =>
+         when Editor.Command_Ids.Command_Open_File
+            | Editor.Command_Ids.Command_New_Buffer
+            | Editor.Command_Ids.Command_Close_Active_Buffer
+            | Editor.Command_Ids.Command_Reopen_Closed_Buffer
+            | Editor.Command_Ids.Command_Close_Other_Buffers
+            | Editor.Command_Ids.Command_Close_All_Clean_Buffers
+            | Editor.Command_Ids.Command_Next_Buffer
+            | Editor.Command_Ids.Command_Previous_Buffer
+            | Editor.Command_Ids.Command_Previous_Recent_Buffer
+            | Editor.Command_Ids.Command_Next_Recent_Buffer
+            | Editor.Command_Ids.Command_Switch_Buffer =>
             return True;
          when others =>
             return False;
@@ -176,30 +177,30 @@ package body Editor.Core_Editing_Workflow is
    end Is_Buffer_Lifecycle_Command;
 
    function Is_Caret_Navigation_Command
-     (Id : Editor.Commands.Command_Id) return Boolean is
+     (Id : Editor.Command_Ids.Command_Id) return Boolean is
    begin
       case Id is
-         when Editor.Commands.Command_Move_Left
-            | Editor.Commands.Command_Move_Right
-            | Editor.Commands.Command_Move_Up
-            | Editor.Commands.Command_Move_Down
-            | Editor.Commands.Command_Move_Line_Start
-            | Editor.Commands.Command_Move_Line_End
-            | Editor.Commands.Command_Move_Document_Start
-            | Editor.Commands.Command_Move_Document_End
-            | Editor.Commands.Command_Goto_Start
-            | Editor.Commands.Command_Goto_End
-            | Editor.Commands.Command_Goto_Line
-            | Editor.Commands.Command_Goto_Line_Toggle
-            | Editor.Commands.Command_Goto_Line_Prefill_Current
-            | Editor.Commands.Command_Goto_Line_Query_Set
-            | Editor.Commands.Command_Goto_Line_Query_Clear
-            | Editor.Commands.Command_Close_Goto_Line
-            | Editor.Commands.Command_Accept_Goto_Line
-            | Editor.Commands.Command_Move_Word_Left
-            | Editor.Commands.Command_Move_Word_Right
-            | Editor.Commands.Command_Page_Up
-            | Editor.Commands.Command_Page_Down =>
+         when Editor.Command_Ids.Command_Move_Left
+            | Editor.Command_Ids.Command_Move_Right
+            | Editor.Command_Ids.Command_Move_Up
+            | Editor.Command_Ids.Command_Move_Down
+            | Editor.Command_Ids.Command_Move_Line_Start
+            | Editor.Command_Ids.Command_Move_Line_End
+            | Editor.Command_Ids.Command_Move_Document_Start
+            | Editor.Command_Ids.Command_Move_Document_End
+            | Editor.Command_Ids.Command_Goto_Start
+            | Editor.Command_Ids.Command_Goto_End
+            | Editor.Command_Ids.Command_Goto_Line
+            | Editor.Command_Ids.Command_Goto_Line_Toggle
+            | Editor.Command_Ids.Command_Goto_Line_Prefill_Current
+            | Editor.Command_Ids.Command_Goto_Line_Query_Set
+            | Editor.Command_Ids.Command_Goto_Line_Query_Clear
+            | Editor.Command_Ids.Command_Close_Goto_Line
+            | Editor.Command_Ids.Command_Accept_Goto_Line
+            | Editor.Command_Ids.Command_Move_Word_Left
+            | Editor.Command_Ids.Command_Move_Word_Right
+            | Editor.Command_Ids.Command_Page_Up
+            | Editor.Command_Ids.Command_Page_Down =>
             return True;
          when others =>
             return False;
@@ -207,32 +208,32 @@ package body Editor.Core_Editing_Workflow is
    end Is_Caret_Navigation_Command;
 
    function Is_Selection_Command
-     (Id : Editor.Commands.Command_Id) return Boolean is
+     (Id : Editor.Command_Ids.Command_Id) return Boolean is
    begin
       case Id is
-         when Editor.Commands.Command_Select_Left
-            | Editor.Commands.Command_Select_Right
-            | Editor.Commands.Command_Select_Up
-            | Editor.Commands.Command_Select_Down
-            | Editor.Commands.Command_Start_Rectangular_Selection
-            | Editor.Commands.Command_Clear_Rectangular_Selection
-            | Editor.Commands.Command_Extend_Selection_Line_Up
-            | Editor.Commands.Command_Extend_Selection_Line_Down
-            | Editor.Commands.Command_Select_Word_Left
-            | Editor.Commands.Command_Select_Word_Right
-            | Editor.Commands.Command_Select_Word
-            | Editor.Commands.Command_Select_Line
-            | Editor.Commands.Command_Select_Line_Start
-            | Editor.Commands.Command_Select_Line_End
-            | Editor.Commands.Command_Select_Document_Start
-            | Editor.Commands.Command_Select_Document_End
-            | Editor.Commands.Command_Select_Page_Up
-            | Editor.Commands.Command_Select_Page_Down
-            | Editor.Commands.Command_Select_All
-            | Editor.Commands.Command_Selection_Clear
-            | Editor.Commands.Command_Selection_Delete
-            | Editor.Commands.Command_Copy
-            | Editor.Commands.Command_Cut =>
+         when Editor.Command_Ids.Command_Select_Left
+            | Editor.Command_Ids.Command_Select_Right
+            | Editor.Command_Ids.Command_Select_Up
+            | Editor.Command_Ids.Command_Select_Down
+            | Editor.Command_Ids.Command_Start_Rectangular_Selection
+            | Editor.Command_Ids.Command_Clear_Rectangular_Selection
+            | Editor.Command_Ids.Command_Extend_Selection_Line_Up
+            | Editor.Command_Ids.Command_Extend_Selection_Line_Down
+            | Editor.Command_Ids.Command_Select_Word_Left
+            | Editor.Command_Ids.Command_Select_Word_Right
+            | Editor.Command_Ids.Command_Select_Word
+            | Editor.Command_Ids.Command_Select_Line
+            | Editor.Command_Ids.Command_Select_Line_Start
+            | Editor.Command_Ids.Command_Select_Line_End
+            | Editor.Command_Ids.Command_Select_Document_Start
+            | Editor.Command_Ids.Command_Select_Document_End
+            | Editor.Command_Ids.Command_Select_Page_Up
+            | Editor.Command_Ids.Command_Select_Page_Down
+            | Editor.Command_Ids.Command_Select_All
+            | Editor.Command_Ids.Command_Selection_Clear
+            | Editor.Command_Ids.Command_Selection_Delete
+            | Editor.Command_Ids.Command_Copy
+            | Editor.Command_Ids.Command_Cut =>
             return True;
          when others =>
             return False;
@@ -240,32 +241,32 @@ package body Editor.Core_Editing_Workflow is
    end Is_Selection_Command;
 
    function Is_Text_Editing_Command
-     (Id : Editor.Commands.Command_Id) return Boolean is
+     (Id : Editor.Command_Ids.Command_Id) return Boolean is
    begin
       case Id is
-         when Editor.Commands.Command_Selection_Delete
-            | Editor.Commands.Command_Cut
-            | Editor.Commands.Command_Paste
-            | Editor.Commands.Command_Undo
-            | Editor.Commands.Command_Redo
-            | Editor.Commands.Command_Edit_History_Clear
-            | Editor.Commands.Command_Insert_Newline
-            | Editor.Commands.Command_Line_Delete
-            | Editor.Commands.Command_Line_Duplicate
-            | Editor.Commands.Command_Line_Move_Up
-            | Editor.Commands.Command_Line_Move_Down
-            | Editor.Commands.Command_Indent_Increase
-            | Editor.Commands.Command_Indent_Decrease
-            | Editor.Commands.Command_Comment_Line
-            | Editor.Commands.Command_Uncomment_Line
-            | Editor.Commands.Command_Toggle_Line_Comment
-            | Editor.Commands.Command_Line_Join_Next
-            | Editor.Commands.Command_Line_Split_At_Caret
-            | Editor.Commands.Command_Trim_Trailing_Whitespace
-            | Editor.Commands.Command_Char_Delete_Previous
-            | Editor.Commands.Command_Char_Delete_Next
-            | Editor.Commands.Command_Word_Delete_Previous
-            | Editor.Commands.Command_Word_Delete_Next =>
+         when Editor.Command_Ids.Command_Selection_Delete
+            | Editor.Command_Ids.Command_Cut
+            | Editor.Command_Ids.Command_Paste
+            | Editor.Command_Ids.Command_Undo
+            | Editor.Command_Ids.Command_Redo
+            | Editor.Command_Ids.Command_Edit_History_Clear
+            | Editor.Command_Ids.Command_Insert_Newline
+            | Editor.Command_Ids.Command_Line_Delete
+            | Editor.Command_Ids.Command_Line_Duplicate
+            | Editor.Command_Ids.Command_Line_Move_Up
+            | Editor.Command_Ids.Command_Line_Move_Down
+            | Editor.Command_Ids.Command_Indent_Increase
+            | Editor.Command_Ids.Command_Indent_Decrease
+            | Editor.Command_Ids.Command_Comment_Line
+            | Editor.Command_Ids.Command_Uncomment_Line
+            | Editor.Command_Ids.Command_Toggle_Line_Comment
+            | Editor.Command_Ids.Command_Line_Join_Next
+            | Editor.Command_Ids.Command_Line_Split_At_Caret
+            | Editor.Command_Ids.Command_Trim_Trailing_Whitespace
+            | Editor.Command_Ids.Command_Char_Delete_Previous
+            | Editor.Command_Ids.Command_Char_Delete_Next
+            | Editor.Command_Ids.Command_Word_Delete_Previous
+            | Editor.Command_Ids.Command_Word_Delete_Next =>
             return True;
          when others =>
             return False;
@@ -273,38 +274,38 @@ package body Editor.Core_Editing_Workflow is
    end Is_Text_Editing_Command;
 
    function Mutates_Or_Replaces_Buffer_Text
-     (Id : Editor.Commands.Command_Id) return Boolean is
+     (Id : Editor.Command_Ids.Command_Id) return Boolean is
    begin
       case Id is
-         when Editor.Commands.Command_Save_File
-            | Editor.Commands.Command_Save_File_As
-            | Editor.Commands.Command_Save_All
-            | Editor.Commands.Command_Reload_Active_Buffer
-            | Editor.Commands.Command_Revert_Active_Buffer
-            | Editor.Commands.Command_Delete_Buffer_File
-            | Editor.Commands.Command_Selection_Delete
-            | Editor.Commands.Command_Cut
-            | Editor.Commands.Command_Paste
-            | Editor.Commands.Command_Undo
-            | Editor.Commands.Command_Redo
-            | Editor.Commands.Command_Edit_History_Clear
-            | Editor.Commands.Command_Insert_Newline
-            | Editor.Commands.Command_Line_Delete
-            | Editor.Commands.Command_Line_Duplicate
-            | Editor.Commands.Command_Line_Move_Up
-            | Editor.Commands.Command_Line_Move_Down
-            | Editor.Commands.Command_Indent_Increase
-            | Editor.Commands.Command_Indent_Decrease
-            | Editor.Commands.Command_Comment_Line
-            | Editor.Commands.Command_Uncomment_Line
-            | Editor.Commands.Command_Toggle_Line_Comment
-            | Editor.Commands.Command_Line_Join_Next
-            | Editor.Commands.Command_Line_Split_At_Caret
-            | Editor.Commands.Command_Trim_Trailing_Whitespace
-            | Editor.Commands.Command_Char_Delete_Previous
-            | Editor.Commands.Command_Char_Delete_Next
-            | Editor.Commands.Command_Word_Delete_Previous
-            | Editor.Commands.Command_Word_Delete_Next =>
+         when Editor.Command_Ids.Command_Save_File
+            | Editor.Command_Ids.Command_Save_File_As
+            | Editor.Command_Ids.Command_Save_All
+            | Editor.Command_Ids.Command_Reload_Active_Buffer
+            | Editor.Command_Ids.Command_Revert_Active_Buffer
+            | Editor.Command_Ids.Command_Delete_Buffer_File
+            | Editor.Command_Ids.Command_Selection_Delete
+            | Editor.Command_Ids.Command_Cut
+            | Editor.Command_Ids.Command_Paste
+            | Editor.Command_Ids.Command_Undo
+            | Editor.Command_Ids.Command_Redo
+            | Editor.Command_Ids.Command_Edit_History_Clear
+            | Editor.Command_Ids.Command_Insert_Newline
+            | Editor.Command_Ids.Command_Line_Delete
+            | Editor.Command_Ids.Command_Line_Duplicate
+            | Editor.Command_Ids.Command_Line_Move_Up
+            | Editor.Command_Ids.Command_Line_Move_Down
+            | Editor.Command_Ids.Command_Indent_Increase
+            | Editor.Command_Ids.Command_Indent_Decrease
+            | Editor.Command_Ids.Command_Comment_Line
+            | Editor.Command_Ids.Command_Uncomment_Line
+            | Editor.Command_Ids.Command_Toggle_Line_Comment
+            | Editor.Command_Ids.Command_Line_Join_Next
+            | Editor.Command_Ids.Command_Line_Split_At_Caret
+            | Editor.Command_Ids.Command_Trim_Trailing_Whitespace
+            | Editor.Command_Ids.Command_Char_Delete_Previous
+            | Editor.Command_Ids.Command_Char_Delete_Next
+            | Editor.Command_Ids.Command_Word_Delete_Previous
+            | Editor.Command_Ids.Command_Word_Delete_Next =>
             return True;
          when others =>
             return False;
@@ -312,17 +313,17 @@ package body Editor.Core_Editing_Workflow is
    end Mutates_Or_Replaces_Buffer_Text;
 
    function Requires_File_Backed_Buffer
-     (Id : Editor.Commands.Command_Id) return Boolean is
+     (Id : Editor.Command_Ids.Command_Id) return Boolean is
    begin
       case Id is
-         when Editor.Commands.Command_Save_File
-            | Editor.Commands.Command_Save_All
-            | Editor.Commands.Command_Reload_Active_Buffer
-            | Editor.Commands.Command_Revert_Active_Buffer
-            | Editor.Commands.Command_Rename_Buffer_File
-            | Editor.Commands.Command_Delete_Buffer_File
-            | Editor.Commands.Command_Copy_Buffer_File
-            | Editor.Commands.Command_Move_Buffer_File =>
+         when Editor.Command_Ids.Command_Save_File
+            | Editor.Command_Ids.Command_Save_All
+            | Editor.Command_Ids.Command_Reload_Active_Buffer
+            | Editor.Command_Ids.Command_Revert_Active_Buffer
+            | Editor.Command_Ids.Command_Rename_Buffer_File
+            | Editor.Command_Ids.Command_Delete_Buffer_File
+            | Editor.Command_Ids.Command_Copy_Buffer_File
+            | Editor.Command_Ids.Command_Move_Buffer_File =>
             return True;
          when others =>
             return False;
@@ -331,38 +332,38 @@ package body Editor.Core_Editing_Workflow is
 
    function Editing_Availability_Reason
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id) return String
+      Id : Editor.Command_Ids.Command_Id) return String
    is
       Has_Buffer : constant Boolean := Has_Caret (S);
       Has_Selection : constant Boolean :=
         Editor.Selection.Has_Selection (S) or else S.Rect_Select_Active;
    begin
       case Id is
-         when Editor.Commands.No_Command =>
+         when Editor.Command_Ids.No_Command =>
             return "No command selected";
 
-         when Editor.Commands.Command_Open_File
-            | Editor.Commands.Command_New_Buffer
-            | Editor.Commands.Command_Reopen_Closed_Buffer =>
+         when Editor.Command_Ids.Command_Open_File
+            | Editor.Command_Ids.Command_New_Buffer
+            | Editor.Command_Ids.Command_Reopen_Closed_Buffer =>
             return "";
 
-         when Editor.Commands.Command_Save_File
-            | Editor.Commands.Command_Save_All
-            | Editor.Commands.Command_Reload_Active_Buffer
-            | Editor.Commands.Command_Revert_Active_Buffer
-            | Editor.Commands.Command_Rename_Buffer_File
-            | Editor.Commands.Command_Delete_Buffer_File
-            | Editor.Commands.Command_Copy_Buffer_File
-            | Editor.Commands.Command_Move_Buffer_File =>
+         when Editor.Command_Ids.Command_Save_File
+            | Editor.Command_Ids.Command_Save_All
+            | Editor.Command_Ids.Command_Reload_Active_Buffer
+            | Editor.Command_Ids.Command_Revert_Active_Buffer
+            | Editor.Command_Ids.Command_Rename_Buffer_File
+            | Editor.Command_Ids.Command_Delete_Buffer_File
+            | Editor.Command_Ids.Command_Copy_Buffer_File
+            | Editor.Command_Ids.Command_Move_Buffer_File =>
             if not Has_Buffer then
                return "No active buffer.";
             elsif not Has_File_Path (S) then
                return "No file path for active buffer";
-            elsif Id = Editor.Commands.Command_Reload_Active_Buffer
+            elsif Id = Editor.Command_Ids.Command_Reload_Active_Buffer
               and then S.File_Info.Dirty
             then
                return "Dirty buffer cannot be reloaded";
-            elsif Id = Editor.Commands.Command_Revert_Active_Buffer
+            elsif Id = Editor.Command_Ids.Command_Revert_Active_Buffer
               and then not S.File_Info.Dirty
             then
                return "No changes to revert";
@@ -370,15 +371,15 @@ package body Editor.Core_Editing_Workflow is
                return "";
             end if;
 
-         when Editor.Commands.Command_Save_File_As =>
+         when Editor.Command_Ids.Command_Save_File_As =>
             if not Has_Buffer then
                return "No active buffer.";
             else
                return "";
             end if;
 
-         when Editor.Commands.Command_Close_Active_Buffer
-            | Editor.Commands.Command_Close_Other_Buffers =>
+         when Editor.Command_Ids.Command_Close_Active_Buffer
+            | Editor.Command_Ids.Command_Close_Other_Buffers =>
             if not Has_Buffer then
                return "No active buffer.";
             else
@@ -390,26 +391,26 @@ package body Editor.Core_Editing_Workflow is
                return "";
             end if;
 
-         when Editor.Commands.Command_Close_All_Clean_Buffers =>
+         when Editor.Command_Ids.Command_Close_All_Clean_Buffers =>
             if not Has_Buffer then
                return "No active buffer.";
             else
                return "";
             end if;
 
-         when Editor.Commands.Command_Next_Buffer
-            | Editor.Commands.Command_Previous_Buffer
-            | Editor.Commands.Command_Previous_Recent_Buffer
-            | Editor.Commands.Command_Next_Recent_Buffer
-            | Editor.Commands.Command_Switch_Buffer =>
+         when Editor.Command_Ids.Command_Next_Buffer
+            | Editor.Command_Ids.Command_Previous_Buffer
+            | Editor.Command_Ids.Command_Previous_Recent_Buffer
+            | Editor.Command_Ids.Command_Next_Recent_Buffer
+            | Editor.Command_Ids.Command_Switch_Buffer =>
             if not Has_Buffer then
                return "No active buffer.";
             else
                return "";
             end if;
 
-         when Editor.Commands.Command_Copy
-            | Editor.Commands.Command_Cut =>
+         when Editor.Command_Ids.Command_Copy
+            | Editor.Command_Ids.Command_Cut =>
             if not Has_Buffer then
                return "No active buffer.";
             elsif not Has_Selection then
@@ -418,8 +419,8 @@ package body Editor.Core_Editing_Workflow is
                return "";
             end if;
 
-         when Editor.Commands.Command_Selection_Clear
-            | Editor.Commands.Command_Selection_Delete =>
+         when Editor.Command_Ids.Command_Selection_Clear
+            | Editor.Command_Ids.Command_Selection_Delete =>
             if not Has_Buffer then
                return "No active buffer.";
             elsif S.Carets.Length = 0 then
@@ -430,67 +431,67 @@ package body Editor.Core_Editing_Workflow is
                return "";
             end if;
 
-         when Editor.Commands.Command_Move_Left
-            | Editor.Commands.Command_Move_Right
-            | Editor.Commands.Command_Move_Up
-            | Editor.Commands.Command_Move_Down
-            | Editor.Commands.Command_Move_Line_Start
-            | Editor.Commands.Command_Move_Line_End
-            | Editor.Commands.Command_Move_Document_Start
-            | Editor.Commands.Command_Move_Document_End
-            | Editor.Commands.Command_Goto_Start
-            | Editor.Commands.Command_Goto_End
-            | Editor.Commands.Command_Goto_Line
-            | Editor.Commands.Command_Goto_Line_Toggle
-            | Editor.Commands.Command_Goto_Line_Prefill_Current
-            | Editor.Commands.Command_Goto_Line_Query_Set
-            | Editor.Commands.Command_Goto_Line_Query_Clear
-            | Editor.Commands.Command_Close_Goto_Line
-            | Editor.Commands.Command_Accept_Goto_Line
-            | Editor.Commands.Command_Move_Word_Left
-            | Editor.Commands.Command_Move_Word_Right
-            | Editor.Commands.Command_Page_Up
-            | Editor.Commands.Command_Page_Down
-            | Editor.Commands.Command_Select_Left
-            | Editor.Commands.Command_Select_Right
-            | Editor.Commands.Command_Select_Up
-            | Editor.Commands.Command_Select_Down
-            | Editor.Commands.Command_Start_Rectangular_Selection
-            | Editor.Commands.Command_Clear_Rectangular_Selection
-            | Editor.Commands.Command_Extend_Selection_Line_Up
-            | Editor.Commands.Command_Extend_Selection_Line_Down
-            | Editor.Commands.Command_Select_Word_Left
-            | Editor.Commands.Command_Select_Word_Right
-            | Editor.Commands.Command_Select_Word
-            | Editor.Commands.Command_Select_Line
-            | Editor.Commands.Command_Select_Line_Start
-            | Editor.Commands.Command_Select_Line_End
-            | Editor.Commands.Command_Select_Document_Start
-            | Editor.Commands.Command_Select_Document_End
-            | Editor.Commands.Command_Select_Page_Up
-            | Editor.Commands.Command_Select_Page_Down
-            | Editor.Commands.Command_Select_All
-            | Editor.Commands.Command_Undo
-            | Editor.Commands.Command_Redo
-            | Editor.Commands.Command_Edit_History_Clear
-            | Editor.Commands.Command_Insert_Newline
-            | Editor.Commands.Command_Char_Delete_Previous
-            | Editor.Commands.Command_Char_Delete_Next
-            | Editor.Commands.Command_Word_Delete_Previous
-            | Editor.Commands.Command_Word_Delete_Next
-            | Editor.Commands.Command_Line_Delete
-            | Editor.Commands.Command_Line_Duplicate
-            | Editor.Commands.Command_Line_Move_Up
-            | Editor.Commands.Command_Line_Move_Down
-            | Editor.Commands.Command_Indent_Increase
-            | Editor.Commands.Command_Indent_Decrease
-            | Editor.Commands.Command_Comment_Line
-            | Editor.Commands.Command_Uncomment_Line
-            | Editor.Commands.Command_Toggle_Line_Comment
-            | Editor.Commands.Command_Line_Join_Next
-            | Editor.Commands.Command_Line_Split_At_Caret
-            | Editor.Commands.Command_Trim_Trailing_Whitespace
-            | Editor.Commands.Command_Paste =>
+         when Editor.Command_Ids.Command_Move_Left
+            | Editor.Command_Ids.Command_Move_Right
+            | Editor.Command_Ids.Command_Move_Up
+            | Editor.Command_Ids.Command_Move_Down
+            | Editor.Command_Ids.Command_Move_Line_Start
+            | Editor.Command_Ids.Command_Move_Line_End
+            | Editor.Command_Ids.Command_Move_Document_Start
+            | Editor.Command_Ids.Command_Move_Document_End
+            | Editor.Command_Ids.Command_Goto_Start
+            | Editor.Command_Ids.Command_Goto_End
+            | Editor.Command_Ids.Command_Goto_Line
+            | Editor.Command_Ids.Command_Goto_Line_Toggle
+            | Editor.Command_Ids.Command_Goto_Line_Prefill_Current
+            | Editor.Command_Ids.Command_Goto_Line_Query_Set
+            | Editor.Command_Ids.Command_Goto_Line_Query_Clear
+            | Editor.Command_Ids.Command_Close_Goto_Line
+            | Editor.Command_Ids.Command_Accept_Goto_Line
+            | Editor.Command_Ids.Command_Move_Word_Left
+            | Editor.Command_Ids.Command_Move_Word_Right
+            | Editor.Command_Ids.Command_Page_Up
+            | Editor.Command_Ids.Command_Page_Down
+            | Editor.Command_Ids.Command_Select_Left
+            | Editor.Command_Ids.Command_Select_Right
+            | Editor.Command_Ids.Command_Select_Up
+            | Editor.Command_Ids.Command_Select_Down
+            | Editor.Command_Ids.Command_Start_Rectangular_Selection
+            | Editor.Command_Ids.Command_Clear_Rectangular_Selection
+            | Editor.Command_Ids.Command_Extend_Selection_Line_Up
+            | Editor.Command_Ids.Command_Extend_Selection_Line_Down
+            | Editor.Command_Ids.Command_Select_Word_Left
+            | Editor.Command_Ids.Command_Select_Word_Right
+            | Editor.Command_Ids.Command_Select_Word
+            | Editor.Command_Ids.Command_Select_Line
+            | Editor.Command_Ids.Command_Select_Line_Start
+            | Editor.Command_Ids.Command_Select_Line_End
+            | Editor.Command_Ids.Command_Select_Document_Start
+            | Editor.Command_Ids.Command_Select_Document_End
+            | Editor.Command_Ids.Command_Select_Page_Up
+            | Editor.Command_Ids.Command_Select_Page_Down
+            | Editor.Command_Ids.Command_Select_All
+            | Editor.Command_Ids.Command_Undo
+            | Editor.Command_Ids.Command_Redo
+            | Editor.Command_Ids.Command_Edit_History_Clear
+            | Editor.Command_Ids.Command_Insert_Newline
+            | Editor.Command_Ids.Command_Char_Delete_Previous
+            | Editor.Command_Ids.Command_Char_Delete_Next
+            | Editor.Command_Ids.Command_Word_Delete_Previous
+            | Editor.Command_Ids.Command_Word_Delete_Next
+            | Editor.Command_Ids.Command_Line_Delete
+            | Editor.Command_Ids.Command_Line_Duplicate
+            | Editor.Command_Ids.Command_Line_Move_Up
+            | Editor.Command_Ids.Command_Line_Move_Down
+            | Editor.Command_Ids.Command_Indent_Increase
+            | Editor.Command_Ids.Command_Indent_Decrease
+            | Editor.Command_Ids.Command_Comment_Line
+            | Editor.Command_Ids.Command_Uncomment_Line
+            | Editor.Command_Ids.Command_Toggle_Line_Comment
+            | Editor.Command_Ids.Command_Line_Join_Next
+            | Editor.Command_Ids.Command_Line_Split_At_Caret
+            | Editor.Command_Ids.Command_Trim_Trailing_Whitespace
+            | Editor.Command_Ids.Command_Paste =>
             if not Has_Buffer then
                return "No active buffer.";
             elsif S.Carets.Length = 0 then
@@ -566,14 +567,14 @@ package body Editor.Core_Editing_Workflow is
 
    function Prompt_Boundary_Coherent (S : Editor.State.State_Type) return Boolean is
       function Is_File_Target_Prompt_Command
-        (Id : Editor.Commands.Command_Id) return Boolean is
+        (Id : Editor.Command_Ids.Command_Id) return Boolean is
       begin
          case Id is
-            when Editor.Commands.Command_Save_File_As
-               | Editor.Commands.Command_Rename_Buffer_File
-               | Editor.Commands.Command_Copy_Buffer_File
-               | Editor.Commands.Command_Move_Buffer_File
-               | Editor.Commands.Command_Delete_Buffer_File =>
+            when Editor.Command_Ids.Command_Save_File_As
+               | Editor.Command_Ids.Command_Rename_Buffer_File
+               | Editor.Command_Ids.Command_Copy_Buffer_File
+               | Editor.Command_Ids.Command_Move_Buffer_File
+               | Editor.Command_Ids.Command_Delete_Buffer_File =>
                return True;
             when others =>
                return False;
@@ -617,7 +618,7 @@ package body Editor.Core_Editing_Workflow is
    function Dirty_Close_Guard_Coherent (S : Editor.State.State_Type) return Boolean is
       Reason : constant String :=
         Editing_Availability_Reason
-          (S, Editor.Commands.Command_Close_Active_Buffer);
+          (S, Editor.Command_Ids.Command_Close_Active_Buffer);
    begin
       --  moved dirty-close safety from availability-time refusal to
       --  Executor-owned confirmation.  The coherent state is therefore:
@@ -657,33 +658,33 @@ package body Editor.Core_Editing_Workflow is
 
       Result.Command_Availability_Coherent :=
         (Editing_Availability_Reason
-           (S, Editor.Commands.Command_Save_File)'Length = 0
+           (S, Editor.Command_Ids.Command_Save_File)'Length = 0
          or else not Has_File_Path (S)
          or else not Has_Caret (S))
         and then
         (Editing_Availability_Reason
-           (S, Editor.Commands.Command_Reload_Active_Buffer) /=
+           (S, Editor.Command_Ids.Command_Reload_Active_Buffer) /=
          "Dirty buffer cannot be reloaded"
          or else S.File_Info.Dirty)
         and then
         (not Requires_File_Backed_Buffer
-           (Editor.Commands.Command_Save_File_As));
+           (Editor.Command_Ids.Command_Save_File_As));
 
       Result.Prompt_Boundary_Coherent := Prompt_Boundary_Coherent (S);
       Result.Dirty_Close_Guard_Coherent := Dirty_Close_Guard_Coherent (S);
       Result.Caret_Command_Coverage_Coherent :=
-        Is_Core_Editing_Command (Editor.Commands.Command_Goto_Line)
-        and then Is_Caret_Navigation_Command (Editor.Commands.Command_Goto_Line)
-        and then not Mutates_Or_Replaces_Buffer_Text (Editor.Commands.Command_Goto_Line);
+        Is_Core_Editing_Command (Editor.Command_Ids.Command_Goto_Line)
+        and then Is_Caret_Navigation_Command (Editor.Command_Ids.Command_Goto_Line)
+        and then not Mutates_Or_Replaces_Buffer_Text (Editor.Command_Ids.Command_Goto_Line);
       Result.Selection_Command_Coverage_Coherent :=
-        Is_Selection_Command (Editor.Commands.Command_Select_All)
-        and then Is_Selection_Command (Editor.Commands.Command_Selection_Delete)
-        and then not Is_Caret_Navigation_Command (Editor.Commands.Command_Selection_Delete);
+        Is_Selection_Command (Editor.Command_Ids.Command_Select_All)
+        and then Is_Selection_Command (Editor.Command_Ids.Command_Selection_Delete)
+        and then not Is_Caret_Navigation_Command (Editor.Command_Ids.Command_Selection_Delete);
       Result.Text_Mutation_Command_Coverage_Coherent :=
-        Is_Text_Editing_Command (Editor.Commands.Command_Insert_Newline)
-        and then Is_Text_Editing_Command (Editor.Commands.Command_Indent_Increase)
-        and then not Is_Text_Editing_Command (Editor.Commands.Command_Save_File)
-        and then Mutates_Or_Replaces_Buffer_Text (Editor.Commands.Command_Revert_Active_Buffer);
+        Is_Text_Editing_Command (Editor.Command_Ids.Command_Insert_Newline)
+        and then Is_Text_Editing_Command (Editor.Command_Ids.Command_Indent_Increase)
+        and then not Is_Text_Editing_Command (Editor.Command_Ids.Command_Save_File)
+        and then Mutates_Or_Replaces_Buffer_Text (Editor.Command_Ids.Command_Revert_Active_Buffer);
       Result.Input_Bridge_Boundary_Coherent := Input_Bridge_Boundary_Coherent (S);
 
       Result.Coherent :=
@@ -713,7 +714,7 @@ package body Editor.Core_Editing_Workflow is
 
    function Assert_Text_Editing_Primitives_Coherent return Boolean is
       function User_Facing_Edit_Command
-        (Id : Editor.Commands.Command_Id) return Boolean is
+        (Id : Editor.Command_Ids.Command_Id) return Boolean is
       begin
          return Editor.Commands.Descriptor_Metadata.Has_Descriptor (Id)
            and then Editor.Commands.Audits.Descriptor_Is_Complete (Id)
@@ -722,7 +723,7 @@ package body Editor.Core_Editing_Workflow is
       end User_Facing_Edit_Command;
 
       function User_Facing_Text_Mutation
-        (Id : Editor.Commands.Command_Id) return Boolean is
+        (Id : Editor.Command_Ids.Command_Id) return Boolean is
       begin
          return User_Facing_Edit_Command (Id)
            and then Is_Core_Editing_Command (Id)
@@ -731,7 +732,7 @@ package body Editor.Core_Editing_Workflow is
       end User_Facing_Text_Mutation;
 
       function User_Facing_Caret_Command
-        (Id : Editor.Commands.Command_Id) return Boolean is
+        (Id : Editor.Command_Ids.Command_Id) return Boolean is
       begin
          return User_Facing_Edit_Command (Id)
            and then Is_Core_Editing_Command (Id)
@@ -741,7 +742,7 @@ package body Editor.Core_Editing_Workflow is
       end User_Facing_Caret_Command;
 
       function User_Facing_Selection_Command
-        (Id : Editor.Commands.Command_Id) return Boolean is
+        (Id : Editor.Command_Ids.Command_Id) return Boolean is
       begin
          return User_Facing_Edit_Command (Id)
            and then Is_Core_Editing_Command (Id)
@@ -751,25 +752,25 @@ package body Editor.Core_Editing_Workflow is
    begin
       return
         --  Undo/redo and grouped text-edit commands.
-        User_Facing_Text_Mutation (Editor.Commands.Command_Undo)
-        and then User_Facing_Text_Mutation (Editor.Commands.Command_Redo)
-        and then User_Facing_Text_Mutation (Editor.Commands.Command_Selection_Delete)
-        and then User_Facing_Text_Mutation (Editor.Commands.Command_Line_Duplicate)
-        and then User_Facing_Text_Mutation (Editor.Commands.Command_Line_Move_Up)
-        and then User_Facing_Text_Mutation (Editor.Commands.Command_Line_Move_Down)
-        and then User_Facing_Text_Mutation (Editor.Commands.Command_Line_Join_Next)
-        and then User_Facing_Text_Mutation (Editor.Commands.Command_Line_Split_At_Caret)
-        and then User_Facing_Text_Mutation (Editor.Commands.Command_Trim_Trailing_Whitespace)
-        and then User_Facing_Text_Mutation (Editor.Commands.Command_Word_Delete_Previous)
-        and then User_Facing_Text_Mutation (Editor.Commands.Command_Word_Delete_Next)
+        User_Facing_Text_Mutation (Editor.Command_Ids.Command_Undo)
+        and then User_Facing_Text_Mutation (Editor.Command_Ids.Command_Redo)
+        and then User_Facing_Text_Mutation (Editor.Command_Ids.Command_Selection_Delete)
+        and then User_Facing_Text_Mutation (Editor.Command_Ids.Command_Line_Duplicate)
+        and then User_Facing_Text_Mutation (Editor.Command_Ids.Command_Line_Move_Up)
+        and then User_Facing_Text_Mutation (Editor.Command_Ids.Command_Line_Move_Down)
+        and then User_Facing_Text_Mutation (Editor.Command_Ids.Command_Line_Join_Next)
+        and then User_Facing_Text_Mutation (Editor.Command_Ids.Command_Line_Split_At_Caret)
+        and then User_Facing_Text_Mutation (Editor.Command_Ids.Command_Trim_Trailing_Whitespace)
+        and then User_Facing_Text_Mutation (Editor.Command_Ids.Command_Word_Delete_Previous)
+        and then User_Facing_Text_Mutation (Editor.Command_Ids.Command_Word_Delete_Next)
 
         --  Word movement and selection-only commands remain non-mutating.
-        and then User_Facing_Caret_Command (Editor.Commands.Command_Move_Word_Left)
-        and then User_Facing_Caret_Command (Editor.Commands.Command_Move_Word_Right)
-        and then User_Facing_Selection_Command (Editor.Commands.Command_Select_Word_Left)
-        and then User_Facing_Selection_Command (Editor.Commands.Command_Select_Word_Right)
-        and then User_Facing_Selection_Command (Editor.Commands.Command_Select_Word)
-        and then User_Facing_Selection_Command (Editor.Commands.Command_Select_Line);
+        and then User_Facing_Caret_Command (Editor.Command_Ids.Command_Move_Word_Left)
+        and then User_Facing_Caret_Command (Editor.Command_Ids.Command_Move_Word_Right)
+        and then User_Facing_Selection_Command (Editor.Command_Ids.Command_Select_Word_Left)
+        and then User_Facing_Selection_Command (Editor.Command_Ids.Command_Select_Word_Right)
+        and then User_Facing_Selection_Command (Editor.Command_Ids.Command_Select_Word)
+        and then User_Facing_Selection_Command (Editor.Command_Ids.Command_Select_Line);
    end Assert_Text_Editing_Primitives_Coherent;
 
 end Editor.Core_Editing_Workflow;

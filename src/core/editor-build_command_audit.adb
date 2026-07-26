@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
@@ -7,7 +8,6 @@ with Editor.Build_UI;
 with Editor.Build_Working_Context;
 with Editor.Build_Result_Summary;
 with Editor.Build_Output_Details;
-with Editor.Commands;
 with Editor.Commands.Build_Terminal_Ids;
 with Editor.Commands.Name_Metadata;
 with Editor.External_Producers;
@@ -53,11 +53,11 @@ package body Editor.Build_Command_Audit is
             .Run_Public_Build_Command_Readiness_Audit (State);
    begin
       Result.Build_Run_Descriptor_Stable :=
-        Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Build_Run) =
+        Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Command_Ids.Command_Build_Run) =
         "build.run"
-        and then Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Build_Run).Visibility =
+        and then Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Build_Run).Visibility =
           Editor.Commands.Descriptors.Palette_Command
-        and then not Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Build_Run).Bindable;
+        and then not Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Build_Run).Bindable;
       Result.Build_Run_Routes_Through_Executor := Readiness.Routes_Through_Executor;
       Result.Build_Run_Requires_Explicit_Consent :=
         Readiness.Public_Consent_UX_Publicly_Ready
@@ -306,13 +306,13 @@ package body Editor.Build_Command_Audit is
    function Assert_Build_Cancel_Command_Descriptor_Stable return Boolean
    is
       D : constant Editor.Commands.Descriptors.Command_Descriptor :=
-        Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Build_Cancel);
+        Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Build_Cancel);
       Name : constant String := To_String (D.Name);
    begin
       return Editor.Commands.Name_Metadata.Stable_Command_Name
-          (Editor.Commands.Command_Build_Cancel) = "build.cancel"
+          (Editor.Command_Ids.Command_Build_Cancel) = "build.cancel"
         and then Editor.Commands.Build_Terminal_Ids.Is_Public_Build_Command
-          (Editor.Commands.Command_Build_Cancel)
+          (Editor.Command_Ids.Command_Build_Cancel)
         and then D.Visibility = Editor.Commands.Descriptors.Palette_Command
         and then D.Category = Editor.Commands.Descriptors.Project_Category
         and then not D.Bindable

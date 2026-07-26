@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Registry;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
@@ -12,7 +13,7 @@ with Editor.Commands.Name_Metadata;
 
 package body Editor.Keybinding_Management is
 
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Keybindings.Binding_Result;
    use type Editor.Keybindings.Keybinding_Validation_Status;
@@ -23,13 +24,13 @@ package body Editor.Keybinding_Management is
       Focused  : Boolean := False;
       Filter   : Keybinding_Filter := Filter_All;
       Query    : Unbounded_String := Null_Unbounded_String;
-      Selected : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Selected : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Capture  : Keybinding_Capture_State := Capture_Inactive;
       Pending_Chord : Editor.Keybindings.Key_Chord :=
         (Key => Editor.Keybindings.Key_Left,
          Modifiers => (Ctrl => False, Shift => False, Alt => False, Meta => False));
-      Pending_Target : Editor.Commands.Command_Id := Editor.Commands.No_Command;
-      Pending_Existing : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Pending_Target : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
+      Pending_Existing : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Has_Pending : Boolean := False;
       Has_Selected_Chord : Boolean := False;
       Pending_Reset : Boolean := False;
@@ -112,7 +113,7 @@ package body Editor.Keybinding_Management is
    end Category_Label;
 
    function Active_Chord_For
-     (Command : Editor.Commands.Command_Id;
+     (Command : Editor.Command_Ids.Command_Id;
       Found   : out Boolean) return Editor.Keybindings.Key_Chord
    is
    begin
@@ -127,7 +128,7 @@ package body Editor.Keybinding_Management is
    end Active_Chord_For;
 
    function Active_Chord_List_For
-     (Command : Editor.Commands.Command_Id) return Unbounded_String
+     (Command : Editor.Command_Ids.Command_Id) return Unbounded_String
    is
       Result : Unbounded_String := Null_Unbounded_String;
    begin
@@ -144,7 +145,7 @@ package body Editor.Keybinding_Management is
    end Active_Chord_List_For;
 
    function Default_Chord_For
-     (Command : Editor.Commands.Command_Id;
+     (Command : Editor.Command_Ids.Command_Id;
       Found   : out Boolean) return Editor.Keybindings.Key_Chord
    is
    begin
@@ -153,7 +154,7 @@ package body Editor.Keybinding_Management is
    end Default_Chord_For;
 
    function Is_Default_Chord
-     (Command : Editor.Commands.Command_Id;
+     (Command : Editor.Command_Ids.Command_Id;
       Chord   : Editor.Keybindings.Key_Chord) return Boolean
    is
       Found_Default : Boolean := False;
@@ -164,7 +165,7 @@ package body Editor.Keybinding_Management is
    end Is_Default_Chord;
 
    function Conflicts_With_Default
-     (Command : Editor.Commands.Command_Id;
+     (Command : Editor.Command_Ids.Command_Id;
       Active  : Editor.Keybindings.Key_Chord;
       Has_Active : Boolean) return Boolean
    is
@@ -180,7 +181,7 @@ package body Editor.Keybinding_Management is
    end Conflicts_With_Default;
 
    function Row_For
-     (Command : Editor.Commands.Command_Id) return Keybinding_Row_Snapshot
+     (Command : Editor.Command_Ids.Command_Id) return Keybinding_Row_Snapshot
    is
       D             : constant Editor.Commands.Descriptors.Command_Descriptor :=
         Editor.Commands.Descriptors.Descriptor (Command);
@@ -262,7 +263,7 @@ package body Editor.Keybinding_Management is
       end case;
    end Matches_Filter;
 
-   function Include_Command (Command : Editor.Commands.Command_Id) return Boolean is
+   function Include_Command (Command : Editor.Command_Ids.Command_Id) return Boolean is
       D : constant Editor.Commands.Descriptors.Command_Descriptor :=
         Editor.Commands.Descriptors.Descriptor (Command);
    begin
@@ -278,13 +279,13 @@ package body Editor.Keybinding_Management is
    end Include_Command;
 
    function Chord_Row_For
-     (Command : Editor.Commands.Command_Id;
+     (Command : Editor.Command_Ids.Command_Id;
       Chord   : Editor.Keybindings.Key_Chord) return Keybinding_Chord_Row_Snapshot
    is
       D : constant Editor.Commands.Descriptors.Command_Descriptor :=
         Editor.Commands.Descriptors.Descriptor (Command);
       R : Keybinding_Chord_Row_Snapshot;
-      Existing : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Existing : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Resolved : constant Editor.Keybindings.Binding_Result :=
         Editor.Keybindings.Resolve (Chord, Existing);
    begin
@@ -315,7 +316,7 @@ package body Editor.Keybinding_Management is
    function Build_Chord_Rows return Chord_Row_Vectors.Vector is
       Rows : Chord_Row_Vectors.Vector;
    begin
-      for Command in Editor.Commands.Command_Id loop
+      for Command in Editor.Command_Ids.Command_Id loop
          if Include_Command (Command) then
             for I in 1 .. Editor.Keybindings.Binding_Count_For_Command (Command) loop
                declare
@@ -345,7 +346,7 @@ package body Editor.Keybinding_Management is
    function Build_Rows return Row_Vectors.Vector is
       Rows : Row_Vectors.Vector;
 
-      procedure Visit (Command : Editor.Commands.Command_Id) is
+      procedure Visit (Command : Editor.Command_Ids.Command_Id) is
          R : Keybinding_Row_Snapshot;
       begin
          if Include_Command (Command) then
@@ -364,14 +365,14 @@ package body Editor.Keybinding_Management is
    procedure Refresh_Selection_For_Current_View is
       Rows             : constant Row_Vectors.Vector := Build_Rows;
       Chord_Rows       : constant Chord_Row_Vectors.Vector := Build_Chord_Rows;
-      Command_Visible  : Boolean := State.Selected = Editor.Commands.No_Command;
+      Command_Visible  : Boolean := State.Selected = Editor.Command_Ids.No_Command;
       Chord_Visible    : Boolean := not State.Has_Selected_Chord;
       Selected_Label   : constant String :=
         (if State.Has_Selected_Chord
          then Editor.Keybindings.Format_Chord (State.Selected_Chord)
          else "");
    begin
-      if State.Selected /= Editor.Commands.No_Command
+      if State.Selected /= Editor.Command_Ids.No_Command
         and then Natural (Rows.Length) > 0
       then
          for I in 0 .. Natural (Rows.Length) - 1 loop
@@ -392,7 +393,7 @@ package body Editor.Keybinding_Management is
       end if;
 
       if not Command_Visible then
-         State.Selected := Editor.Commands.No_Command;
+         State.Selected := Editor.Command_Ids.No_Command;
       end if;
       if not Chord_Visible then
          State.Has_Selected_Chord := False;
@@ -402,7 +403,7 @@ package body Editor.Keybinding_Management is
    function Selected_Command_Is_Visible return Boolean is
       Rows : constant Row_Vectors.Vector := Build_Rows;
    begin
-      if State.Selected = Editor.Commands.No_Command
+      if State.Selected = Editor.Command_Ids.No_Command
         or else Natural (Rows.Length) = 0
       then
          return False;
@@ -451,8 +452,8 @@ package body Editor.Keybinding_Management is
       State.Capture := Capture_Inactive;
       State.Has_Pending := False;
       State.Pending_Reset := False;
-      State.Pending_Target := Editor.Commands.No_Command;
-      State.Pending_Existing := Editor.Commands.No_Command;
+      State.Pending_Target := Editor.Command_Ids.No_Command;
+      State.Pending_Existing := Editor.Command_Ids.No_Command;
       State.Has_Selected_Chord := False;
    end Hide;
 
@@ -466,13 +467,13 @@ package body Editor.Keybinding_Management is
       State.Focused := False;
       State.Filter := Filter_All;
       State.Query := Null_Unbounded_String;
-      State.Selected := Editor.Commands.No_Command;
+      State.Selected := Editor.Command_Ids.No_Command;
       State.Capture := Capture_Inactive;
       State.Pending_Chord :=
         (Key => Editor.Keybindings.Key_Left,
          Modifiers => (Ctrl => False, Shift => False, Alt => False, Meta => False));
-      State.Pending_Target := Editor.Commands.No_Command;
-      State.Pending_Existing := Editor.Commands.No_Command;
+      State.Pending_Target := Editor.Command_Ids.No_Command;
+      State.Pending_Existing := Editor.Command_Ids.No_Command;
       State.Has_Pending := False;
       State.Has_Selected_Chord := False;
       State.Pending_Reset := False;
@@ -513,7 +514,7 @@ package body Editor.Keybinding_Management is
 
    function Current_Filter return Keybinding_Filter is (State.Filter);
 
-   procedure Select_Command (Command : Editor.Commands.Command_Id) is
+   procedure Select_Command (Command : Editor.Command_Ids.Command_Id) is
    begin
       State.Selected := Command;
       State.Has_Selected_Chord := False;
@@ -526,7 +527,7 @@ package body Editor.Keybinding_Management is
       Target  : Natural := 0;
    begin
       if Count = 0 then
-         State.Selected := Editor.Commands.No_Command;
+         State.Selected := Editor.Command_Ids.No_Command;
          State.Has_Selected_Chord := False;
          Set_Message ("No matching commands.");
          return;
@@ -578,16 +579,16 @@ package body Editor.Keybinding_Management is
 
    procedure Clear_Selection is
    begin
-      State.Selected := Editor.Commands.No_Command;
+      State.Selected := Editor.Command_Ids.No_Command;
       State.Capture := Capture_Inactive;
       State.Has_Pending := False;
       State.Pending_Reset := False;
-      State.Pending_Target := Editor.Commands.No_Command;
-      State.Pending_Existing := Editor.Commands.No_Command;
+      State.Pending_Target := Editor.Command_Ids.No_Command;
+      State.Pending_Existing := Editor.Command_Ids.No_Command;
       State.Has_Selected_Chord := False;
    end Clear_Selection;
 
-   function Selected_Command return Editor.Commands.Command_Id is (State.Selected);
+   function Selected_Command return Editor.Command_Ids.Command_Id is (State.Selected);
 
    function Row_Count return Natural is
       Rows : constant Row_Vectors.Vector := Build_Rows;
@@ -626,7 +627,7 @@ package body Editor.Keybinding_Management is
       Found : Boolean := False;
       Chord : constant Editor.Keybindings.Key_Chord :=
         Editor.Keybindings.Parse_Chord (Text, Found);
-      Existing : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Existing : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
    begin
       if not Found then
          Status := Keybinding_Action_Invalid_Shortcut;
@@ -697,7 +698,7 @@ package body Editor.Keybinding_Management is
    function Summary return Keybinding_List_Summary is
       Result : Keybinding_List_Summary;
 
-      procedure Visit (Command : Editor.Commands.Command_Id) is
+      procedure Visit (Command : Editor.Command_Ids.Command_Id) is
          R : Keybinding_Row_Snapshot;
       begin
          if Include_Command (Command) then
@@ -811,7 +812,7 @@ package body Editor.Keybinding_Management is
 
    function Selection_Assignable return Boolean is
    begin
-      return State.Selected /= Editor.Commands.No_Command
+      return State.Selected /= Editor.Command_Ids.No_Command
         and then Include_Command (State.Selected)
         and then Editor.Keybindings.Is_Normal_Assignable_Command (State.Selected);
    end Selection_Assignable;
@@ -821,7 +822,7 @@ package body Editor.Keybinding_Management is
       if State.Pending_Reset then
          Status := Keybinding_Action_Confirmation_Pending;
          Set_Message (Action_Status_Label (Status));
-      elsif State.Selected = Editor.Commands.No_Command
+      elsif State.Selected = Editor.Command_Ids.No_Command
         or else not Selected_Command_Is_Visible
       then
          Status := Keybinding_Action_No_Command_Selected;
@@ -833,7 +834,7 @@ package body Editor.Keybinding_Management is
          State.Capture := Capture_Active;
          State.Has_Pending := False;
          State.Pending_Target := State.Selected;
-         State.Pending_Existing := Editor.Commands.No_Command;
+         State.Pending_Existing := Editor.Command_Ids.No_Command;
          Status := Keybinding_Action_Ok;
          Set_Message ("Keybinding capture started.");
       end if;
@@ -847,8 +848,8 @@ package body Editor.Keybinding_Management is
       else
          State.Capture := Capture_Inactive;
          State.Has_Pending := False;
-         State.Pending_Target := Editor.Commands.No_Command;
-         State.Pending_Existing := Editor.Commands.No_Command;
+         State.Pending_Target := Editor.Command_Ids.No_Command;
+         State.Pending_Existing := Editor.Command_Ids.No_Command;
          Status := Keybinding_Action_Cancelled;
          Set_Message (Action_Status_Label (Status));
       end if;
@@ -856,7 +857,7 @@ package body Editor.Keybinding_Management is
 
    function Has_Pending_Conflict return Boolean is (State.Has_Pending);
 
-   function Pending_Conflict_Command return Editor.Commands.Command_Id is
+   function Pending_Conflict_Command return Editor.Command_Ids.Command_Id is
      (State.Pending_Existing);
 
    function Pending_Conflict_Chord return String is
@@ -871,7 +872,7 @@ package body Editor.Keybinding_Management is
      (Status : out Keybinding_Action_Status)
    is
       Chord  : constant Editor.Keybindings.Key_Chord := State.Pending_Chord;
-      Target : constant Editor.Commands.Command_Id := State.Pending_Target;
+      Target : constant Editor.Command_Ids.Command_Id := State.Pending_Target;
       Change : Editor.Keybindings.Keybinding_Change_Status;
    begin
       if not State.Has_Pending then
@@ -896,8 +897,8 @@ package body Editor.Keybinding_Management is
             State.Selected := Target;
             State.Capture := Capture_Inactive;
             State.Has_Pending := False;
-            State.Pending_Target := Editor.Commands.No_Command;
-            State.Pending_Existing := Editor.Commands.No_Command;
+            State.Pending_Target := Editor.Command_Ids.No_Command;
+            State.Pending_Existing := Editor.Command_Ids.No_Command;
             State.Has_Selected_Chord := False;
             Status := Keybinding_Action_Ok;
             Set_Message ("Keybinding assigned.");
@@ -920,14 +921,14 @@ package body Editor.Keybinding_Management is
       Confirm_Conflict : Boolean;
       Status           : out Keybinding_Action_Status)
    is
-      Existing : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Existing : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Change   : Editor.Keybindings.Keybinding_Change_Status;
    begin
       if State.Pending_Reset or else State.Has_Pending then
          Status := Keybinding_Action_Confirmation_Pending;
          Set_Message (Action_Status_Label (Status));
          return;
-      elsif State.Selected = Editor.Commands.No_Command
+      elsif State.Selected = Editor.Command_Ids.No_Command
         or else not Selected_Command_Is_Visible
       then
          Status := Keybinding_Action_No_Command_Selected;
@@ -958,8 +959,8 @@ package body Editor.Keybinding_Management is
          when Editor.Keybindings.Keybinding_Change_Ok =>
             State.Capture := Capture_Inactive;
             State.Has_Pending := False;
-            State.Pending_Target := Editor.Commands.No_Command;
-            State.Pending_Existing := Editor.Commands.No_Command;
+            State.Pending_Target := Editor.Command_Ids.No_Command;
+            State.Pending_Existing := Editor.Command_Ids.No_Command;
             State.Has_Selected_Chord := False;
             Set_Message ("Keybinding assigned.");
             Status := Keybinding_Action_Ok;
@@ -1019,7 +1020,7 @@ package body Editor.Keybinding_Management is
          State.Has_Pending := False;
          Status := Keybinding_Action_Ok;
          Set_Message ("Keybinding removed.");
-      elsif State.Selected = Editor.Commands.No_Command
+      elsif State.Selected = Editor.Command_Ids.No_Command
         or else not Selected_Command_Is_Visible
       then
          Status := Keybinding_Action_No_Command_Selected;
@@ -1034,8 +1035,8 @@ package body Editor.Keybinding_Management is
          Editor.Keybindings.Unbind_Command (State.Selected);
          State.Capture := Capture_Inactive;
          State.Has_Pending := False;
-         State.Pending_Target := Editor.Commands.No_Command;
-         State.Pending_Existing := Editor.Commands.No_Command;
+         State.Pending_Target := Editor.Command_Ids.No_Command;
+         State.Pending_Existing := Editor.Command_Ids.No_Command;
          Status := Keybinding_Action_Ok;
          Set_Message ("Keybinding removed.");
       end if;
@@ -1050,8 +1051,8 @@ package body Editor.Keybinding_Management is
       end if;
 
       State.Has_Pending := False;
-      State.Pending_Target := Editor.Commands.No_Command;
-      State.Pending_Existing := Editor.Commands.No_Command;
+      State.Pending_Target := Editor.Command_Ids.No_Command;
+      State.Pending_Existing := Editor.Command_Ids.No_Command;
       State.Pending_Reset := True;
       Status := Keybinding_Action_Reset_Confirmation_Pending;
       Set_Message (Action_Status_Label (Status));
@@ -1084,8 +1085,8 @@ package body Editor.Keybinding_Management is
       State.Capture := Capture_Inactive;
       State.Has_Pending := False;
       State.Pending_Reset := False;
-      State.Pending_Target := Editor.Commands.No_Command;
-      State.Pending_Existing := Editor.Commands.No_Command;
+      State.Pending_Target := Editor.Command_Ids.No_Command;
+      State.Pending_Existing := Editor.Command_Ids.No_Command;
       State.Has_Selected_Chord := False;
       Status := Keybinding_Action_Ok;
       Set_Message ("Keybindings reset to defaults.");
@@ -1169,13 +1170,13 @@ package body Editor.Keybinding_Management is
    function Assert_Keybinding_Surface_Render_Is_Observational return Boolean is
       Before : constant Keybinding_Surface_Snapshot := Build_Surface_Snapshot;
       Count_Before : constant Natural :=
-        Editor.Keybindings.Binding_Count_For_Command (Editor.Commands.Command_Save_File);
+        Editor.Keybindings.Binding_Count_For_Command (Editor.Command_Ids.Command_Save_File);
       After  : Keybinding_Surface_Snapshot;
       Count_After : Natural;
    begin
       After := Build_Surface_Snapshot;
       Count_After :=
-        Editor.Keybindings.Binding_Count_For_Command (Editor.Commands.Command_Save_File);
+        Editor.Keybindings.Binding_Count_For_Command (Editor.Command_Ids.Command_Save_File);
       return Before.Row_Count = After.Row_Count
         and then Before.Chord_Row_Count = After.Chord_Row_Count
         and then Before.Display_Row_Count = After.Display_Row_Count
@@ -1207,7 +1208,7 @@ package body Editor.Keybinding_Management is
       Found  : Boolean := False;
       Parsed : constant Editor.Keybindings.Key_Chord :=
         Editor.Keybindings.Parse_Chord ("Shift+Ctrl+P", Found);
-      Actual : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Actual : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Resolved : Editor.Keybindings.Binding_Result;
       Validation : constant Editor.Keybindings.Keybinding_Validation_Result :=
         Editor.Keybindings.Validate;
@@ -1221,7 +1222,7 @@ package body Editor.Keybinding_Management is
       if Editor.Keybindings.Status (Validation) /= Editor.Keybindings.Valid_Keybindings then
          return False;
       end if;
-      Select_Command (Editor.Commands.Command_Find_Show);
+      Select_Command (Editor.Command_Ids.Command_Find_Show);
       Begin_Assign_Selected (Status);
       if Status /= Keybinding_Action_Ok then
          return False;

@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Ada.Characters.Handling;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -9,7 +10,6 @@ with Editor.Build_Diagnostics_Review_Audit;
 with Editor.Build_Output_Details;
 with Editor.Build_UI_Actions;
 with Editor.Build_Result_Summary;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.Command_Execution;
 with Editor.Executor;
@@ -164,12 +164,12 @@ package body Editor.Build_Diagnostics_Review.Tests is
          "navigation remains on existing Diagnostics command routes");
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Diagnostics_Open_Selected) =
+           (Editor.Command_Ids.Command_Diagnostics_Open_Selected) =
            "diagnostics.open-selected",
          "open selected route is Diagnostics-owned");
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Build_Run) = "build.run",
+           (Editor.Command_Ids.Command_Build_Run) = "build.run",
          "build.run does not become a diagnostics navigation command");
    end Test_Navigation_Uses_Diagnostics_Routes_Only;
 
@@ -753,7 +753,7 @@ package body Editor.Build_Diagnostics_Review.Tests is
          "build diagnostic target is navigable through Diagnostics commands");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Diagnostics_Open_Selected);
+        (S, Editor.Command_Ids.Command_Diagnostics_Open_Selected);
 
       Assert
         (Result.Status = Editor.Command_Execution.Command_Executed,
@@ -785,7 +785,7 @@ package body Editor.Build_Diagnostics_Review.Tests is
       Editor.Feature_Diagnostics.Project_Rows (S.Feature_Diagnostics, S.Feature_Panel);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Diagnostics_Open_Selected);
+        (S, Editor.Command_Ids.Command_Diagnostics_Open_Selected);
 
       Assert
         (Result.Status = Editor.Command_Execution.Command_Unavailable,
@@ -925,12 +925,12 @@ package body Editor.Build_Diagnostics_Review.Tests is
          "Command Palette and keybinding frontdoors expose canonical Diagnostics commands only");
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Diagnostics_Open_Selected) =
+           (Editor.Command_Ids.Command_Diagnostics_Open_Selected) =
            "diagnostics.open-selected",
          "Diagnostics open-selected remains the canonical navigation command");
       Assert
         (not Contains
-           (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Build_Run),
+           (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Command_Ids.Command_Build_Run),
             "diagnostic"),
          "build.run does not become a build-specific diagnostic navigation route");
    end Test_Command_Frontdoors_Carry_No_Payload;

@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
@@ -7,7 +8,6 @@ with Ada.Directories;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Buffers;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.Cursors;
 with Editor.Executor.Test_Support; use Editor.Executor.Test_Support;
@@ -49,7 +49,7 @@ package body Editor.Executor.Search_Tests is
    use type Editor.Project_Search.Project_Search_Status;
    use type Editor.Search.Search_Match_Index;
    use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
 
    overriding function Name (T : Search_Test_Case) return AUnit.Message_String is
       pragma Unreferenced (T);
@@ -174,7 +174,7 @@ package body Editor.Executor.Search_Tests is
       Editor.Executor.Project_Search_Result_Commands.Execute_Run_Project_Search (S, "needle");
       Editor.Project_Search.Set_Replace_Text (S.Project_Search, "pin");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Project_Search_Replace_Preview);
+        (S, Editor.Command_Ids.Command_Project_Search_Replace_Preview);
 
       Assert
         (Editor.Project_Search.Replace_Preview_Count (S.Project_Search) = 1
@@ -436,12 +436,12 @@ package body Editor.Executor.Search_Tests is
 
       Editor.Project_Search.Set_Replace_Text (S.Project_Search, "pin");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Project_Search_Replace_Preview);
+        (S, Editor.Command_Ids.Command_Project_Search_Replace_Preview);
       Assert (Editor.Project_Search.Replace_Preview_Count (S.Project_Search) = 2,
               "replace-all setup should preview both file matches");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Project_Search_Replace_All_Included);
+        (S, Editor.Command_Ids.Command_Project_Search_Replace_All_Included);
       Msg := To_Unbounded_String (Latest_Message_Text (S));
       Assert (Ada.Strings.Fixed.Index (To_String (Msg), "Replaced") /= 0
               and then Ada.Strings.Fixed.Index (To_String (Msg), "2 matches") /= 0
@@ -489,9 +489,9 @@ package body Editor.Executor.Search_Tests is
 
       Editor.Project_Search.Set_Replace_Text (S.Project_Search, "pin");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Project_Search_Replace_Preview);
+        (S, Editor.Command_Ids.Command_Project_Search_Replace_Preview);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Project_Search_Replace_All_Included);
+        (S, Editor.Command_Ids.Command_Project_Search_Replace_All_Included);
 
       Assert (Editor.State.Current_Text (S) = E_Acute & "pin" & ASCII.LF,
               "project replace apply should translate search byte offsets to buffer code-point columns");
@@ -545,7 +545,7 @@ package body Editor.Executor.Search_Tests is
 
       Editor.Project_Search.Set_Replace_Text (S.Project_Search, "pin");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Project_Search_Replace_Preview);
+        (S, Editor.Command_Ids.Command_Project_Search_Replace_Preview);
 
       Assert (Editor.Project_Search.Replace_Preview_Is_Stale (S.Project_Search),
               "replacement preview rows for open dirty target buffers must be stale immediately");
@@ -1196,7 +1196,7 @@ package body Editor.Executor.Search_Tests is
       Assert (Editor.Project_Search.Result_Count (S.Project_Search) = 1,
               "fixture should produce one Project Search result before refresh");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Refresh_Project_Files);
+        (S, Editor.Command_Ids.Command_Refresh_Project_Files);
       Assert (Editor.Project_Search.Query (S.Project_Search) = "needle",
               "project file refresh should preserve visible Project Search query");
       Assert (Editor.Project_Search.Result_Count (S.Project_Search) = 1
@@ -2096,24 +2096,24 @@ package body Editor.Executor.Search_Tests is
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
       Summary : Unbounded_String;
       Found : Boolean := True;
-      Id : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Id : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Availability : Editor.Commands.Availability_Metadata.Command_Availability;
 
       procedure Check_Absent (Name : String) is
       begin
          Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
-         Assert ((not Found) and then Id = Editor.Commands.No_Command,
+         Assert ((not Found) and then Id = Editor.Command_Ids.No_Command,
                  Name & " must remain absent from descriptors, palette, default bindings, input routes, and Executor dispatch");
       end Check_Absent;
    begin
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("edit.replace.show", Found);
-      Assert (Found and then Id = Editor.Commands.Command_Replace_Show,
+      Assert (Found and then Id = Editor.Command_Ids.Command_Replace_Show,
               "edit.replace.show route must resolve through command metadata");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("edit.replace.current", Found);
-      Assert (Found and then Id = Editor.Commands.Command_Replace_Current,
+      Assert (Found and then Id = Editor.Command_Ids.Command_Replace_Current,
               "edit.replace.current route must resolve through command metadata");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("edit.replace.all", Found);
-      Assert (Found and then Id = Editor.Commands.Command_Replace_All,
+      Assert (Found and then Id = Editor.Command_Ids.Command_Replace_All,
               "edit.replace.all route must resolve through command metadata");
 
       Check_Absent ("edit.replace.regex");
@@ -2131,7 +2131,7 @@ package body Editor.Executor.Search_Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Run");
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Show (S);
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text (S, "Dispatch_Command");
-      Availability := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Replace_All);
+      Availability := Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Replace_All);
       Assert (Availability.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "replace.all availability must report available for current active-buffer Replace state");
       Assert (Buffer_Text (S) = "Run Run"

@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Command_Kinds; use Editor.Command_Kinds;
 with Editor.Commands.Payloads;
@@ -34,7 +35,7 @@ package body Editor.Executor.Configuration_Commands is
 
    function Configuration_Command_Availability
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Commands.Availability_Metadata.Command_Availability
    is
       pragma Unreferenced (S);
@@ -113,7 +114,7 @@ package body Editor.Executor.Configuration_Commands is
               /= Editor.Keybinding_Management.Capture_Inactive
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("Shortcut capture is active");
-            elsif Editor.Keybinding_Management.Selected_Command = Editor.Commands.No_Command then
+            elsif Editor.Keybinding_Management.Selected_Command = Editor.Command_Ids.No_Command then
                return Editor.Commands.Availability_Metadata.Unavailable ("No command selected");
             elsif not Editor.Keybindings.Is_Normal_Assignable_Command
               (Editor.Keybinding_Management.Selected_Command)
@@ -133,7 +134,7 @@ package body Editor.Executor.Configuration_Commands is
                  ("Command unavailable while confirmation is pending");
             elsif Editor.Keybinding_Management.Has_Selected_Chord then
                return Editor.Commands.Availability_Metadata.Available;
-            elsif Editor.Keybinding_Management.Selected_Command = Editor.Commands.No_Command
+            elsif Editor.Keybinding_Management.Selected_Command = Editor.Command_Ids.No_Command
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No keybinding selected");
             elsif not Editor.Keybindings.Is_Normal_Assignable_Command
@@ -164,7 +165,7 @@ package body Editor.Executor.Configuration_Commands is
 
    function Result_After_Command
      (S               : Editor.State.State_Type;
-      Command         : Editor.Commands.Command_Id;
+      Command         : Editor.Command_Ids.Command_Id;
       Before_Messages : Natural)
       return Editor.Command_Execution.Command_Execution_Result
    is
@@ -698,7 +699,7 @@ package body Editor.Executor.Configuration_Commands is
 
    procedure Execute_Keybinding_UI_Command
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
    is
    begin
       case Id is
@@ -795,7 +796,7 @@ package body Editor.Executor.Configuration_Commands is
 
    function Execute_Configuration_Result_Command
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
    is
       Before_Messages : constant Natural := Editor.Messages.Count (S.Messages);

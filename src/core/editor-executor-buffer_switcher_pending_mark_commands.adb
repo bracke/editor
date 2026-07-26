@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
@@ -6,7 +7,6 @@ with Editor.Buffer_Switcher.Reviews;
 with Editor.Buffer_Switcher.Rows;
 with Editor.Buffers;
 with Editor.Command_Execution;
-with Editor.Commands;
 with Editor.Executor;
 with Editor.Executor.Buffer_Switcher_Pending_Mark_Dirty_Commands;
 with Editor.Executor.Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Commands;
@@ -22,8 +22,8 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
 
    use type Editor.Buffers.Buffer_Id;
    use type Editor.Buffer_Switcher.Reviews.Pending_Marked_Action_Kind;
-   use type Editor.Commands.Command_Id;
-   use type Editor.Commands.Command_Kind;
+   use type Editor.Command_Ids.Command_Id;
+   use type Editor.Command_Kinds.Command_Kind;
    use type Editor.Messages.Message_Severity;
 
    procedure Report_Info
@@ -107,34 +107,34 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
 
    function Buffer_Switcher_Pending_Mark_Command_Availability
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin
       case Id is
-         when Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Review_Toggle
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Review_Show
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Review_Hide
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Summary
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Pruned_Summary
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Summary =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Review_Toggle
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Review_Show
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Review_Hide
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Summary
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Pruned_Summary
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Summary =>
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
-         when Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Remove_Selected =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Remove_Selected =>
             return Selected_Pending_Close_Target_Availability (S);
 
-         when Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Remove_Selected =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Remove_Selected =>
             return Selected_Pending_Close_Target_Availability
               (S, Required_Dirty => True);
 
-         when Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Restore_Selected_Pruned =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Restore_Selected_Pruned =>
             return Selected_Pending_Close_Target_Availability
               (S, Required_Pruned => True);
 
-         when Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Restore_Last_Pruned =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Restore_Last_Pruned =>
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) =
@@ -149,8 +149,8 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
-         when Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Next
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Previous =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Next
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Previous =>
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) =
@@ -172,8 +172,8 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
             return Editor.Commands.Availability_Metadata.Unavailable
               ("No pending marked targets remain open");
 
-         when Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Next
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Previous =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Next
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Previous =>
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) =
@@ -197,7 +197,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
             return Editor.Commands.Availability_Metadata.Unavailable
               ("No dirty pending close targets");
 
-         when Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Preview =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Preview =>
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) /=
@@ -212,7 +212,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
-         when Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply =>
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif not Editor.Buffer_Switcher.Has_Dirty_Pending_Marked_Close_Prune
@@ -223,7 +223,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
-         when Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Confirm =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Confirm =>
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif not Editor.Buffer_Switcher.Has_Dirty_Pending_Marked_Close_Prune_Apply
@@ -239,20 +239,20 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
-         when Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Cancel
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Summary
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Next
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Previous
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Toggle
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Show
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Hide
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Remove_Selected
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Restore_Last_Removed
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Summary
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Next
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Previous
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Clear_Stale
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Stale_Summary =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Cancel
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Summary
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Next
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Previous
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Toggle
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Show
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Hide
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Remove_Selected
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Restore_Last_Removed
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Summary
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Next
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Previous
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Clear_Stale
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Stale_Summary =>
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif not Editor.Buffer_Switcher.Has_Dirty_Pending_Marked_Close_Prune_Apply
@@ -265,12 +265,12 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
-         when Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Cancel
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Summary
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Next
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Previous
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Review_Toggle
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Review_Show =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Cancel
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Summary
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Next
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Previous
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Review_Toggle
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Review_Show =>
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif not Editor.Buffer_Switcher.Has_Dirty_Pending_Marked_Close_Prune
@@ -281,7 +281,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
-         when Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Review_Hide =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Review_Hide =>
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif not Editor.Buffer_Switcher.Has_Dirty_Prune_Review
@@ -292,7 +292,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
-         when Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Remove_Selected =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Remove_Selected =>
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif not Editor.Buffer_Switcher.Has_Dirty_Pending_Marked_Close_Prune
@@ -319,7 +319,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
-         when Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Restore_Last_Removed =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Restore_Last_Removed =>
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif not Editor.Buffer_Switcher.Has_Removed_Dirty_Pending_Marked_Close_Prune_Targets
@@ -337,7 +337,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
-         when Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Removed_Summary =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Removed_Summary =>
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif not Editor.Buffer_Switcher.Has_Dirty_Pending_Marked_Close_Prune
@@ -350,8 +350,8 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
-         when Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Removed_Next
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Removed_Previous =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Removed_Next
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Removed_Previous =>
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif not Editor.Buffer_Switcher.Has_Removed_Dirty_Pending_Marked_Close_Prune_Targets
@@ -369,7 +369,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
-         when Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Clear_Stale =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Clear_Stale =>
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif not Editor.Buffer_Switcher.Has_Dirty_Pending_Marked_Close_Prune
@@ -385,7 +385,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
-         when Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Stale_Summary =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Stale_Summary =>
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif not Editor.Buffer_Switcher.Has_Dirty_Pending_Marked_Close_Prune
@@ -396,10 +396,10 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
-         when Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Pruned_Next
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Pruned_Previous
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Pruned_Review_Toggle
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Pruned_Review_Show =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Pruned_Next
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Pruned_Previous
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Pruned_Review_Toggle
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Pruned_Review_Show =>
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) =
@@ -411,8 +411,8 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  ("No pruned pending close targets");
-            elsif Id = Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Pruned_Next
-              or else Id = Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Pruned_Previous
+            elsif Id = Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Pruned_Next
+              or else Id = Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Pruned_Previous
             then
                for I in 1 .. Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) loop
                   if Editor.Buffer_Switcher.Is_Pruned_Pending_Marked_Close_Target
@@ -427,7 +427,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
-         when Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Pruned_Review_Hide =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Pruned_Review_Hide =>
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif not Editor.Buffer_Switcher.Has_Pruned_Pending_Marked_Review
@@ -469,28 +469,28 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
 
    procedure Execute_Apply_Inspection_Command
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
    is
    begin
-      if Id = Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Show then
+      if Id = Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Show then
          Editor.Buffer_Switcher.Show_Dirty_Prune_Apply_Review
            (S.Buffer_Switcher);
          Editor.Executor.Buffer_Switcher_Shared.Recompute_Buffer_Switcher (S);
          Editor.Executor.Buffer_Switcher_Shared.Normalize_Switcher_Preview_Target (S);
          Report_Success (S, "Dirty-prune apply review shown");
-      elsif Id = Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Hide then
+      elsif Id = Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Hide then
          Editor.Buffer_Switcher.Hide_Dirty_Prune_Apply_Review
            (S.Buffer_Switcher);
          Editor.Executor.Buffer_Switcher_Shared.Recompute_Buffer_Switcher (S);
          Editor.Executor.Buffer_Switcher_Shared.Normalize_Switcher_Preview_Target (S);
          Report_Success (S, "Dirty-prune apply review hidden");
-      elsif Id = Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Toggle then
+      elsif Id = Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Toggle then
          Editor.Buffer_Switcher.Toggle_Dirty_Prune_Apply_Review
            (S.Buffer_Switcher);
          Editor.Executor.Buffer_Switcher_Shared.Recompute_Buffer_Switcher (S);
          Editor.Executor.Buffer_Switcher_Shared.Normalize_Switcher_Preview_Target (S);
          Report_Success (S, "Dirty-prune apply review toggled");
-      elsif Id = Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Next then
+      elsif Id = Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Next then
          if Editor.Buffer_Switcher.Select_Next_Removed_Dirty_Prune_Apply_Target
            (S.Buffer_Switcher)
          then
@@ -500,7 +500,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
          else
             Report_Info (S, "No open removed dirty-prune apply targets");
          end if;
-      elsif Id = Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Previous then
+      elsif Id = Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Previous then
          if Editor.Buffer_Switcher.Select_Previous_Removed_Dirty_Prune_Apply_Target
            (S.Buffer_Switcher)
          then
@@ -510,7 +510,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
          else
             Report_Info (S, "No open removed dirty-prune apply targets");
          end if;
-      elsif Id = Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Stale_Summary then
+      elsif Id = Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Stale_Summary then
          Editor.Buffers.Ensure_Global_Registry (S);
          Editor.Buffers.Sync_Global_Active_From_State (S);
          Report_Info
@@ -542,7 +542,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
 
    procedure Execute_Buffer_Switcher_Pending_Mark_Kind
      (S    : in out Editor.State.State_Type;
-      Kind : Editor.Commands.Command_Kind)
+      Kind : Editor.Command_Kinds.Command_Kind)
    is
    begin
       case Kind is
@@ -619,13 +619,13 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
 
    function Execute_Buffer_Switcher_Pending_Mark_Command
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
    is
       Before_Messages : constant Natural := Editor.Messages.Count (S.Messages);
 
       function Result_After_Command
-        (Command : Editor.Commands.Command_Id)
+        (Command : Editor.Command_Ids.Command_Id)
          return Editor.Command_Execution.Command_Execution_Result
       is
          Found : Boolean := False;
@@ -650,30 +650,30 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
       end Result_After_Command;
    begin
       case Id is
-         when Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Toggle
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Show
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Hide
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Summary
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Next
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Previous
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Stale_Summary =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Toggle
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Show
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Hide
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Summary
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Next
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Previous
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Stale_Summary =>
             Execute_Apply_Inspection_Command (S, Id);
 
-        when Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Confirm =>
+        when Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Confirm =>
             Editor.Executor.Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Commands.Execute_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Confirm (S);
-        when Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Cancel =>
+        when Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Cancel =>
             Editor.Executor.Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Commands.Execute_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Cancel (S);
-        when Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Summary =>
+        when Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Summary =>
             Editor.Executor.Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Commands.Execute_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Summary (S);
-        when Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Next =>
+        when Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Next =>
             Editor.Executor.Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Commands.Execute_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Next (S);
-        when Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Previous =>
+        when Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Previous =>
             Editor.Executor.Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Commands.Execute_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Previous (S);
-        when Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Remove_Selected =>
+        when Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Remove_Selected =>
             Editor.Executor.Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Commands.Execute_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Remove_Selected (S);
-        when Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Restore_Last_Removed =>
+        when Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Restore_Last_Removed =>
             Editor.Executor.Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Commands.Execute_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Restore_Last_Removed (S);
-        when Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Clear_Stale =>
+        when Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Clear_Stale =>
             Editor.Executor.Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Commands.Execute_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Clear_Stale (S);
 
          when others =>

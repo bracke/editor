@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
@@ -8,7 +9,6 @@ with Ada.Directories;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Buffers;
 with Editor.Buffer_Switcher;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.Cursors;
 with Editor.Executor.Test_Support; use Editor.Executor.Test_Support;
@@ -151,7 +151,7 @@ package body Editor.Executor.Navigation_Tests is
       Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 0,
               "File Tree activation is not a navigation-history recording point");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Navigation_Back);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Back);
       Assert (Latest_Message_Text (S) = "No previous navigation location.",
               "navigation.back after File Tree-only movement must report empty history");
 
@@ -428,20 +428,20 @@ package body Editor.Executor.Navigation_Tests is
    begin
       Init_Executor_Test_State (S);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_New_Buffer);
+        (S, Editor.Command_Ids.Command_New_Buffer);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "new buffer setup succeeds");
       Before_Dirty := S.File_Info.Dirty;
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Move_Left);
+        (S, Editor.Command_Ids.Command_Move_Left);
       Assert (Result.Status = Editor.Executor.Command_No_Op,
               "moving left at the start of the buffer is a no-op");
       Assert (S.File_Info.Dirty = Before_Dirty,
               "boundary navigation must not dirty the buffer");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Previous_Buffer);
+        (S, Editor.Command_Ids.Command_Previous_Buffer);
       Assert (Result.Status = Editor.Executor.Command_No_Op,
               "previous buffer with only one buffer is a no-op");
       Assert (S.File_Info.Dirty = Before_Dirty,
@@ -577,7 +577,7 @@ package body Editor.Executor.Navigation_Tests is
       Assert (Row = 2 and then Col = 0,
               "Go To Line must still move the caret without creating history");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Navigation_Back);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Back);
       Editor.State.Row_Col_For_Index
         (S, S.Carets (S.Carets.First_Index).Pos, Row, Col);
       Assert (Row = 0 and then Col = 0,
@@ -643,7 +643,7 @@ package body Editor.Executor.Navigation_Tests is
       Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 1,
               "setup must create a back entry");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Navigation_History_Clear);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_History_Clear);
       Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 0,
               "clear must empty the back stack");
       Assert (Editor.Navigation_History.Forward_Count (S.Navigation_History) = 0,
@@ -651,7 +651,7 @@ package body Editor.Executor.Navigation_Tests is
       Assert (Latest_Message_Text (S) = "Navigation history cleared",
               "clear feedback must be deterministic");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Navigation_History_Clear);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_History_Clear);
       Assert (Latest_Message_Text (S) = "No navigation history.",
               "empty clear feedback must be deterministic");
    end Test_Navigation_History_Clear_Command;
@@ -662,9 +662,9 @@ package body Editor.Executor.Navigation_Tests is
    is
       pragma Unreferenced (T);
       D : constant Editor.Commands.Descriptors.Command_Descriptor :=
-        Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Navigation_History_Clear);
+        Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Navigation_History_Clear);
    begin
-      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Navigation_History_Clear) = "navigation.history.clear",
+      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Command_Ids.Command_Navigation_History_Clear) = "navigation.history.clear",
               "clear command must have a stable persisted name");
       Assert (D.Bindable,
               "clear command must be bindable");
@@ -712,7 +712,7 @@ package body Editor.Executor.Navigation_Tests is
           Viewport_Row  => 0,
           Reason        => Editor.Navigation_History.Navigation_Reason_Unknown));
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Navigation_Back);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Back);
 
       Assert (Editor.Buffers.Global_Active_Buffer = A_Id,
               "failed back to invalid open target must keep current buffer active");
@@ -765,7 +765,7 @@ package body Editor.Executor.Navigation_Tests is
           Viewport_Row  => 0,
           Reason        => Editor.Navigation_History.Navigation_Reason_Unknown));
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Navigation_Back);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Back);
 
       Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = B_Path,
               "partial stale-line back must keep successfully opened target active");
@@ -1240,14 +1240,14 @@ package body Editor.Executor.Navigation_Tests is
               and then Back_Top_Line (S) = 20,
               "Quick Open must record the execution-time caret line, not the stale open line");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Navigation_Back);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Back);
       Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = A_Path
               and then Active_Caret_Line (S) = 20,
               "navigation.back must return to the captured Quick Open source line");
       Assert (Editor.Navigation_History.Forward_Count (S.Navigation_History) = 1,
               "back must create a coherent forward entry");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Navigation_Forward);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Forward);
       Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = B_Path,
               "navigation.forward must restore the Quick Open destination");
       Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 1,
@@ -1301,11 +1301,11 @@ package body Editor.Executor.Navigation_Tests is
               and then Back_Top_Line (S) = 20,
               "same-file search navigation must record the prior line as useful history");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Navigation_Back);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Back);
       Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Path
               and then Active_Caret_Line (S) = 20,
               "back must return to the same-file source line");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Navigation_Forward);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Forward);
       Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Path
               and then Active_Caret_Line (S) = 120,
               "forward must return to the same-file search result line");
@@ -1356,20 +1356,20 @@ package body Editor.Executor.Navigation_Tests is
           Line => 20, Column => 0, Viewport_Row => 0,
           Reason => Editor.Navigation_History.Navigation_Reason_Unknown));
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Navigation_Back);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Back);
       Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = B_Path
               and then Active_Caret_Line (S) = 20
               and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = 1,
               "setup back must move C:30 to B:20 and save C for forward");
 
       Move_Caret_To_Line (S, 25);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Navigation_Forward);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Forward);
       Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = C_Path
               and then Active_Caret_Line (S) = 30
               and then Back_Top_Line (S) = 25,
               "forward must capture the moved B:25 anchor at execution time");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Navigation_Back);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Back);
       Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = B_Path
               and then Active_Caret_Line (S) = 25,
               "next back must return to moved B:25 rather than stale B:20");
@@ -1468,7 +1468,7 @@ package body Editor.Executor.Navigation_Tests is
               and then Forward_Top_Line (S) = 1,
               "failed new navigation must not push current or clear forward history");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Navigation_Forward);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Forward);
       Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = C_Path,
               "preserved forward history must still navigate to C after failed new navigation");
 
@@ -1546,7 +1546,7 @@ package body Editor.Executor.Navigation_Tests is
               and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = Forward_Before,
               "reopening/querying Quick Open before clear must still not mutate history");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Navigation_History_Clear);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_History_Clear);
       Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 0
               and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = 0,
               "history.clear must mutate only navigation history stacks");
@@ -1705,7 +1705,7 @@ package body Editor.Executor.Navigation_Tests is
       Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 1,
               "successful bookmark navigation should push the previous location");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Navigation_Back);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Back);
       Assert (Editor.Buffers.Global_Active_Buffer = First_Id,
               "navigation back after bookmark jump should return to prior buffer");
       Assert (Editor.Executor.Safe_Caret (S) = Editor.State.Line_Start (S, 1),
@@ -1871,23 +1871,23 @@ package body Editor.Executor.Navigation_Tests is
    begin
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Toggle_Bookmark) = "bookmarks.toggle",
+           (Editor.Command_Ids.Command_Toggle_Bookmark) = "bookmarks.toggle",
          "toggle bookmark should expose the stable command name");
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Next_Bookmark) = "bookmarks.next",
+           (Editor.Command_Ids.Command_Next_Bookmark) = "bookmarks.next",
          "next bookmark should expose the stable command name");
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Previous_Bookmark) = "bookmarks.previous",
+           (Editor.Command_Ids.Command_Previous_Bookmark) = "bookmarks.previous",
          "previous bookmark should expose the stable command name");
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Clear_Bookmarks) = "bookmarks.clear-buffer",
+           (Editor.Command_Ids.Command_Clear_Bookmarks) = "bookmarks.clear-buffer",
          "clear buffer bookmarks should expose the stable command name");
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Clear_All_Bookmarks) = "bookmarks.clear-all",
+           (Editor.Command_Ids.Command_Clear_All_Bookmarks) = "bookmarks.clear-all",
          "clear all bookmarks should expose the stable command name");
 
       Editor.Buffers.Reset_Global_For_Test;

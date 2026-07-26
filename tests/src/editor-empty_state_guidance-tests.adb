@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -5,7 +6,6 @@ with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Build_Result_Summary;
 with Editor.Build_UI;
-with Editor.Commands;
 with Editor.Commands.Workflow_Messages;
 with Editor.Commands.Name_Metadata;
 with Editor.Configuration_Recovery;
@@ -27,7 +27,7 @@ with Editor.Empty_State_Guidance.Surfaces; use Editor.Empty_State_Guidance.Surfa
 
 package body Editor.Empty_State_Guidance.Tests is
 
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Executor.Command_Execution_Status;
    use type Empty_State_Kind;
    use type Empty_State_Surface;
@@ -61,7 +61,7 @@ package body Editor.Empty_State_Guidance.Tests is
       Assert (To_String (Snapshot.Primary_Message) = "Start by opening a project.",
               "primary first-run message must be deterministic");
       Assert (Snapshot.Suggestion_Count >= 4, "first-run should expose useful next actions");
-      Assert (Snapshot.Suggestions (1).Command = Editor.Commands.Command_Open_Project,
+      Assert (Snapshot.Suggestions (1).Command = Editor.Command_Ids.Command_Open_Project,
               "open project must be the primary next action");
       Assert (To_String (Snapshot.Suggestions (1).Stable_Name) = "project.open",
               "suggestion must use the stable command name");
@@ -154,10 +154,10 @@ package body Editor.Empty_State_Guidance.Tests is
       Assert (Build_State.Kind = Not_Refreshed_State,
               "project-open Build UI should request explicit candidate refresh");
       Assert (Contains_Command_Suggestion
-                (Build_State, Editor.Commands.Command_Build_Refresh_Candidates),
+                (Build_State, Editor.Command_Ids.Command_Build_Refresh_Candidates),
               "project-open Build UI should suggest Build candidate refresh");
       Assert (Contains_Command_Suggestion
-                (Build_State, Editor.Commands.Command_Build_UI_Show),
+                (Build_State, Editor.Command_Ids.Command_Build_UI_Show),
               "project-open Build UI should suggest showing the Build UI");
       Assert (Assert_Empty_State_Is_Display_Only (File_Tree_State)
               and then Assert_Empty_State_Is_Display_Only (Search_State)
@@ -183,13 +183,13 @@ package body Editor.Empty_State_Guidance.Tests is
       Assert (Snapshot.Kind = Not_Refreshed_State,
               "Build guidance fixture should start in unrefreshed state");
       Assert (Contains_Command_Suggestion
-                (Snapshot, Editor.Commands.Command_Build_Refresh_Candidates),
+                (Snapshot, Editor.Command_Ids.Command_Build_Refresh_Candidates),
               "unrefreshed Build guidance should suggest candidate refresh");
       Assert (Contains_Command_Suggestion
-                (Snapshot, Editor.Commands.Command_Build_UI_Show),
+                (Snapshot, Editor.Command_Ids.Command_Build_UI_Show),
               "Build guidance should keep the panel action visible");
       Assert (not Contains_Command_Suggestion
-                (Snapshot, Editor.Commands.Command_Refresh_Project_Files),
+                (Snapshot, Editor.Command_Ids.Command_Refresh_Project_Files),
               "Build guidance should not use project-file refresh as a proxy");
 
       S.Build_UI.Candidate_Refresh_Status :=
@@ -198,13 +198,13 @@ package body Editor.Empty_State_Guidance.Tests is
       Assert (Snapshot.Kind = No_Candidates_State,
               "Build guidance should distinguish refreshed empty candidates");
       Assert (Contains_Command_Suggestion
-                (Snapshot, Editor.Commands.Command_Build_Refresh_Candidates),
+                (Snapshot, Editor.Command_Ids.Command_Build_Refresh_Candidates),
               "no-candidates Build guidance should suggest candidate refresh");
       Assert (Contains_Command_Suggestion
-                (Snapshot, Editor.Commands.Command_Build_UI_Show),
+                (Snapshot, Editor.Command_Ids.Command_Build_UI_Show),
               "no-candidates Build guidance should keep the panel action visible");
       Assert (not Contains_Command_Suggestion
-                (Snapshot, Editor.Commands.Command_Refresh_Project_Files),
+                (Snapshot, Editor.Command_Ids.Command_Refresh_Project_Files),
               "no-candidates Build guidance should not use project-file refresh");
    end Test_Build_Guidance_Uses_Row_Action_Commands;
 
@@ -241,19 +241,19 @@ package body Editor.Empty_State_Guidance.Tests is
       Assert (To_String (Snapshot.Primary_Message) = "No Project Search matches.",
               "no-result Project Search guidance should use product-facing copy");
       Assert (Contains_Command_Suggestion
-                (Snapshot, Editor.Commands.Command_Open_Project_Search_Bar),
+                (Snapshot, Editor.Command_Ids.Command_Open_Project_Search_Bar),
               "no-result Project Search should offer query editing");
       Assert (Contains_Command_Suggestion
-                (Snapshot, Editor.Commands.Command_Project_Search_Scope_Clear),
+                (Snapshot, Editor.Command_Ids.Command_Project_Search_Scope_Clear),
               "no-result Project Search should offer scope clearing");
       Assert (Contains_Command_Suggestion
-                (Snapshot, Editor.Commands.Command_Project_Search_Include_Filter_Clear),
+                (Snapshot, Editor.Command_Ids.Command_Project_Search_Include_Filter_Clear),
               "no-result Project Search should offer include-filter clearing");
       Assert (Contains_Command_Suggestion
-                (Snapshot, Editor.Commands.Command_Project_Search_Exclude_Filter_Clear),
+                (Snapshot, Editor.Command_Ids.Command_Project_Search_Exclude_Filter_Clear),
               "no-result Project Search should offer exclude-filter clearing");
       Assert (Contains_Command_Suggestion
-                (Snapshot, Editor.Commands.Command_Run_Project_Search),
+                (Snapshot, Editor.Command_Ids.Command_Run_Project_Search),
               "no-result Project Search should offer rerunning search");
    end Test_Project_Search_No_Results_Guidance_Offers_Filter_Recovery;
 
@@ -279,13 +279,13 @@ package body Editor.Empty_State_Guidance.Tests is
       Assert (Snapshot.Kind = Stale_State,
               "stale Project Search guidance should be explicit");
       Assert (Contains_Command_Suggestion
-                (Snapshot, Editor.Commands.Command_Rerun_Project_Search),
+                (Snapshot, Editor.Command_Ids.Command_Rerun_Project_Search),
               "stale Project Search should offer rerun");
       Assert (Contains_Command_Suggestion
-                (Snapshot, Editor.Commands.Command_Open_Project_Search_Bar),
+                (Snapshot, Editor.Command_Ids.Command_Open_Project_Search_Bar),
               "stale Project Search should offer query/filter editing");
       Assert (Contains_Command_Suggestion
-                (Snapshot, Editor.Commands.Command_Clear_Project_Search),
+                (Snapshot, Editor.Command_Ids.Command_Clear_Project_Search),
               "stale Project Search should offer clearing stale results");
    end Test_Project_Search_Stale_Guidance_Offers_Rerun;
 
@@ -350,7 +350,7 @@ package body Editor.Empty_State_Guidance.Tests is
       Assert (Snapshot.Kind = Source_Less_Selected_State,
               "selected diagnostics without source targets need explicit guidance");
       Assert (Contains_Command_Suggestion
-                (Snapshot, Editor.Commands.Command_Diagnostics_Clear_Selected),
+                (Snapshot, Editor.Command_Ids.Command_Diagnostics_Clear_Selected),
               "source-less diagnostic guidance should suggest clearing selected diagnostic");
       Assert (Assert_Empty_State_Is_Display_Only (Snapshot),
               "diagnostics empty guidance must not navigate or clear automatically");
@@ -382,7 +382,7 @@ package body Editor.Empty_State_Guidance.Tests is
                 Editor.Commands.Workflow_Messages.Reason_Target_Missing,
               "missing Diagnostics target guidance should use canonical missing-target wording");
       Assert (Contains_Command_Suggestion
-                (Snapshot, Editor.Commands.Command_Diagnostics_Clear_Selected),
+                (Snapshot, Editor.Command_Ids.Command_Diagnostics_Clear_Selected),
               "missing Diagnostics target guidance should offer clearing the selected row");
 
       Editor.Feature_Diagnostics.Clear_Diagnostics (S.Feature_Diagnostics);
@@ -408,7 +408,7 @@ package body Editor.Empty_State_Guidance.Tests is
                  "Target line is unavailable") > 0,
               "missing-line Diagnostics guidance should use canonical target-line wording");
       Assert (Contains_Command_Suggestion
-                (Snapshot, Editor.Commands.Command_Build_UI_Show),
+                (Snapshot, Editor.Command_Ids.Command_Build_UI_Show),
               "selected unavailable target guidance should offer inspecting/rerunning the producer");
    end Test_Diagnostics_Selected_Unavailable_Target_State;
 
@@ -431,7 +431,7 @@ package body Editor.Empty_State_Guidance.Tests is
       Assert (Snapshot.Kind = Filtered_None_State,
               "diagnostics guidance must distinguish filtered-empty from no diagnostics");
       Assert (Contains_Command_Suggestion
-                (Snapshot, Editor.Commands.Command_Diagnostics_Clear_Filter),
+                (Snapshot, Editor.Command_Ids.Command_Diagnostics_Clear_Filter),
               "filtered-empty diagnostics should suggest clearing the filter");
       Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 1,
               "filtered-empty guidance must not delete diagnostic rows");
@@ -466,10 +466,10 @@ package body Editor.Empty_State_Guidance.Tests is
                 "Build completed with no diagnostics.",
               "zero-diagnostic build result should say the build completed cleanly");
       Assert (Contains_Command_Suggestion
-                (Snapshot, Editor.Commands.Command_Build_UI_Show),
+                (Snapshot, Editor.Command_Ids.Command_Build_UI_Show),
               "zero-diagnostic build guidance should suggest inspecting Build Output");
       Assert (Contains_Command_Suggestion
-                (Snapshot, Editor.Commands.Command_Build_Run),
+                (Snapshot, Editor.Command_Ids.Command_Build_Run),
               "zero-diagnostic build guidance should keep rerun build available");
    end Test_Diagnostics_Zero_Build_Result_Is_Contextual;
 
@@ -498,7 +498,7 @@ package body Editor.Empty_State_Guidance.Tests is
       Snapshot : constant Empty_State_Snapshot := Build_Main_Empty_State (S);
    begin
       Assert (Contains_Command_Suggestion
-                (Snapshot, Editor.Commands.Command_Open_Project),
+                (Snapshot, Editor.Command_Ids.Command_Open_Project),
               "main guidance should expose open-project action");
       Assert (Assert_Empty_State_Suggestions_Are_Descriptor_Derived (Snapshot),
               "suggestion titles must be copied from command descriptors");
@@ -520,7 +520,7 @@ package body Editor.Empty_State_Guidance.Tests is
    begin
       Result := Activate_Suggested_Command (After, Snapshot, 1);
       Assert (Assert_Empty_State_Activation_Uses_Executor
-                (Before, After, Result, Editor.Commands.Command_Open_Project),
+                (Before, After, Result, Editor.Command_Ids.Command_Open_Project),
               "suggestion activation must use the stable command id through Executor");
       Assert (Assert_First_Run_Guidance_Fabricates_No_Project (Before, After),
               "unavailable suggestion activation must not fabricate project state");
@@ -536,7 +536,7 @@ package body Editor.Empty_State_Guidance.Tests is
    begin
       Result := Activate_Suggested_Command
         (S, Snapshot, Positive (Max_Empty_State_Suggestions));
-      Assert (Result.Command = Editor.Commands.No_Command,
+      Assert (Result.Command = Editor.Command_Ids.No_Command,
               "out-of-range suggestion activation must carry no command");
       Assert (Assert_First_Run_Guidance_Fabricates_No_Project (S, S),
               "invalid activation must be a state no-op");
@@ -554,7 +554,7 @@ package body Editor.Empty_State_Guidance.Tests is
       Snapshot.Suggestions (1).Stable_Name :=
         To_Unbounded_String ("project.open:/tmp/project");
       Result := Activate_Suggested_Command (S, Snapshot, 1);
-      Assert (Result.Command = Editor.Commands.No_Command,
+      Assert (Result.Command = Editor.Command_Ids.No_Command,
               "payload-like stable command names must not activate");
       Assert (Assert_First_Run_Guidance_Fabricates_No_Project (S, S),
               "payload-like activation must not mutate project or buffer state");
@@ -588,14 +588,14 @@ package body Editor.Empty_State_Guidance.Tests is
       S : Editor.State.State_Type;
       Snapshot : Empty_State_Snapshot := Build_Main_Empty_State (S);
    begin
-      Snapshot.Suggestions (1).Command := Editor.Commands.Command_Move_Left;
+      Snapshot.Suggestions (1).Command := Editor.Command_Ids.Command_Move_Left;
       Snapshot.Suggestions (1).Stable_Name :=
         To_Unbounded_String
           (Editor.Commands.Name_Metadata.Stable_Command_Name
-             (Editor.Commands.Command_Move_Left));
+             (Editor.Command_Ids.Command_Move_Left));
       Snapshot.Suggestions (1).Title :=
         Editor.Commands.Descriptors.Descriptor
-          (Editor.Commands.Command_Move_Left).Name;
+          (Editor.Command_Ids.Command_Move_Left).Name;
       Assert (not Suggestion_Is_Activation_Safe (Snapshot.Suggestions (1)),
               "hidden command metadata must not be activation-safe guidance");
 
@@ -696,10 +696,10 @@ package body Editor.Empty_State_Guidance.Tests is
       Snapshot.Suggestion_Count := 2;
       Snapshot.Suggestions (1) :=
         Command_Suggestion_From_Descriptor
-          (S, Editor.Commands.Command_Open_Project);
+          (S, Editor.Command_Ids.Command_Open_Project);
       Snapshot.Suggestions (2) :=
         Command_Suggestion_From_Descriptor
-          (S, Editor.Commands.Command_Open_Project);
+          (S, Editor.Command_Ids.Command_Open_Project);
 
       Assert (not Assert_Empty_State_Suggestions_Are_Unique_And_Tail_Clean
                     (Snapshot),
@@ -753,7 +753,7 @@ package body Editor.Empty_State_Guidance.Tests is
       Assert (Snapshot.Kind = No_Active_Buffer_State,
               "outline without active buffer must keep the no-active-buffer state");
       Assert (Contains_Command_Suggestion
-                (Snapshot, Editor.Commands.Command_Open_Project),
+                (Snapshot, Editor.Command_Ids.Command_Open_Project),
               "outline no-buffer guidance should provide a safe project-opening next action");
       Assert (Assert_Non_Ready_Empty_State_Is_Actionable (Snapshot),
               "outline no-buffer guidance must be actionable without parsing or navigation");
@@ -1149,7 +1149,7 @@ package body Editor.Empty_State_Guidance.Tests is
       Result : Editor.Executor.Command_Execution_Result;
    begin
       for I in 1 .. Snapshot.Suggestion_Count loop
-         if Snapshot.Suggestions (I).Command = Editor.Commands.Command_Open_Command_Palette then
+         if Snapshot.Suggestions (I).Command = Editor.Command_Ids.Command_Open_Command_Palette then
             Index := I;
          end if;
       end loop;
@@ -1165,7 +1165,7 @@ package body Editor.Empty_State_Guidance.Tests is
 
       Editor.Command_Palette.Reset;
       Result := Activate_Suggested_Command (S, Snapshot, Positive (Index));
-      Assert (Result.Command = Editor.Commands.Command_Open_Command_Palette
+      Assert (Result.Command = Editor.Command_Ids.Command_Open_Command_Palette
               and then Result.Status = Editor.Executor.Command_Executed,
               "activation mode should report the palette-opening command, not a payload target");
       Assert (Editor.Command_Palette.Is_Open,
@@ -1185,7 +1185,7 @@ package body Editor.Empty_State_Guidance.Tests is
       Snapshot.Kind := Not_Refreshed_State;
       Snapshot.Suggestion_Count := 1;
       Snapshot.Suggestions (1) :=
-        Command_Suggestion_From_Descriptor (S, Editor.Commands.Command_Refresh_Outline);
+        Command_Suggestion_From_Descriptor (S, Editor.Command_Ids.Command_Refresh_Outline);
 
       Assert (not Snapshot.Suggestions (1).Available,
               "refresh outline should be unavailable with no active buffer");
@@ -1216,10 +1216,10 @@ package body Editor.Empty_State_Guidance.Tests is
       Snapshot.Kind := First_Run_State;
       Snapshot.Suggestion_Count := 2;
       Snapshot.Suggestions (1) :=
-        Command_Suggestion_From_Descriptor (S, Editor.Commands.Command_Open_Project);
+        Command_Suggestion_From_Descriptor (S, Editor.Command_Ids.Command_Open_Project);
       Snapshot.Suggestions (1).Activation_Mode := Suggestion_Display_Only;
       Snapshot.Suggestions (2) :=
-        Command_Suggestion_From_Descriptor (S, Editor.Commands.Command_Open_Command_Palette);
+        Command_Suggestion_From_Descriptor (S, Editor.Command_Ids.Command_Open_Command_Palette);
 
       Next := Suggested_Action_Select_Next (Snapshot, 0);
       Assert (Next = 2,
@@ -1255,10 +1255,10 @@ package body Editor.Empty_State_Guidance.Tests is
       S : Editor.State.State_Type;
       Consent : constant Empty_State_Suggested_Command :=
         Command_Suggestion_From_Descriptor
-          (S, Editor.Commands.Command_Build_Acknowledge_Consent);
+          (S, Editor.Command_Ids.Command_Build_Acknowledge_Consent);
       Project_Open : constant Empty_State_Suggested_Command :=
         Command_Suggestion_From_Descriptor
-          (S, Editor.Commands.Command_Open_Project);
+          (S, Editor.Command_Ids.Command_Open_Project);
    begin
       Assert (Ada.Strings.Unbounded.Index
                 (To_Unbounded_String
@@ -1284,13 +1284,13 @@ package body Editor.Empty_State_Guidance.Tests is
       Snapshot.Kind := First_Run_State;
       Snapshot.Suggestion_Count := 1;
       Snapshot.Suggestions (1) :=
-        Command_Suggestion_From_Descriptor (S, Editor.Commands.Command_Open_Project);
+        Command_Suggestion_From_Descriptor (S, Editor.Command_Ids.Command_Open_Project);
 
       Editor.Configuration_Recovery.Request_Reset_All_Confirmation;
       Result := Execute_Suggested_Command (S, Snapshot, 1);
       Editor.Configuration_Recovery.Clear_Reset_All_Confirmation;
 
-      Assert (Result.Command = Editor.Commands.Command_Open_Project
+      Assert (Result.Command = Editor.Command_Ids.Command_Open_Project
               and then Result.Status = Editor.Executor.Command_Unavailable,
               "pending confirmations must make conflicting suggested execution unavailable");
       Assert (Assert_First_Run_Guidance_Fabricates_No_Project (S, S),
@@ -1306,7 +1306,7 @@ package body Editor.Empty_State_Guidance.Tests is
       Editor.Command_Route_Audit.Clear (Audit);
       Editor.Command_Route_Audit.Record_Suggested_Action_Route
         (Result                   => Audit,
-         Command                  => Editor.Commands.Command_Open_Project,
+         Command                  => Editor.Command_Ids.Command_Open_Project,
          Routed_Through_Executor  => True,
          Used_Stable_Command_Name => True,
          Availability_Checked     => True,
@@ -1317,7 +1317,7 @@ package body Editor.Empty_State_Guidance.Tests is
       Editor.Command_Route_Audit.Clear (Audit);
       Editor.Command_Route_Audit.Record_Suggested_Action_Route
         (Result                   => Audit,
-         Command                  => Editor.Commands.Command_Open_Project,
+         Command                  => Editor.Command_Ids.Command_Open_Project,
          Routed_Through_Executor  => False,
          Used_Stable_Command_Name => False,
          Availability_Checked     => False,
@@ -1335,7 +1335,7 @@ package body Editor.Empty_State_Guidance.Tests is
       Editor.Command_Route_Audit.Clear (Audit);
       Editor.Command_Route_Audit.Record_Suggested_Action_Route
         (Result                               => Audit,
-         Command                              => Editor.Commands.Command_Open_Project,
+         Command                              => Editor.Command_Ids.Command_Open_Project,
          Routed_Through_Executor              => False,
          Used_Stable_Command_Name             => True,
          Availability_Checked                 => True,
@@ -1354,7 +1354,7 @@ package body Editor.Empty_State_Guidance.Tests is
       Editor.Command_Route_Audit.Clear (Audit);
       Editor.Command_Route_Audit.Record_Suggested_Action_Route
         (Result                               => Audit,
-         Command                              => Editor.Commands.Command_Open_Project,
+         Command                              => Editor.Command_Ids.Command_Open_Project,
          Routed_Through_Executor              => True,
          Used_Stable_Command_Name             => True,
          Availability_Checked                 => True,
@@ -1435,17 +1435,17 @@ package body Editor.Empty_State_Guidance.Tests is
       Snapshot.Suggestion_Count := 1;
       Snapshot.Suggestions (1) :=
         Command_Suggestion_From_Descriptor
-          (S, Editor.Commands.Command_Open_Command_Palette);
+          (S, Editor.Command_Ids.Command_Open_Command_Palette);
       Snapshot.Suggestions (1).Activation_Mode := Suggestion_Open_In_Command_Palette;
 
       Result := Execute_Suggested_Command (S, Snapshot, 1);
-      Assert (Result.Command = Editor.Commands.Command_Open_Command_Palette
+      Assert (Result.Command = Editor.Command_Ids.Command_Open_Command_Palette
               and then Result.Status = Editor.Executor.Command_No_Op,
               "direct guided execution must not execute a palette-opening suggestion mode");
 
       Snapshot.Suggestions (1).Activation_Mode := Suggestion_Display_Only;
       Result := Execute_Suggested_Command (S, Snapshot, 1);
-      Assert (Result.Command = Editor.Commands.Command_Open_Command_Palette
+      Assert (Result.Command = Editor.Command_Ids.Command_Open_Command_Palette
               and then Result.Status = Editor.Executor.Command_No_Op,
               "direct guided execution must not execute display-only suggestions");
    end Test_Execute_Respects_Activation_Mode;
@@ -1463,12 +1463,12 @@ package body Editor.Empty_State_Guidance.Tests is
       Snapshot.Kind := Not_Refreshed_State;
       Snapshot.Suggestion_Count := 1;
       Snapshot.Suggestions (1) :=
-        Command_Suggestion_From_Descriptor (S, Editor.Commands.Command_Refresh_Outline);
+        Command_Suggestion_From_Descriptor (S, Editor.Command_Ids.Command_Refresh_Outline);
 
       Before_Messages := Editor.Messages.Count (S.Messages);
       Result := Execute_Suggested_Command (S, Snapshot, 1);
 
-      Assert (Result.Command = Editor.Commands.Command_Refresh_Outline
+      Assert (Result.Command = Editor.Command_Ids.Command_Refresh_Outline
               and then Result.Status = Editor.Executor.Command_Unavailable,
               "unavailable guided execution must remain unavailable");
       Assert (Editor.Messages.Count (S.Messages) > Before_Messages,
@@ -1529,7 +1529,7 @@ package body Editor.Empty_State_Guidance.Tests is
       Snapshot.Suggestion_Count := 1;
       Snapshot.Suggestions (1) :=
         Command_Suggestion_From_Descriptor
-          (S, Editor.Commands.Command_Open_Command_Palette);
+          (S, Editor.Command_Ids.Command_Open_Command_Palette);
       Snapshot.Suggestions (1).Activation_Mode := Suggestion_Display_Only;
 
       Assert (not Open_Suggested_Command_In_Command_Palette (Snapshot, 1),
@@ -1552,7 +1552,7 @@ package body Editor.Empty_State_Guidance.Tests is
       Result := Activate_Suggested_Command (S, Snapshot, 1);
       Editor.Configuration_Recovery.Clear_Reset_All_Confirmation;
 
-      Assert (Result.Command = Editor.Commands.Command_Open_Project
+      Assert (Result.Command = Editor.Command_Ids.Command_Open_Project
               and then Result.Status = Editor.Executor.Command_Unavailable,
               "conflicting guided activation must remain unavailable while confirmation is pending");
       Assert (Editor.Messages.Count (S.Messages) > Before_Messages,
@@ -1594,7 +1594,7 @@ package body Editor.Empty_State_Guidance.Tests is
       S : Editor.State.State_Type;
       Suggestion : Empty_State_Suggested_Command :=
         Command_Suggestion_From_Descriptor
-          (S, Editor.Commands.Command_Open_Project);
+          (S, Editor.Command_Ids.Command_Open_Project);
    begin
       Assert (Assert_Suggested_Action_Activation_Mode_Is_Coherent (Suggestion),
               "normal guided action activation mode should be coherent");
@@ -1630,7 +1630,7 @@ package body Editor.Empty_State_Guidance.Tests is
 
       Mark_Selected_Suggestion (Snapshot, 0);
       Result := Execute_Selected_Suggested_Command (S, Snapshot);
-      Assert (Result.Command = Editor.Commands.No_Command,
+      Assert (Result.Command = Editor.Command_Ids.No_Command,
               "execute-selected must no-op when no guided suggestion is selected");
    end Test_Selected_Activation_Uses_Selected_Index;
 
@@ -1692,7 +1692,7 @@ package body Editor.Empty_State_Guidance.Tests is
                 (Snapshot, Positive (Other)),
               "indexed activation must reject rows that conflict with the selected guided action");
       Result := Execute_Suggested_Command (S, Snapshot, Positive (Other));
-      Assert (Result.Command = Editor.Commands.No_Command,
+      Assert (Result.Command = Editor.Command_Ids.No_Command,
               "mismatched indexed activation must no-op instead of executing another row");
    end Test_Indexed_Activation_Rejects_Mismatched_Selection;
 

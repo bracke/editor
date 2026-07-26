@@ -1,7 +1,7 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
-with Editor.Commands;
 with Editor.Executor;
 with Editor.Executor.Shared_Services;
 use Editor.Executor.Shared_Services;
@@ -19,7 +19,7 @@ with Editor.Commands.Reference_Metadata;
 package body Editor.Executor.File_Target_Prompt_Commands is
 
    function Command_Requires_File_Target_Prompt
-     (Id : Editor.Commands.Command_Id) return Boolean
+     (Id : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       return Editor.Commands.Reference_Metadata.Command_Is_Target_Prompt_Capable (Id);
@@ -55,7 +55,7 @@ package body Editor.Executor.File_Target_Prompt_Commands is
    end Clear_File_Target_Prompt;
 
    function Prompt_Label_For_File_Target_Command
-     (Id : Editor.Commands.Command_Id) return String
+     (Id : Editor.Command_Ids.Command_Id) return String
    is
    begin
       return Editor.Commands.Reference_Metadata.Command_Target_Prompt_Label (Id);
@@ -63,7 +63,7 @@ package body Editor.Executor.File_Target_Prompt_Commands is
 
    procedure Open_File_Target_Prompt
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
    is
       Availability : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
@@ -114,20 +114,20 @@ package body Editor.Executor.File_Target_Prompt_Commands is
 
    procedure Execute_File_Target_Command
      (S      : in out Editor.State.State_Type;
-      Id     : Editor.Commands.Command_Id;
+      Id     : Editor.Command_Ids.Command_Id;
       Target : String)
    is
    begin
       case Id is
-         when Editor.Commands.Command_Save_File_As =>
+         when Editor.Command_Ids.Command_Save_File_As =>
             Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, Target);
-         when Editor.Commands.Command_Rename_Buffer_File =>
+         when Editor.Command_Ids.Command_Rename_Buffer_File =>
             Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File
               (S, Target);
-         when Editor.Commands.Command_Copy_Buffer_File =>
+         when Editor.Command_Ids.Command_Copy_Buffer_File =>
             Editor.Executor.File_Operation_Commands.Execute_Copy_Buffer_File
               (S, Target);
-         when Editor.Commands.Command_Move_Buffer_File =>
+         when Editor.Command_Ids.Command_Move_Buffer_File =>
             Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File
               (S, Target);
          when others =>
@@ -139,7 +139,7 @@ package body Editor.Executor.File_Target_Prompt_Commands is
    procedure Confirm_File_Target_Prompt
      (S : in out Editor.State.State_Type)
    is
-      Id     : constant Editor.Commands.Command_Id := S.File_Target_Prompt_Command;
+      Id     : constant Editor.Command_Ids.Command_Id := S.File_Target_Prompt_Command;
       Target : constant String :=
         Editor.Input_Field.Text (S.File_Target_Prompt_Input);
    begin

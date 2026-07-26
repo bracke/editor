@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Strings.Fixed;
@@ -6,7 +7,6 @@ with Editor.Build_Command;
 with Editor.Build_Diagnostics;
 with Editor.Build_Public_Request;
 with Editor.Build_UI;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.External_Producers.Build_Requests;
 
@@ -25,7 +25,7 @@ package body Editor.Build_Execution_Workflow is
    use type Editor.Build_Result_Summary.Build_Result_Summary_Kind;
    use type Editor.Build_Output_Details.Build_Output_Details_Kind;
    use type Editor.Commands.Descriptors.Command_Visibility;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
 
    function Contains_Shell_Operator (Text : String) return Boolean is
    begin
@@ -179,14 +179,14 @@ package body Editor.Build_Execution_Workflow is
    begin
       return Editor.Build_Command.Assert_Build_Run_Keybinding_Boundary
         and then not Editor.Commands.Descriptors.Descriptor
-          (Editor.Commands.Command_Build_Run).Bindable;
+          (Editor.Command_Ids.Command_Build_Run).Bindable;
    end Assert_Build_Keybindings_Have_No_Run_Payloads;
 
    function Assert_Build_Command_Surface_Has_No_Execution_Payloads
       return Boolean
    is
       D : constant Editor.Commands.Descriptors.Command_Descriptor :=
-        Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Build_Run);
+        Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Build_Run);
       Name : constant String := To_String (D.Name);
       Description : constant String := To_String (D.Description);
    begin
@@ -194,7 +194,7 @@ package body Editor.Build_Execution_Workflow is
       --  but it must not carry a candidate id, argv payload, result id, cwd,
       --  consent token, shell text, or rerun payload.
       return Editor.Commands.Name_Metadata.Stable_Command_Name
-          (Editor.Commands.Command_Build_Run) = "build.run"
+          (Editor.Command_Ids.Command_Build_Run) = "build.run"
         and then D.Visibility = Editor.Commands.Descriptors.Palette_Command
         and then not D.Bindable
         and then Ada.Strings.Fixed.Index (Name, "-P") = 0
@@ -320,11 +320,11 @@ package body Editor.Build_Execution_Workflow is
      (State : Editor.State.State_Type) return Boolean
    is
       Found : Boolean := False;
-      Id : constant Editor.Commands.Command_Id :=
+      Id : constant Editor.Command_Ids.Command_Id :=
         Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("build.cancel", Found);
       Copy : Editor.State.State_Type := State;
    begin
-      if not Found or else Id /= Editor.Commands.Command_Build_Cancel then
+      if not Found or else Id /= Editor.Command_Ids.Command_Build_Cancel then
          return False;
       end if;
 

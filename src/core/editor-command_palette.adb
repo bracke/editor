@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Containers; use type Ada.Containers.Count_Type;
@@ -19,7 +20,7 @@ with Editor.Commands.Name_Metadata;
 
 package body Editor.Command_Palette is
 
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Commands.Descriptors.Command_Visibility;
 
@@ -87,7 +88,7 @@ package body Editor.Command_Palette is
       return (not Palette_State_Store.Open)
         and then Palette_State_Store.Selected_Item = 0
         and then Palette_State_Store.Selected_Candidate_Index = 0
-        and then Palette_State_Store.Selected_Command_Id = Editor.Commands.No_Command
+        and then Palette_State_Store.Selected_Command_Id = Editor.Command_Ids.No_Command
         and then Palette_State_Store.Top_Row = 1
         and then not Config_State.Show_Help_Row
         and then Editor.Command_Palette.Filters.Transient_Filters_Clear;
@@ -276,7 +277,7 @@ package body Editor.Command_Palette is
      Editor.Command_Palette.Help.Clear_Command_State_Contexts;
 
    procedure Set_Command_State_Context
-     (Command : Editor.Commands.Command_Id;
+     (Command : Editor.Command_Ids.Command_Id;
       Text    : String) renames
      Editor.Command_Palette.Help.Set_Command_State_Context;
 
@@ -293,11 +294,11 @@ package body Editor.Command_Palette is
      Editor.Command_Palette.Help.Assert_Related_Command_Help_Is_Coherent;
 
    function Descriptor_Registry_Order
-     (Id : Editor.Commands.Command_Id) return Natural
+     (Id : Editor.Command_Ids.Command_Id) return Natural
    is
    begin
-      return Editor.Commands.Command_Id'Pos (Id)
-        - Editor.Commands.Command_Id'Pos (Editor.Commands.Command_Id'First);
+      return Editor.Command_Ids.Command_Id'Pos (Id)
+        - Editor.Command_Ids.Command_Id'Pos (Editor.Command_Ids.Command_Id'First);
    end Descriptor_Registry_Order;
 
    function Candidate_Less
@@ -728,7 +729,7 @@ package body Editor.Command_Palette is
       if Descriptors.Length = 0 or else Index >= Natural (Descriptors.Length) then
          Palette_State_Store.Selected_Item := 0;
          Palette_State_Store.Selected_Candidate_Index := 0;
-         Palette_State_Store.Selected_Command_Id := Editor.Commands.No_Command;
+         Palette_State_Store.Selected_Command_Id := Editor.Command_Ids.No_Command;
       else
          Palette_State_Store.Selected_Item := Index;
          Palette_State_Store.Selected_Candidate_Index := Index;
@@ -744,7 +745,7 @@ package body Editor.Command_Palette is
       if Candidates.Length = 0 or else Index >= Natural (Candidates.Length) then
          Palette_State_Store.Selected_Item := 0;
          Palette_State_Store.Selected_Candidate_Index := 0;
-         Palette_State_Store.Selected_Command_Id := Editor.Commands.No_Command;
+         Palette_State_Store.Selected_Command_Id := Editor.Command_Ids.No_Command;
       else
          Palette_State_Store.Selected_Item := Index;
          Palette_State_Store.Selected_Candidate_Index := Index;
@@ -754,11 +755,11 @@ package body Editor.Command_Palette is
 
    procedure Reconcile_Selection
      (Candidates             : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
-      Preferred_Command      : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Preferred_Command      : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Prefer_First_Available : Boolean := True)
    is
-      Preferred : constant Editor.Commands.Command_Id :=
-        (if Preferred_Command /= Editor.Commands.No_Command
+      Preferred : constant Editor.Command_Ids.Command_Id :=
+        (if Preferred_Command /= Editor.Command_Ids.No_Command
          then Preferred_Command
          else Palette_State_Store.Selected_Command_Id);
       Visible : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
@@ -768,11 +769,11 @@ package body Editor.Command_Palette is
       if Visible.Length = 0 then
          Palette_State_Store.Selected_Item := 0;
          Palette_State_Store.Selected_Candidate_Index := 0;
-         Palette_State_Store.Selected_Command_Id := Editor.Commands.No_Command;
+         Palette_State_Store.Selected_Command_Id := Editor.Command_Ids.No_Command;
          return;
       end if;
 
-      if Preferred /= Editor.Commands.No_Command then
+      if Preferred /= Editor.Command_Ids.No_Command then
          for I in 0 .. Natural (Visible.Length) - 1 loop
             if Visible.Element (I).Id = Preferred then
                Set_Selected_From_Candidate_Vector (Visible, I);
@@ -795,7 +796,7 @@ package body Editor.Command_Palette is
 
    procedure Clamp_Selection is
       Filtered : Editor.Commands.Descriptors.Command_Descriptor_Vectors.Vector;
-      Preferred : constant Editor.Commands.Command_Id := Palette_State_Store.Selected_Command_Id;
+      Preferred : constant Editor.Command_Ids.Command_Id := Palette_State_Store.Selected_Command_Id;
    begin
       Filtered_Commands (Filtered);
 
@@ -804,7 +805,7 @@ package body Editor.Command_Palette is
          return;
       end if;
 
-      if Preferred /= Editor.Commands.No_Command then
+      if Preferred /= Editor.Command_Ids.No_Command then
          for I in 0 .. Natural (Filtered.Length) - 1 loop
             if Filtered.Element (I).Id = Preferred then
                Set_Selected_From_Descriptor_Vector (Filtered, I);
@@ -833,7 +834,7 @@ package body Editor.Command_Palette is
       Editor.Input_Field.Clear (Filter_Field);
       Palette_State_Store.Selected_Item := 0;
       Palette_State_Store.Selected_Candidate_Index := 0;
-      Palette_State_Store.Selected_Command_Id := Editor.Commands.No_Command;
+      Palette_State_Store.Selected_Command_Id := Editor.Command_Ids.No_Command;
       Palette_State_Store.Top_Row := 1;
       Config_State := (others => <>);
       Clear_Transient_Filters;
@@ -845,18 +846,18 @@ package body Editor.Command_Palette is
       Palette_State_Store.Open := True;
       Palette_State_Store.Selected_Item := 0;
       Palette_State_Store.Selected_Candidate_Index := 0;
-      Palette_State_Store.Selected_Command_Id := Editor.Commands.No_Command;
+      Palette_State_Store.Selected_Command_Id := Editor.Command_Ids.No_Command;
       Palette_State_Store.Top_Row := 1;
       Clear_Transient_Filters;
       Clear_Command_State_Contexts;
    end Open;
 
    procedure Open_With_Command
-     (Command : Editor.Commands.Command_Id)
+     (Command : Editor.Command_Ids.Command_Id)
    is
       D : Editor.Commands.Descriptors.Command_Descriptor;
    begin
-      if Command = Editor.Commands.No_Command then
+      if Command = Editor.Command_Ids.No_Command then
          Open;
          return;
       end if;
@@ -884,7 +885,7 @@ package body Editor.Command_Palette is
       Palette_State_Store.Open := False;
       Palette_State_Store.Selected_Item := 0;
       Palette_State_Store.Selected_Candidate_Index := 0;
-      Palette_State_Store.Selected_Command_Id := Editor.Commands.No_Command;
+      Palette_State_Store.Selected_Command_Id := Editor.Command_Ids.No_Command;
       Palette_State_Store.Top_Row := 1;
       Config_State.Show_Help_Row := False;
       Clear_Transient_Filters;
@@ -1027,7 +1028,7 @@ package body Editor.Command_Palette is
       end if;
 
       Last := Natural (Visible.Length) - 1;
-      if Palette_State_Store.Selected_Command_Id /= Editor.Commands.No_Command then
+      if Palette_State_Store.Selected_Command_Id /= Editor.Command_Ids.No_Command then
          for I in 0 .. Natural (Visible.Length) - 1 loop
             if Visible.Element (I).Id = Palette_State_Store.Selected_Command_Id then
                Palette_State_Store.Selected_Item := I;
@@ -1145,12 +1146,12 @@ package body Editor.Command_Palette is
 
    end Filtered_Commands;
 
-   function Selected_Command return Editor.Commands.Command_Id is
+   function Selected_Command return Editor.Command_Ids.Command_Id is
       Filtered : Editor.Commands.Descriptors.Command_Descriptor_Vectors.Vector;
    begin
       Filtered_Commands (Filtered);
       if Filtered.Length = 0 then
-         return Editor.Commands.No_Command;
+         return Editor.Command_Ids.No_Command;
       elsif Palette_State_Store.Selected_Item >= Natural (Filtered.Length) then
          return Filtered.Element (Natural (Filtered.Length) - 1).Id;
       else
@@ -1223,7 +1224,7 @@ package body Editor.Command_Palette is
       Result.Candidates := Visible_Candidates;
 
       if Visible_Candidates.Length > 0 then
-         if Palette_State_Store.Selected_Command_Id /= Editor.Commands.No_Command then
+         if Palette_State_Store.Selected_Command_Id /= Editor.Command_Ids.No_Command then
             for I in 0 .. Natural (Visible_Candidates.Length) - 1 loop
                if Visible_Candidates.Element (I).Id = Palette_State_Store.Selected_Command_Id then
                   Selected_Visible_Index := I;

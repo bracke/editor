@@ -1,4 +1,4 @@
-with Editor.Commands;
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.State;
 
 package Editor.Focus_Management is
@@ -64,14 +64,14 @@ package Editor.Focus_Management is
      (S : Editor.State.State_Type) return Boolean;
 
    function Command_Is_Surface_Entry
-     (Id : Editor.Commands.Command_Id) return Boolean;
+     (Id : Editor.Command_Ids.Command_Id) return Boolean;
 
    function Focus_Target_For_Surface_Command
-     (Id : Editor.Commands.Command_Id) return Focus_Owner;
+     (Id : Editor.Command_Ids.Command_Id) return Focus_Owner;
 
    function Command_May_Run_In_Current_Focus
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id) return Boolean;
+      Id : Editor.Command_Ids.Command_Id) return Boolean;
 
    function Activation_Returns_Focus_To_Editor
      (Owner : Focus_Owner) return Boolean;
@@ -83,13 +83,13 @@ package Editor.Focus_Management is
      (Owner : Focus_Owner) return Boolean;
 
    function Command_Is_Panel_Local_Navigation
-     (Id : Editor.Commands.Command_Id) return Boolean;
+     (Id : Editor.Command_Ids.Command_Id) return Boolean;
 
    function Command_Closes_Focused_Surface
-     (Id : Editor.Commands.Command_Id) return Boolean;
+     (Id : Editor.Command_Ids.Command_Id) return Boolean;
 
    function Command_Returns_Focus_To_Editor
-     (Id : Editor.Commands.Command_Id) return Boolean;
+     (Id : Editor.Command_Ids.Command_Id) return Boolean;
 
    function Focus_State_Is_Persistable
      (Owner : Focus_Owner) return Boolean;
@@ -112,26 +112,26 @@ package Editor.Focus_Management is
      (S : in out Editor.State.State_Type);
 
    function Command_Focuses_Surface_After_Execution
-     (Id : Editor.Commands.Command_Id) return Boolean;
+     (Id : Editor.Command_Ids.Command_Id) return Boolean;
 
    procedure Apply_Command_Focus_Result
      (S            : in out Editor.State.State_Type;
-      Id           : Editor.Commands.Command_Id;
+      Id           : Editor.Command_Ids.Command_Id;
       Owner_Before : Focus_Owner := Focus_None);
 
    function Command_Closes_Focus_Owner
-     (Id    : Editor.Commands.Command_Id;
+     (Id    : Editor.Command_Ids.Command_Id;
       Owner : Focus_Owner) return Boolean;
 
    function Command_Toggles_Focus_Owner
-     (Id    : Editor.Commands.Command_Id;
+     (Id    : Editor.Command_Ids.Command_Id;
       Owner : Focus_Owner) return Boolean;
 
    function Command_Allowed_While_Pending
-     (Id : Editor.Commands.Command_Id) return Boolean;
+     (Id : Editor.Command_Ids.Command_Id) return Boolean;
 
    function Command_Is_Conflicting_While_Pending
-     (Id : Editor.Commands.Command_Id) return Boolean;
+     (Id : Editor.Command_Ids.Command_Id) return Boolean;
 
    function Assert_Panel_Focus_Management_Coherent
      (S : Editor.State.State_Type) return Boolean;

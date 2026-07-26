@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -8,20 +9,20 @@ with Editor.Render_Cache;
 
 package body Editor.Input_Bridge.Buffer_Switcher_Handlers is
 
-   use type Editor.Commands.Command_Kind;
+   use type Editor.Command_Kinds.Command_Kind;
 
    function Handle_Buffer_Switcher
      (S               : in out Editor.State.State_Type;
       Cmd             : Editor.Commands.Payloads.Command;
       Execute         : not null access procedure
-        (Id : Editor.Commands.Command_Id);
+        (Id : Editor.Command_Ids.Command_Id);
       Execute_Command : not null access procedure
         (Command : Editor.Commands.Payloads.Command)) return Boolean
    is
       Cmd2 : Editor.Commands.Payloads.Command;
    begin
       if Cmd.Kind = Editor.Command_Kinds.Open_Buffer_Switcher then
-         Execute (Editor.Commands.Command_Open_Buffer_Switcher);
+         Execute (Editor.Command_Ids.Command_Open_Buffer_Switcher);
          return True;
       end if;
 
@@ -37,12 +38,12 @@ package body Editor.Input_Bridge.Buffer_Switcher_Handlers is
                Editor.Buffer_Switcher.Select_All (S.Buffer_Switcher);
                Editor.Render_Cache.Invalidate_All;
             elsif Cmd.Ch = ASCII.LF or else Cmd.Ch = ASCII.CR then
-               Execute (Editor.Commands.Command_Accept_Buffer_Switcher);
+               Execute (Editor.Command_Ids.Command_Accept_Buffer_Switcher);
             elsif Cmd.Ch = ASCII.HT then
                if Cmd.Shift then
-                  Execute (Editor.Commands.Command_Buffer_Switcher_Previous_Result);
+                  Execute (Editor.Command_Ids.Command_Buffer_Switcher_Previous_Result);
                else
-                  Execute (Editor.Commands.Command_Buffer_Switcher_Next_Result);
+                  Execute (Editor.Command_Ids.Command_Buffer_Switcher_Next_Result);
                end if;
             elsif Length (Cmd.Text) > 0 then
                Cmd2.Kind := Editor.Command_Kinds.Buffer_Switcher_Insert_Text;
@@ -80,11 +81,11 @@ package body Editor.Input_Bridge.Buffer_Switcher_Handlers is
             return True;
 
          when Editor.Command_Kinds.Move_Up =>
-            Execute (Editor.Commands.Command_Buffer_Switcher_Previous_Result);
+            Execute (Editor.Command_Ids.Command_Buffer_Switcher_Previous_Result);
             return True;
 
          when Editor.Command_Kinds.Move_Down =>
-            Execute (Editor.Commands.Command_Buffer_Switcher_Next_Result);
+            Execute (Editor.Command_Ids.Command_Buffer_Switcher_Next_Result);
             return True;
 
          when Editor.Command_Kinds.Move_Left =>
@@ -108,11 +109,11 @@ package body Editor.Input_Bridge.Buffer_Switcher_Handlers is
             return True;
 
          when Editor.Command_Kinds.Palette_Accept | Editor.Command_Kinds.Accept_Buffer_Switcher =>
-            Execute (Editor.Commands.Command_Accept_Buffer_Switcher);
+            Execute (Editor.Command_Ids.Command_Accept_Buffer_Switcher);
             return True;
 
          when Editor.Command_Kinds.Palette_Cancel | Editor.Command_Kinds.Close_Buffer_Switcher =>
-            Execute (Editor.Commands.Command_Close_Buffer_Switcher);
+            Execute (Editor.Command_Ids.Command_Close_Buffer_Switcher);
             return True;
 
          when others =>

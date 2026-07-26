@@ -1,6 +1,5 @@
 with Editor.Commands.Payloads;
 with Ada.Containers.Vectors;
-with Editor.Commands;
 with Editor.State;
 
 package Editor.Instance is

@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Project;
 with Editor.Recent_Projects;
@@ -6,7 +7,7 @@ package body Editor.Executor.Project_Lifecycle_Availability_Commands is
 
    function Project_Lifecycle_Command_Availability
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Commands.Availability_Metadata.Command_Availability
    is
       function Has_Project return Boolean is
@@ -15,29 +16,29 @@ package body Editor.Executor.Project_Lifecycle_Availability_Commands is
       end Has_Project;
    begin
       case Id is
-         when Editor.Commands.Command_Open_Project =>
+         when Editor.Command_Ids.Command_Open_Project =>
             return Editor.Commands.Availability_Metadata.Available;
 
-         when Editor.Commands.Command_Switch_Project =>
+         when Editor.Command_Ids.Command_Switch_Project =>
             return Editor.Commands.Availability_Metadata.Unavailable ("No target project selected");
 
-         when Editor.Commands.Command_Close_Project
-            | Editor.Commands.Command_Clear_Project =>
+         when Editor.Command_Ids.Command_Close_Project
+            | Editor.Command_Ids.Command_Clear_Project =>
             if not Has_Project then
                return Editor.Commands.Availability_Metadata.Unavailable ("No project open");
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
-         when Editor.Commands.Command_Show_Recent_Projects =>
+         when Editor.Command_Ids.Command_Show_Recent_Projects =>
             return Editor.Commands.Availability_Metadata.Available;
 
-         when Editor.Commands.Command_Clear_Recent_Projects =>
+         when Editor.Command_Ids.Command_Clear_Recent_Projects =>
             if Editor.Recent_Projects.Count (S.Recent_Projects) = 0 then
                return Editor.Commands.Availability_Metadata.Unavailable ("No recent projects");
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
-         when Editor.Commands.Command_Open_Selected_Recent_Project =>
+         when Editor.Command_Ids.Command_Open_Selected_Recent_Project =>
             if Editor.Recent_Projects.Count (S.Recent_Projects) = 0 then
                return Editor.Commands.Availability_Metadata.Unavailable ("No recent project selected");
             else
@@ -59,13 +60,13 @@ package body Editor.Executor.Project_Lifecycle_Availability_Commands is
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
-         when Editor.Commands.Command_Remove_Selected_Recent_Project =>
+         when Editor.Command_Ids.Command_Remove_Selected_Recent_Project =>
             if Editor.Recent_Projects.Count (S.Recent_Projects) = 0 then
                return Editor.Commands.Availability_Metadata.Unavailable ("No recent project selected");
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
-         when Editor.Commands.Command_Remove_Missing_Recent_Projects =>
+         when Editor.Command_Ids.Command_Remove_Missing_Recent_Projects =>
             if Editor.Recent_Projects.Count (S.Recent_Projects) = 0 then
                return Editor.Commands.Availability_Metadata.Unavailable ("No recent projects");
             end if;
@@ -78,8 +79,8 @@ package body Editor.Executor.Project_Lifecycle_Availability_Commands is
             end loop;
             return Editor.Commands.Availability_Metadata.Unavailable ("No unavailable recent projects");
 
-         when Editor.Commands.Command_Select_Next_Recent_Project
-            | Editor.Commands.Command_Select_Previous_Recent_Project =>
+         when Editor.Command_Ids.Command_Select_Next_Recent_Project
+            | Editor.Command_Ids.Command_Select_Previous_Recent_Project =>
             if Editor.Recent_Projects.Count (S.Recent_Projects) = 0 then
                return Editor.Commands.Availability_Metadata.Unavailable ("No recent projects");
             end if;

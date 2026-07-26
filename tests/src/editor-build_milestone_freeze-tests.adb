@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -9,7 +10,6 @@ with Editor.Build_Public_Request;
 with Editor.Build_Runner_Policy;
 with Editor.Build_UI;
 with Editor.Build_Working_Context;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.External_Producers;
 with Editor.External_Producers.Build_Types;
@@ -188,7 +188,7 @@ package body Editor.Build_Milestone_Freeze.Tests is
         Editor.Build_Runner_Policy.Build_Execution_Disabled;
       Editor.Project.Apply_Open_Result (S.Project, Project_Result);
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Build_Run) = "build.run",
+                (Editor.Command_Ids.Command_Build_Run) = "build.run",
               "build.run stable command name is frozen");
       Assert (Editor.Build_Command.Build_Run_Readiness (S) =
                 Editor.Build_Command.Build_Run_Readiness_Execution_Backend_Disabled,

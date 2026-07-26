@@ -1,7 +1,7 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Editor.Build_UI_Actions;
-with Editor.Commands;
 with Editor.Dirty_Guards;
 with Editor.Feature_Panel;
 with Editor.Feature_Search_Results;
@@ -137,11 +137,11 @@ package body Editor.Focus_Management.Tests is
          "editor text must not edit while confirmation is pending");
       Assert
         (Editor.Focus_Management.Command_Allowed_While_Pending
-           (Editor.Commands.Command_Cancel_Pending_Transition),
+           (Editor.Command_Ids.Command_Cancel_Pending_Transition),
          "cancel pending transition should remain available");
       Assert
         (Editor.Focus_Management.Command_Is_Conflicting_While_Pending
-           (Editor.Commands.Command_Open_Project),
+           (Editor.Command_Ids.Command_Open_Project),
          "project switching should be conflicting while confirmation is pending");
       Assert
         (Editor.Focus_Management.Assert_Panel_Focus_Management_Coherent (S),
@@ -163,23 +163,23 @@ package body Editor.Focus_Management.Tests is
 
       Assert
         (not Editor.Focus_Management.Command_Allowed_While_Pending
-           (Editor.Commands.Command_Save_File),
+           (Editor.Command_Ids.Command_Save_File),
          "Save File must not bypass modal pending-confirmation focus");
       Assert
         (not Editor.Focus_Management.Command_Allowed_While_Pending
-           (Editor.Commands.Command_Save_All),
+           (Editor.Command_Ids.Command_Save_All),
          "Save All must not bypass modal pending-confirmation focus");
       Assert
         (not Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Save_File),
+           (S, Editor.Command_Ids.Command_Save_File),
          "current-focus policy should reject Save File while confirmation owns focus");
       Assert
         (not Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Save_All),
+           (S, Editor.Command_Ids.Command_Save_All),
          "current-focus policy should reject Save All while confirmation owns focus");
       Assert
         (Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Cancel_Pending_Transition),
+           (S, Editor.Command_Ids.Command_Cancel_Pending_Transition),
          "cancel remains the safe modal command");
    end Test_Pending_Confirmation_Blocks_File_Save_Mutations;
 
@@ -528,26 +528,26 @@ package body Editor.Focus_Management.Tests is
 
       Assert
         (Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_File_Tree_Move_Down),
+           (S, Editor.Command_Ids.Command_File_Tree_Move_Down),
          "File Tree local navigation should be accepted when File Tree owns focus");
       Assert
         (not Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Insert_Newline),
+           (S, Editor.Command_Ids.Command_Insert_Newline),
          "editor text insertion should be blocked when File Tree owns focus");
       Assert
         (Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Open_Quick_Open),
+           (S, Editor.Command_Ids.Command_Open_Quick_Open),
          "global surface-entry commands should remain available from File Tree focus");
 
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_Buffer_List);
       Assert
         (Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Accept_Buffer_Switcher),
+           (S, Editor.Command_Ids.Command_Accept_Buffer_Switcher),
          "Buffer List activation should be accepted in Buffer List focus");
       Assert
         (not Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_File_Tree_Open_Selected),
+           (S, Editor.Command_Ids.Command_File_Tree_Open_Selected),
          "stale File Tree activation should not run from Buffer List focus");
    end Test_Command_Eligibility_Is_Focus_Local;
 
@@ -562,33 +562,33 @@ package body Editor.Focus_Management.Tests is
         (S, Editor.Focus_Management.Focus_File_Tree);
       Assert
         (Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_File_Tree_Create_File),
+           (S, Editor.Command_Ids.Command_File_Tree_Create_File),
          "File Tree focus should allow File Tree-local create commands");
       Assert
         (not Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Diagnostics_Open_Selected),
+           (S, Editor.Command_Ids.Command_Diagnostics_Open_Selected),
          "File Tree focus must block stale Diagnostics activation");
 
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_Project_Search_Results);
       Assert
         (Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Project_Search_Replace_Toggle_Selected),
+           (S, Editor.Command_Ids.Command_Project_Search_Replace_Toggle_Selected),
          "Project Search focus should allow replace-preview local commands");
       Assert
         (not Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_File_Tree_Open_Selected),
+           (S, Editor.Command_Ids.Command_File_Tree_Open_Selected),
          "Project Search focus must block stale File Tree activation");
 
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_Recent_Projects);
       Assert
         (Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Open_Selected_Recent_Project),
+           (S, Editor.Command_Ids.Command_Open_Selected_Recent_Project),
          "Recent Projects focus should allow selected-project activation");
       Assert
         (not Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Accept_Quick_Open),
+           (S, Editor.Command_Ids.Command_Accept_Quick_Open),
          "Recent Projects focus must block stale Quick Open activation");
    end Test_Surface_Command_Families_Are_Focus_Local;
 
@@ -602,26 +602,26 @@ package body Editor.Focus_Management.Tests is
         (S, Editor.Focus_Management.Focus_Build_UI);
       Assert
         (Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Build_Toggle_Diagnostics_Ingestion),
+           (S, Editor.Command_Ids.Command_Build_Toggle_Diagnostics_Ingestion),
          "Build UI focus should allow Build UI-local configuration commands");
       Assert
         (not Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Cut),
+           (S, Editor.Command_Ids.Command_Cut),
          "Build UI focus must block editor text mutation commands");
 
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_Build_Output_Details);
       Assert
         (Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Build_UI_Show),
+           (S, Editor.Command_Ids.Command_Build_UI_Show),
          "Build Output focus should allow build-surface commands");
       Assert
         (not Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_File_Tree_Open_Selected),
+           (S, Editor.Command_Ids.Command_File_Tree_Open_Selected),
          "Build Output focus must block stale File Tree activation");
       Assert
         (not Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Insert_Newline),
+           (S, Editor.Command_Ids.Command_Insert_Newline),
          "Build Output focus must not permit editor newline insertion");
    end Test_Build_And_Output_Focus_Block_Stale_Editor_Or_Row_Input;
 
@@ -640,15 +640,15 @@ package body Editor.Focus_Management.Tests is
          "workspace/file prompt should own prompt focus");
       Assert
         (Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Cancel),
+           (S, Editor.Command_Ids.Command_Cancel),
          "prompt focus should still allow safe cancel command routing");
       Assert
         (not Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Open_Selected_Outline_Item),
+           (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item),
          "prompt focus must block stale Outline activation");
       Assert
         (not Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Paste),
+           (S, Editor.Command_Ids.Command_Paste),
          "prompt focus must block editor paste mutation through command ids");
    end Test_Prompt_Focus_Blocks_Stale_Surface_Activation;
 
@@ -660,40 +660,40 @@ package body Editor.Focus_Management.Tests is
    begin
       Assert
         (Editor.Focus_Management.Command_Is_Surface_Entry
-           (Editor.Commands.Command_Open_Quick_Open),
+           (Editor.Command_Ids.Command_Open_Quick_Open),
          "Quick Open opener should be classified as a surface-entry command");
       Assert
         (Editor.Focus_Management.Focus_Target_For_Surface_Command
-           (Editor.Commands.Command_Open_Quick_Open) =
+           (Editor.Command_Ids.Command_Open_Quick_Open) =
          Editor.Focus_Management.Focus_Quick_Open,
          "Quick Open opener should have an auditable focus target");
       Assert
         (Editor.Focus_Management.Focus_Target_For_Surface_Command
-           (Editor.Commands.Command_Focus_File_Tree) =
+           (Editor.Command_Ids.Command_Focus_File_Tree) =
          Editor.Focus_Management.Focus_File_Tree,
          "File Tree focus command should have an auditable focus target");
       Assert
         (Editor.Focus_Management.Focus_Target_For_Surface_Command
-           (Editor.Commands.Command_Build_UI_Focus) =
+           (Editor.Command_Ids.Command_Build_UI_Focus) =
          Editor.Focus_Management.Focus_Build_UI,
          "Build UI focus command should have an auditable focus target");
       Assert
         (Editor.Focus_Management.Command_Is_Surface_Entry
-           (Editor.Commands.Command_Terminal_Show),
+           (Editor.Command_Ids.Command_Terminal_Show),
          "Terminal show should be classified as a surface-entry command");
       Assert
         (Editor.Focus_Management.Focus_Target_For_Surface_Command
-           (Editor.Commands.Command_Terminal_Focus) =
+           (Editor.Command_Ids.Command_Terminal_Focus) =
          Editor.Focus_Management.Focus_Terminal,
          "Terminal focus command should have an auditable focus target");
       Assert
         (Editor.Focus_Management.Focus_Target_For_Surface_Command
-           (Editor.Commands.Command_Show_Recent_Projects) =
+           (Editor.Command_Ids.Command_Show_Recent_Projects) =
          Editor.Focus_Management.Focus_Recent_Projects,
          "Recent Projects show command should have an auditable focus target");
       Assert
         (not Editor.Focus_Management.Command_Is_Surface_Entry
-           (Editor.Commands.Command_File_Tree_Open_Selected),
+           (Editor.Command_Ids.Command_File_Tree_Open_Selected),
          "row activation should not be misclassified as surface entry");
    end Test_Surface_Entry_Command_Targets_Are_Auditable;
 
@@ -708,35 +708,35 @@ package body Editor.Focus_Management.Tests is
 
       Assert
         (Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Goto_Line_Query_Set),
+           (S, Editor.Command_Ids.Command_Goto_Line_Query_Set),
          "prompt focus should allow go-to-line query text commands");
       Assert
         (Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Find_Query_Set),
+           (S, Editor.Command_Ids.Command_Find_Query_Set),
          "prompt focus should allow find query text commands");
       Assert
         (Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Replace_Text_Set),
+           (S, Editor.Command_Ids.Command_Replace_Text_Set),
          "prompt focus should allow replace prompt text commands");
       Assert
         (Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Replace_Current),
+           (S, Editor.Command_Ids.Command_Replace_Current),
          "prompt focus should allow replace-current while replace prompt owns focus");
       Assert
         (Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Replace_All),
+           (S, Editor.Command_Ids.Command_Replace_All),
          "prompt focus should allow replace-all while replace prompt owns focus");
       Assert
         (not Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Accept_Quick_Open),
+           (S, Editor.Command_Ids.Command_Accept_Quick_Open),
          "prompt focus must block stale Quick Open activation");
       Assert
         (not Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Open_Quick_Open),
+           (S, Editor.Command_Ids.Command_Open_Quick_Open),
          "prompt focus must block opening another overlay on top of prompt input");
       Assert
         (not Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Insert_Newline),
+           (S, Editor.Command_Ids.Command_Insert_Newline),
          "prompt focus must block editor newline insertion");
    end Test_Workspace_Prompt_Allows_Only_Prompt_Local_Commands;
 
@@ -774,31 +774,31 @@ package body Editor.Focus_Management.Tests is
    begin
       Assert
         (Editor.Focus_Management.Command_Returns_Focus_To_Editor
-           (Editor.Commands.Command_Accept_Quick_Open),
+           (Editor.Command_Ids.Command_Accept_Quick_Open),
          "Quick Open accept should be classified as returning focus to editor");
       Assert
         (Editor.Focus_Management.Command_Returns_Focus_To_Editor
-           (Editor.Commands.Command_Quick_Open_Create_From_Query),
+           (Editor.Command_Ids.Command_Quick_Open_Create_From_Query),
          "Quick Open create should be classified as returning focus to editor");
       Assert
         (Editor.Focus_Management.Command_Returns_Focus_To_Editor
-           (Editor.Commands.Command_Quick_Open_Create_With_Parents_From_Query),
+           (Editor.Command_Ids.Command_Quick_Open_Create_With_Parents_From_Query),
          "Quick Open create-with-parents should be classified as returning focus to editor");
       Assert
         (Editor.Focus_Management.Command_Returns_Focus_To_Editor
-           (Editor.Commands.Command_File_Tree_Open_Selected),
+           (Editor.Command_Ids.Command_File_Tree_Open_Selected),
          "File Tree row activation should be classified as returning focus to editor");
       Assert
         (Editor.Focus_Management.Command_Returns_Focus_To_Editor
-           (Editor.Commands.Command_Diagnostics_Open_Selected),
+           (Editor.Command_Ids.Command_Diagnostics_Open_Selected),
          "Diagnostics row activation should be classified as returning focus to editor");
       Assert
         (Editor.Focus_Management.Command_Returns_Focus_To_Editor
-           (Editor.Commands.Command_Open_Selected_Recent_Project),
+           (Editor.Command_Ids.Command_Open_Selected_Recent_Project),
          "Recent Projects activation should be classified as returning focus to editor");
       Assert
         (not Editor.Focus_Management.Command_Returns_Focus_To_Editor
-           (Editor.Commands.Command_Build_Run),
+           (Editor.Command_Ids.Command_Build_Run),
          "Build run should keep the retained Build workflow focus policy");
    end Test_Command_Level_Focus_Return_Policy_Is_Auditable;
 
@@ -809,36 +809,36 @@ package body Editor.Focus_Management.Tests is
    begin
       Assert
         (Editor.Focus_Management.Command_Closes_Focused_Surface
-           (Editor.Commands.Command_Close_Quick_Open),
+           (Editor.Command_Ids.Command_Close_Quick_Open),
          "Quick Open close should be classified as a focused-surface dismissal");
       Assert
         (Editor.Focus_Management.Command_Closes_Focused_Surface
-           (Editor.Commands.Command_Close_Project_Search_Bar),
+           (Editor.Command_Ids.Command_Close_Project_Search_Bar),
          "Project Search close should be classified as a focused-surface dismissal");
       Assert
         (Editor.Focus_Management.Command_Closes_Focused_Surface
-           (Editor.Commands.Command_Build_UI_Hide),
+           (Editor.Command_Ids.Command_Build_UI_Hide),
          "Build UI hide should be classified as a focused-surface dismissal");
       Assert
         (not Editor.Focus_Management.Command_Closes_Focused_Surface
-           (Editor.Commands.Command_File_Tree_Open_Selected),
+           (Editor.Command_Ids.Command_File_Tree_Open_Selected),
          "row activation should not be misclassified as dismissal");
 
       Assert
         (Editor.Focus_Management.Command_Is_Panel_Local_Navigation
-           (Editor.Commands.Command_File_Tree_Move_Down),
+           (Editor.Command_Ids.Command_File_Tree_Move_Down),
          "File Tree row movement should be panel-local navigation");
       Assert
         (Editor.Focus_Management.Command_Is_Panel_Local_Navigation
-           (Editor.Commands.Command_Search_Results_Page_Down),
+           (Editor.Command_Ids.Command_Search_Results_Page_Down),
          "Search results paging should be panel-local navigation");
       Assert
         (Editor.Focus_Management.Command_Is_Panel_Local_Navigation
-           (Editor.Commands.Command_Diagnostics_Select_Next),
+           (Editor.Command_Ids.Command_Diagnostics_Select_Next),
          "Diagnostics selection movement should be panel-local navigation");
       Assert
         (not Editor.Focus_Management.Command_Is_Panel_Local_Navigation
-           (Editor.Commands.Command_Move_Down),
+           (Editor.Command_Ids.Command_Move_Down),
          "editor caret movement must not be classified as panel-local navigation");
    end Test_Command_Level_Dismissal_And_Navigation_Policy_Is_Auditable;
 
@@ -903,7 +903,7 @@ package body Editor.Focus_Management.Tests is
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_Quick_Open);
       Editor.Focus_Management.Apply_Command_Focus_Result
-        (S, Editor.Commands.Command_Accept_Quick_Open);
+        (S, Editor.Command_Ids.Command_Accept_Quick_Open);
 
       Assert
         (Editor.Focus_Management.Effective_Focus_Owner (S) =
@@ -916,7 +916,7 @@ package body Editor.Focus_Management.Tests is
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_File_Tree);
       Editor.Focus_Management.Apply_Command_Focus_Result
-        (S, Editor.Commands.Command_File_Tree_Open_Selected);
+        (S, Editor.Command_Ids.Command_File_Tree_Open_Selected);
 
       Assert
         (Editor.Focus_Management.Effective_Focus_Owner (S) =
@@ -946,7 +946,7 @@ package body Editor.Focus_Management.Tests is
          "Quick Open overlay should own focus before dismissal");
 
       Editor.Focus_Management.Apply_Command_Focus_Result
-        (S, Editor.Commands.Command_Close_Quick_Open);
+        (S, Editor.Command_Ids.Command_Close_Quick_Open);
 
       Assert
         (Editor.Focus_Management.Effective_Focus_Owner (S) =
@@ -961,7 +961,7 @@ package body Editor.Focus_Management.Tests is
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_Quick_Open);
       Editor.Focus_Management.Apply_Command_Focus_Result
-        (S, Editor.Commands.Command_Close_Quick_Open);
+        (S, Editor.Command_Ids.Command_Close_Quick_Open);
 
       Assert
         (Editor.Focus_Management.Effective_Focus_Owner (S) =
@@ -978,7 +978,7 @@ package body Editor.Focus_Management.Tests is
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_File_Tree);
       Editor.Focus_Management.Apply_Command_Focus_Result
-        (S, Editor.Commands.Command_Open_Quick_Open);
+        (S, Editor.Command_Ids.Command_Open_Quick_Open);
 
       Assert
         (Editor.Focus_Management.Effective_Focus_Owner (S) =
@@ -986,31 +986,31 @@ package body Editor.Focus_Management.Tests is
          "executed Quick Open surface-entry command should actively focus Quick Open");
       Assert
         (Editor.Focus_Management.Command_Focuses_Surface_After_Execution
-           (Editor.Commands.Command_Open_Quick_Open),
+           (Editor.Command_Ids.Command_Open_Quick_Open),
          "open surface commands should opt into post-execution focus application");
 
       Editor.Focus_Management.Apply_Command_Focus_Result
-        (S, Editor.Commands.Command_Toggle_Quick_Open);
+        (S, Editor.Command_Ids.Command_Toggle_Quick_Open);
       Assert
         (Editor.Focus_Management.Effective_Focus_Owner (S) =
          Editor.Focus_Management.Focus_Editor,
          "toggle command from the focused overlay should close it and fall back safely");
       Assert
         (not Editor.Focus_Management.Command_Focuses_Surface_After_Execution
-           (Editor.Commands.Command_Toggle_Quick_Open),
+           (Editor.Command_Ids.Command_Toggle_Quick_Open),
          "toggle commands must not force focus after execution because they may close the surface");
 
       Assert
         (Editor.Focus_Management.Command_Focuses_Surface_After_Execution
-           (Editor.Commands.Command_Terminal_Focus),
+           (Editor.Command_Ids.Command_Terminal_Focus),
          "Terminal focus should opt into post-execution focus application");
       Assert
         (not Editor.Focus_Management.Command_Focuses_Surface_After_Execution
-           (Editor.Commands.Command_Terminal_Toggle),
+           (Editor.Command_Ids.Command_Terminal_Toggle),
          "Terminal toggle should not force focus after execution");
 
       Editor.Focus_Management.Apply_Command_Focus_Result
-        (S, Editor.Commands.Command_Focus_Editor_Text);
+        (S, Editor.Command_Ids.Command_Focus_Editor_Text);
       Assert
         (Editor.Focus_Management.Effective_Focus_Owner (S) =
          Editor.Focus_Management.Focus_Editor,
@@ -1024,35 +1024,35 @@ package body Editor.Focus_Management.Tests is
    begin
       Assert
         (Editor.Focus_Management.Command_Is_Surface_Entry
-           (Editor.Commands.Command_Toggle_Feature_Panel),
+           (Editor.Command_Ids.Command_Toggle_Feature_Panel),
          "feature-panel toggle should be auditable as a surface-entry command even though result focus is conditional");
       Assert
         (Editor.Focus_Management.Focus_Target_For_Surface_Command
-           (Editor.Commands.Command_Toggle_Feature_Panel) =
+           (Editor.Command_Ids.Command_Toggle_Feature_Panel) =
          Editor.Focus_Management.Focus_Outline,
          "feature-panel toggle target should resolve to the retained feature-panel focus owner");
       Assert
         (not Editor.Focus_Management.Command_Is_Surface_Entry
-           (Editor.Commands.Command_Toggle_Diagnostics),
+           (Editor.Command_Ids.Command_Toggle_Diagnostics),
          "diagnostics visibility setting toggle must not be treated as a diagnostics panel focus command");
       Assert
         (Editor.Focus_Management.Focus_Target_For_Surface_Command
-           (Editor.Commands.Command_Toggle_Diagnostics) =
+           (Editor.Command_Ids.Command_Toggle_Diagnostics) =
          Editor.Focus_Management.Focus_None,
          "diagnostics visibility setting toggle must not claim a panel focus target");
       Assert
         (Editor.Focus_Management.Focus_Target_For_Surface_Command
-           (Editor.Commands.Command_Toggle_Problems_Panel) =
+           (Editor.Command_Ids.Command_Toggle_Problems_Panel) =
          Editor.Focus_Management.Focus_Diagnostics,
          "problems-panel toggle target should resolve to Diagnostics focus");
       Assert
         (Editor.Focus_Management.Focus_Target_For_Surface_Command
-           (Editor.Commands.Command_Toggle_Bottom_Panel_Focus) =
+           (Editor.Command_Ids.Command_Toggle_Bottom_Panel_Focus) =
          Editor.Focus_Management.Focus_Project_Search_Results,
          "bottom-panel focus toggle has an explicit fallback focus target for audits");
       Assert
         (not Editor.Focus_Management.Command_Focuses_Surface_After_Execution
-           (Editor.Commands.Command_Toggle_Bottom_Panel_Focus),
+           (Editor.Command_Ids.Command_Toggle_Bottom_Panel_Focus),
          "bottom-panel focus toggles are not force-applied after execution because the retained command decides the actual bottom content");
    end Test_Surface_Entry_Targets_Cover_Toggle_And_Bottom_Panel_Commands;
 
@@ -1075,7 +1075,7 @@ package body Editor.Focus_Management.Tests is
       Editor.Focus_Management.Restore_Focus_To_Editor (S);
 
       Editor.Focus_Management.Apply_Command_Focus_Result
-        (S, Editor.Commands.Command_Cancel,
+        (S, Editor.Command_Ids.Command_Cancel,
          Editor.Focus_Management.Focus_Editor);
 
       Assert
@@ -1086,7 +1086,7 @@ package body Editor.Focus_Management.Tests is
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_File_Tree);
       Editor.Focus_Management.Apply_Command_Focus_Result
-        (S, Editor.Commands.Command_Cancel,
+        (S, Editor.Command_Ids.Command_Cancel,
          Editor.Focus_Management.Focus_File_Tree);
 
       Assert
@@ -1102,22 +1102,22 @@ package body Editor.Focus_Management.Tests is
    begin
       Assert
         (Editor.Focus_Management.Command_Closes_Focus_Owner
-           (Editor.Commands.Command_Close_Quick_Open,
+           (Editor.Command_Ids.Command_Close_Quick_Open,
             Editor.Focus_Management.Focus_Quick_Open),
          "Quick Open close should dismiss Quick Open focus");
       Assert
         (not Editor.Focus_Management.Command_Closes_Focus_Owner
-           (Editor.Commands.Command_Close_Quick_Open,
+           (Editor.Command_Ids.Command_Close_Quick_Open,
             Editor.Focus_Management.Focus_File_Tree),
          "Quick Open close must not be treated as a File Tree dismissal");
       Assert
         (Editor.Focus_Management.Command_Closes_Focus_Owner
-           (Editor.Commands.Command_Cancel,
+           (Editor.Command_Ids.Command_Cancel,
             Editor.Focus_Management.Focus_Project_Search_Query),
          "Cancel should close project-search overlay input focus");
       Assert
         (not Editor.Focus_Management.Command_Closes_Focus_Owner
-           (Editor.Commands.Command_Cancel,
+           (Editor.Command_Ids.Command_Cancel,
             Editor.Focus_Management.Focus_Editor),
          "Cancel from editor focus should not consume stale overlay history");
    end Test_Close_Command_Matches_Owning_Surface;
@@ -1129,32 +1129,32 @@ package body Editor.Focus_Management.Tests is
    begin
       Assert
         (Editor.Focus_Management.Command_Toggles_Focus_Owner
-           (Editor.Commands.Command_Toggle_Quick_Open,
+           (Editor.Command_Ids.Command_Toggle_Quick_Open,
             Editor.Focus_Management.Focus_Quick_Open),
          "Quick Open toggle should be treated as closing only when Quick Open owns focus");
       Assert
         (not Editor.Focus_Management.Command_Toggles_Focus_Owner
-           (Editor.Commands.Command_Toggle_Quick_Open,
+           (Editor.Command_Ids.Command_Toggle_Quick_Open,
             Editor.Focus_Management.Focus_Editor),
          "Quick Open toggle from editor is an open/focus action, not a close action");
       Assert
         (Editor.Focus_Management.Command_Toggles_Focus_Owner
-           (Editor.Commands.Command_Toggle_Project_Search_Bar,
+           (Editor.Command_Ids.Command_Toggle_Project_Search_Bar,
             Editor.Focus_Management.Focus_Project_Replace_Input),
          "Project Search toggle should close replace input only when that overlay owns focus");
       Assert
         (Editor.Focus_Management.Command_Toggles_Focus_Owner
-           (Editor.Commands.Command_Build_UI_Toggle,
+           (Editor.Command_Ids.Command_Build_UI_Toggle,
             Editor.Focus_Management.Focus_Build_Output_Details),
          "Build UI toggle should close build output focus when the build surface owns focus");
       Assert
         (Editor.Focus_Management.Command_Toggles_Focus_Owner
-           (Editor.Commands.Command_Toggle_Feature_Panel,
+           (Editor.Command_Ids.Command_Toggle_Feature_Panel,
             Editor.Focus_Management.Focus_Outline),
          "Feature Panel toggle should close focused Outline surface");
       Assert
         (not Editor.Focus_Management.Command_Toggles_Focus_Owner
-           (Editor.Commands.Command_Toggle_Feature_Panel,
+           (Editor.Command_Ids.Command_Toggle_Feature_Panel,
             Editor.Focus_Management.Focus_Quick_Open),
          "Feature Panel toggle must not be treated as closing an unrelated overlay owner");
    end Test_Toggle_Close_Policy_Is_Owner_Scoped;
@@ -1172,19 +1172,19 @@ package body Editor.Focus_Management.Tests is
 
       Assert
         (Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Quick_Open_Next_Result),
+           (S, Editor.Command_Ids.Command_Quick_Open_Next_Result),
          "Quick Open focus should permit Quick Open local navigation");
       Assert
         (not Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Open_Project_Search_Bar),
+           (S, Editor.Command_Ids.Command_Open_Project_Search_Bar),
          "Quick Open focus must not allow jumping to Project Search overlay");
       Assert
         (not Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Open_Buffer_Switcher),
+           (S, Editor.Command_Ids.Command_Open_Buffer_Switcher),
          "Quick Open focus must not allow jumping to Buffer List overlay");
       Assert
         (Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Cancel),
+           (S, Editor.Command_Ids.Command_Cancel),
          "Quick Open focus should still allow local cancellation");
    end Test_Overlay_Focus_Blocks_Cross_Surface_Entry;
 
@@ -1195,27 +1195,27 @@ package body Editor.Focus_Management.Tests is
    begin
       Assert
         (Editor.Focus_Management.Command_Allowed_While_Pending
-           (Editor.Commands.Command_Cancel_Pending_Transition),
+           (Editor.Command_Ids.Command_Cancel_Pending_Transition),
          "pending modal focus should allow explicit cancel");
       Assert
         (Editor.Focus_Management.Command_Allowed_While_Pending
-           (Editor.Commands.Command_Retry_Pending_Transition),
+           (Editor.Command_Ids.Command_Retry_Pending_Transition),
          "pending modal focus should allow the retained confirm/retry path");
       Assert
         (Editor.Focus_Management.Command_Allowed_While_Pending
-           (Editor.Commands.Command_Discard_Pending_Transition),
+           (Editor.Command_Ids.Command_Discard_Pending_Transition),
          "pending modal focus should allow explicit discard-and-continue");
       Assert
         (Editor.Focus_Management.Command_Allowed_While_Pending
-           (Editor.Commands.Command_Show_Messages),
+           (Editor.Command_Ids.Command_Show_Messages),
          "pending modal focus should allow safe status inspection");
       Assert
         (not Editor.Focus_Management.Command_Allowed_While_Pending
-           (Editor.Commands.Command_Save_File),
+           (Editor.Command_Ids.Command_Save_File),
          "pending modal focus must not allow unrelated file mutation");
       Assert
         (not Editor.Focus_Management.Command_Allowed_While_Pending
-           (Editor.Commands.Command_Open_Quick_Open),
+           (Editor.Command_Ids.Command_Open_Quick_Open),
          "pending modal focus must not allow opening another overlay");
    end Test_Pending_Confirmation_Allows_Only_Modal_And_Status_Commands;
 
@@ -1233,12 +1233,12 @@ package body Editor.Focus_Management.Tests is
 
       Assert
         (Editor.Focus_Management.Command_Returns_Focus_To_Editor
-           (Editor.Commands.Command_Accept_Goto_Line),
+           (Editor.Command_Ids.Command_Accept_Goto_Line),
          "accepting a prompt navigation command should return focus to editor");
 
       Editor.Focus_Management.Apply_Command_Focus_Result
         (S,
-         Editor.Commands.Command_Accept_Goto_Line,
+         Editor.Command_Ids.Command_Accept_Goto_Line,
          Editor.Focus_Management.Focus_Workspace_Prompt);
 
       Assert
@@ -1252,7 +1252,7 @@ package body Editor.Focus_Management.Tests is
         (S, Editor.Focus_Management.Focus_Workspace_Prompt);
       Editor.Focus_Management.Apply_Command_Focus_Result
         (S,
-         Editor.Commands.Command_Close_Goto_Line,
+         Editor.Command_Ids.Command_Close_Goto_Line,
          Editor.Focus_Management.Focus_Workspace_Prompt);
 
       Assert
@@ -1275,15 +1275,15 @@ package body Editor.Focus_Management.Tests is
 
       Assert
         (Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Quick_Open_Next_Result),
+           (S, Editor.Command_Ids.Command_Quick_Open_Next_Result),
          "Quick Open local next command should be valid only through Quick Open focus");
       Assert
         (Editor.Focus_Management.Command_Is_Panel_Local_Navigation
-           (Editor.Commands.Command_Quick_Open_Next_Result),
+           (Editor.Command_Ids.Command_Quick_Open_Next_Result),
          "Quick Open local result movement should be auditable panel-local navigation");
       Assert
         (not Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Buffer_Switcher_Next_Result),
+           (S, Editor.Command_Ids.Command_Buffer_Switcher_Next_Result),
          "Quick Open focus should block stale Buffer List navigation commands");
 
       Editor.Focus_Management.Set_Focus_Owner
@@ -1291,15 +1291,15 @@ package body Editor.Focus_Management.Tests is
 
       Assert
         (Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Buffer_Switcher_Next_Result),
+           (S, Editor.Command_Ids.Command_Buffer_Switcher_Next_Result),
          "Buffer List local next command should be valid only through Buffer List focus");
       Assert
         (Editor.Focus_Management.Command_Is_Panel_Local_Navigation
-           (Editor.Commands.Command_Buffer_Switcher_Next_Result),
+           (Editor.Command_Ids.Command_Buffer_Switcher_Next_Result),
          "Buffer List local result movement should be auditable panel-local navigation");
       Assert
         (not Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Quick_Open_Next_Result),
+           (S, Editor.Command_Ids.Command_Quick_Open_Next_Result),
          "Buffer List focus should block stale Quick Open navigation commands");
    end Test_Local_Navigation_Command_Ids_Are_Focus_Routed;
 
@@ -1315,19 +1315,19 @@ package body Editor.Focus_Management.Tests is
 
       Assert
         (Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Feature_Panel_Select_Next),
+           (S, Editor.Command_Ids.Command_Feature_Panel_Select_Next),
          "focused Feature Panel should accept its canonical next-selection command");
       Assert
         (Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Feature_Panel_Select_Previous),
+           (S, Editor.Command_Ids.Command_Feature_Panel_Select_Previous),
          "focused Feature Panel should accept its canonical previous-selection command");
       Assert
         (Editor.Focus_Management.Command_Is_Panel_Local_Navigation
-           (Editor.Commands.Command_Feature_Panel_Select_Next),
+           (Editor.Command_Ids.Command_Feature_Panel_Select_Next),
          "Feature Panel next selection should be auditable panel-local navigation");
       Assert
         (not Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_File_Tree_Move_Down),
+           (S, Editor.Command_Ids.Command_File_Tree_Move_Down),
          "focused Feature Panel should block stale File Tree navigation commands");
    end Test_Feature_Panel_Local_Navigation_Is_Focus_Routed;
 
@@ -1343,15 +1343,15 @@ package body Editor.Focus_Management.Tests is
 
       Assert
         (Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Run_Project_Search_From_Bar),
+           (S, Editor.Command_Ids.Command_Run_Project_Search_From_Bar),
          "Project Search query focus should accept the canonical run-from-bar command");
       Assert
         (not Editor.Focus_Management.Command_Returns_Focus_To_Editor
-           (Editor.Commands.Command_Run_Project_Search_From_Bar),
+           (Editor.Command_Ids.Command_Run_Project_Search_From_Bar),
          "running a Project Search from the bar should keep the query/results surface policy, not force editor focus");
       Assert
         (not Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Accept_Quick_Open),
+           (S, Editor.Command_Ids.Command_Accept_Quick_Open),
          "Project Search query focus should block stale Quick Open activation commands");
    end Test_Project_Search_Bar_Enter_Command_Is_Focus_Local;
 
@@ -1367,31 +1367,31 @@ package body Editor.Focus_Management.Tests is
 
       Assert
         (Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Next_Project_Search_Result),
+           (S, Editor.Command_Ids.Command_Next_Project_Search_Result),
          "Project Search query focus should accept canonical next-result command");
       Assert
         (Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Previous_Project_Search_Result),
+           (S, Editor.Command_Ids.Command_Previous_Project_Search_Result),
          "Project Search query focus should accept canonical previous-result command");
       Assert
         (Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Project_Search_Kind_Next),
+           (S, Editor.Command_Ids.Command_Project_Search_Kind_Next),
          "Project Search query focus should accept canonical kind cycling command");
       Assert
         (Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Project_Search_Case_Toggle),
+           (S, Editor.Command_Ids.Command_Project_Search_Case_Toggle),
          "Project Search query focus should accept canonical option toggle commands");
       Assert
         (Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Project_Search_Include_Filter_Clear),
+           (S, Editor.Command_Ids.Command_Project_Search_Include_Filter_Clear),
          "Project Search query focus should accept canonical filter-clear command");
       Assert
         (Editor.Focus_Management.Command_Is_Panel_Local_Navigation
-           (Editor.Commands.Command_Next_Project_Search_Result),
+           (Editor.Command_Ids.Command_Next_Project_Search_Result),
          "Project Search next-result should be auditable panel-local navigation");
       Assert
         (not Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Buffer_Switcher_Next_Result),
+           (S, Editor.Command_Ids.Command_Buffer_Switcher_Next_Result),
          "Project Search query focus should block stale Buffer List navigation");
    end Test_Project_Search_Bar_Local_Options_Are_Focus_Routed;
 
@@ -1407,23 +1407,23 @@ package body Editor.Focus_Management.Tests is
 
       Assert
         (Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Quick_Open_Kind_Next),
+           (S, Editor.Command_Ids.Command_Quick_Open_Kind_Next),
          "Quick Open focus should accept canonical kind cycling commands");
       Assert
         (Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Quick_Open_Scope_Clear),
+           (S, Editor.Command_Ids.Command_Quick_Open_Scope_Clear),
          "Quick Open focus should accept canonical scope commands");
       Assert
         (Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Quick_Open_Priority_Toggle),
+           (S, Editor.Command_Ids.Command_Quick_Open_Priority_Toggle),
          "Quick Open focus should accept canonical priority commands");
       Assert
         (not Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_First_Project_Search_Result),
+           (S, Editor.Command_Ids.Command_First_Project_Search_Result),
          "Quick Open focus should block stale Project Search first-result command");
       Assert
         (not Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Project_Search_Scope_Selected_Directory),
+           (S, Editor.Command_Ids.Command_Project_Search_Scope_Selected_Directory),
          "Quick Open focus should block stale Project Search scope command");
    end Test_Quick_Open_Local_Options_Are_Focus_Routed;
 
@@ -1470,29 +1470,29 @@ package body Editor.Focus_Management.Tests is
    begin
       Assert
         (Editor.Focus_Management.Command_Is_Surface_Entry
-           (Editor.Commands.Command_Goto_Line),
+           (Editor.Command_Ids.Command_Goto_Line),
          "Go To Line show should be a surface-entry command");
       Assert
         (Editor.Focus_Management.Command_Is_Surface_Entry
-           (Editor.Commands.Command_Find_Show),
+           (Editor.Command_Ids.Command_Find_Show),
          "Find show should be a surface-entry command");
       Assert
         (Editor.Focus_Management.Command_Is_Surface_Entry
-           (Editor.Commands.Command_Replace_Show),
+           (Editor.Command_Ids.Command_Replace_Show),
          "Replace show should be a surface-entry command");
       Assert
         (Editor.Focus_Management.Focus_Target_For_Surface_Command
-           (Editor.Commands.Command_Goto_Line) =
+           (Editor.Command_Ids.Command_Goto_Line) =
          Editor.Focus_Management.Focus_Workspace_Prompt,
          "Go To Line should target the workspace/prompt focus owner");
       Assert
         (Editor.Focus_Management.Focus_Target_For_Surface_Command
-           (Editor.Commands.Command_Find_Show) =
+           (Editor.Command_Ids.Command_Find_Show) =
          Editor.Focus_Management.Focus_Workspace_Prompt,
          "Find should target the workspace/prompt focus owner");
       Assert
         (Editor.Focus_Management.Focus_Target_For_Surface_Command
-           (Editor.Commands.Command_Replace_Show) =
+           (Editor.Command_Ids.Command_Replace_Show) =
          Editor.Focus_Management.Focus_Workspace_Prompt,
          "Replace should target the workspace/prompt focus owner");
 
@@ -1500,11 +1500,11 @@ package body Editor.Focus_Management.Tests is
         (S, Editor.Focus_Management.Focus_Quick_Open);
       Assert
         (not Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Goto_Line),
+           (S, Editor.Command_Ids.Command_Goto_Line),
          "Quick Open must block cross-overlay Go To Line entry while it owns focus");
       Assert
         (not Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Find_Show),
+           (S, Editor.Command_Ids.Command_Find_Show),
          "Quick Open must block cross-overlay Find entry while it owns focus");
    end Test_Workspace_Prompt_Surface_Entry_Targets_Are_Auditable;
 
@@ -1520,7 +1520,7 @@ package body Editor.Focus_Management.Tests is
          Editor.Overlay_Focus.Go_To_Line_Overlay,
          S.Panel_Focus);
       Editor.Focus_Management.Apply_Command_Focus_Result
-        (S, Editor.Commands.Command_Goto_Line);
+        (S, Editor.Command_Ids.Command_Goto_Line);
 
       Assert
         (Editor.Overlay_Focus.Is_Active
@@ -1536,7 +1536,7 @@ package body Editor.Focus_Management.Tests is
          Editor.Overlay_Focus.Active_Find_Prompt_Overlay,
          S.Panel_Focus);
       Editor.Focus_Management.Apply_Command_Focus_Result
-        (S, Editor.Commands.Command_Find_Show);
+        (S, Editor.Command_Ids.Command_Find_Show);
 
       Assert
         (Editor.Overlay_Focus.Is_Active
@@ -1549,7 +1549,7 @@ package body Editor.Focus_Management.Tests is
 
       Editor.Focus_Management.Restore_Focus_To_Editor (S);
       Editor.Focus_Management.Apply_Command_Focus_Result
-        (S, Editor.Commands.Command_Goto_Line_Prefill_Current);
+        (S, Editor.Command_Ids.Command_Goto_Line_Prefill_Current);
 
       Assert
         (Editor.Focus_Management.Effective_Focus_Owner (S) =
@@ -1567,7 +1567,7 @@ package body Editor.Focus_Management.Tests is
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_File_Tree);
       Editor.Focus_Management.Apply_Command_Focus_Result
-        (S, Editor.Commands.Command_Toggle_Diagnostics,
+        (S, Editor.Command_Ids.Command_Toggle_Diagnostics,
          Editor.Focus_Management.Focus_File_Tree);
 
       Assert
@@ -1576,12 +1576,12 @@ package body Editor.Focus_Management.Tests is
          "settings-level diagnostics toggle must not move focus to Diagnostics panel");
       Assert
         (not Editor.Focus_Management.Command_Closes_Focus_Owner
-           (Editor.Commands.Command_Toggle_Diagnostics,
+           (Editor.Command_Ids.Command_Toggle_Diagnostics,
             Editor.Focus_Management.Focus_Diagnostics),
          "settings-level diagnostics toggle must not close the focused Diagnostics panel");
       Assert
         (Editor.Focus_Management.Focus_Target_For_Surface_Command
-           (Editor.Commands.Command_Toggle_Problems_Panel) =
+           (Editor.Command_Ids.Command_Toggle_Problems_Panel) =
          Editor.Focus_Management.Focus_Diagnostics,
          "problems-panel toggle remains the panel-level diagnostics focus command");
    end Test_Diagnostics_Setting_Toggle_Does_Not_Hijack_Focus;
@@ -1600,19 +1600,19 @@ package body Editor.Focus_Management.Tests is
 
       Assert
         (Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Clear_Selected_Message),
+           (S, Editor.Command_Ids.Command_Clear_Selected_Message),
          "Quick Open overlay should allow safe status/message commands");
       Assert
         (Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Copy_Selected_Message_Text),
+           (S, Editor.Command_Ids.Command_Copy_Selected_Message_Text),
          "Quick Open overlay should allow copying selected message text");
       Assert
         (Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Dismiss_All_Messages),
+           (S, Editor.Command_Ids.Command_Dismiss_All_Messages),
          "Quick Open overlay should allow dismissing message notifications");
       Assert
         (not Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Save_File),
+           (S, Editor.Command_Ids.Command_Save_File),
          "Quick Open overlay should still block editor/file mutation commands");
 
       Target.Kind := Editor.Pending_Transitions.Pending_Close_Project;
@@ -1622,19 +1622,19 @@ package body Editor.Focus_Management.Tests is
 
       Assert
         (Editor.Focus_Management.Command_Allowed_While_Pending
-           (Editor.Commands.Command_Clear_Selected_Message),
+           (Editor.Command_Ids.Command_Clear_Selected_Message),
          "pending confirmation should allow safe message cleanup commands");
       Assert
         (Editor.Focus_Management.Command_Allowed_While_Pending
-           (Editor.Commands.Command_Dismiss_All_Messages),
+           (Editor.Command_Ids.Command_Dismiss_All_Messages),
          "pending confirmation should allow safe message dismissal commands");
       Assert
         (not Editor.Focus_Management.Command_Allowed_While_Pending
-           (Editor.Commands.Command_Save_File),
+           (Editor.Command_Ids.Command_Save_File),
          "pending confirmation should still block file save mutation commands");
       Assert
         (not Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Open_Quick_Open),
+           (S, Editor.Command_Ids.Command_Open_Quick_Open),
          "pending confirmation should still block opening another overlay");
    end Test_Status_Message_Commands_Remain_Safe_Under_Modal_And_Overlay_Focus;
 
@@ -1670,7 +1670,7 @@ package body Editor.Focus_Management.Tests is
          "embedded text input should prevent retained panel arrows from moving rows");
       Assert
         (not Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_File_Tree_Move_Down),
+           (S, Editor.Command_Ids.Command_File_Tree_Move_Down),
          "feature search query focus should block stale file-tree navigation");
    end Test_Embedded_Text_Inputs_Outrank_Panels;
 
@@ -1692,11 +1692,11 @@ package body Editor.Focus_Management.Tests is
          "outline filter should be treated as a text-input owner");
       Assert
         (not Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_File_Tree_Move_Down),
+           (S, Editor.Command_Ids.Command_File_Tree_Move_Down),
          "outline filter focus should block stale file-tree navigation");
       Assert
         (Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Select_Next_Outline_Item),
+           (S, Editor.Command_Ids.Command_Select_Next_Outline_Item),
          "outline filter focus should retain outline-local navigation commands");
    end Test_Outline_Filter_Input_Outranks_Retained_Panel_Focus;
 
@@ -1806,23 +1806,23 @@ package body Editor.Focus_Management.Tests is
          "embedded search query should report project-search query focus");
       Assert
         (Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Search_Results_Search_Active_Buffer),
+           (S, Editor.Command_Ids.Command_Search_Results_Search_Active_Buffer),
          "embedded search query should accept its Search Results query commands");
       Assert
         (Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Search_Results_Query_History_Previous),
+           (S, Editor.Command_Ids.Command_Search_Results_Query_History_Previous),
          "embedded search query should accept Search Results query history commands");
       Assert
         (not Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Close_Project_Search_Bar),
+           (S, Editor.Command_Ids.Command_Close_Project_Search_Bar),
          "embedded search query must not accept Project Search Bar close");
       Assert
         (not Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Toggle_Project_Search_Bar),
+           (S, Editor.Command_Ids.Command_Toggle_Project_Search_Bar),
          "embedded search query must not accept Project Search Bar toggle");
       Assert
         (not Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Project_Search_Replace_Preview),
+           (S, Editor.Command_Ids.Command_Project_Search_Replace_Preview),
          "embedded search query must not accept Project Search replace-preview commands");
    end Test_Embedded_Search_Query_Rejects_Project_Search_Bar_Commands;
 
@@ -1841,15 +1841,15 @@ package body Editor.Focus_Management.Tests is
          "Project Search Bar query should own project-search query focus");
       Assert
         (Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Close_Project_Search_Bar),
+           (S, Editor.Command_Ids.Command_Close_Project_Search_Bar),
          "Project Search Bar focus should accept its close command");
       Assert
         (Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Project_Search_Replace_Preview),
+           (S, Editor.Command_Ids.Command_Project_Search_Replace_Preview),
          "Project Search Bar focus should retain project replace-preview commands");
       Assert
         (not Editor.Focus_Management.Command_May_Run_In_Current_Focus
-           (S, Editor.Commands.Command_Quick_Open_Next_Result),
+           (S, Editor.Command_Ids.Command_Quick_Open_Next_Result),
          "Project Search Bar focus should still reject stale Quick Open navigation");
    end Test_Project_Search_Bar_Query_Keeps_Project_Search_Command_Family;
 
@@ -1977,7 +1977,7 @@ package body Editor.Focus_Management.Tests is
       S.Recent_Projects_Focused := True;
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Focus_Feature_Panel);
+        (S, Editor.Command_Ids.Command_Focus_Feature_Panel);
 
       Assert
         (not S.Build_UI.Build_UI_Focused
@@ -2056,7 +2056,7 @@ package body Editor.Focus_Management.Tests is
       S.Latest_Build_Output_Details.Build_Output_Details_Focused := True;
       S.Recent_Projects_Focused := True;
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Goto_Line);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Goto_Line);
 
       Assert
         (Editor.Focus_Management.Effective_Focus_Owner (S) =

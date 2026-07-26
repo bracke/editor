@@ -1,5 +1,4 @@
 with Editor.Commands.Payloads;
-with Editor.Commands;
 with Editor.State;
 
 package Editor.Input_Bridge.Gutter_Pointer_Handlers is

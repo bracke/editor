@@ -1,4 +1,4 @@
-with Editor.Commands;
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.State;
 
 package Editor.Product_Surface_Cleanup is
@@ -23,7 +23,7 @@ package Editor.Product_Surface_Cleanup is
    --  Return True when Id is a command retained only for explicit tests or
    --  fixture scaffolding, and therefore forbidden from normal UI exposure.
    function Is_Test_Only_Command
-     (Id : Editor.Commands.Command_Id) return Boolean;
+     (Id : Editor.Command_Ids.Command_Id) return Boolean;
 
    function Feature_Panel_Has_Demo_Rows
      (S : Editor.State.State_Type) return Boolean;

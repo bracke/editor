@@ -1,10 +1,10 @@
-with Editor.Commands;
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.State;
 
 package Editor.Executor.File_Target_Prompt_Commands is
 
    function Command_Requires_File_Target_Prompt
-     (Id : Editor.Commands.Command_Id) return Boolean;
+     (Id : Editor.Command_Ids.Command_Id) return Boolean;
 
    function File_Target_Prompt_Is_Active
      (S : Editor.State.State_Type) return Boolean;
@@ -17,7 +17,7 @@ package Editor.Executor.File_Target_Prompt_Commands is
 
    procedure Open_File_Target_Prompt
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id);
+      Id : Editor.Command_Ids.Command_Id);
 
    procedure Cancel_File_Target_Prompt
      (S : in out Editor.State.State_Type);
@@ -55,7 +55,7 @@ package Editor.Executor.File_Target_Prompt_Commands is
 
    procedure Execute_File_Target_Command
      (S      : in out Editor.State.State_Type;
-      Id     : Editor.Commands.Command_Id;
+      Id     : Editor.Command_Ids.Command_Id;
       Target : String);
 
 end Editor.Executor.File_Target_Prompt_Commands;

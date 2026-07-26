@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -10,13 +11,13 @@ with Editor.Render_Cache;
 
 package body Editor.Input_Bridge.Active_Find_Handlers is
 
-   use type Editor.Commands.Command_Kind;
+   use type Editor.Command_Kinds.Command_Kind;
 
    function Handle_Active_Find_Input
      (S               : in out Editor.State.State_Type;
       Cmd             : Editor.Commands.Payloads.Command;
       Execute         : not null access procedure
-        (Id : Editor.Commands.Command_Id);
+        (Id : Editor.Command_Ids.Command_Id);
       Execute_Command : not null access procedure
         (Command : Editor.Commands.Payloads.Command)) return Boolean
    is
@@ -38,7 +39,7 @@ package body Editor.Input_Bridge.Active_Find_Handlers is
                Editor.Input_Field.Select_All (S.Active_Find_Input);
                Editor.Render_Cache.Invalidate_All;
             elsif Cmd.Ch = ASCII.LF or else Cmd.Ch = ASCII.CR then
-               Execute (Editor.Commands.Command_Active_Find_Next);
+               Execute (Editor.Command_Ids.Command_Active_Find_Next);
             elsif Cmd.Ch = ASCII.HT then
                null;
             elsif Length (Cmd.Text) > 0 then
@@ -93,48 +94,48 @@ package body Editor.Input_Bridge.Active_Find_Handlers is
             return True;
 
          when Editor.Command_Kinds.Active_Find_Next =>
-            Execute (Editor.Commands.Command_Active_Find_Next);
+            Execute (Editor.Command_Ids.Command_Active_Find_Next);
             return True;
 
          when Editor.Command_Kinds.Active_Find_Previous =>
-            Execute (Editor.Commands.Command_Active_Find_Previous);
+            Execute (Editor.Command_Ids.Command_Active_Find_Previous);
             return True;
 
          when Editor.Command_Kinds.Active_Find_First =>
-            Execute (Editor.Commands.Command_Find_First);
+            Execute (Editor.Command_Ids.Command_Find_First);
             return True;
 
          when Editor.Command_Kinds.Active_Find_Last =>
-            Execute (Editor.Commands.Command_Find_Last);
+            Execute (Editor.Command_Ids.Command_Find_Last);
             return True;
 
          when Editor.Command_Kinds.Active_Find_Reveal_Current =>
-            Execute (Editor.Commands.Command_Find_Reveal_Current);
+            Execute (Editor.Command_Ids.Command_Find_Reveal_Current);
             return True;
 
          when Editor.Command_Kinds.Active_Find_Query_Clear =>
-            Execute (Editor.Commands.Command_Find_Query_Clear);
+            Execute (Editor.Command_Ids.Command_Find_Query_Clear);
             return True;
 
          when Editor.Command_Kinds.Active_Find_Case_Toggle =>
-            Execute (Editor.Commands.Command_Find_Case_Toggle);
+            Execute (Editor.Command_Ids.Command_Find_Case_Toggle);
             return True;
 
          when Editor.Command_Kinds.Active_Find_Case_Clear =>
-            Execute (Editor.Commands.Command_Find_Case_Clear);
+            Execute (Editor.Command_Ids.Command_Find_Case_Clear);
             return True;
 
          when Editor.Command_Kinds.Active_Find_Whole_Word_Toggle =>
-            Execute (Editor.Commands.Command_Find_Whole_Word_Toggle);
+            Execute (Editor.Command_Ids.Command_Find_Whole_Word_Toggle);
             return True;
 
          when Editor.Command_Kinds.Active_Find_Whole_Word_Clear =>
-            Execute (Editor.Commands.Command_Find_Whole_Word_Clear);
+            Execute (Editor.Command_Ids.Command_Find_Whole_Word_Clear);
             return True;
 
          when Editor.Command_Kinds.Clear_Extra_Carets
             | Editor.Command_Kinds.Palette_Cancel =>
-            Execute (Editor.Commands.Command_Find_Hide);
+            Execute (Editor.Command_Ids.Command_Find_Hide);
             return True;
 
          when others =>

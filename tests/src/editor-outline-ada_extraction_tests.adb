@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with Ada.Characters.Handling;
@@ -14,7 +15,6 @@ with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Editor.Outline.Fixtures; use Editor.Outline.Fixtures;
 with Editor.Ada_Syntax_Core;
-with Editor.Commands;
 with Editor.Cursors;
 with Editor.Executor;
 with Editor.Executor.File_Save_Commands;
@@ -36,7 +36,7 @@ with Editor.Workspace_Persistence;
 
 package body Editor.Outline.Ada_Extraction_Tests is
 
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Executor.Command_Execution_Status;
    use type Editor.Outline.Outline_Item_Kind;
@@ -177,7 +177,7 @@ package body Editor.Outline.Ada_Extraction_Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "@outline package One" & ASCII.LF & "package One is end One;");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "first refresh executes through executor");
       Outline_First := Fingerprint (S.Outline);
@@ -187,7 +187,7 @@ package body Editor.Outline.Ada_Extraction_Tests is
         (S, "@outline procedure Totally_Different" & ASCII.LF &
             "procedure Totally_Different is begin null; end Totally_Different;");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "second refresh executes through executor");
       Assert (Fingerprint (S.Outline) /= Outline_First,
@@ -405,7 +405,7 @@ package body Editor.Outline.Ada_Extraction_Tests is
             "   procedure Run;" & ASCII.LF &
             "end Demo;");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "Ada outline refresh executes through the command path");
       Assert (Item_Count (S.Outline) = 2,
@@ -414,7 +414,7 @@ package body Editor.Outline.Ada_Extraction_Tests is
       Editor.Feature_Panel.Select_First (S.Feature_Panel);
       Editor.Feature_Panel.Select_Next (S.Feature_Panel);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Open_Selected_Outline_Item);
+        (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "opening an Ada outline row executes");
       Editor.State.Row_Col_For_Index (S, S.Carets (0).Pos, Row, Col);
@@ -1926,7 +1926,7 @@ package body Editor.Outline.Ada_Extraction_Tests is
             "end Demo;");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "Ada outline refresh remains command-owned");
       Assert (Item_Count (S.Outline) = 3,
@@ -1940,7 +1940,7 @@ package body Editor.Outline.Ada_Extraction_Tests is
 
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, 2);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Open_Selected_Outline_Item);
+        (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "activating a real Ada outline row navigates");
       Editor.State.Row_Col_For_Index (S, S.Carets (0).Pos, Row, Col);

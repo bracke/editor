@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.Cursor;
@@ -21,7 +22,7 @@ package body Editor.Input_Bridge.Goto_Line_Key_Handlers is
      (S               : in out Editor.State.State_Type;
       Chord           : Editor.Keybindings.Key_Chord;
       Execute         : not null access procedure
-        (Id : Editor.Commands.Command_Id);
+        (Id : Editor.Command_Ids.Command_Id);
       Execute_Command : not null access procedure
         (Command : Editor.Commands.Payloads.Command)) return Boolean
    is
@@ -35,9 +36,9 @@ package body Editor.Input_Bridge.Goto_Line_Key_Handlers is
 
       case Chord.Key is
          when Editor.Keybindings.Key_Enter =>
-            Execute (Editor.Commands.Command_Accept_Goto_Line);
+            Execute (Editor.Command_Ids.Command_Accept_Goto_Line);
          when Editor.Keybindings.Key_Escape =>
-            Execute (Editor.Commands.Command_Close_Goto_Line);
+            Execute (Editor.Command_Ids.Command_Close_Goto_Line);
          when Editor.Keybindings.Key_Backspace =>
             Cmd.Kind := Editor.Command_Kinds.Goto_Line_Backspace;
             Execute_Command (Cmd);

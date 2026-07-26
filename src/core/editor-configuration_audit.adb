@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -7,7 +8,6 @@ with Editor.Buffer_Switcher;
 with Editor.Buffer_Switcher.Audits;
 with Editor.Command_Palette;
 with Editor.Command_Route_Audit;
-with Editor.Commands;
 with Editor.Keybindings;
 with Editor.Messages;
 with Editor.Pending_Transitions;
@@ -38,7 +38,7 @@ package body Editor.Configuration_Audit is
    end Domain_Name;
 
    function Binding_Display
-     (Command : Editor.Commands.Command_Id) return String
+     (Command : Editor.Command_Ids.Command_Id) return String
    is
       Info : constant Editor.Keybindings.Command_Keybinding_Info :=
         Editor.Keybindings.Primary_Binding_For_Command (Command);
@@ -53,10 +53,10 @@ package body Editor.Configuration_Audit is
    function Active_Binding_Count return Natural is
       Count : Natural := 0;
    begin
-      for Index in 1 .. Editor.Commands.Command_Count loop
+      for Index in 1 .. Editor.Command_Ids.Command_Count loop
          declare
-            Id : constant Editor.Commands.Command_Id :=
-              Editor.Commands.Command_At (Index);
+            Id : constant Editor.Command_Ids.Command_Id :=
+              Editor.Command_Ids.Command_At (Index);
          begin
             if Editor.Commands.Availability_Metadata.Is_Concrete_Command (Id) then
                Count := Count + Editor.Keybindings.Binding_Count_For_Command (Id);
@@ -667,10 +667,10 @@ package body Editor.Configuration_Audit is
              (Editor.Settings.Line_Number_Mode_Name (State.Settings)),
          Cursor_Blink_Enabled             => Editor.Settings.Cursor_Blink (State.Settings),
          Active_Keybinding_Count          => Active_Binding_Count,
-         Save_File_Chord                  => To_Unbounded_String (Binding_Display (Editor.Commands.Command_Save_File)),
+         Save_File_Chord                  => To_Unbounded_String (Binding_Display (Editor.Command_Ids.Command_Save_File)),
          Command_Palette_Chord            =>
            To_Unbounded_String
-             (Binding_Display (Editor.Commands.Command_Open_Command_Palette)),
+             (Binding_Display (Editor.Command_Ids.Command_Open_Command_Palette)),
          Command_Palette_Show_Keybindings => Editor.Command_Palette.Current_Config.Show_Keybindings,
          Has_Project                      => Editor.Project.Has_Project (State.Project),
          Recent_Project_Count             => Editor.Recent_Projects.Count (State.Recent_Projects),

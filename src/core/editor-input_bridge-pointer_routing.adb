@@ -1,10 +1,11 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 package body Editor.Input_Bridge.Pointer_Routing is
 
-   use type Editor.Commands.Command_Kind;
+   use type Editor.Command_Kinds.Command_Kind;
 
    function Is_Minimap_Pointer_Command
-     (Kind : Editor.Commands.Command_Kind) return Boolean
+     (Kind : Editor.Command_Kinds.Command_Kind) return Boolean
    is
    begin
       case Kind is
@@ -23,7 +24,7 @@ package body Editor.Input_Bridge.Pointer_Routing is
    end Is_Minimap_Pointer_Command;
 
    function Is_Minimap_Drag_Command
-     (Kind : Editor.Commands.Command_Kind) return Boolean
+     (Kind : Editor.Command_Kinds.Command_Kind) return Boolean
    is
    begin
       return Kind = Editor.Command_Kinds.Drag_To_Point
@@ -31,21 +32,21 @@ package body Editor.Input_Bridge.Pointer_Routing is
    end Is_Minimap_Drag_Command;
 
    function Is_Scrollbar_Pointer_Command
-     (Kind : Editor.Commands.Command_Kind) return Boolean
+     (Kind : Editor.Command_Kinds.Command_Kind) return Boolean
    is
    begin
       return Is_Minimap_Pointer_Command (Kind);
    end Is_Scrollbar_Pointer_Command;
 
    function Is_Scrollbar_Drag_Command
-     (Kind : Editor.Commands.Command_Kind) return Boolean
+     (Kind : Editor.Command_Kinds.Command_Kind) return Boolean
    is
    begin
       return Is_Minimap_Drag_Command (Kind);
    end Is_Scrollbar_Drag_Command;
 
    function Is_Gutter_Pointer_Command
-     (Kind : Editor.Commands.Command_Kind) return Boolean
+     (Kind : Editor.Command_Kinds.Command_Kind) return Boolean
    is
    begin
       return Kind = Editor.Command_Kinds.Move_To_Point
@@ -59,7 +60,7 @@ package body Editor.Input_Bridge.Pointer_Routing is
    end Is_Gutter_Pointer_Command;
 
    function Is_Gutter_Drag_Command
-     (Kind : Editor.Commands.Command_Kind) return Boolean
+     (Kind : Editor.Command_Kinds.Command_Kind) return Boolean
    is
    begin
       return Kind = Editor.Command_Kinds.Drag_To_Point

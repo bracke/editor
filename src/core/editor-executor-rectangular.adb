@@ -1,7 +1,6 @@
 with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.State;
-with Editor.Commands;   use Editor.Commands;
 with Editor.Cursors;    use Editor.Cursors;
 with Editor.Rectangle_Selection;
 with Ada.Containers;    use Ada.Containers;

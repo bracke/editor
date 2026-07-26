@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -7,7 +8,7 @@ with Editor.Render_Cache;
 
 package body Editor.Input_Bridge.Search_Query_Handlers is
 
-   use type Editor.Commands.Command_Kind;
+   use type Editor.Command_Kinds.Command_Kind;
 
    procedure Project_Search_Rows (S : in out Editor.State.State_Type) is
    begin
@@ -33,7 +34,7 @@ package body Editor.Input_Bridge.Search_Query_Handlers is
      (S       : in out Editor.State.State_Type;
       Cmd     : Editor.Commands.Payloads.Command;
       Execute : not null access procedure
-        (Id : Editor.Commands.Command_Id)) return Boolean
+        (Id : Editor.Command_Ids.Command_Id)) return Boolean
    is
    begin
       if not Editor.Feature_Search_Results.Search_Input_Is_Active
@@ -45,7 +46,7 @@ package body Editor.Input_Bridge.Search_Query_Handlers is
       case Cmd.Kind is
          when Editor.Command_Kinds.Insert_Text_Input =>
             if Cmd.Ch = ASCII.LF or else Cmd.Ch = ASCII.CR then
-               Execute (Editor.Commands.Command_Search_Results_Search_Active_Buffer);
+               Execute (Editor.Command_Ids.Command_Search_Results_Search_Active_Buffer);
             elsif Length (Cmd.Text) > 0 then
                Insert_Search_Text (S, To_String (Cmd.Text));
                Project_Search_Rows (S);
@@ -82,11 +83,11 @@ package body Editor.Input_Bridge.Search_Query_Handlers is
             return True;
 
          when Editor.Command_Kinds.Move_Up =>
-            Execute (Editor.Commands.Command_Search_Results_Query_History_Previous);
+            Execute (Editor.Command_Ids.Command_Search_Results_Query_History_Previous);
             return True;
 
          when Editor.Command_Kinds.Move_Down =>
-            Execute (Editor.Commands.Command_Search_Results_Query_History_Next);
+            Execute (Editor.Command_Ids.Command_Search_Results_Query_History_Next);
             return True;
 
          when Editor.Command_Kinds.Clear_Extra_Carets | Editor.Command_Kinds.Palette_Cancel =>

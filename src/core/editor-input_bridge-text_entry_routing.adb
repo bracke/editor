@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -31,17 +32,17 @@ package body Editor.Input_Bridge.Text_Entry_Routing is
    end Is_Text_Entry_Workflow_Event;
 
    function Is_Text_Entry_Workflow_Command_Id
-     (Id : Editor.Commands.Command_Id) return Boolean
+     (Id : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       case Id is
-         when Editor.Commands.Command_Insert_Newline
-            | Editor.Commands.Command_Selection_Delete
-            | Editor.Commands.Command_Char_Delete_Previous
-            | Editor.Commands.Command_Char_Delete_Next
-            | Editor.Commands.Command_Word_Delete_Previous
-            | Editor.Commands.Command_Word_Delete_Next
-            | Editor.Commands.Command_Line_Split_At_Caret =>
+         when Editor.Command_Ids.Command_Insert_Newline
+            | Editor.Command_Ids.Command_Selection_Delete
+            | Editor.Command_Ids.Command_Char_Delete_Previous
+            | Editor.Command_Ids.Command_Char_Delete_Next
+            | Editor.Command_Ids.Command_Word_Delete_Previous
+            | Editor.Command_Ids.Command_Word_Delete_Next
+            | Editor.Command_Ids.Command_Line_Split_At_Caret =>
             return True;
          when others =>
             return False;
@@ -163,24 +164,24 @@ package body Editor.Input_Bridge.Text_Entry_Routing is
 
    function Preview_Text_Entry_Command_Id
      (State : Editor.State.State_Type;
-      Cmd   : Editor.Commands.Payloads.Command) return Editor.Commands.Command_Id
+      Cmd   : Editor.Commands.Payloads.Command) return Editor.Command_Ids.Command_Id
    is
    begin
       case Preview_Text_Entry_Route (State, Cmd) is
          when Routed_To_Selection_Delete =>
-            return Editor.Commands.Command_Selection_Delete;
+            return Editor.Command_Ids.Command_Selection_Delete;
          when Routed_To_Delete_Previous_Character =>
-            return Editor.Commands.Command_Char_Delete_Previous;
+            return Editor.Command_Ids.Command_Char_Delete_Previous;
          when Routed_To_Delete_Next_Character =>
-            return Editor.Commands.Command_Char_Delete_Next;
+            return Editor.Command_Ids.Command_Char_Delete_Next;
          when Routed_To_Delete_Previous_Word =>
-            return Editor.Commands.Command_Word_Delete_Previous;
+            return Editor.Command_Ids.Command_Word_Delete_Previous;
          when Routed_To_Delete_Next_Word =>
-            return Editor.Commands.Command_Word_Delete_Next;
+            return Editor.Command_Ids.Command_Word_Delete_Next;
          when Routed_To_Line_Split =>
-            return Editor.Commands.Command_Line_Split_At_Caret;
+            return Editor.Command_Ids.Command_Line_Split_At_Caret;
          when others =>
-            return Editor.Commands.No_Command;
+            return Editor.Command_Ids.No_Command;
       end case;
    end Preview_Text_Entry_Command_Id;
 

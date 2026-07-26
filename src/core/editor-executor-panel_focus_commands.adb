@@ -1,7 +1,7 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Build_UI_Actions;
 with Editor.Command_Execution;
-with Editor.Commands;
 with Editor.Executor;
 with Editor.Executor.Shared_Services;
 use Editor.Executor.Shared_Services;
@@ -20,7 +20,7 @@ package body Editor.Executor.Panel_Focus_Commands is
 
    function Panel_Focus_Command_Availability
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Commands.Availability_Metadata.Command_Availability
    is
       function Has_Buffer return Boolean is
@@ -29,17 +29,17 @@ package body Editor.Executor.Panel_Focus_Commands is
       end Has_Buffer;
    begin
       case Id is
-         when Editor.Commands.Command_Toggle_Problems_Panel
-            | Editor.Commands.Command_Focus_Editor_Text
-            | Editor.Commands.Command_Problems_Focus_Editor
-            | Editor.Commands.Command_Toggle_Bottom_Panel_Focus =>
+         when Editor.Command_Ids.Command_Toggle_Problems_Panel
+            | Editor.Command_Ids.Command_Focus_Editor_Text
+            | Editor.Command_Ids.Command_Problems_Focus_Editor
+            | Editor.Command_Ids.Command_Toggle_Bottom_Panel_Focus =>
             return Editor.Commands.Availability_Metadata.Available;
 
-         when Editor.Commands.Command_Focus_Search_Results =>
+         when Editor.Command_Ids.Command_Focus_Search_Results =>
             return Editor.Executor.Search_Commands
               .Project_Search_Command_Availability (S, Id);
 
-         when Editor.Commands.Command_Focus_Problems =>
+         when Editor.Command_Ids.Command_Focus_Problems =>
             if not Has_Buffer then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
             end if;
@@ -219,22 +219,22 @@ package body Editor.Executor.Panel_Focus_Commands is
 
    function Execute_Panel_Focus_Command
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
    is
    begin
       case Id is
-         when Editor.Commands.Command_Build_UI_Toggle =>
+         when Editor.Command_Ids.Command_Build_UI_Toggle =>
             Execute_Toggle_Build_Output (S);
-         when Editor.Commands.Command_Build_UI_Show =>
+         when Editor.Command_Ids.Command_Build_UI_Show =>
             Execute_Show_Build_Output (S);
-         when Editor.Commands.Command_Build_UI_Hide =>
+         when Editor.Command_Ids.Command_Build_UI_Hide =>
             Execute_Hide_Build_Output (S);
-         when Editor.Commands.Command_Build_UI_Focus =>
+         when Editor.Command_Ids.Command_Build_UI_Focus =>
             Execute_Focus_Build_Output (S);
-         when Editor.Commands.Command_Build_Result_Focus =>
+         when Editor.Command_Ids.Command_Build_Result_Focus =>
             Execute_Focus_Build_Result (S);
-         when Editor.Commands.Command_Build_Output_Details_Focus =>
+         when Editor.Command_Ids.Command_Build_Output_Details_Focus =>
             Execute_Focus_Build_Output_Details (S);
          when others =>
             null;

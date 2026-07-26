@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
@@ -6,7 +7,6 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Text_Buffer;
 
 with Editor.Buffers;
-with Editor.Commands;
 with Editor.Cursors;
 with Editor.Executor;
 with Editor.Executor.Shared_Services;
@@ -67,20 +67,20 @@ package body Editor.Executor.Semantic_Completion_Commands is
 
    function Semantic_Completion_Command_Availability
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin
       case Id is
-         when Editor.Commands.Command_Semantic_Completion_Select_Next
-            | Editor.Commands.Command_Semantic_Completion_Select_Previous
-            | Editor.Commands.Command_Semantic_Completion_Accept =>
+         when Editor.Command_Ids.Command_Semantic_Completion_Select_Next
+            | Editor.Command_Ids.Command_Semantic_Completion_Select_Previous
+            | Editor.Command_Ids.Command_Semantic_Completion_Accept =>
             if Semantic_Completion_Popup_Is_Active (S) then
                return Editor.Commands.Availability_Metadata.Available;
             end if;
             return Editor.Commands.Availability_Metadata.Unavailable ("No completion menu is open.");
 
-         when Editor.Commands.Command_Semantic_Popup_Dismiss =>
+         when Editor.Command_Ids.Command_Semantic_Popup_Dismiss =>
             if Semantic_Popup_Is_Active (S) then
                return Editor.Commands.Availability_Metadata.Available;
             end if;

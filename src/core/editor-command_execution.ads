@@ -1,4 +1,4 @@
-with Editor.Commands;
+with Editor.Command_Ids; use Editor.Command_Ids;
 
 package Editor.Command_Execution is
 
@@ -11,42 +11,42 @@ package Editor.Command_Execution is
 
    type Command_Execution_Result is record
       Status  : Command_Execution_Status := Command_No_Op;
-      Command : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Command : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
    end record;
 
    --  Build a successful execution result for Command.
    --  @param Command stable command id associated with the invocation
    --  @return structured executed result
    function Executed
-     (Command : Editor.Commands.Command_Id)
+     (Command : Editor.Command_Ids.Command_Id)
       return Command_Execution_Result;
 
    --  Build an unavailable execution result for Command.
    --  @param Command stable command id associated with the invocation
    --  @return structured unavailable result
    function Unavailable
-     (Command : Editor.Commands.Command_Id)
+     (Command : Editor.Command_Ids.Command_Id)
       return Command_Execution_Result;
 
    --  Build a failed execution result for Command.
    --  @param Command stable command id associated with the invocation
    --  @return structured failed result
    function Failed
-     (Command : Editor.Commands.Command_Id)
+     (Command : Editor.Command_Ids.Command_Id)
       return Command_Execution_Result;
 
    --  Build a cancelled execution result for Command.
    --  @param Command stable command id associated with the invocation
    --  @return structured cancelled result
    function Cancelled
-     (Command : Editor.Commands.Command_Id)
+     (Command : Editor.Command_Ids.Command_Id)
       return Command_Execution_Result;
 
    --  Build an intentional no-op execution result for Command.
    --  @param Command stable command id associated with the invocation
    --  @return structured no-op result
    function No_Op
-     (Command : Editor.Commands.Command_Id)
+     (Command : Editor.Command_Ids.Command_Id)
       return Command_Execution_Result;
 
    --  Return whether Result represents a completed command-invocation

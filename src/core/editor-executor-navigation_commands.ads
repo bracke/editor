@@ -1,5 +1,5 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
-with Editor.Commands;
 with Editor.Executor;
 with Editor.Navigation_History;
 with Editor.State;
@@ -41,7 +41,7 @@ package Editor.Executor.Navigation_Commands is
 
    function Navigation_Command_Availability
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Commands.Availability_Metadata.Command_Availability;
 
    procedure Execute_Navigation_Back

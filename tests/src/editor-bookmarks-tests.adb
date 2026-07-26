@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Classification;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
@@ -11,7 +12,6 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Strings.Fixed; use Ada.Strings.Fixed;
 with Editor.Bookmarks;
 with Editor.Buffers;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.Command_Execution;
 with Editor.Executor;
@@ -32,7 +32,7 @@ with Editor.Workspace_Persistence;
 package body Editor.Bookmarks.Tests is
 
    use type Ada.Containers.Count_Type;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Command_Execution.Command_Execution_Status;
 
@@ -269,10 +269,10 @@ package body Editor.Bookmarks.Tests is
      (Name : String)
    is
       Found : Boolean := True;
-      Id    : Editor.Commands.Command_Id;
+      Id    : Editor.Command_Ids.Command_Id;
    begin
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
-      Assert (not Found and then Id = Editor.Commands.No_Command,
+      Assert (not Found and then Id = Editor.Command_Ids.No_Command,
               "optional/rejected bookmark command must not be exposed: " & Name);
    end Assert_Optional_Bookmark_Command_Absent;
 
@@ -932,7 +932,7 @@ package body Editor.Bookmarks.Tests is
 
       Editor.Messages.Dismiss_All (S.Messages);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Bookmark_Toggle_Current_Location);
+        (S, Editor.Command_Ids.Command_Bookmark_Toggle_Current_Location);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "toggle-current-location executes through Executor");
       Assert (Editor.Bookmarks.Count (S.Bookmarks) = 1,
@@ -941,7 +941,7 @@ package body Editor.Bookmarks.Tests is
 
       Editor.Messages.Dismiss_All (S.Messages);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Bookmark_Show);
+        (S, Editor.Command_Ids.Command_Bookmark_Show);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "bookmark.show executes through Executor");
       Assert (Editor.Bookmarks.Is_Visible (S.Bookmarks),
@@ -950,7 +950,7 @@ package body Editor.Bookmarks.Tests is
 
       Editor.Messages.Dismiss_All (S.Messages);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Bookmark_Next);
+        (S, Editor.Command_Ids.Command_Bookmark_Next);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "bookmark.next executes through Executor");
       Assert (Editor.Bookmarks.Selected_Index (S.Bookmarks) = 1,
@@ -959,7 +959,7 @@ package body Editor.Bookmarks.Tests is
 
       Editor.Messages.Dismiss_All (S.Messages);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Bookmark_Previous);
+        (S, Editor.Command_Ids.Command_Bookmark_Previous);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "bookmark.previous executes through Executor");
       Assert (Editor.Bookmarks.Selected_Index (S.Bookmarks) = 1,
@@ -968,7 +968,7 @@ package body Editor.Bookmarks.Tests is
 
       Editor.Messages.Dismiss_All (S.Messages);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Bookmark_Reveal_Current);
+        (S, Editor.Command_Ids.Command_Bookmark_Reveal_Current);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "bookmark.reveal-current executes through Executor");
       Assert (Editor.Bookmarks.Selected_Index (S.Bookmarks) = 1,
@@ -984,7 +984,7 @@ package body Editor.Bookmarks.Tests is
 
       Editor.Messages.Dismiss_All (S.Messages);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Bookmark_Clear_All);
+        (S, Editor.Command_Ids.Command_Bookmark_Clear_All);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "bookmark.clear-all executes through Executor");
       Assert (Editor.Bookmarks.Count (S.Bookmarks) = 0,
@@ -1016,7 +1016,7 @@ package body Editor.Bookmarks.Tests is
 
       Editor.Messages.Dismiss_All (S.Messages);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Bookmark_Open_Selected);
+        (S, Editor.Command_Ids.Command_Bookmark_Open_Selected);
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "open-selected stale target reports unavailable after command-path warning");
       Assert_Latest_Message_Contains (S, "file not found", "stale open-selected failure");
@@ -1057,15 +1057,15 @@ package body Editor.Bookmarks.Tests is
       Before_Quick_Query := To_Unbounded_String (Editor.Quick_Open.Query_Text (S.Quick_Open));
 
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Bookmark_Toggle_Current_Location);
+        (S, Editor.Command_Ids.Command_Bookmark_Toggle_Current_Location);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
               "toggle-current-location availability should be true for bookmarkable active buffer");
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Bookmark_Goto_Next);
+        (S, Editor.Command_Ids.Command_Bookmark_Goto_Next);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
               "goto-next availability should be true when bookmarks exist");
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Bookmark_Open_Selected);
+        (S, Editor.Command_Ids.Command_Bookmark_Open_Selected);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
               "open-selected availability should be true when a selected bookmark exists");
 
@@ -1168,7 +1168,7 @@ package body Editor.Bookmarks.Tests is
       Assert (To_String (Selected.File_Path) /= To_String (S.File_Info.Path),
               "selected bookmark intentionally differs from canonical active buffer");
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Save_File);
+        (S, Editor.Command_Ids.Command_Save_File);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
               "file lifecycle availability still follows active buffer state, not bookmark selection");
       Assert_Bookmarks_File_Lifecycle_Observation_Coherent
@@ -1454,7 +1454,7 @@ package body Editor.Bookmarks.Tests is
       Editor.Bookmarks.Build_Snapshot (S.Bookmarks, Before);
 
       Editor.Executor.File_Target_Prompt_Commands.Execute_File_Target_Command
-        (S, Editor.Commands.Command_Rename_Buffer_File, Explicit_Target);
+        (S, Editor.Command_Ids.Command_Rename_Buffer_File, Explicit_Target);
       Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Workspace := Editor.State.Build_Workspace_Snapshot (S);
@@ -1635,11 +1635,11 @@ package body Editor.Bookmarks.Tests is
       Editor.Bookmarks.Build_Snapshot (S.Bookmarks, Before);
 
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Rename_Buffer_File);
+        (S, Editor.Command_Ids.Command_Rename_Buffer_File);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
               "lifecycle availability is driven by canonical active buffer, not Bookmark selection");
       Editor.Executor.File_Target_Prompt_Commands.Execute_File_Target_Command
-        (S, Editor.Commands.Command_Rename_Buffer_File, Explicit_Target);
+        (S, Editor.Command_Ids.Command_Rename_Buffer_File, Explicit_Target);
       Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After);
 
       Assert (To_String (S.File_Info.Path) = Explicit_Target,
@@ -1790,7 +1790,7 @@ package body Editor.Bookmarks.Tests is
         (Direct.Bookmarks, Direct_Source, "direct_source.txt", 1, 1, True, Added);
       Editor.Bookmarks.Build_Snapshot (Direct.Bookmarks, Before_Direct);
       Editor.Executor.File_Target_Prompt_Commands.Execute_File_Target_Command
-        (Direct, Editor.Commands.Command_Copy_Buffer_File, Direct_Copy);
+        (Direct, Editor.Command_Ids.Command_Copy_Buffer_File, Direct_Copy);
       Editor.Bookmarks.Build_Snapshot (Direct.Bookmarks, After_Direct_Copy);
       Assert_Retained_Bookmark_Snapshot_Frozen
         (Before_Direct, After_Direct_Copy, "direct copy observation");
@@ -1799,7 +1799,7 @@ package body Editor.Bookmarks.Tests is
               "direct copy preserves canonical source association");
 
       Editor.Executor.File_Target_Prompt_Commands.Execute_File_Target_Command
-        (Direct, Editor.Commands.Command_Rename_Buffer_File, Direct_Rename);
+        (Direct, Editor.Command_Ids.Command_Rename_Buffer_File, Direct_Rename);
       Editor.Bookmarks.Build_Snapshot (Direct.Bookmarks, After_Direct_Rename);
       Editor.Render_Model.Build_Render_Snapshot (Direct, Render_After_Rename);
       Assert (To_String (Direct.File_Info.Path) = Direct_Rename,
@@ -1819,7 +1819,7 @@ package body Editor.Bookmarks.Tests is
         (Prompted.Bookmarks, Prompt_Source, "bookmark-label-must-not-seed-copy-target.txt",
          1, 1, True, Added);
       Editor.Bookmarks.Build_Snapshot (Prompted.Bookmarks, Before_Prompt);
-      Editor.Executor.Execute_Command (Prompted, Editor.Commands.Command_Copy_Buffer_File);
+      Editor.Executor.Execute_Command (Prompted, Editor.Command_Ids.Command_Copy_Buffer_File);
       Editor.Bookmarks.Build_Snapshot (Prompted.Bookmarks, Prompt_Open);
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (Prompted),
               "prompted copy opens canonical target prompt");
@@ -1879,11 +1879,11 @@ package body Editor.Bookmarks.Tests is
       Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Active,
               "Bookmark selection does not override active buffer source");
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Copy_Buffer_File);
+        (S, Editor.Command_Ids.Command_Copy_Buffer_File);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
               "lifecycle availability still follows canonical active buffer");
       Editor.Executor.File_Target_Prompt_Commands.Execute_File_Target_Command
-        (S, Editor.Commands.Command_Copy_Buffer_File, Copy_Target);
+        (S, Editor.Command_Ids.Command_Copy_Buffer_File, Copy_Target);
       Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After_Copy);
 
       Assert (Ada.Directories.Exists (Copy_Target),
@@ -1969,79 +1969,79 @@ package body Editor.Bookmarks.Tests is
       pragma Unreferenced (T);
    begin
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Bookmark_Toggle_Current_Location) =
+                (Editor.Command_Ids.Command_Bookmark_Toggle_Current_Location) =
               "bookmark.toggle-current-location", "toggle command stable name");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Bookmark_Clear_All) =
+                (Editor.Command_Ids.Command_Bookmark_Clear_All) =
               "bookmark.clear-all", "clear-all command stable name");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Bookmark_Next) =
+                (Editor.Command_Ids.Command_Bookmark_Next) =
               "bookmark.next", "next command stable name");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Bookmark_Previous) =
+                (Editor.Command_Ids.Command_Bookmark_Previous) =
               "bookmark.previous", "previous command stable name");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Bookmark_Goto_Next) =
+                (Editor.Command_Ids.Command_Bookmark_Goto_Next) =
               "bookmark.goto-next", "goto next command stable name");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Bookmark_Goto_Previous) =
+                (Editor.Command_Ids.Command_Bookmark_Goto_Previous) =
               "bookmark.goto-previous", "goto previous command stable name");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Bookmark_Open_Selected) =
+                (Editor.Command_Ids.Command_Bookmark_Open_Selected) =
               "bookmark.open-selected", "open-selected command stable name");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Bookmark_Reveal_Current) =
+                (Editor.Command_Ids.Command_Bookmark_Reveal_Current) =
               "bookmark.reveal-current", "reveal-current command stable name");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Bookmark_Remove_Selected) =
+                (Editor.Command_Ids.Command_Bookmark_Remove_Selected) =
               "bookmark.remove-selected", "remove-selected command stable name");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Bookmark_Show) =
+                (Editor.Command_Ids.Command_Bookmark_Show) =
               "bookmark.show", "show command stable name");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Bookmark_Hide) =
+                (Editor.Command_Ids.Command_Bookmark_Hide) =
               "bookmark.hide", "hide command stable name");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Bookmark_Toggle) =
+                (Editor.Command_Ids.Command_Bookmark_Toggle) =
               "bookmark.toggle", "toggle surface command stable name");
       Assert (Editor.Commands.Descriptors.Descriptor
-                (Editor.Commands.Command_Bookmark_Next).Category =
+                (Editor.Command_Ids.Command_Bookmark_Next).Category =
               Editor.Commands.Descriptors.Bookmarks_Category, "bookmark commands use bookmark category");
       Assert (Editor.Commands.Classification.Is_Bindable_Command
-                (Editor.Commands.Command_Bookmark_Goto_Next),
+                (Editor.Command_Ids.Command_Bookmark_Goto_Next),
               "goto next should be bindable");
       Assert (Editor.Commands.Classification.Is_Bindable_Command
-                (Editor.Commands.Command_Bookmark_Goto_Previous),
+                (Editor.Command_Ids.Command_Bookmark_Goto_Previous),
               "goto previous should be bindable");
       Assert (not Editor.Commands.Classification.Is_Destructive_Command
-                (Editor.Commands.Command_Bookmark_Goto_Next),
+                (Editor.Command_Ids.Command_Bookmark_Goto_Next),
               "goto next is navigation, not destructive");
       Assert (not Editor.Commands.Classification.Is_Destructive_Command
-                (Editor.Commands.Command_Bookmark_Goto_Previous),
+                (Editor.Command_Ids.Command_Bookmark_Goto_Previous),
               "goto previous is navigation, not destructive");
       Assert (Editor.Commands.Classification.Is_Bindable_Command
-                (Editor.Commands.Command_Bookmark_Toggle_Current_Location),
+                (Editor.Command_Ids.Command_Bookmark_Toggle_Current_Location),
               "toggle current location should be bindable");
       Assert (Editor.Commands.Classification.Is_Bindable_Command
-                (Editor.Commands.Command_Bookmark_Next),
+                (Editor.Command_Ids.Command_Bookmark_Next),
               "surface next should be bindable");
       Assert (Editor.Commands.Classification.Is_Bindable_Command
-                (Editor.Commands.Command_Bookmark_Previous),
+                (Editor.Command_Ids.Command_Bookmark_Previous),
               "surface previous should be bindable");
       Assert (Editor.Commands.Classification.Is_Bindable_Command
-                (Editor.Commands.Command_Bookmark_Open_Selected),
+                (Editor.Command_Ids.Command_Bookmark_Open_Selected),
               "open selected should be bindable");
       Assert (Editor.Commands.Classification.Is_Bindable_Command
-                (Editor.Commands.Command_Bookmark_Reveal_Current),
+                (Editor.Command_Ids.Command_Bookmark_Reveal_Current),
               "reveal current should be bindable");
       Assert (Editor.Commands.Classification.Is_Bindable_Command
-                (Editor.Commands.Command_Bookmark_Remove_Selected),
+                (Editor.Command_Ids.Command_Bookmark_Remove_Selected),
               "remove selected should be bindable");
       Assert (Editor.Commands.Classification.Is_Bindable_Command
-                (Editor.Commands.Command_Bookmark_Clear_All),
+                (Editor.Command_Ids.Command_Bookmark_Clear_All),
               "clear all should be bindable");
       Assert (Editor.Commands.Classification.Is_Bindable_Command
-                (Editor.Commands.Command_Bookmark_Toggle),
+                (Editor.Command_Ids.Command_Bookmark_Toggle),
               "bookmark surface toggle should be bindable");
    end Stable_Command_Names;
 

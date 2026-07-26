@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -6,7 +7,6 @@ with Editor.Buffer_Switcher;
 with Editor.Buffer_Switcher.Rows;
 with Editor.Buffers;
 with Editor.Command_Execution;
-with Editor.Commands;
 with Editor.Dirty_Guards;
 with Editor.Executor;
 with Editor.Executor.Buffer_Close_Prompt_Commands;
@@ -26,8 +26,8 @@ package body Editor.Executor.Buffer_Switcher_Selected_Commands is
 
    use type Editor.Buffers.Buffer_Id;
    use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
-   use type Editor.Commands.Command_Id;
-   use type Editor.Commands.Command_Kind;
+   use type Editor.Command_Ids.Command_Id;
+   use type Editor.Command_Kinds.Command_Kind;
    use type Editor.Messages.Message_Severity;
 
    procedure Report_Info
@@ -465,25 +465,25 @@ package body Editor.Executor.Buffer_Switcher_Selected_Commands is
 
    function Buffer_Switcher_Selected_Command_Availability
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Commands.Availability_Metadata.Command_Availability
    is
       Found : Boolean := False;
       Row   : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
    begin
       case Id is
-         when Editor.Commands.Command_Buffer_Switcher_Selected_Close
-            | Editor.Commands.Command_Buffer_Switcher_Selected_Toggle_Pin
-            | Editor.Commands.Command_Buffer_Switcher_Selected_Group_Assign
-            | Editor.Commands.Command_Buffer_Switcher_Selected_Label_Set
-            | Editor.Commands.Command_Buffer_Switcher_Selected_Note_Set =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Selected_Close
+            | Editor.Command_Ids.Command_Buffer_Switcher_Selected_Toggle_Pin
+            | Editor.Command_Ids.Command_Buffer_Switcher_Selected_Group_Assign
+            | Editor.Command_Ids.Command_Buffer_Switcher_Selected_Label_Set
+            | Editor.Command_Ids.Command_Buffer_Switcher_Selected_Note_Set =>
             return Selected_Open_Buffer_Availability (S);
 
-         when Editor.Commands.Command_Buffer_Switcher_Selected_Pin
-            | Editor.Commands.Command_Buffer_Switcher_Selected_Unpin
-            | Editor.Commands.Command_Buffer_Switcher_Selected_Group_Clear
-            | Editor.Commands.Command_Buffer_Switcher_Selected_Label_Clear
-            | Editor.Commands.Command_Buffer_Switcher_Selected_Note_Clear =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Selected_Pin
+            | Editor.Command_Ids.Command_Buffer_Switcher_Selected_Unpin
+            | Editor.Command_Ids.Command_Buffer_Switcher_Selected_Group_Clear
+            | Editor.Command_Ids.Command_Buffer_Switcher_Selected_Label_Clear
+            | Editor.Command_Ids.Command_Buffer_Switcher_Selected_Note_Clear =>
             declare
                Availability : constant Editor.Commands.Availability_Metadata.Command_Availability :=
                  Selected_Open_Buffer_Availability (S);
@@ -494,27 +494,27 @@ package body Editor.Executor.Buffer_Switcher_Selected_Commands is
             end;
 
             Row := Selected_Row (S, Found);
-            if Id = Editor.Commands.Command_Buffer_Switcher_Selected_Pin
+            if Id = Editor.Command_Ids.Command_Buffer_Switcher_Selected_Pin
               and then Found
               and then Row.Is_Pinned
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("Buffer already pinned");
-            elsif Id = Editor.Commands.Command_Buffer_Switcher_Selected_Unpin
+            elsif Id = Editor.Command_Ids.Command_Buffer_Switcher_Selected_Unpin
               and then Found
               and then not Row.Is_Pinned
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("Buffer is not pinned");
-            elsif Id = Editor.Commands.Command_Buffer_Switcher_Selected_Group_Clear
+            elsif Id = Editor.Command_Ids.Command_Buffer_Switcher_Selected_Group_Clear
               and then Found
               and then not Row.Has_Group
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("Buffer has no group");
-            elsif Id = Editor.Commands.Command_Buffer_Switcher_Selected_Label_Clear
+            elsif Id = Editor.Command_Ids.Command_Buffer_Switcher_Selected_Label_Clear
               and then Found
               and then not Row.Has_Label
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("Buffer has no label");
-            elsif Id = Editor.Commands.Command_Buffer_Switcher_Selected_Note_Clear
+            elsif Id = Editor.Command_Ids.Command_Buffer_Switcher_Selected_Note_Clear
               and then Found
               and then not Row.Has_Note
             then
@@ -530,7 +530,7 @@ package body Editor.Executor.Buffer_Switcher_Selected_Commands is
 
    procedure Execute_Buffer_Switcher_Selected_Kind
      (S    : in out Editor.State.State_Type;
-      Kind : Editor.Commands.Command_Kind;
+      Kind : Editor.Command_Kinds.Command_Kind;
       Text : String)
    is
    begin
@@ -562,13 +562,13 @@ package body Editor.Executor.Buffer_Switcher_Selected_Commands is
 
    function Execute_Buffer_Switcher_Selected_Command
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
    is
       Before_Messages : constant Natural := Editor.Messages.Count (S.Messages);
 
       function Result_After_Command
-        (Command : Editor.Commands.Command_Id)
+        (Command : Editor.Command_Ids.Command_Id)
          return Editor.Command_Execution.Command_Execution_Result
       is
          Found : Boolean := False;
@@ -593,25 +593,25 @@ package body Editor.Executor.Buffer_Switcher_Selected_Commands is
       end Result_After_Command;
    begin
       case Id is
-         when Editor.Commands.Command_Buffer_Switcher_Selected_Close =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Selected_Close =>
             Execute_Buffer_Switcher_Selected_Close (S);
-         when Editor.Commands.Command_Buffer_Switcher_Selected_Pin =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Selected_Pin =>
             Execute_Buffer_Switcher_Selected_Pin (S);
-         when Editor.Commands.Command_Buffer_Switcher_Selected_Unpin =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Selected_Unpin =>
             Execute_Buffer_Switcher_Selected_Unpin (S);
-         when Editor.Commands.Command_Buffer_Switcher_Selected_Toggle_Pin =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Selected_Toggle_Pin =>
             Execute_Buffer_Switcher_Selected_Toggle_Pin (S);
-         when Editor.Commands.Command_Buffer_Switcher_Selected_Group_Assign =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Selected_Group_Assign =>
             Report_Info (S, "No group name");
-         when Editor.Commands.Command_Buffer_Switcher_Selected_Group_Clear =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Selected_Group_Clear =>
             Execute_Buffer_Switcher_Selected_Group_Clear (S);
-         when Editor.Commands.Command_Buffer_Switcher_Selected_Label_Set =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Selected_Label_Set =>
             Report_Info (S, "No label text");
-         when Editor.Commands.Command_Buffer_Switcher_Selected_Label_Clear =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Selected_Label_Clear =>
             Execute_Buffer_Switcher_Selected_Label_Clear (S);
-         when Editor.Commands.Command_Buffer_Switcher_Selected_Note_Set =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Selected_Note_Set =>
             Report_Info (S, "No note text");
-         when Editor.Commands.Command_Buffer_Switcher_Selected_Note_Clear =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Selected_Note_Clear =>
             Execute_Buffer_Switcher_Selected_Note_Clear (S);
          when others =>
             return Editor.Command_Execution.No_Op (Id);

@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Ada.Characters.Handling;
 with Ada.Strings;
 with Ada.Strings.Fixed;

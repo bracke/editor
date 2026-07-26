@@ -1,5 +1,5 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Execution;
-with Editor.Commands;
 with Editor.State;
 
 package Editor.Executor.Project_Lifecycle_Recent_Commands is
@@ -24,7 +24,7 @@ package Editor.Executor.Project_Lifecycle_Recent_Commands is
 
    function Execute_Project_Lifecycle_Recent_Result_Command
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result;
 
 end Editor.Executor.Project_Lifecycle_Recent_Commands;

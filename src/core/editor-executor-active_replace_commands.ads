@@ -1,4 +1,3 @@
-with Editor.Commands;
 with Editor.State;
 
 package Editor.Executor.Active_Replace_Commands is

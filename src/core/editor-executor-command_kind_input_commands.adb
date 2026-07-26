@@ -1,8 +1,8 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds; use Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
-with Editor.Commands; use Editor.Commands;
 with Editor.Executor.Command_Surface_Commands;
 with Editor.Executor.Find_Replace_Commands;
 with Editor.Executor.Find_Replace_Input_Commands;

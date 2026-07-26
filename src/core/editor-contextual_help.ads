@@ -1,4 +1,4 @@
-with Editor.Commands;
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Feature_Panel;
 
 package Editor.Contextual_Help is
@@ -11,12 +11,12 @@ package Editor.Contextual_Help is
    --  commands, execute commands, inspect project metadata, or persist text.
 
    function Shortcut_Text
-     (Command        : Editor.Commands.Command_Id;
+     (Command        : Editor.Command_Ids.Command_Id;
       Show_Shortcuts : Boolean) return String;
 
    function With_Shortcut
      (Text           : String;
-      Command        : Editor.Commands.Command_Id;
+      Command        : Editor.Command_Ids.Command_Id;
       Show_Shortcuts : Boolean) return String;
 
    function Empty_Messages_Detail return String;
@@ -59,7 +59,7 @@ package Editor.Contextual_Help is
       Show_Shortcuts : Boolean) return String;
 
    function Command_Row_Action_Hint
-     (Command         : Editor.Commands.Command_Id;
+     (Command         : Editor.Command_Ids.Command_Id;
       Available       : Boolean;
       Disabled_Reason : String;
       Show_Shortcuts  : Boolean) return String;

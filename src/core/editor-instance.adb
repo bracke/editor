@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Payloads;
 with Editor.Executor;
 with Editor.State;
@@ -55,7 +56,7 @@ package body Editor.Instance is
       --  through a private path.  Route through the canonical command id so
       --  availability, stack ownership, dirty tracking, Find/Replace
       --  invalidation, and message policy remain Executor-owned.
-      Editor.Executor.Execute_Command (E.State, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (E.State, Editor.Command_Ids.Command_Undo);
    end Undo;
 
    ------------------------------------------------------------------------
@@ -63,7 +64,7 @@ package body Editor.Instance is
    begin
       --  keep redo on the same canonical route as keybindings and
       --  the command palette; do not pop/push history stacks locally.
-      Editor.Executor.Execute_Command (E.State, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (E.State, Editor.Command_Ids.Command_Redo);
    end Redo;
 
 end Editor.Instance;

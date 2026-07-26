@@ -1,9 +1,9 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Ada.Strings.Unbounded;
 
 with Editor.Clipboard;
 with Editor.Command_Execution;
-with Editor.Commands;
 with Editor.Executor;
 with Editor.Executor.Shared_Services;
 use Editor.Executor.Shared_Services;
@@ -21,7 +21,7 @@ package body Editor.Executor.Message_Commands is
 
    function Message_Command_Availability
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin
@@ -84,12 +84,12 @@ package body Editor.Executor.Message_Commands is
       renames Editor.Executor.Apply_Feature_Target_Handoff;
 
    function Executed
-     (Id : Editor.Commands.Command_Id)
+     (Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
       renames Editor.Command_Execution.Executed;
 
    function No_Op
-     (Id : Editor.Commands.Command_Id)
+     (Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
       renames Editor.Command_Execution.No_Op;
 
@@ -102,12 +102,12 @@ package body Editor.Executor.Message_Commands is
 
    function Execute_Message_Command
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
    is
    begin
       case Id is
-         when Editor.Commands.Command_Show_Messages =>
+         when Editor.Command_Ids.Command_Show_Messages =>
             if not Editor.Feature_Panel_Controller.Show_Feature
               (S, Editor.Feature_Panel.Messages_Feature)
             then
@@ -118,7 +118,7 @@ package body Editor.Executor.Message_Commands is
             Editor.Render_Cache.Invalidate_All;
             return Executed (Id);
 
-         when Editor.Commands.Command_Clear_Messages =>
+         when Editor.Command_Ids.Command_Clear_Messages =>
             if Editor.Feature_Messages.Row_Count (S.Feature_Messages) = 0 then
                return No_Op (Id);
             end if;
@@ -129,7 +129,7 @@ package body Editor.Executor.Message_Commands is
             Editor.Render_Cache.Invalidate_All;
             return Executed (Id);
 
-         when Editor.Commands.Command_Clear_Selected_Message =>
+         when Editor.Command_Ids.Command_Clear_Selected_Message =>
             if Editor.Feature_Messages.Clear_Selected_Message
               (S.Feature_Messages, S.Feature_Panel)
             then
@@ -141,7 +141,7 @@ package body Editor.Executor.Message_Commands is
             Editor.Render_Cache.Invalidate_All;
             return No_Op (Id);
 
-         when Editor.Commands.Command_Copy_Selected_Message_Text =>
+         when Editor.Command_Ids.Command_Copy_Selected_Message_Text =>
             declare
                Text : constant String :=
                  Editor.Feature_Messages.Selected_Message_Text
@@ -158,9 +158,9 @@ package body Editor.Executor.Message_Commands is
                return Executed (Id);
             end;
 
-         when Editor.Commands.Command_Clear_Info_Messages
-            | Editor.Commands.Command_Clear_Warning_Messages
-            | Editor.Commands.Command_Clear_Error_Messages =>
+         when Editor.Command_Ids.Command_Clear_Info_Messages
+            | Editor.Command_Ids.Command_Clear_Warning_Messages
+            | Editor.Command_Ids.Command_Clear_Error_Messages =>
             declare
                Previous_Id : constant Editor.Feature_Messages.Message_Id :=
                  Editor.Feature_Messages.Selected_Message_Id
@@ -170,9 +170,9 @@ package body Editor.Executor.Message_Commands is
                    (S.Feature_Messages, S.Feature_Panel);
                Severity : constant Editor.Feature_Messages.Message_Severity :=
                  (case Id is
-                    when Editor.Commands.Command_Clear_Info_Messages =>
+                    when Editor.Command_Ids.Command_Clear_Info_Messages =>
                        Editor.Feature_Messages.Info_Message,
-                    when Editor.Commands.Command_Clear_Warning_Messages =>
+                    when Editor.Command_Ids.Command_Clear_Warning_Messages =>
                        Editor.Feature_Messages.Warning_Message,
                     when others =>
                        Editor.Feature_Messages.Error_Message);
@@ -194,7 +194,7 @@ package body Editor.Executor.Message_Commands is
                end if;
             end;
 
-         when Editor.Commands.Command_Toggle_Message_Info =>
+         when Editor.Command_Ids.Command_Toggle_Message_Info =>
             Editor.Feature_Messages.Toggle_Info (S.Feature_Messages);
             Editor.Feature_Messages.Project_Rows
               (S.Feature_Messages, S.Feature_Panel);
@@ -208,7 +208,7 @@ package body Editor.Executor.Message_Commands is
             Editor.Render_Cache.Invalidate_All;
             return Executed (Id);
 
-         when Editor.Commands.Command_Toggle_Message_Warnings =>
+         when Editor.Command_Ids.Command_Toggle_Message_Warnings =>
             Editor.Feature_Messages.Toggle_Warnings (S.Feature_Messages);
             Editor.Feature_Messages.Project_Rows
               (S.Feature_Messages, S.Feature_Panel);
@@ -222,7 +222,7 @@ package body Editor.Executor.Message_Commands is
             Editor.Render_Cache.Invalidate_All;
             return Executed (Id);
 
-         when Editor.Commands.Command_Toggle_Message_Errors =>
+         when Editor.Command_Ids.Command_Toggle_Message_Errors =>
             Editor.Feature_Messages.Toggle_Errors (S.Feature_Messages);
             Editor.Feature_Messages.Project_Rows
               (S.Feature_Messages, S.Feature_Panel);
@@ -236,7 +236,7 @@ package body Editor.Executor.Message_Commands is
             Editor.Render_Cache.Invalidate_All;
             return Executed (Id);
 
-         when Editor.Commands.Command_Show_All_Messages =>
+         when Editor.Command_Ids.Command_Show_All_Messages =>
             Editor.Feature_Messages.Show_All (S.Feature_Messages);
             Editor.Feature_Messages.Project_Rows
               (S.Feature_Messages, S.Feature_Panel);
@@ -245,7 +245,7 @@ package body Editor.Executor.Message_Commands is
             Editor.Render_Cache.Invalidate_All;
             return Executed (Id);
 
-         when Editor.Commands.Command_Clear_Message_Filter =>
+         when Editor.Command_Ids.Command_Clear_Message_Filter =>
             Editor.Feature_Messages.Clear_Filter (S.Feature_Messages);
             Editor.Feature_Messages.Project_Rows
               (S.Feature_Messages, S.Feature_Panel);
@@ -253,12 +253,12 @@ package body Editor.Executor.Message_Commands is
             Editor.Render_Cache.Invalidate_All;
             return Executed (Id);
 
-         when Editor.Commands.Command_Dismiss_Latest_Message =>
+         when Editor.Command_Ids.Command_Dismiss_Latest_Message =>
             Editor.Messages.Dismiss_Latest (S.Messages);
             Editor.Render_Cache.Invalidate_All;
             return Executed (Id);
 
-         when Editor.Commands.Command_Dismiss_All_Messages =>
+         when Editor.Command_Ids.Command_Dismiss_All_Messages =>
             Editor.Messages.Dismiss_All (S.Messages);
             Editor.Render_Cache.Invalidate_All;
             return Executed (Id);
@@ -286,12 +286,12 @@ package body Editor.Executor.Message_Commands is
       then
          Report_Target_Unavailable (S);
          Editor.Render_Cache.Invalidate_All;
-         return No_Op (Editor.Commands.Command_Feature_Panel_Open_Selected);
+         return No_Op (Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
       end if;
 
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, Row);
       Editor.Render_Cache.Invalidate_All;
-      return Executed (Editor.Commands.Command_Feature_Panel_Open_Selected);
+      return Executed (Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
    end Execute_Message_Row_Click;
 
    function Execute_Message_Row_Activation
@@ -317,7 +317,7 @@ package body Editor.Executor.Message_Commands is
       then
          Report_Target_Unavailable (S);
          Editor.Render_Cache.Invalidate_All;
-         return No_Op (Editor.Commands.Command_Feature_Panel_Open_Selected);
+         return No_Op (Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
       end if;
 
       Target_Buffer := Editor.Feature_Messages.Item_Target_Buffer
@@ -334,13 +334,13 @@ package body Editor.Executor.Message_Commands is
       then
          Report_Target_Unavailable (S);
          Editor.Render_Cache.Invalidate_All;
-         return No_Op (Editor.Commands.Command_Feature_Panel_Open_Selected);
+         return No_Op (Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
       end if;
 
       if not Focus_Feature_Target_Buffer (S, Target_Buffer) then
          Report_Target_Unavailable (S);
          Editor.Render_Cache.Invalidate_All;
-         return No_Op (Editor.Commands.Command_Feature_Panel_Open_Selected);
+         return No_Op (Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
       end if;
 
       Target_Row := Natural'Min
@@ -349,7 +349,7 @@ package body Editor.Executor.Message_Commands is
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, Row);
       Apply_Feature_Target_Handoff (S, Target_Row, Target_Column);
       Editor.Render_Cache.Invalidate_All;
-      return Executed (Editor.Commands.Command_Feature_Panel_Open_Selected);
+      return Executed (Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
    end Execute_Message_Row_Activation;
 
 end Editor.Executor.Message_Commands;

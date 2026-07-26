@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Descriptor_Metadata;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
@@ -10,7 +11,6 @@ with Editor.Ada_Diagnostic_Action_Router;
 with Editor.Ada_Semantic_Diagnostic_Feed;
 with Editor.Ada_Semantic_Diagnostic_Index;
 with Editor.Build_Diagnostics;
-with Editor.Commands;
 with Editor.Commands.Workflow_Messages;
 with Editor.Commands.Name_Metadata;
 with Editor.Diagnostics_Review_UX;
@@ -27,7 +27,7 @@ with Editor.Workspace_Persistence;
 
 package body Editor.Diagnostics_Review_UX.Tests is
 
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Feature_Diagnostics.Diagnostic_Quick_Fix_Action_Model;
 
@@ -306,28 +306,28 @@ package body Editor.Diagnostics_Review_UX.Tests is
    is
       pragma Unreferenced (T);
       Found : Boolean := False;
-      Id    : Editor.Commands.Command_Id;
+      Id    : Editor.Command_Ids.Command_Id;
    begin
       Assert (Editor.Commands.Descriptor_Metadata.Has_Descriptor
-                (Editor.Commands.Command_Diagnostics_Filter_Errors),
+                (Editor.Command_Ids.Command_Diagnostics_Filter_Errors),
               "filter-errors command has a descriptor");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Diagnostics_Filter_Errors) =
+                (Editor.Command_Ids.Command_Diagnostics_Filter_Errors) =
               "diagnostics.filter-errors",
               "filter-errors uses the canonical stable name");
       Assert (Editor.Commands.Descriptor_Metadata.Has_Descriptor
-                (Editor.Commands.Command_Diagnostics_Filter_Source),
+                (Editor.Command_Ids.Command_Diagnostics_Filter_Source),
               "filter-source command has a descriptor");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Diagnostics_Filter_Source) =
+                (Editor.Command_Ids.Command_Diagnostics_Filter_Source) =
               "diagnostics.filter-source",
               "filter-source uses a canonical no-payload stable name");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("diagnostics.clear-build", Found);
-      Assert (Found and then Id = Editor.Commands.Command_Diagnostics_Clear_Build,
+      Assert (Found and then Id = Editor.Command_Ids.Command_Diagnostics_Clear_Build,
               "clear-build stable name resolves to the Diagnostics command");
       Assert (Editor.Commands.Descriptors.Descriptor
-                (Editor.Commands.Command_Diagnostics_Clear_Build).Category =
+                (Editor.Command_Ids.Command_Diagnostics_Clear_Build).Category =
               Editor.Commands.Descriptors.Panel_Category,
               "clear-build is routed as a panel/Diagnostics command");
    end Test_Filter_And_Clear_Build_Commands_Are_Descriptor_Backed;
@@ -836,7 +836,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
         (S.Feature_Diagnostics, S.Feature_Panel);
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Diagnostics_Open_Selected);
+        (S, Editor.Command_Ids.Command_Diagnostics_Open_Selected);
 
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "open-selected is unavailable before routing for out-of-range retained targets");
@@ -900,9 +900,9 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
 
       Open_Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Diagnostics_Open_Selected);
+        (S, Editor.Command_Ids.Command_Diagnostics_Open_Selected);
       Clear_Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Diagnostics_Clear_Selected);
+        (S, Editor.Command_Ids.Command_Diagnostics_Clear_Selected);
 
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Open_Availability),
               "open-selected is unavailable for selected source-less diagnostics");
@@ -937,7 +937,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Diagnostics_Open_Selected);
+        (S, Editor.Command_Ids.Command_Diagnostics_Open_Selected);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "open-selected is unavailable for source-labelled missing targets");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) =
@@ -947,7 +947,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Before_Count := Editor.Messages.Count (S.Messages);
       Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Feature_Panel_Open_Selected);
+        (S, Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
 
       Assert (Editor.Messages.Count (S.Messages) = Before_Count + 1,
               "missing target activation emits one precise primary message");
@@ -983,7 +983,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Diagnostics_Open_Selected);
+        (S, Editor.Command_Ids.Command_Diagnostics_Open_Selected);
 
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "open-selected is unavailable before routing for known missing target buffers");
@@ -1012,7 +1012,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
          Has_Target    => False);
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Diagnostics_Clear_Build);
+        (S, Editor.Command_Ids.Command_Diagnostics_Clear_Build);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "clear-build is unavailable when no row is actually build-produced");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "No build diagnostics",
@@ -1027,7 +1027,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
          Has_Target     => False,
          Build_Produced => True);
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Diagnostics_Clear_Build);
+        (S, Editor.Command_Ids.Command_Diagnostics_Clear_Build);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "clear-build becomes available when explicit producer classification finds build diagnostics");
    end Test_Clear_Build_Availability_Uses_Producer_Predicate;
@@ -1214,7 +1214,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
               "selected-row source filter label is derived from Diagnostics row identity");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Diagnostics_Filter_Source);
+        (S, Editor.Command_Ids.Command_Diagnostics_Filter_Source);
 
       Assert (Editor.Feature_Diagnostics.Filter_Text (S.Feature_Diagnostics) = "",
               "source filter command does not smuggle a general text payload");
@@ -1238,13 +1238,13 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Editor.State.Init (S);
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Diagnostics_Filter_Errors);
+        (S, Editor.Command_Ids.Command_Diagnostics_Filter_Errors);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (A)
               and then Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "No diagnostics.",
               "severity filters are unavailable with a precise no-diagnostics reason");
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Diagnostics_Clear_Filter);
+        (S, Editor.Command_Ids.Command_Diagnostics_Clear_Filter);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (A)
               and then Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "No filter is active",
               "clear-filter is unavailable when no Diagnostics filter is active");
@@ -1258,19 +1258,19 @@ package body Editor.Diagnostics_Review_UX.Tests is
          Has_Target   => False);
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Diagnostics_Filter_Build);
+        (S, Editor.Command_Ids.Command_Diagnostics_Filter_Build);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (A)
               and then Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "No build diagnostics",
               "build filter is unavailable unless explicit build-produced rows exist");
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Diagnostics_Filter_Errors);
+        (S, Editor.Command_Ids.Command_Diagnostics_Filter_Errors);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "severity filters become available once Diagnostics rows exist");
 
       Editor.Feature_Diagnostics.Filter_Warnings_Only (S.Feature_Diagnostics);
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Diagnostics_Clear_Filter);
+        (S, Editor.Command_Ids.Command_Diagnostics_Clear_Filter);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "clear-filter becomes available once a transient Diagnostics filter is active");
    end Test_Filter_Command_Availability_Reasons_Are_Precise;
@@ -1289,7 +1289,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
 
       Before_Count := Editor.Messages.Count (S.Messages);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Diagnostics_Clear_Filter);
+        (S, Editor.Command_Ids.Command_Diagnostics_Clear_Filter);
       Assert (Editor.Messages.Count (S.Messages) = Before_Count + 1,
               "clear-filter execution reports one unavailable outcome when no filter is active");
       M := Editor.Messages.Active_Message (S.Messages, Found);
@@ -1307,7 +1307,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
          Has_Target    => False);
       Before_Count := Editor.Messages.Count (S.Messages);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Diagnostics_Filter_Build);
+        (S, Editor.Command_Ids.Command_Diagnostics_Filter_Build);
 
       Assert (Editor.Messages.Count (S.Messages) = Before_Count + 1,
               "build-filter execution reports one unavailable outcome without build-produced rows");
@@ -1346,20 +1346,20 @@ package body Editor.Diagnostics_Review_UX.Tests is
               "errors-only projection hides all rows when only warnings exist");
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Diagnostics_Select_Next);
+        (S, Editor.Command_Ids.Command_Diagnostics_Select_Next);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (A)
               and then Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "No visible diagnostics",
               "next diagnostic is unavailable when filters hide every diagnostic");
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Diagnostics_Select_Previous);
+        (S, Editor.Command_Ids.Command_Diagnostics_Select_Previous);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (A)
               and then Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "No visible diagnostics",
               "previous diagnostic is unavailable when filters hide every diagnostic");
 
       Editor.Feature_Diagnostics.Clear_Filter (S.Feature_Diagnostics);
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Diagnostics_Select_Next);
+        (S, Editor.Command_Ids.Command_Diagnostics_Select_Next);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "next diagnostic becomes available again when the projection has a visible row");
    end Test_Next_Previous_Are_Unavailable_When_Filter_Hides_All;
@@ -1375,7 +1375,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Editor.State.Init (S);
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Diagnostics_Select_Next);
+        (S, Editor.Command_Ids.Command_Diagnostics_Select_Next);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then Editor.Messages.Text (M) =
               Editor.Feature_Diagnostics.Message_No_Diagnostics,
@@ -1383,7 +1383,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
 
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Diagnostics_Select_Previous);
+        (S, Editor.Command_Ids.Command_Diagnostics_Select_Previous);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then Editor.Messages.Text (M) =
               Editor.Feature_Diagnostics.Message_No_Diagnostics,
@@ -1400,7 +1400,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
 
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Diagnostics_Select_Next);
+        (S, Editor.Command_Ids.Command_Diagnostics_Select_Next);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then Editor.Messages.Text (M) =
               Editor.Feature_Diagnostics.Message_No_Visible_Diagnostic,
@@ -1431,7 +1431,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Before_Count := Editor.Messages.Count (S.Messages);
       Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Feature_Panel_Open_Selected);
+        (S, Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
 
       Assert (Editor.Messages.Count (S.Messages) = Before_Count + 1,
               "failed Diagnostics row activation emits exactly one primary message");
@@ -1467,7 +1467,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Feature_Panel_Open_Selected);
+        (S, Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then Editor.Messages.Text (M) =
                 Editor.Commands.Workflow_Messages.Reason_Target_Line_Unavailable,
@@ -1491,7 +1491,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Feature_Panel_Open_Selected);
+        (S, Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then Editor.Messages.Text (M) =
                 Editor.Commands.Workflow_Messages.Reason_Target_Missing,
@@ -1646,7 +1646,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Assert (Editor.Feature_Diagnostics.Filter_Active (S.Feature_Diagnostics),
               "test precondition: Diagnostics filter is active before clear");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Diagnostics_Clear);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Diagnostics_Clear);
 
       Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
               "clear diagnostics removes Diagnostics-owned rows");
@@ -2085,13 +2085,13 @@ package body Editor.Diagnostics_Review_UX.Tests is
          Source_Label => "src/main.adb",
          Source_Kind  => Editor.Feature_Diagnostics.External_Diagnostic_Source,
          Has_Target   => False);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Diagnostics_Show);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Diagnostics_Show);
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Diagnostic_Suppress_Selected);
+        (S, Editor.Command_Ids.Command_Diagnostic_Suppress_Selected);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Diagnostic_Show_Suppressed);
+        (S, Editor.Command_Ids.Command_Diagnostic_Show_Suppressed);
 
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert
@@ -2363,7 +2363,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Editor.State.Init (S);
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Diagnostics_Clear_Errors);
+        (S, Editor.Command_Ids.Command_Diagnostics_Clear_Errors);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (A)
               and then Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "No diagnostics.",
               "clear-errors reports no diagnostics when Diagnostics storage is empty");
@@ -2377,18 +2377,18 @@ package body Editor.Diagnostics_Review_UX.Tests is
          Has_Target   => False);
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Diagnostics_Clear_Errors);
+        (S, Editor.Command_Ids.Command_Diagnostics_Clear_Errors);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (A)
               and then Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "No error diagnostics",
               "clear-errors distinguishes non-empty Diagnostics storage from absent error rows");
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Diagnostics_Clear_Warnings);
+        (S, Editor.Command_Ids.Command_Diagnostics_Clear_Warnings);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "clear-warnings remains available when warning rows exist");
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Diagnostics_Clear_Info);
+        (S, Editor.Command_Ids.Command_Diagnostics_Clear_Info);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (A)
               and then Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "No info or note diagnostics",
               "clear-info distinguishes absent info/note rows from an empty Diagnostics model");
@@ -2402,12 +2402,12 @@ package body Editor.Diagnostics_Review_UX.Tests is
          Has_Target   => False);
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Diagnostics_Clear_Info);
+        (S, Editor.Command_Ids.Command_Diagnostics_Clear_Info);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "clear-info is available for note diagnostics because triages info/notes together");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Diagnostics_Clear_Info);
+        (S, Editor.Command_Ids.Command_Diagnostics_Clear_Info);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then Editor.Messages.Text (M) =
               Editor.Feature_Diagnostics.Message_Info_Cleared,
@@ -2449,7 +2449,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
               "test precondition: info and note diagnostics are both visible");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Diagnostics_Toggle_Info);
+        (S, Editor.Command_Ids.Command_Diagnostics_Toggle_Info);
       Assert (not Editor.Feature_Diagnostics.Severity_Is_Visible
                 (S.Feature_Diagnostics,
                  Editor.Feature_Diagnostics.Diagnostic_Info),
@@ -2463,7 +2463,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
               "notes are not left visible after informational diagnostics are hidden");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Diagnostics_Toggle_Info);
+        (S, Editor.Command_Ids.Command_Diagnostics_Toggle_Info);
       Assert (Editor.Feature_Diagnostics.Severity_Is_Visible
                 (S.Feature_Diagnostics,
                  Editor.Feature_Diagnostics.Diagnostic_Info)
@@ -2552,7 +2552,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Diagnostics_Open_Selected);
+        (S, Editor.Command_Ids.Command_Diagnostics_Open_Selected);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "stale diagnostic target is blocked before real navigation");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) =
@@ -2560,7 +2560,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
               "Diagnostics stale-target availability uses the Search-compatible canonical wording");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Feature_Panel_Open_Selected);
+        (S, Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then Editor.Messages.Text (M) =
               Editor.Commands.Workflow_Messages.Reason_Target_Stale,

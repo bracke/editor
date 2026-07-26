@@ -1,6 +1,6 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Command_Execution;
-with Editor.Commands;
 with Editor.Executor;
 with Editor.Executor.Shared_Services;
 use Editor.Executor.Shared_Services;
@@ -14,34 +14,34 @@ with Editor.Terminal_Tasks;
 
 package body Editor.Executor.Terminal_Commands is
 
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.External_Producers.Build_Types.Process_Run_Status;
 
    function Terminal_Command_Availability
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin
       case Id is
-         when Editor.Commands.Command_Run_Project
-            | Editor.Commands.Command_Run_Tests =>
+         when Editor.Command_Ids.Command_Run_Project
+            | Editor.Command_Ids.Command_Run_Tests =>
             if not Editor.Project.Has_Project (S.Project) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No project is open.");
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
-         when Editor.Commands.Command_Terminal_Toggle
-            | Editor.Commands.Command_Terminal_Show
-            | Editor.Commands.Command_Terminal_Hide
-            | Editor.Commands.Command_Terminal_Focus
-            | Editor.Commands.Command_Terminal_Clear
-            | Editor.Commands.Command_Terminal_Clear_Output =>
+         when Editor.Command_Ids.Command_Terminal_Toggle
+            | Editor.Command_Ids.Command_Terminal_Show
+            | Editor.Command_Ids.Command_Terminal_Hide
+            | Editor.Command_Ids.Command_Terminal_Focus
+            | Editor.Command_Ids.Command_Terminal_Clear
+            | Editor.Command_Ids.Command_Terminal_Clear_Output =>
             return Editor.Commands.Availability_Metadata.Available;
 
-         when Editor.Commands.Command_Terminal_Select_Next_Task
-            | Editor.Commands.Command_Terminal_Select_Previous_Task
-            | Editor.Commands.Command_Terminal_Run_Selected_Task =>
+         when Editor.Command_Ids.Command_Terminal_Select_Next_Task
+            | Editor.Command_Ids.Command_Terminal_Select_Previous_Task
+            | Editor.Command_Ids.Command_Terminal_Run_Selected_Task =>
             if not Editor.Terminal_Tasks.Has_Selected_Task
               (S.Terminal_Tasks)
             then
@@ -50,13 +50,13 @@ package body Editor.Executor.Terminal_Commands is
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
-         when Editor.Commands.Command_Terminal_Rerun_Last_Task =>
+         when Editor.Command_Ids.Command_Terminal_Rerun_Last_Task =>
             if not Editor.Terminal_Tasks.Can_Rerun_Last (S.Terminal_Tasks) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No terminal task has run");
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
-         when Editor.Commands.Command_Terminal_Cancel_Task =>
+         when Editor.Command_Ids.Command_Terminal_Cancel_Task =>
             return Editor.Commands.Availability_Metadata.Unavailable
               ("No cancellable terminal task is running");
 
@@ -119,7 +119,7 @@ package body Editor.Executor.Terminal_Commands is
    end Terminal_Process_Policy;
 
    function Result_For_Process_Status
-     (Id     : Editor.Commands.Command_Id;
+     (Id     : Editor.Command_Ids.Command_Id;
       Status : Editor.External_Producers.Build_Types.Process_Run_Status)
       return Editor.Command_Execution.Command_Execution_Result
    is
@@ -135,11 +135,11 @@ package body Editor.Executor.Terminal_Commands is
 
    function Execute_Project_Task_Command
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
    is
       Profile : constant Editor.Terminal_Tasks.Terminal_Task_Profile :=
-        (if Id = Editor.Commands.Command_Run_Project
+        (if Id = Editor.Command_Ids.Command_Run_Project
          then Editor.Terminal_Tasks.Task_Profile_Run
          else Editor.Terminal_Tasks.Task_Profile_Test);
       Selected : Boolean := False;
@@ -169,60 +169,60 @@ package body Editor.Executor.Terminal_Commands is
 
    function Execute_Terminal_Command
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
    is
    begin
       case Id is
-         when Editor.Commands.Command_Terminal_Toggle =>
+         when Editor.Command_Ids.Command_Terminal_Toggle =>
             Editor.Terminal_Tasks.Toggle (S.Terminal_Tasks);
             Report_Info (S, "Terminal toggled.");
             Editor.Render_Cache.Invalidate_All;
             return Editor.Command_Execution.Executed (Id);
 
-         when Editor.Commands.Command_Terminal_Show =>
+         when Editor.Command_Ids.Command_Terminal_Show =>
             Editor.Terminal_Tasks.Show (S.Terminal_Tasks);
             Report_Info (S, "Terminal shown.");
             Editor.Render_Cache.Invalidate_All;
             return Editor.Command_Execution.Executed (Id);
 
-         when Editor.Commands.Command_Terminal_Hide =>
+         when Editor.Command_Ids.Command_Terminal_Hide =>
             Editor.Terminal_Tasks.Hide (S.Terminal_Tasks);
             Report_Info (S, "Terminal hidden.");
             Editor.Render_Cache.Invalidate_All;
             return Editor.Command_Execution.Executed (Id);
 
-         when Editor.Commands.Command_Terminal_Focus =>
+         when Editor.Command_Ids.Command_Terminal_Focus =>
             Editor.Terminal_Tasks.Focus (S.Terminal_Tasks);
             Report_Info (S, "Terminal focused.");
             Editor.Render_Cache.Invalidate_All;
             return Editor.Command_Execution.Executed (Id);
 
-         when Editor.Commands.Command_Terminal_Clear =>
+         when Editor.Command_Ids.Command_Terminal_Clear =>
             Editor.Terminal_Tasks.Clear (S.Terminal_Tasks);
             Report_Info (S, "Terminal tasks cleared.");
             Editor.Render_Cache.Invalidate_All;
             return Editor.Command_Execution.Executed (Id);
 
-         when Editor.Commands.Command_Terminal_Clear_Output =>
+         when Editor.Command_Ids.Command_Terminal_Clear_Output =>
             Editor.Terminal_Tasks.Clear_Output (S.Terminal_Tasks);
             Report_Info (S, "Terminal output cleared.");
             Editor.Render_Cache.Invalidate_All;
             return Editor.Command_Execution.Executed (Id);
 
-         when Editor.Commands.Command_Terminal_Select_Next_Task =>
+         when Editor.Command_Ids.Command_Terminal_Select_Next_Task =>
             Editor.Terminal_Tasks.Select_Next (S.Terminal_Tasks);
             Report_Info (S, "Terminal task selection changed.");
             Editor.Render_Cache.Invalidate_All;
             return Editor.Command_Execution.Executed (Id);
 
-         when Editor.Commands.Command_Terminal_Select_Previous_Task =>
+         when Editor.Command_Ids.Command_Terminal_Select_Previous_Task =>
             Editor.Terminal_Tasks.Select_Previous (S.Terminal_Tasks);
             Report_Info (S, "Terminal task selection changed.");
             Editor.Render_Cache.Invalidate_All;
             return Editor.Command_Execution.Executed (Id);
 
-         when Editor.Commands.Command_Terminal_Run_Selected_Task =>
+         when Editor.Command_Ids.Command_Terminal_Run_Selected_Task =>
             declare
                Result : constant Editor.External_Producers.Build_Types.Process_Run_Result :=
                  Editor.External_Producers.Build_Requests.Execute_Process_Request_Real_Gated
@@ -237,7 +237,7 @@ package body Editor.Executor.Terminal_Commands is
                return Result_For_Process_Status (Id, Result.Status);
             end;
 
-         when Editor.Commands.Command_Terminal_Rerun_Last_Task =>
+         when Editor.Command_Ids.Command_Terminal_Rerun_Last_Task =>
             declare
                Result : constant Editor.External_Producers.Build_Types.Process_Run_Result :=
                  Editor.External_Producers.Build_Requests.Execute_Process_Request_Real_Gated
@@ -252,7 +252,7 @@ package body Editor.Executor.Terminal_Commands is
                return Result_For_Process_Status (Id, Result.Status);
             end;
 
-         when Editor.Commands.Command_Terminal_Cancel_Task =>
+         when Editor.Command_Ids.Command_Terminal_Cancel_Task =>
             Report_Info (S, "No cancellable terminal task is running.");
             Editor.Render_Cache.Invalidate_All;
             return Editor.Command_Execution.Unavailable (Id);

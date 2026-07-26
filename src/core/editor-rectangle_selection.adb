@@ -6,7 +6,6 @@ with Text_Buffer;
 with Editor.Layout;
 with Editor.View;
 with Editor.Cursors; use Editor.Cursors;
-with Editor.Commands;
 with Editor.UTF8;
 with Editor.Folding;
 

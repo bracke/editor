@@ -1,8 +1,8 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
-with Editor.Commands;
 with Editor.Dirty_Guards;
 with Editor.Executor;
 with Editor.Pending_Transition_Bar;
@@ -16,7 +16,7 @@ package body Editor.Pending_Transition_Bar.Surface_Rendering is
 
    use Editor.Render_Packet.Guikit_Adapters;
 
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Pending_Transitions.Pending_Transition_Kind;
 
    function Count_Text (Count : Natural) return String is
@@ -172,7 +172,7 @@ package body Editor.Pending_Transition_Bar.Surface_Rendering is
          end;
       end loop;
       return (Action         => Editor.Pending_Transition_Bar.No_Pending_Bar_Action,
-              Command        => Editor.Commands.No_Command,
+              Command        => Editor.Command_Ids.No_Command,
               Label          => Null_Unbounded_String,
               Available      => False,
               Is_Destructive => False);

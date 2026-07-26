@@ -1,5 +1,4 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Commands;
 with Editor.Commands.Workflow_Messages;
 with Editor.Contextual_Help;
 with Editor.Feature_Diagnostics.Display;

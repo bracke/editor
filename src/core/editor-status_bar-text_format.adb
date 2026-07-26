@@ -1,6 +1,5 @@
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Commands;
 with Editor.Commands.Workflow_Messages;
 
 package body Editor.Status_Bar.Text_Format is

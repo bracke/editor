@@ -1,11 +1,12 @@
-with Editor.Commands;
+with Editor.Command_Kinds;
+with Editor.Command_Ids;
 with Editor.State;
 
 package Editor.Executor.Buffer_Switcher_Pending_Mark_Dirty_Commands is
 
    procedure Execute_Buffer_Switcher_Pending_Mark_Dirty_Kind
      (S    : in out Editor.State.State_Type;
-      Kind : Editor.Commands.Command_Kind);
+      Kind : Editor.Command_Kinds.Command_Kind);
 
    procedure Execute_Buffer_Switcher_Pending_Mark_Dirty_Summary
      (S : in out Editor.State.State_Type);

@@ -1,7 +1,7 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Descriptor_Metadata;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.Executor;
 with Editor.Feature_Diagnostics;
@@ -14,7 +14,7 @@ with Editor.State;
 
 package body Editor.Feature_Panel_Audit.Tests is
 
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Executor.Command_Execution_Status;
    use type Editor.Feature_Panel.Feature_Id;
 
@@ -186,7 +186,7 @@ package body Editor.Feature_Panel_Audit.Tests is
 
    procedure Test_Generic_Commands_Delegate_For_Feature
      (Feature : Feature_Id;
-      Show_Command : Editor.Commands.Command_Id)
+      Show_Command : Editor.Command_Ids.Command_Id)
    is
       S      : Editor.State.State_Type;
       Result : Editor.Executor.Command_Execution_Result;
@@ -199,7 +199,7 @@ package body Editor.Feature_Panel_Audit.Tests is
               "feature-specific show command selects expected active feature");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Feature_Panel_Select_Next);
+        (S, Editor.Command_Ids.Command_Feature_Panel_Select_Next);
       Assert (Result.Status = Editor.Executor.Command_Executed
                 or else Result.Status = Editor.Executor.Command_Unavailable,
               "generic select-next delegates safely");
@@ -207,7 +207,7 @@ package body Editor.Feature_Panel_Audit.Tests is
               "generic select-next preserves active feature");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Feature_Panel_Open_Selected);
+        (S, Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
       Assert (Result.Status = Editor.Executor.Command_Executed
                 or else Result.Status = Editor.Executor.Command_Unavailable,
               "generic open-selected delegates safely");
@@ -215,7 +215,7 @@ package body Editor.Feature_Panel_Audit.Tests is
               "generic open-selected preserves active feature");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Clear_Feature_Panel);
+        (S, Editor.Command_Ids.Command_Clear_Feature_Panel);
       Assert (Result.Status = Editor.Executor.Command_Executed
                 or else Result.Status = Editor.Executor.Command_Unavailable,
               "generic clear-active-feature delegates safely");
@@ -233,21 +233,21 @@ package body Editor.Feature_Panel_Audit.Tests is
       Result : Editor.Executor.Command_Execution_Result;
    begin
       Test_Generic_Commands_Delegate_For_Feature
-        (Outline_Feature, Editor.Commands.Command_Show_Outline);
+        (Outline_Feature, Editor.Command_Ids.Command_Show_Outline);
       Test_Generic_Commands_Delegate_For_Feature
-        (Messages_Feature, Editor.Commands.Command_Show_Messages);
+        (Messages_Feature, Editor.Command_Ids.Command_Show_Messages);
       Test_Generic_Commands_Delegate_For_Feature
-        (Search_Results_Feature, Editor.Commands.Command_Show_Search_Results_Feature);
+        (Search_Results_Feature, Editor.Command_Ids.Command_Show_Search_Results_Feature);
       Test_Generic_Commands_Delegate_For_Feature
-        (Diagnostics_Feature, Editor.Commands.Command_Diagnostics_Show);
+        (Diagnostics_Feature, Editor.Command_Ids.Command_Diagnostics_Show);
 
       Editor.State.Init (S);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Feature_Panel_Open_Selected);
+        (S, Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "generic open-selected is deterministic with no active rows");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Hide_Feature_Panel);
+        (S, Editor.Command_Ids.Command_Hide_Feature_Panel);
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "hide is unavailable while panel is hidden");
    end Test_Feature_Generic_Commands_Delegate_Matrix;
@@ -436,25 +436,25 @@ package body Editor.Feature_Panel_Audit.Tests is
       S : Editor.State.State_Type;
       Before_Generic : constant String :=
         Editor.Commands.Name_Metadata.Stable_Command_Name
-          (Editor.Commands.Command_Feature_Panel_Open_Selected);
+          (Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
       Before_Diagnostics : constant String :=
         Editor.Commands.Name_Metadata.Stable_Command_Name
-          (Editor.Commands.Command_Diagnostics_Show);
+          (Editor.Command_Ids.Command_Diagnostics_Show);
    begin
       Editor.State.Init (S);
       Assert_Audit_Passed ("before workspace close metadata check");
       Editor.Feature_Panel_Controller.Reset_All_Features_For_Workspace_Close (S);
       Assert (Editor.Commands.Descriptor_Metadata.Has_Descriptor
-                (Editor.Commands.Command_Feature_Panel_Open_Selected),
+                (Editor.Command_Ids.Command_Feature_Panel_Open_Selected),
               "workspace close preserves generic command descriptor");
       Assert (Editor.Commands.Descriptor_Metadata.Has_Descriptor
-                (Editor.Commands.Command_Diagnostics_Show),
+                (Editor.Command_Ids.Command_Diagnostics_Show),
               "workspace close preserves Diagnostics command descriptor");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Feature_Panel_Open_Selected) = Before_Generic,
+                (Editor.Command_Ids.Command_Feature_Panel_Open_Selected) = Before_Generic,
               "workspace close preserves generic stable command name");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Diagnostics_Show) = Before_Diagnostics,
+                (Editor.Command_Ids.Command_Diagnostics_Show) = Before_Diagnostics,
               "workspace close preserves Diagnostics stable command name");
       Assert_Audit_Passed ("after workspace close metadata check");
    end Test_Four_Feature_Workspace_Close_Preserves_Command_Metadata;

@@ -1,3 +1,5 @@
+with Editor.Command_Kinds;
+with Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -8,7 +10,6 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Text_IO;
 with Editor.Clipboard;
 with Editor.Command_Palette;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.Buffers;
 with Editor.Cursors; use Editor.Cursors;
@@ -34,11 +35,11 @@ with Text_Buffer;
 package body Editor.Line_Edit.Text_Delete_Tests is
 
    use type Editor.Keybinding_Config.Keybinding_Config_Status;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
-   use type Editor.Commands.Command_Kind;
+   use type Editor.Command_Kinds.Command_Kind;
    use type Editor.Keybindings.Keybinding_Validation_Status;
    use type Editor.Buffers.Buffer_Id;
    use type Editor.Keybindings.Binding_Result;
@@ -261,12 +262,12 @@ package body Editor.Line_Edit.Text_Delete_Tests is
 
       if Direction = Word_Delete_Test_Previous then
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Word_Delete_Previous);
+           (S, Editor.Command_Ids.Command_Word_Delete_Previous);
          Assert (Message_Text (S) = "Deleted previous word",
                  Why & ": delete-previous message mismatch");
       else
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Word_Delete_Next);
+           (S, Editor.Command_Ids.Command_Word_Delete_Next);
          Assert (Message_Text (S) = "Deleted next word",
                  Why & ": delete-next message mismatch");
       end if;
@@ -288,10 +289,10 @@ package body Editor.Line_Edit.Text_Delete_Tests is
       Assert_Navigation_Counts (S, 0, 0,
                                 Why & ": word delete must not record navigation");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text (S, Before_Text,
                           Why & ": undo must restore exact pre-delete text after removing " & Removed_Text);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert_Buffer_Text (S, Expected_Text,
                           Why & ": redo must restore exact post-delete text");
    end Assert_Word_Delete_Transform;
@@ -313,8 +314,8 @@ package body Editor.Line_Edit.Text_Delete_Tests is
       Editor.State.Load_Text (S, "Seed Word");
       Set_Caret (S, Cursor_Index (Text_Buffer.Length (S.Buffer)));
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Word_Delete_Previous);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+        (S, Editor.Command_Ids.Command_Word_Delete_Previous);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Redo_Count := Natural (Editor.History.Redo_Stack.Length);
 
       Editor.State.Load_Text (S, Before_Text);
@@ -322,10 +323,10 @@ package body Editor.Line_Edit.Text_Delete_Tests is
 
       if Direction = Word_Delete_Test_Previous then
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Word_Delete_Previous);
+           (S, Editor.Command_Ids.Command_Word_Delete_Previous);
       else
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Word_Delete_Next);
+           (S, Editor.Command_Ids.Command_Word_Delete_Next);
       end if;
 
       Assert_Buffer_Text (S, Before_Text, Why);
@@ -367,12 +368,12 @@ package body Editor.Line_Edit.Text_Delete_Tests is
 
       if Direction = Character_Delete_Test_Previous then
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Char_Delete_Previous);
+           (S, Editor.Command_Ids.Command_Char_Delete_Previous);
          Assert (Message_Text (S) = "Deleted previous character",
                  Why & ": delete-previous message mismatch");
       else
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Char_Delete_Next);
+           (S, Editor.Command_Ids.Command_Char_Delete_Next);
          Assert (Message_Text (S) = "Deleted next character",
                  Why & ": delete-next message mismatch");
       end if;
@@ -394,10 +395,10 @@ package body Editor.Line_Edit.Text_Delete_Tests is
       Assert_Navigation_Counts (S, 0, 0,
                                 Why & ": character delete must not record navigation");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text (S, Before_Text,
                           Why & ": undo must restore exact pre-delete text");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert_Buffer_Text (S, Expected_Text,
                           Why & ": redo must restore exact post-delete text");
    end Assert_Character_Delete_Transform;
@@ -418,8 +419,8 @@ package body Editor.Line_Edit.Text_Delete_Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "Seed");
       Set_Caret (S, Cursor_Index (Text_Buffer.Length (S.Buffer)));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Char_Delete_Previous);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Char_Delete_Previous);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Redo_Count := Natural (Editor.History.Redo_Stack.Length);
 
       Editor.State.Load_Text (S, Before_Text);
@@ -427,10 +428,10 @@ package body Editor.Line_Edit.Text_Delete_Tests is
 
       if Direction = Character_Delete_Test_Previous then
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Char_Delete_Previous);
+           (S, Editor.Command_Ids.Command_Char_Delete_Previous);
       else
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Char_Delete_Next);
+           (S, Editor.Command_Ids.Command_Char_Delete_Next);
       end if;
 
       Assert_Buffer_Text (S, Before_Text, Why);
@@ -488,12 +489,12 @@ package body Editor.Line_Edit.Text_Delete_Tests is
 
       if Direction = Character_Delete_Test_Previous then
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Char_Delete_Previous);
+           (S, Editor.Command_Ids.Command_Char_Delete_Previous);
          Assert (Message_Text (S) = "Deleted previous character",
                  Why & ": delete-previous message mismatch");
       else
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Char_Delete_Next);
+           (S, Editor.Command_Ids.Command_Char_Delete_Next);
          Assert (Message_Text (S) = "Deleted next character",
                  Why & ": delete-next message mismatch");
       end if;
@@ -514,10 +515,10 @@ package body Editor.Line_Edit.Text_Delete_Tests is
       Assert_Navigation_Counts (S, 0, 0,
                                 Why & ": Character Delete must not record navigation");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text (S, Before_Text,
                           Why & ": undo must restore exact pre-delete text");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert_Buffer_Text (S, Expected_Text,
                           Why & ": redo must restore exact post-delete text");
    end Assert_Character_Delete_Transform_Exact;
@@ -653,7 +654,7 @@ package body Editor.Line_Edit.Text_Delete_Tests is
         (To_String (Editor.Selection.Extract_Selected_Text (S)) = Selected,
          Why & ": pre-delete selected text mismatch");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Delete);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Delete);
 
       Assert_Buffer_Text (S, Expected, Why);
       Assert (Message_Text (S) = "Deleted selection", Why & ": message mismatch");
@@ -678,9 +679,9 @@ package body Editor.Line_Edit.Text_Delete_Tests is
       Assert (Snapshot.Selection_Count = 0,
               Why & ": render snapshot must not expose stale selection");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text (S, Plain, Why & " undo");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert_Buffer_Text (S, Expected, Why & " redo");
    end Run_Marked_Delete;
    procedure Test_Selection_Delete_Range_Matrix_And_Backward_Selection
@@ -698,7 +699,7 @@ package body Editor.Line_Edit.Text_Delete_Tests is
       begin
          Editor.State.Load_Text (S, Before_Text);
          Set_Primary_Selection (S, Anchor, Pos);
-         Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Delete);
+         Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Delete);
          Assert_Buffer_Text (S, Expected, Why);
          Assert
            (not Editor.Selection.Has_Selection (S),
@@ -756,7 +757,7 @@ package body Editor.Line_Edit.Text_Delete_Tests is
       Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Delete);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Delete);
       Assert_Buffer_Text
         (S, "Alpha" & ASCII.LF & ASCII.LF & "Gamma",
          "selection delete must remove exact selected text");
@@ -773,7 +774,7 @@ package body Editor.Line_Edit.Text_Delete_Tests is
         (Natural (Editor.History.Redo_Stack.Length) = 0,
          "selection delete must leave redo empty after text change");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text
         (S, "Alpha" & ASCII.LF & "Beta" & ASCII.LF & "Gamma",
          "undo must restore exact pre-delete text");
@@ -783,7 +784,7 @@ package body Editor.Line_Edit.Text_Delete_Tests is
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
 
       Set_Caret (S, 0);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Delete);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Delete);
       Assert_Buffer_Text
         (S, "Alpha" & ASCII.LF & "Beta" & ASCII.LF & "Gamma",
          "no selection delete must not mutate text");
@@ -797,7 +798,7 @@ package body Editor.Line_Edit.Text_Delete_Tests is
         (Editor.Clipboard.Get_Text = Before_Clip,
          "no-op selection delete must not mutate clipboard");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert_Buffer_Text
         (S, "Alpha" & ASCII.LF & ASCII.LF & "Gamma",
          "redo must restore exact post-delete text");
@@ -828,7 +829,7 @@ package body Editor.Line_Edit.Text_Delete_Tests is
                  Why & ": canonical selected text mismatch before delete");
 
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Selection_Delete);
+           (S, Editor.Command_Ids.Command_Selection_Delete);
 
          Assert_Buffer_Text (S, Expected, Why);
          Assert (Message_Text (S) = "Deleted selection",
@@ -841,9 +842,9 @@ package body Editor.Line_Edit.Text_Delete_Tests is
             Why & ": caret must be at normalized range start");
          Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
                  Why & ": one undo entry expected");
-         Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+         Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
          Assert_Buffer_Text (S, Before_Text, Why & " undo restores original");
-         Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+         Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
          Assert_Buffer_Text (S, Expected, Why & " redo restores deleted text");
       end Check;
    begin
@@ -884,13 +885,13 @@ package body Editor.Line_Edit.Text_Delete_Tests is
       Editor.History.Redo_Stack.Clear;
       Editor.State.Load_Text (S, "Alpha Beta");
       Editor.State.Set_Dirty (S, False);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Split_At_Caret);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
       Before_Dirty := Editor.State.Is_Dirty (S);
 
       Set_Caret (S, 0);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Delete);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Delete);
       Assert_Buffer_Text (S, "Alpha Beta", "no selection must not mutate text");
       Assert (Message_Text (S) = "Nothing selected",
               "no selection message mismatch");
@@ -900,7 +901,7 @@ package body Editor.Line_Edit.Text_Delete_Tests is
               "no selection must preserve dirty state");
 
       Set_Primary_Selection (S, 3, 3);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Delete);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Delete);
       Assert_Buffer_Text (S, "Alpha Beta", "empty selection must not mutate text");
       Assert (Message_Text (S) = "Nothing selected",
               "empty selection message mismatch");
@@ -908,7 +909,7 @@ package body Editor.Line_Edit.Text_Delete_Tests is
               "empty selection must preserve redo stack");
 
       Set_Primary_Selection (S, 0, 999);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Delete);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Delete);
       Assert_Buffer_Text (S, "Alpha Beta", "invalid selection must not mutate text");
       Assert (Message_Text (S) = "Invalid selection",
               "invalid selection message mismatch");
@@ -919,7 +920,7 @@ package body Editor.Line_Edit.Text_Delete_Tests is
 
       S.Rect_Select_Active := True;
       Set_Primary_Selection (S, 0, 5);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Delete);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Delete);
       Assert_Buffer_Text (S, "Alpha Beta",
                           "rectangular projection must not be treated as linear delete");
       Assert (Message_Text (S) = "Invalid selection",
@@ -930,7 +931,7 @@ package body Editor.Line_Edit.Text_Delete_Tests is
       begin
          Editor.State.Init (No_Buffer);
          Editor.Executor.Execute_Command
-           (No_Buffer, Editor.Commands.Command_Selection_Delete);
+           (No_Buffer, Editor.Command_Ids.Command_Selection_Delete);
          Assert (Message_Text (No_Buffer) = "No active buffer.",
                  "no active buffer message mismatch");
       end;
@@ -956,7 +957,7 @@ package body Editor.Line_Edit.Text_Delete_Tests is
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
 
       Set_Primary_Selection (S, 6, 10);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Delete);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Delete);
       Assert_Buffer_Text (S, "Alpha  Gamma",
                           "selection delete must remove selected Find text");
       Assert (Editor.State.Is_Dirty (S),
@@ -973,20 +974,20 @@ package body Editor.Line_Edit.Text_Delete_Tests is
         (S, Before_Back, Before_Fwd,
          "selection delete caret movement must not record navigation history");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Paste);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Paste);
       Assert_Buffer_Text (S, "Alpha CLIP Gamma",
                           "paste after selection delete must use original clipboard");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text (S, "Alpha  Gamma",
                           "undo paste returns to post-delete text");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text (S, "Alpha Beta Gamma",
                           "undo selection delete restores exact text");
 
       S.Active_Find_Stale := False;
       Set_Caret (S, 0);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Delete);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Delete);
       Assert (not S.Active_Find_Stale,
               "no-op selection delete must not invalidate Find state");
    end Test_Selection_Delete_Find_Dirty_Clipboard_And_Navigation;
@@ -1020,7 +1021,7 @@ package body Editor.Line_Edit.Text_Delete_Tests is
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
 
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Selection_Delete);
+        (S, Editor.Command_Ids.Command_Selection_Delete);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = To_String (Before_Text),
               "selection-delete availability must not mutate text");
       Assert (S.Carets (S.Carets.First_Index).Pos = Before_Caret,
@@ -1042,7 +1043,7 @@ package body Editor.Line_Edit.Text_Delete_Tests is
       Assert (Natural (Editor.History.Undo_Stack.Length) = Before_Undo,
               "render snapshot must not mutate undo stack");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Delete);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Delete);
       Workspace := Editor.State.Build_Workspace_Snapshot (S);
       Summary := To_Unbounded_String
         (Editor.Workspace_Persistence.Debug_Summary (Workspace));
@@ -1082,7 +1083,7 @@ package body Editor.Line_Edit.Text_Delete_Tests is
 
       Editor.Buffers.Global_Set_Active_Buffer (A);
       Editor.Buffers.Load_Global_Active_Into_State (S);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Delete);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Delete);
       Assert_Buffer_Text (S, " Beta",
                           "active buffer A selection delete text mismatch");
       Assert (not Editor.Selection.Has_Selection (S),
@@ -1095,10 +1096,10 @@ package body Editor.Line_Edit.Text_Delete_Tests is
                           "inactive buffer B text must be isolated");
       Assert (Editor.Selection.Has_Selection (S),
               "inactive buffer B selection policy must remain isolated");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Delete);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Delete);
       Assert_Buffer_Text (S, " Delta",
                           "buffer B independent selection delete mismatch");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text (S, "Gamma Delta",
                           "undo in B must affect only B");
       Editor.Buffers.Sync_Global_Active_From_State (S);
@@ -1107,7 +1108,7 @@ package body Editor.Line_Edit.Text_Delete_Tests is
       Editor.Buffers.Load_Global_Active_Into_State (S);
       Assert_Buffer_Text (S, " Beta",
                           "returning to A must preserve A delete result");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text (S, "Alpha Beta",
                           "undo in A must restore only A text");
    end Test_Selection_Delete_Active_Buffer_Isolation;
@@ -1124,35 +1125,35 @@ package body Editor.Line_Edit.Text_Delete_Tests is
       Editor.State.Load_Text (S, "Alpha Beta");
 
       Set_Caret (S, 7);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_Word);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Delete);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_Word);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Delete);
       Assert_Buffer_Text (S, "Alpha ",
                           "current-word selection delete must consume canonical selection");
       Assert (Editor.Clipboard.Get_Text = To_Unbounded_String ("Beta"),
               "copy may change clipboard before selection delete");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text (S, "Alpha Beta",
                           "undo after current-word selection delete restores text");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_All);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Clear);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Delete);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_All);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Clear);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Delete);
       Assert_Buffer_Text (S, "Alpha Beta",
                           "selection.clear followed by delete-selection must not infer range");
       Assert (Message_Text (S) = "Nothing selected",
               "selection.clear no-op delete message mismatch");
 
       Set_Caret (S, 5);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Split_At_Caret);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
       Set_Primary_Selection (S, 5, 6);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Delete);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Delete);
       Assert_Buffer_Text (S, "AlphaBeta",
                           "selection delete after line split must delete exact boundary");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text (S, "Alpha" & ASCII.LF & " Beta",
                           "mixed command undo restores post-split text");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text (S, "Alpha Beta",
                           "mixed command second undo restores original text");
    end Test_Selection_Delete_Selection_Command_And_Edit_Coexistence;
@@ -1196,13 +1197,13 @@ package body Editor.Line_Edit.Text_Delete_Tests is
          Editor.History.Redo_Stack.Clear;
          Editor.State.Load_Text (F, Plain);
          Set_Primary_Selection (F, F_Anchor, F_Pos);
-         Editor.Executor.Execute_Command (F, Editor.Commands.Command_Selection_Delete);
+         Editor.Executor.Execute_Command (F, Editor.Command_Ids.Command_Selection_Delete);
 
          Editor.History.Undo_Stack.Clear;
          Editor.History.Redo_Stack.Clear;
          Editor.State.Load_Text (B, Plain);
          Set_Primary_Selection (B, B_Anchor, B_Pos);
-         Editor.Executor.Execute_Command (B, Editor.Commands.Command_Selection_Delete);
+         Editor.Executor.Execute_Command (B, Editor.Command_Ids.Command_Selection_Delete);
 
          Assert_Buffer_Text (F, Expected, Why & " forward");
          Assert_Buffer_Text (B, Expected, Why & " backward");
@@ -1230,13 +1231,13 @@ package body Editor.Line_Edit.Text_Delete_Tests is
       Editor.History.Redo_Stack.Clear;
       Editor.State.Load_Text (S, "Alpha Beta");
       Set_Caret (S, 5);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Split_At_Caret);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
       Before_Undo := Natural (Editor.History.Undo_Stack.Length);
 
       Set_Caret (S, 0);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Delete);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Delete);
       Assert_Buffer_Text (S, "Alpha Beta", "no selection no-op text");
       Assert (Natural (Editor.History.Redo_Stack.Length) = Before_Redo,
               "no selection must preserve redo");
@@ -1244,13 +1245,13 @@ package body Editor.Line_Edit.Text_Delete_Tests is
               "no selection must not create undo");
 
       Set_Primary_Selection (S, 3, 3);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Delete);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Delete);
       Assert_Buffer_Text (S, "Alpha Beta", "empty selection no-op text");
       Assert (Natural (Editor.History.Redo_Stack.Length) = Before_Redo,
               "empty selection must preserve redo");
 
       Set_Primary_Selection (S, 0, 999);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Delete);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Delete);
       Assert_Buffer_Text (S, "Alpha Beta", "invalid selection no-op text");
       Assert (Message_Text (S) = "Invalid selection",
               "invalid selection message");
@@ -1283,7 +1284,7 @@ package body Editor.Line_Edit.Text_Delete_Tests is
       Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Delete);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Delete);
       Assert_Buffer_Text (S, "Alpha  Gamma", "find workflow delete");
       Assert (Editor.State.Is_Dirty (S), "delete must dirty clean buffer");
       Assert (S.Active_Find_Stale, "delete must stale active Find");
@@ -1299,7 +1300,7 @@ package body Editor.Line_Edit.Text_Delete_Tests is
       Assert (Snapshot.Find_Matches_Stale,
               "render must expose stale/current Find policy after edit");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text (S, "Alpha Beta Gamma", "undo restores text");
       Assert (Natural (Editor.History.Redo_Stack.Length) = 1,
               "undo creates redo");
@@ -1307,13 +1308,13 @@ package body Editor.Line_Edit.Text_Delete_Tests is
 
       Set_Caret (S, 0);
       S.Active_Find_Stale := False;
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Delete);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Delete);
       Assert (Natural (Editor.History.Redo_Stack.Length) = Before_Redo,
               "no-op delete preserves redo after undo");
       Assert (not S.Active_Find_Stale,
               "no-op delete must not stale Find");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert_Buffer_Text (S, "Alpha  Gamma", "redo restores delete");
       Assert (Editor.Clipboard.Get_Text = Before_Clip,
               "redo path still not clipboard-owned");
@@ -1330,58 +1331,58 @@ package body Editor.Line_Edit.Text_Delete_Tests is
       Editor.Clipboard.Set_Text (To_Unbounded_String ("CLIP"));
       Editor.State.Load_Text (S, "Alpha Beta Gamma");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_All);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Delete);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_All);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Delete);
       Assert_Buffer_Text (S, "", "select-all delete");
       Assert (Editor.Clipboard.Get_Text = To_Unbounded_String ("CLIP"),
               "select-all delete must not copy deleted text");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
 
       Set_Caret (S, 7);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_Word);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Delete);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_Word);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Delete);
       Assert_Buffer_Text (S, "Alpha  Gamma", "current-word delete");
       Assert (Editor.Clipboard.Get_Text = To_Unbounded_String ("Beta"),
               "copy before delete owns clipboard mutation");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
 
       Set_Primary_Selection (S, 6, 10);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Cut);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Cut);
       Assert_Buffer_Text (S, "Alpha  Gamma", "cut text effect");
       Assert (Editor.Clipboard.Get_Text = To_Unbounded_String ("Beta"),
               "cut owns clipboard mutation");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
 
       Set_Caret (S, 6);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Char_Delete_Next);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Char_Delete_Next);
       Set_Primary_Selection (S, 6, 10);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Delete);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Delete);
       Assert_Buffer_Text (S, "Alpha Gamma", "after char delete");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
 
       Set_Caret (S, 6);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Word_Delete_Next);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_All);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Delete);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Word_Delete_Next);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_All);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Delete);
       Assert_Buffer_Text (S, "", "after word delete select-all");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
 
       Set_Caret (S, 5);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Split_At_Caret);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
       Set_Primary_Selection (S, 5, 6);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Delete);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Delete);
       Assert_Buffer_Text (S, "Alpha Beta Gamma", "after line split boundary delete");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
 
       Set_Caret (S, 5);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Split_At_Caret);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Join_Next);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Join_Next);
       Set_Primary_Selection (S, 5, 6);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Delete);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Delete);
       Assert_Buffer_Text (S, "Alpha Beta Gamma", "after line join");
    end Test_Command_Coexistence_And_Cut_Contrast;
 
@@ -1401,7 +1402,7 @@ package body Editor.Line_Edit.Text_Delete_Tests is
       Workspace      : Editor.Workspace_Persistence.Workspace_Snapshot;
       Summary        : Unbounded_String;
       Found          : Boolean := False;
-      Dummy          : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Dummy          : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       procedure Assert_Not_Exposed (Name : String) is
       begin
          Dummy := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
@@ -1424,7 +1425,7 @@ package body Editor.Line_Edit.Text_Delete_Tests is
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
 
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Selection_Delete);
+        (S, Editor.Command_Ids.Command_Selection_Delete);
       Editor.Render_Model.Build_Render_Snapshot (S, Snapshot);
       Editor.Command_Palette.Reset;
       Editor.Command_Palette.Open;
@@ -1443,7 +1444,7 @@ package body Editor.Line_Edit.Text_Delete_Tests is
       Assert (Snapshot.Selection_Count = 1,
               "render should project, not consume, canonical selection");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Delete);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Delete);
       Workspace := Editor.State.Build_Workspace_Snapshot (S);
       Summary := To_Unbounded_String
         (Editor.Workspace_Persistence.Debug_Summary (Workspace));
@@ -1497,7 +1498,7 @@ procedure Test_Selection_Delete_Canonical_State_Only_Workflow
 
       Chord := Editor.Keybindings.Parse_Chord ("Ctrl+Alt+M", Found_Chord);
       Assert (Found_Chord, "test chord must parse");
-      Editor.Keybindings.Bind (Chord, Editor.Commands.Command_Selection_Delete);
+      Editor.Keybindings.Bind (Chord, Editor.Command_Ids.Command_Selection_Delete);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Handle_Key_Chord (Chord);
       After := Editor.Input_Bridge.Get_State_For_Test;
@@ -1525,11 +1526,11 @@ procedure Test_Selection_Delete_Canonical_State_Only_Workflow
       Assert (not Editor.Selection.Has_Selection (After),
               "successful Selection Delete must clear/collapse selection");
 
-      Editor.Executor.Execute_Command (After, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (After, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text
         (After, "Alpha Beta Gamma",
          "undo must restore captured Selection Delete Before_Text");
-      Editor.Executor.Execute_Command (After, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (After, Editor.Command_Ids.Command_Redo);
       Assert_Buffer_Text
         (After, "Alpha  Gamma",
          "redo must restore captured Selection Delete After_Text");

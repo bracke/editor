@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -17,8 +18,8 @@ with Editor.Commands.Name_Metadata;
 package body Editor.Input_Bridge.Build_UI_Pointer_Handlers is
 
    use type Editor.Build_UI_Panel_Layout.Build_UI_Panel_Zone;
-   use type Editor.Commands.Command_Id;
-   use type Editor.Commands.Command_Kind;
+   use type Editor.Command_Ids.Command_Id;
+   use type Editor.Command_Kinds.Command_Kind;
 
    function Handle_Build_UI_Panel_Pointer
      (S       : in out Editor.State.State_Type;
@@ -63,7 +64,7 @@ package body Editor.Input_Bridge.Build_UI_Pointer_Handlers is
             Action : constant Editor.Build_UI.Build_UI_Action_Row :=
               Projection.Snapshot.Actions.Element (Action_Row - 1);
             Found : Boolean := False;
-            Id : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+            Id : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
             Reason : constant String := To_String (Action.Disabled_Reason);
          begin
             Editor.Build_UI.Set_Selected_Action_Row
@@ -78,8 +79,8 @@ package body Editor.Input_Bridge.Build_UI_Pointer_Handlers is
             else
                Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
                  (To_String (Action.Command_Name), Found);
-               if Found and then Id /= Editor.Commands.No_Command then
-                  if Id = Editor.Commands.Command_Diagnostic_Apply_Quick_Fix
+               if Found and then Id /= Editor.Command_Ids.No_Command then
+                  if Id = Editor.Command_Ids.Command_Diagnostic_Apply_Quick_Fix
                     and then Action.Quick_Fix_Action_Index > 0
                   then
                      declare

@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -6,7 +7,6 @@ with Ada.Directories;
 with Ada.Containers; use type Ada.Containers.Count_Type;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Buffers;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.Dirty_Guards;
 with Editor.Executor.Test_Support; use Editor.Executor.Test_Support;
@@ -24,7 +24,7 @@ package body Editor.Executor.Lifecycle_Tests is
 
    use type Editor.Buffers.Buffer_Id;
    use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.State.Dirty_Close_Scope;
 
@@ -68,7 +68,7 @@ package body Editor.Executor.Lifecycle_Tests is
          "clean associated close creates only the canonical path candidate");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Reopen_Closed_Buffer);
+        (S, Editor.Command_Ids.Command_Reopen_Closed_Buffer);
       Assert
         (Editor.Buffers.Global_Count = 1,
          "canonical reopen must add exactly one file-backed buffer");
@@ -144,7 +144,7 @@ package body Editor.Executor.Lifecycle_Tests is
       Editor.Buffers.Ensure_Global_Registry (S);
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Reopen_Closed_Buffer);
+        (S, Editor.Command_Ids.Command_Reopen_Closed_Buffer);
       Assert
         (not Editor.Commands.Availability_Metadata.Is_Available (A),
          "reopen must be unavailable with no candidate");
@@ -215,7 +215,7 @@ package body Editor.Executor.Lifecycle_Tests is
          "duplicate-open scenario starts from canonical path candidate");
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
       Count := Editor.Buffers.Global_Count;
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Reopen_Closed_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Reopen_Closed_Buffer);
 
       Assert
         (Editor.Buffers.Global_Count = Count,
@@ -257,7 +257,7 @@ package body Editor.Executor.Lifecycle_Tests is
         (S.Has_Reopen_Candidate and then To_String (S.Reopen_Candidate_Path) = Path,
          "missing-file scenario starts from canonical path candidate");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Reopen_Closed_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Reopen_Closed_Buffer);
       Assert
         (Editor.Buffers.Global_Count = 0,
          "failed reopen must not create a placeholder buffer");
@@ -295,7 +295,7 @@ package body Editor.Executor.Lifecycle_Tests is
       S.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_Active_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_Active_Buffer);
       Assert (S.Dirty_Close_Prompt_Active,
               "dirty active close must open an explicit close review");
       Assert (S.Dirty_Close_Prompt_Scope = Editor.State.Active_Buffer_Close_Scope,
@@ -305,7 +305,7 @@ package body Editor.Executor.Lifecycle_Tests is
       Assert (Buffer_Text (S) = "dirty text",
               "dirty active close prompt must preserve text");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Cancel_Close);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Cancel_Close);
       Assert (not S.Dirty_Close_Prompt_Active,
               "cancel must clear dirty close prompt state");
       Assert (S.Dirty_Close_Prompt_Scope = Editor.State.No_Dirty_Close_Scope,
@@ -315,8 +315,8 @@ package body Editor.Executor.Lifecycle_Tests is
       Assert (Buffer_Text (S) = "dirty text",
               "cancel must preserve dirty text");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_Active_Buffer);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Confirm_Close_Discard);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_Active_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Confirm_Close_Discard);
       Assert (not S.Dirty_Close_Prompt_Active,
               "discard confirmation must clear dirty close prompt state");
       Assert (not Editor.Buffers.Global_Contains (Id),
@@ -353,12 +353,12 @@ package body Editor.Executor.Lifecycle_Tests is
       S.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_Active_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_Active_Buffer);
       Assert (S.Dirty_Close_Prompt_Active,
               "save-and-close starts from dirty close review");
       Assert (S.Dirty_Close_Prompt_Scope = Editor.State.Active_Buffer_Close_Scope,
               "save-and-close review records active-buffer scope");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Confirm_Close_Save);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Confirm_Close_Save);
 
       Assert (not S.Dirty_Close_Prompt_Active,
               "successful save-and-close must clear close prompt state");
@@ -397,7 +397,7 @@ package body Editor.Executor.Lifecycle_Tests is
       S.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_Active_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_Active_Buffer);
       Assert (S.Dirty_Close_Prompt_Active,
               "revalidation test starts from dirty close review");
 
@@ -405,7 +405,7 @@ package body Editor.Executor.Lifecycle_Tests is
       S.File_Info.Dirty := False;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Confirm_Close_Save);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Confirm_Close_Save);
 
       Assert (not S.Dirty_Close_Prompt_Active,
               "clean revalidation must clear close prompt state");
@@ -445,26 +445,26 @@ package body Editor.Executor.Lifecycle_Tests is
       S.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_Active_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_Active_Buffer);
       Assert (S.Dirty_Close_Prompt_Active,
               "stale target test starts from dirty close review");
       Editor.Buffers.Global_Force_Close_Buffer (Id, Closed);
       Assert (Closed, "fixture removes prompt target after review opens");
 
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Confirm_Close_Save);
+        (S, Editor.Command_Ids.Command_Confirm_Close_Save);
       Assert (Availability.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
               "stale prompt target must not offer save-and-close");
       Assert (To_String (Availability.Reason) = "Selected buffer is no longer open",
               "stale prompt target reports precise unavailable reason");
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Confirm_Close_Discard);
+        (S, Editor.Command_Ids.Command_Confirm_Close_Discard);
       Assert (Availability.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
               "stale prompt target must not offer discard-and-close");
       Assert (To_String (Availability.Reason) = "Selected buffer is no longer open",
               "stale discard target reports precise unavailable reason");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Confirm_Close_Save);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Confirm_Close_Save);
       Assert (not S.Dirty_Close_Prompt_Active,
               "stale save-and-close target clears prompt without mutation");
 
@@ -473,13 +473,13 @@ package body Editor.Executor.Lifecycle_Tests is
       Set_Buffer_Text (S, "dirty target again");
       S.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_Active_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_Active_Buffer);
       Assert (S.Dirty_Close_Prompt_Active,
               "stale discard test starts from dirty close review");
       Editor.Buffers.Global_Force_Close_Buffer (Id, Closed);
       Assert (Closed, "fixture removes discard target after review opens");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Confirm_Close_Discard);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Confirm_Close_Discard);
       Assert (not S.Dirty_Close_Prompt_Active,
               "stale discard target clears prompt without failure state");
 
@@ -514,10 +514,10 @@ package body Editor.Executor.Lifecycle_Tests is
 
       Write_Text_File (Path, "external replacement with different size");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_Active_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_Active_Buffer);
       Assert (S.Dirty_Close_Prompt_Active,
               "conflict close starts from dirty close review");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Confirm_Close_Save);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Confirm_Close_Save);
 
       Assert (not S.Dirty_Close_Prompt_Active,
               "conflict save-and-close transfers ownership to file conflict prompt");
@@ -531,7 +531,7 @@ package body Editor.Executor.Lifecycle_Tests is
               "conflicted buffer remains open before explicit overwrite");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_File_Conflict_Overwrite_Disk);
+        (S, Editor.Command_Ids.Command_File_Conflict_Overwrite_Disk);
 
       Assert (not S.File_Conflict_Prompt_Active,
               "overwrite-after-close must clear the file conflict prompt");
@@ -580,10 +580,10 @@ package body Editor.Executor.Lifecycle_Tests is
       Editor.Buffers.Load_Global_Active_Into_State (S);
       Write_Text_File (Path, "external replacement with different size");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_Active_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_Active_Buffer);
       Assert (S.Dirty_Close_Prompt_Active,
               "conflict close starts from dirty close review");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Confirm_Close_Save);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Confirm_Close_Save);
 
       Assert (S.File_Conflict_Prompt_Active,
               "save-and-close must surface conflict prompt");
@@ -595,7 +595,7 @@ package body Editor.Executor.Lifecycle_Tests is
               "surviving buffer remains open before explicit overwrite");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_File_Conflict_Overwrite_Disk);
+        (S, Editor.Command_Ids.Command_File_Conflict_Overwrite_Disk);
 
       Assert (not S.File_Conflict_Prompt_Active,
               "overwrite-after-close must clear the file conflict prompt");
@@ -655,10 +655,10 @@ package body Editor.Executor.Lifecycle_Tests is
 
       Write_Text_File (Path_1, "external replacement");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_All_Buffers);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_All_Buffers);
       Assert (S.Dirty_Close_Prompt_Active,
               "close-all save starts from dirty review");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Confirm_Close_Save);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Confirm_Close_Save);
 
       Assert (S.File_Conflict_Prompt_Active,
               "close-all save conflict must surface file conflict prompt");
@@ -668,7 +668,7 @@ package body Editor.Executor.Lifecycle_Tests is
               "conflicted close-all buffer remains open before overwrite");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_File_Conflict_Overwrite_Disk);
+        (S, Editor.Command_Ids.Command_File_Conflict_Overwrite_Disk);
 
       Assert (not S.File_Conflict_Prompt_Active,
               "close-all overwrite must clear file conflict prompt");
@@ -711,10 +711,10 @@ package body Editor.Executor.Lifecycle_Tests is
       Set_Buffer_Text (S, "dirty reload text");
       S.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Reload_Active_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Reload_Active_Buffer);
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Discard_Pending_Transition);
+        (S, Editor.Command_Ids.Command_Discard_Pending_Transition);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "discard pending must not be available for reload/revert confirmations");
 
@@ -763,7 +763,7 @@ package body Editor.Executor.Lifecycle_Tests is
               "pending-close target starts open before confirmation");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Discard_Pending_Transition);
+        (S, Editor.Command_Ids.Command_Discard_Pending_Transition);
 
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "clean revalidated pending close clears transition");
@@ -798,7 +798,7 @@ package body Editor.Executor.Lifecycle_Tests is
       S.File_Info.External_Change_Surfaced := False;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_Active_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_Active_Buffer);
       Assert (S.Dirty_Close_Prompt_Active,
               "dirty close must open review for failed-save dirty buffer");
       Assert (S.Dirty_Close_Prompt_Save_Failure_Count = 1,
@@ -829,29 +829,29 @@ package body Editor.Executor.Lifecycle_Tests is
       S.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_Active_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_Active_Buffer);
       Assert (S.Dirty_Close_Prompt_Active,
               "unbacked dirty close must open explicit review");
       Assert (S.Dirty_Close_Prompt_Untitled_Count = 1,
               "unbacked dirty close must classify scratch buffers");
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Confirm_Close_Save);
+        (S, Editor.Command_Ids.Command_Confirm_Close_Save);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "unbacked dirty close must not offer save-and-close without Save As");
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Confirm_Close_Discard);
+        (S, Editor.Command_Ids.Command_Confirm_Close_Discard);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "unbacked dirty close must still offer explicit discard");
 
       S.File_Info.Dirty := False;
       Editor.Buffers.Sync_Global_Active_From_State (S);
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Confirm_Close_Save);
+        (S, Editor.Command_Ids.Command_Confirm_Close_Save);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "clean scratch close confirmation must be available after revalidation");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Cancel_Close);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Cancel_Close);
       Assert (Editor.State.Has_Active_Buffer (S),
               "cancelling unbacked close must preserve scratch buffer");
       Assert (Buffer_Text (S) = "scratch dirty text",
@@ -883,11 +883,11 @@ package body Editor.Executor.Lifecycle_Tests is
       Set_Buffer_Text (S, "scratch becomes file-backed");
       S.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_Active_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_Active_Buffer);
       Assert (S.Dirty_Close_Prompt_Active,
               "path-revalidation fixture starts scratch close review");
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Confirm_Close_Save);
+        (S, Editor.Command_Ids.Command_Confirm_Close_Save);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "dirty scratch close initially hides save-and-close");
 
@@ -897,14 +897,14 @@ package body Editor.Executor.Lifecycle_Tests is
       S.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Confirm_Close_Save);
+        (S, Editor.Command_Ids.Command_Confirm_Close_Save);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "save-and-close must be exposed when target gains a path");
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert (Snap.Dirty_Close_Save_Action_Available,
               "render must expose save when close target gains a path");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Cancel_Close);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Cancel_Close);
       Editor.Buffers.Global_Set_Active_Buffer (Scratch_Id);
       Editor.Buffers.Load_Global_Active_Into_State (S);
 
@@ -913,18 +913,18 @@ package body Editor.Executor.Lifecycle_Tests is
       S.File_Info.Display_Name := To_Unbounded_String ("scratch");
       S.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_Active_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_Active_Buffer);
       Assert (S.Dirty_Close_Prompt_Active,
               "path-loss fixture restarts dirty close review");
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Confirm_Close_Save);
+        (S, Editor.Command_Ids.Command_Confirm_Close_Save);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "save-and-close must be hidden when target loses its path");
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert (not Snap.Dirty_Close_Save_Action_Available,
               "render must hide save when close target loses its path");
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Confirm_Close_Discard);
+        (S, Editor.Command_Ids.Command_Confirm_Close_Discard);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "discard remains available after live path loss");
 
@@ -954,7 +954,7 @@ package body Editor.Executor.Lifecycle_Tests is
       Set_Buffer_Text (S, "dirty render review");
       S.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_Active_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_Active_Buffer);
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert (Snap.Dirty_Close_Prompt_Visible,
@@ -970,12 +970,12 @@ package body Editor.Executor.Lifecycle_Tests is
       Assert (Length (Snap.Dirty_Close_Dirty_Buffer_Ids) > 0,
               "render snapshot must expose reviewed dirty candidate ids");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Cancel_Close);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Cancel_Close);
       Editor.Executor.File_Open_Commands.Execute_New_Buffer (S);
       Set_Buffer_Text (S, "scratch render review");
       S.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_Active_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_Active_Buffer);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
 
       Assert (Snap.Dirty_Close_Prompt_Visible,
@@ -1022,7 +1022,7 @@ package body Editor.Executor.Lifecycle_Tests is
       S.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_All_Buffers);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_All_Buffers);
       Assert (S.Dirty_Close_Prompt_Active,
               "close-all review starts from explicit dirty close prompt");
       Assert (S.Dirty_Close_Prompt_Buffer_Count = 2,
@@ -1033,20 +1033,20 @@ package body Editor.Executor.Lifecycle_Tests is
               "fixture creates a stale close-all candidate set");
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Confirm_Close_Save);
+        (S, Editor.Command_Ids.Command_Confirm_Close_Save);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "stale close-all review must not offer save-and-close");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "Close review is stale",
               "stale close-all save reports precise reason");
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Confirm_Close_Discard);
+        (S, Editor.Command_Ids.Command_Confirm_Close_Discard);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "stale close-all review must not offer discard-and-close");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "Close review is stale",
               "stale close-all discard reports precise reason");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Confirm_Close_Discard);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Confirm_Close_Discard);
       Assert (not S.Dirty_Close_Prompt_Active,
               "stale close-all confirmation clears transient review");
       Assert (Editor.Buffers.Global_Count = 3,
@@ -1082,7 +1082,7 @@ package body Editor.Executor.Lifecycle_Tests is
       S.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_All_Buffers);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_All_Buffers);
       Assert (S.Dirty_Close_Prompt_Active,
               "close-all replacement fixture starts explicit review");
       Assert (S.Dirty_Close_Prompt_Buffer_Count = 2,
@@ -1100,13 +1100,13 @@ package body Editor.Executor.Lifecycle_Tests is
               "replacement fixture preserves all-buffer count");
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Confirm_Close_Discard);
+        (S, Editor.Command_Ids.Command_Confirm_Close_Discard);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "same-count replacement must not offer discard-and-close");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "Close review is stale",
               "same-count replacement reports stale close review");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Confirm_Close_Discard);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Confirm_Close_Discard);
       Assert (not S.Dirty_Close_Prompt_Active,
               "same-count replacement clears stale review");
       Assert (Editor.Buffers.Global_Count = 2,
@@ -1141,7 +1141,7 @@ package body Editor.Executor.Lifecycle_Tests is
       S.File_Info.Dirty := False;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_All_Buffers);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_All_Buffers);
       Assert (S.Dirty_Close_Prompt_Active,
               "newly-dirty fixture starts explicit close-all review");
       Assert (S.Dirty_Close_Prompt_Dirty_Count = 1,
@@ -1158,20 +1158,20 @@ package body Editor.Executor.Lifecycle_Tests is
               "newly-dirty fixture preserves all-buffer count");
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Confirm_Close_Discard);
+        (S, Editor.Command_Ids.Command_Confirm_Close_Discard);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "newly dirty buffer must stale discard-and-close review");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "Close review is stale",
               "newly dirty buffer reports stale close review");
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Confirm_Close_Save);
+        (S, Editor.Command_Ids.Command_Confirm_Close_Save);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "newly dirty buffer must stale save-and-close review");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "Close review is stale",
               "newly dirty save reports stale close review");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Confirm_Close_Discard);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Confirm_Close_Discard);
       Assert (not S.Dirty_Close_Prompt_Active,
               "newly dirty stale review clears after confirmation attempt");
       Assert (Editor.Buffers.Global_Count = 2,
@@ -1209,7 +1209,7 @@ package body Editor.Executor.Lifecycle_Tests is
       S.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_All_Buffers);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_All_Buffers);
       Assert (S.Dirty_Close_Prompt_Active,
               "cleaned-all fixture starts explicit close-all review");
       Assert (S.Dirty_Close_Prompt_Dirty_Count = 2,
@@ -1226,7 +1226,7 @@ package body Editor.Executor.Lifecycle_Tests is
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Confirm_Close_Save);
+        (S, Editor.Command_Ids.Command_Confirm_Close_Save);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "all-clean reviewed set must still offer save-and-close as close confirmation");
 
@@ -1234,7 +1234,7 @@ package body Editor.Executor.Lifecycle_Tests is
       Assert (Snap.Dirty_Close_Save_Action_Available,
               "render snapshot must expose save action for all-clean reviewed set");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Confirm_Close_Save);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Confirm_Close_Save);
       Assert (not S.Dirty_Close_Prompt_Active,
               "all-clean reviewed set clears prompt after close confirmation");
       Assert (Editor.Buffers.Global_Count = 0,
@@ -1272,7 +1272,7 @@ package body Editor.Executor.Lifecycle_Tests is
       S.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_All_Buffers);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_All_Buffers);
       Assert (S.Dirty_Close_Prompt_Active,
               "cleaned-all discard fixture starts explicit close-all review");
 
@@ -1287,7 +1287,7 @@ package body Editor.Executor.Lifecycle_Tests is
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Confirm_Close_Discard);
+        (S, Editor.Command_Ids.Command_Confirm_Close_Discard);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "all-clean reviewed set must still offer discard as close confirmation");
 
@@ -1295,7 +1295,7 @@ package body Editor.Executor.Lifecycle_Tests is
       Assert (Snap.Dirty_Close_Discard_Action_Available,
               "render snapshot must expose discard action for all-clean reviewed set");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Confirm_Close_Discard);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Confirm_Close_Discard);
       Assert (not S.Dirty_Close_Prompt_Active,
               "all-clean discard reviewed set clears prompt after close confirmation");
       Assert (Editor.Buffers.Global_Count = 0,
@@ -1331,7 +1331,7 @@ package body Editor.Executor.Lifecycle_Tests is
       S.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_All_Buffers);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_All_Buffers);
       Assert (S.Dirty_Close_Prompt_Active,
               "subset-dirty fixture starts explicit close-all review");
       Assert (S.Dirty_Close_Prompt_Dirty_Count = 2,
@@ -1343,7 +1343,7 @@ package body Editor.Executor.Lifecycle_Tests is
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Confirm_Close_Discard);
+        (S, Editor.Command_Ids.Command_Confirm_Close_Discard);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "reviewed dirty subset must still offer discard confirmation");
 
@@ -1351,7 +1351,7 @@ package body Editor.Executor.Lifecycle_Tests is
       Assert (Snap.Dirty_Close_Discard_Action_Available,
               "render must expose discard when remaining dirty buffers were reviewed");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Confirm_Close_Discard);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Confirm_Close_Discard);
       Assert (not S.Dirty_Close_Prompt_Active,
               "reviewed dirty subset clears prompt after discard confirmation");
       Assert (Editor.Buffers.Global_Count = 0,
@@ -1387,7 +1387,7 @@ package body Editor.Executor.Lifecycle_Tests is
       S.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_All_Buffers);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_All_Buffers);
       Assert (S.Dirty_Close_Prompt_Active,
               "scratch subset fixture starts explicit close-all review");
       Assert (S.Dirty_Close_Prompt_Untitled_Count = 2,
@@ -1399,7 +1399,7 @@ package body Editor.Executor.Lifecycle_Tests is
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Confirm_Close_Save);
+        (S, Editor.Command_Ids.Command_Confirm_Close_Save);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "reviewed scratch subset must not offer save-and-close");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) =
@@ -1407,7 +1407,7 @@ package body Editor.Executor.Lifecycle_Tests is
               "reviewed scratch subset reports Save As requirement");
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Confirm_Close_Discard);
+        (S, Editor.Command_Ids.Command_Confirm_Close_Discard);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "reviewed scratch subset must still offer explicit discard");
 
@@ -1417,7 +1417,7 @@ package body Editor.Executor.Lifecycle_Tests is
       Assert (Snap.Dirty_Close_Discard_Action_Available,
               "render must keep discard for reviewed scratch subset");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Confirm_Close_Discard);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Confirm_Close_Discard);
       Assert (not S.Dirty_Close_Prompt_Active,
               "reviewed scratch subset clears prompt after discard confirmation");
       Assert (Editor.Buffers.Global_Count = 0,
@@ -1454,7 +1454,7 @@ package body Editor.Executor.Lifecycle_Tests is
       S.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_All_Buffers);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_All_Buffers);
 
       Assert (S.Dirty_Close_Prompt_Active,
               "close-all dirty review should remain active");
@@ -1501,11 +1501,11 @@ package body Editor.Executor.Lifecycle_Tests is
       S.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_All_Buffers);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_All_Buffers);
       Assert (S.Dirty_Close_Prompt_Active,
               "mixed close-all fixture starts explicit review");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Confirm_Close_Save);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Confirm_Close_Save);
 
       Assert (not Editor.Buffers.Global_Contains (File_Id),
               "partial close-all save should close saved file-backed buffers");
@@ -1522,11 +1522,11 @@ package body Editor.Executor.Lifecycle_Tests is
               "rebuilt close-all review should retain the save failure summary");
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Confirm_Close_Discard);
+        (S, Editor.Command_Ids.Command_Confirm_Close_Discard);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "rebuilt close-all review must still allow explicit discard of remaining dirty buffers");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Confirm_Close_Discard);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Confirm_Close_Discard);
       Assert (not S.Dirty_Close_Prompt_Active,
               "discard after rebuilt review clears the close prompt");
       Assert (Editor.Buffers.Global_Count = 0,
@@ -1658,47 +1658,47 @@ package body Editor.Executor.Lifecycle_Tests is
    begin
       Assert
         (Editor.Commands.Descriptors.Descriptor
-           (Editor.Commands.Command_Close_Other_Buffers).Visibility =
+           (Editor.Command_Ids.Command_Close_Other_Buffers).Visibility =
          Editor.Commands.Descriptors.Palette_Command,
          "close-others must remain discoverable with dirty review guards");
       Assert
         (Editor.Commands.Descriptors.Descriptor
-           (Editor.Commands.Command_Close_All_Clean_Buffers).Visibility =
+           (Editor.Command_Ids.Command_Close_All_Clean_Buffers).Visibility =
          Editor.Commands.Descriptors.Palette_Command,
          "close-clean must be discoverable as a safe no-discard workflow");
       Assert
         (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
-           ("file.close-other-buffers", Found) = Editor.Commands.Command_Close_Other_Buffers
+           ("file.close-other-buffers", Found) = Editor.Command_Ids.Command_Close_Other_Buffers
          and then Found,
          "close-others canonical stable name must resolve");
       Found := False;
       Assert
         (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
-           ("file.close-clean-buffers", Found) = Editor.Commands.Command_Close_All_Clean_Buffers
+           ("file.close-clean-buffers", Found) = Editor.Command_Ids.Command_Close_All_Clean_Buffers
          and then Found,
          "close-clean canonical stable name must resolve");
       Found := False;
       Assert
         (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
-           ("buffer.close-active", Found) = Editor.Commands.Command_Close_Active_Buffer
+           ("buffer.close-active", Found) = Editor.Command_Ids.Command_Close_Active_Buffer
          and then Found,
          "expected buffer.close-active alias must resolve without payload");
       Found := False;
       Assert
         (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
-           ("buffer.close-selected", Found) = Editor.Commands.Command_Buffer_Switcher_Selected_Close
+           ("buffer.close-selected", Found) = Editor.Command_Ids.Command_Buffer_Switcher_Selected_Close
          and then Found,
          "expected buffer.close-selected alias must resolve without payload");
       Found := False;
       Assert
         (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
-           ("buffer.close-all", Found) = Editor.Commands.Command_Close_All_Buffers
+           ("buffer.close-all", Found) = Editor.Command_Ids.Command_Close_All_Buffers
          and then Found,
          "expected buffer.close-all alias must resolve without payload");
       Found := False;
       Assert
         (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
-           ("buffer.close-clean", Found) = Editor.Commands.Command_Close_All_Clean_Buffers
+           ("buffer.close-clean", Found) = Editor.Command_Ids.Command_Close_All_Clean_Buffers
          and then Found,
          "expected buffer.close-clean alias must resolve without payload");
    end Test_Cleanup_Command_Descriptors;

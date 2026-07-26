@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
@@ -13,7 +14,6 @@ with Editor.Executor;
 with Editor.Executor.Navigation_Commands;
 with Editor.Executor.Command_Surface_Commands;
 with Editor.Executor.Quick_Open_Commands;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.Navigation;
 with Editor.Navigation_History;
@@ -28,7 +28,7 @@ with Editor.Buffer_Switcher;
 
 use type Editor.Go_To_Line.Go_To_Line_Validation_Status;
 use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
-use type Editor.Commands.Command_Id;
+use type Editor.Command_Ids.Command_Id;
 use type Editor.Commands.Descriptors.Command_Category;
 use type Editor.Commands.Descriptors.Command_Visibility;
 use type Editor.Project_Search.Project_Search_Status;
@@ -57,19 +57,19 @@ package body Editor.Go_To_Line.Tests is
       pragma Unreferenced (T);
       S      : Editor.State.State_Type;
       D      : constant Editor.Commands.Descriptors.Command_Descriptor :=
-        Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Goto_Line);
+        Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Goto_Line);
       Found  : Boolean := False;
-      Resolved : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Resolved : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Avail  : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Goto_Line) = "navigation.goto-line.show",
+           (Editor.Command_Ids.Command_Goto_Line) = "navigation.goto-line.show",
          "go-to-line show command must have the stable persisted name");
       Resolved := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("navigation.goto-line.show", Found);
       Assert
-        (Resolved = Editor.Commands.Command_Goto_Line and then Found,
+        (Resolved = Editor.Command_Ids.Command_Goto_Line and then Found,
          "stable go-to-line command name must resolve back to the command id");
       Assert
         (D.Category = Editor.Commands.Descriptors.Navigation_Category
@@ -78,62 +78,62 @@ package body Editor.Go_To_Line.Tests is
          "go-to-line descriptor must be a bindable visible Navigation command");
       Assert
         (Editor.Commands.Audits.Descriptor_Is_Complete
-           (Editor.Commands.Command_Goto_Line),
+           (Editor.Command_Ids.Command_Goto_Line),
          "go-to-line descriptor metadata must be complete");
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Goto_Line_Toggle) =
+           (Editor.Command_Ids.Command_Goto_Line_Toggle) =
          "navigation.goto-line.toggle",
          "go-to-line toggle must have a stable prompt-command name");
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Goto_Line_Prefill_Current) =
+           (Editor.Command_Ids.Command_Goto_Line_Prefill_Current) =
          "navigation.goto-line.prefill-current",
          "go-to-line prefill-current must have a stable prompt-command name");
       Resolved := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("navigation.goto-line.prefill-current", Found);
       Assert
-        (Resolved = Editor.Commands.Command_Goto_Line_Prefill_Current and then Found,
+        (Resolved = Editor.Command_Ids.Command_Goto_Line_Prefill_Current and then Found,
          "stable prefill-current command name must resolve back to the command id");
       Assert
-        (Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Goto_Line_Prefill_Current).Category
+        (Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Goto_Line_Prefill_Current).Category
            = Editor.Commands.Descriptors.Navigation_Category
          and then Editor.Commands.Descriptors.Descriptor
-           (Editor.Commands.Command_Goto_Line_Prefill_Current).Visibility
+           (Editor.Command_Ids.Command_Goto_Line_Prefill_Current).Visibility
            = Editor.Commands.Descriptors.Palette_Command
          and then Editor.Commands.Descriptors.Descriptor
-           (Editor.Commands.Command_Goto_Line_Prefill_Current).Bindable,
+           (Editor.Command_Ids.Command_Goto_Line_Prefill_Current).Bindable,
          "prefill-current descriptor must be a bindable visible Navigation command");
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Goto_Line_Query_Set) =
+           (Editor.Command_Ids.Command_Goto_Line_Query_Set) =
          "navigation.goto-line.query.set",
          "go-to-line query set must have a stable prompt-command name");
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Goto_Line_Query_Clear) =
+           (Editor.Command_Ids.Command_Goto_Line_Query_Clear) =
          "navigation.goto-line.query.clear",
          "go-to-line query clear must have a stable prompt-command name");
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Accept_Goto_Line) =
+           (Editor.Command_Ids.Command_Accept_Goto_Line) =
          "navigation.goto-line.accept",
          "go-to-line accept must have a stable context-command name");
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Close_Goto_Line) =
+           (Editor.Command_Ids.Command_Close_Goto_Line) =
          "navigation.goto-line.hide",
          "go-to-line hide must have a stable context-command name");
 
       Editor.State.Init (S);
       Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Goto_Line_Prefill_Current);
+        (S, Editor.Command_Ids.Command_Goto_Line_Prefill_Current);
       Assert
         (Avail.Status = Editor.Commands.Availability_Metadata.Command_Unavailable
          and then Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) = "No active buffer.",
          "prefill-current availability must require an active buffer without mutating state");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Goto_Line_Prefill_Current);
+        (S, Editor.Command_Ids.Command_Goto_Line_Prefill_Current);
       Assert
         ((not Editor.Go_To_Line.Is_Open (S.Go_To_Line))
          and then Active_Message_Text (S) = "No active buffer.",
@@ -141,7 +141,7 @@ package body Editor.Go_To_Line.Tests is
       Editor.Go_To_Line.Open (S.Go_To_Line);
       Editor.Go_To_Line.Set_Text (S.Go_To_Line, "9");
       Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Goto_Line);
+        (S, Editor.Command_Ids.Command_Goto_Line);
       Assert
         (Avail.Status = Editor.Commands.Availability_Metadata.Command_Available,
          "go-to-line show availability must not require an active buffer");
@@ -153,29 +153,29 @@ package body Editor.Go_To_Line.Tests is
       Editor.State.Load_Text (S, "one" & ASCII.LF & "two");
       S.Carets.Clear;
       Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Goto_Line_Prefill_Current);
+        (S, Editor.Command_Ids.Command_Goto_Line_Prefill_Current);
       Assert
         (Avail.Status = Editor.Commands.Availability_Metadata.Command_Unavailable
          and then Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) = "No current caret location",
          "prefill-current availability must reject an active buffer without a current caret location");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Goto_Line_Prefill_Current);
+        (S, Editor.Command_Ids.Command_Goto_Line_Prefill_Current);
       Assert
         (Active_Message_Text (S) = "No current caret location",
          "prefill-current without a caret must report a deterministic no-op");
       Editor.State.Load_Text (S, "one" & ASCII.LF & "two");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Goto_Line);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Goto_Line);
       Assert (Editor.Go_To_Line.Is_Open (S.Go_To_Line),
               "go-to-line command execution must open the prompt for active buffers");
       Editor.Go_To_Line.Set_Text (S.Go_To_Line, "   ");
       Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Accept_Goto_Line);
+        (S, Editor.Command_Ids.Command_Accept_Goto_Line);
       Assert
         (Avail.Status = Editor.Commands.Availability_Metadata.Command_Available,
          "go-to-line accept availability must let the Executor handler report empty prompt failures");
       Editor.Go_To_Line.Set_Text (S.Go_To_Line, "2");
       Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Accept_Goto_Line);
+        (S, Editor.Command_Ids.Command_Accept_Goto_Line);
       Assert
         (Avail.Status = Editor.Commands.Availability_Metadata.Command_Available,
          "go-to-line accept availability must allow non-empty prompt input");
@@ -329,10 +329,10 @@ package body Editor.Go_To_Line.Tests is
               and then not Editor.Go_To_Line.Has_Error (S.Go_To_Line),
               "successful accept must hide the prompt and clear transient query/error state");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Navigation_Back);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Back);
       Assert_Caret (S, 0, 0,
                     "navigation back after go-to-line must restore the previous same-buffer line");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Navigation_Forward);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Forward);
       Assert_Caret (S, 2, 1,
                     "navigation forward after go-to-line must restore the goto target");
    end Test_Accept_Moves_Caret_And_Records_History;
@@ -383,7 +383,7 @@ package body Editor.Go_To_Line.Tests is
       Editor.Executor.Navigation_Commands.Execute_Accept_Goto_Line (S);
       Assert_Caret (S, 2, 0, "setup must place caret at line 3");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Navigation_Back);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Back);
       Assert_Caret (S, 1, 0, "navigation back must restore line 2");
       Assert (Editor.Navigation_History.Forward_Count (S.Navigation_History) = 1,
               "back must create a forward history entry before branch navigation");
@@ -407,7 +407,7 @@ package body Editor.Go_To_Line.Tests is
    begin
       Editor.State.Init (S);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Goto_Line);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Goto_Line);
       Assert (Editor.Go_To_Line.Is_Open (S.Go_To_Line),
               "show must make the go-to-line prompt visible without an active buffer");
 
@@ -416,19 +416,19 @@ package body Editor.Go_To_Line.Tests is
               "query.set must replace the prompt query through Executor");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Goto_Line_Query_Clear);
+        (S, Editor.Command_Ids.Command_Goto_Line_Query_Clear);
       Assert (Editor.Go_To_Line.Text (S.Go_To_Line) = "",
               "query.clear must clear the prompt query through Executor");
 
       Editor.Go_To_Line.Set_Text (S.Go_To_Line, "9");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Goto_Line_Toggle);
+        (S, Editor.Command_Ids.Command_Goto_Line_Toggle);
       Assert ((not Editor.Go_To_Line.Is_Open (S.Go_To_Line))
               and then Editor.Go_To_Line.Text (S.Go_To_Line) = "",
               "toggle-hide must hide and clear transient go-to-line query state");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Goto_Line_Toggle);
+        (S, Editor.Command_Ids.Command_Goto_Line_Toggle);
       Assert (Editor.Go_To_Line.Is_Open (S.Go_To_Line),
               "toggle-show must reopen the transient go-to-line prompt");
 
@@ -468,7 +468,7 @@ package body Editor.Go_To_Line.Tests is
       Editor.Go_To_Line.Set_Text (S.Go_To_Line, "999");
       Editor.Go_To_Line.Set_Error (S.Go_To_Line, "stale error");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Goto_Line_Prefill_Current);
+        (S, Editor.Command_Ids.Command_Goto_Line_Prefill_Current);
 
       Assert (Editor.Go_To_Line.Is_Open (S.Go_To_Line)
               and then Editor.Go_To_Line.Text (S.Go_To_Line) = "2"
@@ -497,7 +497,7 @@ package body Editor.Go_To_Line.Tests is
 
       Editor.Go_To_Line.Set_Error (S.Go_To_Line, "stale error");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Goto_Line_Query_Clear);
+        (S, Editor.Command_Ids.Command_Goto_Line_Query_Clear);
       Assert (Editor.Go_To_Line.Text (S.Go_To_Line) = ""
               and then not Editor.Go_To_Line.Has_Error (S.Go_To_Line),
               "query.clear must clear stale go-to-line errors");
@@ -505,17 +505,17 @@ package body Editor.Go_To_Line.Tests is
       Editor.Go_To_Line.Set_Error (S.Go_To_Line, "stale error");
       Assert
         (Editor.Executor.Command_Availability
-           (S, Editor.Commands.Command_Goto_Line_Query_Clear).Status
+           (S, Editor.Command_Ids.Command_Goto_Line_Query_Clear).Status
          = Editor.Commands.Availability_Metadata.Command_Available,
          "query.clear must remain available for an empty query when it can clear a stale error");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Goto_Line_Query_Clear);
+        (S, Editor.Command_Ids.Command_Goto_Line_Query_Clear);
       Assert ((not Editor.Go_To_Line.Has_Error (S.Go_To_Line))
               and then Editor.Go_To_Line.Text (S.Go_To_Line) = "",
               "query.clear must clear an empty-query stale error through the command path");
 
       Editor.Go_To_Line.Set_Error (S.Go_To_Line, "stale error");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Goto_Line);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Goto_Line);
       Assert (Editor.Go_To_Line.Is_Open (S.Go_To_Line)
               and then Editor.Go_To_Line.Text (S.Go_To_Line) = ""
               and then not Editor.Go_To_Line.Has_Error (S.Go_To_Line),
@@ -537,23 +537,23 @@ package body Editor.Go_To_Line.Tests is
       Editor.Go_To_Line.Open (S.Go_To_Line);
       Editor.Go_To_Line.Set_Text (S.Go_To_Line, "3");
       Editor.Executor.Navigation_Commands.Execute_Accept_Goto_Line (S);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Navigation_Back);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Back);
       Assert_Caret (S, 0, 0, "setup must navigate back to line 1");
       Assert (Editor.Navigation_History.Forward_Count (S.Navigation_History) = 1,
               "setup must leave a forward history entry");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Goto_Line_Prefill_Current);
+        (S, Editor.Command_Ids.Command_Goto_Line_Prefill_Current);
       Assert (Editor.Navigation_History.Forward_Count (S.Navigation_History) = 1,
               "prefill-current after back must preserve the forward stack");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Navigation_Forward);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Forward);
       Assert_Caret (S, 2, 0,
                     "forward must still navigate after prefill-current");
 
       Editor.Input_Bridge.Reset;
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Execute_Command_Id
-        (Editor.Commands.Command_Goto_Line_Prefill_Current);
+        (Editor.Command_Ids.Command_Goto_Line_Prefill_Current);
       Editor.Input_Bridge.Get_Render_Snapshot (Snap);
       Assert (Snap.Goto_Line_Visible
               and then Ada.Strings.Unbounded.To_String (Snap.Goto_Line_Query) = "3",
@@ -569,8 +569,8 @@ package body Editor.Go_To_Line.Tests is
    begin
       Editor.State.Init (S);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Goto_Line);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Accept_Goto_Line);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Goto_Line);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Accept_Goto_Line);
       Assert (Editor.Go_To_Line.Is_Open (S.Go_To_Line),
               "empty accept must keep the go-to-line prompt visible");
       Assert (Editor.Go_To_Line.Text (S.Go_To_Line) = "",
@@ -618,7 +618,7 @@ package body Editor.Go_To_Line.Tests is
       Editor.Go_To_Line.Open (S.Go_To_Line);
       Editor.Go_To_Line.Set_Text (S.Go_To_Line, "3");
       Editor.Executor.Navigation_Commands.Execute_Accept_Goto_Line (S);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Navigation_Back);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Back);
       Assert_Caret (S, 0, 0, "setup back must restore the original line");
       Assert (Editor.Navigation_History.Forward_Count (S.Navigation_History) = 1,
               "setup back must leave one forward location");
@@ -634,7 +634,7 @@ package body Editor.Go_To_Line.Tests is
       Assert_Caret (S, 0, 0,
                     "failed prompt accept after back must not move the caret");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Navigation_Forward);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Forward);
       Assert_Caret (S, 2, 0,
                     "forward must still navigate after failed go-to-line accept");
    end Test_Failed_Accept_Preserves_Forward_History;
@@ -654,7 +654,7 @@ package body Editor.Go_To_Line.Tests is
       Editor.Input_Bridge.Reset;
       Editor.Input_Bridge.Set_State_For_Test (S);
 
-      Editor.Input_Bridge.Execute_Command_Id (Editor.Commands.Command_Goto_Line);
+      Editor.Input_Bridge.Execute_Command_Id (Editor.Command_Ids.Command_Goto_Line);
       declare
          Query : constant String := "3";
       begin
@@ -683,7 +683,7 @@ package body Editor.Go_To_Line.Tests is
       Assert (Snap.Caret_Count > 0 and then Natural (Snap.Caret_Pos (1)) > 0,
               "Enter routed through Input_Bridge must perform the go-to-line caret movement");
 
-      Editor.Input_Bridge.Execute_Command_Id (Editor.Commands.Command_Goto_Line);
+      Editor.Input_Bridge.Execute_Command_Id (Editor.Command_Ids.Command_Goto_Line);
       Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Ch := '9';
       Cmd.Text := To_Unbounded_String (String'(1 => '9'));
@@ -720,7 +720,7 @@ package body Editor.Go_To_Line.Tests is
         (S.Buffer_Switcher, "switch-query");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Goto_Line_Prefill_Current);
+        (S, Editor.Command_Ids.Command_Goto_Line_Prefill_Current);
 
       Assert (Editor.Go_To_Line.Text (S.Go_To_Line) = "1",
               "prefill-current must use the active caret line even when other surfaces have state");
@@ -748,7 +748,7 @@ package body Editor.Go_To_Line.Tests is
       Editor.State.Load_Text (S, "one" & ASCII.LF & "two");
       Editor.State.Set_Dirty (S, True);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Goto_Line);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Goto_Line);
       Editor.Executor.Navigation_Commands.Execute_Goto_Line_Set_Query (S, "2");
       Assert (Editor.State.Is_Dirty (S),
               "showing and editing the go-to-line prompt must not clean or save a dirty buffer");

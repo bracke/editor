@@ -1,8 +1,8 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Editor.Ada_Language_Service;
 with Editor.Command_Execution;
-with Editor.Commands;
 with Editor.Executor;
 with Editor.Executor.Outline_Commands;
 with Editor.Executor.Semantic_Completion_Commands;
@@ -16,7 +16,7 @@ package body Editor.Executor.Semantic_Commands is
 
    use Editor.Commands;
    use type Editor.Ada_Language_Service.Service_Status;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
 
    function Is_Ada_Source_Path
      (Path : String) return Boolean
@@ -86,43 +86,43 @@ package body Editor.Executor.Semantic_Commands is
 
    function Semantic_Command_Availability
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin
       case Id is
-         when Editor.Commands.Command_Refresh_Outline_Project_Index
-            | Editor.Commands.Command_Semantic_Refresh_Buffer
-            | Editor.Commands.Command_Semantic_Refresh_Project_Index
-            | Editor.Commands.Command_Language_Index_Clear
-            | Editor.Commands.Command_Language_Index_Status =>
+         when Editor.Command_Ids.Command_Refresh_Outline_Project_Index
+            | Editor.Command_Ids.Command_Semantic_Refresh_Buffer
+            | Editor.Command_Ids.Command_Semantic_Refresh_Project_Index
+            | Editor.Command_Ids.Command_Language_Index_Clear
+            | Editor.Command_Ids.Command_Language_Index_Status =>
             return Editor.Executor.Semantic_Index_Commands
               .Semantic_Index_Command_Availability (S, Id);
 
-         when Editor.Commands.Command_Goto_Declaration =>
+         when Editor.Command_Ids.Command_Goto_Declaration =>
             return Editor.Executor.Semantic_Navigation_Commands
               .Semantic_Navigation_Command_Availability
                 (S, Id, To_Navigation_Symbol (Current_Semantic_Symbol (S)));
 
-         when Editor.Commands.Command_Goto_Body
-            | Editor.Commands.Command_Goto_Spec =>
+         when Editor.Command_Ids.Command_Goto_Body
+            | Editor.Command_Ids.Command_Goto_Spec =>
             return Editor.Executor.Semantic_Navigation_Commands
               .Semantic_Navigation_Command_Availability
                 (S, Id, To_Navigation_Symbol (Current_Semantic_Symbol (S)));
 
-         when Editor.Commands.Command_Find_References
-            | Editor.Commands.Command_Workspace_Symbols
-            | Editor.Commands.Command_Show_Hover
-            | Editor.Commands.Command_Show_Completions
-            | Editor.Commands.Command_Rename_Symbol_Preview
-            | Editor.Commands.Command_Rename_Symbol_Apply =>
+         when Editor.Command_Ids.Command_Find_References
+            | Editor.Command_Ids.Command_Workspace_Symbols
+            | Editor.Command_Ids.Command_Show_Hover
+            | Editor.Command_Ids.Command_Show_Completions
+            | Editor.Command_Ids.Command_Rename_Symbol_Preview
+            | Editor.Command_Ids.Command_Rename_Symbol_Apply =>
             return Editor.Executor.Semantic_Language_Command_Surface
               .Selected_Language_Command_Availability (S, Id);
 
-         when Editor.Commands.Command_Semantic_Completion_Select_Next
-            | Editor.Commands.Command_Semantic_Completion_Select_Previous
-            | Editor.Commands.Command_Semantic_Completion_Accept
-            | Editor.Commands.Command_Semantic_Popup_Dismiss =>
+         when Editor.Command_Ids.Command_Semantic_Completion_Select_Next
+            | Editor.Command_Ids.Command_Semantic_Completion_Select_Previous
+            | Editor.Command_Ids.Command_Semantic_Completion_Accept
+            | Editor.Command_Ids.Command_Semantic_Popup_Dismiss =>
             return Editor.Executor.Semantic_Completion_Commands
               .Semantic_Completion_Command_Availability (S, Id);
 
@@ -134,46 +134,46 @@ package body Editor.Executor.Semantic_Commands is
 
    function Execute_Semantic_Command
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id;
+      Id : Editor.Command_Ids.Command_Id;
       Cmd : Editor.Commands.Payloads.Command)
       return Editor.Command_Execution.Command_Execution_Result
    is
       function Result_After_Command
-        (Command : Editor.Commands.Command_Id)
+        (Command : Editor.Command_Ids.Command_Id)
          return Editor.Command_Execution.Command_Execution_Result is
       begin
          return Editor.Command_Execution.Executed (Command);
       end Result_After_Command;
    begin
       case Id is
-         when Editor.Commands.Command_Refresh_Outline_Project_Index
-            | Editor.Commands.Command_Semantic_Refresh_Buffer
-            | Editor.Commands.Command_Semantic_Refresh_Project_Index
-            | Editor.Commands.Command_Language_Index_Clear
-            | Editor.Commands.Command_Language_Index_Status =>
+         when Editor.Command_Ids.Command_Refresh_Outline_Project_Index
+            | Editor.Command_Ids.Command_Semantic_Refresh_Buffer
+            | Editor.Command_Ids.Command_Semantic_Refresh_Project_Index
+            | Editor.Command_Ids.Command_Language_Index_Clear
+            | Editor.Command_Ids.Command_Language_Index_Status =>
             return Editor.Executor.Semantic_Index_Commands
               .Execute_Semantic_Index_Command (S, Id);
 
-         when Editor.Commands.Command_Goto_Declaration =>
+         when Editor.Command_Ids.Command_Goto_Declaration =>
             return Editor.Executor.Semantic_Navigation_Commands
               .Execute_Semantic_Navigation_Command
                 (S, Id, To_Navigation_Symbol (Current_Semantic_Symbol (S)));
 
-         when Editor.Commands.Command_Goto_Body
-            | Editor.Commands.Command_Goto_Spec =>
+         when Editor.Command_Ids.Command_Goto_Body
+            | Editor.Command_Ids.Command_Goto_Spec =>
             return Editor.Executor.Semantic_Navigation_Commands
               .Execute_Semantic_Navigation_Command
                 (S, Id, To_Navigation_Symbol (Current_Semantic_Symbol (S)));
 
-         when Editor.Commands.Command_Find_References
-            | Editor.Commands.Command_Workspace_Symbols
-            | Editor.Commands.Command_Show_Hover
-            | Editor.Commands.Command_Show_Completions =>
+         when Editor.Command_Ids.Command_Find_References
+            | Editor.Command_Ids.Command_Workspace_Symbols
+            | Editor.Command_Ids.Command_Show_Hover
+            | Editor.Command_Ids.Command_Show_Completions =>
             return Editor.Executor.Semantic_Language_Command_Surface
               .Execute_Selected_Language_Command (S, Id);
 
-         when Editor.Commands.Command_Rename_Symbol_Preview
-            | Editor.Commands.Command_Rename_Symbol_Apply =>
+         when Editor.Command_Ids.Command_Rename_Symbol_Preview
+            | Editor.Command_Ids.Command_Rename_Symbol_Apply =>
             return Editor.Executor.Semantic_Language_Command_Surface
               .Execute_Selected_Language_Command
                 (S, Id, To_String (Cmd.Text));

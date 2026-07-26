@@ -1,9 +1,9 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Strings.Unbounded;
 with Editor.Buffer_Switcher;
 with Editor.Buffer_Switcher.Rows;
 with Editor.Command_Palette;
-with Editor.Commands;
 
 
 package Editor.Command_Route_Audit is
@@ -53,14 +53,14 @@ package Editor.Command_Route_Audit is
    procedure Record_Route
      (Result  : in out Route_Audit_Result;
       Source  : Route_Source;
-      Command : Editor.Commands.Command_Id);
+      Command : Editor.Command_Ids.Command_Id);
 
    --  command-palette route assertion: palette execution must route
    --  by stable command id, through the Executor, and with no selected-row
    --  payload. This only records observations on the local audit object.
    procedure Record_Command_Palette_Route
      (Result                   : in out Route_Audit_Result;
-      Command                  : Editor.Commands.Command_Id;
+      Command                  : Editor.Command_Ids.Command_Id;
       Routed_Through_Executor  : Boolean;
       Used_Stable_Command_Name : Boolean;
       Carried_Payload          : Boolean);
@@ -71,7 +71,7 @@ package Editor.Command_Route_Audit is
    --  or build-candidate payloads as command-route data.
    procedure Record_Keybinding_Management_Route
      (Result                   : in out Route_Audit_Result;
-      Command                  : Editor.Commands.Command_Id;
+      Command                  : Editor.Command_Ids.Command_Id;
       Routed_Through_Executor  : Boolean;
       Used_Stable_Command_Name : Boolean;
       Carried_Payload          : Boolean);
@@ -81,7 +81,7 @@ package Editor.Command_Route_Audit is
    --  after availability has been observed, and without target/payload data.
    procedure Record_Suggested_Action_Route
      (Result                               : in out Route_Audit_Result;
-      Command                              : Editor.Commands.Command_Id;
+      Command                              : Editor.Command_Ids.Command_Id;
       Routed_Through_Executor              : Boolean;
       Used_Stable_Command_Name             : Boolean;
       Availability_Checked                 : Boolean;
@@ -95,7 +95,7 @@ package Editor.Command_Route_Audit is
    procedure Record_Buffer_Workflow_Route
      (Result                  : in out Route_Audit_Result;
       Source                  : Route_Source;
-      Command                 : Editor.Commands.Command_Id;
+      Command                 : Editor.Command_Ids.Command_Id;
       Routed_Through_Executor : Boolean;
       Availability_Checked    : Boolean;
       Carried_Buffer_Payload  : Boolean);
@@ -107,7 +107,7 @@ package Editor.Command_Route_Audit is
    procedure Record_Command_UI_Route
      (Result                   : in out Route_Audit_Result;
       Source                   : Route_Source;
-      Command                  : Editor.Commands.Command_Id;
+      Command                  : Editor.Command_Ids.Command_Id;
       Dispatch_Count           : Natural;
       Routed_Through_Executor  : Boolean;
       Used_Stable_Command_Name : Boolean;
@@ -192,8 +192,8 @@ package Editor.Command_Route_Audit is
      (Result   : in out Route_Audit_Result;
       Source   : Route_Source;
       Kind     : Route_Audit_Failure_Kind;
-      Expected : Editor.Commands.Command_Id := Editor.Commands.No_Command;
-      Actual   : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Expected : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
+      Actual   : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Message  : String := "");
 
    --  Return the latest typed/actionable failure message, if any.
@@ -222,8 +222,8 @@ private
       Failures     : Natural := 0;
       Last_Source  : Route_Source := Route_From_Test;
       Last_Kind    : Route_Audit_Failure_Kind := Route_Custom_Failure;
-      Last_Expected : Editor.Commands.Command_Id := Editor.Commands.No_Command;
-      Last_Actual   : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Last_Expected : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
+      Last_Actual   : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Last_Message  : Unbounded_String := Null_Unbounded_String;
       Failure_Log   : Unbounded_String := Null_Unbounded_String;
    end record;

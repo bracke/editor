@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 package Editor.Commands.Workflow_Messages is
 
    Reason_Target_Stale : constant String :=

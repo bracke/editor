@@ -1,3 +1,5 @@
+with Editor.Command_Kinds;
+with Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
@@ -9,7 +11,6 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Text_IO;
 with Editor.Clipboard;
 with Editor.Command_Palette;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.Buffers;
 with Editor.Cursors; use Editor.Cursors;
@@ -35,11 +36,11 @@ with Text_Buffer;
 package body Editor.Line_Edit.Text_Delete_Word_Tests is
 
    use type Editor.Keybinding_Config.Keybinding_Config_Status;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
-   use type Editor.Commands.Command_Kind;
+   use type Editor.Command_Kinds.Command_Kind;
    use type Editor.Keybindings.Keybinding_Validation_Status;
    use type Editor.Buffers.Buffer_Id;
    use type Editor.Keybindings.Binding_Result;
@@ -262,12 +263,12 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
 
       if Direction = Word_Delete_Test_Previous then
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Word_Delete_Previous);
+           (S, Editor.Command_Ids.Command_Word_Delete_Previous);
          Assert (Message_Text (S) = "Deleted previous word",
                  Why & ": delete-previous message mismatch");
       else
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Word_Delete_Next);
+           (S, Editor.Command_Ids.Command_Word_Delete_Next);
          Assert (Message_Text (S) = "Deleted next word",
                  Why & ": delete-next message mismatch");
       end if;
@@ -289,10 +290,10 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Assert_Navigation_Counts (S, 0, 0,
                                 Why & ": word delete must not record navigation");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text (S, Before_Text,
                           Why & ": undo must restore exact pre-delete text after removing " & Removed_Text);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert_Buffer_Text (S, Expected_Text,
                           Why & ": redo must restore exact post-delete text");
    end Assert_Word_Delete_Transform;
@@ -314,8 +315,8 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Editor.State.Load_Text (S, "Seed Word");
       Set_Caret (S, Cursor_Index (Text_Buffer.Length (S.Buffer)));
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Word_Delete_Previous);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+        (S, Editor.Command_Ids.Command_Word_Delete_Previous);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Redo_Count := Natural (Editor.History.Redo_Stack.Length);
 
       Editor.State.Load_Text (S, Before_Text);
@@ -323,10 +324,10 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
 
       if Direction = Word_Delete_Test_Previous then
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Word_Delete_Previous);
+           (S, Editor.Command_Ids.Command_Word_Delete_Previous);
       else
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Word_Delete_Next);
+           (S, Editor.Command_Ids.Command_Word_Delete_Next);
       end if;
 
       Assert_Buffer_Text (S, Before_Text, Why);
@@ -368,12 +369,12 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
 
       if Direction = Character_Delete_Test_Previous then
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Char_Delete_Previous);
+           (S, Editor.Command_Ids.Command_Char_Delete_Previous);
          Assert (Message_Text (S) = "Deleted previous character",
                  Why & ": delete-previous message mismatch");
       else
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Char_Delete_Next);
+           (S, Editor.Command_Ids.Command_Char_Delete_Next);
          Assert (Message_Text (S) = "Deleted next character",
                  Why & ": delete-next message mismatch");
       end if;
@@ -395,10 +396,10 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Assert_Navigation_Counts (S, 0, 0,
                                 Why & ": character delete must not record navigation");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text (S, Before_Text,
                           Why & ": undo must restore exact pre-delete text");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert_Buffer_Text (S, Expected_Text,
                           Why & ": redo must restore exact post-delete text");
    end Assert_Character_Delete_Transform;
@@ -419,8 +420,8 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "Seed");
       Set_Caret (S, Cursor_Index (Text_Buffer.Length (S.Buffer)));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Char_Delete_Previous);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Char_Delete_Previous);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Redo_Count := Natural (Editor.History.Redo_Stack.Length);
 
       Editor.State.Load_Text (S, Before_Text);
@@ -428,10 +429,10 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
 
       if Direction = Character_Delete_Test_Previous then
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Char_Delete_Previous);
+           (S, Editor.Command_Ids.Command_Char_Delete_Previous);
       else
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Char_Delete_Next);
+           (S, Editor.Command_Ids.Command_Char_Delete_Next);
       end if;
 
       Assert_Buffer_Text (S, Before_Text, Why);
@@ -489,12 +490,12 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
 
       if Direction = Character_Delete_Test_Previous then
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Char_Delete_Previous);
+           (S, Editor.Command_Ids.Command_Char_Delete_Previous);
          Assert (Message_Text (S) = "Deleted previous character",
                  Why & ": delete-previous message mismatch");
       else
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Char_Delete_Next);
+           (S, Editor.Command_Ids.Command_Char_Delete_Next);
          Assert (Message_Text (S) = "Deleted next character",
                  Why & ": delete-next message mismatch");
       end if;
@@ -515,10 +516,10 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Assert_Navigation_Counts (S, 0, 0,
                                 Why & ": Character Delete must not record navigation");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text (S, Before_Text,
                           Why & ": undo must restore exact pre-delete text");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert_Buffer_Text (S, Expected_Text,
                           Why & ": redo must restore exact post-delete text");
    end Assert_Character_Delete_Transform_Exact;
@@ -654,7 +655,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
         (To_String (Editor.Selection.Extract_Selected_Text (S)) = Selected,
          Why & ": pre-delete selected text mismatch");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Delete);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Delete);
 
       Assert_Buffer_Text (S, Expected, Why);
       Assert (Message_Text (S) = "Deleted selection", Why & ": message mismatch");
@@ -679,9 +680,9 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Assert (Snapshot.Selection_Count = 0,
               Why & ": render snapshot must not expose stale selection");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text (S, Plain, Why & " undo");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert_Buffer_Text (S, Expected, Why & " redo");
    end Run_Marked_Delete;
 
@@ -702,7 +703,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Set_Caret (S, 12);
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Word_Delete_Previous);
+        (S, Editor.Command_Ids.Command_Word_Delete_Previous);
       Assert_Buffer_Text (S, "Alpha   ",
                           "delete-previous must delete the preceding word span");
       Assert (Natural (S.Carets (S.Carets.First_Index).Pos) = 8,
@@ -719,10 +720,10 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Assert_Navigation_Counts (S, 0, 0,
                                 "delete-previous must not record navigation");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text (S, "Alpha   Beta",
                           "undo after delete-previous must restore exact text");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert_Buffer_Text (S, "Alpha   ",
                           "redo after delete-previous must restore edited text");
 
@@ -731,7 +732,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Word_Delete_Previous);
+        (S, Editor.Command_Ids.Command_Word_Delete_Previous);
       Assert_Buffer_Text (S, "Beta",
                           "delete-previous after whitespace must delete whitespace plus prior word");
 
@@ -740,7 +741,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Word_Delete_Previous);
+        (S, Editor.Command_Ids.Command_Word_Delete_Previous);
       Assert_Buffer_Text (S, "AlphaBeta",
                           "delete-previous must delete punctuation spans as plain text");
 
@@ -749,7 +750,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Word_Delete_Previous);
+        (S, Editor.Command_Ids.Command_Word_Delete_Previous);
       Assert_Buffer_Text (S, "",
                           "delete-previous word class must include underscore and digits");
 
@@ -758,7 +759,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Word_Delete_Previous);
+        (S, Editor.Command_Ids.Command_Word_Delete_Previous);
       Assert_Buffer_Text (S, "Two",
                           "delete-previous must treat line boundary as whitespace");
 
@@ -767,17 +768,17 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Word_Delete_Previous);
+        (S, Editor.Command_Ids.Command_Word_Delete_Previous);
       Assert_Buffer_Text (S, " Beta",
                           "delete-previous must operate at caret, not consume selection");
       Assert (not Editor.Selection.Has_Selection (S),
               "successful delete-previous must collapse selection");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Redo_Count := Natural (Editor.History.Redo_Stack.Length);
       Set_Caret (S, 0);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Word_Delete_Previous);
+        (S, Editor.Command_Ids.Command_Word_Delete_Previous);
       Assert (Message_Text (S) = "Nothing to delete",
               "delete-previous buffer-start no-op message mismatch");
       Assert (Natural (Editor.History.Redo_Stack.Length) = Redo_Count,
@@ -805,7 +806,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Set_Caret (S, 0);
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Word_Delete_Next);
+        (S, Editor.Command_Ids.Command_Word_Delete_Next);
       Assert_Buffer_Text (S, "   Beta",
                           "delete-next must delete the following word span");
       Assert (Natural (S.Carets (S.Carets.First_Index).Pos) = 0,
@@ -823,7 +824,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Word_Delete_Next);
+        (S, Editor.Command_Ids.Command_Word_Delete_Next);
       Assert_Buffer_Text (S, "Alpha",
                           "delete-next after whitespace must delete whitespace plus next word");
 
@@ -832,7 +833,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Word_Delete_Next);
+        (S, Editor.Command_Ids.Command_Word_Delete_Next);
       Assert_Buffer_Text (S, "Alpha",
                           "delete-next must delete punctuation spans as plain text");
 
@@ -841,7 +842,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Word_Delete_Next);
+        (S, Editor.Command_Ids.Command_Word_Delete_Next);
       Assert_Buffer_Text (S, "",
                           "delete-next word class must include underscore and digits");
 
@@ -850,15 +851,15 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Word_Delete_Next);
+        (S, Editor.Command_Ids.Command_Word_Delete_Next);
       Assert_Buffer_Text (S, "One",
                           "delete-next must treat line boundary as whitespace");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Redo_Count := Natural (Editor.History.Redo_Stack.Length);
       Set_Caret (S, Cursor_Index (Text_Buffer.Length (S.Buffer)));
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Word_Delete_Next);
+        (S, Editor.Command_Ids.Command_Word_Delete_Next);
       Assert (Message_Text (S) = "Nothing to delete",
               "delete-next buffer-end no-op message mismatch");
       Assert (Natural (Editor.History.Redo_Stack.Length) = Redo_Count,
@@ -866,30 +867,30 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
 
       S.Carets.Clear;
       Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Word_Delete_Next);
+        (S, Editor.Command_Ids.Command_Word_Delete_Next);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail)
               and then Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) = "No caret location",
               "no-caret availability must be deterministic");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Word_Delete_Next);
+        (S, Editor.Command_Ids.Command_Word_Delete_Next);
       Assert (Message_Text (S) = "No caret location",
               "no-caret execution message mismatch");
 
       Editor.State.Init (No_Buffer);
       Avail := Editor.Executor.Command_Availability
-        (No_Buffer, Editor.Commands.Command_Word_Delete_Previous);
+        (No_Buffer, Editor.Command_Ids.Command_Word_Delete_Previous);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail)
               and then Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) = "No active buffer.",
               "no-active-buffer availability must be deterministic");
       Editor.Executor.Execute_Command
-        (No_Buffer, Editor.Commands.Command_Word_Delete_Previous);
+        (No_Buffer, Editor.Command_Ids.Command_Word_Delete_Previous);
       Assert (Message_Text (No_Buffer) = "No active buffer.",
               "no-active-buffer execution message mismatch");
 
       Editor.State.Load_Text (S, "Persist Word");
       Set_Caret (S, 7);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Word_Delete_Next);
+        (S, Editor.Command_Ids.Command_Word_Delete_Next);
       Snap := Editor.State.Build_Workspace_Snapshot (S);
       Summary := To_Unbounded_String
         (Editor.Workspace_Persistence.Debug_Summary (Snap));
@@ -921,7 +922,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
          Editor.History.Undo_Stack.Clear;
          Editor.History.Redo_Stack.Clear;
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Word_Delete_Previous);
+           (S, Editor.Command_Ids.Command_Word_Delete_Previous);
          Assert_Buffer_Text (S, Expected, Why);
          Assert (S.Carets (S.Carets.First_Index).Pos = Expected_Caret,
                  Why & ": caret mismatch");
@@ -978,7 +979,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Word_Delete_Previous);
+        (S, Editor.Command_Ids.Command_Word_Delete_Previous);
       Assert_Buffer_Text (S, "Alpha",
                           "previous at buffer start must no-op");
       Assert (Message_Text (S) = "Nothing to delete",
@@ -1010,7 +1011,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
          Editor.History.Undo_Stack.Clear;
          Editor.History.Redo_Stack.Clear;
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Word_Delete_Next);
+           (S, Editor.Command_Ids.Command_Word_Delete_Next);
          Assert_Buffer_Text (S, Expected, Why);
          Assert (S.Carets (S.Carets.First_Index).Pos = Expected_Caret,
                  Why & ": caret mismatch");
@@ -1059,7 +1060,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Word_Delete_Next);
+        (S, Editor.Command_Ids.Command_Word_Delete_Next);
       Assert_Buffer_Text (S, "Alpha",
                           "next at buffer end must no-op");
       Assert (Message_Text (S) = "Nothing to delete",
@@ -1111,11 +1112,11 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Word_Delete_Previous);
+        (S, Editor.Command_Ids.Command_Word_Delete_Previous);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "word delete availability must remain available with buffer and caret");
       Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Word_Delete_Next);
+        (S, Editor.Command_Ids.Command_Word_Delete_Next);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "next word delete availability must remain available with buffer and caret");
       Assert (Snap.Length = Text_Buffer.Length (S.Buffer),
@@ -1139,7 +1140,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
 
       Set_Caret (S, 6);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Word_Delete_Next);
+        (S, Editor.Command_Ids.Command_Word_Delete_Next);
       Assert_Buffer_Text (S, "Alpha ",
                           "delete-next must remove exact active Find match text");
       Assert (S.Active_Find_Stale and then S.Active_Find_Matches.Is_Empty,
@@ -1154,21 +1155,21 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Assert_Navigation_Counts (S, 0, 0,
                                 "word delete must not record navigation");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text (S, "Alpha Beta",
                           "undo must restore exact pre-delete text");
       Assert (Natural (Editor.History.Redo_Stack.Length) = 1,
               "undo after word delete must make redo available");
       Set_Caret (S, 0);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Word_Delete_Previous);
+        (S, Editor.Command_Ids.Command_Word_Delete_Previous);
       Assert (Message_Text (S) = "Nothing to delete",
               "no-op after undo must report Nothing to delete");
       Assert (Natural (Editor.History.Redo_Stack.Length) = 1,
               "no-op after undo must preserve redo stack");
       Set_Caret (S, Cursor_Index (Text_Buffer.Length (S.Buffer)));
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Word_Delete_Previous);
+        (S, Editor.Command_Ids.Command_Word_Delete_Previous);
       Assert (Natural (Editor.History.Redo_Stack.Length) = 0,
               "successful word delete after undo must clear redo stack");
    end Test_Word_Delete_State_Integration_And_Read_Only_Boundaries;
@@ -1307,7 +1308,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
 
       Set_Caret (S, 6);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Word_Delete_Next);
+        (S, Editor.Command_Ids.Command_Word_Delete_Next);
       Assert_Buffer_Text (S, "Alpha  Gamma",
                           "delete-next removes exact Find match word");
       Assert (S.Active_Find_Stale and then S.Active_Find_Matches.Is_Empty,
@@ -1328,20 +1329,20 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Assert (R.Length = Text_Buffer.Length (S.Buffer),
               "render snapshot after Word Delete must match canonical buffer length");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text (S, "Alpha Beta Gamma",
                           "undo restores exact Find workflow text");
       Editor.Render_Model.Build_Render_Snapshot (S, R);
       Assert (R.Length = Text_Buffer.Length (S.Buffer),
               "render snapshot after undo must match canonical buffer length");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert_Buffer_Text (S, "Alpha  Gamma",
                           "redo restores exact Find workflow text");
 
       Set_Caret (S, 0);
       S.Active_Find_Stale := False;
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Word_Delete_Previous);
+        (S, Editor.Command_Ids.Command_Word_Delete_Previous);
       Assert (not S.Active_Find_Stale,
               "no-op Word Delete must not invalidate Find/Replace state");
    end Test_Word_Delete_Cross_Line_Selection_Find_Clipboard;
@@ -1394,7 +1395,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Editor.Buffers.Global_Set_Active_Buffer (A);
       Editor.Buffers.Load_Global_Active_Into_State (S);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Word_Delete_Previous);
+        (S, Editor.Command_Ids.Command_Word_Delete_Previous);
       Assert_Buffer_Text (S, "Alpha ",
                           "active-buffer A delete text");
       Editor.Buffers.Sync_Global_Active_From_State (S);
@@ -1404,10 +1405,10 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Assert_Buffer_Text (S, "Gamma Delta",
                           "active-buffer B must be isolated from A delete");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Word_Delete_Previous);
+        (S, Editor.Command_Ids.Command_Word_Delete_Previous);
       Assert_Buffer_Text (S, "Gamma ",
                           "active-buffer B independent delete text");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text (S, "Gamma Delta",
                           "undo in B affects only B");
       Editor.Buffers.Sync_Global_Active_From_State (S);
@@ -1416,7 +1417,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Editor.Buffers.Load_Global_Active_Into_State (S);
       Assert_Buffer_Text (S, "Alpha ",
                           "returning to A preserves A delete result");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text (S, "Alpha Beta",
                           "undo in A affects only A");
 
@@ -1428,7 +1429,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
       Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Word_Delete_Previous);
+        (S, Editor.Command_Ids.Command_Word_Delete_Previous);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "availability check must expose Word Delete with active buffer/caret");
       declare
@@ -1449,7 +1450,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
         (S, Before_Back, Before_Fwd,
          "availability/palette must not mutate navigation history");
 
-      Editor.Keybindings.Bind (Chord, Editor.Commands.Command_Word_Delete_Next);
+      Editor.Keybindings.Bind (Chord, Editor.Command_Ids.Command_Word_Delete_Next);
       Set_Caret (S, 0);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Handle_Key_Chord (Chord);
@@ -1483,7 +1484,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
    is
       pragma Unreferenced (T);
       Found          : Boolean := False;
-      Id             : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Id             : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Previous_Count : Natural := 0;
       Next_Count     : Natural := 0;
       Palette_Prev   : Natural := 0;
@@ -1498,24 +1499,24 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.word.delete-previous", Found);
       Assert
-        (Found and then Id = Editor.Commands.Command_Word_Delete_Previous,
+        (Found and then Id = Editor.Command_Ids.Command_Word_Delete_Previous,
          "previous Word Delete command must resolve through canonical stable name");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.word.delete-next", Found);
       Assert
-        (Found and then Id = Editor.Commands.Command_Word_Delete_Next,
+        (Found and then Id = Editor.Command_Ids.Command_Word_Delete_Next,
          "next Word Delete command must resolve through canonical stable name");
 
-      for I in 1 .. Editor.Commands.Command_Count loop
+      for I in 1 .. Editor.Command_Ids.Command_Count loop
          declare
-            C    : constant Editor.Commands.Command_Id := Editor.Commands.Command_At (I);
+            C    : constant Editor.Command_Ids.Command_Id := Editor.Command_Ids.Command_At (I);
             Name : constant String := Editor.Commands.Name_Metadata.Stable_Command_Name (C);
          begin
-            if C = Editor.Commands.Command_Word_Delete_Previous then
+            if C = Editor.Command_Ids.Command_Word_Delete_Previous then
                Previous_Count := Previous_Count + 1;
                Assert (Name = "edit.word.delete-previous",
                        "previous Word Delete registry stable name mismatch");
-            elsif C = Editor.Commands.Command_Word_Delete_Next then
+            elsif C = Editor.Command_Ids.Command_Word_Delete_Next then
                Next_Count := Next_Count + 1;
                Assert (Name = "edit.word.delete-next",
                        "next Word Delete registry stable name mismatch");
@@ -1533,11 +1534,11 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Editor.Command_Palette.Reset;
       Editor.Command_Palette.Filtered_Commands (Candidates);
       for C of Candidates loop
-         if C.Id = Editor.Commands.Command_Word_Delete_Previous then
+         if C.Id = Editor.Command_Ids.Command_Word_Delete_Previous then
             Palette_Prev := Palette_Prev + 1;
             Assert (To_String (C.Name) = "Delete Previous Word",
                     "palette previous Word Delete label mismatch");
-         elsif C.Id = Editor.Commands.Command_Word_Delete_Next then
+         elsif C.Id = Editor.Command_Ids.Command_Word_Delete_Next then
             Palette_Next := Palette_Next + 1;
             Assert (To_String (C.Name) = "Delete Next Word",
                     "palette next Word Delete label mismatch");
@@ -1550,14 +1551,14 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Editor.Keybinding_Config.Build_From_Runtime (Config);
       for I in 1 .. Editor.Keybinding_Config.Binding_Count (Config) loop
          declare
-            Command : constant Editor.Commands.Command_Id :=
+            Command : constant Editor.Command_Ids.Command_Id :=
               Editor.Keybinding_Config.Command_At (Config, I);
             Name    : constant String := Editor.Commands.Name_Metadata.Stable_Command_Name (Command);
          begin
-            if Command = Editor.Commands.Command_Word_Delete_Previous then
+            if Command = Editor.Command_Ids.Command_Word_Delete_Previous then
                Assert (Name = "edit.word.delete-previous",
                        "default previous Word Delete keybinding must target canonical name");
-            elsif Command = Editor.Commands.Command_Word_Delete_Next then
+            elsif Command = Editor.Command_Ids.Command_Word_Delete_Next then
                Assert (Name = "edit.word.delete-next",
                        "default next Word Delete keybinding must target canonical name");
             end if;
@@ -1575,12 +1576,12 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Assert (Status = Editor.Keybinding_Config.Keybinding_Config_Ok,
               "canonical Word Delete keybinding names must load cleanly");
       Chord := Editor.Keybinding_Config.Chord_For
-        (Config, Editor.Commands.Command_Word_Delete_Previous, Found);
+        (Config, Editor.Command_Ids.Command_Word_Delete_Previous, Found);
       Assert
         (Found and then Editor.Keybindings.Format_Chord (Chord) = "Ctrl+Alt+Backspace",
          "canonical previous Word Delete keybinding must remain loadable");
       Chord := Editor.Keybinding_Config.Chord_For
-        (Config, Editor.Commands.Command_Word_Delete_Next, Found);
+        (Config, Editor.Command_Ids.Command_Word_Delete_Next, Found);
       Assert
         (Found and then Editor.Keybindings.Format_Chord (Chord) = "Ctrl+Alt+Delete",
          "canonical next Word Delete keybinding must remain loadable");
@@ -1615,7 +1616,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Snap         : Editor.Render_Model.Render_Snapshot;
       Workspace    : Editor.Workspace_Persistence.Workspace_Snapshot;
       Summary      : Unbounded_String;
-      Resolved_Id  : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Resolved_Id  : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
    begin
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
@@ -1629,7 +1630,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Word_Delete_Previous);
+        (S, Editor.Command_Ids.Command_Word_Delete_Previous);
       Assert_Buffer_Text (S, "Alpha ",
                           "canonical previous Word Delete id must use the only previous-word delete implementation path");
       Assert (Message_Text (S) = "Deleted previous word",
@@ -1648,10 +1649,10 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Assert (Snap.Length = Text_Buffer.Length (S.Buffer),
               "render snapshot must derive from canonical post-delete buffer text");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text (S, "Alpha Beta",
                           "undo for canonical Word Delete must restore captured Before_Text");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert_Buffer_Text (S, "Alpha ",
                           "redo for canonical Word Delete must restore captured After_Text without re-running word logic");
 
@@ -1661,7 +1662,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Set_Caret (S, Cursor_Index (0));
       Editor.State.Set_Dirty (S, False);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Word_Delete_Next);
+        (S, Editor.Command_Ids.Command_Word_Delete_Next);
       Assert_Buffer_Text (S, " Beta",
                           "canonical next Word Delete id must use the only next-word delete implementation path");
       Assert (Message_Text (S) = "Deleted next word",
@@ -1678,17 +1679,17 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Set_Caret (S, Cursor_Index (Text_Buffer.Length (S.Buffer)));
       Editor.State.Set_Dirty (S, False);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Word_Delete_Previous);
+        (S, Editor.Command_Ids.Command_Word_Delete_Previous);
 
       Editor.Keybindings.Clear;
-      Editor.Keybindings.Bind (Chord, Editor.Commands.Command_Word_Delete_Previous);
+      Editor.Keybindings.Bind (Chord, Editor.Command_Ids.Command_Word_Delete_Previous);
       Assert
         (Editor.Keybindings.Status (Editor.Keybindings.Validate) =
          Editor.Keybindings.Valid_Keybindings,
          "canonical Word Delete id must remain a valid keybinding target");
       Assert
         (Editor.Keybindings.Resolve (Chord, Resolved_Id) = Editor.Keybindings.Bound_Command
-         and then Resolved_Id = Editor.Commands.Command_Word_Delete_Previous,
+         and then Resolved_Id = Editor.Command_Ids.Command_Word_Delete_Previous,
          "runtime keybinding resolution must expose only canonical Word Delete ids");
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Handle_Key_Chord (Chord);
@@ -1769,14 +1770,14 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Beta");
 
       Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Word_Delete_Next);
+        (S, Editor.Command_Ids.Command_Word_Delete_Next);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "canonical next Word Delete availability must remain available");
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert (Snap.Length = Text_Buffer.Length (S.Buffer),
               "pre-delete render snapshot must be side-effect-free");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Word_Delete_Next);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Word_Delete_Next);
       Assert_Buffer_Text (S, "Alpha  Gamma",
                           "canonical delete-next smoke text mismatch");
       Assert (not Editor.Selection.Has_Selection (S),

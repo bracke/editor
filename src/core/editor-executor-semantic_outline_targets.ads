@@ -1,8 +1,8 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with Editor.Ada_Language_Service;
 with Editor.Ada_Project_Index;
-with Editor.Commands;
 with Editor.State;
 
 package Editor.Executor.Semantic_Outline_Targets is
@@ -17,7 +17,7 @@ package Editor.Executor.Semantic_Outline_Targets is
 
    function Find_Indexed_Outline_Target
      (S             : Editor.State.State_Type;
-      Id            : Editor.Commands.Command_Id;
+      Id            : Editor.Command_Ids.Command_Id;
       Service       : in out Editor.Ada_Language_Service.Service_State;
       Track_Request : Boolean := False) return Outline_Indexed_Target;
 

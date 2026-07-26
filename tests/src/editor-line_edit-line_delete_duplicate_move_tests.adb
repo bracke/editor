@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Classification;
@@ -11,7 +12,6 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Text_IO;
 with Editor.Clipboard;
 with Editor.Command_Palette;
-with Editor.Commands;
 with Editor.Commands.Editing_Ids;
 with Editor.Commands.Name_Metadata;
 with Editor.Buffers;
@@ -38,11 +38,11 @@ with Text_Buffer;
 package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
 
    use type Editor.Keybinding_Config.Keybinding_Config_Status;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
-   use type Editor.Commands.Command_Kind;
+   use type Editor.Command_Kinds.Command_Kind;
    use type Editor.Keybindings.Keybinding_Validation_Status;
    use type Editor.Buffers.Buffer_Id;
    use type Editor.Keybindings.Binding_Result;
@@ -265,12 +265,12 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
 
       if Direction = Word_Delete_Test_Previous then
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Word_Delete_Previous);
+           (S, Editor.Command_Ids.Command_Word_Delete_Previous);
          Assert (Message_Text (S) = "Deleted previous word",
                  Why & ": delete-previous message mismatch");
       else
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Word_Delete_Next);
+           (S, Editor.Command_Ids.Command_Word_Delete_Next);
          Assert (Message_Text (S) = "Deleted next word",
                  Why & ": delete-next message mismatch");
       end if;
@@ -292,10 +292,10 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
       Assert_Navigation_Counts (S, 0, 0,
                                 Why & ": word delete must not record navigation");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text (S, Before_Text,
                           Why & ": undo must restore exact pre-delete text after removing " & Removed_Text);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert_Buffer_Text (S, Expected_Text,
                           Why & ": redo must restore exact post-delete text");
    end Assert_Word_Delete_Transform;
@@ -317,8 +317,8 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
       Editor.State.Load_Text (S, "Seed Word");
       Set_Caret (S, Cursor_Index (Text_Buffer.Length (S.Buffer)));
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Word_Delete_Previous);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+        (S, Editor.Command_Ids.Command_Word_Delete_Previous);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Redo_Count := Natural (Editor.History.Redo_Stack.Length);
 
       Editor.State.Load_Text (S, Before_Text);
@@ -326,10 +326,10 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
 
       if Direction = Word_Delete_Test_Previous then
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Word_Delete_Previous);
+           (S, Editor.Command_Ids.Command_Word_Delete_Previous);
       else
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Word_Delete_Next);
+           (S, Editor.Command_Ids.Command_Word_Delete_Next);
       end if;
 
       Assert_Buffer_Text (S, Before_Text, Why);
@@ -393,7 +393,7 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
       Editor.State.Set_Dirty (S, False);
       Set_Caret (S, 4);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Delete);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Delete);
 
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) = "one" & ASCII.LF & "three",
@@ -403,11 +403,11 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
               "delete-line must create one undo entry");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) = "one" & ASCII.LF & "two" & ASCII.LF & "three",
          "undo after delete-line must restore exact text");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) = "one" & ASCII.LF & "three",
          "redo after delete-line must restore exact edited text");
@@ -425,7 +425,7 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
       Editor.State.Load_Text (S, "one" & ASCII.LF & "two" & ASCII.LF & "three");
       Set_Caret (S, 4);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Duplicate);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Duplicate);
 
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) =
@@ -449,7 +449,7 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
       Editor.State.Load_Text (S, "one" & ASCII.LF & "two" & ASCII.LF & "three");
       Set_Caret (S, 4);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Move_Up);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Move_Up);
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) = "two" & ASCII.LF & "one" & ASCII.LF & "three",
          "move-up must swap current line with previous line");
@@ -457,16 +457,16 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
               "move-up must create one undo entry");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Redo_Count := Natural (Editor.History.Redo_Stack.Length);
       Set_Caret (S, 0);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Move_Up);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Move_Up);
       Assert (Message_Text (S) = "Already at first line", "first-line boundary message mismatch");
       Assert (Natural (Editor.History.Redo_Stack.Length) = Redo_Count,
               "boundary no-op must preserve redo stack");
 
       Set_Caret (S, 4);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Move_Down);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Move_Down);
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) = "one" & ASCII.LF & "three" & ASCII.LF & "two",
          "move-down must swap current line with next line");
@@ -487,14 +487,14 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
       Editor.History.Redo_Stack.Clear;
 
       Set_Caret (S, 0);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Delete);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Delete);
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) = "two" & ASCII.LF & "three",
          "delete-line must delete the first logical line and following terminator");
       Assert (Message_Text (S) = "Deleted line", "first-line delete message mismatch");
 
       Set_Caret (S, 4);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Delete);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Delete);
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) = "two",
          "delete-line must delete the last logical line and preceding terminator");
@@ -502,7 +502,7 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
       Editor.State.Load_Text (S, "solo");
       Editor.History.Undo_Stack.Clear;
       Set_Caret (S, 2);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Delete);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Delete);
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) = "",
          "delete-line on one-line buffer must leave an empty buffer");
@@ -522,18 +522,18 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
       Editor.History.Redo_Stack.Clear;
       Set_Caret (S, 4);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Duplicate);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Duplicate);
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) = "one" & ASCII.LF & "two" & ASCII.LF & "two",
          "duplicate-line must duplicate the last logical line below itself");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
               "duplicate last line must create one undo entry");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) = "one" & ASCII.LF & "two",
          "undo after duplicate last line must restore exact text");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) = "one" & ASCII.LF & "two" & ASCII.LF & "two",
          "redo after duplicate last line must restore exact text");
@@ -565,16 +565,16 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
       Editor.State.Init (S);
       Editor.Keybindings.Bind
         (Ctrl_Shift (Editor.Keybindings.Key_Delete),
-         Editor.Commands.Command_Line_Delete);
+         Editor.Command_Ids.Command_Line_Delete);
       Editor.Keybindings.Bind
         (Ctrl_Shift (Editor.Keybindings.Key_Down),
-         Editor.Commands.Command_Line_Duplicate);
+         Editor.Command_Ids.Command_Line_Duplicate);
       Editor.Keybindings.Bind
         (Ctrl_Shift (Editor.Keybindings.Key_Up),
-         Editor.Commands.Command_Line_Move_Up);
+         Editor.Command_Ids.Command_Line_Move_Up);
       Editor.Keybindings.Bind
         (Ctrl_Shift (Editor.Keybindings.Key_Page_Down),
-         Editor.Commands.Command_Line_Move_Down);
+         Editor.Command_Ids.Command_Line_Move_Down);
       Editor.State.Load_Text (S, "one" & ASCII.LF & "two" & ASCII.LF & "three");
       Set_Caret (S, 4);
 
@@ -643,7 +643,7 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
       Editor.History.Redo_Stack.Clear;
 
       Set_Caret (S, 6);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Delete);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Delete);
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) =
          "alpha" & ASCII.LF & ASCII.LF & "omega",
@@ -655,7 +655,7 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
               "delete whitespace-only line must create one undo entry");
 
       Set_Caret (S, Cursor_Index (Text_Buffer.Length (S.Buffer)));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Delete);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Delete);
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) = "alpha" & ASCII.LF,
          "delete-line at EOF must delete the last logical line exactly");
@@ -674,7 +674,7 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
       Editor.History.Redo_Stack.Clear;
       Set_Caret (S, 9);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Duplicate);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Duplicate);
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) =
          "longer" & ASCII.LF & "  " & ASCII.LF & "  " & ASCII.LF & "x",
@@ -683,11 +683,11 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
       Assert (S.Preferred_Column = 2,
               "duplicate-line must align preferred column with duplicated line caret");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) = "longer" & ASCII.LF & "  " & ASCII.LF & "x",
          "undo after whitespace duplicate must restore exact text");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) =
          "longer" & ASCII.LF & "  " & ASCII.LF & "  " & ASCII.LF & "x",
@@ -706,15 +706,15 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
       Editor.History.Redo_Stack.Clear;
       Set_Caret (S, 3);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Move_Down);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Move_Down);
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) = "aa" & ASCII.LF & "cccc" & ASCII.LF,
          "move-down must swap a blank current line with the next line exactly");
       Assert_Caret_Row_Col (S, 2, 0, "move blank line down");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Set_Caret (S, 3);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Move_Up);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Move_Up);
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) = ASCII.LF & "aa" & ASCII.LF & "cccc",
          "move-up must swap a blank current line with the previous line exactly");
@@ -733,20 +733,20 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
       Editor.History.Redo_Stack.Clear;
       Set_Caret (S, 4);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Move_Down);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Move_Down);
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) = "one" & ASCII.LF & ASCII.LF & "two",
          "move-down must treat an explicit trailing newline as an empty logical line");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
               "trailing-newline move-down must create one undo entry when text changes");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) = "one" & ASCII.LF & "two" & ASCII.LF,
          "undo must restore exact trailing-newline text");
 
       Set_Caret (S, 0);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Duplicate);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Duplicate);
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) =
          "one" & ASCII.LF & "one" & ASCII.LF & "two" & ASCII.LF,
@@ -767,7 +767,7 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
       Editor.Clipboard.Set_Text (To_Unbounded_String ("CLIP"));
 
       Set_Caret (S, 2);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Delete);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Delete);
       Assert_Line_Edit_Coherent
         (S, "A" & ASCII.LF & "C", 1, 0, "CLIP",
          "delete middle line workflow");
@@ -776,15 +776,15 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
       Assert (Editor.State.Is_Dirty (S),
               "delete-line must dirty a clean active buffer");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "A" & ASCII.LF & "B" & ASCII.LF & "C",
               "undo after delete-line must restore exact text");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "A" & ASCII.LF & "C",
               "redo after delete-line must restore exact post-edit text");
 
       Set_Caret (S, 2);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Duplicate);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Duplicate);
       Assert_Line_Edit_Coherent
         (S, "A" & ASCII.LF & "C" & ASCII.LF & "C", 2, 0, "CLIP",
          "duplicate last line workflow");
@@ -792,7 +792,7 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
               "duplicate-line must emit one primary line message");
 
       Set_Caret (S, 2);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Move_Up);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Move_Up);
       Assert_Line_Edit_Coherent
         (S, "C" & ASCII.LF & "A" & ASCII.LF & "C", 3, 0, "CLIP",
          "move-up workflow");
@@ -800,7 +800,7 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
               "move-up must emit one primary line message");
 
       Set_Caret (S, 0);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Move_Down);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Move_Down);
       Assert_Line_Edit_Coherent
         (S, "A" & ASCII.LF & "C" & ASCII.LF & "C", 4, 0, "CLIP",
          "move-down workflow");
@@ -820,31 +820,31 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
       Editor.History.Redo_Stack.Clear;
       Set_Caret (S, 2);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Duplicate);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Duplicate);
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) =
          "A" & ASCII.LF & ASCII.LF & ASCII.LF & "   " & ASCII.LF & "C" & ASCII.LF,
          "duplicate blank line must preserve explicit logical terminators");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) =
          "A" & ASCII.LF & ASCII.LF & "   " & ASCII.LF & "C" & ASCII.LF,
          "undo must restore exact blank/whitespace/trailing-newline fixture");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) =
          "A" & ASCII.LF & ASCII.LF & ASCII.LF & "   " & ASCII.LF & "C" & ASCII.LF,
          "redo must restore exact duplicate-blank-line fixture");
 
       Set_Caret (S, 3);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Move_Down);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Move_Down);
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) =
          "A" & ASCII.LF & ASCII.LF & "   " & ASCII.LF & ASCII.LF & "C" & ASCII.LF,
          "move-down must swap blank and whitespace-only logical lines without trimming");
 
       Set_Caret (S, 5);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Delete);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Delete);
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) =
          "A" & ASCII.LF & ASCII.LF & ASCII.LF & "C" & ASCII.LF,
@@ -856,7 +856,7 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
    is
       pragma Unreferenced (T);
       Found : Boolean := False;
-      Id    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Id    : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       pragma Unreferenced (Id);
 
       procedure Assert_Not_Exposed (Name : String) is
@@ -867,45 +867,45 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
    begin
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Indent_Increase) = "edit.indent.increase",
+           (Editor.Command_Ids.Command_Indent_Increase) = "edit.indent.increase",
          "indent increase stable name mismatch");
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Indent_Decrease) = "edit.indent.decrease",
+           (Editor.Command_Ids.Command_Indent_Decrease) = "edit.indent.decrease",
          "indent decrease stable name mismatch");
       Assert
         (Editor.Commands.Descriptors.Descriptor
-           (Editor.Commands.Command_Indent_Increase).Category =
+           (Editor.Command_Ids.Command_Indent_Increase).Category =
          Editor.Commands.Descriptors.Edit_Category,
          "indent increase must be an Edit command");
       Assert
         (Editor.Commands.Descriptors.Descriptor
-           (Editor.Commands.Command_Indent_Decrease).Category =
+           (Editor.Command_Ids.Command_Indent_Decrease).Category =
          Editor.Commands.Descriptors.Edit_Category,
          "indent decrease must be an Edit command");
       Assert
         (Editor.Commands.Classification.Is_Bindable_Command
-           (Editor.Commands.Command_Indent_Increase),
+           (Editor.Command_Ids.Command_Indent_Increase),
          "indent increase must be bindable");
       Assert
         (Editor.Commands.Classification.Is_Bindable_Command
-           (Editor.Commands.Command_Indent_Decrease),
+           (Editor.Command_Ids.Command_Indent_Decrease),
          "indent decrease must be bindable");
       Assert
         (Editor.Commands.Classification.Visible_In_Command_Palette
-           (Editor.Commands.Command_Indent_Increase),
+           (Editor.Command_Ids.Command_Indent_Increase),
          "indent increase must be command-palette visible");
       Assert
         (Editor.Commands.Classification.Visible_In_Command_Palette
-           (Editor.Commands.Command_Indent_Decrease),
+           (Editor.Command_Ids.Command_Indent_Decrease),
          "indent decrease must be command-palette visible");
       Assert
         (Editor.Commands.Editing_Ids.Is_Editing_Command
-           (Editor.Commands.Command_Indent_Increase),
+           (Editor.Command_Ids.Command_Indent_Increase),
          "indent increase must be classified as a text edit");
       Assert
         (Editor.Commands.Editing_Ids.Is_Editing_Command
-           (Editor.Commands.Command_Indent_Decrease),
+           (Editor.Command_Ids.Command_Indent_Decrease),
          "indent decrease must be classified as a text edit");
 
       Assert_Not_Exposed ("edit.indent.selection");
@@ -933,7 +933,7 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
 
       Set_Caret (S, 6);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Indent_Increase);
+        (S, Editor.Command_Ids.Command_Indent_Increase);
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) =
          "one" & ASCII.LF & "  " & String'(1 => ASCII.HT) & "Two" &
@@ -947,7 +947,7 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
 
       Set_Caret (S, 12);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Indent_Increase);
+        (S, Editor.Command_Ids.Command_Indent_Increase);
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) =
          "one" & ASCII.LF & "  " & String'(1 => ASCII.HT) & "Two" &
@@ -959,20 +959,20 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
 
       Set_Caret (S, 19);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Indent_Increase);
+        (S, Editor.Command_Ids.Command_Indent_Increase);
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) =
          "one" & ASCII.LF & "  " & String'(1 => ASCII.HT) & "Two" &
          ASCII.LF & "     " & ASCII.LF & "  last",
          "indent must mutate only the last logical line and preserve terminators");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) =
          "one" & ASCII.LF & "  " & String'(1 => ASCII.HT) & "Two" &
          ASCII.LF & "     " & ASCII.LF & "last",
          "undo after line-boundary indent must restore exact previous text");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) =
          "one" & ASCII.LF & "  " & String'(1 => ASCII.HT) & "Two" &
@@ -994,35 +994,35 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
       Set_Primary_Selection (S, 0, 4);
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Indent_Increase);
+        (S, Editor.Command_Ids.Command_Indent_Increase);
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) =
          "one" & ASCII.LF & "  two" & ASCII.LF & "three",
          "indent must operate only on caret line, not all selected lines");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Line_Duplicate);
+        (S, Editor.Command_Ids.Command_Line_Duplicate);
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) =
          "one" & ASCII.LF & "  two" & ASCII.LF & "  two" & ASCII.LF & "three",
          "duplicate-line after indent must reuse canonical logical-line boundaries");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Indent_Decrease);
+        (S, Editor.Command_Ids.Command_Indent_Decrease);
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) =
          "one" & ASCII.LF & "  two" & ASCII.LF & "two" & ASCII.LF & "three",
          "outdent after duplicate-line must mutate only the current logical line");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Line_Move_Down);
+        (S, Editor.Command_Ids.Command_Line_Move_Down);
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) =
          "one" & ASCII.LF & "  two" & ASCII.LF & "three" & ASCII.LF & "two",
          "move-down after outdent must preserve exact line text and terminators");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) =
          "one" & ASCII.LF & "  two" & ASCII.LF & "  two" & ASCII.LF & "three",
@@ -1042,14 +1042,14 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
       Editor.State.Set_Dirty (S, False);
       Editor.Clipboard.Set_Text (To_Unbounded_String ("CLIP"));
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_All);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_All);
       Assert (Editor.Selection.Has_Selection (S),
               "select-all setup must create a canonical selection");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 0,
               "selection commands must not create undo entries");
       Set_Primary_Selection (S, 0, 5);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Indent_Increase);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Indent_Increase);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) =
               "one" & ASCII.LF & "  two" & ASCII.LF & "three",
               "indent after selection workflow must mutate only caret line");
@@ -1059,40 +1059,40 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
               and then To_String (Editor.Clipboard.Get_Text) = "CLIP",
               "indent after selection must not mutate clipboard");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) =
               "one" & ASCII.LF & "two" & ASCII.LF & "three",
               "undo after selection-indent workflow must restore text");
 
       Set_Caret (S, 5);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_Word);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Indent_Decrease);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_Word);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Indent_Decrease);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) =
               "one" & ASCII.LF & "two" & ASCII.LF & "three",
               "no-op outdent after current-word selection must not mutate text");
       Assert (Editor.Selection.Has_Selection (S),
               "no-op outdent must preserve valid current-word selection");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy);
       Assert (Editor.Clipboard.Has_Text
               and then To_String (Editor.Clipboard.Get_Text) = "two",
               "copy after no-op outdent must consume canonical preserved selection");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Duplicate);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Duplicate);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) =
               "one" & ASCII.LF & "two" & ASCII.LF & "two" & ASCII.LF & "three",
               "duplicate-line after selection/copy must use canonical logical line boundaries");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Indent_Increase);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Indent_Increase);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) =
               "one" & ASCII.LF & "two" & ASCII.LF & "  two" & ASCII.LF & "three",
               "indent after duplicate-line must use post-line-edit current line");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Cut);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Cut);
       Assert (Editor.Clipboard.Has_Text,
               "cut after mixed indentation workflow must follow clipboard policy only");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Indent_Decrease);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Indent_Decrease);
       Assert (Message_Text (S) = "Nothing to outdent" or else
               Message_Text (S) = "Outdented line",
               "post-cut outdent must produce a deterministic indentation message");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Paste);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Paste);
       Assert (Natural (Editor.History.Undo_Stack.Length) > 0,
               "mixed selection/clipboard/line-edit/indent workflow must remain undoable");
    end Test_Selection_Clipboard_Line_Edit_Integration;
@@ -1102,7 +1102,7 @@ procedure Test_Line_Comment_Command_Descriptors
    is
       pragma Unreferenced (T);
       Found : Boolean := False;
-      Id    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Id    : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       pragma Unreferenced (Id);
 
       procedure Assert_Not_Exposed (Name : String) is
@@ -1113,66 +1113,66 @@ procedure Test_Line_Comment_Command_Descriptors
    begin
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Comment_Line) = "edit.comment.line",
+           (Editor.Command_Ids.Command_Comment_Line) = "edit.comment.line",
          "comment-line stable name mismatch");
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Uncomment_Line) = "edit.uncomment.line",
+           (Editor.Command_Ids.Command_Uncomment_Line) = "edit.uncomment.line",
          "uncomment-line stable name mismatch");
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Toggle_Line_Comment) = "edit.comment.toggle-line",
+           (Editor.Command_Ids.Command_Toggle_Line_Comment) = "edit.comment.toggle-line",
          "toggle-line-comment stable name mismatch");
       Assert
         (Editor.Commands.Descriptors.Descriptor
-           (Editor.Commands.Command_Comment_Line).Category =
+           (Editor.Command_Ids.Command_Comment_Line).Category =
          Editor.Commands.Descriptors.Edit_Category,
          "comment-line must be an Edit command");
       Assert
         (Editor.Commands.Descriptors.Descriptor
-           (Editor.Commands.Command_Uncomment_Line).Category =
+           (Editor.Command_Ids.Command_Uncomment_Line).Category =
          Editor.Commands.Descriptors.Edit_Category,
          "uncomment-line must be an Edit command");
       Assert
         (Editor.Commands.Descriptors.Descriptor
-           (Editor.Commands.Command_Toggle_Line_Comment).Category =
+           (Editor.Command_Ids.Command_Toggle_Line_Comment).Category =
          Editor.Commands.Descriptors.Edit_Category,
          "toggle-line-comment must be an Edit command");
       Assert
         (Editor.Commands.Classification.Is_Bindable_Command
-           (Editor.Commands.Command_Comment_Line),
+           (Editor.Command_Ids.Command_Comment_Line),
          "comment-line must be bindable");
       Assert
         (Editor.Commands.Classification.Is_Bindable_Command
-           (Editor.Commands.Command_Uncomment_Line),
+           (Editor.Command_Ids.Command_Uncomment_Line),
          "uncomment-line must be bindable");
       Assert
         (Editor.Commands.Classification.Is_Bindable_Command
-           (Editor.Commands.Command_Toggle_Line_Comment),
+           (Editor.Command_Ids.Command_Toggle_Line_Comment),
          "toggle-line-comment must be bindable");
       Assert
         (Editor.Commands.Classification.Visible_In_Command_Palette
-           (Editor.Commands.Command_Comment_Line),
+           (Editor.Command_Ids.Command_Comment_Line),
          "comment-line must be command-palette visible");
       Assert
         (Editor.Commands.Classification.Visible_In_Command_Palette
-           (Editor.Commands.Command_Uncomment_Line),
+           (Editor.Command_Ids.Command_Uncomment_Line),
          "uncomment-line must be command-palette visible");
       Assert
         (Editor.Commands.Classification.Visible_In_Command_Palette
-           (Editor.Commands.Command_Toggle_Line_Comment),
+           (Editor.Command_Ids.Command_Toggle_Line_Comment),
          "toggle-line-comment must be command-palette visible");
       Assert
         (Editor.Commands.Editing_Ids.Is_Editing_Command
-           (Editor.Commands.Command_Comment_Line),
+           (Editor.Command_Ids.Command_Comment_Line),
          "comment-line must be classified as text editing");
       Assert
         (Editor.Commands.Editing_Ids.Is_Editing_Command
-           (Editor.Commands.Command_Uncomment_Line),
+           (Editor.Command_Ids.Command_Uncomment_Line),
          "uncomment-line must be classified as text editing");
       Assert
         (Editor.Commands.Editing_Ids.Is_Editing_Command
-           (Editor.Commands.Command_Toggle_Line_Comment),
+           (Editor.Command_Ids.Command_Toggle_Line_Comment),
          "toggle-line-comment must be classified as text editing");
 
       Assert_Not_Exposed ("edit.comment.selection");
@@ -1209,7 +1209,7 @@ procedure Test_Line_Comment_Command_Descriptors
       Editor.State.Set_Dirty (S, False);
 
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 0, 5)));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Comment_Line);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Comment_Line);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) =
               "-- Alpha" & ASCII.LF &
               "  Alpha" & ASCII.LF &
@@ -1222,15 +1222,15 @@ procedure Test_Line_Comment_Command_Descriptors
               "comment-line must insert exactly canonical marker at unindented prefix");
 
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 1, 2)));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Comment_Line);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Comment_Line);
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 2, 1)));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Comment_Line);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Comment_Line);
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 3, 2)));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Comment_Line);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Comment_Line);
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 6, 5)));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Comment_Line);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Comment_Line);
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 7, 2)));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Comment_Line);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Comment_Line);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) =
               "-- Alpha" & ASCII.LF &
               "  -- Alpha" & ASCII.LF &
@@ -1243,26 +1243,26 @@ procedure Test_Line_Comment_Command_Descriptors
               "comment-line prefix matrix must preserve indentation, internal markers, and whitespace lines");
 
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 4, 0)));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Comment_Line);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Comment_Line);
       Assert (Message_Text (S) = "Line already commented",
               "comment-line must no-op on -- space prefix");
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 5, 0)));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Comment_Line);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Comment_Line);
       Assert (Message_Text (S) = "Line already commented",
               "comment-line must no-op on bare -- prefix");
 
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 0, 0)));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Uncomment_Line);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Uncomment_Line);
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 1, 2)));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Uncomment_Line);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Uncomment_Line);
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 2, 1)));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Uncomment_Line);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Uncomment_Line);
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 3, 2)));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Uncomment_Line);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Uncomment_Line);
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 6, 0)));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Uncomment_Line);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Uncomment_Line);
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 7, 2)));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Uncomment_Line);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Uncomment_Line);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) =
               "Alpha" & ASCII.LF &
               "  Alpha" & ASCII.LF &
@@ -1280,7 +1280,7 @@ procedure Test_Line_Comment_Command_Descriptors
         (S,
          Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 0, 0)),
          Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 1, 0)));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Comment_Line);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Comment_Line);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "A" & ASCII.LF & "-- B" & ASCII.LF & "C",
               "line-comment commands must operate on the caret line only, not selected-line ranges");
    end Test_Prefix_Matrix_And_Current_Line_Only;
@@ -1298,30 +1298,30 @@ procedure Test_Line_Comment_Command_Descriptors
       Editor.State.Set_Dirty (S, False);
 
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 1, 0)));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Indent_Increase);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Toggle_Line_Comment);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Indent_Increase);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Toggle_Line_Comment);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "Alpha" & ASCII.LF & "  -- Beta" & ASCII.LF & "Gamma",
               "toggle comment path must place marker after current indentation");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Indent_Decrease);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Indent_Decrease);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "Alpha" & ASCII.LF & "-- Beta" & ASCII.LF & "Gamma",
               "outdent after comment-line must treat indentation canonically before marker");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Toggle_Line_Comment);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Toggle_Line_Comment);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "Alpha" & ASCII.LF & "Beta" & ASCII.LF & "Gamma",
               "toggle uncomment path must share canonical marker recognition");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Comment_Line);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Duplicate);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Comment_Line);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Duplicate);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "Alpha" & ASCII.LF & "-- Beta" & ASCII.LF & "-- Beta" & ASCII.LF & "Gamma",
               "duplicate-line after comment-line must preserve exact current-line text");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Move_Down);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Move_Down);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "Alpha" & ASCII.LF & "-- Beta" & ASCII.LF & "Gamma" & ASCII.LF & "-- Beta",
               "move-down after comment-line must preserve exact line boundaries");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Uncomment_Line);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Uncomment_Line);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "Alpha" & ASCII.LF & "-- Beta" & ASCII.LF & "Gamma" & ASCII.LF & "Beta",
               "uncomment after line-edit commands must use post-edit caret line");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "Alpha" & ASCII.LF & "-- Beta" & ASCII.LF & "Gamma",
               "mixed line-comment and line-edit undo sequence must restore exact text");
    end Test_Indentation_Line_Edit_And_Toggle_Sharing;
@@ -1348,13 +1348,13 @@ procedure Test_Line_Comment_Command_Descriptors
       Editor.State.Set_Dirty (S, False);
 
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 0, 2)));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Comment_Line);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Comment_Line);
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 1, 0)));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Comment_Line);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Comment_Line);
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 2, 2)));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Comment_Line);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Comment_Line);
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 3, 4)));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Toggle_Line_Comment);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Toggle_Line_Comment);
 
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) =
@@ -1366,10 +1366,10 @@ procedure Test_Line_Comment_Command_Descriptors
       Assert (Natural (Editor.History.Undo_Stack.Length) = 4,
               "completeness line-boundary mutations must create one undo entry per text change");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) =
          "First" & ASCII.LF & ASCII.LF & "  " & ASCII.LF & "Last" & ASCII.LF,
@@ -1377,7 +1377,7 @@ procedure Test_Line_Comment_Command_Descriptors
       Assert (not Editor.State.Is_Dirty (S),
               "completeness undo to clean baseline must restore clean dirty state");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) =
          "-- First" & ASCII.LF & ASCII.LF & "  " & ASCII.LF & "Last" & ASCII.LF,
@@ -1390,7 +1390,7 @@ procedure Test_Line_Comment_Command_Descriptors
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
       Before_Dirty := Editor.State.Is_Dirty (S);
       S.Carets.Clear;
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Comment_Line);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Comment_Line);
       Assert (Message_Text (S) = "No caret location",
               "completeness comment-line without a caret must report no caret location");
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = To_String (Before_Text),
@@ -1401,10 +1401,10 @@ procedure Test_Line_Comment_Command_Descriptors
       Assert (Editor.State.Is_Dirty (S) = Before_Dirty,
               "completeness no-caret comment-line must preserve dirty state");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Uncomment_Line);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Uncomment_Line);
       Assert (Message_Text (S) = "No caret location",
               "completeness uncomment-line without a caret must report no caret location");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Toggle_Line_Comment);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Toggle_Line_Comment);
       Assert (Message_Text (S) = "No caret location",
               "completeness toggle-line-comment without a caret must report no caret location");
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = To_String (Before_Text),
@@ -1447,7 +1447,7 @@ procedure Test_Line_Comment_Command_Descriptors
         (S,
          Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 0, 0)),
          Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 1, 1)));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Comment_Line);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Comment_Line);
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) =
          "A" & ASCII.LF &
@@ -1475,11 +1475,11 @@ procedure Test_Line_Comment_Command_Descriptors
          "line comment caret normalization must not record navigation");
 
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 3, 0)));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Toggle_Line_Comment);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Toggle_Line_Comment);
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 4, 3)));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Toggle_Line_Comment);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Toggle_Line_Comment);
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 5, 1)));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Toggle_Line_Comment);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Toggle_Line_Comment);
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) =
          "A" & ASCII.LF &
@@ -1492,10 +1492,10 @@ procedure Test_Line_Comment_Command_Descriptors
       Assert (Natural (Editor.History.Undo_Stack.Length) = 4,
               "each text-changing line-comment command must create exactly one undo entry");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) =
          "A" & ASCII.LF &
@@ -1527,35 +1527,35 @@ procedure Test_Line_Comment_Command_Descriptors
       Editor.Clipboard.Set_Text (To_Unbounded_String ("CLIP"));
 
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 1, 0)));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Indent_Increase);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Indent_Increase);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) =
               "Alpha" & ASCII.LF & "  Beta" & ASCII.LF & "Gamma",
               "setup indent must adjust leading whitespace before comment marker");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Comment_Line);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Comment_Line);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) =
               "Alpha" & ASCII.LF & "  -- Beta" & ASCII.LF & "Gamma",
               "comment after indent must insert marker after current leading whitespace");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Indent_Decrease);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Indent_Decrease);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) =
               "Alpha" & ASCII.LF & "-- Beta" & ASCII.LF & "Gamma",
               "outdent after comment must treat indentation before marker canonically");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Uncomment_Line);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Uncomment_Line);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) =
               "Alpha" & ASCII.LF & "Beta" & ASCII.LF & "Gamma",
               "uncomment after outdent must remove only canonical active-line marker");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Comment_Line);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Duplicate);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Comment_Line);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Duplicate);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) =
               "Alpha" & ASCII.LF & "-- Beta" & ASCII.LF &
               "-- Beta" & ASCII.LF & "Gamma",
               "duplicate-line after comment must preserve exact commented text");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Move_Down);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Move_Down);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) =
               "Alpha" & ASCII.LF & "-- Beta" & ASCII.LF &
               "Gamma" & ASCII.LF & "-- Beta",
               "move-down after duplicate/comment must preserve logical line boundaries");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Toggle_Line_Comment);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Toggle_Line_Comment);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) =
               "Alpha" & ASCII.LF & "-- Beta" & ASCII.LF &
               "Gamma" & ASCII.LF & "Beta",
@@ -1564,13 +1564,13 @@ procedure Test_Line_Comment_Command_Descriptors
               and then To_String (Editor.Clipboard.Get_Text) = "CLIP",
               "indentation/line-edit/comment integration must not mutate clipboard");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert (Natural (Editor.History.Redo_Stack.Length) = 1,
               "undo after mixed workflow must expose redo");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Uncomment_Line);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Uncomment_Line);
       Assert (Natural (Editor.History.Redo_Stack.Length) = 0,
               "successful line-comment command after undo must clear redo");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert (Message_Text (S) = "No edits to redo",
               "redo after successful line-comment invalidation must report no redo");
    end Test_Indent_Line_Edit_Clipboard_And_Redo_Integration;
@@ -1580,28 +1580,28 @@ procedure Test_Line_Comment_Command_Descriptors
    is
       pragma Unreferenced (T);
       Found : Boolean := False;
-      Id    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Id    : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
    begin
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Line_Join_Next) = "edit.line.join-next",
+           (Editor.Command_Ids.Command_Line_Join_Next) = "edit.line.join-next",
          "join-next stable name mismatch");
       Assert
         (Editor.Commands.Descriptors.Descriptor
-           (Editor.Commands.Command_Line_Join_Next).Category =
+           (Editor.Command_Ids.Command_Line_Join_Next).Category =
          Editor.Commands.Descriptors.Edit_Category,
          "join-next must be an Edit command");
       Assert
         (Editor.Commands.Classification.Is_Bindable_Command
-           (Editor.Commands.Command_Line_Join_Next),
+           (Editor.Command_Ids.Command_Line_Join_Next),
          "join-next must be bindable");
       Assert
         (Editor.Commands.Editing_Ids.Is_Editing_Command
-           (Editor.Commands.Command_Line_Join_Next),
+           (Editor.Command_Ids.Command_Line_Join_Next),
          "join-next must be classified as a text-editing command");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.line.join-next", Found);
-      Assert (Found and then Id = Editor.Commands.Command_Line_Join_Next,
+      Assert (Found and then Id = Editor.Command_Ids.Command_Line_Join_Next,
               "join-next stable name must resolve to canonical command id");
    end Test_Line_Join_Command_Descriptors;
 
@@ -1609,7 +1609,7 @@ procedure Test_Line_Comment_Command_Descriptors
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Id    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Id    : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Found : Boolean := False;
       Desc  : Editor.Commands.Descriptors.Command_Descriptor;
       Cmd   : Editor.Commands.Payloads.Command;
@@ -1623,15 +1623,15 @@ procedure Test_Line_Comment_Command_Descriptors
       procedure Assert_Not_Exposed (Name : String) is
       begin
          Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
-         Assert (not Found and then Id = Editor.Commands.No_Command,
+         Assert (not Found and then Id = Editor.Command_Ids.No_Command,
                  Name & " must not be exposed as a split command");
       end Assert_Not_Exposed;
    begin
       Desc := Editor.Commands.Descriptors.Descriptor
-        (Editor.Commands.Command_Line_Split_At_Caret);
+        (Editor.Command_Ids.Command_Line_Split_At_Caret);
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Line_Split_At_Caret) =
+           (Editor.Command_Ids.Command_Line_Split_At_Caret) =
          "edit.line.split-at-caret",
          "split stable command name mismatch");
       Assert (Desc.Category = Editor.Commands.Descriptors.Edit_Category,
@@ -1640,15 +1640,15 @@ procedure Test_Line_Comment_Command_Descriptors
               "split must be visible in the Command Palette");
       Assert
         (Editor.Commands.Classification.Is_Bindable_Command
-           (Editor.Commands.Command_Line_Split_At_Caret),
+           (Editor.Command_Ids.Command_Line_Split_At_Caret),
          "split must be bindable");
       Cmd := Editor.Commands.Payloads.Command_For_Id
-        (Editor.Commands.Command_Line_Split_At_Caret);
+        (Editor.Command_Ids.Command_Line_Split_At_Caret);
       Assert (Cmd.Kind = Editor.Command_Kinds.Split_Current_Line_At_Caret,
               "split command must map to canonical edit kind");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.line.split-at-caret", Found);
-      Assert (Found and then Id = Editor.Commands.Command_Line_Split_At_Caret,
+      Assert (Found and then Id = Editor.Command_Ids.Command_Line_Split_At_Caret,
               "split stable name must resolve back to command id");
       Assert_Not_Exposed ("edit.line.split");
       Assert_Not_Exposed ("edit.line.split-selection");
@@ -1667,7 +1667,7 @@ procedure Test_Line_Comment_Command_Descriptors
       Before_Undo := Natural (Editor.History.Undo_Stack.Length);
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Line_Split_At_Caret);
+        (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = To_String (Before_Text),
               "split availability must not mutate text");
       Assert (S.Carets (S.Carets.First_Index).Pos = Before_Caret,
@@ -1683,7 +1683,7 @@ procedure Test_Line_Comment_Command_Descriptors
    is
       pragma Unreferenced (T);
       Found : Boolean := False;
-      Id    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Id    : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Chord : constant Editor.Keybindings.Key_Chord :=
         Editor.Keybindings.Key_Chord'
           (Key       => Editor.Keybindings.Key_Backspace,
@@ -1697,41 +1697,41 @@ procedure Test_Line_Comment_Command_Descriptors
    begin
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Word_Delete_Previous) =
+           (Editor.Command_Ids.Command_Word_Delete_Previous) =
          "edit.word.delete-previous",
          "previous-word delete stable name mismatch");
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Word_Delete_Next) =
+           (Editor.Command_Ids.Command_Word_Delete_Next) =
          "edit.word.delete-next",
          "next-word delete stable name mismatch");
       Assert
         (Editor.Commands.Descriptors.Descriptor
-           (Editor.Commands.Command_Word_Delete_Previous).Category =
+           (Editor.Command_Ids.Command_Word_Delete_Previous).Category =
          Editor.Commands.Descriptors.Edit_Category,
          "previous-word delete must be an Edit command");
       Assert
         (Editor.Commands.Descriptors.Descriptor
-           (Editor.Commands.Command_Word_Delete_Next).Visibility =
+           (Editor.Command_Ids.Command_Word_Delete_Next).Visibility =
          Editor.Commands.Descriptors.Palette_Command,
          "next-word delete must be palette visible");
       Assert
         (Editor.Commands.Classification.Is_Bindable_Command
-           (Editor.Commands.Command_Word_Delete_Previous)
+           (Editor.Command_Ids.Command_Word_Delete_Previous)
          and then Editor.Commands.Classification.Is_Bindable_Command
-           (Editor.Commands.Command_Word_Delete_Next),
+           (Editor.Command_Ids.Command_Word_Delete_Next),
          "word delete commands must be bindable");
 
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.word.delete-previous", Found);
-      Assert (Found and then Id = Editor.Commands.Command_Word_Delete_Previous,
+      Assert (Found and then Id = Editor.Command_Ids.Command_Word_Delete_Previous,
               "previous-word stable name lookup mismatch");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.word.delete-next", Found);
-      Assert (Found and then Id = Editor.Commands.Command_Word_Delete_Next,
+      Assert (Found and then Id = Editor.Command_Ids.Command_Word_Delete_Next,
               "next-word stable name lookup mismatch");
 
-      Editor.Keybindings.Bind (Chord, Editor.Commands.Command_Word_Delete_Previous);
+      Editor.Keybindings.Bind (Chord, Editor.Command_Ids.Command_Word_Delete_Previous);
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "Route Alpha");
       Set_Caret (S, 11);
@@ -1761,19 +1761,19 @@ procedure Test_Line_Comment_Command_Descriptors
       Editor.State.Load_Text (S, "AlphaBeta");
       Set_Caret (S, 5);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Line_Split_At_Caret);
+        (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
       Assert_Buffer_Text (S, "Alpha" & ASCII.LF & "Beta",
                           "split precondition must produce canonical line boundary");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Word_Delete_Previous);
+        (S, Editor.Command_Ids.Command_Word_Delete_Previous);
       Assert_Buffer_Text (S, "Beta",
                           "word delete after split must use buffer text, not Line Join");
       Assert (Message_Text (S) = "Deleted previous word",
               "word delete after split message mismatch");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text (S, "Alpha" & ASCII.LF & "Beta",
                           "undo after mixed split/delete must restore split text");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert_Buffer_Text (S, "Beta",
                           "redo after mixed split/delete must restore delete result");
 
@@ -1782,10 +1782,10 @@ procedure Test_Line_Comment_Command_Descriptors
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Line_Join_Next);
+        (S, Editor.Command_Ids.Command_Line_Join_Next);
       Set_Caret (S, Cursor_Index (Text_Buffer.Length (S.Buffer)));
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Word_Delete_Previous);
+        (S, Editor.Command_Ids.Command_Word_Delete_Previous);
       Assert (Message_Text (S) = "Deleted previous word",
               "word delete after join must still be a word-delete command");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 2,
@@ -1815,36 +1815,36 @@ procedure Test_Line_Comment_Command_Descriptors
       Editor.State.Set_Dirty (S, False);
       Set_Caret (S, Cursor_Index (Text_Buffer.Length (S.Buffer)));
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Word_Delete_Previous);
+        (S, Editor.Command_Ids.Command_Word_Delete_Previous);
       Assert_Buffer_Text (S, "Alpha ",
                           "dirty matrix delete-previous text");
       Assert (Editor.State.Is_Dirty (S),
               "text-changing delete-previous must dirty clean buffer");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
               "delete-previous must create one undo entry");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text (S, "Alpha Beta",
                           "undo after delete-previous restores baseline text");
       Assert (not Editor.State.Is_Dirty (S),
               "undo to saved baseline must clear dirty state");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert_Buffer_Text (S, "Alpha ",
                           "redo after delete-previous restores edited text");
       Assert (Editor.State.Is_Dirty (S),
               "redo to edited text must restore dirty state");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Set_Caret (S, 0);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Word_Delete_Previous);
+        (S, Editor.Command_Ids.Command_Word_Delete_Previous);
       Assert (Natural (Editor.History.Redo_Stack.Length) = 1,
               "no-op delete-previous after undo preserves redo stack");
       Set_Caret (S, Cursor_Index (Text_Buffer.Length (S.Buffer)));
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Word_Delete_Previous);
+        (S, Editor.Command_Ids.Command_Word_Delete_Previous);
       Assert (Natural (Editor.History.Redo_Stack.Length) = 0,
               "successful delete-previous after undo clears redo stack");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert (Message_Text (S) = "No edits to redo",
               "redo after successful Word Delete invalidation must be unavailable");
 
@@ -1853,12 +1853,12 @@ procedure Test_Line_Comment_Command_Descriptors
       Editor.State.Load_Text (S, "AlphaBeta");
       Set_Caret (S, 5);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Line_Split_At_Caret);
+        (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Word_Delete_Previous);
+        (S, Editor.Command_Ids.Command_Word_Delete_Previous);
       Assert_Buffer_Text (S, "Beta",
                           "split then delete-previous must delete by canonical text only");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text (S, "Alpha" & ASCII.LF & "Beta",
                           "undo mixed split/delete restores split text");
 
@@ -1867,10 +1867,10 @@ procedure Test_Line_Comment_Command_Descriptors
       Editor.History.Redo_Stack.Clear;
       Set_Caret (S, 5);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Line_Join_Next);
+        (S, Editor.Command_Ids.Command_Line_Join_Next);
       Set_Caret (S, Cursor_Index (Text_Buffer.Length (S.Buffer)));
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Word_Delete_Previous);
+        (S, Editor.Command_Ids.Command_Word_Delete_Previous);
       Assert (Natural (Editor.History.Undo_Stack.Length) = 2,
               "join/delete sequence must keep one undo entry per mutation");
 
@@ -1879,10 +1879,10 @@ procedure Test_Line_Comment_Command_Descriptors
       Editor.History.Redo_Stack.Clear;
       Set_Caret (S, 2);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Indent_Increase);
+        (S, Editor.Command_Ids.Command_Indent_Increase);
       Set_Caret (S, Cursor_Index (Text_Buffer.Length (S.Buffer)));
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Word_Delete_Previous);
+        (S, Editor.Command_Ids.Command_Word_Delete_Previous);
       Assert (Message_Text (S) = "Deleted previous word",
               "indent/delete mixed workflow must stay in Word Delete command path");
 
@@ -1891,10 +1891,10 @@ procedure Test_Line_Comment_Command_Descriptors
       Editor.History.Redo_Stack.Clear;
       Set_Caret (S, 0);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Toggle_Line_Comment);
+        (S, Editor.Command_Ids.Command_Toggle_Line_Comment);
       Set_Caret (S, Cursor_Index (Text_Buffer.Length (S.Buffer)));
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Word_Delete_Previous);
+        (S, Editor.Command_Ids.Command_Word_Delete_Previous);
       Assert (Message_Text (S) = "Deleted previous word",
               "comment/delete mixed workflow must stay in Word Delete command path");
    end Test_Word_Delete_Undo_Redo_Dirty_And_Current_Line_Coexistence;
@@ -1908,36 +1908,36 @@ procedure Test_Line_Comment_Command_Descriptors
    begin
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Char_Delete_Previous) =
+           (Editor.Command_Ids.Command_Char_Delete_Previous) =
          "edit.char.delete-previous",
          "previous-character delete stable name mismatch");
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Char_Delete_Next) =
+           (Editor.Command_Ids.Command_Char_Delete_Next) =
          "edit.char.delete-next",
          "next-character delete stable name mismatch");
       Assert
         (Editor.Commands.Descriptors.Descriptor
-           (Editor.Commands.Command_Char_Delete_Previous).Category =
+           (Editor.Command_Ids.Command_Char_Delete_Previous).Category =
          Editor.Commands.Descriptors.Edit_Category,
          "previous-character delete must be an Edit command");
       Assert
         (Editor.Commands.Classification.Visible_In_Command_Palette
-           (Editor.Commands.Command_Char_Delete_Next),
+           (Editor.Command_Ids.Command_Char_Delete_Next),
          "next-character delete must be palette visible");
       Assert
-        (Editor.Commands.Classification.Is_Bindable_Command (Editor.Commands.Command_Char_Delete_Previous)
-         and then Editor.Commands.Classification.Is_Bindable_Command (Editor.Commands.Command_Char_Delete_Next),
+        (Editor.Commands.Classification.Is_Bindable_Command (Editor.Command_Ids.Command_Char_Delete_Previous)
+         and then Editor.Commands.Classification.Is_Bindable_Command (Editor.Command_Ids.Command_Char_Delete_Next),
          "Character Delete commands must be bindable");
       Assert
         (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
            ("edit.char.delete-previous", Found) =
-         Editor.Commands.Command_Char_Delete_Previous and then Found,
+         Editor.Command_Ids.Command_Char_Delete_Previous and then Found,
          "previous-character stable name must resolve");
       Assert
         (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
            ("edit.char.delete-next", Found) =
-         Editor.Commands.Command_Char_Delete_Next and then Found,
+         Editor.Command_Ids.Command_Char_Delete_Next and then Found,
          "next-character stable name must resolve");
 
       Editor.History.Undo_Stack.Clear;
@@ -1945,7 +1945,7 @@ procedure Test_Line_Comment_Command_Descriptors
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "AB");
       Set_Caret (S, 1);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Char_Delete_Next);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Char_Delete_Next);
       Assert_Buffer_Text (S, "A", "next-character command must route through Executor");
       Assert (Message_Text (S) = "Deleted next character",
               "next-character routed message mismatch");
@@ -1960,14 +1960,14 @@ procedure Test_Line_Comment_Command_Descriptors
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       D     : constant Editor.Commands.Descriptors.Command_Descriptor :=
-        Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Selection_Delete);
+        Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Selection_Delete);
       Found : Boolean := False;
-      Id    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Id    : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       S     : Editor.State.State_Type;
    begin
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Selection_Delete) = "selection.delete",
+           (Editor.Command_Ids.Command_Selection_Delete) = "selection.delete",
          "selection delete must have stable persisted command name");
       Assert
         (D.Category = Editor.Commands.Descriptors.Edit_Category,
@@ -1977,27 +1977,27 @@ procedure Test_Line_Comment_Command_Descriptors
          "selection delete must be command-palette visible");
       Assert
         (Editor.Commands.Classification.Is_Bindable_Command
-           (Editor.Commands.Command_Selection_Delete),
+           (Editor.Command_Ids.Command_Selection_Delete),
          "selection delete must be bindable");
       Assert
         (Editor.Commands.Editing_Ids.Is_Editing_Command
-           (Editor.Commands.Command_Selection_Delete),
+           (Editor.Command_Ids.Command_Selection_Delete),
          "selection delete must be classified as a text editing command");
 
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("selection.delete", Found);
       Assert
-        (Found and then Id = Editor.Commands.Command_Selection_Delete,
+        (Found and then Id = Editor.Command_Ids.Command_Selection_Delete,
          "selection delete stable name must resolve to the command id");
       Assert
         (Editor.Commands.Payloads.Command_For_Id
-           (Editor.Commands.Command_Selection_Delete).Kind =
+           (Editor.Command_Ids.Command_Selection_Delete).Kind =
          Editor.Command_Kinds.Delete_Selection_Range,
          "selection delete id must create the canonical edit command kind");
 
       Editor.State.Load_Text (S, "Alpha Beta");
       Set_Primary_Selection (S, 0, 5);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Delete);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Delete);
       Assert_Buffer_Text (S, " Beta", "selection delete executor route");
       Assert
         (Message_Text (S) = "Deleted selection",
@@ -2019,40 +2019,40 @@ procedure Test_Line_Comment_Command_Descriptors
    begin
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Line_Delete) = "edit.line.delete",
+           (Editor.Command_Ids.Command_Line_Delete) = "edit.line.delete",
          "delete-line stable name mismatch");
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Line_Duplicate) = "edit.line.duplicate",
+           (Editor.Command_Ids.Command_Line_Duplicate) = "edit.line.duplicate",
          "duplicate-line stable name mismatch");
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Line_Move_Up) = "edit.line.move-up",
+           (Editor.Command_Ids.Command_Line_Move_Up) = "edit.line.move-up",
          "move-up stable name mismatch");
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Line_Move_Down) = "edit.line.move-down",
+           (Editor.Command_Ids.Command_Line_Move_Down) = "edit.line.move-down",
          "move-down stable name mismatch");
       Assert
         (Editor.Commands.Descriptors.Descriptor
-           (Editor.Commands.Command_Line_Delete).Category =
+           (Editor.Command_Ids.Command_Line_Delete).Category =
          Editor.Commands.Descriptors.Edit_Category,
          "line delete must be an Edit command");
       Assert
         (Editor.Commands.Classification.Is_Bindable_Command
-           (Editor.Commands.Command_Line_Delete),
+           (Editor.Command_Ids.Command_Line_Delete),
          "line delete must be bindable");
       Assert
         (Editor.Commands.Classification.Is_Bindable_Command
-           (Editor.Commands.Command_Line_Duplicate),
+           (Editor.Command_Ids.Command_Line_Duplicate),
          "line duplicate must be bindable");
       Assert
         (Editor.Commands.Classification.Is_Bindable_Command
-           (Editor.Commands.Command_Line_Move_Up),
+           (Editor.Command_Ids.Command_Line_Move_Up),
          "line move-up must be bindable");
       Assert
         (Editor.Commands.Classification.Is_Bindable_Command
-           (Editor.Commands.Command_Line_Move_Down),
+           (Editor.Command_Ids.Command_Line_Move_Down),
          "line move-down must be bindable");
    end Test_Command_Descriptors;
 

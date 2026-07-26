@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Commands.Classification;
 with Editor.Commands.Descriptor_Display_Panels;

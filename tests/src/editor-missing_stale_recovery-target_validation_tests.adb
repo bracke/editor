@@ -2,7 +2,6 @@ with Ada.Directories;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 with AUnit.Assertions; use AUnit.Assertions;
-with Editor.Commands;
 with Editor.Commands.Workflow_Messages;
 with Editor.Missing_Stale_Recovery;
 with Editor.Test_Temp;

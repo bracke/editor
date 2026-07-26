@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.Test_Temp;
@@ -6,7 +7,6 @@ with AUnit.Test_Cases;
 with Ada.Containers; use type Ada.Containers.Count_Type;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Buffers;
-with Editor.Commands;
 with Editor.Core_Editing_Workflow;
 with Editor.Cursors;
 with Editor.Dirty_Lines;
@@ -108,11 +108,11 @@ package body Editor.Core_Editing_Workflow.Tests is
 
       Assert
         (Editor.Core_Editing_Workflow.Editing_Availability_Reason
-           (S, Editor.Commands.Command_Save_File) = "No file path for active buffer",
+           (S, Editor.Command_Ids.Command_Save_File) = "No file path for active buffer",
          "save reports missing file path for unbacked active buffer");
       Assert
         (Editor.Core_Editing_Workflow.Editing_Availability_Reason
-           (S, Editor.Commands.Command_Save_File_As) = "",
+           (S, Editor.Command_Ids.Command_Save_File_As) = "",
          "save-as is available for an active unbacked buffer");
 
       S.File_Info.Has_Path := True;
@@ -120,21 +120,21 @@ package body Editor.Core_Editing_Workflow.Tests is
       S.File_Info.Display_Name := To_Unbounded_String ("example.adb");
       Assert
         (Editor.Core_Editing_Workflow.Editing_Availability_Reason
-           (S, Editor.Commands.Command_Save_File) = "",
+           (S, Editor.Command_Ids.Command_Save_File) = "",
          "save is available when active buffer has a path");
       Assert
         (Editor.Core_Editing_Workflow.Editing_Availability_Reason
-           (S, Editor.Commands.Command_Reload_Active_Buffer) = "",
+           (S, Editor.Command_Ids.Command_Reload_Active_Buffer) = "",
          "reload is available for a clean file-backed buffer");
 
       S.File_Info.Dirty := True;
       Assert
         (Editor.Core_Editing_Workflow.Editing_Availability_Reason
-           (S, Editor.Commands.Command_Reload_Active_Buffer) = "Dirty buffer cannot be reloaded",
+           (S, Editor.Command_Ids.Command_Reload_Active_Buffer) = "Dirty buffer cannot be reloaded",
          "dirty reload exposes retained guard reason");
       Assert
         (Editor.Core_Editing_Workflow.Editing_Availability_Reason
-           (S, Editor.Commands.Command_Revert_Active_Buffer) = "",
+           (S, Editor.Command_Ids.Command_Revert_Active_Buffer) = "",
          "revert is available for dirty file-backed buffer");
    end Test_Availability_Reasons_For_Core_File_Commands;
 
@@ -175,96 +175,96 @@ package body Editor.Core_Editing_Workflow.Tests is
    begin
       Assert
         (Editor.Core_Editing_Workflow.Is_Core_Editing_Command
-           (Editor.Commands.Command_Open_File),
+           (Editor.Command_Ids.Command_Open_File),
          "open file is part of the core editing workflow");
       Assert
         (Editor.Core_Editing_Workflow.Is_Core_Editing_Command
-           (Editor.Commands.Command_Close_Active_Buffer),
+           (Editor.Command_Ids.Command_Close_Active_Buffer),
          "close active buffer is part of the core editing workflow");
       Assert
         (Editor.Core_Editing_Workflow.Is_Core_Editing_Command
-           (Editor.Commands.Command_Next_Buffer),
+           (Editor.Command_Ids.Command_Next_Buffer),
          "buffer switching is part of the core editing workflow");
       Assert
         (Editor.Core_Editing_Workflow.Is_Core_Editing_Command
-           (Editor.Commands.Command_Save_File),
+           (Editor.Command_Ids.Command_Save_File),
          "save is part of the core editing workflow");
       Assert
         (Editor.Core_Editing_Workflow.Is_Core_Editing_Command
-           (Editor.Commands.Command_Move_Left),
+           (Editor.Command_Ids.Command_Move_Left),
          "caret movement is part of the core editing workflow");
       Assert
         (Editor.Core_Editing_Workflow.Is_Core_Editing_Command
-           (Editor.Commands.Command_Selection_Delete),
+           (Editor.Command_Ids.Command_Selection_Delete),
          "selection delete is part of the core editing workflow");
       Assert
         (Editor.Core_Editing_Workflow.Is_Core_Editing_Command
-           (Editor.Commands.Command_Indent_Increase),
+           (Editor.Command_Ids.Command_Indent_Increase),
          "indent is part of the core editing workflow");
       Assert
         (Editor.Core_Editing_Workflow.Is_Buffer_Lifecycle_Command
-           (Editor.Commands.Command_Open_File),
+           (Editor.Command_Ids.Command_Open_File),
          "open file is classified as buffer lifecycle");
       Assert
         (Editor.Core_Editing_Workflow.Is_Buffer_Lifecycle_Command
-           (Editor.Commands.Command_Close_Active_Buffer),
+           (Editor.Command_Ids.Command_Close_Active_Buffer),
          "close active buffer is classified as buffer lifecycle");
       Assert
         (Editor.Core_Editing_Workflow.Is_Buffer_Lifecycle_Command
-           (Editor.Commands.Command_Next_Buffer),
+           (Editor.Command_Ids.Command_Next_Buffer),
          "next buffer is classified as buffer lifecycle");
       Assert
         (not Editor.Core_Editing_Workflow.Is_Buffer_Lifecycle_Command
-           (Editor.Commands.Command_Build_Run),
+           (Editor.Command_Ids.Command_Build_Run),
          "build.run is not classified as buffer lifecycle");
       Assert
         (not Editor.Core_Editing_Workflow.Is_Core_Editing_Command
-           (Editor.Commands.Command_Build_Run),
+           (Editor.Command_Ids.Command_Build_Run),
          "build.run remains outside the editing workflow surface");
 
       Assert
         (Editor.Core_Editing_Workflow.Requires_File_Backed_Buffer
-           (Editor.Commands.Command_Save_File),
+           (Editor.Command_Ids.Command_Save_File),
          "save active requires a file-backed buffer");
       Assert
         (not Editor.Core_Editing_Workflow.Requires_File_Backed_Buffer
-           (Editor.Commands.Command_Save_File_As),
+           (Editor.Command_Ids.Command_Save_File_As),
          "save-as supplies an explicit target and does not require an existing path");
       Assert
         (Editor.Core_Editing_Workflow.Mutates_Or_Replaces_Buffer_Text
-           (Editor.Commands.Command_Insert_Newline),
+           (Editor.Command_Ids.Command_Insert_Newline),
          "newline mutates active-buffer text");
       Assert
         (not Editor.Core_Editing_Workflow.Mutates_Or_Replaces_Buffer_Text
-           (Editor.Commands.Command_Move_Left),
+           (Editor.Command_Ids.Command_Move_Left),
          "caret movement does not mutate active-buffer text");
       Assert
         (Editor.Core_Editing_Workflow.Is_Caret_Navigation_Command
-           (Editor.Commands.Command_Goto_Line),
+           (Editor.Command_Ids.Command_Goto_Line),
          "goto line is classified as caret navigation");
       Assert
         (not Editor.Core_Editing_Workflow.Is_Caret_Navigation_Command
-           (Editor.Commands.Command_Build_Run),
+           (Editor.Command_Ids.Command_Build_Run),
          "build.run is not caret navigation");
       Assert
         (Editor.Core_Editing_Workflow.Is_Selection_Command
-           (Editor.Commands.Command_Select_All),
+           (Editor.Command_Ids.Command_Select_All),
          "select all is classified as a selection command");
       Assert
         (Editor.Core_Editing_Workflow.Is_Selection_Command
-           (Editor.Commands.Command_Selection_Delete),
+           (Editor.Command_Ids.Command_Selection_Delete),
          "delete selection is classified as a selection command");
       Assert
         (Editor.Core_Editing_Workflow.Is_Text_Editing_Command
-           (Editor.Commands.Command_Indent_Increase),
+           (Editor.Command_Ids.Command_Indent_Increase),
          "indent is classified as a text editing command");
       Assert
         (not Editor.Core_Editing_Workflow.Is_Text_Editing_Command
-           (Editor.Commands.Command_Save_File),
+           (Editor.Command_Ids.Command_Save_File),
          "save is file lifecycle, not direct text editing");
       Assert
         (not Editor.Core_Editing_Workflow.Is_Text_Editing_Command
-           (Editor.Commands.Command_Copy_Buffer_File),
+           (Editor.Command_Ids.Command_Copy_Buffer_File),
          "copy file is file lifecycle, not direct text editing");
    end Test_Command_Classification_Covers_Core_Editing_Surface;
 
@@ -290,25 +290,25 @@ package body Editor.Core_Editing_Workflow.Tests is
 
       Assert
         (Editor.Core_Editing_Workflow.Editing_Availability_Reason
-           (S, Editor.Commands.Command_Save_File) = "No active buffer.",
+           (S, Editor.Command_Ids.Command_Save_File) = "No active buffer.",
          "save reports no active buffer before file-path checks");
       Assert
         (Editor.Core_Editing_Workflow.Editing_Availability_Reason
-           (S, Editor.Commands.Command_Move_Left) = "No active buffer.",
+           (S, Editor.Command_Ids.Command_Move_Left) = "No active buffer.",
          "caret movement reports no active buffer");
       Assert
         (Editor.Core_Editing_Workflow.Editing_Availability_Reason
-           (S, Editor.Commands.Command_Selection_Clear) = "No active buffer.",
+           (S, Editor.Command_Ids.Command_Selection_Clear) = "No active buffer.",
          "selection clear reports no active buffer");
 
       Editor.State.Initialize (S);
       Assert
         (Editor.Core_Editing_Workflow.Editing_Availability_Reason
-           (S, Editor.Commands.Command_Copy) = "No selection",
+           (S, Editor.Command_Ids.Command_Copy) = "No selection",
          "copy reports no selection for active buffer without selection");
       Assert
         (Editor.Core_Editing_Workflow.Editing_Availability_Reason
-           (S, Editor.Commands.Command_Selection_Delete) = "No selection",
+           (S, Editor.Command_Ids.Command_Selection_Delete) = "No selection",
          "delete-selection reports no selection for active buffer without selection");
    end Test_No_Active_Buffer_And_No_Selection_Reasons;
 
@@ -321,14 +321,14 @@ package body Editor.Core_Editing_Workflow.Tests is
    begin
       Editor.State.Initialize (S);
       S.File_Target_Prompt_Active := True;
-      S.File_Target_Prompt_Command := Editor.Commands.Command_Save_File_As;
+      S.File_Target_Prompt_Command := Editor.Command_Ids.Command_Save_File_As;
       R := Editor.Core_Editing_Workflow.Audit_Core_Editing_Workflow (S);
       Assert (R.Prompt_Boundary_Coherent,
               "save-as target prompt is a coherent transient editing prompt");
       Assert (R.Coherent,
               "valid target prompt does not make editing workflow incoherent");
 
-      S.File_Target_Prompt_Command := Editor.Commands.Command_Build_Run;
+      S.File_Target_Prompt_Command := Editor.Command_Ids.Command_Build_Run;
       R := Editor.Core_Editing_Workflow.Audit_Core_Editing_Workflow (S);
       Assert (not R.Prompt_Boundary_Coherent,
               "build command cannot occupy file target prompt payload");
@@ -349,26 +349,26 @@ package body Editor.Core_Editing_Workflow.Tests is
 
       Assert
         (Editor.Core_Editing_Workflow.Editing_Availability_Reason
-           (S, Editor.Commands.Command_Open_File) = "",
+           (S, Editor.Command_Ids.Command_Open_File) = "",
          "open file does not require an active file-backed buffer");
       Assert
         (Editor.Core_Editing_Workflow.Editing_Availability_Reason
-           (S, Editor.Commands.Command_New_Buffer) = "",
+           (S, Editor.Command_Ids.Command_New_Buffer) = "",
          "new buffer is available without a file path");
       Assert
         (Editor.Core_Editing_Workflow.Editing_Availability_Reason
-           (S, Editor.Commands.Command_Close_Active_Buffer) = "",
+           (S, Editor.Command_Ids.Command_Close_Active_Buffer) = "",
          "clean active buffer may close directly");
       Assert
         (Editor.Core_Editing_Workflow.Editing_Availability_Reason
-           (S, Editor.Commands.Command_Next_Buffer) = "",
+           (S, Editor.Command_Ids.Command_Next_Buffer) = "",
          "buffer switch does not require saving or discarding changes");
 
       S.File_Info.Dirty := True;
       R := Editor.Core_Editing_Workflow.Audit_Core_Editing_Workflow (S);
       Assert
         (Editor.Core_Editing_Workflow.Editing_Availability_Reason
-           (S, Editor.Commands.Command_Close_Active_Buffer) = "",
+           (S, Editor.Command_Ids.Command_Close_Active_Buffer) = "",
          "dirty close remains available and execution opens explicit review");
       Assert (R.Dirty_Close_Guard_Coherent,
               "audit recognizes Executor-owned dirty-close review guard");
@@ -378,11 +378,11 @@ package body Editor.Core_Editing_Workflow.Tests is
       S.Carets.Clear;
       Assert
         (Editor.Core_Editing_Workflow.Editing_Availability_Reason
-           (S, Editor.Commands.Command_Close_Active_Buffer) = "No active buffer.",
+           (S, Editor.Command_Ids.Command_Close_Active_Buffer) = "No active buffer.",
          "close reports no active buffer before dirty guard checks");
       Assert
         (Editor.Core_Editing_Workflow.Editing_Availability_Reason
-           (S, Editor.Commands.Command_Next_Buffer) = "No active buffer.",
+           (S, Editor.Command_Ids.Command_Next_Buffer) = "No active buffer.",
          "buffer switching reports no active buffer");
    end Test_Buffer_Lifecycle_Availability_And_Dirty_Close_Guard;
 
@@ -396,7 +396,7 @@ package body Editor.Core_Editing_Workflow.Tests is
    begin
       Editor.State.Initialize (S);
       S.File_Target_Prompt_Active := True;
-      S.File_Target_Prompt_Command := Editor.Commands.Command_Save_File_As;
+      S.File_Target_Prompt_Command := Editor.Command_Ids.Command_Save_File_As;
       Editor.Overlay_Focus.Activate_With_Previous
         (S.Overlay_Focus,
          Editor.Overlay_Focus.File_Target_Prompt_Overlay,

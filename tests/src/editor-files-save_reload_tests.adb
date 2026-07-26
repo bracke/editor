@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
@@ -6,7 +7,6 @@ with Ada.Containers;
 with Ada.Directories;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.Command_Palette;
 with Editor.Command_Route_Audit;
@@ -63,7 +63,7 @@ package body Editor.Files.Save_Reload_Tests is
    use type Editor.Files.File_Open_Status;
    use type Editor.Files.File_Save_Status;
    use type Editor.Files.File_Move_Status;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Command_Palette.Command_Palette_Row_Kind;
@@ -298,7 +298,7 @@ package body Editor.Files.Save_Reload_Tests is
       Editor.State.Set_Dirty (S, True);
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Toggle_Format_On_Save);
+        (S, Editor.Command_Ids.Command_Toggle_Format_On_Save);
       Assert (Editor.Settings.Format_On_Save,
               "format-on-save toggle should enable the persisted setting");
 
@@ -455,7 +455,7 @@ package body Editor.Files.Save_Reload_Tests is
       Remove_If_Exists (Path);
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Revert_Active_Buffer (S);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Retry_Pending_Transition);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Retry_Pending_Transition);
 
       Assert (Buffer_Text (S) = "disk baseline dirty",
         "failed revert must preserve dirty buffer text");
@@ -499,7 +499,7 @@ package body Editor.Files.Save_Reload_Tests is
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
       Write_Bytes (Path, "external replacement");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Retry_Pending_Transition);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Retry_Pending_Transition);
 
       Assert (Buffer_Text (S) = "disk baseline dirty",
         "stale reload confirmation must not reload after save resolved dirty text");
@@ -540,7 +540,7 @@ package body Editor.Files.Save_Reload_Tests is
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
       Write_Bytes (Path, "external replacement");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Retry_Pending_Transition);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Retry_Pending_Transition);
 
       Assert (Buffer_Text (S) = "disk baseline dirty",
         "stale revert confirmation must not discard text after save resolved dirty text");
@@ -580,7 +580,7 @@ package body Editor.Files.Save_Reload_Tests is
       Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
         "dirty reload starts an explicit confirmation before cancel");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Cancel_Pending_Transition);
+        (S, Editor.Command_Ids.Command_Cancel_Pending_Transition);
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
         "reload cancel clears only the transient confirmation");
       Assert (Buffer_Text (S) = "disk baseline dirty" and then S.File_Info.Dirty,
@@ -593,7 +593,7 @@ package body Editor.Files.Save_Reload_Tests is
       Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
         "dirty revert starts an explicit confirmation before cancel");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Cancel_Pending_Transition);
+        (S, Editor.Command_Ids.Command_Cancel_Pending_Transition);
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
         "revert cancel clears only the transient confirmation");
       Assert (Buffer_Text (S) = "disk baseline dirty" and then S.File_Info.Dirty,
@@ -633,7 +633,7 @@ package body Editor.Files.Save_Reload_Tests is
         "dirty reload should create a lifecycle confirmation");
 
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Save_File);
+        (S, Editor.Command_Ids.Command_Save_File);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "file-lifecycle confirmation should not advertise Save Current");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability) =
@@ -641,7 +641,7 @@ package body Editor.Files.Save_Reload_Tests is
         "Save Current unavailable reason should match pending confirmation policy");
 
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Save_File_As);
+        (S, Editor.Command_Ids.Command_Save_File_As);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "file-lifecycle confirmation should not advertise Save As");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability) =
@@ -649,14 +649,14 @@ package body Editor.Files.Save_Reload_Tests is
         "Save As unavailable reason should match pending confirmation policy");
 
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Save_All);
+        (S, Editor.Command_Ids.Command_Save_All);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "file-lifecycle confirmation should not advertise Save All");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability) =
         "Command unavailable while confirmation is pending.",
         "Save All unavailable reason should match pending confirmation policy");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File);
 
       Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
         "rejected Save Current must leave reload confirmation pending");
@@ -668,7 +668,7 @@ package body Editor.Files.Save_Reload_Tests is
         and then To_String (M.Text) = "Command unavailable while confirmation is pending.",
         "rejected Save Current should report pending confirmation policy");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File_As);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File_As);
 
       Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
         "rejected Save As must leave reload confirmation pending");
@@ -680,7 +680,7 @@ package body Editor.Files.Save_Reload_Tests is
         and then To_String (M.Text) = "Command unavailable while confirmation is pending.",
         "rejected Save As should report pending confirmation policy");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_All);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_All);
 
       Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
         "rejected Save All must leave reload confirmation pending");
@@ -705,27 +705,27 @@ package body Editor.Files.Save_Reload_Tests is
    procedure Test_File_Lifecycle_Confirmation_Blocks_Target_Changing_Routes
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      type Command_List is array (Positive range <>) of Editor.Commands.Command_Id;
+      type Command_List is array (Positive range <>) of Editor.Command_Ids.Command_Id;
       S            : Editor.State.State_Type;
       Path         : constant String := Temp_Path ("pending_blocks_target_routes.txt");
       Active_Id    : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Availability : Editor.Commands.Availability_Metadata.Command_Availability;
       Blocked      : constant Command_List :=
-        (Editor.Commands.Command_Open_File,
-         Editor.Commands.Command_Accept_Quick_Open,
-         Editor.Commands.Command_Quick_Open_Create_From_Query,
-         Editor.Commands.Command_Quick_Open_Create_With_Parents_From_Query,
-         Editor.Commands.Command_Accept_Buffer_Switcher,
-         Editor.Commands.Command_Next_Buffer,
-         Editor.Commands.Command_Previous_Buffer,
-         Editor.Commands.Command_Next_Recent_Buffer,
-         Editor.Commands.Command_Previous_Recent_Buffer,
-         Editor.Commands.Command_Switch_Buffer,
-         Editor.Commands.Command_File_Tree_Open_Selected,
-         Editor.Commands.Command_File_Tree_Create_File,
-         Editor.Commands.Command_File_Tree_Create_Directory,
-         Editor.Commands.Command_File_Tree_Rename_Selected,
-         Editor.Commands.Command_File_Tree_Delete_Selected);
+        (Editor.Command_Ids.Command_Open_File,
+         Editor.Command_Ids.Command_Accept_Quick_Open,
+         Editor.Command_Ids.Command_Quick_Open_Create_From_Query,
+         Editor.Command_Ids.Command_Quick_Open_Create_With_Parents_From_Query,
+         Editor.Command_Ids.Command_Accept_Buffer_Switcher,
+         Editor.Command_Ids.Command_Next_Buffer,
+         Editor.Command_Ids.Command_Previous_Buffer,
+         Editor.Command_Ids.Command_Next_Recent_Buffer,
+         Editor.Command_Ids.Command_Previous_Recent_Buffer,
+         Editor.Command_Ids.Command_Switch_Buffer,
+         Editor.Command_Ids.Command_File_Tree_Open_Selected,
+         Editor.Command_Ids.Command_File_Tree_Create_File,
+         Editor.Command_Ids.Command_File_Tree_Create_Directory,
+         Editor.Command_Ids.Command_File_Tree_Rename_Selected,
+         Editor.Command_Ids.Command_File_Tree_Delete_Selected);
    begin
       Remove_If_Exists (Path);
       Write_Bytes (Path, "disk baseline");
@@ -752,7 +752,7 @@ package body Editor.Files.Save_Reload_Tests is
            "target-changing command should use pending-confirmation reason");
       end loop;
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Next_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Next_Buffer);
       Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
         "rejected buffer switch must leave reload confirmation pending");
       Assert (Editor.Buffers.Global_Active_Buffer = Active_Id,
@@ -773,38 +773,38 @@ package body Editor.Files.Save_Reload_Tests is
    procedure Test_File_Lifecycle_Confirmation_Blocks_Text_Mutations
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      type Command_List is array (Positive range <>) of Editor.Commands.Command_Id;
+      type Command_List is array (Positive range <>) of Editor.Command_Ids.Command_Id;
       S            : Editor.State.State_Type;
       Path         : constant String := Temp_Path ("pending_blocks_text_mutations.txt");
       Availability : Editor.Commands.Availability_Metadata.Command_Availability;
       Found        : Boolean := False;
       M            : Editor.Messages.Editor_Message;
       Blocked      : constant Command_List :=
-        (Editor.Commands.Command_Insert_Newline,
-         Editor.Commands.Command_Undo,
-         Editor.Commands.Command_Redo,
-         Editor.Commands.Command_Edit_History_Clear,
-         Editor.Commands.Command_Cut,
-         Editor.Commands.Command_Paste,
-         Editor.Commands.Command_Selection_Delete,
-         Editor.Commands.Command_Line_Delete,
-         Editor.Commands.Command_Line_Duplicate,
-         Editor.Commands.Command_Line_Move_Up,
-         Editor.Commands.Command_Line_Move_Down,
-         Editor.Commands.Command_Indent_Increase,
-         Editor.Commands.Command_Indent_Decrease,
-         Editor.Commands.Command_Comment_Line,
-         Editor.Commands.Command_Uncomment_Line,
-         Editor.Commands.Command_Toggle_Line_Comment,
-         Editor.Commands.Command_Line_Join_Next,
-         Editor.Commands.Command_Line_Split_At_Caret,
-         Editor.Commands.Command_Trim_Trailing_Whitespace,
-         Editor.Commands.Command_Char_Delete_Previous,
-         Editor.Commands.Command_Char_Delete_Next,
-         Editor.Commands.Command_Word_Delete_Previous,
-         Editor.Commands.Command_Word_Delete_Next,
-         Editor.Commands.Command_Replace_Current,
-         Editor.Commands.Command_Replace_All);
+        (Editor.Command_Ids.Command_Insert_Newline,
+         Editor.Command_Ids.Command_Undo,
+         Editor.Command_Ids.Command_Redo,
+         Editor.Command_Ids.Command_Edit_History_Clear,
+         Editor.Command_Ids.Command_Cut,
+         Editor.Command_Ids.Command_Paste,
+         Editor.Command_Ids.Command_Selection_Delete,
+         Editor.Command_Ids.Command_Line_Delete,
+         Editor.Command_Ids.Command_Line_Duplicate,
+         Editor.Command_Ids.Command_Line_Move_Up,
+         Editor.Command_Ids.Command_Line_Move_Down,
+         Editor.Command_Ids.Command_Indent_Increase,
+         Editor.Command_Ids.Command_Indent_Decrease,
+         Editor.Command_Ids.Command_Comment_Line,
+         Editor.Command_Ids.Command_Uncomment_Line,
+         Editor.Command_Ids.Command_Toggle_Line_Comment,
+         Editor.Command_Ids.Command_Line_Join_Next,
+         Editor.Command_Ids.Command_Line_Split_At_Caret,
+         Editor.Command_Ids.Command_Trim_Trailing_Whitespace,
+         Editor.Command_Ids.Command_Char_Delete_Previous,
+         Editor.Command_Ids.Command_Char_Delete_Next,
+         Editor.Command_Ids.Command_Word_Delete_Previous,
+         Editor.Command_Ids.Command_Word_Delete_Next,
+         Editor.Command_Ids.Command_Replace_Current,
+         Editor.Command_Ids.Command_Replace_All);
    begin
       Remove_If_Exists (Path);
       Write_Bytes (Path, "disk baseline");
@@ -827,7 +827,7 @@ package body Editor.Files.Save_Reload_Tests is
            "text mutation command should use pending-confirmation reason");
       end loop;
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Insert_Newline);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Insert_Newline);
       Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
         "rejected text mutation must leave reload confirmation pending");
       Assert (Buffer_Text (S) = "disk baseline dirty" and then S.File_Info.Dirty,
@@ -1051,7 +1051,7 @@ package body Editor.Files.Save_Reload_Tests is
       Assert (not Editor.Project_Search.Is_Stale (S.Project_Search),
         "save-all test starts with restored active buffer search state not stale");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_All);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_All);
 
       Assert (Editor.Buffers.Global_Active_Buffer = Active_Id,
         "save-all should restore the original active buffer after saving inactive buffers");
@@ -1118,7 +1118,7 @@ package body Editor.Files.Save_Reload_Tests is
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Editor.Messages.Clear (S.Messages);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_All);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_All);
 
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then M.Severity = Editor.Messages.Warning_Message,
@@ -1615,7 +1615,7 @@ package body Editor.Files.Save_Reload_Tests is
       S.File_Info.Dirty := True;
 
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Save_File);
+        (S, Editor.Command_Ids.Command_Save_File);
 
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "Save command should be unavailable for an untitled buffer");
@@ -1639,7 +1639,7 @@ package body Editor.Files.Save_Reload_Tests is
       S.File_Info.Dirty := True;
 
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Save_File);
+        (S, Editor.Command_Ids.Command_Save_File);
 
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "Save command should be available for a file-backed buffer");

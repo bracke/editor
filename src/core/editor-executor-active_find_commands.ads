@@ -1,4 +1,3 @@
-with Editor.Commands;
 with Editor.Search;
 with Editor.State;
 

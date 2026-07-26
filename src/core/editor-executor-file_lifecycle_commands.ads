@@ -1,8 +1,8 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Ada.Strings.Unbounded;
 with Editor.Buffers;
 with Editor.Command_Execution;
-with Editor.Commands;
 with Editor.Dirty_Guards;
 with Editor.Files;
 with Editor.Pending_Transitions;
@@ -13,18 +13,18 @@ package Editor.Executor.File_Lifecycle_Commands is
 
    procedure Lifecycle_Command_Availability
      (S        : Editor.State.State_Type;
-      Id       : Editor.Commands.Command_Id;
+      Id       : Editor.Command_Ids.Command_Id;
       Handled  : out Boolean;
       Result   : out Editor.Commands.Availability_Metadata.Command_Availability);
 
    function Lifecycle_Command_Availability
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Commands.Availability_Metadata.Command_Availability;
 
    function Execute_Lifecycle_Result_Command
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result;
 
    function Active_File_External_Status

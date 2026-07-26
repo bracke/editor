@@ -690,15 +690,14 @@ package body Editor.Commands is
    function Command_Count return Natural
    is
    begin
-      return Command_Id'Pos (Command_Id'Last) - Command_Id'Pos (Command_Id'First) + 1;
+      return Command_Ids.Command_Count;
    end Command_Count;
 
    function Command_At
      (Index : Positive) return Command_Id
    is
    begin
-      pragma Assert (Index <= Command_Count, "Editor.Commands.Command_At index out of range");
-      return Command_Id'Val (Command_Id'Pos (Command_Id'First) + Index - 1);
+      return Command_Ids.Command_At (Index);
    end Command_At;
 
    function Palette_Commands return Command_Descriptor_Vectors.Vector is

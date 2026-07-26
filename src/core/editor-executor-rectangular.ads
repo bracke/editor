@@ -1,6 +1,5 @@
 with Editor.Commands.Payloads;
 with Editor.State;
-with Editor.Commands;
 with Editor.Cursors;
 
 package Editor.Executor.Rectangular is

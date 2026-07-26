@@ -5,7 +5,6 @@ with AUnit.Test_Cases;
 with Ada.Strings.Fixed; use Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Interfaces.C; use Interfaces.C;
-with Editor.Commands;
 with Editor.Commands.Workflow_Messages;
 with Editor.Cursors;
 with Editor.Input_Bridge;

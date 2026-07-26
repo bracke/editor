@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
@@ -9,7 +10,6 @@ with Ada.Environment_Variables;
 with Ada.Text_IO;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Interfaces.C;
-with Editor.Commands;
 with Editor.Buffers;
 with Editor.Buffer_Switcher;
 with Editor.Buffer_Switcher.Filters;
@@ -491,18 +491,18 @@ package body Editor.Settings.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
    begin
-      Assert (Editor.Commands.Descriptors.Label (Editor.Commands.Command_Save_Settings) = "Save Settings",
+      Assert (Editor.Commands.Descriptors.Label (Editor.Command_Ids.Command_Save_Settings) = "Save Settings",
               "Save Settings descriptor must exist");
-      Assert (Editor.Commands.Descriptors.Label (Editor.Commands.Command_Reload_Settings) = "Reload Settings",
+      Assert (Editor.Commands.Descriptors.Label (Editor.Command_Ids.Command_Reload_Settings) = "Reload Settings",
               "Reload Settings descriptor must exist");
-      Assert (Editor.Commands.Descriptors.Label (Editor.Commands.Command_Reset_Settings_To_Defaults) =
+      Assert (Editor.Commands.Descriptors.Label (Editor.Command_Ids.Command_Reset_Settings_To_Defaults) =
               "Reset Settings to Defaults",
               "Reset Settings to Defaults descriptor must exist");
-      Assert (Editor.Commands.Descriptors.Category (Editor.Commands.Command_Save_Settings) =
+      Assert (Editor.Commands.Descriptors.Category (Editor.Command_Ids.Command_Save_Settings) =
               Editor.Commands.Descriptors.Settings_Category,
               "Settings commands must use the Settings category");
       Assert (Editor.Commands.Audits.Descriptor_Is_Complete
-                (Editor.Commands.Command_Save_Settings),
+                (Editor.Command_Ids.Command_Save_Settings),
               "Settings command descriptors must satisfy command audit completeness");
    end Test_Settings_Command_Descriptors;
 
@@ -619,20 +619,20 @@ package body Editor.Settings.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
    begin
-      Assert (Editor.Commands.Descriptors.Category (Editor.Commands.Command_Toggle_Line_Number_Mode) =
+      Assert (Editor.Commands.Descriptors.Category (Editor.Command_Ids.Command_Toggle_Line_Number_Mode) =
               Editor.Commands.Descriptors.Settings_Category,
               "Toggle Line Number Mode must be discoverable as a Settings command");
-      Assert (Editor.Commands.Descriptors.Category (Editor.Commands.Command_Toggle_Minimap) =
+      Assert (Editor.Commands.Descriptors.Category (Editor.Command_Ids.Command_Toggle_Minimap) =
               Editor.Commands.Descriptors.Settings_Category,
               "Toggle Minimap must be discoverable as a Settings command");
-      Assert (Editor.Commands.Descriptors.Category (Editor.Commands.Command_Toggle_Scrollbars) =
+      Assert (Editor.Commands.Descriptors.Category (Editor.Command_Ids.Command_Toggle_Scrollbars) =
               Editor.Commands.Descriptors.Settings_Category,
               "Toggle Scrollbars must be discoverable as a Settings command");
-      Assert (Editor.Commands.Descriptors.Category (Editor.Commands.Command_Toggle_Cursor_Blink) =
+      Assert (Editor.Commands.Descriptors.Category (Editor.Command_Ids.Command_Toggle_Cursor_Blink) =
               Editor.Commands.Descriptors.Settings_Category,
               "Toggle Cursor Blink must be discoverable as a Settings command");
       Assert (Editor.Commands.Audits.Descriptor_Is_Complete
-                (Editor.Commands.Command_Toggle_Scrollbars),
+                (Editor.Command_Ids.Command_Toggle_Scrollbars),
               "Toggle Scrollbars descriptor must satisfy command audit completeness");
    end Test_Settings_Toggle_Commands_Are_Settings_Category;
 
@@ -658,25 +658,25 @@ package body Editor.Settings.Tests is
       Editor.State.Init (S);
 
       Editor.Minimap.Set_Enabled (True);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Toggle_Minimap);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Toggle_Minimap);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found, "Toggle Minimap must emit one canonical outcome message");
       Assert (To_String (M.Text) = "Minimap hidden",
               "Toggle Minimap off message must be canonical");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Toggle_Minimap);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Toggle_Minimap);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (To_String (M.Text) = "Minimap shown",
               "Toggle Minimap on message must be canonical");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Toggle_Line_Number_Mode);
+        (S, Editor.Command_Ids.Command_Toggle_Line_Number_Mode);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (To_String (M.Text) = "Line number mode changed",
               "Line-number mode toggle message must be canonical");
 
       Editor.Settings.Set_Cursor_Blink_Enabled (True);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Toggle_Cursor_Blink);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Toggle_Cursor_Blink);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (To_String (M.Text) = "Cursor blink disabled",
               "Cursor blink off message must be canonical");
@@ -716,25 +716,25 @@ package body Editor.Settings.Tests is
       Found : Boolean := False;
       M     : Editor.Messages.Editor_Message;
    begin
-      Assert (Editor.Commands.Descriptors.Category (Editor.Commands.Command_Set_Theme_Light) =
+      Assert (Editor.Commands.Descriptors.Category (Editor.Command_Ids.Command_Set_Theme_Light) =
               Editor.Commands.Descriptors.Settings_Category,
               "Set Theme Light must be a Settings command");
-      Assert (Editor.Commands.Descriptors.Category (Editor.Commands.Command_Set_Theme_Dark) =
+      Assert (Editor.Commands.Descriptors.Category (Editor.Command_Ids.Command_Set_Theme_Dark) =
               Editor.Commands.Descriptors.Settings_Category,
               "Set Theme Dark must be a Settings command");
       Assert (Editor.Commands.Audits.Descriptor_Is_Complete
-                (Editor.Commands.Command_Set_Theme_Light),
+                (Editor.Command_Ids.Command_Set_Theme_Light),
               "Set Theme Light descriptor must satisfy command audit completeness");
 
       Editor.State.Init (S);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Set_Theme_Light);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Set_Theme_Light);
       Assert (Editor.Theme.Active_Theme_Id = "light",
               "Set Theme Light must mutate the live theme preference");
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Theme changed",
               "Set Theme Light must emit the canonical theme message");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Set_Theme_Dark);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Set_Theme_Dark);
       Assert (Editor.Theme.Active_Theme_Id = "dark",
               "Set Theme Dark must mutate the live theme preference");
    end Test_Set_Theme_Commands_Are_Settings_Commands;
@@ -907,7 +907,7 @@ package body Editor.Settings.Tests is
       Assert (Editor.Settings.Minimap_Visible (S.Settings),
               "state fixture must start with default minimap setting");
       Editor.Minimap.Set_Enabled (False);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_Settings);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_Settings);
 
       Assert (Editor.Settings.Minimap_Visible (S.Settings),
               "failed Save Settings must not replace in-memory state settings snapshot");
@@ -937,7 +937,7 @@ package body Editor.Settings.Tests is
       Editor.Settings.Set_Defaults (Model);
       Editor.Settings.Set_Minimap_Visible (Model, False);
       Editor.State.Apply_Settings (S, Model);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Reload_Settings);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Reload_Settings);
 
       Assert (not Editor.Settings.Minimap_Visible (S.Settings),
               "malformed settings reload must not partially replace state settings");
@@ -1082,7 +1082,7 @@ package body Editor.Settings.Tests is
         (S.Recent_Projects, Editor.Test_Temp.Base & "/editor-a", "editor-a", 104);
 
       Before := Editor.Lifecycle_Audit.State_Summary (S);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_Settings);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_Settings);
       After := Editor.Lifecycle_Audit.State_Summary (S);
       Editor.Lifecycle_Audit.Expect_No_Core_Lifecycle_Mutation
         (Result, Before, After, "save settings");
@@ -1098,7 +1098,7 @@ package body Editor.Settings.Tests is
 
       Before := Editor.Lifecycle_Audit.State_Summary (S);
       Editor.Lifecycle_Audit.Clear (Result);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Reset_Settings_To_Defaults);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Reset_Settings_To_Defaults);
       After := Editor.Lifecycle_Audit.State_Summary (S);
       Editor.Lifecycle_Audit.Expect_No_Core_Lifecycle_Mutation
         (Result, Before, After, "reset settings");
@@ -1143,13 +1143,13 @@ package body Editor.Settings.Tests is
       Assert (Editor.Settings.Minimap_Visible (S.Settings),
               "default fixture starts with minimap visible");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Toggle_Minimap);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Toggle_Minimap);
       Assert (not Editor.Minimap.Enabled,
               "Toggle Minimap must change live minimap state");
       Assert (Read_All (Path) = To_String (Default_Text),
               "preference toggles must not auto-save settings files");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_Settings);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_Settings);
       Saved_Text := To_Unbounded_String (Read_All (Path));
       Assert (To_String (Saved_Text) /= To_String (Default_Text),
               "Save Settings after a toggle must persist changed live preference state");

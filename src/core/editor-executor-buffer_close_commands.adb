@@ -11,7 +11,6 @@ with Editor.Ada_Project_Index;
 with Editor.Buffers;
 use type Editor.Buffers.Buffer_Id;
 with Editor.Buffer_Switcher;
-with Editor.Commands;
 with Editor.Commands.Workflow_Messages;
 with Editor.Dirty_Guards;
 with Editor.Executor;

@@ -6,7 +6,6 @@ with Ada.Containers; use type Ada.Containers.Count_Type;
 
 with Text_Buffer;
 with Editor.State;
-with Editor.Commands;
 with Editor.Cursors; use Editor.Cursors;
 with Editor.Clipboard;
 with Editor.History;

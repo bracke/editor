@@ -1,5 +1,4 @@
 with Editor.Commands.Payloads;
-with Editor.Commands;
 with Editor.Unicode;
 
 package Editor.Input is

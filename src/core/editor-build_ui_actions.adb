@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -9,7 +10,6 @@ with Editor.Build_Result_Summary;
 with Editor.Build_UI;
 with Editor.Build_Working_Context;
 with Editor.Command_Execution;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.Executor;
 with Editor.Feature_Diagnostics;
@@ -21,7 +21,7 @@ package body Editor.Build_UI_Actions is
 
    use type Editor.Command_Execution.Command_Execution_Status;
    use type Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_Kind;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
 
    procedure Show_Build_UI (S : in out Editor.State.State_Type) is
    begin
@@ -242,7 +242,7 @@ package body Editor.Build_UI_Actions is
    is
    begin
       return Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Build_Run);
+        (S, Editor.Command_Ids.Command_Build_Run);
    end Build_UI_Run_Build;
 
    function Build_UI_Reveal_Diagnostics
@@ -251,7 +251,7 @@ package body Editor.Build_UI_Actions is
    is
    begin
       return Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Diagnostics_Show);
+        (S, Editor.Command_Ids.Command_Diagnostics_Show);
    end Build_UI_Reveal_Diagnostics;
 
    function Build_UI_Open_Diagnostic_Source
@@ -260,7 +260,7 @@ package body Editor.Build_UI_Actions is
    is
    begin
       return Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Diagnostic_Open_Source);
+        (S, Editor.Command_Ids.Command_Diagnostic_Open_Source);
    end Build_UI_Open_Diagnostic_Source;
 
    function Build_UI_Suppress_Diagnostic
@@ -269,7 +269,7 @@ package body Editor.Build_UI_Actions is
    is
    begin
       return Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Diagnostic_Suppress_Selected);
+        (S, Editor.Command_Ids.Command_Diagnostic_Suppress_Selected);
    end Build_UI_Suppress_Diagnostic;
 
    function Build_UI_Apply_Diagnostic_Quick_Fix
@@ -291,7 +291,7 @@ package body Editor.Build_UI_Actions is
            (S, Effective_Diagnostic_Index, Action_Index);
       end if;
       return Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Diagnostic_Apply_Quick_Fix);
+        (S, Editor.Command_Ids.Command_Diagnostic_Apply_Quick_Fix);
    end Build_UI_Apply_Diagnostic_Quick_Fix;
 
    function Build_UI_Operability_Snapshot
@@ -330,7 +330,7 @@ package body Editor.Build_UI_Actions is
       declare
          procedure Append_Action_Row
            (Label           : String;
-            Command         : Editor.Commands.Command_Id;
+            Command         : Editor.Command_Ids.Command_Id;
             Enabled         : Boolean;
             Disabled_Reason : String := "";
             Diagnostic_Index : Natural := 0;
@@ -353,25 +353,25 @@ package body Editor.Build_UI_Actions is
 
          Open_Availability : constant Editor.Commands.Availability_Metadata.Command_Availability :=
            Editor.Executor.Command_Availability
-             (S, Editor.Commands.Command_Diagnostic_Open_Source);
+             (S, Editor.Command_Ids.Command_Diagnostic_Open_Source);
          Suppress_Availability : constant Editor.Commands.Availability_Metadata.Command_Availability :=
            Editor.Executor.Command_Availability
-             (S, Editor.Commands.Command_Diagnostic_Suppress_Selected);
+             (S, Editor.Command_Ids.Command_Diagnostic_Suppress_Selected);
          Restore_Availability : constant Editor.Commands.Availability_Metadata.Command_Availability :=
            Editor.Executor.Command_Availability
-             (S, Editor.Commands.Command_Diagnostic_Restore_Last_Suppressed);
+             (S, Editor.Command_Ids.Command_Diagnostic_Restore_Last_Suppressed);
          Restore_Selected_Availability : constant Editor.Commands.Availability_Metadata.Command_Availability :=
            Editor.Executor.Command_Availability
-             (S, Editor.Commands.Command_Diagnostic_Restore_Selected_Suppressed);
+             (S, Editor.Command_Ids.Command_Diagnostic_Restore_Selected_Suppressed);
          Clear_Suppressed_Availability : constant Editor.Commands.Availability_Metadata.Command_Availability :=
            Editor.Executor.Command_Availability
-             (S, Editor.Commands.Command_Diagnostic_Clear_Suppressed);
+             (S, Editor.Command_Ids.Command_Diagnostic_Clear_Suppressed);
          Show_Suppressed_Availability : constant Editor.Commands.Availability_Metadata.Command_Availability :=
            Editor.Executor.Command_Availability
-             (S, Editor.Commands.Command_Diagnostic_Show_Suppressed);
+             (S, Editor.Command_Ids.Command_Diagnostic_Show_Suppressed);
          Quick_Fix_Availability : constant Editor.Commands.Availability_Metadata.Command_Availability :=
            Editor.Executor.Command_Availability
-             (S, Editor.Commands.Command_Diagnostic_Apply_Quick_Fix);
+             (S, Editor.Command_Ids.Command_Diagnostic_Apply_Quick_Fix);
          Selected_Source : constant Natural :=
            Editor.Feature_Diagnostics.Map_Diagnostic_Row_To_Item
              (S.Feature_Diagnostics, S.Feature_Panel,
@@ -498,28 +498,28 @@ package body Editor.Build_UI_Actions is
 
          Append_Action_Row
            ("Reveal diagnostics",
-            Editor.Commands.Command_Diagnostics_Show,
+            Editor.Command_Ids.Command_Diagnostics_Show,
             Snapshot.Diagnostics_View.Reveal_Available,
             "No build diagnostics to reveal");
          Append_Action_Row
            ("Open diagnostic source",
-            Editor.Commands.Command_Diagnostic_Open_Source,
+            Editor.Command_Ids.Command_Diagnostic_Open_Source,
             Snapshot.Diagnostics_View.Open_Source_Available,
             To_String (Snapshot.Diagnostics_View.Open_Source_Unavailable_Reason));
          Append_Action_Row
            ("Suppress diagnostic",
-            Editor.Commands.Command_Diagnostic_Suppress_Selected,
+            Editor.Command_Ids.Command_Diagnostic_Suppress_Selected,
             Snapshot.Diagnostics_View.Suppress_Available,
             To_String (Snapshot.Diagnostics_View.Suppress_Unavailable_Reason));
          Append_Action_Row
            ("Show suppressed diagnostics",
-            Editor.Commands.Command_Diagnostic_Show_Suppressed,
+            Editor.Command_Ids.Command_Diagnostic_Show_Suppressed,
             Snapshot.Diagnostics_View.Show_Suppressed_Available,
             To_String
               (Snapshot.Diagnostics_View.Show_Suppressed_Unavailable_Reason));
          Append_Action_Row
            ("Restore suppressed diagnostic",
-            Editor.Commands.Command_Diagnostic_Restore_Last_Suppressed,
+            Editor.Command_Ids.Command_Diagnostic_Restore_Last_Suppressed,
             Snapshot.Diagnostics_View.Restore_Suppressed_Available,
             To_String
               (Snapshot.Diagnostics_View.Restore_Suppressed_Unavailable_Reason));
@@ -528,7 +528,7 @@ package body Editor.Build_UI_Actions is
                 "Restore selected suppressed: " & Selected_Suppressed_Text
              else
                 "Restore selected suppressed diagnostic"),
-            Editor.Commands.Command_Diagnostic_Restore_Selected_Suppressed,
+            Editor.Command_Ids.Command_Diagnostic_Restore_Selected_Suppressed,
             Editor.Commands.Availability_Metadata.Is_Available (Restore_Selected_Availability),
             Editor.Commands.Availability_Metadata.Unavailable_Reason (Restore_Selected_Availability));
          Append_Action_Row
@@ -536,7 +536,7 @@ package body Editor.Build_UI_Actions is
             & Ada.Strings.Fixed.Trim
                 (Natural'Image (Suppressed_Count), Ada.Strings.Both)
             & ")",
-            Editor.Commands.Command_Diagnostic_Clear_Suppressed,
+            Editor.Command_Ids.Command_Diagnostic_Clear_Suppressed,
             Editor.Commands.Availability_Metadata.Is_Available (Clear_Suppressed_Availability),
             Editor.Commands.Availability_Metadata.Unavailable_Reason (Clear_Suppressed_Availability));
          if Selected_Source > 0
@@ -550,7 +550,7 @@ package body Editor.Build_UI_Actions is
                Append_Action_Row
                  (Editor.Feature_Diagnostics.Item_Quick_Fix_Action_Label_For_Display
                     (S.Feature_Diagnostics, Positive (Selected_Source), Action_Index),
-                  Editor.Commands.Command_Diagnostic_Apply_Quick_Fix,
+                  Editor.Command_Ids.Command_Diagnostic_Apply_Quick_Fix,
                   Quick_Fix_Action_Available (Action_Index),
                   Diagnostic_Index => Selected_Source,
                   Quick_Fix_Action_Index => Action_Index,
@@ -560,7 +560,7 @@ package body Editor.Build_UI_Actions is
          else
             Append_Action_Row
               (To_String (Snapshot.Diagnostics_View.Quick_Fix_Label),
-               Editor.Commands.Command_Diagnostic_Apply_Quick_Fix,
+               Editor.Command_Ids.Command_Diagnostic_Apply_Quick_Fix,
                Quick_Fix_Action_Available
                  ((if Selected_Source > 0 then 1 else 0)),
                Diagnostic_Index => Selected_Source,
@@ -609,7 +609,7 @@ package body Editor.Build_UI_Actions is
    is
       pragma Unreferenced (Before);
    begin
-      return Result.Command = Editor.Commands.Command_Build_Run
+      return Result.Command = Editor.Command_Ids.Command_Build_Run
         and then (Result.Status = Editor.Command_Execution.Command_Executed
           or else Result.Status = Editor.Command_Execution.Command_Unavailable
           or else Result.Status = Editor.Command_Execution.Command_Failed)
@@ -647,7 +647,7 @@ package body Editor.Build_UI_Actions is
       Result : Editor.Command_Execution.Command_Execution_Result) return Boolean
    is
    begin
-      return Result.Command = Editor.Commands.Command_Diagnostics_Show
+      return Result.Command = Editor.Command_Ids.Command_Diagnostics_Show
         and then (Result.Status = Editor.Command_Execution.Command_Executed
                   or else Result.Status = Editor.Command_Execution.Command_Unavailable
                   or else Result.Status = Editor.Command_Execution.Command_No_Op)
@@ -665,9 +665,9 @@ package body Editor.Build_UI_Actions is
       Result : Editor.Command_Execution.Command_Execution_Result) return Boolean
    is
    begin
-      return (Result.Command = Editor.Commands.Command_Diagnostic_Open_Source
-              or else Result.Command = Editor.Commands.Command_Diagnostic_Suppress_Selected
-              or else Result.Command = Editor.Commands.Command_Diagnostic_Apply_Quick_Fix)
+      return (Result.Command = Editor.Command_Ids.Command_Diagnostic_Open_Source
+              or else Result.Command = Editor.Command_Ids.Command_Diagnostic_Suppress_Selected
+              or else Result.Command = Editor.Command_Ids.Command_Diagnostic_Apply_Quick_Fix)
         and then (Result.Status = Editor.Command_Execution.Command_Executed
                   or else Result.Status = Editor.Command_Execution.Command_Unavailable
                   or else Result.Status = Editor.Command_Execution.Command_No_Op)

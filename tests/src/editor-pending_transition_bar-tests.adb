@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -6,14 +7,13 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Pending_Transition_Bar;
 with Editor.Pending_Transitions;
 with Editor.Dirty_Guards;
-with Editor.Commands;
 
 package body Editor.Pending_Transition_Bar.Tests is
 
    use type Editor.Pending_Transition_Bar.Pending_Bar_Action;
    use type Editor.Pending_Transition_Bar.Pending_Bar_Operation;
    use type Editor.Pending_Transition_Bar.Pending_Bar_Hit_Zone;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Pending_Transitions.Pending_Transition_Kind;
 
    function Name
@@ -139,19 +139,19 @@ package body Editor.Pending_Transition_Bar.Tests is
    begin
       Assert (Editor.Pending_Transition_Bar.Command_For_Action
                 (Editor.Pending_Transition_Bar.Save_All_Action)
-              = Editor.Commands.Command_Save_All,
+              = Editor.Command_Ids.Command_Save_All,
               "Save All action must map to save-all command");
       Assert (Editor.Pending_Transition_Bar.Command_For_Action
                 (Editor.Pending_Transition_Bar.Retry_Pending_Transition_Action)
-              = Editor.Commands.Command_Retry_Pending_Transition,
+              = Editor.Command_Ids.Command_Retry_Pending_Transition,
               "Retry action must map to retry-pending command");
       Assert (Editor.Pending_Transition_Bar.Command_For_Action
                 (Editor.Pending_Transition_Bar.Discard_Pending_Transition_Action)
-              = Editor.Commands.Command_Discard_Pending_Transition,
+              = Editor.Command_Ids.Command_Discard_Pending_Transition,
               "Discard action must map to discard-pending command");
       Assert (Editor.Pending_Transition_Bar.Command_For_Action
                 (Editor.Pending_Transition_Bar.Cancel_Pending_Transition_Action)
-              = Editor.Commands.Command_Cancel_Pending_Transition,
+              = Editor.Command_Ids.Command_Cancel_Pending_Transition,
               "Cancel action must map to cancel-pending command");
    end Test_Command_Mapping;
 

@@ -1,7 +1,7 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.Cursor;
-with Editor.Commands;
 with Editor.Guided_Prompts;
 with Editor.Keybinding_Management;
 with Editor.Render_Cache;
@@ -10,7 +10,7 @@ with Editor.View;
 package body Editor.Input_Bridge.Keybinding_Handlers is
 
    use type Editor.Keybindings.Key_Code;
-   use type Editor.Commands.Command_Kind;
+   use type Editor.Command_Kinds.Command_Kind;
    use type Editor.Keybinding_Management.Keybinding_Action_Status;
    use type Editor.Keybinding_Management.Keybinding_Capture_State;
    use type Editor.Guided_Prompts.Prompt_Kind;

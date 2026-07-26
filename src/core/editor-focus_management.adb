@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Build_Output_Details;
 with Editor.Build_UI;
 with Editor.Terminal_Tasks;
@@ -19,7 +20,7 @@ package body Editor.Focus_Management is
    use type Editor.Panel_Focus.Bottom_Focus_Content;
    use type Editor.Feature_Panel.Feature_Id;
    use type Editor.Project_Search_Bar.Project_Search_Bar_Field;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Panels.Bottom_Panel_Content;
 
    function Pending_Confirmation_Owns_Focus
@@ -307,46 +308,46 @@ package body Editor.Focus_Management is
 
 
    function Command_Is_Surface_Entry
-     (Id : Editor.Commands.Command_Id) return Boolean
+     (Id : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       case Id is
-         when Editor.Commands.Command_Open_Command_Palette
-            | Editor.Commands.Command_Open_Quick_Open
-            | Editor.Commands.Command_Toggle_Quick_Open
-            | Editor.Commands.Command_Open_Buffer_Switcher
-            | Editor.Commands.Command_Open_Project_Search_Bar
-            | Editor.Commands.Command_Toggle_Project_Search_Bar
-            | Editor.Commands.Command_Show_Search_Results_Panel
-            | Editor.Commands.Command_Focus_Search_Results
-            | Editor.Commands.Command_Toggle_Bottom_Panel_Focus
-            | Editor.Commands.Command_Focus_File_Tree
-            | Editor.Commands.Command_Show_Feature_Panel
-            | Editor.Commands.Command_Toggle_Feature_Panel
-            | Editor.Commands.Command_Focus_Feature_Panel
-            | Editor.Commands.Command_Show_Outline
-            | Editor.Commands.Command_Focus_Outline
-            | Editor.Commands.Command_Focus_Outline_Filter
-            | Editor.Commands.Command_Diagnostics_Show
-            | Editor.Commands.Command_Toggle_Problems_Panel
-            | Editor.Commands.Command_Focus_Problems
-            | Editor.Commands.Command_Build_UI_Show
-            | Editor.Commands.Command_Build_UI_Toggle
-            | Editor.Commands.Command_Build_UI_Focus
-            | Editor.Commands.Command_Build_Result_Focus
-            | Editor.Commands.Command_Build_Output_Details_Focus
-            | Editor.Commands.Command_Terminal_Show
-            | Editor.Commands.Command_Terminal_Toggle
-            | Editor.Commands.Command_Terminal_Focus
-            | Editor.Commands.Command_Show_Recent_Projects
-            | Editor.Commands.Command_Goto_Line
-            | Editor.Commands.Command_Goto_Line_Toggle
-            | Editor.Commands.Command_Goto_Line_Prefill_Current
-            | Editor.Commands.Command_Find_Show
-            | Editor.Commands.Command_Find_Toggle
-            | Editor.Commands.Command_Replace_Show
-            | Editor.Commands.Command_Replace_Toggle
-            | Editor.Commands.Command_Focus_Editor_Text =>
+         when Editor.Command_Ids.Command_Open_Command_Palette
+            | Editor.Command_Ids.Command_Open_Quick_Open
+            | Editor.Command_Ids.Command_Toggle_Quick_Open
+            | Editor.Command_Ids.Command_Open_Buffer_Switcher
+            | Editor.Command_Ids.Command_Open_Project_Search_Bar
+            | Editor.Command_Ids.Command_Toggle_Project_Search_Bar
+            | Editor.Command_Ids.Command_Show_Search_Results_Panel
+            | Editor.Command_Ids.Command_Focus_Search_Results
+            | Editor.Command_Ids.Command_Toggle_Bottom_Panel_Focus
+            | Editor.Command_Ids.Command_Focus_File_Tree
+            | Editor.Command_Ids.Command_Show_Feature_Panel
+            | Editor.Command_Ids.Command_Toggle_Feature_Panel
+            | Editor.Command_Ids.Command_Focus_Feature_Panel
+            | Editor.Command_Ids.Command_Show_Outline
+            | Editor.Command_Ids.Command_Focus_Outline
+            | Editor.Command_Ids.Command_Focus_Outline_Filter
+            | Editor.Command_Ids.Command_Diagnostics_Show
+            | Editor.Command_Ids.Command_Toggle_Problems_Panel
+            | Editor.Command_Ids.Command_Focus_Problems
+            | Editor.Command_Ids.Command_Build_UI_Show
+            | Editor.Command_Ids.Command_Build_UI_Toggle
+            | Editor.Command_Ids.Command_Build_UI_Focus
+            | Editor.Command_Ids.Command_Build_Result_Focus
+            | Editor.Command_Ids.Command_Build_Output_Details_Focus
+            | Editor.Command_Ids.Command_Terminal_Show
+            | Editor.Command_Ids.Command_Terminal_Toggle
+            | Editor.Command_Ids.Command_Terminal_Focus
+            | Editor.Command_Ids.Command_Show_Recent_Projects
+            | Editor.Command_Ids.Command_Goto_Line
+            | Editor.Command_Ids.Command_Goto_Line_Toggle
+            | Editor.Command_Ids.Command_Goto_Line_Prefill_Current
+            | Editor.Command_Ids.Command_Find_Show
+            | Editor.Command_Ids.Command_Find_Toggle
+            | Editor.Command_Ids.Command_Replace_Show
+            | Editor.Command_Ids.Command_Replace_Toggle
+            | Editor.Command_Ids.Command_Focus_Editor_Text =>
             return True;
          when others =>
             return False;
@@ -354,62 +355,62 @@ package body Editor.Focus_Management is
    end Command_Is_Surface_Entry;
 
    function Focus_Target_For_Surface_Command
-     (Id : Editor.Commands.Command_Id) return Focus_Owner
+     (Id : Editor.Command_Ids.Command_Id) return Focus_Owner
    is
    begin
       case Id is
-         when Editor.Commands.Command_Open_Command_Palette =>
+         when Editor.Command_Ids.Command_Open_Command_Palette =>
             return Focus_Command_Palette;
-         when Editor.Commands.Command_Open_Quick_Open
-            | Editor.Commands.Command_Toggle_Quick_Open =>
+         when Editor.Command_Ids.Command_Open_Quick_Open
+            | Editor.Command_Ids.Command_Toggle_Quick_Open =>
             return Focus_Quick_Open;
-         when Editor.Commands.Command_Open_Buffer_Switcher =>
+         when Editor.Command_Ids.Command_Open_Buffer_Switcher =>
             return Focus_Buffer_List;
-         when Editor.Commands.Command_Open_Project_Search_Bar
-            | Editor.Commands.Command_Toggle_Project_Search_Bar =>
+         when Editor.Command_Ids.Command_Open_Project_Search_Bar
+            | Editor.Command_Ids.Command_Toggle_Project_Search_Bar =>
             return Focus_Project_Search_Query;
-         when Editor.Commands.Command_Show_Search_Results_Panel
-            | Editor.Commands.Command_Focus_Search_Results =>
+         when Editor.Command_Ids.Command_Show_Search_Results_Panel
+            | Editor.Command_Ids.Command_Focus_Search_Results =>
             return Focus_Project_Search_Results;
-         when Editor.Commands.Command_Toggle_Bottom_Panel_Focus =>
+         when Editor.Command_Ids.Command_Toggle_Bottom_Panel_Focus =>
             return Focus_Project_Search_Results;
-         when Editor.Commands.Command_Focus_File_Tree =>
+         when Editor.Command_Ids.Command_Focus_File_Tree =>
             return Focus_File_Tree;
-         when Editor.Commands.Command_Show_Feature_Panel
-            | Editor.Commands.Command_Toggle_Feature_Panel
-            | Editor.Commands.Command_Focus_Feature_Panel
-            | Editor.Commands.Command_Show_Outline
-            | Editor.Commands.Command_Focus_Outline =>
+         when Editor.Command_Ids.Command_Show_Feature_Panel
+            | Editor.Command_Ids.Command_Toggle_Feature_Panel
+            | Editor.Command_Ids.Command_Focus_Feature_Panel
+            | Editor.Command_Ids.Command_Show_Outline
+            | Editor.Command_Ids.Command_Focus_Outline =>
             return Focus_Outline;
-         when Editor.Commands.Command_Focus_Outline_Filter =>
+         when Editor.Command_Ids.Command_Focus_Outline_Filter =>
             return Focus_Outline_Filter;
-         when Editor.Commands.Command_Diagnostics_Show
-            | Editor.Commands.Command_Toggle_Problems_Panel
-            | Editor.Commands.Command_Focus_Problems =>
+         when Editor.Command_Ids.Command_Diagnostics_Show
+            | Editor.Command_Ids.Command_Toggle_Problems_Panel
+            | Editor.Command_Ids.Command_Focus_Problems =>
             return Focus_Diagnostics;
-         when Editor.Commands.Command_Build_UI_Show
-            | Editor.Commands.Command_Build_UI_Toggle
-            | Editor.Commands.Command_Build_UI_Focus =>
+         when Editor.Command_Ids.Command_Build_UI_Show
+            | Editor.Command_Ids.Command_Build_UI_Toggle
+            | Editor.Command_Ids.Command_Build_UI_Focus =>
             return Focus_Build_UI;
-         when Editor.Commands.Command_Build_Result_Focus =>
+         when Editor.Command_Ids.Command_Build_Result_Focus =>
             return Focus_Build_Result_Summary;
-         when Editor.Commands.Command_Build_Output_Details_Focus =>
+         when Editor.Command_Ids.Command_Build_Output_Details_Focus =>
             return Focus_Build_Output_Details;
-         when Editor.Commands.Command_Terminal_Show
-            | Editor.Commands.Command_Terminal_Toggle
-            | Editor.Commands.Command_Terminal_Focus =>
+         when Editor.Command_Ids.Command_Terminal_Show
+            | Editor.Command_Ids.Command_Terminal_Toggle
+            | Editor.Command_Ids.Command_Terminal_Focus =>
             return Focus_Terminal;
-         when Editor.Commands.Command_Show_Recent_Projects =>
+         when Editor.Command_Ids.Command_Show_Recent_Projects =>
             return Focus_Recent_Projects;
-         when Editor.Commands.Command_Goto_Line
-            | Editor.Commands.Command_Goto_Line_Toggle
-            | Editor.Commands.Command_Goto_Line_Prefill_Current
-            | Editor.Commands.Command_Find_Show
-            | Editor.Commands.Command_Find_Toggle
-            | Editor.Commands.Command_Replace_Show
-            | Editor.Commands.Command_Replace_Toggle =>
+         when Editor.Command_Ids.Command_Goto_Line
+            | Editor.Command_Ids.Command_Goto_Line_Toggle
+            | Editor.Command_Ids.Command_Goto_Line_Prefill_Current
+            | Editor.Command_Ids.Command_Find_Show
+            | Editor.Command_Ids.Command_Find_Toggle
+            | Editor.Command_Ids.Command_Replace_Show
+            | Editor.Command_Ids.Command_Replace_Toggle =>
             return Focus_Workspace_Prompt;
-         when Editor.Commands.Command_Focus_Editor_Text =>
+         when Editor.Command_Ids.Command_Focus_Editor_Text =>
             return Focus_Editor;
          when others =>
             return Focus_None;
@@ -417,67 +418,67 @@ package body Editor.Focus_Management is
    end Focus_Target_For_Surface_Command;
 
    function Is_Editor_Text_Command_Id
-     (Id : Editor.Commands.Command_Id) return Boolean
+     (Id : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       case Id is
-         when Editor.Commands.Command_Move_Left
-            | Editor.Commands.Command_Move_Right
-            | Editor.Commands.Command_Move_Up
-            | Editor.Commands.Command_Move_Down
-            | Editor.Commands.Command_Move_Line_Start
-            | Editor.Commands.Command_Move_Line_End
-            | Editor.Commands.Command_Move_Document_Start
-            | Editor.Commands.Command_Move_Document_End
-            | Editor.Commands.Command_Move_Word_Left
-            | Editor.Commands.Command_Move_Word_Right
-            | Editor.Commands.Command_Page_Up
-            | Editor.Commands.Command_Page_Down
-            | Editor.Commands.Command_Select_Left
-            | Editor.Commands.Command_Select_Right
-            | Editor.Commands.Command_Select_Up
-            | Editor.Commands.Command_Select_Down
-            | Editor.Commands.Command_Select_Word_Left
-            | Editor.Commands.Command_Select_Word_Right
-            | Editor.Commands.Command_Select_Word
-            | Editor.Commands.Command_Select_Line
-            | Editor.Commands.Command_Start_Rectangular_Selection
-            | Editor.Commands.Command_Clear_Rectangular_Selection
-            | Editor.Commands.Command_Extend_Selection_Line_Up
-            | Editor.Commands.Command_Extend_Selection_Line_Down
-            | Editor.Commands.Command_Select_Line_Start
-            | Editor.Commands.Command_Select_Line_End
-            | Editor.Commands.Command_Select_Document_Start
-            | Editor.Commands.Command_Select_Document_End
-            | Editor.Commands.Command_Select_Page_Up
-            | Editor.Commands.Command_Select_Page_Down
-            | Editor.Commands.Command_Insert_Newline
-            | Editor.Commands.Command_Undo
-            | Editor.Commands.Command_Redo
-            | Editor.Commands.Command_Edit_History_Clear
-            | Editor.Commands.Command_Copy
-            | Editor.Commands.Command_Cut
-            | Editor.Commands.Command_Paste
-            | Editor.Commands.Command_Clipboard_Clear
-            | Editor.Commands.Command_Select_All
-            | Editor.Commands.Command_Selection_Clear
-            | Editor.Commands.Command_Selection_Delete
-            | Editor.Commands.Command_Line_Delete
-            | Editor.Commands.Command_Line_Duplicate
-            | Editor.Commands.Command_Line_Move_Up
-            | Editor.Commands.Command_Line_Move_Down
-            | Editor.Commands.Command_Indent_Increase
-            | Editor.Commands.Command_Indent_Decrease
-            | Editor.Commands.Command_Comment_Line
-            | Editor.Commands.Command_Uncomment_Line
-            | Editor.Commands.Command_Toggle_Line_Comment
-            | Editor.Commands.Command_Line_Join_Next
-            | Editor.Commands.Command_Line_Split_At_Caret
-            | Editor.Commands.Command_Trim_Trailing_Whitespace
-            | Editor.Commands.Command_Char_Delete_Previous
-            | Editor.Commands.Command_Char_Delete_Next
-            | Editor.Commands.Command_Word_Delete_Previous
-            | Editor.Commands.Command_Word_Delete_Next =>
+         when Editor.Command_Ids.Command_Move_Left
+            | Editor.Command_Ids.Command_Move_Right
+            | Editor.Command_Ids.Command_Move_Up
+            | Editor.Command_Ids.Command_Move_Down
+            | Editor.Command_Ids.Command_Move_Line_Start
+            | Editor.Command_Ids.Command_Move_Line_End
+            | Editor.Command_Ids.Command_Move_Document_Start
+            | Editor.Command_Ids.Command_Move_Document_End
+            | Editor.Command_Ids.Command_Move_Word_Left
+            | Editor.Command_Ids.Command_Move_Word_Right
+            | Editor.Command_Ids.Command_Page_Up
+            | Editor.Command_Ids.Command_Page_Down
+            | Editor.Command_Ids.Command_Select_Left
+            | Editor.Command_Ids.Command_Select_Right
+            | Editor.Command_Ids.Command_Select_Up
+            | Editor.Command_Ids.Command_Select_Down
+            | Editor.Command_Ids.Command_Select_Word_Left
+            | Editor.Command_Ids.Command_Select_Word_Right
+            | Editor.Command_Ids.Command_Select_Word
+            | Editor.Command_Ids.Command_Select_Line
+            | Editor.Command_Ids.Command_Start_Rectangular_Selection
+            | Editor.Command_Ids.Command_Clear_Rectangular_Selection
+            | Editor.Command_Ids.Command_Extend_Selection_Line_Up
+            | Editor.Command_Ids.Command_Extend_Selection_Line_Down
+            | Editor.Command_Ids.Command_Select_Line_Start
+            | Editor.Command_Ids.Command_Select_Line_End
+            | Editor.Command_Ids.Command_Select_Document_Start
+            | Editor.Command_Ids.Command_Select_Document_End
+            | Editor.Command_Ids.Command_Select_Page_Up
+            | Editor.Command_Ids.Command_Select_Page_Down
+            | Editor.Command_Ids.Command_Insert_Newline
+            | Editor.Command_Ids.Command_Undo
+            | Editor.Command_Ids.Command_Redo
+            | Editor.Command_Ids.Command_Edit_History_Clear
+            | Editor.Command_Ids.Command_Copy
+            | Editor.Command_Ids.Command_Cut
+            | Editor.Command_Ids.Command_Paste
+            | Editor.Command_Ids.Command_Clipboard_Clear
+            | Editor.Command_Ids.Command_Select_All
+            | Editor.Command_Ids.Command_Selection_Clear
+            | Editor.Command_Ids.Command_Selection_Delete
+            | Editor.Command_Ids.Command_Line_Delete
+            | Editor.Command_Ids.Command_Line_Duplicate
+            | Editor.Command_Ids.Command_Line_Move_Up
+            | Editor.Command_Ids.Command_Line_Move_Down
+            | Editor.Command_Ids.Command_Indent_Increase
+            | Editor.Command_Ids.Command_Indent_Decrease
+            | Editor.Command_Ids.Command_Comment_Line
+            | Editor.Command_Ids.Command_Uncomment_Line
+            | Editor.Command_Ids.Command_Toggle_Line_Comment
+            | Editor.Command_Ids.Command_Line_Join_Next
+            | Editor.Command_Ids.Command_Line_Split_At_Caret
+            | Editor.Command_Ids.Command_Trim_Trailing_Whitespace
+            | Editor.Command_Ids.Command_Char_Delete_Previous
+            | Editor.Command_Ids.Command_Char_Delete_Next
+            | Editor.Command_Ids.Command_Word_Delete_Previous
+            | Editor.Command_Ids.Command_Word_Delete_Next =>
             return True;
          when others =>
             return False;
@@ -485,12 +486,12 @@ package body Editor.Focus_Management is
    end Is_Editor_Text_Command_Id;
 
    function Is_Quick_Open_Command_Id
-     (Id : Editor.Commands.Command_Id) return Boolean
+     (Id : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       case Id is
-         when Editor.Commands.Command_Open_Quick_Open
-            .. Editor.Commands.Command_Quick_Open_Priority_Clear =>
+         when Editor.Command_Ids.Command_Open_Quick_Open
+            .. Editor.Command_Ids.Command_Quick_Open_Priority_Clear =>
             return True;
          when others =>
             return False;
@@ -498,12 +499,12 @@ package body Editor.Focus_Management is
    end Is_Quick_Open_Command_Id;
 
    function Is_Buffer_List_Command_Id
-     (Id : Editor.Commands.Command_Id) return Boolean
+     (Id : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       case Id is
-         when Editor.Commands.Command_Open_Buffer_Switcher
-            .. Editor.Commands.Command_Buffer_Switcher_Mark_Summary =>
+         when Editor.Command_Ids.Command_Open_Buffer_Switcher
+            .. Editor.Command_Ids.Command_Buffer_Switcher_Mark_Summary =>
             return True;
          when others =>
             return False;
@@ -511,27 +512,27 @@ package body Editor.Focus_Management is
    end Is_Buffer_List_Command_Id;
 
    function Is_Project_Search_Command_Id
-     (Id : Editor.Commands.Command_Id) return Boolean
+     (Id : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       case Id is
-         when Editor.Commands.Command_Run_Project_Search
-            .. Editor.Commands.Command_Project_Search_Replace_Clear_Preview
-            | Editor.Commands.Command_Show_Search_Results_Panel
-            | Editor.Commands.Command_Focus_Search_Results
-            | Editor.Commands.Command_Search_Results_Move_Up
-            | Editor.Commands.Command_Search_Results_Move_Down
-            | Editor.Commands.Command_Search_Results_Page_Up
-            | Editor.Commands.Command_Search_Results_Page_Down
-            | Editor.Commands.Command_Search_Results_Open_Selected
-            | Editor.Commands.Command_Search_Results_Search_Active_Buffer
-            | Editor.Commands.Command_Search_Results_Focus_Query
-            | Editor.Commands.Command_Search_Results_Repeat_Active_Buffer
-            | Editor.Commands.Command_Search_Results_Query_History_Previous
-            | Editor.Commands.Command_Search_Results_Query_History_Next
-            | Editor.Commands.Command_Search_Results_Toggle_Case_Sensitive
-            | Editor.Commands.Command_Show_Search_Results_Feature
-            | Editor.Commands.Command_Clear_Search_Results_Feature =>
+         when Editor.Command_Ids.Command_Run_Project_Search
+            .. Editor.Command_Ids.Command_Project_Search_Replace_Clear_Preview
+            | Editor.Command_Ids.Command_Show_Search_Results_Panel
+            | Editor.Command_Ids.Command_Focus_Search_Results
+            | Editor.Command_Ids.Command_Search_Results_Move_Up
+            | Editor.Command_Ids.Command_Search_Results_Move_Down
+            | Editor.Command_Ids.Command_Search_Results_Page_Up
+            | Editor.Command_Ids.Command_Search_Results_Page_Down
+            | Editor.Command_Ids.Command_Search_Results_Open_Selected
+            | Editor.Command_Ids.Command_Search_Results_Search_Active_Buffer
+            | Editor.Command_Ids.Command_Search_Results_Focus_Query
+            | Editor.Command_Ids.Command_Search_Results_Repeat_Active_Buffer
+            | Editor.Command_Ids.Command_Search_Results_Query_History_Previous
+            | Editor.Command_Ids.Command_Search_Results_Query_History_Next
+            | Editor.Command_Ids.Command_Search_Results_Toggle_Case_Sensitive
+            | Editor.Command_Ids.Command_Show_Search_Results_Feature
+            | Editor.Command_Ids.Command_Clear_Search_Results_Feature =>
             return True;
          when others =>
             return False;
@@ -539,7 +540,7 @@ package body Editor.Focus_Management is
    end Is_Project_Search_Command_Id;
 
    function Is_Feature_Search_Query_Command_Id
-     (Id : Editor.Commands.Command_Id) return Boolean
+     (Id : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       --  The embedded Search Results query field shares the public
@@ -548,22 +549,22 @@ package body Editor.Focus_Management is
       --  family narrow so Close/Toggle Project Search Bar and replace-preview
       --  commands cannot accidentally dismiss or mutate the embedded query.
       case Id is
-         when Editor.Commands.Command_Search_Results_Search_Active_Buffer
-            | Editor.Commands.Command_Search_Results_Focus_Query
-            | Editor.Commands.Command_Search_Results_Repeat_Active_Buffer
-            | Editor.Commands.Command_Search_Results_Query_History_Previous
-            | Editor.Commands.Command_Search_Results_Query_History_Next
-            | Editor.Commands.Command_Search_Results_Toggle_Case_Sensitive
-            | Editor.Commands.Command_Search_Results_Move_Up
-            | Editor.Commands.Command_Search_Results_Move_Down
-            | Editor.Commands.Command_Search_Results_Page_Up
-            | Editor.Commands.Command_Search_Results_Page_Down
-            | Editor.Commands.Command_Search_Results_Open_Selected
-            | Editor.Commands.Command_Show_Search_Results_Feature
-            | Editor.Commands.Command_Clear_Search_Results_Feature
-            | Editor.Commands.Command_Feature_Panel_Select_Next
-            | Editor.Commands.Command_Feature_Panel_Select_Previous
-            | Editor.Commands.Command_Feature_Panel_Open_Selected =>
+         when Editor.Command_Ids.Command_Search_Results_Search_Active_Buffer
+            | Editor.Command_Ids.Command_Search_Results_Focus_Query
+            | Editor.Command_Ids.Command_Search_Results_Repeat_Active_Buffer
+            | Editor.Command_Ids.Command_Search_Results_Query_History_Previous
+            | Editor.Command_Ids.Command_Search_Results_Query_History_Next
+            | Editor.Command_Ids.Command_Search_Results_Toggle_Case_Sensitive
+            | Editor.Command_Ids.Command_Search_Results_Move_Up
+            | Editor.Command_Ids.Command_Search_Results_Move_Down
+            | Editor.Command_Ids.Command_Search_Results_Page_Up
+            | Editor.Command_Ids.Command_Search_Results_Page_Down
+            | Editor.Command_Ids.Command_Search_Results_Open_Selected
+            | Editor.Command_Ids.Command_Show_Search_Results_Feature
+            | Editor.Command_Ids.Command_Clear_Search_Results_Feature
+            | Editor.Command_Ids.Command_Feature_Panel_Select_Next
+            | Editor.Command_Ids.Command_Feature_Panel_Select_Previous
+            | Editor.Command_Ids.Command_Feature_Panel_Open_Selected =>
             return True;
          when others =>
             return False;
@@ -571,29 +572,29 @@ package body Editor.Focus_Management is
    end Is_Feature_Search_Query_Command_Id;
 
    function Is_File_Tree_Command_Id
-     (Id : Editor.Commands.Command_Id) return Boolean
+     (Id : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       case Id is
-         when Editor.Commands.Command_Refresh_File_Tree
-            | Editor.Commands.Command_Refresh_Project_Files
-            | Editor.Commands.Command_Project_Files_Summary
-            | Editor.Commands.Command_Reveal_Active_File_In_Tree
-            | Editor.Commands.Command_Focus_File_Tree
-            | Editor.Commands.Command_File_Tree_Move_Up
-            | Editor.Commands.Command_File_Tree_Move_Down
-            | Editor.Commands.Command_File_Tree_Page_Up
-            | Editor.Commands.Command_File_Tree_Page_Down
-            | Editor.Commands.Command_File_Tree_Open_Selected
-            | Editor.Commands.Command_File_Tree_Create_File
-            | Editor.Commands.Command_File_Tree_Create_Directory
-            | Editor.Commands.Command_File_Tree_Rename_Selected
-            | Editor.Commands.Command_File_Tree_Delete_Selected
-            | Editor.Commands.Command_File_Tree_Expand_Selected
-            | Editor.Commands.Command_File_Tree_Collapse_Selected
-            | Editor.Commands.Command_File_Tree_Toggle_Selected
-            | Editor.Commands.Command_File_Tree_Collapse_All
-            | Editor.Commands.Command_File_Tree_Expand_To_Active_File =>
+         when Editor.Command_Ids.Command_Refresh_File_Tree
+            | Editor.Command_Ids.Command_Refresh_Project_Files
+            | Editor.Command_Ids.Command_Project_Files_Summary
+            | Editor.Command_Ids.Command_Reveal_Active_File_In_Tree
+            | Editor.Command_Ids.Command_Focus_File_Tree
+            | Editor.Command_Ids.Command_File_Tree_Move_Up
+            | Editor.Command_Ids.Command_File_Tree_Move_Down
+            | Editor.Command_Ids.Command_File_Tree_Page_Up
+            | Editor.Command_Ids.Command_File_Tree_Page_Down
+            | Editor.Command_Ids.Command_File_Tree_Open_Selected
+            | Editor.Command_Ids.Command_File_Tree_Create_File
+            | Editor.Command_Ids.Command_File_Tree_Create_Directory
+            | Editor.Command_Ids.Command_File_Tree_Rename_Selected
+            | Editor.Command_Ids.Command_File_Tree_Delete_Selected
+            | Editor.Command_Ids.Command_File_Tree_Expand_Selected
+            | Editor.Command_Ids.Command_File_Tree_Collapse_Selected
+            | Editor.Command_Ids.Command_File_Tree_Toggle_Selected
+            | Editor.Command_Ids.Command_File_Tree_Collapse_All
+            | Editor.Command_Ids.Command_File_Tree_Expand_To_Active_File =>
             return True;
          when others =>
             return False;
@@ -601,36 +602,36 @@ package body Editor.Focus_Management is
    end Is_File_Tree_Command_Id;
 
    function Is_Outline_Command_Id
-     (Id : Editor.Commands.Command_Id) return Boolean
+     (Id : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       case Id is
-         when Editor.Commands.Command_Toggle_Feature_Panel
-            | Editor.Commands.Command_Show_Feature_Panel
-            | Editor.Commands.Command_Hide_Feature_Panel
-            | Editor.Commands.Command_Focus_Feature_Panel
-            | Editor.Commands.Command_Clear_Feature_Panel
-            | Editor.Commands.Command_Feature_Panel_Select_Next
-            | Editor.Commands.Command_Feature_Panel_Select_Previous
-            | Editor.Commands.Command_Feature_Panel_Open_Selected
-            | Editor.Commands.Command_Refresh_Outline
-            | Editor.Commands.Command_Clear_Outline
-            | Editor.Commands.Command_Show_Outline
-            | Editor.Commands.Command_Focus_Outline
-            | Editor.Commands.Command_Open_Selected_Outline_Item
-            | Editor.Commands.Command_Select_Current_Outline_Symbol
-            | Editor.Commands.Command_Reveal_Current_Outline_Symbol
-            | Editor.Commands.Command_Next_Outline_Symbol
-            | Editor.Commands.Command_Previous_Outline_Symbol
-            | Editor.Commands.Command_Select_Next_Outline_Item
-            | Editor.Commands.Command_Select_Previous_Outline_Item
-            | Editor.Commands.Command_Focus_Outline_Filter
-            | Editor.Commands.Command_Filter_Outline
-            | Editor.Commands.Command_Clear_Outline_Filter
-            | Editor.Commands.Command_Toggle_Outline_Filter
-            | Editor.Commands.Command_Outline_Filter_History_Previous
-            | Editor.Commands.Command_Outline_Filter_History_Next
-            | Editor.Commands.Command_Clear_Outline_Filter_History =>
+         when Editor.Command_Ids.Command_Toggle_Feature_Panel
+            | Editor.Command_Ids.Command_Show_Feature_Panel
+            | Editor.Command_Ids.Command_Hide_Feature_Panel
+            | Editor.Command_Ids.Command_Focus_Feature_Panel
+            | Editor.Command_Ids.Command_Clear_Feature_Panel
+            | Editor.Command_Ids.Command_Feature_Panel_Select_Next
+            | Editor.Command_Ids.Command_Feature_Panel_Select_Previous
+            | Editor.Command_Ids.Command_Feature_Panel_Open_Selected
+            | Editor.Command_Ids.Command_Refresh_Outline
+            | Editor.Command_Ids.Command_Clear_Outline
+            | Editor.Command_Ids.Command_Show_Outline
+            | Editor.Command_Ids.Command_Focus_Outline
+            | Editor.Command_Ids.Command_Open_Selected_Outline_Item
+            | Editor.Command_Ids.Command_Select_Current_Outline_Symbol
+            | Editor.Command_Ids.Command_Reveal_Current_Outline_Symbol
+            | Editor.Command_Ids.Command_Next_Outline_Symbol
+            | Editor.Command_Ids.Command_Previous_Outline_Symbol
+            | Editor.Command_Ids.Command_Select_Next_Outline_Item
+            | Editor.Command_Ids.Command_Select_Previous_Outline_Item
+            | Editor.Command_Ids.Command_Focus_Outline_Filter
+            | Editor.Command_Ids.Command_Filter_Outline
+            | Editor.Command_Ids.Command_Clear_Outline_Filter
+            | Editor.Command_Ids.Command_Toggle_Outline_Filter
+            | Editor.Command_Ids.Command_Outline_Filter_History_Previous
+            | Editor.Command_Ids.Command_Outline_Filter_History_Next
+            | Editor.Command_Ids.Command_Clear_Outline_Filter_History =>
             return True;
          when others =>
             return False;
@@ -638,20 +639,20 @@ package body Editor.Focus_Management is
    end Is_Outline_Command_Id;
 
    function Is_Diagnostics_Command_Id
-     (Id : Editor.Commands.Command_Id) return Boolean
+     (Id : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       case Id is
-         when Editor.Commands.Command_Toggle_Problems_Panel
-            | Editor.Commands.Command_Focus_Problems
-            | Editor.Commands.Command_Problems_Move_Up
-            | Editor.Commands.Command_Problems_Move_Down
-            | Editor.Commands.Command_Problems_Page_Up
-            | Editor.Commands.Command_Problems_Page_Down
-            | Editor.Commands.Command_Problems_Open_Selected
-            | Editor.Commands.Command_Problems_Focus_Editor
-            | Editor.Commands.Command_Diagnostics_Show
-            .. Editor.Commands.Command_Diagnostics_Toggle_Unknown_Source =>
+         when Editor.Command_Ids.Command_Toggle_Problems_Panel
+            | Editor.Command_Ids.Command_Focus_Problems
+            | Editor.Command_Ids.Command_Problems_Move_Up
+            | Editor.Command_Ids.Command_Problems_Move_Down
+            | Editor.Command_Ids.Command_Problems_Page_Up
+            | Editor.Command_Ids.Command_Problems_Page_Down
+            | Editor.Command_Ids.Command_Problems_Open_Selected
+            | Editor.Command_Ids.Command_Problems_Focus_Editor
+            | Editor.Command_Ids.Command_Diagnostics_Show
+            .. Editor.Command_Ids.Command_Diagnostics_Toggle_Unknown_Source =>
             return True;
          when others =>
             return False;
@@ -659,12 +660,12 @@ package body Editor.Focus_Management is
    end Is_Diagnostics_Command_Id;
 
    function Is_Build_Command_Id
-     (Id : Editor.Commands.Command_Id) return Boolean
+     (Id : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       case Id is
-         when Editor.Commands.Command_Build_UI_Toggle
-            .. Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam =>
+         when Editor.Command_Ids.Command_Build_UI_Toggle
+            .. Editor.Command_Ids.Command_Build_Run_User_Opt_In_Test_Seam =>
             return True;
          when others =>
             return False;
@@ -672,12 +673,12 @@ package body Editor.Focus_Management is
    end Is_Build_Command_Id;
 
    function Is_Terminal_Command_Id
-     (Id : Editor.Commands.Command_Id) return Boolean
+     (Id : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       case Id is
-         when Editor.Commands.Command_Terminal_Toggle
-            .. Editor.Commands.Command_Terminal_Cancel_Task =>
+         when Editor.Command_Ids.Command_Terminal_Toggle
+            .. Editor.Command_Ids.Command_Terminal_Cancel_Task =>
             return True;
          when others =>
             return False;
@@ -685,17 +686,17 @@ package body Editor.Focus_Management is
    end Is_Terminal_Command_Id;
 
    function Is_Recent_Projects_Command_Id
-     (Id : Editor.Commands.Command_Id) return Boolean
+     (Id : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       case Id is
-         when Editor.Commands.Command_Show_Recent_Projects
-            | Editor.Commands.Command_Open_Selected_Recent_Project
-            | Editor.Commands.Command_Clear_Recent_Projects
-            | Editor.Commands.Command_Remove_Selected_Recent_Project
-            | Editor.Commands.Command_Remove_Missing_Recent_Projects
-            | Editor.Commands.Command_Select_Next_Recent_Project
-            | Editor.Commands.Command_Select_Previous_Recent_Project =>
+         when Editor.Command_Ids.Command_Show_Recent_Projects
+            | Editor.Command_Ids.Command_Open_Selected_Recent_Project
+            | Editor.Command_Ids.Command_Clear_Recent_Projects
+            | Editor.Command_Ids.Command_Remove_Selected_Recent_Project
+            | Editor.Command_Ids.Command_Remove_Missing_Recent_Projects
+            | Editor.Command_Ids.Command_Select_Next_Recent_Project
+            | Editor.Command_Ids.Command_Select_Previous_Recent_Project =>
             return True;
          when others =>
             return False;
@@ -704,40 +705,40 @@ package body Editor.Focus_Management is
 
 
    function Is_Workspace_Prompt_Command_Id
-     (Id : Editor.Commands.Command_Id) return Boolean
+     (Id : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       case Id is
-         when Editor.Commands.Command_Goto_Line
-            | Editor.Commands.Command_Goto_Line_Toggle
-            | Editor.Commands.Command_Goto_Line_Prefill_Current
-            | Editor.Commands.Command_Goto_Line_Query_Set
-            | Editor.Commands.Command_Goto_Line_Query_Clear
-            | Editor.Commands.Command_Close_Goto_Line
-            | Editor.Commands.Command_Accept_Goto_Line
-            | Editor.Commands.Command_Find_Show
-            | Editor.Commands.Command_Find_Hide
-            | Editor.Commands.Command_Find_Toggle
-            | Editor.Commands.Command_Find_Query_Set
-            | Editor.Commands.Command_Find_Query_Clear
-            | Editor.Commands.Command_Find_Case_Toggle
-            | Editor.Commands.Command_Find_Case_Clear
-            | Editor.Commands.Command_Find_Whole_Word_Toggle
-            | Editor.Commands.Command_Find_Whole_Word_Clear
-            | Editor.Commands.Command_Find_From_Selection
-            | Editor.Commands.Command_Find_From_Active_Word
-            | Editor.Commands.Command_Active_Find_Next
-            | Editor.Commands.Command_Active_Find_Previous
-            | Editor.Commands.Command_Find_First
-            | Editor.Commands.Command_Find_Last
-            | Editor.Commands.Command_Find_Reveal_Current
-            | Editor.Commands.Command_Replace_Show
-            | Editor.Commands.Command_Replace_Hide
-            | Editor.Commands.Command_Replace_Toggle
-            | Editor.Commands.Command_Replace_Text_Set
-            | Editor.Commands.Command_Replace_Text_Clear
-            | Editor.Commands.Command_Replace_Current
-            | Editor.Commands.Command_Replace_All =>
+         when Editor.Command_Ids.Command_Goto_Line
+            | Editor.Command_Ids.Command_Goto_Line_Toggle
+            | Editor.Command_Ids.Command_Goto_Line_Prefill_Current
+            | Editor.Command_Ids.Command_Goto_Line_Query_Set
+            | Editor.Command_Ids.Command_Goto_Line_Query_Clear
+            | Editor.Command_Ids.Command_Close_Goto_Line
+            | Editor.Command_Ids.Command_Accept_Goto_Line
+            | Editor.Command_Ids.Command_Find_Show
+            | Editor.Command_Ids.Command_Find_Hide
+            | Editor.Command_Ids.Command_Find_Toggle
+            | Editor.Command_Ids.Command_Find_Query_Set
+            | Editor.Command_Ids.Command_Find_Query_Clear
+            | Editor.Command_Ids.Command_Find_Case_Toggle
+            | Editor.Command_Ids.Command_Find_Case_Clear
+            | Editor.Command_Ids.Command_Find_Whole_Word_Toggle
+            | Editor.Command_Ids.Command_Find_Whole_Word_Clear
+            | Editor.Command_Ids.Command_Find_From_Selection
+            | Editor.Command_Ids.Command_Find_From_Active_Word
+            | Editor.Command_Ids.Command_Active_Find_Next
+            | Editor.Command_Ids.Command_Active_Find_Previous
+            | Editor.Command_Ids.Command_Find_First
+            | Editor.Command_Ids.Command_Find_Last
+            | Editor.Command_Ids.Command_Find_Reveal_Current
+            | Editor.Command_Ids.Command_Replace_Show
+            | Editor.Command_Ids.Command_Replace_Hide
+            | Editor.Command_Ids.Command_Replace_Toggle
+            | Editor.Command_Ids.Command_Replace_Text_Set
+            | Editor.Command_Ids.Command_Replace_Text_Clear
+            | Editor.Command_Ids.Command_Replace_Current
+            | Editor.Command_Ids.Command_Replace_All =>
             return True;
          when others =>
             return False;
@@ -746,13 +747,13 @@ package body Editor.Focus_Management is
 
    function Is_Overlay_Local_Command_Id
      (Owner : Focus_Owner;
-      Id    : Editor.Commands.Command_Id) return Boolean
+      Id    : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       case Owner is
          when Focus_Command_Palette =>
-            return Id = Editor.Commands.Command_Open_Command_Palette
-              or else Id = Editor.Commands.Command_Palette_Show_Command_Help;
+            return Id = Editor.Command_Ids.Command_Open_Command_Palette
+              or else Id = Editor.Command_Ids.Command_Palette_Show_Command_Help;
 
          when Focus_Quick_Open =>
             return Is_Quick_Open_Command_Id (Id);
@@ -794,24 +795,24 @@ package body Editor.Focus_Management is
 
 
    function Is_Status_Message_Command_Id
-     (Id : Editor.Commands.Command_Id) return Boolean
+     (Id : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       case Id is
-         when Editor.Commands.Command_Show_Messages
-            | Editor.Commands.Command_Clear_Messages
-            | Editor.Commands.Command_Clear_Selected_Message
-            | Editor.Commands.Command_Copy_Selected_Message_Text
-            | Editor.Commands.Command_Clear_Info_Messages
-            | Editor.Commands.Command_Clear_Warning_Messages
-            | Editor.Commands.Command_Clear_Error_Messages
-            | Editor.Commands.Command_Toggle_Message_Info
-            | Editor.Commands.Command_Toggle_Message_Warnings
-            | Editor.Commands.Command_Toggle_Message_Errors
-            | Editor.Commands.Command_Show_All_Messages
-            | Editor.Commands.Command_Clear_Message_Filter
-            | Editor.Commands.Command_Dismiss_Latest_Message
-            | Editor.Commands.Command_Dismiss_All_Messages =>
+         when Editor.Command_Ids.Command_Show_Messages
+            | Editor.Command_Ids.Command_Clear_Messages
+            | Editor.Command_Ids.Command_Clear_Selected_Message
+            | Editor.Command_Ids.Command_Copy_Selected_Message_Text
+            | Editor.Command_Ids.Command_Clear_Info_Messages
+            | Editor.Command_Ids.Command_Clear_Warning_Messages
+            | Editor.Command_Ids.Command_Clear_Error_Messages
+            | Editor.Command_Ids.Command_Toggle_Message_Info
+            | Editor.Command_Ids.Command_Toggle_Message_Warnings
+            | Editor.Command_Ids.Command_Toggle_Message_Errors
+            | Editor.Command_Ids.Command_Show_All_Messages
+            | Editor.Command_Ids.Command_Clear_Message_Filter
+            | Editor.Command_Ids.Command_Dismiss_Latest_Message
+            | Editor.Command_Ids.Command_Dismiss_All_Messages =>
             return True;
          when others =>
             return False;
@@ -819,7 +820,7 @@ package body Editor.Focus_Management is
    end Is_Status_Message_Command_Id;
 
    function Is_Safe_Global_Status_Command_Id
-     (Id : Editor.Commands.Command_Id) return Boolean
+     (Id : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       if Command_Is_Surface_Entry (Id) then
@@ -831,34 +832,34 @@ package body Editor.Focus_Management is
       end if;
 
       case Id is
-         when Editor.Commands.No_Command
-            | Editor.Commands.Command_Cancel
-            | Editor.Commands.Command_Focus_Editor_Text
-            | Editor.Commands.Command_Open_Command_Palette
-            | Editor.Commands.Command_Open_Quick_Open
-            | Editor.Commands.Command_Toggle_Quick_Open
-            | Editor.Commands.Command_Open_Buffer_Switcher
-            | Editor.Commands.Command_Open_Project_Search_Bar
-            | Editor.Commands.Command_Toggle_Project_Search_Bar
-            | Editor.Commands.Command_Show_Recent_Projects
-            | Editor.Commands.Command_Focus_File_Tree
-            | Editor.Commands.Command_Toggle_Bottom_Panel_Focus
-            | Editor.Commands.Command_Show_Search_Results_Panel
-            | Editor.Commands.Command_Focus_Search_Results
-            | Editor.Commands.Command_Focus_Problems
-            | Editor.Commands.Command_Diagnostics_Show
-            | Editor.Commands.Command_Toggle_Problems_Panel
-            | Editor.Commands.Command_Build_UI_Show
-            | Editor.Commands.Command_Build_UI_Toggle
-            | Editor.Commands.Command_Build_UI_Focus
-            | Editor.Commands.Command_Show_Feature_Panel
-            | Editor.Commands.Command_Toggle_Feature_Panel
-            | Editor.Commands.Command_Focus_Feature_Panel
-            | Editor.Commands.Command_Show_Outline
-            | Editor.Commands.Command_Focus_Outline
-            | Editor.Commands.Command_Show_Messages
-            | Editor.Commands.Command_Clear_Messages
-            | Editor.Commands.Command_Dismiss_Latest_Message =>
+         when Editor.Command_Ids.No_Command
+            | Editor.Command_Ids.Command_Cancel
+            | Editor.Command_Ids.Command_Focus_Editor_Text
+            | Editor.Command_Ids.Command_Open_Command_Palette
+            | Editor.Command_Ids.Command_Open_Quick_Open
+            | Editor.Command_Ids.Command_Toggle_Quick_Open
+            | Editor.Command_Ids.Command_Open_Buffer_Switcher
+            | Editor.Command_Ids.Command_Open_Project_Search_Bar
+            | Editor.Command_Ids.Command_Toggle_Project_Search_Bar
+            | Editor.Command_Ids.Command_Show_Recent_Projects
+            | Editor.Command_Ids.Command_Focus_File_Tree
+            | Editor.Command_Ids.Command_Toggle_Bottom_Panel_Focus
+            | Editor.Command_Ids.Command_Show_Search_Results_Panel
+            | Editor.Command_Ids.Command_Focus_Search_Results
+            | Editor.Command_Ids.Command_Focus_Problems
+            | Editor.Command_Ids.Command_Diagnostics_Show
+            | Editor.Command_Ids.Command_Toggle_Problems_Panel
+            | Editor.Command_Ids.Command_Build_UI_Show
+            | Editor.Command_Ids.Command_Build_UI_Toggle
+            | Editor.Command_Ids.Command_Build_UI_Focus
+            | Editor.Command_Ids.Command_Show_Feature_Panel
+            | Editor.Command_Ids.Command_Toggle_Feature_Panel
+            | Editor.Command_Ids.Command_Focus_Feature_Panel
+            | Editor.Command_Ids.Command_Show_Outline
+            | Editor.Command_Ids.Command_Focus_Outline
+            | Editor.Command_Ids.Command_Show_Messages
+            | Editor.Command_Ids.Command_Clear_Messages
+            | Editor.Command_Ids.Command_Dismiss_Latest_Message =>
             return True;
          when others =>
             return False;
@@ -867,7 +868,7 @@ package body Editor.Focus_Management is
 
    function Command_May_Run_In_Current_Focus
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id) return Boolean
+      Id : Editor.Command_Ids.Command_Id) return Boolean
    is
       Owner : constant Focus_Owner := Effective_Focus_Owner (S);
    begin
@@ -877,8 +878,8 @@ package body Editor.Focus_Management is
 
       if Overlay_Focus_Owner (Owner) then
          case Id is
-            when Editor.Commands.No_Command
-               | Editor.Commands.Command_Cancel =>
+            when Editor.Command_Ids.No_Command
+               | Editor.Command_Ids.Command_Cancel =>
                return True;
             when others =>
                if Is_Status_Message_Command_Id (Id) then
@@ -919,8 +920,8 @@ package body Editor.Focus_Management is
             --  Arbitrary palette-selected commands are executed only after the
             --  palette accepts and dismisses itself.  While the palette itself
             --  owns input, only palette-local/open-close commands may run.
-            return Id = Editor.Commands.Command_Open_Command_Palette
-              or else Id = Editor.Commands.Command_Palette_Show_Command_Help;
+            return Id = Editor.Command_Ids.Command_Open_Command_Palette
+              or else Id = Editor.Command_Ids.Command_Palette_Show_Command_Help;
 
          when Focus_Quick_Open =>
             return Is_Quick_Open_Command_Id (Id);
@@ -1027,45 +1028,45 @@ package body Editor.Focus_Management is
    end Escape_Closes_Overlay;
 
    function Command_Is_Panel_Local_Navigation
-     (Id : Editor.Commands.Command_Id) return Boolean
+     (Id : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       case Id is
-         when Editor.Commands.Command_Quick_Open_Next_Result
-            | Editor.Commands.Command_Quick_Open_Previous_Result
-            | Editor.Commands.Command_Buffer_Switcher_Next_Result
-            | Editor.Commands.Command_Buffer_Switcher_Previous_Result
-            | Editor.Commands.Command_Search_Results_Move_Up
-            | Editor.Commands.Command_Search_Results_Move_Down
-            | Editor.Commands.Command_Search_Results_Page_Up
-            | Editor.Commands.Command_Search_Results_Page_Down
-            | Editor.Commands.Command_Move_Project_Search_Selection_Up
-            | Editor.Commands.Command_Move_Project_Search_Selection_Down
-            | Editor.Commands.Command_Next_Project_Search_Result
-            | Editor.Commands.Command_Previous_Project_Search_Result
-            | Editor.Commands.Command_First_Project_Search_Result
-            | Editor.Commands.Command_Last_Project_Search_Result
-            | Editor.Commands.Command_File_Tree_Move_Up
-            | Editor.Commands.Command_File_Tree_Move_Down
-            | Editor.Commands.Command_File_Tree_Page_Up
-            | Editor.Commands.Command_File_Tree_Page_Down
-            | Editor.Commands.Command_File_Tree_Expand_Selected
-            | Editor.Commands.Command_File_Tree_Collapse_Selected
-            | Editor.Commands.Command_File_Tree_Toggle_Selected
-            | Editor.Commands.Command_Feature_Panel_Select_Next
-            | Editor.Commands.Command_Feature_Panel_Select_Previous
-            | Editor.Commands.Command_Select_Next_Outline_Item
-            | Editor.Commands.Command_Select_Previous_Outline_Item
-            | Editor.Commands.Command_Problems_Move_Up
-            | Editor.Commands.Command_Problems_Move_Down
-            | Editor.Commands.Command_Problems_Page_Up
-            | Editor.Commands.Command_Problems_Page_Down
-            | Editor.Commands.Command_Diagnostics_Select_Next
-            | Editor.Commands.Command_Diagnostics_Select_Previous
-            | Editor.Commands.Command_Build_Select_Next_Candidate
-            | Editor.Commands.Command_Build_Select_Previous_Candidate
-            | Editor.Commands.Command_Select_Next_Recent_Project
-            | Editor.Commands.Command_Select_Previous_Recent_Project =>
+         when Editor.Command_Ids.Command_Quick_Open_Next_Result
+            | Editor.Command_Ids.Command_Quick_Open_Previous_Result
+            | Editor.Command_Ids.Command_Buffer_Switcher_Next_Result
+            | Editor.Command_Ids.Command_Buffer_Switcher_Previous_Result
+            | Editor.Command_Ids.Command_Search_Results_Move_Up
+            | Editor.Command_Ids.Command_Search_Results_Move_Down
+            | Editor.Command_Ids.Command_Search_Results_Page_Up
+            | Editor.Command_Ids.Command_Search_Results_Page_Down
+            | Editor.Command_Ids.Command_Move_Project_Search_Selection_Up
+            | Editor.Command_Ids.Command_Move_Project_Search_Selection_Down
+            | Editor.Command_Ids.Command_Next_Project_Search_Result
+            | Editor.Command_Ids.Command_Previous_Project_Search_Result
+            | Editor.Command_Ids.Command_First_Project_Search_Result
+            | Editor.Command_Ids.Command_Last_Project_Search_Result
+            | Editor.Command_Ids.Command_File_Tree_Move_Up
+            | Editor.Command_Ids.Command_File_Tree_Move_Down
+            | Editor.Command_Ids.Command_File_Tree_Page_Up
+            | Editor.Command_Ids.Command_File_Tree_Page_Down
+            | Editor.Command_Ids.Command_File_Tree_Expand_Selected
+            | Editor.Command_Ids.Command_File_Tree_Collapse_Selected
+            | Editor.Command_Ids.Command_File_Tree_Toggle_Selected
+            | Editor.Command_Ids.Command_Feature_Panel_Select_Next
+            | Editor.Command_Ids.Command_Feature_Panel_Select_Previous
+            | Editor.Command_Ids.Command_Select_Next_Outline_Item
+            | Editor.Command_Ids.Command_Select_Previous_Outline_Item
+            | Editor.Command_Ids.Command_Problems_Move_Up
+            | Editor.Command_Ids.Command_Problems_Move_Down
+            | Editor.Command_Ids.Command_Problems_Page_Up
+            | Editor.Command_Ids.Command_Problems_Page_Down
+            | Editor.Command_Ids.Command_Diagnostics_Select_Next
+            | Editor.Command_Ids.Command_Diagnostics_Select_Previous
+            | Editor.Command_Ids.Command_Build_Select_Next_Candidate
+            | Editor.Command_Ids.Command_Build_Select_Previous_Candidate
+            | Editor.Command_Ids.Command_Select_Next_Recent_Project
+            | Editor.Command_Ids.Command_Select_Previous_Recent_Project =>
             return True;
          when others =>
             return False;
@@ -1073,29 +1074,29 @@ package body Editor.Focus_Management is
    end Command_Is_Panel_Local_Navigation;
 
    function Command_Closes_Focused_Surface
-     (Id : Editor.Commands.Command_Id) return Boolean
+     (Id : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       case Id is
-         when Editor.Commands.Command_Cancel
-            | Editor.Commands.Command_Close_Quick_Open
-            | Editor.Commands.Command_Toggle_Quick_Open
-            | Editor.Commands.Command_Close_Buffer_Switcher
-            | Editor.Commands.Command_Close_Project_Search_Bar
-            | Editor.Commands.Command_Toggle_Project_Search_Bar
-            | Editor.Commands.Command_Hide_Feature_Panel
-            | Editor.Commands.Command_Toggle_Feature_Panel
-            | Editor.Commands.Command_Clear_Feature_Panel
-            | Editor.Commands.Command_Clear_Search_Results_Feature
-            | Editor.Commands.Command_Toggle_Problems_Panel
-            | Editor.Commands.Command_Build_UI_Hide
-            | Editor.Commands.Command_Build_UI_Toggle
-            | Editor.Commands.Command_Find_Hide
-            | Editor.Commands.Command_Find_Toggle
-            | Editor.Commands.Command_Replace_Hide
-            | Editor.Commands.Command_Replace_Toggle
-            | Editor.Commands.Command_Close_Goto_Line
-            | Editor.Commands.Command_Goto_Line_Toggle =>
+         when Editor.Command_Ids.Command_Cancel
+            | Editor.Command_Ids.Command_Close_Quick_Open
+            | Editor.Command_Ids.Command_Toggle_Quick_Open
+            | Editor.Command_Ids.Command_Close_Buffer_Switcher
+            | Editor.Command_Ids.Command_Close_Project_Search_Bar
+            | Editor.Command_Ids.Command_Toggle_Project_Search_Bar
+            | Editor.Command_Ids.Command_Hide_Feature_Panel
+            | Editor.Command_Ids.Command_Toggle_Feature_Panel
+            | Editor.Command_Ids.Command_Clear_Feature_Panel
+            | Editor.Command_Ids.Command_Clear_Search_Results_Feature
+            | Editor.Command_Ids.Command_Toggle_Problems_Panel
+            | Editor.Command_Ids.Command_Build_UI_Hide
+            | Editor.Command_Ids.Command_Build_UI_Toggle
+            | Editor.Command_Ids.Command_Find_Hide
+            | Editor.Command_Ids.Command_Find_Toggle
+            | Editor.Command_Ids.Command_Replace_Hide
+            | Editor.Command_Ids.Command_Replace_Toggle
+            | Editor.Command_Ids.Command_Close_Goto_Line
+            | Editor.Command_Ids.Command_Goto_Line_Toggle =>
             return True;
          when others =>
             return False;
@@ -1104,33 +1105,33 @@ package body Editor.Focus_Management is
 
 
    function Command_Toggles_Focus_Owner
-     (Id    : Editor.Commands.Command_Id;
+     (Id    : Editor.Command_Ids.Command_Id;
       Owner : Focus_Owner) return Boolean
    is
    begin
       case Id is
-         when Editor.Commands.Command_Toggle_Quick_Open =>
+         when Editor.Command_Ids.Command_Toggle_Quick_Open =>
             return Owner = Focus_Quick_Open;
 
-         when Editor.Commands.Command_Toggle_Project_Search_Bar =>
+         when Editor.Command_Ids.Command_Toggle_Project_Search_Bar =>
             return Owner in Focus_Project_Search_Query
               | Focus_Project_Replace_Input;
 
-         when Editor.Commands.Command_Toggle_Feature_Panel =>
+         when Editor.Command_Ids.Command_Toggle_Feature_Panel =>
             return Owner in Focus_Outline | Focus_Outline_Filter
               | Focus_Diagnostics | Focus_Project_Search_Results;
 
-         when Editor.Commands.Command_Toggle_Problems_Panel =>
+         when Editor.Command_Ids.Command_Toggle_Problems_Panel =>
             return Owner = Focus_Diagnostics;
 
-         when Editor.Commands.Command_Build_UI_Toggle =>
+         when Editor.Command_Ids.Command_Build_UI_Toggle =>
             return Owner in Focus_Build_UI
               | Focus_Build_Result_Summary
               | Focus_Build_Output_Details;
 
-         when Editor.Commands.Command_Find_Toggle
-            | Editor.Commands.Command_Replace_Toggle
-            | Editor.Commands.Command_Goto_Line_Toggle =>
+         when Editor.Command_Ids.Command_Find_Toggle
+            | Editor.Command_Ids.Command_Replace_Toggle
+            | Editor.Command_Ids.Command_Goto_Line_Toggle =>
             return Owner = Focus_Workspace_Prompt;
 
          when others =>
@@ -1139,7 +1140,7 @@ package body Editor.Focus_Management is
    end Command_Toggles_Focus_Owner;
 
    function Command_Closes_Focus_Owner
-     (Id    : Editor.Commands.Command_Id;
+     (Id    : Editor.Command_Ids.Command_Id;
       Owner : Focus_Owner) return Boolean
    is
    begin
@@ -1148,34 +1149,34 @@ package body Editor.Focus_Management is
       end if;
 
       case Id is
-         when Editor.Commands.Command_Cancel =>
+         when Editor.Command_Ids.Command_Cancel =>
             return Escape_Closes_Overlay (Owner)
               or else Escape_Returns_Focus_To_Editor (Owner);
 
-         when Editor.Commands.Command_Close_Quick_Open =>
+         when Editor.Command_Ids.Command_Close_Quick_Open =>
             return Owner = Focus_Quick_Open;
 
-         when Editor.Commands.Command_Close_Buffer_Switcher =>
+         when Editor.Command_Ids.Command_Close_Buffer_Switcher =>
             return Owner = Focus_Buffer_List;
 
-         when Editor.Commands.Command_Close_Project_Search_Bar =>
+         when Editor.Command_Ids.Command_Close_Project_Search_Bar =>
             return Owner in Focus_Project_Search_Query
               | Focus_Project_Replace_Input;
 
-         when Editor.Commands.Command_Find_Hide
-            | Editor.Commands.Command_Replace_Hide
-            | Editor.Commands.Command_Close_Goto_Line =>
+         when Editor.Command_Ids.Command_Find_Hide
+            | Editor.Command_Ids.Command_Replace_Hide
+            | Editor.Command_Ids.Command_Close_Goto_Line =>
             return Owner = Focus_Workspace_Prompt;
 
-         when Editor.Commands.Command_Hide_Feature_Panel
-            | Editor.Commands.Command_Clear_Feature_Panel =>
+         when Editor.Command_Ids.Command_Hide_Feature_Panel
+            | Editor.Command_Ids.Command_Clear_Feature_Panel =>
             return Owner in Focus_Outline | Focus_Outline_Filter
               | Focus_Diagnostics | Focus_Project_Search_Results;
 
-         when Editor.Commands.Command_Clear_Search_Results_Feature =>
+         when Editor.Command_Ids.Command_Clear_Search_Results_Feature =>
             return Owner = Focus_Project_Search_Results;
 
-         when Editor.Commands.Command_Build_UI_Hide =>
+         when Editor.Command_Ids.Command_Build_UI_Hide =>
             return Owner in Focus_Build_UI
               | Focus_Build_Result_Summary
               | Focus_Build_Output_Details;
@@ -1186,26 +1187,26 @@ package body Editor.Focus_Management is
    end Command_Closes_Focus_Owner;
 
    function Command_Returns_Focus_To_Editor
-     (Id : Editor.Commands.Command_Id) return Boolean
+     (Id : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       case Id is
-         when Editor.Commands.Command_Accept_Quick_Open
-            | Editor.Commands.Command_Open_File
-            | Editor.Commands.Command_Quick_Open_Create_From_Query
-            | Editor.Commands.Command_Quick_Open_Create_With_Parents_From_Query
-            | Editor.Commands.Command_Accept_Buffer_Switcher
-            | Editor.Commands.Command_File_Tree_Open_Selected
-            | Editor.Commands.Command_Search_Results_Open_Selected
-            | Editor.Commands.Command_Open_Selected_Project_Search_Result
-            | Editor.Commands.Command_Feature_Panel_Open_Selected
-            | Editor.Commands.Command_Open_Selected_Outline_Item
-            | Editor.Commands.Command_Problems_Open_Selected
-            | Editor.Commands.Command_Diagnostics_Open_Selected
-            | Editor.Commands.Command_Open_Selected_Recent_Project
-            | Editor.Commands.Command_Accept_Goto_Line
-            | Editor.Commands.Command_Problems_Focus_Editor
-            | Editor.Commands.Command_Focus_Editor_Text =>
+         when Editor.Command_Ids.Command_Accept_Quick_Open
+            | Editor.Command_Ids.Command_Open_File
+            | Editor.Command_Ids.Command_Quick_Open_Create_From_Query
+            | Editor.Command_Ids.Command_Quick_Open_Create_With_Parents_From_Query
+            | Editor.Command_Ids.Command_Accept_Buffer_Switcher
+            | Editor.Command_Ids.Command_File_Tree_Open_Selected
+            | Editor.Command_Ids.Command_Search_Results_Open_Selected
+            | Editor.Command_Ids.Command_Open_Selected_Project_Search_Result
+            | Editor.Command_Ids.Command_Feature_Panel_Open_Selected
+            | Editor.Command_Ids.Command_Open_Selected_Outline_Item
+            | Editor.Command_Ids.Command_Problems_Open_Selected
+            | Editor.Command_Ids.Command_Diagnostics_Open_Selected
+            | Editor.Command_Ids.Command_Open_Selected_Recent_Project
+            | Editor.Command_Ids.Command_Accept_Goto_Line
+            | Editor.Command_Ids.Command_Problems_Focus_Editor
+            | Editor.Command_Ids.Command_Focus_Editor_Text =>
             return True;
          when others =>
             return False;
@@ -1520,7 +1521,7 @@ package body Editor.Focus_Management is
    end Set_Focus_Owner;
 
    function Command_Focuses_Surface_After_Execution
-     (Id : Editor.Commands.Command_Id) return Boolean
+     (Id : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       --  Open/show/focus commands are deterministic surface-entry commands.
@@ -1528,31 +1529,31 @@ package body Editor.Focus_Management is
       --  focused surface may have been closed, and blindly applying the target
       --  would reopen or refocus a dismissed overlay/panel.
       case Id is
-         when Editor.Commands.Command_Open_Command_Palette
-            | Editor.Commands.Command_Open_Quick_Open
-            | Editor.Commands.Command_Open_Buffer_Switcher
-            | Editor.Commands.Command_Open_Project_Search_Bar
-            | Editor.Commands.Command_Show_Search_Results_Panel
-            | Editor.Commands.Command_Focus_Search_Results
-            | Editor.Commands.Command_Focus_File_Tree
-            | Editor.Commands.Command_Focus_Feature_Panel
-            | Editor.Commands.Command_Show_Outline
-            | Editor.Commands.Command_Focus_Outline
-            | Editor.Commands.Command_Focus_Outline_Filter
-            | Editor.Commands.Command_Diagnostics_Show
-            | Editor.Commands.Command_Focus_Problems
-            | Editor.Commands.Command_Build_UI_Show
-            | Editor.Commands.Command_Build_UI_Focus
-            | Editor.Commands.Command_Build_Result_Focus
-            | Editor.Commands.Command_Build_Output_Details_Focus
-            | Editor.Commands.Command_Terminal_Show
-            | Editor.Commands.Command_Terminal_Focus
-            | Editor.Commands.Command_Show_Recent_Projects
-            | Editor.Commands.Command_Goto_Line
-            | Editor.Commands.Command_Goto_Line_Prefill_Current
-            | Editor.Commands.Command_Find_Show
-            | Editor.Commands.Command_Replace_Show
-            | Editor.Commands.Command_Focus_Editor_Text =>
+         when Editor.Command_Ids.Command_Open_Command_Palette
+            | Editor.Command_Ids.Command_Open_Quick_Open
+            | Editor.Command_Ids.Command_Open_Buffer_Switcher
+            | Editor.Command_Ids.Command_Open_Project_Search_Bar
+            | Editor.Command_Ids.Command_Show_Search_Results_Panel
+            | Editor.Command_Ids.Command_Focus_Search_Results
+            | Editor.Command_Ids.Command_Focus_File_Tree
+            | Editor.Command_Ids.Command_Focus_Feature_Panel
+            | Editor.Command_Ids.Command_Show_Outline
+            | Editor.Command_Ids.Command_Focus_Outline
+            | Editor.Command_Ids.Command_Focus_Outline_Filter
+            | Editor.Command_Ids.Command_Diagnostics_Show
+            | Editor.Command_Ids.Command_Focus_Problems
+            | Editor.Command_Ids.Command_Build_UI_Show
+            | Editor.Command_Ids.Command_Build_UI_Focus
+            | Editor.Command_Ids.Command_Build_Result_Focus
+            | Editor.Command_Ids.Command_Build_Output_Details_Focus
+            | Editor.Command_Ids.Command_Terminal_Show
+            | Editor.Command_Ids.Command_Terminal_Focus
+            | Editor.Command_Ids.Command_Show_Recent_Projects
+            | Editor.Command_Ids.Command_Goto_Line
+            | Editor.Command_Ids.Command_Goto_Line_Prefill_Current
+            | Editor.Command_Ids.Command_Find_Show
+            | Editor.Command_Ids.Command_Replace_Show
+            | Editor.Command_Ids.Command_Focus_Editor_Text =>
             return True;
          when others =>
             return False;
@@ -1561,7 +1562,7 @@ package body Editor.Focus_Management is
 
    procedure Apply_Command_Focus_Result
      (S            : in out Editor.State.State_Type;
-      Id           : Editor.Commands.Command_Id;
+      Id           : Editor.Command_Ids.Command_Id;
       Owner_Before : Focus_Owner := Focus_None)
    is
       Target : constant Focus_Owner := Focus_Target_For_Surface_Command (Id);
@@ -1598,15 +1599,15 @@ package body Editor.Focus_Management is
    end Apply_Command_Focus_Result;
 
    function Command_Allowed_While_Pending
-     (Id : Editor.Commands.Command_Id) return Boolean
+     (Id : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       case Id is
-         when Editor.Commands.No_Command
-            | Editor.Commands.Command_Cancel
-            | Editor.Commands.Command_Cancel_Pending_Transition
-            | Editor.Commands.Command_Retry_Pending_Transition
-            | Editor.Commands.Command_Discard_Pending_Transition =>
+         when Editor.Command_Ids.No_Command
+            | Editor.Command_Ids.Command_Cancel
+            | Editor.Command_Ids.Command_Cancel_Pending_Transition
+            | Editor.Command_Ids.Command_Retry_Pending_Transition
+            | Editor.Command_Ids.Command_Discard_Pending_Transition =>
             return True;
          when others =>
             return Is_Status_Message_Command_Id (Id);
@@ -1614,7 +1615,7 @@ package body Editor.Focus_Management is
    end Command_Allowed_While_Pending;
 
    function Command_Is_Conflicting_While_Pending
-     (Id : Editor.Commands.Command_Id) return Boolean
+     (Id : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       return not Command_Allowed_While_Pending (Id);

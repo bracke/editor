@@ -1,5 +1,4 @@
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
-with Editor.Commands;
 with Editor.State;
 with Guikit.Command_Palette;
 

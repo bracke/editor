@@ -1,8 +1,8 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Executor.Shared_Services;
 use Editor.Executor.Shared_Services;
 with Ada.Strings;
 with Ada.Strings.Fixed;
-with Editor.Commands;
 with Editor.Commands.Workflow_Messages;
 with Editor.Messages;
 with Editor.State;
@@ -126,7 +126,7 @@ package body Editor.Executor.Shared_Services is
 
 
    function Command_Requires_Explicit_Target
-     (Id : Editor.Commands.Command_Id) return Boolean
+     (Id : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       return Editor.Commands.Reference_Metadata.Command_Requires_Explicit_Target (Id);

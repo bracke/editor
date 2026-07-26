@@ -1,7 +1,7 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds; use Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.Command_Execution;
-with Editor.Commands; use Editor.Commands;
 with Editor.Executor.Diagnostics_Commands;
 with Editor.Executor.Diagnostics_Navigation_Commands;
 with Editor.Executor.Diagnostics_Problems_Commands;
@@ -13,7 +13,7 @@ package body Editor.Executor.Command_Kind_Diagnostics_Commands is
 
    procedure Run_Diagnostics_Feature_Command
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
    is
       Result : constant Editor.Command_Execution.Command_Execution_Result :=
         Editor.Executor.Diagnostics_Commands.Execute_Diagnostics_Feature_Command

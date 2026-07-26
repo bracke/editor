@@ -1,8 +1,8 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Interfaces.C;
-with Editor.Commands;
 with Editor.Command_Palette;
 with Editor.Input_Bridge;
 with Editor.Layout;
@@ -14,7 +14,7 @@ with Editor.State;
 with Editor.View;
 with Editor.Scrollbars;
 with Editor.Folding;
-use type Editor.Commands.Command_Id;
+use type Editor.Command_Ids.Command_Id;
 use type Editor.Line_Numbers.Line_Number_Mode;
 use type Interfaces.C.int;
 
@@ -267,13 +267,13 @@ package body Editor.Line_Numbers.Tests is
    begin
       for Desc of Descs loop
          case Desc.Id is
-            when Editor.Commands.Command_Toggle_Line_Number_Mode =>
+            when Editor.Command_Ids.Command_Toggle_Line_Number_Mode =>
                Seen_Toggle := True;
-            when Editor.Commands.Command_Set_Absolute_Line_Numbers =>
+            when Editor.Command_Ids.Command_Set_Absolute_Line_Numbers =>
                Seen_Absolute := True;
-            when Editor.Commands.Command_Set_Relative_Line_Numbers =>
+            when Editor.Command_Ids.Command_Set_Relative_Line_Numbers =>
                Seen_Relative := True;
-            when Editor.Commands.Command_Set_Hybrid_Line_Numbers =>
+            when Editor.Command_Ids.Command_Set_Hybrid_Line_Numbers =>
                Seen_Hybrid := True;
             when others =>
                null;

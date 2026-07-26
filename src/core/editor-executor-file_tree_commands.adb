@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Ada.Characters.Handling;
 with Ada.Directories;
@@ -15,7 +16,6 @@ use type Editor.Buffers.Buffer_Id;
 with Editor.Build_Candidates;
 with Editor.Build_UI;
 with Editor.Command_Execution;
-with Editor.Commands;
 with Editor.Diagnostics;
 with Editor.Executor;
 with Editor.Executor.File_Open_Commands;
@@ -53,7 +53,7 @@ package body Editor.Executor.File_Tree_Commands is
 
    function File_Tree_Command_Availability
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Commands.Availability_Metadata.Command_Availability
    is
       function Has_Buffer return Boolean is
@@ -243,7 +243,7 @@ package body Editor.Executor.File_Tree_Commands is
 
    function Result_After_Command
      (S               : Editor.State.State_Type;
-      Command         : Editor.Commands.Command_Id;
+      Command         : Editor.Command_Ids.Command_Id;
       Before_Messages : Natural)
       return Editor.Command_Execution.Command_Execution_Result
    is
@@ -270,7 +270,7 @@ package body Editor.Executor.File_Tree_Commands is
 
    function Execute_File_Tree_Result_Command
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
    is
       Before_Messages : constant Natural := Editor.Messages.Count (S.Messages);

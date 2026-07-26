@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Classification;
@@ -10,7 +11,6 @@ with Ada.Containers;
 with Ada.Directories;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.Command_Palette;
 with Editor.Command_Route_Audit;
@@ -68,7 +68,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
    use type Editor.Files.File_Open_Status;
    use type Editor.Files.File_Save_Status;
    use type Editor.Files.File_Move_Status;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Command_Palette.Command_Palette_Row_Kind;
@@ -91,45 +91,45 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Found : Boolean := False;
-      Id    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Id    : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
    begin
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Reload_Active_Buffer) = "file.reload-buffer",
+           (Editor.Command_Ids.Command_Reload_Active_Buffer) = "file.reload-buffer",
          "reload must use canonical file.reload-buffer persisted name");
       Assert
-        (Editor.Commands.Descriptors.Category (Editor.Commands.Command_Reload_Active_Buffer) =
+        (Editor.Commands.Descriptors.Category (Editor.Command_Ids.Command_Reload_Active_Buffer) =
            Editor.Commands.Descriptors.File_Category,
          "reload must remain a File command");
       Assert
         (Editor.Commands.Classification.Is_Bindable_Command
-           (Editor.Commands.Command_Reload_Active_Buffer),
+           (Editor.Command_Ids.Command_Reload_Active_Buffer),
          "reload must remain bindable");
       Assert
         (Editor.Commands.Descriptors.Descriptor
-           (Editor.Commands.Command_Reload_Active_Buffer).Visibility =
+           (Editor.Command_Ids.Command_Reload_Active_Buffer).Visibility =
            Editor.Commands.Descriptors.Palette_Command,
          "reload must remain Command Palette visible");
       Assert
         (Editor.Commands.Classification.Is_Lifecycle_Command
-           (Editor.Commands.Command_Reload_Active_Buffer),
+           (Editor.Command_Ids.Command_Reload_Active_Buffer),
          "reload must be classified as lifecycle");
 
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("file.reload-buffer", Found);
       Assert
-        (Found and then Id = Editor.Commands.Command_Reload_Active_Buffer,
+        (Found and then Id = Editor.Command_Ids.Command_Reload_Active_Buffer,
          "file.reload-buffer must resolve to the reload command id");
 
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("reload-buffer", Found);
       Assert
-        (not Found and then Id = Editor.Commands.No_Command,
+        (not Found and then Id = Editor.Command_Ids.No_Command,
          "removed reload-buffer name must not resolve");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("file.reload-force", Found);
       Assert
-        (not Found and then Id = Editor.Commands.No_Command,
+        (not Found and then Id = Editor.Command_Ids.No_Command,
          "force reload non-goal command must not exist");
    end Test_Reload_Command_Metadata_Uses_Canonical_Name;
 
@@ -236,7 +236,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
         "dirty reload must emit the canonical blocked message");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Cancel_Pending_Transition);
+        (S, Editor.Command_Ids.Command_Cancel_Pending_Transition);
       Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, Path);
       Remove_If_Exists (Path);
       Before := To_Unbounded_String (Buffer_Text (S));
@@ -275,7 +275,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       S.Active_Buffer_Token := 0;
 
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Reload_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Reload_Active_Buffer);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability)
         and then Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability) = "No active buffer.",
         "reload availability must report no active buffer first");
@@ -291,7 +291,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Messages.Clear (S.Messages);
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Reload_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Reload_Active_Buffer);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability)
         and then Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability) = "No file path for active buffer",
         "no-path reload availability must precede dirty checks");
@@ -311,7 +311,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Remove_If_Exists (Path);
       Editor.Messages.Clear (S.Messages);
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Reload_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Reload_Active_Buffer);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "clean associated buffer should be reload-available without filesystem probing");
 
@@ -517,7 +517,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Assert_Preserved ("dirty-blocked reload");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Cancel_Pending_Transition);
+        (S, Editor.Command_Ids.Command_Cancel_Pending_Transition);
       Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, Path);
       S.Carets.Clear;
       S.Carets.Append
@@ -612,7 +612,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Before_Gen := S.File_Info.Saved_Generation;
 
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Reload_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Reload_Active_Buffer);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "reload availability must not probe for a missing associated file");
       Assert (Buffer_Text (S) = To_String (Before_Text)
@@ -645,7 +645,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Dir_Path   : constant String := Temp_Path ("validation_dir");
       M          : Editor.Messages.Editor_Message;
       Found      : Boolean := False;
-      Id         : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Id         : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
 
       procedure Assert_Message (Text : String; Severity : Editor.Messages.Message_Severity) is
       begin
@@ -659,7 +659,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       procedure Check_Rejected (Name : String) is
       begin
          Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
-         Assert (not Found and then Id = Editor.Commands.No_Command,
+         Assert (not Found and then Id = Editor.Command_Ids.No_Command,
            "non-goal reload command must not be exposed: " & Name);
       end Check_Rejected;
    begin
@@ -928,7 +928,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Assert_Preserved ("dirty-blocked reload");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Cancel_Pending_Transition);
+        (S, Editor.Command_Ids.Command_Cancel_Pending_Transition);
       Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, B_Path);
       Capture;
       Remove_If_Exists (B_Path);
@@ -1125,20 +1125,20 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Found : Boolean := False;
-      Cmd   : Editor.Commands.Command_Id;
+      Cmd   : Editor.Command_Ids.Command_Id;
       Desc  : Editor.Commands.Descriptors.Command_Descriptor;
       S     : Editor.State.State_Type;
       Path  : constant String := Temp_Path ("revert_validation.txt");
       M     : Editor.Messages.Editor_Message;
    begin
       Cmd := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("file.revert-buffer", Found);
-      Assert (Found and then Cmd = Editor.Commands.Command_Revert_Active_Buffer,
+      Assert (Found and then Cmd = Editor.Command_Ids.Command_Revert_Active_Buffer,
         "file.revert-buffer must resolve to canonical command id");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-        (Editor.Commands.Command_Revert_Active_Buffer) = "file.revert-buffer",
+        (Editor.Command_Ids.Command_Revert_Active_Buffer) = "file.revert-buffer",
         "revert must use canonical persisted command name");
       Desc := Editor.Commands.Descriptors.Descriptor
-        (Editor.Commands.Command_Revert_Active_Buffer);
+        (Editor.Command_Ids.Command_Revert_Active_Buffer);
       Assert (Desc.Category = Editor.Commands.Descriptors.File_Category,
         "revert must be a File command");
       Assert (Desc.Bindable and then Desc.Visibility = Editor.Commands.Descriptors.Palette_Command,
@@ -1410,7 +1410,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Write_Bytes (B_Path, "B disk must not be read");
 
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Revert_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Revert_Active_Buffer);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "dirty associated active buffer must make revert available");
       Assert (Buffer_Text (S) = "A disk before dirty A" and then S.File_Info.Dirty,
@@ -1558,7 +1558,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
         and then Editor.History.Redo_Stack.Is_Empty,
         "successful revert must clear stale Undo/Redo without creating entries");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert (Buffer_Text (S) = Exact
         and then S.File_Info.Saved_Generation = Saved_Gen
         and then not S.File_Info.Dirty,
@@ -1601,8 +1601,8 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Editor.State.Init (S);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
       Insert_Text_At (S, Buffer_Text (S)'Length, " undoable");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
       S.Carets.Clear;
       S.Carets.Append
@@ -1618,7 +1618,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Remove_If_Exists (Path);
 
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Revert_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Revert_Active_Buffer);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability)
         and then Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability) = "No changes to revert",
         "clean associated revert availability must not probe the filesystem");
@@ -1665,7 +1665,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Dir_Path : constant String := Temp_Path ("validation_dir");
       M        : Editor.Messages.Editor_Message;
       Found    : Boolean := False;
-      Id       : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Id       : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Avail    : Editor.Commands.Availability_Metadata.Command_Availability;
 
       procedure Assert_Message
@@ -1681,7 +1681,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       procedure Assert_Absent (Name : String) is
       begin
          Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
-         Assert (not Found and then Id = Editor.Commands.No_Command,
+         Assert (not Found and then Id = Editor.Command_Ids.No_Command,
            "non-goal revert/recovery command must not be exposed: " & Name);
       end Assert_Absent;
    begin
@@ -1692,7 +1692,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
 
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Revert_Active_Buffer) = "file.revert-buffer",
+           (Editor.Command_Ids.Command_Revert_Active_Buffer) = "file.revert-buffer",
          "canonical active-buffer revert stable name must remain file.revert-buffer");
       Assert_Absent ("file.revert-all-buffers");
       Assert_Absent ("file.revert-clean-buffer");
@@ -1744,12 +1744,12 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Remove_If_Exists (Path);
       Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Revert_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Revert_Active_Buffer);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail)
         and then Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) = "No changes to revert",
         "clean associated availability must stop before filesystem probing");
       Editor.Messages.Clear (S.Messages);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Revert_Active_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Revert_Active_Buffer);
       Assert_Message ("No changes to revert", Editor.Messages.Info_Message);
       Assert (Buffer_Text (S) = "clean associated text" and then not S.File_Info.Dirty
         and then not Ada.Directories.Exists (Path),
@@ -1924,11 +1924,11 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Assert (S.Carets.Length = 1 and then S.Carets (0).Pos = 0 and then S.Carets (0).Anchor = 0,
         "successful revert must apply retained caret/selection destructive lifecycle policy");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert (Buffer_Text (S) = Exact and then not S.File_Info.Dirty
         and then S.File_Info.Saved_Generation = Reverted_Gen,
         "edit.undo must not undo the revert itself");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert (Buffer_Text (S) = Exact and then not S.File_Info.Dirty,
         "edit.redo must not redo a revert entry");
 
@@ -1938,10 +1938,10 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
       Assert (Read_Bytes (Path) = Exact & "post" and then not S.File_Info.Dirty,
         "file.save after revert remains the only writer and writes current text to the preserved path");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert (S.File_Info.Dirty,
         "undo after post-revert save must dirty against the post-revert saved baseline under normal edit policy");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert (not S.File_Info.Dirty,
         "redo after post-revert save must return to the saved baseline under normal edit policy");
 
@@ -2025,8 +2025,8 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Editor.State.Init (S);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
       Insert_Text_At (S, Buffer_Text (S)'Length, " undoable");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
       S.Carets.Clear;
       S.Carets.Append
@@ -2120,11 +2120,11 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Revert_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Revert_Active_Buffer);
       Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
       if not Candidates.Is_Empty then
          for I in Candidates.First_Index .. Candidates.Last_Index loop
-            if Candidates (I).Id = Editor.Commands.Command_Revert_Active_Buffer then
+            if Candidates (I).Id = Editor.Command_Ids.Command_Revert_Active_Buffer then
                Palette_Found := True;
             end if;
          end loop;

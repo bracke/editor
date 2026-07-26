@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
@@ -8,7 +9,6 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Build_UI;
 with Editor.Build_UI_Actions;
 with Editor.Command_Palette;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.Executor.Availability;
 with Editor.Feature_Diagnostics;
@@ -44,7 +44,7 @@ package body Editor.Executor.Command_Palette_Projection is
            and then Text (Text'First .. Text'First + Prefix'Length - 1) = Prefix;
       end Starts_With;
 
-      function Relevance_Boost (Id : Editor.Commands.Command_Id) return Natural is
+      function Relevance_Boost (Id : Editor.Command_Ids.Command_Id) return Natural is
          Stable : constant String := Editor.Commands.Name_Metadata.Stable_Command_Name (Id);
          Previous : constant Editor.Overlay_Focus.Previous_Focus_Target :=
            Editor.Overlay_Focus.Previous_Focus (S.Overlay_Focus);
@@ -78,7 +78,7 @@ package body Editor.Executor.Command_Palette_Projection is
       end Relevance_Boost;
 
       function State_Context_For
-        (Id : Editor.Commands.Command_Id) return String
+        (Id : Editor.Command_Ids.Command_Id) return String
       is
          Stable : constant String := Editor.Commands.Name_Metadata.Stable_Command_Name (Id);
       begin
@@ -212,7 +212,7 @@ package body Editor.Executor.Command_Palette_Projection is
       for C of Candidates loop
          Result.Append
            (Guikit.Command_Palette.Command'
-              (Id          => Editor.Commands.Command_Id'Pos (C.Id),
+              (Id          => Editor.Command_Ids.Command_Id'Pos (C.Id),
                Identifier  =>
                  To_Unbounded_String (Editor.Commands.Name_Metadata.Stable_Command_Name (C.Id)),
                Label       => C.Label,

@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Ada.Directories;
 with Ada.Strings.Fixed;
@@ -6,7 +7,6 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Bookmarks;
 with Editor.Buffers;
 use type Editor.Buffers.Buffer_Id;
-with Editor.Commands;
 with Editor.Cursors;
 with Editor.Diagnostics;
 with Editor.Executor;
@@ -31,7 +31,7 @@ package body Editor.Executor.Bookmark_Commands is
 
    function Bookmark_Command_Availability
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Commands.Availability_Metadata.Command_Availability
    is
       function Has_Buffer return Boolean is

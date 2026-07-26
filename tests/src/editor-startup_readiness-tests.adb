@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
@@ -9,7 +10,6 @@ with Ada.Directories;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Strings.Fixed; use Ada.Strings.Fixed;
 with Ada.Text_IO;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.Configuration_Recovery;
 with Editor.Executor;
@@ -23,8 +23,8 @@ with Editor.Workspace_Persistence;
 
 package body Editor.Startup_Readiness.Tests is
 
-   use type Editor.Commands.Command_Id;
-   use type Editor.Commands.Command_Kind;
+   use type Editor.Command_Ids.Command_Id;
+   use type Editor.Command_Kinds.Command_Kind;
    use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
    use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Configuration_Recovery.Configuration_Domain;
@@ -438,7 +438,7 @@ package body Editor.Startup_Readiness.Tests is
    begin
       Clear_Startup_Summary;
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Startup_Show_Summary);
+        (S, Editor.Command_Ids.Command_Startup_Show_Summary);
       Assert (Availability.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
               "startup summary command must be unavailable before startup records a summary");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability) =
@@ -447,7 +447,7 @@ package body Editor.Startup_Readiness.Tests is
 
       Record_Startup_Summary (Summary);
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Startup_Show_Summary);
+        (S, Editor.Command_Ids.Command_Startup_Show_Summary);
       Assert (Availability.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "startup summary command must become available after transient summary record");
       Assert (Has_Recorded_Startup_Summary,
@@ -460,14 +460,14 @@ package body Editor.Startup_Readiness.Tests is
    is
       pragma Unreferenced (T);
       Found : Boolean := False;
-      Id    : constant Editor.Commands.Command_Id :=
+      Id    : constant Editor.Command_Ids.Command_Id :=
         Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("startup.show-summary", Found);
       Descriptor : constant Editor.Commands.Descriptors.Command_Descriptor :=
-        Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Startup_Show_Summary);
+        Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Startup_Show_Summary);
       Command : constant Editor.Commands.Payloads.Command :=
-        Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Startup_Show_Summary);
+        Editor.Commands.Payloads.Command_For_Id (Editor.Command_Ids.Command_Startup_Show_Summary);
    begin
-      Assert (Found and then Id = Editor.Commands.Command_Startup_Show_Summary,
+      Assert (Found and then Id = Editor.Command_Ids.Command_Startup_Show_Summary,
               "startup.show-summary must resolve to the startup summary command");
       Assert (Descriptor.Visibility = Editor.Commands.Descriptors.Palette_Command,
               "startup summary command must be discoverable through the command palette");
@@ -544,7 +544,7 @@ package body Editor.Startup_Readiness.Tests is
       Record_Startup_Summary (Summary);
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Configuration_Recover_Show);
+        (S, Editor.Command_Ids.Command_Configuration_Recover_Show);
 
       Assert (Editor.Configuration_Recovery.Has_Recorded_Recovery_Summary,
               "recovery show must project recorded startup warnings into the recovery view");
@@ -897,7 +897,7 @@ package body Editor.Startup_Readiness.Tests is
       Assert (Current_Startup_Summary.Row_Count = 7,
               "recorded startup summary must use the bounded row model");
       Assert (Editor.Executor.Command_Availability
-                (S, Editor.Commands.Command_Startup_Show_Summary).Status =
+                (S, Editor.Command_Ids.Command_Startup_Show_Summary).Status =
               Editor.Commands.Availability_Metadata.Command_Available,
               "startup summary command must be available after state initialization");
       Clear_Startup_Summary;

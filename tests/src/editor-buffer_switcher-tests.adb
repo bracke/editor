@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Classification;
 with Editor.Commands.Descriptor_Metadata;
 with Editor.Commands.Availability_Metadata;
@@ -19,7 +20,6 @@ with AUnit.Test_Cases; use AUnit.Test_Cases.Registration;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Buffers;
 with Editor.Buffer_Switcher_Contextual_Hints;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.Command_Palette;
 with Editor.Command_Route_Audit;
@@ -48,7 +48,7 @@ package body Editor.Buffer_Switcher.Tests is
    use type Ada.Directories.File_Kind;
    use type Ada.Streams.Stream_Element_Offset;
    use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Keybindings.Binding_Result;
    use type Editor.Workspace_Persistence.Workspace_Persistence_Status;
    use type Editor.Settings.Settings_Status;
@@ -73,7 +73,7 @@ package body Editor.Buffer_Switcher.Tests is
    end Contains_Text;
 
    function Command_Has_Payload
-     (Id : Editor.Commands.Command_Id) return Boolean
+     (Id : Editor.Command_Ids.Command_Id) return Boolean
    is
       Cmd : constant Editor.Commands.Payloads.Command :=
         Editor.Commands.Payloads.Command_For_Id (Id);
@@ -188,7 +188,7 @@ package body Editor.Buffer_Switcher.Tests is
 
    function Contains_Hint
      (Hints : Editor.Buffer_Switcher_Contextual_Hints.Switcher_Contextual_Hint_Vectors.Vector;
-      Id    : Editor.Commands.Command_Id) return Boolean
+      Id    : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       for Hint of Hints loop
@@ -201,7 +201,7 @@ package body Editor.Buffer_Switcher.Tests is
 
    function Hint_Key_Text
      (Hints : Editor.Buffer_Switcher_Contextual_Hints.Switcher_Contextual_Hint_Vectors.Vector;
-      Id    : Editor.Commands.Command_Id) return String
+      Id    : Editor.Command_Ids.Command_Id) return String
    is
    begin
       for Hint of Hints loop
@@ -3334,7 +3334,7 @@ package body Editor.Buffer_Switcher.Tests is
 
       Editor.State.Init (App);
       App.File_Target_Prompt_Active := True;
-      App.File_Target_Prompt_Command := Editor.Commands.Command_Save_File_As;
+      App.File_Target_Prompt_Command := Editor.Command_Ids.Command_Save_File_As;
       App.File_Target_Prompt_Label := To_Unbounded_String ("Save As target");
       Editor.Input_Field.Insert_Text (App.File_Target_Prompt_Input, Editor.Test_Temp.Base & "/explicit-target.adb");
 
@@ -3562,7 +3562,7 @@ package body Editor.Buffer_Switcher.Tests is
 
       Editor.State.Init (App);
       Editor.Executor.File_Target_Prompt_Commands.Open_File_Target_Prompt
-        (App, Editor.Commands.Command_Rename_Buffer_File);
+        (App, Editor.Command_Ids.Command_Rename_Buffer_File);
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (App),
               "prompted command opens canonical prompt state outside switcher ownership");
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (App) = "",
@@ -3779,7 +3779,7 @@ package body Editor.Buffer_Switcher.Tests is
 
       Editor.State.Init (App);
       Editor.Executor.File_Target_Prompt_Commands.Open_File_Target_Prompt
-        (App, Editor.Commands.Command_Move_Buffer_File);
+        (App, Editor.Command_Ids.Command_Move_Buffer_File);
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (App),
               "prompted file lifecycle state remains canonical Executor state");
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (App) = "",
@@ -4042,7 +4042,7 @@ package body Editor.Buffer_Switcher.Tests is
 
       Editor.State.Init (App);
       Editor.Executor.File_Target_Prompt_Commands.Open_File_Target_Prompt
-        (App, Editor.Commands.Command_Rename_Buffer_File);
+        (App, Editor.Command_Ids.Command_Rename_Buffer_File);
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (App),
               "prompt ownership remains canonical Executor state");
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (App) = "",
@@ -4158,22 +4158,22 @@ package body Editor.Buffer_Switcher.Tests is
       Found : Boolean := False;
    begin
       Assert (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("buffers.switcher.open", Found) =
-                Editor.Commands.Command_Open_Buffer_Switcher and then Found,
+                Editor.Command_Ids.Command_Open_Buffer_Switcher and then Found,
               "buffers.switcher.open maps to the open-buffer list command");
       Assert (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("buffer.list.focus", Found) =
-                Editor.Commands.No_Command and then not Found,
+                Editor.Command_Ids.No_Command and then not Found,
               "buffer.list.focus alias is not loadable");
       Assert (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("buffers.switcher.close", Found) =
-                Editor.Commands.Command_Close_Buffer_Switcher and then Found,
+                Editor.Command_Ids.Command_Close_Buffer_Switcher and then Found,
               "buffers.switcher.close maps to the switcher close command");
       Assert (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("buffers.switcher.accept", Found) =
-                Editor.Commands.Command_Accept_Buffer_Switcher and then Found,
+                Editor.Command_Ids.Command_Accept_Buffer_Switcher and then Found,
               "buffers.switcher.accept maps to selected row activation");
       Assert (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("buffer.next", Found) =
-                Editor.Commands.Command_Next_Buffer and then Found,
+                Editor.Command_Ids.Command_Next_Buffer and then Found,
               "buffer.next aliases deterministic next-buffer navigation");
       Assert (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("buffer.previous", Found) =
-                Editor.Commands.Command_Previous_Buffer and then Found,
+                Editor.Command_Ids.Command_Previous_Buffer and then Found,
               "buffer.previous aliases deterministic previous-buffer navigation");
    end Test_Command_Names_Map_To_Executor_Routed_Commands;
 
@@ -4199,7 +4199,7 @@ package body Editor.Buffer_Switcher.Tests is
                 (S.Buffer_Switcher, Editor.Buffers.Global_Count) = "No open buffers",
               "empty buffer list reports no open buffers");
 
-      A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Next_Buffer);
+      A := Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Next_Buffer);
       Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Unavailable
                 and then To_String (A.Reason) = "No buffers open.",
               "next buffer is unavailable with no open buffers");
@@ -4207,14 +4207,14 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffers.Global_Add_File_Buffer
         (Editor.Test_Temp.Base & "/scenario/alpha.adb", "alpha.adb", "procedure Alpha is begin null; end;", Alpha);
       Editor.Buffers.Global_Set_Active_Buffer (Alpha);
-      A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Previous_Buffer);
+      A := Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Previous_Buffer);
       Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Unavailable
                 and then To_String (A.Reason) = "No other buffer.",
               "previous buffer is unavailable with one open buffer");
 
       Editor.Buffers.Global_Add_File_Buffer
         (Editor.Test_Temp.Base & "/scenario/beta.adb", "beta.adb", "procedure Beta is begin null; end;", Beta);
-      A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Next_Buffer);
+      A := Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Next_Buffer);
       Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "next buffer is available with multiple open buffers");
 
@@ -4231,11 +4231,11 @@ package body Editor.Buffer_Switcher.Tests is
       pragma Unreferenced (T);
    begin
       Assert (To_String (Editor.Commands.Descriptors.Descriptor
-                (Editor.Commands.Command_Open_Buffer_Switcher).Name) =
+                (Editor.Command_Ids.Command_Open_Buffer_Switcher).Name) =
               "Show Open Buffer List",
               "descriptor presents the canonical buffer-list surface");
       Assert (To_String (Editor.Commands.Descriptors.Descriptor
-                (Editor.Commands.Command_Accept_Buffer_Switcher).Name) =
+                (Editor.Command_Ids.Command_Accept_Buffer_Switcher).Name) =
               "Switch To Selected Buffer",
               "selected activation descriptor is buffer-list oriented");
    end Test_Buffer_List_Descriptor_Names_Are_User_Facing;
@@ -4262,7 +4262,7 @@ package body Editor.Buffer_Switcher.Tests is
       Assert (Closed, "test fixture closes selected buffer after snapshot");
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Accept_Buffer_Switcher);
+        (S, Editor.Command_Ids.Command_Accept_Buffer_Switcher);
       Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Unavailable
                 and then To_String (A.Reason) = "Selected buffer is no longer open",
               "switch-selected rejects stale closed buffer rows before mutation");
@@ -4801,7 +4801,7 @@ package body Editor.Buffer_Switcher.Tests is
       Remove_If_Exists (Revert_Path);
       Editor.Executor.File_Save_Basic_Commands.Execute_Revert_Active_Buffer (Revert_State);
       Editor.Executor.Execute_Command
-        (Revert_State, Editor.Commands.Command_Retry_Pending_Transition);
+        (Revert_State, Editor.Command_Ids.Command_Retry_Pending_Transition);
       Assert_Active_Row_Has
         (Revert_State,
          "revert-missing lifecycle path",
@@ -5123,42 +5123,42 @@ package body Editor.Buffer_Switcher.Tests is
       Found : Boolean := False;
    begin
       Assert (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("buffers.switcher.next", Found) =
-                Editor.Commands.Command_Buffer_Switcher_Next_Result and then Found,
+                Editor.Command_Ids.Command_Buffer_Switcher_Next_Result and then Found,
               "buffers.switcher.next resolves transient row selection without payloads");
       Assert (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("buffers.switcher.previous", Found) =
-                Editor.Commands.Command_Buffer_Switcher_Previous_Result and then Found,
+                Editor.Command_Ids.Command_Buffer_Switcher_Previous_Result and then Found,
               "buffers.switcher.previous resolves transient row selection without payloads");
       Assert (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("buffers.switcher.selected.close", Found) =
-                Editor.Commands.Command_Buffer_Switcher_Selected_Close and then Found,
+                Editor.Command_Ids.Command_Buffer_Switcher_Selected_Close and then Found,
               "buffers.switcher.selected.close resolves to the Executor-routed selected close command");
       Assert (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("buffer-list.switch-selected", Found) =
-                Editor.Commands.No_Command and then not Found,
+                Editor.Command_Ids.No_Command and then not Found,
               "buffer-list.switch-selected alias is not loadable");
       Assert (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("buffer-list.close-clean", Found) =
-                Editor.Commands.No_Command and then not Found,
+                Editor.Command_Ids.No_Command and then not Found,
               "buffer-list.close-clean alias is not loadable");
       Assert (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("buffer-list.toggle", Found) =
-                Editor.Commands.No_Command and then not Found,
+                Editor.Command_Ids.No_Command and then not Found,
               "buffer-list.toggle alias is not loadable");
       Assert (To_String (Editor.Commands.Descriptors.Descriptor
-                (Editor.Commands.Command_Buffer_Switcher_Next_Result).Name) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Next_Result).Name) =
               "Select Next Buffer List Row",
               "next-row descriptor uses buffer-list terminology");
       Assert (To_String (Editor.Commands.Descriptors.Descriptor
-                (Editor.Commands.Command_Buffer_Switcher_Previous_Result).Name) =
+                (Editor.Command_Ids.Command_Buffer_Switcher_Previous_Result).Name) =
               "Select Previous Buffer List Row",
               "previous-row descriptor uses buffer-list terminology");
       declare
          Next_Cmd : constant Editor.Commands.Payloads.Command :=
-           Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Next_Result);
+           Editor.Commands.Payloads.Command_For_Id (Editor.Command_Ids.Command_Buffer_Switcher_Next_Result);
          Prev_Cmd : constant Editor.Commands.Payloads.Command :=
-           Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Previous_Result);
+           Editor.Commands.Payloads.Command_For_Id (Editor.Command_Ids.Command_Buffer_Switcher_Previous_Result);
          Switch_Cmd : constant Editor.Commands.Payloads.Command :=
-           Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Accept_Buffer_Switcher);
+           Editor.Commands.Payloads.Command_For_Id (Editor.Command_Ids.Command_Accept_Buffer_Switcher);
          Close_Cmd : constant Editor.Commands.Payloads.Command :=
-           Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Selected_Close);
+           Editor.Commands.Payloads.Command_For_Id (Editor.Command_Ids.Command_Buffer_Switcher_Selected_Close);
          Clean_Cmd : constant Editor.Commands.Payloads.Command :=
-           Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Close_All_Clean_Buffers);
+           Editor.Commands.Payloads.Command_For_Id (Editor.Command_Ids.Command_Close_All_Clean_Buffers);
       begin
          Assert (Next_Cmd.Buffer_Id = 0 and then Prev_Cmd.Buffer_Id = 0
                    and then Switch_Cmd.Buffer_Id = 0 and then Close_Cmd.Buffer_Id = 0
@@ -5181,17 +5181,17 @@ package body Editor.Buffer_Switcher.Tests is
    is
       pragma Unreferenced (T);
 
-      type Command_Array is array (Positive range <>) of Editor.Commands.Command_Id;
+      type Command_Array is array (Positive range <>) of Editor.Command_Ids.Command_Id;
       Commands : constant Command_Array :=
-        (Editor.Commands.Command_Open_Buffer_Switcher,
-         Editor.Commands.Command_Close_Buffer_Switcher,
-         Editor.Commands.Command_Accept_Buffer_Switcher,
-         Editor.Commands.Command_Buffer_Switcher_Next_Result,
-         Editor.Commands.Command_Buffer_Switcher_Previous_Result,
-         Editor.Commands.Command_Buffer_Switcher_Selected_Close,
-         Editor.Commands.Command_Close_All_Clean_Buffers,
-         Editor.Commands.Command_Next_Buffer,
-         Editor.Commands.Command_Previous_Buffer);
+        (Editor.Command_Ids.Command_Open_Buffer_Switcher,
+         Editor.Command_Ids.Command_Close_Buffer_Switcher,
+         Editor.Command_Ids.Command_Accept_Buffer_Switcher,
+         Editor.Command_Ids.Command_Buffer_Switcher_Next_Result,
+         Editor.Command_Ids.Command_Buffer_Switcher_Previous_Result,
+         Editor.Command_Ids.Command_Buffer_Switcher_Selected_Close,
+         Editor.Command_Ids.Command_Close_All_Clean_Buffers,
+         Editor.Command_Ids.Command_Next_Buffer,
+         Editor.Command_Ids.Command_Previous_Buffer);
 
       type Chord_Array is array (Positive range <>) of Editor.Keybindings.Key_Chord;
       Chords : constant Chord_Array :=
@@ -5219,7 +5219,7 @@ package body Editor.Buffer_Switcher.Tests is
       Snapshot   : Editor.Command_Palette.Command_Palette_Snapshot;
       Audit      : Editor.Command_Route_Audit.Route_Audit_Result;
       Found      : Boolean := False;
-      Resolved   : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Resolved   : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Before_Active : Natural := 0;
       Before_Count  : Natural := 0;
       Before_Row_Count : Natural := 0;
@@ -5243,7 +5243,7 @@ package body Editor.Buffer_Switcher.Tests is
 
       for I in Commands'Range loop
          declare
-            Id : constant Editor.Commands.Command_Id := Commands (I);
+            Id : constant Editor.Command_Ids.Command_Id := Commands (I);
             D  : constant Editor.Commands.Descriptors.Command_Descriptor :=
               Editor.Commands.Descriptors.Descriptor (Id);
             A  : Editor.Commands.Availability_Metadata.Command_Availability;
@@ -5450,17 +5450,17 @@ package body Editor.Buffer_Switcher.Tests is
    is
       pragma Unreferenced (T);
 
-      type Command_Array is array (Positive range <>) of Editor.Commands.Command_Id;
+      type Command_Array is array (Positive range <>) of Editor.Command_Ids.Command_Id;
       Commands : constant Command_Array :=
-        (Editor.Commands.Command_Open_Buffer_Switcher,
-         Editor.Commands.Command_Close_Buffer_Switcher,
-         Editor.Commands.Command_Accept_Buffer_Switcher,
-         Editor.Commands.Command_Buffer_Switcher_Next_Result,
-         Editor.Commands.Command_Buffer_Switcher_Previous_Result,
-         Editor.Commands.Command_Buffer_Switcher_Selected_Close,
-         Editor.Commands.Command_Close_All_Clean_Buffers,
-         Editor.Commands.Command_Next_Buffer,
-         Editor.Commands.Command_Previous_Buffer);
+        (Editor.Command_Ids.Command_Open_Buffer_Switcher,
+         Editor.Command_Ids.Command_Close_Buffer_Switcher,
+         Editor.Command_Ids.Command_Accept_Buffer_Switcher,
+         Editor.Command_Ids.Command_Buffer_Switcher_Next_Result,
+         Editor.Command_Ids.Command_Buffer_Switcher_Previous_Result,
+         Editor.Command_Ids.Command_Buffer_Switcher_Selected_Close,
+         Editor.Command_Ids.Command_Close_All_Clean_Buffers,
+         Editor.Command_Ids.Command_Next_Buffer,
+         Editor.Command_Ids.Command_Previous_Buffer);
 
       type Chord_Array is array (Positive range <>) of Editor.Keybindings.Key_Chord;
       Chords : constant Chord_Array :=
@@ -5489,7 +5489,7 @@ package body Editor.Buffer_Switcher.Tests is
       Path   : constant String := Temp_Path ("keybindings_buffer_list_stable_names_only.conf");
       Text   : Unbounded_String;
       Found  : Boolean := False;
-      Round  : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Round  : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Bound  : Editor.Keybindings.Key_Chord;
    begin
       Remove_If_Exists (Path);
@@ -5702,9 +5702,9 @@ package body Editor.Buffer_Switcher.Tests is
       Found : Boolean := False;
       Row   : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
 
-      procedure Assert_Name_No_Payload (Name : String; Expected : Editor.Commands.Command_Id) is
+      procedure Assert_Name_No_Payload (Name : String; Expected : Editor.Command_Ids.Command_Id) is
          Alias_Found : Boolean := False;
-         Id : constant Editor.Commands.Command_Id :=
+         Id : constant Editor.Command_Ids.Command_Id :=
            Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Alias_Found);
       begin
          Assert (Alias_Found and then Id = Expected,
@@ -5819,12 +5819,12 @@ package body Editor.Buffer_Switcher.Tests is
                 and then Editor.Buffers.Buffer_Access (Registry, Outside_Conflict).File_Info.External_Change_Surfaced,
               "final audit filters do not close, switch, save, clean, or clear lifecycle markers");
 
-      Assert_Name_No_Payload ("buffers.switcher.open", Editor.Commands.Command_Open_Buffer_Switcher);
-      Assert_Name_No_Payload ("buffers.switcher.accept", Editor.Commands.Command_Accept_Buffer_Switcher);
-      Assert_Name_No_Payload ("buffers.switcher.selected.close", Editor.Commands.Command_Buffer_Switcher_Selected_Close);
-      Assert_Name_No_Payload ("file.close-clean-buffers", Editor.Commands.Command_Close_All_Clean_Buffers);
-      Assert_Name_No_Payload ("buffer.next", Editor.Commands.Command_Next_Buffer);
-      Assert_Name_No_Payload ("buffer.previous", Editor.Commands.Command_Previous_Buffer);
+      Assert_Name_No_Payload ("buffers.switcher.open", Editor.Command_Ids.Command_Open_Buffer_Switcher);
+      Assert_Name_No_Payload ("buffers.switcher.accept", Editor.Command_Ids.Command_Accept_Buffer_Switcher);
+      Assert_Name_No_Payload ("buffers.switcher.selected.close", Editor.Command_Ids.Command_Buffer_Switcher_Selected_Close);
+      Assert_Name_No_Payload ("file.close-clean-buffers", Editor.Command_Ids.Command_Close_All_Clean_Buffers);
+      Assert_Name_No_Payload ("buffer.next", Editor.Command_Ids.Command_Next_Buffer);
+      Assert_Name_No_Payload ("buffer.previous", Editor.Command_Ids.Command_Previous_Buffer);
    end Test_Final_Multi_Buffer_Management_Completion_Audit;
 
    procedure Test_Buffer_List_Rows_Use_Metadata_Snapshot_As_Canonical_Source

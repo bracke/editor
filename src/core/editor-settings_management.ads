@@ -1,6 +1,6 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Ada.Strings.Unbounded;
 with Editor.Settings;
-with Editor.Commands;
 
 package Editor.Settings_Management is
 
@@ -407,7 +407,7 @@ package Editor.Settings_Management is
       Stable_Name        : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
       Action             : Settings_Command_Action := Settings_Action_Show;
-      Executor_Command   : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Executor_Command   : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Executor_Backend   : Boolean := False;
       Typed_Surface      : Boolean := False;
       Palette_Addressable : Boolean := False;

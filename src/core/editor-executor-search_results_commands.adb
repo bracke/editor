@@ -1,8 +1,8 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Ada.Strings.Unbounded;
 
 with Editor.Command_Execution;
-with Editor.Commands;
 with Editor.Executor;
 with Editor.Executor.Shared_Services;
 use Editor.Executor.Shared_Services;
@@ -31,7 +31,7 @@ package body Editor.Executor.Search_Results_Commands is
 
    function Search_Results_Command_Availability
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin
@@ -111,12 +111,12 @@ package body Editor.Executor.Search_Results_Commands is
       renames Editor.Executor.Apply_Feature_Target_Handoff;
 
    function Executed
-     (Id : Editor.Commands.Command_Id)
+     (Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
       renames Editor.Command_Execution.Executed;
 
    function No_Op
-     (Id : Editor.Commands.Command_Id)
+     (Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
       renames Editor.Command_Execution.No_Op;
 
@@ -284,12 +284,12 @@ package body Editor.Executor.Search_Results_Commands is
 
    function Execute_Search_Results_Command
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
    is
    begin
       case Id is
-         when Editor.Commands.Command_Search_Results_Search_Active_Buffer =>
+         when Editor.Command_Ids.Command_Search_Results_Search_Active_Buffer =>
             declare
                Input_Query     : constant String :=
                  Editor.Feature_Search_Results.Search_Input_Text
@@ -393,7 +393,7 @@ package body Editor.Executor.Search_Results_Commands is
                return Executed (Id);
             end;
 
-         when Editor.Commands.Command_Search_Results_Focus_Query =>
+         when Editor.Command_Ids.Command_Search_Results_Focus_Query =>
             Editor.Focus_Management.Clear_Transient_Focus_Owners (S);
             Editor.Feature_Search_Results.Activate_Search_Query_Input
               (S.Feature_Search_Results);
@@ -407,7 +407,7 @@ package body Editor.Executor.Search_Results_Commands is
             Editor.Render_Cache.Invalidate_All;
             return Executed (Id);
 
-         when Editor.Commands.Command_Search_Results_Repeat_Active_Buffer =>
+         when Editor.Command_Ids.Command_Search_Results_Repeat_Active_Buffer =>
             declare
                Previous_Index  : Natural := 0;
                Previous_Buffer : Natural := Editor.Feature_Search_Results.No_Buffer;
@@ -483,7 +483,7 @@ package body Editor.Executor.Search_Results_Commands is
                return Executed (Id);
             end;
 
-         when Editor.Commands.Command_Search_Results_Query_History_Previous =>
+         when Editor.Command_Ids.Command_Search_Results_Query_History_Previous =>
             Editor.Feature_Search_Results.Select_Previous_Search_Query
               (S.Feature_Search_Results);
             Editor.Feature_Search_Results.Project_Rows
@@ -491,7 +491,7 @@ package body Editor.Executor.Search_Results_Commands is
             Editor.Render_Cache.Invalidate_All;
             return Executed (Id);
 
-         when Editor.Commands.Command_Search_Results_Query_History_Next =>
+         when Editor.Command_Ids.Command_Search_Results_Query_History_Next =>
             Editor.Feature_Search_Results.Select_Next_Search_Query
               (S.Feature_Search_Results);
             Editor.Feature_Search_Results.Project_Rows
@@ -499,7 +499,7 @@ package body Editor.Executor.Search_Results_Commands is
             Editor.Render_Cache.Invalidate_All;
             return Executed (Id);
 
-         when Editor.Commands.Command_Search_Results_Toggle_Case_Sensitive =>
+         when Editor.Command_Ids.Command_Search_Results_Toggle_Case_Sensitive =>
             Editor.Feature_Search_Results.Toggle_Case_Sensitive
               (S.Feature_Search_Results);
             Editor.Feature_Search_Results.Project_Rows
@@ -507,7 +507,7 @@ package body Editor.Executor.Search_Results_Commands is
             Editor.Render_Cache.Invalidate_All;
             return Executed (Id);
 
-         when Editor.Commands.Command_Show_Search_Results_Feature =>
+         when Editor.Command_Ids.Command_Show_Search_Results_Feature =>
             if not Editor.Feature_Panel_Controller.Show_Feature
               (S, Editor.Feature_Panel.Search_Results_Feature)
             then
@@ -520,7 +520,7 @@ package body Editor.Executor.Search_Results_Commands is
             Editor.Render_Cache.Invalidate_All;
             return Executed (Id);
 
-         when Editor.Commands.Command_Clear_Search_Results_Feature =>
+         when Editor.Command_Ids.Command_Clear_Search_Results_Feature =>
             if Editor.Feature_Search_Results.Row_Count
                  (S.Feature_Search_Results) = 0
               and then not Editor.Feature_Search_Results.Has_Query
@@ -594,7 +594,7 @@ package body Editor.Executor.Search_Results_Commands is
                   Editor.State.Pending_Quick_Fix_Diagnostic_Index (S),
                   Action_Index);
                return Editor.Executor.Execute_Command_With_Result
-                 (S, Editor.Commands.Command_Diagnostic_Apply_Quick_Fix);
+                 (S, Editor.Command_Ids.Command_Diagnostic_Apply_Quick_Fix);
             end if;
          end;
       end if;
@@ -606,14 +606,14 @@ package body Editor.Executor.Search_Results_Commands is
       then
          Report_Target_Unavailable (S);
          Editor.Render_Cache.Invalidate_All;
-         return No_Op (Editor.Commands.Command_Feature_Panel_Open_Selected);
+         return No_Op (Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
       end if;
 
       if Editor.Feature_Search_Results.Results_Stale (S.Feature_Search_Results)
       then
          Report_Info (S, Editor.Feature_Search_Results.Message_Stale_Result);
          Editor.Render_Cache.Invalidate_All;
-         return No_Op (Editor.Commands.Command_Feature_Panel_Open_Selected);
+         return No_Op (Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
       end if;
 
       Target_Buffer := Editor.Feature_Search_Results.Item_Target_Buffer
@@ -631,13 +631,13 @@ package body Editor.Executor.Search_Results_Commands is
       then
          Report_Target_Unavailable (S);
          Editor.Render_Cache.Invalidate_All;
-         return No_Op (Editor.Commands.Command_Feature_Panel_Open_Selected);
+         return No_Op (Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
       end if;
 
       if not Focus_Feature_Target_Buffer (S, Target_Buffer) then
          Report_Target_Unavailable (S);
          Editor.Render_Cache.Invalidate_All;
-         return No_Op (Editor.Commands.Command_Feature_Panel_Open_Selected);
+         return No_Op (Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
       end if;
 
       Target_Row := Natural'Min
@@ -646,7 +646,7 @@ package body Editor.Executor.Search_Results_Commands is
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, Row);
       Apply_Feature_Target_Handoff (S, Target_Row, Target_Column);
       Editor.Render_Cache.Invalidate_All;
-      return Executed (Editor.Commands.Command_Feature_Panel_Open_Selected);
+      return Executed (Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
    end Execute_Search_Result_Row_Activation;
 
 end Editor.Executor.Search_Results_Commands;

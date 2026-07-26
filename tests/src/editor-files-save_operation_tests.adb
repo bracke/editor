@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Classification;
@@ -9,7 +10,6 @@ with Ada.Containers;
 with Ada.Directories;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
-with Editor.Commands;
 with Editor.Commands.Project_File_Ids;
 with Editor.Commands.Name_Metadata;
 with Editor.Command_Palette;
@@ -68,7 +68,7 @@ package body Editor.Files.Save_Operation_Tests is
    use type Editor.Files.File_Open_Status;
    use type Editor.Files.File_Save_Status;
    use type Editor.Files.File_Move_Status;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Command_Palette.Command_Palette_Row_Kind;
@@ -92,23 +92,23 @@ package body Editor.Files.Save_Operation_Tests is
       pragma Unreferenced (T);
       S     : Editor.State.State_Type;
       Found : Boolean := False;
-      Id    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Id    : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
    begin
       Assert
-        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Save_File_As) =
+        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Command_Ids.Command_Save_File_As) =
            "file.save-as",
          "Save As must expose canonical file.save-as persisted name");
       Assert
-        (Editor.Commands.Descriptors.Category (Editor.Commands.Command_Save_File_As) =
+        (Editor.Commands.Descriptors.Category (Editor.Command_Ids.Command_Save_File_As) =
            Editor.Commands.Descriptors.File_Category,
          "Save As must remain a File command");
       Assert
         (Editor.Commands.Project_File_Ids.Is_File_Content_Save_Command
-           (Editor.Commands.Command_Save_File_As),
+           (Editor.Command_Ids.Command_Save_File_As),
          "Save As must be classified as a file/content persistence command");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("file.save-as", Found);
       Assert
-        (Found and then Id = Editor.Commands.Command_Save_File_As,
+        (Found and then Id = Editor.Command_Ids.Command_Save_File_As,
          "file.save-as must resolve to the Save As command id");
 
       Editor.Buffers.Reset_Global_For_Test;
@@ -118,7 +118,7 @@ package body Editor.Files.Save_Operation_Tests is
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File_As);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File_As);
 
       Assert (Buffer_Text (S) = "needs explicit target",
         "public Save As without payload must not edit text");
@@ -508,7 +508,7 @@ package body Editor.Files.Save_Operation_Tests is
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Insert (1, 'B'));
       Assert (Buffer_Text (S) = "AB" and then S.File_Info.Dirty,
         "edit precondition should create dirty text");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert (Buffer_Text (S) = "A",
         "undo precondition should restore current in-memory text before Save As");
       Redo_Before := Editor.History.Redo_Stack.Length;
@@ -529,7 +529,7 @@ package body Editor.Files.Save_Operation_Tests is
         and then Editor.History.Undo_Stack.Length = Undo_Before,
         "Save As must preserve Undo/Redo stacks exactly");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert (Buffer_Text (S) = "AB" and then S.File_Info.Dirty,
         "redo after Save As must remain available and make text dirty when it differs from baseline");
       Assert (S.File_Info.Saved_Generation = Saved_After,
@@ -579,7 +579,7 @@ package body Editor.Files.Save_Operation_Tests is
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Availability :=
-        Editor.Executor.Command_Availability (S, Editor.Commands.Command_Save_File_As);
+        Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Save_File_As);
 
       Assert (Snap.Is_Dirty,
         "render snapshot may observe Save As dirty state but must not clear it");
@@ -740,7 +740,7 @@ package body Editor.Files.Save_Operation_Tests is
          Insert_Current.Text := To_Unbounded_String (ASCII.LF & "current");
          Editor.Executor.Execute_No_Log (S, Insert_Current);
       end;
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Undo_Before := Editor.History.Undo_Stack.Length;
       Redo_Before := Editor.History.Redo_Stack.Length;
 
@@ -757,7 +757,7 @@ package body Editor.Files.Save_Operation_Tests is
         "successful Save As must preserve redo availability after undo");
       Saved_After := S.File_Info.Saved_Generation;
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert (Buffer_Text (S) = "untitled" & ASCII.LF & "body" & ASCII.LF & "current"
         and then S.File_Info.Dirty
         and then S.File_Info.Saved_Generation = Saved_After,
@@ -875,7 +875,7 @@ package body Editor.Files.Save_Operation_Tests is
       Snap         : Editor.Render_Model.Render_Snapshot;
       Availability : Editor.Commands.Availability_Metadata.Command_Availability;
       Found        : Boolean := False;
-      Id           : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Id           : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
    begin
       Remove_If_Exists (Path);
       Write_Bytes (Path, "disk must remain untouched");
@@ -904,7 +904,7 @@ package body Editor.Files.Save_Operation_Tests is
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Availability :=
-        Editor.Executor.Command_Availability (S, Editor.Commands.Command_Save_File_As);
+        Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Save_File_As);
 
       Assert (Snap.Is_Dirty and then To_String (Snap.File_Name) = "side_effect_target.txt",
         "render snapshot may observe Save As-relevant state without mutating it");
@@ -929,16 +929,16 @@ package body Editor.Files.Save_Operation_Tests is
         "render and availability must not emit Save As messages");
 
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("file.save-all", Found);
-      Assert (Found and then Id = Editor.Commands.Command_Save_All,
+      Assert (Found and then Id = Editor.Command_Ids.Command_Save_All,
         "file.save-all remains a separate command and is not executed by Save As surface reads");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("file.autosave.enable", Found);
-      Assert (not Found and then Id = Editor.Commands.No_Command,
+      Assert (not Found and then Id = Editor.Command_Ids.No_Command,
         "non-goal autosave command must not be exposed");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("file.format-on-save", Found);
-      Assert (Found and then Id = Editor.Commands.Command_Toggle_Format_On_Save,
+      Assert (Found and then Id = Editor.Command_Ids.Command_Toggle_Format_On_Save,
         "format-on-save command should be exposed without mutating Save As state");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("workspace.save-buffer-text", Found);
-      Assert (not Found and then Id = Editor.Commands.No_Command,
+      Assert (not Found and then Id = Editor.Command_Ids.No_Command,
         "non-goal workspace text persistence command must not be exposed");
 
       Remove_If_Exists (Path);
@@ -989,7 +989,7 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File_As);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File_As);
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S)
         and then Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Label (S) = "Save As target",
         "public targetless Save As route must open the canonical prompt");
@@ -1043,7 +1043,7 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Assert (not Ada.Directories.Exists (Failure_Path),
         "failed Save As must not create the missing-parent target");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File);
       Assert (Read_Bytes (Success_Path) = "current text updated",
         "subsequent file.save must follow the canonical association from the last successful Save As");
       Assert (Read_Bytes (Old_Path) = "old disk remains until file.save",
@@ -1057,31 +1057,31 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Found : Boolean := False;
-      Id    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Id    : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
    begin
       Assert
-        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Save_File) =
+        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Command_Ids.Command_Save_File) =
            "file.save",
          "active-buffer save must use canonical file.save persisted name");
       Assert
-        (Editor.Commands.Descriptors.Category (Editor.Commands.Command_Save_File) =
+        (Editor.Commands.Descriptors.Category (Editor.Command_Ids.Command_Save_File) =
            Editor.Commands.Descriptors.File_Category,
          "active-buffer save must remain a File command");
       Assert
-        (Editor.Commands.Classification.Is_Bindable_Command (Editor.Commands.Command_Save_File),
+        (Editor.Commands.Classification.Is_Bindable_Command (Editor.Command_Ids.Command_Save_File),
          "active-buffer save must be bindable");
       Assert
-        (Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Save_File).Visibility =
+        (Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Save_File).Visibility =
            Editor.Commands.Descriptors.Palette_Command,
          "active-buffer save must remain Command Palette visible");
 
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("file.save", Found);
       Assert
-        (Found and then Id = Editor.Commands.Command_Save_File,
+        (Found and then Id = Editor.Command_Ids.Command_Save_File,
          "file.save must resolve to active-buffer save");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("save-file", Found);
       Assert
-        (not Found and then Id = Editor.Commands.No_Command,
+        (not Found and then Id = Editor.Command_Ids.No_Command,
          "removed save-file keybinding data must be rejected instead of aliasing file.save");
    end Test_Save_Command_Metadata_Uses_Canonical_File_Save_Name;
 
@@ -1107,7 +1107,7 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File);
 
       Assert (Read_Bytes (Path) = "disk baseline",
         "clean active-buffer save should not rewrite disk under the retained no-op policy");
@@ -1162,7 +1162,7 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Before_Redo := Editor.History.Redo_Stack.Length;
       Before_Caret := S.Carets (0);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File);
 
       Assert (Read_Bytes (Path) = "alpha" & ASCII.LF & "beta",
         "save must write exact current active-buffer text");
@@ -1229,7 +1229,7 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       S.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File);
 
       Assert (Read_Bytes (Path_A) = "new a",
         "active-buffer save must write only the active path");
@@ -1276,7 +1276,7 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File);
 
       Assert (Buffer_Text (S) = Before_Text,
         "failed save must preserve buffer text");
@@ -1335,7 +1335,7 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       --  execution time instead of syncing stale A state into B.
       Editor.Buffers.Global_Set_Active_Buffer (B);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File);
 
       Assert (Read_Bytes (Path_A) = "old a",
         "stale caller state must not cause save to write the previously active path");
@@ -1378,7 +1378,7 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File);
 
       Assert (Read_Bytes (Path) = Text,
         "save must serialize exact current in-memory text, including whitespace and trailing newline");
@@ -1417,7 +1417,7 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Before_Saved := S.File_Info.Saved_Generation;
 
       Availability :=
-        Editor.Executor.Command_Availability (S, Editor.Commands.Command_Save_File);
+        Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Save_File);
 
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "file.save availability should be available for a dirty file-backed buffer");
@@ -1460,19 +1460,19 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Assert (Buffer_Text (S) = "AB" and then S.File_Info.Dirty,
         "edit precondition should make the file-backed buffer dirty");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Redo_Before := Editor.History.Redo_Stack.Length;
       Assert (Buffer_Text (S) = "A" and then Redo_Before = 1,
         "undo precondition should leave redo available");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File);
 
       Assert (Editor.History.Redo_Stack.Length = Redo_Before,
         "clean no-op save must not clear redo history");
       Assert (Read_Bytes (Path) = "A",
         "clean no-op save must not rewrite disk before redo");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert (Buffer_Text (S) = "AB",
         "redo after save must restore the later edit state");
       Assert (Read_Bytes (Path) = "A",
@@ -1511,7 +1511,7 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Editor.Buffers.Global_Set_Active_Buffer (B);
 
       Availability :=
-        Editor.Executor.Command_Availability (S, Editor.Commands.Command_Save_File);
+        Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Save_File);
 
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "save availability must bind to the execution-time active buffer");
@@ -1575,7 +1575,7 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Before_Redo := Editor.History.Redo_Stack.Length;
       Before_Caret := S.Carets (0);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File);
 
       Assert (Buffer_Text (S) = Before_Text,
         "failed save must preserve active-buffer text");
@@ -1654,7 +1654,7 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Editor.Buffers.Load_Global_Active_Into_State (S);
       Editor.Buffers.Global_Set_Active_Buffer (B);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File);
 
       Assert (Read_Bytes (Path_A) = "old disk A",
         "save after an active-buffer switch must not write the stale caller buffer");
@@ -1716,12 +1716,12 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Assert (Buffer_Text (S) = "AB" and then S.File_Info.Dirty,
         "edit precondition should produce dirty text");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Redo_Before := Editor.History.Redo_Stack.Length;
       Undo_Before := Editor.History.Undo_Stack.Length;
       Saved_Before := S.File_Info.Saved_Generation;
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File);
 
       Assert (Read_Bytes (Path) = "A",
         "clean save after undo-to-baseline must not rewrite disk");
@@ -1734,13 +1734,13 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Assert (Found and then To_String (M.Text) = "No changes to save",
         "clean no-op save after undo should report retained clean policy");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert (Buffer_Text (S) = "AB",
         "redo must remain available after save and restore current memory text");
       Redo_Before := Editor.History.Redo_Stack.Length;
       Undo_Before := Editor.History.Undo_Stack.Length;
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File);
 
       Assert (Read_Bytes (Path) = "AB",
         "dirty save after redo must write the current in-memory text exactly");
@@ -1781,7 +1781,7 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File);
 
       Assert (Read_Bytes (Path) = Contents,
         "save must serialize current text exactly, including tabs, blank lines, punctuation, and trailing spaces");
@@ -1833,14 +1833,14 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Insert (0, 'X'));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       S.File_Info.Dirty := True;
       Before_Saved := S.File_Info.Saved_Generation;
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
       Before_Caret := S.Carets (0);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File);
 
       Assert (Buffer_Text (S) = Before_Text,
         "failed save must preserve current buffer text");
@@ -1907,7 +1907,7 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Availability :=
-        Editor.Executor.Command_Availability (S, Editor.Commands.Command_Save_File);
+        Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Save_File);
 
       Assert (Snap.Is_Dirty,
         "render snapshot may observe dirty state but must not clean it");
@@ -1965,7 +1965,7 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Before_Saved := S.File_Info.Saved_Generation;
       Before_Caret := S.Carets (0);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File);
 
       Assert (not S.File_Info.Has_Path
         and then S.File_Info.Dirty
@@ -1996,7 +1996,7 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Before_Caret := S.Carets (0);
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File);
 
       Assert (Read_Bytes (Path) = "clean disk",
         "clean save must follow retained no-op policy and avoid filesystem writes");
@@ -2032,7 +2032,7 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
 
       if not Candidates.Is_Empty then
          for I in Candidates.First_Index .. Candidates.Last_Index loop
-            if Candidates (I).Id = Editor.Commands.Command_Save_File then
+            if Candidates (I).Id = Editor.Command_Ids.Command_Save_File then
                Save_Rows := Save_Rows + 1;
                Assert (To_String (Candidates (I).Label) = "Save File",
                  "canonical file.save palette row must keep the active-buffer save label");
@@ -2045,7 +2045,7 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
 
       Binding :=
         Editor.Keybindings.Primary_Binding_For_Command
-          (Editor.Commands.Command_Save_File);
+          (Editor.Command_Ids.Command_Save_File);
       Assert (Binding.Has_Binding
         and then To_String (Binding.Display) = "Ctrl+S",
         "default active-buffer save keybinding must target canonical file.save");

@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Classification;
 with Editor.Commands.Availability_Metadata;
@@ -18,7 +19,6 @@ with Editor.Command_Palette;
 with Editor.Command_Execution;
 with Editor.Command_Route_Audit;
 with Editor.Command_Surface;
-with Editor.Commands;
 with Editor.Commands.Build_Terminal_Ids;
 with Editor.Commands.Name_Metadata;
 with Editor.Executor;
@@ -54,13 +54,13 @@ package body Editor.Command_Surface.Build_Surface_Tests is
    use Editor.External_Producers.Build_Types;
    use Editor.External_Producers.Public_Build_Types;
 
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.External_Producers.Build_Types.Build_Request_Provenance;
    use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Commands.Descriptors.Command_Family_Id;
    use type Editor.Commands.Descriptors.Command_Effect_Classification_Id;
-   use type Editor.Commands.Command_Kind;
+   use type Editor.Command_Kinds.Command_Kind;
    use type Editor.Keybindings.Keybinding_Validation_Status;
    use type Editor.Overlay_Focus.Overlay_Target;
    use type Editor.Panel_Focus.Focus_Target;
@@ -165,42 +165,42 @@ package body Editor.Command_Surface.Build_Surface_Tests is
    end Is_Lower_Kebab_Name;
 
    function Executor_Owns_Break_Group_Command
-     (Id : Editor.Commands.Command_Id) return Boolean
+     (Id : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       case Id is
-         when Editor.Commands.Command_Dismiss_Latest_Message
-            | Editor.Commands.Command_Dismiss_All_Messages
-            | Editor.Commands.Command_Open_File
-            | Editor.Commands.Command_Toggle_Line_Numbers
-            | Editor.Commands.Command_Set_Absolute_Line_Numbers
-            | Editor.Commands.Command_Set_Relative_Line_Numbers
-            | Editor.Commands.Command_Set_Hybrid_Line_Numbers
-            | Editor.Commands.Command_Toggle_Current_Line_Highlight
-            | Editor.Commands.Command_Toggle_Syntax_Colouring
-            | Editor.Commands.Command_Toggle_Diagnostics
-            | Editor.Commands.Command_Toggle_Cursor_Style
-            | Editor.Commands.Command_Edit_History_Clear
-            | Editor.Commands.Command_Select_All
-            | Editor.Commands.Command_Selection_Clear
-            | Editor.Commands.Command_Build_Run
-            | Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Confirm
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Cancel
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Summary
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Next
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Previous
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Toggle
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Show
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Hide
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Remove_Selected
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Restore_Last_Removed
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Summary
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Next
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Previous
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Clear_Stale
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Stale_Summary
-            | Editor.Commands.No_Command =>
+         when Editor.Command_Ids.Command_Dismiss_Latest_Message
+            | Editor.Command_Ids.Command_Dismiss_All_Messages
+            | Editor.Command_Ids.Command_Open_File
+            | Editor.Command_Ids.Command_Toggle_Line_Numbers
+            | Editor.Command_Ids.Command_Set_Absolute_Line_Numbers
+            | Editor.Command_Ids.Command_Set_Relative_Line_Numbers
+            | Editor.Command_Ids.Command_Set_Hybrid_Line_Numbers
+            | Editor.Command_Ids.Command_Toggle_Current_Line_Highlight
+            | Editor.Command_Ids.Command_Toggle_Syntax_Colouring
+            | Editor.Command_Ids.Command_Toggle_Diagnostics
+            | Editor.Command_Ids.Command_Toggle_Cursor_Style
+            | Editor.Command_Ids.Command_Edit_History_Clear
+            | Editor.Command_Ids.Command_Select_All
+            | Editor.Command_Ids.Command_Selection_Clear
+            | Editor.Command_Ids.Command_Build_Run
+            | Editor.Command_Ids.Command_Build_Run_User_Opt_In_Test_Seam
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Confirm
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Cancel
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Summary
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Next
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Previous
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Toggle
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Show
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Hide
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Remove_Selected
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Restore_Last_Removed
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Summary
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Next
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Previous
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Clear_Stale
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Stale_Summary
+            | Editor.Command_Ids.No_Command =>
             return True;
          when others =>
             return False;
@@ -211,11 +211,11 @@ package body Editor.Command_Surface.Build_Surface_Tests is
      (Name : String)
    is
       Found : Boolean;
-      Id    : constant Editor.Commands.Command_Id :=
+      Id    : constant Editor.Command_Ids.Command_Id :=
         Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
    begin
       if Name = "build.run" then
-         Assert (Found and then Id = Editor.Commands.Command_Build_Run,
+         Assert (Found and then Id = Editor.Command_Ids.Command_Build_Run,
                  "build.run must be the single guarded public build command");
       else
          Assert (not Found,
@@ -383,7 +383,7 @@ package body Editor.Command_Surface.Build_Surface_Tests is
    end Cell;
 
    function Switcher_Command_Is_In_Reference
-     (Id : Editor.Commands.Command_Id) return Boolean
+     (Id : Editor.Command_Ids.Command_Id) return Boolean
    is
       Stable : constant String := Editor.Commands.Name_Metadata.Stable_Command_Name (Id);
    begin
@@ -418,7 +418,7 @@ package body Editor.Command_Surface.Build_Surface_Tests is
       end if;
    end Classification_Label;
 
-   function Hint_Label (Id : Editor.Commands.Command_Id) return String is
+   function Hint_Label (Id : Editor.Command_Ids.Command_Id) return String is
       use Editor.Commands;
    begin
       case Id is
@@ -527,7 +527,7 @@ package body Editor.Command_Surface.Build_Surface_Tests is
    procedure Assert_Row_Matches_Descriptor (Line : String) is
       Stable : constant String := Cell (Line, 1);
       Found  : Boolean := False;
-      Id     : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Id     : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       D      : Editor.Commands.Descriptors.Command_Descriptor;
    begin
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Stable, Found);
@@ -596,10 +596,10 @@ package body Editor.Command_Surface.Build_Surface_Tests is
       pragma Unreferenced (T);
       D : constant Editor.Commands.Descriptors.Command_Descriptor :=
         Editor.Commands.Descriptors.Descriptor
-          (Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam);
+          (Editor.Command_Ids.Command_Build_Run_User_Opt_In_Test_Seam);
    begin
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam) =
+                (Editor.Command_Ids.Command_Build_Run_User_Opt_In_Test_Seam) =
               "build.run-user-opt-in-test-seam",
               "internal user opt-in build test-seam command id is stable");
       Assert (To_String (D.Name) = "Build: Run User Opt-In Test Command",
@@ -611,7 +611,7 @@ package body Editor.Command_Surface.Build_Surface_Tests is
       Assert (not D.Bindable,
               "user opt-in build test-seam command has no default keybinding target");
       Assert (Editor.Commands.Availability_Metadata.Requires_Context
-                (Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam),
+                (Editor.Command_Ids.Command_Build_Run_User_Opt_In_Test_Seam),
               "user opt-in build test-seam command requires structured context");
    end Test_User_Opt_In_Build_Command_Is_Internal;
 
@@ -623,7 +623,7 @@ package body Editor.Command_Surface.Build_Surface_Tests is
    begin
       Editor.Keybindings.Reset_To_Defaults;
       Info := Editor.Keybindings.Primary_Binding_For_Command
-        (Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam);
+        (Editor.Command_Ids.Command_Build_Run_User_Opt_In_Test_Seam);
       Assert (not Info.Has_Binding,
               "internal user opt-in build test seam must not get a default keybinding");
    end Test_User_Opt_In_Build_Command_Has_No_Default_Keybinding;
@@ -637,14 +637,14 @@ package body Editor.Command_Surface.Build_Surface_Tests is
       R : Editor.Executor.Command_Execution_Result;
    begin
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam);
+        (S, Editor.Command_Ids.Command_Build_Run_User_Opt_In_Test_Seam);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "bare user opt-in build command route is unavailable without structured context");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (A) =
               "Build: structured command context required",
               "bare user opt-in build command reports deterministic missing-context feedback");
       R := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam);
+        (S, Editor.Command_Ids.Command_Build_Run_User_Opt_In_Test_Seam);
       Assert (R.Status = Editor.Executor.Command_Unavailable,
               "bare user opt-in build command cannot execute without context");
    end Test_User_Opt_In_Build_Command_Bare_Route_Is_Unavailable;
@@ -680,20 +680,20 @@ package body Editor.Command_Surface.Build_Surface_Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Id : Editor.Commands.Command_Id;
+      Id : Editor.Command_Ids.Command_Id;
       Stable : Unbounded_String;
       D : Editor.Commands.Descriptors.Command_Descriptor;
       Saw_Run : Boolean := False;
    begin
       Editor.Keybindings.Reset_To_Defaults;
-      for I in 1 .. Editor.Commands.Command_Count loop
-         Id := Editor.Commands.Command_At (I);
+      for I in 1 .. Editor.Command_Ids.Command_Count loop
+         Id := Editor.Command_Ids.Command_At (I);
          Stable := To_Unbounded_String (Editor.Commands.Name_Metadata.Stable_Command_Name (Id));
          D := Editor.Commands.Descriptors.Descriptor (Id);
 
          if To_String (Stable) = "build.run" then
             Saw_Run := True;
-            Assert (Id = Editor.Commands.Command_Build_Run,
+            Assert (Id = Editor.Command_Ids.Command_Build_Run,
                     "build.run must resolve to the guarded public build command");
             Assert (D.Visibility = Editor.Commands.Descriptors.Palette_Command,
                     "build.run is palette-visible through the guarded public surface");
@@ -707,7 +707,7 @@ package body Editor.Command_Surface.Build_Surface_Tests is
                     To_String (Stable));
          end if;
 
-         if Id = Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam then
+         if Id = Editor.Command_Ids.Command_Build_Run_User_Opt_In_Test_Seam then
             Assert (D.Visibility = Editor.Commands.Descriptors.Hidden_Command,
                     "internal build test seam must stay hidden from normal palette");
             Assert (D.Category = Editor.Commands.Descriptors.Internal_Category,
@@ -733,7 +733,7 @@ package body Editor.Command_Surface.Build_Surface_Tests is
       Editor.Command_Route_Audit.Record_Route
         (Audit,
          Editor.Command_Route_Audit.Route_From_Test,
-         Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam);
+         Editor.Command_Ids.Command_Build_Run_User_Opt_In_Test_Seam);
       Assert (Editor.Command_Route_Audit.Failure_Count (Audit) = 0,
               "test harness route must target the concrete internal build command and then use Executor structured entrypoint");
    end Test_Build_Command_Route_Audit_Covers_Executor_Boundary;
@@ -749,8 +749,8 @@ package body Editor.Command_Surface.Build_Surface_Tests is
         (Audit,
          Editor.Command_Route_Audit.Route_From_Feature_Panel,
          Editor.Command_Route_Audit.Route_Bypassed_Executor,
-         Expected => Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam,
-         Actual   => Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam,
+         Expected => Editor.Command_Ids.Command_Build_Run_User_Opt_In_Test_Seam,
+         Actual   => Editor.Command_Ids.Command_Build_Run_User_Opt_In_Test_Seam,
          Message  => "build command-like route must not bypass Executor availability, consent, preflight, or Diagnostics ingestion validation");
       Assert (Editor.Command_Route_Audit.Failure_Count (Audit) = 1,
               "route audit must classify build command bypass attempts");
@@ -765,9 +765,9 @@ package body Editor.Command_Surface.Build_Surface_Tests is
    is
       pragma Unreferenced (T);
    begin
-      for I in 1 .. Editor.Commands.Command_Count loop
+      for I in 1 .. Editor.Command_Ids.Command_Count loop
          declare
-            Id : constant Editor.Commands.Command_Id := Editor.Commands.Command_At (I);
+            Id : constant Editor.Command_Ids.Command_Id := Editor.Command_Ids.Command_At (I);
          begin
             if Editor.Commands.Build_Terminal_Ids.Is_Public_Build_Command (Id) then
                Assert (Ada.Strings.Fixed.Index
@@ -779,10 +779,10 @@ package body Editor.Command_Surface.Build_Surface_Tests is
          end;
       end loop;
       Assert (Editor.Commands.Build_Terminal_Ids.Is_Internal_Build_Test_Seam_Command
-                (Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam),
+                (Editor.Command_Ids.Command_Build_Run_User_Opt_In_Test_Seam),
               "user opt-in test seam must be classified as internal build test seam");
       Assert (not Editor.Commands.Build_Terminal_Ids.Is_Internal_Build_Test_Seam_Command
-                (Editor.Commands.Command_Save_File),
+                (Editor.Command_Ids.Command_Save_File),
               "non-build commands must not be classified as internal build test seams");
    end Test_Build_Command_Classification_Helpers;
 
@@ -793,12 +793,12 @@ package body Editor.Command_Surface.Build_Surface_Tests is
       Names : constant Editor.External_Producers.Public_Build_Types.Command_Id_Vector :=
         Editor.External_Producers.Public_Build.Public_Build_Command_Surface_Ids;
       Found : Boolean;
-      Id    : Editor.Commands.Command_Id;
+      Id    : Editor.Command_Ids.Command_Id;
    begin
       Assert (Names.Length = 1,
               "public build contract exposes only build.run");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("build.run", Found);
-      Assert (Found and then Id = Editor.Commands.Command_Build_Run,
+      Assert (Found and then Id = Editor.Command_Ids.Command_Build_Run,
               "build.run must resolve to the guarded public command");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("build.project", Found);
       Assert (not Found,
@@ -818,17 +818,17 @@ package body Editor.Command_Surface.Build_Surface_Tests is
       pragma Unreferenced (T);
       Test_Seam_Id : constant String :=
         Editor.Commands.Name_Metadata.Stable_Command_Name
-          (Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam);
+          (Editor.Command_Ids.Command_Build_Run_User_Opt_In_Test_Seam);
    begin
       Assert (Test_Seam_Id = "build.run-user-opt-in-test-seam",
               "internal test seam near-miss id must remain stable");
       Assert (not Editor.External_Producers.Public_Build.Is_Public_Build_Surface_Id (Test_Seam_Id),
               "internal test seam must not canonicalize to a public build id");
       Assert (not Editor.Commands.Classification.Is_Bindable_Command
-                (Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam),
+                (Editor.Command_Ids.Command_Build_Run_User_Opt_In_Test_Seam),
               "internal build test seam must remain non-bindable");
       Assert (not Editor.Commands.Classification.Visible_In_Command_Palette
-                (Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam),
+                (Editor.Command_Ids.Command_Build_Run_User_Opt_In_Test_Seam),
               "internal build test seam must remain excluded from normal palette");
    end Test_Command_Surface_Near_Miss_Public_Build_Id_Remains_Safe;
 
@@ -879,13 +879,13 @@ package body Editor.Command_Surface.Build_Surface_Tests is
    is
       pragma Unreferenced (T);
       D : constant Editor.Commands.Descriptors.Command_Descriptor :=
-        Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Build_Run);
+        Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Build_Run);
    begin
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Build_Run) = "build.run",
+                (Editor.Command_Ids.Command_Build_Run) = "build.run",
               "build.run stable command name is registered");
       Assert (Editor.Commands.Build_Terminal_Ids.Is_Public_Build_Command
-                (Editor.Commands.Command_Build_Run),
+                (Editor.Command_Ids.Command_Build_Run),
               "build.run is classified as public build command");
       Assert (D.Visibility = Editor.Commands.Descriptors.Palette_Command,
               "build.run is a public descriptor-owned palette command");

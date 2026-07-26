@@ -1,8 +1,8 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Buffers;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.Keybindings;
 with Editor.Messages;
@@ -76,9 +76,9 @@ package body Editor.Command_Domain is
       H    : Natural := 23;
       Info : Editor.Keybindings.Command_Keybinding_Info;
    begin
-      for I in 1 .. Editor.Commands.Command_Count loop
+      for I in 1 .. Editor.Command_Ids.Command_Count loop
          declare
-            Id : constant Editor.Commands.Command_Id := Editor.Commands.Command_At (I);
+            Id : constant Editor.Command_Ids.Command_Id := Editor.Command_Ids.Command_At (I);
          begin
             H := Hash_String (Editor.Commands.Name_Metadata.Stable_Command_Name (Id), H);
             H := Hash_Natural
@@ -97,9 +97,9 @@ package body Editor.Command_Domain is
       H : Natural := 29;
       D : Editor.Commands.Descriptors.Command_Descriptor;
    begin
-      for I in 1 .. Editor.Commands.Command_Count loop
-         D := Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_At (I));
-         H := Hash_String (Editor.Commands.Command_Id'Image (D.Id), H);
+      for I in 1 .. Editor.Command_Ids.Command_Count loop
+         D := Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_At (I));
+         H := Hash_String (Editor.Command_Ids.Command_Id'Image (D.Id), H);
          H := Hash_String (Editor.Commands.Name_Metadata.Stable_Command_Name (D.Id), H);
          H := Hash_String (To_String (D.Name), H);
          H := Hash_String (To_String (D.Description), H);

@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Payloads;
 with Ada.Directories;
 with Ada.Strings.Fixed;
@@ -5,7 +6,6 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with Editor.Buffers;
 use type Editor.Buffers.Buffer_Id;
-with Editor.Commands;
 with Editor.Executor.Buffer_Close_Prompt_Commands;
 with Editor.Executor.Pending_Transition_Policy;
 with Editor.Executor.Project_File_Index_Commands;
@@ -170,7 +170,7 @@ package body Editor.Executor.File_Save_As_Commands is
      (S : in out Editor.State.State_Type)
    is
       Cmd : Editor.Commands.Payloads.Command :=
-        Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Format_Buffer);
+        Editor.Commands.Payloads.Command_For_Id (Editor.Command_Ids.Command_Format_Buffer);
    begin
       if not Editor.Settings.Format_On_Save then
          return;

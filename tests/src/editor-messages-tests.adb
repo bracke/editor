@@ -7,7 +7,6 @@ with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Interfaces.C;
 with Editor.Buffers;
-with Editor.Commands;
 with Editor.Executor;
 with Editor.Executor.Find_Replace_Commands;
 with Editor.Gutter_Markers;

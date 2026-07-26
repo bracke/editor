@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Classification;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Characters.Handling;
@@ -58,7 +59,7 @@ package body Editor.Product_Surface_Cleanup is
    end Looks_Like_Demo_Text;
 
    function Is_Test_Only_Command
-     (Id : Editor.Commands.Command_Id) return Boolean
+     (Id : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       return Editor.Commands.Classification.Is_Test_Only_Command (Id);
@@ -222,7 +223,7 @@ package body Editor.Product_Surface_Cleanup is
 
    function Demo_Command_Exposed_To_Product_Surface return Boolean is
    begin
-      for Id in Editor.Commands.Command_Id loop
+      for Id in Editor.Command_Ids.Command_Id loop
          if Is_Test_Only_Command (Id) then
             declare
                D : constant Editor.Commands.Descriptors.Command_Descriptor :=

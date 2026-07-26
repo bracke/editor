@@ -1,6 +1,5 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Image_Helpers;
-with Editor.Commands;
 
 package body Editor.Configuration_Recovery is
 

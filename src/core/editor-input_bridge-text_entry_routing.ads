@@ -1,5 +1,5 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Payloads;
-with Editor.Commands;
 with Editor.State;
 
 package Editor.Input_Bridge.Text_Entry_Routing is
@@ -8,7 +8,7 @@ package Editor.Input_Bridge.Text_Entry_Routing is
      (Cmd : Editor.Commands.Payloads.Command) return Boolean;
 
    function Is_Text_Entry_Workflow_Command_Id
-     (Id : Editor.Commands.Command_Id) return Boolean;
+     (Id : Editor.Command_Ids.Command_Id) return Boolean;
 
    function Resolve_Text_Entry_Focus_Target
      (State : Editor.State.State_Type) return Text_Entry_Focus_Target;
@@ -23,6 +23,6 @@ package Editor.Input_Bridge.Text_Entry_Routing is
 
    function Preview_Text_Entry_Command_Id
      (State : Editor.State.State_Type;
-      Cmd   : Editor.Commands.Payloads.Command) return Editor.Commands.Command_Id;
+      Cmd   : Editor.Commands.Payloads.Command) return Editor.Command_Ids.Command_Id;
 
 end Editor.Input_Bridge.Text_Entry_Routing;

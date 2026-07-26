@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Classification;
@@ -12,7 +13,6 @@ with Ada.Directories;
 with Ada.Strings.Fixed;
 with Ada.Text_IO;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Commands;
 with Editor.Commands.Build_Terminal_Ids;
 with Editor.Commands.Name_Metadata;
 with Editor.Command_Route_Audit;
@@ -30,7 +30,7 @@ with Editor.Keybinding_Management;
 with Editor.Render_Model;
 with Editor.State;
 with Guikit.Draw;
-use type Editor.Commands.Command_Id;
+use type Editor.Command_Ids.Command_Id;
 use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
 use type Editor.Keybindings.Binding_Result;
 use type Editor.Keybindings.Keybinding_Validation_Status;
@@ -102,10 +102,10 @@ package body Editor.Keybindings.Tests is
 
    procedure Assert_Resolves
      (Chord : Editor.Keybindings.Key_Chord;
-      Id    : Editor.Commands.Command_Id;
+      Id    : Editor.Command_Ids.Command_Id;
       Msg   : String)
    is
-      Actual : Editor.Commands.Command_Id;
+      Actual : Editor.Command_Ids.Command_Id;
    begin
       Assert
         (Editor.Keybindings.Resolve (Chord, Actual) = Editor.Keybindings.Bound_Command,
@@ -130,93 +130,93 @@ package body Editor.Keybindings.Tests is
       Editor.Keybindings.Reset_To_Defaults;
       Assert_Resolves
         (Chord (Editor.Keybindings.Key_S, Ctrl => True),
-         Editor.Commands.Command_Save_File,
+         Editor.Command_Ids.Command_Save_File,
          "Ctrl+S");
       Assert_Resolves
         (Chord (Editor.Keybindings.Key_F1),
-         Editor.Commands.Command_Palette_Show_Command_Help,
+         Editor.Command_Ids.Command_Palette_Show_Command_Help,
          "F1 command help");
       Assert_Resolves
         (Chord (Editor.Keybindings.Key_O, Ctrl => True),
-         Editor.Commands.Command_Open_File,
+         Editor.Command_Ids.Command_Open_File,
          "Ctrl+O open file");
       Assert_Resolves
         (Chord (Editor.Keybindings.Key_O, Ctrl => True, Alt => True),
-         Editor.Commands.Command_Open_Project,
+         Editor.Command_Ids.Command_Open_Project,
          "Ctrl+Alt+O open project");
       Assert_Resolves
         (Chord (Editor.Keybindings.Key_M, Ctrl => True, Alt => True),
-         Editor.Commands.Command_Diagnostics_Show,
+         Editor.Command_Ids.Command_Diagnostics_Show,
          "Ctrl+Alt+M diagnostics");
       declare
-         Actual : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+         Actual : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       begin
          Assert
            (Editor.Keybindings.Resolve
               (Chord (Editor.Keybindings.Key_S, Ctrl => True, Shift => True), Actual) =
             Editor.Keybindings.Bound_Command,
             "Ctrl+Shift+S should resolve through canonical Save As target-prompt command");
-         Assert (Actual = Editor.Commands.Command_Save_File_As,
+         Assert (Actual = Editor.Command_Ids.Command_Save_File_As,
             "Save As chord must carry the canonical command target");
       end;
       Assert_Resolves
         (Chord (Editor.Keybindings.Key_F, Ctrl => True),
-         Editor.Commands.Command_Find_Show,
+         Editor.Command_Ids.Command_Find_Show,
          "Ctrl+F active-buffer Find");
       Assert_Resolves
         (Chord (Editor.Keybindings.Key_P, Ctrl => True),
-         Editor.Commands.Command_Open_Quick_Open,
+         Editor.Command_Ids.Command_Open_Quick_Open,
          "Ctrl+P");
       Assert_Resolves
         (Chord (Editor.Keybindings.Key_P, Ctrl => True, Shift => True),
-         Editor.Commands.Command_Open_Command_Palette,
+         Editor.Command_Ids.Command_Open_Command_Palette,
          "Ctrl+Shift+P");
       Assert_Resolves
         (Chord (Editor.Keybindings.Key_N, Ctrl => True),
-         Editor.Commands.Command_New_Buffer,
+         Editor.Command_Ids.Command_New_Buffer,
          "Ctrl+N");
       Assert_Resolves
         (Chord (Editor.Keybindings.Key_W, Ctrl => True),
-         Editor.Commands.Command_Close_Active_Buffer,
+         Editor.Command_Ids.Command_Close_Active_Buffer,
          "Ctrl+W");
       Assert_Resolves
         (Chord (Editor.Keybindings.Key_Tab, Ctrl => True),
-         Editor.Commands.Command_Previous_Recent_Buffer,
+         Editor.Command_Ids.Command_Previous_Recent_Buffer,
          "Ctrl+Tab");
       Assert_Resolves
         (Chord (Editor.Keybindings.Key_Tab, Ctrl => True, Shift => True),
-         Editor.Commands.Command_Next_Recent_Buffer,
+         Editor.Command_Ids.Command_Next_Recent_Buffer,
          "Ctrl+Shift+Tab");
       Assert_Resolves
         (Chord (Editor.Keybindings.Key_M, Ctrl => True, Shift => True),
-         Editor.Commands.Command_Toggle_Problems_Panel,
+         Editor.Command_Ids.Command_Toggle_Problems_Panel,
          "Ctrl+Shift+M");
       Assert_Resolves
         (Chord (Editor.Keybindings.Key_F2),
-         Editor.Commands.Command_Next_Bookmark,
+         Editor.Command_Ids.Command_Next_Bookmark,
          "F2");
       Assert_Resolves
         (Chord (Editor.Keybindings.Key_F2, Shift => True),
-         Editor.Commands.Command_Previous_Bookmark,
+         Editor.Command_Ids.Command_Previous_Bookmark,
          "Shift+F2");
       Assert_Resolves
         (Chord (Editor.Keybindings.Key_F2, Ctrl => True),
-         Editor.Commands.Command_Toggle_Bookmark,
+         Editor.Command_Ids.Command_Toggle_Bookmark,
          "Ctrl+F2");
       Assert_Resolves
         (Chord (Editor.Keybindings.Key_F2, Ctrl => True, Shift => True),
-         Editor.Commands.Command_Clear_Bookmarks,
+         Editor.Command_Ids.Command_Clear_Bookmarks,
          "Ctrl+Shift+F2");
       Assert_Resolves
         (Chord (Editor.Keybindings.Key_Z, Ctrl => True),
-         Editor.Commands.Command_Undo,
+         Editor.Command_Ids.Command_Undo,
          "Ctrl+Z");
    end Test_Default_Shortcuts_Resolve;
 
    procedure Test_Unknown_Chord_Has_No_Binding
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Actual : Editor.Commands.Command_Id;
+      Actual : Editor.Command_Ids.Command_Id;
    begin
       Editor.Keybindings.Reset_To_Defaults;
       Assert
@@ -224,22 +224,22 @@ package body Editor.Keybindings.Tests is
            (Chord (Editor.Keybindings.Key_F), Actual) = Editor.Keybindings.No_Binding,
          "Plain F must not resolve to a command binding");
       Assert
-        (Actual = Editor.Commands.No_Command,
+        (Actual = Editor.Command_Ids.No_Command,
          "Unbound chords must return No_Command as their target");
    end Test_Unknown_Chord_Has_No_Binding;
 
    procedure Test_Custom_Bind_And_Unbind
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Actual : Editor.Commands.Command_Id;
+      Actual : Editor.Command_Ids.Command_Id;
       C      : constant Editor.Keybindings.Key_Chord :=
         Chord (Editor.Keybindings.Key_F, Alt => True);
    begin
       Editor.Keybindings.Reset_To_Defaults;
-      Editor.Keybindings.Bind (C, Editor.Commands.Command_Find_Show);
+      Editor.Keybindings.Bind (C, Editor.Command_Ids.Command_Find_Show);
       Assert
         (Editor.Keybindings.Resolve (C, Actual) = Editor.Keybindings.Bound_Command
-         and then Actual = Editor.Commands.Command_Find_Show,
+         and then Actual = Editor.Command_Ids.Command_Find_Show,
          "Custom Bind must add a resolvable chord");
 
       Editor.Keybindings.Unbind (C);
@@ -292,7 +292,7 @@ package body Editor.Keybindings.Tests is
       Snap : Editor.Render_Model.Render_Snapshot;
    begin
       Prepare_Text ("abc");
-      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Goto_End);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Command_Ids.Command_Goto_End);
       Editor.Input_Bridge.Handle (Cmd);
       Editor.Input_Bridge.Handle_Key_Chord
         (Chord (Editor.Keybindings.Key_Left, Shift => True));
@@ -310,7 +310,7 @@ package body Editor.Keybindings.Tests is
       Snap : Editor.Render_Model.Render_Snapshot;
    begin
       Prepare_Text ("abc");
-      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Goto_End);
+      Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Command_Ids.Command_Goto_End);
       Editor.Input_Bridge.Handle (Cmd);
       Editor.Input_Bridge.Handle_Key_Chord
         (Chord (Editor.Keybindings.Key_Left));
@@ -349,7 +349,7 @@ package body Editor.Keybindings.Tests is
    procedure Test_Palette_And_Keybindings_Share_Command_Id
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Bound : Editor.Commands.Command_Id;
+      Bound : Editor.Command_Ids.Command_Id;
       Seen  : Boolean := False;
       Descs : Editor.Commands.Descriptors.Command_Descriptor_Vectors.Vector :=
         Editor.Commands.Descriptors.Palette_Commands;
@@ -367,22 +367,22 @@ package body Editor.Keybindings.Tests is
       end loop;
 
       Assert
-        (Seen and then Bound = Editor.Commands.Command_Save_File,
+        (Seen and then Bound = Editor.Command_Ids.Command_Save_File,
          "Palette descriptors and keybindings must share the Save command ID");
 
       Seen := False;
-      Bound := Editor.Commands.Command_Move_Left;
+      Bound := Editor.Command_Ids.Command_Move_Left;
       Assert
         (Editor.Keybindings.Resolve
            (Chord (Editor.Keybindings.Key_S, Ctrl => True, Shift => True), Bound)
          = Editor.Keybindings.Bound_Command,
          "Ctrl+Shift+S should invoke Save As after target acquisition is canonical");
       Assert
-        (Bound = Editor.Commands.Command_Save_File_As,
+        (Bound = Editor.Command_Ids.Command_Save_File_As,
          "Save As chord must carry the canonical command target");
 
       for Desc of Descs loop
-         if Desc.Id = Editor.Commands.Command_Save_File_As then
+         if Desc.Id = Editor.Command_Ids.Command_Save_File_As then
             Seen := True;
          end if;
       end loop;
@@ -391,7 +391,7 @@ package body Editor.Keybindings.Tests is
         (Seen,
          "Palette should project canonical Save As after target acquisition is canonical");
       Assert
-        (Editor.Commands.Classification.Is_Bindable_Command (Editor.Commands.Command_Save_File_As),
+        (Editor.Commands.Classification.Is_Bindable_Command (Editor.Command_Ids.Command_Save_File_As),
          "Save As should be bindable after target acquisition is canonical");
    end Test_Palette_And_Keybindings_Share_Command_Id;
 
@@ -485,14 +485,14 @@ package body Editor.Keybindings.Tests is
    begin
       Editor.Keybindings.Reset_To_Defaults;
       Info := Editor.Keybindings.Primary_Binding_For_Command
-        (Editor.Commands.Command_Save_File);
+        (Editor.Command_Ids.Command_Save_File);
       Assert (Info.Has_Binding,
               "Save File must have a primary keybinding");
       Assert (To_String (Info.Display) = "Ctrl+S",
               "Save File primary binding must be Ctrl+S");
 
       Info := Editor.Keybindings.Primary_Binding_For_Command
-        (Editor.Commands.Command_Build_Run);
+        (Editor.Command_Ids.Command_Build_Run);
       Assert (not Info.Has_Binding,
               "Unbound visible commands must report no primary binding");
       Assert (Length (Info.Display) = 0,
@@ -508,13 +508,13 @@ package body Editor.Keybindings.Tests is
       Editor.Keybindings.Reset_To_Defaults;
       Assert
         (Editor.Keybindings.Binding_Count_For_Command
-           (Editor.Commands.Command_Redo) = 2,
+           (Editor.Command_Ids.Command_Redo) = 2,
          "Redo must expose both default bindings");
 
       First := Editor.Keybindings.Binding_For_Command
-        (Editor.Commands.Command_Redo, 1);
+        (Editor.Command_Ids.Command_Redo, 1);
       Second := Editor.Keybindings.Binding_For_Command
-        (Editor.Commands.Command_Redo, 2);
+        (Editor.Command_Ids.Command_Redo, 2);
 
       Assert (Editor.Keybindings.Format_Chord (First) = "Ctrl+Y",
               "Binding_For_Command must preserve registry order");
@@ -525,7 +525,7 @@ package body Editor.Keybindings.Tests is
    procedure Test_Reverse_Lookup_Does_Not_Mutate
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Actual : Editor.Commands.Command_Id;
+      Actual : Editor.Command_Ids.Command_Id;
       Info   : Editor.Keybindings.Command_Keybinding_Info;
    begin
       Editor.Keybindings.Reset_To_Defaults;
@@ -533,18 +533,18 @@ package body Editor.Keybindings.Tests is
         (Editor.Keybindings.Resolve
            (Chord (Editor.Keybindings.Key_S, Ctrl => True), Actual)
          = Editor.Keybindings.Bound_Command
-         and then Actual = Editor.Commands.Command_Save_File,
+         and then Actual = Editor.Command_Ids.Command_Save_File,
          "Ctrl+S must resolve before reverse lookup");
 
       Info := Editor.Keybindings.Primary_Binding_For_Command
-        (Editor.Commands.Command_Save_File);
+        (Editor.Command_Ids.Command_Save_File);
       Assert (Info.Has_Binding, "Reverse lookup must find Save File");
 
       Assert
         (Editor.Keybindings.Resolve
            (Chord (Editor.Keybindings.Key_S, Ctrl => True), Actual)
          = Editor.Keybindings.Bound_Command
-         and then Actual = Editor.Commands.Command_Save_File,
+         and then Actual = Editor.Command_Ids.Command_Save_File,
          "Ctrl+S must resolve after reverse lookup without mutation");
    end Test_Reverse_Lookup_Does_Not_Mutate;
 
@@ -570,12 +570,12 @@ package body Editor.Keybindings.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Config : Editor.Keybinding_Config.Keybinding_Config_Model;
-      Actual : Editor.Commands.Command_Id;
+      Actual : Editor.Command_Ids.Command_Id;
    begin
       Editor.Keybinding_Config.Clear (Config);
       Editor.Keybinding_Config.Bind
         (Config,
-         Editor.Commands.Command_Save_File,
+         Editor.Command_Ids.Command_Save_File,
          Chord (Editor.Keybindings.Key_S, Ctrl => True, Alt => True));
       Editor.Keybinding_Config.Apply_To_Runtime (Config);
 
@@ -583,7 +583,7 @@ package body Editor.Keybindings.Tests is
         (Editor.Keybindings.Resolve
            (Chord (Editor.Keybindings.Key_S, Ctrl => True, Alt => True), Actual)
          = Editor.Keybindings.Bound_Command
-         and then Actual = Editor.Commands.Command_Save_File,
+         and then Actual = Editor.Command_Ids.Command_Save_File,
          "applied override must route the new chord");
       Assert
         (Editor.Keybindings.Resolve
@@ -591,7 +591,7 @@ package body Editor.Keybindings.Tests is
          = Editor.Keybindings.No_Binding,
          "moved command must remove its old default chord");
 
-      Editor.Keybinding_Config.Unbind (Config, Editor.Commands.Command_Save_File);
+      Editor.Keybinding_Config.Unbind (Config, Editor.Command_Ids.Command_Save_File);
       Editor.Keybinding_Config.Apply_To_Runtime (Config);
       Assert
         (Editor.Keybindings.Resolve
@@ -606,54 +606,54 @@ package body Editor.Keybindings.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Found : Boolean := False;
-      Id    : Editor.Commands.Command_Id;
+      Id    : Editor.Command_Ids.Command_Id;
    begin
       Assert
-        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Save_File)
+        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Command_Ids.Command_Save_File)
          = "file.save",
          "stable command name must not be the user-facing label");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("file.save", Found);
       Assert
-        (Found and then Id = Editor.Commands.Command_Save_File,
+        (Found and then Id = Editor.Command_Ids.Command_Save_File,
          "stable command name must resolve to its command id");
       Assert
-        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Open_File)
+        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Command_Ids.Command_Open_File)
          = "file.open",
          "open-file command exports canonical stable name");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("open-file", Found);
       Assert
-        (not Found and then Id = Editor.Commands.No_Command,
+        (not Found and then Id = Editor.Command_Ids.No_Command,
          "legacy open-file keybinding name is not loadable");
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Diagnostics_Show) = "diagnostics.show",
+           (Editor.Command_Ids.Command_Diagnostics_Show) = "diagnostics.show",
          "diagnostics command exports canonical stable name");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("diagnostics-show", Found);
       Assert
-        (not Found and then Id = Editor.Commands.No_Command,
+        (not Found and then Id = Editor.Command_Ids.No_Command,
          "legacy diagnostics-show keybinding name is not loadable");
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Open_Quick_Open) = "quick-open.show",
+           (Editor.Command_Ids.Command_Open_Quick_Open) = "quick-open.show",
          "quick-open command exports canonical stable name");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("project.quick-open.show", Found);
       Assert
-        (not Found and then Id = Editor.Commands.No_Command,
+        (not Found and then Id = Editor.Command_Ids.No_Command,
          "legacy project.quick-open.show keybinding name is not loadable");
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Accept_Quick_Open) = "quick-open.open-selected",
+           (Editor.Command_Ids.Command_Accept_Quick_Open) = "quick-open.open-selected",
          "quick-open accept command exports canonical stable name");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("project.quick-open.open-selected", Found);
       Assert
-        (not Found and then Id = Editor.Commands.No_Command,
+        (not Found and then Id = Editor.Command_Ids.No_Command,
          "legacy project.quick-open.open-selected keybinding name is not loadable");
       Assert
-        (Editor.Commands.Classification.Is_Bindable_Command (Editor.Commands.Command_Save_Keybindings),
+        (Editor.Commands.Classification.Is_Bindable_Command (Editor.Command_Ids.Command_Save_Keybindings),
          "keybinding commands must be bindable concrete commands");
       Assert
-        (not Editor.Commands.Classification.Is_Bindable_Command (Editor.Commands.No_Command),
+        (not Editor.Commands.Classification.Is_Bindable_Command (Editor.Command_Ids.No_Command),
          "No_Command must not be bindable");
    end Test_Stable_Command_Name_Roundtrip;
 
@@ -662,13 +662,13 @@ package body Editor.Keybindings.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Found : Boolean := False;
-      Round : Editor.Commands.Command_Id;
+      Round : Editor.Command_Ids.Command_Id;
    begin
       Assert
-        (not Editor.Commands.Classification.Is_Bindable_Command (Editor.Commands.No_Command),
+        (not Editor.Commands.Classification.Is_Bindable_Command (Editor.Command_Ids.No_Command),
          "No_Command must remain unbindable");
 
-      for Id in Editor.Commands.Command_Id loop
+      for Id in Editor.Command_Ids.Command_Id loop
          if Editor.Commands.Classification.Is_Bindable_Command (Id) then
             declare
                Name : constant String := Editor.Commands.Name_Metadata.Stable_Command_Name (Id);
@@ -688,7 +688,7 @@ package body Editor.Keybindings.Tests is
                  (Found and then Round = Id,
                   "Stable command names must round-trip: " & Name);
 
-               for Other in Editor.Commands.Command_Id loop
+               for Other in Editor.Command_Ids.Command_Id loop
                   if Other /= Id and then Editor.Commands.Classification.Is_Bindable_Command (Other) then
                      Assert
                        (Editor.Commands.Name_Metadata.Stable_Command_Name (Other) /= Name,
@@ -752,7 +752,7 @@ package body Editor.Keybindings.Tests is
       Path   : constant String := Temp_Path ("conflict_last_wins");
       Config : Editor.Keybinding_Config.Keybinding_Config_Model;
       Status : Editor.Keybinding_Config.Keybinding_Config_Status;
-      Actual : Editor.Commands.Command_Id;
+      Actual : Editor.Command_Ids.Command_Id;
       Found  : Boolean := False;
       C      : Editor.Keybindings.Key_Chord;
    begin
@@ -772,10 +772,10 @@ package body Editor.Keybindings.Tests is
         (Editor.Keybindings.Resolve
            (Chord (Editor.Keybindings.Key_P, Ctrl => True), Actual)
          = Editor.Keybindings.Bound_Command
-         and then Actual = Editor.Commands.Command_Open_Quick_Open,
+         and then Actual = Editor.Command_Ids.Command_Open_Quick_Open,
          "Last valid duplicate chord owner must win");
       C := Editor.Keybinding_Config.Chord_For
-        (Config, Editor.Commands.Command_Save_File, Found);
+        (Config, Editor.Command_Ids.Command_Save_File, Found);
       pragma Unreferenced (C);
       Assert (not Found, "Displaced command must have no explicit conflicting chord");
       Editor.Keybindings.Reset_To_Defaults;
@@ -787,7 +787,7 @@ package body Editor.Keybindings.Tests is
       Path   : constant String := Temp_Path ("unbind");
       Config : Editor.Keybinding_Config.Keybinding_Config_Model;
       Status : Editor.Keybinding_Config.Keybinding_Config_Status;
-      Actual : Editor.Commands.Command_Id;
+      Actual : Editor.Command_Ids.Command_Id;
    begin
       Write_File
         (Path,
@@ -809,7 +809,7 @@ package body Editor.Keybindings.Tests is
         (Editor.Keybindings.Resolve
            (Chord (Editor.Keybindings.Key_S, Ctrl => True), Actual)
          = Editor.Keybindings.Bound_Command
-         and then Actual = Editor.Commands.Command_Save_File,
+         and then Actual = Editor.Command_Ids.Command_Save_File,
          "Reset must restore the built-in default chord");
    end Test_Config_Unbind_Load_And_Reset;
 
@@ -846,7 +846,7 @@ package body Editor.Keybindings.Tests is
         (Status = Editor.Keybinding_Config.Keybinding_Config_Partial_Load,
          "Mixed valid and invalid bindings must be partial");
       C := Editor.Keybinding_Config.Chord_For
-        (Config, Editor.Commands.Command_Save_File, Found);
+        (Config, Editor.Command_Ids.Command_Save_File, Found);
       Assert
         (Found and then Editor.Keybindings.Format_Chord (C) = "Ctrl+Alt+S",
          "Partial load must preserve valid normalized bindings");
@@ -859,22 +859,22 @@ package body Editor.Keybindings.Tests is
       Config : Editor.Keybinding_Config.Keybinding_Config_Model;
       Status : Editor.Keybinding_Config.Keybinding_Config_Status;
       Text   : Unbounded_String;
-      Actual : Editor.Commands.Command_Id;
+      Actual : Editor.Command_Ids.Command_Id;
    begin
       Editor.Keybinding_Config.Clear (Config);
       Editor.Keybinding_Config.Bind
         (Config,
-         Editor.Commands.Command_Save_File,
+         Editor.Command_Ids.Command_Save_File,
          Chord (Editor.Keybindings.Key_S, Ctrl => True, Alt => True));
       Editor.Keybinding_Config.Unbind
-        (Config, Editor.Commands.Command_Open_Quick_Open);
+        (Config, Editor.Command_Ids.Command_Open_Quick_Open);
       Editor.Keybinding_Config.Apply_To_Runtime (Config);
       Editor.Keybinding_Config.Build_From_Runtime (Config);
       Assert
         (Editor.Keybindings.Resolve
            (Chord (Editor.Keybindings.Key_Z, Ctrl => True, Shift => True), Actual)
          = Editor.Keybindings.Bound_Command
-         and then Actual = Editor.Commands.Command_Redo,
+         and then Actual = Editor.Command_Ids.Command_Redo,
          "Build_From_Runtime must not drop secondary active runtime bindings");
       Editor.Keybinding_Config.Save_To_File (Config, Path, Status);
       Assert
@@ -909,12 +909,12 @@ package body Editor.Keybindings.Tests is
       Editor.Keybinding_Config.Clear (Config);
       Editor.Keybinding_Config.Bind
         (Config,
-         Editor.Commands.Command_Save_File,
+         Editor.Command_Ids.Command_Save_File,
          Chord (Editor.Keybindings.Key_S, Ctrl => True, Alt => True));
       Editor.Keybinding_Config.Apply_To_Runtime (Config);
       Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
       for Candidate of Candidates loop
-         if Candidate.Id = Editor.Commands.Command_Save_File then
+         if Candidate.Id = Editor.Command_Ids.Command_Save_File then
             Seen := True;
             Assert
               (Candidate.Has_Keybinding,
@@ -991,12 +991,12 @@ package body Editor.Keybindings.Tests is
       Path   : constant String := Temp_Path ("invalid_preserve");
       Config : Editor.Keybinding_Config.Keybinding_Config_Model;
       Status : Editor.Keybinding_Config.Keybinding_Config_Status;
-      Actual : Editor.Commands.Command_Id;
+      Actual : Editor.Command_Ids.Command_Id;
    begin
       Editor.Keybinding_Config.Clear (Config);
       Editor.Keybinding_Config.Bind
         (Config,
-         Editor.Commands.Command_Save_File,
+         Editor.Command_Ids.Command_Save_File,
          Chord (Editor.Keybindings.Key_S, Ctrl => True, Alt => True));
       Editor.Keybinding_Config.Apply_To_Runtime (Config);
 
@@ -1013,13 +1013,13 @@ package body Editor.Keybindings.Tests is
         (Editor.Keybindings.Resolve
            (Chord (Editor.Keybindings.Key_S, Ctrl => True, Alt => True), Actual)
          = Editor.Keybindings.Bound_Command
-         and then Actual = Editor.Commands.Command_Save_File,
+         and then Actual = Editor.Command_Ids.Command_Save_File,
          "Hard-failed loads must not mutate active runtime keybindings unless applied");
       Assert
         (Editor.Keybindings.Resolve
            (Chord (Editor.Keybindings.Key_S, Ctrl => True), Actual)
          /= Editor.Keybindings.Bound_Command
-         or else Actual /= Editor.Commands.Command_Save_File,
+         or else Actual /= Editor.Command_Ids.Command_Save_File,
          "Hard-failed loads must not restore stale default routing");
       Editor.Keybindings.Reset_To_Defaults;
    end Test_Hard_Failed_Reload_Preservation_Model;
@@ -1033,11 +1033,11 @@ package body Editor.Keybindings.Tests is
       Editor.Command_Route_Audit.Record_Route
         (Audit,
          Editor.Command_Route_Audit.Route_From_Keybinding,
-         Editor.Commands.Command_Save_File);
+         Editor.Command_Ids.Command_Save_File);
       Editor.Command_Route_Audit.Record_Route
         (Audit,
          Editor.Command_Route_Audit.Route_From_Command_Palette,
-         Editor.Commands.Command_Open_Command_Palette);
+         Editor.Command_Ids.Command_Open_Command_Palette);
       Assert
         (Editor.Command_Route_Audit.Failure_Count (Audit) = 0,
          "Concrete command-id routes must audit cleanly: " &
@@ -1046,7 +1046,7 @@ package body Editor.Keybindings.Tests is
       Editor.Command_Route_Audit.Record_Route
         (Audit,
          Editor.Command_Route_Audit.Route_From_Test,
-         Editor.Commands.No_Command);
+         Editor.Command_Ids.No_Command);
       Assert
         (Editor.Command_Route_Audit.Failure_Count (Audit) = 1,
          "No_Command must be reported as an invalid command route");
@@ -1059,10 +1059,10 @@ package body Editor.Keybindings.Tests is
       Name   : Unbounded_String;
    begin
       Assert
-        (not Editor.Commands.Classification.Is_Bindable_Command (Editor.Commands.No_Command),
+        (not Editor.Commands.Classification.Is_Bindable_Command (Editor.Command_Ids.No_Command),
          "No_Command must never be bindable");
 
-      for Id in Editor.Commands.Command_Id loop
+      for Id in Editor.Command_Ids.Command_Id loop
          if Editor.Commands.Classification.Is_Bindable_Command (Id) then
             Name := To_Unbounded_String (Editor.Commands.Name_Metadata.Stable_Command_Name (Id));
             Assert (Length (Name) > 0, "Bindable command lacks stable name");
@@ -1094,27 +1094,27 @@ package body Editor.Keybindings.Tests is
               "outline defaults should register into an empty keybinding table");
       Assert_Resolves
         (Chord (Editor.Keybindings.Key_F12, Ctrl => True),
-         Editor.Commands.Command_Refresh_Outline,
+         Editor.Command_Ids.Command_Refresh_Outline,
          "Ctrl+F12 refresh outline");
       Assert_Resolves
         (Chord (Editor.Keybindings.Key_Enter, Alt => True),
-         Editor.Commands.Command_Open_Selected_Outline_Item,
+         Editor.Command_Ids.Command_Open_Selected_Outline_Item,
          "Alt+Enter open selected outline item");
       Assert_Resolves
         (Chord (Editor.Keybindings.Key_F3, Alt => True),
-         Editor.Commands.Command_Select_Next_Outline_Item,
+         Editor.Command_Ids.Command_Select_Next_Outline_Item,
          "Alt+F3 select next outline item");
       Assert_Resolves
         (Chord (Editor.Keybindings.Key_F3, Alt => True, Shift => True),
-         Editor.Commands.Command_Select_Previous_Outline_Item,
+         Editor.Command_Ids.Command_Select_Previous_Outline_Item,
          "Alt+Shift+F3 select previous outline item");
       Assert_Resolves
         (Chord (Editor.Keybindings.Key_F12, Alt => True),
-         Editor.Commands.Command_Select_Current_Outline_Symbol,
+         Editor.Command_Ids.Command_Select_Current_Outline_Symbol,
          "Alt+F12 select current outline symbol");
       Assert_Resolves
         (Chord (Editor.Keybindings.Key_F12, Alt => True, Shift => True),
-         Editor.Commands.Command_Reveal_Current_Outline_Symbol,
+         Editor.Command_Ids.Command_Reveal_Current_Outline_Symbol,
          "Alt+Shift+F12 reveal current outline symbol");
    end Test_Outline_Keybindings_Register_Defaults;
 
@@ -1131,19 +1131,19 @@ package body Editor.Keybindings.Tests is
               "daily workflow defaults should register into an empty keybinding table");
       Assert_Resolves
         (Chord (Editor.Keybindings.Key_F1),
-         Editor.Commands.Command_Palette_Show_Command_Help,
+         Editor.Command_Ids.Command_Palette_Show_Command_Help,
          "F1 command help");
       Assert_Resolves
         (Chord (Editor.Keybindings.Key_O, Ctrl => True),
-         Editor.Commands.Command_Open_File,
+         Editor.Command_Ids.Command_Open_File,
          "Ctrl+O open file");
       Assert_Resolves
         (Chord (Editor.Keybindings.Key_O, Ctrl => True, Alt => True),
-         Editor.Commands.Command_Open_Project,
+         Editor.Command_Ids.Command_Open_Project,
          "Ctrl+Alt+O open project");
       Assert_Resolves
         (Chord (Editor.Keybindings.Key_M, Ctrl => True, Alt => True),
-         Editor.Commands.Command_Diagnostics_Show,
+         Editor.Command_Ids.Command_Diagnostics_Show,
          "Ctrl+Alt+M diagnostics");
    end Test_Daily_Workflow_Keybindings_Register_Defaults;
 
@@ -1156,14 +1156,14 @@ package body Editor.Keybindings.Tests is
    begin
       Editor.Keybindings.Clear;
       Editor.Keybindings.Bind
-        (User_Chord, Editor.Commands.Command_Open_Quick_Open);
+        (User_Chord, Editor.Command_Ids.Command_Open_Quick_Open);
       Result := Editor.Keybindings.Register_Daily_Workflow_Keybindings;
       Assert (Result.Requested_Count = 4,
               "daily workflow defaults should report every candidate chord");
       Assert (Result.Registered_Count = 3 and then Result.Conflict_Count = 1,
               "daily workflow defaults should count the occupied chord as a conflict");
       Assert_Resolves
-        (User_Chord, Editor.Commands.Command_Open_Quick_Open,
+        (User_Chord, Editor.Command_Ids.Command_Open_Quick_Open,
          "daily workflow defaults must not overwrite user Ctrl+O binding");
    end Test_Daily_Workflow_Keybindings_Do_Not_Overwrite_User_Bindings;
 
@@ -1177,25 +1177,25 @@ package body Editor.Keybindings.Tests is
       Editor.Keybinding_Config.Set_Defaults (Config);
 
       Bound := Editor.Keybinding_Config.Chord_For
-        (Config, Editor.Commands.Command_Palette_Show_Command_Help, Found);
+        (Config, Editor.Command_Ids.Command_Palette_Show_Command_Help, Found);
       Assert
         (Found and then Editor.Keybindings.Format_Chord (Bound) = "F1",
          "daily workflow config defaults must expose F1 command help");
 
       Bound := Editor.Keybinding_Config.Chord_For
-        (Config, Editor.Commands.Command_Open_File, Found);
+        (Config, Editor.Command_Ids.Command_Open_File, Found);
       Assert
         (Found and then Editor.Keybindings.Format_Chord (Bound) = "Ctrl+O",
          "daily workflow config defaults must expose Ctrl+O open file");
 
       Bound := Editor.Keybinding_Config.Chord_For
-        (Config, Editor.Commands.Command_Open_Project, Found);
+        (Config, Editor.Command_Ids.Command_Open_Project, Found);
       Assert
         (Found and then Editor.Keybindings.Format_Chord (Bound) = "Ctrl+Alt+O",
          "daily workflow config defaults must expose Ctrl+Alt+O open project");
 
       Bound := Editor.Keybinding_Config.Chord_For
-        (Config, Editor.Commands.Command_Diagnostics_Show, Found);
+        (Config, Editor.Command_Ids.Command_Diagnostics_Show, Found);
       Assert
         (Found and then Editor.Keybindings.Format_Chord (Bound) = "Ctrl+Alt+M",
          "daily workflow config defaults must expose Ctrl+Alt+M diagnostics");
@@ -1210,14 +1210,14 @@ package body Editor.Keybindings.Tests is
    begin
       Editor.Keybindings.Clear;
       Editor.Keybindings.Bind
-        (User_Chord, Editor.Commands.Command_Active_Find_Next);
+        (User_Chord, Editor.Command_Ids.Command_Active_Find_Next);
       Result := Editor.Keybindings.Register_Outline_Keybindings;
       Assert (Result.Requested_Count = 6,
               "outline keybinding registration should report all candidates");
       Assert (Result.Registered_Count = 5 and then Result.Conflict_Count = 1,
               "outline keybinding registration should skip one occupied chord");
       Assert_Resolves
-        (User_Chord, Editor.Commands.Command_Active_Find_Next,
+        (User_Chord, Editor.Command_Ids.Command_Active_Find_Next,
          "outline defaults must not overwrite an existing user chord");
    end Test_Outline_Keybindings_Do_Not_Overwrite_User_Bindings;
 
@@ -1244,7 +1244,7 @@ package body Editor.Keybindings.Tests is
       pragma Unreferenced (T);
       Previous_Name : Unbounded_String := Null_Unbounded_String;
       Current_Name  : Unbounded_String := Null_Unbounded_String;
-      Id            : Editor.Commands.Command_Id;
+      Id            : Editor.Command_Ids.Command_Id;
       Info          : Editor.Keybindings.Command_Keybinding_Info;
    begin
       Editor.Keybindings.Reset_To_Defaults;
@@ -1278,7 +1278,7 @@ package body Editor.Keybindings.Tests is
 
       Assert
         (not Editor.Keybindings.Is_Normal_Assignable_Command
-           (Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam),
+           (Editor.Command_Ids.Command_Build_Run_User_Opt_In_Test_Seam),
          "internal build test seam must be absent from assignable keybinding UI");
    end Test_Display_List_Is_Deterministic_And_Scoped;
 
@@ -1286,12 +1286,12 @@ package body Editor.Keybindings.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Status : Editor.Keybindings.Keybinding_Change_Status;
-      Actual : Editor.Commands.Command_Id;
+      Actual : Editor.Command_Ids.Command_Id;
    begin
       Editor.Keybindings.Reset_To_Defaults;
       Editor.Keybindings.Assign
         (Chord (Editor.Keybindings.Key_S, Ctrl => True, Alt => True),
-         Editor.Commands.Command_Save_File,
+         Editor.Command_Ids.Command_Save_File,
          Status);
       Assert
         (Status = Editor.Keybindings.Keybinding_Change_Ok,
@@ -1300,7 +1300,7 @@ package body Editor.Keybindings.Tests is
         (Editor.Keybindings.Resolve
            (Chord (Editor.Keybindings.Key_S, Ctrl => True, Alt => True), Actual)
          = Editor.Keybindings.Bound_Command
-         and then Actual = Editor.Commands.Command_Save_File,
+         and then Actual = Editor.Command_Ids.Command_Save_File,
          "assignment must resolve through active runtime table");
       Assert
         (Editor.Keybindings.Resolve
@@ -1310,7 +1310,7 @@ package body Editor.Keybindings.Tests is
 
       Editor.Keybindings.Assign
         (Chord (Editor.Keybindings.Key_S, Ctrl => True, Alt => True),
-         Editor.Commands.Command_Open_Quick_Open,
+         Editor.Command_Ids.Command_Open_Quick_Open,
          Status);
       Assert
         (Status = Editor.Keybindings.Keybinding_Change_Ok,
@@ -1319,11 +1319,11 @@ package body Editor.Keybindings.Tests is
         (Editor.Keybindings.Resolve
            (Chord (Editor.Keybindings.Key_S, Ctrl => True, Alt => True), Actual)
          = Editor.Keybindings.Bound_Command
-         and then Actual = Editor.Commands.Command_Open_Quick_Open,
+         and then Actual = Editor.Command_Ids.Command_Open_Quick_Open,
          "duplicate chord policy must be last-assignment-wins");
       Assert
         (Editor.Keybindings.Binding_Count_For_Command
-           (Editor.Commands.Command_Save_File) = 0,
+           (Editor.Command_Ids.Command_Save_File) = 0,
          "displaced command must not retain the conflicting user chord");
       Editor.Keybindings.Reset_To_Defaults;
    end Test_Assign_Validates_Targets_And_Replaces_Deterministically;
@@ -1332,19 +1332,19 @@ package body Editor.Keybindings.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Status : Editor.Keybindings.Keybinding_Change_Status;
-      Actual : Editor.Commands.Command_Id;
+      Actual : Editor.Command_Ids.Command_Id;
    begin
       Editor.Keybindings.Reset_To_Defaults;
       Assert
         (Editor.Keybindings.Resolve
            (Chord (Editor.Keybindings.Key_S, Ctrl => True), Actual)
          = Editor.Keybindings.Bound_Command
-         and then Actual = Editor.Commands.Command_Save_File,
+         and then Actual = Editor.Command_Ids.Command_Save_File,
          "baseline save binding must exist before rejected assignment");
 
       Editor.Keybindings.Assign
         (Chord (Editor.Keybindings.Key_S, Ctrl => True, Alt => True),
-         Editor.Commands.No_Command,
+         Editor.Command_Ids.No_Command,
          Status);
       Assert
         (Status = Editor.Keybindings.Keybinding_Change_Invalid_Target,
@@ -1353,12 +1353,12 @@ package body Editor.Keybindings.Tests is
         (Editor.Keybindings.Resolve
            (Chord (Editor.Keybindings.Key_S, Ctrl => True), Actual)
          = Editor.Keybindings.Bound_Command
-         and then Actual = Editor.Commands.Command_Save_File,
+         and then Actual = Editor.Command_Ids.Command_Save_File,
          "invalid assignment must leave existing bindings unchanged");
 
       Editor.Keybindings.Assign
         (Chord (Editor.Keybindings.Key_S, Ctrl => True, Alt => True),
-         Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam,
+         Editor.Command_Ids.Command_Build_Run_User_Opt_In_Test_Seam,
          Status);
       Assert
         (Status = Editor.Keybindings.Keybinding_Change_Internal_Target
@@ -1368,7 +1368,7 @@ package body Editor.Keybindings.Tests is
         (Editor.Keybindings.Resolve
            (Chord (Editor.Keybindings.Key_S, Ctrl => True), Actual)
          = Editor.Keybindings.Bound_Command
-         and then Actual = Editor.Commands.Command_Save_File,
+         and then Actual = Editor.Command_Ids.Command_Save_File,
          "rejected internal target must leave existing bindings unchanged");
       Assert
         (Editor.Keybindings.Resolve
@@ -1384,7 +1384,7 @@ package body Editor.Keybindings.Tests is
       Path   : constant String := Temp_Path ("internal_target");
       Config : Editor.Keybinding_Config.Keybinding_Config_Model;
       Status : Editor.Keybinding_Config.Keybinding_Config_Status;
-      Actual : Editor.Commands.Command_Id;
+      Actual : Editor.Command_Ids.Command_Id;
    begin
       Editor.Keybindings.Reset_To_Defaults;
       Write_File
@@ -1406,7 +1406,7 @@ package body Editor.Keybindings.Tests is
         (Editor.Keybindings.Resolve
            (Chord (Editor.Keybindings.Key_S, Ctrl => True), Actual)
          = Editor.Keybindings.Bound_Command
-         and then Actual = Editor.Commands.Command_Save_File,
+         and then Actual = Editor.Command_Ids.Command_Save_File,
          "partial load with no valid entries must keep defaults after apply");
       Editor.Keybindings.Reset_To_Defaults;
    end Test_Load_Rejects_Internal_Target_Without_Runtime_Mutation;
@@ -1471,7 +1471,7 @@ package body Editor.Keybindings.Tests is
       declare
          Ignored : constant Editor.Keybindings.Key_Chord :=
            Editor.Keybinding_Config.Chord_For
-             (Config, Editor.Commands.Command_Save_File, Found);
+             (Config, Editor.Command_Ids.Command_Save_File, Found);
          pragma Unreferenced (Ignored);
       begin
          Assert
@@ -1548,15 +1548,15 @@ package body Editor.Keybindings.Tests is
       Editor.Keybinding_Management.Clear_Filter;
 
       Editor.Keybinding_Management.Select_Command
-        (Editor.Commands.Command_Save_File);
+        (Editor.Command_Ids.Command_Save_File);
       Assert
         (Editor.Keybinding_Management.Selected_Command =
-         Editor.Commands.Command_Save_File,
+         Editor.Command_Ids.Command_Save_File,
          "selection setup must select a command");
       Editor.Keybinding_Management.Set_Query ("theme");
       Assert
         (Editor.Keybinding_Management.Selected_Command =
-         Editor.Commands.No_Command,
+         Editor.Command_Ids.No_Command,
          "query changes must clear command selections hidden by the new row projection");
       Editor.Keybinding_Management.Begin_Assign_Selected (Status);
       Assert
@@ -1586,18 +1586,18 @@ package body Editor.Keybindings.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Status : Editor.Keybinding_Management.Keybinding_Action_Status;
-      Actual : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Actual : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       New_Chord : constant Editor.Keybindings.Key_Chord :=
         Chord (Editor.Keybindings.Key_P, Ctrl => True, Alt => True);
       Conflicting_Chord : constant Editor.Keybindings.Key_Chord :=
         Chord (Editor.Keybindings.Key_S, Ctrl => True);
    begin
       Editor.Keybindings.Reset_To_Defaults;
-      Editor.Keybindings.Unbind_Command (Editor.Commands.Command_Find_Show);
+      Editor.Keybindings.Unbind_Command (Editor.Command_Ids.Command_Find_Show);
       declare
          Before_Count : constant Natural :=
            Editor.Keybindings.Binding_Count_For_Command
-             (Editor.Commands.Command_Find_Show);
+             (Editor.Command_Ids.Command_Find_Show);
          Projection : Editor.Keybinding_Management.Keybinding_List_Summary;
          Defaults   : Editor.Keybinding_Config.Keybinding_Config_Model;
          Snapshot   : Editor.Keybinding_Config.Keybinding_Config_Model;
@@ -1606,22 +1606,22 @@ package body Editor.Keybindings.Tests is
          Assert
            (Projection.Row_Count > 0
             and then Editor.Keybindings.Binding_Count_For_Command
-              (Editor.Commands.Command_Find_Show) = Before_Count,
+              (Editor.Command_Ids.Command_Find_Show) = Before_Count,
             "default chord projection must not mutate runtime keybindings");
          Editor.Keybinding_Config.Set_Defaults (Defaults);
          Assert
            (Editor.Keybindings.Binding_Count_For_Command
-              (Editor.Commands.Command_Find_Show) = Before_Count,
+              (Editor.Command_Ids.Command_Find_Show) = Before_Count,
             "default model construction must not install defaults into runtime bindings");
          Editor.Keybinding_Config.Build_From_Runtime (Snapshot);
          Assert
            (Editor.Keybindings.Binding_Count_For_Command
-              (Editor.Commands.Command_Find_Show) = Before_Count,
+              (Editor.Command_Ids.Command_Find_Show) = Before_Count,
             "keybinding save snapshot construction must not mutate runtime bindings");
       end;
       Editor.Keybindings.Reset_To_Defaults;
       Editor.Keybinding_Management.Select_Command
-        (Editor.Commands.Command_Find_Show);
+        (Editor.Command_Ids.Command_Find_Show);
       Editor.Keybinding_Management.Begin_Assign_Selected (Status);
       Assert (Status = Editor.Keybinding_Management.Keybinding_Action_Ok,
               "assign must enter explicit capture mode for selected bindable command");
@@ -1644,7 +1644,7 @@ package body Editor.Keybindings.Tests is
       Assert (Editor.Keybinding_Management.Has_Pending_Conflict,
               "conflict must expose an explicit pending conflict state");
       Assert (Editor.Keybinding_Management.Pending_Conflict_Command =
-                Editor.Commands.Command_Save_File,
+                Editor.Command_Ids.Command_Save_File,
               "pending conflict must identify the existing command");
       Assert (Editor.Keybinding_Management.Pending_Conflict_Chord = "Ctrl+S",
               "pending conflict must expose normalized chord label");
@@ -1653,11 +1653,11 @@ package body Editor.Keybindings.Tests is
               "explicit conflict confirmation must apply replacement");
       Assert (Editor.Keybindings.Resolve (Conflicting_Chord, Actual) =
                 Editor.Keybindings.Bound_Command
-              and then Actual = Editor.Commands.Command_Find_Show,
+              and then Actual = Editor.Command_Ids.Command_Find_Show,
               "confirmed conflict must deterministically replace chord owner");
       Editor.Keybindings.Reset_To_Defaults;
       Editor.Keybinding_Management.Select_Command
-        (Editor.Commands.Command_Find_Show);
+        (Editor.Command_Ids.Command_Find_Show);
 
       Editor.Keybinding_Management.Begin_Assign_Selected (Status);
       Editor.Keybinding_Management.Assign_Selected
@@ -1666,7 +1666,7 @@ package body Editor.Keybindings.Tests is
               "repeated conflict must again require explicit confirmation");
       Assert (Editor.Keybindings.Resolve (Conflicting_Chord, Actual) =
                 Editor.Keybindings.Bound_Command
-              and then Actual = Editor.Commands.Command_Save_File,
+              and then Actual = Editor.Command_Ids.Command_Save_File,
               "unconfirmed conflict must not displace existing binding");
 
       Editor.Keybinding_Management.Assign_Selected
@@ -1686,7 +1686,7 @@ package body Editor.Keybindings.Tests is
               "non-conflicting assignment must succeed after pending conflict is cancelled");
       Assert (Editor.Keybindings.Resolve (New_Chord, Actual) =
                 Editor.Keybindings.Bound_Command
-              and then Actual = Editor.Commands.Command_Find_Show,
+              and then Actual = Editor.Command_Ids.Command_Find_Show,
               "assignment must update runtime lookup to stable command id");
       Assert (Editor.Keybinding_Management.Latest_Message = "Keybinding assigned.",
               "assign workflow must expose a precise outcome message");
@@ -1705,7 +1705,7 @@ package body Editor.Keybindings.Tests is
               "remove workflow must expose a precise outcome message");
 
       Editor.Keybinding_Management.Select_Command
-        (Editor.Commands.Command_Find_Show);
+        (Editor.Command_Ids.Command_Find_Show);
       Editor.Keybinding_Management.Assign_Selected
         (New_Chord, Confirm_Conflict => False, Status => Status);
       Assert (Status = Editor.Keybinding_Management.Keybinding_Action_Ok,
@@ -1725,25 +1725,25 @@ package body Editor.Keybindings.Tests is
       Assert (Editor.Keybindings.Resolve
                 (Chord (Editor.Keybindings.Key_P, Ctrl => True, Shift => True), Actual) =
                 Editor.Keybindings.Bound_Command
-              and then Actual = Editor.Commands.Command_Open_Command_Palette,
+              and then Actual = Editor.Command_Ids.Command_Open_Command_Palette,
               "reset must restore default keybindings only");
    end Test_Assign_Conflict_Cancel_Remove_Reset;
    procedure Test_Input_Bridge_Capture_Consumes_And_Assigns
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Status : Editor.Keybinding_Management.Keybinding_Action_Status;
-      Actual : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Actual : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Captured : constant Editor.Keybindings.Key_Chord :=
         Chord (Editor.Keybindings.Key_F, Ctrl => True, Alt => True);
    begin
       Editor.Input_Bridge.Reset;
       Editor.Keybindings.Reset_To_Defaults;
       Editor.Keybindings.Unbind (Captured);
-      Editor.Keybindings.Unbind_Command (Editor.Commands.Command_Find_Show);
+      Editor.Keybindings.Unbind_Command (Editor.Command_Ids.Command_Find_Show);
       Editor.Keybinding_Management.Show;
       Editor.Keybinding_Management.Focus;
       Editor.Keybinding_Management.Select_Command
-        (Editor.Commands.Command_Find_Show);
+        (Editor.Command_Ids.Command_Find_Show);
       Editor.Keybinding_Management.Begin_Assign_Selected (Status);
       Assert (Status = Editor.Keybinding_Management.Keybinding_Action_Ok,
               "input bridge capture setup must enter capture mode");
@@ -1757,7 +1757,7 @@ package body Editor.Keybindings.Tests is
       Assert
         (Editor.Keybindings.Resolve (Captured, Actual) =
            Editor.Keybindings.Bound_Command
-         and then Actual = Editor.Commands.Command_Find_Show,
+         and then Actual = Editor.Command_Ids.Command_Find_Show,
          "Input_Bridge capture must assign through keybinding management "
          & "instead of typing or global dispatch");
       Assert
@@ -1770,7 +1770,7 @@ package body Editor.Keybindings.Tests is
       pragma Unreferenced (T);
       Prompt  : Editor.Guided_Prompts.Prompt_State;
       Status  : Editor.Keybinding_Management.Keybinding_Action_Status;
-      Actual  : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Actual  : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Report  : Unbounded_String := Null_Unbounded_String;
       Custom  : constant Editor.Keybindings.Key_Chord :=
         Chord (Editor.Keybindings.Key_F, Ctrl => True, Alt => True);
@@ -1784,7 +1784,7 @@ package body Editor.Keybindings.Tests is
       Editor.Keybinding_Management.Reset_Transient_State;
       Editor.Keybinding_Management.Show;
       Editor.Keybinding_Management.Focus;
-      Editor.Keybinding_Management.Select_Command (Editor.Commands.Command_Find_Show);
+      Editor.Keybinding_Management.Select_Command (Editor.Command_Ids.Command_Find_Show);
       Editor.Keybinding_Management.Begin_Assign_Selected (Status);
       Assert
         (Status = Editor.Keybinding_Management.Keybinding_Action_Ok,
@@ -1793,7 +1793,7 @@ package body Editor.Keybindings.Tests is
       Editor.Guided_Prompts.Start
         (Prompt,
          Editor.Guided_Prompts.Keybinding_Capture_Prompt,
-         Editor.Commands.Command_Keybindings_Assign_Selected,
+         Editor.Command_Ids.Command_Keybindings_Assign_Selected,
          "Assign Keybinding",
          "Press keybinding chord.",
          "Keybindings");
@@ -1821,7 +1821,7 @@ package body Editor.Keybindings.Tests is
       Editor.Guided_Prompts.Start
         (Prompt,
          Editor.Guided_Prompts.Keybinding_Capture_Prompt,
-         Editor.Commands.Command_Keybindings_Assign_Selected,
+         Editor.Command_Ids.Command_Keybindings_Assign_Selected,
          "Assign Keybinding",
          "Press keybinding chord.",
          "Keybindings");
@@ -1837,7 +1837,7 @@ package body Editor.Keybindings.Tests is
          "confirm helper must clear the guided prompt");
       Assert
         (Editor.Keybindings.Resolve (Custom, Actual) = Editor.Keybindings.Bound_Command
-         and then Actual = Editor.Commands.Command_Find_Show,
+         and then Actual = Editor.Command_Ids.Command_Find_Show,
          "confirm helper must assign the captured chord through keybinding management");
    end Test_Keybinding_Prompt_Handlers_Capture_And_Confirm;
 
@@ -1856,7 +1856,7 @@ package body Editor.Keybindings.Tests is
         (Chord (Editor.Keybindings.Key_Down));
       Assert
         (Editor.Keybinding_Management.Selected_Command =
-           Editor.Commands.Command_Save_File,
+           Editor.Command_Ids.Command_Save_File,
          "focused keybinding surface must consume Down for row selection");
 
       Editor.Input_Bridge.Handle_Key_Chord
@@ -1890,14 +1890,14 @@ package body Editor.Keybindings.Tests is
       pragma Unreferenced (T);
       Status : Editor.Keybindings.Keybinding_Change_Status;
       Action : Editor.Keybinding_Management.Keybinding_Action_Status;
-      Actual : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Actual : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Custom : constant Editor.Keybindings.Key_Chord :=
         Chord (Editor.Keybindings.Key_F, Alt => True);
    begin
       Editor.Input_Bridge.Reset;
       Editor.Keybindings.Reset_To_Defaults;
       Editor.Keybindings.Assign
-        (Custom, Editor.Commands.Command_Find_Show, Status);
+        (Custom, Editor.Command_Ids.Command_Find_Show, Status);
       Assert (Status = Editor.Keybindings.Keybinding_Change_Ok,
               "reset key confirmation test must create a custom binding");
 
@@ -1915,7 +1915,7 @@ package body Editor.Keybindings.Tests is
               "reset cancellation must keep keybinding surface visible");
       Assert (Editor.Keybindings.Resolve (Custom, Actual) =
                 Editor.Keybindings.Bound_Command
-              and then Actual = Editor.Commands.Command_Find_Show,
+              and then Actual = Editor.Command_Ids.Command_Find_Show,
               "reset cancellation must not mutate bindings");
 
       Editor.Keybinding_Management.Request_Reset_To_Defaults (Action);
@@ -1936,7 +1936,7 @@ package body Editor.Keybindings.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Status : Editor.Keybinding_Management.Keybinding_Action_Status;
-      Actual : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Actual : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Conflicting : constant Editor.Keybindings.Key_Chord :=
         Chord (Editor.Keybindings.Key_S, Ctrl => True);
    begin
@@ -1945,7 +1945,7 @@ package body Editor.Keybindings.Tests is
       Editor.Keybinding_Management.Show;
       Editor.Keybinding_Management.Focus;
       Editor.Keybinding_Management.Select_Command
-        (Editor.Commands.Command_Find_Show);
+        (Editor.Command_Ids.Command_Find_Show);
       Editor.Keybinding_Management.Begin_Assign_Selected (Status);
       Assert (Status = Editor.Keybinding_Management.Keybinding_Action_Ok,
               "conflict capture setup must enter capture mode");
@@ -1957,7 +1957,7 @@ package body Editor.Keybindings.Tests is
       Assert
         (Editor.Keybindings.Resolve (Conflicting, Actual) =
            Editor.Keybindings.Bound_Command
-         and then Actual = Editor.Commands.Command_Save_File,
+         and then Actual = Editor.Command_Ids.Command_Save_File,
          "unconfirmed Input_Bridge conflict must preserve existing owner");
 
       Editor.Input_Bridge.Handle_Key_Chord
@@ -1973,7 +1973,7 @@ package body Editor.Keybindings.Tests is
       Assert
         (Editor.Keybindings.Resolve (Conflicting, Actual) =
            Editor.Keybindings.Bound_Command
-         and then Actual = Editor.Commands.Command_Save_File,
+         and then Actual = Editor.Command_Ids.Command_Save_File,
          "non-confirming chord during conflict must not replace existing owner");
 
       Editor.Input_Bridge.Handle_Key_Chord
@@ -1981,7 +1981,7 @@ package body Editor.Keybindings.Tests is
       Assert
         (Editor.Keybindings.Resolve (Conflicting, Actual) =
            Editor.Keybindings.Bound_Command
-         and then Actual = Editor.Commands.Command_Find_Show,
+         and then Actual = Editor.Command_Ids.Command_Find_Show,
          "Enter must explicitly confirm pending keybinding replacement");
       Assert
         (not Editor.Keybinding_Management.Has_Pending_Conflict,
@@ -1992,7 +1992,7 @@ package body Editor.Keybindings.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Status : Editor.Keybinding_Management.Keybinding_Action_Status;
-      Actual : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Actual : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Conflicting : constant Editor.Keybindings.Key_Chord :=
         Chord (Editor.Keybindings.Key_S, Ctrl => True);
    begin
@@ -2001,7 +2001,7 @@ package body Editor.Keybindings.Tests is
       Editor.Keybinding_Management.Show;
       Editor.Keybinding_Management.Focus;
       Editor.Keybinding_Management.Select_Command
-        (Editor.Commands.Command_Find_Show);
+        (Editor.Command_Ids.Command_Find_Show);
       Editor.Keybinding_Management.Begin_Assign_Selected (Status);
       Editor.Keybinding_Management.Assign_Selected
         (Conflicting, Confirm_Conflict => False, Status => Status);
@@ -2014,7 +2014,7 @@ package body Editor.Keybindings.Tests is
       --  but it must not invalidate the explicit captured target/chord pair.
       Editor.Keybinding_Management.Set_Query ("definitely no matching command");
       Assert
-        (Editor.Keybinding_Management.Selected_Command = Editor.Commands.No_Command,
+        (Editor.Keybinding_Management.Selected_Command = Editor.Command_Ids.No_Command,
          "filter change must clear the stale visible row selection");
 
       Editor.Keybinding_Management.Confirm_Pending_Assignment (Status);
@@ -2024,7 +2024,7 @@ package body Editor.Keybindings.Tests is
       Assert
         (Editor.Keybindings.Resolve (Conflicting, Actual) =
            Editor.Keybindings.Bound_Command
-         and then Actual = Editor.Commands.Command_Find_Show,
+         and then Actual = Editor.Command_Ids.Command_Find_Show,
          "confirmed replacement must still update runtime lookup");
       Assert
         (not Editor.Keybinding_Management.Has_Pending_Conflict,
@@ -2041,13 +2041,13 @@ package body Editor.Keybindings.Tests is
       Path   : constant String := Temp_Path ("save_load");
       Status : Editor.Keybinding_Management.Keybinding_Action_Status;
       Text   : Unbounded_String := Null_Unbounded_String;
-      Actual : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Actual : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Ch     : constant Editor.Keybindings.Key_Chord :=
         Chord (Editor.Keybindings.Key_L, Ctrl => True, Alt => True);
       Audit  : Editor.Command_Route_Audit.Route_Audit_Result;
    begin
       Editor.Keybindings.Reset_To_Defaults;
-      Editor.Keybinding_Management.Select_Command (Editor.Commands.Command_Find_Show);
+      Editor.Keybinding_Management.Select_Command (Editor.Command_Ids.Command_Find_Show);
       Editor.Keybinding_Management.Assign_Selected
         (Ch, Confirm_Conflict => False, Status => Status);
       Assert (Status = Editor.Keybinding_Management.Keybinding_Action_Ok,
@@ -2072,18 +2072,18 @@ package body Editor.Keybindings.Tests is
       Assert (Status = Editor.Keybinding_Management.Keybinding_Action_Ok,
               "load must apply stable chord-to-command mappings without executing commands");
       Assert (Editor.Keybindings.Resolve (Ch, Actual) = Editor.Keybindings.Bound_Command
-              and then Actual = Editor.Commands.Command_Find_Show,
+              and then Actual = Editor.Command_Ids.Command_Find_Show,
               "load must restore normalized runtime lookup");
       Editor.Command_Route_Audit.Clear (Audit);
       Editor.Command_Route_Audit.Record_Keybinding_Management_Route
-        (Audit, Editor.Commands.Command_Find_Show,
+        (Audit, Editor.Command_Ids.Command_Find_Show,
          Routed_Through_Executor => True,
          Used_Stable_Command_Name => True,
          Carried_Payload => False);
       Assert (Editor.Command_Route_Audit.Failure_Count (Audit) = 0,
               "keybinding management route audit must accept Executor/stable/no-payload routes");
       Editor.Command_Route_Audit.Record_Keybinding_Management_Route
-        (Audit, Editor.Commands.Command_Find_Show,
+        (Audit, Editor.Command_Ids.Command_Find_Show,
          Routed_Through_Executor => True,
          Used_Stable_Command_Name => True,
          Carried_Payload => True);
@@ -2098,14 +2098,14 @@ package body Editor.Keybindings.Tests is
       pragma Unreferenced (T);
       Status : Editor.Keybinding_Management.Keybinding_Action_Status;
       Snapshot : Editor.Keybinding_Management.Keybinding_Surface_Snapshot;
-      Actual : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Actual : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Custom : constant Editor.Keybindings.Key_Chord :=
         Chord (Editor.Keybindings.Key_S, Ctrl => True, Alt => True);
    begin
       Editor.Keybindings.Reset_To_Defaults;
       Editor.Keybinding_Management.Reset_Transient_State;
       Editor.Keybinding_Management.Clear_Selection;
-      Editor.Keybinding_Management.Select_Command (Editor.Commands.Command_Find_Show);
+      Editor.Keybinding_Management.Select_Command (Editor.Command_Ids.Command_Find_Show);
       Editor.Keybinding_Management.Assign_Selected
         (Custom, Confirm_Conflict => False, Status => Status);
       Assert (Status = Editor.Keybinding_Management.Keybinding_Action_Ok,
@@ -2119,7 +2119,7 @@ package body Editor.Keybindings.Tests is
       Assert (Snapshot.Has_Pending_Reset,
               "render snapshot must expose pending reset state");
       Assert (Editor.Keybindings.Resolve (Custom, Actual) = Editor.Keybindings.Bound_Command
-              and then Actual = Editor.Commands.Command_Find_Show,
+              and then Actual = Editor.Command_Ids.Command_Find_Show,
               "reset request must not mutate runtime keybindings");
 
       Editor.Keybinding_Management.Cancel_Reset_To_Defaults (Status);
@@ -2127,7 +2127,7 @@ package body Editor.Keybindings.Tests is
               and then not Editor.Keybinding_Management.Has_Pending_Reset,
               "reset cancel must clear pending confirmation");
       Assert (Editor.Keybindings.Resolve (Custom, Actual) = Editor.Keybindings.Bound_Command
-              and then Actual = Editor.Commands.Command_Find_Show,
+              and then Actual = Editor.Command_Ids.Command_Find_Show,
               "reset cancel must leave bindings unchanged");
 
       Editor.Keybinding_Management.Request_Reset_To_Defaults (Status);
@@ -2149,7 +2149,7 @@ package body Editor.Keybindings.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Status : Editor.Keybinding_Management.Keybinding_Action_Status;
-      Actual : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Actual : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Custom : constant Editor.Keybindings.Key_Chord :=
         Chord (Editor.Keybindings.Key_S, Ctrl => True, Alt => True);
    begin
@@ -2157,7 +2157,7 @@ package body Editor.Keybindings.Tests is
       Editor.Keybinding_Management.Reset_Transient_State;
       Editor.Keybinding_Management.Show;
       Editor.Keybinding_Management.Focus;
-      Editor.Keybinding_Management.Select_Command (Editor.Commands.Command_Save_File);
+      Editor.Keybinding_Management.Select_Command (Editor.Command_Ids.Command_Save_File);
       Editor.Keybinding_Management.Assign_Selected
         (Custom, Confirm_Conflict => False, Status => Status);
       Assert (Status = Editor.Keybinding_Management.Keybinding_Action_Ok,
@@ -2180,7 +2180,7 @@ package body Editor.Keybindings.Tests is
               Editor.Keybinding_Management.Filter_All,
               "transient reset must clear keybinding filter state");
       Assert (Editor.Keybinding_Management.Selected_Command =
-              Editor.Commands.No_Command,
+              Editor.Command_Ids.No_Command,
               "transient reset must clear selected command state");
       Assert (not Editor.Keybinding_Management.Has_Selected_Chord,
               "transient reset must clear selected chord state");
@@ -2194,7 +2194,7 @@ package body Editor.Keybindings.Tests is
               "transient reset must clear local latest-message state");
       Assert (Editor.Keybindings.Resolve (Custom, Actual) =
               Editor.Keybindings.Bound_Command
-              and then Actual = Editor.Commands.Command_Save_File,
+              and then Actual = Editor.Command_Ids.Command_Save_File,
               "transient reset must not reset or mutate runtime keybindings");
    end Test_Reset_Transient_State_Clears_UI_Only;
 
@@ -2206,7 +2206,7 @@ package body Editor.Keybindings.Tests is
       Availability : Editor.Commands.Availability_Metadata.Command_Availability;
       Custom : constant Editor.Keybindings.Key_Chord :=
         Chord (Editor.Keybindings.Key_S, Ctrl => True, Alt => True);
-      Actual : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Actual : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
    begin
       Editor.State.Init (S);
       Editor.Keybindings.Reset_To_Defaults;
@@ -2214,7 +2214,7 @@ package body Editor.Keybindings.Tests is
       Editor.Keybinding_Management.Hide;
       Editor.Keybinding_Management.Show;
       Editor.Keybinding_Management.Focus;
-      Editor.Keybinding_Management.Select_Command (Editor.Commands.Command_Find_Show);
+      Editor.Keybinding_Management.Select_Command (Editor.Command_Ids.Command_Find_Show);
 
       Editor.Keybinding_Management.Assign_Selected
         (Custom, Confirm_Conflict => False, Status => Status);
@@ -2238,17 +2238,17 @@ package body Editor.Keybindings.Tests is
               "save must be blocked while confirmation is pending");
 
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Keybindings_Assign_Selected);
+        (S, Editor.Command_Ids.Command_Keybindings_Assign_Selected);
       Assert (Availability.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
               "Executor availability must block assign during pending confirmation");
 
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Keybindings_Remove_Selected);
+        (S, Editor.Command_Ids.Command_Keybindings_Remove_Selected);
       Assert (Availability.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
               "Executor availability must block remove during pending confirmation");
 
       Assert (Editor.Keybindings.Resolve (Custom, Actual) = Editor.Keybindings.Bound_Command
-              and then Actual = Editor.Commands.Command_Find_Show,
+              and then Actual = Editor.Command_Ids.Command_Find_Show,
               "blocked operations must not mutate the existing binding");
 
       Editor.Keybinding_Management.Cancel_Reset_To_Defaults (Status);
@@ -2265,7 +2265,7 @@ package body Editor.Keybindings.Tests is
       Availability : Editor.Commands.Availability_Metadata.Command_Availability;
       Custom : constant Editor.Keybindings.Key_Chord :=
         Chord (Editor.Keybindings.Key_S, Ctrl => True, Alt => True);
-      Actual : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Actual : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
    begin
       Editor.State.Init (S);
       Editor.Keybindings.Reset_To_Defaults;
@@ -2273,7 +2273,7 @@ package body Editor.Keybindings.Tests is
       Editor.Keybinding_Management.Hide;
       Editor.Keybinding_Management.Show;
       Editor.Keybinding_Management.Focus;
-      Editor.Keybinding_Management.Select_Command (Editor.Commands.Command_Find_Show);
+      Editor.Keybinding_Management.Select_Command (Editor.Command_Ids.Command_Find_Show);
 
       Editor.Keybinding_Management.Assign_Selected
         (Custom, Confirm_Conflict => False, Status => Status);
@@ -2285,7 +2285,7 @@ package body Editor.Keybindings.Tests is
               "reset-command setup must enter capture mode");
 
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Keybindings_Reset_To_Defaults);
+        (S, Editor.Command_Ids.Command_Keybindings_Reset_To_Defaults);
       Assert (Availability.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
               "keybinding reset must be unavailable while capture is active");
 
@@ -2298,15 +2298,15 @@ package body Editor.Keybindings.Tests is
               "reset-command setup must cancel capture");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Keybindings_Reset_To_Defaults);
+        (S, Editor.Command_Ids.Command_Keybindings_Reset_To_Defaults);
       Assert (Editor.Keybinding_Management.Has_Pending_Reset,
               "reset command must request confirmation first");
       Assert (Editor.Keybindings.Resolve (Custom, Actual) = Editor.Keybindings.Bound_Command
-              and then Actual = Editor.Commands.Command_Find_Show,
+              and then Actual = Editor.Command_Ids.Command_Find_Show,
               "first reset invocation must not reset runtime bindings");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Keybindings_Reset_To_Defaults);
+        (S, Editor.Command_Ids.Command_Keybindings_Reset_To_Defaults);
       Assert (not Editor.Keybinding_Management.Has_Pending_Reset,
               "second reset invocation must clear confirmation");
       Assert (Editor.Keybindings.Resolve (Custom, Actual) = Editor.Keybindings.No_Binding,
@@ -2326,42 +2326,42 @@ package body Editor.Keybindings.Tests is
 
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Save_Keybindings) = "keybindings.save",
+           (Editor.Command_Ids.Command_Save_Keybindings) = "keybindings.save",
          "save command must have keybindings.save stable name");
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Reload_Keybindings) = "keybindings.load",
+           (Editor.Command_Ids.Command_Reload_Keybindings) = "keybindings.load",
          "load command must have keybindings.load stable name");
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Keybindings_Show) = "keybindings.show",
+           (Editor.Command_Ids.Command_Keybindings_Show) = "keybindings.show",
          "show command must have stable name");
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Keybindings_Assign_Selected) =
+           (Editor.Command_Ids.Command_Keybindings_Assign_Selected) =
          "keybindings.assign-selected",
          "assign command must have stable name");
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Keybindings_Remove_Selected) =
+           (Editor.Command_Ids.Command_Keybindings_Remove_Selected) =
          "keybindings.remove-selected",
          "remove command must have stable name");
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Keybindings_Reset_To_Defaults) =
+           (Editor.Command_Ids.Command_Keybindings_Reset_To_Defaults) =
          "keybindings.reset-to-defaults",
          "reset command must have stable name");
       Assert
         (Editor.Commands.Descriptors.Discoverability_Category_Label
-           (Editor.Commands.Command_Keybindings_Show) = "Keybindings",
+           (Editor.Command_Ids.Command_Keybindings_Show) = "Keybindings",
          "commands must group under Keybindings discoverability");
       Assert
         (Editor.Commands.Descriptors.Discoverability_Category_Label
-           (Editor.Commands.Command_Save_Keybindings) = "Keybindings",
+           (Editor.Command_Ids.Command_Save_Keybindings) = "Keybindings",
          "save/load keybinding commands must group under Keybindings discoverability");
 
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Keybindings_Assign_Selected);
+        (S, Editor.Command_Ids.Command_Keybindings_Assign_Selected);
       Assert
         (not Editor.Commands.Availability_Metadata.Is_Available (Availability)
          and then Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability) =
@@ -2369,57 +2369,57 @@ package body Editor.Keybindings.Tests is
          "assign availability must be precise when view is closed");
 
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Keybindings_Cancel_Capture);
+        (S, Editor.Command_Ids.Command_Keybindings_Cancel_Capture);
       Assert
         (not Editor.Commands.Availability_Metadata.Is_Available (Availability)
          and then Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability) =
            "Shortcut capture is not active",
          "cancel-capture availability must be precise when idle");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Keybindings_Show);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Keybindings_Show);
       Assert
         (Editor.Keybinding_Management.Is_Visible,
          "keybindings.show must route through Executor");
       Editor.Keybinding_Management.Clear_Selection;
 
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Keybindings_Assign_Selected);
+        (S, Editor.Command_Ids.Command_Keybindings_Assign_Selected);
       Assert
         (not Editor.Commands.Availability_Metadata.Is_Available (Availability)
          and then Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability) =
            "No command selected.",
          "assign availability must require a selected command");
 
-      Editor.Keybinding_Management.Select_Command (Editor.Commands.Command_Find_Show);
+      Editor.Keybinding_Management.Select_Command (Editor.Command_Ids.Command_Find_Show);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Keybindings_Assign_Selected);
+        (S, Editor.Command_Ids.Command_Keybindings_Assign_Selected);
       Assert
         (Editor.Keybinding_Management.Current_Capture_State =
          Editor.Keybinding_Management.Capture_Active,
          "assign selected must enter capture through Executor");
 
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Keybindings_Cancel_Capture);
+        (S, Editor.Command_Ids.Command_Keybindings_Cancel_Capture);
       Assert
         (Editor.Commands.Availability_Metadata.Is_Available (Availability),
          "cancel-capture must become available during capture");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Keybindings_Cancel_Capture);
+        (S, Editor.Command_Ids.Command_Keybindings_Cancel_Capture);
       Assert
         (Editor.Keybinding_Management.Current_Capture_State =
          Editor.Keybinding_Management.Capture_Inactive,
          "cancel capture must clear capture through Executor");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Keybindings_Filter_Unbound);
+        (S, Editor.Command_Ids.Command_Keybindings_Filter_Unbound);
       Assert
         (Editor.Keybinding_Management.Current_Filter =
          Editor.Keybinding_Management.Filter_Unbound,
          "filter-unbound command must update transient filter state only");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Keybindings_Clear_Filter);
+        (S, Editor.Command_Ids.Command_Keybindings_Clear_Filter);
       Assert
         (Editor.Keybinding_Management.Current_Filter =
          Editor.Keybinding_Management.Filter_All,
@@ -2430,19 +2430,19 @@ package body Editor.Keybindings.Tests is
       begin
          Editor.Command_Route_Audit.Record_Keybinding_Management_Route
            (Audit,
-            Editor.Commands.Command_Keybindings_Assign_Selected,
+            Editor.Command_Ids.Command_Keybindings_Assign_Selected,
             Routed_Through_Executor  => True,
             Used_Stable_Command_Name => True,
             Carried_Payload          => False);
          Editor.Command_Route_Audit.Record_Keybinding_Management_Route
            (Audit,
-            Editor.Commands.Command_Save_Keybindings,
+            Editor.Command_Ids.Command_Save_Keybindings,
             Routed_Through_Executor  => True,
             Used_Stable_Command_Name => True,
             Carried_Payload          => False);
          Editor.Command_Route_Audit.Record_Keybinding_Management_Route
            (Audit,
-            Editor.Commands.Command_Reload_Keybindings,
+            Editor.Command_Ids.Command_Reload_Keybindings,
             Routed_Through_Executor  => True,
             Used_Stable_Command_Name => True,
             Carried_Payload          => False);
@@ -2461,7 +2461,7 @@ package body Editor.Keybindings.Tests is
       Status : Editor.Keybinding_Management.Keybinding_Action_Status;
       Sum    : Editor.Keybinding_Management.Keybinding_List_Summary;
       Surf   : Editor.Keybinding_Management.Keybinding_Surface_Snapshot;
-      Actual : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Actual : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Valid  : constant Editor.Keybindings.Key_Chord :=
         Chord (Editor.Keybindings.Key_L, Ctrl => True, Alt => True);
    begin
@@ -2522,7 +2522,7 @@ package body Editor.Keybindings.Tests is
 
       declare
          Candidate : Editor.Commands.Palette_Model.Command_Palette_Candidate :=
-           (Id                  => Editor.Commands.Command_Find_Show,
+           (Id                  => Editor.Command_Ids.Command_Find_Show,
             Label               => To_Unbounded_String ("Show Find"),
             Description         => To_Unbounded_String ("Show find input."),
             Category            => Editor.Commands.Descriptors.Search_Category,
@@ -2563,7 +2563,7 @@ package body Editor.Keybindings.Tests is
       Editor.Keybinding_Management.Set_Query ("theme");
       Editor.Keybinding_Management.Set_Filter
         (Editor.Keybinding_Management.Filter_Unbound);
-      Editor.Keybinding_Management.Select_Command (Editor.Commands.Command_Toggle_Theme);
+      Editor.Keybinding_Management.Select_Command (Editor.Command_Ids.Command_Toggle_Theme);
       Editor.Keybinding_Management.Begin_Assign_Selected (Status);
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
@@ -2577,7 +2577,7 @@ package body Editor.Keybindings.Tests is
          and then Snap.Keybindings_UI.Capture =
            Editor.Keybinding_Management.Capture_Active
          and then Snap.Keybindings_UI.Selected_Command =
-           Editor.Commands.Command_Toggle_Theme,
+           Editor.Command_Ids.Command_Toggle_Theme,
          "render model must expose keybinding surface snapshot");
 
       Editor.Keybinding_Management.Cancel_Capture (Status);

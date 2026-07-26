@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
@@ -16,7 +17,6 @@ with Editor.Command_Palette;
 with Editor.Command_Execution;
 with Editor.Command_Route_Audit;
 with Editor.Command_Surface;
-with Editor.Commands;
 with Editor.Commands.Build_Terminal_Ids;
 with Editor.Commands.Name_Metadata;
 with Editor.Executor;
@@ -54,12 +54,12 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
    use Editor.External_Producers.Build_Types;
    use Editor.External_Producers.Public_Build_Types;
 
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Commands.Descriptors.Command_Family_Id;
    use type Editor.Commands.Descriptors.Command_Effect_Classification_Id;
-   use type Editor.Commands.Command_Kind;
+   use type Editor.Command_Kinds.Command_Kind;
    use type Editor.Keybindings.Keybinding_Validation_Status;
    use type Editor.Overlay_Focus.Overlay_Target;
    use type Editor.Panel_Focus.Focus_Target;
@@ -164,42 +164,42 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
    end Is_Lower_Kebab_Name;
 
    function Executor_Owns_Break_Group_Command
-     (Id : Editor.Commands.Command_Id) return Boolean
+     (Id : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       case Id is
-         when Editor.Commands.Command_Dismiss_Latest_Message
-            | Editor.Commands.Command_Dismiss_All_Messages
-            | Editor.Commands.Command_Open_File
-            | Editor.Commands.Command_Toggle_Line_Numbers
-            | Editor.Commands.Command_Set_Absolute_Line_Numbers
-            | Editor.Commands.Command_Set_Relative_Line_Numbers
-            | Editor.Commands.Command_Set_Hybrid_Line_Numbers
-            | Editor.Commands.Command_Toggle_Current_Line_Highlight
-            | Editor.Commands.Command_Toggle_Syntax_Colouring
-            | Editor.Commands.Command_Toggle_Diagnostics
-            | Editor.Commands.Command_Toggle_Cursor_Style
-            | Editor.Commands.Command_Edit_History_Clear
-            | Editor.Commands.Command_Select_All
-            | Editor.Commands.Command_Selection_Clear
-            | Editor.Commands.Command_Build_Run
-            | Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Confirm
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Cancel
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Summary
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Next
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Previous
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Toggle
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Show
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Hide
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Remove_Selected
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Restore_Last_Removed
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Summary
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Next
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Previous
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Clear_Stale
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Stale_Summary
-            | Editor.Commands.No_Command =>
+         when Editor.Command_Ids.Command_Dismiss_Latest_Message
+            | Editor.Command_Ids.Command_Dismiss_All_Messages
+            | Editor.Command_Ids.Command_Open_File
+            | Editor.Command_Ids.Command_Toggle_Line_Numbers
+            | Editor.Command_Ids.Command_Set_Absolute_Line_Numbers
+            | Editor.Command_Ids.Command_Set_Relative_Line_Numbers
+            | Editor.Command_Ids.Command_Set_Hybrid_Line_Numbers
+            | Editor.Command_Ids.Command_Toggle_Current_Line_Highlight
+            | Editor.Command_Ids.Command_Toggle_Syntax_Colouring
+            | Editor.Command_Ids.Command_Toggle_Diagnostics
+            | Editor.Command_Ids.Command_Toggle_Cursor_Style
+            | Editor.Command_Ids.Command_Edit_History_Clear
+            | Editor.Command_Ids.Command_Select_All
+            | Editor.Command_Ids.Command_Selection_Clear
+            | Editor.Command_Ids.Command_Build_Run
+            | Editor.Command_Ids.Command_Build_Run_User_Opt_In_Test_Seam
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Confirm
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Cancel
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Summary
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Next
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Previous
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Toggle
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Show
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Hide
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Remove_Selected
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Restore_Last_Removed
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Summary
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Next
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Previous
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Clear_Stale
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Stale_Summary
+            | Editor.Command_Ids.No_Command =>
             return True;
          when others =>
             return False;
@@ -210,11 +210,11 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
      (Name : String)
    is
       Found : Boolean;
-      Id    : constant Editor.Commands.Command_Id :=
+      Id    : constant Editor.Command_Ids.Command_Id :=
         Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
    begin
       if Name = "build.run" then
-         Assert (Found and then Id = Editor.Commands.Command_Build_Run,
+         Assert (Found and then Id = Editor.Command_Ids.Command_Build_Run,
                  "build.run must be the single guarded public build command");
       else
          Assert (not Found,
@@ -382,7 +382,7 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
    end Cell;
 
    function Switcher_Command_Is_In_Reference
-     (Id : Editor.Commands.Command_Id) return Boolean
+     (Id : Editor.Command_Ids.Command_Id) return Boolean
    is
       Stable : constant String := Editor.Commands.Name_Metadata.Stable_Command_Name (Id);
    begin
@@ -417,7 +417,7 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       end if;
    end Classification_Label;
 
-   function Hint_Label (Id : Editor.Commands.Command_Id) return String is
+   function Hint_Label (Id : Editor.Command_Ids.Command_Id) return String is
       use Editor.Commands;
    begin
       case Id is
@@ -526,7 +526,7 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
    procedure Assert_Row_Matches_Descriptor (Line : String) is
       Stable : constant String := Cell (Line, 1);
       Found  : Boolean := False;
-      Id     : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Id     : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       D      : Editor.Commands.Descriptors.Command_Descriptor;
    begin
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Stable, Found);
@@ -1058,19 +1058,19 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       use Editor.External_Producers;
       S : Editor.State.State_Type;
       Found : Boolean;
-      Round : Editor.Commands.Command_Id;
+      Round : Editor.Command_Ids.Command_Id;
    begin
       Editor.State.Init (S);
       Assert (not Editor.Commands.Build_Terminal_Ids.Is_Public_Build_Command
-                (Editor.Commands.Command_Diagnostics_Show),
+                (Editor.Command_Ids.Command_Diagnostics_Show),
               "unrelated public diagnostics command must not count as public build");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Diagnostics_Execute_Selected_Action) =
+                (Editor.Command_Ids.Command_Diagnostics_Execute_Selected_Action) =
               "diagnostics.execute-selected-action",
               "diagnostic selected action command exposes canonical stable id");
       Round := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("diagnostics.code-action", Found);
-      Assert (not Found and then Round = Editor.Commands.No_Command,
+      Assert (not Found and then Round = Editor.Command_Ids.No_Command,
               "diagnostic code-action alias is not loadable");
       Assert (Editor.External_Producers.Public_Build.Run_Public_Build_Command_Hard_Freeze_Audit (S).Passed,
               "unrelated public commands must not affect build hard-freeze");
@@ -1189,7 +1189,7 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
    begin
       Editor.State.Init (S);
       Assert (not Editor.Commands.Build_Terminal_Ids.Is_Public_Build_Command
-                (Editor.Commands.Command_Toggle_Feature_Panel),
+                (Editor.Command_Ids.Command_Toggle_Feature_Panel),
               "unrelated feature-panel descriptor must not classify as public build");
       Assert (Editor.External_Producers.Public_Build.Run_Public_Build_Guardrail_Audit (S).Status =
               Public_Build_Guardrail_Passed,

@@ -5,7 +5,6 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with Editor.Buffers;
 use type Editor.Buffers.Buffer_Id;
-with Editor.Commands;
 with Editor.Commands.Workflow_Messages;
 with Editor.Executor.File_Tree_Mutation_Commands;
 with Editor.Executor.Semantic_Index_Commands;

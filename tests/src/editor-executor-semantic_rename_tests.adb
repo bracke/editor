@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -9,7 +10,6 @@ with Editor.Ada_Language_Model;
 with Editor.Ada_Language_Service;
 with Editor.Ada_Project_Index;
 with Editor.Buffers;
-with Editor.Commands;
 with Editor.Cursors;
 with Editor.Executor.Test_Support; use Editor.Executor.Test_Support;
 with Editor.Feature_Panel;
@@ -63,7 +63,7 @@ package body Editor.Executor.Semantic_Rename_Tests is
          "body line" & ASCII.LF);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic rename fixture refreshes Outline");
 
@@ -89,12 +89,12 @@ package body Editor.Executor.Semantic_Rename_Tests is
          Analysis             => Analysis);
 
       Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Rename_Symbol_Preview);
+        (S, Editor.Command_Ids.Command_Rename_Symbol_Preview);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "semantic rename preview is available when the index can answer");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Rename_Symbol_Preview);
+        (S, Editor.Command_Ids.Command_Rename_Symbol_Preview);
 
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic rename preview executes even when conflicts are projected");
@@ -145,7 +145,7 @@ package body Editor.Executor.Semantic_Rename_Tests is
          "body line" & ASCII.LF);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic rename-apply fixture refreshes Outline");
 
@@ -165,12 +165,12 @@ package body Editor.Executor.Semantic_Rename_Tests is
          Analysis             => Analysis);
 
       Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Rename_Symbol_Apply);
+        (S, Editor.Command_Ids.Command_Rename_Symbol_Apply);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "semantic rename apply is available for conflict-free active-buffer edits");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Rename_Symbol_Apply);
+        (S, Editor.Command_Ids.Command_Rename_Symbol_Apply);
 
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic rename apply executes through command surface");
@@ -215,7 +215,7 @@ package body Editor.Executor.Semantic_Rename_Tests is
       Editor.Buffers.Load_Global_Active_Into_State (S);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "open-buffer rename fixture refreshes Outline");
 
@@ -247,7 +247,7 @@ package body Editor.Executor.Semantic_Rename_Tests is
         (S.Language_Service, S.Language_Index);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Rename_Symbol_Apply);
+        (S, Editor.Command_Ids.Command_Rename_Symbol_Apply);
 
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic rename apply handles all affected open buffers");
@@ -300,7 +300,7 @@ package body Editor.Executor.Semantic_Rename_Tests is
          "body line" & ASCII.LF);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "disk rename fixture refreshes Outline");
 
@@ -331,7 +331,7 @@ package body Editor.Executor.Semantic_Rename_Tests is
         (S.Language_Service, S.Language_Index);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Rename_Symbol_Apply);
+        (S, Editor.Command_Ids.Command_Rename_Symbol_Apply);
 
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "status=" &
@@ -376,7 +376,7 @@ package body Editor.Executor.Semantic_Rename_Tests is
          "body line" & ASCII.LF);
 
       Cmd := Editor.Commands.Payloads.Command_For_Id
-        (Editor.Commands.Command_Refresh_Outline);
+        (Editor.Command_Ids.Command_Refresh_Outline);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       Editor.Outline.Select_Item (S.Outline, 1);
@@ -400,7 +400,7 @@ package body Editor.Executor.Semantic_Rename_Tests is
          Analysis             => Analysis);
 
       Cmd := Editor.Commands.Payloads.Command_For_Id
-        (Editor.Commands.Command_Rename_Symbol_Preview);
+        (Editor.Command_Ids.Command_Rename_Symbol_Preview);
       Cmd.Text := To_Unbounded_String ("Run_Custom");
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Feature_Search_Results.Query_Text (S.Feature_Search_Results) =
@@ -408,7 +408,7 @@ package body Editor.Executor.Semantic_Rename_Tests is
               "semantic rename preview must use the prompted target name");
 
       Cmd := Editor.Commands.Payloads.Command_For_Id
-        (Editor.Commands.Command_Rename_Symbol_Apply);
+        (Editor.Command_Ids.Command_Rename_Symbol_Apply);
       Cmd.Text := To_Unbounded_String ("Run_Custom");
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.State.Current_Text (S) =
@@ -440,7 +440,7 @@ package body Editor.Executor.Semantic_Rename_Tests is
          "body line" & ASCII.LF);
 
       Cmd := Editor.Commands.Payloads.Command_For_Id
-        (Editor.Commands.Command_Refresh_Outline);
+        (Editor.Command_Ids.Command_Refresh_Outline);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       Editor.Outline.Select_Item (S.Outline, 1);
@@ -464,7 +464,7 @@ package body Editor.Executor.Semantic_Rename_Tests is
          Analysis             => Analysis);
 
       Cmd := Editor.Commands.Payloads.Command_For_Id
-        (Editor.Commands.Command_Rename_Symbol_Preview);
+        (Editor.Command_Ids.Command_Rename_Symbol_Preview);
       Cmd.Text := To_Unbounded_String ("return");
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Latest_Message_Text (S) =
@@ -474,7 +474,7 @@ package body Editor.Executor.Semantic_Rename_Tests is
               "reserved prompted rename preview projects no stale rows");
 
       Cmd := Editor.Commands.Payloads.Command_For_Id
-        (Editor.Commands.Command_Rename_Symbol_Apply);
+        (Editor.Command_Ids.Command_Rename_Symbol_Apply);
       Cmd.Text := To_Unbounded_String ("return");
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.State.Current_Text (S) =
@@ -520,7 +520,7 @@ package body Editor.Executor.Semantic_Rename_Tests is
 
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Execute_Command_Id
-        (Editor.Commands.Command_Rename_Symbol_Apply);
+        (Editor.Command_Ids.Command_Rename_Symbol_Apply);
       S := Editor.Input_Bridge.Get_State_For_Test;
 
       Assert (Editor.Guided_Prompts.Is_Active (S.Guided_Prompt),
@@ -554,7 +554,7 @@ package body Editor.Executor.Semantic_Rename_Tests is
          "body line" & ASCII.LF);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic rename conflict fixture refreshes Outline");
 
@@ -577,7 +577,7 @@ package body Editor.Executor.Semantic_Rename_Tests is
          Analysis             => Analysis);
 
       Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Rename_Symbol_Apply);
+        (S, Editor.Command_Ids.Command_Rename_Symbol_Apply);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "semantic rename apply is unavailable when preview has conflicts");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail) =
@@ -585,7 +585,7 @@ package body Editor.Executor.Semantic_Rename_Tests is
               "semantic rename apply reports conflict status through availability");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Rename_Symbol_Apply);
+        (S, Editor.Command_Ids.Command_Rename_Symbol_Apply);
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "semantic rename apply does not execute conflicted previews");
       Assert (Editor.State.Current_Text (S) =

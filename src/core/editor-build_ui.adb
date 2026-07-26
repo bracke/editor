@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Ada.Containers;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -5,7 +6,6 @@ with Editor.Build_Working_Context;
 with Editor.Build_Candidates;
 with Editor.Build_Result_Summary;
 with Editor.Build_Output_Details;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.External_Producers;
 with Editor.External_Producers.Build_Types;
@@ -15,7 +15,7 @@ package body Editor.Build_UI is
    use type Ada.Containers.Count_Type;
    use type Editor.Build_Candidates.Build_Candidate_Validation_Status;
    use type Editor.Build_Working_Context.Build_Working_Context_Validation_Status;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
 
    function Trimmed (Text : Unbounded_String) return String is
    begin
@@ -1348,14 +1348,14 @@ package body Editor.Build_UI is
             else To_Unbounded_String ("No diagnostics to reveal yet")),
          Open_Source_Command_Name => To_Unbounded_String
            (Editor.Commands.Name_Metadata.Stable_Command_Name
-              (Editor.Commands.Command_Diagnostic_Open_Source)),
+              (Editor.Command_Ids.Command_Diagnostic_Open_Source)),
          Open_Source_Available => Can_Reveal,
          Open_Source_Unavailable_Reason =>
            (if Can_Reveal then Null_Unbounded_String
             else To_Unbounded_String ("Diagnostics are not available yet")),
          Suppress_Command_Name => To_Unbounded_String
            (Editor.Commands.Name_Metadata.Stable_Command_Name
-              (Editor.Commands.Command_Diagnostic_Suppress_Selected)),
+              (Editor.Command_Ids.Command_Diagnostic_Suppress_Selected)),
          Suppress_Available => Can_Reveal,
          Suppress_Unavailable_Reason =>
            (if Can_Reveal then Null_Unbounded_String
@@ -1363,19 +1363,19 @@ package body Editor.Build_UI is
          Suppressed_Count_Label => To_Unbounded_String ("Suppressed: 0"),
          Show_Suppressed_Command_Name => To_Unbounded_String
            (Editor.Commands.Name_Metadata.Stable_Command_Name
-              (Editor.Commands.Command_Diagnostic_Show_Suppressed)),
+              (Editor.Command_Ids.Command_Diagnostic_Show_Suppressed)),
          Show_Suppressed_Available => False,
          Show_Suppressed_Unavailable_Reason =>
            To_Unbounded_String ("No suppressed diagnostics"),
          Restore_Suppressed_Command_Name => To_Unbounded_String
            (Editor.Commands.Name_Metadata.Stable_Command_Name
-              (Editor.Commands.Command_Diagnostic_Restore_Last_Suppressed)),
+              (Editor.Command_Ids.Command_Diagnostic_Restore_Last_Suppressed)),
          Restore_Suppressed_Available => False,
          Restore_Suppressed_Unavailable_Reason =>
            To_Unbounded_String ("No suppressed diagnostics"),
          Quick_Fix_Command_Name => To_Unbounded_String
            (Editor.Commands.Name_Metadata.Stable_Command_Name
-              (Editor.Commands.Command_Diagnostic_Apply_Quick_Fix)),
+              (Editor.Command_Ids.Command_Diagnostic_Apply_Quick_Fix)),
          Quick_Fix_Label => To_Unbounded_String ("Apply quick fix"),
          Quick_Fix_Detail => To_Unbounded_String ("Select a diagnostic with a quick fix"),
          Quick_Fix_Available => False,
@@ -1388,7 +1388,7 @@ package body Editor.Build_UI is
 
    function Action_Row
      (Label           : String;
-      Command         : Editor.Commands.Command_Id;
+      Command         : Editor.Command_Ids.Command_Id;
       Enabled         : Boolean;
       Disabled_Reason : String := "") return Build_UI_Action_Row
    is
@@ -1412,13 +1412,13 @@ package body Editor.Build_UI is
       return Build_UI_Action_Row_Vector
    is
       Rows : Build_UI_Action_Row_Vector := Build_UI_Action_Row_Vectors.Empty_Vector;
-      Candidate_Command : constant Editor.Commands.Command_Id :=
+      Candidate_Command : constant Editor.Command_Ids.Command_Id :=
         (if Natural (State.Build_Candidates.Length) > 0
          and then Length (State.Selected_Build_Candidate_Id) = 0
-         then Editor.Commands.Command_Build_Select_Next_Candidate
-         else Editor.Commands.Command_Build_Refresh_Candidates);
+         then Editor.Command_Ids.Command_Build_Select_Next_Candidate
+         else Editor.Command_Ids.Command_Build_Refresh_Candidates);
       Candidate_Label : constant String :=
-        (if Candidate_Command = Editor.Commands.Command_Build_Select_Next_Candidate
+        (if Candidate_Command = Editor.Command_Ids.Command_Build_Select_Next_Candidate
          then "Select a build candidate"
          else "Refresh build candidates");
       Consent_Ready : constant Boolean :=
@@ -1434,7 +1434,7 @@ package body Editor.Build_UI is
       Rows.Append
         (Action_Row
            ("Review and acknowledge consent",
-            Editor.Commands.Command_Build_Acknowledge_Consent,
+            Editor.Command_Ids.Command_Build_Acknowledge_Consent,
             Consent_Ready,
             (if State.Consent_Acknowledged
              then "Consent already acknowledged"
@@ -1442,7 +1442,7 @@ package body Editor.Build_UI is
       Rows.Append
         (Action_Row
            ("Run build",
-            Editor.Commands.Command_Build_Run,
+            Editor.Command_Ids.Command_Build_Run,
             Run_Ready,
             Validation_Message (Status)));
       declare

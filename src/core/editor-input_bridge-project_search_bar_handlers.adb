@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -11,14 +12,14 @@ with Editor.View;
 
 package body Editor.Input_Bridge.Project_Search_Bar_Handlers is
 
-   use type Editor.Commands.Command_Kind;
+   use type Editor.Command_Kinds.Command_Kind;
    use type Editor.Project_Search_Bar.Project_Search_Bar_Zone;
 
    function Handle_Project_Search_Bar
      (S               : in out Editor.State.State_Type;
       Cmd             : Editor.Commands.Payloads.Command;
       Execute         : not null access procedure
-        (Id : Editor.Commands.Command_Id);
+        (Id : Editor.Command_Ids.Command_Id);
       Execute_Command : not null access procedure
         (Command : Editor.Commands.Payloads.Command);
       Sync_Replace_Mode : not null access procedure) return Boolean
@@ -32,7 +33,7 @@ package body Editor.Input_Bridge.Project_Search_Bar_Handlers is
       Cmd2   : Editor.Commands.Payloads.Command;
    begin
       if Cmd.Kind = Editor.Command_Kinds.Open_Project_Search_Bar then
-         Execute (Editor.Commands.Command_Open_Project_Search_Bar);
+         Execute (Editor.Command_Ids.Command_Open_Project_Search_Bar);
          return True;
       end if;
 
@@ -48,7 +49,7 @@ package body Editor.Input_Bridge.Project_Search_Bar_Handlers is
                Editor.Project_Search_Bar.Select_All (S.Project_Search_Bar);
                Editor.Render_Cache.Invalidate_All;
             elsif Cmd.Ch = ASCII.LF or else Cmd.Ch = ASCII.CR then
-               Execute (Editor.Commands.Command_Run_Project_Search_From_Bar);
+               Execute (Editor.Command_Ids.Command_Run_Project_Search_From_Bar);
             elsif Cmd.Ch = ASCII.HT then
                Editor.Project_Search_Bar.Toggle_Active_Field (S.Project_Search_Bar);
                Sync_Replace_Mode.all;
@@ -110,86 +111,86 @@ package body Editor.Input_Bridge.Project_Search_Bar_Handlers is
 
          when Editor.Command_Kinds.Move_Down
             | Editor.Command_Kinds.Move_Project_Search_Selection_Down =>
-            Execute (Editor.Commands.Command_Move_Project_Search_Selection_Down);
+            Execute (Editor.Command_Ids.Command_Move_Project_Search_Selection_Down);
             return True;
 
          when Editor.Command_Kinds.Move_Up
             | Editor.Command_Kinds.Move_Project_Search_Selection_Up =>
-            Execute (Editor.Commands.Command_Move_Project_Search_Selection_Up);
+            Execute (Editor.Command_Ids.Command_Move_Project_Search_Selection_Up);
             return True;
 
          when Editor.Command_Kinds.Next_Project_Search_Result =>
-            Execute (Editor.Commands.Command_Next_Project_Search_Result);
+            Execute (Editor.Command_Ids.Command_Next_Project_Search_Result);
             return True;
 
          when Editor.Command_Kinds.Previous_Project_Search_Result =>
-            Execute (Editor.Commands.Command_Previous_Project_Search_Result);
+            Execute (Editor.Command_Ids.Command_Previous_Project_Search_Result);
             return True;
 
          when Editor.Command_Kinds.Project_Search_Kind_Next =>
-            Execute (Editor.Commands.Command_Project_Search_Kind_Next);
+            Execute (Editor.Command_Ids.Command_Project_Search_Kind_Next);
             return True;
 
          when Editor.Command_Kinds.Project_Search_Kind_Previous =>
-            Execute (Editor.Commands.Command_Project_Search_Kind_Previous);
+            Execute (Editor.Command_Ids.Command_Project_Search_Kind_Previous);
             return True;
 
          when Editor.Command_Kinds.Project_Search_Kind_Clear =>
-            Execute (Editor.Commands.Command_Project_Search_Kind_Clear);
+            Execute (Editor.Command_Ids.Command_Project_Search_Kind_Clear);
             return True;
 
          when Editor.Command_Kinds.Project_Search_Scope_Clear =>
-            Execute (Editor.Commands.Command_Project_Search_Scope_Clear);
+            Execute (Editor.Command_Ids.Command_Project_Search_Scope_Clear);
             return True;
 
          when Editor.Command_Kinds.Project_Search_Case_Toggle =>
-            Execute (Editor.Commands.Command_Project_Search_Case_Toggle);
+            Execute (Editor.Command_Ids.Command_Project_Search_Case_Toggle);
             return True;
 
          when Editor.Command_Kinds.Project_Search_Case_Clear =>
-            Execute (Editor.Commands.Command_Project_Search_Case_Clear);
+            Execute (Editor.Command_Ids.Command_Project_Search_Case_Clear);
             return True;
 
          when Editor.Command_Kinds.Project_Search_Whole_Word_Toggle =>
-            Execute (Editor.Commands.Command_Project_Search_Whole_Word_Toggle);
+            Execute (Editor.Command_Ids.Command_Project_Search_Whole_Word_Toggle);
             return True;
 
          when Editor.Command_Kinds.Project_Search_Whole_Word_Clear =>
-            Execute (Editor.Commands.Command_Project_Search_Whole_Word_Clear);
+            Execute (Editor.Command_Ids.Command_Project_Search_Whole_Word_Clear);
             return True;
 
          when Editor.Command_Kinds.Project_Search_Regex_Toggle =>
-            Execute (Editor.Commands.Command_Project_Search_Regex_Toggle);
+            Execute (Editor.Command_Ids.Command_Project_Search_Regex_Toggle);
             return True;
 
          when Editor.Command_Kinds.Project_Search_Regex_Clear =>
-            Execute (Editor.Commands.Command_Project_Search_Regex_Clear);
+            Execute (Editor.Command_Ids.Command_Project_Search_Regex_Clear);
             return True;
 
          when Editor.Command_Kinds.Project_Search_Include_Filter_Clear =>
-            Execute (Editor.Commands.Command_Project_Search_Include_Filter_Clear);
+            Execute (Editor.Command_Ids.Command_Project_Search_Include_Filter_Clear);
             return True;
 
          when Editor.Command_Kinds.Project_Search_Exclude_Filter_Clear =>
-            Execute (Editor.Commands.Command_Project_Search_Exclude_Filter_Clear);
+            Execute (Editor.Command_Ids.Command_Project_Search_Exclude_Filter_Clear);
             return True;
 
          when Editor.Command_Kinds.Palette_Accept | Editor.Command_Kinds.Run_Project_Search_From_Bar =>
-            Execute (Editor.Commands.Command_Run_Project_Search_From_Bar);
+            Execute (Editor.Command_Ids.Command_Run_Project_Search_From_Bar);
             return True;
 
          when Editor.Command_Kinds.Open_Selected_Project_Search_Result =>
-            Execute (Editor.Commands.Command_Open_Selected_Project_Search_Result);
+            Execute (Editor.Command_Ids.Command_Open_Selected_Project_Search_Result);
             return True;
 
          when Editor.Command_Kinds.Clear_Project_Search =>
-            Execute (Editor.Commands.Command_Clear_Project_Search);
+            Execute (Editor.Command_Ids.Command_Clear_Project_Search);
             return True;
 
          when Editor.Command_Kinds.Clear_Extra_Carets
             | Editor.Command_Kinds.Palette_Cancel
             | Editor.Command_Kinds.Close_Project_Search_Bar =>
-            Execute (Editor.Commands.Command_Close_Project_Search_Bar);
+            Execute (Editor.Command_Ids.Command_Close_Project_Search_Bar);
             return True;
 
          when Editor.Command_Kinds.Move_To_Point =>
@@ -248,11 +249,11 @@ package body Editor.Input_Bridge.Project_Search_Bar_Handlers is
                        (S.Project_Search_Bar, Visible_Column, Field_Cols);
                   end;
                when Editor.Project_Search_Bar.Project_Search_Run_Button_Zone =>
-                  Execute (Editor.Commands.Command_Run_Project_Search_From_Bar);
+                  Execute (Editor.Command_Ids.Command_Run_Project_Search_From_Bar);
                when Editor.Project_Search_Bar.Project_Search_Clear_Button_Zone =>
-                  Execute (Editor.Commands.Command_Clear_Project_Search);
+                  Execute (Editor.Command_Ids.Command_Clear_Project_Search);
                when Editor.Project_Search_Bar.Project_Search_Close_Button_Zone =>
-                  Execute (Editor.Commands.Command_Close_Project_Search_Bar);
+                  Execute (Editor.Command_Ids.Command_Close_Project_Search_Bar);
                when others =>
                   null;
             end case;

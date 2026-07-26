@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
@@ -13,7 +14,6 @@ with Editor.Settings;
 with Editor.Executor;
 with Editor.Executor.Selection_Commands;
 with Editor.Layout;
-with Editor.Commands;
 with Editor.Command_Palette;
 with Editor.Build_Candidates;
 with Editor.Build_UI;
@@ -4632,7 +4632,7 @@ package body Editor.Render_Model.Tests is
       Editor.Feature_Diagnostics.Add_Diagnostic
         (S.Feature_Diagnostics, Editor.Feature_Diagnostics.Diagnostic_Error,
          "render packet diagnostic", "src/main.adb", Has_Target => False);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Diagnostics_Show);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Diagnostics_Show);
       S.Latest_Build_Result :=
         Editor.Build_Result_Summary.Build_Summary
           (Kind => Editor.Build_Result_Summary.Build_Result_Summary_Failed,
@@ -4815,7 +4815,7 @@ package body Editor.Render_Model.Tests is
 
       Manual_Candidates.Append
         (Editor.Commands.Palette_Model.Command_Palette_Candidate'
-         (Id                    => Editor.Commands.Command_Build_Run,
+         (Id                    => Editor.Command_Ids.Command_Build_Run,
           Label                 => To_Unbounded_String ("Run Build"),
           Description           => To_Unbounded_String ("Run the selected build"),
           Category              => Editor.Commands.Descriptors.Project_Category,
@@ -4830,7 +4830,7 @@ package body Editor.Render_Model.Tests is
           Match_Score           => 1,
           Registry_Order        => 1));
       Editor.Command_Palette.Set_Command_State_Context
-        (Editor.Commands.Command_Build_Run, "Current Build UI state: visible.");
+        (Editor.Command_Ids.Command_Build_Run, "Current Build UI state: visible.");
       Editor.Command_Palette.Set_Show_Help_Row (True);
       Editor.Command_Palette.Reconcile_Selection (Manual_Candidates);
       Snapshot := Editor.Command_Palette.Build_Snapshot
@@ -4855,7 +4855,7 @@ package body Editor.Render_Model.Tests is
       Editor.Command_Palette.Open;
       Editor.Command_Palette.Insert_Text ("build run");
       Editor.Command_Palette.Set_Command_State_Context
-        (Editor.Commands.Command_Build_Run, "Current Build UI state: visible.");
+        (Editor.Command_Ids.Command_Build_Run, "Current Build UI state: visible.");
       Editor.Command_Palette.Set_Show_Help_Row (True);
       Editor.Input_Bridge.Build_Render_Packet (After_Packet);
 
@@ -4943,7 +4943,7 @@ package body Editor.Render_Model.Tests is
          Start_Row => 0, Start_Column => 0,
          Severity => Editor.Diagnostics.Error,
          Message => "bounded diagnostic with a long label that must stay inside render bounds");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Diagnostics_Show);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Diagnostics_Show);
       Editor.Build_UI_Actions.Show_Build_UI (S);
       Candidates.Append (Long_Candidate);
       Editor.Build_UI.Set_Build_Candidates
@@ -5016,7 +5016,7 @@ package body Editor.Render_Model.Tests is
       Reset_Render_Test_Globals;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "empty problems panel");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Diagnostics_Show);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Diagnostics_Show);
 
       Set_Render_State_For_Test (S);
       Editor.View.Reset_Scroll;
@@ -5060,7 +5060,7 @@ package body Editor.Render_Model.Tests is
    begin
       Editor.State.Init (S);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Show_Feature_Panel);
+        (S, Editor.Command_Ids.Command_Show_Feature_Panel);
       Editor.Feature_Panel.Fixtures.Set_Placeholder_Rows (S.Feature_Panel);
 
       Set_Render_State_For_Test (S);
@@ -5109,10 +5109,10 @@ package body Editor.Render_Model.Tests is
       Editor.State.Init (S);
       Editor.Executor.Execute_No_Log (S, Paste ("one" & ASCII.LF & "two"));
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Show_Feature_Panel);
+        (S, Editor.Command_Ids.Command_Show_Feature_Panel);
       Editor.Feature_Panel.Fixtures.Set_Placeholder_Rows (S.Feature_Panel);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Feature_Panel_Select_Next);
+        (S, Editor.Command_Ids.Command_Feature_Panel_Select_Next);
 
       Before_Text := To_Unbounded_String (Editor.State.Current_Text (S));
       Before_Dirty := Editor.State.Is_Dirty (S);

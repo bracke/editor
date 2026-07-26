@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -9,23 +10,23 @@ with Editor.Render_Cache;
 
 package body Editor.Input_Bridge.Goto_Line_Handlers is
 
-   use type Editor.Commands.Command_Kind;
+   use type Editor.Command_Kinds.Command_Kind;
 
    function Handle_Goto_Line
      (S               : in out Editor.State.State_Type;
       Cmd             : Editor.Commands.Payloads.Command;
       Execute         : not null access procedure
-        (Id : Editor.Commands.Command_Id);
+        (Id : Editor.Command_Ids.Command_Id);
       Execute_Command : not null access procedure
         (Command : Editor.Commands.Payloads.Command)) return Boolean
    is
       Cmd2 : Editor.Commands.Payloads.Command;
    begin
       if Cmd.Kind = Editor.Command_Kinds.Open_Goto_Line then
-         Execute (Editor.Commands.Command_Goto_Line);
+         Execute (Editor.Command_Ids.Command_Goto_Line);
          return True;
       elsif Cmd.Kind = Editor.Command_Kinds.Prefill_Goto_Line_Current then
-         Execute (Editor.Commands.Command_Goto_Line_Prefill_Current);
+         Execute (Editor.Command_Ids.Command_Goto_Line_Prefill_Current);
          return True;
       end if;
 
@@ -41,7 +42,7 @@ package body Editor.Input_Bridge.Goto_Line_Handlers is
                Editor.Go_To_Line.Select_All (S.Go_To_Line);
                Editor.Render_Cache.Invalidate_All;
             elsif Cmd.Ch = ASCII.LF or else Cmd.Ch = ASCII.CR then
-               Execute (Editor.Commands.Command_Accept_Goto_Line);
+               Execute (Editor.Command_Ids.Command_Accept_Goto_Line);
             elsif Length (Cmd.Text) > 0 then
                Cmd2.Kind := Editor.Command_Kinds.Goto_Line_Insert_Text;
                Cmd2.Text := Cmd.Text;
@@ -98,15 +99,15 @@ package body Editor.Input_Bridge.Goto_Line_Handlers is
             return True;
 
          when Editor.Command_Kinds.Prefill_Goto_Line_Current =>
-            Execute (Editor.Commands.Command_Goto_Line_Prefill_Current);
+            Execute (Editor.Command_Ids.Command_Goto_Line_Prefill_Current);
             return True;
 
          when Editor.Command_Kinds.Close_Goto_Line =>
-            Execute (Editor.Commands.Command_Close_Goto_Line);
+            Execute (Editor.Command_Ids.Command_Close_Goto_Line);
             return True;
 
          when Editor.Command_Kinds.Accept_Goto_Line =>
-            Execute (Editor.Commands.Command_Accept_Goto_Line);
+            Execute (Editor.Command_Ids.Command_Accept_Goto_Line);
             return True;
 
          when Editor.Command_Kinds.Goto_Line_Query_Set =>

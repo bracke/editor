@@ -1,10 +1,10 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Classification;
 with Editor.Commands.Stable_Names;
 with Editor.Commands.Availability_Metadata;
 with Ada.Strings.Fixed;
 
 with Editor.Command_Surface;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.External_Producers;
 with Editor.External_Producers.Audits;
@@ -223,7 +223,7 @@ package body Editor.Diagnostics_Audit is
 
    function Actions_Routed_Check return Boolean is
       function Command_Route_Passes
-        (Id : Editor.Commands.Command_Id) return Boolean
+        (Id : Editor.Command_Ids.Command_Id) return Boolean
       is
       begin
          return Editor.Commands.Stable_Names.Has_Stable_Name (Id)
@@ -232,49 +232,49 @@ package body Editor.Diagnostics_Audit is
       end Command_Route_Passes;
    begin
       return Editor.Commands.Name_Metadata.Stable_Command_Name
-          (Editor.Commands.Command_Diagnostics_Show) = "diagnostics.show"
+          (Editor.Command_Ids.Command_Diagnostics_Show) = "diagnostics.show"
         and then Editor.Commands.Name_Metadata.Stable_Command_Name
-          (Editor.Commands.Command_Diagnostics_Clear) = "diagnostics-clear"
+          (Editor.Command_Ids.Command_Diagnostics_Clear) = "diagnostics-clear"
         and then Editor.Commands.Name_Metadata.Stable_Command_Name
-          (Editor.Commands.Command_Diagnostics_Open_Selected) =
+          (Editor.Command_Ids.Command_Diagnostics_Open_Selected) =
             "diagnostics.open-selected"
         and then Editor.Commands.Name_Metadata.Stable_Command_Name
-          (Editor.Commands.Command_Diagnostics_Execute_Selected_Action) =
+          (Editor.Command_Ids.Command_Diagnostics_Execute_Selected_Action) =
             "diagnostics.execute-selected-action"
         and then Editor.Commands.Name_Metadata.Stable_Command_Name
-          (Editor.Commands.Command_Diagnostics_Select_Next) =
+          (Editor.Command_Ids.Command_Diagnostics_Select_Next) =
             "diagnostics.next"
         and then Editor.Commands.Name_Metadata.Stable_Command_Name
-          (Editor.Commands.Command_Diagnostics_Select_Previous) =
+          (Editor.Command_Ids.Command_Diagnostics_Select_Previous) =
             "diagnostics.previous"
-        and then Command_Route_Passes (Editor.Commands.Command_Diagnostics_Show)
-        and then Command_Route_Passes (Editor.Commands.Command_Diagnostics_Clear)
-        and then Command_Route_Passes (Editor.Commands.Command_Diagnostics_Toggle_Info)
-        and then Command_Route_Passes (Editor.Commands.Command_Diagnostics_Toggle_Warnings)
-        and then Command_Route_Passes (Editor.Commands.Command_Diagnostics_Toggle_Errors)
-        and then Command_Route_Passes (Editor.Commands.Command_Diagnostics_Show_All)
-        and then Command_Route_Passes (Editor.Commands.Command_Diagnostics_Clear_Filter)
-        and then Command_Route_Passes (Editor.Commands.Command_Diagnostics_Filter_Errors)
-        and then Command_Route_Passes (Editor.Commands.Command_Diagnostics_Filter_Warnings)
-        and then Command_Route_Passes (Editor.Commands.Command_Diagnostics_Filter_Info_Notes)
-        and then Command_Route_Passes (Editor.Commands.Command_Diagnostics_Filter_Source)
-        and then Command_Route_Passes (Editor.Commands.Command_Diagnostics_Filter_Build)
-        and then Command_Route_Passes (Editor.Commands.Command_Diagnostics_Clear_Build)
-        and then Command_Route_Passes (Editor.Commands.Command_Diagnostics_Open_Selected)
+        and then Command_Route_Passes (Editor.Command_Ids.Command_Diagnostics_Show)
+        and then Command_Route_Passes (Editor.Command_Ids.Command_Diagnostics_Clear)
+        and then Command_Route_Passes (Editor.Command_Ids.Command_Diagnostics_Toggle_Info)
+        and then Command_Route_Passes (Editor.Command_Ids.Command_Diagnostics_Toggle_Warnings)
+        and then Command_Route_Passes (Editor.Command_Ids.Command_Diagnostics_Toggle_Errors)
+        and then Command_Route_Passes (Editor.Command_Ids.Command_Diagnostics_Show_All)
+        and then Command_Route_Passes (Editor.Command_Ids.Command_Diagnostics_Clear_Filter)
+        and then Command_Route_Passes (Editor.Command_Ids.Command_Diagnostics_Filter_Errors)
+        and then Command_Route_Passes (Editor.Command_Ids.Command_Diagnostics_Filter_Warnings)
+        and then Command_Route_Passes (Editor.Command_Ids.Command_Diagnostics_Filter_Info_Notes)
+        and then Command_Route_Passes (Editor.Command_Ids.Command_Diagnostics_Filter_Source)
+        and then Command_Route_Passes (Editor.Command_Ids.Command_Diagnostics_Filter_Build)
+        and then Command_Route_Passes (Editor.Command_Ids.Command_Diagnostics_Clear_Build)
+        and then Command_Route_Passes (Editor.Command_Ids.Command_Diagnostics_Open_Selected)
         and then Command_Route_Passes
-          (Editor.Commands.Command_Diagnostics_Execute_Selected_Action)
-        and then Command_Route_Passes (Editor.Commands.Command_Diagnostics_Select_Next)
-        and then Command_Route_Passes (Editor.Commands.Command_Diagnostics_Select_Previous)
-        and then Command_Route_Passes (Editor.Commands.Command_Diagnostics_Clear_Selected)
-        and then Command_Route_Passes (Editor.Commands.Command_Diagnostics_Copy_Selected_Text)
-        and then Command_Route_Passes (Editor.Commands.Command_Diagnostics_Clear_Info)
-        and then Command_Route_Passes (Editor.Commands.Command_Diagnostics_Clear_Warnings)
-        and then Command_Route_Passes (Editor.Commands.Command_Diagnostics_Clear_Errors)
-        and then Command_Route_Passes (Editor.Commands.Command_Diagnostics_Toggle_Editor_Source)
-        and then Command_Route_Passes (Editor.Commands.Command_Diagnostics_Toggle_File_Source)
-        and then Command_Route_Passes (Editor.Commands.Command_Diagnostics_Toggle_Project_Source)
-        and then Command_Route_Passes (Editor.Commands.Command_Diagnostics_Toggle_External_Source)
-        and then Command_Route_Passes (Editor.Commands.Command_Diagnostics_Toggle_Unknown_Source);
+          (Editor.Command_Ids.Command_Diagnostics_Execute_Selected_Action)
+        and then Command_Route_Passes (Editor.Command_Ids.Command_Diagnostics_Select_Next)
+        and then Command_Route_Passes (Editor.Command_Ids.Command_Diagnostics_Select_Previous)
+        and then Command_Route_Passes (Editor.Command_Ids.Command_Diagnostics_Clear_Selected)
+        and then Command_Route_Passes (Editor.Command_Ids.Command_Diagnostics_Copy_Selected_Text)
+        and then Command_Route_Passes (Editor.Command_Ids.Command_Diagnostics_Clear_Info)
+        and then Command_Route_Passes (Editor.Command_Ids.Command_Diagnostics_Clear_Warnings)
+        and then Command_Route_Passes (Editor.Command_Ids.Command_Diagnostics_Clear_Errors)
+        and then Command_Route_Passes (Editor.Command_Ids.Command_Diagnostics_Toggle_Editor_Source)
+        and then Command_Route_Passes (Editor.Command_Ids.Command_Diagnostics_Toggle_File_Source)
+        and then Command_Route_Passes (Editor.Command_Ids.Command_Diagnostics_Toggle_Project_Source)
+        and then Command_Route_Passes (Editor.Command_Ids.Command_Diagnostics_Toggle_External_Source)
+        and then Command_Route_Passes (Editor.Command_Ids.Command_Diagnostics_Toggle_Unknown_Source);
    end Actions_Routed_Check;
 
    function Editable_Actions_Visible_Check return Boolean

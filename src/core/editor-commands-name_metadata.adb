@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Search_Terms;
 with Editor.Commands.Stable_Names;
 

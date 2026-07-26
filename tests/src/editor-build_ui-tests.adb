@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Test_Temp;
 with Ada.Strings.Fixed;
@@ -20,7 +21,6 @@ with Editor.External_Producers.Build_Requests;
 with Editor.Feature_Diagnostics;
 with Editor.Feature_Diagnostics.Fixtures; use Editor.Feature_Diagnostics.Fixtures;
 with Editor.Feature_Panel;
-with Editor.Commands;
 with Editor.Commands.Workflow_Messages;
 with Editor.Commands.Build_Terminal_Ids;
 with Editor.Commands.Name_Metadata;
@@ -39,7 +39,7 @@ use type Editor.Build_Working_Context.Build_Working_Context_Validation_Status;
 use type Editor.Build_Working_Context.Working_Context_Source_Kind;
 use type Editor.External_Producers.Build_Types.Build_Request_Provenance;
 use type Editor.External_Producers.Build_Types.Build_Tool_Kind;
-use type Editor.Commands.Command_Id;
+use type Editor.Command_Ids.Command_Id;
 use type Editor.Command_Execution.Command_Execution_Status;
 use type Editor.Build_Candidate_Refresh.Build_Candidate_Refresh_Status;
 use type Editor.Build_UI.Build_UI_Build_Mode;
@@ -560,27 +560,27 @@ package body Editor.Build_UI.Tests is
       Editor.State.Init (S);
       S.Build_UI := Ready_UI;
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Build_Run) = "build.run",
+                (Editor.Command_Ids.Command_Build_Run) = "build.run",
               "build.run has a stable public command name");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Build_Refresh_Candidates) =
+                (Editor.Command_Ids.Command_Build_Refresh_Candidates) =
               "build.refresh-candidates",
               "build refresh has a stable public command name");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Build_Select_First_Candidate) =
+                (Editor.Command_Ids.Command_Build_Select_First_Candidate) =
               "build.select-first-candidate",
               "build select-first has a stable public command name");
       Assert (Editor.Commands.Build_Terminal_Ids.Is_Public_Build_Command
-                (Editor.Commands.Command_Build_Run),
+                (Editor.Command_Ids.Command_Build_Run),
               "build.run is classified as the public build command");
       Assert (Editor.Commands.Build_Terminal_Ids.Is_Public_Build_Command
-                (Editor.Commands.Command_Build_Refresh_Candidates),
+                (Editor.Command_Ids.Command_Build_Refresh_Candidates),
               "build refresh is classified as a public build command");
       Assert (Editor.Commands.Build_Terminal_Ids.Is_Public_Build_Command
-                (Editor.Commands.Command_Build_Select_First_Candidate),
+                (Editor.Command_Ids.Command_Build_Select_First_Candidate),
               "build select-first is classified as a public build command");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Build_Run);
+        (S, Editor.Command_Ids.Command_Build_Run);
       Assert (Result.Status = Editor.Command_Execution.Command_Unavailable,
               "build.run remains unavailable while execution backend is disabled");
    end Test_Build_Run_Command_Is_Public_But_Non_Executing;
@@ -598,11 +598,11 @@ package body Editor.Build_UI.Tests is
       Snapshot : Editor.Build_UI.Build_UI_Render_Snapshot;
       procedure Assert_Command_Name
         (Stable_Name : String;
-         Expected    : Editor.Commands.Command_Id;
+         Expected    : Editor.Command_Ids.Command_Id;
          Context     : String)
       is
          Found : Boolean := False;
-         Actual : constant Editor.Commands.Command_Id :=
+         Actual : constant Editor.Command_Ids.Command_Id :=
            Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Stable_Name, Found);
       begin
          Assert (Found and then Actual = Expected,
@@ -649,7 +649,7 @@ package body Editor.Build_UI.Tests is
               "selected candidate refresh action exposes its command name");
       Assert_Command_Name
         (To_String (Snapshot.Candidate_Refresh_Action_Command_Name),
-         Editor.Commands.Command_Build_Refresh_Candidates,
+         Editor.Command_Ids.Command_Build_Refresh_Candidates,
          "Build candidate refresh action");
       Assert (Natural (Snapshot.Actions.Length) >= 3,
               "Build UI exposes stable action rows");
@@ -706,11 +706,11 @@ package body Editor.Build_UI.Tests is
               "run row exposes the build.run action command name");
       Assert_Command_Name
         (To_String (Snapshot.Request_Action_Command_Name),
-         Editor.Commands.Command_Build_Acknowledge_Consent,
+         Editor.Command_Ids.Command_Build_Acknowledge_Consent,
          "Build request action");
       Assert_Command_Name
         (To_String (Snapshot.Run_Action_Command_Name),
-         Editor.Commands.Command_Build_Run,
+         Editor.Command_Ids.Command_Build_Run,
          "Build run action");
       Assert (Snapshot.Actions.Element (2).Enabled,
               "Build UI run action row is enabled once the request is valid");
@@ -772,7 +772,7 @@ package body Editor.Build_UI.Tests is
 
       Before := S;
       Result := Editor.Build_UI_Actions.Build_UI_Open_Diagnostic_Source (S);
-      Assert (Result.Command = Editor.Commands.Command_Diagnostic_Open_Source,
+      Assert (Result.Command = Editor.Command_Ids.Command_Diagnostic_Open_Source,
               "Build UI open diagnostic source uses the diagnostic open-source command");
       Assert (Editor.Build_UI_Actions.Assert_Build_UI_Diagnostic_Action_Is_UI_Routed
                 (Before, S, Result),
@@ -780,7 +780,7 @@ package body Editor.Build_UI.Tests is
 
       Before := S;
       Result := Editor.Build_UI_Actions.Build_UI_Suppress_Diagnostic (S);
-      Assert (Result.Command = Editor.Commands.Command_Diagnostic_Suppress_Selected,
+      Assert (Result.Command = Editor.Command_Ids.Command_Diagnostic_Suppress_Selected,
               "Build UI suppress diagnostic uses the diagnostic suppress command");
       Assert (Editor.Build_UI_Actions.Assert_Build_UI_Diagnostic_Action_Is_UI_Routed
                 (Before, S, Result),
@@ -805,7 +805,7 @@ package body Editor.Build_UI.Tests is
 
       Before := S;
       Result := Editor.Build_UI_Actions.Build_UI_Suppress_Diagnostic (S);
-      Assert (Result.Command = Editor.Commands.Command_Diagnostic_Suppress_Selected
+      Assert (Result.Command = Editor.Command_Ids.Command_Diagnostic_Suppress_Selected
               and then Result.Status = Editor.Command_Execution.Command_Executed,
               "Build UI suppress diagnostic removes the selected diagnostic through Executor");
       Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
@@ -816,7 +816,7 @@ package body Editor.Build_UI.Tests is
 
       Before := S;
       Result := Editor.Build_UI_Actions.Build_UI_Apply_Diagnostic_Quick_Fix (S);
-      Assert (Result.Command = Editor.Commands.Command_Diagnostic_Apply_Quick_Fix,
+      Assert (Result.Command = Editor.Command_Ids.Command_Diagnostic_Apply_Quick_Fix,
               "Build UI quick fix uses the diagnostic quick-fix command");
       Assert (Editor.Build_UI_Actions.Assert_Build_UI_Diagnostic_Action_Is_UI_Routed
                 (Before, S, Result),
@@ -894,14 +894,14 @@ package body Editor.Build_UI.Tests is
       S : Editor.State.State_Type;
       Result : Editor.Command_Execution.Command_Execution_Result;
       Found : Boolean := False;
-      Id : Editor.Commands.Command_Id;
+      Id : Editor.Command_Ids.Command_Id;
    begin
       Editor.State.Init (S);
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("build.ui.show", Found);
-      Assert (Found and then Id = Editor.Commands.Command_Build_UI_Show,
+      Assert (Found and then Id = Editor.Command_Ids.Command_Build_UI_Show,
               "build.ui.show has a stable command id");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Build_UI_Show);
+        (S, Editor.Command_Ids.Command_Build_UI_Show);
       Assert (Result.Status = Editor.Command_Execution.Command_Executed,
               "Build UI show is routed through Executor");
       Assert (S.Build_UI.Build_UI_Visible,
@@ -912,14 +912,14 @@ package body Editor.Build_UI.Tests is
               "Build UI show command does not discover or auto-select candidates");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Build_UI_Focus);
+        (S, Editor.Command_Ids.Command_Build_UI_Focus);
       Assert (Result.Status = Editor.Command_Execution.Command_Executed,
               "Build UI focus is routed through Executor");
       Assert (S.Build_UI.Build_UI_Visible and then S.Build_UI.Build_UI_Focused,
               "Build UI focus command shows and focuses the panel");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Build_UI_Hide);
+        (S, Editor.Command_Ids.Command_Build_UI_Hide);
       Assert (Result.Status = Editor.Command_Execution.Command_Executed,
               "Build UI hide is routed through Executor");
       Assert (not S.Build_UI.Build_UI_Visible,
@@ -932,7 +932,7 @@ package body Editor.Build_UI.Tests is
       pragma Unreferenced (T);
       Audit : Editor.Command_Route_Audit.Route_Audit_Result;
 
-      procedure Check (Command : Editor.Commands.Command_Id) is
+      procedure Check (Command : Editor.Command_Ids.Command_Id) is
       begin
          Editor.Command_Route_Audit.Record_Command_UI_Route
            (Result                   => Audit,
@@ -946,9 +946,9 @@ package body Editor.Build_UI.Tests is
       end Check;
    begin
       Editor.Command_Route_Audit.Clear (Audit);
-      Check (Editor.Commands.Command_Build_Refresh_Candidates);
-      Check (Editor.Commands.Command_Build_Acknowledge_Consent);
-      Check (Editor.Commands.Command_Build_Run);
+      Check (Editor.Command_Ids.Command_Build_Refresh_Candidates);
+      Check (Editor.Command_Ids.Command_Build_Acknowledge_Consent);
+      Check (Editor.Command_Ids.Command_Build_Run);
       Assert (Editor.Command_Route_Audit.Failure_Count (Audit) = 0,
               "Build UI row actions should remain stable Executor routes: "
               & Editor.Command_Route_Audit.Summary (Audit));
@@ -1879,7 +1879,7 @@ package body Editor.Build_UI.Tests is
       Result := Editor.Build_UI_Actions.Build_UI_Apply_Diagnostic_Quick_Fix
         (S, Action_Index => 1, Diagnostic_Index => 1);
       Assert
-        (Result.Command = Editor.Commands.Command_Diagnostic_Apply_Quick_Fix
+        (Result.Command = Editor.Command_Ids.Command_Diagnostic_Apply_Quick_Fix
          and then Result.Status = Editor.Command_Execution.Command_Executed,
          "Build UI executes the requested quick-fix action directly");
       Assert

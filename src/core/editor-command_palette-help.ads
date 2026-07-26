@@ -1,4 +1,4 @@
-with Editor.Commands;
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Palette_Model;
 
 package Editor.Command_Palette.Help is
@@ -10,7 +10,7 @@ package Editor.Command_Palette.Help is
    procedure Clear_Command_State_Contexts;
 
    procedure Set_Command_State_Context
-     (Command : Editor.Commands.Command_Id;
+     (Command : Editor.Command_Ids.Command_Id;
       Text    : String);
 
    function Related_Command_Is_Activation_Safe

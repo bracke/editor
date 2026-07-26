@@ -1,6 +1,5 @@
 with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded;
-with Editor.Commands;
 with Editor.File_Tree;
 with Editor.State;
 

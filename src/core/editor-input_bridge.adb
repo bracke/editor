@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.Instance;
@@ -27,7 +28,6 @@ with Editor.Input_Bridge.Search_Query_Handlers;
 with Editor.Input_Bridge.Text_Entry_Dispatch;
 with Editor.Input_Bridge.Text_Entry_Routing;
 with Editor.Input_Bridge.Wheel_Handlers;
-with Editor.Commands;
 with Editor.Commands.Editing_Ids;
 with Editor.Command_Execution;
 with Editor.Render_Model;
@@ -132,10 +132,10 @@ use type Editor.Build_UI_Panel_Layout.Build_UI_Panel_Zone;
 package body Editor.Input_Bridge is
 
    use Editor.State;
-use type Editor.Commands.Command_Id;
+use type Editor.Command_Ids.Command_Id;
 use type Editor.State.Semantic_Popup_Kind;
 use type Editor.Command_Execution.Command_Execution_Status;
-use type Editor.Commands.Command_Kind;
+use type Editor.Command_Kinds.Command_Kind;
 use type Editor.File_Tree_View.File_Tree_View_Zone;
 use type Editor.File_Tree.File_Tree_Node_Id;
 use type Editor.Scrollbars.Scrollbar_Hit;
@@ -210,7 +210,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
           Editor.State.Semantic_Completion_Popup
       then
          Result := Editor.Executor.Execute_Command_With_Result
-           (The_Editor.State, Editor.Commands.Command_Show_Completions);
+           (The_Editor.State, Editor.Command_Ids.Command_Show_Completions);
          if Result.Status /= Editor.Executor.Command_Executed then
             Clear_Semantic_Popup;
          end if;
@@ -227,7 +227,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
    end Is_Text_Entry_Workflow_Event;
 
    function Is_Text_Entry_Workflow_Command_Id
-     (Id : Editor.Commands.Command_Id) return Boolean
+     (Id : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       return Text_Entry_Routing.Is_Text_Entry_Workflow_Command_Id (Id);
@@ -258,7 +258,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
    end Canonical_Text_Entry_Command;
 
    function Preview_Text_Entry_Command_Id
-     (Cmd : Editor.Commands.Payloads.Command) return Editor.Commands.Command_Id
+     (Cmd : Editor.Commands.Payloads.Command) return Editor.Command_Ids.Command_Id
    is
    begin
       return Text_Entry_Routing.Preview_Text_Entry_Command_Id
@@ -269,7 +269,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
    procedure Accept_Guided_Prompt_Enter;
 
    procedure Execute_Text_Entry_Command_Id
-     (Id    : Editor.Commands.Command_Id;
+     (Id    : Editor.Command_Ids.Command_Id;
       Shift : Boolean := False)
    is
       Cmd   : constant Editor.Commands.Payloads.Command :=
@@ -291,12 +291,12 @@ use type Editor.Guided_Prompts.Prompt_Kind;
             Editor.Render_Cache.Invalidate_All;
          when Routed_To_Guided_Prompt =>
             case Id is
-               when Editor.Commands.Command_Char_Delete_Previous =>
+               when Editor.Command_Ids.Command_Char_Delete_Previous =>
                   Editor.Guided_Prompts.Backspace (The_Editor.State.Guided_Prompt);
-               when Editor.Commands.Command_Char_Delete_Next =>
+               when Editor.Command_Ids.Command_Char_Delete_Next =>
                   Editor.Guided_Prompts.Delete_Forward (The_Editor.State.Guided_Prompt);
-               when Editor.Commands.Command_Insert_Newline
-                  | Editor.Commands.Command_Line_Split_At_Caret =>
+               when Editor.Command_Ids.Command_Insert_Newline
+                  | Editor.Command_Ids.Command_Line_Split_At_Caret =>
                   Accept_Guided_Prompt_Enter;
                when others =>
                   null;
@@ -392,7 +392,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
             return "Rename cancelled.";
          when Editor.Guided_Prompts.Confirmation_Prompt =>
             if Prompt.Owning_Command =
-              Editor.Commands.Command_File_Tree_Delete_Selected
+              Editor.Command_Ids.Command_File_Tree_Delete_Selected
             then
                return "Delete cancelled.";
             end if;
@@ -419,7 +419,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
               (The_Editor.State, Editor.Focus_Management.Focus_File_Tree);
          when Editor.Guided_Prompts.Confirmation_Prompt =>
             if Prompt.Owning_Command =
-              Editor.Commands.Command_File_Tree_Delete_Selected
+              Editor.Command_Ids.Command_File_Tree_Delete_Selected
             then
                Editor.Focus_Management.Set_Focus_Owner
                  (The_Editor.State, Editor.Focus_Management.Focus_File_Tree);
@@ -430,7 +430,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
    end Restore_Focus_After_Guided_Prompt_Cancel;
 
    procedure Confirm_Guided_Prompt is
-      Prompt_Id : constant Editor.Commands.Command_Id :=
+      Prompt_Id : constant Editor.Command_Ids.Command_Id :=
         The_Editor.State.Guided_Prompt.Owning_Command;
       Selected_Found : Boolean := False;
       Selected_Path  : constant String :=
@@ -542,19 +542,19 @@ use type Editor.Guided_Prompts.Prompt_Kind;
    end Accept_Guided_Prompt_Enter;
 
    procedure Execute_Command_Id
-     (Id    : Editor.Commands.Command_Id;
+     (Id    : Editor.Command_Ids.Command_Id;
       Shift : Boolean := False)
    is
       Cmd : Editor.Commands.Payloads.Command;
       Cursor_Config : Editor.Cursor.Cursor_Config;
       Owner_Before : Editor.Focus_Management.Focus_Owner;
    begin
-      if Id = Editor.Commands.No_Command then
+      if Id = Editor.Command_Ids.No_Command then
          return;
       end if;
 
       if Editor.Guided_Prompts.Is_Active (The_Editor.State.Guided_Prompt) then
-         if Id = Editor.Commands.Command_Cancel then
+         if Id = Editor.Command_Ids.Command_Cancel then
             declare
                Cancel_Message : constant String :=
                  Guided_Prompt_Cancel_Message (The_Editor.State.Guided_Prompt);
@@ -601,11 +601,11 @@ use type Editor.Guided_Prompts.Prompt_Kind;
          --  palette/keybinding execution.
          if Editor.Input_Bridge.Command_Prompt_Routing
               .Command_Starts_Confirmation_Prompt (Id)
-           or else Id = Editor.Commands.Command_File_Tree_Create_File
-           or else Id = Editor.Commands.Command_File_Tree_Create_Directory
-           or else Id = Editor.Commands.Command_File_Tree_Rename_Selected
-           or else Id = Editor.Commands.Command_Rename_Symbol_Preview
-           or else Id = Editor.Commands.Command_Rename_Symbol_Apply
+           or else Id = Editor.Command_Ids.Command_File_Tree_Create_File
+           or else Id = Editor.Command_Ids.Command_File_Tree_Create_Directory
+           or else Id = Editor.Command_Ids.Command_File_Tree_Rename_Selected
+           or else Id = Editor.Command_Ids.Command_Rename_Symbol_Preview
+           or else Id = Editor.Command_Ids.Command_Rename_Symbol_Apply
          then
             if Editor.Input_Bridge.Command_Routing
               .Handle_Guided_Prompt_Start_Availability_Gate
@@ -652,11 +652,11 @@ use type Editor.Guided_Prompts.Prompt_Kind;
          return;
       end if;
 
-      if Id = Editor.Commands.Command_Open_Quick_Open then
+      if Id = Editor.Command_Ids.Command_Open_Quick_Open then
          Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (The_Editor.State);
          Editor.Render_Cache.Invalidate_All;
          return;
-      elsif Id = Editor.Commands.Command_Toggle_Quick_Open then
+      elsif Id = Editor.Command_Ids.Command_Toggle_Quick_Open then
          Editor.Executor.Quick_Open_Commands.Execute_Toggle_Quick_Open (The_Editor.State);
          Editor.Render_Cache.Invalidate_All;
          return;
@@ -669,9 +669,9 @@ use type Editor.Guided_Prompts.Prompt_Kind;
       end if;
 
       if Editor.Commands.Editing_Ids.Is_Editing_Command (Id) then
-         if Id = Editor.Commands.Command_Comment_Line
-           or else Id = Editor.Commands.Command_Uncomment_Line
-           or else Id = Editor.Commands.Command_Toggle_Line_Comment
+         if Id = Editor.Command_Ids.Command_Comment_Line
+           or else Id = Editor.Command_Ids.Command_Uncomment_Line
+           or else Id = Editor.Command_Ids.Command_Toggle_Line_Comment
          then
             declare
                Selection_Range : Editor.Selection.Active_Selection_Range;
@@ -703,23 +703,23 @@ use type Editor.Guided_Prompts.Prompt_Kind;
       end if;
 
       case Id is
-         when Editor.Commands.No_Command =>
+         when Editor.Command_Ids.No_Command =>
             null;
 
-         when Editor.Commands.Command_Open_File =>
+         when Editor.Command_Ids.Command_Open_File =>
             Report_Info ("Open File requires a path");
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Open_Project =>
+         when Editor.Command_Ids.Command_Open_Project =>
             Report_Info ("Open Project requires a path");
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Switch_Project =>
+         when Editor.Command_Ids.Command_Switch_Project =>
             Report_Info ("Switch Project requires a target project");
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Close_Project
-            | Editor.Commands.Command_Clear_Project =>
+         when Editor.Command_Ids.Command_Close_Project
+            | Editor.Command_Ids.Command_Clear_Project =>
             declare
                Cmd_Clear : Editor.Commands.Payloads.Command;
             begin
@@ -728,26 +728,26 @@ use type Editor.Guided_Prompts.Prompt_Kind;
             end;
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Refresh_File_Tree =>
+         when Editor.Command_Ids.Command_Refresh_File_Tree =>
             Editor.Executor.Execute_Command
-              (The_Editor.State, Editor.Commands.Command_Refresh_File_Tree);
+              (The_Editor.State, Editor.Command_Ids.Command_Refresh_File_Tree);
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Refresh_Project_Files =>
+         when Editor.Command_Ids.Command_Refresh_Project_Files =>
             Editor.Executor.Execute_Command
-              (The_Editor.State, Editor.Commands.Command_Refresh_Project_Files);
+              (The_Editor.State, Editor.Command_Ids.Command_Refresh_Project_Files);
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Project_Files_Summary =>
+         when Editor.Command_Ids.Command_Project_Files_Summary =>
             Editor.Executor.Execute_Command
-              (The_Editor.State, Editor.Commands.Command_Project_Files_Summary);
+              (The_Editor.State, Editor.Command_Ids.Command_Project_Files_Summary);
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Open_Command_Palette =>
+         when Editor.Command_Ids.Command_Open_Command_Palette =>
             Editor.Executor.Command_Surface_Commands.Execute_Open_Command_Palette (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Palette_Show_Command_Help =>
+         when Editor.Command_Ids.Command_Palette_Show_Command_Help =>
             --  even palette-local help display is a discoverable
             --  command and must use the canonical Executor boundary.  The
             --  Executor handles availability, the one outcome message, and the
@@ -756,126 +756,126 @@ use type Editor.Guided_Prompts.Prompt_Kind;
             Editor.Executor.Execute_Command (The_Editor.State, Id);
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Open_Quick_Open =>
+         when Editor.Command_Ids.Command_Open_Quick_Open =>
             Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Toggle_Quick_Open =>
+         when Editor.Command_Ids.Command_Toggle_Quick_Open =>
             Editor.Executor.Quick_Open_Commands.Execute_Toggle_Quick_Open (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Open_Project_Search_Bar =>
+         when Editor.Command_Ids.Command_Open_Project_Search_Bar =>
             Editor.Executor.Project_Search_Surface_Commands.Execute_Open_Project_Search_Bar
               (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Toggle_Project_Search_Bar =>
+         when Editor.Command_Ids.Command_Toggle_Project_Search_Bar =>
             Editor.Executor.Project_Search_Surface_Commands.Execute_Toggle_Project_Search_Bar
               (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Close_Project_Search_Bar =>
+         when Editor.Command_Ids.Command_Close_Project_Search_Bar =>
             Editor.Executor.Project_Search_Surface_Commands.Execute_Close_Project_Search_Bar
               (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Run_Project_Search_From_Bar =>
+         when Editor.Command_Ids.Command_Run_Project_Search_From_Bar =>
             Editor.Executor.Project_Search_Surface_Commands.Execute_Run_Project_Search_From_Bar
               (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Close_Quick_Open =>
+         when Editor.Command_Ids.Command_Close_Quick_Open =>
             Editor.Executor.Quick_Open_Commands.Execute_Close_Quick_Open (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Accept_Quick_Open =>
+         when Editor.Command_Ids.Command_Accept_Quick_Open =>
             Editor.Executor.Quick_Open_Commands.Execute_Accept_Quick_Open (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Quick_Open_Next_Result =>
+         when Editor.Command_Ids.Command_Quick_Open_Next_Result =>
             Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Next_Result (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Quick_Open_Previous_Result =>
+         when Editor.Command_Ids.Command_Quick_Open_Previous_Result =>
             Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Previous_Result (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Quick_Open_Query_Clear =>
+         when Editor.Command_Ids.Command_Quick_Open_Query_Clear =>
             Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Clear_Query (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Quick_Open_Kind_Next =>
+         when Editor.Command_Ids.Command_Quick_Open_Kind_Next =>
             Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Kind_Next (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Quick_Open_Kind_Previous =>
+         when Editor.Command_Ids.Command_Quick_Open_Kind_Previous =>
             Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Kind_Previous (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Quick_Open_Kind_Clear =>
+         when Editor.Command_Ids.Command_Quick_Open_Kind_Clear =>
             Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Kind_Clear (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Quick_Open_Scope_Clear =>
+         when Editor.Command_Ids.Command_Quick_Open_Scope_Clear =>
             Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Scope_Clear (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Quick_Open_Scope_From_Selected =>
+         when Editor.Command_Ids.Command_Quick_Open_Scope_From_Selected =>
             Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Scope_From_Selected (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Quick_Open_Scope_Parent =>
+         when Editor.Command_Ids.Command_Quick_Open_Scope_Parent =>
             Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Scope_Parent (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Quick_Open_Reveal_Active =>
+         when Editor.Command_Ids.Command_Quick_Open_Reveal_Active =>
             Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Reveal_Active (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Quick_Open_Scope_Active_Directory =>
+         when Editor.Command_Ids.Command_Quick_Open_Scope_Active_Directory =>
             Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Scope_Active_Directory (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Quick_Open_Create_From_Query =>
+         when Editor.Command_Ids.Command_Quick_Open_Create_From_Query =>
             Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Create_From_Query (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Quick_Open_Create_With_Parents_From_Query =>
+         when Editor.Command_Ids.Command_Quick_Open_Create_With_Parents_From_Query =>
             Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Create_With_Parents_From_Query (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Quick_Open_Priority_Toggle =>
+         when Editor.Command_Ids.Command_Quick_Open_Priority_Toggle =>
             Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Priority_Toggle (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Quick_Open_Priority_Clear =>
+         when Editor.Command_Ids.Command_Quick_Open_Priority_Clear =>
             Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Priority_Clear (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Open_Buffer_Switcher =>
+         when Editor.Command_Ids.Command_Open_Buffer_Switcher =>
             Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Close_Buffer_Switcher =>
+         when Editor.Command_Ids.Command_Close_Buffer_Switcher =>
             Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Close_Buffer_Switcher (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Accept_Buffer_Switcher =>
+         when Editor.Command_Ids.Command_Accept_Buffer_Switcher =>
             Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Accept_Buffer_Switcher (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Buffer_Switcher_Next_Result =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Next_Result =>
             Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Buffer_Switcher_Next_Result (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Buffer_Switcher_Previous_Result =>
+         when Editor.Command_Ids.Command_Buffer_Switcher_Previous_Result =>
             Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Buffer_Switcher_Previous_Result (The_Editor.State);
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Cancel =>
+         when Editor.Command_Ids.Command_Cancel =>
             if Pending_Confirmation_Active then
                Editor.Executor.Execute_Command
-                 (The_Editor.State, Editor.Commands.Command_Cancel_Pending_Transition);
+                 (The_Editor.State, Editor.Command_Ids.Command_Cancel_Pending_Transition);
             elsif Editor.Overlay_Focus.Has_Active_Overlay
               (The_Editor.State.Overlay_Focus)
             then
@@ -886,313 +886,313 @@ use type Editor.Guided_Prompts.Prompt_Kind;
                Editor.Instance.Execute (The_Editor, Cmd);
             end if;
 
-         when Editor.Commands.Command_Undo
-            | Editor.Commands.Command_Redo
-            | Editor.Commands.Command_Edit_History_Clear =>
+         when Editor.Command_Ids.Command_Undo
+            | Editor.Command_Ids.Command_Redo
+            | Editor.Command_Ids.Command_Edit_History_Clear =>
             Editor.Executor.Execute_Command (The_Editor.State, Id, Shift);
 
-         when Editor.Commands.Command_Save_File
-            | Editor.Commands.Command_Reload_Active_Buffer
-            | Editor.Commands.Command_Revert_Active_Buffer
-            | Editor.Commands.Command_Delete_Buffer_File
-            | Editor.Commands.Command_New_Buffer
-            | Editor.Commands.Command_Close_Active_Buffer
-            | Editor.Commands.Command_Close_Other_Buffers
-            | Editor.Commands.Command_Close_All_Clean_Buffers
-            | Editor.Commands.Command_Pin_Buffer
-            | Editor.Commands.Command_Unpin_Buffer
-            | Editor.Commands.Command_Toggle_Buffer_Pin
-            | Editor.Commands.Command_Set_Buffer_Label
-            | Editor.Commands.Command_Clear_Buffer_Label
-            | Editor.Commands.Command_Edit_Buffer_Label
-            | Editor.Commands.Command_Show_Buffer_Label
-            | Editor.Commands.Command_Set_Buffer_Note
-            | Editor.Commands.Command_Clear_Buffer_Note
-            | Editor.Commands.Command_Edit_Buffer_Note
-            | Editor.Commands.Command_Show_Buffer_Note
-            | Editor.Commands.Command_Assign_Buffer_Group
-            | Editor.Commands.Command_Clear_Buffer_Group
-            | Editor.Commands.Command_Switch_Buffer_Group
-            | Editor.Commands.Command_Next_Buffer_Group
-            | Editor.Commands.Command_Previous_Buffer_Group
-            | Editor.Commands.Command_Show_All_Buffer_Groups
-            | Editor.Commands.Command_Next_Buffer
-            | Editor.Commands.Command_Previous_Buffer
-            | Editor.Commands.Command_Previous_Recent_Buffer
-            | Editor.Commands.Command_Next_Recent_Buffer
-            | Editor.Commands.Command_Switch_Buffer
-            | Editor.Commands.Command_Toggle_Problems_Panel
-            | Editor.Commands.Command_Run_Project_Search
-            | Editor.Commands.Command_Rerun_Project_Search
-            | Editor.Commands.Command_Project_Search_From_Selection
-            | Editor.Commands.Command_Project_Search_From_Active_Word
-            | Editor.Commands.Command_Project_Search_Active_Directory
-            | Editor.Commands.Command_Clear_Project_Search
-            | Editor.Commands.Command_Open_Selected_Project_Search_Result
-            | Editor.Commands.Command_Move_Project_Search_Selection_Up
-            | Editor.Commands.Command_Move_Project_Search_Selection_Down
-            | Editor.Commands.Command_Next_Project_Search_Result
-            | Editor.Commands.Command_Previous_Project_Search_Result
-            | Editor.Commands.Command_First_Project_Search_Result
-            | Editor.Commands.Command_Last_Project_Search_Result
-            | Editor.Commands.Command_Reveal_Active_Project_Search_Result
-            | Editor.Commands.Command_Project_Search_Scope_Selected_Directory
-            | Editor.Commands.Command_Project_Search_Kind_Next
-            | Editor.Commands.Command_Project_Search_Kind_Previous
-            | Editor.Commands.Command_Project_Search_Kind_Clear
-            | Editor.Commands.Command_Project_Search_Scope_Clear
-            | Editor.Commands.Command_Project_Search_Case_Toggle
-            | Editor.Commands.Command_Project_Search_Case_Clear
-            | Editor.Commands.Command_Project_Search_Whole_Word_Toggle
-            | Editor.Commands.Command_Project_Search_Whole_Word_Clear
-            | Editor.Commands.Command_Project_Search_Regex_Toggle
-            | Editor.Commands.Command_Project_Search_Regex_Clear
-            | Editor.Commands.Command_Project_Search_Include_Filter_Clear
-            | Editor.Commands.Command_Project_Search_Exclude_Filter_Clear
-            | Editor.Commands.Command_Show_Search_Results_Panel
-            | Editor.Commands.Command_Focus_Editor_Text
-            | Editor.Commands.Command_Focus_Search_Results
-            | Editor.Commands.Command_Focus_Problems
-            | Editor.Commands.Command_Toggle_Bottom_Panel_Focus
-            | Editor.Commands.Command_Search_Results_Move_Up
-            | Editor.Commands.Command_Search_Results_Move_Down
-            | Editor.Commands.Command_Search_Results_Page_Up
-            | Editor.Commands.Command_Search_Results_Page_Down
-            | Editor.Commands.Command_Search_Results_Open_Selected
-            | Editor.Commands.Command_Focus_File_Tree
-            | Editor.Commands.Command_File_Tree_Move_Up
-            | Editor.Commands.Command_File_Tree_Move_Down
-            | Editor.Commands.Command_File_Tree_Page_Up
-            | Editor.Commands.Command_File_Tree_Page_Down
-            | Editor.Commands.Command_File_Tree_Open_Selected
-            | Editor.Commands.Command_File_Tree_Expand_Selected
-            | Editor.Commands.Command_File_Tree_Collapse_Selected
-            | Editor.Commands.Command_File_Tree_Toggle_Selected
-            | Editor.Commands.Command_Next_Diagnostic
-            | Editor.Commands.Command_Previous_Diagnostic
-            | Editor.Commands.Command_Toggle_Bookmark
-            | Editor.Commands.Command_Next_Bookmark
-            | Editor.Commands.Command_Previous_Bookmark
-            | Editor.Commands.Command_Clear_Bookmarks
-            | Editor.Commands.Command_Clear_All_Bookmarks
-            | Editor.Commands.Command_Bookmark_Toggle_Current_Location
-            | Editor.Commands.Command_Bookmark_Clear_All
-            | Editor.Commands.Command_Bookmark_Next
-            | Editor.Commands.Command_Bookmark_Previous
-            | Editor.Commands.Command_Bookmark_Goto_Next
-            | Editor.Commands.Command_Bookmark_Goto_Previous
-            | Editor.Commands.Command_Bookmark_Open_Selected
-            | Editor.Commands.Command_Bookmark_Reveal_Current
-            | Editor.Commands.Command_Bookmark_Remove_Selected
-            | Editor.Commands.Command_Bookmark_Show
-            | Editor.Commands.Command_Bookmark_Hide
-            | Editor.Commands.Command_Bookmark_Toggle
-            | Editor.Commands.Command_Copy
-            | Editor.Commands.Command_Cut
-            | Editor.Commands.Command_Paste
-            | Editor.Commands.Command_Clipboard_Clear
-            | Editor.Commands.Command_Select_All
-            | Editor.Commands.Command_Selection_Clear
-            | Editor.Commands.Command_Select_Word
-            | Editor.Commands.Command_Selection_Delete
-            | Editor.Commands.Command_Line_Delete
-            | Editor.Commands.Command_Line_Duplicate
-            | Editor.Commands.Command_Line_Move_Up
-            | Editor.Commands.Command_Line_Move_Down
-            | Editor.Commands.Command_Indent_Increase
-            | Editor.Commands.Command_Indent_Decrease
-            | Editor.Commands.Command_Comment_Line
-            | Editor.Commands.Command_Uncomment_Line
-            | Editor.Commands.Command_Toggle_Line_Comment
-            | Editor.Commands.Command_Line_Join_Next
-            | Editor.Commands.Command_Line_Split_At_Caret
-            | Editor.Commands.Command_Trim_Trailing_Whitespace
-            | Editor.Commands.Command_Format_Buffer
-            | Editor.Commands.Command_Format_Selected_Text
-            | Editor.Commands.Command_Char_Delete_Previous
-            | Editor.Commands.Command_Char_Delete_Next
-            | Editor.Commands.Command_Word_Delete_Previous
-            | Editor.Commands.Command_Word_Delete_Next
-            | Editor.Commands.Command_Select_Left
-            | Editor.Commands.Command_Select_Right
-            | Editor.Commands.Command_Select_Up
-            | Editor.Commands.Command_Select_Down
-            | Editor.Commands.Command_Select_Line
-            | Editor.Commands.Command_Start_Rectangular_Selection
-            | Editor.Commands.Command_Clear_Rectangular_Selection
-            | Editor.Commands.Command_Extend_Selection_Line_Up
-            | Editor.Commands.Command_Extend_Selection_Line_Down
-            | Editor.Commands.Command_Select_Word_Left
-            | Editor.Commands.Command_Select_Word_Right
-            | Editor.Commands.Command_Select_Line_Start
-            | Editor.Commands.Command_Select_Line_End
-            | Editor.Commands.Command_Select_Document_Start
-            | Editor.Commands.Command_Select_Document_End
-            | Editor.Commands.Command_Select_Page_Up
-            | Editor.Commands.Command_Select_Page_Down
-            | Editor.Commands.Command_Move_Left
-            | Editor.Commands.Command_Move_Right
-            | Editor.Commands.Command_Move_Up
-            | Editor.Commands.Command_Move_Down
-            | Editor.Commands.Command_Move_Line_Start
-            | Editor.Commands.Command_Move_Line_End
-            | Editor.Commands.Command_Move_Document_Start
-            | Editor.Commands.Command_Move_Document_End
-            | Editor.Commands.Command_Move_Word_Left
-            | Editor.Commands.Command_Move_Word_Right
-            | Editor.Commands.Command_Page_Up
-            | Editor.Commands.Command_Page_Down
-            | Editor.Commands.Command_Insert_Newline
-            | Editor.Commands.Command_Goto_Start
-            | Editor.Commands.Command_Goto_End
-            | Editor.Commands.Command_Find_Show
-            | Editor.Commands.Command_Find_Hide
-            | Editor.Commands.Command_Find_Toggle
-            | Editor.Commands.Command_Find_From_Selection
-            | Editor.Commands.Command_Find_From_Active_Word
-            | Editor.Commands.Command_Active_Find_Next
-            | Editor.Commands.Command_Active_Find_Previous
-            | Editor.Commands.Command_Find_First
-            | Editor.Commands.Command_Find_Last
-            | Editor.Commands.Command_Find_Reveal_Current
-            | Editor.Commands.Command_Find_Query_Clear
-            | Editor.Commands.Command_Find_Case_Toggle
-            | Editor.Commands.Command_Find_Case_Clear
-            | Editor.Commands.Command_Find_Whole_Word_Toggle
-            | Editor.Commands.Command_Find_Whole_Word_Clear
-            | Editor.Commands.Command_Replace_Show
-            | Editor.Commands.Command_Replace_Hide
-            | Editor.Commands.Command_Replace_Toggle
-            | Editor.Commands.Command_Replace_Text_Clear
-            | Editor.Commands.Command_Replace_Current
-            | Editor.Commands.Command_Replace_All
-            | Editor.Commands.Command_Refresh_Outline
-            | Editor.Commands.Command_Clear_Outline
-            | Editor.Commands.Command_Show_Outline
-            | Editor.Commands.Command_Focus_Outline
-            | Editor.Commands.Command_Open_Selected_Outline_Item
-            | Editor.Commands.Command_Select_Current_Outline_Symbol
-            | Editor.Commands.Command_Reveal_Current_Outline_Symbol
-            | Editor.Commands.Command_Select_Next_Outline_Item
-            | Editor.Commands.Command_Select_Previous_Outline_Item
-            | Editor.Commands.Command_Focus_Outline_Filter
-            | Editor.Commands.Command_Filter_Outline
-            | Editor.Commands.Command_Clear_Outline_Filter
-            | Editor.Commands.Command_Toggle_Outline_Filter
-            | Editor.Commands.Command_Outline_Filter_History_Previous
-            | Editor.Commands.Command_Outline_Filter_History_Next
-            | Editor.Commands.Command_Clear_Outline_Filter_History
-            | Editor.Commands.Command_Show_Messages
-            | Editor.Commands.Command_Clear_Messages
-            | Editor.Commands.Command_Clear_Selected_Message
-            | Editor.Commands.Command_Copy_Selected_Message_Text
-            | Editor.Commands.Command_Clear_Info_Messages
-            | Editor.Commands.Command_Clear_Warning_Messages
-            | Editor.Commands.Command_Clear_Error_Messages
-            | Editor.Commands.Command_Toggle_Message_Info
-            | Editor.Commands.Command_Toggle_Message_Warnings
-            | Editor.Commands.Command_Toggle_Message_Errors
-            | Editor.Commands.Command_Show_All_Messages
-            | Editor.Commands.Command_Clear_Message_Filter
-            | Editor.Commands.Command_Goto_Line
-            | Editor.Commands.Command_Goto_Line_Toggle
-            | Editor.Commands.Command_Goto_Line_Prefill_Current
-            | Editor.Commands.Command_Goto_Line_Query_Set
-            | Editor.Commands.Command_Goto_Line_Query_Clear
-            | Editor.Commands.Command_Close_Goto_Line
-            | Editor.Commands.Command_Accept_Goto_Line
-            | Editor.Commands.Command_Diagnostics_Show
-            | Editor.Commands.Command_Diagnostics_Clear
-            | Editor.Commands.Command_Diagnostics_Toggle_Info
-            | Editor.Commands.Command_Diagnostics_Toggle_Warnings
-            | Editor.Commands.Command_Diagnostics_Toggle_Errors
-            | Editor.Commands.Command_Diagnostics_Show_All
-            | Editor.Commands.Command_Diagnostics_Clear_Filter
-            | Editor.Commands.Command_Diagnostics_Filter_Errors
-            | Editor.Commands.Command_Diagnostics_Filter_Warnings
-            | Editor.Commands.Command_Diagnostics_Filter_Info_Notes
-            | Editor.Commands.Command_Diagnostics_Filter_Source
-            | Editor.Commands.Command_Diagnostics_Filter_Build
-            | Editor.Commands.Command_Diagnostics_Clear_Build
-            | Editor.Commands.Command_Diagnostics_Open_Selected
-            | Editor.Commands.Command_Diagnostics_Execute_Selected_Action
-            | Editor.Commands.Command_Diagnostics_Select_Next
-            | Editor.Commands.Command_Diagnostics_Select_Previous
-            | Editor.Commands.Command_Diagnostics_Clear_Selected
-            | Editor.Commands.Command_Diagnostics_Copy_Selected_Text
-            | Editor.Commands.Command_Diagnostics_Clear_Info
-            | Editor.Commands.Command_Diagnostics_Clear_Warnings
-            | Editor.Commands.Command_Diagnostics_Clear_Errors
-            | Editor.Commands.Command_Diagnostics_Toggle_Editor_Source
-            | Editor.Commands.Command_Diagnostics_Toggle_File_Source
-            | Editor.Commands.Command_Diagnostics_Toggle_Project_Source
-            | Editor.Commands.Command_Diagnostics_Toggle_External_Source
-            | Editor.Commands.Command_Diagnostics_Toggle_Unknown_Source
-            | Editor.Commands.Command_Quick_Open_Query_Set
-            | Editor.Commands.Command_Quick_Open_Scope_Set =>
+         when Editor.Command_Ids.Command_Save_File
+            | Editor.Command_Ids.Command_Reload_Active_Buffer
+            | Editor.Command_Ids.Command_Revert_Active_Buffer
+            | Editor.Command_Ids.Command_Delete_Buffer_File
+            | Editor.Command_Ids.Command_New_Buffer
+            | Editor.Command_Ids.Command_Close_Active_Buffer
+            | Editor.Command_Ids.Command_Close_Other_Buffers
+            | Editor.Command_Ids.Command_Close_All_Clean_Buffers
+            | Editor.Command_Ids.Command_Pin_Buffer
+            | Editor.Command_Ids.Command_Unpin_Buffer
+            | Editor.Command_Ids.Command_Toggle_Buffer_Pin
+            | Editor.Command_Ids.Command_Set_Buffer_Label
+            | Editor.Command_Ids.Command_Clear_Buffer_Label
+            | Editor.Command_Ids.Command_Edit_Buffer_Label
+            | Editor.Command_Ids.Command_Show_Buffer_Label
+            | Editor.Command_Ids.Command_Set_Buffer_Note
+            | Editor.Command_Ids.Command_Clear_Buffer_Note
+            | Editor.Command_Ids.Command_Edit_Buffer_Note
+            | Editor.Command_Ids.Command_Show_Buffer_Note
+            | Editor.Command_Ids.Command_Assign_Buffer_Group
+            | Editor.Command_Ids.Command_Clear_Buffer_Group
+            | Editor.Command_Ids.Command_Switch_Buffer_Group
+            | Editor.Command_Ids.Command_Next_Buffer_Group
+            | Editor.Command_Ids.Command_Previous_Buffer_Group
+            | Editor.Command_Ids.Command_Show_All_Buffer_Groups
+            | Editor.Command_Ids.Command_Next_Buffer
+            | Editor.Command_Ids.Command_Previous_Buffer
+            | Editor.Command_Ids.Command_Previous_Recent_Buffer
+            | Editor.Command_Ids.Command_Next_Recent_Buffer
+            | Editor.Command_Ids.Command_Switch_Buffer
+            | Editor.Command_Ids.Command_Toggle_Problems_Panel
+            | Editor.Command_Ids.Command_Run_Project_Search
+            | Editor.Command_Ids.Command_Rerun_Project_Search
+            | Editor.Command_Ids.Command_Project_Search_From_Selection
+            | Editor.Command_Ids.Command_Project_Search_From_Active_Word
+            | Editor.Command_Ids.Command_Project_Search_Active_Directory
+            | Editor.Command_Ids.Command_Clear_Project_Search
+            | Editor.Command_Ids.Command_Open_Selected_Project_Search_Result
+            | Editor.Command_Ids.Command_Move_Project_Search_Selection_Up
+            | Editor.Command_Ids.Command_Move_Project_Search_Selection_Down
+            | Editor.Command_Ids.Command_Next_Project_Search_Result
+            | Editor.Command_Ids.Command_Previous_Project_Search_Result
+            | Editor.Command_Ids.Command_First_Project_Search_Result
+            | Editor.Command_Ids.Command_Last_Project_Search_Result
+            | Editor.Command_Ids.Command_Reveal_Active_Project_Search_Result
+            | Editor.Command_Ids.Command_Project_Search_Scope_Selected_Directory
+            | Editor.Command_Ids.Command_Project_Search_Kind_Next
+            | Editor.Command_Ids.Command_Project_Search_Kind_Previous
+            | Editor.Command_Ids.Command_Project_Search_Kind_Clear
+            | Editor.Command_Ids.Command_Project_Search_Scope_Clear
+            | Editor.Command_Ids.Command_Project_Search_Case_Toggle
+            | Editor.Command_Ids.Command_Project_Search_Case_Clear
+            | Editor.Command_Ids.Command_Project_Search_Whole_Word_Toggle
+            | Editor.Command_Ids.Command_Project_Search_Whole_Word_Clear
+            | Editor.Command_Ids.Command_Project_Search_Regex_Toggle
+            | Editor.Command_Ids.Command_Project_Search_Regex_Clear
+            | Editor.Command_Ids.Command_Project_Search_Include_Filter_Clear
+            | Editor.Command_Ids.Command_Project_Search_Exclude_Filter_Clear
+            | Editor.Command_Ids.Command_Show_Search_Results_Panel
+            | Editor.Command_Ids.Command_Focus_Editor_Text
+            | Editor.Command_Ids.Command_Focus_Search_Results
+            | Editor.Command_Ids.Command_Focus_Problems
+            | Editor.Command_Ids.Command_Toggle_Bottom_Panel_Focus
+            | Editor.Command_Ids.Command_Search_Results_Move_Up
+            | Editor.Command_Ids.Command_Search_Results_Move_Down
+            | Editor.Command_Ids.Command_Search_Results_Page_Up
+            | Editor.Command_Ids.Command_Search_Results_Page_Down
+            | Editor.Command_Ids.Command_Search_Results_Open_Selected
+            | Editor.Command_Ids.Command_Focus_File_Tree
+            | Editor.Command_Ids.Command_File_Tree_Move_Up
+            | Editor.Command_Ids.Command_File_Tree_Move_Down
+            | Editor.Command_Ids.Command_File_Tree_Page_Up
+            | Editor.Command_Ids.Command_File_Tree_Page_Down
+            | Editor.Command_Ids.Command_File_Tree_Open_Selected
+            | Editor.Command_Ids.Command_File_Tree_Expand_Selected
+            | Editor.Command_Ids.Command_File_Tree_Collapse_Selected
+            | Editor.Command_Ids.Command_File_Tree_Toggle_Selected
+            | Editor.Command_Ids.Command_Next_Diagnostic
+            | Editor.Command_Ids.Command_Previous_Diagnostic
+            | Editor.Command_Ids.Command_Toggle_Bookmark
+            | Editor.Command_Ids.Command_Next_Bookmark
+            | Editor.Command_Ids.Command_Previous_Bookmark
+            | Editor.Command_Ids.Command_Clear_Bookmarks
+            | Editor.Command_Ids.Command_Clear_All_Bookmarks
+            | Editor.Command_Ids.Command_Bookmark_Toggle_Current_Location
+            | Editor.Command_Ids.Command_Bookmark_Clear_All
+            | Editor.Command_Ids.Command_Bookmark_Next
+            | Editor.Command_Ids.Command_Bookmark_Previous
+            | Editor.Command_Ids.Command_Bookmark_Goto_Next
+            | Editor.Command_Ids.Command_Bookmark_Goto_Previous
+            | Editor.Command_Ids.Command_Bookmark_Open_Selected
+            | Editor.Command_Ids.Command_Bookmark_Reveal_Current
+            | Editor.Command_Ids.Command_Bookmark_Remove_Selected
+            | Editor.Command_Ids.Command_Bookmark_Show
+            | Editor.Command_Ids.Command_Bookmark_Hide
+            | Editor.Command_Ids.Command_Bookmark_Toggle
+            | Editor.Command_Ids.Command_Copy
+            | Editor.Command_Ids.Command_Cut
+            | Editor.Command_Ids.Command_Paste
+            | Editor.Command_Ids.Command_Clipboard_Clear
+            | Editor.Command_Ids.Command_Select_All
+            | Editor.Command_Ids.Command_Selection_Clear
+            | Editor.Command_Ids.Command_Select_Word
+            | Editor.Command_Ids.Command_Selection_Delete
+            | Editor.Command_Ids.Command_Line_Delete
+            | Editor.Command_Ids.Command_Line_Duplicate
+            | Editor.Command_Ids.Command_Line_Move_Up
+            | Editor.Command_Ids.Command_Line_Move_Down
+            | Editor.Command_Ids.Command_Indent_Increase
+            | Editor.Command_Ids.Command_Indent_Decrease
+            | Editor.Command_Ids.Command_Comment_Line
+            | Editor.Command_Ids.Command_Uncomment_Line
+            | Editor.Command_Ids.Command_Toggle_Line_Comment
+            | Editor.Command_Ids.Command_Line_Join_Next
+            | Editor.Command_Ids.Command_Line_Split_At_Caret
+            | Editor.Command_Ids.Command_Trim_Trailing_Whitespace
+            | Editor.Command_Ids.Command_Format_Buffer
+            | Editor.Command_Ids.Command_Format_Selected_Text
+            | Editor.Command_Ids.Command_Char_Delete_Previous
+            | Editor.Command_Ids.Command_Char_Delete_Next
+            | Editor.Command_Ids.Command_Word_Delete_Previous
+            | Editor.Command_Ids.Command_Word_Delete_Next
+            | Editor.Command_Ids.Command_Select_Left
+            | Editor.Command_Ids.Command_Select_Right
+            | Editor.Command_Ids.Command_Select_Up
+            | Editor.Command_Ids.Command_Select_Down
+            | Editor.Command_Ids.Command_Select_Line
+            | Editor.Command_Ids.Command_Start_Rectangular_Selection
+            | Editor.Command_Ids.Command_Clear_Rectangular_Selection
+            | Editor.Command_Ids.Command_Extend_Selection_Line_Up
+            | Editor.Command_Ids.Command_Extend_Selection_Line_Down
+            | Editor.Command_Ids.Command_Select_Word_Left
+            | Editor.Command_Ids.Command_Select_Word_Right
+            | Editor.Command_Ids.Command_Select_Line_Start
+            | Editor.Command_Ids.Command_Select_Line_End
+            | Editor.Command_Ids.Command_Select_Document_Start
+            | Editor.Command_Ids.Command_Select_Document_End
+            | Editor.Command_Ids.Command_Select_Page_Up
+            | Editor.Command_Ids.Command_Select_Page_Down
+            | Editor.Command_Ids.Command_Move_Left
+            | Editor.Command_Ids.Command_Move_Right
+            | Editor.Command_Ids.Command_Move_Up
+            | Editor.Command_Ids.Command_Move_Down
+            | Editor.Command_Ids.Command_Move_Line_Start
+            | Editor.Command_Ids.Command_Move_Line_End
+            | Editor.Command_Ids.Command_Move_Document_Start
+            | Editor.Command_Ids.Command_Move_Document_End
+            | Editor.Command_Ids.Command_Move_Word_Left
+            | Editor.Command_Ids.Command_Move_Word_Right
+            | Editor.Command_Ids.Command_Page_Up
+            | Editor.Command_Ids.Command_Page_Down
+            | Editor.Command_Ids.Command_Insert_Newline
+            | Editor.Command_Ids.Command_Goto_Start
+            | Editor.Command_Ids.Command_Goto_End
+            | Editor.Command_Ids.Command_Find_Show
+            | Editor.Command_Ids.Command_Find_Hide
+            | Editor.Command_Ids.Command_Find_Toggle
+            | Editor.Command_Ids.Command_Find_From_Selection
+            | Editor.Command_Ids.Command_Find_From_Active_Word
+            | Editor.Command_Ids.Command_Active_Find_Next
+            | Editor.Command_Ids.Command_Active_Find_Previous
+            | Editor.Command_Ids.Command_Find_First
+            | Editor.Command_Ids.Command_Find_Last
+            | Editor.Command_Ids.Command_Find_Reveal_Current
+            | Editor.Command_Ids.Command_Find_Query_Clear
+            | Editor.Command_Ids.Command_Find_Case_Toggle
+            | Editor.Command_Ids.Command_Find_Case_Clear
+            | Editor.Command_Ids.Command_Find_Whole_Word_Toggle
+            | Editor.Command_Ids.Command_Find_Whole_Word_Clear
+            | Editor.Command_Ids.Command_Replace_Show
+            | Editor.Command_Ids.Command_Replace_Hide
+            | Editor.Command_Ids.Command_Replace_Toggle
+            | Editor.Command_Ids.Command_Replace_Text_Clear
+            | Editor.Command_Ids.Command_Replace_Current
+            | Editor.Command_Ids.Command_Replace_All
+            | Editor.Command_Ids.Command_Refresh_Outline
+            | Editor.Command_Ids.Command_Clear_Outline
+            | Editor.Command_Ids.Command_Show_Outline
+            | Editor.Command_Ids.Command_Focus_Outline
+            | Editor.Command_Ids.Command_Open_Selected_Outline_Item
+            | Editor.Command_Ids.Command_Select_Current_Outline_Symbol
+            | Editor.Command_Ids.Command_Reveal_Current_Outline_Symbol
+            | Editor.Command_Ids.Command_Select_Next_Outline_Item
+            | Editor.Command_Ids.Command_Select_Previous_Outline_Item
+            | Editor.Command_Ids.Command_Focus_Outline_Filter
+            | Editor.Command_Ids.Command_Filter_Outline
+            | Editor.Command_Ids.Command_Clear_Outline_Filter
+            | Editor.Command_Ids.Command_Toggle_Outline_Filter
+            | Editor.Command_Ids.Command_Outline_Filter_History_Previous
+            | Editor.Command_Ids.Command_Outline_Filter_History_Next
+            | Editor.Command_Ids.Command_Clear_Outline_Filter_History
+            | Editor.Command_Ids.Command_Show_Messages
+            | Editor.Command_Ids.Command_Clear_Messages
+            | Editor.Command_Ids.Command_Clear_Selected_Message
+            | Editor.Command_Ids.Command_Copy_Selected_Message_Text
+            | Editor.Command_Ids.Command_Clear_Info_Messages
+            | Editor.Command_Ids.Command_Clear_Warning_Messages
+            | Editor.Command_Ids.Command_Clear_Error_Messages
+            | Editor.Command_Ids.Command_Toggle_Message_Info
+            | Editor.Command_Ids.Command_Toggle_Message_Warnings
+            | Editor.Command_Ids.Command_Toggle_Message_Errors
+            | Editor.Command_Ids.Command_Show_All_Messages
+            | Editor.Command_Ids.Command_Clear_Message_Filter
+            | Editor.Command_Ids.Command_Goto_Line
+            | Editor.Command_Ids.Command_Goto_Line_Toggle
+            | Editor.Command_Ids.Command_Goto_Line_Prefill_Current
+            | Editor.Command_Ids.Command_Goto_Line_Query_Set
+            | Editor.Command_Ids.Command_Goto_Line_Query_Clear
+            | Editor.Command_Ids.Command_Close_Goto_Line
+            | Editor.Command_Ids.Command_Accept_Goto_Line
+            | Editor.Command_Ids.Command_Diagnostics_Show
+            | Editor.Command_Ids.Command_Diagnostics_Clear
+            | Editor.Command_Ids.Command_Diagnostics_Toggle_Info
+            | Editor.Command_Ids.Command_Diagnostics_Toggle_Warnings
+            | Editor.Command_Ids.Command_Diagnostics_Toggle_Errors
+            | Editor.Command_Ids.Command_Diagnostics_Show_All
+            | Editor.Command_Ids.Command_Diagnostics_Clear_Filter
+            | Editor.Command_Ids.Command_Diagnostics_Filter_Errors
+            | Editor.Command_Ids.Command_Diagnostics_Filter_Warnings
+            | Editor.Command_Ids.Command_Diagnostics_Filter_Info_Notes
+            | Editor.Command_Ids.Command_Diagnostics_Filter_Source
+            | Editor.Command_Ids.Command_Diagnostics_Filter_Build
+            | Editor.Command_Ids.Command_Diagnostics_Clear_Build
+            | Editor.Command_Ids.Command_Diagnostics_Open_Selected
+            | Editor.Command_Ids.Command_Diagnostics_Execute_Selected_Action
+            | Editor.Command_Ids.Command_Diagnostics_Select_Next
+            | Editor.Command_Ids.Command_Diagnostics_Select_Previous
+            | Editor.Command_Ids.Command_Diagnostics_Clear_Selected
+            | Editor.Command_Ids.Command_Diagnostics_Copy_Selected_Text
+            | Editor.Command_Ids.Command_Diagnostics_Clear_Info
+            | Editor.Command_Ids.Command_Diagnostics_Clear_Warnings
+            | Editor.Command_Ids.Command_Diagnostics_Clear_Errors
+            | Editor.Command_Ids.Command_Diagnostics_Toggle_Editor_Source
+            | Editor.Command_Ids.Command_Diagnostics_Toggle_File_Source
+            | Editor.Command_Ids.Command_Diagnostics_Toggle_Project_Source
+            | Editor.Command_Ids.Command_Diagnostics_Toggle_External_Source
+            | Editor.Command_Ids.Command_Diagnostics_Toggle_Unknown_Source
+            | Editor.Command_Ids.Command_Quick_Open_Query_Set
+            | Editor.Command_Ids.Command_Quick_Open_Scope_Set =>
             Cmd := Editor.Commands.Payloads.Command_For_Id (Id, Shift);
             Editor.Instance.Execute (The_Editor, Cmd);
 
-         when Editor.Commands.Command_Save_Settings
-            | Editor.Commands.Command_Reload_Settings
-            | Editor.Commands.Command_Reset_Settings_To_Defaults
-            | Editor.Commands.Command_Set_Theme_Light
-            | Editor.Commands.Command_Set_Theme_Dark
-            | Editor.Commands.Command_Toggle_Minimap
-            | Editor.Commands.Command_Toggle_Scrollbars
-            | Editor.Commands.Command_Toggle_Line_Number_Mode
-            | Editor.Commands.Command_Toggle_Cursor_Blink =>
+         when Editor.Command_Ids.Command_Save_Settings
+            | Editor.Command_Ids.Command_Reload_Settings
+            | Editor.Command_Ids.Command_Reset_Settings_To_Defaults
+            | Editor.Command_Ids.Command_Set_Theme_Light
+            | Editor.Command_Ids.Command_Set_Theme_Dark
+            | Editor.Command_Ids.Command_Toggle_Minimap
+            | Editor.Command_Ids.Command_Toggle_Scrollbars
+            | Editor.Command_Ids.Command_Toggle_Line_Number_Mode
+            | Editor.Command_Ids.Command_Toggle_Cursor_Blink =>
             Cmd := Editor.Commands.Payloads.Command_For_Id (Id, Shift);
             Editor.Instance.Execute (The_Editor, Cmd);
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Dismiss_Latest_Message =>
+         when Editor.Command_Ids.Command_Dismiss_Latest_Message =>
             Editor.Messages.Dismiss_Latest (The_Editor.State.Messages);
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Dismiss_All_Messages =>
+         when Editor.Command_Ids.Command_Dismiss_All_Messages =>
             Editor.Messages.Dismiss_All (The_Editor.State.Messages);
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Toggle_Theme =>
+         when Editor.Command_Ids.Command_Toggle_Theme =>
             Cmd := Editor.Commands.Payloads.Command_For_Id (Id, Shift);
             Editor.Instance.Execute (The_Editor, Cmd);
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Toggle_Line_Numbers =>
+         when Editor.Command_Ids.Command_Toggle_Line_Numbers =>
             Editor.Settings.Toggle_Show_Line_Numbers;
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Set_Absolute_Line_Numbers =>
+         when Editor.Command_Ids.Command_Set_Absolute_Line_Numbers =>
             Editor.Line_Numbers.Set_Current
               ((Mode => Editor.Line_Numbers.Absolute_Line_Numbers));
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Set_Relative_Line_Numbers =>
+         when Editor.Command_Ids.Command_Set_Relative_Line_Numbers =>
             Editor.Line_Numbers.Set_Current
               ((Mode => Editor.Line_Numbers.Relative_Line_Numbers));
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Set_Hybrid_Line_Numbers =>
+         when Editor.Command_Ids.Command_Set_Hybrid_Line_Numbers =>
             Editor.Line_Numbers.Set_Current
               ((Mode => Editor.Line_Numbers.Hybrid_Line_Numbers));
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Toggle_Current_Line_Highlight =>
+         when Editor.Command_Ids.Command_Toggle_Current_Line_Highlight =>
             Editor.Settings.Toggle_Highlight_Current_Line;
             Editor.Settings.Set_Highlight_Current_Gutter
               (Editor.Settings.Highlight_Current_Line);
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Toggle_Syntax_Colouring =>
+         when Editor.Command_Ids.Command_Toggle_Syntax_Colouring =>
             Editor.Settings.Toggle_Use_Syntax_Colouring;
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Toggle_Diagnostics =>
+         when Editor.Command_Ids.Command_Toggle_Diagnostics =>
             Editor.Settings.Toggle_Show_Diagnostics;
             Editor.Render_Cache.Invalidate_All;
 
-         when Editor.Commands.Command_Toggle_Cursor_Style =>
+         when Editor.Command_Ids.Command_Toggle_Cursor_Style =>
             Cursor_Config := Editor.Cursor.Current;
             case Cursor_Config.Style is
                when Editor.Cursor.Bar_Cursor =>
@@ -1220,7 +1220,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
    end Execute_Command_Id;
 
    procedure Execute_Command_Id_No_Shift
-     (Id : Editor.Commands.Command_Id)
+     (Id : Editor.Command_Ids.Command_Id)
    is
    begin
       Execute_Command_Id (Id);
@@ -1348,14 +1348,14 @@ use type Editor.Guided_Prompts.Prompt_Kind;
 
 
    procedure Execute_Pending_Bar_Command
-     (Id : Editor.Commands.Command_Id)
+     (Id : Editor.Command_Ids.Command_Id)
    is
    begin
       Execute_Command_Id (Id);
    end Execute_Pending_Bar_Command;
 
    procedure Execute_Problems_Header_Command
-     (Id : Editor.Commands.Command_Id)
+     (Id : Editor.Command_Ids.Command_Id)
    is
    begin
       Editor.Executor.Execute_Command (The_Editor.State, Id);
@@ -1431,7 +1431,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
      (Chord : Editor.Keybindings.Key_Chord)
    is
       procedure Execute_Command_Id_With_Shift
-        (Command_Id : Editor.Commands.Command_Id;
+        (Command_Id : Editor.Command_Ids.Command_Id;
          Shift      : Boolean)
       is
       begin
@@ -1744,10 +1744,10 @@ use type Editor.Guided_Prompts.Prompt_Kind;
 
       case Cmd.Kind is
          when Editor.Command_Kinds.Undo =>
-            Execute_Command_Id (Editor.Commands.Command_Undo);
+            Execute_Command_Id (Editor.Command_Ids.Command_Undo);
 
          when Editor.Command_Kinds.Redo =>
-            Execute_Command_Id (Editor.Commands.Command_Redo);
+            Execute_Command_Id (Editor.Command_Ids.Command_Redo);
 
          when Editor.Command_Kinds.Insert_Text_Input
             | Editor.Command_Kinds.Delete_Char

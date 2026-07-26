@@ -1,4 +1,4 @@
-with Editor.Commands;
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Executor;
 with Editor.State;
 
@@ -19,7 +19,7 @@ package Editor.Empty_State_Guidance.Audits is
      (Before : Editor.State.State_Type;
       After  : Editor.State.State_Type;
       Result : Editor.Executor.Command_Execution_Result;
-      Command : Editor.Commands.Command_Id) return Boolean;
+      Command : Editor.Command_Ids.Command_Id) return Boolean;
 
    function Assert_Major_Empty_State_Surface_Coverage
      (S : Editor.State.State_Type) return Boolean;

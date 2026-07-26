@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Classification;
 with Editor.Commands.Descriptor_Metadata;
 with Editor.Commands.Availability_Metadata;
@@ -7,7 +8,6 @@ with Editor.Buffer_Switcher;
 with Editor.Buffer_Switcher.Reviews;
 with Editor.Buffer_Switcher.Rows;
 with Editor.Buffers;
-with Editor.Commands;
 with Editor.Executor;
 with Editor.Keybindings;
 with Editor.Settings;
@@ -17,13 +17,13 @@ package body Editor.Buffer_Switcher_Contextual_Hints is
 
    use type Editor.Buffer_Switcher.Reviews.Switcher_Review_Mode;
    use type Editor.Buffers.Buffer_Id;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
 
-   type Command_Array is array (Positive range <>) of Editor.Commands.Command_Id;
+   type Command_Array is array (Positive range <>) of Editor.Command_Ids.Command_Id;
 
    function Hint_Command_Available
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id) return Boolean
+      Id : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       return Editor.Commands.Descriptor_Metadata.Has_Descriptor (Id)
@@ -35,7 +35,7 @@ package body Editor.Buffer_Switcher_Contextual_Hints is
    end Hint_Command_Available;
 
    function Hint_Keybinding_Text
-     (Id               : Editor.Commands.Command_Id;
+     (Id               : Editor.Command_Ids.Command_Id;
       Show_Keybindings : Boolean) return String
    is
       Info : Editor.Keybindings.Command_Keybinding_Info;
@@ -56,7 +56,7 @@ package body Editor.Buffer_Switcher_Contextual_Hints is
    procedure Add_Command
      (S                 : Editor.State.State_Type;
       Hints             : in out Switcher_Contextual_Hint_Vectors.Vector;
-      Id                : Editor.Commands.Command_Id;
+      Id                : Editor.Command_Ids.Command_Id;
       Max_Hints         : Positive;
       Show_Keybindings  : Boolean;
       Allow_Unavailable : Boolean := False)
@@ -65,7 +65,7 @@ package body Editor.Buffer_Switcher_Contextual_Hints is
       Hint         : Switcher_Contextual_Hint;
    begin
       if Natural (Hints.Length) >= Max_Hints
-        or else Id = Editor.Commands.No_Command
+        or else Id = Editor.Command_Ids.No_Command
         or else not Editor.Commands.Descriptor_Metadata.Has_Descriptor (Id)
         or else not Editor.Commands.Availability_Metadata.Has_Availability_Handler (Id)
         or else (not Editor.Commands.Classification.Is_Visible_In_Palette (Id)

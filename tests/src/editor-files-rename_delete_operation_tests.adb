@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
@@ -7,7 +8,6 @@ with Ada.Containers;
 with Ada.Directories;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.Command_Palette;
 with Editor.Command_Route_Audit;
@@ -67,7 +67,7 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
    use type Editor.Files.File_Open_Status;
    use type Editor.Files.File_Save_Status;
    use type Editor.Files.File_Move_Status;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Command_Palette.Command_Palette_Row_Kind;
@@ -93,7 +93,7 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Path         : constant String := Temp_Path ("surface_source.txt");
       Target       : constant String := Temp_Path ("surface_target.txt");
       Existing     : constant String := Temp_Path ("surface_existing.txt");
-      Id           : Editor.Commands.Command_Id;
+      Id           : Editor.Command_Ids.Command_Id;
       Found_Id     : Boolean := False;
       Descriptor   : Editor.Commands.Descriptors.Command_Descriptor;
       Availability : Editor.Commands.Availability_Metadata.Command_Availability;
@@ -111,10 +111,10 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
 
       procedure Assert_Absent (Name : String) is
          Missing : Boolean := False;
-         Cmd     : constant Editor.Commands.Command_Id :=
+         Cmd     : constant Editor.Command_Ids.Command_Id :=
            Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Missing);
       begin
-         Assert (not Missing and then Cmd = Editor.Commands.No_Command,
+         Assert (not Missing and then Cmd = Editor.Command_Ids.No_Command,
            "non-goal rename command must not be exposed: " & Name);
       end Assert_Absent;
    begin
@@ -127,15 +127,15 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
 
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("file.rename-buffer-file", Found_Id);
-      Assert (Found_Id and then Id = Editor.Commands.Command_Rename_Buffer_File,
+      Assert (Found_Id and then Id = Editor.Command_Ids.Command_Rename_Buffer_File,
         "file.rename-buffer-file must resolve to canonical command id");
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Rename_Buffer_File) = "file.rename-buffer-file",
+           (Editor.Command_Ids.Command_Rename_Buffer_File) = "file.rename-buffer-file",
          "rename must expose the canonical stable name");
 
       Descriptor := Editor.Commands.Descriptors.Descriptor
-        (Editor.Commands.Command_Rename_Buffer_File);
+        (Editor.Command_Ids.Command_Rename_Buffer_File);
       Assert (Descriptor.Category = Editor.Commands.Descriptors.File_Category
         and then Descriptor.Visibility = Editor.Commands.Descriptors.Palette_Command
         and then Descriptor.Bindable
@@ -155,7 +155,7 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Editor.State.Init (S);
       S.Active_Buffer_Token := 0;
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Rename_Buffer_File);
+        (S, Editor.Command_Ids.Command_Rename_Buffer_File);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability)
         and then Editor.Commands.Availability_Metadata.Unavailable_Reason (Availability) = "No active buffer.",
         "rename availability must report no active buffer first");
@@ -238,7 +238,7 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Editor.Messages.Clear (S.Messages);
 
       Cmd := Editor.Commands.Payloads.Command_For_Id
-        (Editor.Commands.Command_Rename_Buffer_File);
+        (Editor.Command_Ids.Command_Rename_Buffer_File);
       Cmd.Path := To_Unbounded_String (Target);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
@@ -781,11 +781,11 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Availability :=
-        Editor.Executor.Command_Availability (S, Editor.Commands.Command_Rename_Buffer_File);
+        Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Rename_Buffer_File);
       Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
       if not Candidates.Is_Empty then
          for I in Candidates.First_Index .. Candidates.Last_Index loop
-            if Candidates (I).Id = Editor.Commands.Command_Rename_Buffer_File then
+            if Candidates (I).Id = Editor.Command_Ids.Command_Rename_Buffer_File then
                Rows := Rows + 1;
             end if;
          end loop;
@@ -806,7 +806,7 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
 
       Remove_If_Exists (Path);
       Availability :=
-        Editor.Executor.Command_Availability (S, Editor.Commands.Command_Rename_Buffer_File);
+        Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Rename_Buffer_File);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability)
         and then To_String (S.File_Info.Path) = To_String (Before_Path)
         and then not Ada.Directories.Exists (Target),
@@ -1369,11 +1369,11 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Availability :=
-        Editor.Executor.Command_Availability (S, Editor.Commands.Command_Rename_Buffer_File);
+        Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Rename_Buffer_File);
       Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
       if not Candidates.Is_Empty then
          for I in Candidates.First_Index .. Candidates.Last_Index loop
-            if Candidates (I).Id = Editor.Commands.Command_Rename_Buffer_File then
+            if Candidates (I).Id = Editor.Command_Ids.Command_Rename_Buffer_File then
                Rename_Rows := Rename_Rows + 1;
             end if;
          end loop;
@@ -1435,7 +1435,7 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Path          : constant String := Temp_Path ("history_source.txt");
       Target        : constant String := Temp_Path ("history_target.txt");
       Found_Name    : Boolean := False;
-      Cmd           : Editor.Commands.Command_Id;
+      Cmd           : Editor.Command_Ids.Command_Id;
       Before_Undo   : Ada.Containers.Count_Type;
       Before_Redo   : Ada.Containers.Count_Type;
       Baseline_Gen  : Natural;
@@ -1443,7 +1443,7 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       procedure Assert_Absent (Name : String) is
       begin
          Cmd := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found_Name);
-         Assert (not Found_Name and then Cmd = Editor.Commands.No_Command,
+         Assert (not Found_Name and then Cmd = Editor.Command_Ids.No_Command,
            "surface: non-goal command must remain absent: " & Name);
       end Assert_Absent;
    begin
@@ -1465,8 +1465,8 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
       Insert_Text_At (S, Buffer_Text (S)'Length, " edit");
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert (not S.File_Info.Dirty,
         "history: setup must end clean with undo/redo stacks populated at saved baseline");
       Before_Undo := Editor.History.Undo_Stack.Length;
@@ -1484,12 +1484,12 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
         and then Editor.History.Redo_Stack.Length = Before_Redo,
         "history: rename must preserve undo/redo stacks and saved baseline without becoming an edit");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert (Ada.Directories.Exists (Target)
         and then not Ada.Directories.Exists (Path)
         and then To_String (S.File_Info.Path) = Ada.Directories.Full_Name (Target),
         "history: undo after rename must not undo filesystem rename or restore old association");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert (Ada.Directories.Exists (Target)
         and then To_String (S.File_Info.Path) = Ada.Directories.Full_Name (Target),
         "history: redo after rename must not redo a filesystem operation");
@@ -1509,7 +1509,7 @@ procedure Test_Delete_Command_Surface_And_Validation
       pragma Unreferenced (T);
       S            : Editor.State.State_Type;
       Path         : constant String := Temp_Path ("p449_surface.txt");
-      Cmd_Id       : Editor.Commands.Command_Id;
+      Cmd_Id       : Editor.Command_Ids.Command_Id;
       Found        : Boolean := False;
       Descriptor   : Editor.Commands.Descriptors.Command_Descriptor;
       Availability : Editor.Commands.Availability_Metadata.Command_Availability;
@@ -1517,14 +1517,14 @@ procedure Test_Delete_Command_Surface_And_Validation
    begin
       Cmd_Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("file.delete-buffer-file", Found);
-      Assert (Found and then Cmd_Id = Editor.Commands.Command_Delete_Buffer_File,
+      Assert (Found and then Cmd_Id = Editor.Command_Ids.Command_Delete_Buffer_File,
         "file.delete-buffer-file must resolve to canonical command id");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-        (Editor.Commands.Command_Delete_Buffer_File) = "file.delete-buffer-file",
+        (Editor.Command_Ids.Command_Delete_Buffer_File) = "file.delete-buffer-file",
         "delete must expose canonical stable command name");
 
       Descriptor := Editor.Commands.Descriptors.Descriptor
-        (Editor.Commands.Command_Delete_Buffer_File);
+        (Editor.Command_Ids.Command_Delete_Buffer_File);
       Assert (Descriptor.Category = Editor.Commands.Descriptors.File_Category
         and then Descriptor.Visibility = Editor.Commands.Descriptors.Palette_Command
         and then Descriptor.Bindable
@@ -1536,7 +1536,7 @@ procedure Test_Delete_Command_Surface_And_Validation
       Editor.State.Init (S);
       S.Active_Buffer_Token := 0;
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Delete_Buffer_File);
+        (S, Editor.Command_Ids.Command_Delete_Buffer_File);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "delete unavailable without active buffer");
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
@@ -1550,7 +1550,7 @@ procedure Test_Delete_Command_Surface_And_Validation
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Messages.Clear (S.Messages);
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Delete_Buffer_File);
+        (S, Editor.Command_Ids.Command_Delete_Buffer_File);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "delete unavailable for untitled active buffer");
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
@@ -1564,7 +1564,7 @@ procedure Test_Delete_Command_Surface_And_Validation
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty");
       Editor.Messages.Clear (S.Messages);
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Delete_Buffer_File);
+        (S, Editor.Command_Ids.Command_Delete_Buffer_File);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "delete unavailable for dirty active associated buffer");
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
@@ -1662,7 +1662,7 @@ procedure Test_Delete_Command_Surface_And_Validation
         "close after delete follows dirty-buffer close blocking policy");
       if S.Dirty_Close_Prompt_Active then
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Cancel_Close);
+           (S, Editor.Command_Ids.Command_Cancel_Close);
       end if;
 
       Editor.Messages.Clear (S.Messages);
@@ -1793,7 +1793,7 @@ procedure Test_Delete_Validation_Order_And_Active_Source
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty");
       Editor.Messages.Clear (S.Messages);
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Delete_Buffer_File);
+        (S, Editor.Command_Ids.Command_Delete_Buffer_File);
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability)
@@ -1812,7 +1812,7 @@ procedure Test_Delete_Validation_Order_And_Active_Source
         (S, Editor.Buffers.Buffer_Id (1));
       Editor.Messages.Clear (S.Messages);
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Delete_Buffer_File);
+        (S, Editor.Command_Ids.Command_Delete_Buffer_File);
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability)
@@ -2020,7 +2020,7 @@ procedure Test_Delete_Validation_Order_And_Active_Source
       Assert_Summary_Excludes ("file-watch");
 
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Delete_Buffer_File);
+        (S, Editor.Command_Ids.Command_Delete_Buffer_File);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "post-success availability must observe no path without filesystem repair");
 
@@ -2143,7 +2143,7 @@ procedure Test_Delete_Validation_Order_And_Active_Source
         "integrated: close after delete must be blocked by dirty unsaved no-path policy");
       if S.Dirty_Close_Prompt_Active then
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Cancel_Close);
+           (S, Editor.Command_Ids.Command_Cancel_Close);
       end if;
 
       Editor.Messages.Clear (S.Messages);
@@ -2289,13 +2289,13 @@ procedure Test_Delete_Validation_Order_And_Active_Source
       M             : Editor.Messages.Editor_Message;
       Copy_Rows    : Natural := 0;
       Delete_Rows   : Natural := 0;
-      Cmd_Id        : Editor.Commands.Command_Id;
+      Cmd_Id        : Editor.Command_Ids.Command_Id;
       Has_Name      : Boolean := False;
 
       procedure Assert_Absent (Name : String) is
       begin
          Cmd_Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Has_Name);
-         Assert (not Has_Name and then Cmd_Id = Editor.Commands.No_Command,
+         Assert (not Has_Name and then Cmd_Id = Editor.Command_Ids.No_Command,
            "non-goal command must be absent: " & Name);
       end Assert_Absent;
 
@@ -2337,11 +2337,11 @@ procedure Test_Delete_Validation_Order_And_Active_Source
       Before_Fwd := S.Navigation_History.Forward_Stack.Length;
 
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Delete_Buffer_File);
+        (S, Editor.Command_Ids.Command_Delete_Buffer_File);
       Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
       if not Candidates.Is_Empty then
          for I in Candidates.First_Index .. Candidates.Last_Index loop
-            if Candidates (I).Id = Editor.Commands.Command_Copy_Buffer_File then
+            if Candidates (I).Id = Editor.Command_Ids.Command_Copy_Buffer_File then
                Copy_Rows := Copy_Rows + 1;
             end if;
          end loop;
@@ -2352,7 +2352,7 @@ procedure Test_Delete_Validation_Order_And_Active_Source
 
       if not Candidates.Is_Empty then
          for I in Candidates.First_Index .. Candidates.Last_Index loop
-            if Candidates (I).Id = Editor.Commands.Command_Delete_Buffer_File then
+            if Candidates (I).Id = Editor.Command_Ids.Command_Delete_Buffer_File then
                Delete_Rows := Delete_Rows + 1;
             end if;
          end loop;
@@ -2498,7 +2498,7 @@ procedure Test_Delete_Cleanup_Preserves_Source_State_And_Persistence
       Before_Back := S.Navigation_History.Back_Stack.Length;
       Before_Fwd := S.Navigation_History.Forward_Stack.Length;
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Delete_Buffer_File);
+        (S, Editor.Command_Ids.Command_Delete_Buffer_File);
       Workspace := Editor.State.Build_Workspace_Snapshot (S);
       Summary := To_Unbounded_String
         (Editor.Workspace_Persistence.Debug_Summary (Workspace));

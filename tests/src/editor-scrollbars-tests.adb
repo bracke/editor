@@ -4,7 +4,6 @@ with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Interfaces.C;
-with Editor.Commands;
 with Editor.Input_Bridge;
 with Editor.Layout;
 with Editor.Minimap;

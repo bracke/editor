@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
 with Ada.Strings;
@@ -6,7 +7,6 @@ with Ada.Containers; use type Ada.Containers.Count_Type;
 with Ada.Containers.Vectors;
 with Editor.State;
 with Editor.View;
-with Editor.Commands;
 with Ada.Unchecked_Deallocation;
 with Editor.Messages;
 with Editor.Feature_Messages;
@@ -1039,7 +1039,7 @@ package body Editor.Buffers is
         State.Dirty_Close_Prompt_Save_Failure_Count;
       File_Target_Prompt_Active : constant Boolean :=
         State.File_Target_Prompt_Active;
-      File_Target_Prompt_Command : constant Editor.Commands.Command_Id :=
+      File_Target_Prompt_Command : constant Editor.Command_Ids.Command_Id :=
         State.File_Target_Prompt_Command;
       File_Target_Prompt_Label : constant Unbounded_String :=
         State.File_Target_Prompt_Label;

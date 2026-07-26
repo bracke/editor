@@ -1,3 +1,5 @@
+with Editor.Command_Kinds;
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Registry;
 with Editor.Commands.Classification;
 with Editor.Commands.Availability_Metadata;
@@ -19,7 +21,6 @@ with Editor.Command_Palette;
 with Editor.Command_Execution;
 with Editor.Command_Route_Audit;
 with Editor.Command_Surface;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.Executor;
 with Editor.Executor.Command_Palette_Projection;
@@ -58,12 +59,12 @@ package body Editor.Command_Surface.Route_Audit_Tests is
    use Editor.External_Producers.Build_Types;
    use Editor.External_Producers.Public_Build_Types;
 
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Commands.Descriptors.Command_Family_Id;
    use type Editor.Commands.Descriptors.Command_Effect_Classification_Id;
-   use type Editor.Commands.Command_Kind;
+   use type Editor.Command_Kinds.Command_Kind;
    use type Editor.Keybindings.Keybinding_Validation_Status;
    use type Editor.Overlay_Focus.Overlay_Target;
    use type Editor.Panel_Focus.Focus_Target;
@@ -168,42 +169,42 @@ package body Editor.Command_Surface.Route_Audit_Tests is
    end Is_Lower_Kebab_Name;
 
    function Executor_Owns_Break_Group_Command
-     (Id : Editor.Commands.Command_Id) return Boolean
+     (Id : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       case Id is
-         when Editor.Commands.Command_Dismiss_Latest_Message
-            | Editor.Commands.Command_Dismiss_All_Messages
-            | Editor.Commands.Command_Open_File
-            | Editor.Commands.Command_Toggle_Line_Numbers
-            | Editor.Commands.Command_Set_Absolute_Line_Numbers
-            | Editor.Commands.Command_Set_Relative_Line_Numbers
-            | Editor.Commands.Command_Set_Hybrid_Line_Numbers
-            | Editor.Commands.Command_Toggle_Current_Line_Highlight
-            | Editor.Commands.Command_Toggle_Syntax_Colouring
-            | Editor.Commands.Command_Toggle_Diagnostics
-            | Editor.Commands.Command_Toggle_Cursor_Style
-            | Editor.Commands.Command_Edit_History_Clear
-            | Editor.Commands.Command_Select_All
-            | Editor.Commands.Command_Selection_Clear
-            | Editor.Commands.Command_Build_Run
-            | Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Confirm
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Cancel
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Summary
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Next
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Previous
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Toggle
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Show
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Hide
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Remove_Selected
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Restore_Last_Removed
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Summary
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Next
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Previous
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Clear_Stale
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Stale_Summary
-            | Editor.Commands.No_Command =>
+         when Editor.Command_Ids.Command_Dismiss_Latest_Message
+            | Editor.Command_Ids.Command_Dismiss_All_Messages
+            | Editor.Command_Ids.Command_Open_File
+            | Editor.Command_Ids.Command_Toggle_Line_Numbers
+            | Editor.Command_Ids.Command_Set_Absolute_Line_Numbers
+            | Editor.Command_Ids.Command_Set_Relative_Line_Numbers
+            | Editor.Command_Ids.Command_Set_Hybrid_Line_Numbers
+            | Editor.Command_Ids.Command_Toggle_Current_Line_Highlight
+            | Editor.Command_Ids.Command_Toggle_Syntax_Colouring
+            | Editor.Command_Ids.Command_Toggle_Diagnostics
+            | Editor.Command_Ids.Command_Toggle_Cursor_Style
+            | Editor.Command_Ids.Command_Edit_History_Clear
+            | Editor.Command_Ids.Command_Select_All
+            | Editor.Command_Ids.Command_Selection_Clear
+            | Editor.Command_Ids.Command_Build_Run
+            | Editor.Command_Ids.Command_Build_Run_User_Opt_In_Test_Seam
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Confirm
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Cancel
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Summary
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Next
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Previous
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Toggle
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Show
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Hide
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Remove_Selected
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Restore_Last_Removed
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Summary
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Next
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Previous
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Clear_Stale
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Stale_Summary
+            | Editor.Command_Ids.No_Command =>
             return True;
          when others =>
             return False;
@@ -214,11 +215,11 @@ package body Editor.Command_Surface.Route_Audit_Tests is
      (Name : String)
    is
       Found : Boolean;
-      Id    : constant Editor.Commands.Command_Id :=
+      Id    : constant Editor.Command_Ids.Command_Id :=
         Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
    begin
       if Name = "build.run" then
-         Assert (Found and then Id = Editor.Commands.Command_Build_Run,
+         Assert (Found and then Id = Editor.Command_Ids.Command_Build_Run,
                  "build.run must be the single guarded public build command");
       else
          Assert (not Found,
@@ -386,7 +387,7 @@ package body Editor.Command_Surface.Route_Audit_Tests is
    end Cell;
 
    function Switcher_Command_Is_In_Reference
-     (Id : Editor.Commands.Command_Id) return Boolean
+     (Id : Editor.Command_Ids.Command_Id) return Boolean
    is
       Stable : constant String := Editor.Commands.Name_Metadata.Stable_Command_Name (Id);
    begin
@@ -421,7 +422,7 @@ package body Editor.Command_Surface.Route_Audit_Tests is
       end if;
    end Classification_Label;
 
-   function Hint_Label (Id : Editor.Commands.Command_Id) return String is
+   function Hint_Label (Id : Editor.Command_Ids.Command_Id) return String is
       use Editor.Commands;
    begin
       case Id is
@@ -530,7 +531,7 @@ package body Editor.Command_Surface.Route_Audit_Tests is
    procedure Assert_Row_Matches_Descriptor (Line : String) is
       Stable : constant String := Cell (Line, 1);
       Found  : Boolean := False;
-      Id     : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Id     : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       D      : Editor.Commands.Descriptors.Command_Descriptor;
    begin
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Stable, Found);
@@ -602,7 +603,7 @@ package body Editor.Command_Surface.Route_Audit_Tests is
       Editor.Command_Route_Audit.Clear (Audit);
       Editor.Command_Route_Audit.Record_Command_Palette_Route
         (Result                   => Audit,
-         Command                  => Editor.Commands.Command_Open_Command_Palette,
+         Command                  => Editor.Command_Ids.Command_Open_Command_Palette,
          Routed_Through_Executor  => True,
          Used_Stable_Command_Name => True,
          Carried_Payload          => False);
@@ -611,7 +612,7 @@ package body Editor.Command_Surface.Route_Audit_Tests is
 
       Editor.Command_Route_Audit.Record_Command_Palette_Route
         (Result                   => Audit,
-         Command                  => Editor.Commands.Command_Open_Command_Palette,
+         Command                  => Editor.Command_Ids.Command_Open_Command_Palette,
          Routed_Through_Executor  => True,
          Used_Stable_Command_Name => True,
          Carried_Payload          => True);
@@ -631,7 +632,7 @@ package body Editor.Command_Surface.Route_Audit_Tests is
 
       procedure Check
         (Source  : Editor.Command_Route_Audit.Route_Source;
-         Command : Editor.Commands.Command_Id)
+         Command : Editor.Command_Ids.Command_Id)
       is
       begin
          Editor.Command_Route_Audit.Record_Command_UI_Route
@@ -647,19 +648,19 @@ package body Editor.Command_Surface.Route_Audit_Tests is
    begin
       Editor.Command_Route_Audit.Clear (Audit);
       Check (Editor.Command_Route_Audit.Route_From_Problems,
-             Editor.Commands.Command_Problems_Open_Selected);
+             Editor.Command_Ids.Command_Problems_Open_Selected);
       Check (Editor.Command_Route_Audit.Route_From_Feature_Panel,
-             Editor.Commands.Command_Build_Run);
+             Editor.Command_Ids.Command_Build_Run);
       Check (Editor.Command_Route_Audit.Route_From_File_Tree,
-             Editor.Commands.Command_File_Tree_Open_Selected);
+             Editor.Command_Ids.Command_File_Tree_Open_Selected);
       Check (Editor.Command_Route_Audit.Route_From_Search_Results,
-             Editor.Commands.Command_Search_Results_Open_Selected);
+             Editor.Command_Ids.Command_Search_Results_Open_Selected);
       Check (Editor.Command_Route_Audit.Route_From_Command_Palette,
-             Editor.Commands.Command_Accept_Quick_Open);
+             Editor.Command_Ids.Command_Accept_Quick_Open);
       Check (Editor.Command_Route_Audit.Route_From_Pending_Bar,
-             Editor.Commands.Command_Retry_Pending_Transition);
+             Editor.Command_Ids.Command_Retry_Pending_Transition);
       Check (Editor.Command_Route_Audit.Route_From_Recent_Project_Picker,
-             Editor.Commands.Command_Open_Selected_Recent_Project);
+             Editor.Command_Ids.Command_Open_Selected_Recent_Project);
       Assert (Editor.Command_Route_Audit.Failure_Count (Audit) = 0,
               "command-like UI route audit should accept canonical executor routes: "
               & Editor.Command_Route_Audit.Summary (Audit));
@@ -675,7 +676,7 @@ package body Editor.Command_Surface.Route_Audit_Tests is
       Editor.Command_Route_Audit.Record_Command_UI_Route
         (Result                   => Audit,
          Source                   => Editor.Command_Route_Audit.Route_From_Problems,
-         Command                  => Editor.Commands.Command_Problems_Open_Selected,
+         Command                  => Editor.Command_Ids.Command_Problems_Open_Selected,
          Dispatch_Count           => 2,
          Routed_Through_Executor  => False,
          Used_Stable_Command_Name => False,
@@ -692,8 +693,8 @@ package body Editor.Command_Surface.Route_Audit_Tests is
    procedure Test_Palette_Command_Traversal_Audit
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Seen : array (Editor.Commands.Command_Id) of Boolean := (others => False);
-      Id   : Editor.Commands.Command_Id;
+      Seen : array (Editor.Command_Ids.Command_Id) of Boolean := (others => False);
+      Id   : Editor.Command_Ids.Command_Id;
       D    : Editor.Commands.Descriptors.Command_Descriptor;
    begin
       Assert
@@ -723,8 +724,8 @@ package body Editor.Command_Surface.Route_Audit_Tests is
             "palette-visible commands must not use Internal category");
       end loop;
 
-      for I in 1 .. Editor.Commands.Command_Count loop
-         Id := Editor.Commands.Command_At (I);
+      for I in 1 .. Editor.Command_Ids.Command_Count loop
+         Id := Editor.Command_Ids.Command_At (I);
          if not Editor.Commands.Classification.Visible_In_Command_Palette (Id) then
             Assert
               (not Seen (Id),
@@ -752,7 +753,7 @@ package body Editor.Command_Surface.Route_Audit_Tests is
          "default keybindings must not contain duplicate chords");
 
       Info := Editor.Keybindings.Primary_Binding_For_Command
-        (Editor.Commands.Command_Save_File);
+        (Editor.Command_Ids.Command_Save_File);
       Assert (Info.Has_Binding, "Save File must expose its primary binding");
       Assert
         (To_String (Info.Display) = "Ctrl+S",
@@ -764,10 +765,10 @@ package body Editor.Command_Surface.Route_Audit_Tests is
       pragma Unreferenced (T);
       Count : Natural := 0;
       Found : Boolean := False;
-      Id    : Editor.Commands.Command_Id := Editor.Commands.Registry.First_Concrete_Command;
+      Id    : Editor.Command_Ids.Command_Id := Editor.Commands.Registry.First_Concrete_Command;
 
       procedure Count_Command
-        (Current : Editor.Commands.Command_Id)
+        (Current : Editor.Command_Ids.Command_Id)
       is
       begin
          Assert
@@ -777,10 +778,10 @@ package body Editor.Command_Surface.Route_Audit_Tests is
       end Count_Command;
    begin
       Assert
-        (Editor.Commands.Registry.First_Concrete_Command /= Editor.Commands.No_Command,
+        (Editor.Commands.Registry.First_Concrete_Command /= Editor.Command_Ids.No_Command,
          "first concrete command must exclude No_Command");
       Assert
-        (Editor.Commands.Registry.Concrete_Command_Count = Editor.Commands.Command_Count - 1,
+        (Editor.Commands.Registry.Concrete_Command_Count = Editor.Command_Ids.Command_Count - 1,
          "concrete command count must exclude exactly No_Command");
 
       while Found or else Id = Editor.Commands.Registry.First_Concrete_Command loop
@@ -820,7 +821,7 @@ package body Editor.Command_Surface.Route_Audit_Tests is
       pragma Unreferenced (T);
       D : constant Editor.Commands.Descriptors.Command_Descriptor :=
         Editor.Commands.Descriptors.Make_Command_Descriptor
-          (Id            => Editor.Commands.Command_Save_Settings,
+          (Id            => Editor.Command_Ids.Command_Save_Settings,
            Stable_Name   => "save-settings",
            Label         => "Save Settings",
            Description   => "Write global editor preferences.",
@@ -831,7 +832,7 @@ package body Editor.Command_Surface.Route_Audit_Tests is
            Lifecycle     => False,
            Configuration => True);
    begin
-      Assert (D.Id = Editor.Commands.Command_Save_Settings,
+      Assert (D.Id = Editor.Command_Ids.Command_Save_Settings,
               "descriptor helper must preserve command id");
       Assert (To_String (D.Name) = "Save Settings",
               "descriptor helper must preserve explicit label");
@@ -855,7 +856,7 @@ package body Editor.Command_Surface.Route_Audit_Tests is
       Editor.Command_Route_Audit.Record_Route
         (Result  => Result,
          Source  => Editor.Command_Route_Audit.Route_From_Keybinding,
-         Command => Editor.Commands.No_Command);
+         Command => Editor.Command_Ids.No_Command);
       Text := To_Unbounded_String (Editor.Command_Route_Audit.Summary (Result));
 
       Assert
@@ -874,8 +875,8 @@ package body Editor.Command_Surface.Route_Audit_Tests is
         (Result   => Result,
          Source   => Editor.Command_Route_Audit.Route_From_Command_Palette,
          Kind     => Editor.Command_Route_Audit.Route_Dispatched_Wrong_Command,
-         Expected => Editor.Commands.Command_Save_File,
-         Actual   => Editor.Commands.Command_Save_All,
+         Expected => Editor.Command_Ids.Command_Save_File,
+         Actual   => Editor.Command_Ids.Command_Save_All,
          Message  => "accept dispatched the wrong command id");
       Text := To_Unbounded_String
         (Editor.Command_Route_Audit.Last_Failure_Message (Result));

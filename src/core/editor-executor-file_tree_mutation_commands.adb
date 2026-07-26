@@ -12,7 +12,6 @@ with Editor.Buffers;
 use type Editor.Buffers.Buffer_Id;
 with Editor.Build_Candidates;
 with Editor.Build_UI;
-with Editor.Commands;
 with Editor.Executor;
 with Editor.Executor.Semantic_Index_Commands;
 with Editor.Executor.Project_Search_Result_Commands;

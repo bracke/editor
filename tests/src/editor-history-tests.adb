@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
@@ -12,9 +13,8 @@ with Ada.Containers; use Ada.Containers;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Text_Buffer;
 with Editor.Cursors; use Editor.Cursors;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
-use type Editor.Commands.Command_Id;
+use type Editor.Command_Ids.Command_Id;
 with Editor.History;
 with Editor.Messages;
 with Editor.Buffers;
@@ -336,18 +336,18 @@ package body Editor.History.Tests is
       A : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Editor.State.Init (S);
-      A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Undo);
+      A := Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Undo);
       Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Unavailable, "empty undo history is unavailable");
 
-      A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Redo);
+      A := Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Redo);
       Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Unavailable, "empty redo history is unavailable");
 
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Insert (0, 'a'));
-      A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Undo);
+      A := Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Undo);
       Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Available, "undo is available after edit");
 
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Undo);
-      A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Redo);
+      A := Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Redo);
       Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Available, "redo is available after undo");
    end Test_Unavailable_Undo_Redo_Availability;
 
@@ -418,31 +418,31 @@ package body Editor.History.Tests is
    begin
       Editor.State.Init (S);
       Assert
-        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Undo) = "edit.undo",
+        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Command_Ids.Command_Undo) = "edit.undo",
          "undo stable command name must be canonical");
       Assert
-        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Redo) = "edit.redo",
+        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Command_Ids.Command_Redo) = "edit.redo",
          "redo stable command name must be canonical");
       Assert
-        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Edit_History_Clear) = "edit.history.clear",
+        (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Command_Ids.Command_Edit_History_Clear) = "edit.history.clear",
          "clear edit history stable command name must be canonical");
       Assert
-        (Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Undo).Visibility = Editor.Commands.Descriptors.Palette_Command,
+        (Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Undo).Visibility = Editor.Commands.Descriptors.Palette_Command,
          "undo must be command-palette visible");
       Assert
-        (Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Redo).Visibility = Editor.Commands.Descriptors.Palette_Command,
+        (Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Redo).Visibility = Editor.Commands.Descriptors.Palette_Command,
          "redo must be command-palette visible");
       Assert
-        (Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Edit_History_Clear).Visibility = Editor.Commands.Descriptors.Palette_Command,
+        (Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Edit_History_Clear).Visibility = Editor.Commands.Descriptors.Palette_Command,
          "clear edit history must be command-palette visible");
 
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Insert (0, 'a'));
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Edit_History_Clear);
+        (S, Editor.Command_Ids.Command_Edit_History_Clear);
       Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Available,
         "clear edit history is available when active buffer has undo history");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Edit_History_Clear);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Edit_History_Clear);
       Assert (Editor.History.Undo_Stack.Is_Empty,
         "clear edit history clears undo stack");
       Assert (Editor.History.Redo_Stack.Is_Empty,
@@ -461,11 +461,11 @@ package body Editor.History.Tests is
 
    procedure Assert_Removed_Name_Undo_Redo_Name_Rejected (Name : String) is
       Found : Boolean := False;
-      Id    : Editor.Commands.Command_Id;
+      Id    : Editor.Command_Ids.Command_Id;
    begin
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
       Assert
-        (not Found and then Id = Editor.Commands.No_Command,
+        (not Found and then Id = Editor.Command_Ids.No_Command,
          "removed undo/redo command name must be rejected: " & Name);
    end Assert_Removed_Name_Undo_Redo_Name_Rejected;
 
@@ -797,7 +797,7 @@ package body Editor.History.Tests is
 
       Editor.Buffers.Global_Set_Active_Buffer (A);
       Editor.Buffers.Load_Global_Active_Into_State (S);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Edit_History_Clear);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Edit_History_Clear);
       Assert (Editor.History.Undo_Stack.Is_Empty,
               "clear history clears active buffer A undo stack");
       Editor.Buffers.Sync_Global_Active_From_State (S);
@@ -834,13 +834,13 @@ package body Editor.History.Tests is
       Assert_Text (S, "AB", "ordinary edit precondition");
       Assert_Stacks (1, 0, "ordinary edit creates one undo entry");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Text (S, "A", "undo restores exact previous text");
       Assert_Stacks (0, 1, "undo transfers entry to redo");
       Assert (Latest_Message_Text (S) = "Undid edit",
               "undo emits one primary undo message");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert_Text (S, "AB", "redo restores exact later text");
       Assert_Stacks (1, 0, "redo transfers entry to undo");
       Assert (Latest_Message_Text (S) = "Redid edit",
@@ -863,30 +863,30 @@ package body Editor.History.Tests is
       Editor.Executor.Execute_No_Log (S, Paste ("D"));
       Assert_Stacks (3, 0, "three edits are three undo entries");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Text (S, "ABC", "undo 1");
       Assert_Stacks (2, 1, "stack after undo 1");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Text (S, "AB", "undo 2");
       Assert_Stacks (1, 2, "stack after undo 2");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Text (S, "A", "undo 3");
       Assert_Stacks (0, 3, "stack after undo 3");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Text (S, "A", "empty undo mutates nothing");
       Assert (Latest_Message_Text (S) = "No edits to undo",
               "empty undo message");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert_Text (S, "AB", "redo 1");
       Assert_Stacks (1, 2, "stack after redo 1");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert_Text (S, "ABC", "redo 2");
       Assert_Stacks (2, 1, "stack after redo 2");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert_Text (S, "ABCD", "redo 3");
       Assert_Stacks (3, 0, "stack after redo 3");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert_Text (S, "ABCD", "empty redo mutates nothing");
       Assert (Latest_Message_Text (S) = "No edits to redo",
               "empty redo message");
@@ -909,7 +909,7 @@ package body Editor.History.Tests is
       Editor.Executor.Execute_No_Log (S, Paste ("D"));
       Assert_Text (S, "ABD", "successful new edit applies");
       Assert_Stacks (2, 0, "successful new edit clears redo only for active buffer");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert_Text (S, "ABD", "redo after invalidation mutates nothing");
       Assert (Latest_Message_Text (S) = "No edits to redo",
               "redo invalidation message");
@@ -931,7 +931,7 @@ package body Editor.History.Tests is
       Editor.Executor.Execute_No_Log (S, Paste ("B"));
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Undo);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "A");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Goto_Line_Toggle);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Goto_Line_Toggle);
       Assert_Stacks (0, 1, "read-only commands preserve redo");
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Redo);
       Assert_Text (S, "AB", "redo survives read-only/navigation commands");
@@ -950,17 +950,17 @@ package body Editor.History.Tests is
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Undo);
       Dirty_Before := Editor.State.Is_Dirty (S);
       Assert_Stacks (0, 1, "clear precondition");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Edit_History_Clear);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Edit_History_Clear);
       Assert_Text (S, "A", "history.clear does not mutate text");
       Assert_Stacks (0, 0, "history.clear clears both stacks");
       Assert (Editor.State.Is_Dirty (S) = Dirty_Before,
               "history.clear does not directly mutate dirty flag");
       Assert (Latest_Message_Text (S) = "Undo history cleared",
               "history.clear emits one cleared message");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert (Latest_Message_Text (S) = "No edits to undo",
               "undo after clear reports no undo");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Edit_History_Clear);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Edit_History_Clear);
       Assert (Latest_Message_Text (S) = "No edit history to clear",
               "empty history.clear message");
    end Test_History_Clear_Text_Dirty_And_Isolation;
@@ -1079,7 +1079,7 @@ package body Editor.History.Tests is
       Editor.Buffers.Load_Global_Active_Into_State (S);
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Redo);
       Assert_Text (S, "A1", "redo in A restores A only");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Edit_History_Clear);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Edit_History_Clear);
       Assert_Stacks (0, 0, "clear applies to active A only");
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
@@ -1113,22 +1113,22 @@ package body Editor.History.Tests is
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert (Snap.Length = Text (S)'Length,
               "render snapshot reflects text without consuming history");
-      A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Undo);
+      A := Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Undo);
       Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
               "undo availability reports current empty undo stack");
-      A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Redo);
+      A := Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Redo);
       Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "redo availability reports non-empty redo stack");
-      A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Edit_History_Clear);
+      A := Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Edit_History_Clear);
       Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "history.clear availability reports non-empty history");
 
       Assert (Text (S) = To_String (Before_Text),
               "render/availability does not mutate buffer text");
       Assert_Stacks (U, R, "render/availability preserves stacks");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert_Text (S, "AB", "command route through Executor performs redo once");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Text (S, "A", "command route through Executor performs undo once");
    end Test_Availability_Render_And_Route_Are_Side_Effect_Free;
 

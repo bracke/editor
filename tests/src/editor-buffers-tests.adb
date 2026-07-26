@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Classification;
@@ -16,7 +17,6 @@ with Editor.Command_Route_Audit;
 with Editor.Command_Palette;
 with Editor.Keybindings;
 with Editor.Project;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.Executor;
 with Editor.Executor.Command_Palette_Projection;
@@ -52,7 +52,7 @@ package body Editor.Buffers.Tests is
    use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
    use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Commands.Descriptors.Command_Visibility;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Messages.Message_Severity;
    use type Editor.State.Dirty_Close_Scope;
    use type Editor.State.File_State;
@@ -849,13 +849,13 @@ package body Editor.Buffers.Tests is
       Summary : Editor.Buffers.Buffer_Summary;
    begin
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-        (Editor.Commands.Command_Pin_Buffer) = "buffers.pin",
+        (Editor.Command_Ids.Command_Pin_Buffer) = "buffers.pin",
         "pin command stable name must be buffers.pin");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-        (Editor.Commands.Command_Unpin_Buffer) = "buffers.unpin",
+        (Editor.Command_Ids.Command_Unpin_Buffer) = "buffers.unpin",
         "unpin command stable name must be buffers.unpin");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-        (Editor.Commands.Command_Toggle_Buffer_Pin) = "buffers.toggle-pin",
+        (Editor.Command_Ids.Command_Toggle_Buffer_Pin) = "buffers.toggle-pin",
         "toggle pin command stable name must be buffers.toggle-pin");
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
@@ -863,7 +863,7 @@ package body Editor.Buffers.Tests is
       Editor.Buffers.Ensure_Global_Registry (S);
       Id := Editor.Buffers.Global_Active_Buffer;
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Pin_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Pin_Buffer);
       Assert (Editor.Buffers.Global_Is_Buffer_Pinned (Id),
         "pin command should mark active buffer as pinned");
       Summary := Editor.Buffers.Global_Summary_For (Id);
@@ -872,14 +872,14 @@ package body Editor.Buffers.Tests is
       Assert (To_String (Summary.Display_Name) = "Pinned.adb [Pinned] — untitled",
         "buffer summary should include compact pinned marker");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Unpin_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Unpin_Buffer);
       Assert (not Editor.Buffers.Global_Is_Buffer_Pinned (Id),
         "unpin command should clear pinned state");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Toggle_Buffer_Pin);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Toggle_Buffer_Pin);
       Assert (Editor.Buffers.Global_Is_Buffer_Pinned (Id),
         "toggle should pin an unpinned buffer");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Toggle_Buffer_Pin);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Toggle_Buffer_Pin);
       Assert (not Editor.Buffers.Global_Is_Buffer_Pinned (Id),
         "toggle should unpin a pinned buffer");
    end Test_Pin_Unpin_Toggle_And_Marker;
@@ -902,14 +902,14 @@ package body Editor.Buffers.Tests is
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Pinned_Path);
       Pinned_Id := Editor.Buffers.Global_Active_Buffer;
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Pin_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Pin_Buffer);
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Loose_Path);
       Loose_Id := Editor.Buffers.Global_Active_Buffer;
       Assert (Loose_Id /= Pinned_Id,
         "setup should open two distinct file-backed buffers");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_All_Clean_Buffers);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_All_Clean_Buffers);
       Assert (Editor.Buffers.Global_Contains (Pinned_Id),
         "close-clean should keep pinned buffers");
       Assert (not Editor.Buffers.Global_Contains (Loose_Id),
@@ -945,7 +945,7 @@ package body Editor.Buffers.Tests is
       Summary    : Editor.Buffers.Buffer_Summary;
    begin
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-        (Editor.Commands.Command_Assign_Buffer_Group) = "buffers.group.assign",
+        (Editor.Command_Ids.Command_Assign_Buffer_Group) = "buffers.group.assign",
         "assign group command stable name must be deterministic");
       Editor.Buffers.Reset_Global_For_Test;
       Write_File (Core_Path, "core");
@@ -977,7 +977,7 @@ package body Editor.Buffers.Tests is
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Pin_Path);
       Pin_Id := Editor.Buffers.Global_Active_Buffer;
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Pin_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Pin_Buffer);
 
       Cmd.Kind := Editor.Command_Kinds.Switch_Buffer_Group;
       Cmd.Text := To_Unbounded_String ("core");
@@ -1041,11 +1041,11 @@ package body Editor.Buffers.Tests is
       Editor.State.Init (S);
 
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Clear_Buffer_Group);
+        (S, Editor.Command_Ids.Command_Clear_Buffer_Group);
       Assert (Availability.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
         "clear group should be unavailable without grouped active buffer");
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Next_Buffer_Group);
+        (S, Editor.Command_Ids.Command_Next_Buffer_Group);
       Assert (Availability.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
         "cycle group should be unavailable without any groups");
       Assert (not Editor.Buffers.Global_Has_Buffer_Groups,
@@ -1064,7 +1064,7 @@ package body Editor.Buffers.Tests is
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Insert (4, 'x'));
       Assert (Editor.Buffers.Global_Summary_For (Core_Id).Is_Dirty,
         "grouped buffers remain ordinary editable dirty buffers");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File);
       Assert (not Editor.Buffers.Global_Summary_For (Core_Id).Is_Dirty,
         "grouped buffers remain saveable through ordinary save");
       Assert (Editor.Buffers.Global_Has_Buffer_Group (Core_Id),
@@ -1078,7 +1078,7 @@ package body Editor.Buffers.Tests is
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Pin_Path);
       Pin_Id := Editor.Buffers.Global_Active_Buffer;
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Pin_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Pin_Buffer);
 
       Cmd.Kind := Editor.Command_Kinds.Switch_Buffer_Group;
       Cmd.Text := To_Unbounded_String ("core");
@@ -1118,18 +1118,18 @@ package body Editor.Buffers.Tests is
       Was_Dirty    : Boolean := False;
    begin
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-        (Editor.Commands.Command_Set_Buffer_Note) = "buffers.note.set",
+        (Editor.Command_Ids.Command_Set_Buffer_Note) = "buffers.note.set",
         "set note command stable name must be deterministic");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-        (Editor.Commands.Command_Clear_Buffer_Note) = "buffers.note.clear",
+        (Editor.Command_Ids.Command_Clear_Buffer_Note) = "buffers.note.clear",
         "clear note command stable name must be deterministic");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-        (Editor.Commands.Command_Edit_Buffer_Note) = "buffers.note.edit",
+        (Editor.Command_Ids.Command_Edit_Buffer_Note) = "buffers.note.edit",
         "edit note command stable name must be deterministic");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-        (Editor.Commands.Command_Show_Buffer_Note) = "buffers.note.show",
+        (Editor.Command_Ids.Command_Show_Buffer_Note) = "buffers.note.show",
         "show note command stable name must be deterministic");
-      Assert (not Editor.Commands.Classification.Is_Destructive_Command (Editor.Commands.Command_Set_Buffer_Note),
+      Assert (not Editor.Commands.Classification.Is_Destructive_Command (Editor.Command_Ids.Command_Set_Buffer_Note),
         "setting a note must not be classified as destructive");
 
       Editor.Buffers.Reset_Global_For_Test;
@@ -1139,7 +1139,7 @@ package body Editor.Buffers.Tests is
       Id := Editor.Buffers.Global_Active_Buffer;
 
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Clear_Buffer_Note);
+        (S, Editor.Command_Ids.Command_Clear_Buffer_Note);
       Assert (Availability.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
         "clear note should be unavailable before a note exists");
       Assert (not Editor.Buffers.Global_Has_Buffer_Note (Id),
@@ -1220,7 +1220,7 @@ package body Editor.Buffers.Tests is
       Cmd.Kind := Editor.Command_Kinds.Assign_Buffer_Group;
       Cmd.Text := To_Unbounded_String ("core");
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Pin_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Pin_Buffer);
       Assert (Editor.Buffers.Global_Has_Buffer_Note (Note_Id),
         "setup should create a noted buffer");
       Assert (Editor.Buffers.Global_Is_Buffer_Pinned (Note_Id),
@@ -1244,12 +1244,12 @@ package body Editor.Buffers.Tests is
       Cmd.Kind := Editor.Command_Kinds.Set_Buffer_Note;
       Cmd.Text := To_Unbounded_String ("do not close");
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Pin_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Pin_Buffer);
 
       Editor.Buffers.Global_Set_Active_Buffer (Note_Id);
       Editor.Buffers.Load_Global_Active_Into_State (S);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Unpin_Buffer);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_All_Clean_Buffers);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Unpin_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_All_Clean_Buffers);
       Assert (not Editor.Buffers.Global_Contains (Note_Id),
         "cleanup should close clean noted buffers when unpinned");
       Assert (Editor.Buffers.Global_Contains (Pinned_Id),
@@ -1316,18 +1316,18 @@ package body Editor.Buffers.Tests is
       Was_Dirty    : Boolean := False;
    begin
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-        (Editor.Commands.Command_Set_Buffer_Label) = "buffers.label.set",
+        (Editor.Command_Ids.Command_Set_Buffer_Label) = "buffers.label.set",
         "set label command stable name must be deterministic");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-        (Editor.Commands.Command_Clear_Buffer_Label) = "buffers.label.clear",
+        (Editor.Command_Ids.Command_Clear_Buffer_Label) = "buffers.label.clear",
         "clear label command stable name must be deterministic");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-        (Editor.Commands.Command_Edit_Buffer_Label) = "buffers.label.edit",
+        (Editor.Command_Ids.Command_Edit_Buffer_Label) = "buffers.label.edit",
         "edit label command stable name must be deterministic");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-        (Editor.Commands.Command_Show_Buffer_Label) = "buffers.label.show",
+        (Editor.Command_Ids.Command_Show_Buffer_Label) = "buffers.label.show",
         "show label command stable name must be deterministic");
-      Assert (not Editor.Commands.Classification.Is_Destructive_Command (Editor.Commands.Command_Set_Buffer_Label),
+      Assert (not Editor.Commands.Classification.Is_Destructive_Command (Editor.Command_Ids.Command_Set_Buffer_Label),
         "setting a label must not be classified as destructive");
 
       Editor.Buffers.Reset_Global_For_Test;
@@ -1337,7 +1337,7 @@ package body Editor.Buffers.Tests is
       Id := Editor.Buffers.Global_Active_Buffer;
 
       Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Clear_Buffer_Label);
+        (S, Editor.Command_Ids.Command_Clear_Buffer_Label);
       Assert (Availability.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
         "clear label should be unavailable before a label exists");
       Assert (not Editor.Buffers.Global_Has_Buffer_Label (Id),
@@ -1430,7 +1430,7 @@ package body Editor.Buffers.Tests is
       Cmd.Kind := Editor.Command_Kinds.Assign_Buffer_Group;
       Cmd.Text := To_Unbounded_String ("core");
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Pin_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Pin_Buffer);
       Assert (Editor.Buffers.Global_Has_Buffer_Label (Label_Id),
         "setup should create a labeled buffer");
       Assert (Editor.Buffers.Global_Has_Buffer_Note (Label_Id),
@@ -1461,12 +1461,12 @@ package body Editor.Buffers.Tests is
       Cmd.Kind := Editor.Command_Kinds.Set_Buffer_Label;
       Cmd.Text := To_Unbounded_String ("blocked");
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Pin_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Pin_Buffer);
 
       Editor.Buffers.Global_Set_Active_Buffer (Label_Id);
       Editor.Buffers.Load_Global_Active_Into_State (S);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Unpin_Buffer);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_All_Clean_Buffers);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Unpin_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_All_Clean_Buffers);
       Assert (not Editor.Buffers.Global_Contains (Label_Id),
         "cleanup should close clean labeled buffers when unpinned");
       Assert (Editor.Buffers.Global_Contains (Pinned_Id),
@@ -1534,16 +1534,16 @@ package body Editor.Buffers.Tests is
    is
       pragma Unreferenced (T);
       D     : constant Editor.Commands.Descriptors.Command_Descriptor :=
-        Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Close_Active_Buffer);
+        Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Close_Active_Buffer);
       Found : Boolean := False;
    begin
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Close_Active_Buffer) = "file.close-buffer",
+           (Editor.Command_Ids.Command_Close_Active_Buffer) = "file.close-buffer",
          "active-buffer close stable name must be file.close-buffer");
       Assert
         (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
-           ("file.close-buffer", Found) = Editor.Commands.Command_Close_Active_Buffer
+           ("file.close-buffer", Found) = Editor.Command_Ids.Command_Close_Active_Buffer
          and then Found,
          "file.close-buffer must resolve to active-buffer close");
       Assert (D.Category = Editor.Commands.Descriptors.File_Category,
@@ -1565,48 +1565,48 @@ package body Editor.Buffers.Tests is
    begin
       Assert
         (Editor.Commands.Descriptors.Descriptor
-           (Editor.Commands.Command_Close_Active_Buffer).Visibility =
+           (Editor.Command_Ids.Command_Close_Active_Buffer).Visibility =
          Editor.Commands.Descriptors.Palette_Command,
          "file.close-buffer remains the active-buffer close surface");
       Assert
         (Editor.Commands.Descriptors.Descriptor
-           (Editor.Commands.Command_Close_Other_Buffers).Visibility =
+           (Editor.Command_Ids.Command_Close_Other_Buffers).Visibility =
          Editor.Commands.Descriptors.Palette_Command,
          "Close Other Buffers is public with dirty review guards");
       Assert
         (Editor.Commands.Descriptors.Descriptor
-           (Editor.Commands.Command_Close_All_Clean_Buffers).Visibility =
+           (Editor.Command_Ids.Command_Close_All_Clean_Buffers).Visibility =
          Editor.Commands.Descriptors.Palette_Command,
          "Close Clean Buffers is public and preserves dirty buffers");
       Assert
         (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("file.close-buffer", Found) =
-         Editor.Commands.Command_Close_Active_Buffer and then Found,
+         Editor.Command_Ids.Command_Close_Active_Buffer and then Found,
          "canonical close stable name must resolve");
       Assert
         (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("close-buffer", Found) =
-         Editor.Commands.No_Command and then not Found,
+         Editor.Command_Ids.No_Command and then not Found,
          "removed-name close-buffer name must not resolve");
       Assert
         (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("buffer.close", Found) =
-         Editor.Commands.No_Command and then not Found,
+         Editor.Command_Ids.No_Command and then not Found,
          "buffer.close removed name must not resolve");
       Found := False;
       Assert
         (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("file.close-other-buffers", Found) =
-         Editor.Commands.Command_Close_Other_Buffers and then Found,
+         Editor.Command_Ids.Command_Close_Other_Buffers and then Found,
          "close-other stable name must resolve");
       Found := False;
       Assert
         (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("file.close-clean-buffers", Found) =
-         Editor.Commands.Command_Close_All_Clean_Buffers and then Found,
+         Editor.Command_Ids.Command_Close_All_Clean_Buffers and then Found,
          "close-clean stable name must resolve");
       Assert
         (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("file.close-all", Found) =
-         Editor.Commands.No_Command and then not Found,
+         Editor.Command_Ids.No_Command and then not Found,
          "close-all removed name must not resolve");
       Assert
         (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("file.discard-buffer", Found) =
-         Editor.Commands.No_Command and then not Found,
+         Editor.Command_Ids.No_Command and then not Found,
          "discard removed-name close-adjacent name must not resolve");
    end Test_Close_Surface_Is_Canonical_And_Removed_Name_Hidden;
 
@@ -1632,7 +1632,7 @@ package body Editor.Buffers.Tests is
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Close_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Close_Active_Buffer);
 
       Assert (not Editor.Buffers.Global_Contains (B_Id),
         "file.close-buffer must remove the active clean buffer");
@@ -1667,7 +1667,7 @@ package body Editor.Buffers.Tests is
       Id := Editor.Buffers.Global_Active_Buffer;
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Close_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Close_Active_Buffer);
 
       Assert (not Editor.Buffers.Global_Contains (Id),
         "clean active close must still remove the active buffer");
@@ -1698,7 +1698,7 @@ package body Editor.Buffers.Tests is
       S     : Editor.State.State_Type;
       Path  : constant String := Editor.Test_Temp.Base & "/editor_reopen_success.txt";
       D     : constant Editor.Commands.Descriptors.Command_Descriptor :=
-        Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Reopen_Closed_Buffer);
+        Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Reopen_Closed_Buffer);
       M     : Editor.Messages.Editor_Message;
       Found : Boolean := False;
    begin
@@ -1708,13 +1708,13 @@ package body Editor.Buffers.Tests is
 
       Assert
         (Editor.Commands.Name_Metadata.Stable_Command_Name
-           (Editor.Commands.Command_Reopen_Closed_Buffer) =
+           (Editor.Command_Ids.Command_Reopen_Closed_Buffer) =
          "file.reopen-closed-buffer",
          "reopen command stable name must be canonical");
       Assert
         (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
            ("file.reopen-closed-buffer", Found) =
-         Editor.Commands.Command_Reopen_Closed_Buffer and then Found,
+         Editor.Command_Ids.Command_Reopen_Closed_Buffer and then Found,
          "reopen stable name must resolve");
       Assert (D.Category = Editor.Commands.Descriptors.File_Category,
         "reopen command must be a File command");
@@ -1735,7 +1735,7 @@ package body Editor.Buffers.Tests is
       Editor.State.Set_Dirty (S, False);
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Close_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Close_Active_Buffer);
 
       Assert (S.Has_Reopen_Candidate,
         "clean associated close must retain a transient candidate");
@@ -1743,7 +1743,7 @@ package body Editor.Buffers.Tests is
         "canonical close must still avoid removed-name close history");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Reopen_Closed_Buffer);
+        (S, Editor.Command_Ids.Command_Reopen_Closed_Buffer);
       Assert (Editor.Buffers.Global_Count = 1,
         "reopen must add exactly one file-backed buffer");
       Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Path,
@@ -1789,7 +1789,7 @@ package body Editor.Buffers.Tests is
       Id := Editor.Buffers.Global_Active_Buffer;
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Close_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Close_Active_Buffer);
 
       Assert (Editor.Buffers.Global_Contains (Id),
         "dirty active buffer must remain open");
@@ -1841,7 +1841,7 @@ package body Editor.Buffers.Tests is
       Editor.Buffer_Switcher.Select_Buffer_Or_Row (S.Buffer_Switcher, A_Id, 1);
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Close_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Close_Active_Buffer);
 
       Assert (not Editor.Buffers.Global_Contains (B_Id),
         "file.close-buffer must close the active buffer, not the switcher-selected inactive row");
@@ -1878,7 +1878,7 @@ package body Editor.Buffers.Tests is
       Before_Count := Editor.Buffers.Global_Count;
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Close_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Close_Active_Buffer);
 
       Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
         "dirty active buffer close is available because execution opens explicit review");
@@ -1916,7 +1916,7 @@ package body Editor.Buffers.Tests is
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Insert (4, '!'));
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Close_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Close_Active_Buffer);
 
       Assert (Editor.Buffers.Global_Contains (Id),
         "dirty associated buffer must remain open after blocked close");
@@ -1927,9 +1927,9 @@ package body Editor.Buffers.Tests is
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Cancel_Close);
+        (S, Editor.Command_Ids.Command_Cancel_Close);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Close_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Close_Active_Buffer);
 
       Assert (not Editor.Buffers.Global_Contains (Id),
         "successful file.save should make the buffer eligible for close");
@@ -2023,7 +2023,7 @@ package body Editor.Buffers.Tests is
       Editor.Clipboard.Set_Text (To_Unbounded_String ("clipboard"));
 
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Close_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Close_Active_Buffer);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
         "close availability must observe the clean active buffer, not stale dirty State");
 
@@ -2257,7 +2257,7 @@ package body Editor.Buffers.Tests is
       Editor.Clipboard.Set_Text (To_Unbounded_String ("clipboard"));
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Close_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Close_Active_Buffer);
 
       Assert (not Editor.Buffers.Global_Contains (B_Id),
         "close must remove the active buffer selected at execution time");
@@ -2283,12 +2283,12 @@ package body Editor.Buffers.Tests is
       Assert (Found and then To_String (M.Text) = "Buffer closed",
         "close target workflow must emit only Buffer closed");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert (Text (S) = "",
         "undo after close must affect the remaining active buffer only");
       Assert (not Editor.Buffers.Global_Contains (B_Id),
         "undo after close must not reopen or retarget the closed buffer");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert (Text (S) = "A",
         "redo after close must affect the remaining active buffer only");
 
@@ -2340,7 +2340,7 @@ package body Editor.Buffers.Tests is
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Close_Active_Buffer);
+        (S, Editor.Command_Ids.Command_Close_Active_Buffer);
       Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
 
       Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
@@ -2429,7 +2429,7 @@ package body Editor.Buffers.Tests is
       S.File_Info.Dirty := False;
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Cancel_Close);
+        (S, Editor.Command_Ids.Command_Cancel_Close);
       Editor.Executor.Buffer_Close_Commands.Execute_Close_Active_Buffer (S);
       Assert (not Editor.Buffers.Global_Contains (B_Id),
         "clean unassociated untitled close may still close normally");
@@ -2446,7 +2446,7 @@ package body Editor.Buffers.Tests is
         and then To_String (S.Reopen_Candidate_Path) = A_Path,
         "non-producing close attempts must not alter candidate ordering");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Reopen_Closed_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Reopen_Closed_Buffer);
       Assert (Editor.Buffers.Global_Count = 1,
         "reopen after non-producing closes must open exactly the retained candidate");
       Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = A_Path,
@@ -2506,7 +2506,7 @@ package body Editor.Buffers.Tests is
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
       Before_Count := Editor.Buffers.Global_Count;
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Reopen_Closed_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Reopen_Closed_Buffer);
 
       Assert (Editor.Buffers.Global_Count = Before_Count,
         "duplicate reopen must not create a second buffer");
@@ -2599,7 +2599,7 @@ package body Editor.Buffers.Tests is
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Reopen_Closed_Buffer);
+        (S, Editor.Command_Ids.Command_Reopen_Closed_Buffer);
       Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
 
       Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
@@ -2616,7 +2616,7 @@ package body Editor.Buffers.Tests is
       Assert (Natural (Candidates.Length) > 0,
         "Command Palette projection should remain readable with a reopen candidate");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Reopen_Closed_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Reopen_Closed_Buffer);
 
       Assert (Editor.Buffers.Global_Count = Before_Count,
         "failed reopen must not add a placeholder or empty buffer");
@@ -2689,7 +2689,7 @@ package body Editor.Buffers.Tests is
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Cancel_Close);
+        (S, Editor.Command_Ids.Command_Cancel_Close);
       Editor.Executor.Buffer_Close_Commands.Execute_Close_Active_Buffer (S);
       Assert (not Editor.Buffers.Global_Contains (A_Id),
         "saved clean associated buffer must close successfully");
@@ -2698,7 +2698,7 @@ package body Editor.Buffers.Tests is
         "successful clean close after save must create path-only candidate A");
       Write_File (A_Path, "A disk after close");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Reopen_Closed_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Reopen_Closed_Buffer);
       Assert (Editor.Buffers.Global_Count = 1,
         "reopen must add the saved associated file through canonical open");
       Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = A_Path,
@@ -2726,7 +2726,7 @@ package body Editor.Buffers.Tests is
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, B_Path);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Cancel_Close);
+        (S, Editor.Command_Ids.Command_Cancel_Close);
       Editor.Executor.Buffer_Close_Commands.Execute_Close_Active_Buffer (S);
       Assert (not Editor.Buffers.Global_Contains (B_Id),
         "Save As success then clean close must remove untitled buffer");
@@ -2735,7 +2735,7 @@ package body Editor.Buffers.Tests is
         "Save As success then clean close must create candidate B");
 
       Remove_File (B_Path);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Reopen_Closed_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Reopen_Closed_Buffer);
       Assert (S.Has_Reopen_Candidate
         and then To_String (S.Reopen_Candidate_Path) = B_Path,
         "failed reopen must retain candidate B for deterministic retry");
@@ -2743,7 +2743,7 @@ package body Editor.Buffers.Tests is
       Assert (Found and then To_String (M.Text) = "Could not reopen closed buffer",
         "failed reopen must emit one primary failure message");
       Write_File (B_Path, "B restored disk");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Reopen_Closed_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Reopen_Closed_Buffer);
       Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = B_Path
         and then Text (S) = "B restored disk" & ASCII.LF,
         "retained failed candidate must reopen from canonical disk read after file returns");
@@ -2813,7 +2813,7 @@ package body Editor.Buffers.Tests is
       Before_Find := S.Active_Find_Query;
       Before_Replace := S.Active_Replace_Text;
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Reopen_Closed_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Reopen_Closed_Buffer);
       Assert (Editor.Buffers.Global_Count = Before_Count + 1,
         "successful non-duplicate reopen must add one buffer");
       Assert (Editor.Buffers.Global_Contains (Active_Id),
@@ -2837,7 +2837,7 @@ package body Editor.Buffers.Tests is
         and then To_String (Editor.Clipboard.Get_Text) = "clipboard",
         "successful reopen must preserve Clipboard text");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Reopen_Closed_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Reopen_Closed_Buffer);
       Assert (Editor.Buffers.Global_Count = Before_Count + 1,
         "no-candidate reopen must not change open-buffer collection");
       Assert (Editor.Buffers.Global_Active_Buffer /= Editor.Buffers.No_Buffer,
@@ -2925,7 +2925,7 @@ package body Editor.Buffers.Tests is
       Write_File (Path, "external disk change must not overwrite dirty duplicate");
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       A := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Reopen_Closed_Buffer);
+        (S, Editor.Command_Ids.Command_Reopen_Closed_Buffer);
       Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
         "reopen availability must depend on candidate presence only");
@@ -2935,7 +2935,7 @@ package body Editor.Buffers.Tests is
         and then Natural (Candidates.Length) > 0,
         "render and Command Palette projection must remain side-effect-free observations");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Reopen_Closed_Buffer);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Reopen_Closed_Buffer);
       Assert (Editor.Buffers.Global_Count = Before_Count,
         "duplicate-open reopen must not add a duplicate buffer");
       Assert (Editor.Buffers.Global_Active_Buffer = Id,
@@ -3556,14 +3556,14 @@ package body Editor.Buffers.Tests is
       Editor.Command_Route_Audit.Record_Buffer_Workflow_Route
         (Result                  => Audit,
          Source                  => Editor.Command_Route_Audit.Route_From_Command_Palette,
-         Command                 => Editor.Commands.Command_Close_Active_Buffer,
+         Command                 => Editor.Command_Ids.Command_Close_Active_Buffer,
          Routed_Through_Executor => True,
          Availability_Checked    => True,
          Carried_Buffer_Payload  => False);
       Editor.Command_Route_Audit.Record_Buffer_Workflow_Route
         (Result                  => Audit,
          Source                  => Editor.Command_Route_Audit.Route_From_Keybinding,
-         Command                 => Editor.Commands.Command_Next_Buffer,
+         Command                 => Editor.Command_Ids.Command_Next_Buffer,
          Routed_Through_Executor => True,
          Availability_Checked    => True,
          Carried_Buffer_Payload  => False);
@@ -3574,7 +3574,7 @@ package body Editor.Buffers.Tests is
       Editor.Command_Route_Audit.Record_Buffer_Workflow_Route
         (Result                  => Audit,
          Source                  => Editor.Command_Route_Audit.Route_From_Command_Palette,
-         Command                 => Editor.Commands.Command_Switch_Buffer,
+         Command                 => Editor.Command_Ids.Command_Switch_Buffer,
          Routed_Through_Executor => False,
          Availability_Checked    => False,
          Carried_Buffer_Payload  => True);

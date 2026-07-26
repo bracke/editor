@@ -1,4 +1,3 @@
-with Editor.Commands;
 with Editor.Diagnostics;
 with Editor.Executor;
 with Editor.Executor.Diagnostics_Navigation_Commands;

@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Input_Bridge.Active_Find_Key_Handlers;
 with Editor.Input_Bridge.Build_UI_Key_Handlers;
 with Editor.Input_Bridge.Diagnostics_Focus_Key_Handlers;
@@ -18,9 +19,9 @@ package body Editor.Input_Bridge.Key_Chord_Routing is
       Accept_Guided_Prompt_Enter   : not null access procedure;
       Report_Info                  : not null access procedure (Text : String);
       Execute_Command_With_Shift   : not null access procedure
-        (Id : Editor.Commands.Command_Id; Shift : Boolean);
+        (Id : Editor.Command_Ids.Command_Id; Shift : Boolean);
       Execute_Default_Command      : not null access procedure
-        (Id : Editor.Commands.Command_Id);
+        (Id : Editor.Command_Ids.Command_Id);
       Execute_Active_Find_Previous : not null access procedure;
       Hide_Active_Find             : not null access procedure)
       return Boolean
@@ -82,7 +83,7 @@ package body Editor.Input_Bridge.Key_Chord_Routing is
      (S                       : in out Editor.State.State_Type;
       Chord                   : Editor.Keybindings.Key_Chord;
       Execute_Default_Command : not null access procedure
-        (Id : Editor.Commands.Command_Id))
+        (Id : Editor.Command_Ids.Command_Id))
       return Boolean
    is
    begin

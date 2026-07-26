@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Cursor;
 with Editor.File_Tree;
 with Editor.File_Tree_View;
@@ -59,7 +60,7 @@ package body Editor.Input_Bridge.File_Tree_Key_Handlers is
      (S       : in out Editor.State.State_Type;
       Chord   : Editor.Keybindings.Key_Chord;
       Execute : not null access procedure
-        (Id : Editor.Commands.Command_Id)) return Focused_Key_Result
+        (Id : Editor.Command_Ids.Command_Id)) return Focused_Key_Result
    is
    begin
       if not Editor.Panel_Focus.File_Tree_Has_Focus (S.Panel_Focus) then
@@ -68,21 +69,21 @@ package body Editor.Input_Bridge.File_Tree_Key_Handlers is
 
       case Chord.Key is
          when Editor.Keybindings.Key_Up =>
-            Execute (Editor.Commands.Command_File_Tree_Move_Up);
+            Execute (Editor.Command_Ids.Command_File_Tree_Move_Up);
          when Editor.Keybindings.Key_Down =>
-            Execute (Editor.Commands.Command_File_Tree_Move_Down);
+            Execute (Editor.Command_Ids.Command_File_Tree_Move_Down);
          when Editor.Keybindings.Key_Page_Up =>
-            Execute (Editor.Commands.Command_File_Tree_Page_Up);
+            Execute (Editor.Command_Ids.Command_File_Tree_Page_Up);
          when Editor.Keybindings.Key_Page_Down =>
-            Execute (Editor.Commands.Command_File_Tree_Page_Down);
+            Execute (Editor.Command_Ids.Command_File_Tree_Page_Down);
          when Editor.Keybindings.Key_Left =>
-            Execute (Editor.Commands.Command_File_Tree_Collapse_Selected);
+            Execute (Editor.Command_Ids.Command_File_Tree_Collapse_Selected);
          when Editor.Keybindings.Key_Right =>
-            Execute (Editor.Commands.Command_File_Tree_Expand_Selected);
+            Execute (Editor.Command_Ids.Command_File_Tree_Expand_Selected);
          when Editor.Keybindings.Key_Enter =>
-            Execute (Editor.Commands.Command_File_Tree_Open_Selected);
+            Execute (Editor.Command_Ids.Command_File_Tree_Open_Selected);
          when Editor.Keybindings.Key_Escape =>
-            Execute (Editor.Commands.Command_Focus_Editor_Text);
+            Execute (Editor.Command_Ids.Command_Focus_Editor_Text);
          when others =>
             return File_Tree_Key_Not_Handled;
       end case;
@@ -95,7 +96,7 @@ package body Editor.Input_Bridge.File_Tree_Key_Handlers is
      (S       : in out Editor.State.State_Type;
       Chord   : Editor.Keybindings.Key_Chord;
       Execute : not null access procedure
-        (Id : Editor.Commands.Command_Id)) return Boolean
+        (Id : Editor.Command_Ids.Command_Id)) return Boolean
    is
    begin
       if not Editor.Panel_Focus.File_Tree_Has_Focus (S.Panel_Focus) then
@@ -106,32 +107,32 @@ package body Editor.Input_Bridge.File_Tree_Key_Handlers is
         or else not Editor.Panels.Is_Visible
           (S.Panels, Editor.Panels.File_Tree_Panel)
       then
-         Execute (Editor.Commands.Command_Focus_Editor_Text);
+         Execute (Editor.Command_Ids.Command_Focus_Editor_Text);
          Notify_Input;
          return True;
       end if;
 
       case Chord.Key is
          when Editor.Keybindings.Key_Up =>
-            Execute (Editor.Commands.Command_File_Tree_Move_Up);
+            Execute (Editor.Command_Ids.Command_File_Tree_Move_Up);
          when Editor.Keybindings.Key_Down =>
-            Execute (Editor.Commands.Command_File_Tree_Move_Down);
+            Execute (Editor.Command_Ids.Command_File_Tree_Move_Down);
          when Editor.Keybindings.Key_Page_Up =>
-            Execute (Editor.Commands.Command_File_Tree_Page_Up);
+            Execute (Editor.Command_Ids.Command_File_Tree_Page_Up);
          when Editor.Keybindings.Key_Page_Down =>
-            Execute (Editor.Commands.Command_File_Tree_Page_Down);
+            Execute (Editor.Command_Ids.Command_File_Tree_Page_Down);
          when Editor.Keybindings.Key_Home =>
             Select_First_File_Tree_Row (S);
          when Editor.Keybindings.Key_End =>
             Select_Last_File_Tree_Row (S);
          when Editor.Keybindings.Key_Left =>
-            Execute (Editor.Commands.Command_File_Tree_Collapse_Selected);
+            Execute (Editor.Command_Ids.Command_File_Tree_Collapse_Selected);
          when Editor.Keybindings.Key_Right =>
-            Execute (Editor.Commands.Command_File_Tree_Expand_Selected);
+            Execute (Editor.Command_Ids.Command_File_Tree_Expand_Selected);
          when Editor.Keybindings.Key_Enter =>
-            Execute (Editor.Commands.Command_File_Tree_Open_Selected);
+            Execute (Editor.Command_Ids.Command_File_Tree_Open_Selected);
          when Editor.Keybindings.Key_Escape =>
-            Execute (Editor.Commands.Command_Focus_Editor_Text);
+            Execute (Editor.Command_Ids.Command_Focus_Editor_Text);
          when others =>
             null;
       end case;

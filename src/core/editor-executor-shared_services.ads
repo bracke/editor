@@ -1,11 +1,11 @@
-with Editor.Commands;
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Messages;
 with Editor.State;
 
 package Editor.Executor.Shared_Services is
 
    function Command_Requires_Explicit_Target
-     (Id : Editor.Commands.Command_Id) return Boolean;
+     (Id : Editor.Command_Ids.Command_Id) return Boolean;
 
    procedure Report_Info
      (S    : in out Editor.State.State_Type;

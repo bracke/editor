@@ -1,7 +1,6 @@
 with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.Input_Bridge;
-with Editor.Commands;
 with Editor.View;
 with Interfaces.C; use Interfaces.C;
 with Ada.Text_IO;

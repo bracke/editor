@@ -1,3 +1,5 @@
+with Editor.Command_Kinds;
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Classification;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
@@ -17,7 +19,6 @@ with Editor.Command_Palette;
 with Editor.Command_Execution;
 with Editor.Command_Route_Audit;
 with Editor.Command_Surface;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.Executor;
 with Editor.Executor.Command_Palette_Projection;
@@ -58,12 +59,12 @@ package body Editor.Command_Surface.Product_Surface_Tests is
    use Editor.External_Producers.Build_Types;
    use Editor.External_Producers.Public_Build_Types;
 
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Commands.Descriptors.Command_Family_Id;
    use type Editor.Commands.Descriptors.Command_Effect_Classification_Id;
-   use type Editor.Commands.Command_Kind;
+   use type Editor.Command_Kinds.Command_Kind;
    use type Editor.Keybindings.Keybinding_Validation_Status;
    use type Editor.Overlay_Focus.Overlay_Target;
    use type Editor.Panel_Focus.Focus_Target;
@@ -168,42 +169,42 @@ package body Editor.Command_Surface.Product_Surface_Tests is
    end Is_Lower_Kebab_Name;
 
    function Executor_Owns_Break_Group_Command
-     (Id : Editor.Commands.Command_Id) return Boolean
+     (Id : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       case Id is
-         when Editor.Commands.Command_Dismiss_Latest_Message
-            | Editor.Commands.Command_Dismiss_All_Messages
-            | Editor.Commands.Command_Open_File
-            | Editor.Commands.Command_Toggle_Line_Numbers
-            | Editor.Commands.Command_Set_Absolute_Line_Numbers
-            | Editor.Commands.Command_Set_Relative_Line_Numbers
-            | Editor.Commands.Command_Set_Hybrid_Line_Numbers
-            | Editor.Commands.Command_Toggle_Current_Line_Highlight
-            | Editor.Commands.Command_Toggle_Syntax_Colouring
-            | Editor.Commands.Command_Toggle_Diagnostics
-            | Editor.Commands.Command_Toggle_Cursor_Style
-            | Editor.Commands.Command_Edit_History_Clear
-            | Editor.Commands.Command_Select_All
-            | Editor.Commands.Command_Selection_Clear
-            | Editor.Commands.Command_Build_Run
-            | Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Confirm
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Cancel
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Summary
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Next
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Previous
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Toggle
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Show
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Hide
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Remove_Selected
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Restore_Last_Removed
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Summary
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Next
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Previous
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Clear_Stale
-            | Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Stale_Summary
-            | Editor.Commands.No_Command =>
+         when Editor.Command_Ids.Command_Dismiss_Latest_Message
+            | Editor.Command_Ids.Command_Dismiss_All_Messages
+            | Editor.Command_Ids.Command_Open_File
+            | Editor.Command_Ids.Command_Toggle_Line_Numbers
+            | Editor.Command_Ids.Command_Set_Absolute_Line_Numbers
+            | Editor.Command_Ids.Command_Set_Relative_Line_Numbers
+            | Editor.Command_Ids.Command_Set_Hybrid_Line_Numbers
+            | Editor.Command_Ids.Command_Toggle_Current_Line_Highlight
+            | Editor.Command_Ids.Command_Toggle_Syntax_Colouring
+            | Editor.Command_Ids.Command_Toggle_Diagnostics
+            | Editor.Command_Ids.Command_Toggle_Cursor_Style
+            | Editor.Command_Ids.Command_Edit_History_Clear
+            | Editor.Command_Ids.Command_Select_All
+            | Editor.Command_Ids.Command_Selection_Clear
+            | Editor.Command_Ids.Command_Build_Run
+            | Editor.Command_Ids.Command_Build_Run_User_Opt_In_Test_Seam
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Confirm
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Cancel
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Summary
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Next
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Previous
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Toggle
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Show
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Hide
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Remove_Selected
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Restore_Last_Removed
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Summary
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Next
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Previous
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Clear_Stale
+            | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Stale_Summary
+            | Editor.Command_Ids.No_Command =>
             return True;
          when others =>
             return False;
@@ -214,11 +215,11 @@ package body Editor.Command_Surface.Product_Surface_Tests is
      (Name : String)
    is
       Found : Boolean;
-      Id    : constant Editor.Commands.Command_Id :=
+      Id    : constant Editor.Command_Ids.Command_Id :=
         Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
    begin
       if Name = "build.run" then
-         Assert (Found and then Id = Editor.Commands.Command_Build_Run,
+         Assert (Found and then Id = Editor.Command_Ids.Command_Build_Run,
                  "build.run must be the single guarded public build command");
       else
          Assert (not Found,
@@ -386,7 +387,7 @@ package body Editor.Command_Surface.Product_Surface_Tests is
    end Cell;
 
    function Switcher_Command_Is_In_Reference
-     (Id : Editor.Commands.Command_Id) return Boolean
+     (Id : Editor.Command_Ids.Command_Id) return Boolean
    is
       Stable : constant String := Editor.Commands.Name_Metadata.Stable_Command_Name (Id);
    begin
@@ -421,7 +422,7 @@ package body Editor.Command_Surface.Product_Surface_Tests is
       end if;
    end Classification_Label;
 
-   function Hint_Label (Id : Editor.Commands.Command_Id) return String is
+   function Hint_Label (Id : Editor.Command_Ids.Command_Id) return String is
       use Editor.Commands;
    begin
       case Id is
@@ -530,7 +531,7 @@ package body Editor.Command_Surface.Product_Surface_Tests is
    procedure Assert_Row_Matches_Descriptor (Line : String) is
       Stable : constant String := Cell (Line, 1);
       Found  : Boolean := False;
-      Id     : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Id     : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       D      : Editor.Commands.Descriptors.Command_Descriptor;
    begin
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Stable, Found);
@@ -599,7 +600,7 @@ package body Editor.Command_Surface.Product_Surface_Tests is
       Settings_Path : constant String := Editor.Test_Temp.Base & "/editor-tests/command-surface-settings.tmp";
       Keybindings_Path : constant String := Editor.Test_Temp.Base & "/editor-tests/command-surface-keybindings.tmp";
 
-      procedure Check (Id : Editor.Commands.Command_Id; Label : String) is
+      procedure Check (Id : Editor.Command_Ids.Command_Id; Label : String) is
          S              : Editor.State.State_Type;
          Before_Project : Boolean;
          Before_Dirty   : Boolean;
@@ -628,11 +629,11 @@ package body Editor.Command_Surface.Product_Surface_Tests is
       Ada.Environment_Variables.Set
         ("EDITOR_KEYBINDINGS_PATH", Keybindings_Path);
 
-      Check (Editor.Commands.Command_Save_Settings, "Save Settings");
-      Check (Editor.Commands.Command_Reload_Settings, "Reload Settings");
-      Check (Editor.Commands.Command_Save_Keybindings, "Save Keybindings");
-      Check (Editor.Commands.Command_Reload_Keybindings, "Reload Keybindings");
-      Check (Editor.Commands.Command_Validate_Keybindings, "Validate Keybindings");
+      Check (Editor.Command_Ids.Command_Save_Settings, "Save Settings");
+      Check (Editor.Command_Ids.Command_Reload_Settings, "Reload Settings");
+      Check (Editor.Command_Ids.Command_Save_Keybindings, "Save Keybindings");
+      Check (Editor.Command_Ids.Command_Reload_Keybindings, "Reload Keybindings");
+      Check (Editor.Command_Ids.Command_Validate_Keybindings, "Validate Keybindings");
    end Test_Configuration_Command_Domain_Isolation;
 
    procedure Test_Switcher_Command_Reference_Metadata
@@ -643,9 +644,9 @@ package body Editor.Command_Surface.Product_Surface_Tests is
       In_Table : Boolean := False;
       Documented_Count : Natural := 0;
       Expected_Count : Natural := 0;
-      Seen : array (Editor.Commands.Command_Id) of Boolean := (others => False);
+      Seen : array (Editor.Command_Ids.Command_Id) of Boolean := (others => False);
       Found : Boolean;
-      Id : Editor.Commands.Command_Id;
+      Id : Editor.Command_Ids.Command_Id;
    begin
       declare
          Text : constant String := Reference_Text;
@@ -686,8 +687,8 @@ package body Editor.Command_Surface.Product_Surface_Tests is
          end loop;
       end;
 
-      for I in 1 .. Editor.Commands.Command_Count loop
-         Id := Editor.Commands.Command_At (I);
+      for I in 1 .. Editor.Command_Ids.Command_Count loop
+         Id := Editor.Command_Ids.Command_At (I);
          if Switcher_Command_Is_In_Reference (Id) then
             Expected_Count := Expected_Count + 1;
             Assert (Seen (Id),
@@ -785,30 +786,30 @@ package body Editor.Command_Surface.Product_Surface_Tests is
    is
       pragma Unreferenced (T);
       D      : constant Editor.Commands.Descriptors.Command_Descriptor :=
-        Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Switch_Project);
+        Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Switch_Project);
       Found  : Boolean := False;
-      Id     : constant Editor.Commands.Command_Id :=
+      Id     : constant Editor.Command_Ids.Command_Id :=
         Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("project.switch", Found);
       S      : Editor.State.State_Type;
       Avail  : constant Editor.Commands.Availability_Metadata.Command_Availability :=
         Editor.Executor.Command_Availability
-          (S, Editor.Commands.Command_Switch_Project);
+          (S, Editor.Command_Ids.Command_Switch_Project);
    begin
-      Assert (D.Id = Editor.Commands.Command_Switch_Project,
+      Assert (D.Id = Editor.Command_Ids.Command_Switch_Project,
               "switch project descriptor must exist");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Switch_Project) = "project.switch",
+                (Editor.Command_Ids.Command_Switch_Project) = "project.switch",
               "switch project stable name must be canonical");
-      Assert (Found and then Id = Editor.Commands.Command_Switch_Project,
+      Assert (Found and then Id = Editor.Command_Ids.Command_Switch_Project,
               "switch project stable name must round-trip");
       Assert (Editor.Commands.Availability_Metadata.Requires_Context
-                (Editor.Commands.Command_Switch_Project),
+                (Editor.Command_Ids.Command_Switch_Project),
               "switch project requires explicit input context");
       Assert (Editor.Commands.Classification.Is_Lifecycle_Command
-                (Editor.Commands.Command_Switch_Project),
+                (Editor.Command_Ids.Command_Switch_Project),
               "switch project is a lifecycle command");
       Assert (not Editor.Commands.Classification.Is_Destructive_Command
-                (Editor.Commands.Command_Switch_Project),
+                (Editor.Command_Ids.Command_Switch_Project),
               "switch project must not be classified as destructive by itself");
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "switch project has no keybinding/palette path payload");
@@ -822,48 +823,48 @@ package body Editor.Command_Surface.Product_Surface_Tests is
       pragma Unreferenced (T);
       type Expected_Command is record
          Name : Ada.Strings.Unbounded.Unbounded_String;
-         Id   : Editor.Commands.Command_Id;
+         Id   : Editor.Command_Ids.Command_Id;
       end record;
       type Expected_Command_Array is array (Positive range <>) of Expected_Command;
       Expected : constant Expected_Command_Array :=
         ((To_Unbounded_String ("outline.refresh"),
-          Editor.Commands.Command_Refresh_Outline),
+          Editor.Command_Ids.Command_Refresh_Outline),
          (To_Unbounded_String ("outline.clear"),
-          Editor.Commands.Command_Clear_Outline),
+          Editor.Command_Ids.Command_Clear_Outline),
          (To_Unbounded_String ("outline.show"),
-          Editor.Commands.Command_Show_Outline),
+          Editor.Command_Ids.Command_Show_Outline),
          (To_Unbounded_String ("outline.focus"),
-          Editor.Commands.Command_Focus_Outline),
+          Editor.Command_Ids.Command_Focus_Outline),
          (To_Unbounded_String ("outline.open-selected"),
-          Editor.Commands.Command_Open_Selected_Outline_Item),
+          Editor.Command_Ids.Command_Open_Selected_Outline_Item),
          (To_Unbounded_String ("outline.refresh-project-index"),
-          Editor.Commands.Command_Refresh_Outline_Project_Index),
+          Editor.Command_Ids.Command_Refresh_Outline_Project_Index),
          (To_Unbounded_String ("outline.goto-declaration"),
-          Editor.Commands.Command_Goto_Declaration),
+          Editor.Command_Ids.Command_Goto_Declaration),
          (To_Unbounded_String ("outline.goto-body"),
-         Editor.Commands.Command_Goto_Body),
+         Editor.Command_Ids.Command_Goto_Body),
          (To_Unbounded_String ("outline.goto-spec"),
-          Editor.Commands.Command_Goto_Spec),
+          Editor.Command_Ids.Command_Goto_Spec),
          (To_Unbounded_String ("semantic.find-references"),
-          Editor.Commands.Command_Find_References),
+          Editor.Command_Ids.Command_Find_References),
          (To_Unbounded_String ("semantic.show-hover"),
-         Editor.Commands.Command_Show_Hover),
+         Editor.Command_Ids.Command_Show_Hover),
          (To_Unbounded_String ("semantic.show-completions"),
-         Editor.Commands.Command_Show_Completions),
+         Editor.Command_Ids.Command_Show_Completions),
          (To_Unbounded_String ("semantic.rename-symbol-preview"),
-          Editor.Commands.Command_Rename_Symbol_Preview),
+          Editor.Command_Ids.Command_Rename_Symbol_Preview),
          (To_Unbounded_String ("semantic.rename-symbol-apply"),
-          Editor.Commands.Command_Rename_Symbol_Apply),
+          Editor.Command_Ids.Command_Rename_Symbol_Apply),
          (To_Unbounded_String ("semantic.refresh-buffer"),
-          Editor.Commands.Command_Semantic_Refresh_Buffer),
+          Editor.Command_Ids.Command_Semantic_Refresh_Buffer),
          (To_Unbounded_String ("semantic.refresh-project-index"),
-          Editor.Commands.Command_Semantic_Refresh_Project_Index),
+          Editor.Command_Ids.Command_Semantic_Refresh_Project_Index),
          (To_Unbounded_String ("language.index.clear"),
-          Editor.Commands.Command_Language_Index_Clear),
+          Editor.Command_Ids.Command_Language_Index_Clear),
          (To_Unbounded_String ("language.index.status"),
-          Editor.Commands.Command_Language_Index_Status));
+          Editor.Command_Ids.Command_Language_Index_Status));
       Found : Boolean;
-      Round : Editor.Commands.Command_Id;
+      Round : Editor.Command_Ids.Command_Id;
       D     : Editor.Commands.Descriptors.Command_Descriptor;
    begin
       for E of Expected loop
@@ -887,27 +888,27 @@ package body Editor.Command_Surface.Product_Surface_Tests is
 
       Round := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("refactor.rename-symbol", Found);
-      Assert (not Found and then Round = Editor.Commands.No_Command,
+      Assert (not Found and then Round = Editor.Command_Ids.No_Command,
               "Refactor rename alias is not loadable");
       Round := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("refactor.rename-symbol-preview", Found);
-      Assert (not Found and then Round = Editor.Commands.No_Command,
+      Assert (not Found and then Round = Editor.Command_Ids.No_Command,
               "Refactor rename preview alias is not loadable");
       Round := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("refactor.rename-symbol-apply", Found);
-      Assert (not Found and then Round = Editor.Commands.No_Command,
+      Assert (not Found and then Round = Editor.Command_Ids.No_Command,
               "Refactor rename apply alias is not loadable");
 
       declare
          Hidden_Expected : constant Expected_Command_Array :=
            ((To_Unbounded_String ("semantic.completion.select-next"),
-             Editor.Commands.Command_Semantic_Completion_Select_Next),
+             Editor.Command_Ids.Command_Semantic_Completion_Select_Next),
             (To_Unbounded_String ("semantic.completion.select-previous"),
-             Editor.Commands.Command_Semantic_Completion_Select_Previous),
+             Editor.Command_Ids.Command_Semantic_Completion_Select_Previous),
             (To_Unbounded_String ("semantic.completion.accept"),
-             Editor.Commands.Command_Semantic_Completion_Accept),
+             Editor.Command_Ids.Command_Semantic_Completion_Accept),
             (To_Unbounded_String ("semantic.popup.dismiss"),
-             Editor.Commands.Command_Semantic_Popup_Dismiss));
+             Editor.Command_Ids.Command_Semantic_Popup_Dismiss));
       begin
          for E of Hidden_Expected loop
             Round := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
@@ -933,14 +934,14 @@ package body Editor.Command_Surface.Product_Surface_Tests is
       --  outside the expected-command enumeration loop.
 
       D := Editor.Commands.Descriptors.Descriptor
-        (Editor.Commands.Command_Refresh_Outline_Project_Index);
+        (Editor.Command_Ids.Command_Refresh_Outline_Project_Index);
       Assert
         (Ada.Strings.Fixed.Index
            (To_String (D.Description), "known project Ada source files") > 0,
          "outline project-index refresh must describe project-file indexing");
 
       D := Editor.Commands.Descriptors.Descriptor
-        (Editor.Commands.Command_Semantic_Refresh_Project_Index);
+        (Editor.Command_Ids.Command_Semantic_Refresh_Project_Index);
       Assert
         (Ada.Strings.Fixed.Index
            (To_String (D.Description), "known project Ada files") > 0
@@ -950,7 +951,7 @@ package body Editor.Command_Surface.Product_Surface_Tests is
 
       --  body/spec navigation must be a real indexed target
       --  command surface, not a permanently reserved unavailable placeholder.
-      D := Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Goto_Body);
+      D := Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Goto_Body);
       Assert
         (Ada.Strings.Fixed.Index
            (To_String (D.Description), "body target") > 0
@@ -959,7 +960,7 @@ package body Editor.Command_Surface.Product_Surface_Tests is
             "reserved") = 0,
          "outline.goto-body must describe real indexed body navigation");
 
-      D := Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Goto_Spec);
+      D := Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Goto_Spec);
       Assert
         (Ada.Strings.Fixed.Index
            (To_String (D.Description), "spec target") > 0
@@ -984,26 +985,26 @@ package body Editor.Command_Surface.Product_Surface_Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      type Command_Array is array (Positive range <>) of Editor.Commands.Command_Id;
+      type Command_Array is array (Positive range <>) of Editor.Command_Ids.Command_Id;
       File_Commands : constant Command_Array :=
-        (Editor.Commands.Command_Save_File,
-         Editor.Commands.Command_Save_File_As,
-         Editor.Commands.Command_Close_Active_Buffer,
-         Editor.Commands.Command_Reopen_Closed_Buffer,
-         Editor.Commands.Command_Reload_Active_Buffer,
-         Editor.Commands.Command_Revert_Active_Buffer,
-         Editor.Commands.Command_Rename_Buffer_File,
-         Editor.Commands.Command_Delete_Buffer_File,
-         Editor.Commands.Command_Copy_Buffer_File,
-         Editor.Commands.Command_Move_Buffer_File);
+        (Editor.Command_Ids.Command_Save_File,
+         Editor.Command_Ids.Command_Save_File_As,
+         Editor.Command_Ids.Command_Close_Active_Buffer,
+         Editor.Command_Ids.Command_Reopen_Closed_Buffer,
+         Editor.Command_Ids.Command_Reload_Active_Buffer,
+         Editor.Command_Ids.Command_Revert_Active_Buffer,
+         Editor.Command_Ids.Command_Rename_Buffer_File,
+         Editor.Command_Ids.Command_Delete_Buffer_File,
+         Editor.Command_Ids.Command_Copy_Buffer_File,
+         Editor.Command_Ids.Command_Move_Buffer_File);
       Prompt_Commands : constant Command_Array :=
-        (Editor.Commands.Command_Confirm_Close_Save,
-         Editor.Commands.Command_Confirm_Close_Discard,
-         Editor.Commands.Command_Cancel_Close,
-         Editor.Commands.Command_File_Conflict_Keep_Buffer,
-         Editor.Commands.Command_File_Conflict_Reload_From_Disk,
-         Editor.Commands.Command_File_Conflict_Overwrite_Disk,
-         Editor.Commands.Command_File_Conflict_Cancel);
+        (Editor.Command_Ids.Command_Confirm_Close_Save,
+         Editor.Command_Ids.Command_Confirm_Close_Discard,
+         Editor.Command_Ids.Command_Cancel_Close,
+         Editor.Command_Ids.Command_File_Conflict_Keep_Buffer,
+         Editor.Command_Ids.Command_File_Conflict_Reload_From_Disk,
+         Editor.Command_Ids.Command_File_Conflict_Overwrite_Disk,
+         Editor.Command_Ids.Command_File_Conflict_Cancel);
 
       function Contains_Internal_Term (Text : String) return Boolean is
          Lower : constant String := Ada.Characters.Handling.To_Lower (Text);
@@ -1054,52 +1055,52 @@ package body Editor.Command_Surface.Product_Surface_Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      type Command_Array is array (Positive range <>) of Editor.Commands.Command_Id;
+      type Command_Array is array (Positive range <>) of Editor.Command_Ids.Command_Id;
       Project_Search_Commands : constant Command_Array :=
-        (Editor.Commands.Command_Run_Project_Search,
-         Editor.Commands.Command_Rerun_Project_Search,
-         Editor.Commands.Command_Open_Project_Search_Bar,
-         Editor.Commands.Command_Toggle_Project_Search_Bar,
-         Editor.Commands.Command_Close_Project_Search_Bar,
-         Editor.Commands.Command_Run_Project_Search_From_Bar,
-         Editor.Commands.Command_Project_Search_From_Selection,
-         Editor.Commands.Command_Project_Search_From_Active_Word,
-         Editor.Commands.Command_Project_Search_Active_Directory,
-         Editor.Commands.Command_Project_Search_From_Selection,
-         Editor.Commands.Command_Clear_Project_Search,
-         Editor.Commands.Command_Open_Selected_Project_Search_Result,
-         Editor.Commands.Command_Move_Project_Search_Selection_Up,
-         Editor.Commands.Command_Move_Project_Search_Selection_Down,
-         Editor.Commands.Command_Next_Project_Search_Result,
-         Editor.Commands.Command_Previous_Project_Search_Result,
-         Editor.Commands.Command_First_Project_Search_Result,
-         Editor.Commands.Command_Last_Project_Search_Result,
-         Editor.Commands.Command_Reveal_Active_Project_Search_Result,
-         Editor.Commands.Command_Project_Search_Scope_Selected_Directory,
-         Editor.Commands.Command_Project_Search_Kind_Next,
-         Editor.Commands.Command_Project_Search_Kind_Previous,
-         Editor.Commands.Command_Project_Search_Kind_Clear,
-         Editor.Commands.Command_Project_Search_Scope_Set,
-         Editor.Commands.Command_Project_Search_Scope_Clear,
-         Editor.Commands.Command_Project_Search_Case_Toggle,
-         Editor.Commands.Command_Project_Search_Case_Clear,
-         Editor.Commands.Command_Project_Search_Whole_Word_Toggle,
-         Editor.Commands.Command_Project_Search_Whole_Word_Clear,
-         Editor.Commands.Command_Project_Search_Regex_Toggle,
-         Editor.Commands.Command_Project_Search_Regex_Clear,
-         Editor.Commands.Command_Project_Search_Include_Filter_Set,
-         Editor.Commands.Command_Project_Search_Exclude_Filter_Set,
-         Editor.Commands.Command_Project_Search_Include_Filter_Clear,
-         Editor.Commands.Command_Project_Search_Exclude_Filter_Clear,
-         Editor.Commands.Command_Project_Search_Replace_Preview,
-         Editor.Commands.Command_Project_Search_Replace_Selected,
-         Editor.Commands.Command_Project_Search_Replace_All_Included,
-         Editor.Commands.Command_Project_Search_Replace_Clear_Preview,
-         Editor.Commands.Command_Show_Search_Results_Panel,
-         Editor.Commands.Command_Focus_Search_Results,
-         Editor.Commands.Command_Search_Results_Move_Up,
-         Editor.Commands.Command_Search_Results_Move_Down,
-         Editor.Commands.Command_Search_Results_Open_Selected);
+        (Editor.Command_Ids.Command_Run_Project_Search,
+         Editor.Command_Ids.Command_Rerun_Project_Search,
+         Editor.Command_Ids.Command_Open_Project_Search_Bar,
+         Editor.Command_Ids.Command_Toggle_Project_Search_Bar,
+         Editor.Command_Ids.Command_Close_Project_Search_Bar,
+         Editor.Command_Ids.Command_Run_Project_Search_From_Bar,
+         Editor.Command_Ids.Command_Project_Search_From_Selection,
+         Editor.Command_Ids.Command_Project_Search_From_Active_Word,
+         Editor.Command_Ids.Command_Project_Search_Active_Directory,
+         Editor.Command_Ids.Command_Project_Search_From_Selection,
+         Editor.Command_Ids.Command_Clear_Project_Search,
+         Editor.Command_Ids.Command_Open_Selected_Project_Search_Result,
+         Editor.Command_Ids.Command_Move_Project_Search_Selection_Up,
+         Editor.Command_Ids.Command_Move_Project_Search_Selection_Down,
+         Editor.Command_Ids.Command_Next_Project_Search_Result,
+         Editor.Command_Ids.Command_Previous_Project_Search_Result,
+         Editor.Command_Ids.Command_First_Project_Search_Result,
+         Editor.Command_Ids.Command_Last_Project_Search_Result,
+         Editor.Command_Ids.Command_Reveal_Active_Project_Search_Result,
+         Editor.Command_Ids.Command_Project_Search_Scope_Selected_Directory,
+         Editor.Command_Ids.Command_Project_Search_Kind_Next,
+         Editor.Command_Ids.Command_Project_Search_Kind_Previous,
+         Editor.Command_Ids.Command_Project_Search_Kind_Clear,
+         Editor.Command_Ids.Command_Project_Search_Scope_Set,
+         Editor.Command_Ids.Command_Project_Search_Scope_Clear,
+         Editor.Command_Ids.Command_Project_Search_Case_Toggle,
+         Editor.Command_Ids.Command_Project_Search_Case_Clear,
+         Editor.Command_Ids.Command_Project_Search_Whole_Word_Toggle,
+         Editor.Command_Ids.Command_Project_Search_Whole_Word_Clear,
+         Editor.Command_Ids.Command_Project_Search_Regex_Toggle,
+         Editor.Command_Ids.Command_Project_Search_Regex_Clear,
+         Editor.Command_Ids.Command_Project_Search_Include_Filter_Set,
+         Editor.Command_Ids.Command_Project_Search_Exclude_Filter_Set,
+         Editor.Command_Ids.Command_Project_Search_Include_Filter_Clear,
+         Editor.Command_Ids.Command_Project_Search_Exclude_Filter_Clear,
+         Editor.Command_Ids.Command_Project_Search_Replace_Preview,
+         Editor.Command_Ids.Command_Project_Search_Replace_Selected,
+         Editor.Command_Ids.Command_Project_Search_Replace_All_Included,
+         Editor.Command_Ids.Command_Project_Search_Replace_Clear_Preview,
+         Editor.Command_Ids.Command_Show_Search_Results_Panel,
+         Editor.Command_Ids.Command_Focus_Search_Results,
+         Editor.Command_Ids.Command_Search_Results_Move_Up,
+         Editor.Command_Ids.Command_Search_Results_Move_Down,
+         Editor.Command_Ids.Command_Search_Results_Open_Selected);
 
       function Contains_Project_Search_Leak (Text : String) return Boolean is
          Lower : constant String := Ada.Characters.Handling.To_Lower (Text);
@@ -1137,38 +1138,38 @@ package body Editor.Command_Surface.Product_Surface_Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      type Command_Array is array (Positive range <>) of Editor.Commands.Command_Id;
+      type Command_Array is array (Positive range <>) of Editor.Command_Ids.Command_Id;
       Find_And_Goto_Commands : constant Command_Array :=
-        (Editor.Commands.Command_Goto_Line,
-         Editor.Commands.Command_Goto_Line_Toggle,
-         Editor.Commands.Command_Goto_Line_Prefill_Current,
-         Editor.Commands.Command_Goto_Line_Query_Set,
-         Editor.Commands.Command_Goto_Line_Query_Clear,
-         Editor.Commands.Command_Close_Goto_Line,
-         Editor.Commands.Command_Accept_Goto_Line,
-         Editor.Commands.Command_Find_Show,
-         Editor.Commands.Command_Find_Hide,
-         Editor.Commands.Command_Find_Toggle,
-         Editor.Commands.Command_Find_Query_Set,
-         Editor.Commands.Command_Find_Query_Clear,
-         Editor.Commands.Command_Find_Case_Toggle,
-         Editor.Commands.Command_Find_Case_Clear,
-         Editor.Commands.Command_Find_Whole_Word_Toggle,
-         Editor.Commands.Command_Find_Whole_Word_Clear,
-         Editor.Commands.Command_Find_From_Selection,
-         Editor.Commands.Command_Find_From_Active_Word,
-         Editor.Commands.Command_Active_Find_Next,
-         Editor.Commands.Command_Active_Find_Previous,
-         Editor.Commands.Command_Find_First,
-         Editor.Commands.Command_Find_Last,
-         Editor.Commands.Command_Find_Reveal_Current,
-         Editor.Commands.Command_Replace_Show,
-         Editor.Commands.Command_Replace_Hide,
-         Editor.Commands.Command_Replace_Toggle,
-         Editor.Commands.Command_Replace_Text_Set,
-         Editor.Commands.Command_Replace_Text_Clear,
-         Editor.Commands.Command_Replace_Current,
-         Editor.Commands.Command_Replace_All);
+        (Editor.Command_Ids.Command_Goto_Line,
+         Editor.Command_Ids.Command_Goto_Line_Toggle,
+         Editor.Command_Ids.Command_Goto_Line_Prefill_Current,
+         Editor.Command_Ids.Command_Goto_Line_Query_Set,
+         Editor.Command_Ids.Command_Goto_Line_Query_Clear,
+         Editor.Command_Ids.Command_Close_Goto_Line,
+         Editor.Command_Ids.Command_Accept_Goto_Line,
+         Editor.Command_Ids.Command_Find_Show,
+         Editor.Command_Ids.Command_Find_Hide,
+         Editor.Command_Ids.Command_Find_Toggle,
+         Editor.Command_Ids.Command_Find_Query_Set,
+         Editor.Command_Ids.Command_Find_Query_Clear,
+         Editor.Command_Ids.Command_Find_Case_Toggle,
+         Editor.Command_Ids.Command_Find_Case_Clear,
+         Editor.Command_Ids.Command_Find_Whole_Word_Toggle,
+         Editor.Command_Ids.Command_Find_Whole_Word_Clear,
+         Editor.Command_Ids.Command_Find_From_Selection,
+         Editor.Command_Ids.Command_Find_From_Active_Word,
+         Editor.Command_Ids.Command_Active_Find_Next,
+         Editor.Command_Ids.Command_Active_Find_Previous,
+         Editor.Command_Ids.Command_Find_First,
+         Editor.Command_Ids.Command_Find_Last,
+         Editor.Command_Ids.Command_Find_Reveal_Current,
+         Editor.Command_Ids.Command_Replace_Show,
+         Editor.Command_Ids.Command_Replace_Hide,
+         Editor.Command_Ids.Command_Replace_Toggle,
+         Editor.Command_Ids.Command_Replace_Text_Set,
+         Editor.Command_Ids.Command_Replace_Text_Clear,
+         Editor.Command_Ids.Command_Replace_Current,
+         Editor.Command_Ids.Command_Replace_All);
 
       function Contains_Find_Surface_Leak (Text : String) return Boolean is
          Lower : constant String := Ada.Characters.Handling.To_Lower (Text);

@@ -1,6 +1,5 @@
 with Editor.Commands.Payloads;
 with Editor.State;
-with Editor.Commands;
 
 package Editor.Executor.Structural is
 

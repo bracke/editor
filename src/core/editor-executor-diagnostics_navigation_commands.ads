@@ -1,6 +1,5 @@
 with Editor.Diagnostics;
 with Editor.Command_Execution;
-with Editor.Commands;
 with Editor.Feature_Diagnostics;
 with Editor.State;
 

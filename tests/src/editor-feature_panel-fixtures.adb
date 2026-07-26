@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Test_Temp;
 with Editor.State;
 with Ada.Directories;
@@ -7,7 +8,6 @@ with Editor.Keybindings;
 with Editor.Keybinding_Config;
 with Editor.Executor;
 with Editor.Dirty_Guards;
-with Editor.Commands;
 with Ada.Strings.Unbounded;
 
 package body Editor.Feature_Panel.Fixtures is
@@ -172,7 +172,7 @@ package body Editor.Feature_Panel.Fixtures is
    is
       S : Editor.State.State_Type := State_With_Feature_Panel_Rows;
    begin
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Open_Command_Palette);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Open_Command_Palette);
       pragma Assert (Row_Count (S.Feature_Panel) = 3,
                      "command-palette fixture preserves feature rows");
       return S;
@@ -190,11 +190,11 @@ package body Editor.Feature_Panel.Fixtures is
       Chord := Editor.Keybindings.Parse_Chord ("Ctrl+Alt+F", Found);
       pragma Assert (Found, "feature-panel fixture chord parses");
       Editor.Keybinding_Config.Bind
-        (Config, Editor.Commands.Command_Toggle_Feature_Panel, Chord);
+        (Config, Editor.Command_Ids.Command_Toggle_Feature_Panel, Chord);
       Editor.Keybinding_Config.Apply_To_Runtime (Config);
       pragma Assert
         (Editor.Keybindings.Primary_Binding_For_Command
-           (Editor.Commands.Command_Toggle_Feature_Panel).Has_Binding,
+           (Editor.Command_Ids.Command_Toggle_Feature_Panel).Has_Binding,
          "custom-keybinding fixture exposes feature-panel chord");
       return S;
    end State_With_Custom_Keybindings_For_Feature_Panel;

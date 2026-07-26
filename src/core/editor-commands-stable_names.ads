@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 package Editor.Commands.Stable_Names is
 
    function Stable_Command_Name

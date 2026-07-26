@@ -1,7 +1,7 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Payloads;
 with AUnit.Assertions; use AUnit.Assertions;
 
-with Editor.Commands; use Editor.Commands;
 with Text_Buffer;
 with Editor.Test_Helper;
 with Editor.Fonts.Init;

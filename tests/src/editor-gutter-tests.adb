@@ -2,7 +2,6 @@ with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
-with Editor.Commands;
 with Editor.Folding;
 with Editor.Input_Bridge;
 with Editor.Layout;

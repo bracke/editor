@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Descriptor_Metadata;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Strings.Fixed;
@@ -8,7 +9,6 @@ with Editor.Build_Diagnostics_Review;
 with Editor.Build_Output_Details;
 with Editor.Build_Result_Summary;
 with Editor.Build_UI;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.Feature_Diagnostics;
 with Editor.Feature_Panel;
@@ -17,7 +17,7 @@ with Editor.Feature_Panel;
 package body Editor.Diagnostics_Review_UX is
 
    use type Editor.Commands.Descriptors.Command_Category;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
 
    function Contains (Text, Pattern : String) return Boolean is
    begin
@@ -182,29 +182,29 @@ package body Editor.Diagnostics_Review_UX is
       Found : Boolean := False;
    begin
       return Editor.Commands.Descriptors.Descriptor
-          (Editor.Commands.Command_Diagnostics_Open_Selected).Category =
+          (Editor.Command_Ids.Command_Diagnostics_Open_Selected).Category =
           Editor.Commands.Descriptors.Panel_Category
         and then Editor.Commands.Name_Metadata.Stable_Command_Name
-          (Editor.Commands.Command_Diagnostics_Open_Selected) =
+          (Editor.Command_Ids.Command_Diagnostics_Open_Selected) =
           "diagnostics.open-selected"
         and then Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
           ("diagnostics.open-selected", Found) =
-          Editor.Commands.Command_Diagnostics_Open_Selected
+          Editor.Command_Ids.Command_Diagnostics_Open_Selected
         and then Found
         and then Editor.Commands.Name_Metadata.Stable_Command_Name
-          (Editor.Commands.Command_Diagnostics_Filter_Errors) =
+          (Editor.Command_Ids.Command_Diagnostics_Filter_Errors) =
           "diagnostics.filter-errors"
         and then Editor.Commands.Name_Metadata.Stable_Command_Name
-          (Editor.Commands.Command_Diagnostics_Filter_Warnings) =
+          (Editor.Command_Ids.Command_Diagnostics_Filter_Warnings) =
           "diagnostics.filter-warnings"
         and then Editor.Commands.Name_Metadata.Stable_Command_Name
-          (Editor.Commands.Command_Diagnostics_Filter_Source) =
+          (Editor.Command_Ids.Command_Diagnostics_Filter_Source) =
           "diagnostics.filter-source"
         and then Editor.Commands.Name_Metadata.Stable_Command_Name
-          (Editor.Commands.Command_Diagnostics_Filter_Build) =
+          (Editor.Command_Ids.Command_Diagnostics_Filter_Build) =
           "diagnostics.filter-producer-build"
         and then Editor.Commands.Name_Metadata.Stable_Command_Name
-          (Editor.Commands.Command_Diagnostics_Clear_Build) =
+          (Editor.Command_Ids.Command_Diagnostics_Clear_Build) =
           "diagnostics.clear-build"
         and then Editor.Build_Diagnostics_Review.Assert_Build_Diagnostics_Navigation_Uses_Diagnostics_Routes;
    end Assert_Diagnostics_Navigation_Uses_File_Lifecycle;
@@ -357,7 +357,7 @@ package body Editor.Diagnostics_Review_UX is
            Build_Cleared'Length > 0
            and then No_Build'Length > 0
            and then Editor.Commands.Descriptor_Metadata.Has_Descriptor
-             (Editor.Commands.Command_Diagnostics_Clear_Build);
+             (Editor.Command_Ids.Command_Diagnostics_Clear_Build);
       end;
       Result.Build_UI_Is_Scalar_Only :=
         Assert_Build_UI_Diagnostics_Display_Is_Scalar_Only (State);

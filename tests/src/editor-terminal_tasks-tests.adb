@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Test_Temp;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Containers;
@@ -5,7 +6,6 @@ with Ada.Directories;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Editor.Command_Execution;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.Executor;
 with Editor.Executor.Project_Lifecycle_Commands;
@@ -20,7 +20,7 @@ with Editor.State;
 with Editor.Terminal_Tasks;
 
 use type Editor.Command_Execution.Command_Execution_Status;
-use type Editor.Commands.Command_Id;
+use type Editor.Command_Ids.Command_Id;
 use type Editor.External_Producers.Build_Types.Process_Run_Status;
 use type Editor.Terminal_Tasks.Terminal_Task_Status;
 use type Ada.Containers.Count_Type;
@@ -227,26 +227,26 @@ package body Editor.Terminal_Tasks.Tests is
       Found : Boolean := False;
    begin
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Terminal_Toggle) =
+                (Editor.Command_Ids.Command_Terminal_Toggle) =
               "terminal.toggle",
               "terminal toggle has a stable name");
       Assert (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
                 ("terminal.run-selected-task", Found) =
-              Editor.Commands.Command_Terminal_Run_Selected_Task,
+              Editor.Command_Ids.Command_Terminal_Run_Selected_Task,
               "terminal run-selected command can be resolved");
       Assert (Found, "terminal run-selected stable name was found");
       Assert (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
                 ("terminal.rerun-last-task", Found) =
-              Editor.Commands.Command_Terminal_Rerun_Last_Task,
+              Editor.Command_Ids.Command_Terminal_Rerun_Last_Task,
               "terminal rerun-last command can be resolved");
       Assert (Found, "terminal rerun-last stable name was found");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
-                (Editor.Commands.Command_Run_Project) =
+                (Editor.Command_Ids.Command_Run_Project) =
               "project.run",
               "project run has a stable name");
       Assert (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
                 ("project.test", Found) =
-              Editor.Commands.Command_Run_Tests,
+              Editor.Command_Ids.Command_Run_Tests,
               "project test command can be resolved");
       Assert (Found, "project test stable name was found");
    end Test_Terminal_Commands_Have_Stable_Names;
@@ -359,7 +359,7 @@ package body Editor.Terminal_Tasks.Tests is
         (S.Project, Editor.Project.Open_Project (Root));
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Terminal_Show);
+        (S, Editor.Command_Ids.Command_Terminal_Show);
       Assert (Result.Status = Editor.Command_Execution.Command_Executed,
               "terminal show command executes");
 

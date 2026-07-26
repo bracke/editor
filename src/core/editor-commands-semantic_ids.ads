@@ -1,5 +1,5 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
-with Editor.Commands;
 
 package Editor.Commands.Semantic_Ids is
 

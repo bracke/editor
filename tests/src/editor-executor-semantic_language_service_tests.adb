@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -10,7 +11,6 @@ with Editor.Ada_Language_Model;
 with Editor.Ada_Language_Service;
 with Editor.Ada_Project_Index;
 with Editor.Buffers;
-with Editor.Commands;
 with Editor.Cursors;
 with Editor.Executor.Test_Support; use Editor.Executor.Test_Support;
 with Editor.Feature_Diagnostics;
@@ -77,7 +77,7 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
       end if;
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic reference fixture refreshes Outline");
 
@@ -108,7 +108,7 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
          Analysis             => Analysis);
 
       Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Find_References);
+        (S, Editor.Command_Ids.Command_Find_References);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "semantic find references is available when the index can answer");
       Assert (Editor.Ada_Language_Service.Active_Semantic_Request
@@ -117,7 +117,7 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
               "semantic command availability does not mutate tracked requests");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Find_References);
+        (S, Editor.Command_Ids.Command_Find_References);
 
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic find references command executes from selected Outline row");
@@ -172,7 +172,7 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
       end if;
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic workspace symbol fixture refreshes Outline");
 
@@ -209,7 +209,7 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
          Analysis             => Other);
 
       Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Workspace_Symbols);
+        (S, Editor.Command_Ids.Command_Workspace_Symbols);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "semantic workspace symbols are available when the index can answer");
       Assert (Editor.Ada_Language_Service.Active_Semantic_Request
@@ -218,7 +218,7 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
               "workspace symbol availability does not mutate tracked requests");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Workspace_Symbols);
+        (S, Editor.Command_Ids.Command_Workspace_Symbols);
 
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic workspace symbols command executes from selected Outline row");
@@ -265,7 +265,7 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
          "body line" & ASCII.LF);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic completion fixture refreshes Outline");
 
@@ -296,12 +296,12 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
          Analysis             => Analysis);
 
       Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Show_Completions);
+        (S, Editor.Command_Ids.Command_Show_Completions);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "semantic completions are available when the index can answer");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Show_Completions);
+        (S, Editor.Command_Ids.Command_Show_Completions);
 
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic completion command executes from selected Outline row");
@@ -340,7 +340,7 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
               "render snapshot exposes semantic completion popup");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Semantic_Completion_Select_Next);
+        (S, Editor.Command_Ids.Command_Semantic_Completion_Select_Next);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic completion popup selects next row");
       Assert (S.Semantic_Popup.Selected_Item = 2
@@ -348,29 +348,29 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
               "semantic completion next selects the next candidate");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Semantic_Completion_Select_Previous);
+        (S, Editor.Command_Ids.Command_Semantic_Completion_Select_Previous);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic completion popup selects previous row");
       Assert (S.Semantic_Popup.Selected_Item = 1,
               "semantic completion previous wraps back to first candidate");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Semantic_Popup_Dismiss);
+        (S, Editor.Command_Ids.Command_Semantic_Popup_Dismiss);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic popup dismiss executes");
       Assert (not S.Semantic_Popup.Active,
               "semantic popup dismiss clears the popup");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Show_Completions);
+        (S, Editor.Command_Ids.Command_Show_Completions);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic completion command can reopen popup after dismiss");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Semantic_Completion_Select_Next);
+        (S, Editor.Command_Ids.Command_Semantic_Completion_Select_Next);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic completion popup can select candidate before accept");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Semantic_Completion_Accept);
+        (S, Editor.Command_Ids.Command_Semantic_Completion_Accept);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic completion accept executes");
       Assert (Editor.State.Current_Text (S) =
@@ -403,7 +403,7 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
          "body line" & ASCII.LF);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic hover fixture refreshes Outline");
 
@@ -424,12 +424,12 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
          Analysis             => Analysis);
 
       Avail := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Show_Hover);
+        (S, Editor.Command_Ids.Command_Show_Hover);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "semantic hover is available when the index can answer");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Show_Hover);
+        (S, Editor.Command_Ids.Command_Show_Hover);
 
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic hover command executes from selected Outline row");

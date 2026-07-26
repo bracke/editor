@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Payloads;
 with Editor.Input_Bridge.Build_UI_Pointer_Handlers;
 with Editor.Input_Bridge.Gutter_Pointer_Handlers;
@@ -48,7 +49,7 @@ package body Editor.Input_Bridge.Pointer_Surface_Handlers is
      (S       : in out Editor.State.State_Type;
       Cmd     : Editor.Commands.Payloads.Command;
       Execute : not null access procedure
-        (Id : Editor.Commands.Command_Id)) return Boolean
+        (Id : Editor.Command_Ids.Command_Id)) return Boolean
    is
    begin
       return Panel_Bars_Pointer_Handlers.Handle_Pending_Transition_Bar_Pointer
@@ -59,7 +60,7 @@ package body Editor.Input_Bridge.Pointer_Surface_Handlers is
      (S           : in out Editor.State.State_Type;
       Cmd         : Editor.Commands.Payloads.Command;
       Execute     : not null access procedure
-        (Id : Editor.Commands.Command_Id);
+        (Id : Editor.Command_Ids.Command_Id);
       Report_Info : not null access procedure (Message : String))
       return Boolean
    is
@@ -124,7 +125,7 @@ package body Editor.Input_Bridge.Pointer_Surface_Handlers is
      (S       : in out Editor.State.State_Type;
       Cmd     : Editor.Commands.Payloads.Command;
       Execute : not null access procedure
-        (Id : Editor.Commands.Command_Id)) return Boolean
+        (Id : Editor.Command_Ids.Command_Id)) return Boolean
    is
    begin
       return Panel_Feature_Problems_Pointer_Handlers

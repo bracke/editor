@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -11,7 +12,6 @@ with Editor.Buffers;
 with Editor.Buffer_Switcher;
 with Editor.Buffer_Switcher.Config;
 with Editor.Command_Palette;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.Configuration_Audit;
 with Editor.Configuration_Recovery;
@@ -40,7 +40,7 @@ with Editor.Workspace_Persistence;
 package body Editor.Configuration_Audit.Tests is
 
    use type Editor.Configuration_Audit.Configuration_Audit_Status;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Keybindings.Binding_Result;
    use type Editor.Settings.Settings_Status;
    use type Editor.Keybinding_Config.Keybinding_Config_Status;
@@ -118,10 +118,10 @@ package body Editor.Configuration_Audit.Tests is
 
    procedure Assert_Routes
      (C       : Editor.Keybindings.Key_Chord;
-      Command : Editor.Commands.Command_Id;
+      Command : Editor.Command_Ids.Command_Id;
       Context : String)
    is
-      Actual : Editor.Commands.Command_Id;
+      Actual : Editor.Command_Ids.Command_Id;
    begin
       Assert
         (Editor.Keybindings.Resolve (C, Actual) = Editor.Keybindings.Bound_Command,
@@ -180,7 +180,7 @@ package body Editor.Configuration_Audit.Tests is
       Status : Editor.Keybinding_Config.Keybinding_Config_Status;
    begin
       Editor.Keybinding_Config.Set_Defaults (Config);
-      Editor.Keybinding_Config.Bind (Config, Editor.Commands.Command_Save_File, C);
+      Editor.Keybinding_Config.Bind (Config, Editor.Command_Ids.Command_Save_File, C);
       Editor.Keybinding_Config.Save_To_File (Config, Path, Status);
       Assert (Status = Editor.Keybinding_Config.Keybinding_Config_Ok,
               "keybinding fixture must save");
@@ -290,7 +290,7 @@ package body Editor.Configuration_Audit.Tests is
       Editor.Keybindings.Reset_To_Defaults;
       Editor.Keybindings.Bind
         (Chord (Editor.Keybindings.Key_S, Ctrl => True, Alt => True),
-         Editor.Commands.Command_Save_File);
+         Editor.Command_Ids.Command_Save_File);
       Editor.Settings.Set_Defaults (Model);
       Editor.Settings.Set_Theme_Id (Model, "light");
       Editor.Settings.Set_Line_Number_Mode_Name (Model, "relative");
@@ -350,7 +350,7 @@ package body Editor.Configuration_Audit.Tests is
               "startup must apply active runtime keybinding override");
       Assert_Routes
         (Chord (Editor.Keybindings.Key_S, Ctrl => True, Alt => True),
-         Editor.Commands.Command_Save_File,
+         Editor.Command_Ids.Command_Save_File,
          "custom startup file.save chord");
       Delete_If_Exists (Settings_Path);
       Delete_If_Exists (Keybindings_Path);
@@ -376,7 +376,7 @@ package body Editor.Configuration_Audit.Tests is
 
       Save_Custom_Settings (Settings_Path, Show_Keybindings => False);
       Ada.Environment_Variables.Set ("EDITOR_SETTINGS_PATH", Settings_Path);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Reload_Settings);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Reload_Settings);
       After := Editor.Configuration_Audit.Configuration_State_Summary_For (S);
 
       Assert (Before.Active_Keybinding_Count = After.Active_Keybinding_Count,
@@ -387,7 +387,7 @@ package body Editor.Configuration_Audit.Tests is
               "settings reload may change palette display preference only");
       Assert_Routes
         (Chord (Editor.Keybindings.Key_S, Ctrl => True, Alt => True),
-         Editor.Commands.Command_Save_File,
+         Editor.Command_Ids.Command_Save_File,
          "custom route after display setting reload");
       Delete_If_Exists (Settings_Path);
       Delete_If_Exists (Keybindings_Path);
@@ -414,7 +414,7 @@ package body Editor.Configuration_Audit.Tests is
 
       Write_File (Keybindings_Path, "not-a-keybinding-file" & ASCII.LF);
       Ada.Environment_Variables.Set ("EDITOR_KEYBINDINGS_PATH", Keybindings_Path);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Reload_Keybindings);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Reload_Keybindings);
       After := Editor.Configuration_Audit.Configuration_State_Summary_For (S);
 
       Editor.Configuration_Audit.Expect_No_Runtime_Or_Lifecycle_Mutation
@@ -427,7 +427,7 @@ package body Editor.Configuration_Audit.Tests is
               "invalid keybinding reload must emit one domain-specific message");
       Assert_Routes
         (Chord (Editor.Keybindings.Key_S, Ctrl => True, Alt => True),
-         Editor.Commands.Command_Save_File,
+         Editor.Command_Ids.Command_Save_File,
          "routing after invalid keybinding reload");
       Delete_If_Exists (Settings_Path);
       Delete_If_Exists (Keybindings_Path);
@@ -453,7 +453,7 @@ package body Editor.Configuration_Audit.Tests is
 
       Write_File (Settings_Path, "not-a-settings-file" & ASCII.LF);
       Ada.Environment_Variables.Set ("EDITOR_SETTINGS_PATH", Settings_Path);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Reload_Settings);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Reload_Settings);
       After := Editor.Configuration_Audit.Configuration_State_Summary_For (S);
 
       Assert (Before.Active_Keybinding_Count = After.Active_Keybinding_Count,
@@ -462,7 +462,7 @@ package body Editor.Configuration_Audit.Tests is
               "invalid settings reload must not alter active save binding");
       Assert_Routes
         (Chord (Editor.Keybindings.Key_S, Ctrl => True, Alt => True),
-         Editor.Commands.Command_Save_File,
+         Editor.Command_Ids.Command_Save_File,
          "routing after invalid settings reload");
       Assert (Editor.Messages.Count (S.Messages) = 1,
               "invalid settings reload must emit one domain-specific message");
@@ -511,8 +511,8 @@ package body Editor.Configuration_Audit.Tests is
         (S.Pending_Transitions, Target, Dirty);
 
       Before := Editor.Configuration_Audit.Configuration_State_Summary_For (S);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Reload_Settings);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Reload_Keybindings);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Reload_Settings);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Reload_Keybindings);
       After := Editor.Configuration_Audit.Configuration_State_Summary_For (S);
 
       Assert (Editor.State.Current_Text (S) = "dirty text",
@@ -648,13 +648,13 @@ package body Editor.Configuration_Audit.Tests is
       use type Editor.Commands.Descriptors.Command_Visibility;
 
       procedure Check
-        (Id   : Editor.Commands.Command_Id;
+        (Id   : Editor.Command_Ids.Command_Id;
          Name : String)
       is
          D     : constant Editor.Commands.Descriptors.Command_Descriptor :=
            Editor.Commands.Descriptors.Descriptor (Id);
          Found : Boolean := False;
-         Roundtrip : constant Editor.Commands.Command_Id :=
+         Roundtrip : constant Editor.Command_Ids.Command_Id :=
            Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
       begin
          Assert
@@ -675,43 +675,43 @@ package body Editor.Configuration_Audit.Tests is
       end Check;
    begin
       Check
-        (Editor.Commands.Command_Configuration_Recover_Show,
+        (Editor.Command_Ids.Command_Configuration_Recover_Show,
          "configuration.recover-show");
       Check
-        (Editor.Commands.Command_Configuration_Audit,
+        (Editor.Command_Ids.Command_Configuration_Audit,
          "configuration.audit");
       Check
-        (Editor.Commands.Command_Configuration_Reset_Settings,
+        (Editor.Command_Ids.Command_Configuration_Reset_Settings,
          "configuration.reset-settings");
       Check
-        (Editor.Commands.Command_Configuration_Reset_Keybindings,
+        (Editor.Command_Ids.Command_Configuration_Reset_Keybindings,
          "configuration.reset-keybindings");
       Check
-        (Editor.Commands.Command_Configuration_Reset_Workspace,
+        (Editor.Command_Ids.Command_Configuration_Reset_Workspace,
          "configuration.reset-workspace");
       Check
-        (Editor.Commands.Command_Configuration_Reset_Recent_Projects,
+        (Editor.Command_Ids.Command_Configuration_Reset_Recent_Projects,
          "configuration.reset-recent-projects");
       Check
-        (Editor.Commands.Command_Configuration_Reset_All,
+        (Editor.Command_Ids.Command_Configuration_Reset_All,
          "configuration.reset-all");
       Check
-        (Editor.Commands.Command_Configuration_Reset_All_Confirm,
+        (Editor.Command_Ids.Command_Configuration_Reset_All_Confirm,
          "configuration.reset-all.confirm");
       Check
-        (Editor.Commands.Command_Configuration_Reset_All_Cancel,
+        (Editor.Command_Ids.Command_Configuration_Reset_All_Cancel,
          "configuration.reset-all.cancel");
       Check
-        (Editor.Commands.Command_Configuration_Save_Clean_Settings,
+        (Editor.Command_Ids.Command_Configuration_Save_Clean_Settings,
          "configuration.save-clean-settings");
       Check
-        (Editor.Commands.Command_Configuration_Save_Clean_Keybindings,
+        (Editor.Command_Ids.Command_Configuration_Save_Clean_Keybindings,
          "configuration.save-clean-keybindings");
       Check
-        (Editor.Commands.Command_Configuration_Save_Clean_Workspace,
+        (Editor.Command_Ids.Command_Configuration_Save_Clean_Workspace,
          "configuration.save-clean-workspace");
       Check
-        (Editor.Commands.Command_Configuration_Save_Clean_Recent_Projects,
+        (Editor.Command_Ids.Command_Configuration_Save_Clean_Recent_Projects,
          "configuration.save-clean-recent-projects");
    end Test_Recovery_Commands_Are_Registered;
 
@@ -1478,7 +1478,7 @@ package body Editor.Configuration_Audit.Tests is
               "recovery surface must provide a bounded summary label");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Configuration_Recover_Show);
+        (S, Editor.Command_Ids.Command_Configuration_Recover_Show);
       After := Editor.Configuration_Audit.Configuration_State_Summary_For (S);
       Assert (not After.Has_Project,
               "opening configuration recovery must not open a project");

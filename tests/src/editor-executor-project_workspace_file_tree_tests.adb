@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.Test_Temp;
@@ -14,7 +15,6 @@ with Editor.Buffers;
 with Editor.Build_Candidates;
 with Editor.Build_UI;
 with Editor.Command_Execution;
-with Editor.Commands;
 with Editor.Executor.File_Tree_Commands;
 with Editor.Executor.Pending_Transition_Policy;
 with Editor.Executor.File_Tree_Navigation_Commands;
@@ -220,7 +220,7 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
 
       Write_Text_File (Added, "new");
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Refresh_File_Tree);
+        (S, Editor.Command_Ids.Command_Refresh_File_Tree);
 
       Selected := Editor.File_Tree_View.Node_For_Row
         (S.File_Tree,
@@ -264,7 +264,7 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
 
       Remove_File_If_Exists (Removed);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Refresh_File_Tree);
+        (S, Editor.Command_Ids.Command_Refresh_File_Tree);
 
       Assert (Editor.File_Tree_View.Selected_Row_Index (S.File_Tree_View) = 0,
               "refresh must clear selection when the selected target disappears");
@@ -399,22 +399,22 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
 
       S.Recent_Project_Selected_Index := 0;
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Select_Next_Recent_Project);
+        (S, Editor.Command_Ids.Command_Select_Next_Recent_Project);
       Assert (S.Recent_Project_Selected_Index = 1,
               "select next must initialize transient selection to the first recent row");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Select_Next_Recent_Project);
+        (S, Editor.Command_Ids.Command_Select_Next_Recent_Project);
       Assert (S.Recent_Project_Selected_Index = 2,
               "select next must move to the next recent row");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Select_Next_Recent_Project);
+        (S, Editor.Command_Ids.Command_Select_Next_Recent_Project);
       Assert (S.Recent_Project_Selected_Index = 1,
               "select next must wrap deterministically to the first recent row");
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Select_Previous_Recent_Project);
+        (S, Editor.Command_Ids.Command_Select_Previous_Recent_Project);
       Assert (S.Recent_Project_Selected_Index = 2,
               "select previous must wrap deterministically to the last recent row");
 
@@ -442,7 +442,7 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
         (S.Recent_Projects, Missing2, "missing-b", 2);
 
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Show_Recent_Projects);
+        (S, Editor.Command_Ids.Command_Show_Recent_Projects);
       Msg := To_Unbounded_String (Latest_Message_Text (S));
 
       Assert (Ada.Strings.Fixed.Index (To_String (Msg), "No available recent projects") > 0,
@@ -530,7 +530,7 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
       S : Editor.State.State_Type;
       Cmd : Editor.Commands.Payloads.Command :=
         Editor.Commands.Payloads.Command_For_Id
-          (Editor.Commands.Command_File_Tree_Rename_Selected);
+          (Editor.Command_Ids.Command_File_Tree_Rename_Selected);
       Result : Editor.Executor.Command_Execution_Result;
       Targets : Editor.Ada_Project_Index.Index_Resolution_Result;
    begin
@@ -558,7 +558,7 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Notes_Path);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Semantic_Refresh_Project_Index);
+        (S, Editor.Command_Ids.Command_Semantic_Refresh_Project_Index);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "file-tree rename fixture refreshes project language index");
       Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
@@ -599,7 +599,7 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
       Open_Res : Editor.Project.Project_Open_Result;
       Cmd      : Editor.Commands.Payloads.Command :=
         Editor.Commands.Payloads.Command_For_Id
-          (Editor.Commands.Command_File_Tree_Rename_Selected);
+          (Editor.Command_Ids.Command_File_Tree_Rename_Selected);
       Analysis : Editor.Ada_Language_Model.Analysis_Result;
       Ignored  : Editor.Ada_Language_Model.Symbol_Id;
    begin
@@ -691,7 +691,7 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
         Editor.Build_Candidates.Empty_Candidates;
       Cmd        : Editor.Commands.Payloads.Command :=
         Editor.Commands.Payloads.Command_For_Id
-          (Editor.Commands.Command_File_Tree_Delete_Selected);
+          (Editor.Command_Ids.Command_File_Tree_Delete_Selected);
    begin
       Remove_Tree_If_Exists (Root);
       Build_Fixture (Root);
@@ -750,7 +750,7 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
         Editor.Build_Candidates.Empty_Candidates;
       Cmd        : Editor.Commands.Payloads.Command :=
         Editor.Commands.Payloads.Command_For_Id
-          (Editor.Commands.Command_File_Tree_Rename_Selected);
+          (Editor.Command_Ids.Command_File_Tree_Rename_Selected);
    begin
       Remove_Tree_If_Exists (Root);
       Build_Fixture (Root);
@@ -811,7 +811,7 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
       Open_Res : Editor.Project.Project_Open_Result;
       Cmd      : Editor.Commands.Payloads.Command :=
         Editor.Commands.Payloads.Command_For_Id
-          (Editor.Commands.Command_File_Tree_Rename_Selected);
+          (Editor.Command_Ids.Command_File_Tree_Rename_Selected);
    begin
       Remove_Tree_If_Exists (Root);
       Build_Fixture (Root);
@@ -877,7 +877,7 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
         Editor.Build_Candidates.Empty_Candidates;
       Cmd      : Editor.Commands.Payloads.Command :=
         Editor.Commands.Payloads.Command_For_Id
-          (Editor.Commands.Command_File_Tree_Rename_Selected);
+          (Editor.Command_Ids.Command_File_Tree_Rename_Selected);
    begin
       Remove_Tree_If_Exists (Root);
       Build_Fixture (Root);

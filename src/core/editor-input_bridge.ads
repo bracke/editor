@@ -1,5 +1,5 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Payloads;
-with Editor.Commands;
 with Editor.Keybindings;
 with Editor.Render_Model;
 with Editor.State;
@@ -67,7 +67,7 @@ package Editor.Input_Bridge is
    --  workflow route audits. Ordinary text payloads intentionally return
    --  No_Command because they are not exposed as public command ids.
    function Preview_Text_Entry_Command_Id
-     (Cmd : Editor.Commands.Payloads.Command) return Editor.Commands.Command_Id;
+     (Cmd : Editor.Commands.Payloads.Command) return Editor.Command_Ids.Command_Id;
 
    --  Route mouse-wheel input by the current hit-tested surface. Positive
    --  Delta_Y scrolls up; negative Delta_Y scrolls down. Positive Delta_X
@@ -83,7 +83,7 @@ package Editor.Input_Bridge is
      (Chord : Editor.Keybindings.Key_Chord);
 
    procedure Execute_Command_Id
-     (Id    : Editor.Commands.Command_Id;
+     (Id    : Editor.Command_Ids.Command_Id;
       Shift : Boolean := False);
 
    procedure Get_Render_Snapshot

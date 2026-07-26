@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Project;
@@ -31,7 +32,7 @@ package body Editor.Empty_State_Guidance is
 
    use type Editor.File_Tree.File_Tree_Node_Id;
 
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Executor.Command_Execution_Status;
    use type Editor.File_Tree.File_Tree_Scan_Status;
@@ -45,7 +46,7 @@ package body Editor.Empty_State_Guidance is
    use type Editor.Feature_Diagnostics.Diagnostic_Severity;
    function Command_Suggestion_From_Descriptor
      (S       : Editor.State.State_Type;
-      Command : Editor.Commands.Command_Id)
+      Command : Editor.Command_Ids.Command_Id)
       return Empty_State_Suggested_Command
      renames Editor.Empty_State_Guidance.Guided_Actions.Command_Suggestion_From_Descriptor;
 
@@ -135,13 +136,13 @@ package body Editor.Empty_State_Guidance is
    end Safe_Stable_Command_Name;
 
    function Command_Is_Visible_In_Guidance
-     (Command : Editor.Commands.Command_Id) return Boolean
+     (Command : Editor.Command_Ids.Command_Id) return Boolean
    is
       D : constant Editor.Commands.Descriptors.Command_Descriptor :=
         Editor.Commands.Descriptors.Descriptor (Command);
    begin
       return D.Visibility = Editor.Commands.Descriptors.Palette_Command
-        or else Command = Editor.Commands.Command_Open_Command_Palette;
+        or else Command = Editor.Command_Ids.Command_Open_Command_Palette;
    end Command_Is_Visible_In_Guidance;
 
    function Suggestion_Is_Selectable
@@ -635,7 +636,7 @@ package body Editor.Empty_State_Guidance is
 
    function Contains_Command_Suggestion
      (Snapshot : Empty_State_Snapshot;
-      Command  : Editor.Commands.Command_Id) return Boolean
+      Command  : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       for I in 1 .. Snapshot.Suggestion_Count loop
@@ -649,7 +650,7 @@ package body Editor.Empty_State_Guidance is
    function Canonical_Surface_Suggestion
      (S       : Editor.State.State_Type;
       Surface : Empty_State_Surface;
-      Command : Editor.Commands.Command_Id)
+      Command : Editor.Command_Ids.Command_Id)
       return Empty_State_Suggested_Command
    is
       Suggestion : Empty_State_Suggested_Command :=
@@ -733,7 +734,7 @@ package body Editor.Empty_State_Guidance is
    is
    begin
       for I in 1 .. Snapshot.Suggestion_Count loop
-         if Snapshot.Suggestions (I).Command = Editor.Commands.No_Command
+         if Snapshot.Suggestions (I).Command = Editor.Command_Ids.No_Command
            or else not Safe_Stable_Command_Name
              (To_String (Snapshot.Suggestions (I).Stable_Name))
            or else To_String (Snapshot.Suggestions (I).Stable_Name) /=
@@ -807,7 +808,7 @@ package body Editor.Empty_State_Guidance is
      (Suggestion : Empty_State_Suggested_Command) return Boolean
    is
       Found    : Boolean := False;
-      Resolved : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Resolved : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       Name     : constant String := To_String (Suggestion.Stable_Name);
    begin
       if not Suggestion.Visible then
@@ -821,7 +822,7 @@ package body Editor.Empty_State_Guidance is
       Resolved := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
       if not Found
         or else Resolved /= Suggestion.Command
-        or else Suggestion.Command = Editor.Commands.No_Command
+        or else Suggestion.Command = Editor.Command_Ids.No_Command
       then
          return False;
       end if;
@@ -848,7 +849,7 @@ package body Editor.Empty_State_Guidance is
          return True;
       end if;
 
-      if Suggestion.Command = Editor.Commands.No_Command then
+      if Suggestion.Command = Editor.Command_Ids.No_Command then
          return False;
       end if;
 
@@ -872,7 +873,7 @@ package body Editor.Empty_State_Guidance is
          return True;
       end if;
 
-      if Suggestion.Command = Editor.Commands.No_Command then
+      if Suggestion.Command = Editor.Command_Ids.No_Command then
          return False;
       end if;
 
@@ -992,7 +993,7 @@ package body Editor.Empty_State_Guidance is
       end if;
 
       for I in Snapshot.Suggestion_Count + 1 .. Max_Empty_State_Suggestions loop
-         if Snapshot.Suggestions (I).Command /= Editor.Commands.No_Command
+         if Snapshot.Suggestions (I).Command /= Editor.Command_Ids.No_Command
            or else Length (Snapshot.Suggestions (I).Stable_Name) /= 0
            or else Length (Snapshot.Suggestions (I).Title) /= 0
            or else Length (Snapshot.Suggestions (I).Short_Explanation) /= 0
@@ -1035,7 +1036,7 @@ package body Editor.Empty_State_Guidance is
       --  of dedicated suggestion commands in the currently bound command set.
       for I in 1 .. Editor.Keybindings.Bound_Command_Count loop
          declare
-            Command : constant Editor.Commands.Command_Id :=
+            Command : constant Editor.Command_Ids.Command_Id :=
               Editor.Keybindings.Bound_Command_At (Positive (I));
             Stable : constant String := Editor.Commands.Name_Metadata.Stable_Command_Name (Command);
          begin
@@ -1089,7 +1090,7 @@ package body Editor.Empty_State_Guidance is
    begin
       for I in 1 .. Snapshot.Suggestion_Count loop
          if not Snapshot.Suggestions (I).Visible
-           or else Snapshot.Suggestions (I).Command = Editor.Commands.No_Command
+           or else Snapshot.Suggestions (I).Command = Editor.Command_Ids.No_Command
          then
             return False;
          end if;
@@ -1128,13 +1129,13 @@ package body Editor.Empty_State_Guidance is
      (Snapshot : Empty_State_Snapshot) return Boolean
    is
       Found    : Boolean := False;
-      Resolved : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Resolved : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
    begin
       for I in 1 .. Snapshot.Suggestion_Count loop
          Resolved := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
            (To_String (Snapshot.Suggestions (I).Stable_Name), Found);
          if not Found
-           or else Resolved = Editor.Commands.No_Command
+           or else Resolved = Editor.Command_Ids.No_Command
            or else Resolved /= Snapshot.Suggestions (I).Command
            or else not Suggestion_Is_Descriptor_Consistent
              (Snapshot.Suggestions (I))
@@ -1178,7 +1179,7 @@ package body Editor.Empty_State_Guidance is
 
       if Snapshot.Suggestion_Count < Max_Empty_State_Suggestions then
          for I in Snapshot.Suggestion_Count + 1 .. Max_Empty_State_Suggestions loop
-            if Snapshot.Suggestions (I).Command /= Editor.Commands.No_Command
+            if Snapshot.Suggestions (I).Command /= Editor.Command_Ids.No_Command
               or else Snapshot.Suggestions (I).Visible
               or else Snapshot.Suggestions (I).Carries_Payload
               or else Length (Snapshot.Suggestions (I).Stable_Name) /= 0
@@ -1274,7 +1275,7 @@ package body Editor.Empty_State_Guidance is
      (Before : Editor.State.State_Type;
       After  : Editor.State.State_Type;
       Result : Editor.Executor.Command_Execution_Result;
-      Command : Editor.Commands.Command_Id) return Boolean
+      Command : Editor.Command_Ids.Command_Id) return Boolean
    is
    begin
       return Editor.Empty_State_Guidance.Audits.Assert_Empty_State_Activation_Uses_Executor

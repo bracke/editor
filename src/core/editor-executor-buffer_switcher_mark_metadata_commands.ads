@@ -1,4 +1,5 @@
-with Editor.Commands;
+with Editor.Command_Kinds;
+with Editor.Command_Ids;
 with Editor.State;
 
 package Editor.Executor.Buffer_Switcher_Mark_Metadata_Commands is
@@ -49,7 +50,7 @@ package Editor.Executor.Buffer_Switcher_Mark_Metadata_Commands is
 
    procedure Execute_Buffer_Switcher_Mark_Metadata_Kind
      (S    : in out Editor.State.State_Type;
-      Kind : Editor.Commands.Command_Kind;
+      Kind : Editor.Command_Kinds.Command_Kind;
       Text : String);
 
 end Editor.Executor.Buffer_Switcher_Mark_Metadata_Commands;

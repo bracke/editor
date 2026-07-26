@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Command_Kinds; use Editor.Command_Kinds;
 with Ada.Containers;
@@ -14,7 +15,6 @@ with Editor.Buffers;
 use type Editor.Buffers.Buffer_Id;
 with Editor.Command_Execution;
 with Editor.Command_Palette;
-with Editor.Commands; use Editor.Commands;
 with Editor.Cursors;
 with Editor.Executor;
 with Editor.Executor.Shared_Services;
@@ -47,7 +47,7 @@ package body Editor.Executor.Command_Surface_Commands is
 
    function Command_Surface_Command_Availability
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Commands.Availability_Metadata.Command_Availability
    is
       function Has_Buffer return Boolean is
@@ -239,7 +239,7 @@ package body Editor.Executor.Command_Surface_Commands is
 
    function Execute_Command_Surface_Result_Command
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
    is
    begin
@@ -296,7 +296,7 @@ package body Editor.Executor.Command_Surface_Commands is
 
    procedure Execute_Command_Surface_Kind
      (S    : in out Editor.State.State_Type;
-      Kind : Editor.Commands.Command_Kind;
+      Kind : Editor.Command_Kinds.Command_Kind;
       Text : String := "")
    is
    begin

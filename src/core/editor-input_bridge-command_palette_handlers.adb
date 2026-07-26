@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
@@ -17,14 +18,14 @@ with Editor.View;
 
 package body Editor.Input_Bridge.Command_Palette_Handlers is
 
-   use type Editor.Commands.Command_Kind;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Kinds.Command_Kind;
+   use type Editor.Command_Ids.Command_Id;
 
    function Handle_Command_Palette
      (S              : in out Editor.State.State_Type;
       Cmd            : Editor.Commands.Payloads.Command;
       Execute        : not null access procedure
-        (Id : Editor.Commands.Command_Id);
+        (Id : Editor.Command_Ids.Command_Id);
       Report_Info    : not null access procedure (Message : String);
       Report_Warning : not null access procedure (Message : String))
       return Boolean
@@ -32,15 +33,15 @@ package body Editor.Input_Bridge.Command_Palette_Handlers is
       procedure Accept_Selected_Palette_Command is
          Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
          Visible_Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
-         Preferred  : constant Editor.Commands.Command_Id :=
+         Preferred  : constant Editor.Command_Ids.Command_Id :=
            Editor.Command_Palette.Current.Selected_Command_Id;
-         Still_Visible : Boolean := Preferred = Editor.Commands.No_Command;
+         Still_Visible : Boolean := Preferred = Editor.Command_Ids.No_Command;
       begin
          Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates
            (S, Candidates);
          Editor.Command_Palette.Visible_Candidates (Candidates, Visible_Candidates);
 
-         if Preferred /= Editor.Commands.No_Command then
+         if Preferred /= Editor.Command_Ids.No_Command then
             for Candidate of Visible_Candidates loop
                if Candidate.Id = Preferred then
                   Still_Visible := True;
@@ -87,7 +88,7 @@ package body Editor.Input_Bridge.Command_Palette_Handlers is
                   return;
                end if;
 
-               if Candidate.Id = Editor.Commands.Command_Palette_Show_Command_Help then
+               if Candidate.Id = Editor.Command_Ids.Command_Palette_Show_Command_Help then
                   Execute (Candidate.Id);
                   Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates
                     (S, Candidates);
@@ -106,7 +107,7 @@ package body Editor.Input_Bridge.Command_Palette_Handlers is
       end Accept_Selected_Palette_Command;
    begin
       if Cmd.Kind = Editor.Command_Kinds.Open_Command_Palette then
-         Execute (Editor.Commands.Command_Open_Command_Palette);
+         Execute (Editor.Command_Ids.Command_Open_Command_Palette);
          return True;
       end if;
 
@@ -179,7 +180,7 @@ package body Editor.Input_Bridge.Command_Palette_Handlers is
             Accept_Selected_Palette_Command;
 
          when Editor.Command_Kinds.Palette_Show_Command_Help =>
-            Execute (Editor.Commands.Command_Palette_Show_Command_Help);
+            Execute (Editor.Command_Ids.Command_Palette_Show_Command_Help);
 
          when Editor.Command_Kinds.Palette_Cancel
             | Editor.Command_Kinds.Clear_Extra_Carets =>
@@ -190,7 +191,7 @@ package body Editor.Input_Bridge.Command_Palette_Handlers is
                Editor.Executor.Dismiss_Active_Overlay
                  (S, Editor.Overlay_Focus.Dismiss_Escape);
                Editor.Focus_Management.Apply_Command_Focus_Result
-                 (S, Editor.Commands.Command_Cancel, Owner_Before);
+                 (S, Editor.Command_Ids.Command_Cancel, Owner_Before);
             end;
 
          when Editor.Command_Kinds.Move_To_Point =>

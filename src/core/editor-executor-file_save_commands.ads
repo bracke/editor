@@ -1,4 +1,3 @@
-with Editor.Commands;
 with Editor.Files;
 with Editor.Pending_Transitions;
 with Editor.State;

@@ -1,6 +1,5 @@
 with Editor.Buffers;
 use type Editor.Buffers.Buffer_Id;
-with Editor.Commands;
 with Editor.Commands.Workflow_Messages;
 with Editor.Ada_Language_Service;
 with Editor.Ada_Project_Index;

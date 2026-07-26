@@ -1,9 +1,9 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with AUnit.Assertions; use AUnit.Assertions;
 with Ada.Directories;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Buffers;
 with Editor.Command_Palette;
-with Editor.Commands;
 with Editor.Executor;
 with Editor.Executor.File_Open_Commands;
 with Editor.Executor.File_Target_Prompt_Commands;
@@ -40,7 +40,7 @@ package body Editor.Files.Target_Prompt_Tests is
       Editor.Command_Palette.Append_Character ('r');
       Editor.Command_Palette.Append_Character ('y');
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File_As);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File_As);
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S),
         "Save As without explicit target should open the transient target prompt");
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Label (S) = "Save As target",
@@ -87,7 +87,7 @@ package body Editor.Files.Target_Prompt_Tests is
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File_As);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File_As);
       Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text (S, "discarded-target.txt");
       Editor.Executor.File_Target_Prompt_Commands.Cancel_File_Target_Prompt (S);
       Assert (not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S),
@@ -99,7 +99,7 @@ package body Editor.Files.Target_Prompt_Tests is
       Assert (Editor.Messages.Count (S.Messages) = 0,
         "cancellation must not emit underlying file operation feedback");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File_As);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File_As);
       Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text (S, "lifecycle-target.txt");
       Editor.State.Reset_Project_Scoped_State (S);
       Assert (not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S)
@@ -116,7 +116,7 @@ package body Editor.Files.Target_Prompt_Tests is
       Source : constant String := Temp_Path ("source.txt");
 
       procedure Assert_Opens
-        (Id    : Editor.Commands.Command_Id;
+        (Id    : Editor.Command_Ids.Command_Id;
          Label : String)
       is
       begin
@@ -139,21 +139,21 @@ package body Editor.Files.Target_Prompt_Tests is
         "fixture should be a clean associated active buffer");
       Editor.Messages.Clear (S.Messages);
 
-      Assert_Opens (Editor.Commands.Command_Save_File_As, "Save As target");
-      Assert_Opens (Editor.Commands.Command_Rename_Buffer_File, "Rename target");
-      Assert_Opens (Editor.Commands.Command_Copy_Buffer_File, "Copy target");
-      Assert_Opens (Editor.Commands.Command_Move_Buffer_File, "Move target");
+      Assert_Opens (Editor.Command_Ids.Command_Save_File_As, "Save As target");
+      Assert_Opens (Editor.Command_Ids.Command_Rename_Buffer_File, "Rename target");
+      Assert_Opens (Editor.Command_Ids.Command_Copy_Buffer_File, "Copy target");
+      Assert_Opens (Editor.Command_Ids.Command_Move_Buffer_File, "Move target");
       Assert (Read_Bytes (Source) = "source",
         "opening target prompts must not perform source filesystem mutation");
 
       S.File_Info.Dirty := True;
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Rename_Buffer_File);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Rename_Buffer_File);
       Assert (not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S),
         "dirty associated buffer should not open rename prompt under preferred policy");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy_Buffer_File);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy_Buffer_File);
       Assert (not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S),
         "dirty associated buffer should not open copy prompt under preferred policy");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Move_Buffer_File);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Move_Buffer_File);
       Assert (not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S),
         "dirty associated buffer should not open move prompt under preferred policy");
 
@@ -174,7 +174,7 @@ package body Editor.Files.Target_Prompt_Tests is
       S.File_Info.Dirty := True;
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File_As);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File_As);
       Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text (S, "render-target.txt");
       Before_Messages := Editor.Messages.Count (S.Messages);
 

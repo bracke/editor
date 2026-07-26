@@ -1,7 +1,7 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Ada_Language_Service;
 with Editor.Command_Execution;
-with Editor.Commands;
 with Editor.State;
 
 package Editor.Executor.Semantic_Service_Commands is
@@ -32,14 +32,14 @@ package Editor.Executor.Semantic_Service_Commands is
 
    function Semantic_Service_Command_Availability
      (S       : Editor.State.State_Type;
-      Id      : Editor.Commands.Command_Id;
+      Id      : Editor.Command_Ids.Command_Id;
       Service : in out Editor.Ada_Language_Service.Service_State;
       Name    : String)
       return Editor.Commands.Availability_Metadata.Command_Availability;
 
    function Execute_Semantic_Service_Command
      (S    : in out Editor.State.State_Type;
-      Id   : Editor.Commands.Command_Id;
+      Id   : Editor.Command_Ids.Command_Id;
       Name : String)
       return Editor.Command_Execution.Command_Execution_Result;
 

@@ -5,7 +5,6 @@ with Editor.Build_Diagnostics;
 with Editor.Build_Public_Request;
 with Editor.Build_Runner_Policy;
 with Editor.Build_UI;
-with Editor.Commands;
 with Editor.External_Producers;
 with Editor.External_Producers.Build_Types;
 with Editor.External_Producers.Execution_Policy;

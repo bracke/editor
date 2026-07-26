@@ -1,6 +1,5 @@
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Commands;
 with Editor.Commands.Workflow_Messages;
 with Editor.Status_Bar.Audits;
 with Editor.Status_Bar.Surfaces;

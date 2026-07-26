@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.Buffers;
@@ -16,14 +17,14 @@ with Editor.View;
 
 package body Editor.Input_Bridge.Panel_Tree_Search_Pointer_Handlers is
 
-   use type Editor.Commands.Command_Kind;
+   use type Editor.Command_Kinds.Command_Kind;
    use type Editor.File_Tree_View.File_Tree_Action;
    use type Editor.File_Tree_View.File_Tree_View_Zone;
    use type Editor.Panels.Bottom_Panel_Content;
    use type Editor.Search_Results.Search_Results_Zone;
 
    function Is_Minimap_Pointer_Command
-     (Kind : Editor.Commands.Command_Kind) return Boolean
+     (Kind : Editor.Command_Kinds.Command_Kind) return Boolean
    is
    begin
       return Pointer_Routing.Is_Minimap_Pointer_Command (Kind);

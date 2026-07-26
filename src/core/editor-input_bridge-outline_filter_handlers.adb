@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -8,7 +9,7 @@ with Editor.Render_Cache;
 
 package body Editor.Input_Bridge.Outline_Filter_Handlers is
 
-   use type Editor.Commands.Command_Kind;
+   use type Editor.Command_Kinds.Command_Kind;
 
    procedure Project_Outline_Rows (S : in out Editor.State.State_Type) is
    begin
@@ -26,7 +27,7 @@ package body Editor.Input_Bridge.Outline_Filter_Handlers is
      (S       : in out Editor.State.State_Type;
       Cmd     : Editor.Commands.Payloads.Command;
       Execute : not null access procedure
-        (Id : Editor.Commands.Command_Id)) return Boolean
+        (Id : Editor.Command_Ids.Command_Id)) return Boolean
    is
    begin
       if not Editor.Outline.Filter_Input_Is_Active (S.Outline) then
@@ -38,7 +39,7 @@ package body Editor.Input_Bridge.Outline_Filter_Handlers is
             if Cmd.Ch = ASCII.LF or else Cmd.Ch = ASCII.CR then
                Editor.Outline.Commit_Filter_To_History (S.Outline);
                if Editor.Feature_Panel.Has_Selection (S.Feature_Panel) then
-                  Execute (Editor.Commands.Command_Open_Selected_Outline_Item);
+                  Execute (Editor.Command_Ids.Command_Open_Selected_Outline_Item);
                end if;
             elsif Cmd.Ch = ASCII.HT then
                Editor.Outline.Deactivate_Filter_Input (S.Outline);
@@ -96,15 +97,15 @@ package body Editor.Input_Bridge.Outline_Filter_Handlers is
             return True;
 
          when Editor.Command_Kinds.Move_Down | Editor.Command_Kinds.Select_Next_Outline_Item =>
-            Execute (Editor.Commands.Command_Select_Next_Outline_Item);
+            Execute (Editor.Command_Ids.Command_Select_Next_Outline_Item);
             return True;
 
          when Editor.Command_Kinds.Move_Up | Editor.Command_Kinds.Select_Previous_Outline_Item =>
-            Execute (Editor.Commands.Command_Select_Previous_Outline_Item);
+            Execute (Editor.Command_Ids.Command_Select_Previous_Outline_Item);
             return True;
 
          when Editor.Command_Kinds.Open_Selected_Outline_Item =>
-            Execute (Editor.Commands.Command_Open_Selected_Outline_Item);
+            Execute (Editor.Command_Ids.Command_Open_Selected_Outline_Item);
             return True;
 
          when Editor.Command_Kinds.Clear_Extra_Carets | Editor.Command_Kinds.Palette_Cancel =>

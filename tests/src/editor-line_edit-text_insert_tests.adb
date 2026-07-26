@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
@@ -10,7 +11,6 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Text_IO;
 with Editor.Clipboard;
 with Editor.Command_Palette;
-with Editor.Commands;
 with Editor.Commands.Name_Metadata;
 with Editor.Buffers;
 with Editor.Cursors; use Editor.Cursors;
@@ -36,11 +36,11 @@ with Text_Buffer;
 package body Editor.Line_Edit.Text_Insert_Tests is
 
    use type Editor.Keybinding_Config.Keybinding_Config_Status;
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Commands.Descriptors.Command_Visibility;
    use type Editor.Commands.Availability_Metadata.Command_Availability_Status;
-   use type Editor.Commands.Command_Kind;
+   use type Editor.Command_Kinds.Command_Kind;
    use type Editor.Keybindings.Keybinding_Validation_Status;
    use type Editor.Buffers.Buffer_Id;
    use type Editor.Keybindings.Binding_Result;
@@ -263,12 +263,12 @@ package body Editor.Line_Edit.Text_Insert_Tests is
 
       if Direction = Word_Delete_Test_Previous then
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Word_Delete_Previous);
+           (S, Editor.Command_Ids.Command_Word_Delete_Previous);
          Assert (Message_Text (S) = "Deleted previous word",
                  Why & ": delete-previous message mismatch");
       else
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Word_Delete_Next);
+           (S, Editor.Command_Ids.Command_Word_Delete_Next);
          Assert (Message_Text (S) = "Deleted next word",
                  Why & ": delete-next message mismatch");
       end if;
@@ -290,10 +290,10 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Assert_Navigation_Counts (S, 0, 0,
                                 Why & ": word delete must not record navigation");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text (S, Before_Text,
                           Why & ": undo must restore exact pre-delete text after removing " & Removed_Text);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert_Buffer_Text (S, Expected_Text,
                           Why & ": redo must restore exact post-delete text");
    end Assert_Word_Delete_Transform;
@@ -315,8 +315,8 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Editor.State.Load_Text (S, "Seed Word");
       Set_Caret (S, Cursor_Index (Text_Buffer.Length (S.Buffer)));
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Word_Delete_Previous);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+        (S, Editor.Command_Ids.Command_Word_Delete_Previous);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Redo_Count := Natural (Editor.History.Redo_Stack.Length);
 
       Editor.State.Load_Text (S, Before_Text);
@@ -324,10 +324,10 @@ package body Editor.Line_Edit.Text_Insert_Tests is
 
       if Direction = Word_Delete_Test_Previous then
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Word_Delete_Previous);
+           (S, Editor.Command_Ids.Command_Word_Delete_Previous);
       else
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Word_Delete_Next);
+           (S, Editor.Command_Ids.Command_Word_Delete_Next);
       end if;
 
       Assert_Buffer_Text (S, Before_Text, Why);
@@ -435,7 +435,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
               "bridge insertion uses undoable mutation");
 
       Editor.Input_Bridge.Set_State_For_Test (S);
-      Editor.Input_Bridge.Execute_Command_Id (Editor.Commands.Command_Open_Quick_Open);
+      Editor.Input_Bridge.Execute_Command_Id (Editor.Command_Ids.Command_Open_Quick_Open);
       S := Editor.Input_Bridge.Get_State_For_Test;
       Editor.Input_Bridge.Set_State_For_Test (S);
       Cmd.Ch := 'Z';
@@ -490,11 +490,11 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
               "selection replacement creates one undo entry");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text
         (S, "Alpha" & ASCII.LF & "Beta" & ASCII.LF & "Gamma",
          "undo restores cross-line replacement text");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert_Buffer_Text
         (S, "AlX" & ASCII.LF & "Gamma",
          "redo restores cross-line replacement text");
@@ -521,7 +521,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Lambda     : constant Editor.Unicode.Code_Point :=
         Wide_Wide_Character'Val (16#03BB#);
       Found      : Boolean := False;
-      Resolved   : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      Resolved   : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
       A_Id       : Editor.Buffers.Buffer_Id;
       B_Id       : Editor.Buffers.Buffer_Id;
    begin
@@ -550,7 +550,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
 
       Resolved :=
         Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("internal.text.insert", Found);
-      Assert (not Found and then Resolved = Editor.Commands.No_Command,
+      Assert (not Found and then Resolved = Editor.Command_Ids.No_Command,
               "arbitrary parameterized Text Insert must not be a public stable command");
 
       Editor.History.Undo_Stack.Clear;
@@ -706,9 +706,9 @@ package body Editor.Line_Edit.Text_Insert_Tests is
          Assert (Editor.State.Is_Dirty (S),
                  Why & ": insertion must dirty a clean buffer");
 
-         Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+         Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
          Assert_Buffer_Text (S, Before, Why & ": undo restores before text");
-         Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+         Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
          Assert_Buffer_Text (S, Expected, Why & ": redo restores inserted text");
       end Case_Insert;
    begin
@@ -776,9 +776,9 @@ package body Editor.Line_Edit.Text_Insert_Tests is
          Assert (Natural (Editor.History.Redo_Stack.Length) = 0,
                  Why & ": replacement must not create redo entries");
 
-         Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+         Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
          Assert_Buffer_Text (S, Before, Why & ": undo restores selected text");
-         Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+         Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
          Assert_Buffer_Text (S, Expected, Why & ": redo restores replacement");
       end Case_Replace;
    begin
@@ -828,7 +828,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       S.Active_Find_Stale := False;
       Set_Caret (S, 5);
       Execute_Text_Input (S, "!");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Set_Primary_Selection (S, 0, 5);
       Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
@@ -1026,7 +1026,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Assert_Buffer_Text
         (S, "Beta!",
          "completeness buffer B retains independent inserted text");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text
         (S, "Beta",
          "completeness undo in buffer B affects only buffer B");
@@ -1081,7 +1081,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Redo_Before := Natural (Editor.History.Redo_Stack.Length);
       Dirty_Before := Editor.State.Is_Dirty (S);
       Editor.Input_Bridge.Set_State_For_Test (S);
-      Editor.Input_Bridge.Execute_Command_Id (Editor.Commands.Command_Open_Quick_Open);
+      Editor.Input_Bridge.Execute_Command_Id (Editor.Command_Ids.Command_Open_Quick_Open);
       S := Editor.Input_Bridge.Get_State_For_Test;
       Editor.Input_Bridge.Set_State_For_Test (S);
       Cmd.Ch := 'Z';
@@ -1144,9 +1144,9 @@ package body Editor.Line_Edit.Text_Insert_Tests is
          Assert (S.Active_Find_Stale and then S.Active_Find_Matches.Is_Empty,
                  Why & ": text-changing insertion invalidates Find through canonical hook");
 
-         Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+         Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
          Assert_Buffer_Text (S, Before, Why & ": undo restores exact pre-insert text");
-         Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+         Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
          Assert_Buffer_Text (S, Expected, Why & ": redo restores exact inserted text");
       end Case_Insert;
 
@@ -1187,9 +1187,9 @@ package body Editor.Line_Edit.Text_Insert_Tests is
          Assert (S.Active_Find_Stale and then S.Active_Find_Matches.Is_Empty,
                  Why & ": replacement invalidates stale Find ranges");
 
-         Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+         Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
          Assert_Buffer_Text (S, Before, Why & ": undo restores selected text exactly");
-         Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+         Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
          Assert_Buffer_Text (S, Expected, Why & ": redo restores replacement exactly");
       end Case_Replace;
    begin
@@ -1292,7 +1292,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
 
       Set_Caret (S, 5);
       Execute_Text_Input (S, "!");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text (S, "Alpha", "redo preservation setup undo restores clean text");
       Assert (Natural (Editor.History.Redo_Stack.Length) = 1,
               "undo leaves redo available before no-op/failure");
@@ -1303,16 +1303,16 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Execute_Text_Input (S, String'(1 => ASCII.ESC));
       Assert (Natural (Editor.History.Redo_Stack.Length) = 1,
               "invalid payload preserves redo stack after undo");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert_Buffer_Text (S, "Alpha!", "redo still restores prior edit after failed Text Insert");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Set_Primary_Selection (S, 0, 5);
       Execute_Text_Input (S, "Q");
       Assert_Buffer_Text (S, "Q", "successful replacement after undo applies new text");
       Assert (Natural (Editor.History.Redo_Stack.Length) = 0,
               "successful replacement after undo clears redo stack");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert_Buffer_Text (S, "Q", "redo after invalidation leaves replacement text unchanged");
    end Test_Text_Insert_Noops_Redo_Dirty_And_Find;
 
@@ -1350,7 +1350,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
          Before_Back, Before_Fwd,
          "Text Insert ignores Clipboard and Navigation History");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Paste);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Paste);
       Assert_Buffer_Text
         (S, "AlphaXCLIP",
          "Paste still uses original Clipboard after Text Insert");
@@ -1368,13 +1368,13 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, A_Id);
       Assert_Buffer_Text (S, "AlphaXCLIP", "inactive buffer A retained its own text");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text (S, "AlphaX", "undo in A affects only A");
 
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, B_Id);
       Assert_Buffer_Text (S, "Beta!", "switch back to B preserves B inserted text");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text (S, "Beta", "undo in B affects only B");
 
       Editor.State.Load_Text (S, "Core");
@@ -1397,7 +1397,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Redo_Before := Natural (Editor.History.Redo_Stack.Length);
       Dirty_Before := Editor.State.Is_Dirty (S);
       Editor.Input_Bridge.Set_State_For_Test (S);
-      Editor.Input_Bridge.Execute_Command_Id (Editor.Commands.Command_Open_Quick_Open);
+      Editor.Input_Bridge.Execute_Command_Id (Editor.Command_Ids.Command_Open_Quick_Open);
       S := Editor.Input_Bridge.Get_State_For_Test;
       Editor.Input_Bridge.Set_State_For_Test (S);
       Cmd.Ch := 'Z';
@@ -1443,31 +1443,31 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Execute_Text_Input (S, "X");
       Assert_Buffer_Text (S, "AlphaX Beta" & ASCII.LF & "Gamma",
                           "mixed workflow starts with Text Insert");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Char_Delete_Previous);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Char_Delete_Previous);
       Assert_Buffer_Text (S, "Alpha Beta" & ASCII.LF & "Gamma",
                           "Character Delete consumes canonical post-insert text");
       Execute_Text_Input (S, "Y");
       Assert_Buffer_Text (S, "AlphaY Beta" & ASCII.LF & "Gamma",
                           "Text Insert works after Character Delete");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Word_Delete_Previous);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Word_Delete_Previous);
       Assert_Buffer_Text (S, " Beta" & ASCII.LF & "Gamma",
                           "Word Delete consumes canonical post-insert text");
       Execute_Text_Input (S, "Alpha");
       Assert_Buffer_Text (S, "Alpha Beta" & ASCII.LF & "Gamma",
                           "Text Insert works after Word Delete");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Split_At_Caret);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
       Execute_Text_Input (S, "T");
       Assert_Buffer_Text (S, "Alpha" & ASCII.LF & "T Beta" & ASCII.LF & "Gamma",
                           "Text Insert works after Line Split");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Join_Next);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Join_Next);
       Execute_Text_Input (S, "U");
       Assert (Index (To_Unbounded_String (Buffer_Text (S)), "U") > 0,
               "Text Insert works after Line Join");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Indent_Increase);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Indent_Increase);
       Execute_Text_Input (S, "V");
       Assert (Index (To_Unbounded_String (Buffer_Text (S)), "V") > 0,
               "Text Insert works after Indentation");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Toggle_Line_Comment);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Toggle_Line_Comment);
       Execute_Text_Input (S, "W");
       Assert (Index (To_Unbounded_String (Buffer_Text (S)), "W") > 0,
               "Text Insert works after Line Comment toggle");
@@ -1532,11 +1532,11 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       end Bridge_Text;
 
       procedure Assert_Non_Goal_Command_Absent (Name : String) is
-         Resolved : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+         Resolved : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
          Found    : Boolean := False;
       begin
          Resolved := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
-         Assert (not Found and then Resolved = Editor.Commands.No_Command,
+         Assert (not Found and then Resolved = Editor.Command_Ids.No_Command,
                  "non-goal command exposed: " & Name);
       end Assert_Non_Goal_Command_Absent;
 
@@ -1551,7 +1551,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
    begin
       --  Arbitrary parameterized text insertion remains an internal/editor
       --  text-entry route, not a public command-palette/keybinding surface.
-      Desc := Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Insert_Newline);
+      Desc := Editor.Commands.Descriptors.Descriptor (Editor.Command_Ids.Command_Insert_Newline);
       Assert (Desc.Visibility = Editor.Commands.Descriptors.Hidden_Command,
               "newline text input command remains hidden from the palette");
       Assert_Non_Goal_Command_Absent ("edit.text.insert-snippet");
@@ -1578,7 +1578,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Set_Caret (S, 5);
       Back_Before := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Fwd_Before := Editor.Navigation_History.Forward_Count (S.Navigation_History);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Insert_Newline);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Insert_Newline);
       Assert_Buffer_Text
         (S, "Alpha" & ASCII.LF & "Beta",
          "explicit newline route inserts canonical line boundary");
@@ -1603,7 +1603,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Set_Caret (S, 0);
       Editor.Input_Bridge.Reset;
       Editor.Input_Bridge.Set_State_For_Test (S);
-      Editor.Input_Bridge.Execute_Command_Id (Editor.Commands.Command_Goto_Line);
+      Editor.Input_Bridge.Execute_Command_Id (Editor.Command_Ids.Command_Goto_Line);
       S := Editor.Input_Bridge.Get_State_For_Test;
       Undo_Before := Natural (Editor.History.Undo_Stack.Length);
       Redo_Before := Natural (Editor.History.Redo_Stack.Length);
@@ -1632,7 +1632,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Set_Caret (S, 6);
       Editor.Input_Bridge.Reset;
       Editor.Input_Bridge.Set_State_For_Test (S);
-      Editor.Input_Bridge.Execute_Command_Id (Editor.Commands.Command_Find_Show);
+      Editor.Input_Bridge.Execute_Command_Id (Editor.Command_Ids.Command_Find_Show);
       S := Editor.Input_Bridge.Get_State_For_Test;
       Undo_Before := Natural (Editor.History.Undo_Stack.Length);
       Dirty_Before := Editor.State.Is_Dirty (S);
@@ -1764,7 +1764,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Set_Caret (S, 0);
       Editor.Input_Bridge.Reset;
       Editor.Input_Bridge.Set_State_For_Test (S);
-      Editor.Input_Bridge.Execute_Command_Id (Editor.Commands.Command_Open_Quick_Open);
+      Editor.Input_Bridge.Execute_Command_Id (Editor.Command_Ids.Command_Open_Quick_Open);
       S := Editor.Input_Bridge.Get_State_For_Test;
       Undo_Before := Natural (Editor.History.Undo_Stack.Length);
       Dirty_Before := Editor.State.Is_Dirty (S);
@@ -1820,11 +1820,11 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Assert (Natural (Editor.History.Undo_Stack.Length) = 2,
               "insert plus replacement are two canonical undo entries");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text
         (S, "A " & ASCII.HT & ".B",
          "undo restores replacement Before_Text");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert_Buffer_Text
         (S, "AX" & ASCII.LF & "YB",
          "redo restores replacement After_Text without replaying Text Insert");
@@ -1876,9 +1876,9 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Assert (Editor.State.Is_Dirty (S),
               "insert dirties clean buffer");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Assert_Buffer_Text (S, "Alpha", "undo restores text");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Assert_Buffer_Text (S, "AlXpha", "redo restores inserted text");
    end Test_Text_Insert_Basic_Caret_And_Undo;
 

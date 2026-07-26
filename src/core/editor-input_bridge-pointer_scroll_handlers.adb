@@ -1,3 +1,5 @@
+with Editor.Command_Kinds;
+with Editor.Command_Ids;
 with Editor.Commands.Payloads;
 with Editor.Folding;
 with Editor.Input_Bridge.Pointer_Routing;
@@ -14,14 +16,14 @@ package body Editor.Input_Bridge.Pointer_Scroll_Handlers is
    use type Editor.Scrollbars.Scrollbar_Hit;
 
    function Is_Minimap_Pointer_Command
-     (Kind : Editor.Commands.Command_Kind) return Boolean
+     (Kind : Editor.Command_Kinds.Command_Kind) return Boolean
    is
    begin
       return Pointer_Routing.Is_Minimap_Pointer_Command (Kind);
    end Is_Minimap_Pointer_Command;
 
    function Is_Minimap_Drag_Command
-     (Kind : Editor.Commands.Command_Kind) return Boolean
+     (Kind : Editor.Command_Kinds.Command_Kind) return Boolean
    is
    begin
       return Pointer_Routing.Is_Minimap_Drag_Command (Kind);
@@ -146,14 +148,14 @@ package body Editor.Input_Bridge.Pointer_Scroll_Handlers is
    end Handle_Minimap_Pointer;
 
    function Is_Scrollbar_Pointer_Command
-     (Kind : Editor.Commands.Command_Kind) return Boolean
+     (Kind : Editor.Command_Kinds.Command_Kind) return Boolean
    is
    begin
       return Pointer_Routing.Is_Scrollbar_Pointer_Command (Kind);
    end Is_Scrollbar_Pointer_Command;
 
    function Is_Scrollbar_Drag_Command
-     (Kind : Editor.Commands.Command_Kind) return Boolean
+     (Kind : Editor.Command_Kinds.Command_Kind) return Boolean
    is
    begin
       return Pointer_Routing.Is_Scrollbar_Drag_Command (Kind);

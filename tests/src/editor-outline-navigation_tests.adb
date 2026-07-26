@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
@@ -15,7 +16,6 @@ with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Editor.Outline.Fixtures; use Editor.Outline.Fixtures;
 with Editor.Ada_Syntax_Core;
-with Editor.Commands;
 with Editor.Cursors;
 with Editor.Executor;
 with Editor.Executor.File_Save_Commands;
@@ -37,7 +37,7 @@ with Editor.Workspace_Persistence;
 
 package body Editor.Outline.Navigation_Tests is
 
-   use type Editor.Commands.Command_Id;
+   use type Editor.Command_Ids.Command_Id;
    use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Executor.Command_Execution_Status;
    use type Editor.Outline.Outline_Item_Kind;
@@ -180,12 +180,12 @@ package body Editor.Outline.Navigation_Tests is
         (S, "intro" & ASCII.LF & "@outline procedure Demo" & ASCII.LF &
             "procedure Demo is begin null; end Demo;");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "refresh setup executes");
       Editor.Feature_Panel.Select_First (S.Feature_Panel);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Open_Selected_Outline_Item);
+        (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "open selected outline item navigates to its buffer target");
       Editor.State.Row_Col_For_Index (S, S.Carets (0).Pos, Row, Col);
@@ -206,11 +206,11 @@ package body Editor.Outline.Navigation_Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "@outline procedure Reset_Test" & ASCII.LF & "x");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Refresh_Outline);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
       Editor.Feature_Panel.Select_First (S.Feature_Panel);
       Editor.Outline.Clear (S.Outline);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Open_Selected_Outline_Item);
+        (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "stale feature-panel selection cannot open without outline item");
       Assert (Active_Message_Text (S) = Editor.Outline.Reason_No_Outline_Item_Selected,
@@ -230,7 +230,7 @@ package body Editor.Outline.Navigation_Tests is
       Editor.State.Load_Text (S, "first buffer text must not affect outline");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "refresh executes with active buffer");
       Outline_First := Fingerprint (S.Outline);
@@ -242,7 +242,7 @@ package body Editor.Outline.Navigation_Tests is
       Editor.State.Load_Text (S, "different active text still must not affect outline");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "replacement refresh executes");
       Assert (Fingerprint (S.Outline) = Outline_First,
@@ -270,7 +270,7 @@ package body Editor.Outline.Navigation_Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "@outline procedure Reset_Test" & ASCII.LF & "x");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Refresh_Outline);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
       Editor.Feature_Panel.Fixtures.Set_Placeholder_Rows (S.Feature_Panel);
       Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
       Editor.Feature_Panel.Select_First (S.Feature_Panel);
@@ -280,7 +280,7 @@ package body Editor.Outline.Navigation_Tests is
                  Editor.Feature_Panel.Selected_Row (S.Feature_Panel)),
               "generic feature-panel rows are not current outline projections");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Open_Selected_Outline_Item);
+        (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "open selected outline rejects stale or non-outline selected rows");
       Assert (Active_Message_Text (S) = Editor.Outline.Reason_No_Outline_Item_Selected,
@@ -637,16 +637,16 @@ package body Editor.Outline.Navigation_Tests is
             "@outline procedure Later" & ASCII.LF &
             "body line");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "cursor movement fixture refreshes outline");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Move_Down);
+        (S, Editor.Command_Ids.Command_Move_Down);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "first cursor move executes");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Move_Down);
+        (S, Editor.Command_Ids.Command_Move_Down);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "second cursor move executes");
 
@@ -675,18 +675,18 @@ package body Editor.Outline.Navigation_Tests is
             "@outline procedure Later" & ASCII.LF &
             "body line");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "reveal fixture refreshes extracted outline");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Move_Down);
+        (S, Editor.Command_Ids.Command_Move_Down);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Move_Down);
+        (S, Editor.Command_Ids.Command_Move_Down);
       Assert (Current_Symbol_Index (S.Outline) = 2,
               "fixture tracks second outline row as current symbol");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Reveal_Current_Outline_Symbol);
+        (S, Editor.Command_Ids.Command_Reveal_Current_Outline_Symbol);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "reveal current symbol command executes");
       Assert (Editor.Feature_Panel.Is_Visible (S.Feature_Panel),
@@ -713,14 +713,14 @@ package body Editor.Outline.Navigation_Tests is
             "@outline procedure Later" & ASCII.LF &
             "body line");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "no-current fixture refreshes extracted outline");
       Assert (not Has_Current_Symbol (S.Outline),
               "cursor before first symbol has no current symbol");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Reveal_Current_Outline_Symbol);
+        (S, Editor.Command_Ids.Command_Reveal_Current_Outline_Symbol);
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "reveal current symbol is unavailable without a current symbol");
       Assert (Editor.Feature_Panel.Requested_Reveal_Row (S.Feature_Panel) = 0,
@@ -743,14 +743,14 @@ package body Editor.Outline.Navigation_Tests is
             "@outline procedure Later" & ASCII.LF &
             "body line");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Move_Down);
+        (S, Editor.Command_Ids.Command_Move_Down);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Move_Down);
+        (S, Editor.Command_Ids.Command_Move_Down);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Select_Current_Outline_Symbol);
+        (S, Editor.Command_Ids.Command_Select_Current_Outline_Symbol);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "select current symbol executes");
       Assert (Selected_Index (S.Outline) = 2,
@@ -777,11 +777,11 @@ package body Editor.Outline.Navigation_Tests is
             "@outline procedure Later" & ASCII.LF &
             "body line");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Move_Down);
+        (S, Editor.Command_Ids.Command_Move_Down);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Move_Down);
+        (S, Editor.Command_Ids.Command_Move_Down);
       Assert (Current_Symbol_Index (S.Outline) = 2,
               "fixture current symbol is row two before open-selected");
 
@@ -791,7 +791,7 @@ package body Editor.Outline.Navigation_Tests is
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Open_Selected_Outline_Item);
+        (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "open selected executes against selected row");
       Editor.State.Row_Col_For_Index (S, S.Carets (S.Carets.First_Index).Pos, Row, Col);
@@ -813,17 +813,17 @@ package body Editor.Outline.Navigation_Tests is
             "@outline procedure Later" & ASCII.LF &
             "body");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "focus-return fixture refreshes outline");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Focus_Outline);
+        (S, Editor.Command_Ids.Command_Focus_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "fixture focuses feature panel");
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, 2);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Open_Selected_Outline_Item);
+        (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "open-selected succeeds for a live selected outline target");
       Assert (Editor.Panel_Focus.Editor_Text_Has_Focus (S.Panel_Focus),
@@ -843,13 +843,13 @@ package body Editor.Outline.Navigation_Tests is
       Editor.State.Load_Text
         (S, "@outline package Demo" & ASCII.LF & "body");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Focus_Outline);
+        (S, Editor.Command_Ids.Command_Focus_Outline);
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, 0);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Open_Selected_Outline_Item);
+        (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "open-selected without a selected target should be unavailable");
       Assert (Editor.Feature_Panel.Is_Focused (S.Feature_Panel),
@@ -872,11 +872,11 @@ package body Editor.Outline.Navigation_Tests is
             "@outline procedure Later" & ASCII.LF &
             "body");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Move_Down);
+        (S, Editor.Command_Ids.Command_Move_Down);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Move_Down);
+        (S, Editor.Command_Ids.Command_Move_Down);
       Assert (Current_Symbol_Index (S.Outline) = 2,
               "fixture has current symbol on row two");
       Select_Item (S.Outline, 1);
@@ -884,7 +884,7 @@ package body Editor.Outline.Navigation_Tests is
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Open_Selected_Outline_Item);
+        (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "open-selected should navigate the selected row");
       Editor.State.Row_Col_For_Index (S, S.Carets (S.Carets.First_Index).Pos, Row, Col);
@@ -905,16 +905,16 @@ package body Editor.Outline.Navigation_Tests is
             "body" & ASCII.LF &
             "@outline procedure Later" & ASCII.LF & "body");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Focus_Outline);
+        (S, Editor.Command_Ids.Command_Focus_Outline);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Move_Down);
+        (S, Editor.Command_Ids.Command_Move_Down);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Move_Down);
+        (S, Editor.Command_Ids.Command_Move_Down);
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Select_Current_Outline_Symbol);
+        (S, Editor.Command_Ids.Command_Select_Current_Outline_Symbol);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "select-current-symbol executes");
       Assert (Editor.Feature_Panel.Is_Focused (S.Feature_Panel),
@@ -935,15 +935,15 @@ package body Editor.Outline.Navigation_Tests is
             "body" & ASCII.LF &
             "@outline procedure Later" & ASCII.LF & "body");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Move_Down);
+        (S, Editor.Command_Ids.Command_Move_Down);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Move_Down);
+        (S, Editor.Command_Ids.Command_Move_Down);
       Before := S.Carets (S.Carets.First_Index).Pos;
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Reveal_Current_Outline_Symbol);
+        (S, Editor.Command_Ids.Command_Reveal_Current_Outline_Symbol);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "reveal-current-symbol executes");
       Assert (S.Carets (S.Carets.First_Index).Pos = Before,
@@ -962,9 +962,9 @@ package body Editor.Outline.Navigation_Tests is
         (S, "@outline package Demo" & ASCII.LF &
             "@outline procedure Later" & ASCII.LF & "body");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Select_Next_Outline_Item);
+        (S, Editor.Command_Ids.Command_Select_Next_Outline_Item);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "select-next reveal fixture executes");
       Assert (Editor.Feature_Panel.Requested_Reveal_Row (S.Feature_Panel) =
@@ -984,11 +984,11 @@ package body Editor.Outline.Navigation_Tests is
         (S, "@outline package Demo" & ASCII.LF &
             "@outline procedure Later" & ASCII.LF & "body");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Select_Item (S.Outline, 2);
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, 2);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Select_Previous_Outline_Item);
+        (S, Editor.Command_Ids.Command_Select_Previous_Outline_Item);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "select-previous reveal fixture executes");
       Assert (Editor.Feature_Panel.Requested_Reveal_Row (S.Feature_Panel) =
@@ -1011,9 +1011,9 @@ package body Editor.Outline.Navigation_Tests is
             "@outline procedure Later" & ASCII.LF &
             "body");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Focus_Outline);
+        (S, Editor.Command_Ids.Command_Focus_Outline);
       Before := S.Carets (S.Carets.First_Index).Pos;
 
       Result := Editor.Executor.Outline_Commands.Execute_Outline_Row_Click (S, 2);
@@ -1045,9 +1045,9 @@ package body Editor.Outline.Navigation_Tests is
             "@outline procedure Later" & ASCII.LF &
             "body");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Focus_Outline);
+        (S, Editor.Command_Ids.Command_Focus_Outline);
 
       Result :=
         Editor.Executor.Outline_Commands.Execute_Outline_Row_Activation (S, 2);
@@ -1075,9 +1075,9 @@ package body Editor.Outline.Navigation_Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "@outline package Demo" & ASCII.LF & "body");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Focus_Outline);
+        (S, Editor.Command_Ids.Command_Focus_Outline);
       Populate_Synthetic_Outline (S.Outline);
       Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
       Before := S.Carets (S.Carets.First_Index).Pos;
@@ -1104,13 +1104,13 @@ package body Editor.Outline.Navigation_Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "@outline package Demo" & ASCII.LF & "body");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Focus_Outline);
+        (S, Editor.Command_Ids.Command_Focus_Outline);
       Gen := Editor.Feature_Panel.Projection_Generation (S.Feature_Panel);
       Before := S.Carets (S.Carets.First_Index).Pos;
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Clear_Outline);
+        (S, Editor.Command_Ids.Command_Clear_Outline);
 
       Result :=
         Editor.Executor.Outline_Commands.Execute_Outline_Row_Click (S, 1, Gen);
@@ -1137,11 +1137,11 @@ package body Editor.Outline.Navigation_Tests is
             "@outline procedure Later" & ASCII.LF &
             "body");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Move_Down);
+        (S, Editor.Command_Ids.Command_Move_Down);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Move_Down);
+        (S, Editor.Command_Ids.Command_Move_Down);
       Current_Before := Editor.Outline.Current_Symbol_Index (S.Outline);
       Assert (Current_Before = 2,
               "fixture has passive current symbol on second row");
@@ -1229,9 +1229,9 @@ package body Editor.Outline.Navigation_Tests is
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
 
       Open_Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Open_Selected_Outline_Item);
+        (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
       Declaration_Availability := Editor.Executor.Command_Availability
-        (S, Editor.Commands.Command_Goto_Declaration);
+        (S, Editor.Command_Ids.Command_Goto_Declaration);
 
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Open_Availability),
               "open-selected availability rejects out-of-range outline target");
@@ -1559,23 +1559,23 @@ package body Editor.Outline.Navigation_Tests is
             "   procedure Run; -- procedure Fake_Inline;" & ASCII.LF &
             "end Real;");
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Refresh_Outline);
+        (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "current-symbol fixture refreshes through executor");
       Assert (Item_Count (S.Outline) = 3,
               "current-symbol fixture has real package, object, and procedure rows");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Move_Down);
+        (S, Editor.Command_Ids.Command_Move_Down);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Move_Down);
+        (S, Editor.Command_Ids.Command_Move_Down);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Move_Down);
+        (S, Editor.Command_Ids.Command_Move_Down);
       Assert (Current_Symbol_Label (S.Outline) = "procedure Run",
               "current symbol ignores fake comment and string declarations");
 
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Reveal_Current_Outline_Symbol);
+        (S, Editor.Command_Ids.Command_Reveal_Current_Outline_Symbol);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "reveal current executes after lexical-safe refresh");
       Assert (Selected_Index (S.Outline) = 3,
@@ -1682,7 +1682,7 @@ package body Editor.Outline.Navigation_Tests is
       Editor.State.Init (S);
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Refresh_Outline);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Item_Count (S.Outline) > 0,
               "reload setup refreshes a real Ada outline");
       Assert (Freshness_For_Active_Buffer
@@ -1701,7 +1701,7 @@ package body Editor.Outline.Navigation_Tests is
           Outline_Unavailable,
         "reload makes outline unavailable until explicit refresh");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Refresh_Outline);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Freshness_For_Active_Buffer
         (S.Outline, S.Active_Buffer_Token, Editor.State.Current_Buffer_Revision (S)) =
           Outline_Current,
@@ -1709,7 +1709,7 @@ package body Editor.Outline.Navigation_Tests is
 
       Editor.Executor.Execute_No_Log
         (S, Editor.Test_Helper.Insert (Editor.State.Current_Text (S)'Length, ' '));
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Refresh_Outline);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Freshness_For_Active_Buffer
         (S.Outline, S.Active_Buffer_Token, Editor.State.Current_Buffer_Revision (S)) =
           Outline_Current,
@@ -1718,7 +1718,7 @@ package body Editor.Outline.Navigation_Tests is
       Editor.Executor.File_Save_Basic_Commands.Execute_Revert_Active_Buffer (S);
       Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "revert creates an explicit destructive confirmation");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Retry_Pending_Transition);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Retry_Pending_Transition);
       Assert (Editor.State.Current_Text (S) = Disk_Replacement,
               "revert restores disk text after confirmation");
       Assert (Item_Count (S.Outline) = 0,
@@ -1750,7 +1750,7 @@ package body Editor.Outline.Navigation_Tests is
         (S, "package Demo is" & ASCII.LF &
             "   procedure Run;" & ASCII.LF &
             "end Demo;");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Refresh_Outline);
+      Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Item_Count (S.Outline) > 0,
               "close-buffer setup has outline rows");
       Editor.Feature_Panel.Select_First (S.Feature_Panel);
@@ -1758,7 +1758,7 @@ package body Editor.Outline.Navigation_Tests is
 
       Reset_Outline_For_Buffer_Close (S.Outline, S.Active_Buffer_Token);
       Result := Editor.Executor.Execute_Command_With_Result
-        (S, Editor.Commands.Command_Open_Selected_Outline_Item);
+        (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
       Assert (Result.Status = Editor.Executor.Command_Unavailable
                 or else Result.Status = Editor.Executor.Command_No_Op,
               "closed-buffer outline navigation is blocked");

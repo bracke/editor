@@ -1,5 +1,5 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Availability_Metadata;
-with Editor.Commands;
 with Editor.Command_Execution;
 with Editor.State;
 with Editor.Workspace_Persistence;
@@ -10,7 +10,7 @@ package Editor.Executor.Project_Lifecycle_Commands is
 
    function Project_Lifecycle_Command_Availability
      (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Commands.Availability_Metadata.Command_Availability;
 
    procedure Apply_Project_Open_Workspace_Policy
@@ -41,7 +41,7 @@ package Editor.Executor.Project_Lifecycle_Commands is
 
    function Execute_Project_Lifecycle_Result_Command
      (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id)
+      Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result;
 
    function Project_Dirty_Buffer_Summary

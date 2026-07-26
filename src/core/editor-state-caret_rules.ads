@@ -1,6 +1,5 @@
 with Editor.Commands.Payloads;
 with Editor.Cursors; use Editor.Cursors;
-with Editor.Commands;
 
 package Editor.State.Caret_Rules is
 

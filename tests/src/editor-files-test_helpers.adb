@@ -1,9 +1,9 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Test_Temp;
 with Ada.Directories;
 with Ada.Streams;
 with Ada.Streams.Stream_IO;
 
-with Editor.Commands;
 with Editor.Executor;
 with Editor.Executor.File_Save_Basic_Commands;
 with Editor.Pending_Transitions;
@@ -98,7 +98,7 @@ package body Editor.Files.Test_Helpers is
       if Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions) then
          Editor.Messages.Clear (S.Messages);
          Editor.Executor.Execute_Command
-           (S, Editor.Commands.Command_Retry_Pending_Transition);
+           (S, Editor.Command_Ids.Command_Retry_Pending_Transition);
       end if;
    end Execute_Revert_And_Confirm;
 

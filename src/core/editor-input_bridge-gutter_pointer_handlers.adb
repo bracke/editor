@@ -1,3 +1,4 @@
+with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.Cursors;
@@ -18,18 +19,18 @@ with Editor.View;
 
 package body Editor.Input_Bridge.Gutter_Pointer_Handlers is
 
-   use type Editor.Commands.Command_Kind;
+   use type Editor.Command_Kinds.Command_Kind;
    use type Editor.Gutter.Gutter_Zone;
 
    function Is_Gutter_Pointer_Command
-     (Kind : Editor.Commands.Command_Kind) return Boolean
+     (Kind : Editor.Command_Kinds.Command_Kind) return Boolean
    is
    begin
       return Pointer_Routing.Is_Gutter_Pointer_Command (Kind);
    end Is_Gutter_Pointer_Command;
 
    function Is_Gutter_Drag_Command
-     (Kind : Editor.Commands.Command_Kind) return Boolean
+     (Kind : Editor.Command_Kinds.Command_Kind) return Boolean
    is
    begin
       return Pointer_Routing.Is_Gutter_Drag_Command (Kind);
