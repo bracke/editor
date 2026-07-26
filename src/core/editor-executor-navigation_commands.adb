@@ -235,13 +235,13 @@ package body Editor.Executor.Navigation_Commands is
             Editor.Buffers.Global_Set_Active_Buffer (Id);
             declare
                Saved_Index : constant Editor.Ada_Project_Index.Index_State :=
-                 S.Language_Index;
+                 S.Semantic.Language_Index;
                Saved_Service : constant Editor.Ada_Language_Service.Service_State :=
-                 S.Language_Service;
+                 S.Semantic.Language_Service;
             begin
                Editor.Buffers.Load_Global_Active_Into_State (S);
-               S.Language_Index := Saved_Index;
-               S.Language_Service := Saved_Service;
+               S.Semantic.Language_Index := Saved_Index;
+               S.Semantic.Language_Service := Saved_Service;
             end;
             Editor.Recent_Buffers.Mark_Activated (S.Recent_Buffers, Natural (Id));
          else

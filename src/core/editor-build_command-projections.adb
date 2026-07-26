@@ -108,10 +108,10 @@ package body Editor.Build_Command.Projections is
           Editor.External_Producers.Build_Requests
             .Extract_Diagnostic_Lines_From_Build_Result (Result);
    begin
-      State.Language_Service :=
-        Editor.Ada_Language_Service.From_Index (State.Language_Index);
+      State.Semantic.Language_Service :=
+        Editor.Ada_Language_Service.From_Index (State.Semantic.Language_Index);
       Editor.Ada_Language_Service.Put_Compiler_Diagnostic_Lines
-        (State.Language_Service,
+        (State.Semantic.Language_Service,
          Lines,
          Tool_Name       => Compiler_Tool_Name (Request.Tool),
          Run_Fingerprint => Build_Run_Fingerprint (Result));

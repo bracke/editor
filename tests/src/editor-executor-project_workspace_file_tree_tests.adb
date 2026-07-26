@@ -561,7 +561,7 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
         (S, Editor.Command_Ids.Command_Semantic_Refresh_Project_Index);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "file-tree rename fixture refreshes project language index");
-      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+      Assert (Editor.Ada_Project_Index.File_Count (S.Semantic.Language_Index) >= 2,
               "file-tree rename fixture indexed Ada project files");
 
       Select_File_Tree_Test_Path (S, "notes.txt");
@@ -571,11 +571,11 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
       Assert (S.Buffer_Lifecycle.File_Info.Has_Path
               and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Renamed_Path,
               "file-tree rename rebases active non-Ada buffer");
-      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+      Assert (Editor.Ada_Project_Index.File_Count (S.Semantic.Language_Index) >= 2,
               "file-tree rename preserves unrelated Ada language index files");
-      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Language_Index) >= 2,
+      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Semantic.Language_Index) >= 2,
               "file-tree rename preserves unrelated Ada language index symbols");
-      Targets := Editor.Ada_Project_Index.Resolve (S.Language_Index, "Lib");
+      Targets := Editor.Ada_Project_Index.Resolve (S.Semantic.Language_Index, "Lib");
       Assert (Natural (Targets.Matches.Length) >= 1,
               "file-tree rename keeps cross-file Lib symbol available");
 
@@ -619,15 +619,15 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
          Editor.Ada_Language_Model.Symbol_Object,
          (Start_Line => 1, Start_Column => 1, End_Line => 1, End_Column => 3));
       Editor.Ada_Project_Index.Put_Analysis
-        (S.Language_Index, Old_Path,
+        (S.Semantic.Language_Index, Old_Path,
          Buffer_Token         => S.Buffer_Lifecycle.Active_Buffer_Token,
          Buffer_Revision      => S.Buffer_Lifecycle.Buffer_Revision,
          Lifecycle_Generation => S.Buffer_Lifecycle.Lifecycle_Generation,
          Analysis             => Analysis);
       Editor.Ada_Language_Service.Put_Index
-        (S.Language_Service, S.Language_Index);
-      Assert (Editor.Ada_Language_Service.Status (S.Language_Service) =
-              Editor.Ada_Language_Service.Status (S.Language_Index),
+        (S.Semantic.Language_Service, S.Semantic.Language_Index);
+      Assert (Editor.Ada_Language_Service.Status (S.Semantic.Language_Service) =
+              Editor.Ada_Language_Service.Status (S.Semantic.Language_Index),
               "rename setup mirrors language service and index");
 
       declare
@@ -664,10 +664,10 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
               "rename of active file must clear stale diagnostics feature rows");
       Assert (not Editor.Project_Search.Is_Stale (S.Project_Search),
               "rename must refresh project search state");
-      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) = 0,
+      Assert (Editor.Ada_Project_Index.File_Count (S.Semantic.Language_Index) = 0,
               "rename drops stale language index rows for the moved file");
-      Assert (Editor.Ada_Language_Service.Status (S.Language_Service) =
-              Editor.Ada_Language_Service.Status (S.Language_Index),
+      Assert (Editor.Ada_Language_Service.Status (S.Semantic.Language_Service) =
+              Editor.Ada_Language_Service.Status (S.Semantic.Language_Index),
               "rename invalidates language service with project index");
 
       Remove_Tree_If_Exists (Root);

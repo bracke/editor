@@ -1,4 +1,6 @@
 with Ada.Strings.Unbounded;
+with Editor.Ada_Language_Service;
+with Editor.Ada_Project_Index;
 
 package Editor.State_Semantic is
 
@@ -38,6 +40,27 @@ package Editor.State_Semantic is
    type Quick_Fix_Workflow_State is record
       Diagnostic_Index : Natural := 0;
       Action_Index     : Natural := 0;
+   end record;
+
+   type Semantic_Runtime_State is record
+      Popup : Semantic_Popup_State;
+      Pending_Quick_Fix : Quick_Fix_Workflow_State;
+
+      --  Transient in-process Ada project language index. This is runtime-only
+      --  and is cleared or invalidated by language-index commands and project/
+      --  buffer lifecycle paths; it is never persisted.
+      Language_Index : Editor.Ada_Project_Index.Index_State;
+
+      --  Transient language-service facade state. It mirrors the project
+      --  language index for model-backed navigation and retains compiler-backed
+      --  diagnostic output from explicit build runs for IDE language consumers.
+      --  It is never persisted.
+      Language_Service : Editor.Ada_Language_Service.Service_State;
+
+      Syntax_Source_Revision : Natural := Natural'Last;
+      Syntax_Source_Buffer_Token : Natural := 0;
+      Syntax_Symbols_Revision : Natural := Natural'Last;
+      Syntax_Symbols_Buffer_Token : Natural := 0;
    end record;
 
 end Editor.State_Semantic;

@@ -121,15 +121,15 @@ package body Editor.Executor.File_Conflict_Commands is
       end if;
 
       if Source_Path'Length > 0 then
-         Editor.Ada_Project_Index.Invalidate_Path (S.Language_Index, Source_Path);
+         Editor.Ada_Project_Index.Invalidate_Path (S.Semantic.Language_Index, Source_Path);
          Editor.Ada_Language_Service.Invalidate_Path
-           (S.Language_Service, Source_Path);
+           (S.Semantic.Language_Service, Source_Path);
       end if;
       if S.Buffer_Lifecycle.Active_Buffer_Token /= 0 then
          Editor.Ada_Project_Index.Invalidate_Buffer
-           (S.Language_Index, S.Buffer_Lifecycle.Active_Buffer_Token);
+           (S.Semantic.Language_Index, S.Buffer_Lifecycle.Active_Buffer_Token);
          Editor.Ada_Language_Service.Invalidate_Buffer
-           (S.Language_Service, S.Buffer_Lifecycle.Active_Buffer_Token);
+           (S.Semantic.Language_Service, S.Buffer_Lifecycle.Active_Buffer_Token);
       end if;
 
       if To_String (S.Build_UI.Selected_Build_Candidate_Id)'Length > 0 then

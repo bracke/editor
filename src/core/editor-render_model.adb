@@ -585,7 +585,7 @@ package body Editor.Render_Model is
       O.Folding := S.Folding;
       O.Gutter_Markers := S.Gutter_Markers;
       O.Gutter_Marker_Hover := S.Gutter_Marker_Hover;
-      O.Semantic_Popup := S.Semantic_Popup;
+      O.Semantic_Popup := S.Semantic.Popup;
       O.Messages := S.Messages;
       declare
          Snapshot : Editor.Bookmarks.Bookmark_Snapshot;

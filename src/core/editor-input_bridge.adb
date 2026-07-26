@@ -190,7 +190,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
 
    procedure Clear_Semantic_Popup is
    begin
-      The_Editor.State.Semantic_Popup :=
+      The_Editor.State.Semantic.Popup :=
         (Active => False,
          Kind => Editor.State_Semantic.No_Semantic_Popup,
          Anchor_Row => 0,
@@ -206,8 +206,8 @@ use type Editor.Guided_Prompts.Prompt_Kind;
    procedure Refresh_Or_Clear_Semantic_Completion_Popup is
       Result : Editor.Executor.Command_Execution_Result;
    begin
-      if The_Editor.State.Semantic_Popup.Active
-        and then The_Editor.State.Semantic_Popup.Kind =
+      if The_Editor.State.Semantic.Popup.Active
+        and then The_Editor.State.Semantic.Popup.Kind =
           Editor.State_Semantic.Semantic_Completion_Popup
       then
          Result := Editor.Executor.Execute_Command_With_Result
@@ -215,7 +215,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
          if Result.Status /= Editor.Executor.Command_Executed then
             Clear_Semantic_Popup;
          end if;
-      elsif The_Editor.State.Semantic_Popup.Active then
+      elsif The_Editor.State.Semantic.Popup.Active then
          Clear_Semantic_Popup;
       end if;
    end Refresh_Or_Clear_Semantic_Completion_Popup;
@@ -286,7 +286,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
             | Routed_To_Delete_Next_Word
             | Routed_To_Line_Split =>
             Editor.Executor.Execute_Command (The_Editor.State, Id, Shift);
-            if The_Editor.State.Semantic_Popup.Active then
+            if The_Editor.State.Semantic.Popup.Active then
                Refresh_Or_Clear_Semantic_Completion_Popup;
             end if;
             Editor.Render_Cache.Invalidate_All;
@@ -1773,7 +1773,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
                      | Routed_To_Line_Split =>
                      Editor.Instance.Execute
                        (The_Editor, Canonical_Text_Entry_Command (Cmd));
-                     if The_Editor.State.Semantic_Popup.Active then
+                     if The_Editor.State.Semantic.Popup.Active then
                         Refresh_Or_Clear_Semantic_Completion_Popup;
                      end if;
                   when others =>

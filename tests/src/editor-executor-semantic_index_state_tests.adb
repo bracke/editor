@@ -163,7 +163,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
         (Analysis, "Run", LM.Symbol_Procedure,
          (Start_Line => 1, Start_Column => 20, End_Line => 1, End_Column => 22));
       Editor.Ada_Project_Index.Put_Analysis
-        (S.Language_Index, "/project/run.adb",
+        (S.Semantic.Language_Index, "/project/run.adb",
          Buffer_Token         => S.Buffer_Lifecycle.Active_Buffer_Token,
          Buffer_Revision      => S.Buffer_Lifecycle.Buffer_Revision,
          Lifecycle_Generation => S.Buffer_Lifecycle.Lifecycle_Generation,
@@ -221,7 +221,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
         (Analysis, "Run", LM.Symbol_Procedure,
          (Start_Line => 1, Start_Column => 20, End_Line => 1, End_Column => 22));
       Editor.Ada_Project_Index.Put_Analysis
-        (S.Language_Index, "/project/run.adb",
+        (S.Semantic.Language_Index, "/project/run.adb",
          Buffer_Token         => S.Buffer_Lifecycle.Active_Buffer_Token,
          Buffer_Revision      => S.Buffer_Lifecycle.Buffer_Revision,
          Lifecycle_Generation => S.Buffer_Lifecycle.Lifecycle_Generation,
@@ -239,10 +239,10 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "goto declaration executes from the caret symbol");
       Assert (Editor.Ada_Language_Service.Active_Semantic_Request
-                (S.Language_Service).Kind =
+                (S.Semantic.Language_Service).Kind =
               Editor.Ada_Language_Service.Semantic_Request_Goto_Declaration
               and then Editor.Ada_Language_Service.Active_Semantic_Request
-                (S.Language_Service).Status =
+                (S.Semantic.Language_Service).Status =
               Editor.Ada_Language_Service.Semantic_Request_Completed,
               "goto declaration execution records a completed semantic request");
       Assert (Active_Caret_Line (S) = 1,
@@ -289,7 +289,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               "semantic overflow test must exercise service cap");
 
       Editor.Ada_Project_Index.Put_Analysis
-        (S.Language_Index, "/project/repeated.adb",
+        (S.Semantic.Language_Index, "/project/repeated.adb",
          Buffer_Token         => S.Buffer_Lifecycle.Active_Buffer_Token,
          Buffer_Revision      => S.Buffer_Lifecycle.Buffer_Revision,
          Lifecycle_Generation => S.Buffer_Lifecycle.Lifecycle_Generation,
@@ -364,7 +364,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
         (if S.Buffer_Lifecycle.Buffer_Revision > 0 then S.Buffer_Lifecycle.Buffer_Revision - 1
          else S.Buffer_Lifecycle.Buffer_Revision + 1);
       Editor.Ada_Project_Index.Put_Analysis
-        (S.Language_Index, "/project/run.adb",
+        (S.Semantic.Language_Index, "/project/run.adb",
          Buffer_Token         => Live_Token,
          Buffer_Revision      => Stale_Revision,
          Lifecycle_Generation => S.Buffer_Lifecycle.Lifecycle_Generation,
@@ -505,7 +505,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
         (Analysis, "Run", LM.Symbol_Procedure,
          (Start_Line => 1, Start_Column => 20, End_Line => 1, End_Column => 22));
       Editor.Ada_Project_Index.Put_Analysis
-        (S.Language_Index, "/project/run.adb",
+        (S.Semantic.Language_Index, "/project/run.adb",
          Buffer_Token         => S.Buffer_Lifecycle.Active_Buffer_Token,
          Buffer_Revision      => S.Buffer_Lifecycle.Buffer_Revision,
          Lifecycle_Generation => S.Buffer_Lifecycle.Lifecycle_Generation,
@@ -582,12 +582,12 @@ package body Editor.Executor.Semantic_Index_State_Tests is
         (S, Editor.Command_Ids.Command_Refresh_Outline_Project_Index);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "language project index refresh command executes");
-      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+      Assert (Editor.Ada_Project_Index.File_Count (S.Semantic.Language_Index) >= 2,
               "language project index refresh indexes project Ada files");
-      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Language_Index) >= 2,
+      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Semantic.Language_Index) >= 2,
               "language project index refresh records project symbols");
-      Assert (Editor.Ada_Language_Service.Status (S.Language_Service) =
-              Editor.Ada_Language_Service.Status (S.Language_Index),
+      Assert (Editor.Ada_Language_Service.Status (S.Semantic.Language_Service) =
+              Editor.Ada_Language_Service.Status (S.Semantic.Language_Index),
               "language project index refresh syncs language service");
       Msg := To_Unbounded_String (Latest_Message_Text (S));
       Assert (Ada.Strings.Fixed.Index
@@ -638,7 +638,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
         (To_Unbounded_String
            ("compiler run completed without diagnostics"));
       Editor.Ada_Language_Service.Put_Compiler_Diagnostic_Lines
-        (S.Language_Service, Lines, Tool_Name => "gnat", Run_Fingerprint => 76);
+        (S.Semantic.Language_Service, Lines, Tool_Name => "gnat", Run_Fingerprint => 76);
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Language_Index_Status);
       Assert (Result.Status = Editor.Executor.Command_Executed,
@@ -661,7 +661,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
         (To_Unbounded_String
            ("src/lib.ads:2:4: error: unrelated active-file status diagnostic"));
       Editor.Ada_Language_Service.Put_Compiler_Diagnostic_Lines
-        (S.Language_Service, Lines, Tool_Name => "gnat", Run_Fingerprint => 77);
+        (S.Semantic.Language_Service, Lines, Tool_Name => "gnat", Run_Fingerprint => 77);
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Language_Index_Status);
       Assert (Result.Status = Editor.Executor.Command_Executed,
@@ -681,12 +681,12 @@ package body Editor.Executor.Semantic_Index_State_Tests is
         (S, Editor.Command_Ids.Command_Language_Index_Clear);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "language index clear command executes");
-      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) = 0,
+      Assert (Editor.Ada_Project_Index.File_Count (S.Semantic.Language_Index) = 0,
               "language index clear removes indexed files");
-      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Language_Index) = 0,
+      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Semantic.Language_Index) = 0,
               "language index clear removes indexed symbols");
-      Assert (Editor.Ada_Language_Service.Status (S.Language_Service) =
-              Editor.Ada_Language_Service.Status (S.Language_Index),
+      Assert (Editor.Ada_Language_Service.Status (S.Semantic.Language_Service) =
+              Editor.Ada_Language_Service.Status (S.Semantic.Language_Index),
               "language index clear syncs language service");
       Assert (Latest_Message_Text (S) = "Language index cleared.",
               "language index clear reports deterministic feedback");
@@ -714,16 +714,16 @@ package body Editor.Executor.Semantic_Index_State_Tests is
         (S, Editor.Command_Ids.Command_Semantic_Refresh_Project_Index);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic project index refresh command executes");
-      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+      Assert (Editor.Ada_Project_Index.File_Count (S.Semantic.Language_Index) >= 2,
               "semantic project refresh rebuilds project language index");
-      Assert (Editor.Ada_Language_Service.Status (S.Language_Service) =
-              Editor.Ada_Language_Service.Status (S.Language_Index),
+      Assert (Editor.Ada_Language_Service.Status (S.Semantic.Language_Service) =
+              Editor.Ada_Language_Service.Status (S.Semantic.Language_Index),
               "semantic project refresh syncs language service");
       Assert (Editor.Syntax_Semantics.Symbol_Count (S.Syntax_Symbols) > 0,
               "semantic project refresh updates active-buffer semantic map");
-      Assert (S.Syntax_Symbols_Buffer_Token = S.Buffer_Lifecycle.Active_Buffer_Token,
+      Assert (S.Semantic.Syntax_Symbols_Buffer_Token = S.Buffer_Lifecycle.Active_Buffer_Token,
               "semantic project refresh stamps active-buffer semantic token");
-      Assert (S.Syntax_Symbols_Revision = S.Buffer_Lifecycle.Buffer_Revision,
+      Assert (S.Semantic.Syntax_Symbols_Revision = S.Buffer_Lifecycle.Buffer_Revision,
               "semantic project refresh stamps active-buffer semantic revision");
       Msg := To_Unbounded_String (Latest_Message_Text (S));
       Assert (Ada.Strings.Fixed.Index
@@ -769,20 +769,20 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Init_Executor_Test_State (S);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
 
-      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+      Assert (Editor.Ada_Project_Index.File_Count (S.Semantic.Language_Index) >= 2,
               "project open should automatically index project Ada files");
-      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Language_Index) >= 2,
+      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Semantic.Language_Index) >= 2,
               "project open should automatically retain project symbols");
-      Assert (Editor.Ada_Language_Service.Status (S.Language_Service) =
-              Editor.Ada_Language_Service.Status (S.Language_Index),
+      Assert (Editor.Ada_Language_Service.Status (S.Semantic.Language_Service) =
+              Editor.Ada_Language_Service.Status (S.Semantic.Language_Index),
               "automatic project index should sync the language service");
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Main_Path);
       Assert (Editor.Syntax_Semantics.Symbol_Count (S.Syntax_Symbols) > 0,
               "opening an Ada file should prepare active-buffer semantic state");
-      Assert (S.Syntax_Symbols_Buffer_Token = S.Buffer_Lifecycle.Active_Buffer_Token,
+      Assert (S.Semantic.Syntax_Symbols_Buffer_Token = S.Buffer_Lifecycle.Active_Buffer_Token,
               "automatic file-open semantics should stamp the active buffer");
-      Assert (S.Syntax_Symbols_Revision = S.Buffer_Lifecycle.Buffer_Revision,
+      Assert (S.Semantic.Syntax_Symbols_Revision = S.Buffer_Lifecycle.Buffer_Revision,
               "automatic file-open semantics should stamp the active revision");
 
       Write_Text_File
@@ -792,10 +792,10 @@ package body Editor.Executor.Semantic_Index_State_Tests is
          "end Extra;" & ASCII.LF);
       Editor.Executor.Project_File_Index_Commands.Execute_Refresh_Project_Files (S);
 
-      Assert (Editor.Ada_Project_Index.Contains_Path (S.Language_Index, Extra_Path),
+      Assert (Editor.Ada_Project_Index.Contains_Path (S.Semantic.Language_Index, Extra_Path),
               "project file refresh should automatically refresh language index rows");
-      Assert (Editor.Ada_Language_Service.Status (S.Language_Service) =
-              Editor.Ada_Language_Service.Status (S.Language_Index),
+      Assert (Editor.Ada_Language_Service.Status (S.Semantic.Language_Service) =
+              Editor.Ada_Language_Service.Status (S.Semantic.Language_Index),
               "project file refresh should keep language service in sync");
 
       Remove_Tree_If_Exists (Root);
@@ -845,7 +845,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic refresh executes for active Ada file");
       Assert (Editor.Ada_Language_Service.Semantic_Diagnostic_Count_For_Path
-                (S.Language_Service, Path) > 0,
+                (S.Semantic.Language_Service, Path) > 0,
               "semantic refresh publishes live diagnostics to language service");
       Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) > 0,
               "semantic refresh projects live diagnostics to Diagnostics");
@@ -915,7 +915,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "language index clear executes after live diagnostics");
       Assert (Editor.Ada_Language_Service.Semantic_Diagnostic_Count
-                (S.Language_Service) = 0,
+                (S.Semantic.Language_Service) = 0,
               "language index clear removes live semantic backend diagnostics");
       Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
               "language index clear removes projected live semantic Diagnostics rows");
@@ -963,10 +963,10 @@ package body Editor.Executor.Semantic_Index_State_Tests is
         (S, Editor.Command_Ids.Command_Semantic_Refresh_Buffer);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic buffer refresh executes for active Ada file");
-      Assert (Editor.Ada_Project_Index.Contains_Path (S.Language_Index, Path),
+      Assert (Editor.Ada_Project_Index.Contains_Path (S.Semantic.Language_Index, Path),
               "semantic buffer refresh indexes the active buffer analysis");
       Assert (Editor.Ada_Language_Service.Semantic_Diagnostic_Count_For_Path
-                (S.Language_Service, Path) > 0,
+                (S.Semantic.Language_Service, Path) > 0,
               "semantic buffer refresh publishes live diagnostics to language service");
       Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) > 0,
               "semantic buffer refresh projects live diagnostics to Diagnostics");
@@ -1033,12 +1033,12 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               "semantic project refresh executes for cross-unit fixture");
 
       for I in 1 .. Editor.Ada_Language_Service.Semantic_Diagnostic_Count
-        (S.Language_Service)
+        (S.Semantic.Language_Service)
       loop
          declare
             Diagnostic : constant Editor.Ada_Language_Service.Semantic_Diagnostic :=
               Editor.Ada_Language_Service.Semantic_Diagnostic_At
-                (S.Language_Service, I);
+                (S.Semantic.Language_Service, I);
          begin
             if To_String (Diagnostic.Path) = Path
               and then Ada.Strings.Fixed.Index
@@ -1154,10 +1154,10 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Assert (Active_Caret_Line (S) = 1,
               "goto body places caret on indexed body declaration");
       Assert (Editor.Ada_Language_Service.Active_Semantic_Request
-                (S.Language_Service).Kind =
+                (S.Semantic.Language_Service).Kind =
               Editor.Ada_Language_Service.Semantic_Request_Goto_Body
               and then Editor.Ada_Language_Service.Active_Semantic_Request
-                (S.Language_Service).Status =
+                (S.Semantic.Language_Service).Status =
               Editor.Ada_Language_Service.Semantic_Request_Completed,
               "goto body execution records a completed semantic request");
 
@@ -1180,14 +1180,14 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, Body_Row);
 
       Unit_Target := Editor.Ada_Project_Index.Resolve_Unique_Unit_Target
-        (S.Language_Index, "Demo", Editor.Ada_Project_Index.Unit_Package_Spec);
-      Symbol_Targets := Editor.Ada_Project_Index.Resolve (S.Language_Index, "Demo");
+        (S.Semantic.Language_Index, "Demo", Editor.Ada_Project_Index.Unit_Package_Spec);
+      Symbol_Targets := Editor.Ada_Project_Index.Resolve (S.Semantic.Language_Index, "Demo");
       Assert (Natural (Symbol_Targets.Matches.Length) >= 2,
               "indexed body/spec fixture retains ordinary Demo symbols; found" &
               Natural'Image (Natural (Symbol_Targets.Matches.Length)));
       Assert (Unit_Target.Available,
               "indexed package spec unit target is available for Demo; units" &
-              Natural'Image (Editor.Ada_Project_Index.Unit_Count (S.Language_Index)) &
+              Natural'Image (Editor.Ada_Project_Index.Unit_Count (S.Semantic.Language_Index)) &
               ", ambiguous=" & Boolean'Image (Unit_Target.Ambiguous) &
               ", overflow=" & Boolean'Image (Unit_Target.Overflow));
       Avail := Editor.Executor.Command_Availability
@@ -1206,10 +1206,10 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Assert (Active_Caret_Line (S) = 1,
               "goto spec places caret on indexed spec declaration");
       Assert (Editor.Ada_Language_Service.Active_Semantic_Request
-                (S.Language_Service).Kind =
+                (S.Semantic.Language_Service).Kind =
               Editor.Ada_Language_Service.Semantic_Request_Goto_Spec
               and then Editor.Ada_Language_Service.Active_Semantic_Request
-                (S.Language_Service).Status =
+                (S.Semantic.Language_Service).Status =
               Editor.Ada_Language_Service.Semantic_Request_Completed,
               "goto spec execution records a completed semantic request");
 
@@ -1249,10 +1249,10 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Spec_Path,
               "separate procedure goto spec opens indexed parent spec file");
       Assert (Editor.Ada_Language_Service.Active_Semantic_Request
-                (S.Language_Service).Kind =
+                (S.Semantic.Language_Service).Kind =
               Editor.Ada_Language_Service.Semantic_Request_Goto_Spec
               and then Editor.Ada_Language_Service.Active_Semantic_Request
-                (S.Language_Service).Status =
+                (S.Semantic.Language_Service).Status =
               Editor.Ada_Language_Service.Semantic_Request_Completed,
               "separate procedure goto spec records a completed semantic request");
 
@@ -1276,8 +1276,8 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, Spec_Row);
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Insert (0, 'X'));
-      Assert (Editor.Ada_Language_Service.Status (S.Language_Service) =
-              Editor.Ada_Language_Service.Status (S.Language_Index),
+      Assert (Editor.Ada_Language_Service.Status (S.Semantic.Language_Service) =
+              Editor.Ada_Language_Service.Status (S.Semantic.Language_Index),
               "command-kind text edits invalidate language service with project index");
 
       Avail := Editor.Executor.Command_Availability
@@ -1338,7 +1338,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
         (S, Editor.Command_Ids.Command_Semantic_Refresh_Project_Index);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "language index buffer-switcher fixture refreshes project index");
-      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+      Assert (Editor.Ada_Project_Index.File_Count (S.Semantic.Language_Index) >= 2,
               "language index buffer-switcher fixture indexed both files");
 
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
@@ -1352,11 +1352,11 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Assert (S.Buffer_Lifecycle.File_Info.Has_Path
               and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Main_Path,
               "buffer-switcher accept focuses main source");
-      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+      Assert (Editor.Ada_Project_Index.File_Count (S.Semantic.Language_Index) >= 2,
               "buffer-switcher accept preserves project language index files");
-      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Language_Index) >= 2,
+      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Semantic.Language_Index) >= 2,
               "buffer-switcher accept preserves project language index symbols");
-      Targets := Editor.Ada_Project_Index.Resolve (S.Language_Index, "Lib");
+      Targets := Editor.Ada_Project_Index.Resolve (S.Semantic.Language_Index, "Lib");
       Assert (Natural (Targets.Matches.Length) >= 1,
               "buffer-switcher accept keeps cross-file Lib symbol available");
 
@@ -1408,7 +1408,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
         (S, Editor.Command_Ids.Command_Semantic_Refresh_Project_Index);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "language index navigation fixture refreshes project index");
-      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+      Assert (Editor.Ada_Project_Index.File_Count (S.Semantic.Language_Index) >= 2,
               "language index navigation fixture indexed both files");
 
       Editor.Navigation_History.Clear (S.Navigation_History);
@@ -1426,11 +1426,11 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Assert (S.Buffer_Lifecycle.File_Info.Has_Path
               and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Lib_Path,
               "navigate back focuses lib source");
-      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+      Assert (Editor.Ada_Project_Index.File_Count (S.Semantic.Language_Index) >= 2,
               "navigate back preserves project language index files");
-      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Language_Index) >= 2,
+      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Semantic.Language_Index) >= 2,
               "navigate back preserves project language index symbols");
-      Targets := Editor.Ada_Project_Index.Resolve (S.Language_Index, "Lib");
+      Targets := Editor.Ada_Project_Index.Resolve (S.Semantic.Language_Index, "Lib");
       Assert (Natural (Targets.Matches.Length) >= 1,
               "navigate back keeps cross-file Lib symbol available");
 
@@ -1480,7 +1480,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
         (S, Editor.Command_Ids.Command_Semantic_Refresh_Project_Index);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "language index close-active fixture refreshes project index");
-      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+      Assert (Editor.Ada_Project_Index.File_Count (S.Semantic.Language_Index) >= 2,
               "language index close-active fixture indexed both files");
 
       Result := Editor.Executor.Execute_Command_With_Result
@@ -1490,11 +1490,11 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Assert (S.Buffer_Lifecycle.File_Info.Has_Path
               and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Main_Path,
               "close active buffer focuses remaining source");
-      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+      Assert (Editor.Ada_Project_Index.File_Count (S.Semantic.Language_Index) >= 2,
               "close active buffer preserves project language index files");
-      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Language_Index) >= 2,
+      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Semantic.Language_Index) >= 2,
               "close active buffer preserves project language index symbols");
-      Targets := Editor.Ada_Project_Index.Resolve (S.Language_Index, "Lib");
+      Targets := Editor.Ada_Project_Index.Resolve (S.Semantic.Language_Index, "Lib");
       Assert (Natural (Targets.Matches.Length) >= 1,
               "close active buffer keeps closed-file Lib symbol available");
 
@@ -1543,18 +1543,18 @@ package body Editor.Executor.Semantic_Index_State_Tests is
         (S, Editor.Command_Ids.Command_Semantic_Refresh_Project_Index);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "language index new-buffer fixture refreshes project index");
-      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+      Assert (Editor.Ada_Project_Index.File_Count (S.Semantic.Language_Index) >= 2,
               "language index new-buffer fixture indexed both files");
 
       Editor.Executor.File_Open_Commands.Execute_New_Buffer (S);
 
       Assert (not S.Buffer_Lifecycle.File_Info.Has_Path,
               "new buffer creates an untitled active buffer");
-      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+      Assert (Editor.Ada_Project_Index.File_Count (S.Semantic.Language_Index) >= 2,
               "new buffer preserves project language index files");
-      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Language_Index) >= 2,
+      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Semantic.Language_Index) >= 2,
               "new buffer preserves project language index symbols");
-      Targets := Editor.Ada_Project_Index.Resolve (S.Language_Index, "Lib");
+      Targets := Editor.Ada_Project_Index.Resolve (S.Semantic.Language_Index, "Lib");
       Assert (Natural (Targets.Matches.Length) >= 1,
               "new buffer keeps cross-file Lib symbol available");
 
@@ -1615,7 +1615,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
         (S, Editor.Command_Ids.Command_Semantic_Refresh_Project_Index);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "language index save-all fixture refreshes project index");
-      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+      Assert (Editor.Ada_Project_Index.File_Count (S.Semantic.Language_Index) >= 2,
               "language index save-all fixture indexed both files");
 
       Result := Editor.Executor.Execute_Command_With_Result
@@ -1625,11 +1625,11 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Assert (S.Buffer_Lifecycle.File_Info.Has_Path
               and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Main_Path,
               "save all restores original active source");
-      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+      Assert (Editor.Ada_Project_Index.File_Count (S.Semantic.Language_Index) >= 2,
               "save all preserves project language index files");
-      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Language_Index) >= 2,
+      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Semantic.Language_Index) >= 2,
               "save all preserves project language index symbols");
-      Targets := Editor.Ada_Project_Index.Resolve (S.Language_Index, "Lib");
+      Targets := Editor.Ada_Project_Index.Resolve (S.Semantic.Language_Index, "Lib");
       Assert (Natural (Targets.Matches.Length) >= 1,
               "save all keeps cross-file Lib symbol available");
 
@@ -1687,7 +1687,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
         (S, Editor.Command_Ids.Command_Semantic_Refresh_Project_Index);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "save-file fixture refreshes project language index");
-      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+      Assert (Editor.Ada_Project_Index.File_Count (S.Semantic.Language_Index) >= 2,
               "save-file fixture indexed both files");
 
       Result := Editor.Executor.Execute_Command_With_Result
@@ -1696,14 +1696,14 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               "save file executes for dirty file-backed buffer");
       Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "save file clears dirty state");
-      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+      Assert (Editor.Ada_Project_Index.File_Count (S.Semantic.Language_Index) >= 2,
               "save file rebuilds project language index files");
-      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Language_Index) >= 2,
+      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Semantic.Language_Index) >= 2,
               "save file rebuilds project language index symbols");
-      Assert (Editor.Ada_Language_Service.Status (S.Language_Service) =
-              Editor.Ada_Language_Service.Status (S.Language_Index),
+      Assert (Editor.Ada_Language_Service.Status (S.Semantic.Language_Service) =
+              Editor.Ada_Language_Service.Status (S.Semantic.Language_Index),
               "save file rebuild syncs language service index");
-      Targets := Editor.Ada_Project_Index.Resolve (S.Language_Index, "Lib");
+      Targets := Editor.Ada_Project_Index.Resolve (S.Semantic.Language_Index, "Lib");
       Assert (Natural (Targets.Matches.Length) >= 1,
               "save file keeps cross-file Lib symbol available");
 
@@ -1761,7 +1761,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
         (S, Editor.Command_Ids.Command_Semantic_Refresh_Project_Index);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "reload confirmation fixture refreshes project language index");
-      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+      Assert (Editor.Ada_Project_Index.File_Count (S.Semantic.Language_Index) >= 2,
               "reload confirmation fixture indexed both files");
 
       Write_Text_File
@@ -1782,11 +1782,11 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               "reload confirmation clears dirty state");
       Assert (Ada.Strings.Fixed.Index (Editor.State.Current_Text (S), "From_Disk") > 0,
               "reload confirmation installs disk text");
-      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+      Assert (Editor.Ada_Project_Index.File_Count (S.Semantic.Language_Index) >= 2,
               "reload confirmation rebuilds project language index files");
-      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Language_Index) >= 2,
+      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Semantic.Language_Index) >= 2,
               "reload confirmation rebuilds project language index symbols");
-      Targets := Editor.Ada_Project_Index.Resolve (S.Language_Index, "Lib");
+      Targets := Editor.Ada_Project_Index.Resolve (S.Semantic.Language_Index, "Lib");
       Assert (Natural (Targets.Matches.Length) >= 1,
               "reload confirmation keeps cross-file Lib symbol available");
 
@@ -1845,7 +1845,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
         (S, Editor.Command_Ids.Command_Semantic_Refresh_Project_Index);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "revert confirmation fixture refreshes project language index");
-      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+      Assert (Editor.Ada_Project_Index.File_Count (S.Semantic.Language_Index) >= 2,
               "revert confirmation fixture indexed both files");
 
       Editor.Executor.Execute_Command
@@ -1861,11 +1861,11 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               "revert confirmation clears dirty state");
       Assert (Ada.Strings.Fixed.Index (Editor.State.Current_Text (S), "From_Disk") > 0,
               "revert confirmation restores disk text");
-      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+      Assert (Editor.Ada_Project_Index.File_Count (S.Semantic.Language_Index) >= 2,
               "revert confirmation rebuilds project language index files");
-      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Language_Index) >= 2,
+      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Semantic.Language_Index) >= 2,
               "revert confirmation rebuilds project language index symbols");
-      Targets := Editor.Ada_Project_Index.Resolve (S.Language_Index, "Lib");
+      Targets := Editor.Ada_Project_Index.Resolve (S.Semantic.Language_Index, "Lib");
       Assert (Natural (Targets.Matches.Length) >= 1,
               "revert confirmation keeps cross-file Lib symbol available");
 
@@ -1923,7 +1923,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
         (S, Editor.Command_Ids.Command_Semantic_Refresh_Project_Index);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "file-conflict reload fixture refreshes project language index");
-      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+      Assert (Editor.Ada_Project_Index.File_Count (S.Semantic.Language_Index) >= 2,
               "file-conflict reload fixture indexed both files");
 
       Write_Text_File
@@ -1945,11 +1945,11 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               "file-conflict reload clears dirty state");
       Assert (Ada.Strings.Fixed.Index (Editor.State.Current_Text (S), "From_Disk") > 0,
               "file-conflict reload installs disk text");
-      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+      Assert (Editor.Ada_Project_Index.File_Count (S.Semantic.Language_Index) >= 2,
               "file-conflict reload rebuilds project language index files");
-      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Language_Index) >= 2,
+      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Semantic.Language_Index) >= 2,
               "file-conflict reload rebuilds project language index symbols");
-      Targets := Editor.Ada_Project_Index.Resolve (S.Language_Index, "Lib");
+      Targets := Editor.Ada_Project_Index.Resolve (S.Semantic.Language_Index, "Lib");
       Assert (Natural (Targets.Matches.Length) >= 1,
               "file-conflict reload keeps cross-file Lib symbol available");
 
@@ -2008,7 +2008,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
         (S, Editor.Command_Ids.Command_Semantic_Refresh_Project_Index);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "file-conflict overwrite fixture refreshes project language index");
-      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+      Assert (Editor.Ada_Project_Index.File_Count (S.Semantic.Language_Index) >= 2,
               "file-conflict overwrite fixture indexed both files");
 
       Write_Text_File
@@ -2033,11 +2033,11 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               and then Ada.Strings.Fixed.Index
                 (To_String (Reloaded.Contents), "Unsaved") > 0,
               "file-conflict overwrite writes buffer text to disk");
-      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+      Assert (Editor.Ada_Project_Index.File_Count (S.Semantic.Language_Index) >= 2,
               "file-conflict overwrite rebuilds project language index files");
-      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Language_Index) >= 2,
+      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Semantic.Language_Index) >= 2,
               "file-conflict overwrite rebuilds project language index symbols");
-      Targets := Editor.Ada_Project_Index.Resolve (S.Language_Index, "Lib");
+      Targets := Editor.Ada_Project_Index.Resolve (S.Semantic.Language_Index, "Lib");
       Assert (Natural (Targets.Matches.Length) >= 1,
               "file-conflict overwrite keeps cross-file Lib symbol available");
 
@@ -2090,7 +2090,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
         (S, Editor.Command_Ids.Command_Semantic_Refresh_Project_Index);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "diagnostic-open fixture refreshes project language index");
-      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+      Assert (Editor.Ada_Project_Index.File_Count (S.Semantic.Language_Index) >= 2,
               "diagnostic-open fixture indexed both files");
 
       Editor.Feature_Diagnostics.Clear_Diagnostics (S.Feature_Diagnostics);
@@ -2115,11 +2115,11 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               "diagnostic open selected executes for inactive target buffer");
       Assert (Editor.Buffers.Global_Active_Buffer = Main_Id,
               "diagnostic open selected focuses inactive target buffer");
-      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+      Assert (Editor.Ada_Project_Index.File_Count (S.Semantic.Language_Index) >= 2,
               "diagnostic open selected preserves project language index files");
-      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Language_Index) >= 2,
+      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Semantic.Language_Index) >= 2,
               "diagnostic open selected preserves project language index symbols");
-      Targets := Editor.Ada_Project_Index.Resolve (S.Language_Index, "Lib");
+      Targets := Editor.Ada_Project_Index.Resolve (S.Semantic.Language_Index, "Lib");
       Assert (Natural (Targets.Matches.Length) >= 1,
               "diagnostic open selected keeps cross-file Lib symbol available");
 

@@ -90,12 +90,12 @@ package body Editor.Executor.Semantic_Index_Commands is
 
       for I in 1 ..
         Editor.Ada_Language_Service.Semantic_Diagnostic_Count_For_Path
-          (S.Language_Service, Path)
+          (S.Semantic.Language_Service, Path)
       loop
          declare
             Diagnostic : constant Editor.Ada_Language_Service.Semantic_Diagnostic :=
               Editor.Ada_Language_Service.Semantic_Diagnostic_At_For_Path
-                (S.Language_Service, Path, I);
+                (S.Semantic.Language_Service, Path, I);
          begin
             if Diagnostic.Has_Command_Descriptor then
                Editor.Feature_Diagnostics.Add_Diagnostic_Command_Descriptor
@@ -150,7 +150,7 @@ package body Editor.Executor.Semantic_Index_Commands is
            Editor.Ada_Declaration_Parser.Parse (Text, Path);
       begin
          Editor.Ada_Project_Index.Put_Analysis
-           (S.Language_Index,
+           (S.Semantic.Language_Index,
             Path,
             Buffer_Token,
             Buffer_Revision,
@@ -162,10 +162,10 @@ package body Editor.Executor.Semantic_Index_Commands is
             S.Syntax_Analysis := Analysis;
             Editor.Syntax_Semantics.Build_Map_From_Analysis
               (S.Syntax_Symbols, Analysis);
-            S.Syntax_Symbols_Revision := Editor.State.Current_Buffer_Revision (S);
-            S.Syntax_Symbols_Buffer_Token := Active_Buffer_Token;
+            S.Semantic.Syntax_Symbols_Revision := Editor.State.Current_Buffer_Revision (S);
+            S.Semantic.Syntax_Symbols_Buffer_Token := Active_Buffer_Token;
             Editor.Ada_Live_Semantic_Diagnostics.Publish
-              (S.Language_Service,
+              (S.Semantic.Language_Service,
                Path,
                Text,
                Buffer_Token,
@@ -182,7 +182,7 @@ package body Editor.Executor.Semantic_Index_Commands is
       begin
          --  Project refresh must prefer open-buffer snapshots over disk reads.
          for J in 1 .. Editor.Buffers.Count (Registry) loop
-            exit when Editor.Ada_Project_Index.File_Count (S.Language_Index) >=
+            exit when Editor.Ada_Project_Index.File_Count (S.Semantic.Language_Index) >=
               Editor.Ada_Project_Index.Max_Index_Files;
 
             declare
@@ -200,7 +200,7 @@ package body Editor.Executor.Semantic_Index_Commands is
                        Editor.Buffers.Buffer (Registry, Summary.Id);
                   begin
                      Editor.Ada_Project_Index.Invalidate_Path
-                       (S.Language_Index, Path);
+                       (S.Semantic.Language_Index, Path);
                      Index_Text
                        (Path,
                         Editor.State.Current_Text (Buffer_State),
@@ -219,7 +219,7 @@ package body Editor.Executor.Semantic_Index_Commands is
       Skipped_File_Count := 0;
       Read_Error_Count := 0;
 
-      Editor.Ada_Project_Index.Clear (S.Language_Index);
+      Editor.Ada_Project_Index.Clear (S.Semantic.Language_Index);
 
       if Editor.Project.Has_Project (S.Project) then
          declare
@@ -233,7 +233,7 @@ package body Editor.Executor.Semantic_Index_Commands is
 
          if Active_Path'Length > 0
            and then Is_Ada_Source_Path (Active_Path)
-           and then Editor.Ada_Project_Index.File_Count (S.Language_Index) <
+           and then Editor.Ada_Project_Index.File_Count (S.Semantic.Language_Index) <
              Editor.Ada_Project_Index.Max_Index_Files
          then
             Index_Text
@@ -248,7 +248,7 @@ package body Editor.Executor.Semantic_Index_Commands is
          Index_Open_Buffer_Overlays;
 
          for I in 1 .. Editor.Project.Known_File_Count (S.Project) loop
-            exit when Editor.Ada_Project_Index.File_Count (S.Language_Index) >=
+            exit when Editor.Ada_Project_Index.File_Count (S.Semantic.Language_Index) >=
               Editor.Ada_Project_Index.Max_Index_Files;
 
             declare
@@ -259,7 +259,7 @@ package body Editor.Executor.Semantic_Index_Commands is
                if Path'Length = 0 or else not Is_Ada_Source_Path (Path) then
                   Skipped_File_Count := Skipped_File_Count + 1;
                elsif Editor.Ada_Project_Index.Contains_Path
-                 (S.Language_Index, Path)
+                 (S.Semantic.Language_Index, Path)
                then
                   null;
                else
@@ -302,14 +302,14 @@ package body Editor.Executor.Semantic_Index_Commands is
          end;
       end if;
 
-      Indexed_File_Count := Editor.Ada_Project_Index.File_Count (S.Language_Index);
-      Indexed_Symbols := Editor.Ada_Project_Index.Symbol_Count (S.Language_Index);
+      Indexed_File_Count := Editor.Ada_Project_Index.File_Count (S.Semantic.Language_Index);
+      Indexed_Symbols := Editor.Ada_Project_Index.Symbol_Count (S.Semantic.Language_Index);
       Editor.Ada_Language_Service.Put_Index
-        (S.Language_Service, S.Language_Index);
+        (S.Semantic.Language_Service, S.Semantic.Language_Index);
       if Build_Semantics then
          if Active_Path'Length > 0 and then Is_Ada_Source_Path (Active_Path) then
             Editor.Ada_Live_Semantic_Diagnostics.Publish
-              (S.Language_Service,
+              (S.Semantic.Language_Service,
                Active_Path,
                Active_Text,
                Active_Buffer_Token,
@@ -319,12 +319,12 @@ package body Editor.Executor.Semantic_Index_Commands is
          end if;
 
          Editor.Ada_Live_Semantic_Diagnostics.Publish_Cross_Unit
-           (S.Language_Service, S.Language_Index);
+           (S.Semantic.Language_Service, S.Semantic.Language_Index);
 
-         for I in 1 .. Editor.Ada_Project_Index.File_Count (S.Language_Index) loop
+         for I in 1 .. Editor.Ada_Project_Index.File_Count (S.Semantic.Language_Index) loop
             declare
                Key : constant Editor.Ada_Project_Index.Indexed_File_Key :=
-                 Editor.Ada_Project_Index.File_Key_At (S.Language_Index, I);
+                 Editor.Ada_Project_Index.File_Key_At (S.Semantic.Language_Index, I);
             begin
                Publish_Service_Diagnostics_To_Feature
                  (S, To_String (Key.Path), Key.Buffer_Token);
@@ -337,13 +337,13 @@ package body Editor.Executor.Semantic_Index_Commands is
      (S : in out Editor.State.State_Type)
    is
       Saved_Index : constant Editor.Ada_Project_Index.Index_State :=
-        S.Language_Index;
+        S.Semantic.Language_Index;
       Saved_Service : constant Editor.Ada_Language_Service.Service_State :=
-        S.Language_Service;
+        S.Semantic.Language_Service;
    begin
       Editor.Buffers.Load_Global_Active_Into_State (S);
-      S.Language_Index := Saved_Index;
-      S.Language_Service := Saved_Service;
+      S.Semantic.Language_Index := Saved_Index;
+      S.Semantic.Language_Service := Saved_Service;
    end Load_Global_Active_Preserving_Language_Index;
 
    procedure Rebuild_Language_Index_After_File_Lifecycle
@@ -380,12 +380,12 @@ package body Editor.Executor.Semantic_Index_Commands is
       Removed : Natural := 0;
    begin
       for I in 1 ..
-        Editor.Ada_Language_Service.Semantic_Diagnostic_Count (S.Language_Service)
+        Editor.Ada_Language_Service.Semantic_Diagnostic_Count (S.Semantic.Language_Service)
       loop
          declare
             Diagnostic : constant Editor.Ada_Language_Service.Semantic_Diagnostic :=
               Editor.Ada_Language_Service.Semantic_Diagnostic_At
-                (S.Language_Service, I);
+                (S.Semantic.Language_Service, I);
             Path : constant String := To_String (Diagnostic.Path);
          begin
             if Path'Length > 0 then
@@ -487,20 +487,20 @@ package body Editor.Executor.Semantic_Index_Commands is
                S.Syntax_Analysis := Analysis;
                Editor.Syntax_Semantics.Build_Map_From_Analysis
                  (S.Syntax_Symbols, Analysis);
-               S.Syntax_Symbols_Revision := Buffer_Revision;
-               S.Syntax_Symbols_Buffer_Token := Buffer_Token;
+               S.Semantic.Syntax_Symbols_Revision := Buffer_Revision;
+               S.Semantic.Syntax_Symbols_Buffer_Token := Buffer_Token;
                if Label'Length > 0 and then Is_Ada_Source_Path (Label) then
                   Editor.Ada_Project_Index.Put_Analysis
-                    (S.Language_Index,
+                    (S.Semantic.Language_Index,
                      Label,
                      Buffer_Token,
                      Buffer_Revision,
                      Lifecycle_Generation,
                      Analysis);
                   Editor.Ada_Language_Service.Put_Index
-                    (S.Language_Service, S.Language_Index);
+                    (S.Semantic.Language_Service, S.Semantic.Language_Index);
                   Editor.Ada_Live_Semantic_Diagnostics.Publish
-                    (S.Language_Service,
+                    (S.Semantic.Language_Service,
                      Label,
                      Text,
                      Buffer_Token,
@@ -547,8 +547,8 @@ package body Editor.Executor.Semantic_Index_Commands is
 
          when Editor.Command_Ids.Command_Language_Index_Clear =>
             Clear_Service_Semantic_Diagnostics_From_Feature (S);
-            Editor.Ada_Project_Index.Clear (S.Language_Index);
-            Editor.Ada_Language_Service.Clear (S.Language_Service);
+            Editor.Ada_Project_Index.Clear (S.Semantic.Language_Index);
+            Editor.Ada_Language_Service.Clear (S.Semantic.Language_Service);
             Report_Info (S, "Language index cleared.");
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
@@ -558,32 +558,32 @@ package body Editor.Executor.Semantic_Index_Commands is
                Compiler : constant
                  Editor.Ada_Language_Service.Compiler_Backend_Status :=
                    Editor.Ada_Language_Service.Compiler_Status
-                     (S.Language_Service);
+                     (S.Semantic.Language_Service);
                Backend : constant
                  Editor.Ada_Language_Service.Semantic_Backend_Status :=
                    Editor.Ada_Language_Service.Backend_Status
-                     (S.Language_Service);
+                     (S.Semantic.Language_Service);
                Caps : constant
                  Editor.Ada_Language_Service.Language_Service_Capabilities :=
                    Editor.Ada_Language_Service.Capabilities
-                     (S.Language_Service);
+                     (S.Semantic.Language_Service);
                Semantic : constant
                  Editor.Ada_Language_Service.Semantic_Diagnostic_Status :=
                    Editor.Ada_Language_Service.Semantic_Diagnostics_Status
-                     (S.Language_Service);
+                     (S.Semantic.Language_Service);
                Current_File : constant Editor.State_Buffer.File_State :=
                  Editor.State.Current_File (S);
                Active_Compiler : constant
                  Editor.Ada_Language_Service.Compiler_Backend_Status :=
                  (if Current_File.Has_Path
                   then Editor.Ada_Language_Service.Compiler_Status_For_Path
-                    (S.Language_Service, To_String (Current_File.Path))
+                    (S.Semantic.Language_Service, To_String (Current_File.Path))
                   else (others => <>));
                Active_Semantic : constant
                  Editor.Ada_Language_Service.Semantic_Diagnostic_Status :=
                  (if Current_File.Has_Path
                   then Editor.Ada_Language_Service.Semantic_Diagnostics_Status_For_Path
-                    (S.Language_Service, To_String (Current_File.Path))
+                    (S.Semantic.Language_Service, To_String (Current_File.Path))
                   else (others => <>));
                function Img (Value : Natural) return String is
                begin

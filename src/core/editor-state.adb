@@ -417,10 +417,10 @@ package body Editor.State is
       Editor.Syntax_Cache.Clear (S.Syntax_Cache);
       Editor.Syntax_Semantics.Clear (S.Syntax_Symbols);
       Editor.Ada_Language_Model.Clear (S.Syntax_Analysis);
-      S.Syntax_Source_Revision := Natural'Last;
-      S.Syntax_Source_Buffer_Token := 0;
-      S.Syntax_Symbols_Revision := Natural'Last;
-      S.Syntax_Symbols_Buffer_Token := 0;
+      S.Semantic.Syntax_Source_Revision := Natural'Last;
+      S.Semantic.Syntax_Source_Buffer_Token := 0;
+      S.Semantic.Syntax_Symbols_Revision := Natural'Last;
+      S.Semantic.Syntax_Symbols_Buffer_Token := 0;
 
       Check_Line_Index (S);
       Editor.Render_Cache.Invalidate_All;
@@ -537,10 +537,10 @@ package body Editor.State is
       Editor.Syntax_Cache.Clear (S.Syntax_Cache);
       Editor.Syntax_Semantics.Clear (S.Syntax_Symbols);
       Editor.Ada_Language_Model.Clear (S.Syntax_Analysis);
-      S.Syntax_Source_Revision := Natural'Last;
-      S.Syntax_Source_Buffer_Token := 0;
-      S.Syntax_Symbols_Revision := Natural'Last;
-      S.Syntax_Symbols_Buffer_Token := 0;
+      S.Semantic.Syntax_Source_Revision := Natural'Last;
+      S.Semantic.Syntax_Source_Buffer_Token := 0;
+      S.Semantic.Syntax_Symbols_Revision := Natural'Last;
+      S.Semantic.Syntax_Symbols_Buffer_Token := 0;
       Text_Buffer.Clear (S.Buffer);
 
       S.Carets.Clear;
@@ -896,10 +896,10 @@ package body Editor.State is
          end if;
          Editor.Syntax_Semantics.Clear (S.Syntax_Symbols);
          Editor.Ada_Language_Model.Clear (S.Syntax_Analysis);
-         S.Syntax_Source_Revision := S.Buffer_Lifecycle.Buffer_Revision;
-         S.Syntax_Source_Buffer_Token := S.Buffer_Lifecycle.Active_Buffer_Token;
-         S.Syntax_Symbols_Revision := Natural'Last;
-         S.Syntax_Symbols_Buffer_Token := 0;
+         S.Semantic.Syntax_Source_Revision := S.Buffer_Lifecycle.Buffer_Revision;
+         S.Semantic.Syntax_Source_Buffer_Token := S.Buffer_Lifecycle.Active_Buffer_Token;
+         S.Semantic.Syntax_Symbols_Revision := Natural'Last;
+         S.Semantic.Syntax_Symbols_Buffer_Token := 0;
       end;
 
       Check_Line_Index (S);
@@ -1006,8 +1006,8 @@ package body Editor.State is
          end loop;
       end if;
 
-      S.Syntax_Symbols_Revision := S.Buffer_Lifecycle.Buffer_Revision;
-      S.Syntax_Symbols_Buffer_Token := S.Buffer_Lifecycle.Active_Buffer_Token;
+      S.Semantic.Syntax_Symbols_Revision := S.Buffer_Lifecycle.Buffer_Revision;
+      S.Semantic.Syntax_Symbols_Buffer_Token := S.Buffer_Lifecycle.Active_Buffer_Token;
    end Rebuild_Syntax_Symbols;
 
    procedure Prepare_Syntax_For_Visible_Range
@@ -1027,34 +1027,34 @@ package body Editor.State is
          Editor.Syntax_Cache.Clear (S.Syntax_Cache);
          Editor.Syntax_Semantics.Clear (S.Syntax_Symbols);
          Editor.Ada_Language_Model.Clear (S.Syntax_Analysis);
-         S.Syntax_Source_Revision := Natural'Last;
-         S.Syntax_Source_Buffer_Token := 0;
-         S.Syntax_Symbols_Revision := Natural'Last;
-         S.Syntax_Symbols_Buffer_Token := 0;
+         S.Semantic.Syntax_Source_Revision := Natural'Last;
+         S.Semantic.Syntax_Source_Buffer_Token := 0;
+         S.Semantic.Syntax_Symbols_Revision := Natural'Last;
+         S.Semantic.Syntax_Symbols_Buffer_Token := 0;
          return;
       end if;
 
-      if S.Syntax_Source_Buffer_Token /= S.Buffer_Lifecycle.Active_Buffer_Token then
+      if S.Semantic.Syntax_Source_Buffer_Token /= S.Buffer_Lifecycle.Active_Buffer_Token then
          Editor.Syntax_Cache.Clear (S.Syntax_Cache);
          Editor.Syntax_Semantics.Clear (S.Syntax_Symbols);
          Editor.Ada_Language_Model.Clear (S.Syntax_Analysis);
-         S.Syntax_Source_Revision := Natural'Last;
-         S.Syntax_Source_Buffer_Token := S.Buffer_Lifecycle.Active_Buffer_Token;
-         S.Syntax_Symbols_Revision := Natural'Last;
-         S.Syntax_Symbols_Buffer_Token := S.Buffer_Lifecycle.Active_Buffer_Token;
+         S.Semantic.Syntax_Source_Revision := Natural'Last;
+         S.Semantic.Syntax_Source_Buffer_Token := S.Buffer_Lifecycle.Active_Buffer_Token;
+         S.Semantic.Syntax_Symbols_Revision := Natural'Last;
+         S.Semantic.Syntax_Symbols_Buffer_Token := S.Buffer_Lifecycle.Active_Buffer_Token;
       end if;
 
-      if S.Syntax_Source_Revision /= S.Buffer_Lifecycle.Buffer_Revision
+      if S.Semantic.Syntax_Source_Revision /= S.Buffer_Lifecycle.Buffer_Revision
         or else Editor.Syntax_Cache.Cached_Line_Count (S.Syntax_Cache) /= Total
       then
          Editor.Syntax_Cache.Set_Line_Count (S.Syntax_Cache, Total);
-         S.Syntax_Source_Revision := S.Buffer_Lifecycle.Buffer_Revision;
-         S.Syntax_Source_Buffer_Token := S.Buffer_Lifecycle.Active_Buffer_Token;
+         S.Semantic.Syntax_Source_Revision := S.Buffer_Lifecycle.Buffer_Revision;
+         S.Semantic.Syntax_Source_Buffer_Token := S.Buffer_Lifecycle.Active_Buffer_Token;
       end if;
 
       if Use_Semantic_Colouring
-        and then (S.Syntax_Symbols_Revision /= S.Buffer_Lifecycle.Buffer_Revision
-          or else S.Syntax_Symbols_Buffer_Token /= S.Buffer_Lifecycle.Active_Buffer_Token)
+        and then (S.Semantic.Syntax_Symbols_Revision /= S.Buffer_Lifecycle.Buffer_Revision
+          or else S.Semantic.Syntax_Symbols_Buffer_Token /= S.Buffer_Lifecycle.Active_Buffer_Token)
       then
          Rebuild_Syntax_Symbols (S);
       end if;
@@ -1244,7 +1244,7 @@ package body Editor.State is
       Action_Index     : Natural := 0)
    is
    begin
-      S.Pending_Quick_Fix :=
+      S.Semantic.Pending_Quick_Fix :=
         (Diagnostic_Index => Diagnostic_Index,
          Action_Index     => Action_Index);
    end Start_Quick_Fix_Workflow;
@@ -1253,25 +1253,25 @@ package body Editor.State is
      (S : in out State_Type)
    is
    begin
-      S.Pending_Quick_Fix := (others => 0);
+      S.Semantic.Pending_Quick_Fix := (others => 0);
    end Clear_Quick_Fix_Workflow;
 
    function Has_Pending_Quick_Fix_Workflow
      (S : State_Type) return Boolean is
    begin
-      return S.Pending_Quick_Fix.Diagnostic_Index > 0;
+      return S.Semantic.Pending_Quick_Fix.Diagnostic_Index > 0;
    end Has_Pending_Quick_Fix_Workflow;
 
    function Pending_Quick_Fix_Diagnostic_Index
      (S : State_Type) return Natural is
    begin
-      return S.Pending_Quick_Fix.Diagnostic_Index;
+      return S.Semantic.Pending_Quick_Fix.Diagnostic_Index;
    end Pending_Quick_Fix_Diagnostic_Index;
 
    function Pending_Quick_Fix_Action_Index
      (S : State_Type) return Natural is
    begin
-      return S.Pending_Quick_Fix.Action_Index;
+      return S.Semantic.Pending_Quick_Fix.Action_Index;
    end Pending_Quick_Fix_Action_Index;
 
 
@@ -1370,8 +1370,8 @@ package body Editor.State is
       --  project-scoped transient analysis state.  Closing, clearing, or
       --  switching a project must not leave indexed Outline/semantic targets
       --  from the previous lifecycle visible to later commands.
-      Editor.Ada_Project_Index.Clear (S.Language_Index);
-      Editor.Ada_Language_Service.Clear (S.Language_Service);
+      Editor.Ada_Project_Index.Clear (S.Semantic.Language_Index);
+      Editor.Ada_Language_Service.Clear (S.Semantic.Language_Service);
 
       --  repeated-use hardening: project close/switch/reload must
       --  remove all transient public-build workflow state, not only the

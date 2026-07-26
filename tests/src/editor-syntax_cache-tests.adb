@@ -84,7 +84,7 @@ package body Editor.Syntax_Cache.Tests is
         (S, "procedure Owner_A is begin null; end Owner_A;");
       Editor.State.Prepare_Syntax_For_Visible_Range (S, 0, 0, True);
       Assert
-        (S.Syntax_Source_Buffer_Token = 10,
+        (S.Semantic.Syntax_Source_Buffer_Token = 10,
          "initial syntax cache owner should match active buffer token");
       Assert
         (Editor.Syntax_Cache.Tokens_For_Line (S.Syntax_Cache, 1)'Length > 0,
@@ -93,10 +93,10 @@ package body Editor.Syntax_Cache.Tests is
       S.Buffer_Lifecycle.Active_Buffer_Token := 20;
       Editor.State.Prepare_Syntax_For_Visible_Range (S, 0, 0, True);
       Assert
-        (S.Syntax_Source_Buffer_Token = 20,
+        (S.Semantic.Syntax_Source_Buffer_Token = 20,
          "token mismatch should restamp syntax cache ownership");
       Assert
-        (S.Syntax_Symbols_Buffer_Token = 20,
+        (S.Semantic.Syntax_Symbols_Buffer_Token = 20,
          "token mismatch should restamp semantic ownership");
       Assert
         (Editor.Syntax_Cache.Tokens_For_Line (S.Syntax_Cache, 1)'Length > 0,
@@ -248,16 +248,16 @@ package body Editor.Syntax_Cache.Tests is
    begin
       Editor.State.Prepare_Syntax_For_Visible_Range (S, 0, 0, True);
       Assert
-        (S.Syntax_Source_Revision = S.Buffer_Lifecycle.Buffer_Revision,
+        (S.Semantic.Syntax_Source_Revision = S.Buffer_Lifecycle.Buffer_Revision,
          Why & ": syntax source revision must match active buffer revision");
       Assert
-        (S.Syntax_Source_Buffer_Token = S.Buffer_Lifecycle.Active_Buffer_Token,
+        (S.Semantic.Syntax_Source_Buffer_Token = S.Buffer_Lifecycle.Active_Buffer_Token,
          Why & ": syntax source owner must match active buffer token");
       Assert
-        (S.Syntax_Symbols_Revision = S.Buffer_Lifecycle.Buffer_Revision,
+        (S.Semantic.Syntax_Symbols_Revision = S.Buffer_Lifecycle.Buffer_Revision,
          Why & ": semantic symbol revision must match active buffer revision");
       Assert
-        (S.Syntax_Symbols_Buffer_Token = S.Buffer_Lifecycle.Active_Buffer_Token,
+        (S.Semantic.Syntax_Symbols_Buffer_Token = S.Buffer_Lifecycle.Active_Buffer_Token,
          Why & ": semantic symbol owner must match active buffer token");
       Assert
         (Editor.Syntax_Cache.Tokens_For_Line (S.Syntax_Cache, 1)'Length > 0,
@@ -284,16 +284,16 @@ package body Editor.Syntax_Cache.Tests is
         (S.Buffer_Lifecycle.Buffer_Revision /= Expected_Revision,
          Why & ": edit path must advance buffer revision");
       Assert
-        (S.Syntax_Source_Revision = S.Buffer_Lifecycle.Buffer_Revision,
+        (S.Semantic.Syntax_Source_Revision = S.Buffer_Lifecycle.Buffer_Revision,
          Why & ": edit path must restamp lexical revision to the changed buffer");
       Assert
-        (S.Syntax_Source_Buffer_Token = S.Buffer_Lifecycle.Active_Buffer_Token,
+        (S.Semantic.Syntax_Source_Buffer_Token = S.Buffer_Lifecycle.Active_Buffer_Token,
          Why & ": edit path must keep lexical owner on active buffer");
       Assert
-        (S.Syntax_Symbols_Revision = Natural'Last,
+        (S.Semantic.Syntax_Symbols_Revision = Natural'Last,
          Why & ": edit path must invalidate semantic symbols");
       Assert
-        (S.Syntax_Symbols_Buffer_Token = 0,
+        (S.Semantic.Syntax_Symbols_Buffer_Token = 0,
          Why & ": edit path must clear semantic symbol owner until explicit rebuild");
       Assert
         (Editor.Syntax_Cache.Is_Dirty (S.Syntax_Cache, 1),
@@ -385,16 +385,16 @@ package body Editor.Syntax_Cache.Tests is
         (S.Buffer_Lifecycle.Buffer_Revision /= Previous_Revision,
          Why & ": whole-document lifecycle path must advance buffer revision");
       Assert
-        (S.Syntax_Source_Revision = Natural'Last,
+        (S.Semantic.Syntax_Source_Revision = Natural'Last,
          Why & ": whole-document lifecycle path must clear lexical revision");
       Assert
-        (S.Syntax_Source_Buffer_Token = 0,
+        (S.Semantic.Syntax_Source_Buffer_Token = 0,
          Why & ": whole-document lifecycle path must clear lexical owner");
       Assert
-        (S.Syntax_Symbols_Revision = Natural'Last,
+        (S.Semantic.Syntax_Symbols_Revision = Natural'Last,
          Why & ": whole-document lifecycle path must clear semantic revision");
       Assert
-        (S.Syntax_Symbols_Buffer_Token = 0,
+        (S.Semantic.Syntax_Symbols_Buffer_Token = 0,
          Why & ": whole-document lifecycle path must clear semantic owner");
       S.Buffer_Lifecycle.Active_Buffer_Token := Previous_Token;
       Assert_Syntax_Prepared_For_Current_Buffer (S, Why & " after prepare");
@@ -439,8 +439,8 @@ package body Editor.Syntax_Cache.Tests is
       Editor.State.Init (S);
       Prime_Syntax_State (S, "procedure Save_As_Demo is begin null; end Save_As_Demo;");
       Before_Revision := S.Buffer_Lifecycle.Buffer_Revision;
-      Before_Source_Revision := S.Syntax_Source_Revision;
-      Before_Token := S.Syntax_Source_Buffer_Token;
+      Before_Source_Revision := S.Semantic.Syntax_Source_Revision;
+      Before_Token := S.Semantic.Syntax_Source_Buffer_Token;
 
       --  Save-as establishes a file identity/baseline without changing text.
       --  It must not silently persist detached syntax state or force a stale
@@ -455,10 +455,10 @@ package body Editor.Syntax_Cache.Tests is
         (S.Buffer_Lifecycle.Buffer_Revision = Before_Revision,
          "save-as baseline update must not mutate buffer text revision");
       Assert
-        (S.Syntax_Source_Revision = Before_Source_Revision,
+        (S.Semantic.Syntax_Source_Revision = Before_Source_Revision,
          "save-as baseline update must not stale lexical cache for unchanged text");
       Assert
-        (S.Syntax_Source_Buffer_Token = Before_Token,
+        (S.Semantic.Syntax_Source_Buffer_Token = Before_Token,
          "save-as baseline update must keep syntax ownership on active buffer");
       Assert_Syntax_Prepared_For_Current_Buffer (S, "save-as unchanged text");
    end Test_Syntax_Save_As_Does_Not_Persist_Stale_Runtime_State;
@@ -488,7 +488,7 @@ package body Editor.Syntax_Cache.Tests is
 
       Assert_Post_Edit_Syntax_Invalidated (S, Before, "external conflict reload invalidation");
       Assert
-        (S.Syntax_Source_Buffer_Token = Token,
+        (S.Semantic.Syntax_Source_Buffer_Token = Token,
          "external conflict reload must keep rebuilt syntax owned by active buffer");
    end Test_Syntax_Invalidation_External_Conflict_Resolution;
 
@@ -551,16 +551,16 @@ package body Editor.Syntax_Cache.Tests is
       Editor.State.Prepare_Syntax_For_Visible_Range (S, 0, 0, True);
 
       Assert
-        (S.Syntax_Source_Revision = Natural'Last,
+        (S.Semantic.Syntax_Source_Revision = Natural'Last,
          "empty buffer must not retain a stale lexical source revision");
       Assert
-        (S.Syntax_Source_Buffer_Token = 0,
+        (S.Semantic.Syntax_Source_Buffer_Token = 0,
          "empty buffer must not retain stale lexical owner token");
       Assert
-        (S.Syntax_Symbols_Revision = Natural'Last,
+        (S.Semantic.Syntax_Symbols_Revision = Natural'Last,
          "empty buffer must not retain a stale semantic source revision");
       Assert
-        (S.Syntax_Symbols_Buffer_Token = 0,
+        (S.Semantic.Syntax_Symbols_Buffer_Token = 0,
          "empty buffer must not retain stale semantic owner token");
       Assert
         (Editor.Syntax_Cache.Tokens_For_Line (S.Syntax_Cache, 1)'Length = 0,
@@ -625,10 +625,10 @@ package body Editor.Syntax_Cache.Tests is
            (S.Syntax_Symbols, "Field") = Editor.Syntax.Parameter_Identifier,
          "visible-range semantic preparation must use parser-owned language-model record components");
       Assert
-        (S.Syntax_Symbols_Revision = S.Buffer_Lifecycle.Buffer_Revision,
+        (S.Semantic.Syntax_Symbols_Revision = S.Buffer_Lifecycle.Buffer_Revision,
          "language-model semantic map must be stamped with the current revision");
       Assert
-        (S.Syntax_Symbols_Buffer_Token = S.Buffer_Lifecycle.Active_Buffer_Token,
+        (S.Semantic.Syntax_Symbols_Buffer_Token = S.Buffer_Lifecycle.Active_Buffer_Token,
          "language-model semantic map must be stamped with the active buffer token");
    end Test_Prepare_Semantics_Uses_Language_Model_Analysis;
 

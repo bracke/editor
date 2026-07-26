@@ -81,13 +81,13 @@ package body Editor.Executor.Buffer_Close_Prompt_Commands is
       else
          declare
             Saved_Index : constant Editor.Ada_Project_Index.Index_State :=
-              S.Language_Index;
+              S.Semantic.Language_Index;
             Saved_Service : constant Editor.Ada_Language_Service.Service_State :=
-              S.Language_Service;
+              S.Semantic.Language_Service;
          begin
             Editor.Buffers.Load_Global_Active_Into_State (S);
-            S.Language_Index := Saved_Index;
-            S.Language_Service := Saved_Service;
+            S.Semantic.Language_Index := Saved_Index;
+            S.Semantic.Language_Service := Saved_Service;
          end;
       end if;
       Editor.Executor.Pending_Transition_Policy.Invalidate_Pending_Transition_If_Stale (S);

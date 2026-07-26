@@ -450,9 +450,9 @@ package body Editor.Executor.Diagnostics_Action_Commands is
                        (Before, S, Cmd);
                      Editor.Buffers.Sync_Global_Active_From_State (S);
                      Editor.Ada_Project_Index.Invalidate_Buffer
-                       (S.Language_Index, Target_Buffer);
+                       (S.Semantic.Language_Index, Target_Buffer);
                      Editor.Ada_Language_Service.Invalidate_Buffer
-                       (S.Language_Service, Target_Buffer);
+                       (S.Semantic.Language_Service, Target_Buffer);
                   end if;
                else
                   Before_Text :=
@@ -469,9 +469,9 @@ package body Editor.Executor.Diagnostics_Action_Commands is
                         Replaced);
                      if Replaced then
                         Editor.Ada_Project_Index.Invalidate_Buffer
-                          (S.Language_Index, Target_Buffer);
+                          (S.Semantic.Language_Index, Target_Buffer);
                         Editor.Ada_Language_Service.Invalidate_Buffer
-                          (S.Language_Service, Target_Buffer);
+                          (S.Semantic.Language_Service, Target_Buffer);
                      end if;
                   end if;
                end if;

@@ -143,7 +143,7 @@ package body Editor.Executor.Semantic_Outline_Targets is
       Name : String) return Boolean
    is
       Matches : constant Editor.Ada_Project_Index.Index_Resolution_Result :=
-        Editor.Ada_Project_Index.Resolve (S.Language_Index, Name);
+        Editor.Ada_Project_Index.Resolve (S.Semantic.Language_Index, Name);
       Path : constant String :=
         (if S.Buffer_Lifecycle.File_Info.Has_Path then To_String (S.Buffer_Lifecycle.File_Info.Path) else "");
    begin
@@ -358,7 +358,7 @@ package body Editor.Executor.Semantic_Outline_Targets is
             Unit_Target :
               constant Editor.Ada_Project_Index.Unique_Target_Result :=
               Editor.Ada_Project_Index.Resolve_Unique_Unit_Target
-                (S.Language_Index,
+                (S.Semantic.Language_Index,
                  To_String (Name),
                  (if Id = Editor.Command_Ids.Command_Goto_Body then
                     Editor.Ada_Project_Index.Unit_Package_Body

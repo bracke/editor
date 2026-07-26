@@ -864,7 +864,7 @@ package body Editor.Executor.Diagnostics_Tests is
         (Analysis, "Worker", LM.Symbol_Procedure,
          (Start_Line => 1, Start_Column => 11, End_Line => 1, End_Column => 16));
       Editor.Ada_Project_Index.Put_Analysis
-        (S.Language_Index, "/project/worker.adb",
+        (S.Semantic.Language_Index, "/project/worker.adb",
          Buffer_Token         => Natural (Target_Id),
          Buffer_Revision      =>
            Editor.Buffers.Global_Buffer (Target_Id).Buffer_Lifecycle.Buffer_Revision,
@@ -872,7 +872,7 @@ package body Editor.Executor.Diagnostics_Tests is
            Editor.Buffers.Global_Buffer (Target_Id).Buffer_Lifecycle.Lifecycle_Generation,
          Analysis             => Analysis);
       Editor.Ada_Language_Service.Put_Index
-        (S.Language_Service, S.Language_Index);
+        (S.Semantic.Language_Service, S.Semantic.Language_Index);
 
       Editor.Feature_Diagnostics.Add_Diagnostic
         (S.Feature_Diagnostics,
@@ -923,10 +923,10 @@ package body Editor.Executor.Diagnostics_Tests is
          "end Worker;" & ASCII.LF,
          "selected diagnostic edit action updates the inactive open buffer");
       Assert (not Editor.Ada_Project_Index.Contains_Path
-                    (S.Language_Index, "/project/worker.adb"),
+                    (S.Semantic.Language_Index, "/project/worker.adb"),
               "inactive-buffer diagnostic edit invalidates changed semantic index entry");
-      Assert (Editor.Ada_Language_Service.Status (S.Language_Service) =
-              Editor.Ada_Language_Service.Status (S.Language_Index),
+      Assert (Editor.Ada_Language_Service.Status (S.Semantic.Language_Service) =
+              Editor.Ada_Language_Service.Status (S.Semantic.Language_Index),
               "inactive-buffer diagnostic edit keeps service invalidation aligned");
 
       Editor.Buffers.Reset_Global_For_Test;

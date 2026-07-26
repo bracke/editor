@@ -66,7 +66,7 @@ package body Editor.Executor.Semantic_Navigation_Commands is
    is
       Indexed_Fingerprint : constant Natural :=
         Editor.Ada_Project_Index.Current_Analysis_Fingerprint
-          (S.Language_Index,
+          (S.Semantic.Language_Index,
            Path,
            S.Buffer_Lifecycle.Active_Buffer_Token,
            Editor.State.Current_Buffer_Revision (S),
@@ -187,7 +187,7 @@ package body Editor.Executor.Semantic_Navigation_Commands is
       end if;
 
       if not Editor.Ada_Project_Index.Contains_Key
-        (S.Language_Index, Target.Key)
+        (S.Semantic.Language_Index, Target.Key)
       then
          return False;
       end if;
@@ -197,13 +197,13 @@ package body Editor.Executor.Semantic_Navigation_Commands is
       then
          declare
             Saved_Index : constant Editor.Ada_Project_Index.Index_State :=
-              S.Language_Index;
+              S.Semantic.Language_Index;
             Saved_Service : constant Editor.Ada_Language_Service.Service_State :=
-              S.Language_Service;
+              S.Semantic.Language_Service;
          begin
             Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
-            S.Language_Index := Saved_Index;
-            S.Language_Service := Saved_Service;
+            S.Semantic.Language_Index := Saved_Index;
+            S.Semantic.Language_Service := Saved_Service;
          end;
       end if;
 
@@ -215,7 +215,7 @@ package body Editor.Executor.Semantic_Navigation_Commands is
 
       if Target.Key.Buffer_Token /= 0
         and then not Editor.Ada_Project_Index.Contains_Open_Buffer_Key
-          (S.Language_Index,
+          (S.Semantic.Language_Index,
            Target.Key,
            Path,
            Active_Feature_Buffer_Token (S),
@@ -332,7 +332,7 @@ package body Editor.Executor.Semantic_Navigation_Commands is
                   end if;
 
                   Target := Semantic_Declaration_Target
-                    (S, S.Language_Service, Symbol);
+                    (S, S.Semantic.Language_Service, Symbol);
                   if Target.Status =
                     Editor.Ada_Language_Service.Service_Success
                     and then Navigate_To_Indexed_Outline_Target
@@ -366,7 +366,7 @@ package body Editor.Executor.Semantic_Navigation_Commands is
                Ensure_Current_Language_Service (S);
                Target := Editor.Executor.Semantic_Outline_Targets
                  .Find_Indexed_Outline_Target
-                   (S, Id, S.Language_Service, Track_Request => True);
+                   (S, Id, S.Semantic.Language_Service, Track_Request => True);
                if Navigate_To_Indexed_Outline_Target (S, Target) then
                   Editor.Render_Cache.Invalidate_All;
                   return Editor.Command_Execution.Executed (Id);

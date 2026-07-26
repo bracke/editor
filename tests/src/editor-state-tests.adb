@@ -107,7 +107,7 @@ package body Editor.State.Tests is
         (To_Unbounded_String
            ("src/stale_project.adb:3:2: error: stale project diagnostic"));
       Editor.Ada_Language_Service.Put_Compiler_Diagnostic_Lines
-        (S.Language_Service, Lines, Tool_Name => "gprbuild");
+        (S.Semantic.Language_Service, Lines, Tool_Name => "gprbuild");
 
       Before := Editor.State.Project_Scoped_State_Summary_For (S);
       Assert (Before.Has_Project_Root,
@@ -133,9 +133,9 @@ package body Editor.State.Tests is
       Assert (not After.Has_Pending_Project_Target,
               "project-scoped reset must clear project-targeted pending transition");
       Assert (not Editor.Ada_Language_Service.Compiler_Status
-                (S.Language_Service).Has_Run
+                (S.Semantic.Language_Service).Has_Run
               and then Editor.Ada_Language_Service.Compiler_Diagnostic_Count
-                (S.Language_Service) = 0,
+                (S.Semantic.Language_Service) = 0,
               "project-scoped reset must clear retained compiler-backed language diagnostics");
       Assert (Editor.Recent_Projects.Count (S.Recent_Projects) = 1,
               "project-scoped reset must preserve global recent projects");

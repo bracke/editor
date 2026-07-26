@@ -755,14 +755,14 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Build_Command_Result.Diagnostic_Result.Ingestion.Ingestion_Result.Accepted_Count >= 1,
               "public build.run ingests diagnostics through the Diagnostics-owned seam");
       Compiler_Status :=
-        Editor.Ada_Language_Service.Compiler_Status (S.Language_Service);
+        Editor.Ada_Language_Service.Compiler_Status (S.Semantic.Language_Service);
       Assert (Compiler_Status.Has_Run
               and then Compiler_Status.Accepted_Count >= 1
               and then Compiler_Status.Warning_Count >= 1,
               "public build.run feeds compiler diagnostics into the language service");
       Compiler_Diagnostic :=
         Editor.Ada_Language_Service.Compiler_Diagnostic_At
-          (S.Language_Service, 1);
+          (S.Semantic.Language_Service, 1);
       Assert (Compiler_Diagnostic.Severity =
                 Editor.External_Producers.Diagnostics_Types.Compiler_Warning,
               "public build.run preserves compiler diagnostic severity");
@@ -775,11 +775,11 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Build_Run.Status = Editor.Command_Execution.Command_Executed,
               "semantic project refresh executes after public build.run");
       Compiler_Status :=
-        Editor.Ada_Language_Service.Compiler_Status (S.Language_Service);
+        Editor.Ada_Language_Service.Compiler_Status (S.Semantic.Language_Service);
       Assert (Compiler_Status.Has_Run
               and then Compiler_Status.Warning_Count >= 1
               and then Editor.Ada_Language_Service.Compiler_Diagnostic_Count
-                (S.Language_Service) >= 1,
+                (S.Semantic.Language_Service) >= 1,
               "semantic project refresh preserves compiler-backed language diagnostics");
       Assert (S.Latest_Build_Result.Has_Result,
               "Build latest result summary is updated by the public build frontdoor");

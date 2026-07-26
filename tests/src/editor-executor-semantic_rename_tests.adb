@@ -82,7 +82,7 @@ package body Editor.Executor.Semantic_Rename_Tests is
         (Analysis, "Run_Renamed", LM.Symbol_Procedure,
          (Start_Line => 3, Start_Column => 4, End_Line => 3, End_Column => 14));
       Editor.Ada_Project_Index.Put_Analysis
-        (S.Language_Index, "/project/run.adb",
+        (S.Semantic.Language_Index, "/project/run.adb",
          Buffer_Token         => S.Buffer_Lifecycle.Active_Buffer_Token,
          Buffer_Revision      => S.Buffer_Lifecycle.Buffer_Revision,
          Lifecycle_Generation => S.Buffer_Lifecycle.Lifecycle_Generation,
@@ -99,10 +99,10 @@ package body Editor.Executor.Semantic_Rename_Tests is
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic rename preview executes even when conflicts are projected");
       Assert (Editor.Ada_Language_Service.Active_Semantic_Request
-                (S.Language_Service).Kind =
+                (S.Semantic.Language_Service).Kind =
               Editor.Ada_Language_Service.Semantic_Request_Rename
               and then Editor.Ada_Language_Service.Active_Semantic_Request
-                (S.Language_Service).Status =
+                (S.Semantic.Language_Service).Status =
               Editor.Ada_Language_Service.Semantic_Request_Completed,
               "semantic rename preview execution records a completed request");
       Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 3,
@@ -158,7 +158,7 @@ package body Editor.Executor.Semantic_Rename_Tests is
         (Analysis, "Run", LM.Symbol_Procedure,
          (Start_Line => 1, Start_Column => 20, End_Line => 1, End_Column => 22));
       Editor.Ada_Project_Index.Put_Analysis
-        (S.Language_Index, "/project/run.adb",
+        (S.Semantic.Language_Index, "/project/run.adb",
          Buffer_Token         => S.Buffer_Lifecycle.Active_Buffer_Token,
          Buffer_Revision      => S.Buffer_Lifecycle.Buffer_Revision,
          Lifecycle_Generation => S.Buffer_Lifecycle.Lifecycle_Generation,
@@ -232,19 +232,19 @@ package body Editor.Executor.Semantic_Rename_Tests is
         (Other_Analysis, "Run", LM.Symbol_Procedure,
          (Start_Line => 1, Start_Column => 11, End_Line => 1, End_Column => 13));
       Editor.Ada_Project_Index.Put_Analysis
-        (S.Language_Index, "/project/run.adb",
+        (S.Semantic.Language_Index, "/project/run.adb",
          Buffer_Token         => Natural (Active_Id),
          Buffer_Revision      => S.Buffer_Lifecycle.Buffer_Revision,
          Lifecycle_Generation => S.Buffer_Lifecycle.Lifecycle_Generation,
          Analysis             => Active_Analysis);
       Editor.Ada_Project_Index.Put_Analysis
-        (S.Language_Index, "/project/use_run.adb",
+        (S.Semantic.Language_Index, "/project/use_run.adb",
          Buffer_Token         => Natural (Other_Id),
          Buffer_Revision      => Other_State.Buffer_Lifecycle.Buffer_Revision,
          Lifecycle_Generation => Other_State.Buffer_Lifecycle.Lifecycle_Generation,
          Analysis             => Other_Analysis);
       Editor.Ada_Language_Service.Put_Index
-        (S.Language_Service, S.Language_Index);
+        (S.Semantic.Language_Service, S.Semantic.Language_Index);
 
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Rename_Symbol_Apply);
@@ -263,12 +263,12 @@ package body Editor.Executor.Semantic_Rename_Tests is
               "Rename applied for Run: 2 edits.",
               "semantic rename apply reports cross-buffer edit count");
       Assert (not Editor.Ada_Project_Index.Contains_Path
-                    (S.Language_Index, "/project/run.adb")
+                    (S.Semantic.Language_Index, "/project/run.adb")
               and then not Editor.Ada_Project_Index.Contains_Path
-                    (S.Language_Index, "/project/use_run.adb"),
+                    (S.Semantic.Language_Index, "/project/use_run.adb"),
               "semantic rename apply invalidates changed open-buffer index entries");
-      Assert (Editor.Ada_Language_Service.Status (S.Language_Service) =
-              Editor.Ada_Language_Service.Status (S.Language_Index),
+      Assert (Editor.Ada_Language_Service.Status (S.Semantic.Language_Service) =
+              Editor.Ada_Language_Service.Status (S.Semantic.Language_Index),
               "semantic rename apply keeps language service and index invalidation aligned");
 
       Editor.Buffers.Reset_Global_For_Test;
@@ -316,19 +316,19 @@ package body Editor.Executor.Semantic_Rename_Tests is
         (Disk_Analysis, "Run", LM.Symbol_Procedure,
          (Start_Line => 1, Start_Column => 11, End_Line => 1, End_Column => 13));
       Editor.Ada_Project_Index.Put_Analysis
-        (S.Language_Index, "/project/run.adb",
+        (S.Semantic.Language_Index, "/project/run.adb",
          Buffer_Token         => S.Buffer_Lifecycle.Active_Buffer_Token,
          Buffer_Revision      => S.Buffer_Lifecycle.Buffer_Revision,
          Lifecycle_Generation => S.Buffer_Lifecycle.Lifecycle_Generation,
          Analysis             => Active_Analysis);
       Editor.Ada_Project_Index.Put_Analysis
-        (S.Language_Index, Disk_Path,
+        (S.Semantic.Language_Index, Disk_Path,
          Buffer_Token         => 0,
          Buffer_Revision      => 0,
          Lifecycle_Generation => 0,
          Analysis             => Disk_Analysis);
       Editor.Ada_Language_Service.Put_Index
-        (S.Language_Service, S.Language_Index);
+        (S.Semantic.Language_Service, S.Semantic.Language_Index);
 
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Rename_Symbol_Apply);
@@ -346,12 +346,12 @@ package body Editor.Executor.Semantic_Rename_Tests is
               "Rename applied for Run: 2 edits.",
               "semantic rename apply counts open and unopened file edits");
       Assert (not Editor.Ada_Project_Index.Contains_Path
-                    (S.Language_Index, "/project/run.adb")
+                    (S.Semantic.Language_Index, "/project/run.adb")
               and then not Editor.Ada_Project_Index.Contains_Path
-                    (S.Language_Index, Disk_Path),
+                    (S.Semantic.Language_Index, Disk_Path),
               "semantic rename apply invalidates changed disk-backed index entries");
-      Assert (Editor.Ada_Language_Service.Status (S.Language_Service) =
-              Editor.Ada_Language_Service.Status (S.Language_Index),
+      Assert (Editor.Ada_Language_Service.Status (S.Semantic.Language_Service) =
+              Editor.Ada_Language_Service.Status (S.Semantic.Language_Index),
               "semantic rename apply invalidates disk-backed language service entries");
 
       Remove_Tree_If_Exists (Root);
@@ -393,7 +393,7 @@ package body Editor.Executor.Semantic_Rename_Tests is
         (Analysis, "Run", LM.Symbol_Procedure,
          (Start_Line => 1, Start_Column => 20, End_Line => 1, End_Column => 22));
       Editor.Ada_Project_Index.Put_Analysis
-        (S.Language_Index, "/project/run.adb",
+        (S.Semantic.Language_Index, "/project/run.adb",
          Buffer_Token         => S.Buffer_Lifecycle.Active_Buffer_Token,
          Buffer_Revision      => S.Buffer_Lifecycle.Buffer_Revision,
          Lifecycle_Generation => S.Buffer_Lifecycle.Lifecycle_Generation,
@@ -457,7 +457,7 @@ package body Editor.Executor.Semantic_Rename_Tests is
         (Analysis, "Run", LM.Symbol_Procedure,
          (Start_Line => 1, Start_Column => 20, End_Line => 1, End_Column => 22));
       Editor.Ada_Project_Index.Put_Analysis
-        (S.Language_Index, "/project/run.adb",
+        (S.Semantic.Language_Index, "/project/run.adb",
          Buffer_Token         => S.Buffer_Lifecycle.Active_Buffer_Token,
          Buffer_Revision      => S.Buffer_Lifecycle.Buffer_Revision,
          Lifecycle_Generation => S.Buffer_Lifecycle.Lifecycle_Generation,
@@ -507,7 +507,7 @@ package body Editor.Executor.Semantic_Rename_Tests is
         (Analysis, "Run", LM.Symbol_Procedure,
          (Start_Line => 1, Start_Column => 20, End_Line => 1, End_Column => 22));
       Editor.Ada_Project_Index.Put_Analysis
-        (S.Language_Index, "/project/run.adb",
+        (S.Semantic.Language_Index, "/project/run.adb",
          Buffer_Token         => S.Buffer_Lifecycle.Active_Buffer_Token,
          Buffer_Revision      => S.Buffer_Lifecycle.Buffer_Revision,
          Lifecycle_Generation => S.Buffer_Lifecycle.Lifecycle_Generation,
@@ -570,7 +570,7 @@ package body Editor.Executor.Semantic_Rename_Tests is
         (Analysis, "Run_Renamed", LM.Symbol_Procedure,
          (Start_Line => 2, Start_Column => 4, End_Line => 2, End_Column => 14));
       Editor.Ada_Project_Index.Put_Analysis
-        (S.Language_Index, "/project/run.adb",
+        (S.Semantic.Language_Index, "/project/run.adb",
          Buffer_Token         => S.Buffer_Lifecycle.Active_Buffer_Token,
          Buffer_Revision      => S.Buffer_Lifecycle.Buffer_Revision,
          Lifecycle_Generation => S.Buffer_Lifecycle.Lifecycle_Generation,

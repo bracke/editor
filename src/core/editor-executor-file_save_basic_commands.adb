@@ -51,13 +51,13 @@ package body Editor.Executor.File_Save_Basic_Commands is
      (S : in out Editor.State.State_Type)
    is
       Saved_Index : constant Editor.Ada_Project_Index.Index_State :=
-        S.Language_Index;
+        S.Semantic.Language_Index;
       Saved_Service : constant Editor.Ada_Language_Service.Service_State :=
-        S.Language_Service;
+        S.Semantic.Language_Service;
    begin
       Editor.Buffers.Load_Global_Active_Into_State (S);
-      S.Language_Index := Saved_Index;
-      S.Language_Service := Saved_Service;
+      S.Semantic.Language_Index := Saved_Index;
+      S.Semantic.Language_Service := Saved_Service;
    end Load_Global_Active_Preserving_Language_Index;
 
    function Count_Text
@@ -602,15 +602,15 @@ package body Editor.Executor.File_Save_Basic_Commands is
       --  cannot leave the old path/revision/fingerprint available to language
       --  navigation.  Also remove the current source path when available.
       if Source_Path'Length > 0 then
-         Editor.Ada_Project_Index.Invalidate_Path (S.Language_Index, Source_Path);
+         Editor.Ada_Project_Index.Invalidate_Path (S.Semantic.Language_Index, Source_Path);
          Editor.Ada_Language_Service.Invalidate_Path
-           (S.Language_Service, Source_Path);
+           (S.Semantic.Language_Service, Source_Path);
       end if;
       if S.Buffer_Lifecycle.Active_Buffer_Token /= 0 then
          Editor.Ada_Project_Index.Invalidate_Buffer
-           (S.Language_Index, S.Buffer_Lifecycle.Active_Buffer_Token);
+           (S.Semantic.Language_Index, S.Buffer_Lifecycle.Active_Buffer_Token);
          Editor.Ada_Language_Service.Invalidate_Buffer
-           (S.Language_Service, S.Buffer_Lifecycle.Active_Buffer_Token);
+           (S.Semantic.Language_Service, S.Buffer_Lifecycle.Active_Buffer_Token);
       end if;
 
       if To_String (S.Build_UI.Selected_Build_Candidate_Id)'Length > 0 then
@@ -818,13 +818,13 @@ package body Editor.Executor.File_Save_Basic_Commands is
 
       procedure Load_Current_Global_Active_Preserving_Language_Index is
          Saved_Index : constant Editor.Ada_Project_Index.Index_State :=
-           S.Language_Index;
+           S.Semantic.Language_Index;
          Saved_Service : constant Editor.Ada_Language_Service.Service_State :=
-           S.Language_Service;
+           S.Semantic.Language_Service;
       begin
          Editor.Buffers.Load_Global_Active_Into_State (S);
-         S.Language_Index := Saved_Index;
-         S.Language_Service := Saved_Service;
+         S.Semantic.Language_Index := Saved_Index;
+         S.Semantic.Language_Service := Saved_Service;
       end Load_Current_Global_Active_Preserving_Language_Index;
 
       function Save_Current_File_Backed_Buffer

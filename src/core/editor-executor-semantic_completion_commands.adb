@@ -28,7 +28,7 @@ package body Editor.Executor.Semantic_Completion_Commands is
      (S : Editor.State.State_Type) return Boolean
    is
    begin
-      return S.Semantic_Popup.Active;
+      return S.Semantic.Popup.Active;
    end Semantic_Popup_Is_Active;
 
    function Is_Semantic_Identifier_Character
@@ -44,7 +44,7 @@ package body Editor.Executor.Semantic_Completion_Commands is
 
    procedure Clear_Semantic_Popup (S : in out Editor.State.State_Type) is
    begin
-      S.Semantic_Popup :=
+      S.Semantic.Popup :=
         (Active => False,
          Kind => Editor.State_Semantic.No_Semantic_Popup,
          Anchor_Row => 0,
@@ -60,10 +60,10 @@ package body Editor.Executor.Semantic_Completion_Commands is
      (S : Editor.State.State_Type) return Boolean
    is
    begin
-      return S.Semantic_Popup.Active
-        and then S.Semantic_Popup.Kind = Editor.State_Semantic.Semantic_Completion_Popup
-        and then S.Semantic_Popup.Item_Count > 0
-        and then S.Semantic_Popup.Selected_Item in 1 .. S.Semantic_Popup.Item_Count;
+      return S.Semantic.Popup.Active
+        and then S.Semantic.Popup.Kind = Editor.State_Semantic.Semantic_Completion_Popup
+        and then S.Semantic.Popup.Item_Count > 0
+        and then S.Semantic.Popup.Selected_Item in 1 .. S.Semantic.Popup.Item_Count;
    end Semantic_Completion_Popup_Is_Active;
 
    function Semantic_Completion_Command_Availability
@@ -96,22 +96,22 @@ package body Editor.Executor.Semantic_Completion_Commands is
      (S    : in out Editor.State.State_Type;
       Next : Boolean)
    is
-      Count : constant Natural := S.Semantic_Popup.Item_Count;
+      Count : constant Natural := S.Semantic.Popup.Item_Count;
    begin
       if not Semantic_Completion_Popup_Is_Active (S) then
          return;
       end if;
 
       if Next then
-         S.Semantic_Popup.Selected_Item :=
-           (if S.Semantic_Popup.Selected_Item >= Count
+         S.Semantic.Popup.Selected_Item :=
+           (if S.Semantic.Popup.Selected_Item >= Count
             then 1
-            else S.Semantic_Popup.Selected_Item + 1);
+            else S.Semantic.Popup.Selected_Item + 1);
       else
-         S.Semantic_Popup.Selected_Item :=
-           (if S.Semantic_Popup.Selected_Item <= 1
+         S.Semantic.Popup.Selected_Item :=
+           (if S.Semantic.Popup.Selected_Item <= 1
             then Count
-            else S.Semantic_Popup.Selected_Item - 1);
+            else S.Semantic.Popup.Selected_Item - 1);
       end if;
 
       Editor.Render_Cache.Invalidate_All;
@@ -149,9 +149,9 @@ package body Editor.Executor.Semantic_Completion_Commands is
       end if;
 
       Label :=
-        S.Semantic_Popup.Items
+        S.Semantic.Popup.Items
           (Editor.State_Semantic.Semantic_Completion_Item_Index
-             (S.Semantic_Popup.Selected_Item)).Label;
+             (S.Semantic.Popup.Selected_Item)).Label;
       if Length (Label) = 0 then
          return;
       end if;

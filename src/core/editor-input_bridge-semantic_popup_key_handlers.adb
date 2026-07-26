@@ -21,7 +21,7 @@ package body Editor.Input_Bridge.Semantic_Popup_Key_Handlers is
         (Id : Editor.Command_Ids.Command_Id)) return Boolean
    is
    begin
-      if not S.Semantic_Popup.Active then
+      if not S.Semantic.Popup.Active then
          return False;
       end if;
 
@@ -31,7 +31,7 @@ package body Editor.Input_Bridge.Semantic_Popup_Key_Handlers is
          return True;
       end if;
 
-      if S.Semantic_Popup.Kind /= Editor.State_Semantic.Semantic_Completion_Popup then
+      if S.Semantic.Popup.Kind /= Editor.State_Semantic.Semantic_Completion_Popup then
          return False;
       end if;
 

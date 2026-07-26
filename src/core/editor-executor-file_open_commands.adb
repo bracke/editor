@@ -128,13 +128,13 @@ package body Editor.Executor.File_Open_Commands is
 
       procedure Load_Global_Active_Preserving_Language_Index is
          Saved_Index : constant Editor.Ada_Project_Index.Index_State :=
-           S.Language_Index;
+           S.Semantic.Language_Index;
          Saved_Service : constant Editor.Ada_Language_Service.Service_State :=
-           S.Language_Service;
+           S.Semantic.Language_Service;
       begin
          Editor.Buffers.Load_Global_Active_Into_State (S);
-         S.Language_Index := Saved_Index;
-         S.Language_Service := Saved_Service;
+         S.Semantic.Language_Index := Saved_Index;
+         S.Semantic.Language_Service := Saved_Service;
       end Load_Global_Active_Preserving_Language_Index;
 
       procedure Clear_Explicit_Open_Find_State is
@@ -314,13 +314,13 @@ package body Editor.Executor.File_Open_Commands is
 
       procedure Load_Global_Active_Preserving_Language_Index is
          Saved_Index : constant Editor.Ada_Project_Index.Index_State :=
-           S.Language_Index;
+           S.Semantic.Language_Index;
          Saved_Service : constant Editor.Ada_Language_Service.Service_State :=
-           S.Language_Service;
+           S.Semantic.Language_Service;
       begin
          Editor.Buffers.Load_Global_Active_Into_State (S);
-         S.Language_Index := Saved_Index;
-         S.Language_Service := Saved_Service;
+         S.Semantic.Language_Index := Saved_Index;
+         S.Semantic.Language_Service := Saved_Service;
       end Load_Global_Active_Preserving_Language_Index;
    begin
       Editor.Buffers.Ensure_Global_Registry (S);
@@ -395,13 +395,13 @@ package body Editor.Executor.File_Open_Commands is
       Editor.Buffers.Global_Set_Active_Buffer (Id);
       declare
          Saved_Index : constant Editor.Ada_Project_Index.Index_State :=
-           S.Language_Index;
+           S.Semantic.Language_Index;
          Saved_Service : constant Editor.Ada_Language_Service.Service_State :=
-           S.Language_Service;
+           S.Semantic.Language_Service;
       begin
          Editor.Buffers.Load_Global_Active_Into_State (S);
-         S.Language_Index := Saved_Index;
-         S.Language_Service := Saved_Service;
+         S.Semantic.Language_Index := Saved_Index;
+         S.Semantic.Language_Service := Saved_Service;
       end;
       Editor.Executor.Record_Navigation_If_Current_Changed (S, Before_Location);
       Editor.Recent_Buffers.Mark_Activated

@@ -923,25 +923,25 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
       --  new lifecycle stamps before navigation can use them.
       if Old_Path'Length > 0 then
          Editor.Ada_Project_Index.Invalidate_Path_Subtree
-           (S.Language_Index, Old_Path);
+           (S.Semantic.Language_Index, Old_Path);
          Editor.Ada_Language_Service.Invalidate_Path_Subtree
-           (S.Language_Service, Old_Path);
+           (S.Semantic.Language_Service, Old_Path);
       end if;
       if New_Path'Length > 0 then
          Editor.Ada_Project_Index.Invalidate_Path_Subtree
-           (S.Language_Index, New_Path);
+           (S.Semantic.Language_Index, New_Path);
          Editor.Ada_Language_Service.Invalidate_Path_Subtree
-           (S.Language_Service, New_Path);
+           (S.Semantic.Language_Service, New_Path);
       end if;
       if Affects_Active_File and then S.Buffer_Lifecycle.Active_Buffer_Token /= 0 then
          Editor.Ada_Project_Index.Invalidate_Buffer
-           (S.Language_Index, S.Buffer_Lifecycle.Active_Buffer_Token);
+           (S.Semantic.Language_Index, S.Buffer_Lifecycle.Active_Buffer_Token);
          Editor.Ada_Language_Service.Invalidate_Buffer
-           (S.Language_Service, S.Buffer_Lifecycle.Active_Buffer_Token);
+           (S.Semantic.Language_Service, S.Buffer_Lifecycle.Active_Buffer_Token);
          Editor.Syntax_Semantics.Clear (S.Syntax_Symbols);
          Editor.Ada_Language_Model.Clear (S.Syntax_Analysis);
-         S.Syntax_Symbols_Revision := Natural'Last;
-         S.Syntax_Symbols_Buffer_Token := 0;
+         S.Semantic.Syntax_Symbols_Revision := Natural'Last;
+         S.Semantic.Syntax_Symbols_Buffer_Token := 0;
       end if;
 
       if Affects_Active_File then

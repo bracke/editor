@@ -58,7 +58,7 @@ package body Editor.Executor.Semantic_Rename_Commands is
    is
       Indexed_Fingerprint : constant Natural :=
         Editor.Ada_Project_Index.Current_Analysis_Fingerprint
-          (S.Language_Index,
+          (S.Semantic.Language_Index,
            Path,
            S.Buffer_Lifecycle.Active_Buffer_Token,
            Editor.State.Current_Buffer_Revision (S),
@@ -307,7 +307,7 @@ package body Editor.Executor.Semantic_Rename_Commands is
             declare
                Result : constant Editor.Ada_Language_Service.Rename_Preview :=
                  Semantic_Rename_Preview
-                   (S, S.Language_Service, Name, Rename_To);
+                   (S, S.Semantic.Language_Service, Name, Rename_To);
             begin
                if Result.Status = Editor.Ada_Language_Service.Service_Success
                  or else Result.Status = Editor.Ada_Language_Service.Service_Ambiguous
@@ -414,7 +414,7 @@ package body Editor.Executor.Semantic_Rename_Commands is
             declare
                Result : constant Editor.Ada_Language_Service.Rename_Preview :=
                  Semantic_Rename_Preview
-                   (S, S.Language_Service, Name, Rename_To);
+                   (S, S.Semantic.Language_Service, Name, Rename_To);
                Reason : Unbounded_String;
                Applied_Count : Natural := 0;
                Processed :
@@ -560,20 +560,20 @@ package body Editor.Executor.Semantic_Rename_Commands is
                                     if Found_Open then
                                        Editor.Ada_Project_Index
                                          .Invalidate_Buffer
-                                         (S.Language_Index,
+                                         (S.Semantic.Language_Index,
                                           Natural (Buffer_Id));
                                        Editor.Ada_Language_Service
                                          .Invalidate_Buffer
-                                         (S.Language_Service,
+                                         (S.Semantic.Language_Service,
                                           Natural (Buffer_Id));
                                     else
                                        Editor.Ada_Project_Index
                                          .Invalidate_Path
-                                         (S.Language_Index,
+                                         (S.Semantic.Language_Index,
                                           To_String (Target.Target.Path));
                                        Editor.Ada_Language_Service
                                          .Invalidate_Path
-                                         (S.Language_Service,
+                                         (S.Semantic.Language_Service,
                                           To_String (Target.Target.Path));
                                     end if;
 

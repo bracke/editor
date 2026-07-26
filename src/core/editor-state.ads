@@ -186,7 +186,6 @@ package Editor.State is
       Feature_Messages : Editor.Feature_Messages.Message_Feature_State;
       Feature_Search_Results : Editor.Feature_Search_Results.Search_Results_Feature_State;
       Feature_Diagnostics : Editor.Feature_Diagnostics.Diagnostics_Feature_State;
-      Pending_Quick_Fix : Quick_Fix_Workflow_State;
       --  Passive outline cursor synchronization cache.  Cursor movement may
       --  update the current-symbol marker from the latest accepted outline,
       --  but it must not trigger extraction, selection changes, or navigation.
@@ -213,7 +212,7 @@ package Editor.State is
       Panel_Focus      : Editor.Panel_Focus.Panel_Focus_State;
       Overlay_Focus    : Editor.Overlay_Focus.Overlay_Focus_State;
       Gutter_Marker_Hover : Editor.Gutter_Markers.Gutter_Marker_Hover_State;
-      Semantic_Popup   : Semantic_Popup_State;
+      Semantic         : Editor.State_Semantic.Semantic_Runtime_State;
       Folding           : Editor.Folding.Folding_State;
       --  Buffer lifecycle owns file identity, reopen candidates, active
       --  buffer tokens/revisions, file-target prompts, file-conflict prompts,
@@ -229,19 +228,6 @@ package Editor.State is
       --  lookup.  This is stamped with the same buffer/revision as
       --  Syntax_Symbols and is never persisted.
       Syntax_Analysis   : Editor.Ada_Language_Model.Analysis_Result;
-      --  Transient in-process Ada project language index.  This is runtime-only
-      --  and is cleared or invalidated by explicit language-index commands and
-      --  project/buffer lifecycle paths; it is never persisted.
-      Language_Index    : Editor.Ada_Project_Index.Index_State;
-      --  Transient language-service facade state.  It mirrors the project
-      --  language index for model-backed navigation and retains compiler-backed
-      --  diagnostic output from explicit build runs for IDE language consumers.
-      --  It is never persisted.
-      Language_Service  : Editor.Ada_Language_Service.Service_State;
-      Syntax_Source_Revision : Natural := Natural'Last;
-      Syntax_Source_Buffer_Token : Natural := 0;
-      Syntax_Symbols_Revision : Natural := Natural'Last;
-      Syntax_Symbols_Buffer_Token : Natural := 0;
       --  Transient UI-only marker: the latest visible restore feedback may
       --  be projected as current command feedback only until the next
       --  ordinary interaction replaces restore context with normal state.

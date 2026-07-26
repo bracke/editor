@@ -50,7 +50,7 @@ package body Editor.Executor.Semantic_Service_Commands is
    is
       Indexed_Fingerprint : constant Natural :=
         Editor.Ada_Project_Index.Current_Analysis_Fingerprint
-          (S.Language_Index,
+          (S.Semantic.Language_Index,
            Path,
            S.Buffer_Lifecycle.Active_Buffer_Token,
            Editor.State.Current_Buffer_Revision (S),
@@ -300,7 +300,7 @@ package body Editor.Executor.Semantic_Service_Commands is
          when Editor.Command_Ids.Command_Find_References =>
             declare
                Result : constant Editor.Ada_Language_Service.Language_Target_Set :=
-                 Semantic_Find_References (S, S.Language_Service, Name);
+                 Semantic_Find_References (S, S.Semantic.Language_Service, Name);
             begin
                if Result.Status = Editor.Ada_Language_Service.Service_Success then
                   Editor.Feature_Search_Results.Begin_External_Result_Set
@@ -367,7 +367,7 @@ package body Editor.Executor.Semantic_Service_Commands is
          when Editor.Command_Ids.Command_Workspace_Symbols =>
             declare
                Result : constant Editor.Ada_Language_Service.Language_Target_Set :=
-                 Semantic_Workspace_Symbols (S.Language_Service, Name);
+                 Semantic_Workspace_Symbols (S.Semantic.Language_Service, Name);
             begin
                if Result.Status = Editor.Ada_Language_Service.Service_Success then
                   Editor.Feature_Search_Results.Begin_External_Result_Set
@@ -435,7 +435,7 @@ package body Editor.Executor.Semantic_Service_Commands is
          when Editor.Command_Ids.Command_Show_Hover =>
             declare
                Result : constant Editor.Ada_Language_Service.Hover_Result :=
-                 Semantic_Hover (S, S.Language_Service, Name);
+                 Semantic_Hover (S, S.Semantic.Language_Service, Name);
             begin
                if Result.Status = Editor.Ada_Language_Service.Service_Success then
                   declare
@@ -457,7 +457,7 @@ package body Editor.Executor.Semantic_Service_Commands is
                   begin
                      Editor.State.Row_Col_For_Index
                        (S, Safe_Caret, Anchor_Row, Anchor_Col);
-                     S.Semantic_Popup :=
+                     S.Semantic.Popup :=
                        (Active => True,
                         Kind => Editor.State_Semantic.Semantic_Hover_Popup,
                         Anchor_Row => Anchor_Row,
@@ -508,7 +508,7 @@ package body Editor.Executor.Semantic_Service_Commands is
          when Editor.Command_Ids.Command_Show_Completions =>
             declare
                Result : constant Editor.Ada_Language_Service.Completion_Result :=
-                 Semantic_Complete (S, S.Language_Service, Name, 20);
+                 Semantic_Complete (S, S.Semantic.Language_Service, Name, 20);
             begin
                if Result.Status = Editor.Ada_Language_Service.Service_Success then
                   declare
@@ -534,7 +534,7 @@ package body Editor.Executor.Semantic_Service_Commands is
                            Detail => Item.Detail);
                      end loop;
                      Popup.Item_Count := Row;
-                     S.Semantic_Popup := Popup;
+                     S.Semantic.Popup := Popup;
                   end;
 
                   Editor.Feature_Search_Results.Begin_External_Result_Set
