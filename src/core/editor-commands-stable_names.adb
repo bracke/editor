@@ -2,6 +2,7 @@ with Ada.Characters.Handling;
 with Ada.Strings;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.Commands.Classification;
 
 package body Editor.Commands.Stable_Names is
 
@@ -977,6 +978,17 @@ package body Editor.Commands.Stable_Names is
       end loop;
       return To_String (Result);
    end Stable_Command_Name;
+
+   function Has_Stable_Name
+     (Id : Command_Id) return Boolean
+   is
+      Name : constant String := Stable_Command_Name (Id);
+   begin
+      return Editor.Commands.Classification.Is_Bindable_Command (Id)
+        and then Name'Length > 0
+        and then Ada.Strings.Fixed.Index (Name, " ") = 0
+        and then Ada.Strings.Fixed.Trim (Name, Ada.Strings.Both) = Name;
+   end Has_Stable_Name;
 
 
 end Editor.Commands.Stable_Names;

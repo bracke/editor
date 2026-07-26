@@ -1,3 +1,4 @@
+with Editor.Commands.Classification;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Characters.Handling;
 with Ada.Strings.Fixed;
@@ -60,7 +61,7 @@ package body Editor.Product_Surface_Cleanup is
      (Id : Editor.Commands.Command_Id) return Boolean
    is
    begin
-      return Editor.Commands.Is_Test_Only_Command (Id);
+      return Editor.Commands.Classification.Is_Test_Only_Command (Id);
    end Is_Test_Only_Command;
 
    function Feature_Panel_Has_Demo_Rows
@@ -228,7 +229,7 @@ package body Editor.Product_Surface_Cleanup is
                  Editor.Commands.Descriptors.Descriptor (Id);
             begin
                if D.Visibility = Editor.Commands.Descriptors.Palette_Command
-                 or else Editor.Commands.Is_Bindable_Command (Id)
+                 or else Editor.Commands.Classification.Is_Bindable_Command (Id)
                then
                   return True;
                end if;

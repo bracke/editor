@@ -3,8 +3,13 @@ with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
+with Editor.Commands.Availability_Metadata;
+with Editor.Commands.Category_Metadata;
+with Editor.Commands.Classification;
+with Editor.Commands.Descriptor_Metadata;
 with Editor.Commands.Name_Metadata;
 with Editor.Commands.Reference_Metadata;
+with Editor.Commands.Stable_Names;
 
 
 
@@ -122,10 +127,12 @@ package body Editor.Commands.Audits is
       Stable : constant String := Name_Metadata.Stable_Command_Name (Id);
       Title : constant String := To_String (D.Name);
       Description_Text : constant String := To_String (D.Description);
-      Category_Text : constant String := Discoverability_Category_Label (Id);
-      Class_Text : constant String := Classification_Label (Id);
+      Category_Text : constant String :=
+        Editor.Commands.Category_Metadata.Discoverability_Category_Label (Id);
+      Class_Text : constant String :=
+        Editor.Commands.Category_Metadata.Classification_Label (Id);
    begin
-      if not Is_Concrete_Command (Id) then
+      if not Editor.Commands.Availability_Metadata.Is_Concrete_Command (Id) then
          return False;
       end if;
 
@@ -140,7 +147,8 @@ package body Editor.Commands.Audits is
       end if;
 
       if D.Visibility = Hidden_Command then
-         return not Visible_In_Command_Palette (Id);
+         return not
+           Editor.Commands.Classification.Visible_In_Command_Palette (Id);
       end if;
 
       if Title'Length = 0
@@ -166,12 +174,15 @@ package body Editor.Commands.Audits is
    is
    begin
       for Id in Command_Id loop
-         if Is_Concrete_Command (Id) then
+         if Editor.Commands.Availability_Metadata.Is_Concrete_Command (Id) then
             if not Has_Discoverability_Metadata (Id) then
                return False;
             end if;
 
-            if Is_Internal_Command (Id) and then Visible_In_Command_Palette (Id) then
+            if Editor.Commands.Classification.Is_Internal_Command (Id)
+              and then
+                Editor.Commands.Classification.Visible_In_Command_Palette (Id)
+            then
                return False;
             end if;
          end if;
@@ -186,7 +197,8 @@ package body Editor.Commands.Audits is
       D : constant Command_Descriptor := Descriptor (Id);
       L : constant String := To_String (D.Name);
       Desc : constant String := To_String (D.Description);
-      Cat_Label : constant String := Category_Label (D.Category);
+      Cat_Label : constant String :=
+        Editor.Commands.Category_Metadata.Category_Label (D.Category);
    begin
       if D.Id /= Id then
          return False;
@@ -197,7 +209,7 @@ package body Editor.Commands.Audits is
            and then D.Category = Internal_Category;
       end if;
 
-      if not Has_Stable_User_Label (Id) then
+      if not Editor.Commands.Descriptor_Metadata.Has_Stable_User_Label (Id) then
          return False;
       end if;
 
@@ -227,17 +239,17 @@ package body Editor.Commands.Audits is
       Failure := (Kind => Missing_Descriptor, Command => Id);
       Found := False;
 
-      if not Is_Concrete_Command (Id) then
+      if not Editor.Commands.Availability_Metadata.Is_Concrete_Command (Id) then
          return;
       end if;
 
-      if not Has_Descriptor (Id) then
+      if not Editor.Commands.Descriptor_Metadata.Has_Descriptor (Id) then
          Failure := (Kind => Missing_Descriptor, Command => Id);
          Found := True;
          return;
       end if;
 
-      if not Has_Stable_User_Label (Id) then
+      if not Editor.Commands.Descriptor_Metadata.Has_Stable_User_Label (Id) then
          Failure := (Kind => Missing_Label, Command => Id);
          Found := True;
          return;
@@ -251,25 +263,29 @@ package body Editor.Commands.Audits is
          return;
       end if;
 
-      if Category_Label (D.Category)'Length = 0 then
+      if Editor.Commands.Category_Metadata.Category_Label (D.Category)'Length = 0 then
          Failure := (Kind => Missing_Category, Command => Id);
          Found := True;
          return;
       end if;
 
-      if Is_Bindable_Command (Id) and then not Has_Stable_Name (Id) then
+      if Editor.Commands.Classification.Is_Bindable_Command (Id)
+        and then not Editor.Commands.Stable_Names.Has_Stable_Name (Id)
+      then
          Failure := (Kind => Missing_Stable_Name, Command => Id);
          Found := True;
          return;
       end if;
 
-      if D.Bindable and then not Is_Concrete_Command (Id) then
+      if D.Bindable
+        and then not Editor.Commands.Availability_Metadata.Is_Concrete_Command (Id)
+      then
          Failure := (Kind => Invalid_Bindability, Command => Id);
          Found := True;
          return;
       end if;
 
-      if not Has_Availability_Handler (Id) then
+      if not Editor.Commands.Availability_Metadata.Has_Availability_Handler (Id) then
          Failure := (Kind => Missing_Availability, Command => Id);
          Found := True;
          return;
@@ -289,7 +305,7 @@ package body Editor.Commands.Audits is
       Found   : Boolean;
    begin
       for Id in Command_Id loop
-         if Is_Concrete_Command (Id) then
+         if Editor.Commands.Availability_Metadata.Is_Concrete_Command (Id) then
             Audit_Command (Id, Failure, Found);
             if Found then
                Result.Append (Failure);

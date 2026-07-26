@@ -1,3 +1,4 @@
+with Editor.Commands.Classification;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Commands.Build_Terminal_Ids;
 with Editor.Keybindings;
@@ -30,7 +31,7 @@ package body Editor.Contextual_Help is
       Info : Editor.Keybindings.Command_Keybinding_Info;
    begin
       if not Show_Shortcuts
-        or else not Editor.Commands.Is_Bindable_Command (Command)
+        or else not Editor.Commands.Classification.Is_Bindable_Command (Command)
         or else Editor.Commands.Build_Terminal_Ids.Is_Internal_Build_Test_Seam_Command (Command)
         or else Editor.Commands.Build_Terminal_Ids.Is_Public_Build_Command (Command)
       then

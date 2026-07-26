@@ -1,3 +1,6 @@
+with Editor.Commands.Classification;
+with Editor.Commands.Stable_Names;
+with Editor.Commands.Descriptor_Metadata;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with Ada.Characters.Handling;
@@ -239,7 +242,7 @@ package body Editor.Outline.Tests is
       Assert (Editor.Commands.Descriptors.Category (Editor.Commands.Command_Refresh_Outline) =
                 Editor.Commands.Descriptors.Panel_Category,
               "refresh outline is a panel command");
-      Assert (Editor.Commands.Is_Visible_In_Palette (Editor.Commands.Command_Refresh_Outline),
+      Assert (Editor.Commands.Classification.Is_Visible_In_Palette (Editor.Commands.Command_Refresh_Outline),
               "refresh outline appears in command palette");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name (Editor.Commands.Command_Refresh_Outline) =
                 "outline.refresh",
@@ -257,7 +260,7 @@ package body Editor.Outline.Tests is
       Assert (not Found, "old focus-outline spelling is not a stable command");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("open-selected-outline-item", Found);
       Assert (not Found, "old open-selected-outline-item spelling is not a stable command");
-      Assert (Editor.Commands.Is_Bindable_Command (Editor.Commands.Command_Show_Outline),
+      Assert (Editor.Commands.Classification.Is_Bindable_Command (Editor.Commands.Command_Show_Outline),
               "show outline is bindable without a default chord");
    end Test_Command_Metadata_And_Stable_Names;
 
@@ -1085,16 +1088,16 @@ package body Editor.Outline.Tests is
    is
       pragma Unreferenced (T);
    begin
-      Assert (Editor.Commands.Is_Visible_In_Palette
+      Assert (Editor.Commands.Classification.Is_Visible_In_Palette
                 (Editor.Commands.Command_Open_Selected_Outline_Item),
               "open selected outline item is discoverable in the command palette");
-      Assert (Editor.Commands.Is_Visible_In_Palette
+      Assert (Editor.Commands.Classification.Is_Visible_In_Palette
                 (Editor.Commands.Command_Select_Next_Outline_Item),
               "select next outline item is discoverable in the command palette");
-      Assert (Editor.Commands.Is_Visible_In_Palette
+      Assert (Editor.Commands.Classification.Is_Visible_In_Palette
                 (Editor.Commands.Command_Select_Previous_Outline_Item),
               "select previous outline item is discoverable in the command palette");
-      Assert (Editor.Commands.Is_Visible_In_Palette
+      Assert (Editor.Commands.Classification.Is_Visible_In_Palette
                 (Editor.Commands.Command_Reveal_Current_Outline_Symbol),
               "reveal current outline symbol is discoverable in the command palette");
       Assert (Editor.Commands.Descriptors.Label
@@ -1169,7 +1172,7 @@ package body Editor.Outline.Tests is
               "outline keybinding should resolve through registry");
       Assert (Id = Editor.Commands.Command_Select_Next_Outline_Item,
               "outline keybinding should target the same command id as palette invocation");
-      Assert (Editor.Commands.Is_Visible_In_Palette (Id),
+      Assert (Editor.Commands.Classification.Is_Visible_In_Palette (Id),
               "keybound outline command should remain visible in the command palette");
    end Test_Outline_Command_Palette_And_Keybinding_Use_Same_Handler;
 
@@ -1381,9 +1384,9 @@ package body Editor.Outline.Tests is
       Round_Trip : Editor.Commands.Command_Id := Editor.Commands.No_Command;
    begin
       for I in Outline_Commands'Range loop
-         Assert (Editor.Commands.Has_Descriptor (Outline_Commands (I)),
+         Assert (Editor.Commands.Descriptor_Metadata.Has_Descriptor (Outline_Commands (I)),
                  "outline command has descriptor metadata");
-         Assert (Editor.Commands.Has_Stable_Name (Outline_Commands (I)),
+         Assert (Editor.Commands.Stable_Names.Has_Stable_Name (Outline_Commands (I)),
                  "outline command has stable persisted name");
          Round_Trip := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
            (Editor.Commands.Name_Metadata.Stable_Command_Name (Outline_Commands (I)), Found);
@@ -1514,9 +1517,9 @@ package body Editor.Outline.Tests is
          Editor.Commands.Command_Clear_Outline_Filter_History);
    begin
       for I in Outline_Commands'Range loop
-         Assert (Editor.Commands.Has_Descriptor (Outline_Commands (I)),
+         Assert (Editor.Commands.Descriptor_Metadata.Has_Descriptor (Outline_Commands (I)),
                  "outline command has a descriptor");
-         Assert (Editor.Commands.Is_Bindable_Command (Outline_Commands (I)),
+         Assert (Editor.Commands.Classification.Is_Bindable_Command (Outline_Commands (I)),
                  "public outline command remains bindable");
          for J in I + 1 .. Outline_Commands'Last loop
             Assert

@@ -1,3 +1,4 @@
+with Editor.Commands.Classification;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -2885,14 +2886,14 @@ package body Editor.Project_Search.Tests is
       D := Editor.Commands.Descriptors.Descriptor (Id);
       Assert (D.Id = Id and then D.Bindable,
               "whole-word toggle must have command metadata and remain bindable");
-      Assert (Editor.Commands.Is_Search_Command (Id),
+      Assert (Editor.Commands.Classification.Is_Search_Command (Id),
               "whole-word toggle must be classified as a search command");
 
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("project.search.whole-word.clear", Found);
       Assert (Found and then Id = Editor.Commands.Command_Project_Search_Whole_Word_Clear,
               "whole-word clear must have a stable no-payload command name");
-      Assert (Editor.Commands.Is_Search_Command (Id),
+      Assert (Editor.Commands.Classification.Is_Search_Command (Id),
               "whole-word clear must be classified as a search command");
 
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
@@ -2902,14 +2903,14 @@ package body Editor.Project_Search.Tests is
       D := Editor.Commands.Descriptors.Descriptor (Id);
       Assert (D.Id = Id and then D.Bindable,
               "regex toggle must have command metadata and remain bindable");
-      Assert (Editor.Commands.Is_Search_Command (Id),
+      Assert (Editor.Commands.Classification.Is_Search_Command (Id),
               "regex toggle must be classified as a search command");
 
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("project.search.regex.clear", Found);
       Assert (Found and then Id = Editor.Commands.Command_Project_Search_Regex_Clear,
               "regex clear must have a stable no-payload command name");
-      Assert (Editor.Commands.Is_Search_Command (Id),
+      Assert (Editor.Commands.Classification.Is_Search_Command (Id),
               "regex clear must be classified as a search command");
 
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
@@ -2919,7 +2920,7 @@ package body Editor.Project_Search.Tests is
       D := Editor.Commands.Descriptors.Descriptor (Id);
       Assert (not D.Bindable,
               "include-filter set must not be bindable because it requires explicit text");
-      Assert (Editor.Commands.Is_Search_Command (Id),
+      Assert (Editor.Commands.Classification.Is_Search_Command (Id),
               "include-filter set must be classified as a search command");
 
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
@@ -2929,21 +2930,21 @@ package body Editor.Project_Search.Tests is
       D := Editor.Commands.Descriptors.Descriptor (Id);
       Assert (not D.Bindable,
               "exclude-filter set must not be bindable because it requires explicit text");
-      Assert (Editor.Commands.Is_Search_Command (Id),
+      Assert (Editor.Commands.Classification.Is_Search_Command (Id),
               "exclude-filter set must be classified as a search command");
 
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("project.search.include.clear", Found);
       Assert (Found and then Id = Editor.Commands.Command_Project_Search_Include_Filter_Clear,
               "include-filter clear must have a stable no-payload command name");
-      Assert (Editor.Commands.Is_Search_Command (Id),
+      Assert (Editor.Commands.Classification.Is_Search_Command (Id),
               "include-filter clear must be classified as a search command");
 
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("project.search.exclude.clear", Found);
       Assert (Found and then Id = Editor.Commands.Command_Project_Search_Exclude_Filter_Clear,
               "exclude-filter clear must have a stable no-payload command name");
-      Assert (Editor.Commands.Is_Search_Command (Id),
+      Assert (Editor.Commands.Classification.Is_Search_Command (Id),
               "exclude-filter clear must be classified as a search command");
    end Test_Command_Surface_Extends_Project_Search_Modes;
 

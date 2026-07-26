@@ -1,3 +1,4 @@
+with Editor.Commands.Classification;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Containers;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -846,7 +847,7 @@ package body Editor.External_Producers.Public_Build_Command_Surface_Audits is
         Readiness.Public_Command_Is_Invokable
         and then Summary.Default_Execution_Disabled;
       Result.No_Public_Bindable_Command :=
-        not Editor.Commands.Is_Bindable_Command
+        not Editor.Commands.Classification.Is_Bindable_Command
           (Editor.Commands.Command_Build_Run)
         and then not Readiness.Has_Default_Public_Build_Keybinding;
       Result.No_Public_Persistence_State := True;

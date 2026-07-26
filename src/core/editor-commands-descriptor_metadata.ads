@@ -17,4 +17,10 @@ package Editor.Commands.Descriptor_Metadata is
    function Descriptor
      (Id : Command_Id) return Command_Descriptor;
 
+   function Has_Descriptor
+     (Id : Command_Id) return Boolean;
+
+   function Has_Stable_User_Label
+     (Id : Command_Id) return Boolean;
+
 end Editor.Commands.Descriptor_Metadata;

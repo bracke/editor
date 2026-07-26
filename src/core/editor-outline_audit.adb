@@ -1,3 +1,5 @@
+with Editor.Commands.Classification;
+with Editor.Commands.Availability_Metadata;
 with Ada.Strings.Fixed;
 with Editor.Commands;
 with Editor.Commands.Name_Metadata;
@@ -43,8 +45,8 @@ package body Editor.Outline_Audit is
       return Stable_Name_Routes (Name, Expected)
         and then Editor.Commands.Name_Metadata.Stable_Command_Name (Expected) = Name
         and then Editor.Commands.Audits.Descriptor_Is_Complete (Expected)
-        and then Editor.Commands.Has_Availability_Handler (Expected)
-        and then Editor.Commands.Is_Bindable_Command (Expected);
+        and then Editor.Commands.Availability_Metadata.Has_Availability_Handler (Expected)
+        and then Editor.Commands.Classification.Is_Bindable_Command (Expected);
    end Canonical_Stable_Name_Routes;
 
    function Command_Surface_Check return Boolean is

@@ -1,3 +1,5 @@
+with Editor.Commands.Classification;
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
@@ -799,13 +801,13 @@ package body Editor.Command_Surface.Product_Surface_Tests is
               "switch project stable name must be canonical");
       Assert (Found and then Id = Editor.Commands.Command_Switch_Project,
               "switch project stable name must round-trip");
-      Assert (Editor.Commands.Requires_Context
+      Assert (Editor.Commands.Availability_Metadata.Requires_Context
                 (Editor.Commands.Command_Switch_Project),
               "switch project requires explicit input context");
-      Assert (Editor.Commands.Is_Lifecycle_Command
+      Assert (Editor.Commands.Classification.Is_Lifecycle_Command
                 (Editor.Commands.Command_Switch_Project),
               "switch project is a lifecycle command");
-      Assert (not Editor.Commands.Is_Destructive_Command
+      Assert (not Editor.Commands.Classification.Is_Destructive_Command
                 (Editor.Commands.Command_Switch_Project),
               "switch project must not be classified as destructive by itself");
       Assert (not Editor.Commands.Is_Available (Avail),

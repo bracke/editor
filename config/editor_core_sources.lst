@@ -1371,6 +1371,8 @@ editor-commands-semantic_ids.adb
 editor-commands-semantic_ids.ads
 editor-commands-classification.adb
 editor-commands-classification.ads
+editor-commands-registry.adb
+editor-commands-registry.ads
 editor-commands-descriptor_factory.adb
 editor-commands-descriptor_factory.ads
 editor-commands-descriptor_build_terminal.adb

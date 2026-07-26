@@ -1,4 +1,5 @@
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
+with Editor.Commands.Classification;
 with Editor.Commands.Descriptor_Display_Panels;
 with Editor.Commands.Descriptor_Modal_Switcher;
 

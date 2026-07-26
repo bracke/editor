@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Image_Helpers;
@@ -57,7 +58,7 @@ package body Editor.Configuration_Audit is
             Id : constant Editor.Commands.Command_Id :=
               Editor.Commands.Command_At (Index);
          begin
-            if Editor.Commands.Is_Concrete_Command (Id) then
+            if Editor.Commands.Availability_Metadata.Is_Concrete_Command (Id) then
                Count := Count + Editor.Keybindings.Binding_Count_For_Command (Id);
             end if;
          end;

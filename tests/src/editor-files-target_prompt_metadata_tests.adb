@@ -1,3 +1,4 @@
+with Editor.Commands.Classification;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
@@ -453,10 +454,10 @@ package body Editor.Files.Target_Prompt_Metadata_Tests is
         "Command Palette/keybinding canonical invocation path should open empty prompt, not query text");
       Editor.Executor.File_Target_Prompt_Commands.Cancel_File_Target_Prompt (S);
 
-      Assert (Editor.Commands.Is_Bindable_Command (Editor.Commands.Command_Save_File_As)
-        and then Editor.Commands.Is_Bindable_Command (Editor.Commands.Command_Rename_Buffer_File)
-        and then Editor.Commands.Is_Bindable_Command (Editor.Commands.Command_Copy_Buffer_File)
-        and then Editor.Commands.Is_Bindable_Command (Editor.Commands.Command_Move_Buffer_File),
+      Assert (Editor.Commands.Classification.Is_Bindable_Command (Editor.Commands.Command_Save_File_As)
+        and then Editor.Commands.Classification.Is_Bindable_Command (Editor.Commands.Command_Rename_Buffer_File)
+        and then Editor.Commands.Classification.Is_Bindable_Command (Editor.Commands.Command_Copy_Buffer_File)
+        and then Editor.Commands.Classification.Is_Bindable_Command (Editor.Commands.Command_Move_Buffer_File),
         "keybinding routes should continue to target canonical bindable command names only");
 
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("file.save-as-prompted", Found);

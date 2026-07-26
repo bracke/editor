@@ -1,3 +1,7 @@
+with Editor.Commands.Classification;
+with Editor.Commands.Stable_Names;
+with Editor.Commands.Descriptor_Metadata;
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Audit_Model; use Editor.Commands.Audit_Model;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Commands;
@@ -46,15 +50,15 @@ package body Editor.Feature_Panel_Audit is
       Found   : Boolean := False;
       Failure : Editor.Commands.Audit_Model.Command_Audit_Failure;
    begin
-      if not Editor.Commands.Has_Descriptor (Id)
+      if not Editor.Commands.Descriptor_Metadata.Has_Descriptor (Id)
         or else not Editor.Commands.Audits.Descriptor_Is_Complete (Id)
-        or else not Editor.Commands.Has_Availability_Handler (Id)
+        or else not Editor.Commands.Availability_Metadata.Has_Availability_Handler (Id)
       then
          return False;
       end if;
 
-      if Editor.Commands.Is_Bindable_Command (Id)
-        and then not Editor.Commands.Has_Stable_Name (Id)
+      if Editor.Commands.Classification.Is_Bindable_Command (Id)
+        and then not Editor.Commands.Stable_Names.Has_Stable_Name (Id)
       then
          return False;
       end if;

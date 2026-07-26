@@ -1,3 +1,4 @@
+with Editor.Commands.Classification;
 with Editor.Commands.Payloads;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
@@ -99,7 +100,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
            Editor.Commands.Descriptors.File_Category,
          "reload must remain a File command");
       Assert
-        (Editor.Commands.Is_Bindable_Command
+        (Editor.Commands.Classification.Is_Bindable_Command
            (Editor.Commands.Command_Reload_Active_Buffer),
          "reload must remain bindable");
       Assert
@@ -108,7 +109,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
            Editor.Commands.Descriptors.Palette_Command,
          "reload must remain Command Palette visible");
       Assert
-        (Editor.Commands.Is_Lifecycle_Command
+        (Editor.Commands.Classification.Is_Lifecycle_Command
            (Editor.Commands.Command_Reload_Active_Buffer),
          "reload must be classified as lifecycle");
 

@@ -1,3 +1,6 @@
+with Editor.Commands.Classification;
+with Editor.Commands.Descriptor_Metadata;
+with Editor.Commands.Availability_Metadata;
 with Editor.Buffer_Switcher.Audits;
 with Editor.Buffer_Switcher.Config;
 with Editor.Buffer_Switcher.Reviews;
@@ -2962,9 +2965,9 @@ package body Editor.Buffer_Switcher.Tests is
               "ordinary switcher state should expose practical hints");
 
       for Hint of Hints loop
-         Assert (Editor.Commands.Has_Descriptor (Hint.Command_Id),
+         Assert (Editor.Commands.Descriptor_Metadata.Has_Descriptor (Hint.Command_Id),
                  "every hint command id must resolve to a descriptor");
-         Assert (Editor.Commands.Has_Availability_Handler (Hint.Command_Id),
+         Assert (Editor.Commands.Availability_Metadata.Has_Availability_Handler (Hint.Command_Id),
                  "every hint command id must be covered by executor availability");
          Assert (Editor.Commands.Is_Available
                    (Editor.Executor.Command_Availability (S, Hint.Command_Id)),
@@ -5494,7 +5497,7 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Keybinding_Config.Clear (Config);
 
       for I in Commands'Range loop
-         Assert (Editor.Commands.Is_Bindable_Command (Commands (I)),
+         Assert (Editor.Commands.Classification.Is_Bindable_Command (Commands (I)),
                  "Buffer List command must remain bindable before keybinding serialization");
          Assert (not Command_Has_Payload (Commands (I)),
                  "Buffer List command template must be payload-free before keybinding serialization");

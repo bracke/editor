@@ -1,3 +1,6 @@
+with Editor.Commands.Registry;
+with Editor.Commands.Classification;
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Audit_Model; use Editor.Commands.Audit_Model;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
@@ -694,16 +697,16 @@ package body Editor.Command_Surface.Route_Audit_Tests is
       D    : Editor.Commands.Descriptors.Command_Descriptor;
    begin
       Assert
-        (Editor.Commands.Palette_Command_Count =
+        (Editor.Commands.Registry.Palette_Command_Count =
            Natural (Editor.Commands.Descriptors.Palette_Commands.Length),
          "palette traversal count must match descriptor vector count");
 
-      for I in 1 .. Editor.Commands.Palette_Command_Count loop
-         Id := Editor.Commands.Palette_Command_At (I);
+      for I in 1 .. Editor.Commands.Registry.Palette_Command_Count loop
+         Id := Editor.Commands.Registry.Palette_Command_At (I);
          D := Editor.Commands.Descriptors.Descriptor (Id);
 
          Assert
-           (Editor.Commands.Visible_In_Command_Palette (Id),
+           (Editor.Commands.Classification.Visible_In_Command_Palette (Id),
             "Palette_Command_At must return only palette-visible ids");
          Assert
            (not Seen (Id),
@@ -722,7 +725,7 @@ package body Editor.Command_Surface.Route_Audit_Tests is
 
       for I in 1 .. Editor.Commands.Command_Count loop
          Id := Editor.Commands.Command_At (I);
-         if not Editor.Commands.Visible_In_Command_Palette (Id) then
+         if not Editor.Commands.Classification.Visible_In_Command_Palette (Id) then
             Assert
               (not Seen (Id),
                "hidden commands must not appear in palette traversal");
@@ -761,42 +764,42 @@ package body Editor.Command_Surface.Route_Audit_Tests is
       pragma Unreferenced (T);
       Count : Natural := 0;
       Found : Boolean := False;
-      Id    : Editor.Commands.Command_Id := Editor.Commands.First_Concrete_Command;
+      Id    : Editor.Commands.Command_Id := Editor.Commands.Registry.First_Concrete_Command;
 
       procedure Count_Command
         (Current : Editor.Commands.Command_Id)
       is
       begin
          Assert
-           (Editor.Commands.Is_Concrete_Command (Current),
+           (Editor.Commands.Availability_Metadata.Is_Concrete_Command (Current),
             "For_Each_Command must not yield No_Command");
          Count := Count + 1;
       end Count_Command;
    begin
       Assert
-        (Editor.Commands.First_Concrete_Command /= Editor.Commands.No_Command,
+        (Editor.Commands.Registry.First_Concrete_Command /= Editor.Commands.No_Command,
          "first concrete command must exclude No_Command");
       Assert
-        (Editor.Commands.Concrete_Command_Count = Editor.Commands.Command_Count - 1,
+        (Editor.Commands.Registry.Concrete_Command_Count = Editor.Commands.Command_Count - 1,
          "concrete command count must exclude exactly No_Command");
 
-      while Found or else Id = Editor.Commands.First_Concrete_Command loop
+      while Found or else Id = Editor.Commands.Registry.First_Concrete_Command loop
          Assert
-           (Editor.Commands.Is_Concrete_Command (Id),
+           (Editor.Commands.Availability_Metadata.Is_Concrete_Command (Id),
             "Next_Command concrete walk must stay on concrete ids");
          Count := Count + 1;
-         Id := Editor.Commands.Next_Command (Id, Found);
+         Id := Editor.Commands.Registry.Next_Command (Id, Found);
          exit when not Found;
       end loop;
 
       Assert
-        (Count = Editor.Commands.Concrete_Command_Count,
+        (Count = Editor.Commands.Registry.Concrete_Command_Count,
          "Next_Command walk must cover every concrete command exactly once");
 
       Count := 0;
-      Editor.Commands.For_Each_Command (Count_Command'Access);
+      Editor.Commands.Registry.For_Each_Command (Count_Command'Access);
       Assert
-        (Count = Editor.Commands.Concrete_Command_Count,
+        (Count = Editor.Commands.Registry.Concrete_Command_Count,
          "For_Each_Command must cover every concrete command exactly once");
    end Test_Concrete_Command_Traversal;
 

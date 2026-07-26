@@ -1,3 +1,5 @@
+with Editor.Commands.Classification;
+with Editor.Commands.Availability_Metadata;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
 with Ada.Characters.Handling;
@@ -56,7 +58,7 @@ package body Editor.Keybindings is
      (Id : Editor.Commands.Command_Id) return Boolean
    is
    begin
-      return Editor.Commands.Is_Bindable_Command (Id)
+      return Editor.Commands.Classification.Is_Bindable_Command (Id)
         and then not Editor.Commands.Build_Terminal_Ids.Is_Internal_Build_Test_Seam_Command (Id)
         and then not Editor.Commands.Build_Terminal_Ids.Is_Public_Build_Command (Id);
    end Is_Normal_Assignable_Command;
@@ -103,7 +105,7 @@ package body Editor.Keybindings is
       Free_Index : Natural := Bindings'First;
       Has_Free   : Boolean := False;
    begin
-      if not Editor.Commands.Is_Concrete_Command (Id) then
+      if not Editor.Commands.Availability_Metadata.Is_Concrete_Command (Id) then
          Status := Keybinding_Change_Invalid_Target;
          return;
       elsif Editor.Commands.Build_Terminal_Ids.Is_Public_Build_Command (Id) then
@@ -112,7 +114,7 @@ package body Editor.Keybindings is
       elsif Editor.Commands.Build_Terminal_Ids.Is_Internal_Build_Test_Seam_Command (Id) then
          Status := Keybinding_Change_Internal_Target;
          return;
-      elsif not Editor.Commands.Is_Bindable_Command (Id) then
+      elsif not Editor.Commands.Classification.Is_Bindable_Command (Id) then
          Status := Keybinding_Change_Non_Bindable_Target;
          return;
       end if;
@@ -272,7 +274,7 @@ package body Editor.Keybindings is
             --  place non-bindable command ids in the table. Runtime resolution
             --  must not expose them to Input_Bridge as named user keybindings;
             --  validation reports invalid targets separately.
-            if Editor.Commands.Is_Bindable_Command (Bindings (I).Id) then
+            if Editor.Commands.Classification.Is_Bindable_Command (Bindings (I).Id) then
                Id := Bindings (I).Id;
                return Bound_Command;
             else
@@ -646,7 +648,7 @@ package body Editor.Keybindings is
    begin
       for I in Bindings'Range loop
          if Bindings (I).Used then
-            if Editor.Commands.Is_Bindable_Command (Bindings (I).Id) then
+            if Editor.Commands.Classification.Is_Bindable_Command (Bindings (I).Id) then
                Command_Bound (Bindings (I).Id) := True;
             else
                Result.Invalid_Targets := True;
@@ -675,7 +677,7 @@ package body Editor.Keybindings is
       end loop;
 
       for Id in Editor.Commands.Command_Id loop
-         if Editor.Commands.Is_Bindable_Command (Id) then
+         if Editor.Commands.Classification.Is_Bindable_Command (Id) then
             if Command_Bound (Id) then
                Result.Validation_Summary.Bound_Command_Count :=
                  Result.Validation_Summary.Bound_Command_Count + 1;

@@ -1,3 +1,5 @@
+with Editor.Commands.Classification;
+with Editor.Commands.Descriptor_Metadata;
 with Ada.Containers;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Text_Buffer;
@@ -713,10 +715,10 @@ package body Editor.Core_Editing_Workflow is
       function User_Facing_Edit_Command
         (Id : Editor.Commands.Command_Id) return Boolean is
       begin
-         return Editor.Commands.Has_Descriptor (Id)
+         return Editor.Commands.Descriptor_Metadata.Has_Descriptor (Id)
            and then Editor.Commands.Audits.Descriptor_Is_Complete (Id)
-           and then Editor.Commands.Is_Bindable_Command (Id)
-           and then Editor.Commands.Visible_In_Command_Palette (Id);
+           and then Editor.Commands.Classification.Is_Bindable_Command (Id)
+           and then Editor.Commands.Classification.Visible_In_Command_Palette (Id);
       end User_Facing_Edit_Command;
 
       function User_Facing_Text_Mutation

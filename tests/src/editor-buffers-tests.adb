@@ -1,3 +1,4 @@
+with Editor.Commands.Classification;
 with Editor.Commands.Payloads;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
@@ -1126,7 +1127,7 @@ package body Editor.Buffers.Tests is
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
         (Editor.Commands.Command_Show_Buffer_Note) = "buffers.note.show",
         "show note command stable name must be deterministic");
-      Assert (not Editor.Commands.Is_Destructive_Command (Editor.Commands.Command_Set_Buffer_Note),
+      Assert (not Editor.Commands.Classification.Is_Destructive_Command (Editor.Commands.Command_Set_Buffer_Note),
         "setting a note must not be classified as destructive");
 
       Editor.Buffers.Reset_Global_For_Test;
@@ -1324,7 +1325,7 @@ package body Editor.Buffers.Tests is
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
         (Editor.Commands.Command_Show_Buffer_Label) = "buffers.label.show",
         "show label command stable name must be deterministic");
-      Assert (not Editor.Commands.Is_Destructive_Command (Editor.Commands.Command_Set_Buffer_Label),
+      Assert (not Editor.Commands.Classification.Is_Destructive_Command (Editor.Commands.Command_Set_Buffer_Label),
         "setting a label must not be classified as destructive");
 
       Editor.Buffers.Reset_Global_For_Test;

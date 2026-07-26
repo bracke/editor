@@ -2,6 +2,7 @@ with Ada.Characters.Handling;
 with Ada.Strings;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.Commands.Classification;
 with Editor.Commands.Stable_Names;
 
 package body Editor.Commands.Search_Terms is
@@ -997,7 +998,9 @@ package body Editor.Commands.Search_Terms is
       end if;
 
       for Id in Command_Id loop
-         if Is_Bindable_Command (Id) and then Editor.Commands.Stable_Names.Stable_Command_Name (Id) = N then
+         if Editor.Commands.Classification.Is_Bindable_Command (Id)
+           and then Editor.Commands.Stable_Names.Stable_Command_Name (Id) = N
+         then
             Found := True;
             return Id;
          end if;

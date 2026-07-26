@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptor_Metadata;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Strings.Fixed;
 with Editor.State;
@@ -355,7 +356,7 @@ package body Editor.Diagnostics_Review_UX is
          Result.Build_Producer_Boundary_Is_Clear :=
            Build_Cleared'Length > 0
            and then No_Build'Length > 0
-           and then Editor.Commands.Has_Descriptor
+           and then Editor.Commands.Descriptor_Metadata.Has_Descriptor
              (Editor.Commands.Command_Diagnostics_Clear_Build);
       end;
       Result.Build_UI_Is_Scalar_Only :=

@@ -1,3 +1,5 @@
+with Editor.Commands.Classification;
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
@@ -707,7 +709,7 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
          Assert (Candidate.Id /= Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam,
                  "normal palette must not contain internal build test seam");
       end loop;
-      Assert (not Editor.Commands.Visible_In_Command_Palette
+      Assert (not Editor.Commands.Classification.Visible_In_Command_Palette
                 (Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam),
               "internal build test seam remains hidden from normal palette");
    end Test_Public_Build_Commands_Are_Hidden_From_Normal_Palette;
@@ -1267,7 +1269,7 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
    begin
       Editor.State.Init (S);
       R := Editor.External_Producers.Public_Build.Run_Public_Build_Command_Readiness_Audit (S);
-      Assert (Editor.Commands.Requires_Context
+      Assert (Editor.Commands.Availability_Metadata.Requires_Context
                 (Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam),
               "fixture for route-exists test must be an Executor-routed internal command");
       Assert (Editor.External_Producers.Public_Build.Validate_Public_Build_Command_Promotion (P, R) =

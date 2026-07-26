@@ -1,3 +1,5 @@
+with Editor.Commands.Registry;
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Characters.Handling;
 with Ada.Containers.Vectors;
@@ -264,7 +266,7 @@ package body Editor.Keybinding_Management is
       D : constant Editor.Commands.Descriptors.Command_Descriptor :=
         Editor.Commands.Descriptors.Descriptor (Command);
    begin
-      if not Editor.Commands.Is_Concrete_Command (Command) then
+      if not Editor.Commands.Availability_Metadata.Is_Concrete_Command (Command) then
          return False;
       end if;
 
@@ -354,7 +356,7 @@ package body Editor.Keybinding_Management is
          end if;
       end Visit;
    begin
-      Editor.Commands.For_Each_Command (Visit'Access);
+      Editor.Commands.Registry.For_Each_Command (Visit'Access);
       return Rows;
    end Build_Rows;
 
@@ -719,7 +721,7 @@ package body Editor.Keybinding_Management is
          end if;
       end Visit;
    begin
-      Editor.Commands.For_Each_Command (Visit'Access);
+      Editor.Commands.Registry.For_Each_Command (Visit'Access);
       Result.Chord_Row_Count := Chord_Row_Count;
       declare
          Validation : constant Editor.Keybindings.Keybinding_Validation_Result :=

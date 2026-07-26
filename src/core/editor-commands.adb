@@ -1,10 +1,11 @@
+with Editor.Commands.Registry;
 with Editor.Commands.Audit_Model; use Editor.Commands.Audit_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Strings;
 with Ada.Strings.Fixed;
 with Ada.Characters.Handling;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Commands.Classification;
+with Editor.Commands.Classification; use Editor.Commands.Classification;
 with Editor.Commands.Editing_Ids;
 with Editor.Commands.Navigation_Ids;
 with Editor.Commands.Build_Terminal_Ids;
@@ -702,7 +703,7 @@ package body Editor.Commands is
    begin
       pragma Assert
         (Index <= Palette_Command_Count,
-         "Editor.Commands.Palette_Command_At index out of range");
+         "Editor.Commands.Registry.Palette_Command_At index out of range");
 
       for I in 1 .. Command_Count loop
          Id := Command_At (I);

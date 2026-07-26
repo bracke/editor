@@ -1,3 +1,5 @@
+with Editor.Commands.Classification;
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Audit_Model; use Editor.Commands.Audit_Model;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
@@ -65,9 +67,9 @@ package body Editor.Command_Extension_Readiness.Tests is
          declare
             Id : constant Editor.Commands.Command_Id := Editor.Commands.Command_At (I);
          begin
-            if Editor.Commands.Is_Concrete_Command (Id) then
+            if Editor.Commands.Availability_Metadata.Is_Concrete_Command (Id) then
                Editor.Command_Integration_Checklist.Assert_Ready_For_User_Command (Id);
-               if Editor.Commands.Is_Bindable_Command (Id) then
+               if Editor.Commands.Classification.Is_Bindable_Command (Id) then
                   Editor.Command_Integration_Checklist.Assert_Ready_For_Bindable_Command (Id);
                end if;
 
@@ -300,12 +302,12 @@ package body Editor.Command_Extension_Readiness.Tests is
               "hidden command fixture must remain hidden");
       Assert (D.Bindable,
               "hidden does not imply non-bindable");
-      Assert (Editor.Commands.Is_Bindable_Command
+      Assert (Editor.Commands.Classification.Is_Bindable_Command
                 (Editor.Commands.Command_Insert_Newline),
               "hidden bindable command must be accepted by bindability policy");
-      Assert (not Editor.Commands.Is_Bindable_Command (Editor.Commands.No_Command),
+      Assert (not Editor.Commands.Classification.Is_Bindable_Command (Editor.Commands.No_Command),
               "No_Command must never be bindable");
-      Assert (not Editor.Commands.Is_Concrete_Command (Editor.Commands.No_Command),
+      Assert (not Editor.Commands.Availability_Metadata.Is_Concrete_Command (Editor.Commands.No_Command),
               "No_Command must never be executable as a normal command");
    end Test_Hidden_Command_Policy;
 

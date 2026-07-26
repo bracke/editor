@@ -1,4 +1,5 @@
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
+with Editor.Commands.Classification;
 with Editor.Commands.Build_Terminal_Ids;
 with Editor.Commands.Descriptor_Factory;
 
@@ -29,9 +30,9 @@ package body Editor.Commands.Descriptor_File_Project is
          Visible       => Visibility = Palette_Command,
          Bindable      => Id /= No_Command
            and then not Editor.Commands.Build_Terminal_Ids.Is_Public_Build_Command (Id),
-         Destructive   => Is_Destructive_Command (Id),
-         Lifecycle     => Is_Lifecycle_Command (Id),
-         Configuration => Is_Configuration_Command (Id));
+         Destructive   => Editor.Commands.Classification.Is_Destructive_Command (Id),
+         Lifecycle     => Editor.Commands.Classification.Is_Lifecycle_Command (Id),
+         Configuration => Editor.Commands.Classification.Is_Configuration_Command (Id));
    end Make_Descriptor;
 
    function Descriptor
@@ -57,9 +58,9 @@ package body Editor.Commands.Descriptor_File_Project is
                Category      => File_Category,
                Visible       => True,
                Bindable      => True,
-               Destructive   => Is_Destructive_Command (Id),
-               Lifecycle     => Is_Lifecycle_Command (Id),
-               Configuration => Is_Configuration_Command (Id));
+               Destructive   => Editor.Commands.Classification.Is_Destructive_Command (Id),
+               Lifecycle     => Editor.Commands.Classification.Is_Lifecycle_Command (Id),
+               Configuration => Editor.Commands.Classification.Is_Configuration_Command (Id));
          when Command_Reload_Active_Buffer =>
             return Make_Descriptor
               (Id          => Id,
@@ -76,9 +77,9 @@ package body Editor.Commands.Descriptor_File_Project is
                Category      => File_Category,
                Visible       => True,
                Bindable      => True,
-               Destructive   => Is_Destructive_Command (Id),
-               Lifecycle     => Is_Lifecycle_Command (Id),
-               Configuration => Is_Configuration_Command (Id));
+               Destructive   => Editor.Commands.Classification.Is_Destructive_Command (Id),
+               Lifecycle     => Editor.Commands.Classification.Is_Lifecycle_Command (Id),
+               Configuration => Editor.Commands.Classification.Is_Configuration_Command (Id));
          when Command_File_Conflict_Keep_Buffer =>
             return Descriptor_Factory.Make_Command_Descriptor
               (Id            => Id,
@@ -136,9 +137,9 @@ package body Editor.Commands.Descriptor_File_Project is
                Category      => File_Category,
                Visible       => True,
                Bindable      => True,
-               Destructive   => Is_Destructive_Command (Id),
-               Lifecycle     => Is_Lifecycle_Command (Id),
-               Configuration => Is_Configuration_Command (Id));
+               Destructive   => Editor.Commands.Classification.Is_Destructive_Command (Id),
+               Lifecycle     => Editor.Commands.Classification.Is_Lifecycle_Command (Id),
+               Configuration => Editor.Commands.Classification.Is_Configuration_Command (Id));
          when Command_Delete_Buffer_File =>
             return Descriptor_Factory.Make_Command_Descriptor
               (Id            => Id,
@@ -148,9 +149,9 @@ package body Editor.Commands.Descriptor_File_Project is
                Category      => File_Category,
                Visible       => True,
                Bindable      => True,
-               Destructive   => Is_Destructive_Command (Id),
-               Lifecycle     => Is_Lifecycle_Command (Id),
-               Configuration => Is_Configuration_Command (Id));
+               Destructive   => Editor.Commands.Classification.Is_Destructive_Command (Id),
+               Lifecycle     => Editor.Commands.Classification.Is_Lifecycle_Command (Id),
+               Configuration => Editor.Commands.Classification.Is_Configuration_Command (Id));
          when Command_Copy_Buffer_File =>
             return Descriptor_Factory.Make_Command_Descriptor
               (Id            => Id,
@@ -160,9 +161,9 @@ package body Editor.Commands.Descriptor_File_Project is
                Category      => File_Category,
                Visible       => True,
                Bindable      => True,
-               Destructive   => Is_Destructive_Command (Id),
-               Lifecycle     => Is_Lifecycle_Command (Id),
-               Configuration => Is_Configuration_Command (Id));
+               Destructive   => Editor.Commands.Classification.Is_Destructive_Command (Id),
+               Lifecycle     => Editor.Commands.Classification.Is_Lifecycle_Command (Id),
+               Configuration => Editor.Commands.Classification.Is_Configuration_Command (Id));
          when Command_Close_Quick_Open =>
             return Make_Descriptor
               (Id          => Id,

@@ -1,3 +1,7 @@
+with Editor.Commands.Classification;
+with Editor.Commands.Stable_Names;
+with Editor.Commands.Descriptor_Metadata;
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Audit_Model; use Editor.Commands.Audit_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -24,9 +28,9 @@ package body Editor.Command_Integration_Checklist is
       D       : constant Editor.Commands.Descriptors.Command_Descriptor :=
         Editor.Commands.Descriptors.Descriptor (Id);
    begin
-      Assert (Editor.Commands.Is_Concrete_Command (Id),
+      Assert (Editor.Commands.Availability_Metadata.Is_Concrete_Command (Id),
               Prefix (Id) & "command id is not concrete");
-      Assert (Editor.Commands.Has_Descriptor (Id),
+      Assert (Editor.Commands.Descriptor_Metadata.Has_Descriptor (Id),
               Prefix (Id) & "missing descriptor");
       Assert (Editor.Commands.Audits.Descriptor_Is_Complete (Id),
               Prefix (Id) & "descriptor is incomplete");
@@ -34,7 +38,7 @@ package body Editor.Command_Integration_Checklist is
               Prefix (Id) & "missing user-facing label");
       Assert (Length (D.Description) > 0,
               Prefix (Id) & "missing description");
-      Assert (Editor.Commands.Has_Availability_Handler (Id),
+      Assert (Editor.Commands.Availability_Metadata.Has_Availability_Handler (Id),
               Prefix (Id) & "missing availability handler coverage");
       Editor.Commands.Audits.Audit_Command (Id, Failure, Found);
       Assert (not Found,
@@ -47,9 +51,9 @@ package body Editor.Command_Integration_Checklist is
    is
    begin
       Assert_Ready_For_User_Command (Id);
-      Assert (Editor.Commands.Is_Bindable_Command (Id),
+      Assert (Editor.Commands.Classification.Is_Bindable_Command (Id),
               Prefix (Id) & "command is not bindable");
-      Assert (Editor.Commands.Has_Stable_Name (Id),
+      Assert (Editor.Commands.Stable_Names.Has_Stable_Name (Id),
               Prefix (Id) & "bindable command has no stable command name");
    end Assert_Ready_For_Bindable_Command;
 

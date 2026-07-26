@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptor_Metadata;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -306,14 +307,14 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Found : Boolean := False;
       Id    : Editor.Commands.Command_Id;
    begin
-      Assert (Editor.Commands.Has_Descriptor
+      Assert (Editor.Commands.Descriptor_Metadata.Has_Descriptor
                 (Editor.Commands.Command_Diagnostics_Filter_Errors),
               "filter-errors command has a descriptor");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Commands.Command_Diagnostics_Filter_Errors) =
               "diagnostics.filter-errors",
               "filter-errors uses the canonical stable name");
-      Assert (Editor.Commands.Has_Descriptor
+      Assert (Editor.Commands.Descriptor_Metadata.Has_Descriptor
                 (Editor.Commands.Command_Diagnostics_Filter_Source),
               "filter-source command has a descriptor");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name

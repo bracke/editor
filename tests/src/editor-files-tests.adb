@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptor_Metadata;
 with Editor.Commands.Payloads;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
@@ -1336,7 +1337,7 @@ package body Editor.Files.Tests is
             Assert (Found and then Found_Id = Id,
               "frozen stable command name must resolve to canonical descriptor: " & Name);
             Assert (Desc.Id = Id
-              and then Editor.Commands.Has_Descriptor (Id)
+              and then Editor.Commands.Descriptor_Metadata.Has_Descriptor (Id)
               and then Editor.Commands.Name_Metadata.Stable_Command_Name (Id) = Name
               and then Desc.Category = Editor.Commands.Descriptors.File_Category
               and then Desc.Visibility = Editor.Commands.Descriptors.Palette_Command,

@@ -1,3 +1,4 @@
+with Editor.Commands.Classification;
 with Editor.Commands.Payloads;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions;  use AUnit.Assertions;
@@ -83,14 +84,14 @@ package body Editor.Selection.Tests is
          Editor.Commands.Descriptors.Selection_Category,
          "select-all belongs to the Selection category");
       Assert
-        (Editor.Commands.Is_Bindable_Command (Editor.Commands.Command_Select_All),
+        (Editor.Commands.Classification.Is_Bindable_Command (Editor.Commands.Command_Select_All),
          "select-all must be bindable");
       Assert
-        (Editor.Commands.Is_Bindable_Command
+        (Editor.Commands.Classification.Is_Bindable_Command
            (Editor.Commands.Command_Selection_Clear),
          "clear-selection must be bindable");
       Assert
-        (Editor.Commands.Is_Bindable_Command
+        (Editor.Commands.Classification.Is_Bindable_Command
            (Editor.Commands.Command_Select_Word),
          "canonical select-word command must be bindable");
    end Test_Selection_Command_Descriptors;

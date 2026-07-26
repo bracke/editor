@@ -1,3 +1,4 @@
+with Editor.Commands.Classification;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -2005,40 +2006,40 @@ package body Editor.Bookmarks.Tests is
       Assert (Editor.Commands.Descriptors.Descriptor
                 (Editor.Commands.Command_Bookmark_Next).Category =
               Editor.Commands.Descriptors.Bookmarks_Category, "bookmark commands use bookmark category");
-      Assert (Editor.Commands.Is_Bindable_Command
+      Assert (Editor.Commands.Classification.Is_Bindable_Command
                 (Editor.Commands.Command_Bookmark_Goto_Next),
               "goto next should be bindable");
-      Assert (Editor.Commands.Is_Bindable_Command
+      Assert (Editor.Commands.Classification.Is_Bindable_Command
                 (Editor.Commands.Command_Bookmark_Goto_Previous),
               "goto previous should be bindable");
-      Assert (not Editor.Commands.Is_Destructive_Command
+      Assert (not Editor.Commands.Classification.Is_Destructive_Command
                 (Editor.Commands.Command_Bookmark_Goto_Next),
               "goto next is navigation, not destructive");
-      Assert (not Editor.Commands.Is_Destructive_Command
+      Assert (not Editor.Commands.Classification.Is_Destructive_Command
                 (Editor.Commands.Command_Bookmark_Goto_Previous),
               "goto previous is navigation, not destructive");
-      Assert (Editor.Commands.Is_Bindable_Command
+      Assert (Editor.Commands.Classification.Is_Bindable_Command
                 (Editor.Commands.Command_Bookmark_Toggle_Current_Location),
               "toggle current location should be bindable");
-      Assert (Editor.Commands.Is_Bindable_Command
+      Assert (Editor.Commands.Classification.Is_Bindable_Command
                 (Editor.Commands.Command_Bookmark_Next),
               "surface next should be bindable");
-      Assert (Editor.Commands.Is_Bindable_Command
+      Assert (Editor.Commands.Classification.Is_Bindable_Command
                 (Editor.Commands.Command_Bookmark_Previous),
               "surface previous should be bindable");
-      Assert (Editor.Commands.Is_Bindable_Command
+      Assert (Editor.Commands.Classification.Is_Bindable_Command
                 (Editor.Commands.Command_Bookmark_Open_Selected),
               "open selected should be bindable");
-      Assert (Editor.Commands.Is_Bindable_Command
+      Assert (Editor.Commands.Classification.Is_Bindable_Command
                 (Editor.Commands.Command_Bookmark_Reveal_Current),
               "reveal current should be bindable");
-      Assert (Editor.Commands.Is_Bindable_Command
+      Assert (Editor.Commands.Classification.Is_Bindable_Command
                 (Editor.Commands.Command_Bookmark_Remove_Selected),
               "remove selected should be bindable");
-      Assert (Editor.Commands.Is_Bindable_Command
+      Assert (Editor.Commands.Classification.Is_Bindable_Command
                 (Editor.Commands.Command_Bookmark_Clear_All),
               "clear all should be bindable");
-      Assert (Editor.Commands.Is_Bindable_Command
+      Assert (Editor.Commands.Classification.Is_Bindable_Command
                 (Editor.Commands.Command_Bookmark_Toggle),
               "bookmark surface toggle should be bindable");
    end Stable_Command_Names;

@@ -1,3 +1,8 @@
+with Editor.Commands.Registry;
+with Editor.Commands.Classification;
+with Editor.Commands.Stable_Names;
+with Editor.Commands.Descriptor_Metadata;
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
@@ -109,7 +114,7 @@ package body Editor.Command_Surface.Tests is
 
       procedure Check (Id : Editor.Commands.Command_Id; Label : String) is
       begin
-         Assert (not Editor.Commands.Requires_Context (Id),
+         Assert (not Editor.Commands.Availability_Metadata.Requires_Context (Id),
                  Label & " must not require structured command context");
       end Check;
    begin
@@ -123,7 +128,7 @@ package body Editor.Command_Surface.Tests is
              "select next recent project");
       Check (Editor.Commands.Command_Select_Previous_Recent_Project,
              "select previous recent project");
-      Assert (Editor.Commands.Requires_Context (Editor.Commands.Command_Open_Project),
+      Assert (Editor.Commands.Availability_Metadata.Requires_Context (Editor.Commands.Command_Open_Project),
               "plain project.open remains the explicit path-payload command");
    end Test_Recent_Project_Selected_Row_Commands_Are_No_Payload;
 
@@ -133,7 +138,7 @@ package body Editor.Command_Surface.Tests is
       D : Editor.Commands.Descriptors.Command_Descriptor;
    begin
       Assert
-        (not Editor.Commands.Is_Concrete_Command (Editor.Commands.No_Command),
+        (not Editor.Commands.Availability_Metadata.Is_Concrete_Command (Editor.Commands.No_Command),
          "No_Command must not be concrete");
 
       Assert
@@ -156,7 +161,7 @@ package body Editor.Command_Surface.Tests is
             "descriptor must satisfy command-surface completeness policy for " &
             Editor.Commands.Descriptors.Label (D.Id));
 
-         if Editor.Commands.Is_Concrete_Command (D.Id) then
+         if Editor.Commands.Availability_Metadata.Is_Concrete_Command (D.Id) then
             Assert
               (Length (D.Name) > 0,
                "concrete commands must have a stable label");
@@ -177,7 +182,7 @@ package body Editor.Command_Surface.Tests is
       for Candidate of Candidates loop
          D := Editor.Commands.Descriptors.Descriptor (Candidate.Id);
          Assert
-           (Editor.Commands.Visible_In_Command_Palette (Candidate.Id),
+           (Editor.Commands.Classification.Visible_In_Command_Palette (Candidate.Id),
             "palette candidate must originate from visible command registry");
          Assert
            (To_String (Candidate.Label) = To_String (D.Name),
@@ -240,22 +245,22 @@ package body Editor.Command_Surface.Tests is
       Id : Editor.Commands.Command_Id;
       D  : Editor.Commands.Descriptors.Command_Descriptor;
    begin
-      Assert (Editor.Commands.First_Command = Editor.Commands.Command_Id'First,
+      Assert (Editor.Commands.Registry.First_Command = Editor.Commands.Command_Id'First,
               "First_Command must match enumeration first value");
-      Assert (Editor.Commands.Last_Command = Editor.Commands.Command_Id'Last,
+      Assert (Editor.Commands.Registry.Last_Command = Editor.Commands.Command_Id'Last,
               "Last_Command must match enumeration last value");
 
       for I in 1 .. Editor.Commands.Command_Count loop
          Id := Editor.Commands.Command_At (I);
          D := Editor.Commands.Descriptors.Descriptor (Id);
 
-         Assert (Editor.Commands.Is_Valid_Command (Id),
+         Assert (Editor.Commands.Registry.Is_Valid_Command (Id),
                  "all iterated Command_Id values must be valid");
          Assert (D.Id = Id,
                  "descriptor id must match iterated command id");
 
-         if Editor.Commands.Is_Concrete_Command (Id) then
-            Assert (Editor.Commands.Has_Stable_User_Label (Id),
+         if Editor.Commands.Availability_Metadata.Is_Concrete_Command (Id) then
+            Assert (Editor.Commands.Descriptor_Metadata.Has_Stable_User_Label (Id),
                     "concrete command must have stable user label: " & Editor.Commands.Command_Id'Image (Id));
             Assert (To_String (D.Name) = Trimmed (To_String (D.Name)),
                     "command label must be trimmed: " & Editor.Commands.Command_Id'Image (Id));
@@ -265,7 +270,7 @@ package body Editor.Command_Surface.Tests is
                     "command label must not be a surface entry: " & Editor.Commands.Command_Id'Image (Id));
          end if;
 
-         if Editor.Commands.Visible_In_Command_Palette (Id) then
+         if Editor.Commands.Classification.Visible_In_Command_Palette (Id) then
             Assert (To_String (D.Description) = Trimmed (To_String (D.Description)),
                     "palette description must be trimmed: " & Editor.Commands.Command_Id'Image (Id));
             Assert (D.Category /= Editor.Commands.Descriptors.Internal_Category,
@@ -475,11 +480,11 @@ package body Editor.Command_Surface.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
    begin
-      Assert (not Editor.Commands.Visible_In_Command_Palette (Editor.Commands.Command_Move_Left),
+      Assert (not Editor.Commands.Classification.Visible_In_Command_Palette (Editor.Commands.Command_Move_Left),
               "raw movement commands must remain hidden from palette");
       Assert (Editor.Commands.Audits.Descriptor_Is_Complete (Editor.Commands.Command_Move_Left),
               "hidden commands must still have complete descriptors");
-      Assert (Editor.Commands.Has_Stable_User_Label (Editor.Commands.Command_Move_Left),
+      Assert (Editor.Commands.Descriptor_Metadata.Has_Stable_User_Label (Editor.Commands.Command_Move_Left),
               "hidden commands must still have stable labels");
    end Test_Hidden_Command_Behavior;
 
@@ -508,8 +513,8 @@ package body Editor.Command_Surface.Tests is
       pragma Unreferenced (T);
       D : Editor.Commands.Descriptors.Command_Descriptor;
    begin
-      Assert (not Editor.Commands.Has_Descriptor (Editor.Commands.No_Command)
-              or else not Editor.Commands.Is_Concrete_Command (Editor.Commands.No_Command),
+      Assert (not Editor.Commands.Descriptor_Metadata.Has_Descriptor (Editor.Commands.No_Command)
+              or else not Editor.Commands.Availability_Metadata.Is_Concrete_Command (Editor.Commands.No_Command),
               "No_Command may have sentinel metadata only");
 
       for I in 1 .. Editor.Commands.Command_Count loop
@@ -518,26 +523,26 @@ package body Editor.Command_Surface.Tests is
          begin
             D := Editor.Commands.Descriptors.Descriptor (Id);
             Assert (D.Id = Id, "descriptor id mismatch for " & Editor.Commands.Command_Id'Image (Id));
-            Assert (Editor.Commands.Has_Descriptor (Id),
+            Assert (Editor.Commands.Descriptor_Metadata.Has_Descriptor (Id),
                     "every command id must have registry metadata");
 
-            if Editor.Commands.Is_Concrete_Command (Id) then
+            if Editor.Commands.Availability_Metadata.Is_Concrete_Command (Id) then
                Assert (Editor.Commands.Audits.Descriptor_Is_Complete (Id),
                        "concrete descriptor must be complete: " & Editor.Commands.Command_Id'Image (Id));
                Assert (Length (D.Name) > 0, "concrete command must have label");
                Assert (Length (D.Description) > 0,
                        "concrete command must have description: " & Editor.Commands.Command_Id'Image (Id));
-               Assert (Editor.Commands.Has_Availability_Handler (Id),
+               Assert (Editor.Commands.Availability_Metadata.Has_Availability_Handler (Id),
                        "concrete command must have an availability handler: " &
                        Editor.Commands.Command_Id'Image (Id));
-               Assert (D.Bindable = Editor.Commands.Is_Bindable_Command (Id),
+               Assert (D.Bindable = Editor.Commands.Classification.Is_Bindable_Command (Id),
                        "descriptor bindable flag must mirror helper");
-               Assert (D.Destructive = Editor.Commands.Is_Destructive_Command (Id),
+               Assert (D.Destructive = Editor.Commands.Classification.Is_Destructive_Command (Id),
                        "descriptor destructive flag must mirror helper: " &
                        Editor.Commands.Command_Id'Image (Id));
-               Assert (D.Lifecycle = Editor.Commands.Is_Lifecycle_Command (Id),
+               Assert (D.Lifecycle = Editor.Commands.Classification.Is_Lifecycle_Command (Id),
                        "descriptor lifecycle flag must mirror helper");
-               Assert (D.Configuration = Editor.Commands.Is_Configuration_Command (Id),
+               Assert (D.Configuration = Editor.Commands.Classification.Is_Configuration_Command (Id),
                        "descriptor configuration flag must mirror helper");
             end if;
          end;
@@ -551,9 +556,9 @@ package body Editor.Command_Surface.Tests is
       Found : Boolean := False;
       Round : Editor.Commands.Command_Id;
    begin
-      Assert (not Editor.Commands.Is_Bindable_Command (Editor.Commands.No_Command),
+      Assert (not Editor.Commands.Classification.Is_Bindable_Command (Editor.Commands.No_Command),
               "No_Command must not be bindable");
-      Assert (not Editor.Commands.Has_Stable_Name (Editor.Commands.No_Command),
+      Assert (not Editor.Commands.Stable_Names.Has_Stable_Name (Editor.Commands.No_Command),
               "No_Command must not advertise a persisted binding name");
 
       for I in 1 .. Editor.Commands.Command_Count loop
@@ -561,8 +566,8 @@ package body Editor.Command_Surface.Tests is
             Id   : constant Editor.Commands.Command_Id := Editor.Commands.Command_At (I);
             Name : constant String := Editor.Commands.Name_Metadata.Stable_Command_Name (Id);
          begin
-            if Editor.Commands.Is_Bindable_Command (Id) then
-               Assert (Editor.Commands.Has_Stable_Name (Id),
+            if Editor.Commands.Classification.Is_Bindable_Command (Id) then
+               Assert (Editor.Commands.Stable_Names.Has_Stable_Name (Id),
                        "bindable command must have stable name: " & Editor.Commands.Command_Id'Image (Id));
                Assert (Is_Lower_Kebab_Name (Name),
                        "stable command name must be lowercase kebab-case: " & Name);
@@ -581,25 +586,25 @@ package body Editor.Command_Surface.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
    begin
-      Assert (Editor.Commands.Is_Destructive_Command (Editor.Commands.Command_Clear_Workspace_State),
+      Assert (Editor.Commands.Classification.Is_Destructive_Command (Editor.Commands.Command_Clear_Workspace_State),
               "clear workspace state must be destructive");
-      Assert (Editor.Commands.Is_Destructive_Command (Editor.Commands.Command_Clear_Recent_Projects),
+      Assert (Editor.Commands.Classification.Is_Destructive_Command (Editor.Commands.Command_Clear_Recent_Projects),
               "clear recent projects must be destructive");
-      Assert (Editor.Commands.Is_Destructive_Command (Editor.Commands.Command_Reset_Settings_To_Defaults),
+      Assert (Editor.Commands.Classification.Is_Destructive_Command (Editor.Commands.Command_Reset_Settings_To_Defaults),
               "reset settings must be destructive");
-      Assert (Editor.Commands.Is_Destructive_Command (Editor.Commands.Command_Keybindings_Reset_To_Defaults),
+      Assert (Editor.Commands.Classification.Is_Destructive_Command (Editor.Commands.Command_Keybindings_Reset_To_Defaults),
               "reset keybindings must be destructive");
-      Assert (Editor.Commands.Is_Lifecycle_Command (Editor.Commands.Command_Open_Project),
+      Assert (Editor.Commands.Classification.Is_Lifecycle_Command (Editor.Commands.Command_Open_Project),
               "open project must be a lifecycle command");
-      Assert (Editor.Commands.Is_Lifecycle_Command (Editor.Commands.Command_Save_Workspace_State),
+      Assert (Editor.Commands.Classification.Is_Lifecycle_Command (Editor.Commands.Command_Save_Workspace_State),
               "save workspace state must be a lifecycle command");
-      Assert (Editor.Commands.Is_Configuration_Command (Editor.Commands.Command_Save_Settings),
+      Assert (Editor.Commands.Classification.Is_Configuration_Command (Editor.Commands.Command_Save_Settings),
               "save settings must be a configuration command");
-      Assert (Editor.Commands.Is_Configuration_Command (Editor.Commands.Command_Save_Keybindings),
+      Assert (Editor.Commands.Classification.Is_Configuration_Command (Editor.Commands.Command_Save_Keybindings),
               "save keybindings must be a configuration command");
-      Assert (not Editor.Commands.Is_Configuration_Command (Editor.Commands.Command_Save_File),
+      Assert (not Editor.Commands.Classification.Is_Configuration_Command (Editor.Commands.Command_Save_File),
               "file-content save must not be a configuration command");
-      Assert (not Editor.Commands.Is_Configuration_Command (Editor.Commands.Command_Save_Workspace_State),
+      Assert (not Editor.Commands.Classification.Is_Configuration_Command (Editor.Commands.Command_Save_Workspace_State),
               "workspace save must not be a configuration command");
    end Test_Command_Classification_Invariants;
 
@@ -978,31 +983,31 @@ package body Editor.Command_Surface.Tests is
 
       Assert (Editor.Commands.Project_File_Ids.Is_Workspace_Structural_Save_Command (Editor.Commands.Command_Save_Workspace_State),
               "Save Workspace State must be classified as workspace-structural-save");
-      Assert (Editor.Commands.Is_Global_Settings_Save_Command (Editor.Commands.Command_Save_Settings),
+      Assert (Editor.Commands.Classification.Is_Global_Settings_Save_Command (Editor.Commands.Command_Save_Settings),
               "Save Settings must be classified as global-settings-save");
-      Assert (Editor.Commands.Is_Global_Keybindings_Save_Command (Editor.Commands.Command_Save_Keybindings),
+      Assert (Editor.Commands.Classification.Is_Global_Keybindings_Save_Command (Editor.Commands.Command_Save_Keybindings),
               "Save Keybindings must be classified as global-keybindings-save");
 
       Assert (Editor.Commands.Navigation_Ids.Is_Navigation_Command (Editor.Commands.Command_Move_Left),
               "Move Left must be classified as navigation");
-      Assert (Editor.Commands.Is_Search_Command (Editor.Commands.Command_Active_Find_Next),
+      Assert (Editor.Commands.Classification.Is_Search_Command (Editor.Commands.Command_Active_Find_Next),
               "Find Next must be classified as search");
-      Assert (Editor.Commands.Is_Search_Command (Editor.Commands.Command_Replace_All),
+      Assert (Editor.Commands.Classification.Is_Search_Command (Editor.Commands.Command_Replace_All),
               "Replace All must be classified as search");
       Assert (Editor.Commands.Editing_Ids.Is_Editing_Command (Editor.Commands.Command_Replace_Current),
               "Replace Current must be classified as text-editing");
-      Assert (Editor.Commands.Requires_Context (Editor.Commands.Command_Replace_Current),
+      Assert (Editor.Commands.Availability_Metadata.Requires_Context (Editor.Commands.Command_Replace_Current),
               "Replace Current must require active-buffer/find context");
-      Assert (Editor.Commands.Requires_Context (Editor.Commands.Command_Replace_Text_Set),
+      Assert (Editor.Commands.Availability_Metadata.Requires_Context (Editor.Commands.Command_Replace_Text_Set),
               "Replace Text Set must require prompt/payload context");
-      Assert (Editor.Commands.Is_Panel_Focus_Command (Editor.Commands.Command_Focus_Problems),
+      Assert (Editor.Commands.Classification.Is_Panel_Focus_Command (Editor.Commands.Command_Focus_Problems),
               "Focus Problems must be classified as panel-focus");
       Assert (Editor.Commands.Editing_Ids.Is_Editing_Command (Editor.Commands.Command_Insert_Newline),
               "Insert Newline must be classified as text-editing");
 
-      Assert (not Editor.Commands.Is_Configuration_Command (Editor.Commands.Command_Save_File),
+      Assert (not Editor.Commands.Classification.Is_Configuration_Command (Editor.Commands.Command_Save_File),
               "file-content saving must remain separate from configuration");
-      Assert (not Editor.Commands.Is_Lifecycle_Command (Editor.Commands.Command_Save_Settings),
+      Assert (not Editor.Commands.Classification.Is_Lifecycle_Command (Editor.Commands.Command_Save_Settings),
               "settings saving must remain separate from lifecycle");
    end Test_Command_Classification_Groups;
 
@@ -1018,16 +1023,16 @@ package body Editor.Command_Surface.Tests is
          Id := Editor.Commands.Command_At (I);
          D := Editor.Commands.Descriptors.Descriptor (Id);
 
-         Assert (Editor.Commands.Has_Descriptor (Id),
+         Assert (Editor.Commands.Descriptor_Metadata.Has_Descriptor (Id),
                  "command registry baseline missing descriptor for " &
                  Editor.Commands.Command_Id'Image (Id));
 
-         if Editor.Commands.Is_Concrete_Command (Id) then
+         if Editor.Commands.Availability_Metadata.Is_Concrete_Command (Id) then
             Assert (Length (D.Name) > 0,
                     "concrete command missing label: " & Editor.Commands.Command_Id'Image (Id));
             Assert (Length (D.Description) > 0,
                     "concrete command missing description: " & Editor.Commands.Command_Id'Image (Id));
-            Assert (Editor.Commands.Has_Availability_Handler (Id),
+            Assert (Editor.Commands.Availability_Metadata.Has_Availability_Handler (Id),
                     "concrete command missing availability handler marker: " &
                     Editor.Commands.Command_Id'Image (Id));
             Assert (Editor.Commands.Audits.Descriptor_Is_Complete (Id),
@@ -1035,8 +1040,8 @@ package body Editor.Command_Surface.Tests is
                     Editor.Commands.Command_Id'Image (Id));
          end if;
 
-         if Editor.Commands.Is_Bindable_Command (Id) then
-            Assert (Editor.Commands.Has_Stable_Name (Id),
+         if Editor.Commands.Classification.Is_Bindable_Command (Id) then
+            Assert (Editor.Commands.Stable_Names.Has_Stable_Name (Id),
                     "bindable command missing stable name: " &
                     Editor.Commands.Command_Id'Image (Id));
             Other := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
@@ -1048,7 +1053,7 @@ package body Editor.Command_Surface.Tests is
             if I < Editor.Commands.Command_Count then
                for J in I + 1 .. Editor.Commands.Command_Count loop
                   Other := Editor.Commands.Command_At (J);
-                  if Editor.Commands.Is_Bindable_Command (Other) then
+                  if Editor.Commands.Classification.Is_Bindable_Command (Other) then
                      Assert (Editor.Commands.Name_Metadata.Stable_Command_Name (Id) /=
                                Editor.Commands.Name_Metadata.Stable_Command_Name (Other),
                              "duplicate stable command name between " &
@@ -1059,7 +1064,7 @@ package body Editor.Command_Surface.Tests is
             end if;
          end if;
 
-         if Editor.Commands.Visible_In_Command_Palette (Id) then
+         if Editor.Commands.Classification.Visible_In_Command_Palette (Id) then
             Assert (D.Category /= Editor.Commands.Descriptors.Internal_Category,
                     "visible command must not use Internal category: " &
                     Editor.Commands.Command_Id'Image (Id));
@@ -1594,7 +1599,7 @@ package body Editor.Command_Surface.Tests is
    begin
       for Id of Product_Commands loop
          D := Editor.Commands.Descriptors.Descriptor (Id);
-         Assert (Editor.Commands.Has_Descriptor (Id),
+         Assert (Editor.Commands.Descriptor_Metadata.Has_Descriptor (Id),
                  "product command has descriptor");
          Assert (To_String (D.Name)'Length > 0,
                  "product command label is present");
@@ -1624,7 +1629,7 @@ package body Editor.Command_Surface.Tests is
                 (Editor.Commands.Command_Switch_Project) = "project.switch",
               "project.switch command id remains canonical");
 
-      for Id in Editor.Commands.First_Command .. Editor.Commands.Last_Command loop
+      for Id in Editor.Commands.Registry.First_Command .. Editor.Commands.Registry.Last_Command loop
          D := Editor.Commands.Descriptors.Descriptor (Id);
          if D.Visibility = Editor.Commands.Descriptors.Palette_Command then
             Assert
@@ -1671,7 +1676,7 @@ package body Editor.Command_Surface.Tests is
       Editor.State.Init (S);
       Editor.Keybindings.Reset_To_Defaults;
       Review := Editor.Command_Surface.Review_Command_Surface (S);
-      Assert (Review.Descriptor_Count = Editor.Commands.Concrete_Command_Count,
+      Assert (Review.Descriptor_Count = Editor.Commands.Registry.Concrete_Command_Count,
               "review must count concrete command descriptors");
       Assert (Review.Review_Passed,
               Editor.Command_Surface.Build_Command_Surface_Review_Feedback (Review));
@@ -1740,7 +1745,7 @@ package body Editor.Command_Surface.Tests is
       Editor.Keybindings.Reset_To_Defaults;
       Before_Messages := Editor.Messages.Count (S.Messages);
       Before_Has_Buffer := Editor.State.Has_Active_Buffer (S);
-      Before_Palette_Count := Editor.Commands.Palette_Command_Count;
+      Before_Palette_Count := Editor.Commands.Registry.Palette_Command_Count;
       Before_Build_Manifest := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Regression_Manifest (S);
 
       Review_A := Editor.Command_Surface.Review_Command_Surface (S);
@@ -1753,7 +1758,7 @@ package body Editor.Command_Surface.Tests is
               "command surface review must not emit messages");
       Assert (Editor.State.Has_Active_Buffer (S) = Before_Has_Buffer,
               "command surface review must not create or alter active buffers");
-      Assert (Editor.Commands.Palette_Command_Count = Before_Palette_Count,
+      Assert (Editor.Commands.Registry.Palette_Command_Count = Before_Palette_Count,
               "command surface review must not alter palette-visible descriptor count");
       Assert (Before_Build_Manifest = After_Build_Manifest,
               "command surface review must not alter public-build regression manifest state");
@@ -1772,7 +1777,7 @@ package body Editor.Command_Surface.Tests is
             Id : constant Editor.Commands.Command_Id := Editor.Commands.Command_At (I);
             Name : constant String := Editor.Commands.Name_Metadata.Stable_Command_Name (Id);
          begin
-            if Editor.Commands.Is_Concrete_Command (Id) then
+            if Editor.Commands.Availability_Metadata.Is_Concrete_Command (Id) then
                Round := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
                Assert (Found and then Round = Id,
                        "stable command id must resolve back to its descriptor: " & Name);

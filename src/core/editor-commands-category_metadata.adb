@@ -1,5 +1,6 @@
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.Commands.Classification;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Commands.Editing_Ids;
 with Editor.Commands.Navigation_Ids;
@@ -105,22 +106,22 @@ package body Editor.Commands.Category_Metadata is
          Result := Result & Text;
       end Add;
    begin
-      if Is_Destructive_Command (Id) then
+      if Editor.Commands.Classification.Is_Destructive_Command (Id) then
          Add ("destructive");
       end if;
-      if Is_Lifecycle_Command (Id) then
+      if Editor.Commands.Classification.Is_Lifecycle_Command (Id) then
          Add ("lifecycle");
       end if;
-      if Is_Configuration_Command (Id) then
+      if Editor.Commands.Classification.Is_Configuration_Command (Id) then
          Add ("configuration");
       end if;
       if Editor.Commands.Navigation_Ids.Is_Navigation_Command (Id) then
          Add ("navigation");
       end if;
-      if Is_Search_Command (Id) then
+      if Editor.Commands.Classification.Is_Search_Command (Id) then
          Add ("search");
       end if;
-      if Is_Panel_Focus_Command (Id) then
+      if Editor.Commands.Classification.Is_Panel_Focus_Command (Id) then
          Add ("panel");
       end if;
       if Editor.Commands.Editing_Ids.Is_Editing_Command (Id) then
@@ -131,7 +132,7 @@ package body Editor.Commands.Category_Metadata is
       then
          Add ("internal");
       end if;
-      if not Is_Bindable_Command (Id) then
+      if not Editor.Commands.Classification.Is_Bindable_Command (Id) then
          Add ("non-bindable");
       end if;
       if Length (Result) = 0 then
@@ -199,16 +200,16 @@ package body Editor.Commands.Category_Metadata is
          Result := Result & Text;
       end Add;
    begin
-      if Is_Destructive_Command (Id) then
+      if Editor.Commands.Classification.Is_Destructive_Command (Id) then
          Add ("confirmation and dirty-file protection retained");
       end if;
-      if Is_Lifecycle_Command (Id) then
+      if Editor.Commands.Classification.Is_Lifecycle_Command (Id) then
          Add ("project/file safety protection retained");
       end if;
-      if Is_Configuration_Command (Id) then
+      if Editor.Commands.Classification.Is_Configuration_Command (Id) then
          Add ("configuration safety check retained");
       end if;
-      if not Is_Bindable_Command (Id) then
+      if not Editor.Commands.Classification.Is_Bindable_Command (Id) then
          Add ("not keybindable");
       end if;
       if Length (Result) = 0 then

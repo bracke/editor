@@ -1,3 +1,5 @@
+with Editor.Commands.Classification;
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
@@ -607,7 +609,7 @@ package body Editor.Command_Surface.Build_Surface_Tests is
               "user opt-in build test-seam command is hidden from normal palette");
       Assert (not D.Bindable,
               "user opt-in build test-seam command has no default keybinding target");
-      Assert (Editor.Commands.Requires_Context
+      Assert (Editor.Commands.Availability_Metadata.Requires_Context
                 (Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam),
               "user opt-in build test-seam command requires structured context");
    end Test_User_Opt_In_Build_Command_Is_Internal;
@@ -711,7 +713,7 @@ package body Editor.Command_Surface.Build_Surface_Tests is
                     "internal build test seam must remain internal/test-only");
             Assert (not D.Bindable,
                     "internal build test seam must not be bindable by default");
-            Assert (not Editor.Commands.Visible_In_Command_Palette (Id),
+            Assert (not Editor.Commands.Classification.Visible_In_Command_Palette (Id),
                     "normal command palette must exclude internal build test seam");
             Assert (not Editor.Keybindings.Primary_Binding_For_Command (Id).Has_Binding,
                     "internal build test seam must not have a default keybinding");
@@ -821,10 +823,10 @@ package body Editor.Command_Surface.Build_Surface_Tests is
               "internal test seam near-miss id must remain stable");
       Assert (not Editor.External_Producers.Public_Build.Is_Public_Build_Surface_Id (Test_Seam_Id),
               "internal test seam must not canonicalize to a public build id");
-      Assert (not Editor.Commands.Is_Bindable_Command
+      Assert (not Editor.Commands.Classification.Is_Bindable_Command
                 (Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam),
               "internal build test seam must remain non-bindable");
-      Assert (not Editor.Commands.Visible_In_Command_Palette
+      Assert (not Editor.Commands.Classification.Visible_In_Command_Palette
                 (Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam),
               "internal build test seam must remain excluded from normal palette");
    end Test_Command_Surface_Near_Miss_Public_Build_Id_Remains_Safe;

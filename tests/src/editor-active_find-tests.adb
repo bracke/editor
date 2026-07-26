@@ -1,3 +1,4 @@
+with Editor.Commands.Classification;
 with Editor.Commands.Payloads;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -113,7 +114,7 @@ package body Editor.Active_Find.Tests is
         (Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Find_First).Bindable
          and then Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Find_Last).Bindable
          and then Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Find_Reveal_Current).Bindable
-         and then Editor.Commands.Is_Search_Command (Editor.Commands.Command_Find_Reveal_Current)
+         and then Editor.Commands.Classification.Is_Search_Command (Editor.Commands.Command_Find_Reveal_Current)
          and then Editor.Commands.Navigation_Ids.Is_Navigation_Command (Editor.Commands.Command_Find_First)
          and then Editor.Commands.Navigation_Ids.Is_Navigation_Command (Editor.Commands.Command_Find_Last)
          and then not Editor.Commands.Navigation_Ids.Is_Navigation_Command

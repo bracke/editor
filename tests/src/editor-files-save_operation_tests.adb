@@ -1,3 +1,4 @@
+with Editor.Commands.Classification;
 with Editor.Commands.Payloads;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
@@ -1065,7 +1066,7 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
            Editor.Commands.Descriptors.File_Category,
          "active-buffer save must remain a File command");
       Assert
-        (Editor.Commands.Is_Bindable_Command (Editor.Commands.Command_Save_File),
+        (Editor.Commands.Classification.Is_Bindable_Command (Editor.Commands.Command_Save_File),
          "active-buffer save must be bindable");
       Assert
         (Editor.Commands.Descriptors.Descriptor (Editor.Commands.Command_Save_File).Visibility =

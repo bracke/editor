@@ -1,3 +1,4 @@
+with Editor.Commands.Classification;
 with Editor.Commands.Payloads;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
@@ -340,12 +341,12 @@ package body Editor.Command_Palette.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
    begin
-      Assert (Editor.Commands.Visible_In_Command_Palette
+      Assert (Editor.Commands.Classification.Visible_In_Command_Palette
                 (Editor.Commands.Command_Save_File),
               "Save File should be palette-visible through descriptor metadata");
       Assert (Palette_Contains (Editor.Commands.Command_Save_File),
               "Palette candidates must include palette-visible Save File");
-      Assert (not Editor.Commands.Visible_In_Command_Palette
+      Assert (not Editor.Commands.Classification.Visible_In_Command_Palette
                 (Editor.Commands.Command_Move_Left),
               "Raw movement commands should be hidden from the palette");
       Assert (not Palette_Contains (Editor.Commands.Command_Move_Left),
@@ -2649,7 +2650,7 @@ package body Editor.Command_Palette.Tests is
       Assert (Editor.Commands.Audits.Has_Discoverability_Metadata
                 (Editor.Commands.Command_Build_Run),
               "Build Run must have complete discoverability metadata");
-      Assert (not Editor.Commands.Visible_In_Command_Palette
+      Assert (not Editor.Commands.Classification.Visible_In_Command_Palette
                 (Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam),
               "Internal build test-seam commands must stay hidden from normal palette discovery");
    end Test_Discoverability_Metadata_Audit;
@@ -3085,7 +3086,7 @@ package body Editor.Command_Palette.Tests is
       Assert (Editor.Commands.Audits.Has_Discoverability_Metadata
                 (Editor.Commands.Command_Open_Command_Palette),
               "Hidden command descriptors may be minimal but must retain stable audit identity");
-      Assert (not Editor.Commands.Visible_In_Command_Palette
+      Assert (not Editor.Commands.Classification.Visible_In_Command_Palette
                 (Editor.Commands.Command_Open_Command_Palette),
               "Hidden command descriptors must not leak into normal palette discovery");
       Assert (Editor.Commands.Audits.Command_Discoverability_Coherent,

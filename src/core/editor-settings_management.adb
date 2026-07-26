@@ -1,3 +1,4 @@
+with Editor.Commands.Classification;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Characters.Handling;
 with Ada.Directories;
@@ -1877,7 +1878,7 @@ package body Editor.Settings_Management is
                if D.Category /= Editor.Commands.Descriptors.Settings_Category then
                   Result.Wrong_Category_Count := Result.Wrong_Category_Count + 1;
                end if;
-               if not Editor.Commands.Is_Configuration_Command (Id) then
+               if not Editor.Commands.Classification.Is_Configuration_Command (Id) then
                   Result.Non_Configuration_Count := Result.Non_Configuration_Count + 1;
                end if;
                if D.Requires_Explicit_Target or else D.Target_Prompt_Capable
@@ -1885,7 +1886,7 @@ package body Editor.Settings_Management is
                then
                   Result.Payload_Capable_Count := Result.Payload_Capable_Count + 1;
                end if;
-               if not Editor.Commands.Visible_In_Command_Palette (Id) then
+               if not Editor.Commands.Classification.Visible_In_Command_Palette (Id) then
                   Result.Hidden_Command_Count := Result.Hidden_Command_Count + 1;
                end if;
             end;
@@ -2040,7 +2041,7 @@ package body Editor.Settings_Management is
                if D.Requires_Explicit_Target
                  or else D.Target_Prompt_Capable
                  or else To_String (D.Target_Prompt_Label)'Length /= 0
-                 or else not Editor.Commands.Visible_In_Command_Palette (Id)
+                 or else not Editor.Commands.Classification.Visible_In_Command_Palette (Id)
                then
                   return False;
                end if;

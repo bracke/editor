@@ -1,3 +1,5 @@
+with Editor.Commands.Classification;
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Characters.Handling;
 with Ada.Strings.Fixed;
@@ -122,8 +124,8 @@ package body Editor.Build_Diagnostics_Review is
         Editor.Commands.Descriptors.Descriptor (Id);
    begin
       return Editor.Commands.Name_Metadata.Stable_Command_Name (Id) = Name
-        and then Editor.Commands.Has_Availability_Handler (Id)
-        and then Editor.Commands.Is_Bindable_Command (Id)
+        and then Editor.Commands.Availability_Metadata.Has_Availability_Handler (Id)
+        and then Editor.Commands.Classification.Is_Bindable_Command (Id)
         and then Descriptor.Category = Editor.Commands.Descriptors.Panel_Category;
    end Diagnostics_Command_Route_Passes;
 

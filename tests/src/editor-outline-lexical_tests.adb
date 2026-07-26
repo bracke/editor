@@ -1,3 +1,4 @@
+with Editor.Commands.Classification;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with Ada.Characters.Handling;
@@ -615,9 +616,9 @@ package body Editor.Outline.Lexical_Tests is
          Name := To_Unbounded_String (Editor.Commands.Name_Metadata.Stable_Command_Name (Id));
          Assert (D.Id = Id,
                  "descriptor keeps canonical outline command id");
-         Assert (Editor.Commands.Is_Visible_In_Palette (Id),
+         Assert (Editor.Commands.Classification.Is_Visible_In_Palette (Id),
                  "outline command remains palette-visible without scanner payload");
-         Assert (Editor.Commands.Is_Bindable_Command (Id),
+         Assert (Editor.Commands.Classification.Is_Bindable_Command (Id),
                  "outline command remains keybinding-addressable by command id only");
          Assert (not Contains_Lexical_State_Term (To_String (Name)),
                  "stable command name carries no lexical scanner payload");

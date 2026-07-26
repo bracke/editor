@@ -1,3 +1,4 @@
+with Editor.Commands.Availability_Metadata;
 with Editor.Buffer_Switcher.Rows;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
@@ -35,7 +36,7 @@ package body Editor.Command_Route_Audit is
    is
    begin
       Result.Routes := Result.Routes + 1;
-      if not Editor.Commands.Is_Concrete_Command (Command) then
+      if not Editor.Commands.Availability_Metadata.Is_Concrete_Command (Command) then
          Record_Route_Failure
            (Result   => Result,
             Source   => Source,
@@ -454,7 +455,7 @@ package body Editor.Command_Route_Audit is
       Descriptor : Editor.Commands.Descriptors.Command_Descriptor)
    is
       Stable_Name : constant String :=
-        (if Editor.Commands.Is_Concrete_Command (Descriptor.Id)
+        (if Editor.Commands.Availability_Metadata.Is_Concrete_Command (Descriptor.Id)
          then Editor.Commands.Name_Metadata.Stable_Command_Name (Descriptor.Id)
          else "");
    begin
@@ -518,7 +519,7 @@ package body Editor.Command_Route_Audit is
          if Found then
             Candidate := Editor.Command_Palette.Candidate (Snapshot, Candidate_Index);
             Record_Route (Result, Route_From_Command_Palette, Candidate.Id);
-            if Editor.Commands.Is_Concrete_Command (Candidate.Id) then
+            if Editor.Commands.Availability_Metadata.Is_Concrete_Command (Candidate.Id) then
                Reject_If_Buffer_Payload_Text
                  (Result, Route_From_Command_Palette, Candidate.Id,
                   Editor.Commands.Name_Metadata.Stable_Command_Name (Candidate.Id),
@@ -556,7 +557,7 @@ package body Editor.Command_Route_Audit is
       for I in 1 .. Editor.Keybindings.Bound_Command_Count loop
          Command := Editor.Keybindings.Bound_Command_At (I);
          Record_Route (Result, Route_From_Keybinding, Command);
-         if Editor.Commands.Is_Concrete_Command (Command) then
+         if Editor.Commands.Availability_Metadata.Is_Concrete_Command (Command) then
             Reject_If_Buffer_Payload_Text
               (Result, Route_From_Keybinding, Command,
                Editor.Commands.Name_Metadata.Stable_Command_Name (Command),
@@ -644,7 +645,7 @@ package body Editor.Command_Route_Audit is
    begin
       for I in 1 .. Editor.Commands.Command_Count loop
          Command := Editor.Commands.Command_At (I);
-         if Editor.Commands.Is_Concrete_Command (Command) then
+         if Editor.Commands.Availability_Metadata.Is_Concrete_Command (Command) then
             Inspect_Command_Descriptor_No_Buffer_Payload
               (Result, Route_From_Command_Palette,
                Editor.Commands.Descriptors.Descriptor (Command));

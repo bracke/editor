@@ -1,3 +1,4 @@
+with Editor.Commands.Classification;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -1494,7 +1495,7 @@ procedure Test_Canonical_Line_Comment_Path_And_Persistence_Exclusion
          Editor.Commands.Descriptors.Edit_Category,
          "trim trailing whitespace must be an Edit command");
       Assert
-        (Editor.Commands.Is_Bindable_Command
+        (Editor.Commands.Classification.Is_Bindable_Command
            (Editor.Commands.Command_Trim_Trailing_Whitespace),
          "trim trailing whitespace must be bindable");
       Assert
@@ -1512,7 +1513,7 @@ procedure Test_Canonical_Line_Comment_Path_And_Persistence_Exclusion
          Editor.Commands.Descriptors.Edit_Category,
          "format buffer must be an Edit command");
       Assert
-        (Editor.Commands.Is_Bindable_Command
+        (Editor.Commands.Classification.Is_Bindable_Command
            (Editor.Commands.Command_Format_Buffer),
          "format buffer must be bindable");
       Assert
@@ -1530,7 +1531,7 @@ procedure Test_Canonical_Line_Comment_Path_And_Persistence_Exclusion
          Editor.Commands.Descriptors.Edit_Category,
          "format selection must be an Edit command");
       Assert
-        (Editor.Commands.Is_Bindable_Command
+        (Editor.Commands.Classification.Is_Bindable_Command
            (Editor.Commands.Command_Format_Selected_Text),
          "format selection must be bindable");
       Assert
@@ -1963,19 +1964,19 @@ procedure Test_Canonical_Line_Comment_Path_And_Persistence_Exclusion
          Editor.Commands.Descriptors.Edit_Category,
          "indent decrease must be an Edit command");
       Assert
-        (Editor.Commands.Is_Bindable_Command
+        (Editor.Commands.Classification.Is_Bindable_Command
            (Editor.Commands.Command_Indent_Increase),
          "indent increase must be bindable");
       Assert
-        (Editor.Commands.Is_Bindable_Command
+        (Editor.Commands.Classification.Is_Bindable_Command
            (Editor.Commands.Command_Indent_Decrease),
          "indent decrease must be bindable");
       Assert
-        (Editor.Commands.Visible_In_Command_Palette
+        (Editor.Commands.Classification.Visible_In_Command_Palette
            (Editor.Commands.Command_Indent_Increase),
          "indent increase must be command-palette visible");
       Assert
-        (Editor.Commands.Visible_In_Command_Palette
+        (Editor.Commands.Classification.Visible_In_Command_Palette
            (Editor.Commands.Command_Indent_Decrease),
          "indent decrease must be command-palette visible");
       Assert

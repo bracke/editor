@@ -1,4 +1,5 @@
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
+with Editor.Commands.Classification;
 with Editor.Commands.Build_Terminal_Ids;
 with Editor.Commands.Descriptor_Factory;
 
@@ -29,9 +30,9 @@ package body Editor.Commands.Descriptor_Semantic_Panels is
          Visible       => Visibility = Palette_Command,
          Bindable      => Id /= No_Command
            and then not Editor.Commands.Build_Terminal_Ids.Is_Public_Build_Command (Id),
-         Destructive   => Is_Destructive_Command (Id),
-         Lifecycle     => Is_Lifecycle_Command (Id),
-         Configuration => Is_Configuration_Command (Id));
+         Destructive   => Editor.Commands.Classification.Is_Destructive_Command (Id),
+         Lifecycle     => Editor.Commands.Classification.Is_Lifecycle_Command (Id),
+         Configuration => Editor.Commands.Classification.Is_Configuration_Command (Id));
    end Make_Descriptor;
 
    function Descriptor

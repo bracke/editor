@@ -1,3 +1,6 @@
+with Editor.Commands.Classification;
+with Editor.Commands.Stable_Names;
+with Editor.Commands.Availability_Metadata;
 with Ada.Strings.Fixed;
 
 with Editor.Command_Surface;
@@ -223,9 +226,9 @@ package body Editor.Diagnostics_Audit is
         (Id : Editor.Commands.Command_Id) return Boolean
       is
       begin
-         return Editor.Commands.Has_Stable_Name (Id)
-           and then Editor.Commands.Has_Availability_Handler (Id)
-           and then Editor.Commands.Is_Bindable_Command (Id);
+         return Editor.Commands.Stable_Names.Has_Stable_Name (Id)
+           and then Editor.Commands.Availability_Metadata.Has_Availability_Handler (Id)
+           and then Editor.Commands.Classification.Is_Bindable_Command (Id);
       end Command_Route_Passes;
    begin
       return Editor.Commands.Name_Metadata.Stable_Command_Name

@@ -1,3 +1,6 @@
+with Editor.Commands.Classification;
+with Editor.Commands.Descriptor_Metadata;
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
@@ -212,11 +215,11 @@ package body Editor.Feature_Integration is
          Editor.Commands.Command_Feature_Panel_Open_Selected);
    begin
       for Id of Feature_Commands loop
-         if not Editor.Commands.Has_Descriptor (Id) then
+         if not Editor.Commands.Descriptor_Metadata.Has_Descriptor (Id) then
             Add_Failure (Result, Id, "Feature_Panel: missing descriptor");
          end if;
 
-         if not Editor.Commands.Has_Availability_Handler (Id) then
+         if not Editor.Commands.Availability_Metadata.Has_Availability_Handler (Id) then
             Add_Failure (Result, Id, "Feature_Panel: missing availability handler");
          end if;
 
@@ -261,11 +264,11 @@ package body Editor.Feature_Integration is
          Editor.Commands.Command_Select_Previous_Outline_Item);
    begin
       for Id of Outline_Commands loop
-         if not Editor.Commands.Has_Descriptor (Id) then
+         if not Editor.Commands.Descriptor_Metadata.Has_Descriptor (Id) then
             Add_Failure (Result, Id, "Outline: missing descriptor");
          end if;
 
-         if not Editor.Commands.Has_Availability_Handler (Id) then
+         if not Editor.Commands.Availability_Metadata.Has_Availability_Handler (Id) then
             Add_Failure (Result, Id, "Outline: missing availability handler");
          end if;
 
@@ -280,9 +283,9 @@ package body Editor.Feature_Integration is
             Add_Failure (Result, Id, "Outline: command must remain in Panels category");
          end if;
 
-         if Editor.Commands.Is_Configuration_Command (Id)
-           or else Editor.Commands.Is_Lifecycle_Command (Id)
-           or else Editor.Commands.Is_Destructive_Command (Id)
+         if Editor.Commands.Classification.Is_Configuration_Command (Id)
+           or else Editor.Commands.Classification.Is_Lifecycle_Command (Id)
+           or else Editor.Commands.Classification.Is_Destructive_Command (Id)
          then
             Add_Failure
               (Result, Id,

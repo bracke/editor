@@ -1,3 +1,5 @@
+with Editor.Commands.Descriptor_Metadata;
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -118,7 +120,7 @@ package body Editor.Quick_Open.Tests is
       Found : Boolean := False;
       Back  : Editor.Commands.Command_Id := Editor.Commands.No_Command;
    begin
-      Assert (Editor.Commands.Has_Descriptor (Id),
+      Assert (Editor.Commands.Descriptor_Metadata.Has_Descriptor (Id),
               Stable_Name & " must have descriptor metadata");
       Assert (D.Id = Id,
               Stable_Name & " descriptor id must match inventory id");
@@ -139,7 +141,7 @@ package body Editor.Quick_Open.Tests is
               Stable_Name & " configuration classification drifted");
       Assert (D.Destructive = Destructive,
               Stable_Name & " destructive classification drifted");
-      Assert (Editor.Commands.Has_Availability_Handler (Id),
+      Assert (Editor.Commands.Availability_Metadata.Has_Availability_Handler (Id),
               Stable_Name & " must have Executor availability coverage");
       Assert (Palette_Contains (Id) = (Visibility = Editor.Commands.Descriptors.Palette_Command),
               Stable_Name & " palette projection must follow descriptor visibility");
@@ -1975,11 +1977,11 @@ package body Editor.Quick_Open.Tests is
    begin
       for I in Editor.Commands.Command_Id loop
          if I /= Editor.Commands.Command_Id'Last
-           and then Editor.Commands.Is_Concrete_Command (I)
+           and then Editor.Commands.Availability_Metadata.Is_Concrete_Command (I)
          then
             Name_I := To_Unbounded_String (Editor.Commands.Name_Metadata.Stable_Command_Name (I));
             for J in Editor.Commands.Command_Id'Succ (I) .. Editor.Commands.Command_Id'Last loop
-               if Editor.Commands.Is_Concrete_Command (J) then
+               if Editor.Commands.Availability_Metadata.Is_Concrete_Command (J) then
                   Name_J := To_Unbounded_String (Editor.Commands.Name_Metadata.Stable_Command_Name (J));
                   Assert (Name_I /= Name_J,
                           "duplicate stable command name: " & To_String (Name_I));

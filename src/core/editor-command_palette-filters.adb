@@ -1,3 +1,4 @@
+with Editor.Commands.Classification;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Commands;
 with Editor.Commands.Descriptors;
@@ -115,7 +116,7 @@ package body Editor.Command_Palette.Filters is
       end if;
 
       if Destructive_Filter_State
-        and then not Editor.Commands.Is_Destructive_Command (Candidate.Id)
+        and then not Editor.Commands.Classification.Is_Destructive_Command (Candidate.Id)
       then
          return False;
       end if;
@@ -156,7 +157,7 @@ package body Editor.Command_Palette.Filters is
       end if;
 
       if Destructive_Filter_State
-        and then not Editor.Commands.Is_Destructive_Command (Descriptor.Id)
+        and then not Editor.Commands.Classification.Is_Destructive_Command (Descriptor.Id)
       then
          return False;
       end if;

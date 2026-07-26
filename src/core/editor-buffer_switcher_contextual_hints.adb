@@ -1,3 +1,6 @@
+with Editor.Commands.Classification;
+with Editor.Commands.Descriptor_Metadata;
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Buffer_Switcher;
@@ -23,10 +26,10 @@ package body Editor.Buffer_Switcher_Contextual_Hints is
       Id : Editor.Commands.Command_Id) return Boolean
    is
    begin
-      return Editor.Commands.Has_Descriptor (Id)
-        and then Editor.Commands.Has_Availability_Handler (Id)
-        and then (Editor.Commands.Is_Visible_In_Palette (Id)
-                  or else Editor.Commands.Is_Bindable_Command (Id))
+      return Editor.Commands.Descriptor_Metadata.Has_Descriptor (Id)
+        and then Editor.Commands.Availability_Metadata.Has_Availability_Handler (Id)
+        and then (Editor.Commands.Classification.Is_Visible_In_Palette (Id)
+                  or else Editor.Commands.Classification.Is_Bindable_Command (Id))
         and then Editor.Commands.Is_Available
           (Editor.Executor.Command_Availability (S, Id));
    end Hint_Command_Available;
@@ -38,7 +41,7 @@ package body Editor.Buffer_Switcher_Contextual_Hints is
       Info : Editor.Keybindings.Command_Keybinding_Info;
    begin
       if not Show_Keybindings
-        or else not Editor.Commands.Is_Bindable_Command (Id)
+        or else not Editor.Commands.Classification.Is_Bindable_Command (Id)
       then
          return "";
       end if;
@@ -63,10 +66,10 @@ package body Editor.Buffer_Switcher_Contextual_Hints is
    begin
       if Natural (Hints.Length) >= Max_Hints
         or else Id = Editor.Commands.No_Command
-        or else not Editor.Commands.Has_Descriptor (Id)
-        or else not Editor.Commands.Has_Availability_Handler (Id)
-        or else (not Editor.Commands.Is_Visible_In_Palette (Id)
-                 and then not Editor.Commands.Is_Bindable_Command (Id))
+        or else not Editor.Commands.Descriptor_Metadata.Has_Descriptor (Id)
+        or else not Editor.Commands.Availability_Metadata.Has_Availability_Handler (Id)
+        or else (not Editor.Commands.Classification.Is_Visible_In_Palette (Id)
+                 and then not Editor.Commands.Classification.Is_Bindable_Command (Id))
       then
          return;
       end if;

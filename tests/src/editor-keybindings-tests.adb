@@ -1,3 +1,4 @@
+with Editor.Commands.Classification;
 with Editor.Commands.Payloads;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
@@ -388,7 +389,7 @@ package body Editor.Keybindings.Tests is
         (Seen,
          "Palette should project canonical Save As after target acquisition is canonical");
       Assert
-        (Editor.Commands.Is_Bindable_Command (Editor.Commands.Command_Save_File_As),
+        (Editor.Commands.Classification.Is_Bindable_Command (Editor.Commands.Command_Save_File_As),
          "Save As should be bindable after target acquisition is canonical");
    end Test_Palette_And_Keybindings_Share_Command_Id;
 
@@ -647,10 +648,10 @@ package body Editor.Keybindings.Tests is
         (not Found and then Id = Editor.Commands.No_Command,
          "legacy project.quick-open.open-selected keybinding name is not loadable");
       Assert
-        (Editor.Commands.Is_Bindable_Command (Editor.Commands.Command_Save_Keybindings),
+        (Editor.Commands.Classification.Is_Bindable_Command (Editor.Commands.Command_Save_Keybindings),
          "keybinding commands must be bindable concrete commands");
       Assert
-        (not Editor.Commands.Is_Bindable_Command (Editor.Commands.No_Command),
+        (not Editor.Commands.Classification.Is_Bindable_Command (Editor.Commands.No_Command),
          "No_Command must not be bindable");
    end Test_Stable_Command_Name_Roundtrip;
 
@@ -662,11 +663,11 @@ package body Editor.Keybindings.Tests is
       Round : Editor.Commands.Command_Id;
    begin
       Assert
-        (not Editor.Commands.Is_Bindable_Command (Editor.Commands.No_Command),
+        (not Editor.Commands.Classification.Is_Bindable_Command (Editor.Commands.No_Command),
          "No_Command must remain unbindable");
 
       for Id in Editor.Commands.Command_Id loop
-         if Editor.Commands.Is_Bindable_Command (Id) then
+         if Editor.Commands.Classification.Is_Bindable_Command (Id) then
             declare
                Name : constant String := Editor.Commands.Name_Metadata.Stable_Command_Name (Id);
             begin
@@ -686,7 +687,7 @@ package body Editor.Keybindings.Tests is
                   "Stable command names must round-trip: " & Name);
 
                for Other in Editor.Commands.Command_Id loop
-                  if Other /= Id and then Editor.Commands.Is_Bindable_Command (Other) then
+                  if Other /= Id and then Editor.Commands.Classification.Is_Bindable_Command (Other) then
                      Assert
                        (Editor.Commands.Name_Metadata.Stable_Command_Name (Other) /= Name,
                         "Stable command names must be unique: " & Name);
@@ -1056,11 +1057,11 @@ package body Editor.Keybindings.Tests is
       Name   : Unbounded_String;
    begin
       Assert
-        (not Editor.Commands.Is_Bindable_Command (Editor.Commands.No_Command),
+        (not Editor.Commands.Classification.Is_Bindable_Command (Editor.Commands.No_Command),
          "No_Command must never be bindable");
 
       for Id in Editor.Commands.Command_Id loop
-         if Editor.Commands.Is_Bindable_Command (Id) then
+         if Editor.Commands.Classification.Is_Bindable_Command (Id) then
             Name := To_Unbounded_String (Editor.Commands.Name_Metadata.Stable_Command_Name (Id));
             Assert (Length (Name) > 0, "Bindable command lacks stable name");
             Assert
@@ -1252,7 +1253,7 @@ package body Editor.Keybindings.Tests is
       for I in 1 .. Editor.Keybindings.Bound_Command_Count loop
          Id := Editor.Keybindings.Bound_Command_At (I);
          Assert
-           (Editor.Commands.Is_Bindable_Command (Id),
+           (Editor.Commands.Classification.Is_Bindable_Command (Id),
             "bound display must only list bindable commands");
          Assert
            (not Editor.Commands.Build_Terminal_Ids.Is_Public_Build_Command (Id),

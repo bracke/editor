@@ -1,3 +1,4 @@
+with Editor.Commands.Classification;
 with Editor.Commands.Payloads;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -881,19 +882,19 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
          Editor.Commands.Descriptors.Edit_Category,
          "indent decrease must be an Edit command");
       Assert
-        (Editor.Commands.Is_Bindable_Command
+        (Editor.Commands.Classification.Is_Bindable_Command
            (Editor.Commands.Command_Indent_Increase),
          "indent increase must be bindable");
       Assert
-        (Editor.Commands.Is_Bindable_Command
+        (Editor.Commands.Classification.Is_Bindable_Command
            (Editor.Commands.Command_Indent_Decrease),
          "indent decrease must be bindable");
       Assert
-        (Editor.Commands.Visible_In_Command_Palette
+        (Editor.Commands.Classification.Visible_In_Command_Palette
            (Editor.Commands.Command_Indent_Increase),
          "indent increase must be command-palette visible");
       Assert
-        (Editor.Commands.Visible_In_Command_Palette
+        (Editor.Commands.Classification.Visible_In_Command_Palette
            (Editor.Commands.Command_Indent_Decrease),
          "indent decrease must be command-palette visible");
       Assert
@@ -1136,27 +1137,27 @@ procedure Test_Line_Comment_Command_Descriptors
          Editor.Commands.Descriptors.Edit_Category,
          "toggle-line-comment must be an Edit command");
       Assert
-        (Editor.Commands.Is_Bindable_Command
+        (Editor.Commands.Classification.Is_Bindable_Command
            (Editor.Commands.Command_Comment_Line),
          "comment-line must be bindable");
       Assert
-        (Editor.Commands.Is_Bindable_Command
+        (Editor.Commands.Classification.Is_Bindable_Command
            (Editor.Commands.Command_Uncomment_Line),
          "uncomment-line must be bindable");
       Assert
-        (Editor.Commands.Is_Bindable_Command
+        (Editor.Commands.Classification.Is_Bindable_Command
            (Editor.Commands.Command_Toggle_Line_Comment),
          "toggle-line-comment must be bindable");
       Assert
-        (Editor.Commands.Visible_In_Command_Palette
+        (Editor.Commands.Classification.Visible_In_Command_Palette
            (Editor.Commands.Command_Comment_Line),
          "comment-line must be command-palette visible");
       Assert
-        (Editor.Commands.Visible_In_Command_Palette
+        (Editor.Commands.Classification.Visible_In_Command_Palette
            (Editor.Commands.Command_Uncomment_Line),
          "uncomment-line must be command-palette visible");
       Assert
-        (Editor.Commands.Visible_In_Command_Palette
+        (Editor.Commands.Classification.Visible_In_Command_Palette
            (Editor.Commands.Command_Toggle_Line_Comment),
          "toggle-line-comment must be command-palette visible");
       Assert
@@ -1589,7 +1590,7 @@ procedure Test_Line_Comment_Command_Descriptors
          Editor.Commands.Descriptors.Edit_Category,
          "join-next must be an Edit command");
       Assert
-        (Editor.Commands.Is_Bindable_Command
+        (Editor.Commands.Classification.Is_Bindable_Command
            (Editor.Commands.Command_Line_Join_Next),
          "join-next must be bindable");
       Assert
@@ -1636,7 +1637,7 @@ procedure Test_Line_Comment_Command_Descriptors
       Assert (Desc.Visibility = Editor.Commands.Descriptors.Palette_Command,
               "split must be visible in the Command Palette");
       Assert
-        (Editor.Commands.Is_Bindable_Command
+        (Editor.Commands.Classification.Is_Bindable_Command
            (Editor.Commands.Command_Line_Split_At_Caret),
          "split must be bindable");
       Cmd := Editor.Commands.Payloads.Command_For_Id
@@ -1713,9 +1714,9 @@ procedure Test_Line_Comment_Command_Descriptors
          Editor.Commands.Descriptors.Palette_Command,
          "next-word delete must be palette visible");
       Assert
-        (Editor.Commands.Is_Bindable_Command
+        (Editor.Commands.Classification.Is_Bindable_Command
            (Editor.Commands.Command_Word_Delete_Previous)
-         and then Editor.Commands.Is_Bindable_Command
+         and then Editor.Commands.Classification.Is_Bindable_Command
            (Editor.Commands.Command_Word_Delete_Next),
          "word delete commands must be bindable");
 
@@ -1919,12 +1920,12 @@ procedure Test_Line_Comment_Command_Descriptors
          Editor.Commands.Descriptors.Edit_Category,
          "previous-character delete must be an Edit command");
       Assert
-        (Editor.Commands.Visible_In_Command_Palette
+        (Editor.Commands.Classification.Visible_In_Command_Palette
            (Editor.Commands.Command_Char_Delete_Next),
          "next-character delete must be palette visible");
       Assert
-        (Editor.Commands.Is_Bindable_Command (Editor.Commands.Command_Char_Delete_Previous)
-         and then Editor.Commands.Is_Bindable_Command (Editor.Commands.Command_Char_Delete_Next),
+        (Editor.Commands.Classification.Is_Bindable_Command (Editor.Commands.Command_Char_Delete_Previous)
+         and then Editor.Commands.Classification.Is_Bindable_Command (Editor.Commands.Command_Char_Delete_Next),
          "Character Delete commands must be bindable");
       Assert
         (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
@@ -1973,7 +1974,7 @@ procedure Test_Line_Comment_Command_Descriptors
         (D.Visibility = Editor.Commands.Descriptors.Palette_Command,
          "selection delete must be command-palette visible");
       Assert
-        (Editor.Commands.Is_Bindable_Command
+        (Editor.Commands.Classification.Is_Bindable_Command
            (Editor.Commands.Command_Selection_Delete),
          "selection delete must be bindable");
       Assert
@@ -2036,19 +2037,19 @@ procedure Test_Line_Comment_Command_Descriptors
          Editor.Commands.Descriptors.Edit_Category,
          "line delete must be an Edit command");
       Assert
-        (Editor.Commands.Is_Bindable_Command
+        (Editor.Commands.Classification.Is_Bindable_Command
            (Editor.Commands.Command_Line_Delete),
          "line delete must be bindable");
       Assert
-        (Editor.Commands.Is_Bindable_Command
+        (Editor.Commands.Classification.Is_Bindable_Command
            (Editor.Commands.Command_Line_Duplicate),
          "line duplicate must be bindable");
       Assert
-        (Editor.Commands.Is_Bindable_Command
+        (Editor.Commands.Classification.Is_Bindable_Command
            (Editor.Commands.Command_Line_Move_Up),
          "line move-up must be bindable");
       Assert
-        (Editor.Commands.Is_Bindable_Command
+        (Editor.Commands.Classification.Is_Bindable_Command
            (Editor.Commands.Command_Line_Move_Down),
          "line move-down must be bindable");
    end Test_Command_Descriptors;

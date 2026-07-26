@@ -1,3 +1,5 @@
+with Editor.Commands.Classification;
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Containers;
 with Ada.Strings; use Ada.Strings;
@@ -700,9 +702,9 @@ package body Editor.External_Producers.Build_Runner_Audits is
         D.Category = Editor.Commands.Descriptors.Internal_Category
         and then D.Visibility = Editor.Commands.Descriptors.Hidden_Command
         and then not D.Bindable
-        and then Editor.Commands.Requires_Context
+        and then Editor.Commands.Availability_Metadata.Requires_Context
           (Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam)
-        and then not Editor.Commands.Visible_In_Command_Palette
+        and then not Editor.Commands.Classification.Visible_In_Command_Palette
           (Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam);
       Result.Internal_Command_Requires_Provenance :=
         Validate_User_Opt_In_Build_Command_Context

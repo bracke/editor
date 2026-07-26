@@ -1,3 +1,4 @@
+with Editor.Commands.Classification;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Command_Surface;
 with Editor.Commands;
@@ -58,12 +59,12 @@ package body Editor.Search_Results_Audit is
       return Editor.Commands.Name_Metadata.Stable_Command_Name
           (Editor.Commands.Command_Search_Results_Search_Active_Buffer) =
             "search-results-search-active-buffer"
-        and then Editor.Commands.Is_Bindable_Command
+        and then Editor.Commands.Classification.Is_Bindable_Command
           (Editor.Commands.Command_Search_Results_Search_Active_Buffer)
         and then Editor.Commands.Name_Metadata.Stable_Command_Name
           (Editor.Commands.Command_Search_Results_Repeat_Active_Buffer) =
             "search-results-repeat-active-buffer"
-        and then Editor.Commands.Is_Bindable_Command
+        and then Editor.Commands.Classification.Is_Bindable_Command
           (Editor.Commands.Command_Search_Results_Repeat_Active_Buffer)
         and then Editor.Commands.Name_Metadata.Stable_Command_Name
           (Editor.Commands.Command_Search_Results_Focus_Query) =

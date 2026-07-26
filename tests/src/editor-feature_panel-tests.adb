@@ -1,3 +1,5 @@
+with Editor.Commands.Classification;
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
@@ -108,7 +110,7 @@ package body Editor.Feature_Panel.Tests is
       Assert (Editor.Commands.Descriptors.Category (Editor.Commands.Command_Toggle_Feature_Panel) =
                 Editor.Commands.Descriptors.Panel_Category,
               "toggle feature panel must be in Panels category");
-      Assert (Editor.Commands.Is_Visible_In_Palette
+      Assert (Editor.Commands.Classification.Is_Visible_In_Palette
                 (Editor.Commands.Command_Toggle_Feature_Panel),
               "toggle feature panel is command-palette visible");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
@@ -603,7 +605,7 @@ package body Editor.Feature_Panel.Tests is
          Assert (D.Id = Id, "feature-panel descriptor id must match");
          Assert (D.Category = Editor.Commands.Descriptors.Panel_Category,
                  "feature-panel command category policy is frozen");
-         Assert (Editor.Commands.Has_Availability_Handler (Id),
+         Assert (Editor.Commands.Availability_Metadata.Has_Availability_Handler (Id),
                  "feature-panel command must have availability handler");
          Assert (Editor.Commands.Name_Metadata.Stable_Command_Name (Id)'Length > 0,
                  "feature-panel stable name must exist");
@@ -622,7 +624,7 @@ package body Editor.Feature_Panel.Tests is
          Assert (not Removed_Found and then Removed_Id = Editor.Commands.No_Command,
                  "removed placeholder population command is removed");
       end;
-      Assert (Editor.Commands.Is_Bindable_Command
+      Assert (Editor.Commands.Classification.Is_Bindable_Command
                 (Editor.Commands.Command_Toggle_Feature_Panel),
               "toggle feature panel remains explicitly bindable");
       Editor.Keybindings.Reset_To_Defaults;
@@ -1283,25 +1285,25 @@ package body Editor.Feature_Panel.Tests is
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
         (Editor.Commands.Command_Show_Messages) = "show-messages",
         "messages.show stable command id remains kebab-case");
-      Assert (Editor.Commands.Is_Visible_In_Palette
+      Assert (Editor.Commands.Classification.Is_Visible_In_Palette
         (Editor.Commands.Command_Show_Messages),
         "messages.show is command-palette visible");
-      Assert (Editor.Commands.Is_Visible_In_Palette
+      Assert (Editor.Commands.Classification.Is_Visible_In_Palette
         (Editor.Commands.Command_Clear_Messages),
         "messages.clear is command-palette visible");
-      Assert (Editor.Commands.Is_Visible_In_Palette
+      Assert (Editor.Commands.Classification.Is_Visible_In_Palette
         (Editor.Commands.Command_Toggle_Message_Info),
         "messages.toggle-info is command-palette visible");
-      Assert (Editor.Commands.Is_Visible_In_Palette
+      Assert (Editor.Commands.Classification.Is_Visible_In_Palette
         (Editor.Commands.Command_Toggle_Message_Warnings),
         "messages.toggle-warnings is command-palette visible");
-      Assert (Editor.Commands.Is_Visible_In_Palette
+      Assert (Editor.Commands.Classification.Is_Visible_In_Palette
         (Editor.Commands.Command_Toggle_Message_Errors),
         "messages.toggle-errors is command-palette visible");
-      Assert (Editor.Commands.Is_Visible_In_Palette
+      Assert (Editor.Commands.Classification.Is_Visible_In_Palette
         (Editor.Commands.Command_Show_All_Messages),
         "messages.show-all is command-palette visible");
-      Assert (Editor.Commands.Is_Visible_In_Palette
+      Assert (Editor.Commands.Classification.Is_Visible_In_Palette
         (Editor.Commands.Command_Clear_Message_Filter),
         "messages.clear-filter is command-palette visible");
       Editor.Keybindings.Reset_To_Defaults;

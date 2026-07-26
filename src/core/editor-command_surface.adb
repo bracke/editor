@@ -1,3 +1,6 @@
+with Editor.Commands.Registry;
+with Editor.Commands.Classification;
+with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Containers;
 with Ada.Strings;
@@ -57,7 +60,7 @@ package body Editor.Command_Surface is
               Editor.Commands.Command_At (I);
             Name : constant String := Editor.Commands.Name_Metadata.Stable_Command_Name (Id);
          begin
-            if Editor.Commands.Is_Concrete_Command (Id) then
+            if Editor.Commands.Availability_Metadata.Is_Concrete_Command (Id) then
                if not Name_Is_Lower_Kebab (Name) then
                   return False;
                end if;
@@ -126,7 +129,7 @@ package body Editor.Command_Surface is
          Id := Editor.Commands.Command_At (I);
          D := Editor.Commands.Descriptors.Descriptor (Id);
 
-         if Editor.Commands.Visible_In_Command_Palette (Id) /=
+         if Editor.Commands.Classification.Visible_In_Command_Palette (Id) /=
             (D.Visibility = Editor.Commands.Descriptors.Palette_Command)
          then
             return False;
@@ -150,7 +153,7 @@ package body Editor.Command_Surface is
       for I in 1 .. Editor.Commands.Command_Count loop
          Id := Editor.Commands.Command_At (I);
          D := Editor.Commands.Descriptors.Descriptor (Id);
-         if D.Bindable /= Editor.Commands.Is_Bindable_Command (Id) then
+         if D.Bindable /= Editor.Commands.Classification.Is_Bindable_Command (Id) then
             return False;
          end if;
 
@@ -177,8 +180,8 @@ package body Editor.Command_Surface is
    begin
       for I in 1 .. Editor.Commands.Command_Count loop
          Id := Editor.Commands.Command_At (I);
-         if Editor.Commands.Is_Concrete_Command (Id)
-           and then not Editor.Commands.Has_Availability_Handler (Id)
+         if Editor.Commands.Availability_Metadata.Is_Concrete_Command (Id)
+           and then not Editor.Commands.Availability_Metadata.Has_Availability_Handler (Id)
          then
             return False;
          end if;
@@ -206,7 +209,7 @@ package body Editor.Command_Surface is
          end if;
 
          if not Editor.Commands.Is_Available (A)
-           and then Editor.Commands.Is_Concrete_Command (Id)
+           and then Editor.Commands.Availability_Metadata.Is_Concrete_Command (Id)
            and then To_String (A.Reason)'Length = 0
          then
             return False;
@@ -223,12 +226,12 @@ package body Editor.Command_Surface is
       use type Editor.Commands.Descriptors.Command_Category;
       use type Editor.Commands.Command_Id;
    begin
-      if Natural (Palette.Length) /= Editor.Commands.Palette_Command_Count then
+      if Natural (Palette.Length) /= Editor.Commands.Registry.Palette_Command_Count then
          return False;
       end if;
 
       for D of Palette loop
-         if not Editor.Commands.Visible_In_Command_Palette (D.Id)
+         if not Editor.Commands.Classification.Visible_In_Command_Palette (D.Id)
            or else D.Category = Editor.Commands.Descriptors.Internal_Category
            or else Editor.Commands.Build_Terminal_Ids.Is_Internal_Build_Test_Seam_Command (D.Id)
            or else Seen (D.Id)
@@ -242,7 +245,7 @@ package body Editor.Command_Surface is
          declare
             Id : constant Editor.Commands.Command_Id := Editor.Commands.Command_At (I);
          begin
-            if Editor.Commands.Visible_In_Command_Palette (Id) /= Seen (Id) then
+            if Editor.Commands.Classification.Visible_In_Command_Palette (Id) /= Seen (Id) then
                return False;
             end if;
          end;
@@ -267,7 +270,7 @@ package body Editor.Command_Surface is
             Id : constant Editor.Commands.Command_Id := Editor.Commands.Command_At (I);
          begin
             if Editor.Keybindings.Binding_Count_For_Command (Id) > 0
-              and then not Editor.Commands.Is_Bindable_Command (Id)
+              and then not Editor.Commands.Classification.Is_Bindable_Command (Id)
             then
                return False;
             end if;
@@ -306,7 +309,7 @@ package body Editor.Command_Surface is
             .Build_Public_Build_Guardrail_Regression_Manifest (State);
       Review : Command_Surface_Review;
    begin
-      Review.Descriptor_Count := Editor.Commands.Concrete_Command_Count;
+      Review.Descriptor_Count := Editor.Commands.Registry.Concrete_Command_Count;
       Review.Stable_Ids_Unique := Stable_Ids_Are_Unique;
       Review.Display_Names_Present := Display_Names_Are_Present
         and then Descriptors_Are_Complete;

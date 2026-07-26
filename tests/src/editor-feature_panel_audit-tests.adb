@@ -1,3 +1,4 @@
+with Editor.Commands.Descriptor_Metadata;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Editor.Commands;
@@ -443,10 +444,10 @@ package body Editor.Feature_Panel_Audit.Tests is
       Editor.State.Init (S);
       Assert_Audit_Passed ("before workspace close metadata check");
       Editor.Feature_Panel_Controller.Reset_All_Features_For_Workspace_Close (S);
-      Assert (Editor.Commands.Has_Descriptor
+      Assert (Editor.Commands.Descriptor_Metadata.Has_Descriptor
                 (Editor.Commands.Command_Feature_Panel_Open_Selected),
               "workspace close preserves generic command descriptor");
-      Assert (Editor.Commands.Has_Descriptor
+      Assert (Editor.Commands.Descriptor_Metadata.Has_Descriptor
                 (Editor.Commands.Command_Diagnostics_Show),
               "workspace close preserves Diagnostics command descriptor");
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
