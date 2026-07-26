@@ -3,6 +3,7 @@ with Ada.Strings.Unbounded;
 with Editor.Buffer_Types;
 use type Editor.Buffer_Types.Buffer_Id;
 with Editor.History;
+with Editor.State_Buffer;
 limited with Editor.State;
 with Editor.View_Types;
 with Editor.Dirty_Guards;
@@ -17,7 +18,7 @@ package Editor.Buffers is
      (Index_Type   => Natural,
       Element_Type => Buffer_Id);
 
-   subtype File_Identity is Editor.State.File_State;
+   subtype File_Identity is Editor.State_Buffer.File_State;
    subtype Buffer_State is Editor.State.State_Type;
 
    type Buffer_Registry is private;

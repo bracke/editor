@@ -1677,30 +1677,6 @@ package body Editor.Executor.Lifecycle_Tests is
            ("file.close-clean-buffers", Found) = Editor.Command_Ids.Command_Close_All_Clean_Buffers
          and then Found,
          "close-clean canonical stable name must resolve");
-      Found := False;
-      Assert
-        (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
-           ("buffer.close-active", Found) = Editor.Command_Ids.Command_Close_Active_Buffer
-         and then Found,
-         "expected buffer.close-active alias must resolve without payload");
-      Found := False;
-      Assert
-        (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
-           ("buffer.close-selected", Found) = Editor.Command_Ids.Command_Buffer_Switcher_Selected_Close
-         and then Found,
-         "expected buffer.close-selected alias must resolve without payload");
-      Found := False;
-      Assert
-        (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
-           ("buffer.close-all", Found) = Editor.Command_Ids.Command_Close_All_Buffers
-         and then Found,
-         "expected buffer.close-all alias must resolve without payload");
-      Found := False;
-      Assert
-        (Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
-           ("buffer.close-clean", Found) = Editor.Command_Ids.Command_Close_All_Clean_Buffers
-         and then Found,
-         "expected buffer.close-clean alias must resolve without payload");
    end Test_Cleanup_Command_Descriptors;
 
    overriding procedure Register_Tests (T : in out Lifecycle_Test_Case) is

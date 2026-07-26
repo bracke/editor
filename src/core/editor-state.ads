@@ -1,7 +1,6 @@
 with Editor.Command_Ids; use Editor.Command_Ids;
 with Text_Buffer;
 with Editor.Cursors;
-with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
 with Ada.Calendar;
 with Editor.Search;
@@ -49,108 +48,96 @@ with Editor.Syntax_Semantics;
 with Editor.Ada_Project_Index;
 with Editor.Ada_Language_Service;
 with Editor.Ada_Language_Model;
+with Editor.State_Buffer;
+with Editor.State_Search;
+with Editor.State_Project;
+with Editor.State_Panel;
+with Editor.State_Semantic;
+with Editor.State_Build;
 
 package Editor.State is
 
-   package Line_Start_Vectors is new Ada.Containers.Vectors
-      (Index_Type   => Natural,
-      Element_Type => Natural);
+   package Line_Start_Vectors renames
+     Editor.State_Buffer.Line_Start_Vectors;
 
-   type Active_Diagnostic_State is record
-      Has_Active : Boolean := False;
-      Index      : Editor.Diagnostics.Diagnostic_Index :=
-        Editor.Diagnostics.No_Diagnostic;
-   end record;
+   subtype Active_Diagnostic_State is
+     Editor.State_Panel.Active_Diagnostic_State;
 
-   type File_Conflict_Kind is
-     (No_File_Conflict,
-      External_Modified_While_Clean,
-      External_Modified_While_Dirty,
-      Backing_File_Deleted_While_Clean,
-      Backing_File_Deleted_While_Dirty,
-      Backing_File_Unreadable,
-      Backing_File_Unwritable,
-      Backing_File_Replaced,
-      Save_Target_Parent_Missing);
+   subtype File_Conflict_Kind is
+     Editor.State_Buffer.File_Conflict_Kind;
+   No_File_Conflict : constant File_Conflict_Kind :=
+     Editor.State_Buffer.No_File_Conflict;
+   External_Modified_While_Clean : constant File_Conflict_Kind :=
+     Editor.State_Buffer.External_Modified_While_Clean;
+   External_Modified_While_Dirty : constant File_Conflict_Kind :=
+     Editor.State_Buffer.External_Modified_While_Dirty;
+   Backing_File_Deleted_While_Clean : constant File_Conflict_Kind :=
+     Editor.State_Buffer.Backing_File_Deleted_While_Clean;
+   Backing_File_Deleted_While_Dirty : constant File_Conflict_Kind :=
+     Editor.State_Buffer.Backing_File_Deleted_While_Dirty;
+   Backing_File_Unreadable : constant File_Conflict_Kind :=
+     Editor.State_Buffer.Backing_File_Unreadable;
+   Backing_File_Unwritable : constant File_Conflict_Kind :=
+     Editor.State_Buffer.Backing_File_Unwritable;
+   Backing_File_Replaced : constant File_Conflict_Kind :=
+     Editor.State_Buffer.Backing_File_Replaced;
+   Save_Target_Parent_Missing : constant File_Conflict_Kind :=
+     Editor.State_Buffer.Save_Target_Parent_Missing;
 
-   type File_Conflict_Action is
-     (No_File_Conflict_Action,
-      File_Conflict_Keep_Buffer,
-      File_Conflict_Reload_From_Disk,
-      File_Conflict_Overwrite_Disk,
-      File_Conflict_Cancel);
+   subtype File_Conflict_Action is
+     Editor.State_Buffer.File_Conflict_Action;
+   No_File_Conflict_Action : constant File_Conflict_Action :=
+     Editor.State_Buffer.No_File_Conflict_Action;
+   File_Conflict_Keep_Buffer : constant File_Conflict_Action :=
+     Editor.State_Buffer.File_Conflict_Keep_Buffer;
+   File_Conflict_Reload_From_Disk : constant File_Conflict_Action :=
+     Editor.State_Buffer.File_Conflict_Reload_From_Disk;
+   File_Conflict_Overwrite_Disk : constant File_Conflict_Action :=
+     Editor.State_Buffer.File_Conflict_Overwrite_Disk;
+   File_Conflict_Cancel : constant File_Conflict_Action :=
+     Editor.State_Buffer.File_Conflict_Cancel;
 
-   type Dirty_Close_Scope is
-     (No_Dirty_Close_Scope,
-      Active_Buffer_Close_Scope,
-      Selected_Buffer_Close_Scope,
-      All_Buffers_Close_Scope,
-      Transition_Buffer_Close_Scope);
+   subtype Dirty_Close_Scope is
+     Editor.State_Buffer.Dirty_Close_Scope;
+   No_Dirty_Close_Scope : constant Dirty_Close_Scope :=
+     Editor.State_Buffer.No_Dirty_Close_Scope;
+   Active_Buffer_Close_Scope : constant Dirty_Close_Scope :=
+     Editor.State_Buffer.Active_Buffer_Close_Scope;
+   Selected_Buffer_Close_Scope : constant Dirty_Close_Scope :=
+     Editor.State_Buffer.Selected_Buffer_Close_Scope;
+   All_Buffers_Close_Scope : constant Dirty_Close_Scope :=
+     Editor.State_Buffer.All_Buffers_Close_Scope;
+   Transition_Buffer_Close_Scope : constant Dirty_Close_Scope :=
+     Editor.State_Buffer.Transition_Buffer_Close_Scope;
 
-   type File_State is record
-      Has_Path     : Boolean := False;
-      Path         : Ada.Strings.Unbounded.Unbounded_String :=
-        Ada.Strings.Unbounded.Null_Unbounded_String;
-      Display_Name : Ada.Strings.Unbounded.Unbounded_String :=
-        Ada.Strings.Unbounded.To_Unbounded_String ("Untitled");
-      Dirty        : Boolean := False;
-      Baseline_Valid   : Boolean := False;
-      Saved_Generation : Natural := 0;
-      Last_Save_Failed   : Boolean := False;
-      Last_Reload_Failed : Boolean := False;
-      Last_Revert_Failed : Boolean := False;
-      Missing_Target_Surfaced    : Boolean := False;
-      Unreadable_Target_Surfaced : Boolean := False;
-      Unwritable_Target_Surfaced : Boolean := False;
-      External_Change_Surfaced   : Boolean := False;
-      Blocked_Close_Surfaced     : Boolean := False;
-      File_Token_Known : Boolean := False;
-      File_Token_Label : Ada.Strings.Unbounded.Unbounded_String :=
-        Ada.Strings.Unbounded.Null_Unbounded_String;
-   end record;
+   subtype File_State is Editor.State_Buffer.File_State;
+   Max_Reopen_Candidates : constant Natural :=
+     Editor.State_Buffer.Max_Reopen_Candidates;
+   subtype Reopen_Candidate_Index is
+     Editor.State_Buffer.Reopen_Candidate_Index;
+   subtype Reopen_Candidate_Array is
+     Editor.State_Buffer.Reopen_Candidate_Array;
 
-   Max_Reopen_Candidates : constant Natural := 16;
-   subtype Reopen_Candidate_Index is Positive range 1 .. Max_Reopen_Candidates;
-   type Reopen_Candidate_Array is
-     array (Reopen_Candidate_Index) of Ada.Strings.Unbounded.Unbounded_String;
-
-   Max_Semantic_Completion_Items : constant Natural := 12;
+   Max_Semantic_Completion_Items : constant Natural :=
+     Editor.State_Semantic.Max_Semantic_Completion_Items;
    subtype Semantic_Completion_Item_Index is
-     Positive range 1 .. Max_Semantic_Completion_Items;
-
-   type Semantic_Completion_Item is record
-      Label  : Ada.Strings.Unbounded.Unbounded_String :=
-        Ada.Strings.Unbounded.Null_Unbounded_String;
-      Detail : Ada.Strings.Unbounded.Unbounded_String :=
-        Ada.Strings.Unbounded.Null_Unbounded_String;
-   end record;
-
-   type Semantic_Completion_Item_Array is
-     array (Semantic_Completion_Item_Index) of Semantic_Completion_Item;
-
-   type Semantic_Popup_Kind is
-     (No_Semantic_Popup,
-      Semantic_Hover_Popup,
-      Semantic_Completion_Popup);
-
-   type Semantic_Popup_State is record
-      Active : Boolean := False;
-      Kind   : Semantic_Popup_Kind := No_Semantic_Popup;
-      Anchor_Row : Natural := 0;
-      Anchor_Column : Natural := 0;
-      Title  : Ada.Strings.Unbounded.Unbounded_String :=
-        Ada.Strings.Unbounded.Null_Unbounded_String;
-      Detail : Ada.Strings.Unbounded.Unbounded_String :=
-        Ada.Strings.Unbounded.Null_Unbounded_String;
-      Item_Count : Natural := 0;
-      Selected_Item : Natural := 0;
-      Items : Semantic_Completion_Item_Array := (others => (others => <>));
-   end record;
-
-   type Quick_Fix_Workflow_State is record
-      Diagnostic_Index : Natural := 0;
-      Action_Index     : Natural := 0;
-   end record;
+     Editor.State_Semantic.Semantic_Completion_Item_Index;
+   subtype Semantic_Completion_Item is
+     Editor.State_Semantic.Semantic_Completion_Item;
+   subtype Semantic_Completion_Item_Array is
+     Editor.State_Semantic.Semantic_Completion_Item_Array;
+   subtype Semantic_Popup_Kind is
+     Editor.State_Semantic.Semantic_Popup_Kind;
+   No_Semantic_Popup : constant Semantic_Popup_Kind :=
+     Editor.State_Semantic.No_Semantic_Popup;
+   Semantic_Hover_Popup : constant Semantic_Popup_Kind :=
+     Editor.State_Semantic.Semantic_Hover_Popup;
+   Semantic_Completion_Popup : constant Semantic_Popup_Kind :=
+     Editor.State_Semantic.Semantic_Completion_Popup;
+   subtype Semantic_Popup_State is
+     Editor.State_Semantic.Semantic_Popup_State;
+   subtype Quick_Fix_Workflow_State is
+     Editor.State_Semantic.Quick_Fix_Workflow_State;
 
    type State_Type is record
       Buffer             : Text_Buffer.Buffer_Type;
@@ -421,30 +408,8 @@ package Editor.State is
       Guided_Prompt : Editor.Guided_Prompts.Prompt_State;
    end record;
 
-   type Project_Scoped_State_Summary is record
-      Has_Project_Root            : Boolean := False;
-      File_Tree_Node_Count        : Natural := 0;
-      File_Tree_Expansion_Count   : Natural := 0;
-      Quick_Open_Result_Count     : Natural := 0;
-      Project_Search_Result_Count : Natural := 0;
-      Bookmark_Count               : Natural := 0;
-      Bookmarks_Visible            : Boolean := False;
-      Search_Results_Row_Count    : Natural := 0;
-      Has_Project_Search_Query    : Boolean := False;
-      Feature_Panel_Row_Count     : Natural := 0;
-      Feature_Panel_Selected_Row  : Natural := 0;
-      Feature_Panel_Has_Selection : Boolean := False;
-      Feature_Panel_Visible       : Boolean := False;
-      Feature_Panel_Focused       : Boolean := False;
-      Feature_Panel_Fingerprint   : Editor.Feature_Panel.Feature_Panel_Fingerprint;
-      Outline_Item_Count          : Natural := 0;
-      Outline_Has_Items           : Boolean := False;
-      Outline_Fingerprint         : Natural := 0;
-      Feature_Message_Row_Count   : Natural := 0;
-      Feature_Search_Result_Count : Natural := 0;
-      Feature_Diagnostic_Row_Count : Natural := 0;
-      Has_Pending_Project_Target  : Boolean := False;
-   end record;
+   subtype Project_Scoped_State_Summary is
+     Editor.State_Project.Project_Scoped_State_Summary;
 
    type Buffer_Change is record
       Start_Index : Natural;
