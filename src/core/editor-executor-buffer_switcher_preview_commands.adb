@@ -1,4 +1,5 @@
 with Editor.Buffer_Switcher;
+with Editor.Buffer_Switcher.Rows;
 with Editor.Buffers;
 with Editor.Command_Execution;
 with Editor.Commands;
@@ -28,7 +29,7 @@ package body Editor.Executor.Buffer_Switcher_Preview_Commands is
 
    function Selected_Row
      (S     : Editor.State.State_Type;
-      Found : out Boolean) return Editor.Buffer_Switcher.Buffer_Switcher_Row
+      Found : out Boolean) return Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row
    is
    begin
       return Editor.Executor.Buffer_Switcher_Shared.Selected_Switcher_Buffer
@@ -39,7 +40,7 @@ package body Editor.Executor.Buffer_Switcher_Preview_Commands is
      (S : Editor.State.State_Type) return Editor.Commands.Command_Availability
    is
       Found : Boolean := False;
-      Row   : Editor.Buffer_Switcher.Buffer_Switcher_Row;
+      Row   : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
    begin
       if not Active_Buffer_Switcher_Overlay (S) then
          return Editor.Commands.Unavailable ("No active overlay");
@@ -80,7 +81,7 @@ package body Editor.Executor.Buffer_Switcher_Preview_Commands is
       elsif Require_Row then
          declare
             Found : Boolean := False;
-            Row   : constant Editor.Buffer_Switcher.Buffer_Switcher_Row :=
+            Row   : constant Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row :=
               Selected_Row (S, Found);
          begin
             if not Found or else Row.Id = Editor.Buffers.No_Buffer then
@@ -134,7 +135,7 @@ package body Editor.Executor.Buffer_Switcher_Preview_Commands is
      (S : in out Editor.State.State_Type)
    is
       Found : Boolean := False;
-      Row   : constant Editor.Buffer_Switcher.Buffer_Switcher_Row :=
+      Row   : constant Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row :=
         Selected_Row (S, Found);
    begin
       if not Found or else Row.Id = Editor.Buffers.No_Buffer then
@@ -180,7 +181,7 @@ package body Editor.Executor.Buffer_Switcher_Preview_Commands is
      (S : in out Editor.State.State_Type)
    is
       Found : Boolean := False;
-      Row   : constant Editor.Buffer_Switcher.Buffer_Switcher_Row :=
+      Row   : constant Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row :=
         Selected_Row (S, Found);
    begin
       if not Found or else Row.Id = Editor.Buffers.No_Buffer then

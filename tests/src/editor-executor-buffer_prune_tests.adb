@@ -5,6 +5,9 @@ with Ada.Directories;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Buffers;
 with Editor.Buffer_Switcher;
+with Editor.Buffer_Switcher.Config;
+with Editor.Buffer_Switcher.Reviews;
+with Editor.Buffer_Switcher.Rows;
 with Editor.Commands;
 with Editor.Executor.Buffer_Switcher_Surface_Commands;
 with Editor.Executor.File_Open_Commands;
@@ -18,7 +21,7 @@ with Editor.State;
 package body Editor.Executor.Buffer_Prune_Tests is
 
    use type Editor.Buffers.Buffer_Id;
-   use type Editor.Buffer_Switcher.Pending_Marked_Action_Kind;
+   use type Editor.Buffer_Switcher.Reviews.Pending_Marked_Action_Kind;
    use type Editor.Commands.Command_Availability_Status;
    use type Editor.State.Dirty_Close_Scope;
 
@@ -106,7 +109,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
               and then Editor.Buffer_Switcher.Row_At (S.Buffer_Switcher, 1).Id = B_Id,
               "pending review candidate set updates after pruning");
       declare
-         Row : constant Editor.Buffer_Switcher.Buffer_Switcher_Row :=
+         Row : constant Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row :=
            Editor.Buffer_Switcher.Selected_Row (S.Buffer_Switcher, Found);
       begin
          Assert (Found and then Row.Id = B_Id,
@@ -188,7 +191,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Editor.Executor.Execute_No_Log (S, Cmd);
       Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Remove_Selected);
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Assert (Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) = Editor.Buffer_Switcher.No_Pending_Marked_Action
+      Assert (Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) = Editor.Buffer_Switcher.Reviews.No_Pending_Marked_Action
               and then not Editor.Buffer_Switcher.Has_Pending_Marked_Review (S.Buffer_Switcher),
               "removing the last target clears pending action and exits pending review");
       Assert (Editor.Buffers.Global_Contains (A_Id)
@@ -332,7 +335,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
               "confirm closes active pending targets after restoration");
       Assert (True,
               "confirm order cleanup must not create close-history/reopen entries");
-      Assert (Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) = Editor.Buffer_Switcher.No_Pending_Marked_Action
+      Assert (Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) = Editor.Buffer_Switcher.Reviews.No_Pending_Marked_Action
               and then Editor.Buffer_Switcher.Pruned_Pending_Marked_Close_Target_Count (S.Buffer_Switcher) = 0,
               "confirm clears pending action and pruned history");
 
@@ -397,7 +400,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
 
       Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Cancel);
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Assert (Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) = Editor.Buffer_Switcher.No_Pending_Marked_Action
+      Assert (Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) = Editor.Buffer_Switcher.Reviews.No_Pending_Marked_Action
               and then Editor.Buffer_Switcher.Pruned_Pending_Marked_Close_Target_Count (S.Buffer_Switcher) = 0,
               "cancelling pending marked close clears pruned history without closing buffers");
       Assert (Editor.Buffers.Global_Contains (A_Id),
@@ -512,7 +515,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
               and then not Editor.Buffers.Global_Contains (B_Id)
               and then Editor.Buffers.Global_Contains (C_Id),
               "confirm closes restored active pending targets but not unrestored pruned targets");
-      Assert (Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) = Editor.Buffer_Switcher.No_Pending_Marked_Action
+      Assert (Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) = Editor.Buffer_Switcher.Reviews.No_Pending_Marked_Action
               and then Editor.Buffer_Switcher.Pruned_Pending_Marked_Close_Target_Count (S.Buffer_Switcher) = 0
               and then not Editor.Buffer_Switcher.Has_Pruned_Pending_Marked_Review (S.Buffer_Switcher),
               "confirm clears pending action, pruned history, and pruned review state");
@@ -573,7 +576,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
         (S.Buffer_Switcher,
          Editor.Buffers.Global_Registry_For_UI,
          S.Recent_Buffers,
-         Editor.Buffer_Switcher.Buffer_Switcher_Config'(others => <>));
+         Editor.Buffer_Switcher.Config.Buffer_Switcher_Config'(others => <>));
 
       Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Pruned_Summary);
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -591,7 +594,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
 
       Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Cancel);
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Assert (Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) = Editor.Buffer_Switcher.No_Pending_Marked_Action
+      Assert (Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) = Editor.Buffer_Switcher.Reviews.No_Pending_Marked_Action
               and then Editor.Buffer_Switcher.Pruned_Pending_Marked_Close_Target_Count (S.Buffer_Switcher) = 0
               and then not Editor.Buffer_Switcher.Has_Pruned_Pending_Marked_Review (S.Buffer_Switcher),
               "cancel clears pruned history and pruned review state without closing active pending targets");
@@ -1091,7 +1094,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       C_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Cmd    : Editor.Commands.Payloads.Command;
       Found  : Boolean := False;
-      Row    : Editor.Buffer_Switcher.Buffer_Switcher_Row;
+      Row    : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
       Recent_Before : Natural := 0;
    begin
       Remove_Tree_If_Exists (Root);
@@ -1237,7 +1240,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Cmd    : Editor.Commands.Payloads.Command;
       Avail  : Editor.Commands.Command_Availability;
       Found  : Boolean := False;
-      Row    : Editor.Buffer_Switcher.Buffer_Switcher_Row;
+      Row    : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
       Recent_Before : Natural := 0;
    begin
       Remove_Tree_If_Exists (Root);
@@ -1389,7 +1392,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Cmd    : Editor.Commands.Payloads.Command;
       Avail  : Editor.Commands.Command_Availability;
       Found  : Boolean := False;
-      Row    : Editor.Buffer_Switcher.Buffer_Switcher_Row;
+      Row    : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
       Recent_Before : Natural := 0;
    begin
       Remove_Tree_If_Exists (Root);
@@ -1549,7 +1552,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       C_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Cmd    : Editor.Commands.Payloads.Command;
       Found  : Boolean := False;
-      Row    : Editor.Buffer_Switcher.Buffer_Switcher_Row;
+      Row    : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
       Recent_Before : Natural := 0;
    begin
       Remove_Tree_If_Exists (Root);

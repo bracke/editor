@@ -1,3 +1,4 @@
+with Editor.Buffer_Switcher.Rows;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Characters.Handling;
@@ -573,7 +574,7 @@ package body Editor.Command_Route_Audit is
 
    procedure Inspect_Buffer_Switcher_Row_No_Buffer_Payload
      (Result : in out Route_Audit_Result;
-      Row    : Editor.Buffer_Switcher.Buffer_Switcher_Row)
+      Row    : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row)
    is
    begin
       Reject_If_Buffer_Payload_Text

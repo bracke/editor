@@ -1,13 +1,15 @@
+with Editor.Buffer_Switcher.Reviews;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Buffers;
 with Editor.Buffer_Switcher.Pending_Close_Operations;
 with Editor.Buffer_Switcher.Review_Operations;
 
 package body Editor.Buffer_Switcher.Dirty_Prune_Operations is
+   use Editor.Buffer_Switcher.Reviews;
 
    use type Editor.Buffer_Types.Buffer_Id;
    use type Editor.Buffers.Buffer_Dirty_Category;
-   use type Editor.Buffer_Switcher.Pending_Marked_Action_Kind;
+   use type Editor.Buffer_Switcher.Reviews.Pending_Marked_Action_Kind;
 
    function Row_Is_Dirty_Prune_Apply_Target
      (State : Buffer_Switcher_State;

@@ -1,8 +1,11 @@
+with Editor.Buffer_Switcher.Rows;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Buffers;
 
 package body Editor.Buffer_Switcher.Labels is
-   use type Editor.Buffer_Switcher.Buffer_Project_Ownership_Kind;
+   use Editor.Buffer_Switcher.Rows;
+
+   use type Editor.Buffer_Switcher.Rows.Buffer_Project_Ownership_Kind;
 
 
    use type Editor.Buffers.Buffer_Ownership_Kind;

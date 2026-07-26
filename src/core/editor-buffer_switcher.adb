@@ -4,6 +4,11 @@ with Ada.Strings.Fixed;
 with Ada.Strings;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Buffers;
+with Editor.Buffer_Switcher_Model.Audits;
+with Editor.Buffer_Switcher_Model.Config;
+with Editor.Buffer_Switcher_Model.Filters;
+with Editor.Buffer_Switcher_Model.Reviews;
+with Editor.Buffer_Switcher_Model.Rows;
 with Editor.Input_Field;
 with Editor.Project;
 with Editor.Recent_Buffers;
@@ -14,13 +19,101 @@ with Editor.Buffer_Switcher.Review_Operations;
 with Editor.Buffer_Switcher.Row_Operations;
 
 package body Editor.Buffer_Switcher is
+   subtype Pending_Marked_Action_Kind is
+     Editor.Buffer_Switcher_Model.Reviews.Pending_Marked_Action_Kind;
+   subtype Switcher_Metadata_Filter_Kind is
+     Editor.Buffer_Switcher_Model.Filters.Switcher_Metadata_Filter_Kind;
+   subtype Switcher_Metadata_Filter is
+     Editor.Buffer_Switcher_Model.Filters.Switcher_Metadata_Filter;
+   subtype Switcher_Sort_Mode is
+     Editor.Buffer_Switcher_Model.Filters.Switcher_Sort_Mode;
+   subtype Switcher_Review_Mode is
+     Editor.Buffer_Switcher_Model.Reviews.Switcher_Review_Mode;
+   subtype Switcher_Batch_State_Snapshot is
+     Editor.Buffer_Switcher_Model.Reviews.Switcher_Batch_State_Snapshot;
+   subtype Buffer_Project_Ownership_Kind is
+     Editor.Buffer_Switcher_Model.Rows.Buffer_Project_Ownership_Kind;
+   subtype Buffer_Switcher_Config is
+     Editor.Buffer_Switcher_Model.Config.Buffer_Switcher_Config;
+   subtype Selected_Buffer_List_Audit is
+     Editor.Buffer_Switcher_Model.Audits.Selected_Buffer_List_Audit;
+   subtype Buffer_Switcher_Row is
+     Editor.Buffer_Switcher_Model.Rows.Buffer_Switcher_Row;
+
+   No_Pending_Marked_Action : constant Pending_Marked_Action_Kind :=
+     Editor.Buffer_Switcher_Model.Reviews.No_Pending_Marked_Action;
+   Pending_Marked_Close : constant Pending_Marked_Action_Kind :=
+     Editor.Buffer_Switcher_Model.Reviews.Pending_Marked_Close;
+   No_Filter : constant Switcher_Metadata_Filter_Kind :=
+     Editor.Buffer_Switcher_Model.Filters.No_Filter;
+   Pinned_Filter : constant Switcher_Metadata_Filter_Kind :=
+     Editor.Buffer_Switcher_Model.Filters.Pinned_Filter;
+   Group_Filter : constant Switcher_Metadata_Filter_Kind :=
+     Editor.Buffer_Switcher_Model.Filters.Group_Filter;
+   Label_Filter : constant Switcher_Metadata_Filter_Kind :=
+     Editor.Buffer_Switcher_Model.Filters.Label_Filter;
+   Noted_Filter : constant Switcher_Metadata_Filter_Kind :=
+     Editor.Buffer_Switcher_Model.Filters.Noted_Filter;
+   Dirty_Filter : constant Switcher_Metadata_Filter_Kind :=
+     Editor.Buffer_Switcher_Model.Filters.Dirty_Filter;
+   Clean_Filter : constant Switcher_Metadata_Filter_Kind :=
+     Editor.Buffer_Switcher_Model.Filters.Clean_Filter;
+   Missing_Or_Conflict_Filter : constant Switcher_Metadata_Filter_Kind :=
+     Editor.Buffer_Switcher_Model.Filters.Missing_Or_Conflict_Filter;
+   Project_Owned_Filter : constant Switcher_Metadata_Filter_Kind :=
+     Editor.Buffer_Switcher_Model.Filters.Project_Owned_Filter;
+   Outside_Project_Filter : constant Switcher_Metadata_Filter_Kind :=
+     Editor.Buffer_Switcher_Model.Filters.Outside_Project_Filter;
+   Scratch_Filter : constant Switcher_Metadata_Filter_Kind :=
+     Editor.Buffer_Switcher_Model.Filters.Scratch_Filter;
+   Default_Sort : constant Switcher_Sort_Mode :=
+     Editor.Buffer_Switcher_Model.Filters.Default_Sort;
+   Recent_Sort : constant Switcher_Sort_Mode :=
+     Editor.Buffer_Switcher_Model.Filters.Recent_Sort;
+   Name_Sort : constant Switcher_Sort_Mode :=
+     Editor.Buffer_Switcher_Model.Filters.Name_Sort;
+   Pinned_Sort : constant Switcher_Sort_Mode :=
+     Editor.Buffer_Switcher_Model.Filters.Pinned_Sort;
+   Group_Sort : constant Switcher_Sort_Mode :=
+     Editor.Buffer_Switcher_Model.Filters.Group_Sort;
+   Label_Sort : constant Switcher_Sort_Mode :=
+     Editor.Buffer_Switcher_Model.Filters.Label_Sort;
+   No_Review : constant Switcher_Review_Mode :=
+     Editor.Buffer_Switcher_Model.Reviews.No_Review;
+   Marked_Review : constant Switcher_Review_Mode :=
+     Editor.Buffer_Switcher_Model.Reviews.Marked_Review;
+   Pending_Marked_Close_Review : constant Switcher_Review_Mode :=
+     Editor.Buffer_Switcher_Model.Reviews.Pending_Marked_Close_Review;
+   Pruned_Pending_Close_Review : constant Switcher_Review_Mode :=
+     Editor.Buffer_Switcher_Model.Reviews.Pruned_Pending_Close_Review;
+   Dirty_Pending_Close_Review : constant Switcher_Review_Mode :=
+     Editor.Buffer_Switcher_Model.Reviews.Dirty_Pending_Close_Review;
+   Dirty_Prune_Preview_Review : constant Switcher_Review_Mode :=
+     Editor.Buffer_Switcher_Model.Reviews.Dirty_Prune_Preview_Review;
+   Removed_Dirty_Prune_Preview_Review : constant Switcher_Review_Mode :=
+     Editor.Buffer_Switcher_Model.Reviews.Removed_Dirty_Prune_Preview_Review;
+   Dirty_Prune_Apply_Review : constant Switcher_Review_Mode :=
+     Editor.Buffer_Switcher_Model.Reviews.Dirty_Prune_Apply_Review;
+   Removed_Dirty_Prune_Apply_Review : constant Switcher_Review_Mode :=
+     Editor.Buffer_Switcher_Model.Reviews.Removed_Dirty_Prune_Apply_Review;
+   Buffer_Project_Unknown : constant Buffer_Project_Ownership_Kind :=
+     Editor.Buffer_Switcher_Model.Rows.Buffer_Project_Unknown;
+   Buffer_Project_Owned : constant Buffer_Project_Ownership_Kind :=
+     Editor.Buffer_Switcher_Model.Rows.Buffer_Project_Owned;
+   Buffer_Project_Outside : constant Buffer_Project_Ownership_Kind :=
+     Editor.Buffer_Switcher_Model.Rows.Buffer_Project_Outside;
+   Buffer_Project_Scratch : constant Buffer_Project_Ownership_Kind :=
+     Editor.Buffer_Switcher_Model.Rows.Buffer_Project_Scratch;
+   Buffer_Project_No_Project : constant Buffer_Project_Ownership_Kind :=
+     Editor.Buffer_Switcher_Model.Rows.Buffer_Project_No_Project;
+
    use type Editor.Buffers.Buffer_Close_Eligibility;
    use type Editor.Buffers.Buffer_Ownership_Kind;
    use type Editor.Buffers.Buffer_Dirty_Category;
-   use type Editor.Buffer_Switcher.Pending_Marked_Action_Kind;
-   use type Editor.Buffer_Switcher.Switcher_Metadata_Filter_Kind;
-   use type Editor.Buffer_Switcher.Switcher_Review_Mode;
-   use type Editor.Buffer_Switcher.Switcher_Sort_Mode;
+   use type Pending_Marked_Action_Kind;
+   use type Switcher_Metadata_Filter_Kind;
+   use type Switcher_Review_Mode;
+   use type Switcher_Sort_Mode;
    use type Ada.Containers.Count_Type;
 
    No_Recent_Rank : constant Natural := Natural'Last;

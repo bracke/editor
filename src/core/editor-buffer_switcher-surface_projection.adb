@@ -1,3 +1,4 @@
+with Editor.Buffer_Switcher.Rows;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with Editor.Buffers;
@@ -146,7 +147,7 @@ package body Editor.Buffer_Switcher.Surface_Projection is
          begin
             exit when Index > Count;
             declare
-               R : constant Editor.Buffer_Switcher.Buffer_Switcher_Row :=
+               R : constant Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row :=
                  Editor.Buffer_Switcher.Row_At (S.Buffer_Switcher, Index);
                Markers : constant String := Editor.Buffer_Switcher.Buffer_Row_State_Markers (R);
                Marker_Text : constant String :=

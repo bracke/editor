@@ -3,6 +3,7 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Image_Helpers;
 with Editor.Buffers;
 with Editor.Buffer_Switcher;
+with Editor.Buffer_Switcher.Audits;
 with Editor.Command_Palette;
 with Editor.Command_Route_Audit;
 with Editor.Commands;
@@ -233,7 +234,7 @@ package body Editor.Configuration_Audit is
      (State                : Editor.State.State_Type;
       Serialized_Workspace : String := "") return Buffer_Boundary_Audit_Summary
    is
-      Selected_Audit : constant Editor.Buffer_Switcher.Selected_Buffer_List_Audit :=
+      Selected_Audit : constant Editor.Buffer_Switcher.Audits.Selected_Buffer_List_Audit :=
         Editor.Buffer_Switcher.Audit_Selected_Buffer_List_State
           (State.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI);
       Buffer_Audit : constant Editor.Buffers.Buffer_Audit_Summary :=

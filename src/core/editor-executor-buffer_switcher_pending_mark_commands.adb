@@ -1,5 +1,7 @@
 with Editor.Commands.Payloads;
 with Editor.Buffer_Switcher;
+with Editor.Buffer_Switcher.Reviews;
+with Editor.Buffer_Switcher.Rows;
 with Editor.Buffers;
 with Editor.Command_Execution;
 with Editor.Commands;
@@ -17,7 +19,7 @@ with Editor.Render_Cache;
 package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
 
    use type Editor.Buffers.Buffer_Id;
-   use type Editor.Buffer_Switcher.Pending_Marked_Action_Kind;
+   use type Editor.Buffer_Switcher.Reviews.Pending_Marked_Action_Kind;
    use type Editor.Commands.Command_Id;
    use type Editor.Commands.Command_Kind;
    use type Editor.Messages.Message_Severity;
@@ -41,7 +43,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
 
    function Selected_Row
      (S     : Editor.State.State_Type;
-      Found : out Boolean) return Editor.Buffer_Switcher.Buffer_Switcher_Row
+      Found : out Boolean) return Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row
    is
    begin
       return Editor.Executor.Buffer_Switcher_Shared.Selected_Switcher_Buffer (S, Found);
@@ -54,12 +56,12 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
       return Editor.Commands.Command_Availability
    is
       Found : Boolean := False;
-      Row   : Editor.Buffer_Switcher.Buffer_Switcher_Row;
+      Row   : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
    begin
       if not Active_Buffer_Switcher_Overlay (S) then
          return Editor.Commands.Unavailable ("No active overlay");
       elsif Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) /=
-        Editor.Buffer_Switcher.Pending_Marked_Close
+        Editor.Buffer_Switcher.Reviews.Pending_Marked_Close
       then
          return Editor.Commands.Unavailable ("No pending marked action");
       end if;
@@ -134,7 +136,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Unavailable ("No active overlay");
             elsif Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) =
-              Editor.Buffer_Switcher.No_Pending_Marked_Action
+              Editor.Buffer_Switcher.Reviews.No_Pending_Marked_Action
             then
                return Editor.Commands.Unavailable ("No pending marked action");
             elsif not Editor.Buffer_Switcher.Has_Pruned_Pending_Marked_Close_Targets
@@ -150,7 +152,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Unavailable ("No active overlay");
             elsif Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) =
-              Editor.Buffer_Switcher.No_Pending_Marked_Action
+              Editor.Buffer_Switcher.Reviews.No_Pending_Marked_Action
             then
                return Editor.Commands.Unavailable ("No pending marked action");
             elsif Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) = 0 then
@@ -173,13 +175,13 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Unavailable ("No active overlay");
             elsif Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) =
-              Editor.Buffer_Switcher.No_Pending_Marked_Action
+              Editor.Buffer_Switcher.Reviews.No_Pending_Marked_Action
             then
                return Editor.Commands.Unavailable ("No pending marked action");
             end if;
             for I in 1 .. Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) loop
                declare
-                  Row : constant Editor.Buffer_Switcher.Buffer_Switcher_Row :=
+                  Row : constant Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row :=
                     Editor.Buffer_Switcher.Row_At (S.Buffer_Switcher, I);
                begin
                   if Row.Is_Dirty
@@ -197,7 +199,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Unavailable ("No active overlay");
             elsif Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) /=
-              Editor.Buffer_Switcher.Pending_Marked_Close
+              Editor.Buffer_Switcher.Reviews.Pending_Marked_Close
             then
                return Editor.Commands.Unavailable ("No pending marked action");
             elsif Editor.Buffer_Switcher.Pending_Marked_Open_Dirty_Count
@@ -299,7 +301,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
             else
                declare
                   Found : Boolean := False;
-                  Row   : constant Editor.Buffer_Switcher.Buffer_Switcher_Row :=
+                  Row   : constant Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row :=
                     Selected_Row (S, Found);
                begin
                   if not Found or else Row.Id = Editor.Buffers.No_Buffer then
@@ -399,7 +401,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Unavailable ("No active overlay");
             elsif Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) =
-              Editor.Buffer_Switcher.No_Pending_Marked_Action
+              Editor.Buffer_Switcher.Reviews.No_Pending_Marked_Action
             then
                return Editor.Commands.Unavailable ("No pending marked action");
             elsif not Editor.Buffer_Switcher.Has_Pruned_Pending_Marked_Close_Targets
@@ -448,7 +450,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
       Open_Count : Natural := 0;
    begin
       if Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) =
-        Editor.Buffer_Switcher.No_Pending_Marked_Action
+        Editor.Buffer_Switcher.Reviews.No_Pending_Marked_Action
       then
          Editor.Executor.Shared_Services.Report_Info (S, "No pending marked action");
          return;

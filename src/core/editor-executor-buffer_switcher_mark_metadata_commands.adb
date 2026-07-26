@@ -2,6 +2,7 @@ with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with Editor.Buffer_Switcher;
+with Editor.Buffer_Switcher.Rows;
 with Editor.Buffers;
 with Editor.Commands;
 with Editor.Executor;
@@ -24,7 +25,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Metadata_Commands is
 
    function Selected_Switcher_Buffer
      (S     : Editor.State.State_Type;
-      Found : out Boolean) return Editor.Buffer_Switcher.Buffer_Switcher_Row
+      Found : out Boolean) return Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row
       renames Editor.Executor.Buffer_Switcher_Shared.Selected_Switcher_Buffer;
 
    procedure Normalize_Switcher_Preview_Target

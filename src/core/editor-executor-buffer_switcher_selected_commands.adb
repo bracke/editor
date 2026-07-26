@@ -1,6 +1,7 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with Editor.Buffer_Switcher;
+with Editor.Buffer_Switcher.Rows;
 with Editor.Buffers;
 with Editor.Command_Execution;
 with Editor.Commands;
@@ -49,7 +50,7 @@ package body Editor.Executor.Buffer_Switcher_Selected_Commands is
 
    function Selected_Row
      (S     : Editor.State.State_Type;
-      Found : out Boolean) return Editor.Buffer_Switcher.Buffer_Switcher_Row
+      Found : out Boolean) return Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row
    is
    begin
       return Editor.Executor.Buffer_Switcher_Shared.Selected_Switcher_Buffer
@@ -60,7 +61,7 @@ package body Editor.Executor.Buffer_Switcher_Selected_Commands is
      (S : Editor.State.State_Type) return Editor.Commands.Command_Availability
    is
       Found : Boolean := False;
-      Row   : Editor.Buffer_Switcher.Buffer_Switcher_Row;
+      Row   : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
    begin
       if not Active_Buffer_Switcher_Overlay (S) then
          return Editor.Commands.Unavailable ("No active overlay");
@@ -82,7 +83,7 @@ package body Editor.Executor.Buffer_Switcher_Selected_Commands is
      (S : in out Editor.State.State_Type)
    is
       Found          : Boolean := False;
-      Row            : constant Editor.Buffer_Switcher.Buffer_Switcher_Row :=
+      Row            : constant Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row :=
         Selected_Row (S, Found);
       Fallback_Index : constant Natural :=
         Editor.Buffer_Switcher.Selected_Row_Index (S.Buffer_Switcher);
@@ -174,7 +175,7 @@ package body Editor.Executor.Buffer_Switcher_Selected_Commands is
 
    procedure Ensure_Selected_Open_Buffer
      (S              : in out Editor.State.State_Type;
-      Row            : Editor.Buffer_Switcher.Buffer_Switcher_Row;
+      Row            : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
       Found          : Boolean;
       Fallback_Index : Natural;
       Available      : out Boolean)
@@ -203,7 +204,7 @@ package body Editor.Executor.Buffer_Switcher_Selected_Commands is
      (S : in out Editor.State.State_Type)
    is
       Found          : Boolean := False;
-      Row            : constant Editor.Buffer_Switcher.Buffer_Switcher_Row :=
+      Row            : constant Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row :=
         Selected_Row (S, Found);
       Fallback_Index : constant Natural :=
         Editor.Buffer_Switcher.Selected_Row_Index (S.Buffer_Switcher);
@@ -226,7 +227,7 @@ package body Editor.Executor.Buffer_Switcher_Selected_Commands is
      (S : in out Editor.State.State_Type)
    is
       Found          : Boolean := False;
-      Row            : constant Editor.Buffer_Switcher.Buffer_Switcher_Row :=
+      Row            : constant Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row :=
         Selected_Row (S, Found);
       Fallback_Index : constant Natural :=
         Editor.Buffer_Switcher.Selected_Row_Index (S.Buffer_Switcher);
@@ -249,7 +250,7 @@ package body Editor.Executor.Buffer_Switcher_Selected_Commands is
      (S : in out Editor.State.State_Type)
    is
       Found          : Boolean := False;
-      Row            : constant Editor.Buffer_Switcher.Buffer_Switcher_Row :=
+      Row            : constant Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row :=
         Selected_Row (S, Found);
       Fallback_Index : constant Natural :=
         Editor.Buffer_Switcher.Selected_Row_Index (S.Buffer_Switcher);
@@ -279,7 +280,7 @@ package body Editor.Executor.Buffer_Switcher_Selected_Commands is
       Name : String)
    is
       Found          : Boolean := False;
-      Row            : constant Editor.Buffer_Switcher.Buffer_Switcher_Row :=
+      Row            : constant Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row :=
         Selected_Row (S, Found);
       Fallback_Index : constant Natural :=
         Editor.Buffer_Switcher.Selected_Row_Index (S.Buffer_Switcher);
@@ -310,7 +311,7 @@ package body Editor.Executor.Buffer_Switcher_Selected_Commands is
      (S : in out Editor.State.State_Type)
    is
       Found          : Boolean := False;
-      Row            : constant Editor.Buffer_Switcher.Buffer_Switcher_Row :=
+      Row            : constant Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row :=
         Selected_Row (S, Found);
       Fallback_Index : constant Natural :=
         Editor.Buffer_Switcher.Selected_Row_Index (S.Buffer_Switcher);
@@ -336,7 +337,7 @@ package body Editor.Executor.Buffer_Switcher_Selected_Commands is
       Label : String)
    is
       Found          : Boolean := False;
-      Row            : constant Editor.Buffer_Switcher.Buffer_Switcher_Row :=
+      Row            : constant Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row :=
         Selected_Row (S, Found);
       Fallback_Index : constant Natural :=
         Editor.Buffer_Switcher.Selected_Row_Index (S.Buffer_Switcher);
@@ -376,7 +377,7 @@ package body Editor.Executor.Buffer_Switcher_Selected_Commands is
      (S : in out Editor.State.State_Type)
    is
       Found          : Boolean := False;
-      Row            : constant Editor.Buffer_Switcher.Buffer_Switcher_Row :=
+      Row            : constant Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row :=
         Selected_Row (S, Found);
       Fallback_Index : constant Natural :=
         Editor.Buffer_Switcher.Selected_Row_Index (S.Buffer_Switcher);
@@ -402,7 +403,7 @@ package body Editor.Executor.Buffer_Switcher_Selected_Commands is
       Note : String)
    is
       Found          : Boolean := False;
-      Row            : constant Editor.Buffer_Switcher.Buffer_Switcher_Row :=
+      Row            : constant Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row :=
         Selected_Row (S, Found);
       Fallback_Index : constant Natural :=
         Editor.Buffer_Switcher.Selected_Row_Index (S.Buffer_Switcher);
@@ -439,7 +440,7 @@ package body Editor.Executor.Buffer_Switcher_Selected_Commands is
      (S : in out Editor.State.State_Type)
    is
       Found          : Boolean := False;
-      Row            : constant Editor.Buffer_Switcher.Buffer_Switcher_Row :=
+      Row            : constant Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row :=
         Selected_Row (S, Found);
       Fallback_Index : constant Natural :=
         Editor.Buffer_Switcher.Selected_Row_Index (S.Buffer_Switcher);
@@ -466,7 +467,7 @@ package body Editor.Executor.Buffer_Switcher_Selected_Commands is
       return Editor.Commands.Command_Availability
    is
       Found : Boolean := False;
-      Row   : Editor.Buffer_Switcher.Buffer_Switcher_Row;
+      Row   : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
    begin
       case Id is
          when Editor.Commands.Command_Buffer_Switcher_Selected_Close

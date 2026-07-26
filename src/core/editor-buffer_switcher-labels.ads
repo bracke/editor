@@ -1,7 +1,9 @@
+with Editor.Buffer_Switcher.Rows;
 limited with Editor.Buffers;
 with Editor.Project;
 
 package Editor.Buffer_Switcher.Labels is
+   use Editor.Buffer_Switcher.Rows;
 
    function Path_Base_Name (Path : String) return String;
 

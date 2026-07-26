@@ -1,3 +1,7 @@
+with Editor.Buffer_Switcher.Audits;
+with Editor.Buffer_Switcher.Config;
+with Editor.Buffer_Switcher.Filters;
+with Editor.Buffer_Switcher.Rows;
 limited with Editor.Buffers;
 with Editor.Buffer_Types;
 with Editor.Input_Field;
@@ -13,11 +17,11 @@ package Editor.Buffer_Switcher.Row_Operations is
 
    function Matches_Metadata_Filter
      (Summary : Editor.Buffer_Types.Buffer_Summary;
-      Filter  : Editor.Buffer_Switcher.Switcher_Metadata_Filter) return Boolean;
+      Filter  : Editor.Buffer_Switcher.Filters.Switcher_Metadata_Filter) return Boolean;
 
    function Matches_Buffer_State_Filter
-     (Row    : Editor.Buffer_Switcher.Buffer_Switcher_Row;
-      Filter : Editor.Buffer_Switcher.Switcher_Metadata_Filter) return Boolean;
+     (Row    : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
+      Filter : Editor.Buffer_Switcher.Filters.Switcher_Metadata_Filter) return Boolean;
 
    procedure Clamp_Window
      (State : in out Editor.Buffer_Switcher.Buffer_Switcher_State);
@@ -25,20 +29,20 @@ package Editor.Buffer_Switcher.Row_Operations is
    procedure Recompute_Rows
      (State    : in out Editor.Buffer_Switcher.Buffer_Switcher_State;
       Registry : Editor.Buffers.Buffer_Registry;
-      Config   : Editor.Buffer_Switcher.Buffer_Switcher_Config);
+      Config   : Editor.Buffer_Switcher.Config.Buffer_Switcher_Config);
 
    procedure Recompute_Rows
      (State    : in out Editor.Buffer_Switcher.Buffer_Switcher_State;
       Registry : Editor.Buffers.Buffer_Registry;
       Recent   : Editor.Recent_Buffers.Recent_Buffer_State;
-      Config   : Editor.Buffer_Switcher.Buffer_Switcher_Config);
+      Config   : Editor.Buffer_Switcher.Config.Buffer_Switcher_Config);
 
    procedure Recompute_Rows
      (State    : in out Editor.Buffer_Switcher.Buffer_Switcher_State;
       Registry : Editor.Buffers.Buffer_Registry;
       Recent   : Editor.Recent_Buffers.Recent_Buffer_State;
       Project  : Editor.Project.Project_State;
-      Config   : Editor.Buffer_Switcher.Buffer_Switcher_Config);
+      Config   : Editor.Buffer_Switcher.Config.Buffer_Switcher_Config);
 
    procedure Move_Selection_Down
      (State : in out Editor.Buffer_Switcher.Buffer_Switcher_State);
@@ -149,21 +153,21 @@ package Editor.Buffer_Switcher.Row_Operations is
 
    function Row_At
      (State : Editor.Buffer_Switcher.Buffer_Switcher_State;
-      Index : Positive) return Editor.Buffer_Switcher.Buffer_Switcher_Row;
+      Index : Positive) return Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
 
    function Row_For_Buffer
      (State : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Id    : Editor.Buffer_Types.Buffer_Id;
-      Found : out Boolean) return Editor.Buffer_Switcher.Buffer_Switcher_Row;
+      Found : out Boolean) return Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
 
    function Selected_Row
      (State : Editor.Buffer_Switcher.Buffer_Switcher_State;
-      Found : out Boolean) return Editor.Buffer_Switcher.Buffer_Switcher_Row;
+      Found : out Boolean) return Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
 
    function Audit_Selected_Buffer_List_State
      (State    : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Registry : Editor.Buffers.Buffer_Registry)
-      return Editor.Buffer_Switcher.Selected_Buffer_List_Audit;
+      return Editor.Buffer_Switcher.Audits.Selected_Buffer_List_Audit;
 
    function Query_Snapshot
      (State           : Editor.Buffer_Switcher.Buffer_Switcher_State;
@@ -171,7 +175,7 @@ package Editor.Buffer_Switcher.Row_Operations is
 
    function Geometry
      (Body_Rect   : Editor.Layout.Rect;
-      Config      : Editor.Buffer_Switcher.Buffer_Switcher_Config;
+      Config      : Editor.Buffer_Switcher.Config.Buffer_Switcher_Config;
       Cell_Width  : Positive;
       Cell_Height : Positive) return Editor.Layout.Rect;
 

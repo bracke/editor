@@ -1,4 +1,6 @@
 with Editor.Buffer_Switcher;
+with Editor.Buffer_Switcher.Config;
+with Editor.Buffer_Switcher.Rows;
 with Editor.Buffers;
 use type Editor.Buffers.Buffer_Id;
 with Editor.Executor;
@@ -11,7 +13,7 @@ with Editor.State;
 
 package body Editor.Executor.Buffer_Switcher_Shared is
 
-   function Default_Buffer_Switcher_Config return Editor.Buffer_Switcher.Buffer_Switcher_Config is
+   function Default_Buffer_Switcher_Config return Editor.Buffer_Switcher.Config.Buffer_Switcher_Config is
    begin
       return (others => <>);
    end Default_Buffer_Switcher_Config;
@@ -42,7 +44,7 @@ package body Editor.Executor.Buffer_Switcher_Shared is
      (S : in out Editor.State.State_Type)
    is
       Found : Boolean := False;
-      Row   : constant Editor.Buffer_Switcher.Buffer_Switcher_Row :=
+      Row   : constant Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row :=
         Editor.Buffer_Switcher.Selected_Row (S.Buffer_Switcher, Found);
    begin
       if not Editor.Buffer_Switcher.Has_Preview (S.Buffer_Switcher) then
@@ -60,7 +62,7 @@ package body Editor.Executor.Buffer_Switcher_Shared is
 
    function Selected_Switcher_Buffer
      (S     : Editor.State.State_Type;
-      Found : out Boolean) return Editor.Buffer_Switcher.Buffer_Switcher_Row
+      Found : out Boolean) return Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row
    is
    begin
       if not Editor.Buffer_Switcher.Is_Open (S.Buffer_Switcher) then

@@ -30,6 +30,8 @@ with Editor.Test_Helper;
 with Editor.Cursors;
 with Editor.History;
 with Editor.Buffer_Switcher;
+with Editor.Buffer_Switcher.Config;
+with Editor.Buffer_Switcher.Rows;
 with Editor.Clipboard;
 with Editor.Navigation_History;
 with Editor.Render_Model;
@@ -1198,7 +1200,7 @@ package body Editor.Buffers.Tests is
       Pinned_Id     : Editor.Buffers.Buffer_Id;
       Existing_Id   : Editor.Buffers.Buffer_Id;
       Reopened_Id   : Editor.Buffers.Buffer_Id;
-      Row           : Editor.Buffer_Switcher.Buffer_Switcher_Row;
+      Row           : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
       Found_Row     : Boolean := False;
    begin
       Editor.Buffers.Reset_Global_For_Test;
@@ -1282,7 +1284,7 @@ package body Editor.Buffers.Tests is
       Editor.Buffer_Switcher.Recompute_Rows
         (S.Buffer_Switcher,
          Editor.Buffers.Global_Registry_For_UI,
-         Editor.Buffer_Switcher.Buffer_Switcher_Config'(others => <>));
+         Editor.Buffer_Switcher.Config.Buffer_Switcher_Config'(others => <>));
       Row := Editor.Buffer_Switcher.Selected_Row (S.Buffer_Switcher, Found_Row);
       Assert (Found_Row and then Row.Id = Editor.Buffers.Global_Active_Buffer,
         "switcher activation semantics should still select the active buffer");
@@ -1405,7 +1407,7 @@ package body Editor.Buffers.Tests is
       Pinned_Id     : Editor.Buffers.Buffer_Id;
       Existing_Id   : Editor.Buffers.Buffer_Id;
       Reopened_Id   : Editor.Buffers.Buffer_Id;
-      Row           : Editor.Buffer_Switcher.Buffer_Switcher_Row;
+      Row           : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
       Found_Row     : Boolean := False;
    begin
       Editor.Buffers.Reset_Global_For_Test;
@@ -1508,7 +1510,7 @@ package body Editor.Buffers.Tests is
       Editor.Buffer_Switcher.Recompute_Rows
         (S.Buffer_Switcher,
          Editor.Buffers.Global_Registry_For_UI,
-         Editor.Buffer_Switcher.Buffer_Switcher_Config'(others => <>));
+         Editor.Buffer_Switcher.Config.Buffer_Switcher_Config'(others => <>));
       Row := Editor.Buffer_Switcher.Selected_Row (S.Buffer_Switcher, Found_Row);
       Assert (Found_Row and then Row.Id = Editor.Buffers.Global_Active_Buffer,
         "switcher activation semantics should still select the active buffer");
@@ -1832,7 +1834,7 @@ package body Editor.Buffers.Tests is
       Editor.Buffer_Switcher.Recompute_Rows
         (S.Buffer_Switcher,
          Editor.Buffers.Global_Registry_For_UI,
-         Editor.Buffer_Switcher.Buffer_Switcher_Config'(others => <>));
+         Editor.Buffer_Switcher.Config.Buffer_Switcher_Config'(others => <>));
       Editor.Buffer_Switcher.Select_Buffer_Or_Row (S.Buffer_Switcher, A_Id, 1);
 
       Editor.Executor.Execute_Command
@@ -2247,7 +2249,7 @@ package body Editor.Buffers.Tests is
       Editor.Buffer_Switcher.Recompute_Rows
         (S.Buffer_Switcher,
          Editor.Buffers.Global_Registry_For_UI,
-         Editor.Buffer_Switcher.Buffer_Switcher_Config'(others => <>));
+         Editor.Buffer_Switcher.Config.Buffer_Switcher_Config'(others => <>));
       Editor.Buffer_Switcher.Select_Buffer_Or_Row (S.Buffer_Switcher, A_Id, 1);
       Editor.Clipboard.Set_Text (To_Unbounded_String ("clipboard"));
 
@@ -3642,7 +3644,7 @@ package body Editor.Buffers.Tests is
       pragma Unreferenced (T);
       Audit       : Editor.Command_Route_Audit.Route_Audit_Result;
       Palette_Row : Editor.Command_Palette.Command_Palette_Row;
-      Buffer_Row  : Editor.Buffer_Switcher.Buffer_Switcher_Row;
+      Buffer_Row  : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
    begin
       Palette_Row.Kind := Editor.Command_Palette.Command_Palette_Command_Row;
       Palette_Row.Primary_Text := To_Unbounded_String ("Close Buffer");

@@ -77,7 +77,9 @@ with Editor.Quick_Open_Markers;
 use type Editor.Quick_Open.Quick_Open_File_Kind_Filter;
 use type Editor.Quick_Open.Quick_Open_Priority_Mode;
 with Editor.Buffer_Switcher;
-use type Editor.Buffer_Switcher.Pending_Marked_Action_Kind;
+with Editor.Buffer_Switcher.Reviews;
+with Editor.Buffer_Switcher.Rows;
+use type Editor.Buffer_Switcher.Reviews.Pending_Marked_Action_Kind;
 with Editor.Go_To_Line;
 with Editor.Bookmarks;
 with Editor.Problems;
@@ -141,7 +143,7 @@ package body Editor.Executor is
    function Marked_Open_Count (S : Editor.State.State_Type) return Natural;
    function Selected_Switcher_Buffer
      (S     : Editor.State.State_Type;
-      Found : out Boolean) return Editor.Buffer_Switcher.Buffer_Switcher_Row;
+      Found : out Boolean) return Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
    function Active_Feature_Buffer_Token
      (S : Editor.State.State_Type) return Natural
    is
@@ -1270,7 +1272,7 @@ package body Editor.Executor is
    end Valid_Buffer_Label_Text;
    function Selected_Switcher_Buffer
      (S     : Editor.State.State_Type;
-      Found : out Boolean) return Editor.Buffer_Switcher.Buffer_Switcher_Row
+      Found : out Boolean) return Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row
    is
    begin
       return Editor.Executor.Buffer_Switcher_Shared.Selected_Switcher_Buffer (S, Found);

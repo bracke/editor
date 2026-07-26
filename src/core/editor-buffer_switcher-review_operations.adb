@@ -1,7 +1,9 @@
+with Editor.Buffer_Switcher.Reviews;
 package body Editor.Buffer_Switcher.Review_Operations is
+   use Editor.Buffer_Switcher.Reviews;
 
-   use type Editor.Buffer_Switcher.Switcher_Review_Mode;
-   use type Editor.Buffer_Switcher.Pending_Marked_Action_Kind;
+   use type Editor.Buffer_Switcher.Reviews.Switcher_Review_Mode;
+   use type Editor.Buffer_Switcher.Reviews.Pending_Marked_Action_Kind;
 
    procedure Set_Switcher_Review_Mode
      (State : in out Buffer_Switcher_State;

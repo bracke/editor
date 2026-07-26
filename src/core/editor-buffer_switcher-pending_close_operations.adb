@@ -1,12 +1,16 @@
+with Editor.Buffer_Switcher.Reviews;
+with Editor.Buffer_Switcher.Rows;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Buffers;
 with Editor.Buffer_Switcher.Review_Operations;
 
 package body Editor.Buffer_Switcher.Pending_Close_Operations is
+   use Editor.Buffer_Switcher.Reviews;
+   use Editor.Buffer_Switcher.Rows;
 
    use type Editor.Buffer_Types.Buffer_Id;
-   use type Editor.Buffer_Switcher.Pending_Marked_Action_Kind;
-   use type Editor.Buffer_Switcher.Switcher_Review_Mode;
+   use type Editor.Buffer_Switcher.Reviews.Pending_Marked_Action_Kind;
+   use type Editor.Buffer_Switcher.Reviews.Switcher_Review_Mode;
 
    function Is_Pending_Marked_Close_Target
      (State : Buffer_Switcher_State;

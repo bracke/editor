@@ -1,20 +1,21 @@
+with Editor.Buffer_Switcher.Reviews;
 package Editor.Buffer_Switcher.Review_Operations is
 
    procedure Set_Switcher_Review_Mode
      (State : in out Editor.Buffer_Switcher.Buffer_Switcher_State;
-      Mode  : Editor.Buffer_Switcher.Switcher_Review_Mode);
+      Mode  : Editor.Buffer_Switcher.Reviews.Switcher_Review_Mode);
 
    procedure Clear_Switcher_Review_Mode
      (State : in out Editor.Buffer_Switcher.Buffer_Switcher_State;
-      Mode  : Editor.Buffer_Switcher.Switcher_Review_Mode);
+      Mode  : Editor.Buffer_Switcher.Reviews.Switcher_Review_Mode);
 
    procedure Toggle_Switcher_Review_Mode
      (State : in out Editor.Buffer_Switcher.Buffer_Switcher_State;
-      Mode  : Editor.Buffer_Switcher.Switcher_Review_Mode);
+      Mode  : Editor.Buffer_Switcher.Reviews.Switcher_Review_Mode);
 
    function Has_Switcher_Review_Mode
      (State : Editor.Buffer_Switcher.Buffer_Switcher_State;
-      Mode  : Editor.Buffer_Switcher.Switcher_Review_Mode) return Boolean;
+      Mode  : Editor.Buffer_Switcher.Reviews.Switcher_Review_Mode) return Boolean;
 
    procedure Clear_Dirty_Prune_Apply_Review_Modes
      (State : in out Editor.Buffer_Switcher.Buffer_Switcher_State);

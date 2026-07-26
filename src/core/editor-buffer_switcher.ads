@@ -18,106 +18,12 @@ package Editor.Buffer_Switcher is
 
    type Buffer_Switcher_State is private;
 
-   subtype Pending_Marked_Action_Kind is
-     Editor.Buffer_Switcher_Model.Reviews.Pending_Marked_Action_Kind;
-   No_Pending_Marked_Action : constant Pending_Marked_Action_Kind :=
-     Editor.Buffer_Switcher_Model.Reviews.No_Pending_Marked_Action;
-   Pending_Marked_Close : constant Pending_Marked_Action_Kind :=
-     Editor.Buffer_Switcher_Model.Reviews.Pending_Marked_Close;
-
-   subtype Switcher_Metadata_Filter_Kind is
-     Editor.Buffer_Switcher_Model.Filters.Switcher_Metadata_Filter_Kind;
-   No_Filter : constant Switcher_Metadata_Filter_Kind :=
-     Editor.Buffer_Switcher_Model.Filters.No_Filter;
-   Pinned_Filter : constant Switcher_Metadata_Filter_Kind :=
-     Editor.Buffer_Switcher_Model.Filters.Pinned_Filter;
-   Group_Filter : constant Switcher_Metadata_Filter_Kind :=
-     Editor.Buffer_Switcher_Model.Filters.Group_Filter;
-   Label_Filter : constant Switcher_Metadata_Filter_Kind :=
-     Editor.Buffer_Switcher_Model.Filters.Label_Filter;
-   Noted_Filter : constant Switcher_Metadata_Filter_Kind :=
-     Editor.Buffer_Switcher_Model.Filters.Noted_Filter;
-   Dirty_Filter : constant Switcher_Metadata_Filter_Kind :=
-     Editor.Buffer_Switcher_Model.Filters.Dirty_Filter;
-   Clean_Filter : constant Switcher_Metadata_Filter_Kind :=
-     Editor.Buffer_Switcher_Model.Filters.Clean_Filter;
-   Missing_Or_Conflict_Filter : constant Switcher_Metadata_Filter_Kind :=
-     Editor.Buffer_Switcher_Model.Filters.Missing_Or_Conflict_Filter;
-   Project_Owned_Filter : constant Switcher_Metadata_Filter_Kind :=
-     Editor.Buffer_Switcher_Model.Filters.Project_Owned_Filter;
-   Outside_Project_Filter : constant Switcher_Metadata_Filter_Kind :=
-     Editor.Buffer_Switcher_Model.Filters.Outside_Project_Filter;
-   Scratch_Filter : constant Switcher_Metadata_Filter_Kind :=
-     Editor.Buffer_Switcher_Model.Filters.Scratch_Filter;
-
-   subtype Switcher_Metadata_Filter is
-     Editor.Buffer_Switcher_Model.Filters.Switcher_Metadata_Filter;
-
-   subtype Switcher_Sort_Mode is
-     Editor.Buffer_Switcher_Model.Filters.Switcher_Sort_Mode;
-   Default_Sort : constant Switcher_Sort_Mode :=
-     Editor.Buffer_Switcher_Model.Filters.Default_Sort;
-   Recent_Sort : constant Switcher_Sort_Mode :=
-     Editor.Buffer_Switcher_Model.Filters.Recent_Sort;
-   Name_Sort : constant Switcher_Sort_Mode :=
-     Editor.Buffer_Switcher_Model.Filters.Name_Sort;
-   Pinned_Sort : constant Switcher_Sort_Mode :=
-     Editor.Buffer_Switcher_Model.Filters.Pinned_Sort;
-   Group_Sort : constant Switcher_Sort_Mode :=
-     Editor.Buffer_Switcher_Model.Filters.Group_Sort;
-   Label_Sort : constant Switcher_Sort_Mode :=
-     Editor.Buffer_Switcher_Model.Filters.Label_Sort;
-
-   subtype Switcher_Review_Mode is
-     Editor.Buffer_Switcher_Model.Reviews.Switcher_Review_Mode;
-   No_Review : constant Switcher_Review_Mode :=
-     Editor.Buffer_Switcher_Model.Reviews.No_Review;
-   Marked_Review : constant Switcher_Review_Mode :=
-     Editor.Buffer_Switcher_Model.Reviews.Marked_Review;
-   Pending_Marked_Close_Review : constant Switcher_Review_Mode :=
-     Editor.Buffer_Switcher_Model.Reviews.Pending_Marked_Close_Review;
-   Pruned_Pending_Close_Review : constant Switcher_Review_Mode :=
-     Editor.Buffer_Switcher_Model.Reviews.Pruned_Pending_Close_Review;
-   Dirty_Pending_Close_Review : constant Switcher_Review_Mode :=
-     Editor.Buffer_Switcher_Model.Reviews.Dirty_Pending_Close_Review;
-   Dirty_Prune_Preview_Review : constant Switcher_Review_Mode :=
-     Editor.Buffer_Switcher_Model.Reviews.Dirty_Prune_Preview_Review;
-   Removed_Dirty_Prune_Preview_Review : constant Switcher_Review_Mode :=
-     Editor.Buffer_Switcher_Model.Reviews.Removed_Dirty_Prune_Preview_Review;
-   Dirty_Prune_Apply_Review : constant Switcher_Review_Mode :=
-     Editor.Buffer_Switcher_Model.Reviews.Dirty_Prune_Apply_Review;
-   Removed_Dirty_Prune_Apply_Review : constant Switcher_Review_Mode :=
-     Editor.Buffer_Switcher_Model.Reviews.Removed_Dirty_Prune_Apply_Review;
-
-   subtype Switcher_Batch_State_Snapshot is
-     Editor.Buffer_Switcher_Model.Reviews.Switcher_Batch_State_Snapshot;
-
-   subtype Buffer_Project_Ownership_Kind is
-     Editor.Buffer_Switcher_Model.Rows.Buffer_Project_Ownership_Kind;
-   Buffer_Project_Unknown : constant Buffer_Project_Ownership_Kind :=
-     Editor.Buffer_Switcher_Model.Rows.Buffer_Project_Unknown;
-   Buffer_Project_Owned : constant Buffer_Project_Ownership_Kind :=
-     Editor.Buffer_Switcher_Model.Rows.Buffer_Project_Owned;
-   Buffer_Project_Outside : constant Buffer_Project_Ownership_Kind :=
-     Editor.Buffer_Switcher_Model.Rows.Buffer_Project_Outside;
-   Buffer_Project_Scratch : constant Buffer_Project_Ownership_Kind :=
-     Editor.Buffer_Switcher_Model.Rows.Buffer_Project_Scratch;
-   Buffer_Project_No_Project : constant Buffer_Project_Ownership_Kind :=
-     Editor.Buffer_Switcher_Model.Rows.Buffer_Project_No_Project;
-
-   subtype Buffer_Switcher_Config is
-     Editor.Buffer_Switcher_Model.Config.Buffer_Switcher_Config;
-   subtype Selected_Buffer_List_Audit is
-     Editor.Buffer_Switcher_Model.Audits.Selected_Buffer_List_Audit;
-   subtype Buffer_Switcher_Row is
-     Editor.Buffer_Switcher_Model.Rows.Buffer_Switcher_Row;
-
    --  canonical projection seam: file-lifecycle-visible row
    --  fields are copied only from the current buffer summary snapshot.  This
    --  helper intentionally has no switcher state parameter, no filesystem
    --  parameter, no prompt parameter, and no command-result parameter.
    function Build_Open_Buffer_Switcher_Row_From_Buffer_Snapshot
-     (Summary : Editor.Buffer_Types.Buffer_Summary) return Buffer_Switcher_Row;
+     (Summary : Editor.Buffer_Types.Buffer_Summary) return Editor.Buffer_Switcher_Model.Rows.Buffer_Switcher_Row;
 
    --  canonical Buffer List projection seam.  Buffer List rows use
    --  the metadata snapshot for buffer identity, path labels, ownership,
@@ -127,28 +33,28 @@ package Editor.Buffer_Switcher is
    --  metadata snapshot.
    function Build_Open_Buffer_Switcher_Row_From_Metadata_Snapshot
      (Metadata : Editor.Buffers.Buffer_Metadata_Snapshot;
-      Summary  : Editor.Buffer_Types.Buffer_Summary) return Buffer_Switcher_Row;
+      Summary  : Editor.Buffer_Types.Buffer_Summary) return Editor.Buffer_Switcher_Model.Rows.Buffer_Switcher_Row;
 
    --  compact observational marker text for render/tests.  The
    --  marker is derived only from a buffer-list row snapshot and never probes
    --  files, switches buffers, closes buffers, or mutates switcher selection.
    function Buffer_Row_State_Markers
-     (Row : Buffer_Switcher_Row) return String;
+     (Row : Editor.Buffer_Switcher_Model.Rows.Buffer_Switcher_Row) return String;
 
    --  render-facing bounded metadata line.  It is built only from
-   --  the already-snapshotted Buffer_Switcher_Row metadata projection.
+   --  the already-snapshotted Editor.Buffer_Switcher_Model.Rows.Buffer_Switcher_Row metadata projection.
    function Buffer_Row_Metadata_Render_Label
-     (Row : Buffer_Switcher_Row) return String;
+     (Row : Editor.Buffer_Switcher_Model.Rows.Buffer_Switcher_Row) return String;
 
    function Buffer_Project_Ownership_Label
-     (Kind : Buffer_Project_Ownership_Kind) return String;
+     (Kind : Editor.Buffer_Switcher_Model.Rows.Buffer_Project_Ownership_Kind) return String;
 
    --  row-level ownership projection helper.  It delegates to the
    --  canonical Editor.Buffers.Classify_Buffer_Ownership helper rather than
    --  recomputing project membership locally.  New Buffer List recomputation
    --  paths should prefer Build_Open_Buffer_Switcher_Row_From_Metadata_Snapshot.
    procedure Apply_Project_Ownership
-     (Row     : in out Buffer_Switcher_Row;
+     (Row     : in out Editor.Buffer_Switcher_Model.Rows.Buffer_Switcher_Row;
       Project : Editor.Project.Project_State);
 
    --  completeness: central display-only empty/status wording for
@@ -209,14 +115,14 @@ package Editor.Buffer_Switcher is
    procedure Set_Outside_Project_Filter (State : in out Buffer_Switcher_State);
    procedure Set_Scratch_Filter (State : in out Buffer_Switcher_State);
    function Has_Metadata_Filter (State : Buffer_Switcher_State) return Boolean;
-   function Metadata_Filter (State : Buffer_Switcher_State) return Switcher_Metadata_Filter;
+   function Metadata_Filter (State : Buffer_Switcher_State) return Editor.Buffer_Switcher_Model.Filters.Switcher_Metadata_Filter;
    function Metadata_Filter_Description (State : Buffer_Switcher_State) return String;
 
-   procedure Set_Sort_Mode (State : in out Buffer_Switcher_State; Mode : Switcher_Sort_Mode);
+   procedure Set_Sort_Mode (State : in out Buffer_Switcher_State; Mode : Editor.Buffer_Switcher_Model.Filters.Switcher_Sort_Mode);
    procedure Clear_Sort_Mode (State : in out Buffer_Switcher_State);
    procedure Next_Sort_Mode (State : in out Buffer_Switcher_State);
    procedure Previous_Sort_Mode (State : in out Buffer_Switcher_State);
-   function Sort_Mode (State : Buffer_Switcher_State) return Switcher_Sort_Mode;
+   function Sort_Mode (State : Buffer_Switcher_State) return Editor.Buffer_Switcher_Model.Filters.Switcher_Sort_Mode;
    function Sort_Mode_Description (State : Buffer_Switcher_State) return String;
 
    procedure Show_Marked_Review (State : in out Buffer_Switcher_State);
@@ -273,7 +179,7 @@ package Editor.Buffer_Switcher is
       Count       : out Natural;
       Dirty_Count : out Natural);
    procedure Clear_Pending_Marked_Action (State : in out Buffer_Switcher_State);
-   function Pending_Marked_Action (State : Buffer_Switcher_State) return Pending_Marked_Action_Kind;
+   function Pending_Marked_Action (State : Buffer_Switcher_State) return Editor.Buffer_Switcher_Model.Reviews.Pending_Marked_Action_Kind;
    function Pending_Marked_Target_Count (State : Buffer_Switcher_State) return Natural;
    function Pending_Marked_Dirty_Count (State : Buffer_Switcher_State) return Natural;
    function Pending_Marked_Target_At
@@ -439,20 +345,20 @@ package Editor.Buffer_Switcher is
    procedure Recompute_Rows
      (State    : in out Buffer_Switcher_State;
       Registry : Editor.Buffers.Buffer_Registry;
-      Config   : Buffer_Switcher_Config);
+      Config   : Editor.Buffer_Switcher_Model.Config.Buffer_Switcher_Config);
 
    procedure Recompute_Rows
      (State    : in out Buffer_Switcher_State;
       Registry : Editor.Buffers.Buffer_Registry;
       Recent   : Editor.Recent_Buffers.Recent_Buffer_State;
-      Config   : Buffer_Switcher_Config);
+      Config   : Editor.Buffer_Switcher_Model.Config.Buffer_Switcher_Config);
 
    procedure Recompute_Rows
      (State    : in out Buffer_Switcher_State;
       Registry : Editor.Buffers.Buffer_Registry;
       Recent   : Editor.Recent_Buffers.Recent_Buffer_State;
       Project  : Editor.Project.Project_State;
-      Config   : Buffer_Switcher_Config);
+      Config   : Editor.Buffer_Switcher_Model.Config.Buffer_Switcher_Config);
 
    procedure Move_Selection_Down (State : in out Buffer_Switcher_State);
    procedure Move_Selection_Up (State : in out Buffer_Switcher_State);
@@ -494,7 +400,7 @@ package Editor.Buffer_Switcher is
       Registry : Editor.Buffers.Buffer_Registry) return Natural;
    function Build_Switcher_Batch_State_Snapshot
      (State    : Buffer_Switcher_State;
-      Registry : Editor.Buffers.Buffer_Registry) return Switcher_Batch_State_Snapshot;
+      Registry : Editor.Buffers.Buffer_Registry) return Editor.Buffer_Switcher_Model.Reviews.Switcher_Batch_State_Snapshot;
    function Header_Badge_Text
      (State    : Buffer_Switcher_State;
       Registry : Editor.Buffers.Buffer_Registry) return String;
@@ -542,12 +448,12 @@ package Editor.Buffer_Switcher is
    function Row_Count (State : Buffer_Switcher_State) return Natural;
    function Selected_Row_Index (State : Buffer_Switcher_State) return Natural;
    function Top_Row_Index (State : Buffer_Switcher_State) return Natural;
-   function Row_At (State : Buffer_Switcher_State; Index : Positive) return Buffer_Switcher_Row;
+   function Row_At (State : Buffer_Switcher_State; Index : Positive) return Editor.Buffer_Switcher_Model.Rows.Buffer_Switcher_Row;
    function Row_For_Buffer
      (State : Buffer_Switcher_State;
       Id    : Editor.Buffer_Types.Buffer_Id;
-      Found : out Boolean) return Buffer_Switcher_Row;
-   function Selected_Row (State : Buffer_Switcher_State; Found : out Boolean) return Buffer_Switcher_Row;
+      Found : out Boolean) return Editor.Buffer_Switcher_Model.Rows.Buffer_Switcher_Row;
+   function Selected_Row (State : Buffer_Switcher_State; Found : out Boolean) return Editor.Buffer_Switcher_Model.Rows.Buffer_Switcher_Row;
 
    --  selected-buffer validity audit over the real Buffer List
    --  state.  This inspects the selected row/index currently held by the
@@ -556,7 +462,7 @@ package Editor.Buffer_Switcher is
    --  as transient/non-persisted/non-keybinding-payload state.
    function Audit_Selected_Buffer_List_State
      (State    : Buffer_Switcher_State;
-      Registry : Editor.Buffers.Buffer_Registry) return Selected_Buffer_List_Audit;
+      Registry : Editor.Buffers.Buffer_Registry) return Editor.Buffer_Switcher_Model.Audits.Selected_Buffer_List_Audit;
 
    function Query_Snapshot
      (State           : Buffer_Switcher_State;
@@ -564,14 +470,14 @@ package Editor.Buffer_Switcher is
 
    function Geometry
      (Body_Rect   : Editor.Layout.Rect;
-      Config      : Buffer_Switcher_Config;
+      Config      : Editor.Buffer_Switcher_Model.Config.Buffer_Switcher_Config;
       Cell_Width  : Positive;
       Cell_Height : Positive) return Editor.Layout.Rect;
 
 private
    package Row_Vectors is new Ada.Containers.Vectors
      (Index_Type   => Natural,
-      Element_Type => Buffer_Switcher_Row);
+      Element_Type => Editor.Buffer_Switcher_Model.Rows.Buffer_Switcher_Row);
 
    package Mark_Vectors is new Ada.Containers.Vectors
      (Index_Type   => Natural,
@@ -598,15 +504,15 @@ private
       Selected_Index : Natural := 0;
       Top_Index      : Natural := 1;
       Visible_Window : Natural := 12;
-      Active_Filter  : Switcher_Metadata_Filter;
-      Active_Sort    : Switcher_Sort_Mode := Default_Sort;
-      Active_Review : Switcher_Review_Mode := No_Review;
+      Active_Filter  : Editor.Buffer_Switcher_Model.Filters.Switcher_Metadata_Filter;
+      Active_Sort    : Editor.Buffer_Switcher_Model.Filters.Switcher_Sort_Mode := Editor.Buffer_Switcher_Model.Filters.Default_Sort;
+      Active_Review : Editor.Buffer_Switcher_Model.Reviews.Switcher_Review_Mode := Editor.Buffer_Switcher_Model.Reviews.No_Review;
       Preview_Visible : Boolean := False;
       Preview_Target_Id : Editor.Buffer_Types.Buffer_Id := Editor.Buffer_Types.No_Buffer;
       Preview_Anchor : Natural := 1;
       Preview_Scroll : Natural := 0;
       Marks          : Mark_Vectors.Vector;
-      Pending_Action  : Pending_Marked_Action_Kind := No_Pending_Marked_Action;
+      Pending_Action  : Editor.Buffer_Switcher_Model.Reviews.Pending_Marked_Action_Kind := Editor.Buffer_Switcher_Model.Reviews.No_Pending_Marked_Action;
       Pending_Targets : Mark_Vectors.Vector;
       Pending_Target_Original_Positions : Natural_Vectors.Vector;
       Pruned_Pending_Targets : Pruned_Pending_Target_Vectors.Vector;

@@ -1,6 +1,7 @@
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Strings.Unbounded;
 with Editor.Buffer_Switcher;
+with Editor.Buffer_Switcher.Rows;
 with Editor.Command_Palette;
 with Editor.Commands;
 
@@ -149,7 +150,7 @@ package Editor.Command_Route_Audit is
    --  them as payload fields.
    procedure Inspect_Buffer_Switcher_Row_No_Buffer_Payload
      (Result : in out Route_Audit_Result;
-      Row    : Editor.Buffer_Switcher.Buffer_Switcher_Row);
+      Row    : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row);
 
    procedure Inspect_Buffer_Switcher_State_No_Buffer_Payload
      (Result : in out Route_Audit_Result;

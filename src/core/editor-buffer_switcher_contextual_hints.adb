@@ -1,6 +1,8 @@
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Buffer_Switcher;
+with Editor.Buffer_Switcher.Reviews;
+with Editor.Buffer_Switcher.Rows;
 with Editor.Buffers;
 with Editor.Commands;
 with Editor.Executor;
@@ -10,7 +12,7 @@ with Editor.Settings;
 
 package body Editor.Buffer_Switcher_Contextual_Hints is
 
-   use type Editor.Buffer_Switcher.Switcher_Review_Mode;
+   use type Editor.Buffer_Switcher.Reviews.Switcher_Review_Mode;
    use type Editor.Buffers.Buffer_Id;
    use type Editor.Commands.Command_Id;
 
@@ -112,54 +114,54 @@ package body Editor.Buffer_Switcher_Contextual_Hints is
       Show_Keybindings : Boolean)
    is
       use Editor.Commands;
-      Mode : constant Editor.Buffer_Switcher.Switcher_Review_Mode :=
+      Mode : constant Editor.Buffer_Switcher.Reviews.Switcher_Review_Mode :=
         Editor.Buffer_Switcher.Build_Switcher_Batch_State_Snapshot
           (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI).Active_Review_Mode;
    begin
       case Mode is
-         when Editor.Buffer_Switcher.No_Review =>
+         when Editor.Buffer_Switcher.Reviews.No_Review =>
             null;
-         when Editor.Buffer_Switcher.Marked_Review =>
+         when Editor.Buffer_Switcher.Reviews.Marked_Review =>
             Add_Commands (S, Hints,
               (Command_Buffer_Switcher_Mark_Review_Hide,
                Command_Buffer_Switcher_Mark_Next,
                Command_Buffer_Switcher_Mark_Previous),
               Max_Hints, Show_Keybindings);
-         when Editor.Buffer_Switcher.Pending_Marked_Close_Review =>
+         when Editor.Buffer_Switcher.Reviews.Pending_Marked_Close_Review =>
             Add_Commands (S, Hints,
               (Command_Buffer_Switcher_Pending_Mark_Review_Hide,
                Command_Buffer_Switcher_Pending_Mark_Next,
                Command_Buffer_Switcher_Pending_Mark_Previous),
               Max_Hints, Show_Keybindings);
-         when Editor.Buffer_Switcher.Pruned_Pending_Close_Review =>
+         when Editor.Buffer_Switcher.Reviews.Pruned_Pending_Close_Review =>
             Add_Commands (S, Hints,
               (Command_Buffer_Switcher_Pending_Mark_Pruned_Review_Hide,
                Command_Buffer_Switcher_Pending_Mark_Pruned_Next,
                Command_Buffer_Switcher_Pending_Mark_Pruned_Previous),
               Max_Hints, Show_Keybindings);
-         when Editor.Buffer_Switcher.Dirty_Pending_Close_Review =>
+         when Editor.Buffer_Switcher.Reviews.Dirty_Pending_Close_Review =>
             Add_Commands (S, Hints,
               (Command_Buffer_Switcher_Pending_Mark_Dirty_Next,
                Command_Buffer_Switcher_Pending_Mark_Dirty_Previous),
               Max_Hints, Show_Keybindings);
-         when Editor.Buffer_Switcher.Dirty_Prune_Preview_Review =>
+         when Editor.Buffer_Switcher.Reviews.Dirty_Prune_Preview_Review =>
             Add_Commands (S, Hints,
               (Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Review_Hide,
                Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Next,
                Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Previous),
               Max_Hints, Show_Keybindings);
-         when Editor.Buffer_Switcher.Removed_Dirty_Prune_Preview_Review =>
+         when Editor.Buffer_Switcher.Reviews.Removed_Dirty_Prune_Preview_Review =>
             Add_Commands (S, Hints,
               (Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Removed_Next,
                Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Removed_Previous),
               Max_Hints, Show_Keybindings);
-         when Editor.Buffer_Switcher.Dirty_Prune_Apply_Review =>
+         when Editor.Buffer_Switcher.Reviews.Dirty_Prune_Apply_Review =>
             Add_Commands (S, Hints,
               (Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Hide,
                Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Next,
                Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Previous),
               Max_Hints, Show_Keybindings);
-         when Editor.Buffer_Switcher.Removed_Dirty_Prune_Apply_Review =>
+         when Editor.Buffer_Switcher.Reviews.Removed_Dirty_Prune_Apply_Review =>
             Add_Commands (S, Hints,
               (Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Next,
                Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Previous),
@@ -173,17 +175,17 @@ package body Editor.Buffer_Switcher_Contextual_Hints is
       return Switcher_Contextual_Hint_Vectors.Vector
    is
       use Editor.Commands;
-      Snapshot : constant Editor.Buffer_Switcher.Switcher_Batch_State_Snapshot :=
+      Snapshot : constant Editor.Buffer_Switcher.Reviews.Switcher_Batch_State_Snapshot :=
         Editor.Buffer_Switcher.Build_Switcher_Batch_State_Snapshot
           (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI);
       Show_Keybindings : constant Boolean :=
         Editor.Settings.Command_Palette_Show_Keybindings (S.Settings);
       Hints : Switcher_Contextual_Hint_Vectors.Vector;
       Found : Boolean := False;
-      Row   : constant Editor.Buffer_Switcher.Buffer_Switcher_Row :=
+      Row   : constant Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row :=
         Editor.Buffer_Switcher.Selected_Row (S.Buffer_Switcher, Found);
    begin
-      if Snapshot.Active_Review_Mode /= Editor.Buffer_Switcher.No_Review then
+      if Snapshot.Active_Review_Mode /= Editor.Buffer_Switcher.Reviews.No_Review then
          Add_Review_Commands (S, Hints, Max_Hints, Show_Keybindings);
       end if;
 

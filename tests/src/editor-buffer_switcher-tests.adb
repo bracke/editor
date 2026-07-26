@@ -1,3 +1,8 @@
+with Editor.Buffer_Switcher.Audits;
+with Editor.Buffer_Switcher.Config;
+with Editor.Buffer_Switcher.Reviews;
+with Editor.Buffer_Switcher.Filters;
+with Editor.Buffer_Switcher.Rows;
 with Editor.Commands.Payloads;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
@@ -46,9 +51,9 @@ package body Editor.Buffer_Switcher.Tests is
    use type Editor.Settings.Settings_Status;
    use type Editor.Recent_Projects.Recent_Project_Status;
    use type Editor.Keybinding_Config.Keybinding_Config_Status;
-   use type Editor.Buffer_Switcher.Switcher_Sort_Mode;
-   use type Editor.Buffer_Switcher.Switcher_Review_Mode;
-   use type Editor.Buffer_Switcher.Buffer_Project_Ownership_Kind;
+   use type Editor.Buffer_Switcher.Filters.Switcher_Sort_Mode;
+   use type Editor.Buffer_Switcher.Reviews.Switcher_Review_Mode;
+   use type Editor.Buffer_Switcher.Rows.Buffer_Project_Ownership_Kind;
 
 
    function Name (T : Buffer_Switcher_Test_Case) return AUnit.Message_String is
@@ -209,7 +214,7 @@ package body Editor.Buffer_Switcher.Tests is
       Alpha : out Editor.Buffers.Buffer_Id;
       Beta  : out Editor.Buffers.Buffer_Id)
    is
-      Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Editor.Buffers.Global_Add_File_Buffer
@@ -308,7 +313,7 @@ package body Editor.Buffer_Switcher.Tests is
 
    function Row_For
      (S  : Editor.Buffer_Switcher.Buffer_Switcher_State;
-      Id : Editor.Buffers.Buffer_Id) return Editor.Buffer_Switcher.Buffer_Switcher_Row
+      Id : Editor.Buffers.Buffer_Id) return Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row
    is
       Index : constant Natural := Row_Index_For (S, Id);
    begin
@@ -320,7 +325,7 @@ package body Editor.Buffer_Switcher.Tests is
      (S        : in out Editor.Buffer_Switcher.Buffer_Switcher_State;
       Registry : Editor.Buffers.Buffer_Registry)
    is
-      Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
    begin
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Config);
    end Recompute_For_Test;
@@ -352,7 +357,7 @@ package body Editor.Buffer_Switcher.Tests is
       Registry : Editor.Buffers.Buffer_Registry;
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
-      Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffer_Switcher.Open (S);
@@ -371,7 +376,7 @@ package body Editor.Buffer_Switcher.Tests is
       Registry : Editor.Buffers.Buffer_Registry;
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
-      Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffer_Switcher.Open (S);
@@ -393,7 +398,7 @@ package body Editor.Buffer_Switcher.Tests is
       Registry : Editor.Buffers.Buffer_Registry;
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
-      Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffer_Switcher.Open (S);
@@ -413,7 +418,7 @@ package body Editor.Buffer_Switcher.Tests is
       Registry : Editor.Buffers.Buffer_Registry;
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
-      Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
       Closed : Boolean := False;
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
@@ -448,7 +453,7 @@ package body Editor.Buffer_Switcher.Tests is
       Registry : Editor.Buffers.Buffer_Registry;
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
-      Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffers.Pin_Buffer (Registry, Alpha);
@@ -485,7 +490,7 @@ package body Editor.Buffer_Switcher.Tests is
       Registry : Editor.Buffers.Buffer_Registry;
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
-      Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffers.Pin_Buffer (Registry, Alpha);
@@ -515,7 +520,7 @@ package body Editor.Buffer_Switcher.Tests is
       Registry : Editor.Buffers.Buffer_Registry;
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
-      Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffers.Set_Buffer_Label (Registry, Alpha, "test");
@@ -537,7 +542,7 @@ package body Editor.Buffer_Switcher.Tests is
       Registry : Editor.Buffers.Buffer_Registry;
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
-      Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffers.Assign_Buffer_Group (Registry, Alpha, "core");
@@ -560,7 +565,7 @@ package body Editor.Buffer_Switcher.Tests is
       Registry : Editor.Buffers.Buffer_Registry;
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
-      Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffer_Switcher.Open (S);
@@ -590,7 +595,7 @@ package body Editor.Buffer_Switcher.Tests is
       Registry : Editor.Buffers.Buffer_Registry;
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
-      Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffers.Assign_Buffer_Group (Registry, Alpha, "core");
@@ -635,7 +640,7 @@ package body Editor.Buffer_Switcher.Tests is
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Recent : Editor.Recent_Buffers.Recent_Buffer_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
-      Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffers.Pin_Buffer (Registry, Beta);
@@ -648,14 +653,14 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Recent_Buffers.Mark_Activated (Recent, Natural (Beta));
 
       Editor.Buffer_Switcher.Open (S);
-      Editor.Buffer_Switcher.Set_Sort_Mode (S, Editor.Buffer_Switcher.Default_Sort);
+      Editor.Buffer_Switcher.Set_Sort_Mode (S, Editor.Buffer_Switcher.Filters.Default_Sort);
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Recent, Config);
       Assert (Editor.Buffer_Switcher.Row_At (S, 1).Id = Alpha,
               "default sort preserves existing open-buffer order");
       Assert (Editor.Buffer_Switcher.Row_At (S, 2).Id = Beta,
               "default sort keeps second open buffer");
 
-      Editor.Buffer_Switcher.Set_Sort_Mode (S, Editor.Buffer_Switcher.Recent_Sort);
+      Editor.Buffer_Switcher.Set_Sort_Mode (S, Editor.Buffer_Switcher.Filters.Recent_Sort);
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Recent, Config);
       Assert (Editor.Buffer_Switcher.Row_At (S, 1).Id = Beta,
               "recent sort uses most recently activated buffer first");
@@ -664,21 +669,21 @@ package body Editor.Buffer_Switcher.Tests is
       Assert (Editor.Recent_Buffers.Id_At (Recent, 1) = Natural (Beta),
               "recent sort must not mutate recent-buffer order");
 
-      Editor.Buffer_Switcher.Set_Sort_Mode (S, Editor.Buffer_Switcher.Name_Sort);
+      Editor.Buffer_Switcher.Set_Sort_Mode (S, Editor.Buffer_Switcher.Filters.Name_Sort);
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Recent, Config);
       Assert (Editor.Buffer_Switcher.Row_At (S, 1).Id = Alpha,
               "name sort orders main.adb before readme.txt");
       Assert (Editor.Buffer_Switcher.Row_At (S, 3).Id = Untitled,
               "name sort deterministically places untitled by display label");
 
-      Editor.Buffer_Switcher.Set_Sort_Mode (S, Editor.Buffer_Switcher.Pinned_Sort);
+      Editor.Buffer_Switcher.Set_Sort_Mode (S, Editor.Buffer_Switcher.Filters.Pinned_Sort);
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Recent, Config);
       Assert (Editor.Buffer_Switcher.Row_At (S, 1).Id = Beta,
               "pinned sort places pinned buffers first");
       Assert (Editor.Buffer_Switcher.Row_At (S, 2).Id = Alpha,
               "pinned sort preserves fallback order among unpinned buffers");
 
-      Editor.Buffer_Switcher.Set_Sort_Mode (S, Editor.Buffer_Switcher.Group_Sort);
+      Editor.Buffer_Switcher.Set_Sort_Mode (S, Editor.Buffer_Switcher.Filters.Group_Sort);
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Recent, Config);
       Assert (Editor.Buffer_Switcher.Row_At (S, 1).Id = Beta,
               "group sort orders api before core");
@@ -687,7 +692,7 @@ package body Editor.Buffer_Switcher.Tests is
       Assert (Editor.Buffer_Switcher.Row_At (S, 3).Id = Untitled,
               "group sort places ungrouped buffers last");
 
-      Editor.Buffer_Switcher.Set_Sort_Mode (S, Editor.Buffer_Switcher.Label_Sort);
+      Editor.Buffer_Switcher.Set_Sort_Mode (S, Editor.Buffer_Switcher.Filters.Label_Sort);
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Recent, Config);
       Assert (Editor.Buffer_Switcher.Row_At (S, 1).Id = Beta,
               "label sort orders alpha before zeta");
@@ -701,7 +706,7 @@ package body Editor.Buffer_Switcher.Tests is
       Registry : Editor.Buffers.Buffer_Registry;
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
-      Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffers.Set_Buffer_Label (Registry, Alpha, "test");
@@ -709,20 +714,20 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffers.Pin_Buffer (Registry, Beta);
 
       Editor.Buffer_Switcher.Open (S);
-      Assert (Editor.Buffer_Switcher.Sort_Mode (S) = Editor.Buffer_Switcher.Default_Sort,
+      Assert (Editor.Buffer_Switcher.Sort_Mode (S) = Editor.Buffer_Switcher.Filters.Default_Sort,
               "new switcher starts with default sort mode");
       Editor.Buffer_Switcher.Next_Sort_Mode (S);
-      Assert (Editor.Buffer_Switcher.Sort_Mode (S) = Editor.Buffer_Switcher.Recent_Sort,
+      Assert (Editor.Buffer_Switcher.Sort_Mode (S) = Editor.Buffer_Switcher.Filters.Recent_Sort,
               "next sort advances to recent");
       Editor.Buffer_Switcher.Previous_Sort_Mode (S);
-      Assert (Editor.Buffer_Switcher.Sort_Mode (S) = Editor.Buffer_Switcher.Default_Sort,
+      Assert (Editor.Buffer_Switcher.Sort_Mode (S) = Editor.Buffer_Switcher.Filters.Default_Sort,
               "previous sort returns to default");
       Editor.Buffer_Switcher.Previous_Sort_Mode (S);
-      Assert (Editor.Buffer_Switcher.Sort_Mode (S) = Editor.Buffer_Switcher.Label_Sort,
+      Assert (Editor.Buffer_Switcher.Sort_Mode (S) = Editor.Buffer_Switcher.Filters.Label_Sort,
               "previous sort wraps to label");
 
       Editor.Buffer_Switcher.Set_Label_Filter (S, "test");
-      Editor.Buffer_Switcher.Set_Sort_Mode (S, Editor.Buffer_Switcher.Pinned_Sort);
+      Editor.Buffer_Switcher.Set_Sort_Mode (S, Editor.Buffer_Switcher.Filters.Pinned_Sort);
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Config);
       Assert (Editor.Buffer_Switcher.Row_Count (S) = 2,
               "label filter still controls the candidate set under sort");
@@ -730,7 +735,7 @@ package body Editor.Buffer_Switcher.Tests is
               "filtered candidates are then ordered by active sort");
       Assert (Editor.Buffer_Switcher.Metadata_Filter_Description (S) = "label test",
               "setting sort mode does not clear metadata filter");
-      Assert (Editor.Buffer_Switcher.Sort_Mode (S) = Editor.Buffer_Switcher.Pinned_Sort,
+      Assert (Editor.Buffer_Switcher.Sort_Mode (S) = Editor.Buffer_Switcher.Filters.Pinned_Sort,
               "metadata filter does not clear sort mode");
 
       Editor.Buffer_Switcher.Set_Filter_Text (S, "main");
@@ -741,10 +746,10 @@ package body Editor.Buffer_Switcher.Tests is
               "literal query keeps matching filtered buffer only");
 
       Editor.Buffer_Switcher.Clear_Metadata_Filter (S);
-      Assert (Editor.Buffer_Switcher.Sort_Mode (S) = Editor.Buffer_Switcher.Pinned_Sort,
+      Assert (Editor.Buffer_Switcher.Sort_Mode (S) = Editor.Buffer_Switcher.Filters.Pinned_Sort,
               "clearing metadata filter must not clear sort mode");
       Editor.Buffer_Switcher.Clear_Sort_Mode (S);
-      Assert (Editor.Buffer_Switcher.Sort_Mode (S) = Editor.Buffer_Switcher.Default_Sort,
+      Assert (Editor.Buffer_Switcher.Sort_Mode (S) = Editor.Buffer_Switcher.Filters.Default_Sort,
               "clearing sort restores default sort");
    end Test_Sort_Cycles_And_Composes_With_Filters;
 
@@ -756,15 +761,15 @@ package body Editor.Buffer_Switcher.Tests is
       Registry : Editor.Buffers.Buffer_Registry;
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
-      Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
 
       Editor.Buffer_Switcher.Open (S);
-      Editor.Buffer_Switcher.Set_Sort_Mode (S, Editor.Buffer_Switcher.Pinned_Sort);
+      Editor.Buffer_Switcher.Set_Sort_Mode (S, Editor.Buffer_Switcher.Filters.Pinned_Sort);
       Editor.Buffer_Switcher.Close (S);
       Editor.Buffer_Switcher.Open (S);
-      Assert (Editor.Buffer_Switcher.Sort_Mode (S) = Editor.Buffer_Switcher.Pinned_Sort,
+      Assert (Editor.Buffer_Switcher.Sort_Mode (S) = Editor.Buffer_Switcher.Filters.Pinned_Sort,
               "switcher open/close must not clear active sort mode");
 
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Config);
@@ -781,7 +786,7 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Config);
       Assert (Editor.Buffer_Switcher.Row_At (S, 1).Id = Alpha,
               "future unpin/pin changes are reflected without mutating sort state");
-      Assert (Editor.Buffer_Switcher.Sort_Mode (S) = Editor.Buffer_Switcher.Pinned_Sort,
+      Assert (Editor.Buffer_Switcher.Sort_Mode (S) = Editor.Buffer_Switcher.Filters.Pinned_Sort,
               "metadata changes must not clear active sort mode");
    end Test_Sort_State_Survives_Open_Close_And_Uses_Future_Metadata;
 
@@ -791,24 +796,24 @@ package body Editor.Buffer_Switcher.Tests is
       Registry : Editor.Buffers.Buffer_Registry;
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
-      Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffers.Set_Buffer_Note (Registry, Beta, "aaa note that would sort first if notes mattered");
       Editor.Buffers.Set_Buffer_Note (Registry, Alpha, "zzz note that would sort last if notes mattered");
 
       Editor.Buffer_Switcher.Open (S);
-      Editor.Buffer_Switcher.Set_Sort_Mode (S, Editor.Buffer_Switcher.Pinned_Sort);
+      Editor.Buffer_Switcher.Set_Sort_Mode (S, Editor.Buffer_Switcher.Filters.Pinned_Sort);
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Config);
       Assert (Editor.Buffer_Switcher.Row_At (S, 1).Id = Alpha,
               "notes must not affect pinned-sort fallback order");
 
-      Editor.Buffer_Switcher.Set_Sort_Mode (S, Editor.Buffer_Switcher.Group_Sort);
+      Editor.Buffer_Switcher.Set_Sort_Mode (S, Editor.Buffer_Switcher.Filters.Group_Sort);
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Config);
       Assert (Editor.Buffer_Switcher.Row_At (S, 1).Id = Alpha,
               "notes must not affect group-sort ungrouped fallback order");
 
-      Editor.Buffer_Switcher.Set_Sort_Mode (S, Editor.Buffer_Switcher.Label_Sort);
+      Editor.Buffer_Switcher.Set_Sort_Mode (S, Editor.Buffer_Switcher.Filters.Label_Sort);
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Config);
       Assert (Editor.Buffer_Switcher.Row_At (S, 1).Id = Alpha,
               "notes must not affect label-sort unlabeled fallback order");
@@ -823,7 +828,7 @@ package body Editor.Buffer_Switcher.Tests is
       Registry : Editor.Buffers.Buffer_Registry;
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
-      Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffer_Switcher.Open (S);
@@ -872,7 +877,7 @@ package body Editor.Buffer_Switcher.Tests is
       Registry : Editor.Buffers.Buffer_Registry;
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
-      Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
       Count : Natural := 0;
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
@@ -905,7 +910,7 @@ package body Editor.Buffer_Switcher.Tests is
       Registry : Editor.Buffers.Buffer_Registry;
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
-      Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffers.Set_Buffer_Label (Registry, Alpha, "test");
@@ -928,7 +933,7 @@ package body Editor.Buffer_Switcher.Tests is
 
       Editor.Buffer_Switcher.Set_Label_Filter (S, "test");
       Editor.Buffer_Switcher.Set_Filter_Text (S, "read");
-      Editor.Buffer_Switcher.Set_Sort_Mode (S, Editor.Buffer_Switcher.Pinned_Sort);
+      Editor.Buffer_Switcher.Set_Sort_Mode (S, Editor.Buffer_Switcher.Filters.Pinned_Sort);
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Config);
       Assert (Editor.Buffer_Switcher.Row_Count (S) = 1,
               "metadata filter and literal query narrow marked review candidates");
@@ -938,7 +943,7 @@ package body Editor.Buffer_Switcher.Tests is
               "marked review does not clear metadata filter state");
       Assert (Editor.Buffer_Switcher.Filter_Text (S) = "read",
               "marked review does not clear literal switcher query");
-      Assert (Editor.Buffer_Switcher.Sort_Mode (S) = Editor.Buffer_Switcher.Pinned_Sort,
+      Assert (Editor.Buffer_Switcher.Sort_Mode (S) = Editor.Buffer_Switcher.Filters.Pinned_Sort,
               "marked review does not clear sort mode");
 
       Editor.Buffer_Switcher.Hide_Marked_Review (S);
@@ -959,7 +964,7 @@ package body Editor.Buffer_Switcher.Tests is
       Registry : Editor.Buffers.Buffer_Registry;
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
-      Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
       Selected : Boolean := False;
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
@@ -972,7 +977,7 @@ package body Editor.Buffer_Switcher.Tests is
       Assert (Editor.Buffer_Switcher.Select_Next_Marked_Buffer (S),
               "next marked selects a marked candidate");
       declare
-         Row : constant Editor.Buffer_Switcher.Buffer_Switcher_Row :=
+         Row : constant Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row :=
            Editor.Buffer_Switcher.Selected_Row (S, Selected);
       begin
          Assert (Selected and then Row.Id = Untitled,
@@ -981,7 +986,7 @@ package body Editor.Buffer_Switcher.Tests is
       Assert (Editor.Buffer_Switcher.Select_Previous_Marked_Buffer (S),
               "previous marked selects a marked candidate");
       declare
-         Row : constant Editor.Buffer_Switcher.Buffer_Switcher_Row :=
+         Row : constant Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row :=
            Editor.Buffer_Switcher.Selected_Row (S, Selected);
       begin
          Assert (Selected and then Row.Id = Alpha,
@@ -1016,7 +1021,7 @@ package body Editor.Buffer_Switcher.Tests is
       Registry : Editor.Buffers.Buffer_Registry;
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
-      Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
       Count : Natural := 0;
       Dirty_Count : Natural := 0;
       Closed : Boolean := False;
@@ -1053,7 +1058,7 @@ package body Editor.Buffer_Switcher.Tests is
 
       Editor.Buffer_Switcher.Set_Label_Filter (S, "keep");
       Editor.Buffer_Switcher.Set_Filter_Text (S, "read");
-      Editor.Buffer_Switcher.Set_Sort_Mode (S, Editor.Buffer_Switcher.Pinned_Sort);
+      Editor.Buffer_Switcher.Set_Sort_Mode (S, Editor.Buffer_Switcher.Filters.Pinned_Sort);
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Config);
       Assert (Editor.Buffer_Switcher.Row_Count (S) = 1
               and then Editor.Buffer_Switcher.Row_At (S, 1).Id = Beta,
@@ -1096,7 +1101,7 @@ package body Editor.Buffer_Switcher.Tests is
       Registry : Editor.Buffers.Buffer_Registry;
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
-      Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
       Count : Natural := 0;
       Dirty_Count : Natural := 0;
       Removed : Boolean := False;
@@ -1181,7 +1186,7 @@ package body Editor.Buffer_Switcher.Tests is
       Registry : Editor.Buffers.Buffer_Registry;
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
-      Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
       Count : Natural := 0;
       Dirty_Count : Natural := 0;
       Removed : Boolean := False;
@@ -1254,7 +1259,7 @@ package body Editor.Buffer_Switcher.Tests is
       Registry : Editor.Buffers.Buffer_Registry;
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
-      Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
       Count : Natural := 0;
       Dirty_Count : Natural := 0;
       Removed : Boolean := False;
@@ -1314,7 +1319,7 @@ package body Editor.Buffer_Switcher.Tests is
 
       Editor.Buffer_Switcher.Set_Label_Filter (S, "missing");
       Editor.Buffer_Switcher.Set_Filter_Text (S, "not-visible");
-      Editor.Buffer_Switcher.Set_Sort_Mode (S, Editor.Buffer_Switcher.Name_Sort);
+      Editor.Buffer_Switcher.Set_Sort_Mode (S, Editor.Buffer_Switcher.Filters.Name_Sort);
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Config);
       Assert (Editor.Buffer_Switcher.Row_Count (S) = 0,
               "test setup hides active pending targets through metadata filter and literal query");
@@ -1340,7 +1345,7 @@ package body Editor.Buffer_Switcher.Tests is
       Registry : Editor.Buffers.Buffer_Registry;
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
-      Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
       Count : Natural := 0;
       Dirty_Count : Natural := 0;
       Removed : Boolean := False;
@@ -1425,7 +1430,7 @@ package body Editor.Buffer_Switcher.Tests is
       Registry : Editor.Buffers.Buffer_Registry;
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
-      Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
       Count : Natural := 0;
       Dirty_Count : Natural := 0;
       Removed : Boolean := False;
@@ -1458,7 +1463,7 @@ package body Editor.Buffer_Switcher.Tests is
 
       Editor.Buffer_Switcher.Set_Label_Filter (S, "missing");
       Editor.Buffer_Switcher.Set_Filter_Text (S, "not-visible");
-      Editor.Buffer_Switcher.Set_Sort_Mode (S, Editor.Buffer_Switcher.Name_Sort);
+      Editor.Buffer_Switcher.Set_Sort_Mode (S, Editor.Buffer_Switcher.Filters.Name_Sort);
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Config);
       Assert (Editor.Buffer_Switcher.Row_Count (S) = 0,
               "test setup hides all rows through metadata filter and literal query");
@@ -1508,7 +1513,7 @@ package body Editor.Buffer_Switcher.Tests is
       Registry : Editor.Buffers.Buffer_Registry;
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
-      Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
       Count : Natural := 0;
       Dirty_Count : Natural := 0;
       Removed : Boolean := False;
@@ -1605,7 +1610,7 @@ package body Editor.Buffer_Switcher.Tests is
       Registry : Editor.Buffers.Buffer_Registry;
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled, Gamma, Step_Delta : Editor.Buffers.Buffer_Id;
-      Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
       Count : Natural := 0;
       Dirty_Count : Natural := 0;
       Removed : Boolean := False;
@@ -1797,7 +1802,7 @@ package body Editor.Buffer_Switcher.Tests is
       Target : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Name : Unbounded_String := Null_Unbounded_String;
       Remaining : Natural := 0;
-      Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffer_Switcher.Open (S);
@@ -1896,7 +1901,7 @@ package body Editor.Buffer_Switcher.Tests is
       Registry : Editor.Buffers.Buffer_Registry;
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
-      Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
       Count : Natural := 0;
       Dirty_Count : Natural := 0;
       Applicable : Natural := 0;
@@ -2015,7 +2020,7 @@ package body Editor.Buffer_Switcher.Tests is
       Registry : Editor.Buffers.Buffer_Registry;
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
-      Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
       Count : Natural := 0;
       Dirty_Count : Natural := 0;
    begin
@@ -2031,7 +2036,7 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffer_Switcher.Show_Pending_Marked_Review (S);
       Editor.Buffer_Switcher.Set_Label_Filter (S, "review-target");
       Editor.Buffer_Switcher.Set_Filter_Text (S, "read");
-      Editor.Buffer_Switcher.Set_Sort_Mode (S, Editor.Buffer_Switcher.Pinned_Sort);
+      Editor.Buffer_Switcher.Set_Sort_Mode (S, Editor.Buffer_Switcher.Filters.Pinned_Sort);
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Config);
 
       Assert (Editor.Buffer_Switcher.Has_Pending_Marked_Review (S),
@@ -2061,7 +2066,7 @@ package body Editor.Buffer_Switcher.Tests is
       Applicable : Natural := 0;
       Removed : Boolean := False;
       Remaining : Natural := 0;
-      Snapshot : Editor.Buffer_Switcher.Switcher_Batch_State_Snapshot;
+      Snapshot : Editor.Buffer_Switcher.Reviews.Switcher_Batch_State_Snapshot;
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffer_Switcher.Open (S);
@@ -2120,7 +2125,7 @@ package body Editor.Buffer_Switcher.Tests is
 
       Editor.Buffer_Switcher.Show_Dirty_Prune_Apply_Review (S);
       Snapshot := Editor.Buffer_Switcher.Build_Switcher_Batch_State_Snapshot (S, Registry);
-      Assert (Snapshot.Active_Review_Mode = Editor.Buffer_Switcher.Dirty_Prune_Apply_Review
+      Assert (Snapshot.Active_Review_Mode = Editor.Buffer_Switcher.Reviews.Dirty_Prune_Apply_Review
               and then To_String (Snapshot.Review_Display_Name) = "dirty-prune apply"
               and then To_String (Snapshot.Review_Empty_Message) = "No dirty-prune apply targets",
               "snapshot derives review labels and empty messages from the unified review discriminator");
@@ -2139,13 +2144,13 @@ package body Editor.Buffer_Switcher.Tests is
       Registry : Editor.Buffers.Buffer_Registry;
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
-      Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
       Count : Natural := 0;
       Dirty_Count : Natural := 0;
       Applicable : Natural := 0;
       Removed : Boolean := False;
       Remaining : Natural := 0;
-      Snapshot : Editor.Buffer_Switcher.Switcher_Batch_State_Snapshot;
+      Snapshot : Editor.Buffer_Switcher.Reviews.Switcher_Batch_State_Snapshot;
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffer_Switcher.Open (S);
@@ -2169,7 +2174,7 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffer_Switcher.Show_Dirty_Prune_Apply_Review (S);
       Editor.Buffer_Switcher.Set_Label_Filter (S, "shown");
       Editor.Buffer_Switcher.Set_Filter_Text (S, "Untitled");
-      Editor.Buffer_Switcher.Set_Sort_Mode (S, Editor.Buffer_Switcher.Name_Sort);
+      Editor.Buffer_Switcher.Set_Sort_Mode (S, Editor.Buffer_Switcher.Filters.Name_Sort);
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Config);
 
       Assert (Editor.Buffer_Switcher.Row_Count (S) = 1
@@ -2281,7 +2286,7 @@ package body Editor.Buffer_Switcher.Tests is
       Registry : Editor.Buffers.Buffer_Registry;
       Message  : String)
    is
-      Snapshot : constant Editor.Buffer_Switcher.Switcher_Batch_State_Snapshot :=
+      Snapshot : constant Editor.Buffer_Switcher.Reviews.Switcher_Batch_State_Snapshot :=
         Editor.Buffer_Switcher.Build_Switcher_Batch_State_Snapshot (State, Registry);
    begin
       Assert (Snapshot.Pending_Close_Count = 0
@@ -2290,7 +2295,7 @@ package body Editor.Buffer_Switcher.Tests is
               and then not Snapshot.Has_Pending_Marked_Close
               and then not Snapshot.Has_Dirty_Prune_Preview
               and then not Snapshot.Has_Dirty_Prune_Apply_Confirmation
-              and then Snapshot.Active_Review_Mode = Editor.Buffer_Switcher.No_Review,
+              and then Snapshot.Active_Review_Mode = Editor.Buffer_Switcher.Reviews.No_Review,
               Message);
    end Assert_No_Workflow_State;
 
@@ -2303,7 +2308,7 @@ package body Editor.Buffer_Switcher.Tests is
       Count : Natural := 0;
       Dirty_Count : Natural := 0;
       Closed_Count : Natural := 0;
-      Snapshot : Editor.Buffer_Switcher.Switcher_Batch_State_Snapshot;
+      Snapshot : Editor.Buffer_Switcher.Reviews.Switcher_Batch_State_Snapshot;
    begin
       Build_Registry (Registry, A, B, C, D);
       Editor.Buffer_Switcher.Open (S);
@@ -2374,7 +2379,7 @@ package body Editor.Buffer_Switcher.Tests is
       Skipped : Natural := 0;
       Remaining : Natural := 0;
       Closed_Count : Natural := 0;
-      Snapshot : Editor.Buffer_Switcher.Switcher_Batch_State_Snapshot;
+      Snapshot : Editor.Buffer_Switcher.Reviews.Switcher_Batch_State_Snapshot;
    begin
       Build_Registry (Registry, A, B, C, D);
       Editor.Buffer_Switcher.Open (S);
@@ -2450,7 +2455,7 @@ package body Editor.Buffer_Switcher.Tests is
       Remaining : Natural := 0;
       Applied : Natural := 0;
       Skipped : Natural := 0;
-      Snapshot : Editor.Buffer_Switcher.Switcher_Batch_State_Snapshot;
+      Snapshot : Editor.Buffer_Switcher.Reviews.Switcher_Batch_State_Snapshot;
    begin
       Build_Registry (Registry, A, B, C, D);
       Editor.Buffer_Switcher.Open (S);
@@ -2515,7 +2520,7 @@ package body Editor.Buffer_Switcher.Tests is
       Remaining : Natural := 0;
       Applied : Natural := 0;
       Skipped : Natural := 0;
-      Snapshot : Editor.Buffer_Switcher.Switcher_Batch_State_Snapshot;
+      Snapshot : Editor.Buffer_Switcher.Reviews.Switcher_Batch_State_Snapshot;
    begin
       Build_Registry (Registry, A, B, C, D);
       Editor.Buffer_Switcher.Open (S);
@@ -2577,7 +2582,7 @@ package body Editor.Buffer_Switcher.Tests is
       Remaining : Natural := 0;
       Applied : Natural := 0;
       Skipped : Natural := 0;
-      Snapshot : Editor.Buffer_Switcher.Switcher_Batch_State_Snapshot;
+      Snapshot : Editor.Buffer_Switcher.Reviews.Switcher_Batch_State_Snapshot;
    begin
       Build_Registry (Registry, A, B, C, D);
       Editor.Buffer_Switcher.Open (S);
@@ -2639,8 +2644,8 @@ package body Editor.Buffer_Switcher.Tests is
       Applied : Natural := 0;
       Skipped : Natural := 0;
       Remaining : Natural := 0;
-      Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
-      Snapshot : Editor.Buffer_Switcher.Switcher_Batch_State_Snapshot;
+      Config : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
+      Snapshot : Editor.Buffer_Switcher.Reviews.Switcher_Batch_State_Snapshot;
    begin
       Build_Registry (Registry, A, B, C, D);
       Editor.Buffer_Switcher.Open (S);
@@ -2653,7 +2658,7 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffer_Switcher.Prepare_Pending_Marked_Close (S, Registry, Count, Dirty_Count);
       Editor.Buffer_Switcher.Set_Label_Filter (S, "test");
       Editor.Buffer_Switcher.Set_Filter_Text (S, "B");
-      Editor.Buffer_Switcher.Set_Sort_Mode (S, Editor.Buffer_Switcher.Name_Sort);
+      Editor.Buffer_Switcher.Set_Sort_Mode (S, Editor.Buffer_Switcher.Filters.Name_Sort);
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Config);
       Assert (Editor.Buffer_Switcher.Row_Count (S) = 1
               and then Editor.Buffer_Switcher.Row_At (S, 1).Id = B,
@@ -2692,9 +2697,9 @@ package body Editor.Buffer_Switcher.Tests is
       Applicable : Natural := 0;
       Removed : Boolean := False;
       Remaining : Natural := 0;
-      Before : Editor.Buffer_Switcher.Switcher_Batch_State_Snapshot;
-      After : Editor.Buffer_Switcher.Switcher_Batch_State_Snapshot;
-      Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Before : Editor.Buffer_Switcher.Reviews.Switcher_Batch_State_Snapshot;
+      After : Editor.Buffer_Switcher.Reviews.Switcher_Batch_State_Snapshot;
+      Config : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
    begin
       Build_Registry (Registry, A, B, C, D);
       Editor.Buffer_Switcher.Open (S);
@@ -2713,24 +2718,24 @@ package body Editor.Buffer_Switcher.Tests is
 
       Editor.Buffer_Switcher.Show_Marked_Review (S);
       Assert (Editor.Buffer_Switcher.Build_Switcher_Batch_State_Snapshot (S, Registry).Active_Review_Mode =
-              Editor.Buffer_Switcher.Marked_Review,
+              Editor.Buffer_Switcher.Reviews.Marked_Review,
               "marked review becomes the active review mode");
       Editor.Buffer_Switcher.Show_Pending_Marked_Review (S);
       Assert (Editor.Buffer_Switcher.Build_Switcher_Batch_State_Snapshot (S, Registry).Active_Review_Mode =
-              Editor.Buffer_Switcher.Pending_Marked_Close_Review,
+              Editor.Buffer_Switcher.Reviews.Pending_Marked_Close_Review,
               "pending review replaces marked review");
       Editor.Buffer_Switcher.Show_Dirty_Prune_Review (S);
       Assert (Editor.Buffer_Switcher.Build_Switcher_Batch_State_Snapshot (S, Registry).Active_Review_Mode =
-              Editor.Buffer_Switcher.Dirty_Prune_Preview_Review,
+              Editor.Buffer_Switcher.Reviews.Dirty_Prune_Preview_Review,
               "dirty-prune preview review replaces pending review");
       Editor.Buffer_Switcher.Show_Removed_Dirty_Prune_Review (S);
       Assert (Editor.Buffer_Switcher.Build_Switcher_Batch_State_Snapshot (S, Registry).Active_Review_Mode =
-              Editor.Buffer_Switcher.Removed_Dirty_Prune_Preview_Review,
+              Editor.Buffer_Switcher.Reviews.Removed_Dirty_Prune_Preview_Review,
               "removed preview review replaces dirty-prune preview review");
       Editor.Buffer_Switcher.Show_Dirty_Prune_Apply_Review (S);
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Config);
       After := Editor.Buffer_Switcher.Build_Switcher_Batch_State_Snapshot (S, Registry);
-      Assert (After.Active_Review_Mode = Editor.Buffer_Switcher.Dirty_Prune_Apply_Review
+      Assert (After.Active_Review_Mode = Editor.Buffer_Switcher.Reviews.Dirty_Prune_Apply_Review
               and then To_String (After.Review_Display_Name) = "dirty-prune apply"
               and then After.Marked_Count = Before.Marked_Count
               and then After.Pending_Close_Count = Before.Pending_Close_Count
@@ -2740,7 +2745,7 @@ package body Editor.Buffer_Switcher.Tests is
               "review switching changes only the active review discriminator and display label");
       Editor.Buffer_Switcher.Hide_Dirty_Prune_Apply_Review (S);
       After := Editor.Buffer_Switcher.Build_Switcher_Batch_State_Snapshot (S, Registry);
-      Assert (After.Active_Review_Mode = Editor.Buffer_Switcher.No_Review
+      Assert (After.Active_Review_Mode = Editor.Buffer_Switcher.Reviews.No_Review
               and then After.Pending_Close_Count = Before.Pending_Close_Count
               and then After.Dirty_Prune_Apply_Count = Before.Dirty_Prune_Apply_Count,
               "hiding active review returns to ordinary projection without mutating batch state");
@@ -2760,7 +2765,7 @@ package body Editor.Buffer_Switcher.Tests is
       Skipped : Natural := 0;
       Remaining : Natural := 0;
       Closed : Boolean := False;
-      Snapshot : Editor.Buffer_Switcher.Switcher_Batch_State_Snapshot;
+      Snapshot : Editor.Buffer_Switcher.Reviews.Switcher_Batch_State_Snapshot;
    begin
       Build_Registry (Registry, A, B, C, D);
       Editor.Buffer_Switcher.Open (S);
@@ -2807,7 +2812,7 @@ package body Editor.Buffer_Switcher.Tests is
       Skipped : Natural := 0;
       Remaining : Natural := 0;
       Closed_Count : Natural := 0;
-      Snapshot : Editor.Buffer_Switcher.Switcher_Batch_State_Snapshot;
+      Snapshot : Editor.Buffer_Switcher.Reviews.Switcher_Batch_State_Snapshot;
    begin
       Build_Registry (Registry, A, B, C, D);
       Editor.Buffer_Switcher.Open (S);
@@ -2860,7 +2865,7 @@ package body Editor.Buffer_Switcher.Tests is
       Remaining : Natural := 0;
       Applied : Natural := 0;
       Skipped : Natural := 0;
-      Snapshot : Editor.Buffer_Switcher.Switcher_Batch_State_Snapshot;
+      Snapshot : Editor.Buffer_Switcher.Reviews.Switcher_Batch_State_Snapshot;
    begin
       Build_Registry (Registry, A, B, C, D);
       Editor.Buffer_Switcher.Open (S);
@@ -3200,7 +3205,7 @@ package body Editor.Buffer_Switcher.Tests is
       Registry : Editor.Buffers.Buffer_Registry;
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
-      Row : Editor.Buffer_Switcher.Buffer_Switcher_Row;
+      Row : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffers.Set_Active_Buffer (Registry, Alpha);
@@ -3345,7 +3350,7 @@ package body Editor.Buffer_Switcher.Tests is
       Registry : Editor.Buffers.Buffer_Registry;
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
-      Row : Editor.Buffer_Switcher.Buffer_Switcher_Row;
+      Row : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Set_Buffer_Association_For_Test
@@ -3381,7 +3386,7 @@ package body Editor.Buffer_Switcher.Tests is
       Expected_Dirty : Boolean;
       Message       : String)
    is
-      Row : constant Editor.Buffer_Switcher.Buffer_Switcher_Row := Row_For (S, Id);
+      Row : constant Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row := Row_For (S, Id);
    begin
       Assert (To_String (Row.Display_Label) = Expected_Name,
               Message & ": path/display label must be canonical current buffer state");
@@ -3610,7 +3615,7 @@ package body Editor.Buffer_Switcher.Tests is
       Registry : Editor.Buffers.Buffer_Registry;
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
-      Row : Editor.Buffer_Switcher.Buffer_Switcher_Row;
+      Row : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffer_Switcher.Open (S);
@@ -3661,7 +3666,7 @@ package body Editor.Buffer_Switcher.Tests is
          Label_Text              => To_Unbounded_String ("lifecycle"),
          Has_Note                => True,
          Note_Text               => To_Unbounded_String ("not projected as file lifecycle state"));
-      Row : Editor.Buffer_Switcher.Buffer_Switcher_Row;
+      Row : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
    begin
       Row := Editor.Buffer_Switcher.Build_Open_Buffer_Switcher_Row_From_Buffer_Snapshot (Summary);
 
@@ -3711,7 +3716,7 @@ package body Editor.Buffer_Switcher.Tests is
       Registry : Editor.Buffers.Buffer_Registry;
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
-      Row : Editor.Buffer_Switcher.Buffer_Switcher_Row;
+      Row : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffers.Set_Active_Buffer (Registry, Alpha);
@@ -3844,7 +3849,7 @@ package body Editor.Buffer_Switcher.Tests is
       Expected_Index : Natural;
       Context    : String)
    is
-      Row : constant Editor.Buffer_Switcher.Buffer_Switcher_Row := Row_For (S, Id);
+      Row : constant Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row := Row_For (S, Id);
    begin
       Assert (Row.Id = Id, Context & ": row identity derives from buffer identity");
       Assert (To_String (Row.Display_Label) = Label,
@@ -4066,8 +4071,8 @@ package body Editor.Buffer_Switcher.Tests is
       Registry : Editor.Buffers.Buffer_Registry;
       Stale_S, Fresh_S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
-      Stale_Row : Editor.Buffer_Switcher.Buffer_Switcher_Row;
-      Fresh_Row : Editor.Buffer_Switcher.Buffer_Switcher_Row;
+      Stale_Row : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
+      Fresh_Row : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffers.Set_Active_Buffer (Registry, Alpha);
@@ -4124,7 +4129,7 @@ package body Editor.Buffer_Switcher.Tests is
          Label_Text               => Null_Unbounded_String,
          Has_Note                 => False,
          Note_Text                => Null_Unbounded_String);
-      Row : constant Editor.Buffer_Switcher.Buffer_Switcher_Row :=
+      Row : constant Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row :=
         Editor.Buffer_Switcher.Build_Open_Buffer_Switcher_Row_From_Buffer_Snapshot (Summary);
       Markers : constant String := Editor.Buffer_Switcher.Buffer_Row_State_Markers (Row);
       Switcher_State : Editor.Buffer_Switcher.Buffer_Switcher_State;
@@ -4175,7 +4180,7 @@ package body Editor.Buffer_Switcher.Tests is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
       A : Editor.Commands.Command_Availability;
-      Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
       Alpha : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Beta  : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
    begin
@@ -4273,11 +4278,11 @@ package body Editor.Buffer_Switcher.Tests is
    is
       pragma Unreferenced (T);
       S       : Editor.State.State_Type;
-      Config  : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config  : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
       Inside  : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Outside : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Found   : Boolean := False;
-      Row     : Editor.Buffer_Switcher.Buffer_Switcher_Row;
+      Row     : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Initialize (S);
@@ -4299,7 +4304,7 @@ package body Editor.Buffer_Switcher.Tests is
 
       Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Buffer_Switcher, Inside, Found);
       Assert (Found and then Row.Is_Project_Owned
-                and then Row.Project_Ownership = Editor.Buffer_Switcher.Buffer_Project_Owned
+                and then Row.Project_Ownership = Editor.Buffer_Switcher.Rows.Buffer_Project_Owned
                 and then To_String (Row.Project_Ownership_Label) = "project",
               "inside-project buffer rows expose project-owned display markers only");
       Assert (Editor.Buffer_Switcher.Buffer_Row_State_Markers (Row) = "active file project",
@@ -4307,7 +4312,7 @@ package body Editor.Buffer_Switcher.Tests is
 
       Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Buffer_Switcher, Outside, Found);
       Assert (Found and then Row.Is_Outside_Project
-                and then Row.Project_Ownership = Editor.Buffer_Switcher.Buffer_Project_Outside
+                and then Row.Project_Ownership = Editor.Buffer_Switcher.Rows.Buffer_Project_Outside
                 and then To_String (Row.Project_Ownership_Label) = "outside project",
               "outside-project buffer rows expose outside-project display markers only");
       Assert (Editor.Buffer_Switcher.Buffer_Row_State_Markers (Row) = "file outside-project",
@@ -4327,12 +4332,12 @@ package body Editor.Buffer_Switcher.Tests is
    is
       pragma Unreferenced (T);
       S       : Editor.State.State_Type;
-      Config  : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config  : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
       Inside  : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Outside : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Scratch : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Found   : Boolean := False;
-      Row     : Editor.Buffer_Switcher.Buffer_Switcher_Row;
+      Row     : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Initialize (S);
@@ -4360,7 +4365,7 @@ package body Editor.Buffer_Switcher.Tests is
       Assert (Found and then To_String (Row.Display_Label) = "outside/main.adb",
               "outside-project duplicate basenames receive deterministic parent hints");
       Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Buffer_Switcher, Scratch, Found);
-      Assert (Found and then Row.Project_Ownership = Editor.Buffer_Switcher.Buffer_Project_Scratch
+      Assert (Found and then Row.Project_Ownership = Editor.Buffer_Switcher.Rows.Buffer_Project_Scratch
                 and then Editor.Buffer_Switcher.Buffer_Row_State_Markers (Row) = "scratch",
               "unbacked rows are labelled and marked as scratch without path payloads");
 
@@ -4372,7 +4377,7 @@ package body Editor.Buffer_Switcher.Tests is
            (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, S.Recent_Buffers, No_Project, Config);
       end;
       Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Buffer_Switcher, Inside, Found);
-      Assert (Found and then Row.Project_Ownership = Editor.Buffer_Switcher.Buffer_Project_No_Project
+      Assert (Found and then Row.Project_Ownership = Editor.Buffer_Switcher.Rows.Buffer_Project_No_Project
                 and then To_String (Row.Project_Ownership_Label) = "no project",
               "file-backed rows expose no-project ownership distinctly when no project is open");
 
@@ -4388,12 +4393,12 @@ package body Editor.Buffer_Switcher.Tests is
    is
       pragma Unreferenced (T);
       S       : Editor.State.State_Type;
-      Config  : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config  : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
       Alpha   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Beta    : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Gamma   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Found   : Boolean := False;
-      Row     : Editor.Buffer_Switcher.Buffer_Switcher_Row;
+      Row     : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
       Closed  : Boolean := False;
    begin
       Editor.Buffers.Reset_Global_For_Test;
@@ -4461,7 +4466,7 @@ package body Editor.Buffer_Switcher.Tests is
          Label_Text                 => Null_Unbounded_String,
          Has_Note                   => False,
          Note_Text                  => Null_Unbounded_String);
-      Row : constant Editor.Buffer_Switcher.Buffer_Switcher_Row :=
+      Row : constant Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row :=
         Editor.Buffer_Switcher.Build_Open_Buffer_Switcher_Row_From_Buffer_Snapshot (Summary);
       Markers : constant String := Editor.Buffer_Switcher.Buffer_Row_State_Markers (Row);
       Switcher_State : Editor.Buffer_Switcher.Buffer_Switcher_State;
@@ -4483,11 +4488,11 @@ package body Editor.Buffer_Switcher.Tests is
    is
       pragma Unreferenced (T);
       S       : Editor.State.State_Type;
-      Config  : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config  : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
       Main_A  : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Main_B  : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Found   : Boolean := False;
-      Row     : Editor.Buffer_Switcher.Buffer_Switcher_Row;
+      Row     : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Initialize (S);
@@ -4532,7 +4537,7 @@ package body Editor.Buffer_Switcher.Tests is
       S       : Editor.State.State_Type;
       No_Project_State : Editor.Buffer_Switcher.Buffer_Switcher_State;
       No_Project_Registry : Editor.Buffers.Buffer_Registry;
-      Config  : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config  : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
       Project_Main : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Project_Test : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Outside_Main : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
@@ -4540,7 +4545,7 @@ package body Editor.Buffer_Switcher.Tests is
       Scratch      : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       No_Project_Id : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Found   : Boolean := False;
-      Row     : Editor.Buffer_Switcher.Buffer_Switcher_Row;
+      Row     : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
       Project_Label_Before : Unbounded_String;
       Outside_Label_Before : Unbounded_String;
       Deep_Path : constant String :=
@@ -4615,7 +4620,7 @@ package body Editor.Buffer_Switcher.Tests is
         (S.Buffer_Switcher, Scratch, Found);
       Assert (Found and then Row.Is_Unbacked
                 and then Row.Project_Ownership =
-                  Editor.Buffer_Switcher.Buffer_Project_Scratch
+                  Editor.Buffer_Switcher.Rows.Buffer_Project_Scratch
                 and then Length (Row.Display_Label) > 0,
               "scratch labels stay readable and pathless");
 
@@ -4637,7 +4642,7 @@ package body Editor.Buffer_Switcher.Tests is
 
       Editor.Buffer_Switcher.Set_Filter_Text (S.Buffer_Switcher, "main.adb");
       Editor.Buffer_Switcher.Set_Sort_Mode
-        (S.Buffer_Switcher, Editor.Buffer_Switcher.Name_Sort);
+        (S.Buffer_Switcher, Editor.Buffer_Switcher.Filters.Name_Sort);
       Editor.Buffer_Switcher.Recompute_Rows
         (S.Buffer_Switcher,
          Editor.Buffers.Global_Registry_For_UI,
@@ -4659,7 +4664,7 @@ package body Editor.Buffer_Switcher.Tests is
         (No_Project_State, No_Project_Id, Found);
       Assert (Found and then To_String (Row.Display_Label) = "main.adb"
                 and then Row.Project_Ownership =
-                  Editor.Buffer_Switcher.Buffer_Project_No_Project,
+                  Editor.Buffer_Switcher.Rows.Buffer_Project_No_Project,
               "no-project file labels use canonical buffer display text");
 
       Editor.Buffers.Reset_Global_For_Test;
@@ -4675,10 +4680,10 @@ package body Editor.Buffer_Switcher.Tests is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
       S        : Editor.Buffer_Switcher.Buffer_Switcher_State;
-      Config   : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config   : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
       Id       : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Found    : Boolean := False;
-      Row      : Editor.Buffer_Switcher.Buffer_Switcher_Row;
+      Row      : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
       Markers  : Unbounded_String;
    begin
       Id := Editor.Buffers.Add_Buffer_From_File
@@ -4732,10 +4737,10 @@ package body Editor.Buffer_Switcher.Tests is
          Reload_Failed : Boolean := False;
          Revert_Failed : Boolean := False)
       is
-         Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+         Config : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
          Id     : constant Editor.Buffers.Buffer_Id := Editor.Buffers.Global_Active_Buffer;
          Found  : Boolean := False;
-         Row    : Editor.Buffer_Switcher.Buffer_Switcher_Row;
+         Row    : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
       begin
          Editor.Buffer_Switcher.Open (S.Buffer_Switcher);
          Editor.Buffer_Switcher.Recompute_Rows
@@ -4865,7 +4870,7 @@ package body Editor.Buffer_Switcher.Tests is
       Switcher : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Registry : Editor.Buffers.Buffer_Registry;
       Workspace : Editor.Workspace_Persistence.Workspace_Snapshot;
-      Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
       A, B : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Item : Editor.Workspace_Persistence.Workspace_File_Entry;
       Summary : Unbounded_String;
@@ -4909,7 +4914,7 @@ package body Editor.Buffer_Switcher.Tests is
       Registry : Editor.Buffers.Buffer_Registry;
       Workspace : Editor.Workspace_Persistence.Workspace_Snapshot;
       Loaded    : Editor.Workspace_Persistence.Workspace_Snapshot;
-      Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
       A, B : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Item : Editor.Workspace_Persistence.Workspace_File_Entry;
       Path  : constant String := Temp_Path ("workspace_roundtrip_excludes_buffer_list.session");
@@ -4929,7 +4934,7 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffer_Switcher.Open (Switcher);
       Editor.Buffer_Switcher.Set_Filter_Text (Switcher, "beta");
       Editor.Buffer_Switcher.Set_Dirty_Filter (Switcher);
-      Editor.Buffer_Switcher.Set_Sort_Mode (Switcher, Editor.Buffer_Switcher.Name_Sort);
+      Editor.Buffer_Switcher.Set_Sort_Mode (Switcher, Editor.Buffer_Switcher.Filters.Name_Sort);
       Editor.Buffer_Switcher.Set_Mark (Switcher, B);
       Editor.Buffer_Switcher.Recompute_Rows (Switcher, Registry, Config);
       Assert (Editor.Buffer_Switcher.Row_Count (Switcher) = 1
@@ -4995,7 +5000,7 @@ package body Editor.Buffer_Switcher.Tests is
       Before_Rows : Natural := 0;
       Before_Filter : Unbounded_String;
       Before_Active : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Initialize (S);
@@ -5350,7 +5355,7 @@ package body Editor.Buffer_Switcher.Tests is
       Registry : Editor.Buffers.Buffer_Registry;
       Recent_Buffers : Editor.Recent_Buffers.Recent_Buffer_State;
       Project : Editor.Project.Project_State;
-      Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
       Alpha : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Beta  : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Settings_Model : Editor.Settings.Settings_Model;
@@ -5402,7 +5407,7 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffer_Switcher.Open (S.Buffer_Switcher);
       Editor.Buffer_Switcher.Set_Filter_Text (S.Buffer_Switcher, "settings-recent-query");
       Editor.Buffer_Switcher.Set_Dirty_Filter (S.Buffer_Switcher);
-      Editor.Buffer_Switcher.Set_Sort_Mode (S.Buffer_Switcher, Editor.Buffer_Switcher.Name_Sort);
+      Editor.Buffer_Switcher.Set_Sort_Mode (S.Buffer_Switcher, Editor.Buffer_Switcher.Filters.Name_Sort);
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, Beta);
       Editor.Buffer_Switcher.Show_Marked_Review (S.Buffer_Switcher);
       Editor.Buffer_Switcher.Recompute_Rows (S.Buffer_Switcher, Registry, Recent_Buffers, Project, Config);
@@ -5565,14 +5570,14 @@ package body Editor.Buffer_Switcher.Tests is
       Project  : Editor.Project.Project_State;
       Recent   : Editor.Recent_Buffers.Recent_Buffer_State;
       S        : Editor.Buffer_Switcher.Buffer_Switcher_State;
-      Config   : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config   : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
       Dirty_Project : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Clean_Project : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Scratch       : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Outside       : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Missing       : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Found         : Boolean := False;
-      Row           : Editor.Buffer_Switcher.Buffer_Switcher_Row;
+      Row           : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
       Original_Count : Natural := 0;
       Original_Active : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
    begin
@@ -5685,14 +5690,14 @@ package body Editor.Buffer_Switcher.Tests is
       Registry : Editor.Buffers.Buffer_Registry;
       Recent   : Editor.Recent_Buffers.Recent_Buffer_State;
       Project  : Editor.Project.Project_State;
-      Config   : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config   : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
       Clean_Project  : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Dirty_Project  : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Missing_Project : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Outside_Conflict : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Scratch : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Found : Boolean := False;
-      Row   : Editor.Buffer_Switcher.Buffer_Switcher_Row;
+      Row   : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
 
       procedure Assert_Name_No_Payload (Name : String; Expected : Editor.Commands.Command_Id) is
          Alias_Found : Boolean := False;
@@ -5762,7 +5767,7 @@ package body Editor.Buffer_Switcher.Tests is
                 and then Contains_Text (Editor.Buffer_Switcher.Buffer_Row_State_Markers (Row), "conflict"),
               "final audit shows outside-project external-conflict markers");
       Row := Editor.Buffer_Switcher.Row_For_Buffer (S, Scratch, Found);
-      Assert (Found and then Row.Project_Ownership = Editor.Buffer_Switcher.Buffer_Project_Scratch
+      Assert (Found and then Row.Project_Ownership = Editor.Buffer_Switcher.Rows.Buffer_Project_Scratch
                 and then not Row.Has_Path
                 and then Contains_Text (Editor.Buffer_Switcher.Buffer_Row_State_Markers (Row), "scratch"),
               "final audit shows scratch rows without backing path payloads");
@@ -5824,14 +5829,14 @@ package body Editor.Buffer_Switcher.Tests is
    is
       pragma Unreferenced (T);
       use type Editor.Buffers.Buffer_Ownership_Kind;
-      use type Editor.Buffer_Switcher.Buffer_Project_Ownership_Kind;
+      use type Editor.Buffer_Switcher.Rows.Buffer_Project_Ownership_Kind;
       S       : Editor.State.State_Type;
-      Config  : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config  : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
       Inside  : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Outside : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Scratch : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Found   : Boolean := False;
-      Row     : Editor.Buffer_Switcher.Buffer_Switcher_Row;
+      Row     : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
       Metadata : Editor.Buffers.Buffer_Metadata_Snapshot;
    begin
       Editor.Buffers.Reset_Global_For_Test;
@@ -5869,7 +5874,7 @@ package body Editor.Buffer_Switcher.Tests is
       Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Buffer_Switcher, Inside, Found);
       Assert (Found
                 and then Metadata.Ownership = Editor.Buffers.Buffer_Project_Owned
-                and then Row.Project_Ownership = Editor.Buffer_Switcher.Buffer_Project_Owned
+                and then Row.Project_Ownership = Editor.Buffer_Switcher.Rows.Buffer_Project_Owned
                 and then Row.Is_Project_Owned
                 and then To_String (Row.Path) = To_String (Metadata.File_Path)
                 and then To_String (Row.Display_Label) = To_String (Metadata.Project_Relative_Path),
@@ -5880,7 +5885,7 @@ package body Editor.Buffer_Switcher.Tests is
       Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Buffer_Switcher, Outside, Found);
       Assert (Found
                 and then Metadata.Ownership = Editor.Buffers.Buffer_Outside_Project
-                and then Row.Project_Ownership = Editor.Buffer_Switcher.Buffer_Project_Outside
+                and then Row.Project_Ownership = Editor.Buffer_Switcher.Rows.Buffer_Project_Outside
                 and then Row.Is_Outside_Project
                 and then To_String (Row.Path) = To_String (Metadata.File_Path),
               "Buffer List outside-project rows use normalized metadata classification rather than raw path prefixes");
@@ -5890,7 +5895,7 @@ package body Editor.Buffer_Switcher.Tests is
       Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Buffer_Switcher, Scratch, Found);
       Assert (Found
                 and then Metadata.Ownership = Editor.Buffers.Buffer_Scratch_Unbacked
-                and then Row.Project_Ownership = Editor.Buffer_Switcher.Buffer_Project_Scratch
+                and then Row.Project_Ownership = Editor.Buffer_Switcher.Rows.Buffer_Project_Scratch
                 and then Row.Is_Unbacked
                 and then not Row.Has_Path,
               "Buffer List scratch rows use metadata scratch/unbacked classification");
@@ -5907,9 +5912,9 @@ package body Editor.Buffer_Switcher.Tests is
    is
       pragma Unreferenced (T);
       use type Editor.Buffers.Buffer_Ownership_Kind;
-      use type Editor.Buffer_Switcher.Buffer_Project_Ownership_Kind;
+      use type Editor.Buffer_Switcher.Rows.Buffer_Project_Ownership_Kind;
       Project   : Editor.Project.Project_State;
-      Row       : Editor.Buffer_Switcher.Buffer_Switcher_Row := (others => <>);
+      Row       : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row := (others => <>);
       Canonical : Editor.Buffers.Buffer_Ownership_Kind;
    begin
       Editor.Project.Apply_Open_Result
@@ -5931,7 +5936,7 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffer_Switcher.Apply_Project_Ownership (Row, Project);
 
       Assert (Canonical = Editor.Buffers.Buffer_Outside_Project
-                and then Row.Project_Ownership = Editor.Buffer_Switcher.Buffer_Project_Outside
+                and then Row.Project_Ownership = Editor.Buffer_Switcher.Rows.Buffer_Project_Outside
                 and then Row.Is_Outside_Project
                 and then not Row.Is_Project_Owned
                 and then To_String (Row.Project_Ownership_Label) = "outside project",
@@ -5946,7 +5951,7 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffer_Switcher.Apply_Project_Ownership (Row, Project);
 
       Assert (Canonical = Editor.Buffers.Buffer_Scratch_Unbacked
-                and then Row.Project_Ownership = Editor.Buffer_Switcher.Buffer_Project_Scratch
+                and then Row.Project_Ownership = Editor.Buffer_Switcher.Rows.Buffer_Project_Scratch
                 and then Row.Is_Unbacked
                 and then not Row.Is_Project_Owned
                 and then not Row.Is_Outside_Project,
@@ -5963,7 +5968,7 @@ package body Editor.Buffer_Switcher.Tests is
       S        : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
       Closed   : Boolean := False;
-      Audit    : Editor.Buffer_Switcher.Selected_Buffer_List_Audit;
+      Audit    : Editor.Buffer_Switcher.Audits.Selected_Buffer_List_Audit;
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffer_Switcher.Open (S);
@@ -6009,7 +6014,7 @@ package body Editor.Buffer_Switcher.Tests is
       pragma Unreferenced (T);
       Metadata : Editor.Buffers.Buffer_Metadata_Snapshot := (others => <>);
       Summary  : Editor.Buffers.Buffer_Summary := (others => <>);
-      Row      : Editor.Buffer_Switcher.Buffer_Switcher_Row;
+      Row      : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
       Label    : Unbounded_String := Null_Unbounded_String;
    begin
       Metadata.Id := 42;

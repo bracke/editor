@@ -1,3 +1,8 @@
+with Editor.Buffer_Switcher.Audits;
+with Editor.Buffer_Switcher.Config;
+with Editor.Buffer_Switcher.Filters;
+with Editor.Buffer_Switcher.Rows;
+with Editor.Buffer_Switcher.Reviews;
 with Ada.Containers.Vectors;
 with Ada.Strings.Fixed;
 with Ada.Strings;
@@ -9,10 +14,15 @@ with Editor.Buffer_Switcher.Review_Operations;
 with Editor.Text_Helpers;
 
 package body Editor.Buffer_Switcher.Row_Operations is
+   use Editor.Buffer_Switcher.Config;
+   use Editor.Buffer_Switcher.Filters;
+   use Editor.Buffer_Switcher.Rows;
+   use Editor.Buffer_Switcher.Reviews;
+
    use type Editor.Buffers.Buffer_Close_Eligibility;
    use type Editor.Buffers.Buffer_Ownership_Kind;
    use type Editor.Buffers.Buffer_Dirty_Category;
-   use type Editor.Buffer_Switcher.Buffer_Project_Ownership_Kind;
+   use type Editor.Buffer_Switcher.Rows.Buffer_Project_Ownership_Kind;
    use type Ada.Containers.Count_Type;
 
    No_Recent_Rank : constant Natural := Natural'Last;
@@ -781,9 +791,9 @@ package body Editor.Buffer_Switcher.Row_Operations is
    function Audit_Selected_Buffer_List_State
      (State    : Buffer_Switcher_State;
       Registry : Editor.Buffers.Buffer_Registry)
-      return Editor.Buffer_Switcher.Selected_Buffer_List_Audit
+      return Editor.Buffer_Switcher.Audits.Selected_Buffer_List_Audit
    is
-      Result : Editor.Buffer_Switcher.Selected_Buffer_List_Audit;
+      Result : Editor.Buffer_Switcher.Audits.Selected_Buffer_List_Audit;
       Found  : Boolean := False;
       Row    : Buffer_Switcher_Row;
    begin

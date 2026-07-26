@@ -5,6 +5,10 @@ with Ada.Directories;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Buffers;
 with Editor.Buffer_Switcher;
+with Editor.Buffer_Switcher.Config;
+with Editor.Buffer_Switcher.Reviews;
+with Editor.Buffer_Switcher.Filters;
+with Editor.Buffer_Switcher.Rows;
 with Editor.Commands;
 with Editor.Executor.Buffer_Switcher_Mark_Commands;
 with Editor.Executor.Buffer_Close_Commands;
@@ -21,9 +25,9 @@ with Editor.State;
 package body Editor.Executor.Buffer_Switcher_Tests is
 
    use type Editor.Buffers.Buffer_Id;
-   use type Editor.Buffer_Switcher.Pending_Marked_Action_Kind;
-   use type Editor.Buffer_Switcher.Switcher_Metadata_Filter_Kind;
-   use type Editor.Buffer_Switcher.Switcher_Sort_Mode;
+   use type Editor.Buffer_Switcher.Reviews.Pending_Marked_Action_Kind;
+   use type Editor.Buffer_Switcher.Filters.Switcher_Metadata_Filter_Kind;
+   use type Editor.Buffer_Switcher.Filters.Switcher_Sort_Mode;
    use type Editor.Commands.Command_Availability_Status;
    use type Editor.State.Dirty_Close_Scope;
 
@@ -143,7 +147,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       A_Path : constant String := Ada.Directories.Compose (Root, "alpha.adb");
       S      : Editor.State.State_Type;
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Before : Editor.Buffer_Switcher.Switcher_Metadata_Filter;
+      Before : Editor.Buffer_Switcher.Filters.Switcher_Metadata_Filter;
       Avail  : Editor.Commands.Command_Availability;
    begin
       Remove_Tree_If_Exists (Root);
@@ -239,7 +243,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Sort_Pinned);
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Assert (Editor.Buffer_Switcher.Sort_Mode (S.Buffer_Switcher) = Editor.Buffer_Switcher.Pinned_Sort,
+      Assert (Editor.Buffer_Switcher.Sort_Mode (S.Buffer_Switcher) = Editor.Buffer_Switcher.Filters.Pinned_Sort,
               "pinned sort command sets switcher sort through Executor");
       Assert (Editor.Buffer_Switcher.Row_At (S.Buffer_Switcher, 1).Id = B_Id,
               "pinned sort command recomputes visible rows when switcher is open");
@@ -249,7 +253,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Sort_Label);
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Assert (Editor.Buffer_Switcher.Sort_Mode (S.Buffer_Switcher) = Editor.Buffer_Switcher.Label_Sort,
+      Assert (Editor.Buffer_Switcher.Sort_Mode (S.Buffer_Switcher) = Editor.Buffer_Switcher.Filters.Label_Sort,
               "label sort command replaces previous sort mode");
       Assert (Editor.Buffer_Switcher.Row_At (S.Buffer_Switcher, 1).Id = B_Id,
               "label sort orders labeled buffers by label text");
@@ -261,7 +265,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Sort_Next);
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Assert (Editor.Buffer_Switcher.Sort_Mode (S.Buffer_Switcher) = Editor.Buffer_Switcher.Default_Sort,
+      Assert (Editor.Buffer_Switcher.Sort_Mode (S.Buffer_Switcher) = Editor.Buffer_Switcher.Filters.Default_Sort,
               "next sort wraps from label to default");
       Assert (Editor.Buffer_Switcher.Row_At (S.Buffer_Switcher, 1).Id = A_Id,
               "default sort restores existing switcher order");
@@ -269,7 +273,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Sort_Previous);
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Assert (Editor.Buffer_Switcher.Sort_Mode (S.Buffer_Switcher) = Editor.Buffer_Switcher.Label_Sort,
+      Assert (Editor.Buffer_Switcher.Sort_Mode (S.Buffer_Switcher) = Editor.Buffer_Switcher.Filters.Label_Sort,
               "previous sort wraps from default to label");
 
       Remove_Tree_If_Exists (Root);
@@ -291,8 +295,8 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       S      : Editor.State.State_Type;
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Before_Filter   : Editor.Buffer_Switcher.Switcher_Metadata_Filter;
-      Before_Sort     : Editor.Buffer_Switcher.Switcher_Sort_Mode;
+      Before_Filter   : Editor.Buffer_Switcher.Filters.Switcher_Metadata_Filter;
+      Before_Sort     : Editor.Buffer_Switcher.Filters.Switcher_Sort_Mode;
       Before_Recent_1 : Natural := 0;
       Before_Recent_2 : Natural := 0;
       Avail           : Editor.Commands.Command_Availability;
@@ -313,7 +317,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Editor.Buffers.Global_Pin_Buffer (B_Id);
       Editor.Buffers.Global_Set_Buffer_Label (B_Id, "test");
       Editor.Buffer_Switcher.Set_Label_Filter (S.Buffer_Switcher, "test");
-      Editor.Buffer_Switcher.Set_Sort_Mode (S.Buffer_Switcher, Editor.Buffer_Switcher.Pinned_Sort);
+      Editor.Buffer_Switcher.Set_Sort_Mode (S.Buffer_Switcher, Editor.Buffer_Switcher.Filters.Pinned_Sort);
       Before_Filter := Editor.Buffer_Switcher.Metadata_Filter (S.Buffer_Switcher);
       Before_Sort := Editor.Buffer_Switcher.Sort_Mode (S.Buffer_Switcher);
       Before_Recent_1 := Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 1);
@@ -406,7 +410,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Buffer_Switcher_Previous_Result (S);
       declare
-         Row : constant Editor.Buffer_Switcher.Buffer_Switcher_Row :=
+         Row : constant Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row :=
            Editor.Buffer_Switcher.Selected_Row (S.Buffer_Switcher, Found);
       begin
          Assert (Found and then Row.Id = A_Id,
@@ -622,7 +626,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       A_Id  : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id  : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       C_Id  : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Row   : Editor.Buffer_Switcher.Buffer_Switcher_Row;
+      Row   : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
       Found : Boolean := False;
    begin
       Editor.Buffers.Reset_Global_For_Test;
@@ -676,7 +680,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       S      : Editor.State.State_Type;
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Row    : Editor.Buffer_Switcher.Buffer_Switcher_Row;
+      Row    : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
       Found  : Boolean := False;
       Cmd    : constant Editor.Commands.Payloads.Command :=
         Editor.Commands.Payloads.Command_For_Id
@@ -733,7 +737,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       S      : Editor.State.State_Type;
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Row    : Editor.Buffer_Switcher.Buffer_Switcher_Row;
+      Row    : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
       Found  : Boolean := False;
       Result : Editor.Files.File_Open_Result;
       Cmd    : constant Editor.Commands.Payloads.Command :=
@@ -804,7 +808,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       S      : Editor.State.State_Type;
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Row    : Editor.Buffer_Switcher.Buffer_Switcher_Row;
+      Row    : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
       Found  : Boolean := False;
       Result : Editor.Files.File_Open_Result;
       Cmd    : constant Editor.Commands.Payloads.Command :=
@@ -974,7 +978,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Buffer_Switcher_Previous_Result (S);
       declare
-         Row : constant Editor.Buffer_Switcher.Buffer_Switcher_Row :=
+         Row : constant Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row :=
            Editor.Buffer_Switcher.Selected_Row (S.Buffer_Switcher, Found);
       begin
          Assert (Found and then Row.Id = A_Id,
@@ -1117,7 +1121,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Buffer_Switcher_Previous_Result (S);
       declare
-         Row : constant Editor.Buffer_Switcher.Buffer_Switcher_Row :=
+         Row : constant Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row :=
            Editor.Buffer_Switcher.Selected_Row (S.Buffer_Switcher, Found);
       begin
          Assert (Found and then Row.Id = A_Id,
@@ -1145,7 +1149,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 0,
               "marking must not push navigation history");
       declare
-         Row : constant Editor.Buffer_Switcher.Buffer_Switcher_Row :=
+         Row : constant Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row :=
            Editor.Buffer_Switcher.Selected_Row (S.Buffer_Switcher, Found);
       begin
          Assert (Found and then Row.Is_Marked,
@@ -1211,7 +1215,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, B_Id);
       Editor.Buffer_Switcher.Set_Label_Filter (S.Buffer_Switcher, "test");
       Editor.Buffer_Switcher.Set_Sort_Mode
-        (S.Buffer_Switcher, Editor.Buffer_Switcher.Name_Sort);
+        (S.Buffer_Switcher, Editor.Buffer_Switcher.Filters.Name_Sort);
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
 
       Assert (Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) = 2,
@@ -1360,8 +1364,8 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Avail  : Editor.Commands.Command_Availability;
-      Before_Filter : Editor.Buffer_Switcher.Switcher_Metadata_Filter;
-      Before_Sort   : Editor.Buffer_Switcher.Switcher_Sort_Mode;
+      Before_Filter : Editor.Buffer_Switcher.Filters.Switcher_Metadata_Filter;
+      Before_Sort   : Editor.Buffer_Switcher.Filters.Switcher_Sort_Mode;
    begin
       Remove_Tree_If_Exists (Root);
       Ada.Directories.Create_Directory (Root);
@@ -1379,7 +1383,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, A_Id);
       Editor.Buffer_Switcher.Set_Label_Filter (S.Buffer_Switcher, "test");
       Editor.Buffer_Switcher.Set_Sort_Mode
-        (S.Buffer_Switcher, Editor.Buffer_Switcher.Name_Sort);
+        (S.Buffer_Switcher, Editor.Buffer_Switcher.Filters.Name_Sort);
       Editor.Buffer_Switcher.Show_Preview (S.Buffer_Switcher);
       Editor.Buffer_Switcher.Set_Preview_Target (S.Buffer_Switcher, A_Id, 2);
       Editor.Buffer_Switcher.Scroll_Preview_Next_Line (S.Buffer_Switcher);
@@ -1565,9 +1569,9 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       C_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Cmd    : Editor.Commands.Payloads.Command;
-      Before_Filter : Editor.Buffer_Switcher.Switcher_Metadata_Filter;
-      Before_Sort   : Editor.Buffer_Switcher.Switcher_Sort_Mode;
-      Config        : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Before_Filter : Editor.Buffer_Switcher.Filters.Switcher_Metadata_Filter;
+      Before_Sort   : Editor.Buffer_Switcher.Filters.Switcher_Sort_Mode;
+      Config        : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
    begin
       Remove_Tree_If_Exists (Root);
       Ada.Directories.Create_Directory (Root);
@@ -1590,7 +1594,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, A_Id);
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, B_Id);
       Editor.Buffer_Switcher.Set_Label_Filter (S.Buffer_Switcher, "test");
-      Editor.Buffer_Switcher.Set_Sort_Mode (S.Buffer_Switcher, Editor.Buffer_Switcher.Label_Sort);
+      Editor.Buffer_Switcher.Set_Sort_Mode (S.Buffer_Switcher, Editor.Buffer_Switcher.Filters.Label_Sort);
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
       Editor.Buffer_Switcher.Show_Preview (S.Buffer_Switcher);
       Editor.Buffer_Switcher.Set_Preview_Target (S.Buffer_Switcher, C_Id, 1);
@@ -1720,9 +1724,9 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Cmd    : Editor.Commands.Payloads.Command;
       Before_Recent_1 : Natural := 0;
       Before_Recent_2 : Natural := 0;
-      Before_Filter : Editor.Buffer_Switcher.Switcher_Metadata_Filter;
-      Before_Sort   : Editor.Buffer_Switcher.Switcher_Sort_Mode;
-      Config        : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Before_Filter : Editor.Buffer_Switcher.Filters.Switcher_Metadata_Filter;
+      Before_Sort   : Editor.Buffer_Switcher.Filters.Switcher_Sort_Mode;
+      Config        : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
       Before_Selected : Natural := 0;
       Before_Preview  : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
    begin
@@ -1782,7 +1786,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
 
       Editor.Buffer_Switcher.Set_Label_Filter (S.Buffer_Switcher, "prod");
       Editor.Buffer_Switcher.Set_Filter_Text (S.Buffer_Switcher, "");
-      Editor.Buffer_Switcher.Set_Sort_Mode (S.Buffer_Switcher, Editor.Buffer_Switcher.Name_Sort);
+      Editor.Buffer_Switcher.Set_Sort_Mode (S.Buffer_Switcher, Editor.Buffer_Switcher.Filters.Name_Sort);
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
       Editor.Buffer_Switcher.Show_Preview (S.Buffer_Switcher);
       Editor.Buffer_Switcher.Set_Preview_Target (S.Buffer_Switcher, B_Id, 1);
@@ -1927,8 +1931,8 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Cmd    : Editor.Commands.Payloads.Command;
       Found  : Boolean := False;
       Msg    : Editor.Messages.Editor_Message;
-      Before_Filter : Editor.Buffer_Switcher.Switcher_Metadata_Filter;
-      Before_Sort   : Editor.Buffer_Switcher.Switcher_Sort_Mode;
+      Before_Filter : Editor.Buffer_Switcher.Filters.Switcher_Metadata_Filter;
+      Before_Sort   : Editor.Buffer_Switcher.Filters.Switcher_Sort_Mode;
       Before_Recent_1 : Natural := 0;
       Before_Recent_2 : Natural := 0;
    begin
@@ -1954,7 +1958,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, A_Id);
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, B_Id);
       Editor.Buffer_Switcher.Set_Label_Filter (S.Buffer_Switcher, "review");
-      Editor.Buffer_Switcher.Set_Sort_Mode (S.Buffer_Switcher, Editor.Buffer_Switcher.Name_Sort);
+      Editor.Buffer_Switcher.Set_Sort_Mode (S.Buffer_Switcher, Editor.Buffer_Switcher.Filters.Name_Sort);
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Buffer_Switcher_Insert_Text (S, "a");
       Editor.Executor.Buffer_Switcher_Preview_Commands
@@ -1979,7 +1983,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Next);
       Editor.Executor.Execute_No_Log (S, Cmd);
       declare
-         Row : constant Editor.Buffer_Switcher.Buffer_Switcher_Row :=
+         Row : constant Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row :=
            Editor.Buffer_Switcher.Selected_Row (S.Buffer_Switcher, Found);
       begin
          Assert (Found and then Row.Id = B_Id,
@@ -1991,7 +1995,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Previous);
       Editor.Executor.Execute_No_Log (S, Cmd);
       declare
-         Row : constant Editor.Buffer_Switcher.Buffer_Switcher_Row :=
+         Row : constant Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row :=
            Editor.Buffer_Switcher.Selected_Row (S.Buffer_Switcher, Found);
       begin
          Assert (Found and then Row.Id = A_Id,
@@ -2057,8 +2061,8 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       S      : Editor.State.State_Type;
       A_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       B_Id   : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
-      Before_Filter : Editor.Buffer_Switcher.Switcher_Metadata_Filter;
-      Before_Sort   : Editor.Buffer_Switcher.Switcher_Sort_Mode;
+      Before_Filter : Editor.Buffer_Switcher.Filters.Switcher_Metadata_Filter;
+      Before_Sort   : Editor.Buffer_Switcher.Filters.Switcher_Sort_Mode;
       Avail  : Editor.Commands.Command_Availability;
       Recent_Before : Natural := 0;
    begin
@@ -2077,7 +2081,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, A_Id);
       Editor.Buffer_Switcher.Set_Label_Filter (S.Buffer_Switcher, "review");
-      Editor.Buffer_Switcher.Set_Sort_Mode (S.Buffer_Switcher, Editor.Buffer_Switcher.Name_Sort);
+      Editor.Buffer_Switcher.Set_Sort_Mode (S.Buffer_Switcher, Editor.Buffer_Switcher.Filters.Name_Sort);
       Editor.Buffer_Switcher.Show_Marked_Review (S.Buffer_Switcher);
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
       Before_Filter := Editor.Buffer_Switcher.Metadata_Filter (S.Buffer_Switcher);
@@ -2174,7 +2178,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
         (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) =
-              Editor.Buffer_Switcher.Pending_Marked_Close,
+              Editor.Buffer_Switcher.Reviews.Pending_Marked_Close,
               "marked close should prepare confirmation before mutation");
       Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Buffer_Switcher_Mark_Confirm);
@@ -2243,7 +2247,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Editor.Navigation_History.Clear (S.Navigation_History);
       Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Close_Marked);
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Assert (Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) = Editor.Buffer_Switcher.Pending_Marked_Close,
+      Assert (Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) = Editor.Buffer_Switcher.Reviews.Pending_Marked_Close,
               "marked close prepares a pending close action");
       Assert (Editor.Buffer_Switcher.Pending_Marked_Target_Count (S.Buffer_Switcher) = 2,
               "pending close captures the marked open-buffer count");
@@ -2268,14 +2272,14 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Editor.Buffer_Switcher.Clear_All_Marks (S.Buffer_Switcher);
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, C_Id);
       Editor.Buffer_Switcher.Set_Label_Filter (S.Buffer_Switcher, "none");
-      Editor.Buffer_Switcher.Set_Sort_Mode (S.Buffer_Switcher, Editor.Buffer_Switcher.Name_Sort);
+      Editor.Buffer_Switcher.Set_Sort_Mode (S.Buffer_Switcher, Editor.Buffer_Switcher.Filters.Name_Sort);
       Editor.Buffer_Switcher.Toggle_Marked_Review (S.Buffer_Switcher);
       Assert (Editor.Buffer_Switcher.Pending_Marked_Target_At (S.Buffer_Switcher, 1) = A_Id
               and then Editor.Buffer_Switcher.Pending_Marked_Target_At (S.Buffer_Switcher, 2) = B_Id,
               "mark/filter/sort/review changes must not alter captured targets");
       Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Cancel);
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Assert (Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) = Editor.Buffer_Switcher.No_Pending_Marked_Action,
+      Assert (Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) = Editor.Buffer_Switcher.Reviews.No_Pending_Marked_Action,
               "cancel clears pending marked close");
       Assert (Editor.Buffers.Global_Contains (A_Id) and then Editor.Buffers.Global_Contains (B_Id),
               "cancel must not close buffers");
@@ -2336,7 +2340,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
               "confirm closes captured clean buffers even after marks changed");
       Assert (Editor.Buffers.Global_Contains (B_Id),
               "confirm preserves dirty captured buffers through existing close policy");
-      Assert (Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) = Editor.Buffer_Switcher.No_Pending_Marked_Action,
+      Assert (Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) = Editor.Buffer_Switcher.Reviews.No_Pending_Marked_Action,
               "confirm clears pending state after execution");
       Assert (True,
               "successful confirmed closes must not create close-history/reopen entries");
@@ -2467,7 +2471,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Next);
       Editor.Executor.Execute_No_Log (S, Cmd);
       declare
-         Row : constant Editor.Buffer_Switcher.Buffer_Switcher_Row :=
+         Row : constant Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row :=
            Editor.Buffer_Switcher.Selected_Row (S.Buffer_Switcher, Found);
       begin
          Assert (Found and then Row.Id = B_Id,
@@ -2509,7 +2513,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Cancel);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) =
-                Editor.Buffer_Switcher.No_Pending_Marked_Action
+                Editor.Buffer_Switcher.Reviews.No_Pending_Marked_Action
               and then not Editor.Buffer_Switcher.Has_Pending_Marked_Review (S.Buffer_Switcher),
               "cancelling pending close clears pending review state");
 

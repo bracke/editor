@@ -1,3 +1,5 @@
+with Editor.Buffer_Switcher.Reviews;
+with Editor.Buffer_Switcher.Rows;
 package Editor.Buffer_Switcher.Pending_Close_Operations is
 
    function Is_Pending_Marked_Close_Target
@@ -6,8 +8,8 @@ package Editor.Buffer_Switcher.Pending_Close_Operations is
 
    function Build_Switcher_Row_Markers
      (State : Editor.Buffer_Switcher.Buffer_Switcher_State;
-      Row   : Editor.Buffer_Switcher.Buffer_Switcher_Row)
-      return Editor.Buffer_Switcher.Buffer_Switcher_Row;
+      Row   : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row)
+      return Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
 
    function Has_Pruned_Pending_Marked_Close_Targets
      (State : Editor.Buffer_Switcher.Buffer_Switcher_State) return Boolean;
@@ -31,7 +33,7 @@ package Editor.Buffer_Switcher.Pending_Close_Operations is
 
    function Pending_Marked_Action
      (State : Editor.Buffer_Switcher.Buffer_Switcher_State)
-      return Editor.Buffer_Switcher.Pending_Marked_Action_Kind;
+      return Editor.Buffer_Switcher.Reviews.Pending_Marked_Action_Kind;
 
    function Pending_Marked_Target_Count
      (State : Editor.Buffer_Switcher.Buffer_Switcher_State) return Natural;

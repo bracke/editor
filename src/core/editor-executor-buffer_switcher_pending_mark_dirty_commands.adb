@@ -1,6 +1,8 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with Editor.Buffer_Switcher;
+with Editor.Buffer_Switcher.Reviews;
+with Editor.Buffer_Switcher.Rows;
 with Editor.Buffers;
 with Editor.Commands;
 with Editor.Executor.Buffer_Switcher_Shared;
@@ -11,7 +13,7 @@ with Editor.State;
 package body Editor.Executor.Buffer_Switcher_Pending_Mark_Dirty_Commands is
 
    use type Editor.Buffers.Buffer_Id;
-   use type Editor.Buffer_Switcher.Pending_Marked_Action_Kind;
+   use type Editor.Buffer_Switcher.Reviews.Pending_Marked_Action_Kind;
    use type Editor.Commands.Command_Kind;
 
    procedure Report_Info
@@ -38,7 +40,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Dirty_Commands is
 
    function Selected_Switcher_Buffer
      (S     : Editor.State.State_Type;
-      Found : out Boolean) return Editor.Buffer_Switcher.Buffer_Switcher_Row
+      Found : out Boolean) return Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row
       renames Editor.Executor.Buffer_Switcher_Shared.Selected_Switcher_Buffer;
 
    procedure Execute_Buffer_Switcher_Pending_Mark_Dirty_Kind
@@ -97,7 +99,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Dirty_Commands is
       Dirty_Open   : Natural := 0;
    begin
       if Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) =
-        Editor.Buffer_Switcher.No_Pending_Marked_Action
+        Editor.Buffer_Switcher.Reviews.No_Pending_Marked_Action
       then
          Report_Info (S, "No pending marked action");
          return;
@@ -125,7 +127,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Dirty_Commands is
    is
    begin
       if Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) =
-        Editor.Buffer_Switcher.No_Pending_Marked_Action
+        Editor.Buffer_Switcher.Reviews.No_Pending_Marked_Action
       then
          Report_Info (S, "No pending marked action");
       elsif Editor.Buffer_Switcher.Select_Next_Dirty_Pending_Marked_Buffer (S.Buffer_Switcher) then
@@ -142,7 +144,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Dirty_Commands is
    is
    begin
       if Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) =
-        Editor.Buffer_Switcher.No_Pending_Marked_Action
+        Editor.Buffer_Switcher.Reviews.No_Pending_Marked_Action
       then
          Report_Info (S, "No pending marked action");
       elsif Editor.Buffer_Switcher.Select_Previous_Dirty_Pending_Marked_Buffer (S.Buffer_Switcher) then
@@ -158,7 +160,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Dirty_Commands is
      (S : in out Editor.State.State_Type)
    is
       Found     : Boolean := False;
-      Row       : constant Editor.Buffer_Switcher.Buffer_Switcher_Row :=
+      Row       : constant Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row :=
         Editor.Buffer_Switcher.Selected_Row (S.Buffer_Switcher, Found);
       Removed   : Boolean := False;
       Remaining : Natural := 0;
@@ -167,7 +169,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Dirty_Commands is
       Name      : Unbounded_String := Null_Unbounded_String;
    begin
       if Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) /=
-        Editor.Buffer_Switcher.Pending_Marked_Close
+        Editor.Buffer_Switcher.Reviews.Pending_Marked_Close
       then
          Report_Info (S, "No pending marked action");
          return;
@@ -234,7 +236,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Dirty_Commands is
       Pending_Open : Natural := 0;
    begin
       if Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) /=
-        Editor.Buffer_Switcher.Pending_Marked_Close
+        Editor.Buffer_Switcher.Reviews.Pending_Marked_Close
       then
          Report_Info (S, "No pending marked action");
          return;
@@ -387,7 +389,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Dirty_Commands is
      (S : in out Editor.State.State_Type)
    is
       Found      : Boolean := False;
-      Row        : Editor.Buffer_Switcher.Buffer_Switcher_Row;
+      Row        : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
       Removed    : Boolean := False;
       Remaining  : Natural := 0;
       Applicable : Natural := 0;

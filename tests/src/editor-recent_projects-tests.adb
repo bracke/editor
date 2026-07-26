@@ -7,6 +7,7 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Text_IO;
 with Editor.Recent_Projects;
 with Editor.Buffer_Switcher;
+with Editor.Buffer_Switcher.Filters;
 with Editor.Input_Bridge;
 with Editor.Keybindings;
 with Editor.Project;
@@ -266,7 +267,7 @@ package body Editor.Recent_Projects.Tests is
         (S.Buffer_Switcher, "recent-buffer-list-query-must-not-persist");
       Editor.Buffer_Switcher.Set_Outside_Project_Filter (S.Buffer_Switcher);
       Editor.Buffer_Switcher.Set_Sort_Mode
-        (S.Buffer_Switcher, Editor.Buffer_Switcher.Name_Sort);
+        (S.Buffer_Switcher, Editor.Buffer_Switcher.Filters.Name_Sort);
       Editor.Buffer_Switcher.Show_Marked_Review (S.Buffer_Switcher);
 
       Editor.Recent_Projects.Save_To_File (S.Recent_Projects, Path, Status);

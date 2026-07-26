@@ -1,4 +1,5 @@
 with Editor.Buffer_Switcher;
+with Editor.Buffer_Switcher.Rows;
 with Editor.Buffers;
 with Editor.State;
 
@@ -26,7 +27,7 @@ package Editor.Executor.Buffer_Switcher_Shared is
 
    function Selected_Switcher_Buffer
      (S     : Editor.State.State_Type;
-      Found : out Boolean) return Editor.Buffer_Switcher.Buffer_Switcher_Row;
+      Found : out Boolean) return Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
 
    procedure Report_No_Selected_Switcher_Buffer
      (S : in out Editor.State.State_Type);

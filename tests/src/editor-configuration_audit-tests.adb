@@ -9,6 +9,7 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Text_IO;
 with Editor.Buffers;
 with Editor.Buffer_Switcher;
+with Editor.Buffer_Switcher.Config;
 with Editor.Command_Palette;
 with Editor.Commands;
 with Editor.Commands.Name_Metadata;
@@ -929,7 +930,7 @@ package body Editor.Configuration_Audit.Tests is
       S       : Editor.State.State_Type;
       Id      : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Closed  : Boolean := False;
-      Config  : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
+      Config  : constant Editor.Buffer_Switcher.Config.Buffer_Switcher_Config := (others => <>);
       Summary : Editor.Configuration_Audit.Buffer_Boundary_Audit_Summary;
       Result  : Editor.Configuration_Audit.Configuration_Audit_Result;
    begin

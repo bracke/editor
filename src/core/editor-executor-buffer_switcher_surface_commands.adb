@@ -1,4 +1,6 @@
 with Editor.Buffer_Switcher;
+with Editor.Buffer_Switcher.Filters;
+with Editor.Buffer_Switcher.Rows;
 with Editor.Buffers;
 with Editor.Commands;
 with Editor.Executor.Buffer_Switcher_Shared;
@@ -36,7 +38,7 @@ package body Editor.Executor.Buffer_Switcher_Surface_Commands is
 
    function Selected_Row
      (S     : Editor.State.State_Type;
-      Found : out Boolean) return Editor.Buffer_Switcher.Buffer_Switcher_Row
+      Found : out Boolean) return Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row
    is
    begin
       return Editor.Executor.Buffer_Switcher_Shared.Selected_Switcher_Buffer
@@ -83,7 +85,7 @@ package body Editor.Executor.Buffer_Switcher_Surface_Commands is
      (S : Editor.State.State_Type) return Editor.Commands.Command_Availability
    is
       Found : Boolean := False;
-      Row   : Editor.Buffer_Switcher.Buffer_Switcher_Row;
+      Row   : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
    begin
       if not Active_Buffer_Switcher_Overlay (S) then
          return Editor.Commands.Unavailable ("No active overlay");
@@ -235,7 +237,7 @@ package body Editor.Executor.Buffer_Switcher_Surface_Commands is
      (S : in out Editor.State.State_Type)
    is
       Found : Boolean := False;
-      Row   : constant Editor.Buffer_Switcher.Buffer_Switcher_Row :=
+      Row   : constant Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row :=
         Editor.Buffer_Switcher.Selected_Row (S.Buffer_Switcher, Found);
    begin
       Editor.Executor.Clear_Restore_Feedback_Current (S);
@@ -436,7 +438,7 @@ package body Editor.Executor.Buffer_Switcher_Surface_Commands is
 
    procedure Execute_Buffer_Switcher_Sort
      (S    : in out Editor.State.State_Type;
-      Mode : Editor.Buffer_Switcher.Switcher_Sort_Mode)
+      Mode : Editor.Buffer_Switcher.Filters.Switcher_Sort_Mode)
    is
    begin
       Editor.Buffer_Switcher.Set_Sort_Mode (S.Buffer_Switcher, Mode);
@@ -513,22 +515,22 @@ package body Editor.Executor.Buffer_Switcher_Surface_Commands is
             Execute_Buffer_Switcher_Filter_Noted (S);
          when Editor.Commands.Buffer_Switcher_Sort_Default =>
             Execute_Buffer_Switcher_Sort
-              (S, Editor.Buffer_Switcher.Default_Sort);
+              (S, Editor.Buffer_Switcher.Filters.Default_Sort);
          when Editor.Commands.Buffer_Switcher_Sort_Recent =>
             Execute_Buffer_Switcher_Sort
-              (S, Editor.Buffer_Switcher.Recent_Sort);
+              (S, Editor.Buffer_Switcher.Filters.Recent_Sort);
          when Editor.Commands.Buffer_Switcher_Sort_Name =>
             Execute_Buffer_Switcher_Sort
-              (S, Editor.Buffer_Switcher.Name_Sort);
+              (S, Editor.Buffer_Switcher.Filters.Name_Sort);
          when Editor.Commands.Buffer_Switcher_Sort_Pinned =>
             Execute_Buffer_Switcher_Sort
-              (S, Editor.Buffer_Switcher.Pinned_Sort);
+              (S, Editor.Buffer_Switcher.Filters.Pinned_Sort);
          when Editor.Commands.Buffer_Switcher_Sort_Group =>
             Execute_Buffer_Switcher_Sort
-              (S, Editor.Buffer_Switcher.Group_Sort);
+              (S, Editor.Buffer_Switcher.Filters.Group_Sort);
          when Editor.Commands.Buffer_Switcher_Sort_Label =>
             Execute_Buffer_Switcher_Sort
-              (S, Editor.Buffer_Switcher.Label_Sort);
+              (S, Editor.Buffer_Switcher.Filters.Label_Sort);
          when Editor.Commands.Buffer_Switcher_Sort_Next =>
             Execute_Buffer_Switcher_Sort_Next (S);
          when Editor.Commands.Buffer_Switcher_Sort_Previous =>

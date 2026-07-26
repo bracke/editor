@@ -11,6 +11,7 @@ with Interfaces.C;
 with Editor.Commands;
 with Editor.Buffers;
 with Editor.Buffer_Switcher;
+with Editor.Buffer_Switcher.Filters;
 with Editor.Command_Palette;
 with Editor.Cursor;
 with Editor.Diagnostics;
@@ -823,7 +824,7 @@ package body Editor.Settings.Tests is
         (S.Buffer_Switcher, "buffer-list-query-must-not-persist");
       Editor.Buffer_Switcher.Set_Dirty_Filter (S.Buffer_Switcher);
       Editor.Buffer_Switcher.Set_Sort_Mode
-        (S.Buffer_Switcher, Editor.Buffer_Switcher.Name_Sort);
+        (S.Buffer_Switcher, Editor.Buffer_Switcher.Filters.Name_Sort);
       Editor.Buffer_Switcher.Show_Marked_Review (S.Buffer_Switcher);
 
       Editor.Settings.Save_To_File (S.Settings, Path, Status);
