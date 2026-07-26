@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Classification;
 with Editor.Commands.Availability_Metadata;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;

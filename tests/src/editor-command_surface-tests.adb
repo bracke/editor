@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Registry;
 with Editor.Commands.Classification;
 with Editor.Commands.Stable_Names;
@@ -864,7 +865,7 @@ package body Editor.Command_Surface.Tests is
       for I in 1 .. Editor.Commands.Command_Count loop
          Id := Editor.Commands.Command_At (I);
          Cmd := Editor.Commands.Payloads.Command_For_Id (Id);
-         if Cmd.Kind = Editor.Commands.Break_Group then
+         if Cmd.Kind = Editor.Command_Kinds.Break_Group then
             Assert (Executor_Owns_Break_Group_Command (Id),
                     "Break_Group command id must be explicitly executor-owned: " &
                     Editor.Commands.Command_Id'Image (Id));

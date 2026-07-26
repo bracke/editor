@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Classification;
 with Editor.Commands.Payloads;
@@ -265,7 +266,7 @@ package body Editor.Active_Find.Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
       Editor.Executor.Find_Replace_Input_Commands.Execute_Active_Find_Input_Insert_Text (S, "alpha");
 
-      Cmd.Kind := Editor.Commands.Insert_Text_Input;
+      Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Ch := ASCII.CR;
       Cmd.Text := To_Unbounded_String (String'(1 => ASCII.CR));
       Editor.Input_Bridge.Set_State_For_Test (S);
@@ -391,7 +392,7 @@ package body Editor.Active_Find.Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "alpha");
 
-      Cmd.Kind := Editor.Commands.Insert_Text_Input;
+      Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Ch := 'a';
       Cmd.Text := To_Unbounded_String (String'(1 => 'a'));
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -1070,7 +1071,7 @@ package body Editor.Active_Find.Tests is
 
       S.File_Info.Dirty := False;
       Editor.Executor.File_Open_Commands.Execute_New_Buffer (S);
-      Cmd.Kind := Editor.Commands.Insert_Text_Input;
+      Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Ch := 'b';
       Cmd.Text := To_Unbounded_String (String'(1 => 'b'));
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -1112,7 +1113,7 @@ package body Editor.Active_Find.Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
 
       Editor.Input_Bridge.Set_State_For_Test (S);
-      Cmd.Kind := Editor.Commands.Insert_Text_Input;
+      Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Ch := 'a';
       Cmd.Text := To_Unbounded_String (String'(1 => 'a'));
       Editor.Input_Bridge.Handle (Cmd);
@@ -1132,7 +1133,7 @@ package body Editor.Active_Find.Tests is
          "Find prompt text input must update active Find only and leave Project Search, separate search, and dirty state unchanged");
 
       Editor.Input_Bridge.Set_State_For_Test (After);
-      Cmd.Kind := Editor.Commands.Insert_Text_Input;
+      Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Ch := ASCII.CR;
       Cmd.Text := To_Unbounded_String (String'(1 => ASCII.CR));
       Editor.Input_Bridge.Handle (Cmd);
@@ -1621,7 +1622,7 @@ package body Editor.Active_Find.Tests is
          and then Natural (S.Active_Find_Matches.Length) = 1,
          "query.set must use and preserve current case mode");
 
-      Cmd.Kind := Editor.Commands.Insert_Text_Input;
+      Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Ch := 'x';
       Cmd.Text := To_Unbounded_String (String'(1 => 'x'));
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -1903,7 +1904,7 @@ package body Editor.Active_Find.Tests is
          and then Natural (S.Active_Find_Matches.Length) = 2,
          "query.set must use and preserve current whole-word option");
 
-      Cmd.Kind := Editor.Commands.Insert_Text_Input;
+      Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Ch := 'x';
       Cmd.Text := To_Unbounded_String (String'(1 => 'x'));
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -2190,7 +2191,7 @@ package body Editor.Active_Find.Tests is
          and then Natural (S.Active_Find_Matches.Length) = 2,
          "setup must compute exact whole-word Run matches in buffer A");
 
-      Cmd.Kind := Editor.Commands.Insert_Text_Input;
+      Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Ch := 'x';
       Cmd.Text := To_Unbounded_String (String'(1 => 'x'));
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -2482,7 +2483,7 @@ package body Editor.Active_Find.Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Toggle (S);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Run");
 
-      Cmd.Kind := Editor.Commands.Insert_Text_Input;
+      Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Ch := 'x';
       Cmd.Text := To_Unbounded_String (String'(1 => 'x'));
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -3088,7 +3089,7 @@ package body Editor.Active_Find.Tests is
         (Natural (S.Active_Find_Matches.Length) = 2,
          "setup must have only whole-word Run matches in buffer A");
 
-      Cmd.Kind := Editor.Commands.Insert_Text_Input;
+      Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Ch := 'R';
       Cmd.Text := To_Unbounded_String (String'(1 => 'R'));
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -3111,7 +3112,7 @@ package body Editor.Active_Find.Tests is
 
       S.File_Info.Dirty := False;
       Editor.Executor.File_Open_Commands.Execute_New_Buffer (S);
-      Cmd.Kind := Editor.Commands.Insert_Text_Input;
+      Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Ch := 'x';
       Cmd.Text := To_Unbounded_String (String'(1 => 'x'));
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -3164,7 +3165,7 @@ package body Editor.Active_Find.Tests is
 
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
       Editor.Input_Bridge.Set_State_For_Test (S);
-      Cmd.Kind := Editor.Commands.Insert_Text_Input;
+      Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Ch := 'a';
       Cmd.Text := To_Unbounded_String (String'(1 => 'a'));
       Editor.Input_Bridge.Handle (Cmd);

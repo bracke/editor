@@ -1,3 +1,4 @@
+with Editor.Command_Kinds; use Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
@@ -47,7 +48,7 @@ package body Editor.Executor.Edits is
             | Delete_Char
             | Forward_Delete_Char
             | Delete_Selection_Range
-            | Editor.Commands.Paste_Text =>
+            | Editor.Command_Kinds.Paste_Text =>
             Editor.Executor.Text_Entry_Commands.Execute_Text_Entry_Command
               (S               => S,
                Cmd             => Cmd,

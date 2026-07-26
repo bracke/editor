@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Ada.Containers;
@@ -504,7 +505,7 @@ package body Editor.Executor.Semantic_Rename_Commands is
 
                            Before_Text := To_Unbounded_String
                              (Editor.State.Current_Text (Buffer_State));
-                           Cmd.Kind := Editor.Commands.Apply_Replace_Batch;
+                           Cmd.Kind := Editor.Command_Kinds.Apply_Replace_Batch;
 
                            for Edit of Result.Edits loop
                               if Same_Apply_Target (Edit, Target) then

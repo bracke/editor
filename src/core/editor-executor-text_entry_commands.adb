@@ -1,3 +1,4 @@
+with Editor.Command_Kinds; use Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Text_Buffer;
 with Ada.Containers; use Ada.Containers;
@@ -1044,7 +1045,7 @@ package body Editor.Executor.Text_Entry_Commands is
             Perform_Delete_Selection
               (S, New_Caret, Forward_Cmd, Should_Log_Edit, Line_Status);
 
-         when Editor.Commands.Paste_Text =>
+         when Editor.Command_Kinds.Paste_Text =>
             declare
                Paste_Text : constant Unbounded_String :=
                  Normalize_Paste_Text (Cmd.Text);

@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -104,7 +105,7 @@ package body Editor.Input_Bridge.Command_Palette_Handlers is
          end;
       end Accept_Selected_Palette_Command;
    begin
-      if Cmd.Kind = Editor.Commands.Open_Command_Palette then
+      if Cmd.Kind = Editor.Command_Kinds.Open_Command_Palette then
          Execute (Editor.Commands.Command_Open_Command_Palette);
          return True;
       end if;
@@ -116,7 +117,7 @@ package body Editor.Input_Bridge.Command_Palette_Handlers is
       end if;
 
       case Cmd.Kind is
-         when Editor.Commands.Insert_Text_Input =>
+         when Editor.Command_Kinds.Insert_Text_Input =>
             if Cmd.Ctrl and then (Cmd.Ch = 'a' or else Cmd.Ch = 'A') then
                Editor.Command_Palette.Select_All;
             elsif Cmd.Ch = ASCII.LF or else Cmd.Ch = ASCII.CR then
@@ -127,34 +128,34 @@ package body Editor.Input_Bridge.Command_Palette_Handlers is
                Editor.Command_Palette.Append_Character (Cmd.Ch);
             end if;
 
-         when Editor.Commands.Delete_Char
-            | Editor.Commands.Delete_Previous_Character =>
+         when Editor.Command_Kinds.Delete_Char
+            | Editor.Command_Kinds.Delete_Previous_Character =>
             Editor.Command_Palette.Backspace;
 
-         when Editor.Commands.Forward_Delete_Char
-            | Editor.Commands.Delete_Next_Character =>
+         when Editor.Command_Kinds.Forward_Delete_Char
+            | Editor.Command_Kinds.Delete_Next_Character =>
             Editor.Command_Palette.Delete_Forward;
 
-         when Editor.Commands.Paste_Text =>
+         when Editor.Command_Kinds.Paste_Text =>
             Editor.Command_Palette.Insert_Text (To_String (Cmd.Text));
 
-         when Editor.Commands.Paste_Clipboard =>
+         when Editor.Command_Kinds.Paste_Clipboard =>
             Editor.Command_Palette.Insert_Text
               (To_String (Editor.Executor.Clipboard.Text_For_Local_Input));
 
-         when Editor.Commands.Move_Left =>
+         when Editor.Command_Kinds.Move_Left =>
             Editor.Command_Palette.Move_Cursor_Left;
 
-         when Editor.Commands.Move_Right =>
+         when Editor.Command_Kinds.Move_Right =>
             Editor.Command_Palette.Move_Cursor_Right;
 
-         when Editor.Commands.Move_Home | Editor.Commands.Move_Line_Start =>
+         when Editor.Command_Kinds.Move_Home | Editor.Command_Kinds.Move_Line_Start =>
             Editor.Command_Palette.Move_Cursor_Start;
 
-         when Editor.Commands.Move_End | Editor.Commands.Move_Line_End =>
+         when Editor.Command_Kinds.Move_End | Editor.Command_Kinds.Move_Line_End =>
             Editor.Command_Palette.Move_Cursor_End;
 
-         when Editor.Commands.Move_Up =>
+         when Editor.Command_Kinds.Move_Up =>
             declare
                Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
             begin
@@ -164,7 +165,7 @@ package body Editor.Input_Bridge.Command_Palette_Handlers is
                  (Candidates, -1);
             end;
 
-         when Editor.Commands.Move_Down =>
+         when Editor.Command_Kinds.Move_Down =>
             declare
                Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
             begin
@@ -174,14 +175,14 @@ package body Editor.Input_Bridge.Command_Palette_Handlers is
                  (Candidates, 1);
             end;
 
-         when Editor.Commands.Palette_Accept =>
+         when Editor.Command_Kinds.Palette_Accept =>
             Accept_Selected_Palette_Command;
 
-         when Editor.Commands.Palette_Show_Command_Help =>
+         when Editor.Command_Kinds.Palette_Show_Command_Help =>
             Execute (Editor.Commands.Command_Palette_Show_Command_Help);
 
-         when Editor.Commands.Palette_Cancel
-            | Editor.Commands.Clear_Extra_Carets =>
+         when Editor.Command_Kinds.Palette_Cancel
+            | Editor.Command_Kinds.Clear_Extra_Carets =>
             declare
                Owner_Before : constant Editor.Focus_Management.Focus_Owner :=
                  Editor.Focus_Management.Effective_Focus_Owner (S);
@@ -192,7 +193,7 @@ package body Editor.Input_Bridge.Command_Palette_Handlers is
                  (S, Editor.Commands.Command_Cancel, Owner_Before);
             end;
 
-         when Editor.Commands.Move_To_Point =>
+         when Editor.Command_Kinds.Move_To_Point =>
             declare
                Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
                Margin : constant Natural := Editor.Theme.Palette_Margin;
@@ -244,7 +245,7 @@ package body Editor.Input_Bridge.Command_Palette_Handlers is
                end if;
             end;
 
-         when Editor.Commands.Pointer_Hover =>
+         when Editor.Command_Kinds.Pointer_Hover =>
             null;
 
          when others =>

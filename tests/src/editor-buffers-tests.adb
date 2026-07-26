@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Classification;
 with Editor.Commands.Payloads;
@@ -954,7 +955,7 @@ package body Editor.Buffers.Tests is
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Core_Path);
       Core_Id := Editor.Buffers.Global_Active_Buffer;
-      Cmd.Kind := Editor.Commands.Assign_Buffer_Group;
+      Cmd.Kind := Editor.Command_Kinds.Assign_Buffer_Group;
       Cmd.Text := To_Unbounded_String (" core ");
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffers.Global_Has_Buffer_Group (Core_Id),
@@ -978,7 +979,7 @@ package body Editor.Buffers.Tests is
       Pin_Id := Editor.Buffers.Global_Active_Buffer;
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Pin_Buffer);
 
-      Cmd.Kind := Editor.Commands.Switch_Buffer_Group;
+      Cmd.Kind := Editor.Command_Kinds.Switch_Buffer_Group;
       Cmd.Text := To_Unbounded_String ("core");
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffers.Global_Has_Active_Buffer_Group,
@@ -988,14 +989,14 @@ package body Editor.Buffers.Tests is
       Assert (Editor.Buffers.Global_Active_Buffer = Core_Id,
         "switching a group should activate a deterministic buffer in that group");
 
-      Cmd.Kind := Editor.Commands.Next_Buffer_Group;
+      Cmd.Kind := Editor.Command_Kinds.Next_Buffer_Group;
       Cmd.Text := Null_Unbounded_String;
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffers.Global_Active_Buffer_Group = "tests",
         "next group should cycle deterministically through existing groups");
       Assert (Editor.Buffers.Global_Active_Buffer = Test_Id,
         "next group should activate a buffer in the cycled group");
-      Cmd.Kind := Editor.Commands.Previous_Buffer_Group;
+      Cmd.Kind := Editor.Command_Kinds.Previous_Buffer_Group;
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffers.Global_Active_Buffer_Group = "core",
         "previous group should cycle back deterministically");
@@ -1011,7 +1012,7 @@ package body Editor.Buffers.Tests is
       Assert (Editor.Buffers.Global_Contains (Core_Id),
         "group switching keeps buffers in the active group");
 
-      Cmd.Kind := Editor.Commands.Show_All_Buffer_Groups;
+      Cmd.Kind := Editor.Command_Kinds.Show_All_Buffer_Groups;
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (not Editor.Buffers.Global_Has_Active_Buffer_Group,
         "show all should clear the active group filter");
@@ -1056,7 +1057,7 @@ package body Editor.Buffers.Tests is
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Core_Path);
       Core_Id := Editor.Buffers.Global_Active_Buffer;
-      Cmd.Kind := Editor.Commands.Assign_Buffer_Group;
+      Cmd.Kind := Editor.Command_Kinds.Assign_Buffer_Group;
       Cmd.Text := To_Unbounded_String ("core");
       Editor.Executor.Execute_No_Log (S, Cmd);
 
@@ -1079,7 +1080,7 @@ package body Editor.Buffers.Tests is
       Pin_Id := Editor.Buffers.Global_Active_Buffer;
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Pin_Buffer);
 
-      Cmd.Kind := Editor.Commands.Switch_Buffer_Group;
+      Cmd.Kind := Editor.Command_Kinds.Switch_Buffer_Group;
       Cmd.Text := To_Unbounded_String ("core");
       Editor.Executor.Execute_No_Log (S, Cmd);
 
@@ -1088,7 +1089,7 @@ package body Editor.Buffers.Tests is
       Assert (Editor.Buffers.Global_Contains (Pin_Id),
         "pinned grouped buffers remain tracked after group switch");
 
-      Cmd.Kind := Editor.Commands.Clear_Buffer_Group;
+      Cmd.Kind := Editor.Command_Kinds.Clear_Buffer_Group;
       Editor.Buffers.Global_Set_Active_Buffer (Core_Id);
       Editor.Buffers.Load_Global_Active_Into_State (S);
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -1146,7 +1147,7 @@ package body Editor.Buffers.Tests is
 
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Insert (0, 'x'));
       Was_Dirty := Editor.Buffers.Global_Summary_For (Id).Is_Dirty;
-      Cmd.Kind := Editor.Commands.Set_Buffer_Note;
+      Cmd.Kind := Editor.Command_Kinds.Set_Buffer_Note;
       Cmd.Text := To_Unbounded_String (" parser cleanup ");
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffers.Global_Has_Buffer_Note (Id),
@@ -1166,20 +1167,20 @@ package body Editor.Buffers.Tests is
       Assert (To_String (Summary.Display_Name) = "Notes.adb — needs tests — untitled",
         "buffer summary should include compact note text");
 
-      Cmd.Kind := Editor.Commands.Show_Buffer_Note;
+      Cmd.Kind := Editor.Command_Kinds.Show_Buffer_Note;
       Cmd.Text := Null_Unbounded_String;
       Editor.Executor.Execute_No_Log (S, Cmd);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Notes.adb: needs tests",
         "show note should emit one deterministic message");
 
-      Cmd.Kind := Editor.Commands.Set_Buffer_Note;
+      Cmd.Kind := Editor.Command_Kinds.Set_Buffer_Note;
       Cmd.Text := To_Unbounded_String ("   ");
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (not Editor.Buffers.Global_Has_Buffer_Note (Id),
         "whitespace-only note input should clear the note");
 
-      Cmd.Kind := Editor.Commands.Set_Buffer_Note;
+      Cmd.Kind := Editor.Command_Kinds.Set_Buffer_Note;
       Cmd.Text := To_Unbounded_String ("x" & String'(1 .. Editor.Buffers.Max_Buffer_Note_Length => 'y'));
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (not Editor.Buffers.Global_Has_Buffer_Note (Id),
@@ -1213,10 +1214,10 @@ package body Editor.Buffers.Tests is
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Note_Path);
       Note_Id := Editor.Buffers.Global_Active_Buffer;
-      Cmd.Kind := Editor.Commands.Set_Buffer_Note;
+      Cmd.Kind := Editor.Command_Kinds.Set_Buffer_Note;
       Cmd.Text := To_Unbounded_String ("temporary reference");
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Cmd.Kind := Editor.Commands.Assign_Buffer_Group;
+      Cmd.Kind := Editor.Command_Kinds.Assign_Buffer_Group;
       Cmd.Text := To_Unbounded_String ("core");
       Editor.Executor.Execute_No_Log (S, Cmd);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Pin_Buffer);
@@ -1227,20 +1228,20 @@ package body Editor.Buffers.Tests is
       Assert (Editor.Buffers.Global_Has_Buffer_Group (Note_Id),
         "setup should group the noted buffer");
 
-      Cmd.Kind := Editor.Commands.Clear_Buffer_Note;
+      Cmd.Kind := Editor.Command_Kinds.Clear_Buffer_Note;
       Cmd.Text := Null_Unbounded_String;
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffers.Global_Is_Buffer_Pinned (Note_Id),
         "clearing a note must not change pinned state");
       Assert (Editor.Buffers.Global_Has_Buffer_Group (Note_Id),
         "clearing a note must not change group membership");
-      Cmd.Kind := Editor.Commands.Set_Buffer_Note;
+      Cmd.Kind := Editor.Command_Kinds.Set_Buffer_Note;
       Cmd.Text := To_Unbounded_String ("temporary reference");
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Pinned_Path);
       Pinned_Id := Editor.Buffers.Global_Active_Buffer;
-      Cmd.Kind := Editor.Commands.Set_Buffer_Note;
+      Cmd.Kind := Editor.Command_Kinds.Set_Buffer_Note;
       Cmd.Text := To_Unbounded_String ("do not close");
       Editor.Executor.Execute_No_Log (S, Cmd);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Pin_Buffer);
@@ -1262,7 +1263,7 @@ package body Editor.Buffers.Tests is
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Existing_Path);
       Existing_Id := Editor.Buffers.Global_Active_Buffer;
-      Cmd.Kind := Editor.Commands.Set_Buffer_Note;
+      Cmd.Kind := Editor.Command_Kinds.Set_Buffer_Note;
       Cmd.Text := To_Unbounded_String ("already open note");
       Editor.Executor.Execute_No_Log (S, Cmd);
 
@@ -1273,7 +1274,7 @@ package body Editor.Buffers.Tests is
         "setup should close existing file-backed buffer once");
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Existing_Path);
       Existing_Id := Editor.Buffers.Global_Active_Buffer;
-      Cmd.Kind := Editor.Commands.Set_Buffer_Note;
+      Cmd.Kind := Editor.Command_Kinds.Set_Buffer_Note;
       Cmd.Text := To_Unbounded_String ("current note");
       Editor.Executor.Execute_No_Log (S, Cmd);
       null;
@@ -1344,7 +1345,7 @@ package body Editor.Buffers.Tests is
 
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Insert (0, 'x'));
       Was_Dirty := Editor.Buffers.Global_Summary_For (Id).Is_Dirty;
-      Cmd.Kind := Editor.Commands.Set_Buffer_Label;
+      Cmd.Kind := Editor.Command_Kinds.Set_Buffer_Label;
       Cmd.Text := To_Unbounded_String (" test ");
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffers.Global_Has_Buffer_Label (Id),
@@ -1364,14 +1365,14 @@ package body Editor.Buffers.Tests is
       Assert (To_String (Summary.Display_Name) = "Labels.adb [label: review] — untitled",
         "buffer summary should include compact label text");
 
-      Cmd.Kind := Editor.Commands.Show_Buffer_Label;
+      Cmd.Kind := Editor.Command_Kinds.Show_Buffer_Label;
       Cmd.Text := Null_Unbounded_String;
       Editor.Executor.Execute_No_Log (S, Cmd);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Labels.adb label: review",
         "show label should emit one deterministic message");
 
-      Cmd.Kind := Editor.Commands.Set_Buffer_Label;
+      Cmd.Kind := Editor.Command_Kinds.Set_Buffer_Label;
       Cmd.Text := To_Unbounded_String ("bad" & Character'Val (10) & "label");
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffers.Global_Buffer_Label (Id) = "review",
@@ -1380,7 +1381,7 @@ package body Editor.Buffers.Tests is
       Assert (Found and then To_String (M.Text) = "Invalid label",
         "invalid label feedback should be deterministic");
 
-      Cmd.Kind := Editor.Commands.Set_Buffer_Label;
+      Cmd.Kind := Editor.Command_Kinds.Set_Buffer_Label;
       Cmd.Text := To_Unbounded_String ("x" & String'(1 .. Editor.Buffers.Max_Buffer_Label_Length => 'y'));
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffers.Global_Buffer_Label (Id) = "review",
@@ -1389,7 +1390,7 @@ package body Editor.Buffers.Tests is
       Assert (Found and then To_String (M.Text) = "Label too long",
         "too-long label feedback should be deterministic");
 
-      Cmd.Kind := Editor.Commands.Set_Buffer_Label;
+      Cmd.Kind := Editor.Command_Kinds.Set_Buffer_Label;
       Cmd.Text := To_Unbounded_String ("   ");
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (not Editor.Buffers.Global_Has_Buffer_Label (Id),
@@ -1420,13 +1421,13 @@ package body Editor.Buffers.Tests is
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Label_Path);
       Label_Id := Editor.Buffers.Global_Active_Buffer;
-      Cmd.Kind := Editor.Commands.Set_Buffer_Label;
+      Cmd.Kind := Editor.Command_Kinds.Set_Buffer_Label;
       Cmd.Text := To_Unbounded_String ("test");
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Cmd.Kind := Editor.Commands.Set_Buffer_Note;
+      Cmd.Kind := Editor.Command_Kinds.Set_Buffer_Note;
       Cmd.Text := To_Unbounded_String ("needs parser cleanup");
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Cmd.Kind := Editor.Commands.Assign_Buffer_Group;
+      Cmd.Kind := Editor.Command_Kinds.Assign_Buffer_Group;
       Cmd.Text := To_Unbounded_String ("core");
       Editor.Executor.Execute_No_Log (S, Cmd);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Pin_Buffer);
@@ -1439,7 +1440,7 @@ package body Editor.Buffers.Tests is
       Assert (Editor.Buffers.Global_Has_Buffer_Group (Label_Id),
         "setup should group the labeled buffer");
 
-      Cmd.Kind := Editor.Commands.Clear_Buffer_Label;
+      Cmd.Kind := Editor.Command_Kinds.Clear_Buffer_Label;
       Cmd.Text := Null_Unbounded_String;
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffers.Global_Is_Buffer_Pinned (Label_Id),
@@ -1448,7 +1449,7 @@ package body Editor.Buffers.Tests is
         "clearing a label must not change group membership");
       Assert (Editor.Buffers.Global_Buffer_Note (Label_Id) = "needs parser cleanup",
         "clearing a label must not change buffer note");
-      Cmd.Kind := Editor.Commands.Set_Buffer_Label;
+      Cmd.Kind := Editor.Command_Kinds.Set_Buffer_Label;
       Cmd.Text := To_Unbounded_String ("core");
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffers.Global_Buffer_Group (Label_Id) = "core"
@@ -1457,7 +1458,7 @@ package body Editor.Buffers.Tests is
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Pinned_Path);
       Pinned_Id := Editor.Buffers.Global_Active_Buffer;
-      Cmd.Kind := Editor.Commands.Set_Buffer_Label;
+      Cmd.Kind := Editor.Command_Kinds.Set_Buffer_Label;
       Cmd.Text := To_Unbounded_String ("blocked");
       Editor.Executor.Execute_No_Log (S, Cmd);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Pin_Buffer);
@@ -1483,7 +1484,7 @@ package body Editor.Buffers.Tests is
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Existing_Path);
       Existing_Id := Editor.Buffers.Global_Active_Buffer;
-      Cmd.Kind := Editor.Commands.Set_Buffer_Label;
+      Cmd.Kind := Editor.Command_Kinds.Set_Buffer_Label;
       Cmd.Text := To_Unbounded_String ("old");
       Editor.Executor.Execute_No_Log (S, Cmd);
 
@@ -1494,10 +1495,10 @@ package body Editor.Buffers.Tests is
         "setup should close existing file-backed buffer once");
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Existing_Path);
       Existing_Id := Editor.Buffers.Global_Active_Buffer;
-      Cmd.Kind := Editor.Commands.Set_Buffer_Label;
+      Cmd.Kind := Editor.Command_Kinds.Set_Buffer_Label;
       Cmd.Text := To_Unbounded_String ("current");
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Cmd.Kind := Editor.Commands.Set_Buffer_Note;
+      Cmd.Kind := Editor.Command_Kinds.Set_Buffer_Note;
       Cmd.Text := To_Unbounded_String ("current note");
       Editor.Executor.Execute_No_Log (S, Cmd);
       null;

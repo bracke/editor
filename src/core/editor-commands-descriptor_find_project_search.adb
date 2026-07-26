@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Commands.Classification;
 with Editor.Commands.Build_Terminal_Ids;

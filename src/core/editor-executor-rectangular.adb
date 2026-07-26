@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.State;
 with Editor.Commands;   use Editor.Commands;
@@ -117,7 +118,7 @@ package body Editor.Executor.Rectangular is
       New_Preferred_Column := S.Preferred_Column;
 
       case Cmd.Kind is
-         when Editor.Commands.Start_Rectangle_Selection =>
+         when Editor.Command_Kinds.Start_Rectangle_Selection =>
             Start_Rectangle
               (S                    => S,
                X                    => Cmd.Click_X,
@@ -125,13 +126,13 @@ package body Editor.Executor.Rectangular is
                New_Caret            => New_Caret,
                New_Preferred_Column => New_Preferred_Column);
 
-         when Editor.Commands.Start_Rectangle_At_Caret =>
+         when Editor.Command_Kinds.Start_Rectangle_At_Caret =>
             Start_Rectangle_At_Caret
               (S                    => S,
                New_Caret            => New_Caret,
                New_Preferred_Column => New_Preferred_Column);
 
-         when Editor.Commands.Drag_Rectangle_To_Point =>
+         when Editor.Command_Kinds.Drag_Rectangle_To_Point =>
             Drag_Rectangle
               (S                    => S,
                X                    => Cmd.Click_X,
@@ -139,7 +140,7 @@ package body Editor.Executor.Rectangular is
                New_Caret            => New_Caret,
                New_Preferred_Column => New_Preferred_Column);
 
-         when Editor.Commands.Clear_Rectangle_Selection =>
+         when Editor.Command_Kinds.Clear_Rectangle_Selection =>
             S.Rect_Select_Active := False;
             if S.Carets.Length > 0 then
                declare

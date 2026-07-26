@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
@@ -2584,7 +2585,7 @@ package body Editor.Line_Edit.Tests is
    is
       Cmd : Editor.Commands.Payloads.Command;
    begin
-      Cmd.Kind := Editor.Commands.Insert_Text_Input;
+      Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Text := To_Unbounded_String (Payload);
       Editor.Executor.Execute_No_Log (S, Cmd);
    end Execute_Text_Input;

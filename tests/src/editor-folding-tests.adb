@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -149,7 +150,7 @@ package body Editor.Folding.Tests is
       Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
    begin
       Prepare_Folded_State;
-      Cmd.Kind := Editor.Commands.Move_To_Point;
+      Cmd.Kind := Editor.Command_Kinds.Move_To_Point;
       Cmd.Click_X := Editor.Layout.Gutter_Fold_X (Layout) + Editor.Layout.Cell_W / 2;
       Cmd.Click_Y := Natural (Editor.Layout.Text_Viewport_Y (Layout)) + Editor.Layout.Cell_H;
       Editor.Input_Bridge.Handle (Cmd);
@@ -235,7 +236,7 @@ package body Editor.Folding.Tests is
       Editor.View.Set_Viewport (800, Editor.Layout.Cell_H);
       Editor.Scrollbars.Reset;
 
-      Cmd.Kind := Editor.Commands.Move_To_Point;
+      Cmd.Kind := Editor.Command_Kinds.Move_To_Point;
       Cmd.Click_X := 760;
       Cmd.Click_Y := Natural (Editor.Layout.Text_Viewport_Y (Layout)) + Editor.Layout.Cell_H - 1;
       Editor.Input_Bridge.Handle (Cmd);

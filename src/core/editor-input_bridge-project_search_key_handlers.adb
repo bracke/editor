@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.Cursor;
 with Editor.Executor.Clipboard;
@@ -59,10 +60,10 @@ package body Editor.Input_Bridge.Project_Search_Key_Handlers is
          when Editor.Keybindings.Key_Escape =>
             Execute (Editor.Commands.Command_Close_Project_Search_Bar);
          when Editor.Keybindings.Key_Backspace =>
-            Cmd.Kind := Editor.Commands.Project_Search_Bar_Backspace;
+            Cmd.Kind := Editor.Command_Kinds.Project_Search_Bar_Backspace;
             Execute_Command (Cmd);
          when Editor.Keybindings.Key_Delete =>
-            Cmd.Kind := Editor.Commands.Project_Search_Bar_Delete_Forward;
+            Cmd.Kind := Editor.Command_Kinds.Project_Search_Bar_Delete_Forward;
             Execute_Command (Cmd);
          when Editor.Keybindings.Key_Left =>
             Editor.Project_Search_Bar.Move_Cursor_Left (S.Project_Search_Bar);
@@ -78,7 +79,7 @@ package body Editor.Input_Bridge.Project_Search_Key_Handlers is
             Editor.Render_Cache.Invalidate_All;
          when Editor.Keybindings.Key_V =>
             if Chord.Modifiers.Ctrl then
-               Cmd.Kind := Editor.Commands.Project_Search_Bar_Insert_Text;
+               Cmd.Kind := Editor.Command_Kinds.Project_Search_Bar_Insert_Text;
                Cmd.Text := Editor.Executor.Clipboard.Text_For_Local_Input;
                Execute_Command (Cmd);
             end if;

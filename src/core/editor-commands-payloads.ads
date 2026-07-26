@@ -1,5 +1,6 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
+with Editor.Command_Kinds;
 with Editor.Commands;
 with Editor.Cursors;
 with Editor.Unicode;
@@ -25,7 +26,7 @@ package Editor.Commands.Payloads is
         "="          => "=");
 
    type Command is record
-      Kind : Command_Kind := Insert_Text_Input;
+      Kind : Command_Kind := Editor.Command_Kinds.Insert_Text_Input;
 
       Pos          : Cursor_Index := 0;
       Has_Position : Boolean := False;

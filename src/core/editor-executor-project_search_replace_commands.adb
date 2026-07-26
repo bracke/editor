@@ -1,3 +1,4 @@
+with Editor.Command_Kinds; use Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.Executor.Shared_Services;
 use Editor.Executor.Shared_Services;

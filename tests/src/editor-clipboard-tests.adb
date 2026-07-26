@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
@@ -52,7 +53,7 @@ package body Editor.Clipboard.Tests is
    function Paste (S : String) return Editor.Commands.Payloads.Command is
       Cmd : Editor.Commands.Payloads.Command;
    begin
-      Cmd.Kind := Editor.Commands.Paste_Text;
+      Cmd.Kind := Editor.Command_Kinds.Paste_Text;
       Cmd.Text := To_Unbounded_String (S);
       return Cmd;
    end Paste;

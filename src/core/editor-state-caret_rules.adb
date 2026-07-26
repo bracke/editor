@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Ada.Containers; use Ada.Containers;
 with Editor.Commands; use Editor.Commands;
@@ -17,7 +18,7 @@ package body Editor.State.Caret_Rules is
    begin
       case Cmd.Kind is
 
-         when Editor.Commands.Insert_Text_Input =>
+         when Editor.Command_Kinds.Insert_Text_Input =>
             declare
                Result : Cursors_Vector.Vector := Carets;
                C      : Caret_State;
@@ -41,7 +42,7 @@ package body Editor.State.Caret_Rules is
                return Result;
             end;
 
-         when Editor.Commands.Delete_Char =>
+         when Editor.Command_Kinds.Delete_Char =>
             declare
                Result : Cursors_Vector.Vector := Carets;
                C      : Caret_State;

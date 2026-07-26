@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
@@ -377,7 +378,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
    is
       Cmd : Editor.Commands.Payloads.Command;
    begin
-      Cmd.Kind := Editor.Commands.Insert_Text_Input;
+      Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Text := To_Unbounded_String (Payload);
       Editor.Executor.Execute_No_Log (S, Cmd);
    end Execute_Text_Input;
@@ -423,7 +424,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Set_Caret (S, 0);
       Editor.Input_Bridge.Set_State_For_Test (S);
 
-      Cmd.Kind := Editor.Commands.Insert_Text_Input;
+      Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Ch := 'A';
       Cmd.Text := To_Unbounded_String (String'(1 => 'A'));
       Cmd.Code := Wide_Wide_Character'Val (Character'Pos ('A'));
@@ -532,7 +533,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Set_Caret (S, 1);
       Editor.Input_Bridge.Set_State_For_Test (S);
 
-      Cmd.Kind := Editor.Commands.Insert_Text_Input;
+      Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Ch := ASCII.NUL;
       Cmd.Text := To_Unbounded_String (String'(1 => ASCII.NUL));
       Cmd.Code := Lambda;
@@ -610,7 +611,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
 
-      Cmd.Kind := Editor.Commands.Insert_Text_Input;
+      Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Ch := 'X';
       Cmd.Text := To_Unbounded_String (String'(1 => 'X'));
       Cmd.Code := Wide_Wide_Character'Val (Character'Pos ('X'));
@@ -655,7 +656,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
             Virtual_Column        => 0,
             Anchor_Virtual_Column => 0));
 
-      Cmd.Kind := Editor.Commands.Insert_Text_Input;
+      Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Ch := 'X';
       Cmd.Text := To_Unbounded_String (String'(1 => 'X'));
       Cmd.Code := Wide_Wide_Character'Val (Character'Pos ('X'));
@@ -1064,7 +1065,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Editor.State.Set_Dirty (S, False);
       Set_Caret (S, 2);
       Editor.Input_Bridge.Set_State_For_Test (S);
-      Cmd.Kind := Editor.Commands.Insert_Text_Input;
+      Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Ch := 'X';
       Cmd.Text := To_Unbounded_String (String'(1 => 'X'));
       Cmd.Code := Wide_Wide_Character'Val (Character'Pos ('X'));
@@ -1382,7 +1383,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
       Editor.Input_Bridge.Set_State_For_Test (S);
-      Cmd.Kind := Editor.Commands.Insert_Text_Input;
+      Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Ch := 'Y';
       Cmd.Text := To_Unbounded_String (String'(1 => 'Y'));
       Cmd.Code := Wide_Wide_Character'Val (Character'Pos ('Y'));
@@ -1521,7 +1522,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       is
          Cmd : Editor.Commands.Payloads.Command;
       begin
-         Cmd.Kind := Editor.Commands.Insert_Text_Input;
+         Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
          Cmd.Ch := Ch;
          Cmd.Text := To_Unbounded_String (String'(1 => Ch));
          Cmd.Code := Wide_Wide_Character'Val (Character'Pos (Ch));
@@ -1768,7 +1769,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Undo_Before := Natural (Editor.History.Undo_Stack.Length);
       Dirty_Before := Editor.State.Is_Dirty (S);
 
-      Cmd.Kind := Editor.Commands.Insert_Text_Input;
+      Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Ch := 'Q';
       Cmd.Text := To_Unbounded_String (String'(1 => 'Q'));
       Cmd.Code := Wide_Wide_Character'Val (Character'Pos ('Q'));

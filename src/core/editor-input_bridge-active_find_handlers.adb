@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Executor.Clipboard;
@@ -32,7 +33,7 @@ package body Editor.Input_Bridge.Active_Find_Handlers is
       end if;
 
       case Cmd.Kind is
-         when Editor.Commands.Insert_Text_Input =>
+         when Editor.Command_Kinds.Insert_Text_Input =>
             if Cmd.Ctrl and then (Cmd.Ch = 'a' or else Cmd.Ch = 'A') then
                Editor.Input_Field.Select_All (S.Active_Find_Input);
                Editor.Render_Cache.Invalidate_All;
@@ -41,98 +42,98 @@ package body Editor.Input_Bridge.Active_Find_Handlers is
             elsif Cmd.Ch = ASCII.HT then
                null;
             elsif Length (Cmd.Text) > 0 then
-               Cmd2.Kind := Editor.Commands.Active_Find_Input_Insert_Text;
+               Cmd2.Kind := Editor.Command_Kinds.Active_Find_Input_Insert_Text;
                Cmd2.Text := Cmd.Text;
                Execute_Command (Cmd2);
             elsif Cmd.Ch /= ASCII.NUL then
-               Cmd2.Kind := Editor.Commands.Active_Find_Input_Insert_Text;
+               Cmd2.Kind := Editor.Command_Kinds.Active_Find_Input_Insert_Text;
                Cmd2.Text := To_Unbounded_String (String'(1 => Cmd.Ch));
                Execute_Command (Cmd2);
             end if;
             return True;
 
-         when Editor.Commands.Delete_Char
-            | Editor.Commands.Delete_Previous_Character =>
-            Cmd2.Kind := Editor.Commands.Active_Find_Input_Backspace;
+         when Editor.Command_Kinds.Delete_Char
+            | Editor.Command_Kinds.Delete_Previous_Character =>
+            Cmd2.Kind := Editor.Command_Kinds.Active_Find_Input_Backspace;
             Execute_Command (Cmd2);
             return True;
 
-         when Editor.Commands.Forward_Delete_Char
-            | Editor.Commands.Delete_Next_Character =>
-            Cmd2.Kind := Editor.Commands.Active_Find_Input_Delete_Forward;
+         when Editor.Command_Kinds.Forward_Delete_Char
+            | Editor.Command_Kinds.Delete_Next_Character =>
+            Cmd2.Kind := Editor.Command_Kinds.Active_Find_Input_Delete_Forward;
             Execute_Command (Cmd2);
             return True;
 
-         when Editor.Commands.Paste_Text =>
-            Cmd2.Kind := Editor.Commands.Active_Find_Input_Insert_Text;
+         when Editor.Command_Kinds.Paste_Text =>
+            Cmd2.Kind := Editor.Command_Kinds.Active_Find_Input_Insert_Text;
             Cmd2.Text := Cmd.Text;
             Execute_Command (Cmd2);
             return True;
 
-         when Editor.Commands.Paste_Clipboard =>
-            Cmd2.Kind := Editor.Commands.Active_Find_Input_Insert_Text;
+         when Editor.Command_Kinds.Paste_Clipboard =>
+            Cmd2.Kind := Editor.Command_Kinds.Active_Find_Input_Insert_Text;
             Cmd2.Text := Editor.Executor.Clipboard.Text_For_Local_Input;
             Execute_Command (Cmd2);
             return True;
 
-         when Editor.Commands.Move_Left =>
+         when Editor.Command_Kinds.Move_Left =>
             Editor.Executor.Find_Replace_Input_Commands.Execute_Active_Find_Input_Move_Cursor_Left (S);
             return True;
 
-         when Editor.Commands.Move_Right =>
+         when Editor.Command_Kinds.Move_Right =>
             Editor.Executor.Find_Replace_Input_Commands.Execute_Active_Find_Input_Move_Cursor_Right (S);
             return True;
 
-         when Editor.Commands.Move_Home | Editor.Commands.Move_Line_Start =>
+         when Editor.Command_Kinds.Move_Home | Editor.Command_Kinds.Move_Line_Start =>
             Editor.Executor.Find_Replace_Input_Commands.Execute_Active_Find_Input_Move_Cursor_Start (S);
             return True;
 
-         when Editor.Commands.Move_End | Editor.Commands.Move_Line_End =>
+         when Editor.Command_Kinds.Move_End | Editor.Command_Kinds.Move_Line_End =>
             Editor.Executor.Find_Replace_Input_Commands.Execute_Active_Find_Input_Move_Cursor_End (S);
             return True;
 
-         when Editor.Commands.Active_Find_Next =>
+         when Editor.Command_Kinds.Active_Find_Next =>
             Execute (Editor.Commands.Command_Active_Find_Next);
             return True;
 
-         when Editor.Commands.Active_Find_Previous =>
+         when Editor.Command_Kinds.Active_Find_Previous =>
             Execute (Editor.Commands.Command_Active_Find_Previous);
             return True;
 
-         when Editor.Commands.Active_Find_First =>
+         when Editor.Command_Kinds.Active_Find_First =>
             Execute (Editor.Commands.Command_Find_First);
             return True;
 
-         when Editor.Commands.Active_Find_Last =>
+         when Editor.Command_Kinds.Active_Find_Last =>
             Execute (Editor.Commands.Command_Find_Last);
             return True;
 
-         when Editor.Commands.Active_Find_Reveal_Current =>
+         when Editor.Command_Kinds.Active_Find_Reveal_Current =>
             Execute (Editor.Commands.Command_Find_Reveal_Current);
             return True;
 
-         when Editor.Commands.Active_Find_Query_Clear =>
+         when Editor.Command_Kinds.Active_Find_Query_Clear =>
             Execute (Editor.Commands.Command_Find_Query_Clear);
             return True;
 
-         when Editor.Commands.Active_Find_Case_Toggle =>
+         when Editor.Command_Kinds.Active_Find_Case_Toggle =>
             Execute (Editor.Commands.Command_Find_Case_Toggle);
             return True;
 
-         when Editor.Commands.Active_Find_Case_Clear =>
+         when Editor.Command_Kinds.Active_Find_Case_Clear =>
             Execute (Editor.Commands.Command_Find_Case_Clear);
             return True;
 
-         when Editor.Commands.Active_Find_Whole_Word_Toggle =>
+         when Editor.Command_Kinds.Active_Find_Whole_Word_Toggle =>
             Execute (Editor.Commands.Command_Find_Whole_Word_Toggle);
             return True;
 
-         when Editor.Commands.Active_Find_Whole_Word_Clear =>
+         when Editor.Command_Kinds.Active_Find_Whole_Word_Clear =>
             Execute (Editor.Commands.Command_Find_Whole_Word_Clear);
             return True;
 
-         when Editor.Commands.Clear_Extra_Carets
-            | Editor.Commands.Palette_Cancel =>
+         when Editor.Command_Kinds.Clear_Extra_Carets
+            | Editor.Command_Kinds.Palette_Cancel =>
             Execute (Editor.Commands.Command_Find_Hide);
             return True;
 

@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with Editor.Commands;
@@ -22,7 +23,7 @@ package body Editor.Input_Bridge.Text_Entry_Dispatch is
       end if;
 
       case Cmd.Kind is
-         when Editor.Commands.Insert_Text_Input =>
+         when Editor.Command_Kinds.Insert_Text_Input =>
             if Editor.Input_Bridge.Keybinding_Handlers
               .Consume_Keybinding_Text_Input (S.Guided_Prompt, Cmd)
             then
@@ -39,13 +40,13 @@ package body Editor.Input_Bridge.Text_Entry_Dispatch is
                Editor.Guided_Prompts.Insert_Text
                  (S.Guided_Prompt, String'(1 => Cmd.Ch));
             end if;
-         when Editor.Commands.Delete_Char
-            | Editor.Commands.Delete_Previous_Character =>
+         when Editor.Command_Kinds.Delete_Char
+            | Editor.Command_Kinds.Delete_Previous_Character =>
             Editor.Guided_Prompts.Backspace (S.Guided_Prompt);
-         when Editor.Commands.Forward_Delete_Char
-            | Editor.Commands.Delete_Next_Character =>
+         when Editor.Command_Kinds.Forward_Delete_Char
+            | Editor.Command_Kinds.Delete_Next_Character =>
             Editor.Guided_Prompts.Delete_Forward (S.Guided_Prompt);
-         when Editor.Commands.Split_Current_Line_At_Caret =>
+         when Editor.Command_Kinds.Split_Current_Line_At_Caret =>
             Accept_Guided_Prompt_Enter.all;
          when others =>
             null;

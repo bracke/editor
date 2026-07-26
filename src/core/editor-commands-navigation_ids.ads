@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands;
 
 package Editor.Commands.Navigation_Ids is

@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Classification;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
@@ -1655,7 +1656,7 @@ package body Editor.Feature_Panel.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "hello");
-      Cmd.Kind := Editor.Commands.Save_File_As;
+      Cmd.Kind := Editor.Command_Kinds.Save_File_As;
       Cmd.Path := Ada.Strings.Unbounded.To_Unbounded_String (Path);
 
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -5678,7 +5679,7 @@ package body Editor.Feature_Panel.Tests is
    function Paste_Command (Text : String) return Editor.Commands.Payloads.Command is
       Cmd : Editor.Commands.Payloads.Command;
    begin
-      Cmd.Kind := Editor.Commands.Paste_Text;
+      Cmd.Kind := Editor.Command_Kinds.Paste_Text;
       Cmd.Text := Ada.Strings.Unbounded.To_Unbounded_String (Text);
       return Cmd;
    end Paste_Command;
@@ -5686,7 +5687,7 @@ package body Editor.Feature_Panel.Tests is
    function Insert_Command (Ch : Character) return Editor.Commands.Payloads.Command is
       Cmd : Editor.Commands.Payloads.Command;
    begin
-      Cmd.Kind := Editor.Commands.Insert_Text_Input;
+      Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Ch := Ch;
       Cmd.Text := To_Unbounded_String (String'(1 => Ch));
       Cmd.Code := Wide_Wide_Character'Val (0);
@@ -6057,20 +6058,20 @@ package body Editor.Feature_Panel.Tests is
               "activation establishes B as edit target");
 
       Editor.Executor.Execute_No_Log (S, Paste_Command ("-edit"));
-      Editor.Executor.Execute_No_Log (S, Simple_Command (Editor.Commands.Move_Left));
+      Editor.Executor.Execute_No_Log (S, Simple_Command (Editor.Command_Kinds.Move_Left));
       Editor.State.Row_Col_For_Index
         (S, S.Carets.Element (S.Carets.First_Index).Pos, Row, Col);
       Assert (Row = 0 and then Col = 5,
               "cursor movement after round trip starts from active B cursor");
 
-      Editor.Executor.Execute_No_Log (S, Simple_Command (Editor.Commands.Undo));
+      Editor.Executor.Execute_No_Log (S, Simple_Command (Editor.Command_Kinds.Undo));
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Assert (Registry_Buffer_Text (B_Id) = "B" & ASCII.LF,
               "undo after round trip affects active B only");
       Assert (Registry_Buffer_Text (A_Id) = "A" & ASCII.LF,
               "undo after round trip preserves unrelated A");
 
-      Editor.Executor.Execute_No_Log (S, Simple_Command (Editor.Commands.Redo));
+      Editor.Executor.Execute_No_Log (S, Simple_Command (Editor.Command_Kinds.Redo));
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Assert (Registry_Buffer_Text (B_Id) = "B-edit" & ASCII.LF,
               "redo after round trip affects active B only");

@@ -1,4 +1,5 @@
 with Editor.Commands.Availability_Metadata;
+with Editor.Command_Kinds; use Editor.Command_Kinds;
 with Editor.Commands.Payloads; use Editor.Commands.Payloads;
 with Text_Buffer;
 with Editor.State;
@@ -1744,9 +1745,9 @@ package body Editor.Executor is
             | Extend_Selection_Line_Up
             | Extend_Selection_Line_Down
             | Move_To_Point
-            | Drag_To_Point
-            | Select_Word_At_Point
-            | Select_Line_At_Point =>
+            | Editor.Command_Kinds.Drag_To_Point
+            | Editor.Command_Kinds.Select_Word_At_Point
+            | Editor.Command_Kinds.Select_Line_At_Point =>
             Editor.Executor.Navigation.Execute
                (S,
                   Cmd,
@@ -1757,7 +1758,7 @@ package body Editor.Executor is
                   New_Preferred_Column);
 
 
-         when Add_Caret_At_Point
+         when Editor.Command_Kinds.Add_Caret_At_Point
             | Clear_Extra_Carets =>
             Editor.Executor.Structural.Execute (S, Cmd);
             New_Caret := Safe_Caret (S);

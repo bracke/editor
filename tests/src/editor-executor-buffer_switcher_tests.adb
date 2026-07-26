@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -1769,7 +1770,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
               "setup should have one visible literal match");
       Editor.Executor.Buffer_Switcher_Mark_Commands
         .Execute_Buffer_Switcher_Mark_Kind
-          (S, Editor.Commands.Buffer_Switcher_Mark_Visible, "");
+          (S, Editor.Command_Kinds.Buffer_Switcher_Mark_Visible, "");
       Assert (Editor.Buffer_Switcher.Is_Marked (S.Buffer_Switcher, A_Id),
               "mark visible marks the current projection");
       Assert (not Editor.Buffer_Switcher.Is_Marked (S.Buffer_Switcher, B_Id)
@@ -1779,7 +1780,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, D_Id);
       Editor.Executor.Buffer_Switcher_Mark_Commands
         .Execute_Buffer_Switcher_Mark_Kind
-          (S, Editor.Commands.Buffer_Switcher_Mark_Clear_Visible, "");
+          (S, Editor.Command_Kinds.Buffer_Switcher_Mark_Clear_Visible, "");
       Assert (not Editor.Buffer_Switcher.Is_Marked (S.Buffer_Switcher, A_Id),
               "clear visible removes visible marks");
       Assert (Editor.Buffer_Switcher.Is_Marked (S.Buffer_Switcher, D_Id),
@@ -1801,7 +1802,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
 
       Editor.Executor.Buffer_Switcher_Mark_Commands
         .Execute_Buffer_Switcher_Mark_Kind
-          (S, Editor.Commands.Buffer_Switcher_Mark_Pinned, "");
+          (S, Editor.Command_Kinds.Buffer_Switcher_Mark_Pinned, "");
       Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Mark_Group);
       Cmd.Text := To_Unbounded_String (" core ");
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -1810,7 +1811,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Editor.Executor.Execute_No_Log (S, Cmd);
       Editor.Executor.Buffer_Switcher_Mark_Commands
         .Execute_Buffer_Switcher_Mark_Kind
-          (S, Editor.Commands.Buffer_Switcher_Mark_Noted, "");
+          (S, Editor.Command_Kinds.Buffer_Switcher_Mark_Noted, "");
 
       Assert (Editor.Buffer_Switcher.Is_Marked (S.Buffer_Switcher, A_Id)
               and then Editor.Buffer_Switcher.Is_Marked (S.Buffer_Switcher, B_Id)

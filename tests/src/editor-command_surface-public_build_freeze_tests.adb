@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;

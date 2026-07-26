@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Buffers;
@@ -14,15 +15,15 @@ package body Editor.Input_Bridge.Text_Entry_Routing is
    is
    begin
       case Cmd.Kind is
-         when Editor.Commands.Insert_Text_Input
-            | Editor.Commands.Delete_Char
-            | Editor.Commands.Forward_Delete_Char
-            | Editor.Commands.Delete_Previous_Character
-            | Editor.Commands.Delete_Next_Character
-            | Editor.Commands.Delete_Previous_Word
-            | Editor.Commands.Delete_Next_Word
-            | Editor.Commands.Delete_Selection_Range
-            | Editor.Commands.Split_Current_Line_At_Caret =>
+         when Editor.Command_Kinds.Insert_Text_Input
+            | Editor.Command_Kinds.Delete_Char
+            | Editor.Command_Kinds.Forward_Delete_Char
+            | Editor.Command_Kinds.Delete_Previous_Character
+            | Editor.Command_Kinds.Delete_Next_Character
+            | Editor.Command_Kinds.Delete_Previous_Word
+            | Editor.Command_Kinds.Delete_Next_Word
+            | Editor.Command_Kinds.Delete_Selection_Range
+            | Editor.Command_Kinds.Split_Current_Line_At_Caret =>
             return True;
          when others =>
             return False;
@@ -90,21 +91,21 @@ package body Editor.Input_Bridge.Text_Entry_Routing is
       end if;
 
       case Cmd.Kind is
-         when Editor.Commands.Insert_Text_Input =>
+         when Editor.Command_Kinds.Insert_Text_Input =>
             return Routed_To_Text_Insert;
-         when Editor.Commands.Delete_Selection_Range =>
+         when Editor.Command_Kinds.Delete_Selection_Range =>
             return Routed_To_Selection_Delete;
-         when Editor.Commands.Delete_Char
-            | Editor.Commands.Delete_Previous_Character =>
+         when Editor.Command_Kinds.Delete_Char
+            | Editor.Command_Kinds.Delete_Previous_Character =>
             return Routed_To_Delete_Previous_Character;
-         when Editor.Commands.Forward_Delete_Char
-            | Editor.Commands.Delete_Next_Character =>
+         when Editor.Command_Kinds.Forward_Delete_Char
+            | Editor.Command_Kinds.Delete_Next_Character =>
             return Routed_To_Delete_Next_Character;
-         when Editor.Commands.Delete_Previous_Word =>
+         when Editor.Command_Kinds.Delete_Previous_Word =>
             return Routed_To_Delete_Previous_Word;
-         when Editor.Commands.Delete_Next_Word =>
+         when Editor.Command_Kinds.Delete_Next_Word =>
             return Routed_To_Delete_Next_Word;
-         when Editor.Commands.Split_Current_Line_At_Caret =>
+         when Editor.Command_Kinds.Split_Current_Line_At_Caret =>
             return Routed_To_Line_Split;
          when others =>
             return Unsupported_Text_Entry_Event;
@@ -121,7 +122,7 @@ package body Editor.Input_Bridge.Text_Entry_Routing is
    begin
       case Result is
          when Routed_To_Text_Insert =>
-            Routed.Kind := Editor.Commands.Insert_Text_Input;
+            Routed.Kind := Editor.Command_Kinds.Insert_Text_Input;
             if not Routed.Has_Position
               and then not State.Carets.Is_Empty
             then
@@ -143,17 +144,17 @@ package body Editor.Input_Bridge.Text_Entry_Routing is
                end if;
             end if;
          when Routed_To_Selection_Delete =>
-            Routed.Kind := Editor.Commands.Delete_Selection_Range;
+            Routed.Kind := Editor.Command_Kinds.Delete_Selection_Range;
          when Routed_To_Delete_Previous_Character =>
-            Routed.Kind := Editor.Commands.Delete_Previous_Character;
+            Routed.Kind := Editor.Command_Kinds.Delete_Previous_Character;
          when Routed_To_Delete_Next_Character =>
-            Routed.Kind := Editor.Commands.Delete_Next_Character;
+            Routed.Kind := Editor.Command_Kinds.Delete_Next_Character;
          when Routed_To_Delete_Previous_Word =>
-            Routed.Kind := Editor.Commands.Delete_Previous_Word;
+            Routed.Kind := Editor.Command_Kinds.Delete_Previous_Word;
          when Routed_To_Delete_Next_Word =>
-            Routed.Kind := Editor.Commands.Delete_Next_Word;
+            Routed.Kind := Editor.Command_Kinds.Delete_Next_Word;
          when Routed_To_Line_Split =>
-            Routed.Kind := Editor.Commands.Split_Current_Line_At_Caret;
+            Routed.Kind := Editor.Command_Kinds.Split_Current_Line_At_Caret;
          when others =>
             null;
       end case;

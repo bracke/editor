@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Editing_Ids;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Build_Terminal_Ids;

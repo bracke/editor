@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -514,7 +515,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "semantic stale-edit setup starts with an answerable index");
 
-      Cmd.Kind := Editor.Commands.Insert_Text_Input;
+      Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Ch := 'x';
       Cmd.Text := To_Unbounded_String ("x");
       Cmd.Code := Wide_Wide_Character'Val (0);

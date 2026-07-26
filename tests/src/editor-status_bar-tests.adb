@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -417,7 +418,7 @@ package body Editor.Status_Bar.Tests is
       Prepare_Text;
       Editor.Input_Bridge.Get_Render_Snapshot (Before);
 
-      Cmd.Kind := Editor.Commands.Move_To_Point;
+      Cmd.Kind := Editor.Command_Kinds.Move_To_Point;
       Cmd.Click_X := Layout.Origin_X + 10;
       Cmd.Click_Y := Natural (Editor.Layout.Status_Bar_Y
         (Layout, Editor.View.Viewport_Height)) + 1;

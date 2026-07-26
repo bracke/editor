@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Containers;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;

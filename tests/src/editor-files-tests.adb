@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Descriptor_Metadata;
 with Editor.Commands.Payloads;
@@ -185,7 +186,7 @@ package body Editor.Files.Tests is
       Write_Bytes (Path, "line1" & ASCII.LF & "line2");
       Editor.State.Init (S);
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Insert (0, 'x'));
-      Cmd.Kind := Editor.Commands.Move_Right;
+      Cmd.Kind := Editor.Command_Kinds.Move_Right;
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       Status := Editor.Files.Load_File (Path, S);
@@ -265,7 +266,7 @@ package body Editor.Files.Tests is
       Editor.State.Load_Text (S, "old text");
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Insert (0, 'x'));
       S.File_Info.Dirty := False;
-      Cmd.Kind := Editor.Commands.Move_Right;
+      Cmd.Kind := Editor.Command_Kinds.Move_Right;
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);

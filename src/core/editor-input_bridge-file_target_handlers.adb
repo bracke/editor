@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Executor.Clipboard;
@@ -25,7 +26,7 @@ package body Editor.Input_Bridge.File_Target_Handlers is
       end if;
 
       case Cmd.Kind is
-         when Editor.Commands.Insert_Text_Input =>
+         when Editor.Command_Kinds.Insert_Text_Input =>
             if Cmd.Ctrl and then (Cmd.Ch = 'a' or else Cmd.Ch = 'A') then
                Editor.Executor.File_Target_Prompt_Commands.Select_All_File_Target_Prompt_Text
                  (S);
@@ -43,43 +44,43 @@ package body Editor.Input_Bridge.File_Target_Handlers is
             end if;
             return True;
 
-         when Editor.Commands.Delete_Char
-            | Editor.Commands.Delete_Previous_Character =>
+         when Editor.Command_Kinds.Delete_Char
+            | Editor.Command_Kinds.Delete_Previous_Character =>
             Editor.Executor.File_Target_Prompt_Commands.Backspace_File_Target_Prompt (S);
             return True;
 
-         when Editor.Commands.Forward_Delete_Char
-            | Editor.Commands.Delete_Next_Character =>
+         when Editor.Command_Kinds.Forward_Delete_Char
+            | Editor.Command_Kinds.Delete_Next_Character =>
             Editor.Executor.File_Target_Prompt_Commands.Delete_Forward_File_Target_Prompt (S);
             return True;
 
-         when Editor.Commands.Paste_Text =>
+         when Editor.Command_Kinds.Paste_Text =>
             Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text
               (S, To_String (Cmd.Text));
             return True;
 
-         when Editor.Commands.Paste_Clipboard =>
+         when Editor.Command_Kinds.Paste_Clipboard =>
             Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text
               (S, To_String (Editor.Executor.Clipboard.Text_For_Local_Input));
             return True;
 
-         when Editor.Commands.Move_Left =>
+         when Editor.Command_Kinds.Move_Left =>
             Editor.Executor.File_Target_Prompt_Commands.Move_File_Target_Prompt_Cursor_Left (S);
             return True;
 
-         when Editor.Commands.Move_Right =>
+         when Editor.Command_Kinds.Move_Right =>
             Editor.Executor.File_Target_Prompt_Commands.Move_File_Target_Prompt_Cursor_Right (S);
             return True;
 
-         when Editor.Commands.Move_Home | Editor.Commands.Move_Line_Start =>
+         when Editor.Command_Kinds.Move_Home | Editor.Command_Kinds.Move_Line_Start =>
             Editor.Executor.File_Target_Prompt_Commands.Move_File_Target_Prompt_Cursor_Start (S);
             return True;
 
-         when Editor.Commands.Move_End | Editor.Commands.Move_Line_End =>
+         when Editor.Command_Kinds.Move_End | Editor.Command_Kinds.Move_Line_End =>
             Editor.Executor.File_Target_Prompt_Commands.Move_File_Target_Prompt_Cursor_End (S);
             return True;
 
-         when Editor.Commands.Palette_Cancel =>
+         when Editor.Command_Kinds.Palette_Cancel =>
             Editor.Executor.File_Target_Prompt_Commands.Cancel_File_Target_Prompt (S);
             Editor.Focus_Management.Restore_Previous_Focus_Or_Editor (S);
             return True;

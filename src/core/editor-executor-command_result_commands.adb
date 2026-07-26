@@ -1,9 +1,11 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Text_Buffer;
 with Editor.State;
 use type Editor.State.Dirty_Close_Scope;
 use type Editor.State.Semantic_Popup_Kind;
+use type Editor.Command_Kinds.Command_Kind;
 with Editor.Cursors;    use Editor.Cursors;
 with Editor.Commands;   use Editor.Commands;
 with Editor.Commands.Workflow_Messages;
@@ -798,74 +800,74 @@ package body Editor.Executor.Command_Result_Commands is
             | Editor.Commands.Command_Semantic_Popup_Dismiss =>
             Cmd := Editor.Commands.Payloads.Command_For_Id (Id, Shift);
             case Cmd.Kind is
-               when Editor.Commands.Goto_Declaration =>
+               when Editor.Command_Kinds.Goto_Declaration =>
                   return Editor.Executor.Semantic_Commands.Execute_Semantic_Command
                     (S, Id, Cmd);
 
-               when Editor.Commands.Goto_Body =>
+               when Editor.Command_Kinds.Goto_Body =>
                   return Editor.Executor.Semantic_Commands.Execute_Semantic_Command
                     (S, Id, Cmd);
 
-               when Editor.Commands.Goto_Spec =>
+               when Editor.Command_Kinds.Goto_Spec =>
                   return Editor.Executor.Semantic_Commands.Execute_Semantic_Command
                     (S, Id, Cmd);
 
-               when Editor.Commands.Find_References =>
+               when Editor.Command_Kinds.Find_References =>
                   return Editor.Executor.Semantic_Commands.Execute_Semantic_Command
                     (S, Id, Cmd);
 
-               when Editor.Commands.Workspace_Symbols =>
+               when Editor.Command_Kinds.Workspace_Symbols =>
                   return Editor.Executor.Semantic_Commands.Execute_Semantic_Command
                     (S, Id, Cmd);
 
-               when Editor.Commands.Show_Hover =>
+               when Editor.Command_Kinds.Show_Hover =>
                   return Editor.Executor.Semantic_Commands.Execute_Semantic_Command
                     (S, Id, Cmd);
 
-               when Editor.Commands.Show_Completions =>
+               when Editor.Command_Kinds.Show_Completions =>
                   return Editor.Executor.Semantic_Commands.Execute_Semantic_Command
                     (S, Id, Cmd);
 
-               when Editor.Commands.Rename_Symbol_Preview =>
+               when Editor.Command_Kinds.Rename_Symbol_Preview =>
                   return Editor.Executor.Semantic_Commands.Execute_Semantic_Command
                     (S, Id, Cmd);
 
-               when Editor.Commands.Rename_Symbol_Apply =>
+               when Editor.Command_Kinds.Rename_Symbol_Apply =>
                   return Editor.Executor.Semantic_Commands.Execute_Semantic_Command
                     (S, Id, Cmd);
 
-               when Editor.Commands.Semantic_Refresh_Buffer =>
+               when Editor.Command_Kinds.Semantic_Refresh_Buffer =>
                   return Editor.Executor.Semantic_Commands.Execute_Semantic_Command
                     (S, Id, Cmd);
 
-               when Editor.Commands.Semantic_Refresh_Project_Index =>
+               when Editor.Command_Kinds.Semantic_Refresh_Project_Index =>
                   return Editor.Executor.Semantic_Commands.Execute_Semantic_Command
                     (S, Id, Cmd);
 
-               when Editor.Commands.Language_Index_Clear =>
+               when Editor.Command_Kinds.Language_Index_Clear =>
                   return Editor.Executor.Semantic_Commands.Execute_Semantic_Command
                     (S, Id, Cmd);
 
-               when Editor.Commands.Language_Index_Status =>
+               when Editor.Command_Kinds.Language_Index_Status =>
                   return Editor.Executor.Semantic_Commands.Execute_Semantic_Command
                     (S, Id, Cmd);
 
-               when Editor.Commands.Semantic_Completion_Select_Next =>
+               when Editor.Command_Kinds.Semantic_Completion_Select_Next =>
                   Editor.Executor.Semantic_Completion_Commands
                     .Execute_Semantic_Completion_Select (S, Next => True);
                   return Editor.Command_Execution.Executed (Id);
 
-               when Editor.Commands.Semantic_Completion_Select_Previous =>
+               when Editor.Command_Kinds.Semantic_Completion_Select_Previous =>
                   Editor.Executor.Semantic_Completion_Commands
                     .Execute_Semantic_Completion_Select (S, Next => False);
                   return Editor.Command_Execution.Executed (Id);
 
-               when Editor.Commands.Semantic_Completion_Accept =>
+               when Editor.Command_Kinds.Semantic_Completion_Accept =>
                   Editor.Executor.Semantic_Completion_Commands
                     .Execute_Semantic_Completion_Accept (S);
                   return Editor.Command_Execution.Executed (Id);
 
-               when Editor.Commands.Semantic_Popup_Dismiss =>
+               when Editor.Command_Kinds.Semantic_Popup_Dismiss =>
                   Editor.Executor.Semantic_Completion_Commands
                     .Execute_Semantic_Popup_Dismiss (S);
                   return Editor.Command_Execution.Executed (Id);
@@ -974,7 +976,7 @@ package body Editor.Executor.Command_Result_Commands is
       Before_File_Tree_Row :=
         Editor.File_Tree_View.Selected_Row_Index (S.File_Tree_View);
       Cmd := Editor.Commands.Payloads.Command_For_Id (Id, Shift);
-      if Cmd.Kind = Editor.Commands.Insert_Text_Input then
+      if Cmd.Kind = Editor.Command_Kinds.Insert_Text_Input then
          declare
             Line_Status : Editor.Executor.Edits.Line_Edit_Status;
          begin

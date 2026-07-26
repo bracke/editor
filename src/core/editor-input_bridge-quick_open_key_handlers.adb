@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.Cursor;
 with Editor.Executor.Clipboard;
@@ -44,10 +45,10 @@ package body Editor.Input_Bridge.Quick_Open_Key_Handlers is
                Execute (Editor.Commands.Command_Quick_Open_Next_Result);
             end if;
          when Editor.Keybindings.Key_Backspace =>
-            Cmd.Kind := Editor.Commands.Quick_Open_Backspace;
+            Cmd.Kind := Editor.Command_Kinds.Quick_Open_Backspace;
             Execute_Command (Cmd);
          when Editor.Keybindings.Key_Delete =>
-            Cmd.Kind := Editor.Commands.Quick_Open_Delete_Forward;
+            Cmd.Kind := Editor.Command_Kinds.Quick_Open_Delete_Forward;
             Execute_Command (Cmd);
          when Editor.Keybindings.Key_Left =>
             Editor.Quick_Open.Move_Cursor_Left (S.Quick_Open);
@@ -63,7 +64,7 @@ package body Editor.Input_Bridge.Quick_Open_Key_Handlers is
             Editor.Render_Cache.Invalidate_All;
          when Editor.Keybindings.Key_V =>
             if Chord.Modifiers.Ctrl then
-               Cmd.Kind := Editor.Commands.Quick_Open_Insert_Text;
+               Cmd.Kind := Editor.Command_Kinds.Quick_Open_Insert_Text;
                Cmd.Text := Editor.Executor.Clipboard.Text_For_Local_Input;
                Execute_Command (Cmd);
             end if;

@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
@@ -59,7 +60,7 @@ package body Editor.History.Tests is
    function Paste (S : String) return Editor.Commands.Payloads.Command is
       Cmd : Editor.Commands.Payloads.Command;
    begin
-      Cmd.Kind := Editor.Commands.Paste_Text;
+      Cmd.Kind := Editor.Command_Kinds.Paste_Text;
       Cmd.Text := To_Unbounded_String (S);
       return Cmd;
    end Paste;
@@ -67,7 +68,7 @@ package body Editor.History.Tests is
    function Forward_Delete return Editor.Commands.Payloads.Command is
       Cmd : Editor.Commands.Payloads.Command;
    begin
-      Cmd.Kind := Editor.Commands.Forward_Delete_Char;
+      Cmd.Kind := Editor.Command_Kinds.Forward_Delete_Char;
       return Cmd;
    end Forward_Delete;
 
@@ -363,7 +364,7 @@ package body Editor.History.Tests is
       Editor.State.Init (S);
       Editor.Executor.Execute_No_Log (S, Paste ("abcdef"));
 
-      Cmd.Kind := Editor.Commands.Apply_Replace_Batch;
+      Cmd.Kind := Editor.Command_Kinds.Apply_Replace_Batch;
       Cmd.Positions.Append (3);
       Cmd.Delete_Counts.Append (1);
       Cmd.Insert_Texts.Append (To_Unbounded_String ("D"));
@@ -384,7 +385,7 @@ package body Editor.History.Tests is
       Editor.State.Init (S);
       Editor.Executor.Execute_No_Log (S, Paste ("aa" & ASCII.LF & "bb" & ASCII.LF & "cc"));
 
-      Cmd.Kind := Editor.Commands.Apply_Replace_Batch;
+      Cmd.Kind := Editor.Command_Kinds.Apply_Replace_Batch;
       Cmd.Positions.Append (1);
       Cmd.Delete_Counts.Append (0);
       Cmd.Insert_Texts.Append (To_Unbounded_String (String'(1 => ASCII.LF)));
@@ -550,7 +551,7 @@ package body Editor.History.Tests is
               "undo creates redo precondition");
 
       Before := S;
-      Cmd.Kind := Editor.Commands.Apply_Replace_Batch;
+      Cmd.Kind := Editor.Command_Kinds.Apply_Replace_Batch;
       Editor.Executor.History.Log_Edit (Before, S, Cmd);
 
       Assert (Editor.History.Undo_Stack.Is_Empty,
@@ -918,7 +919,7 @@ package body Editor.History.Tests is
       Editor.Executor.Execute_No_Log (S, Paste ("B"));
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Undo);
       Assert_Stacks (0, 1, "failed mutation precondition");
-      Cmd.Kind := Editor.Commands.Active_Replace_Current;
+      Cmd.Kind := Editor.Command_Kinds.Active_Replace_Current;
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert_Text (S, "A", "failed replace.current mutates nothing");
       Assert_Stacks (0, 1, "failed replace.current preserves redo");

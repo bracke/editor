@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
@@ -56,12 +57,13 @@ with Editor.Render_Cache;
 
 package body Editor.Executor.Command_Kind_Routing is
 
-   use type Editor.Commands.Command_Kind;
+   use type Editor.Command_Kinds.Command_Kind;
 
    function Try_Execute_Non_Edit_Kind
      (S   : in out Editor.State.State_Type;
       Cmd : Editor.Commands.Payloads.Command) return Boolean
    is
+      use Editor.Command_Kinds;
       use Editor.Commands;
 
       procedure Check_And_Mark_Handled (Handled : out Boolean) is

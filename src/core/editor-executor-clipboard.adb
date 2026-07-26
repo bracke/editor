@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -158,7 +159,7 @@ package body Editor.Executor.Clipboard is
            Editor.History.Redo_Stack;
       begin
          Keep_Primary_Caret_Only (S);
-         Del.Kind := Editor.Commands.Delete_Char;
+         Del.Kind := Editor.Command_Kinds.Delete_Char;
          Editor.Executor.Execute_No_Log (S, Del);
 
          if Text_Buffer.UTF8_Text (S.Buffer) /= Before_Text then
@@ -234,7 +235,7 @@ package body Editor.Executor.Clipboard is
            Editor.History.Redo_Stack;
       begin
          Keep_Primary_Caret_Only (S);
-         P.Kind := Editor.Commands.Paste_Text;
+         P.Kind := Editor.Command_Kinds.Paste_Text;
          P.Text := Text;
          Editor.Executor.Execute_No_Log (S, P);
 
@@ -275,13 +276,13 @@ package body Editor.Executor.Clipboard is
       Clear_Status;
 
       case Cmd.Kind is
-         when Editor.Commands.Copy_Selection =>
+         when Editor.Command_Kinds.Copy_Selection =>
             Execute_Copy (S);
-         when Editor.Commands.Cut_Selection =>
+         when Editor.Command_Kinds.Cut_Selection =>
             Execute_Cut (S);
-         when Editor.Commands.Paste_Clipboard =>
+         when Editor.Command_Kinds.Paste_Clipboard =>
             Execute_Paste (S);
-         when Editor.Commands.Clear_Clipboard =>
+         when Editor.Command_Kinds.Clear_Clipboard =>
             Execute_Clear;
          when others =>
             null;

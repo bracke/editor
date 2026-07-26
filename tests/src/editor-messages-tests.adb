@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -297,7 +298,7 @@ package body Editor.Messages.Tests is
          State           => S.Messages);
       Assert (Rect.Visible, "Prepared active message must have visible overlay rect");
 
-      Cmd.Kind := Editor.Commands.Move_To_Point;
+      Cmd.Kind := Editor.Command_Kinds.Move_To_Point;
       Cmd.Click_X := Rect.X + Rect.W / 2;
       Cmd.Click_Y := Rect.Y + Rect.H / 2;
       Editor.Input_Bridge.Handle (Cmd);
@@ -327,7 +328,7 @@ package body Editor.Messages.Tests is
          State           => S.Messages);
       Assert (Rect.Visible, "Prepared active message must have visible overlay rect");
 
-      Cmd.Kind := Editor.Commands.Move_To_Point;
+      Cmd.Kind := Editor.Command_Kinds.Move_To_Point;
       Cmd.Click_X := Rect.X + Rect.W / 2;
       Cmd.Click_Y := Rect.Y + Rect.H / 2;
       Editor.Input_Bridge.Handle (Cmd);
@@ -355,12 +356,12 @@ package body Editor.Messages.Tests is
          State           => S.Messages);
       Assert (Rect.Visible, "Prepared active message must have visible overlay rect");
 
-      Cmd.Kind := Editor.Commands.Move_To_Point;
+      Cmd.Kind := Editor.Command_Kinds.Move_To_Point;
       Cmd.Click_X := Rect.X + Rect.W / 2;
       Cmd.Click_Y := Rect.Y + Rect.H / 2;
       Editor.Input_Bridge.Handle (Cmd);
 
-      Cmd.Kind := Editor.Commands.Drag_To_Point;
+      Cmd.Kind := Editor.Command_Kinds.Drag_To_Point;
       Cmd.Click_X := Rect.X + Rect.W / 2;
       Cmd.Click_Y := Editor.View.Viewport_Height - 1;
       Editor.Input_Bridge.Handle (Cmd);
@@ -384,7 +385,7 @@ package body Editor.Messages.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "hello");
 
-      Cmd.Kind := Editor.Commands.Save_File_As;
+      Cmd.Kind := Editor.Command_Kinds.Save_File_As;
       Cmd.Path := To_Unbounded_String (Path);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
@@ -413,7 +414,7 @@ package body Editor.Messages.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "hello");
 
-      Cmd.Kind := Editor.Commands.Save_File_As;
+      Cmd.Kind := Editor.Command_Kinds.Save_File_As;
       Cmd.Path := To_Unbounded_String (Seed_Path);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
@@ -424,7 +425,7 @@ package body Editor.Messages.Tests is
       S.File_Info.File_Token_Known := False;
       S.File_Info.File_Token_Label := Null_Unbounded_String;
       S.File_Info.External_Change_Surfaced := False;
-      Cmd.Kind := Editor.Commands.Save_File;
+      Cmd.Kind := Editor.Command_Kinds.Save_File;
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       M := Editor.Messages.Active_Message (S.Messages, Found);

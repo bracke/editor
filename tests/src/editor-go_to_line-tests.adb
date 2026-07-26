@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
@@ -658,7 +659,7 @@ package body Editor.Go_To_Line.Tests is
          Query : constant String := "3";
       begin
          for Ch of Query loop
-         Cmd.Kind := Editor.Commands.Insert_Text_Input;
+         Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
          Cmd.Ch := Ch;
          Cmd.Text := To_Unbounded_String (String'(1 => Ch));
          Editor.Input_Bridge.Handle (Cmd);
@@ -671,7 +672,7 @@ package body Editor.Go_To_Line.Tests is
       Assert (Snap.Caret_Count > 0 and then Natural (Snap.Caret_Pos (1)) = 0,
               "typing into the go-to-line prompt must not move or edit the active buffer");
 
-      Cmd.Kind := Editor.Commands.Insert_Text_Input;
+      Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Ch := ASCII.LF;
       Cmd.Text := To_Unbounded_String (String'(1 => ASCII.LF));
       Editor.Input_Bridge.Handle (Cmd);
@@ -683,11 +684,11 @@ package body Editor.Go_To_Line.Tests is
               "Enter routed through Input_Bridge must perform the go-to-line caret movement");
 
       Editor.Input_Bridge.Execute_Command_Id (Editor.Commands.Command_Goto_Line);
-      Cmd.Kind := Editor.Commands.Insert_Text_Input;
+      Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Ch := '9';
       Cmd.Text := To_Unbounded_String (String'(1 => '9'));
       Editor.Input_Bridge.Handle (Cmd);
-      Cmd.Kind := Editor.Commands.Close_Goto_Line;
+      Cmd.Kind := Editor.Command_Kinds.Close_Goto_Line;
       Editor.Input_Bridge.Handle (Cmd);
       Editor.Input_Bridge.Get_Render_Snapshot (Snap);
       Assert ((not Snap.Goto_Line_Visible)

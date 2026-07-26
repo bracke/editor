@@ -1,4 +1,5 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.Command_Kinds; use Editor.Command_Kinds;
 
 package body Editor.Commands.Payloads is
 

@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.Diagnostics;
 with Editor.Executor.Diagnostics_Commands;
@@ -59,7 +60,7 @@ package body Editor.Input_Bridge.Panel_Feature_Problems_Pointer_Handlers is
           (S.Feature_Panel);
    begin
       if not Is_Minimap_Pointer_Command (Cmd.Kind)
-        and then Cmd.Kind /= Editor.Commands.Pointer_Hover
+        and then Cmd.Kind /= Editor.Command_Kinds.Pointer_Hover
       then
          return False;
       end if;
@@ -78,7 +79,7 @@ package body Editor.Input_Bridge.Panel_Feature_Problems_Pointer_Handlers is
 
       Reset_Pointer_State (S);
 
-      if Cmd.Kind = Editor.Commands.Pointer_Hover then
+      if Cmd.Kind = Editor.Command_Kinds.Pointer_Hover then
          return True;
       end if;
 
@@ -90,7 +91,7 @@ package body Editor.Input_Bridge.Panel_Feature_Problems_Pointer_Handlers is
             Natural ((Integer (Cmd.Click_Y) - Y0) / Integer (Editor.Layout.Cell_H)));
       end if;
 
-      if Cmd.Kind = Editor.Commands.Move_To_Point then
+      if Cmd.Kind = Editor.Command_Kinds.Move_To_Point then
          Editor.Focus_Management.Clear_Transient_Focus_Owners (S);
          Editor.Feature_Panel.Set_Focused (S.Feature_Panel, True);
          case Editor.Feature_Panel.Active_Feature (S.Feature_Panel) is
@@ -130,8 +131,8 @@ package body Editor.Input_Bridge.Panel_Feature_Problems_Pointer_Handlers is
             when Editor.Feature_Panel.Unknown_Feature =>
                null;
          end case;
-      elsif Cmd.Kind = Editor.Commands.Select_Word_At_Point
-        or else Cmd.Kind = Editor.Commands.Select_Line_At_Point
+      elsif Cmd.Kind = Editor.Command_Kinds.Select_Word_At_Point
+        or else Cmd.Kind = Editor.Command_Kinds.Select_Line_At_Point
       then
          case Editor.Feature_Panel.Active_Feature (S.Feature_Panel) is
             when Editor.Feature_Panel.Outline_Feature =>
@@ -211,7 +212,7 @@ package body Editor.Input_Bridge.Panel_Feature_Problems_Pointer_Handlers is
       Hit              : Editor.Problems.Problems_Hit_Result;
    begin
       if not Is_Minimap_Pointer_Command (Cmd.Kind)
-        and then Cmd.Kind /= Editor.Commands.Pointer_Hover
+        and then Cmd.Kind /= Editor.Command_Kinds.Pointer_Hover
       then
          return False;
       end if;
@@ -247,12 +248,12 @@ package body Editor.Input_Bridge.Panel_Feature_Problems_Pointer_Handlers is
          Pointer_State.Clear_Gutter_Line_Selection;
          Editor.State.Clear_Gutter_Marker_Hover (S);
 
-         if Cmd.Kind = Editor.Commands.Move_To_Point then
+         if Cmd.Kind = Editor.Command_Kinds.Move_To_Point then
             Editor.Focus_Management.Set_Focus_Owner
               (S, Editor.Focus_Management.Focus_Diagnostics);
          end if;
 
-         if Cmd.Kind = Editor.Commands.Move_To_Point
+         if Cmd.Kind = Editor.Command_Kinds.Move_To_Point
            and then Hit.Zone = Editor.Problems.Problems_Row_Zone
            and then Hit.Diagnostic_Index /= Editor.Diagnostics.No_Diagnostic
          then
@@ -270,7 +271,7 @@ package body Editor.Input_Bridge.Panel_Feature_Problems_Pointer_Handlers is
             Editor.Executor.Diagnostics_Navigation_Commands.Execute_Jump_To_Diagnostic
               (S, Hit.Diagnostic_Index);
             Editor.Focus_Management.Restore_Focus_To_Editor (S);
-         elsif Cmd.Kind = Editor.Commands.Move_To_Point
+         elsif Cmd.Kind = Editor.Command_Kinds.Move_To_Point
            and then Hit.Zone = Editor.Problems.Problems_Header_Zone
          then
             declare

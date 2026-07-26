@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -190,12 +191,12 @@ package body Editor.Scrollbars.Tests is
       Geometry := Vertical_Geometry_For_Current_View;
       Assert (Geometry.Visible, "Vertical scrollbar must be visible before drag test");
 
-      Cmd.Kind := Editor.Commands.Move_To_Point;
+      Cmd.Kind := Editor.Command_Kinds.Move_To_Point;
       Cmd.Click_X := Natural (Geometry.Thumb.X + 1.0);
       Cmd.Click_Y := Natural (Geometry.Thumb.Y + 1.0);
       Editor.Input_Bridge.Handle (Cmd);
 
-      Cmd.Kind := Editor.Commands.Drag_To_Point;
+      Cmd.Kind := Editor.Command_Kinds.Drag_To_Point;
       Cmd.Click_X := Natural (Geometry.Thumb.X + 1.0);
       Cmd.Click_Y := Natural (Geometry.Track.Y + Geometry.Track.H - 2.0);
       Editor.Input_Bridge.Handle (Cmd);
@@ -215,7 +216,7 @@ package body Editor.Scrollbars.Tests is
       Geometry := Vertical_Geometry_For_Current_View;
       Assert (Geometry.Visible, "Vertical scrollbar must be visible before track-click test");
 
-      Cmd.Kind := Editor.Commands.Move_To_Point;
+      Cmd.Kind := Editor.Command_Kinds.Move_To_Point;
       Cmd.Click_X := Natural (Geometry.Track.X + 1.0);
       Cmd.Click_Y := Natural (Geometry.Thumb.Y + Geometry.Thumb.H + 2.0);
       Editor.Input_Bridge.Handle (Cmd);

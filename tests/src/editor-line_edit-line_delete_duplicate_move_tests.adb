@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Classification;
 with Editor.Commands.Payloads;
@@ -1643,7 +1644,7 @@ procedure Test_Line_Comment_Command_Descriptors
          "split must be bindable");
       Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Commands.Command_Line_Split_At_Caret);
-      Assert (Cmd.Kind = Editor.Commands.Split_Current_Line_At_Caret,
+      Assert (Cmd.Kind = Editor.Command_Kinds.Split_Current_Line_At_Caret,
               "split command must map to canonical edit kind");
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name
         ("edit.line.split-at-caret", Found);
@@ -1991,7 +1992,7 @@ procedure Test_Line_Comment_Command_Descriptors
       Assert
         (Editor.Commands.Payloads.Command_For_Id
            (Editor.Commands.Command_Selection_Delete).Kind =
-         Editor.Commands.Delete_Selection_Range,
+         Editor.Command_Kinds.Delete_Selection_Range,
          "selection delete id must create the canonical edit command kind");
 
       Editor.State.Load_Text (S, "Alpha Beta");

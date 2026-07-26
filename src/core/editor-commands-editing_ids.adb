@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 package body Editor.Commands.Editing_Ids is
 
    function Is_Editing_Command

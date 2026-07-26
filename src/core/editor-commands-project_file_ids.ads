@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands;
 
 package Editor.Commands.Project_File_Ids is

@@ -1,3 +1,4 @@
+with Editor.Command_Kinds; use Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.State;
 with Editor.Commands;   use Editor.Commands;

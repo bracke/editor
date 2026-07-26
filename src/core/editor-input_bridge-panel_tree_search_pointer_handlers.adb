@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.Buffers;
 with Editor.Executor.File_Tree_Navigation_Commands;
@@ -57,7 +58,7 @@ package body Editor.Input_Bridge.Panel_Tree_Search_Pointer_Handlers is
       Hit : Editor.File_Tree_View.File_Tree_Hit_Result;
    begin
       if not Is_Minimap_Pointer_Command (Cmd.Kind)
-        and then Cmd.Kind /= Editor.Commands.Pointer_Hover
+        and then Cmd.Kind /= Editor.Command_Kinds.Pointer_Hover
       then
          return False;
       end if;
@@ -73,7 +74,7 @@ package body Editor.Input_Bridge.Panel_Tree_Search_Pointer_Handlers is
       if Hit.Zone /= Editor.File_Tree_View.Outside_File_Tree then
          Reset_Pointer_State (S);
 
-         if Cmd.Kind = Editor.Commands.Move_To_Point then
+         if Cmd.Kind = Editor.Command_Kinds.Move_To_Point then
             declare
                Action : constant Editor.File_Tree_View.File_Tree_Action :=
                  Editor.File_Tree_View.Action_For_Hit
@@ -112,7 +113,7 @@ package body Editor.Input_Bridge.Panel_Tree_Search_Pointer_Handlers is
       Hit      : Editor.Search_Results.Search_Results_Hit_Result;
    begin
       if not Is_Minimap_Pointer_Command (Cmd.Kind)
-        and then Cmd.Kind /= Editor.Commands.Pointer_Hover
+        and then Cmd.Kind /= Editor.Command_Kinds.Pointer_Hover
       then
          return False;
       end if;
@@ -141,7 +142,7 @@ package body Editor.Input_Bridge.Panel_Tree_Search_Pointer_Handlers is
       if Hit.Zone /= Editor.Search_Results.Outside_Search_Results then
          Reset_Pointer_State (S);
 
-         if Cmd.Kind = Editor.Commands.Move_To_Point then
+         if Cmd.Kind = Editor.Command_Kinds.Move_To_Point then
             Editor.Focus_Management.Set_Focus_Owner
               (S,
                Editor.Focus_Management.Focus_Project_Search_Results);

@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 package body Editor.Commands.Navigation_Ids is
 
    function Is_Navigation_Command

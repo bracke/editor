@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Editor.Test_Temp;
@@ -114,7 +115,7 @@ package body Editor.Input_Bridge.Tests is
    function Text_Command (Text : String) return Editor.Commands.Payloads.Command is
       Cmd : Editor.Commands.Payloads.Command;
    begin
-      Cmd.Kind := Editor.Commands.Insert_Text_Input;
+      Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Text := To_Unbounded_String (Text);
       if Text'Length = 1 then
          Cmd.Ch := Text (Text'First);
@@ -189,7 +190,7 @@ package body Editor.Input_Bridge.Tests is
    function Pointer_Click (X, Y : Natural) return Editor.Commands.Payloads.Command is
    begin
       return
-        (Kind    => Editor.Commands.Move_To_Point,
+        (Kind    => Editor.Command_Kinds.Move_To_Point,
          Click_X => X,
          Click_Y => Y,
          others  => <>);
@@ -198,7 +199,7 @@ package body Editor.Input_Bridge.Tests is
    function Select_Word_Click (X, Y : Natural) return Editor.Commands.Payloads.Command is
    begin
       return
-        (Kind    => Editor.Commands.Select_Word_At_Point,
+        (Kind    => Editor.Command_Kinds.Select_Word_At_Point,
          Click_X => X,
          Click_Y => Y,
          others  => <>);
@@ -207,7 +208,7 @@ package body Editor.Input_Bridge.Tests is
    function Pointer_Drag (X, Y : Natural) return Editor.Commands.Payloads.Command is
    begin
       return
-        (Kind    => Editor.Commands.Drag_To_Point,
+        (Kind    => Editor.Command_Kinds.Drag_To_Point,
          Click_X => X,
          Click_Y => Y,
          others  => <>);
@@ -582,7 +583,7 @@ package body Editor.Input_Bridge.Tests is
       Text_X  : Natural;
       Text_Y  : Natural;
       Release : Editor.Commands.Payloads.Command :=
-        (Kind => Editor.Commands.Break_Group, others => <>);
+        (Kind => Editor.Command_Kinds.Break_Group, others => <>);
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
@@ -1390,7 +1391,7 @@ package body Editor.Input_Bridge.Tests is
         (S.Feature_Search_Results);
       Editor.Input_Bridge.Set_State_For_Test (S);
 
-      Cmd.Kind := Editor.Commands.Insert_Text_Input;
+      Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Ch := 'x';
       Cmd.Text := To_Unbounded_String (String'(1 => 'x'));
       Editor.Input_Bridge.Handle (Cmd);
@@ -1433,7 +1434,7 @@ package body Editor.Input_Bridge.Tests is
       Editor.Outline.Activate_Filter_Input (S.Outline);
       Editor.Input_Bridge.Set_State_For_Test (S);
 
-      Cmd.Kind := Editor.Commands.Insert_Text_Input;
+      Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Ch := 'y';
       Cmd.Text := To_Unbounded_String (String'(1 => 'y'));
       Editor.Input_Bridge.Handle (Cmd);
@@ -1887,27 +1888,27 @@ package body Editor.Input_Bridge.Tests is
          "ordinary text must route to canonical Text Insert");
       Assert
         (Editor.Input_Bridge.Preview_Text_Entry_Route
-           (Kind_Command (Editor.Commands.Delete_Selection_Range)) =
+           (Kind_Command (Editor.Command_Kinds.Delete_Selection_Range)) =
          Editor.Input_Bridge.Routed_To_Selection_Delete,
          "explicit selection delete must route to Selection Delete");
       Assert
         (Editor.Input_Bridge.Preview_Text_Entry_Route
-           (Kind_Command (Editor.Commands.Delete_Char)) =
+           (Kind_Command (Editor.Command_Kinds.Delete_Char)) =
          Editor.Input_Bridge.Routed_To_Delete_Previous_Character,
          "previous Backspace input kind must canonicalize to previous-character delete");
       Assert
         (Editor.Input_Bridge.Preview_Text_Entry_Route
-           (Kind_Command (Editor.Commands.Forward_Delete_Char)) =
+           (Kind_Command (Editor.Command_Kinds.Forward_Delete_Char)) =
          Editor.Input_Bridge.Routed_To_Delete_Next_Character,
          "previous Delete input kind must canonicalize to next-character delete");
       Assert
         (Editor.Input_Bridge.Preview_Text_Entry_Route
-           (Kind_Command (Editor.Commands.Delete_Previous_Word)) =
+           (Kind_Command (Editor.Command_Kinds.Delete_Previous_Word)) =
          Editor.Input_Bridge.Routed_To_Delete_Previous_Word,
          "previous-word delete must route to canonical Word Delete previous");
       Assert
         (Editor.Input_Bridge.Preview_Text_Entry_Route
-           (Kind_Command (Editor.Commands.Delete_Next_Word)) =
+           (Kind_Command (Editor.Command_Kinds.Delete_Next_Word)) =
          Editor.Input_Bridge.Routed_To_Delete_Next_Word,
          "next-word delete must route to canonical Word Delete next");
       Assert
@@ -1916,7 +1917,7 @@ package body Editor.Input_Bridge.Tests is
          "retained line-break policy routes newline payloads to Text Insert, not Line Split");
       Assert
         (Editor.Input_Bridge.Preview_Text_Entry_Route
-           (Kind_Command (Editor.Commands.Split_Current_Line_At_Caret)) =
+           (Kind_Command (Editor.Command_Kinds.Split_Current_Line_At_Caret)) =
          Editor.Input_Bridge.Routed_To_Line_Split,
          "explicit Line Split remains a separate canonical route");
 
@@ -1985,7 +1986,7 @@ package body Editor.Input_Bridge.Tests is
 
       Set_Primary_Caret (After, 2, 2);
       Editor.Input_Bridge.Set_State_For_Test (After);
-      Editor.Input_Bridge.Handle (Kind_Command (Editor.Commands.Delete_Char));
+      Editor.Input_Bridge.Handle (Kind_Command (Editor.Command_Kinds.Delete_Char));
       After := Editor.Input_Bridge.Get_State_For_Test;
       Assert
         (Editor.State.Current_Text (After) = "ac",
@@ -2041,22 +2042,22 @@ package body Editor.Input_Bridge.Tests is
          "preview classifies ordinary payload without executing it");
       Assert
         (Editor.Input_Bridge.Preview_Text_Entry_Route
-           (Kind_Command (Editor.Commands.Delete_Previous_Character)) =
+           (Kind_Command (Editor.Command_Kinds.Delete_Previous_Character)) =
          Editor.Input_Bridge.Routed_To_Delete_Previous_Character,
          "preview classifies named previous-character delete canonically");
       Assert
         (Editor.Input_Bridge.Preview_Text_Entry_Route
-           (Kind_Command (Editor.Commands.Delete_Next_Character)) =
+           (Kind_Command (Editor.Command_Kinds.Delete_Next_Character)) =
          Editor.Input_Bridge.Routed_To_Delete_Next_Character,
          "preview classifies named next-character delete canonically");
       Assert
         (Editor.Input_Bridge.Preview_Text_Entry_Route
-           (Kind_Command (Editor.Commands.Delete_Previous_Word)) =
+           (Kind_Command (Editor.Command_Kinds.Delete_Previous_Word)) =
          Editor.Input_Bridge.Routed_To_Delete_Previous_Word,
          "preview classifies previous-word delete canonically");
       Assert
         (Editor.Input_Bridge.Preview_Text_Entry_Route
-           (Kind_Command (Editor.Commands.Delete_Next_Word)) =
+           (Kind_Command (Editor.Command_Kinds.Delete_Next_Word)) =
          Editor.Input_Bridge.Routed_To_Delete_Next_Word,
          "preview classifies next-word delete canonically");
 
@@ -2114,12 +2115,12 @@ package body Editor.Input_Bridge.Tests is
          "Quick Open owns text-entry focus before named delete routing");
       Assert
         (Editor.Input_Bridge.Preview_Text_Entry_Route
-           (Kind_Command (Editor.Commands.Delete_Previous_Character)) =
+           (Kind_Command (Editor.Command_Kinds.Delete_Previous_Character)) =
          Editor.Input_Bridge.Routed_To_Overlay_Input,
          "named previous-character delete must be classified as overlay-local when overlay owns focus");
 
       Editor.Input_Bridge.Handle
-        (Kind_Command (Editor.Commands.Delete_Previous_Character));
+        (Kind_Command (Editor.Command_Kinds.Delete_Previous_Character));
       After := Editor.Input_Bridge.Get_State_For_Test;
 
       Assert (Editor.State.Current_Text (After) = "Buffer",
@@ -2150,7 +2151,7 @@ package body Editor.Input_Bridge.Tests is
       Editor.Input_Bridge.Set_State_For_Test (S);
 
       Editor.Input_Bridge.Handle (Text_Command ("X"));
-      Editor.Input_Bridge.Handle (Kind_Command (Editor.Commands.Undo));
+      Editor.Input_Bridge.Handle (Kind_Command (Editor.Command_Kinds.Undo));
       S := Editor.Input_Bridge.Get_State_For_Test;
       Assert (Natural (Editor.History.Redo_Stack.Length) = 1,
               "undo after routed Text Insert must make redo available through canonical history");
@@ -2295,38 +2296,38 @@ package body Editor.Input_Bridge.Tests is
          Editor.Commands.No_Command,
          "ordinary editor payload");
       Assert_Text_Entry_Workflow_Coherent
-        (Kind_Command (Editor.Commands.Delete_Selection_Range),
+        (Kind_Command (Editor.Command_Kinds.Delete_Selection_Range),
          Editor.Input_Bridge.Routed_To_Selection_Delete,
          Editor.Commands.Command_Selection_Delete,
          "explicit selection delete");
       Assert_Text_Entry_Workflow_Coherent
-        (Kind_Command (Editor.Commands.Delete_Previous_Character),
+        (Kind_Command (Editor.Command_Kinds.Delete_Previous_Character),
          Editor.Input_Bridge.Routed_To_Delete_Previous_Character,
          Editor.Commands.Command_Char_Delete_Previous,
          "previous-character delete");
       Assert_Text_Entry_Workflow_Coherent
-        (Kind_Command (Editor.Commands.Delete_Next_Character),
+        (Kind_Command (Editor.Command_Kinds.Delete_Next_Character),
          Editor.Input_Bridge.Routed_To_Delete_Next_Character,
          Editor.Commands.Command_Char_Delete_Next,
          "next-character delete");
       Assert_Text_Entry_Workflow_Coherent
-        (Kind_Command (Editor.Commands.Delete_Previous_Word),
+        (Kind_Command (Editor.Command_Kinds.Delete_Previous_Word),
          Editor.Input_Bridge.Routed_To_Delete_Previous_Word,
          Editor.Commands.Command_Word_Delete_Previous,
          "previous-word delete");
       Assert_Text_Entry_Workflow_Coherent
-        (Kind_Command (Editor.Commands.Delete_Next_Word),
+        (Kind_Command (Editor.Command_Kinds.Delete_Next_Word),
          Editor.Input_Bridge.Routed_To_Delete_Next_Word,
          Editor.Commands.Command_Word_Delete_Next,
          "next-word delete");
       Assert_Text_Entry_Workflow_Coherent
-        (Kind_Command (Editor.Commands.Split_Current_Line_At_Caret),
+        (Kind_Command (Editor.Command_Kinds.Split_Current_Line_At_Caret),
          Editor.Input_Bridge.Routed_To_Line_Split,
          Editor.Commands.Command_Line_Split_At_Caret,
          "explicit line split");
       Assert
         (Editor.Input_Bridge.Preview_Text_Entry_Route
-           (Kind_Command (Editor.Commands.Move_Left)) =
+           (Kind_Command (Editor.Command_Kinds.Move_Left)) =
          Editor.Input_Bridge.Unsupported_Text_Entry_Event,
          "unsupported text-entry event must fail deterministically");
 
@@ -2363,7 +2364,7 @@ package body Editor.Input_Bridge.Tests is
          Editor.Commands.No_Command,
          "overlay ordinary payload");
       Assert_Text_Entry_Workflow_Coherent
-        (Kind_Command (Editor.Commands.Delete_Previous_Character),
+        (Kind_Command (Editor.Command_Kinds.Delete_Previous_Character),
          Editor.Input_Bridge.Routed_To_Overlay_Input,
          Editor.Commands.No_Command,
          "overlay previous-character delete");
@@ -2429,7 +2430,7 @@ package body Editor.Input_Bridge.Tests is
               and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = Before_Nav_Fwd,
               "Text Insert replacement must not record Navigation History");
 
-      Editor.Input_Bridge.Handle (Kind_Command (Editor.Commands.Undo));
+      Editor.Input_Bridge.Handle (Kind_Command (Editor.Command_Kinds.Undo));
       S := Editor.Input_Bridge.Get_State_For_Test;
       Assert (Editor.State.Current_Text (S) = "abc def",
               "undo restores exact pre-route text without re-running workflow routing");
@@ -2438,7 +2439,7 @@ package body Editor.Input_Bridge.Tests is
 
       Set_Primary_Caret (S, 4, 7);
       Editor.Input_Bridge.Set_State_For_Test (S);
-      Editor.Input_Bridge.Handle (Kind_Command (Editor.Commands.Delete_Selection_Range));
+      Editor.Input_Bridge.Handle (Kind_Command (Editor.Command_Kinds.Delete_Selection_Range));
       S := Editor.Input_Bridge.Get_State_For_Test;
       Assert (Editor.State.Current_Text (S) = "abc ",
               "explicit selection-delete workflow event reaches canonical Selection Delete");
@@ -2450,7 +2451,7 @@ package body Editor.Input_Bridge.Tests is
       Undo_Before := Natural (Editor.History.Undo_Stack.Length);
       Set_Primary_Caret (S, 4, 4);
       Editor.Input_Bridge.Set_State_For_Test (S);
-      Editor.Input_Bridge.Handle (Kind_Command (Editor.Commands.Delete_Previous_Character));
+      Editor.Input_Bridge.Handle (Kind_Command (Editor.Command_Kinds.Delete_Previous_Character));
       S := Editor.Input_Bridge.Get_State_For_Test;
       Assert (Editor.State.Current_Text (S) = "abc",
               "previous-character workflow event reaches canonical Character Delete");
@@ -2465,10 +2466,10 @@ package body Editor.Input_Bridge.Tests is
       Editor.Input_Bridge.Set_State_For_Test (S);
       Assert
         (Editor.Input_Bridge.Preview_Text_Entry_Route
-           (Kind_Command (Editor.Commands.Delete_Previous_Word)) =
+           (Kind_Command (Editor.Command_Kinds.Delete_Previous_Word)) =
          Editor.Input_Bridge.Routed_To_Delete_Previous_Word,
          "previous-word event routes to Word Delete without workflow range computation");
-      Editor.Input_Bridge.Handle (Kind_Command (Editor.Commands.Delete_Previous_Word));
+      Editor.Input_Bridge.Handle (Kind_Command (Editor.Command_Kinds.Delete_Previous_Word));
       S := Editor.Input_Bridge.Get_State_For_Test;
       Assert (Editor.State.Current_Text (S) = "abc ",
               "previous-word workflow event reaches canonical Word Delete");
@@ -2506,7 +2507,7 @@ package body Editor.Input_Bridge.Tests is
       Editor.Input_Bridge.Set_State_For_Test (S);
 
       Editor.Input_Bridge.Handle (Text_Command ("X"));
-      Editor.Input_Bridge.Handle (Kind_Command (Editor.Commands.Undo));
+      Editor.Input_Bridge.Handle (Kind_Command (Editor.Command_Kinds.Undo));
       S := Editor.Input_Bridge.Get_State_For_Test;
       Redo_Before := Natural (Editor.History.Redo_Stack.Length);
       Undo_Before := Natural (Editor.History.Undo_Stack.Length);
@@ -2515,10 +2516,10 @@ package body Editor.Input_Bridge.Tests is
 
       Assert
         (Editor.Input_Bridge.Preview_Text_Entry_Route
-           (Kind_Command (Editor.Commands.Move_Left)) =
+           (Kind_Command (Editor.Command_Kinds.Move_Left)) =
          Editor.Input_Bridge.Unsupported_Text_Entry_Event,
          "unsupported event is classified before mutation");
-      Editor.Input_Bridge.Handle (Kind_Command (Editor.Commands.Move_Left));
+      Editor.Input_Bridge.Handle (Kind_Command (Editor.Command_Kinds.Move_Left));
       S := Editor.Input_Bridge.Get_State_For_Test;
       Assert (Natural (Editor.History.Redo_Stack.Length) = Redo_Before,
               "unsupported workflow event preserves Redo_Stack");
@@ -2543,7 +2544,7 @@ package body Editor.Input_Bridge.Tests is
       Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Handle (Text_Command ("local"));
-      Editor.Input_Bridge.Handle (Kind_Command (Editor.Commands.Delete_Previous_Character));
+      Editor.Input_Bridge.Handle (Kind_Command (Editor.Command_Kinds.Delete_Previous_Character));
       S := Editor.Input_Bridge.Get_State_For_Test;
       Assert (Editor.Quick_Open.Query_Text (S.Quick_Open) = "loca",
               "overlay payload and local deletion remain owned by Quick Open");
@@ -2641,8 +2642,8 @@ package body Editor.Input_Bridge.Tests is
       Editor.Executor.Quick_Open_Commands.Execute_Close_Quick_Open (S);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Handle (Text_Command ("X"));
-      Editor.Input_Bridge.Handle (Kind_Command (Editor.Commands.Delete_Previous_Character));
-      Editor.Input_Bridge.Handle (Kind_Command (Editor.Commands.Delete_Previous_Word));
+      Editor.Input_Bridge.Handle (Kind_Command (Editor.Command_Kinds.Delete_Previous_Character));
+      Editor.Input_Bridge.Handle (Kind_Command (Editor.Command_Kinds.Delete_Previous_Word));
       Editor.Input_Bridge.Handle (Text_Command (String'(1 => ASCII.LF)));
       S := Editor.Input_Bridge.Get_State_For_Test;
 
@@ -3164,7 +3165,7 @@ package body Editor.Input_Bridge.Tests is
       Assert (Found, "runtime Enter picker setup must find child directory row");
 
       Editor.Input_Bridge.Set_State_For_Test (S);
-      Enter.Kind := Editor.Commands.Insert_Text_Input;
+      Enter.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Enter.Ch := ASCII.LF;
       Enter.Text := To_Unbounded_String (String'(1 => ASCII.LF));
       Editor.Input_Bridge.Handle (Enter);
@@ -3177,7 +3178,7 @@ package body Editor.Input_Bridge.Tests is
               "runtime Enter applies selected directory to the path field");
 
       Enter := (others => <>);
-      Enter.Kind := Editor.Commands.Insert_Text_Input;
+      Enter.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Enter.Ch := ASCII.LF;
       Enter.Text := To_Unbounded_String (String'(1 => ASCII.LF));
       Editor.Input_Bridge.Set_State_For_Test (S);

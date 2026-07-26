@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.State;
 with Editor.Commands;
@@ -46,10 +47,10 @@ package body Editor.Executor.Structural is
       Cmd : Editor.Commands.Payloads.Command) is
    begin
       case Cmd.Kind is
-         when Editor.Commands.Add_Caret_At_Point =>
+         when Editor.Command_Kinds.Add_Caret_At_Point =>
             Add_Caret_At_Point (S, Cmd.Click_X, Cmd.Click_Y);
 
-         when Editor.Commands.Clear_Extra_Carets =>
+         when Editor.Command_Kinds.Clear_Extra_Carets =>
             Keep_Only_Primary_Caret (S);
 
          when others =>

@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
@@ -1526,7 +1527,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Project_A_Row_Count > 0,
               "Project A File Tree is populated before switch");
 
-      Cmd.Kind := Editor.Commands.Switch_Project;
+      Cmd.Kind := Editor.Command_Kinds.Switch_Project;
       Cmd.Path := To_Unbounded_String (Root_B);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
@@ -1561,7 +1562,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (not Ada.Directories.Exists (Session_A),
               "cancelled switch does not auto-save Project A workspace");
 
-      Cmd.Kind := Editor.Commands.Switch_Project;
+      Cmd.Kind := Editor.Command_Kinds.Switch_Project;
       Cmd.Path := To_Unbounded_String (Root_B);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
@@ -4170,7 +4171,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Append_Text (ASCII.LF & "-- project switch cancel");
       Dirty_Text := To_Unbounded_String (Editor.State.Current_Text (S));
       Dirty_Id := Editor.Buffers.Global_Active_Buffer;
-      Cmd.Kind := Editor.Commands.Switch_Project;
+      Cmd.Kind := Editor.Command_Kinds.Switch_Project;
       Cmd.Path := To_Unbounded_String (Root_B);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),

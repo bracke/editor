@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Registry;
 with Editor.Commands.Audit_Model; use Editor.Commands.Audit_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;

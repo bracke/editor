@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Executor.Clipboard;
@@ -33,7 +34,7 @@ package body Editor.Input_Bridge.Outline_Filter_Handlers is
       end if;
 
       case Cmd.Kind is
-         when Editor.Commands.Insert_Text_Input =>
+         when Editor.Command_Kinds.Insert_Text_Input =>
             if Cmd.Ch = ASCII.LF or else Cmd.Ch = ASCII.CR then
                Editor.Outline.Commit_Filter_To_History (S.Outline);
                if Editor.Feature_Panel.Has_Selection (S.Feature_Panel) then
@@ -51,62 +52,62 @@ package body Editor.Input_Bridge.Outline_Filter_Handlers is
             end if;
             return True;
 
-         when Editor.Commands.Delete_Char
-            | Editor.Commands.Delete_Previous_Character =>
+         when Editor.Command_Kinds.Delete_Char
+            | Editor.Command_Kinds.Delete_Previous_Character =>
             Editor.Outline.Delete_Filter_Character_Backward (S.Outline);
             Project_Outline_Rows (S);
             return True;
 
-         when Editor.Commands.Forward_Delete_Char
-            | Editor.Commands.Delete_Next_Character =>
+         when Editor.Command_Kinds.Forward_Delete_Char
+            | Editor.Command_Kinds.Delete_Next_Character =>
             Editor.Outline.Delete_Filter_Character_Forward (S.Outline);
             Project_Outline_Rows (S);
             return True;
 
-         when Editor.Commands.Paste_Text =>
+         when Editor.Command_Kinds.Paste_Text =>
             Editor.Outline.Insert_Filter_Text (S.Outline, To_String (Cmd.Text));
             Project_Outline_Rows (S);
             return True;
 
-         when Editor.Commands.Paste_Clipboard =>
+         when Editor.Command_Kinds.Paste_Clipboard =>
             Editor.Outline.Insert_Filter_Text
               (S.Outline, To_String (Editor.Executor.Clipboard.Text_For_Local_Input));
             Project_Outline_Rows (S);
             return True;
 
-         when Editor.Commands.Move_Left =>
+         when Editor.Command_Kinds.Move_Left =>
             Editor.Outline.Move_Filter_Caret_Left (S.Outline);
             Editor.Render_Cache.Invalidate_All;
             return True;
 
-         when Editor.Commands.Move_Right =>
+         when Editor.Command_Kinds.Move_Right =>
             Editor.Outline.Move_Filter_Caret_Right (S.Outline);
             Editor.Render_Cache.Invalidate_All;
             return True;
 
-         when Editor.Commands.Move_Home | Editor.Commands.Move_Line_Start =>
+         when Editor.Command_Kinds.Move_Home | Editor.Command_Kinds.Move_Line_Start =>
             Editor.Outline.Move_Filter_Caret_Start (S.Outline);
             Editor.Render_Cache.Invalidate_All;
             return True;
 
-         when Editor.Commands.Move_End | Editor.Commands.Move_Line_End =>
+         when Editor.Command_Kinds.Move_End | Editor.Command_Kinds.Move_Line_End =>
             Editor.Outline.Move_Filter_Caret_End (S.Outline);
             Editor.Render_Cache.Invalidate_All;
             return True;
 
-         when Editor.Commands.Move_Down | Editor.Commands.Select_Next_Outline_Item =>
+         when Editor.Command_Kinds.Move_Down | Editor.Command_Kinds.Select_Next_Outline_Item =>
             Execute (Editor.Commands.Command_Select_Next_Outline_Item);
             return True;
 
-         when Editor.Commands.Move_Up | Editor.Commands.Select_Previous_Outline_Item =>
+         when Editor.Command_Kinds.Move_Up | Editor.Command_Kinds.Select_Previous_Outline_Item =>
             Execute (Editor.Commands.Command_Select_Previous_Outline_Item);
             return True;
 
-         when Editor.Commands.Open_Selected_Outline_Item =>
+         when Editor.Command_Kinds.Open_Selected_Outline_Item =>
             Execute (Editor.Commands.Command_Open_Selected_Outline_Item);
             return True;
 
-         when Editor.Commands.Clear_Extra_Carets | Editor.Commands.Palette_Cancel =>
+         when Editor.Command_Kinds.Clear_Extra_Carets | Editor.Command_Kinds.Palette_Cancel =>
             if Editor.Outline.Filter_Text (S.Outline) /= "" then
                Editor.Outline.Clear_Filter_Text (S.Outline);
             else

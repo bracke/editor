@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 package body Editor.Input_Bridge.Pointer_Routing is
 
    use type Editor.Commands.Command_Kind;
@@ -7,13 +8,13 @@ package body Editor.Input_Bridge.Pointer_Routing is
    is
    begin
       case Kind is
-         when Editor.Commands.Move_To_Point
-            | Editor.Commands.Drag_To_Point
-            | Editor.Commands.Start_Rectangle_Selection
-            | Editor.Commands.Drag_Rectangle_To_Point
-            | Editor.Commands.Add_Caret_At_Point
-            | Editor.Commands.Select_Word_At_Point
-            | Editor.Commands.Select_Line_At_Point =>
+         when Editor.Command_Kinds.Move_To_Point
+            | Editor.Command_Kinds.Drag_To_Point
+            | Editor.Command_Kinds.Start_Rectangle_Selection
+            | Editor.Command_Kinds.Drag_Rectangle_To_Point
+            | Editor.Command_Kinds.Add_Caret_At_Point
+            | Editor.Command_Kinds.Select_Word_At_Point
+            | Editor.Command_Kinds.Select_Line_At_Point =>
             return True;
 
          when others =>
@@ -25,8 +26,8 @@ package body Editor.Input_Bridge.Pointer_Routing is
      (Kind : Editor.Commands.Command_Kind) return Boolean
    is
    begin
-      return Kind = Editor.Commands.Drag_To_Point
-        or else Kind = Editor.Commands.Drag_Rectangle_To_Point;
+      return Kind = Editor.Command_Kinds.Drag_To_Point
+        or else Kind = Editor.Command_Kinds.Drag_Rectangle_To_Point;
    end Is_Minimap_Drag_Command;
 
    function Is_Scrollbar_Pointer_Command
@@ -47,22 +48,22 @@ package body Editor.Input_Bridge.Pointer_Routing is
      (Kind : Editor.Commands.Command_Kind) return Boolean
    is
    begin
-      return Kind = Editor.Commands.Move_To_Point
-        or else Kind = Editor.Commands.Pointer_Hover
-        or else Kind = Editor.Commands.Drag_To_Point
-        or else Kind = Editor.Commands.Start_Rectangle_Selection
-        or else Kind = Editor.Commands.Drag_Rectangle_To_Point
-        or else Kind = Editor.Commands.Add_Caret_At_Point
-        or else Kind = Editor.Commands.Select_Word_At_Point
-        or else Kind = Editor.Commands.Select_Line_At_Point;
+      return Kind = Editor.Command_Kinds.Move_To_Point
+        or else Kind = Editor.Command_Kinds.Pointer_Hover
+        or else Kind = Editor.Command_Kinds.Drag_To_Point
+        or else Kind = Editor.Command_Kinds.Start_Rectangle_Selection
+        or else Kind = Editor.Command_Kinds.Drag_Rectangle_To_Point
+        or else Kind = Editor.Command_Kinds.Add_Caret_At_Point
+        or else Kind = Editor.Command_Kinds.Select_Word_At_Point
+        or else Kind = Editor.Command_Kinds.Select_Line_At_Point;
    end Is_Gutter_Pointer_Command;
 
    function Is_Gutter_Drag_Command
      (Kind : Editor.Commands.Command_Kind) return Boolean
    is
    begin
-      return Kind = Editor.Commands.Drag_To_Point
-        or else Kind = Editor.Commands.Drag_Rectangle_To_Point;
+      return Kind = Editor.Command_Kinds.Drag_To_Point
+        or else Kind = Editor.Command_Kinds.Drag_Rectangle_To_Point;
    end Is_Gutter_Drag_Command;
 
 end Editor.Input_Bridge.Pointer_Routing;

@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands;
 with Editor.Commands.Payloads;
 with Editor.Cursor;
@@ -67,7 +68,7 @@ package body Editor.Input_Bridge.Keyboard_Dispatch is
 
       procedure Hide_Active_Find_Default is
       begin
-         Cmd.Kind := Editor.Commands.Active_Find_Hide;
+         Cmd.Kind := Editor.Command_Kinds.Active_Find_Hide;
          Editor.Instance.Execute (Instance, Cmd);
       end Hide_Active_Find_Default;
    begin
@@ -180,10 +181,10 @@ package body Editor.Input_Bridge.Keyboard_Dispatch is
                when Editor.Keybindings.Key_Tab =>
                   null;
                when Editor.Keybindings.Key_Backspace =>
-                  Cmd.Kind := Editor.Commands.Active_Find_Input_Backspace;
+                  Cmd.Kind := Editor.Command_Kinds.Active_Find_Input_Backspace;
                   Editor.Instance.Execute (Instance, Cmd);
                when Editor.Keybindings.Key_Delete =>
-                  Cmd.Kind := Editor.Commands.Active_Find_Input_Delete_Forward;
+                  Cmd.Kind := Editor.Command_Kinds.Active_Find_Input_Delete_Forward;
                   Editor.Instance.Execute (Instance, Cmd);
                when Editor.Keybindings.Key_Left =>
                   Editor.Executor.Find_Replace_Input_Commands.Execute_Active_Find_Input_Move_Cursor_Left
@@ -199,7 +200,7 @@ package body Editor.Input_Bridge.Keyboard_Dispatch is
                     (Instance.State);
                when Editor.Keybindings.Key_V =>
                   if Chord.Modifiers.Ctrl then
-                     Cmd.Kind := Editor.Commands.Active_Find_Input_Insert_Text;
+                     Cmd.Kind := Editor.Command_Kinds.Active_Find_Input_Insert_Text;
                      Cmd.Text :=
                        Editor.Executor.Clipboard.Text_For_Local_Input;
                      Editor.Instance.Execute (Instance, Cmd);

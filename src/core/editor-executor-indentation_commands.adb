@@ -1,3 +1,4 @@
+with Editor.Command_Kinds; use Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Text_Buffer;
 with Ada.Containers; use Ada.Containers;

@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -437,12 +438,12 @@ package body Editor.Core_Editing_Workflow.Tests is
                 Editor.Dirty_Lines.Modified_Line,
               "edit of baseline empty row should be modified");
 
-      Cmd.Kind := Editor.Commands.Undo;
+      Cmd.Kind := Editor.Command_Kinds.Undo;
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Dirty_Lines) = 0,
               "undo back to baseline should clear dirty-line rows");
 
-      Cmd.Kind := Editor.Commands.Redo;
+      Cmd.Kind := Editor.Command_Kinds.Redo;
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Dirty_Lines) = 1,
               "redo should recompute dirty-line rows");
@@ -468,7 +469,7 @@ package body Editor.Core_Editing_Workflow.Tests is
       Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Dirty_Lines) = 1,
               "edit before save should mark dirty-line state");
 
-      Cmd.Kind := Editor.Commands.Save_File;
+      Cmd.Kind := Editor.Command_Kinds.Save_File;
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Dirty_Lines) = 0,
               "successful save should clear dirty-line state");
@@ -535,7 +536,7 @@ package body Editor.Core_Editing_Workflow.Tests is
       Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Dirty_Lines) = 1,
               "setup edit should mark one dirty row before failed save");
 
-      Cmd.Kind := Editor.Commands.Save_File;
+      Cmd.Kind := Editor.Command_Kinds.Save_File;
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Dirty_Lines) = 1,
               "save without path should preserve dirty-line state");
@@ -557,7 +558,7 @@ package body Editor.Core_Editing_Workflow.Tests is
       Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Dirty_Lines) = 1,
               "setup edit should mark one dirty row before failed open");
 
-      Cmd.Kind := Editor.Commands.Open_File;
+      Cmd.Kind := Editor.Command_Kinds.Open_File;
       Cmd.Path := To_Unbounded_String (Temp_Path ("missing_open.txt"));
       Remove_File_If_Exists (To_String (Cmd.Path));
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -600,7 +601,7 @@ package body Editor.Core_Editing_Workflow.Tests is
 
       Editor.Buffers.Global_Set_Active_Buffer (A_Id);
       Editor.Buffers.Load_Global_Active_Into_State (S);
-      Cmd.Kind := Editor.Commands.Save_File;
+      Cmd.Kind := Editor.Command_Kinds.Save_File;
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Dirty_Lines) = 0,
               "saving active buffer A should clear A dirty-line state");
@@ -692,7 +693,7 @@ package body Editor.Core_Editing_Workflow.Tests is
             Virtual_Column        => 0,
             Anchor_Virtual_Column => 0));
 
-      Cmd.Kind := Editor.Commands.Insert_Text_Input;
+      Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Ch := ASCII.LF;
       Cmd.Text := To_Unbounded_String (String'(1 => ASCII.LF));
       Cmd.Code := Wide_Wide_Character'Val (0);
@@ -728,7 +729,7 @@ package body Editor.Core_Editing_Workflow.Tests is
             Virtual_Column        => 0,
             Anchor_Virtual_Column => 0));
 
-      Cmd.Kind := Editor.Commands.Insert_Text_Input;
+      Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Ch := 'X';
       Cmd.Text := To_Unbounded_String (String'(1 => 'X'));
       Cmd.Code := Wide_Wide_Character'Val (0);
@@ -766,7 +767,7 @@ package body Editor.Core_Editing_Workflow.Tests is
             Virtual_Column        => 0,
             Anchor_Virtual_Column => 0));
 
-      Cmd.Kind := Editor.Commands.Delete_Char;
+      Cmd.Kind := Editor.Command_Kinds.Delete_Char;
       Cmd.Ch := ASCII.NUL;
       Cmd.Text := To_Unbounded_String (String'(1 => ASCII.NUL));
       Cmd.Code := Wide_Wide_Character'Val (0);
@@ -803,7 +804,7 @@ package body Editor.Core_Editing_Workflow.Tests is
             Virtual_Column        => 0,
             Anchor_Virtual_Column => 0));
 
-      Cmd.Kind := Editor.Commands.Paste_Text;
+      Cmd.Kind := Editor.Command_Kinds.Paste_Text;
       Cmd.Text := To_Unbounded_String ("X" & ASCII.LF & "Y");
 
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -837,7 +838,7 @@ package body Editor.Core_Editing_Workflow.Tests is
             Virtual_Column        => 0,
             Anchor_Virtual_Column => 0));
 
-      Cmd.Kind := Editor.Commands.Paste_Text;
+      Cmd.Kind := Editor.Command_Kinds.Paste_Text;
       Cmd.Text := Null_Unbounded_String;
 
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -863,7 +864,7 @@ package body Editor.Core_Editing_Workflow.Tests is
    begin
       Init_Executor_Test_State (S);
 
-      Cmd.Kind := Editor.Commands.Paste_Text;
+      Cmd.Kind := Editor.Command_Kinds.Paste_Text;
       Cmd.Text := To_Unbounded_String
         ("A" & ASCII.CR & ASCII.LF
          & "B" & ASCII.CR
@@ -902,7 +903,7 @@ package body Editor.Core_Editing_Workflow.Tests is
             Virtual_Column        => 0,
             Anchor_Virtual_Column => 0));
 
-      Cmd.Kind := Editor.Commands.Paste_Text;
+      Cmd.Kind := Editor.Command_Kinds.Paste_Text;
       Cmd.Text := To_Unbounded_String ("X" & ASCII.LF & "Y" & ASCII.LF);
 
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -936,7 +937,7 @@ package body Editor.Core_Editing_Workflow.Tests is
             Virtual_Column        => 0,
             Anchor_Virtual_Column => 0));
 
-      Cmd.Kind := Editor.Commands.Paste_Text;
+      Cmd.Kind := Editor.Command_Kinds.Paste_Text;
       Cmd.Text := Null_Unbounded_String;
 
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -989,7 +990,7 @@ package body Editor.Core_Editing_Workflow.Tests is
          Snapshot_Version => Editor.State.Current_Buffer_Revision (S));
       Result := Editor.Outline.Fixtures.Populate_Synthetic_Outline (S.Outline);
 
-      Cmd.Kind := Editor.Commands.Insert_Text_Input;
+      Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Ch := 'Z';
       Cmd.Text := To_Unbounded_String (String'(1 => 'Z'));
       Cmd.Code := Wide_Wide_Character'Val (0);
@@ -1047,7 +1048,7 @@ package body Editor.Core_Editing_Workflow.Tests is
          Anchor_Virtual_Column => 0
       ));  -- caret after 'b'
 
-      Cmd.Kind := Editor.Commands.Delete_Char;
+      Cmd.Kind := Editor.Command_Kinds.Delete_Char;
       Cmd.Ch := ASCII.NUL;
       Cmd.Text := To_Unbounded_String (String'(1 => ASCII.NUL));
       Cmd.Shift := False;
@@ -1094,7 +1095,7 @@ package body Editor.Core_Editing_Workflow.Tests is
          Anchor_Virtual_Column => 0
       ));  --  caret after 'a', before 'b'
 
-      Cmd.Kind := Editor.Commands.Forward_Delete_Char;
+      Cmd.Kind := Editor.Command_Kinds.Forward_Delete_Char;
       Cmd.Ch := ASCII.NUL;
       Cmd.Text := To_Unbounded_String (String'(1 => ASCII.NUL));
       Cmd.Shift := False;
@@ -1145,7 +1146,7 @@ package body Editor.Core_Editing_Workflow.Tests is
          Anchor_Virtual_Column => 0
       ));  --  caret at start of second line
 
-      Cmd.Kind := Editor.Commands.Delete_Char;
+      Cmd.Kind := Editor.Command_Kinds.Delete_Char;
       Cmd.Ch := ASCII.NUL;
       Cmd.Text := To_Unbounded_String (String'(1 => ASCII.NUL));
       Cmd.Shift := False;
@@ -1202,7 +1203,7 @@ package body Editor.Core_Editing_Workflow.Tests is
          Anchor_Virtual_Column => 0
       ));  --  caret before newline
 
-      Cmd.Kind := Editor.Commands.Forward_Delete_Char;
+      Cmd.Kind := Editor.Command_Kinds.Forward_Delete_Char;
       Cmd.Ch := ASCII.NUL;
       Cmd.Text := To_Unbounded_String (String'(1 => ASCII.NUL));
       Cmd.Shift := False;
@@ -1278,13 +1279,13 @@ package body Editor.Core_Editing_Workflow.Tests is
       Cmd.Click_X := 0;
       Cmd.Click_Y := 0;
 
-      Cmd.Kind := Editor.Commands.Move_Down;
+      Cmd.Kind := Editor.Command_Kinds.Move_Down;
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert
         (S.Carets (S.Carets.First_Index).Pos = 9,
          "Move_Down should clamp to end of short middle line");
 
-      Cmd.Kind := Editor.Commands.Move_Down;
+      Cmd.Kind := Editor.Command_Kinds.Move_Down;
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert
         (S.Carets (S.Carets.First_Index).Pos = 15,
@@ -1325,13 +1326,13 @@ package body Editor.Core_Editing_Workflow.Tests is
       Cmd.Click_X := 0;
       Cmd.Click_Y := 0;
 
-      Cmd.Kind := Editor.Commands.Move_Home;
+      Cmd.Kind := Editor.Command_Kinds.Move_Home;
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert
         (S.Carets (S.Carets.First_Index).Pos = 4,
          "Home must move to start of current line");
 
-      Cmd.Kind := Editor.Commands.Move_End;
+      Cmd.Kind := Editor.Command_Kinds.Move_End;
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert
         (S.Carets (S.Carets.First_Index).Pos = 7,
@@ -1355,7 +1356,7 @@ package body Editor.Core_Editing_Workflow.Tests is
       Cmd.Click_X := 0;
       Cmd.Click_Y := 0;
 
-      Cmd.Kind := Editor.Commands.Move_Word_Right;
+      Cmd.Kind := Editor.Command_Kinds.Move_Word_Right;
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert
         (S.Carets (S.Carets.First_Index).Pos = 7,
@@ -1371,7 +1372,7 @@ package body Editor.Core_Editing_Workflow.Tests is
          Caret_State'
            (Pos => 11, Anchor => 11, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
-      Cmd.Kind := Editor.Commands.Move_Word_Left;
+      Cmd.Kind := Editor.Command_Kinds.Move_Word_Left;
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert
         (S.Carets (S.Carets.First_Index).Pos = 7,
@@ -1382,7 +1383,7 @@ package body Editor.Core_Editing_Workflow.Tests is
          Caret_State'
            (Pos => 14, Anchor => 14, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
-      Cmd.Kind := Editor.Commands.Move_Word_Left;
+      Cmd.Kind := Editor.Command_Kinds.Move_Word_Left;
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert
         (S.Carets (S.Carets.First_Index).Pos = 11,
@@ -1399,7 +1400,7 @@ package body Editor.Core_Editing_Workflow.Tests is
       Init_Executor_Test_State (S);
       Editor.State.Load_Text (S, "alpha beta");
 
-      Cmd.Kind := Editor.Commands.Move_Word_Right;
+      Cmd.Kind := Editor.Command_Kinds.Move_Word_Right;
       Cmd.Ch := ASCII.NUL;
       Cmd.Text := To_Unbounded_String (String'(1 => ASCII.NUL));
       Cmd.Shift := True;
@@ -1437,13 +1438,13 @@ package body Editor.Core_Editing_Workflow.Tests is
       Cmd.Click_X := 0;
       Cmd.Click_Y := 0;
 
-      Cmd.Kind := Editor.Commands.Move_Document_End;
+      Cmd.Kind := Editor.Command_Kinds.Move_Document_End;
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert
         (S.Carets (S.Carets.First_Index).Pos = 7,
          "document-end must move to buffer end");
 
-      Cmd.Kind := Editor.Commands.Move_Document_Start;
+      Cmd.Kind := Editor.Command_Kinds.Move_Document_Start;
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert
         (S.Carets (S.Carets.First_Index).Pos = 0,
@@ -1471,7 +1472,7 @@ package body Editor.Core_Editing_Workflow.Tests is
         (Width  => 800,
          Height => Editor.Layout.Cell_H * 3);
 
-      Cmd.Kind := Editor.Commands.Move_Page_Down;
+      Cmd.Kind := Editor.Command_Kinds.Move_Page_Down;
       Cmd.Ch := ASCII.NUL;
       Cmd.Text := To_Unbounded_String (String'(1 => ASCII.NUL));
       Cmd.Shift := False;
@@ -1497,7 +1498,7 @@ package body Editor.Core_Editing_Workflow.Tests is
       Editor.State.Load_Text (S, "alpha beta");
       Editor.View.Reset_Scroll;
 
-      Cmd.Kind := Editor.Commands.Select_Word_At_Point;
+      Cmd.Kind := Editor.Command_Kinds.Select_Word_At_Point;
       Cmd.Ch := ASCII.NUL;
       Cmd.Text := To_Unbounded_String (String'(1 => ASCII.NUL));
       Cmd.Shift := False;
@@ -1536,7 +1537,7 @@ package body Editor.Core_Editing_Workflow.Tests is
       Editor.State.Load_Text (S, "abc" & ASCII.LF & "defg");
       Editor.View.Reset_Scroll;
 
-      Cmd.Kind := Editor.Commands.Select_Line_At_Point;
+      Cmd.Kind := Editor.Command_Kinds.Select_Line_At_Point;
       Cmd.Ch := ASCII.NUL;
       Cmd.Text := To_Unbounded_String (String'(1 => ASCII.NUL));
       Cmd.Shift := False;
@@ -1571,7 +1572,7 @@ package body Editor.Core_Editing_Workflow.Tests is
          X := X - 1;
       end if;
 
-      Cmd.Kind := Editor.Commands.Move_To_Point;
+      Cmd.Kind := Editor.Command_Kinds.Move_To_Point;
       Cmd.Ch := ASCII.NUL;
       Cmd.Text := To_Unbounded_String (String'(1 => ASCII.NUL));
       Cmd.Shift := False;
@@ -1597,7 +1598,7 @@ package body Editor.Core_Editing_Workflow.Tests is
       Editor.State.Load_Text (S, "abcdef");
       Editor.View.Reset_Scroll;
 
-      Cmd.Kind := Editor.Commands.Move_To_Point;
+      Cmd.Kind := Editor.Command_Kinds.Move_To_Point;
       Cmd.Ch := ASCII.NUL;
       Cmd.Text := To_Unbounded_String (String'(1 => ASCII.NUL));
       Cmd.Shift := False;
@@ -1606,7 +1607,7 @@ package body Editor.Core_Editing_Workflow.Tests is
       Cmd.Click_Y := 0;
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      Cmd.Kind := Editor.Commands.Drag_To_Point;
+      Cmd.Kind := Editor.Command_Kinds.Drag_To_Point;
       Cmd.Click_X := Editor.Layout.Text_Origin_X (Layout, 1)
         + 4 * Editor.Layout.Cell_W;
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -1639,7 +1640,7 @@ package body Editor.Core_Editing_Workflow.Tests is
          X := X - 1;
       end if;
 
-      Cmd.Kind := Editor.Commands.Move_To_Point;
+      Cmd.Kind := Editor.Command_Kinds.Move_To_Point;
       Cmd.Ch := ASCII.NUL;
       Cmd.Text := To_Unbounded_String (String'(1 => ASCII.NUL));
       Cmd.Shift := False;
@@ -1676,7 +1677,7 @@ package body Editor.Core_Editing_Workflow.Tests is
         (Width  => 800,
          Height => Editor.Layout.Cell_H * 2);
 
-      Cmd.Kind := Editor.Commands.Select_Page_Down;
+      Cmd.Kind := Editor.Command_Kinds.Select_Page_Down;
       Cmd.Ch := ASCII.NUL;
       Cmd.Text := To_Unbounded_String (String'(1 => ASCII.NUL));
       Cmd.Shift := False;
@@ -1711,7 +1712,7 @@ package body Editor.Core_Editing_Workflow.Tests is
         (Caret_State'
            (Pos => 6, Anchor => 6, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
-      Cmd.Kind := Editor.Commands.Move_Word_Right;
+      Cmd.Kind := Editor.Command_Kinds.Move_Word_Right;
       Cmd.Ch := ASCII.NUL;
       Cmd.Text := To_Unbounded_String (String'(1 => ASCII.NUL));
       Cmd.Shift := True;
@@ -1750,7 +1751,7 @@ package body Editor.Core_Editing_Workflow.Tests is
         (Caret_State'
            (Pos => 3, Anchor => 3, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
-      Cmd.Kind := Editor.Commands.Move_Right;
+      Cmd.Kind := Editor.Command_Kinds.Move_Right;
       Cmd.Ch := ASCII.NUL;
       Cmd.Text := To_Unbounded_String (String'(1 => ASCII.NUL));
       Cmd.Shift := False;
@@ -1788,7 +1789,7 @@ package body Editor.Core_Editing_Workflow.Tests is
         (Caret_State'
            (Pos => 3, Anchor => 3, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
-      Cmd.Kind := Editor.Commands.Move_Right;
+      Cmd.Kind := Editor.Command_Kinds.Move_Right;
       Cmd.Ch := ASCII.NUL;
       Cmd.Text := To_Unbounded_String (String'(1 => ASCII.NUL));
       Cmd.Shift := True;
@@ -1825,7 +1826,7 @@ package body Editor.Core_Editing_Workflow.Tests is
          Caret_State'
            (Pos => 1, Anchor => 1, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
-      Cmd.Kind := Editor.Commands.Move_Word_Right;
+      Cmd.Kind := Editor.Command_Kinds.Move_Word_Right;
       Cmd.Ch := ASCII.NUL;
       Cmd.Text := To_Unbounded_String (String'(1 => ASCII.NUL));
       Cmd.Shift := False;
@@ -1833,7 +1834,7 @@ package body Editor.Core_Editing_Workflow.Tests is
       Cmd.Click_Y := 0;
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      Cmd.Kind := Editor.Commands.Move_Page_Down;
+      Cmd.Kind := Editor.Command_Kinds.Move_Page_Down;
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       Assert
@@ -1880,7 +1881,7 @@ package body Editor.Core_Editing_Workflow.Tests is
          Anchor_Virtual_Column => 0
       ));
 
-      Cmd.Kind := Editor.Commands.Delete_Char;
+      Cmd.Kind := Editor.Command_Kinds.Delete_Char;
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       Assert
@@ -1906,7 +1907,7 @@ package body Editor.Core_Editing_Workflow.Tests is
          Anchor_Virtual_Column => 0
       ));
 
-      Cmd.Kind := Editor.Commands.Forward_Delete_Char;
+      Cmd.Kind := Editor.Command_Kinds.Forward_Delete_Char;
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       Assert

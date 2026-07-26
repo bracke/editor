@@ -1,3 +1,4 @@
+with Editor.Command_Kinds; use Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.Command_Execution;
 with Editor.Commands; use Editor.Commands;
@@ -26,7 +27,7 @@ package body Editor.Executor.Command_Kind_Diagnostics_Commands is
      (S   : in out Editor.State.State_Type;
       Cmd : Editor.Commands.Payloads.Command) return Boolean
    is
-      use type Editor.Commands.Command_Kind;
+      use type Editor.Command_Kinds.Command_Kind;
    begin
       case Cmd.Kind is
          when Next_Diagnostic

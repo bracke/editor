@@ -1,4 +1,5 @@
 with Editor.Commands.Payloads;
+with Editor.Command_Kinds; use Editor.Command_Kinds;
 with Editor.Commands; use Editor.Commands;
 with Editor.Unicode;
 with Editor.UTF8;

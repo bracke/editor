@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Buffer_Switcher;
 with Editor.Buffer_Switcher.Rows;
@@ -207,17 +208,17 @@ package body Editor.Executor.Buffer_Switcher_Preview_Commands is
    is
    begin
       case Kind is
-         when Editor.Commands.Buffer_Switcher_Preview_Toggle =>
+         when Editor.Command_Kinds.Buffer_Switcher_Preview_Toggle =>
             Execute_Buffer_Switcher_Preview_Toggle (S);
-         when Editor.Commands.Buffer_Switcher_Preview_Show =>
+         when Editor.Command_Kinds.Buffer_Switcher_Preview_Show =>
             Execute_Buffer_Switcher_Preview_Show (S);
-         when Editor.Commands.Buffer_Switcher_Preview_Hide =>
+         when Editor.Command_Kinds.Buffer_Switcher_Preview_Hide =>
             Execute_Buffer_Switcher_Preview_Hide (S);
-         when Editor.Commands.Buffer_Switcher_Preview_Next_Line =>
+         when Editor.Command_Kinds.Buffer_Switcher_Preview_Next_Line =>
             Execute_Buffer_Switcher_Preview_Next_Line (S);
-         when Editor.Commands.Buffer_Switcher_Preview_Previous_Line =>
+         when Editor.Command_Kinds.Buffer_Switcher_Preview_Previous_Line =>
             Execute_Buffer_Switcher_Preview_Previous_Line (S);
-         when Editor.Commands.Buffer_Switcher_Preview_Center_Cursor =>
+         when Editor.Command_Kinds.Buffer_Switcher_Preview_Center_Cursor =>
             Execute_Buffer_Switcher_Preview_Center_Cursor (S);
          when others =>
             null;

@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
@@ -609,7 +610,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
       Editor.Workspace_Persistence.Set_Active_File_Path (Snapshot, "a.txt", True);
       Editor.Executor.Restore_Workspace_Snapshot (S, Snapshot, Status, Summary);
 
-      Cmd.Kind := Editor.Commands.Insert_Text_Input;
+      Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Ch := 'Z';
       Cmd.Text := To_Unbounded_String (String'(1 => 'Z'));
       Cmd.Code := Wide_Wide_Character'Val (0);
@@ -683,7 +684,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
       Assert (not S.File_Info.Dirty,
               "successful reload after restore should leave buffer clean");
 
-      Cmd.Kind := Editor.Commands.Insert_Text_Input;
+      Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Ch := 'X';
       Cmd.Text := To_Unbounded_String (String'(1 => 'X'));
       Cmd.Code := Wide_Wide_Character'Val (0);
@@ -812,7 +813,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
       Assert (Editor.Messages.Count (S.Messages) > 0,
               "restore Message should remain historical");
 
-      Cmd.Kind := Editor.Commands.Insert_Text_Input;
+      Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Ch := 'Z';
       Cmd.Text := To_Unbounded_String (String'(1 => 'Z'));
       Cmd.Code := Wide_Wide_Character'Val (0);
@@ -1160,7 +1161,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
    begin
       Prepare_Restored_File (Root, S);
 
-      Cmd.Kind := Editor.Commands.Insert_Text_Input;
+      Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Ch := 'Z';
       Cmd.Text := To_Unbounded_String (String'(1 => 'Z'));
       Cmd.Code := Wide_Wide_Character'Val (0);
@@ -1279,7 +1280,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
    begin
       Prepare_Restored_File (Root, S);
 
-      Cmd.Kind := Editor.Commands.Insert_Text_Input;
+      Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Ch := 'Z';
       Cmd.Text := To_Unbounded_String (String'(1 => 'Z'));
       Cmd.Code := Wide_Wide_Character'Val (0);

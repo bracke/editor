@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Executor.Clipboard;
@@ -42,7 +43,7 @@ package body Editor.Input_Bridge.Search_Query_Handlers is
       end if;
 
       case Cmd.Kind is
-         when Editor.Commands.Insert_Text_Input =>
+         when Editor.Command_Kinds.Insert_Text_Input =>
             if Cmd.Ch = ASCII.LF or else Cmd.Ch = ASCII.CR then
                Execute (Editor.Commands.Command_Search_Results_Search_Active_Buffer);
             elsif Length (Cmd.Text) > 0 then
@@ -55,40 +56,40 @@ package body Editor.Input_Bridge.Search_Query_Handlers is
             end if;
             return True;
 
-         when Editor.Commands.Delete_Char
-            | Editor.Commands.Delete_Previous_Character =>
+         when Editor.Command_Kinds.Delete_Char
+            | Editor.Command_Kinds.Delete_Previous_Character =>
             Editor.Feature_Search_Results.Delete_Search_Input_Character_Backward
               (S.Feature_Search_Results);
             Project_Search_Rows (S);
             return True;
 
-         when Editor.Commands.Forward_Delete_Char
-            | Editor.Commands.Delete_Next_Character =>
+         when Editor.Command_Kinds.Forward_Delete_Char
+            | Editor.Command_Kinds.Delete_Next_Character =>
             Editor.Feature_Search_Results.Delete_Search_Input_Character_Forward
               (S.Feature_Search_Results);
             Project_Search_Rows (S);
             return True;
 
-         when Editor.Commands.Paste_Text =>
+         when Editor.Command_Kinds.Paste_Text =>
             Insert_Search_Text (S, To_String (Cmd.Text));
             Project_Search_Rows (S);
             return True;
 
-         when Editor.Commands.Paste_Clipboard =>
+         when Editor.Command_Kinds.Paste_Clipboard =>
             Insert_Search_Text
               (S, To_String (Editor.Executor.Clipboard.Text_For_Local_Input));
             Project_Search_Rows (S);
             return True;
 
-         when Editor.Commands.Move_Up =>
+         when Editor.Command_Kinds.Move_Up =>
             Execute (Editor.Commands.Command_Search_Results_Query_History_Previous);
             return True;
 
-         when Editor.Commands.Move_Down =>
+         when Editor.Command_Kinds.Move_Down =>
             Execute (Editor.Commands.Command_Search_Results_Query_History_Next);
             return True;
 
-         when Editor.Commands.Clear_Extra_Carets | Editor.Commands.Palette_Cancel =>
+         when Editor.Command_Kinds.Clear_Extra_Carets | Editor.Command_Kinds.Palette_Cancel =>
             Editor.Feature_Search_Results.Deactivate_Search_Query_Input
               (S.Feature_Search_Results);
             Project_Search_Rows (S);

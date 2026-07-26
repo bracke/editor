@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Ada.Command_Line;
 with Ada.Directories;
 with Ada.Exceptions;
@@ -1145,8 +1146,8 @@ begin
       "Problems filter command did not clear the severity filter");
    declare
       Panel : Editor.Layout.Rect;
-      Click : Editor.Commands.Command :=
-        (Kind    => Editor.Commands.Move_To_Point,
+      Click : Editor.Command_Kinds.Command :=
+        (Kind    => Editor.Command_Kinds.Move_To_Point,
          Click_X => 0,
          Click_Y => 0,
          others  => <>);

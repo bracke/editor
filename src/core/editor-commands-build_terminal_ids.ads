@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands;
 
 package Editor.Commands.Build_Terminal_Ids is

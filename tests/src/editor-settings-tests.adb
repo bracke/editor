@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
@@ -291,7 +292,7 @@ package body Editor.Settings.Tests is
 
       X := Natural (Editor.Minimap.Left_X (Layout, 800, Config)) + 1;
       Y := 70;
-      Cmd.Kind := Editor.Commands.Move_To_Point;
+      Cmd.Kind := Editor.Command_Kinds.Move_To_Point;
       Cmd.Click_X := X;
       Cmd.Click_Y := Y;
       Editor.Input_Bridge.Handle (Cmd);
@@ -346,19 +347,19 @@ package body Editor.Settings.Tests is
       Assert (Editor.Settings.Show_Diagnostics,
               "Diagnostics setting must start enabled for palette toggle test");
 
-      Cmd.Kind := Editor.Commands.Open_Command_Palette;
+      Cmd.Kind := Editor.Command_Kinds.Open_Command_Palette;
       Editor.Input_Bridge.Handle (Cmd);
       declare
          Query : constant String := "toggle diagnostics";
       begin
          for Ch of Query loop
-         Cmd.Kind := Editor.Commands.Insert_Text_Input;
+         Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
          Cmd.Ch := Ch;
          Cmd.Text := To_Unbounded_String (String'(1 => Ch));
          Editor.Input_Bridge.Handle (Cmd);
          end loop;
       end;
-      Cmd.Kind := Editor.Commands.Palette_Accept;
+      Cmd.Kind := Editor.Command_Kinds.Palette_Accept;
       Editor.Input_Bridge.Handle (Cmd);
 
       Assert (not Editor.Settings.Show_Diagnostics,

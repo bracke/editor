@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Registry;
 with Editor.Commands.Classification;
 with Editor.Commands.Availability_Metadata;

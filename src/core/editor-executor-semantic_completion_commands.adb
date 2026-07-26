@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -173,7 +174,7 @@ package body Editor.Executor.Semantic_Completion_Commands is
          End_Pos := End_Pos + 1;
       end loop;
 
-      Cmd.Kind := Editor.Commands.Apply_Replace_Batch;
+      Cmd.Kind := Editor.Command_Kinds.Apply_Replace_Batch;
       Editor.Executor.Append_Replace_Op
         (Cmd,
          Editor.Cursors.Cursor_Index (Start_Pos),

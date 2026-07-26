@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Classification;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Commands.Build_Terminal_Ids;

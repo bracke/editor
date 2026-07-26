@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -250,7 +251,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       S.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Cmd.Kind := Editor.Commands.Switch_Project;
+      Cmd.Kind := Editor.Command_Kinds.Switch_Project;
       Cmd.Path := To_Unbounded_String (Root_B);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
@@ -308,7 +309,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       S.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Cmd.Kind := Editor.Commands.Switch_Project;
+      Cmd.Kind := Editor.Command_Kinds.Switch_Project;
       Cmd.Path := To_Unbounded_String (Root_B);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
@@ -358,7 +359,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root_A);
       Rows := Editor.File_Tree.Visible_Row_Count (S.File_Tree);
 
-      Cmd.Kind := Editor.Commands.Switch_Project;
+      Cmd.Kind := Editor.Command_Kinds.Switch_Project;
       Cmd.Path := To_Unbounded_String (Missing);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
@@ -393,7 +394,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Build_Fixture (Root);
       Init_Executor_Test_State (S);
 
-      Cmd.Kind := Editor.Commands.Switch_Project;
+      Cmd.Kind := Editor.Command_Kinds.Switch_Project;
       Cmd.Path := To_Unbounded_String (Root);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
@@ -442,7 +443,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Assert (Editor.Recent_Projects.Count (S.Recent_Projects) = 1,
               "same-project switch setup must have one recent project");
 
-      Cmd.Kind := Editor.Commands.Switch_Project;
+      Cmd.Kind := Editor.Command_Kinds.Switch_Project;
       Cmd.Path := To_Unbounded_String (Root);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
@@ -496,7 +497,7 @@ package body Editor.Executor.Project_Workspace_Tests is
 
       Remove_Tree_If_Exists (Root);
 
-      Cmd.Kind := Editor.Commands.Switch_Project;
+      Cmd.Kind := Editor.Command_Kinds.Switch_Project;
       Cmd.Path := To_Unbounded_String (Root);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
@@ -547,7 +548,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       S.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Cmd.Kind := Editor.Commands.Switch_Project;
+      Cmd.Kind := Editor.Command_Kinds.Switch_Project;
       Cmd.Path := To_Unbounded_String (Root_B);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
@@ -616,7 +617,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Assert (Target.Kind = Editor.Pending_Transitions.Pending_Close_Project,
               "pending-close setup must use close transition kind");
 
-      Cmd.Kind := Editor.Commands.Switch_Project;
+      Cmd.Kind := Editor.Command_Kinds.Switch_Project;
       Cmd.Path := To_Unbounded_String (Root_B);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
@@ -725,7 +726,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       S.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Cmd.Kind := Editor.Commands.Switch_Project;
+      Cmd.Kind := Editor.Command_Kinds.Switch_Project;
       Cmd.Path := To_Unbounded_String (Root_B);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
@@ -882,7 +883,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Assert (Undo_Before > 0,
               "undo preservation setup must create outside-buffer undo history");
 
-      Cmd.Kind := Editor.Commands.Switch_Project;
+      Cmd.Kind := Editor.Command_Kinds.Switch_Project;
       Cmd.Path := To_Unbounded_String (Root_B);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
@@ -977,7 +978,7 @@ package body Editor.Executor.Project_Workspace_Tests is
                 (S.Recent_Buffers, Natural (Outside_Id)),
               "recent switch setup must track outside buffer");
 
-      Cmd.Kind := Editor.Commands.Switch_Project;
+      Cmd.Kind := Editor.Command_Kinds.Switch_Project;
       Cmd.Path := To_Unbounded_String (Root_B);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
@@ -1097,7 +1098,7 @@ package body Editor.Executor.Project_Workspace_Tests is
                  "switch setup should expose exactly one retained outside buffer");
       end;
 
-      Cmd.Kind := Editor.Commands.Switch_Project;
+      Cmd.Kind := Editor.Command_Kinds.Switch_Project;
       Cmd.Path := To_Unbounded_String (Root_B);
       Editor.Executor.Execute_No_Log (S, Cmd);
 

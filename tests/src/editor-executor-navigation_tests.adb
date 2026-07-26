@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -596,7 +597,7 @@ package body Editor.Executor.Navigation_Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
       Editor.Executor.Find_Replace_Input_Commands.Execute_Active_Find_Input_Insert_Text (S, "alpha");
 
-      Cmd.Kind := Editor.Commands.Active_Find_Next;
+      Cmd.Kind := Editor.Command_Kinds.Active_Find_Next;
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 1,

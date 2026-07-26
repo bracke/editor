@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
@@ -555,31 +556,31 @@ package body Editor.Executor.Buffer_Switcher_Mark_Metadata_Commands is
    is
    begin
       case Kind is
-         when Editor.Commands.Buffer_Switcher_Mark_Pinned =>
+         when Editor.Command_Kinds.Buffer_Switcher_Mark_Pinned =>
             Execute_Buffer_Switcher_Mark_Pinned (S);
-         when Editor.Commands.Buffer_Switcher_Mark_Group =>
+         when Editor.Command_Kinds.Buffer_Switcher_Mark_Group =>
             Execute_Buffer_Switcher_Mark_Group (S, Text);
-         when Editor.Commands.Buffer_Switcher_Mark_Label =>
+         when Editor.Command_Kinds.Buffer_Switcher_Mark_Label =>
             Execute_Buffer_Switcher_Mark_Label (S, Text);
-         when Editor.Commands.Buffer_Switcher_Mark_Noted =>
+         when Editor.Command_Kinds.Buffer_Switcher_Mark_Noted =>
             Execute_Buffer_Switcher_Mark_Noted (S);
-         when Editor.Commands.Buffer_Switcher_Mark_Pin_Marked =>
+         when Editor.Command_Kinds.Buffer_Switcher_Mark_Pin_Marked =>
             Execute_Buffer_Switcher_Mark_Pin_Marked (S);
-         when Editor.Commands.Buffer_Switcher_Mark_Unpin_Marked =>
+         when Editor.Command_Kinds.Buffer_Switcher_Mark_Unpin_Marked =>
             Execute_Buffer_Switcher_Mark_Unpin_Marked (S);
-         when Editor.Commands.Buffer_Switcher_Mark_Clear_Metadata =>
+         when Editor.Command_Kinds.Buffer_Switcher_Mark_Clear_Metadata =>
             Execute_Buffer_Switcher_Mark_Clear_Metadata (S);
-         when Editor.Commands.Buffer_Switcher_Mark_Group_Assign =>
+         when Editor.Command_Kinds.Buffer_Switcher_Mark_Group_Assign =>
             Execute_Buffer_Switcher_Mark_Group_Assign (S, Text);
-         when Editor.Commands.Buffer_Switcher_Mark_Group_Clear =>
+         when Editor.Command_Kinds.Buffer_Switcher_Mark_Group_Clear =>
             Execute_Buffer_Switcher_Mark_Group_Clear (S);
-         when Editor.Commands.Buffer_Switcher_Mark_Label_Set =>
+         when Editor.Command_Kinds.Buffer_Switcher_Mark_Label_Set =>
             Execute_Buffer_Switcher_Mark_Label_Set (S, Text);
-         when Editor.Commands.Buffer_Switcher_Mark_Label_Clear =>
+         when Editor.Command_Kinds.Buffer_Switcher_Mark_Label_Clear =>
             Execute_Buffer_Switcher_Mark_Label_Clear (S);
-         when Editor.Commands.Buffer_Switcher_Mark_Note_Set =>
+         when Editor.Command_Kinds.Buffer_Switcher_Mark_Note_Set =>
             Execute_Buffer_Switcher_Mark_Note_Set (S, Text);
-         when Editor.Commands.Buffer_Switcher_Mark_Note_Clear =>
+         when Editor.Command_Kinds.Buffer_Switcher_Mark_Note_Clear =>
             Execute_Buffer_Switcher_Mark_Note_Clear (S);
          when others =>
             null;

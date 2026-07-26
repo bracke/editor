@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Classification;
 with Editor.Commands.Payloads;
@@ -489,7 +490,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
 
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty");
       Editor.Executor.Execute_No_Log
-        (S, Editor.Commands.Payloads.Command'(Kind => Editor.Commands.Undo, others => <>));
+        (S, Editor.Commands.Payloads.Command'(Kind => Editor.Command_Kinds.Undo, others => <>));
       S.Carets.Clear;
       S.Carets.Append
         (Editor.Cursors.Caret_State'(Pos => 4, Anchor => 1, Virtual_Column => 0, Anchor_Virtual_Column => 0));
@@ -567,7 +568,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
         "successful reload must clear stale edit history without creating an undo entry");
 
       Editor.Executor.Execute_No_Log
-        (S, Editor.Commands.Payloads.Command'(Kind => Editor.Commands.Undo, others => <>));
+        (S, Editor.Commands.Payloads.Command'(Kind => Editor.Command_Kinds.Undo, others => <>));
       Assert (Buffer_Text (S) = "second disk text" & ASCII.LF,
         "edit.undo must not undo a successful reload");
 

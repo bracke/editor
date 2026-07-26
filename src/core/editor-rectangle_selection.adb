@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Containers; use Ada.Containers;
@@ -305,7 +306,7 @@ package body Editor.Rectangle_Selection is
       L : Cursor_Index := 0;
       H : Cursor_Index := 0;
    begin
-      Cmd.Kind := Editor.Commands.Apply_Replace_Batch;
+      Cmd.Kind := Editor.Command_Kinds.Apply_Replace_Batch;
       Cmd.Positions.Clear;
       Cmd.Delete_Counts.Clear;
       Cmd.Insert_Texts.Clear;

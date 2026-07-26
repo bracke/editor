@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 package body Editor.Commands.Project_File_Ids is
 
    function Is_Project_File_Command

@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Classification;
 with Editor.Commands.Payloads;
@@ -41,7 +42,7 @@ package body Editor.Selection.Tests is
    function Paste (S : String) return Editor.Commands.Payloads.Command is
       Cmd : Editor.Commands.Payloads.Command;
    begin
-      Cmd.Kind := Editor.Commands.Paste_Text;
+      Cmd.Kind := Editor.Command_Kinds.Paste_Text;
       Cmd.Text := To_Unbounded_String (S);
       return Cmd;
    end Paste;
@@ -729,9 +730,9 @@ package body Editor.Selection.Tests is
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
       Editor.Executor.Execute_No_Log
-        (S, Command_With_Text (Editor.Commands.Active_Find_Query_Set, "Beta"));
+        (S, Command_With_Text (Editor.Command_Kinds.Active_Find_Query_Set, "Beta"));
       Editor.Executor.Execute_No_Log
-        (S, Command_With_Text (Editor.Commands.Active_Replace_Text_Set, "Delta"));
+        (S, Command_With_Text (Editor.Command_Kinds.Active_Replace_Text_Set, "Delta"));
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_All);
       Assert (To_String (S.Active_Find_Query) = "Beta",
@@ -1191,12 +1192,12 @@ package body Editor.Selection.Tests is
 
       Editor.Executor.Execute_No_Log (S, Paste ("abcd" & ASCII.LF & "efgh" & ASCII.LF & "ijkl"));
 
-      Cmd.Kind := Editor.Commands.Start_Rectangle_Selection;
+      Cmd.Kind := Editor.Command_Kinds.Start_Rectangle_Selection;
       Cmd.Click_X := Editor.Layout.Text_Origin_X (Layout, 1) + Editor.Layout.Cell_W;
       Cmd.Click_Y := Natural (Editor.Layout.Text_Viewport_Y (Layout));
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      Cmd.Kind := Editor.Commands.Drag_Rectangle_To_Point;
+      Cmd.Kind := Editor.Command_Kinds.Drag_Rectangle_To_Point;
       Cmd.Click_X := Editor.Layout.Text_Origin_X (Layout, 1) + 3 * Editor.Layout.Cell_W;
       Cmd.Click_Y := Natural (Editor.Layout.Text_Viewport_Y (Layout)) + 2 * Editor.Layout.Cell_H;
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -1322,12 +1323,12 @@ package body Editor.Selection.Tests is
       Editor.Executor.Execute_No_Log
       (S, Paste ("abcd" & ASCII.LF & "efgh"));
 
-      Cmd.Kind := Editor.Commands.Start_Rectangle_Selection;
+      Cmd.Kind := Editor.Command_Kinds.Start_Rectangle_Selection;
       Cmd.Click_X := 8;
       Cmd.Click_Y := 0;
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      Cmd.Kind := Editor.Commands.Drag_Rectangle_To_Point;
+      Cmd.Kind := Editor.Command_Kinds.Drag_Rectangle_To_Point;
       Cmd.Click_X := 16;
       Cmd.Click_Y := 20;
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -1543,7 +1544,7 @@ package body Editor.Selection.Tests is
       declare
          Cmd : Editor.Commands.Payloads.Command;
       begin
-         Cmd.Kind := Editor.Commands.Move_Down;
+         Cmd.Kind := Editor.Command_Kinds.Move_Down;
          Editor.Executor.Execute_No_Log (S, Cmd);
       end;
 
@@ -1577,7 +1578,7 @@ package body Editor.Selection.Tests is
 
       S.Preferred_Column := 5;
 
-      Cmd.Kind := Editor.Commands.Move_Up;
+      Cmd.Kind := Editor.Command_Kinds.Move_Up;
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       Assert (S.Carets (0).Pos = 3,
@@ -1599,7 +1600,7 @@ package body Editor.Selection.Tests is
       Editor.Executor.Execute_No_Log (S, Paste ("abc"));
 
       --  move to virtual column 4
-      Cmd.Kind := Editor.Commands.Move_Right;
+      Cmd.Kind := Editor.Command_Kinds.Move_Right;
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       --  start selection into virtual column 5
@@ -1658,7 +1659,7 @@ package body Editor.Selection.Tests is
       Editor.Rectangle_Selection.Build_Carets (S, R);
 
       Editor.Executor.Execute_No_Log
-        (S, (Kind => Editor.Commands.Copy_Selection, others => <>));
+        (S, (Kind => Editor.Command_Kinds.Copy_Selection, others => <>));
 
       Assert (To_String (Editor.Clipboard.Get_Text) = "bc",
               "copy command must use the primary plain selected text only");
@@ -1919,7 +1920,7 @@ package body Editor.Selection.Tests is
       S.Carets.Append
         (Caret_State'(Pos => 5, Anchor => 5, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
-      Cmd.Kind := Editor.Commands.Select_Line;
+      Cmd.Kind := Editor.Command_Kinds.Select_Line;
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       Assert
@@ -1974,7 +1975,7 @@ package body Editor.Selection.Tests is
       S.Carets.Append
         (Caret_State'(Pos => 2, Anchor => 2, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
-      Cmd.Kind := Editor.Commands.Select_Word;
+      Cmd.Kind := Editor.Command_Kinds.Select_Word;
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert
         (S.Carets (S.Carets.First_Index).Anchor = 0
@@ -2039,7 +2040,7 @@ package body Editor.Selection.Tests is
             Virtual_Column => 0,
             Anchor_Virtual_Column => 0));
 
-      Cmd.Kind := Editor.Commands.Move_Line_End;
+      Cmd.Kind := Editor.Command_Kinds.Move_Line_End;
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       Assert (S.Carets (0).Pos = 7,
@@ -2066,7 +2067,7 @@ package body Editor.Selection.Tests is
             Anchor_Virtual_Column => 0));
       S.Preferred_Column := 1;
 
-      Cmd.Kind := Editor.Commands.Move_Down;
+      Cmd.Kind := Editor.Command_Kinds.Move_Down;
       Cmd.Shift := True;
       Editor.Executor.Execute_No_Log (S, Cmd);
 

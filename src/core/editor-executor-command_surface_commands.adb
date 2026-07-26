@@ -1,4 +1,5 @@
 with Editor.Commands.Availability_Metadata;
+with Editor.Command_Kinds; use Editor.Command_Kinds;
 with Ada.Containers;
 use type Ada.Containers.Count_Type;
 with Ada.Directories;

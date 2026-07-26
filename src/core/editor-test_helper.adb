@@ -1,10 +1,11 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.Command_Kinds;
 package body Editor.Test_Helper is
 
    function Insert (Pos : Natural; Ch  : Character) return Command is
       C : Command;
    begin
-      C.Kind := Insert_Text_Input;
+      C.Kind := Editor.Command_Kinds.Insert_Text_Input;
       C.Pos  := Pos;
       C.Has_Position := True;
       C.Ch   := Ch;
@@ -15,7 +16,7 @@ package body Editor.Test_Helper is
    function Delete (Pos : Natural) return Command is
       C : Command;
    begin
-      C.Kind := Delete_Char;
+      C.Kind := Editor.Command_Kinds.Delete_Char;
       C.Pos  := Pos;
       C.Has_Position := True;
       return C;
@@ -24,7 +25,7 @@ package body Editor.Test_Helper is
    function Undo return Command is
       C : Command;
    begin
-      C.Kind := Undo;
+      C.Kind := Editor.Command_Kinds.Undo;
       C.Pos  := 0;
       C.Ch   := ASCII.NUL;
       return C;
@@ -33,7 +34,7 @@ package body Editor.Test_Helper is
    function Redo return Command is
       C : Command;
    begin
-      C.Kind := Redo;
+      C.Kind := Editor.Command_Kinds.Redo;
       C.Pos  := 0;
       C.Ch   := ASCII.NUL;
       return C;
@@ -42,7 +43,7 @@ package body Editor.Test_Helper is
    function Move_Left (Shift : Boolean := False) return Command is
       C : Command;
    begin
-      C.Kind  := Move_Left;
+      C.Kind  := Editor.Command_Kinds.Move_Left;
       C.Shift := Shift;
       return C;
    end;
@@ -50,7 +51,7 @@ package body Editor.Test_Helper is
    function Move_Right (Shift : Boolean := False) return Command is
       C : Command;
    begin
-      C.Kind  := Move_Right;
+      C.Kind  := Editor.Command_Kinds.Move_Right;
       C.Shift := Shift;
       return C;
    end;

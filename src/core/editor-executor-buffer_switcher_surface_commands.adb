@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Buffer_Switcher;
 with Editor.Buffer_Switcher.Filters;
@@ -484,57 +485,57 @@ package body Editor.Executor.Buffer_Switcher_Surface_Commands is
    is
    begin
       case Kind is
-         when Editor.Commands.Open_Buffer_Switcher =>
+         when Editor.Command_Kinds.Open_Buffer_Switcher =>
             Execute_Open_Buffer_Switcher (S);
-         when Editor.Commands.Close_Buffer_Switcher =>
+         when Editor.Command_Kinds.Close_Buffer_Switcher =>
             Execute_Close_Buffer_Switcher (S);
-         when Editor.Commands.Accept_Buffer_Switcher =>
+         when Editor.Command_Kinds.Accept_Buffer_Switcher =>
             Execute_Accept_Buffer_Switcher (S);
-         when Editor.Commands.Buffer_Switcher_Next_Result =>
+         when Editor.Command_Kinds.Buffer_Switcher_Next_Result =>
             Execute_Buffer_Switcher_Next_Result (S);
-         when Editor.Commands.Buffer_Switcher_Previous_Result =>
+         when Editor.Command_Kinds.Buffer_Switcher_Previous_Result =>
             Execute_Buffer_Switcher_Previous_Result (S);
-         when Editor.Commands.Buffer_Switcher_Insert_Text =>
+         when Editor.Command_Kinds.Buffer_Switcher_Insert_Text =>
             Execute_Buffer_Switcher_Insert_Text (S, Text);
-         when Editor.Commands.Buffer_Switcher_Backspace =>
+         when Editor.Command_Kinds.Buffer_Switcher_Backspace =>
             Execute_Buffer_Switcher_Backspace (S);
-         when Editor.Commands.Buffer_Switcher_Delete_Forward =>
+         when Editor.Command_Kinds.Buffer_Switcher_Delete_Forward =>
             Execute_Buffer_Switcher_Delete_Forward (S);
-         when Editor.Commands.Buffer_Switcher_Move_Cursor_Left =>
+         when Editor.Command_Kinds.Buffer_Switcher_Move_Cursor_Left =>
             Execute_Buffer_Switcher_Move_Cursor_Left (S);
-         when Editor.Commands.Buffer_Switcher_Move_Cursor_Right =>
+         when Editor.Command_Kinds.Buffer_Switcher_Move_Cursor_Right =>
             Execute_Buffer_Switcher_Move_Cursor_Right (S);
-         when Editor.Commands.Buffer_Switcher_Filter_Clear =>
+         when Editor.Command_Kinds.Buffer_Switcher_Filter_Clear =>
             Execute_Buffer_Switcher_Filter_Clear (S);
-         when Editor.Commands.Buffer_Switcher_Filter_Pinned =>
+         when Editor.Command_Kinds.Buffer_Switcher_Filter_Pinned =>
             Execute_Buffer_Switcher_Filter_Pinned (S);
-         when Editor.Commands.Buffer_Switcher_Filter_Group =>
+         when Editor.Command_Kinds.Buffer_Switcher_Filter_Group =>
             Execute_Buffer_Switcher_Filter_Group (S, Text);
-         when Editor.Commands.Buffer_Switcher_Filter_Label =>
+         when Editor.Command_Kinds.Buffer_Switcher_Filter_Label =>
             Execute_Buffer_Switcher_Filter_Label (S, Text);
-         when Editor.Commands.Buffer_Switcher_Filter_Noted =>
+         when Editor.Command_Kinds.Buffer_Switcher_Filter_Noted =>
             Execute_Buffer_Switcher_Filter_Noted (S);
-         when Editor.Commands.Buffer_Switcher_Sort_Default =>
+         when Editor.Command_Kinds.Buffer_Switcher_Sort_Default =>
             Execute_Buffer_Switcher_Sort
               (S, Editor.Buffer_Switcher.Filters.Default_Sort);
-         when Editor.Commands.Buffer_Switcher_Sort_Recent =>
+         when Editor.Command_Kinds.Buffer_Switcher_Sort_Recent =>
             Execute_Buffer_Switcher_Sort
               (S, Editor.Buffer_Switcher.Filters.Recent_Sort);
-         when Editor.Commands.Buffer_Switcher_Sort_Name =>
+         when Editor.Command_Kinds.Buffer_Switcher_Sort_Name =>
             Execute_Buffer_Switcher_Sort
               (S, Editor.Buffer_Switcher.Filters.Name_Sort);
-         when Editor.Commands.Buffer_Switcher_Sort_Pinned =>
+         when Editor.Command_Kinds.Buffer_Switcher_Sort_Pinned =>
             Execute_Buffer_Switcher_Sort
               (S, Editor.Buffer_Switcher.Filters.Pinned_Sort);
-         when Editor.Commands.Buffer_Switcher_Sort_Group =>
+         when Editor.Command_Kinds.Buffer_Switcher_Sort_Group =>
             Execute_Buffer_Switcher_Sort
               (S, Editor.Buffer_Switcher.Filters.Group_Sort);
-         when Editor.Commands.Buffer_Switcher_Sort_Label =>
+         when Editor.Command_Kinds.Buffer_Switcher_Sort_Label =>
             Execute_Buffer_Switcher_Sort
               (S, Editor.Buffer_Switcher.Filters.Label_Sort);
-         when Editor.Commands.Buffer_Switcher_Sort_Next =>
+         when Editor.Command_Kinds.Buffer_Switcher_Sort_Next =>
             Execute_Buffer_Switcher_Sort_Next (S);
-         when Editor.Commands.Buffer_Switcher_Sort_Previous =>
+         when Editor.Command_Kinds.Buffer_Switcher_Sort_Previous =>
             Execute_Buffer_Switcher_Sort_Previous (S);
          when others =>
             null;

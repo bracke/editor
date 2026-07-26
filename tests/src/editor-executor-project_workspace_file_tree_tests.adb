@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.Test_Temp;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -349,7 +350,7 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
       Editor.Recent_Projects.Add_Or_Promote
         (S.Recent_Projects, Root, "recent_project", 213);
 
-      Cmd.Kind := Editor.Commands.Open_Selected_Recent_Project;
+      Cmd.Kind := Editor.Command_Kinds.Open_Selected_Recent_Project;
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       Assert (Editor.Project.Has_Project (S.Project),
@@ -375,7 +376,7 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
       Editor.Recent_Projects.Add_Or_Promote
         (S.Recent_Projects, Missing, "missing", 213);
 
-      Cmd.Kind := Editor.Commands.Open_Selected_Recent_Project;
+      Cmd.Kind := Editor.Command_Kinds.Open_Selected_Recent_Project;
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       Assert (not Editor.Project.Has_Project (S.Project),

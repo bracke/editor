@@ -1,4 +1,5 @@
 with Editor.Commands.Availability_Metadata;
+with Editor.Command_Kinds; use Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Ada.Containers; use Ada.Containers;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;

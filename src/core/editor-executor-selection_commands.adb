@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Ada.Containers; use Ada.Containers;
@@ -111,7 +112,7 @@ package body Editor.Executor.Selection_Commands is
    is
       Cmd : Editor.Commands.Payloads.Command;
    begin
-      Cmd.Kind := Editor.Commands.Select_Line;
+      Cmd.Kind := Editor.Command_Kinds.Select_Line;
       Execute_No_Log (S, Cmd);
    end Execute_Select_Line;
 
@@ -185,7 +186,7 @@ package body Editor.Executor.Selection_Commands is
    is
       Cmd : Editor.Commands.Payloads.Command;
    begin
-      Cmd.Kind := Editor.Commands.Select_Word;
+      Cmd.Kind := Editor.Command_Kinds.Select_Word;
       Execute_No_Log (S, Cmd);
    end Execute_Select_Word;
 
@@ -374,7 +375,7 @@ package body Editor.Executor.Selection_Commands is
    is
       Cmd : Editor.Commands.Payloads.Command;
    begin
-      Cmd.Kind := Editor.Commands.Start_Rectangle_At_Caret;
+      Cmd.Kind := Editor.Command_Kinds.Start_Rectangle_At_Caret;
       Execute_No_Log (S, Cmd);
    end Execute_Start_Rectangular_Selection;
 
@@ -413,7 +414,7 @@ package body Editor.Executor.Selection_Commands is
    is
       Cmd : Editor.Commands.Payloads.Command;
    begin
-      Cmd.Kind := Editor.Commands.Clear_Rectangle_Selection;
+      Cmd.Kind := Editor.Command_Kinds.Clear_Rectangle_Selection;
       Execute_No_Log (S, Cmd);
    end Execute_Clear_Rectangular_Selection;
 
@@ -505,10 +506,10 @@ package body Editor.Executor.Selection_Commands is
    begin
       case Direction is
          when Editor.Navigation.Backward =>
-            Cmd.Kind := Editor.Commands.Select_Word_Left;
+            Cmd.Kind := Editor.Command_Kinds.Select_Word_Left;
             Cmd.Shift := True;
          when Editor.Navigation.Forward =>
-            Cmd.Kind := Editor.Commands.Select_Word_Right;
+            Cmd.Kind := Editor.Command_Kinds.Select_Word_Right;
             Cmd.Shift := True;
       end case;
 

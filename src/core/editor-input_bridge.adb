@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.Instance;
 with Editor.Input_Bridge.Active_Find_Handlers;
@@ -722,7 +723,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
             declare
                Cmd_Clear : Editor.Commands.Payloads.Command;
             begin
-               Cmd_Clear.Kind := Editor.Commands.Close_Project;
+               Cmd_Clear.Kind := Editor.Command_Kinds.Close_Project;
                Editor.Instance.Execute (The_Editor, Cmd_Clear);
             end;
             Editor.Render_Cache.Invalidate_All;
@@ -1490,9 +1491,9 @@ use type Editor.Guided_Prompts.Prompt_Kind;
          end if;
 
          case Cmd.Kind is
-            when Editor.Commands.Cancel_Pending_Transition
-               | Editor.Commands.Retry_Pending_Transition
-               | Editor.Commands.Discard_Pending_Transition =>
+            when Editor.Command_Kinds.Cancel_Pending_Transition
+               | Editor.Command_Kinds.Retry_Pending_Transition
+               | Editor.Command_Kinds.Discard_Pending_Transition =>
                null;
             when others =>
                Editor.Cursor.Notify_Input
@@ -1728,10 +1729,10 @@ use type Editor.Guided_Prompts.Prompt_Kind;
       --  ordinary text mouse input.
       Editor.View.Clear_User_Scroll_Override;
 
-      if Cmd.Kind = Editor.Commands.Move_To_Point
-        or else Cmd.Kind = Editor.Commands.Drag_To_Point
-        or else Cmd.Kind = Editor.Commands.Select_Word_At_Point
-        or else Cmd.Kind = Editor.Commands.Select_Line_At_Point
+      if Cmd.Kind = Editor.Command_Kinds.Move_To_Point
+        or else Cmd.Kind = Editor.Command_Kinds.Drag_To_Point
+        or else Cmd.Kind = Editor.Command_Kinds.Select_Word_At_Point
+        or else Cmd.Kind = Editor.Command_Kinds.Select_Line_At_Point
       then
          --  completeness: pointer focus into editor text must clear
          --  retained overlay/panel transient owners, not only set the
@@ -1742,21 +1743,21 @@ use type Editor.Guided_Prompts.Prompt_Kind;
       end if;
 
       case Cmd.Kind is
-         when Editor.Commands.Undo =>
+         when Editor.Command_Kinds.Undo =>
             Execute_Command_Id (Editor.Commands.Command_Undo);
 
-         when Editor.Commands.Redo =>
+         when Editor.Command_Kinds.Redo =>
             Execute_Command_Id (Editor.Commands.Command_Redo);
 
-         when Editor.Commands.Insert_Text_Input
-            | Editor.Commands.Delete_Char
-            | Editor.Commands.Forward_Delete_Char
-            | Editor.Commands.Delete_Previous_Character
-            | Editor.Commands.Delete_Next_Character
-            | Editor.Commands.Delete_Previous_Word
-            | Editor.Commands.Delete_Next_Word
-            | Editor.Commands.Delete_Selection_Range
-            | Editor.Commands.Split_Current_Line_At_Caret =>
+         when Editor.Command_Kinds.Insert_Text_Input
+            | Editor.Command_Kinds.Delete_Char
+            | Editor.Command_Kinds.Forward_Delete_Char
+            | Editor.Command_Kinds.Delete_Previous_Character
+            | Editor.Command_Kinds.Delete_Next_Character
+            | Editor.Command_Kinds.Delete_Previous_Word
+            | Editor.Command_Kinds.Delete_Next_Word
+            | Editor.Command_Kinds.Delete_Selection_Range
+            | Editor.Command_Kinds.Split_Current_Line_At_Caret =>
             declare
                Route : constant Text_Entry_Route_Result :=
                  Preview_Text_Entry_Route (Cmd);

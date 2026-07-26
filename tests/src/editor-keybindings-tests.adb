@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Classification;
 with Editor.Commands.Payloads;
@@ -254,7 +255,7 @@ package body Editor.Keybindings.Tests is
       Snap : Editor.Render_Model.Render_Snapshot;
    begin
       Prepare_Text ("");
-      Cmd.Kind := Editor.Commands.Insert_Text_Input;
+      Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Ch := 'x';
       Cmd.Text := To_Unbounded_String (String'(1 => 'x'));
       Cmd.Code := Wide_Wide_Character'Val (Character'Pos ('x'));
@@ -272,7 +273,7 @@ package body Editor.Keybindings.Tests is
       Prepare_Text ("");
       Editor.Input_Bridge.Handle_Key_Chord
         (Chord (Editor.Keybindings.Key_P, Ctrl => True, Shift => True));
-      Cmd.Kind := Editor.Commands.Insert_Text_Input;
+      Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Ch := 'x';
       Cmd.Text := To_Unbounded_String (String'(1 => 'x'));
       Cmd.Code := Wide_Wide_Character'Val (Character'Pos ('x'));
@@ -1803,7 +1804,7 @@ package body Editor.Keybindings.Tests is
         (Editor.Input_Bridge.Keybinding_Handlers.Consume_Keybinding_Text_Input
            (Prompt,
             Editor.Commands.Payloads.Command'
-              (Kind => Editor.Commands.Insert_Text_Input,
+              (Kind => Editor.Command_Kinds.Insert_Text_Input,
                Text => To_Unbounded_String ("x"),
                others => <>)),
          "keybinding prompt helper must consume text input events");

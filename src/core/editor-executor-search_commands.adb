@@ -1,4 +1,5 @@
 with Editor.Commands.Availability_Metadata;
+with Editor.Command_Kinds; use Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.Executor.Shared_Services;
 use Editor.Executor.Shared_Services;
@@ -1050,7 +1051,7 @@ package body Editor.Executor.Search_Commands is
          when Clear_Project_Search =>
             Execute_Clear_Project_Search (S);
 
-         when Show_Search_Results_Panel =>
+         when Editor.Command_Kinds.Show_Search_Results_Panel =>
             Show_Search_Results_Panel (S);
 
          when Open_Selected_Project_Search_Result =>

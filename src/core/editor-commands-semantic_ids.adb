@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 package body Editor.Commands.Semantic_Ids is
 
    function Is_Semantic_Command

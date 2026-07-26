@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.Input_Bridge;
 with Editor.Commands;
@@ -13,7 +14,7 @@ package body Editor.Bridge is
    procedure Send_Break_Group is
       Cmd : Editor.Commands.Payloads.Command;
    begin
-      Cmd.Kind := Editor.Commands.Break_Group;
+      Cmd.Kind := Editor.Command_Kinds.Break_Group;
       Editor.Input_Bridge.Handle (Cmd);
    end Send_Break_Group;
 
@@ -165,7 +166,7 @@ package body Editor.Bridge is
 
       case Ev.Kind is
          when Char_Input =>
-            Cmd.Kind := Editor.Commands.Insert_Text_Input;
+            Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
             if Ev.Ch <= Interfaces.C.unsigned (16#10FFFF#) then
                declare
                   Raw  : constant Natural := Natural (Ev.Ch);
@@ -194,36 +195,36 @@ package body Editor.Bridge is
 
          when Mouse_Down =>
             if Cmd.Shift and then Cmd.Alt then
-               Cmd.Kind := Editor.Commands.Start_Rectangle_Selection;
+               Cmd.Kind := Editor.Command_Kinds.Start_Rectangle_Selection;
             elsif Cmd.Alt then
-               Cmd.Kind := Editor.Commands.Add_Caret_At_Point;
+               Cmd.Kind := Editor.Command_Kinds.Add_Caret_At_Point;
             elsif Cmd.Shift then
-               Cmd.Kind := Editor.Commands.Drag_To_Point;
+               Cmd.Kind := Editor.Command_Kinds.Drag_To_Point;
             else
-               Cmd.Kind := Editor.Commands.Move_To_Point;
+               Cmd.Kind := Editor.Command_Kinds.Move_To_Point;
             end if;
 
          when Mouse_Drag =>
             if Cmd.Shift and then Cmd.Alt then
-               Cmd.Kind := Editor.Commands.Drag_Rectangle_To_Point;
+               Cmd.Kind := Editor.Command_Kinds.Drag_Rectangle_To_Point;
             else
-               Cmd.Kind := Editor.Commands.Drag_To_Point;
+               Cmd.Kind := Editor.Command_Kinds.Drag_To_Point;
             end if;
 
          when Mouse_Move =>
-            Cmd.Kind := Editor.Commands.Pointer_Hover;
+            Cmd.Kind := Editor.Command_Kinds.Pointer_Hover;
 
          when Select_Word =>
-            Cmd.Kind := Editor.Commands.Select_Word_At_Point;
+            Cmd.Kind := Editor.Command_Kinds.Select_Word_At_Point;
 
          when Select_Line =>
-            Cmd.Kind := Editor.Commands.Select_Line_At_Point;
+            Cmd.Kind := Editor.Command_Kinds.Select_Line_At_Point;
 
          when Add_Caret =>
-            Cmd.Kind := Editor.Commands.Add_Caret_At_Point;
+            Cmd.Kind := Editor.Command_Kinds.Add_Caret_At_Point;
 
          when others =>
-            Cmd.Kind := Editor.Commands.Break_Group;
+            Cmd.Kind := Editor.Command_Kinds.Break_Group;
       end case;
 
       return Cmd;

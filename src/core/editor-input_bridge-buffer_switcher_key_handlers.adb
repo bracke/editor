@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.Buffer_Switcher;
 with Editor.Cursor;
@@ -44,10 +45,10 @@ package body Editor.Input_Bridge.Buffer_Switcher_Key_Handlers is
                Execute (Editor.Commands.Command_Buffer_Switcher_Next_Result);
             end if;
          when Editor.Keybindings.Key_Backspace =>
-            Cmd.Kind := Editor.Commands.Buffer_Switcher_Backspace;
+            Cmd.Kind := Editor.Command_Kinds.Buffer_Switcher_Backspace;
             Execute_Command (Cmd);
          when Editor.Keybindings.Key_Delete =>
-            Cmd.Kind := Editor.Commands.Buffer_Switcher_Delete_Forward;
+            Cmd.Kind := Editor.Command_Kinds.Buffer_Switcher_Delete_Forward;
             Execute_Command (Cmd);
          when Editor.Keybindings.Key_Left =>
             Editor.Buffer_Switcher.Move_Cursor_Left (S.Buffer_Switcher);
@@ -63,7 +64,7 @@ package body Editor.Input_Bridge.Buffer_Switcher_Key_Handlers is
             Editor.Render_Cache.Invalidate_All;
          when Editor.Keybindings.Key_V =>
             if Chord.Modifiers.Ctrl then
-               Cmd.Kind := Editor.Commands.Buffer_Switcher_Insert_Text;
+               Cmd.Kind := Editor.Command_Kinds.Buffer_Switcher_Insert_Text;
                Cmd.Text := Editor.Executor.Clipboard.Text_For_Local_Input;
                Execute_Command (Cmd);
             end if;

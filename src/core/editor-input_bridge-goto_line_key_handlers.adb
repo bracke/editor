@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.Cursor;
 with Editor.Executor.Clipboard;
@@ -38,10 +39,10 @@ package body Editor.Input_Bridge.Goto_Line_Key_Handlers is
          when Editor.Keybindings.Key_Escape =>
             Execute (Editor.Commands.Command_Close_Goto_Line);
          when Editor.Keybindings.Key_Backspace =>
-            Cmd.Kind := Editor.Commands.Goto_Line_Backspace;
+            Cmd.Kind := Editor.Command_Kinds.Goto_Line_Backspace;
             Execute_Command (Cmd);
          when Editor.Keybindings.Key_Delete =>
-            Cmd.Kind := Editor.Commands.Goto_Line_Delete_Forward;
+            Cmd.Kind := Editor.Command_Kinds.Goto_Line_Delete_Forward;
             Execute_Command (Cmd);
          when Editor.Keybindings.Key_Left =>
             Editor.Go_To_Line.Move_Cursor_Left (S.Go_To_Line);
@@ -57,7 +58,7 @@ package body Editor.Input_Bridge.Goto_Line_Key_Handlers is
             Editor.Render_Cache.Invalidate_All;
          when Editor.Keybindings.Key_V =>
             if Chord.Modifiers.Ctrl then
-               Cmd.Kind := Editor.Commands.Goto_Line_Insert_Text;
+               Cmd.Kind := Editor.Command_Kinds.Goto_Line_Insert_Text;
                Cmd.Text := Editor.Executor.Clipboard.Text_For_Local_Input;
                Execute_Command (Cmd);
             end if;

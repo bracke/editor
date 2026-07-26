@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Classification;
 with Editor.Commands.Payloads;
@@ -733,7 +734,7 @@ package body Editor.Files.Save_Operation_Tests is
       declare
          Insert_Current : Editor.Commands.Payloads.Command;
       begin
-         Insert_Current.Kind := Editor.Commands.Insert_Text_Input;
+         Insert_Current.Kind := Editor.Command_Kinds.Insert_Text_Input;
          Insert_Current.Pos := 13;
          Insert_Current.Has_Position := True;
          Insert_Current.Text := To_Unbounded_String (ASCII.LF & "current");

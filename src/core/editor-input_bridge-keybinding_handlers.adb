@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.Cursor;
 with Editor.Commands;
@@ -130,7 +131,7 @@ package body Editor.Input_Bridge.Keybinding_Handlers is
    is
    begin
       return Is_Keybinding_Capture_Prompt (Prompt)
-        and then Cmd.Kind = Editor.Commands.Insert_Text_Input;
+        and then Cmd.Kind = Editor.Command_Kinds.Insert_Text_Input;
    end Consume_Keybinding_Text_Input;
 
    function Is_Keybinding_Capture_Prompt

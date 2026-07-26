@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.Cursors;
 with Editor.Diagnostics;
@@ -208,13 +209,13 @@ package body Editor.Input_Bridge.Gutter_Pointer_Handlers is
             Editor.State.Clear_Gutter_Marker_Hover (S);
          end if;
 
-         if Cmd.Kind = Editor.Commands.Pointer_Hover then
+         if Cmd.Kind = Editor.Command_Kinds.Pointer_Hover then
             return True;
          end if;
       else
          Editor.State.Clear_Gutter_Marker_Hover (S);
 
-         if Cmd.Kind = Editor.Commands.Pointer_Hover then
+         if Cmd.Kind = Editor.Command_Kinds.Pointer_Hover then
             return True;
          end if;
       end if;
@@ -224,7 +225,7 @@ package body Editor.Input_Bridge.Gutter_Pointer_Handlers is
             return False;
 
          when Editor.Gutter.Marker_Zone =>
-            if Cmd.Kind /= Editor.Commands.Move_To_Point then
+            if Cmd.Kind /= Editor.Command_Kinds.Move_To_Point then
                return True;
             end if;
 
@@ -241,7 +242,7 @@ package body Editor.Input_Bridge.Gutter_Pointer_Handlers is
             return True;
 
          when Editor.Gutter.Fold_Marker_Zone =>
-            if Cmd.Kind = Editor.Commands.Move_To_Point
+            if Cmd.Kind = Editor.Command_Kinds.Move_To_Point
               and then Editor.Folding.Has_Fold_Start (S.Folding, Doc_Row)
             then
                Editor.Folding.Toggle_Fold_At_Row (S.Folding, Doc_Row);
@@ -249,7 +250,7 @@ package body Editor.Input_Bridge.Gutter_Pointer_Handlers is
                return True;
             end if;
 
-            if Cmd.Kind /= Editor.Commands.Move_To_Point then
+            if Cmd.Kind /= Editor.Command_Kinds.Move_To_Point then
                return True;
             end if;
 
@@ -258,8 +259,8 @@ package body Editor.Input_Bridge.Gutter_Pointer_Handlers is
             return True;
 
          when Editor.Gutter.Line_Number_Zone =>
-            if Cmd.Kind /= Editor.Commands.Move_To_Point
-              and then Cmd.Kind /= Editor.Commands.Select_Line_At_Point
+            if Cmd.Kind /= Editor.Command_Kinds.Move_To_Point
+              and then Cmd.Kind /= Editor.Command_Kinds.Select_Line_At_Point
             then
                return True;
             end if;

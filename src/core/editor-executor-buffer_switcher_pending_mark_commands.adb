@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Editor.Buffer_Switcher;
@@ -545,70 +546,70 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
    is
    begin
       case Kind is
-        when Editor.Commands.Buffer_Switcher_Pending_Mark_Review_Toggle =>
+        when Editor.Command_Kinds.Buffer_Switcher_Pending_Mark_Review_Toggle =>
             Editor.Executor.Buffer_Switcher_Pending_Mark_Review_Commands
               .Execute_Buffer_Switcher_Pending_Mark_Review_Toggle (S);
-        when Editor.Commands.Buffer_Switcher_Pending_Mark_Review_Show =>
+        when Editor.Command_Kinds.Buffer_Switcher_Pending_Mark_Review_Show =>
             Editor.Executor.Buffer_Switcher_Pending_Mark_Review_Commands
               .Execute_Buffer_Switcher_Pending_Mark_Review_Show (S);
-        when Editor.Commands.Buffer_Switcher_Pending_Mark_Review_Hide =>
+        when Editor.Command_Kinds.Buffer_Switcher_Pending_Mark_Review_Hide =>
             Editor.Executor.Buffer_Switcher_Pending_Mark_Review_Commands
               .Execute_Buffer_Switcher_Pending_Mark_Review_Hide (S);
-        when Editor.Commands.Buffer_Switcher_Pending_Mark_Next =>
+        when Editor.Command_Kinds.Buffer_Switcher_Pending_Mark_Next =>
             Editor.Executor.Buffer_Switcher_Pending_Mark_Review_Commands
               .Execute_Buffer_Switcher_Pending_Mark_Next (S);
-        when Editor.Commands.Buffer_Switcher_Pending_Mark_Previous =>
+        when Editor.Command_Kinds.Buffer_Switcher_Pending_Mark_Previous =>
             Editor.Executor.Buffer_Switcher_Pending_Mark_Review_Commands
               .Execute_Buffer_Switcher_Pending_Mark_Previous (S);
-        when Editor.Commands.Buffer_Switcher_Pending_Mark_Summary =>
+        when Editor.Command_Kinds.Buffer_Switcher_Pending_Mark_Summary =>
             Editor.Executor.Buffer_Switcher_Pending_Mark_Review_Commands
               .Execute_Buffer_Switcher_Pending_Mark_Summary (S);
-        when Editor.Commands.Buffer_Switcher_Pending_Mark_Remove_Selected =>
+        when Editor.Command_Kinds.Buffer_Switcher_Pending_Mark_Remove_Selected =>
             Editor.Executor.Buffer_Switcher_Pending_Mark_Review_Commands
               .Execute_Buffer_Switcher_Pending_Mark_Remove_Selected (S);
-        when Editor.Commands.Buffer_Switcher_Pending_Mark_Restore_Last_Pruned =>
+        when Editor.Command_Kinds.Buffer_Switcher_Pending_Mark_Restore_Last_Pruned =>
             Editor.Executor.Buffer_Switcher_Pending_Mark_Review_Commands
               .Execute_Buffer_Switcher_Pending_Mark_Restore_Last_Pruned (S);
-        when Editor.Commands.Buffer_Switcher_Pending_Mark_Pruned_Summary =>
+        when Editor.Command_Kinds.Buffer_Switcher_Pending_Mark_Pruned_Summary =>
             Editor.Executor.Buffer_Switcher_Pending_Mark_Review_Commands
               .Execute_Buffer_Switcher_Pending_Mark_Pruned_Summary (S);
-        when Editor.Commands.Buffer_Switcher_Pending_Mark_Pruned_Next =>
+        when Editor.Command_Kinds.Buffer_Switcher_Pending_Mark_Pruned_Next =>
             Editor.Executor.Buffer_Switcher_Pending_Mark_Review_Commands
               .Execute_Buffer_Switcher_Pending_Mark_Pruned_Next (S);
-        when Editor.Commands.Buffer_Switcher_Pending_Mark_Pruned_Previous =>
+        when Editor.Command_Kinds.Buffer_Switcher_Pending_Mark_Pruned_Previous =>
             Editor.Executor.Buffer_Switcher_Pending_Mark_Review_Commands
               .Execute_Buffer_Switcher_Pending_Mark_Pruned_Previous (S);
-        when Editor.Commands.Buffer_Switcher_Pending_Mark_Pruned_Review_Toggle =>
+        when Editor.Command_Kinds.Buffer_Switcher_Pending_Mark_Pruned_Review_Toggle =>
             Editor.Executor.Buffer_Switcher_Pending_Mark_Review_Commands
               .Execute_Buffer_Switcher_Pending_Mark_Pruned_Review_Toggle (S);
-        when Editor.Commands.Buffer_Switcher_Pending_Mark_Pruned_Review_Show =>
+        when Editor.Command_Kinds.Buffer_Switcher_Pending_Mark_Pruned_Review_Show =>
             Editor.Executor.Buffer_Switcher_Pending_Mark_Review_Commands
               .Execute_Buffer_Switcher_Pending_Mark_Pruned_Review_Show (S);
-         when Editor.Commands.Buffer_Switcher_Pending_Mark_Pruned_Review_Hide =>
+         when Editor.Command_Kinds.Buffer_Switcher_Pending_Mark_Pruned_Review_Hide =>
             Editor.Executor.Buffer_Switcher_Pending_Mark_Review_Commands
               .Execute_Buffer_Switcher_Pending_Mark_Pruned_Review_Hide (S);
-        when Editor.Commands.Buffer_Switcher_Pending_Mark_Restore_Selected_Pruned =>
+        when Editor.Command_Kinds.Buffer_Switcher_Pending_Mark_Restore_Selected_Pruned =>
             Editor.Executor.Buffer_Switcher_Pending_Mark_Review_Commands
               .Execute_Buffer_Switcher_Pending_Mark_Restore_Selected_Pruned (S);
-         when Editor.Commands.Buffer_Switcher_Pending_Mark_Dirty_Summary
-            | Editor.Commands.Buffer_Switcher_Pending_Mark_Dirty_Next
-            | Editor.Commands.Buffer_Switcher_Pending_Mark_Dirty_Previous
-            | Editor.Commands.Buffer_Switcher_Pending_Mark_Dirty_Remove_Selected
-            | Editor.Commands.Buffer_Switcher_Pending_Mark_Dirty_Prune_Preview
-            | Editor.Commands.Buffer_Switcher_Pending_Mark_Dirty_Prune_Cancel
-            | Editor.Commands.Buffer_Switcher_Pending_Mark_Dirty_Prune_Summary
-            | Editor.Commands.Buffer_Switcher_Pending_Mark_Dirty_Prune_Next
-            | Editor.Commands.Buffer_Switcher_Pending_Mark_Dirty_Prune_Previous
-            | Editor.Commands.Buffer_Switcher_Pending_Mark_Dirty_Prune_Review_Toggle
-            | Editor.Commands.Buffer_Switcher_Pending_Mark_Dirty_Prune_Review_Show
-            | Editor.Commands.Buffer_Switcher_Pending_Mark_Dirty_Prune_Review_Hide
-            | Editor.Commands.Buffer_Switcher_Pending_Mark_Dirty_Prune_Remove_Selected
-            | Editor.Commands.Buffer_Switcher_Pending_Mark_Dirty_Prune_Restore_Last_Removed
-            | Editor.Commands.Buffer_Switcher_Pending_Mark_Dirty_Prune_Removed_Summary
-            | Editor.Commands.Buffer_Switcher_Pending_Mark_Dirty_Prune_Removed_Next
-            | Editor.Commands.Buffer_Switcher_Pending_Mark_Dirty_Prune_Removed_Previous
-            | Editor.Commands.Buffer_Switcher_Pending_Mark_Dirty_Prune_Clear_Stale
-            | Editor.Commands.Buffer_Switcher_Pending_Mark_Dirty_Prune_Stale_Summary =>
+         when Editor.Command_Kinds.Buffer_Switcher_Pending_Mark_Dirty_Summary
+            | Editor.Command_Kinds.Buffer_Switcher_Pending_Mark_Dirty_Next
+            | Editor.Command_Kinds.Buffer_Switcher_Pending_Mark_Dirty_Previous
+            | Editor.Command_Kinds.Buffer_Switcher_Pending_Mark_Dirty_Remove_Selected
+            | Editor.Command_Kinds.Buffer_Switcher_Pending_Mark_Dirty_Prune_Preview
+            | Editor.Command_Kinds.Buffer_Switcher_Pending_Mark_Dirty_Prune_Cancel
+            | Editor.Command_Kinds.Buffer_Switcher_Pending_Mark_Dirty_Prune_Summary
+            | Editor.Command_Kinds.Buffer_Switcher_Pending_Mark_Dirty_Prune_Next
+            | Editor.Command_Kinds.Buffer_Switcher_Pending_Mark_Dirty_Prune_Previous
+            | Editor.Command_Kinds.Buffer_Switcher_Pending_Mark_Dirty_Prune_Review_Toggle
+            | Editor.Command_Kinds.Buffer_Switcher_Pending_Mark_Dirty_Prune_Review_Show
+            | Editor.Command_Kinds.Buffer_Switcher_Pending_Mark_Dirty_Prune_Review_Hide
+            | Editor.Command_Kinds.Buffer_Switcher_Pending_Mark_Dirty_Prune_Remove_Selected
+            | Editor.Command_Kinds.Buffer_Switcher_Pending_Mark_Dirty_Prune_Restore_Last_Removed
+            | Editor.Command_Kinds.Buffer_Switcher_Pending_Mark_Dirty_Prune_Removed_Summary
+            | Editor.Command_Kinds.Buffer_Switcher_Pending_Mark_Dirty_Prune_Removed_Next
+            | Editor.Command_Kinds.Buffer_Switcher_Pending_Mark_Dirty_Prune_Removed_Previous
+            | Editor.Command_Kinds.Buffer_Switcher_Pending_Mark_Dirty_Prune_Clear_Stale
+            | Editor.Command_Kinds.Buffer_Switcher_Pending_Mark_Dirty_Prune_Stale_Summary =>
             Editor.Executor.Buffer_Switcher_Pending_Mark_Dirty_Commands
               .Execute_Buffer_Switcher_Pending_Mark_Dirty_Kind (S, Kind);
          when others =>

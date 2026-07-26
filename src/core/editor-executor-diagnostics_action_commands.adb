@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -429,7 +430,7 @@ package body Editor.Executor.Diagnostics_Action_Commands is
                   return Editor.Command_Execution.Unavailable (Id);
                end if;
                Delete_Count := End_Pos - Pos;
-               Cmd.Kind := Editor.Commands.Apply_Replace_Batch;
+               Cmd.Kind := Editor.Command_Kinds.Apply_Replace_Batch;
                Editor.Executor.Append_Replace_Op
                  (Cmd, Cursor_Index (Pos), Delete_Count, Replacement);
 

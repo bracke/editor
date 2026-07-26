@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Executor.Clipboard;
@@ -20,10 +21,10 @@ package body Editor.Input_Bridge.Goto_Line_Handlers is
    is
       Cmd2 : Editor.Commands.Payloads.Command;
    begin
-      if Cmd.Kind = Editor.Commands.Open_Goto_Line then
+      if Cmd.Kind = Editor.Command_Kinds.Open_Goto_Line then
          Execute (Editor.Commands.Command_Goto_Line);
          return True;
-      elsif Cmd.Kind = Editor.Commands.Prefill_Goto_Line_Current then
+      elsif Cmd.Kind = Editor.Command_Kinds.Prefill_Goto_Line_Current then
          Execute (Editor.Commands.Command_Goto_Line_Prefill_Current);
          return True;
       end if;
@@ -35,85 +36,85 @@ package body Editor.Input_Bridge.Goto_Line_Handlers is
       end if;
 
       case Cmd.Kind is
-         when Editor.Commands.Insert_Text_Input =>
+         when Editor.Command_Kinds.Insert_Text_Input =>
             if Cmd.Ctrl and then (Cmd.Ch = 'a' or else Cmd.Ch = 'A') then
                Editor.Go_To_Line.Select_All (S.Go_To_Line);
                Editor.Render_Cache.Invalidate_All;
             elsif Cmd.Ch = ASCII.LF or else Cmd.Ch = ASCII.CR then
                Execute (Editor.Commands.Command_Accept_Goto_Line);
             elsif Length (Cmd.Text) > 0 then
-               Cmd2.Kind := Editor.Commands.Goto_Line_Insert_Text;
+               Cmd2.Kind := Editor.Command_Kinds.Goto_Line_Insert_Text;
                Cmd2.Text := Cmd.Text;
                Execute_Command (Cmd2);
             elsif Cmd.Ch /= ASCII.NUL and then Cmd.Ch /= ASCII.HT then
-               Cmd2.Kind := Editor.Commands.Goto_Line_Insert_Text;
+               Cmd2.Kind := Editor.Command_Kinds.Goto_Line_Insert_Text;
                Cmd2.Text := To_Unbounded_String (String'(1 => Cmd.Ch));
                Execute_Command (Cmd2);
             end if;
             return True;
 
-         when Editor.Commands.Delete_Char
-            | Editor.Commands.Delete_Previous_Character =>
-            Cmd2.Kind := Editor.Commands.Goto_Line_Backspace;
+         when Editor.Command_Kinds.Delete_Char
+            | Editor.Command_Kinds.Delete_Previous_Character =>
+            Cmd2.Kind := Editor.Command_Kinds.Goto_Line_Backspace;
             Execute_Command (Cmd2);
             return True;
 
-         when Editor.Commands.Forward_Delete_Char
-            | Editor.Commands.Delete_Next_Character =>
-            Cmd2.Kind := Editor.Commands.Goto_Line_Delete_Forward;
+         when Editor.Command_Kinds.Forward_Delete_Char
+            | Editor.Command_Kinds.Delete_Next_Character =>
+            Cmd2.Kind := Editor.Command_Kinds.Goto_Line_Delete_Forward;
             Execute_Command (Cmd2);
             return True;
 
-         when Editor.Commands.Paste_Text =>
-            Cmd2.Kind := Editor.Commands.Goto_Line_Insert_Text;
+         when Editor.Command_Kinds.Paste_Text =>
+            Cmd2.Kind := Editor.Command_Kinds.Goto_Line_Insert_Text;
             Cmd2.Text := Cmd.Text;
             Execute_Command (Cmd2);
             return True;
 
-         when Editor.Commands.Paste_Clipboard =>
-            Cmd2.Kind := Editor.Commands.Goto_Line_Insert_Text;
+         when Editor.Command_Kinds.Paste_Clipboard =>
+            Cmd2.Kind := Editor.Command_Kinds.Goto_Line_Insert_Text;
             Cmd2.Text := Editor.Executor.Clipboard.Text_For_Local_Input;
             Execute_Command (Cmd2);
             return True;
 
-         when Editor.Commands.Move_Left =>
+         when Editor.Command_Kinds.Move_Left =>
             Editor.Go_To_Line.Move_Cursor_Left (S.Go_To_Line);
             Editor.Render_Cache.Invalidate_All;
             return True;
 
-         when Editor.Commands.Move_Right =>
+         when Editor.Command_Kinds.Move_Right =>
             Editor.Go_To_Line.Move_Cursor_Right (S.Go_To_Line);
             Editor.Render_Cache.Invalidate_All;
             return True;
 
-         when Editor.Commands.Move_Line_Start =>
+         when Editor.Command_Kinds.Move_Line_Start =>
             Editor.Go_To_Line.Move_Cursor_Start (S.Go_To_Line);
             Editor.Render_Cache.Invalidate_All;
             return True;
 
-         when Editor.Commands.Move_Line_End =>
+         when Editor.Command_Kinds.Move_Line_End =>
             Editor.Go_To_Line.Move_Cursor_End (S.Go_To_Line);
             Editor.Render_Cache.Invalidate_All;
             return True;
 
-         when Editor.Commands.Prefill_Goto_Line_Current =>
+         when Editor.Command_Kinds.Prefill_Goto_Line_Current =>
             Execute (Editor.Commands.Command_Goto_Line_Prefill_Current);
             return True;
 
-         when Editor.Commands.Close_Goto_Line =>
+         when Editor.Command_Kinds.Close_Goto_Line =>
             Execute (Editor.Commands.Command_Close_Goto_Line);
             return True;
 
-         when Editor.Commands.Accept_Goto_Line =>
+         when Editor.Command_Kinds.Accept_Goto_Line =>
             Execute (Editor.Commands.Command_Accept_Goto_Line);
             return True;
 
-         when Editor.Commands.Goto_Line_Query_Set =>
+         when Editor.Command_Kinds.Goto_Line_Query_Set =>
             Editor.Executor.Navigation_Commands.Execute_Goto_Line_Set_Query
               (S, To_String (Cmd.Text));
             return True;
 
-         when Editor.Commands.Goto_Line_Query_Clear =>
+         when Editor.Command_Kinds.Goto_Line_Query_Clear =>
             Editor.Executor.Navigation_Commands.Execute_Goto_Line_Clear_Query (S);
             return True;
 

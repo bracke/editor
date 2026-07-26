@@ -1,3 +1,4 @@
+with Editor.Command_Kinds; use Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Text_Buffer;
 with Ada.Containers; use Ada.Containers;
@@ -660,7 +661,7 @@ package body Editor.Executor.History is
       Last_Failed := False;
 
       case Cmd.Kind is
-         when Editor.Commands.Undo =>
+         when Editor.Command_Kinds.Undo =>
             if not Undo_Stack.Is_Empty then
                declare
                   Old_State : constant Editor.State.State_Type := S;
@@ -698,7 +699,7 @@ package body Editor.Executor.History is
                end;
             end if;
 
-         when Editor.Commands.Redo =>
+         when Editor.Command_Kinds.Redo =>
             if not Redo_Stack.Is_Empty then
                declare
                   Old_State : constant Editor.State.State_Type := S;
@@ -736,7 +737,7 @@ package body Editor.Executor.History is
                end;
             end if;
 
-         when Editor.Commands.Break_Group =>
+         when Editor.Command_Kinds.Break_Group =>
             Last_Failed := False;
 
          when others =>

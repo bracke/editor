@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Build_UI;
@@ -29,8 +30,8 @@ package body Editor.Input_Bridge.Build_UI_Pointer_Handlers is
         Editor.Input_Bridge.Build_UI_Projection.Current (S);
       Hit : Editor.Build_UI_Panel_Layout.Build_UI_Panel_Hit;
    begin
-      if Cmd.Kind /= Editor.Commands.Move_To_Point
-        and then Cmd.Kind /= Editor.Commands.Pointer_Hover
+      if Cmd.Kind /= Editor.Command_Kinds.Move_To_Point
+        and then Cmd.Kind /= Editor.Command_Kinds.Pointer_Hover
       then
          return False;
       end if;
@@ -50,7 +51,7 @@ package body Editor.Input_Bridge.Build_UI_Pointer_Handlers is
       Pointer_State.Reset_All;
       Editor.State.Clear_Gutter_Marker_Hover (S);
 
-      if Cmd.Kind = Editor.Commands.Pointer_Hover then
+      if Cmd.Kind = Editor.Command_Kinds.Pointer_Hover then
          return True;
       end if;
 

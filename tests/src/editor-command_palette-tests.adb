@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Classification;
 with Editor.Commands.Payloads;
@@ -203,19 +204,19 @@ package body Editor.Command_Palette.Tests is
       Editor.State.Load_Text (S, "abc");
       Editor.Input_Bridge.Set_State_For_Test (S);
 
-      Cmd.Kind := Editor.Commands.Open_Command_Palette;
+      Cmd.Kind := Editor.Command_Kinds.Open_Command_Palette;
       Editor.Input_Bridge.Handle (Cmd);
       declare
          Query : constant String := "goto end";
       begin
          for Ch of Query loop
-            Cmd.Kind := Editor.Commands.Insert_Text_Input;
+            Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
             Cmd.Ch := Ch;
             Cmd.Text := To_Unbounded_String (String'(1 => Ch));
             Editor.Input_Bridge.Handle (Cmd);
          end loop;
       end;
-      Cmd.Kind := Editor.Commands.Palette_Accept;
+      Cmd.Kind := Editor.Command_Kinds.Palette_Accept;
       Editor.Input_Bridge.Handle (Cmd);
 
       Editor.Input_Bridge.Get_Render_Snapshot (Snap);
@@ -235,9 +236,9 @@ package body Editor.Command_Palette.Tests is
       Editor.State.Init (S);
       Editor.Input_Bridge.Set_State_For_Test (S);
 
-      Cmd.Kind := Editor.Commands.Open_Command_Palette;
+      Cmd.Kind := Editor.Command_Kinds.Open_Command_Palette;
       Editor.Input_Bridge.Handle (Cmd);
-      Cmd.Kind := Editor.Commands.Insert_Text_Input;
+      Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Ch := 'x';
       Cmd.Text := To_Unbounded_String (String'(1 => 'x'));
       Editor.Input_Bridge.Handle (Cmd);
@@ -269,7 +270,7 @@ package body Editor.Command_Palette.Tests is
       Assert (not Has_Glyph_On_Layer (Packet, Editor.Render_Layers.Palette_Text_Layer),
               "Closed palette must emit no palette text glyphs");
 
-      Cmd.Kind := Editor.Commands.Open_Command_Palette;
+      Cmd.Kind := Editor.Command_Kinds.Open_Command_Palette;
       Editor.Input_Bridge.Handle (Cmd);
       Editor.Input_Bridge.Build_Render_Packet (Packet);
       Assert (Has_Rect_On_Layer (Packet, Editor.Render_Layers.Palette_Background_Layer),
@@ -1014,20 +1015,20 @@ package body Editor.Command_Palette.Tests is
       Editor.Input_Bridge.Reset;
       Editor.Input_Bridge.Set_State_For_Test (S);
 
-      Cmd.Kind := Editor.Commands.Open_Command_Palette;
+      Cmd.Kind := Editor.Command_Kinds.Open_Command_Palette;
       Editor.Input_Bridge.Handle (Cmd);
       declare
          Query : constant String := "quick open";
       begin
          for Ch of Query loop
-            Cmd.Kind := Editor.Commands.Insert_Text_Input;
+            Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
             Cmd.Ch := Ch;
             Cmd.Text := To_Unbounded_String (String'(1 => Ch));
             Editor.Input_Bridge.Handle (Cmd);
          end loop;
       end;
 
-      Cmd.Kind := Editor.Commands.Palette_Accept;
+      Cmd.Kind := Editor.Command_Kinds.Palette_Accept;
       Editor.Input_Bridge.Handle (Cmd);
       After := Editor.Input_Bridge.Get_State_For_Test;
 
@@ -3102,7 +3103,7 @@ package body Editor.Command_Palette.Tests is
       Cmd : Editor.Commands.Payloads.Command;
    begin
       Editor.Command_Palette.Reset;
-      Cmd.Kind := Editor.Commands.Palette_Show_Command_Help;
+      Cmd.Kind := Editor.Command_Kinds.Palette_Show_Command_Help;
 
       Editor.Executor.Execute_No_Log (S, Cmd);
 

@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
@@ -475,7 +476,7 @@ package body Editor.Startup_Readiness.Tests is
       Assert (not Descriptor.Requires_Explicit_Target
               and then not Descriptor.Target_Prompt_Capable,
               "startup summary command must not carry a payload");
-      Assert (Command.Kind = Editor.Commands.Startup_Show_Summary,
+      Assert (Command.Kind = Editor.Command_Kinds.Startup_Show_Summary,
               "startup summary command must route through the executor command kind");
       Assert (Length (Command.Text) = 0
               and then Length (Command.Path) = 0

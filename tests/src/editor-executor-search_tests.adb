@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Payloads;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -527,7 +528,7 @@ package body Editor.Executor.Search_Tests is
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
 
-      Cmd.Kind := Editor.Commands.Insert_Text_Input;
+      Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Ch := 'x';
       Cmd.Text := To_Unbounded_String ("x");
       Cmd.Code := Wide_Wide_Character'Val (0);
@@ -1217,7 +1218,7 @@ package body Editor.Executor.Search_Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
       Editor.Executor.Find_Replace_Input_Commands.Execute_Active_Find_Input_Insert_Text (S, "alpha");
 
-      Cmd.Kind := Editor.Commands.Active_Find_Next;
+      Cmd.Kind := Editor.Command_Kinds.Active_Find_Next;
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       Assert (Editor.Search.Has_Match (S.Active_Find_Match),
@@ -1244,7 +1245,7 @@ package body Editor.Executor.Search_Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
       Editor.Executor.Find_Replace_Input_Commands.Execute_Active_Find_Input_Insert_Text (S, "one");
 
-      Cmd.Kind := Editor.Commands.Active_Find_Previous;
+      Cmd.Kind := Editor.Command_Kinds.Active_Find_Previous;
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       Assert (Editor.Search.Has_Match (S.Active_Find_Match),
@@ -1277,7 +1278,7 @@ package body Editor.Executor.Search_Tests is
       A_Id := Editor.Buffers.Global_Active_Buffer;
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
       Editor.Executor.Find_Replace_Input_Commands.Execute_Active_Find_Input_Insert_Text (S, "alpha");
-      Cmd.Kind := Editor.Commands.Active_Find_Next;
+      Cmd.Kind := Editor.Command_Kinds.Active_Find_Next;
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Search.Has_Match (S.Active_Find_Match),
               "setup should find a match in the first buffer");
@@ -1377,7 +1378,7 @@ package body Editor.Executor.Search_Tests is
       Set_Buffer_Text (S, "alpha beta alpha");
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
       Editor.Executor.Find_Replace_Input_Commands.Execute_Active_Find_Input_Insert_Text (S, "alpha");
-      Cmd.Kind := Editor.Commands.Active_Find_Previous;
+      Cmd.Kind := Editor.Command_Kinds.Active_Find_Previous;
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       Assert (S.Active_Find_Wrapped,
@@ -1486,7 +1487,7 @@ package body Editor.Executor.Search_Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Run");
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text (S, "Execute");
 
-      Cmd.Kind := Editor.Commands.Active_Replace_Current;
+      Cmd.Kind := Editor.Command_Kinds.Active_Replace_Current;
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       Assert (Editor.State.Current_Text (S) = "Execute Run",
@@ -1525,7 +1526,7 @@ package body Editor.Executor.Search_Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Run");
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text (S, "\1");
 
-      Cmd.Kind := Editor.Commands.Active_Replace_All;
+      Cmd.Kind := Editor.Command_Kinds.Active_Replace_All;
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       Assert (Editor.State.Current_Text (S) = "\1 (\1) \1",
@@ -1564,7 +1565,7 @@ package body Editor.Executor.Search_Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "aa");
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text (S, "b");
 
-      Cmd.Kind := Editor.Commands.Active_Replace_All;
+      Cmd.Kind := Editor.Command_Kinds.Active_Replace_All;
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       Assert (Editor.State.Current_Text (S) = "bb",
@@ -1588,7 +1589,7 @@ package body Editor.Executor.Search_Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Show (S);
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Clear_Text (S);
 
-      Cmd.Kind := Editor.Commands.Active_Replace_All;
+      Cmd.Kind := Editor.Command_Kinds.Active_Replace_All;
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       Assert (Editor.State.Current_Text (S) = " and ",

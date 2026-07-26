@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Availability_Metadata;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
@@ -534,25 +535,25 @@ package body Editor.Executor.Buffer_Switcher_Selected_Commands is
    is
    begin
       case Kind is
-         when Editor.Commands.Buffer_Switcher_Selected_Close =>
+         when Editor.Command_Kinds.Buffer_Switcher_Selected_Close =>
             Execute_Buffer_Switcher_Selected_Close (S);
-         when Editor.Commands.Buffer_Switcher_Selected_Pin =>
+         when Editor.Command_Kinds.Buffer_Switcher_Selected_Pin =>
             Execute_Buffer_Switcher_Selected_Pin (S);
-         when Editor.Commands.Buffer_Switcher_Selected_Unpin =>
+         when Editor.Command_Kinds.Buffer_Switcher_Selected_Unpin =>
             Execute_Buffer_Switcher_Selected_Unpin (S);
-         when Editor.Commands.Buffer_Switcher_Selected_Toggle_Pin =>
+         when Editor.Command_Kinds.Buffer_Switcher_Selected_Toggle_Pin =>
             Execute_Buffer_Switcher_Selected_Toggle_Pin (S);
-         when Editor.Commands.Buffer_Switcher_Selected_Group_Assign =>
+         when Editor.Command_Kinds.Buffer_Switcher_Selected_Group_Assign =>
             Execute_Buffer_Switcher_Selected_Group_Assign (S, Text);
-         when Editor.Commands.Buffer_Switcher_Selected_Group_Clear =>
+         when Editor.Command_Kinds.Buffer_Switcher_Selected_Group_Clear =>
             Execute_Buffer_Switcher_Selected_Group_Clear (S);
-         when Editor.Commands.Buffer_Switcher_Selected_Label_Set =>
+         when Editor.Command_Kinds.Buffer_Switcher_Selected_Label_Set =>
             Execute_Buffer_Switcher_Selected_Label_Set (S, Text);
-         when Editor.Commands.Buffer_Switcher_Selected_Label_Clear =>
+         when Editor.Command_Kinds.Buffer_Switcher_Selected_Label_Clear =>
             Execute_Buffer_Switcher_Selected_Label_Clear (S);
-         when Editor.Commands.Buffer_Switcher_Selected_Note_Set =>
+         when Editor.Command_Kinds.Buffer_Switcher_Selected_Note_Set =>
             Execute_Buffer_Switcher_Selected_Note_Set (S, Text);
-         when Editor.Commands.Buffer_Switcher_Selected_Note_Clear =>
+         when Editor.Command_Kinds.Buffer_Switcher_Selected_Note_Clear =>
             Execute_Buffer_Switcher_Selected_Note_Clear (S);
          when others =>
             null;

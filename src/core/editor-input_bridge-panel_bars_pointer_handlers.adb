@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.Buffers;
 with Editor.Executor.Buffer_Close_Commands;
@@ -43,8 +44,8 @@ package body Editor.Input_Bridge.Panel_Bars_Pointer_Handlers is
       Bar_Layout : Editor.Pending_Transition_Bar.Pending_Bar_Layout;
       Hit : Editor.Pending_Transition_Bar.Pending_Bar_Hit_Result;
    begin
-      if Cmd.Kind /= Editor.Commands.Move_To_Point
-        and then Cmd.Kind /= Editor.Commands.Pointer_Hover
+      if Cmd.Kind /= Editor.Command_Kinds.Move_To_Point
+        and then Cmd.Kind /= Editor.Command_Kinds.Pointer_Hover
       then
          return False;
       end if;
@@ -76,7 +77,7 @@ package body Editor.Input_Bridge.Panel_Bars_Pointer_Handlers is
          when Editor.Pending_Transition_Bar.Pending_Bar_Action_Zone =>
             Pointer_State.Reset_All;
             Editor.State.Clear_Gutter_Marker_Hover (S);
-            if Cmd.Kind = Editor.Commands.Move_To_Point then
+            if Cmd.Kind = Editor.Command_Kinds.Move_To_Point then
                Execute.all
                  (Editor.Pending_Transition_Bar.Command_For_Action (Hit.Action));
                Editor.Render_Cache.Invalidate_All;
@@ -94,7 +95,7 @@ package body Editor.Input_Bridge.Panel_Bars_Pointer_Handlers is
       Registry : Editor.Buffers.Buffer_Registry;
    begin
       if not Is_Minimap_Pointer_Command (Cmd.Kind)
-        and then Cmd.Kind /= Editor.Commands.Pointer_Hover
+        and then Cmd.Kind /= Editor.Command_Kinds.Pointer_Hover
       then
          return False;
       end if;
@@ -144,7 +145,7 @@ package body Editor.Input_Bridge.Panel_Bars_Pointer_Handlers is
          when Editor.Tab_Bar.Tab_Body_Zone =>
             Pointer_State.Reset_All;
             Editor.State.Clear_Gutter_Marker_Hover (S);
-            if Cmd.Kind = Editor.Commands.Move_To_Point
+            if Cmd.Kind = Editor.Command_Kinds.Move_To_Point
               and then Hit.Buffer_Id /= Editor.Buffers.No_Buffer
             then
                Editor.Executor.File_Open_Commands.Execute_Switch_Buffer
@@ -156,7 +157,7 @@ package body Editor.Input_Bridge.Panel_Bars_Pointer_Handlers is
          when Editor.Tab_Bar.Tab_Close_Zone =>
             Pointer_State.Reset_All;
             Editor.State.Clear_Gutter_Marker_Hover (S);
-            if Cmd.Kind = Editor.Commands.Move_To_Point
+            if Cmd.Kind = Editor.Command_Kinds.Move_To_Point
               and then Hit.Buffer_Id /= Editor.Buffers.No_Buffer
             then
                Editor.Executor.Buffer_Close_Commands.Execute_Close_Buffer
@@ -174,7 +175,7 @@ package body Editor.Input_Bridge.Panel_Bars_Pointer_Handlers is
       Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
    begin
       if not Is_Minimap_Pointer_Command (Cmd.Kind)
-        and then Cmd.Kind /= Editor.Commands.Pointer_Hover
+        and then Cmd.Kind /= Editor.Command_Kinds.Pointer_Hover
       then
          return False;
       end if;
@@ -215,8 +216,8 @@ package body Editor.Input_Bridge.Panel_Bars_Pointer_Handlers is
             Resize : constant Editor.Panels.Panel_Resize_State :=
               Editor.Panels.Resize_State (S.Panels);
          begin
-            if Cmd.Kind = Editor.Commands.Drag_To_Point
-              or else Cmd.Kind = Editor.Commands.Drag_Rectangle_To_Point
+            if Cmd.Kind = Editor.Command_Kinds.Drag_To_Point
+              or else Cmd.Kind = Editor.Command_Kinds.Drag_Rectangle_To_Point
             then
                Editor.Panels.Update_Resize
                  (Panels      => S.Panels,
@@ -231,7 +232,7 @@ package body Editor.Input_Bridge.Panel_Bars_Pointer_Handlers is
                end if;
                Editor.Render_Cache.Invalidate_All;
                return True;
-            elsif Cmd.Kind = Editor.Commands.Pointer_Hover then
+            elsif Cmd.Kind = Editor.Command_Kinds.Pointer_Hover then
                return True;
             else
                Editor.Panels.End_Resize (S.Panels);
@@ -246,7 +247,7 @@ package body Editor.Input_Bridge.Panel_Bars_Pointer_Handlers is
          end;
       end if;
 
-      if Cmd.Kind /= Editor.Commands.Move_To_Point then
+      if Cmd.Kind /= Editor.Command_Kinds.Move_To_Point then
          return False;
       end if;
 

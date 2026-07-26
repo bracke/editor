@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Payloads;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
@@ -486,7 +487,7 @@ package body Editor.Render_Model.Tests is
    function Paste (S : String) return Editor.Commands.Payloads.Command is
       Cmd : Editor.Commands.Payloads.Command;
    begin
-      Cmd.Kind := Editor.Commands.Paste_Text;
+      Cmd.Kind := Editor.Command_Kinds.Paste_Text;
       Cmd.Text := To_Unbounded_String (S);
       return Cmd;
    end Paste;
@@ -723,7 +724,7 @@ package body Editor.Render_Model.Tests is
       Editor.Executor.Execute_No_Log (S, Paste ("abc"));
 
       --  move into virtual space
-      Cmd.Kind := Editor.Commands.Move_Right;
+      Cmd.Kind := Editor.Command_Kinds.Move_Right;
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       --  extend selection
@@ -3551,7 +3552,7 @@ package body Editor.Render_Model.Tests is
       S.Preferred_Column := 1;
 
       Configure_Wrap_Test_Viewport (1, 4);
-      Cmd.Kind := Editor.Commands.Move_Down;
+      Cmd.Kind := Editor.Command_Kinds.Move_Down;
       Cmd.Shift := False;
       Cmd.Ch := ASCII.NUL;
       Cmd.Text := To_Unbounded_String (String'(1 => ASCII.NUL));
@@ -4292,7 +4293,7 @@ package body Editor.Render_Model.Tests is
          Height => Viewport_Height_For_Text_Rows (10));
 
       X := Natural (Editor.Minimap.Left_X (Layout, 800, Config));
-      Cmd.Kind := Editor.Commands.Move_To_Point;
+      Cmd.Kind := Editor.Command_Kinds.Move_To_Point;
       Cmd.Click_X := X;
       Cmd.Click_Y := Natural (Editor.Layout.Text_Viewport_Y (Layout)) + 50;
       Editor.Input_Bridge.Handle (Cmd);
@@ -4337,7 +4338,7 @@ package body Editor.Render_Model.Tests is
          Height => Viewport_Height_For_Text_Rows (10));
 
       X := Natural (Editor.Minimap.Left_X (Layout, 800, Config));
-      Cmd.Kind := Editor.Commands.Move_To_Point;
+      Cmd.Kind := Editor.Command_Kinds.Move_To_Point;
       Cmd.Click_X := X;
       Cmd.Click_Y := Natural (Editor.Layout.Text_Viewport_Y (Layout)) + 80;
       Editor.Input_Bridge.Handle (Cmd);
@@ -4380,13 +4381,13 @@ package body Editor.Render_Model.Tests is
          Height => Viewport_Height_For_Text_Rows (10));
 
       X := Natural (Editor.Minimap.Left_X (Layout, 800, Config));
-      Cmd.Kind := Editor.Commands.Move_To_Point;
+      Cmd.Kind := Editor.Command_Kinds.Move_To_Point;
       Cmd.Click_X := X;
       Cmd.Click_Y := Natural (Editor.Layout.Text_Viewport_Y (Layout)) + 10;
       Editor.Input_Bridge.Handle (Cmd);
       First_Y := Editor.View.Scroll_Y;
 
-      Cmd.Kind := Editor.Commands.Drag_To_Point;
+      Cmd.Kind := Editor.Command_Kinds.Drag_To_Point;
       Cmd.Click_X := X;
       Cmd.Click_Y := Natural (Editor.Layout.Text_Viewport_Y (Layout)) + 80;
       Editor.Input_Bridge.Handle (Cmd);
@@ -4430,7 +4431,7 @@ package body Editor.Render_Model.Tests is
          Height => Viewport_Height_For_Text_Rows (10));
 
       X := Natural (Editor.Minimap.Left_X (Layout, 800, Config));
-      Cmd.Kind := Editor.Commands.Move_To_Point;
+      Cmd.Kind := Editor.Command_Kinds.Move_To_Point;
       Cmd.Click_X := X;
       Cmd.Click_Y := Natural (Editor.Layout.Text_Viewport_Y (Layout)) + 80;
       Editor.Input_Bridge.Handle (Cmd);
@@ -4469,7 +4470,7 @@ package body Editor.Render_Model.Tests is
          Height => Viewport_Height_For_Text_Rows (Viewport_Rows));
 
       X := Natural (Editor.Minimap.Left_X (Layout, 800, Config));
-      Cmd.Kind := Editor.Commands.Move_To_Point;
+      Cmd.Kind := Editor.Command_Kinds.Move_To_Point;
       Cmd.Click_X := X;
       Cmd.Click_Y :=
         Editor.Layout.Text_Viewport_Y (Layout)

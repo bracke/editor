@@ -1,3 +1,4 @@
+with Editor.Command_Kinds;
 with Editor.Commands.Classification;
 with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Palette_Model; use Editor.Commands.Palette_Model;
