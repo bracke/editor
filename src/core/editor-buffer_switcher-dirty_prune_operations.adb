@@ -11,6 +11,24 @@ package body Editor.Buffer_Switcher.Dirty_Prune_Operations is
    use type Editor.Buffers.Buffer_Dirty_Category;
    use type Editor.Buffer_Switcher.Reviews.Pending_Marked_Action_Kind;
 
+   function Row_Is_Dirty_Prune_Target
+     (State : Buffer_Switcher_State;
+      Id    : Editor.Buffer_Types.Buffer_Id) return Boolean
+   is
+   begin
+      if Id = Editor.Buffers.No_Buffer then
+         return False;
+      end if;
+
+      for I in 1 .. Natural (State.Dirty_Prune_Targets.Length) loop
+         if State.Dirty_Prune_Targets (I - 1) = Id then
+            return True;
+         end if;
+      end loop;
+
+      return False;
+   end Row_Is_Dirty_Prune_Target;
+
    function Row_Is_Dirty_Prune_Apply_Target
      (State : Buffer_Switcher_State;
       Id    : Editor.Buffer_Types.Buffer_Id) return Boolean

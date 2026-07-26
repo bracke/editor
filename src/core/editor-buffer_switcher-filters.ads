@@ -28,4 +28,51 @@ package Editor.Buffer_Switcher.Filters is
    Group_Sort : constant Switcher_Sort_Mode := Editor.Buffer_Switcher_Model.Filters.Group_Sort;
    Label_Sort : constant Switcher_Sort_Mode := Editor.Buffer_Switcher_Model.Filters.Label_Sort;
 
+   procedure Clear_Metadata_Filter
+     (State : in out Editor.Buffer_Switcher.Buffer_Switcher_State);
+   procedure Set_Pinned_Filter
+     (State : in out Editor.Buffer_Switcher.Buffer_Switcher_State);
+   procedure Set_Group_Filter
+     (State : in out Editor.Buffer_Switcher.Buffer_Switcher_State;
+      Name  : String);
+   procedure Set_Label_Filter
+     (State : in out Editor.Buffer_Switcher.Buffer_Switcher_State;
+      Label : String);
+   procedure Set_Noted_Filter
+     (State : in out Editor.Buffer_Switcher.Buffer_Switcher_State);
+   procedure Set_Dirty_Filter
+     (State : in out Editor.Buffer_Switcher.Buffer_Switcher_State);
+   procedure Set_Clean_Filter
+     (State : in out Editor.Buffer_Switcher.Buffer_Switcher_State);
+   procedure Set_Missing_Or_Conflict_Filter
+     (State : in out Editor.Buffer_Switcher.Buffer_Switcher_State);
+   procedure Set_Project_Owned_Filter
+     (State : in out Editor.Buffer_Switcher.Buffer_Switcher_State);
+   procedure Set_Outside_Project_Filter
+     (State : in out Editor.Buffer_Switcher.Buffer_Switcher_State);
+   procedure Set_Scratch_Filter
+     (State : in out Editor.Buffer_Switcher.Buffer_Switcher_State);
+   function Has_Metadata_Filter
+     (State : Editor.Buffer_Switcher.Buffer_Switcher_State) return Boolean;
+   function Metadata_Filter
+     (State : Editor.Buffer_Switcher.Buffer_Switcher_State)
+      return Switcher_Metadata_Filter;
+   function Metadata_Filter_Description
+     (State : Editor.Buffer_Switcher.Buffer_Switcher_State) return String;
+
+   procedure Set_Sort_Mode
+     (State : in out Editor.Buffer_Switcher.Buffer_Switcher_State;
+      Mode  : Switcher_Sort_Mode);
+   procedure Clear_Sort_Mode
+     (State : in out Editor.Buffer_Switcher.Buffer_Switcher_State);
+   procedure Next_Sort_Mode
+     (State : in out Editor.Buffer_Switcher.Buffer_Switcher_State);
+   procedure Previous_Sort_Mode
+     (State : in out Editor.Buffer_Switcher.Buffer_Switcher_State);
+   function Sort_Mode
+     (State : Editor.Buffer_Switcher.Buffer_Switcher_State)
+      return Switcher_Sort_Mode;
+   function Sort_Mode_Description
+     (State : Editor.Buffer_Switcher.Buffer_Switcher_State) return String;
+
 end Editor.Buffer_Switcher.Filters;

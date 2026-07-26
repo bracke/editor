@@ -1207,7 +1207,10 @@ editor-buffer_switcher.adb
 editor-buffer_switcher.ads
 editor-buffer_switcher-audits.ads
 editor-buffer_switcher-config.ads
+editor-buffer_switcher-filters.adb
 editor-buffer_switcher-filters.ads
+editor-buffer_switcher-preview.adb
+editor-buffer_switcher-preview.ads
 editor-buffer_switcher-reviews.ads
 editor-buffer_switcher-rows.ads
 editor-buffer_switcher_model.ads
