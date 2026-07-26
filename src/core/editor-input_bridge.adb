@@ -1,36 +1,29 @@
 with Editor.Commands.Payloads;
 with Editor.Instance;
 with Editor.Input_Bridge.Active_Find_Handlers;
+with Editor.Input_Bridge.Async_Ticks;
 with Editor.Input_Bridge.Buffer_Switcher_Handlers;
 with Editor.Input_Bridge.Command_Palette_Handlers;
 with Editor.Input_Bridge.Command_Routing;
 with Editor.Input_Bridge.Command_Prompt_Routing;
-with Editor.Input_Bridge.Feature_Panel_Key_Handlers;
-with Editor.Input_Bridge.File_Target_Key_Handlers;
 with Editor.Input_Bridge.File_Target_Handlers;
-with Editor.Input_Bridge.File_Tree_Key_Handlers;
-with Editor.Input_Bridge.Goto_Line_Key_Handlers;
 with Editor.Input_Bridge.Goto_Line_Handlers;
 with Editor.Input_Bridge.Gutter_Pointer_Handlers;
 with Editor.Input_Bridge.Build_UI_Pointer_Handlers;
-with Editor.Input_Bridge.Build_UI_Key_Handlers;
-with Editor.Input_Bridge.Buffer_Switcher_Key_Handlers;
 with Editor.Input_Bridge.Keybinding_Handlers;
-with Editor.Input_Bridge.Key_Chord_Routing;
+with Editor.Input_Bridge.Keyboard_Dispatch;
 with Editor.Input_Bridge.Panel_Bars_Pointer_Handlers;
 with Editor.Input_Bridge.Panel_Feature_Problems_Pointer_Handlers;
-with Editor.Input_Bridge.Panel_Focus_Key_Handlers;
 with Editor.Input_Bridge.Panel_Tree_Search_Pointer_Handlers;
-with Editor.Input_Bridge.Project_Search_Key_Handlers;
 with Editor.Input_Bridge.Project_Search_Bar_Handlers;
 with Editor.Input_Bridge.Pointer_Scroll_Handlers;
 with Editor.Input_Bridge.Pointer_Surface_Handlers;
 with Editor.Input_Bridge.Pointer_State;
-with Editor.Input_Bridge.Quick_Open_Key_Handlers;
 with Editor.Input_Bridge.Quick_Open_Handlers;
-with Editor.Input_Bridge.Render_Access;
+with Editor.Input_Bridge.Render_Interface;
 with Editor.Input_Bridge.Outline_Filter_Handlers;
 with Editor.Input_Bridge.Search_Query_Handlers;
+with Editor.Input_Bridge.Text_Entry_Dispatch;
 with Editor.Input_Bridge.Text_Entry_Routing;
 with Editor.Input_Bridge.Wheel_Handlers;
 with Editor.Commands;
@@ -88,7 +81,6 @@ with Editor.Executor.File_Target_Prompt_Commands;
 with Editor.Executor.File_Tree_Navigation_Commands;
 with Editor.Executor.File_Tree_Commands;
 with Editor.Executor.Find_Replace_Commands;
-with Editor.Executor.Find_Replace_Input_Commands;
 with Editor.Executor.Message_Commands;
 with Editor.Executor.Outline_Commands;
 with Editor.Executor.Project_Lifecycle_Commands;
@@ -96,7 +88,6 @@ with Editor.Executor.Project_Search_Result_Commands;
 with Editor.Executor.Project_Search_Surface_Commands;
 with Editor.Executor.Search_Commands;
 with Editor.Executor.Search_Results_Commands;
-with Editor.Executor.Clipboard;
 with Editor.Executor.Diagnostics_Commands;
 with Editor.Executor.Navigation;
 with Editor.Executor.Quick_Open_Commands;
@@ -118,10 +109,6 @@ with Editor.Input_Field;
 with Editor.Theme;
 with Editor.Focus_Management;
 with Editor.Guided_Prompts;
-with Editor.Build_Command;
-with Editor.External_Producers;
-with Editor.External_Producers.Build_Requests;
-with Editor.Terminal_Tasks;
 
 use type Editor.Problems.Problems_Severity_Filter;
 use type Editor.Build_UI_Panel_Layout.Build_UI_Panel_Zone;
@@ -1442,23 +1429,6 @@ use type Editor.Guided_Prompts.Prompt_Kind;
    procedure Handle_Key_Chord
      (Chord : Editor.Keybindings.Key_Chord)
    is
-      Id  : Editor.Commands.Command_Id;
-      Cmd : Editor.Commands.Payloads.Command;
-
-      procedure Execute_Command_Id_Default
-        (Command_Id : Editor.Commands.Command_Id)
-      is
-      begin
-         Execute_Command_Id (Command_Id);
-      end Execute_Command_Id_Default;
-
-      procedure Execute_Instance_Command_Default
-        (Command : Editor.Commands.Payloads.Command)
-      is
-      begin
-         Editor.Instance.Execute (The_Editor, Command);
-      end Execute_Instance_Command_Default;
-
       procedure Execute_Command_Id_With_Shift
         (Command_Id : Editor.Commands.Command_Id;
          Shift      : Boolean)
@@ -1466,180 +1436,15 @@ use type Editor.Guided_Prompts.Prompt_Kind;
       begin
          Execute_Command_Id (Command_Id, Shift);
       end Execute_Command_Id_With_Shift;
-
-      procedure Execute_Active_Find_Previous_Default is
-      begin
-         Execute_Command_Id (Editor.Commands.Command_Active_Find_Previous);
-      end Execute_Active_Find_Previous_Default;
-
-      procedure Hide_Active_Find_Default is
-      begin
-         Cmd.Kind := Editor.Commands.Active_Find_Hide;
-         Editor.Instance.Execute (The_Editor, Cmd);
-      end Hide_Active_Find_Default;
    begin
-      pragma Assert (Initialized,
-         "Input_Bridge must be initialized before handling key chords");
-
-      if Key_Chord_Routing.Handle_Pre_Bound_Chord
-        (The_Editor.State,
+      Editor.Input_Bridge.Keyboard_Dispatch.Handle_Key_Chord
+        (The_Editor,
+         Initialized,
          Chord,
          Accept_Guided_Prompt_Enter'Access,
          Report_Info'Access,
-         Execute_Command_Id_With_Shift'Access,
-         Execute_Command_Id_Default'Access,
-         Execute_Active_Find_Previous_Default'Access,
-         Hide_Active_Find_Default'Access)
-      then
-         return;
-      end if;
-
-      if Key_Chord_Routing.Handle_Focused_Surface_Pre_Bound_Chord
-        (The_Editor.State, Chord, Execute_Command_Id_Default'Access)
-      then
-         return;
-      end if;
-
-      if Editor.Keybindings.Resolve (Chord, Id) = Editor.Keybindings.Bound_Command then
-         Cmd := Editor.Commands.Payloads.Command_For_Id (Id, Chord.Modifiers.Shift);
-
-         if Editor.Overlay_Focus.Is_Active
-           (The_Editor.State.Overlay_Focus,
-            Editor.Overlay_Focus.Command_Palette_Overlay)
-         then
-            if Handle_Command_Palette (Cmd) then
-               Editor.Cursor.Notify_Input
-                 (Float (Editor.View.Current_Time_Seconds));
-            end if;
-         elsif Editor.Input_Bridge.Quick_Open_Key_Handlers
-           .Handle_Quick_Open_Key
-             (The_Editor.State, Chord,
-              Execute_Command_Id_Default'Access,
-              Execute_Instance_Command_Default'Access)
-         then
-            null;
-         elsif Editor.Input_Bridge.Buffer_Switcher_Key_Handlers
-           .Handle_Buffer_Switcher_Key
-             (The_Editor.State, Chord,
-              Execute_Command_Id_Default'Access,
-              Execute_Instance_Command_Default'Access)
-         then
-            null;
-         elsif Editor.Input_Bridge.Project_Search_Key_Handlers
-           .Handle_Project_Search_Bar_Key
-             (The_Editor.State, Chord,
-              Execute_Command_Id_Default'Access,
-              Execute_Instance_Command_Default'Access)
-         then
-            null;
-         elsif Editor.Input_Bridge.File_Target_Key_Handlers
-           .Handle_File_Target_Key (The_Editor.State, Chord)
-         then
-            null;
-         elsif Editor.Input_Bridge.Goto_Line_Key_Handlers
-           .Handle_Goto_Line_Key
-             (The_Editor.State, Chord,
-              Execute_Command_Id_Default'Access,
-              Execute_Instance_Command_Default'Access)
-         then
-            null;
-         elsif Editor.Overlay_Focus.Is_Active
-           (The_Editor.State.Overlay_Focus,
-            Editor.Overlay_Focus.Active_Find_Prompt_Overlay)
-           and then (Id = Editor.Commands.Command_Active_Find_Next
-                     or else Id = Editor.Commands.Command_Active_Find_Previous
-                     or else Id = Editor.Commands.Command_Find_First
-                     or else Id = Editor.Commands.Command_Find_Last
-                     or else Id = Editor.Commands.Command_Find_Reveal_Current
-                     or else Id = Editor.Commands.Command_Find_From_Selection
-                     or else Id = Editor.Commands.Command_Find_From_Active_Word
-                     or else Id = Editor.Commands.Command_Find_Query_Clear
-                     or else Id = Editor.Commands.Command_Find_Case_Toggle
-                     or else Id = Editor.Commands.Command_Find_Case_Clear
-                     or else Id = Editor.Commands.Command_Find_Whole_Word_Toggle
-                     or else Id = Editor.Commands.Command_Find_Whole_Word_Clear
-                     or else Id = Editor.Commands.Command_Replace_Show
-                     or else Id = Editor.Commands.Command_Replace_Hide
-                     or else Id = Editor.Commands.Command_Replace_Toggle
-                     or else Id = Editor.Commands.Command_Replace_Text_Clear
-                     or else Id = Editor.Commands.Command_Replace_Current
-                     or else Id = Editor.Commands.Command_Replace_All)
-         then
-            Execute_Command_Id (Id, Shift => Chord.Modifiers.Shift);
-            Editor.Cursor.Notify_Input
-              (Float (Editor.View.Current_Time_Seconds));
-         elsif The_Editor.State.Active_Find_Prompt
-           and then Editor.Overlay_Focus.Is_Active
-             (The_Editor.State.Overlay_Focus,
-              Editor.Overlay_Focus.Active_Find_Prompt_Overlay)
-         then
-            case Chord.Key is
-               when Editor.Keybindings.Key_Enter =>
-                  if Chord.Modifiers.Shift then
-                     Execute_Command_Id (Editor.Commands.Command_Active_Find_Previous);
-                  else
-                     Execute_Command_Id (Editor.Commands.Command_Active_Find_Next);
-                  end if;
-               when Editor.Keybindings.Key_Escape =>
-                  Execute_Command_Id (Editor.Commands.Command_Find_Hide);
-               when Editor.Keybindings.Key_Tab =>
-                  null;
-               when Editor.Keybindings.Key_Backspace =>
-                  Cmd.Kind := Editor.Commands.Active_Find_Input_Backspace;
-                  Editor.Instance.Execute (The_Editor, Cmd);
-               when Editor.Keybindings.Key_Delete =>
-                  Cmd.Kind := Editor.Commands.Active_Find_Input_Delete_Forward;
-                  Editor.Instance.Execute (The_Editor, Cmd);
-               when Editor.Keybindings.Key_Left =>
-                  Editor.Executor.Find_Replace_Input_Commands.Execute_Active_Find_Input_Move_Cursor_Left
-                    (The_Editor.State);
-               when Editor.Keybindings.Key_Right =>
-                  Editor.Executor.Find_Replace_Input_Commands.Execute_Active_Find_Input_Move_Cursor_Right
-                    (The_Editor.State);
-               when Editor.Keybindings.Key_Home =>
-                  Editor.Executor.Find_Replace_Input_Commands.Execute_Active_Find_Input_Move_Cursor_Start
-                    (The_Editor.State);
-               when Editor.Keybindings.Key_End =>
-                  Editor.Executor.Find_Replace_Input_Commands.Execute_Active_Find_Input_Move_Cursor_End
-                    (The_Editor.State);
-               when Editor.Keybindings.Key_V =>
-                  if Chord.Modifiers.Ctrl then
-                     Cmd.Kind := Editor.Commands.Active_Find_Input_Insert_Text;
-                     Cmd.Text :=
-                       Editor.Executor.Clipboard.Text_For_Local_Input;
-                     Editor.Instance.Execute (The_Editor, Cmd);
-                  end if;
-               when others =>
-                  null;
-            end case;
-            Editor.Cursor.Notify_Input
-              (Float (Editor.View.Current_Time_Seconds));
-         elsif Editor.Input_Bridge.Feature_Panel_Key_Handlers
-           .Handle_Feature_Panel_Key
-             (The_Editor.State, Chord, Execute_Command_Id_Default'Access)
-         then
-            null;
-         elsif Editor.Input_Bridge.File_Tree_Key_Handlers.Handle_File_Tree_Key
-           (The_Editor.State, Chord, Execute_Command_Id_Default'Access)
-         then
-            null;
-         elsif Editor.Input_Bridge.Build_UI_Key_Handlers.Handle_Build_UI_Key
-           (The_Editor.State, Chord,
-            Execute_Command_Id_Default'Access,
-            Report_Info'Access)
-         then
-            null;
-         elsif Editor.Input_Bridge.Panel_Focus_Key_Handlers
-           .Handle_Focused_Surface_Key
-             (The_Editor.State, Chord, Execute_Command_Id_Default'Access)
-         then
-            null;
-         else
-            Execute_Command_Id (Id, Shift => Chord.Modifiers.Shift);
-            Editor.Cursor.Notify_Input
-              (Float (Editor.View.Current_Time_Seconds));
-         end if;
-      end if;
+         Handle_Command_Palette'Access,
+         Execute_Command_Id_With_Shift'Access);
    end Handle_Key_Chord;
 
 
@@ -1696,38 +1501,12 @@ use type Editor.Guided_Prompts.Prompt_Kind;
          end case;
       end if;
 
-      if Editor.Guided_Prompts.Is_Active (The_Editor.State.Guided_Prompt) then
-         case Cmd.Kind is
-            when Editor.Commands.Insert_Text_Input =>
-               if Editor.Input_Bridge.Keybinding_Handlers
-                 .Consume_Keybinding_Text_Input
-                   (The_Editor.State.Guided_Prompt, Cmd)
-               then
-                  null;
-               elsif Cmd.Ch = ASCII.LF or else Cmd.Ch = ASCII.CR then
-                  Accept_Guided_Prompt_Enter;
-               elsif Cmd.Ch = ASCII.ESC then
-                  Editor.Guided_Prompts.Cancel (The_Editor.State.Guided_Prompt);
-                  Report_Info ("Prompt cancelled.");
-               elsif Length (Cmd.Text) > 0 then
-                  Editor.Guided_Prompts.Insert_Text
-                    (The_Editor.State.Guided_Prompt, To_String (Cmd.Text));
-               elsif Cmd.Ch /= ASCII.NUL then
-                  Editor.Guided_Prompts.Insert_Text
-                    (The_Editor.State.Guided_Prompt, String'(1 => Cmd.Ch));
-               end if;
-            when Editor.Commands.Delete_Char
-               | Editor.Commands.Delete_Previous_Character =>
-               Editor.Guided_Prompts.Backspace (The_Editor.State.Guided_Prompt);
-            when Editor.Commands.Forward_Delete_Char
-               | Editor.Commands.Delete_Next_Character =>
-               Editor.Guided_Prompts.Delete_Forward (The_Editor.State.Guided_Prompt);
-            when Editor.Commands.Split_Current_Line_At_Caret =>
-               Accept_Guided_Prompt_Enter;
-            when others =>
-               null;
-         end case;
-         Editor.Render_Cache.Invalidate_All;
+      if Editor.Input_Bridge.Text_Entry_Dispatch.Handle_Guided_Prompt_Input
+        (The_Editor.State,
+         Cmd,
+         Accept_Guided_Prompt_Enter'Access,
+         Report_Info'Access)
+      then
          Editor.Cursor.Notify_Input
            (Float (Editor.View.Current_Time_Seconds));
          return;
@@ -2015,175 +1794,115 @@ use type Editor.Guided_Prompts.Prompt_Kind;
    procedure Build_Render_Packet
    (Packet : out Editor.Render_Packet.Render_Packet) is
    begin
-      pragma Assert (Initialized,
-       "Input_Bridge must be initialized before rendering");
-
-      Editor.Render_Packet.Build_Render_Packet (Packet);
+      Editor.Input_Bridge.Render_Interface.Build_Render_Packet
+        (Initialized, Packet);
    end Build_Render_Packet;
 
    procedure Get_Render_Snapshot
      (Out_Snapshot : out Editor.Render_Model.Render_Snapshot) is
    begin
-      pragma Assert (Initialized,
-         "Input_Bridge must be initialized before rendering");
-
-      Editor.Input_Bridge.Render_Access.Get_Render_Snapshot
-        (The_Editor.State, Out_Snapshot);
+      Editor.Input_Bridge.Render_Interface.Get_Render_Snapshot
+        (The_Editor, Initialized, Out_Snapshot);
    end Get_Render_Snapshot;
 
    procedure Get_File_Tree_For_Render
      (Out_Tree : out Editor.File_Tree.File_Tree_State)
    is
    begin
-      pragma Assert (Initialized,
-         "Input_Bridge must be initialized before rendering file tree");
-
-      Out_Tree := Editor.Input_Bridge.Render_Access.File_Tree_For_Render
-        (The_Editor.State);
+      Editor.Input_Bridge.Render_Interface.Get_File_Tree_For_Render
+        (The_Editor, Initialized, Out_Tree);
    end Get_File_Tree_For_Render;
 
    procedure Get_Problems_For_Render
      (Out_Snapshot : out Editor.Problems.Problems_Snapshot)
    is
    begin
-      pragma Assert (Initialized,
-         "Input_Bridge must be initialized before rendering problems");
-
-      Out_Snapshot := Editor.Input_Bridge.Render_Access.Problems_For_Render
-        (The_Editor.State);
+      Editor.Input_Bridge.Render_Interface.Get_Problems_For_Render
+        (The_Editor, Initialized, Out_Snapshot);
    end Get_Problems_For_Render;
 
    function Problems_Total_Count_For_Render return Natural is
    begin
-      pragma Assert (Initialized,
-         "Input_Bridge must be initialized before rendering problem count");
-      return Editor.Input_Bridge.Render_Access.Problems_Total_Count_For_Render
-        (The_Editor.State);
+      return Editor.Input_Bridge.Render_Interface.Problems_Total_Count_For_Render
+        (The_Editor, Initialized);
    end Problems_Total_Count_For_Render;
 
    procedure Get_Search_Results_For_Render
      (Out_Snapshot : out Editor.Search_Results.Search_Results_Snapshot)
    is
    begin
-      pragma Assert (Initialized,
-         "Input_Bridge must be initialized before rendering search results");
-
-      Out_Snapshot := Editor.Input_Bridge.Render_Access.Search_Results_For_Render
-        (The_Editor.State);
+      Editor.Input_Bridge.Render_Interface.Get_Search_Results_For_Render
+        (The_Editor, Initialized, Out_Snapshot);
    end Get_Search_Results_For_Render;
 
    function Search_Results_Focused_For_Render return Boolean is
    begin
-      pragma Assert (Initialized,
-         "Input_Bridge must be initialized before rendering focus state");
-      return Editor.Input_Bridge.Render_Access.Search_Results_Focused_For_Render
-        (The_Editor.State);
+      return Editor.Input_Bridge.Render_Interface.Search_Results_Focused_For_Render
+        (The_Editor, Initialized);
    end Search_Results_Focused_For_Render;
 
    function Problems_Focused_For_Render return Boolean is
    begin
-      pragma Assert (Initialized,
-         "Input_Bridge must be initialized before rendering focus state");
-      return Editor.Input_Bridge.Render_Access.Problems_Focused_For_Render
-        (The_Editor.State);
+      return Editor.Input_Bridge.Render_Interface.Problems_Focused_For_Render
+        (The_Editor, Initialized);
    end Problems_Focused_For_Render;
 
    function File_Tree_Focused_For_Render return Boolean is
    begin
-      pragma Assert (Initialized,
-         "Input_Bridge must be initialized before rendering file tree focus state");
-      return Editor.Input_Bridge.Render_Access.File_Tree_Focused_For_Render
-        (The_Editor.State);
+      return Editor.Input_Bridge.Render_Interface.File_Tree_Focused_For_Render
+        (The_Editor, Initialized);
    end File_Tree_Focused_For_Render;
 
    function Feature_Panel_For_Render return Editor.Feature_Panel.Feature_Panel_State is
    begin
-      pragma Assert (Initialized,
-         "Input_Bridge must be initialized before rendering feature panel");
-      return Editor.Input_Bridge.Render_Access.Feature_Panel_For_Render
-        (The_Editor.State);
+      return Editor.Input_Bridge.Render_Interface.Feature_Panel_For_Render
+        (The_Editor, Initialized);
    end Feature_Panel_For_Render;
 
    function Feature_Panel_Focused_For_Render return Boolean is
    begin
-      pragma Assert (Initialized,
-         "Input_Bridge must be initialized before rendering feature panel focus state");
-      return Editor.Input_Bridge.Render_Access.Feature_Panel_Focused_For_Render
-        (The_Editor.State);
+      return Editor.Input_Bridge.Render_Interface.Feature_Panel_Focused_For_Render
+        (The_Editor, Initialized);
    end Feature_Panel_Focused_For_Render;
 
    function File_Tree_View_For_Render return Editor.File_Tree_View.File_Tree_View_State is
    begin
-      pragma Assert (Initialized,
-         "Input_Bridge must be initialized before rendering file tree view state");
-      return Editor.Input_Bridge.Render_Access.File_Tree_View_For_Render
-        (The_Editor.State);
+      return Editor.Input_Bridge.Render_Interface.File_Tree_View_For_Render
+        (The_Editor, Initialized);
    end File_Tree_View_For_Render;
 
    function Problems_View_For_Render return Editor.Problems.Problems_View_State is
    begin
-      pragma Assert (Initialized,
-         "Input_Bridge must be initialized before rendering problems view state");
-      return Editor.Input_Bridge.Render_Access.Problems_View_For_Render
-        (The_Editor.State);
+      return Editor.Input_Bridge.Render_Interface.Problems_View_For_Render
+        (The_Editor, Initialized);
    end Problems_View_For_Render;
 
    function Project_Search_For_Render
      return Editor.Project_Search.Project_Search_State
    is
    begin
-      pragma Assert (Initialized,
-         "Input_Bridge must be initialized before rendering project search");
-      return Editor.Input_Bridge.Render_Access.Project_Search_For_Render
-        (The_Editor.State);
+      return Editor.Input_Bridge.Render_Interface.Project_Search_For_Render
+        (The_Editor, Initialized);
    end Project_Search_For_Render;
 
    function Active_Diagnostic_For_Render return Editor.Diagnostics.Diagnostic_Index
    is
    begin
-      return Editor.Input_Bridge.Render_Access.Active_Diagnostic_For_Render
-        (The_Editor.State);
+      return Editor.Input_Bridge.Render_Interface.Active_Diagnostic_For_Render
+        (The_Editor);
    end Active_Diagnostic_For_Render;
 
    procedure Tick_Async_Build_Jobs is
-      Result    : Editor.External_Producers.Build_Requests.Build_Command_Result;
-      Completed : Boolean := False;
    begin
-      pragma Assert (Initialized,
-         "Input_Bridge must be initialized before ticking async build jobs");
-
-      if Editor.Build_Command.Has_Queued_Public_Build_Job (The_Editor.State) then
-         Completed := Editor.Build_Command.Poll_Public_Build_Run_Completion
-           (The_Editor.State, Result);
-
-         if Completed then
-            Report_Info (To_String (Result.Command_Message));
-         end if;
-
-         --  Even a non-completing poll can import stdout/stderr stream snapshots
-         --  from the worker-owned process handoff.  Invalidate unconditionally
-         --  while a public build job is queued so idle frames can show partial
-         --  output without waiting for another user command.
-         Editor.Render_Cache.Invalidate_All;
-      end if;
+      Editor.Input_Bridge.Async_Ticks.Tick_Async_Build_Jobs
+        (The_Editor, Initialized, Report_Info'Access);
    end Tick_Async_Build_Jobs;
 
 
    procedure Tick_Messages is
-      Had_Messages : Boolean := False;
    begin
-      pragma Assert (Initialized,
-         "Input_Bridge must be initialized before ticking messages");
-
-      Had_Messages := not Editor.Messages.Is_Empty (The_Editor.State.Messages);
-      Editor.Messages.Tick
-        (The_Editor.State.Messages,
-         (if Editor.View.Current_Time_Seconds <= 0.0 then 0
-          elsif Editor.View.Current_Time_Seconds >= Duration (Natural'Last / 1000) then Natural'Last
-          else Natural (Float (Editor.View.Current_Time_Seconds) * 1000.0)));
-      if Had_Messages then
-         Editor.Render_Cache.Invalidate_All;
-      end if;
+      Editor.Input_Bridge.Async_Ticks.Tick_Messages
+        (The_Editor, Initialized);
    end Tick_Messages;
 
    function Get_State_For_Test return Editor.State.State_Type is

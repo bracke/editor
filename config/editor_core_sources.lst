@@ -1727,6 +1727,10 @@ editor-input.adb
 editor-input.ads
 editor-input_bridge-render_access.adb
 editor-input_bridge-render_access.ads
+editor-input_bridge-render_interface.adb
+editor-input_bridge-render_interface.ads
+editor-input_bridge-async_ticks.adb
+editor-input_bridge-async_ticks.ads
 editor-input_bridge-active_find_handlers.adb
 editor-input_bridge-active_find_handlers.ads
 editor-input_bridge-active_find_key_handlers.adb
@@ -1769,6 +1773,8 @@ editor-input_bridge-keybinding_handlers.adb
 editor-input_bridge-keybinding_handlers.ads
 editor-input_bridge-key_chord_routing.adb
 editor-input_bridge-key_chord_routing.ads
+editor-input_bridge-keyboard_dispatch.adb
+editor-input_bridge-keyboard_dispatch.ads
 editor-input_bridge-outline_filter_handlers.adb
 editor-input_bridge-outline_filter_handlers.ads
 editor-input_bridge-panel_bars_pointer_handlers.adb
@@ -1791,6 +1797,8 @@ editor-input_bridge-quick_open_handlers.adb
 editor-input_bridge-quick_open_handlers.ads
 editor-input_bridge-search_query_handlers.adb
 editor-input_bridge-search_query_handlers.ads
+editor-input_bridge-text_entry_dispatch.adb
+editor-input_bridge-text_entry_dispatch.ads
 editor-input_bridge-pointer_routing.adb
 editor-input_bridge-pointer_routing.ads
 editor-input_bridge-pointer_scroll_handlers.adb
