@@ -1319,6 +1319,16 @@ editor-command_execution.adb
 editor-command_execution.ads
 editor-command_palette.adb
 editor-command_palette.ads
+editor-command_palette-filters.adb
+editor-command_palette-filters.ads
+editor-command_palette-guikit_model.adb
+editor-command_palette-guikit_model.ads
+editor-command_palette-help.adb
+editor-command_palette-help.ads
+editor-command_palette-rows.adb
+editor-command_palette-rows.ads
+editor-command_palette-state.adb
+editor-command_palette-state.ads
 editor-command_palette-surface_rendering.adb
 editor-command_palette-surface_rendering.ads
 editor-feature_panel-surface_rendering.adb

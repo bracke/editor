@@ -3,11 +3,15 @@ with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Containers; use type Ada.Containers.Count_Type;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Guikit.Palette;
 with Editor.Contextual_Help;
 with Editor.Input_Field;
 with Editor.Keybindings;
 with Editor.Text_Helpers;
+with Editor.Command_Palette.Filters;
+with Editor.Command_Palette.Guikit_Model;
+with Editor.Command_Palette.Help;
+with Editor.Command_Palette.Rows;
+with Editor.Command_Palette.State;
 
 with Editor.Commands.Name_Metadata;
 
@@ -19,24 +23,19 @@ package body Editor.Command_Palette is
    use type Editor.Commands.Descriptors.Command_Category;
    use type Editor.Commands.Descriptors.Command_Visibility;
 
-   State : Palette_State;
-   Config_State : Command_Palette_Config;
-   Filter_Field : Editor.Input_Field.Input_Field_State;
-   Availability_Filter_State : Command_Palette_Availability_Filter :=
-     Palette_All_Commands;
-   Category_Filter_Active : Boolean := False;
-   Category_Filter_Label_State : Unbounded_String := Null_Unbounded_String;
-   Destructive_Filter_State : Boolean := False;
-   Keybinding_Filter_State : Command_Palette_Keybinding_Filter :=
-     Palette_All_Keybinding_States;
-   type Command_State_Context_Array is
-     array (Editor.Commands.Command_Id) of Unbounded_String;
-   Command_State_Contexts : Command_State_Context_Array :=
-     (others => Null_Unbounded_String);
+   Palette_State_Ref : constant Editor.Command_Palette.State.Palette_State_Access :=
+     Editor.Command_Palette.State.Mutable_Palette_State;
+   Config_State_Ref : constant Editor.Command_Palette.State.Command_Palette_Config_Access :=
+     Editor.Command_Palette.State.Mutable_Config;
+   Filter_Field_Ref : constant Editor.Command_Palette.State.Input_Field_State_Access :=
+     Editor.Command_Palette.State.Mutable_Filter_Field;
 
+   Palette_State_Store : Palette_State renames Palette_State_Ref.all;
+   Config_State : Command_Palette_Config renames Config_State_Ref.all;
+   Filter_Field : Editor.Input_Field.Input_Field_State renames Filter_Field_Ref.all;
    procedure Sync_Query is
    begin
-      State.Query := To_Unbounded_String (Editor.Input_Field.Text (Filter_Field));
+      Palette_State_Store.Query := To_Unbounded_String (Editor.Input_Field.Text (Filter_Field));
    end Sync_Query;
 
    procedure Clamp_Selection;
@@ -80,183 +79,84 @@ package body Editor.Command_Palette is
 
    procedure Clear_Transient_Filters is
    begin
-      Availability_Filter_State := Palette_All_Commands;
-      Category_Filter_Active := False;
-      Category_Filter_Label_State := Null_Unbounded_String;
-      Destructive_Filter_State := False;
-      Keybinding_Filter_State := Palette_All_Keybinding_States;
+      Editor.Command_Palette.Filters.Clear_Transient_Filters;
    end Clear_Transient_Filters;
 
    function Transient_State_Clear return Boolean is
    begin
-      return (not State.Open)
-        and then State.Selected_Item = 0
-        and then State.Selected_Candidate_Index = 0
-        and then State.Selected_Command_Id = Editor.Commands.No_Command
-        and then State.Top_Row = 1
+      return (not Palette_State_Store.Open)
+        and then Palette_State_Store.Selected_Item = 0
+        and then Palette_State_Store.Selected_Candidate_Index = 0
+        and then Palette_State_Store.Selected_Command_Id = Editor.Commands.No_Command
+        and then Palette_State_Store.Top_Row = 1
         and then not Config_State.Show_Help_Row
-        and then Availability_Filter_State = Palette_All_Commands
-        and then not Category_Filter_Active
-        and then Length (Category_Filter_Label_State) = 0
-        and then not Destructive_Filter_State
-        and then Keybinding_Filter_State = Palette_All_Keybinding_States;
+        and then Editor.Command_Palette.Filters.Transient_Filters_Clear;
    end Transient_State_Clear;
 
    procedure Set_Availability_Filter
      (Filter : Command_Palette_Availability_Filter) is
    begin
-      Availability_Filter_State := Filter;
+      Editor.Command_Palette.Filters.Set_Availability_Filter (Filter);
       Clamp_Selection;
    end Set_Availability_Filter;
 
    function Current_Availability_Filter
       return Command_Palette_Availability_Filter is
    begin
-      return Availability_Filter_State;
+      return Editor.Command_Palette.Filters.Current_Availability_Filter;
    end Current_Availability_Filter;
 
    procedure Set_Category_Filter_Label (Label : String) is
    begin
-      Category_Filter_Active := Label'Length > 0;
-      Category_Filter_Label_State := To_Unbounded_String (Label);
+      Editor.Command_Palette.Filters.Set_Category_Filter_Label (Label);
       Clamp_Selection;
    end Set_Category_Filter_Label;
 
    procedure Clear_Category_Filter is
    begin
-      Category_Filter_Active := False;
-      Category_Filter_Label_State := Null_Unbounded_String;
+      Editor.Command_Palette.Filters.Clear_Category_Filter;
       Clamp_Selection;
    end Clear_Category_Filter;
 
    function Has_Category_Filter return Boolean is
    begin
-      return Category_Filter_Active;
+      return Editor.Command_Palette.Filters.Has_Category_Filter;
    end Has_Category_Filter;
 
    function Current_Category_Filter_Label return String is
    begin
-      return To_String (Category_Filter_Label_State);
+      return Editor.Command_Palette.Filters.Current_Category_Filter_Label;
    end Current_Category_Filter_Label;
 
    procedure Set_Destructive_Filter (Enabled : Boolean) is
    begin
-      Destructive_Filter_State := Enabled;
+      Editor.Command_Palette.Filters.Set_Destructive_Filter (Enabled);
       Clamp_Selection;
    end Set_Destructive_Filter;
 
    function Destructive_Filter_Enabled return Boolean is
    begin
-      return Destructive_Filter_State;
+      return Editor.Command_Palette.Filters.Destructive_Filter_Enabled;
    end Destructive_Filter_Enabled;
 
    procedure Set_Keybinding_Filter
      (Filter : Command_Palette_Keybinding_Filter) is
    begin
-      Keybinding_Filter_State := Filter;
+      Editor.Command_Palette.Filters.Set_Keybinding_Filter (Filter);
       Clamp_Selection;
    end Set_Keybinding_Filter;
 
    function Current_Keybinding_Filter return Command_Palette_Keybinding_Filter is
    begin
-      return Keybinding_Filter_State;
+      return Editor.Command_Palette.Filters.Current_Keybinding_Filter;
    end Current_Keybinding_Filter;
 
    function Lower (S : String) return String
      renames Editor.Text_Helpers.Lower;
 
-   function Product_Facing_Classification_Label (Text : String) return String is
-      Source : constant String := Lower (Text);
-      Result : Unbounded_String := Null_Unbounded_String;
-
-      procedure Add (Item : String) is
-      begin
-         if Length (Result) > 0 then
-            Append (Result, ", ");
-         end if;
-         Append (Result, Item);
-      end Add;
-   begin
-      if Ada.Strings.Fixed.Index (Source, "destructive") /= 0 then
-         Add ("destructive");
-      end if;
-      if Ada.Strings.Fixed.Index (Source, "lifecycle") /= 0 then
-         Add ("project/file safety");
-      end if;
-      if Ada.Strings.Fixed.Index (Source, "configuration") /= 0 then
-         Add ("configuration");
-      end if;
-      if Ada.Strings.Fixed.Index (Source, "navigation") /= 0 then
-         Add ("navigation");
-      end if;
-      if Ada.Strings.Fixed.Index (Source, "search") /= 0 then
-         Add ("search");
-      end if;
-      if Ada.Strings.Fixed.Index (Source, "panel") /= 0 then
-         Add ("panel");
-      end if;
-      if Ada.Strings.Fixed.Index (Source, "editing") /= 0 then
-         Add ("editing");
-      end if;
-      if Ada.Strings.Fixed.Index (Source, "non-bindable") /= 0 then
-         Add ("non-bindable");
-      end if;
-      if Length (Result) = 0 then
-         Add ("command");
-      end if;
-      return To_String (Result);
-   end Product_Facing_Classification_Label;
-
    function Candidate_Passes_Transient_Filters
      (Candidate : Editor.Commands.Palette_Model.Command_Palette_Candidate) return Boolean
-   is
-      Category_Text : constant String := To_String (Candidate.Category_Label);
-   begin
-      case Availability_Filter_State is
-         when Palette_All_Commands =>
-            null;
-         when Palette_Available_Only =>
-            if not Candidate.Available then
-               return False;
-            end if;
-         when Palette_Unavailable_Only =>
-            if Candidate.Available then
-               return False;
-            end if;
-      end case;
-
-      if Category_Filter_Active
-        and then Lower (Category_Text) /= Lower (To_String (Category_Filter_Label_State))
-      then
-         return False;
-      end if;
-
-      if Destructive_Filter_State
-        and then not Editor.Commands.Is_Destructive_Command (Candidate.Id)
-      then
-         return False;
-      end if;
-
-      case Keybinding_Filter_State is
-         when Palette_All_Keybinding_States =>
-            null;
-         when Palette_Bound_Commands_Only =>
-            if not Candidate.Has_Keybinding then
-               return False;
-            end if;
-         when Palette_Unbound_Bindable_Commands_Only =>
-            declare
-               D : constant Editor.Commands.Descriptors.Command_Descriptor :=
-                 Editor.Commands.Descriptors.Descriptor (Candidate.Id);
-            begin
-               if (not D.Bindable) or else Candidate.Has_Keybinding then
-                  return False;
-               end if;
-            end;
-      end case;
-
-      return True;
-   end Candidate_Passes_Transient_Filters;
+     renames Editor.Command_Palette.Filters.Candidate_Passes_Transient_Filters;
 
    function Candidate_Is_Currently_Visible
      (Candidate : Editor.Commands.Palette_Model.Command_Palette_Candidate) return Boolean
@@ -281,39 +181,7 @@ package body Editor.Command_Palette is
 
    function Descriptor_Passes_Transient_Metadata_Filters
      (Descriptor : Editor.Commands.Descriptors.Command_Descriptor) return Boolean
-   is
-      Binding : constant Editor.Keybindings.Command_Keybinding_Info :=
-        Editor.Keybindings.Primary_Binding_For_Command (Descriptor.Id);
-      Category_Text : constant String :=
-        Editor.Commands.Descriptors.Discoverability_Category_Label (Descriptor.Id);
-   begin
-      if Category_Filter_Active
-        and then Lower (Category_Text) /= Lower (To_String (Category_Filter_Label_State))
-      then
-         return False;
-      end if;
-
-      if Destructive_Filter_State
-        and then not Editor.Commands.Is_Destructive_Command (Descriptor.Id)
-      then
-         return False;
-      end if;
-
-      case Keybinding_Filter_State is
-         when Palette_All_Keybinding_States =>
-            null;
-         when Palette_Bound_Commands_Only =>
-            if (not Descriptor.Bindable) or else not Binding.Has_Binding then
-               return False;
-            end if;
-         when Palette_Unbound_Bindable_Commands_Only =>
-            if (not Descriptor.Bindable) or else Binding.Has_Binding then
-               return False;
-            end if;
-      end case;
-
-      return True;
-   end Descriptor_Passes_Transient_Metadata_Filters;
+     renames Editor.Command_Palette.Filters.Descriptor_Passes_Transient_Metadata_Filters;
 
    function Starts_With (Text, Prefix : String) return Boolean
      renames Editor.Text_Helpers.Starts_With;
@@ -377,42 +245,8 @@ package body Editor.Command_Palette is
 
    function Truncate_With_Ellipsis
      (Text        : String;
-      Max_Columns : Natural) return String
-   is
-   begin
-      if Max_Columns = 0 then
-         return "";
-      elsif Text'Length <= Max_Columns then
-         return Text;
-      elsif Max_Columns = 1 then
-         return "~";
-      else
-         declare
-            Prefix : constant String :=
-              Text (Text'First .. Text'First + Max_Columns - 2);
-            Last   : Integer := Prefix'Last;
-         begin
-            if Last >= Prefix'First
-              and then (Prefix (Last) = '.' or else Prefix (Last) = ' ')
-            then
-               Last := Last - 1;
-            end if;
-            if Last < Prefix'First then
-               return "~";
-            else
-               return Prefix (Prefix'First .. Last) & "~";
-            end if;
-         end;
-      end if;
-   end Truncate_With_Ellipsis;
-
-   function Fit_Text
-     (Text        : String;
-      Max_Columns : Natural) return String
-   is
-   begin
-      return Truncate_With_Ellipsis (Text, Max_Columns);
-   end Fit_Text;
+      Max_Columns : Natural) return String renames
+     Editor.Command_Palette.Rows.Truncate_With_Ellipsis;
 
    function Layout_Command_Row
      (Row_Width_Columns : Natural;
@@ -420,422 +254,43 @@ package body Editor.Command_Palette is
       Secondary_Length  : Natural;
       Keybinding_Length : Natural;
       Is_Selected       : Boolean;
-      Is_Available      : Boolean) return Command_Palette_Row_Layout
-   is
-      pragma Unreferenced (Is_Available);
-      Result : Command_Palette_Row_Layout;
-      Binding_Gap : constant Natural := 2;
-      Secondary_Gap : constant Natural := 3;
-      Main_Columns : Natural := Row_Width_Columns;
-      Wants_Secondary : constant Boolean := Is_Selected and then Secondary_Length > 0;
-   begin
-      if Row_Width_Columns = 0 then
-         return Result;
-      end if;
-
-      Result.Show_Keybinding :=
-        Keybinding_Length > 0
-        and then Row_Width_Columns >= Keybinding_Length + Binding_Gap + 2;
-
-      if Result.Show_Keybinding then
-         Result.Keybinding_Start_Column := Row_Width_Columns - Keybinding_Length;
-         Result.Keybinding_Column := Result.Keybinding_Start_Column;
-         Result.Keybinding_Columns := Keybinding_Length;
-         Main_Columns := Result.Keybinding_Start_Column - Binding_Gap;
-      end if;
-
-      Result.Label_Start_Column := 0;
-
-      if Main_Columns = 0 then
-         return Result;
-      end if;
-
-      if Wants_Secondary and then Main_Columns > Secondary_Gap + 1 then
-         declare
-            Full_Label_With_Gap : constant Natural := Label_Length + Secondary_Gap;
-            Minimum_Label       : constant Natural :=
-              (if Label_Length = 0 then 0 else 1);
-         begin
-            Result.Show_Secondary := True;
-
-            if Full_Label_With_Gap + Secondary_Length <= Main_Columns then
-               Result.Label_Columns := Label_Length;
-               Result.Secondary_Start_Column := Full_Label_With_Gap;
-               Result.Secondary_Columns := Secondary_Length;
-            elsif Label_Length + Secondary_Gap < Main_Columns then
-               Result.Label_Columns := Label_Length;
-               Result.Secondary_Start_Column := Full_Label_With_Gap;
-               Result.Secondary_Columns := Main_Columns - Full_Label_With_Gap;
-            else
-               Result.Label_Columns :=
-                 Natural'Max
-                   (Minimum_Label,
-                    Natural'Min
-                      (Label_Length,
-                       Main_Columns - Secondary_Gap - 1));
-               Result.Secondary_Start_Column :=
-                 Result.Label_Columns + Secondary_Gap;
-               Result.Secondary_Columns :=
-                 Main_Columns - Result.Secondary_Start_Column;
-            end if;
-
-            if Result.Secondary_Columns = 0 then
-               Result.Show_Secondary := False;
-               Result.Secondary_Start_Column := 0;
-               Result.Label_Columns := Natural'Min (Label_Length, Main_Columns);
-            end if;
-         end;
-      else
-         Result.Label_Columns := Natural'Min (Label_Length, Main_Columns);
-      end if;
-
-      return Result;
-   end Layout_Command_Row;
+      Is_Available      : Boolean) return Command_Palette_Row_Layout renames
+     Editor.Command_Palette.Rows.Layout_Command_Row;
 
    function Project_Command_Row_Layout
      (Candidate   : Editor.Commands.Palette_Model.Command_Palette_Candidate;
       Is_Selected : Boolean;
-      Row_Columns : Natural) return Command_Palette_Row_Layout
-   is
-      Label_Text : constant String := To_String (Candidate.Label);
-      Binding_Text : constant String :=
-        (if Candidate.Has_Keybinding
-         then To_String (Candidate.Keybinding_Display)
-         else "");
-      Secondary_Text : constant String :=
-        (if Is_Selected and then not Candidate.Available
-         then (if Length (Candidate.Reason) > 0
-               then To_String (Candidate.Reason)
-               else "Command not available here")
-         elsif Is_Selected and then Candidate.Available
-            and then Length (Candidate.Description) > 0
-         then To_String (Candidate.Description)
-         else "");
-      Result : Command_Palette_Row_Layout :=
-        Layout_Command_Row
-          (Row_Width_Columns => Row_Columns,
-           Label_Length      => Label_Text'Length,
-           Secondary_Length  => Secondary_Text'Length,
-           Keybinding_Length => Binding_Text'Length,
-           Is_Selected       => Is_Selected,
-           Is_Available      => Candidate.Available);
-      Main : Unbounded_String := Null_Unbounded_String;
-   begin
-      if Result.Label_Columns > 0 then
-         Main := To_Unbounded_String
-           (Truncate_With_Ellipsis (Label_Text, Result.Label_Columns));
-      end if;
-
-      if Result.Show_Secondary then
-         Main := Main & " - "
-           & Truncate_With_Ellipsis (Secondary_Text, Result.Secondary_Columns);
-      end if;
-
-      Result.Visible_Text := Main;
-      if Result.Show_Keybinding then
-         Result.Keybinding_Text := To_Unbounded_String (Binding_Text);
-      end if;
-
-      return Result;
-   end Project_Command_Row_Layout;
-
-
-   function Related_Command_From_Descriptor
-     (Command : Editor.Commands.Command_Id) return Related_Command_Help_Item
-   is
-      Stable : constant String := Editor.Commands.Name_Metadata.Stable_Command_Name (Command);
-      D      : Editor.Commands.Descriptors.Command_Descriptor;
-   begin
-      if Command = Editor.Commands.No_Command
-        or else Stable'Length = 0
-      then
-         return Empty_Related_Command_Help_Item;
-      end if;
-
-      D := Editor.Commands.Descriptors.Descriptor (Command);
-      if D.Visibility /= Editor.Commands.Descriptors.Palette_Command then
-         return Empty_Related_Command_Help_Item;
-      end if;
-
-      --  related-command help uses the same safe pattern as
-      --  guided empty-state actions: descriptor projection only, stable
-      --  command name only, and no target/result/chord/recovery payload.
-      return
-        (Command         => Command,
-         Stable_Name     => To_Unbounded_String (Stable),
-         Title           => D.Name,
-         Visible         => True,
-         Carries_Payload => False);
-   end Related_Command_From_Descriptor;
-
-   procedure Add_Related_Command
-     (Help    : in out Command_Help_Snapshot;
-      Command : Editor.Commands.Command_Id)
-   is
-      Item : constant Related_Command_Help_Item :=
-        Related_Command_From_Descriptor (Command);
-   begin
-      if not Item.Visible
-        or else Help.Related_Command_Count >= Max_Related_Command_Help_Items
-      then
-         return;
-      end if;
-
-      for I in 1 .. Help.Related_Command_Count loop
-         if Help.Related_Commands (I).Command = Command
-           or else To_String (Help.Related_Commands (I).Stable_Name) =
-             To_String (Item.Stable_Name)
-         then
-            return;
-         end if;
-      end loop;
-
-      Help.Related_Command_Count := Help.Related_Command_Count + 1;
-      Help.Related_Commands (Help.Related_Command_Count) := Item;
-   end Add_Related_Command;
-
-   procedure Add_Related_Commands_For
-     (Help : in out Command_Help_Snapshot;
-      Id   : Editor.Commands.Command_Id)
-   is
-   begin
-      case Id is
-         when Editor.Commands.Command_Open_Project =>
-            Add_Related_Command (Help, Editor.Commands.Command_Show_Recent_Projects);
-            Add_Related_Command (Help, Editor.Commands.Command_Restore_Workspace_State);
-         when Editor.Commands.Command_Restore_Workspace_State =>
-            Add_Related_Command (Help, Editor.Commands.Command_Save_Workspace_State);
-            Add_Related_Command (Help, Editor.Commands.Command_Clear_Workspace_State);
-         when Editor.Commands.Command_Build_Run =>
-            Add_Related_Command (Help, Editor.Commands.Command_Build_UI_Focus);
-            Add_Related_Command (Help, Editor.Commands.Command_Build_Acknowledge_Consent);
-            Add_Related_Command (Help, Editor.Commands.Command_Build_UI_Show);
-         when Editor.Commands.Command_Build_UI_Show |
-              Editor.Commands.Command_Build_UI_Focus =>
-            Add_Related_Command (Help, Editor.Commands.Command_Build_Refresh_Candidates);
-            Add_Related_Command (Help, Editor.Commands.Command_Build_Acknowledge_Consent);
-            Add_Related_Command (Help, Editor.Commands.Command_Build_Run);
-         when Editor.Commands.Command_Problems_Filter_All |
-              Editor.Commands.Command_Problems_Filter_Errors |
-              Editor.Commands.Command_Problems_Filter_Warnings |
-              Editor.Commands.Command_Problems_Filter_Info |
-              Editor.Commands.Command_Problems_Filter_Hints =>
-            Add_Related_Command (Help, Editor.Commands.Command_Problems_Sort_By_Severity);
-            Add_Related_Command (Help, Editor.Commands.Command_Problems_Group_By_Source);
-            Add_Related_Command (Help, Editor.Commands.Command_Problems_Open_Selected);
-         when Editor.Commands.Command_Problems_Sort_By_Location |
-              Editor.Commands.Command_Problems_Sort_By_Severity |
-              Editor.Commands.Command_Problems_Sort_By_Source |
-              Editor.Commands.Command_Problems_Group_By_Severity |
-              Editor.Commands.Command_Problems_Group_By_Source =>
-            Add_Related_Command (Help, Editor.Commands.Command_Problems_Filter_All);
-            Add_Related_Command (Help, Editor.Commands.Command_Problems_Filter_Errors);
-            Add_Related_Command (Help, Editor.Commands.Command_Problems_Open_Selected);
-         when Editor.Commands.Command_Refresh_Outline =>
-            Add_Related_Command (Help, Editor.Commands.Command_Open_Selected_Outline_Item);
-            Add_Related_Command (Help, Editor.Commands.Command_Reveal_Current_Outline_Symbol);
-            Add_Related_Command (Help, Editor.Commands.Command_Clear_Outline_Filter);
-         when Editor.Commands.Command_Diagnostics_Show =>
-            Add_Related_Command (Help, Editor.Commands.Command_Diagnostics_Open_Selected);
-            Add_Related_Command (Help, Editor.Commands.Command_Diagnostic_Open_Source);
-            Add_Related_Command (Help, Editor.Commands.Command_Diagnostic_Show_Suppressed);
-            Add_Related_Command (Help, Editor.Commands.Command_Problems_Filter_Errors);
-         when Editor.Commands.Command_Diagnostics_Open_Selected |
-              Editor.Commands.Command_Diagnostic_Open_Source |
-              Editor.Commands.Command_Diagnostic_Apply_Quick_Fix |
-              Editor.Commands.Command_Diagnostic_Suppress_Selected |
-              Editor.Commands.Command_Diagnostic_Show_Suppressed |
-              Editor.Commands.Command_Diagnostic_Restore_Last_Suppressed |
-              Editor.Commands.Command_Diagnostic_Restore_Selected_Suppressed |
-              Editor.Commands.Command_Diagnostic_Clear_Suppressed =>
-            Add_Related_Command (Help, Editor.Commands.Command_Next_Diagnostic);
-            Add_Related_Command (Help, Editor.Commands.Command_Previous_Diagnostic);
-            Add_Related_Command (Help, Editor.Commands.Command_Diagnostic_Apply_Quick_Fix);
-            Add_Related_Command (Help, Editor.Commands.Command_Diagnostic_Suppress_Selected);
-            Add_Related_Command (Help, Editor.Commands.Command_Diagnostic_Show_Suppressed);
-            Add_Related_Command (Help, Editor.Commands.Command_Diagnostic_Restore_Last_Suppressed);
-            Add_Related_Command (Help, Editor.Commands.Command_Diagnostic_Restore_Selected_Suppressed);
-            Add_Related_Command (Help, Editor.Commands.Command_Diagnostic_Clear_Suppressed);
-         when Editor.Commands.Command_Refresh_File_Tree =>
-            Add_Related_Command (Help, Editor.Commands.Command_Open_Quick_Open);
-            Add_Related_Command (Help, Editor.Commands.Command_File_Tree_Open_Selected);
-            Add_Related_Command (Help, Editor.Commands.Command_Open_Project);
-         when Editor.Commands.Command_Keybindings_Assign_Selected =>
-            Add_Related_Command (Help, Editor.Commands.Command_Keybindings_Remove_Selected);
-            Add_Related_Command (Help, Editor.Commands.Command_Keybindings_Reset_To_Defaults);
-         when Editor.Commands.Command_Reset_Settings_To_Defaults =>
-            Add_Related_Command (Help, Editor.Commands.Command_Configuration_Audit);
-         when others =>
-            null;
-      end case;
-   end Add_Related_Commands_For;
-
-   function Related_Command_Is_Activation_Safe
-     (Item : Related_Command_Help_Item) return Boolean
-   is
-      Found    : Boolean := False;
-      Resolved : Editor.Commands.Command_Id := Editor.Commands.No_Command;
-      Name     : constant String := To_String (Item.Stable_Name);
-   begin
-      if not Item.Visible
-        or else Item.Carries_Payload
-        or else Item.Command = Editor.Commands.No_Command
-        or else Name'Length = 0
-        or else Ada.Strings.Unbounded.Index (To_Unbounded_String (Name), " ") /= 0
-        or else Ada.Strings.Unbounded.Index (To_Unbounded_String (Name), ":") /= 0
-        or else Ada.Strings.Unbounded.Index (To_Unbounded_String (Name), "/") /= 0
-        or else Ada.Strings.Unbounded.Index (To_Unbounded_String (Name), "\") /= 0
-        or else Ada.Strings.Unbounded.Index (To_Unbounded_String (Name), "?") /= 0
-        or else Ada.Strings.Unbounded.Index (To_Unbounded_String (Name), "=") /= 0
-      then
-         return False;
-      end if;
-
-      Resolved := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name (Name, Found);
-      return Found
-        and then Resolved = Item.Command
-        and then Editor.Commands.Descriptors.Descriptor (Item.Command).Visibility =
-          Editor.Commands.Descriptors.Palette_Command
-        and then To_String (Item.Title) =
-          To_String (Editor.Commands.Descriptors.Descriptor (Item.Command).Name);
-   end Related_Command_Is_Activation_Safe;
-
-   function Related_Command_Is_Canonical_Descriptor_Projection
-     (Item : Related_Command_Help_Item) return Boolean
-   is
-      Canonical : Related_Command_Help_Item;
-   begin
-      if not Item.Visible then
-         return Item = Empty_Related_Command_Help_Item;
-      end if;
-
-      if not Related_Command_Is_Activation_Safe (Item) then
-         return False;
-      end if;
-
-      Canonical := Related_Command_From_Descriptor (Item.Command);
-      return Canonical.Visible
-        and then Canonical.Command = Item.Command
-        and then To_String (Canonical.Stable_Name) = To_String (Item.Stable_Name)
-        and then To_String (Canonical.Title) = To_String (Item.Title)
-        and then Canonical.Carries_Payload = Item.Carries_Payload;
-   end Related_Command_Is_Canonical_Descriptor_Projection;
-
-   function Assert_Related_Command_Help_Is_Coherent
-     (Help : Command_Help_Snapshot) return Boolean
-   is
-   begin
-      if Help.Related_Command_Count > Max_Related_Command_Help_Items then
-         return False;
-      end if;
-
-      for I in 1 .. Help.Related_Command_Count loop
-         if not Related_Command_Is_Canonical_Descriptor_Projection
-           (Help.Related_Commands (I))
-         then
-            return False;
-         end if;
-
-         for J in I + 1 .. Help.Related_Command_Count loop
-            if Help.Related_Commands (I).Command = Help.Related_Commands (J).Command
-              or else To_String (Help.Related_Commands (I).Stable_Name) =
-                To_String (Help.Related_Commands (J).Stable_Name)
-            then
-               return False;
-            end if;
-         end loop;
-      end loop;
-
-      for I in Help.Related_Command_Count + 1 .. Max_Related_Command_Help_Items loop
-         if Help.Related_Commands (I) /= Empty_Related_Command_Help_Item then
-            return False;
-         end if;
-      end loop;
-
-      return True;
-   end Assert_Related_Command_Help_Is_Coherent;
+      Row_Columns : Natural) return Command_Palette_Row_Layout renames
+     Editor.Command_Palette.Rows.Project_Command_Row_Layout;
 
    function Build_Command_Help
      (Candidate : Editor.Commands.Palette_Model.Command_Palette_Candidate)
       return Command_Help_Snapshot
    is
-      D : constant Editor.Commands.Descriptors.Command_Descriptor :=
-        Editor.Commands.Descriptors.Descriptor (Candidate.Id);
-      Result : Command_Help_Snapshot;
-
-      function Active_Keybinding_Label return Unbounded_String is
-         Label : Unbounded_String := Null_Unbounded_String;
-      begin
-         for I in 1 .. Editor.Keybindings.Binding_Count_For_Command (Candidate.Id) loop
-            if Length (Label) > 0 then
-               Append (Label, ", ");
-            end if;
-            Append
-              (Label,
-               Editor.Keybindings.Format_Chord
-                 (Editor.Keybindings.Binding_For_Command (Candidate.Id, I)));
-         end loop;
-         return Label;
-      end Active_Keybinding_Label;
    begin
-      Result.Title := D.Name;
-      Result.Stable_Name := To_Unbounded_String
-        (Editor.Commands.Name_Metadata.Stable_Command_Name (Candidate.Id));
-      Result.Category_Label := To_Unbounded_String
-        (Editor.Commands.Descriptors.Discoverability_Category_Label (Candidate.Id));
-      Result.Description := D.Description;
-      Result.Active_Keybinding_Count :=
-        Editor.Keybindings.Binding_Count_For_Command (Candidate.Id);
-      Result.Has_Active_Keybinding := Result.Active_Keybinding_Count > 0;
-      Result.Unbound_Bindable := D.Bindable and then not Result.Has_Active_Keybinding;
-      Result.Non_Bindable_Command := not D.Bindable;
-      Result.Keybinding_Label :=
-        (if not Config_State.Show_Keybindings
-         then To_Unbounded_String ("Keybindings hidden")
-         elsif Result.Has_Active_Keybinding
-         then Active_Keybinding_Label
-         elsif D.Bindable
-         then To_Unbounded_String ("Unbound")
-         else To_Unbounded_String ("Non-bindable"));
-      Result.Bindability_Label :=
-        To_Unbounded_String ((if D.Bindable then "Bindable" else "Non-bindable"));
-      Result.Visibility_Label :=
-        To_Unbounded_String
-          ((case D.Visibility is
-            when Editor.Commands.Descriptors.Palette_Command => "Visible in Command Palette",
-            when Editor.Commands.Descriptors.Hidden_Command => "Hidden"));
-      Result.Classification_Label := To_Unbounded_String
-        (Product_Facing_Classification_Label
-           (Editor.Commands.Descriptors.Classification_Label (Candidate.Id)));
-      Result.Availability_Label :=
-        To_Unbounded_String ((if Candidate.Available then "Available" else "Unavailable"));
-      Result.Unavailable_Reason :=
-        (if Candidate.Available then Null_Unbounded_String
-         elsif Length (Candidate.Reason) > 0 then Candidate.Reason
-         else To_Unbounded_String ("Command not available here"));
-      Result.Surface_Relevance_Label := To_Unbounded_String
-        (Editor.Commands.Descriptors.Surface_Relevance_Label (Candidate.Id));
-      Result.State_Context_Label := Command_State_Contexts (Candidate.Id);
-      Result.Guard_Label := To_Unbounded_String
-        (Editor.Commands.Descriptors.Guard_Label (Candidate.Id));
-      Add_Related_Commands_For (Result, Candidate.Id);
-      return Result;
+      return Editor.Command_Palette.Help.Build_Command_Help
+        (Candidate, Config_State);
    end Build_Command_Help;
 
-   procedure Clear_Command_State_Contexts is
-   begin
-      Command_State_Contexts := (others => Null_Unbounded_String);
-   end Clear_Command_State_Contexts;
+   procedure Clear_Command_State_Contexts renames
+     Editor.Command_Palette.Help.Clear_Command_State_Contexts;
 
    procedure Set_Command_State_Context
      (Command : Editor.Commands.Command_Id;
-      Text    : String)
-   is
-   begin
-      if Command /= Editor.Commands.No_Command then
-         Command_State_Contexts (Command) := To_Unbounded_String (Text);
-      end if;
-   end Set_Command_State_Context;
+      Text    : String) renames
+     Editor.Command_Palette.Help.Set_Command_State_Context;
+
+   function Related_Command_Is_Activation_Safe
+     (Item : Related_Command_Help_Item) return Boolean renames
+     Editor.Command_Palette.Help.Related_Command_Is_Activation_Safe;
+
+   function Related_Command_Is_Canonical_Descriptor_Projection
+     (Item : Related_Command_Help_Item) return Boolean renames
+     Editor.Command_Palette.Help.Related_Command_Is_Canonical_Descriptor_Projection;
+
+   function Assert_Related_Command_Help_Is_Coherent
+     (Help : Command_Help_Snapshot) return Boolean renames
+     Editor.Command_Palette.Help.Assert_Related_Command_Help_Is_Coherent;
 
    function Descriptor_Registry_Order
      (Id : Editor.Commands.Command_Id) return Natural
@@ -1271,13 +726,13 @@ package body Editor.Command_Palette is
    is
    begin
       if Descriptors.Length = 0 or else Index >= Natural (Descriptors.Length) then
-         State.Selected_Item := 0;
-         State.Selected_Candidate_Index := 0;
-         State.Selected_Command_Id := Editor.Commands.No_Command;
+         Palette_State_Store.Selected_Item := 0;
+         Palette_State_Store.Selected_Candidate_Index := 0;
+         Palette_State_Store.Selected_Command_Id := Editor.Commands.No_Command;
       else
-         State.Selected_Item := Index;
-         State.Selected_Candidate_Index := Index;
-         State.Selected_Command_Id := Descriptors.Element (Index).Id;
+         Palette_State_Store.Selected_Item := Index;
+         Palette_State_Store.Selected_Candidate_Index := Index;
+         Palette_State_Store.Selected_Command_Id := Descriptors.Element (Index).Id;
       end if;
    end Set_Selected_From_Descriptor_Vector;
 
@@ -1287,13 +742,13 @@ package body Editor.Command_Palette is
    is
    begin
       if Candidates.Length = 0 or else Index >= Natural (Candidates.Length) then
-         State.Selected_Item := 0;
-         State.Selected_Candidate_Index := 0;
-         State.Selected_Command_Id := Editor.Commands.No_Command;
+         Palette_State_Store.Selected_Item := 0;
+         Palette_State_Store.Selected_Candidate_Index := 0;
+         Palette_State_Store.Selected_Command_Id := Editor.Commands.No_Command;
       else
-         State.Selected_Item := Index;
-         State.Selected_Candidate_Index := Index;
-         State.Selected_Command_Id := Candidates.Element (Index).Id;
+         Palette_State_Store.Selected_Item := Index;
+         Palette_State_Store.Selected_Candidate_Index := Index;
+         Palette_State_Store.Selected_Command_Id := Candidates.Element (Index).Id;
       end if;
    end Set_Selected_From_Candidate_Vector;
 
@@ -1305,15 +760,15 @@ package body Editor.Command_Palette is
       Preferred : constant Editor.Commands.Command_Id :=
         (if Preferred_Command /= Editor.Commands.No_Command
          then Preferred_Command
-         else State.Selected_Command_Id);
+         else Palette_State_Store.Selected_Command_Id);
       Visible : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
    begin
       Visible_Candidates (Candidates, Visible);
 
       if Visible.Length = 0 then
-         State.Selected_Item := 0;
-         State.Selected_Candidate_Index := 0;
-         State.Selected_Command_Id := Editor.Commands.No_Command;
+         Palette_State_Store.Selected_Item := 0;
+         Palette_State_Store.Selected_Candidate_Index := 0;
+         Palette_State_Store.Selected_Command_Id := Editor.Commands.No_Command;
          return;
       end if;
 
@@ -1340,7 +795,7 @@ package body Editor.Command_Palette is
 
    procedure Clamp_Selection is
       Filtered : Editor.Commands.Descriptors.Command_Descriptor_Vectors.Vector;
-      Preferred : constant Editor.Commands.Command_Id := State.Selected_Command_Id;
+      Preferred : constant Editor.Commands.Command_Id := Palette_State_Store.Selected_Command_Id;
    begin
       Filtered_Commands (Filtered);
 
@@ -1358,28 +813,28 @@ package body Editor.Command_Palette is
          end loop;
       end if;
 
-      if State.Selected_Item >= Natural (Filtered.Length) then
+      if Palette_State_Store.Selected_Item >= Natural (Filtered.Length) then
          Set_Selected_From_Descriptor_Vector
            (Filtered, Natural (Filtered.Length) - 1);
       else
-         Set_Selected_From_Descriptor_Vector (Filtered, State.Selected_Item);
+         Set_Selected_From_Descriptor_Vector (Filtered, Palette_State_Store.Selected_Item);
       end if;
    end Clamp_Selection;
 
    function Current return Palette_State is
    begin
-      return State;
+      return Palette_State_Store;
    end Current;
 
    procedure Reset is
    begin
-      State.Open := False;
-      State.Query := Null_Unbounded_String;
+      Palette_State_Store.Open := False;
+      Palette_State_Store.Query := Null_Unbounded_String;
       Editor.Input_Field.Clear (Filter_Field);
-      State.Selected_Item := 0;
-      State.Selected_Candidate_Index := 0;
-      State.Selected_Command_Id := Editor.Commands.No_Command;
-      State.Top_Row := 1;
+      Palette_State_Store.Selected_Item := 0;
+      Palette_State_Store.Selected_Candidate_Index := 0;
+      Palette_State_Store.Selected_Command_Id := Editor.Commands.No_Command;
+      Palette_State_Store.Top_Row := 1;
       Config_State := (others => <>);
       Clear_Transient_Filters;
       Clear_Command_State_Contexts;
@@ -1387,11 +842,11 @@ package body Editor.Command_Palette is
 
    procedure Open is
    begin
-      State.Open := True;
-      State.Selected_Item := 0;
-      State.Selected_Candidate_Index := 0;
-      State.Selected_Command_Id := Editor.Commands.No_Command;
-      State.Top_Row := 1;
+      Palette_State_Store.Open := True;
+      Palette_State_Store.Selected_Item := 0;
+      Palette_State_Store.Selected_Candidate_Index := 0;
+      Palette_State_Store.Selected_Command_Id := Editor.Commands.No_Command;
+      Palette_State_Store.Top_Row := 1;
       Clear_Transient_Filters;
       Clear_Command_State_Contexts;
    end Open;
@@ -1412,32 +867,32 @@ package body Editor.Command_Palette is
          return;
       end if;
 
-      State.Open := True;
-      State.Query := To_Unbounded_String (Editor.Commands.Name_Metadata.Stable_Command_Name (Command));
+      Palette_State_Store.Open := True;
+      Palette_State_Store.Query := To_Unbounded_String (Editor.Commands.Name_Metadata.Stable_Command_Name (Command));
       Editor.Input_Field.Clear (Filter_Field);
-      Editor.Input_Field.Insert_Text (Filter_Field, To_String (State.Query));
-      State.Selected_Item := 0;
-      State.Selected_Candidate_Index := 0;
-      State.Selected_Command_Id := Command;
-      State.Top_Row := 1;
+      Editor.Input_Field.Insert_Text (Filter_Field, To_String (Palette_State_Store.Query));
+      Palette_State_Store.Selected_Item := 0;
+      Palette_State_Store.Selected_Candidate_Index := 0;
+      Palette_State_Store.Selected_Command_Id := Command;
+      Palette_State_Store.Top_Row := 1;
       Config_State.Show_Help_Row := False;
       Clear_Transient_Filters;
    end Open_With_Command;
 
    procedure Close is
    begin
-      State.Open := False;
-      State.Selected_Item := 0;
-      State.Selected_Candidate_Index := 0;
-      State.Selected_Command_Id := Editor.Commands.No_Command;
-      State.Top_Row := 1;
+      Palette_State_Store.Open := False;
+      Palette_State_Store.Selected_Item := 0;
+      Palette_State_Store.Selected_Candidate_Index := 0;
+      Palette_State_Store.Selected_Command_Id := Editor.Commands.No_Command;
+      Palette_State_Store.Top_Row := 1;
       Config_State.Show_Help_Row := False;
       Clear_Transient_Filters;
    end Close;
 
    procedure Toggle is
    begin
-      if State.Open then
+      if Palette_State_Store.Open then
          Close;
       else
          Open;
@@ -1446,7 +901,7 @@ package body Editor.Command_Palette is
 
    function Is_Open return Boolean is
    begin
-      return State.Open;
+      return Palette_State_Store.Open;
    end Is_Open;
 
    procedure Append_Character
@@ -1538,7 +993,7 @@ package body Editor.Command_Palette is
       end if;
 
       Last := Natural (Filtered.Length) - 1;
-      Next := Integer (State.Selected_Item) + Amount;
+      Next := Integer (Palette_State_Store.Selected_Item) + Amount;
       if Next < 0 then
          Next := 0;
       elsif Next > Integer (Last) then
@@ -1572,16 +1027,16 @@ package body Editor.Command_Palette is
       end if;
 
       Last := Natural (Visible.Length) - 1;
-      if State.Selected_Command_Id /= Editor.Commands.No_Command then
+      if Palette_State_Store.Selected_Command_Id /= Editor.Commands.No_Command then
          for I in 0 .. Natural (Visible.Length) - 1 loop
-            if Visible.Element (I).Id = State.Selected_Command_Id then
-               State.Selected_Item := I;
+            if Visible.Element (I).Id = Palette_State_Store.Selected_Command_Id then
+               Palette_State_Store.Selected_Item := I;
                exit;
             end if;
          end loop;
       end if;
 
-      Next := Integer (State.Selected_Item) + Amount;
+      Next := Integer (Palette_State_Store.Selected_Item) + Amount;
       if Next < 0 then
          Next := 0;
       elsif Next > Integer (Last) then
@@ -1617,10 +1072,8 @@ package body Editor.Command_Palette is
    is
       All_Commands : constant Editor.Commands.Descriptors.Command_Descriptor_Vectors.Vector :=
         Editor.Commands.Descriptors.Palette_Commands;
-      Query : constant String := To_String (State.Query);
+      Query : constant String := To_String (Palette_State_Store.Query);
       Visible_Commands : Editor.Commands.Descriptors.Command_Descriptor_Vectors.Vector;
-      Search_Items : Guikit.Palette.Item_Vectors.Vector;
-      Search_Results : Guikit.Palette.Item_Vectors.Vector;
       Matched_Commands : Editor.Commands.Descriptors.Command_Descriptor_Vectors.Vector;
       Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
    begin
@@ -1638,40 +1091,20 @@ package body Editor.Command_Palette is
             D : constant Editor.Commands.Descriptors.Command_Descriptor := All_Commands.Element (I);
          begin
             if Descriptor_Passes_Transient_Metadata_Filters (D) then
-               declare
-                  Binding : constant Editor.Keybindings.Command_Keybinding_Info :=
-                    Editor.Keybindings.Primary_Binding_For_Command (D.Id);
-               begin
-                  Visible_Commands.Append (D);
-                  Search_Items.Append
-                    (Guikit.Palette.Item'
-                      (Id          => Natural (Visible_Commands.Last_Index),
-                       Identifier  => To_Unbounded_String
-                         (Editor.Commands.Name_Metadata.Stable_Command_Name (D.Id)),
-                       Label       => D.Name,
-                       Description => D.Description,
-                       Shortcut    =>
-                         (if Current_Config.Show_Keybindings
-                          then Binding.Display
-                          else Null_Unbounded_String),
-                       Enabled     => True,
-                       Score       => 0));
-               end;
+               Visible_Commands.Append (D);
             end if;
          end;
       end loop;
 
-      if Search_Items.Length = 0 then
+      if Visible_Commands.Length = 0 then
          return;
       end if;
 
-      Search_Results := Guikit.Palette.Search (To_String (State.Query), Search_Items);
-
-      for Item of Search_Results loop
-         if Item.Id in Visible_Commands.First_Index .. Visible_Commands.Last_Index then
-            Matched_Commands.Append (Visible_Commands.Element (Item.Id));
-         end if;
-      end loop;
+      Matched_Commands :=
+        Editor.Command_Palette.Guikit_Model.Search_Descriptors
+          (Descriptors      => Visible_Commands,
+           Query            => To_String (Palette_State_Store.Query),
+           Show_Keybindings => Current_Config.Show_Keybindings);
 
       for D of Matched_Commands loop
          declare
@@ -1718,10 +1151,10 @@ package body Editor.Command_Palette is
       Filtered_Commands (Filtered);
       if Filtered.Length = 0 then
          return Editor.Commands.No_Command;
-      elsif State.Selected_Item >= Natural (Filtered.Length) then
+      elsif Palette_State_Store.Selected_Item >= Natural (Filtered.Length) then
          return Filtered.Element (Natural (Filtered.Length) - 1).Id;
       else
-         return Filtered.Element (State.Selected_Item).Id;
+         return Filtered.Element (Palette_State_Store.Selected_Item).Id;
       end if;
    end Selected_Command;
 
@@ -1730,7 +1163,7 @@ package body Editor.Command_Palette is
    begin
       Filtered_Commands (Filtered);
       return Filtered.Length > 0
-        and then State.Selected_Item < Natural (Filtered.Length);
+        and then Palette_State_Store.Selected_Item < Natural (Filtered.Length);
    end Has_Selected_Command;
 
    function Build_Snapshot
@@ -1741,7 +1174,7 @@ package body Editor.Command_Palette is
       Visible_Candidates : Editor.Commands.Palette_Model.Command_Palette_Candidate_Vectors.Vector;
       Last_Category_Label : Unbounded_String := Null_Unbounded_String;
       Have_Category : Boolean := False;
-      Query_Text : constant String := To_String (State.Query);
+      Query_Text : constant String := To_String (Palette_State_Store.Query);
       Query_Is_Empty : constant Boolean := Query_Text'Length = 0;
       Grouped : constant Boolean := Query_Is_Empty and then Config.Group_Empty_Query_By_Category;
       Selected_Visible_Index : Natural := 0;
@@ -1790,9 +1223,9 @@ package body Editor.Command_Palette is
       Result.Candidates := Visible_Candidates;
 
       if Visible_Candidates.Length > 0 then
-         if State.Selected_Command_Id /= Editor.Commands.No_Command then
+         if Palette_State_Store.Selected_Command_Id /= Editor.Commands.No_Command then
             for I in 0 .. Natural (Visible_Candidates.Length) - 1 loop
-               if Visible_Candidates.Element (I).Id = State.Selected_Command_Id then
+               if Visible_Candidates.Element (I).Id = Palette_State_Store.Selected_Command_Id then
                   Selected_Visible_Index := I;
                   Have_Selected_Visible_Index := True;
                   exit;
@@ -1801,8 +1234,8 @@ package body Editor.Command_Palette is
          end if;
 
          if not Have_Selected_Visible_Index then
-            if State.Selected_Item < Natural (Visible_Candidates.Length) then
-               Selected_Visible_Index := State.Selected_Item;
+            if Palette_State_Store.Selected_Item < Natural (Visible_Candidates.Length) then
+               Selected_Visible_Index := Palette_State_Store.Selected_Item;
             else
                Selected_Visible_Index := Natural (Visible_Candidates.Length) - 1;
             end if;
@@ -2071,7 +1504,7 @@ package body Editor.Command_Palette is
       Visible_Row_Count : Natural)
    is
       Found : Boolean := False;
-      Selected_Candidate : Natural := State.Selected_Item;
+      Selected_Candidate : Natural := Palette_State_Store.Selected_Item;
       Row_Index : Natural := 0;
       Max_Top : Natural := 1;
    begin
@@ -2093,7 +1526,7 @@ package body Editor.Command_Palette is
 
       Row_Index := Row_For_Candidate (Snapshot, Selected_Candidate, Found);
       if Row_Count (Snapshot) = 0 or else Visible_Row_Count = 0 then
-         State.Top_Row := 1;
+         Palette_State_Store.Top_Row := 1;
          return;
       end if;
 
@@ -2103,19 +1536,19 @@ package body Editor.Command_Palette is
          else 1);
 
       if not Found then
-         State.Top_Row := Natural'Min (State.Top_Row, Max_Top);
-         State.Top_Row := Natural'Max (State.Top_Row, 1);
+         Palette_State_Store.Top_Row := Natural'Min (Palette_State_Store.Top_Row, Max_Top);
+         Palette_State_Store.Top_Row := Natural'Max (Palette_State_Store.Top_Row, 1);
          return;
       end if;
 
-      if Row_Index < State.Top_Row then
-         State.Top_Row := Row_Index;
-      elsif Row_Index >= State.Top_Row + Visible_Row_Count then
-         State.Top_Row := Row_Index - Visible_Row_Count + 1;
+      if Row_Index < Palette_State_Store.Top_Row then
+         Palette_State_Store.Top_Row := Row_Index;
+      elsif Row_Index >= Palette_State_Store.Top_Row + Visible_Row_Count then
+         Palette_State_Store.Top_Row := Row_Index - Visible_Row_Count + 1;
       end if;
 
-      State.Top_Row := Natural'Min (State.Top_Row, Max_Top);
-      State.Top_Row := Natural'Max (State.Top_Row, 1);
+      Palette_State_Store.Top_Row := Natural'Min (Palette_State_Store.Top_Row, Max_Top);
+      Palette_State_Store.Top_Row := Natural'Max (Palette_State_Store.Top_Row, 1);
    end Ensure_Selected_Row_Visible;
 
    procedure Clamp_Viewport
@@ -2126,7 +1559,7 @@ package body Editor.Command_Palette is
       Max_Top : Natural := 1;
    begin
       if Count = 0 or else Visible_Row_Count = 0 then
-         State.Top_Row := 1;
+         Palette_State_Store.Top_Row := 1;
          return;
       end if;
 
@@ -2134,10 +1567,10 @@ package body Editor.Command_Palette is
          Max_Top := Count - Visible_Row_Count + 1;
       end if;
 
-      if State.Top_Row = 0 then
-         State.Top_Row := 1;
-      elsif State.Top_Row > Max_Top then
-         State.Top_Row := Max_Top;
+      if Palette_State_Store.Top_Row = 0 then
+         Palette_State_Store.Top_Row := 1;
+      elsif Palette_State_Store.Top_Row > Max_Top then
+         Palette_State_Store.Top_Row := Max_Top;
       end if;
    end Clamp_Viewport;
 
@@ -2148,10 +1581,10 @@ package body Editor.Command_Palette is
    is
       Count   : constant Natural := Row_Count (Snapshot);
       Max_Top : Natural := 1;
-      Desired : Integer := Integer (State.Top_Row) + Step_Delta;
+      Desired : Integer := Integer (Palette_State_Store.Top_Row) + Step_Delta;
    begin
       if Count = 0 or else Visible_Row_Count = 0 then
-         State.Top_Row := 1;
+         Palette_State_Store.Top_Row := 1;
          return;
       end if;
 
@@ -2165,7 +1598,7 @@ package body Editor.Command_Palette is
          Desired := Integer (Max_Top);
       end if;
 
-      State.Top_Row := Natural (Desired);
+      Palette_State_Store.Top_Row := Natural (Desired);
    end Scroll_By;
 
 end Editor.Command_Palette;
