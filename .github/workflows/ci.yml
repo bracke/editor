@@ -36,18 +36,18 @@ jobs:
 
     steps:
       - name: Check out editor
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           path: editor
 
       - name: Check out guikit sibling
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: ${{ github.repository_owner }}/guikit
           path: guikit
 
       - name: Check out textrender sibling
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: ${{ github.repository_owner }}/textrender
           path: textrender
@@ -55,7 +55,7 @@ jobs:
       # The editor asks hostkit to run its external tools -- a compiler, with its output
       # captured and a deadline on it -- so hostkit is a path pin like the others.
       - name: Check out hostkit sibling
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: ${{ github.repository_owner }}/hostkit
           path: hostkit
@@ -165,7 +165,7 @@ jobs:
 
       - name: Set up Alire
         # v5 defaults to alr 2.1.0, whose index carries gnat_native 15.2.1.
-        uses: alire-project/setup-alire@v5
+        uses: alire-project/setup-alire@v6
         with:
           toolchain: gnat_native=15.2.1 gprbuild
 
