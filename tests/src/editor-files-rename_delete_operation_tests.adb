@@ -395,8 +395,8 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
          Before_Replace := S.Search.Active_Replace_Text;
          Before_Clip := Editor.Clipboard.Get_Text;
          Before_Has_Clip := Editor.Clipboard.Has_Text;
-         Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-         Before_Forward := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+         Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+         Before_Forward := Editor.Navigation_History.Forward_Count (S.Navigation.History);
          Before_Reopen := S.Buffer_Lifecycle.Has_Reopen_Candidate;
          Before_Reopen_Path := S.Buffer_Lifecycle.Reopen_Candidate_Path;
       end Capture_Active_B_State;
@@ -419,8 +419,8 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
          Assert (Editor.Clipboard.Has_Text = Before_Has_Clip
            and then Editor.Clipboard.Get_Text = Before_Clip,
            Label & ": Clipboard changed");
-         Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = Before_Back
-           and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = Before_Forward,
+         Assert (Editor.Navigation_History.Back_Count (S.Navigation.History) = Before_Back
+           and then Editor.Navigation_History.Forward_Count (S.Navigation.History) = Before_Forward,
            Label & ": Navigation History changed");
          Assert (S.Buffer_Lifecycle.Has_Reopen_Candidate = Before_Reopen
            and then S.Buffer_Lifecycle.Reopen_Candidate_Path = Before_Reopen_Path,
@@ -459,7 +459,7 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       S.Buffer_Lifecycle.Reopen_Candidate_Path := To_Unbounded_String (A_Path);
       S.Buffer_Lifecycle.Reopen_Candidate_Label := To_Unbounded_String ("A candidate");
       Editor.Navigation_History.Record_Explicit_Navigation
-        (S.Navigation_History,
+        (S.Navigation.History,
          (Buffer_Id => Natural (B_Id),
           Has_File_Path => True,
           File_Path => To_Unbounded_String (B_Path),
@@ -998,7 +998,7 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
             Virtual_Column        => 5,
             Anchor_Virtual_Column => 1));
       Editor.Navigation_History.Record_Explicit_Navigation
-        (S.Navigation_History,
+        (S.Navigation.History,
          (Buffer_Id => Natural (Editor.Buffers.Global_Active_Buffer),
           Has_File_Path => True,
           File_Path => S.Buffer_Lifecycle.File_Info.Path,
@@ -1016,8 +1016,8 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
       Before_Caret := S.Caret.Carets (0);
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Forward := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Forward := Editor.Navigation_History.Forward_Count (S.Navigation.History);
 
       Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, Target);
@@ -1040,8 +1040,8 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
         and then To_String (S.Search.Active_Replace_Text) = "omega"
         and then Editor.Clipboard.Has_Text
         and then To_String (Editor.Clipboard.Get_Text) = "clipboard payload"
-        and then Editor.Navigation_History.Back_Count (S.Navigation_History) = Before_Back
-        and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = Before_Forward,
+        and then Editor.Navigation_History.Back_Count (S.Navigation.History) = Before_Back
+        and then Editor.Navigation_History.Forward_Count (S.Navigation.History) = Before_Forward,
         "dirty workflow: blocked rename must preserve text, path, baseline, history, find/replace, clipboard, selection, and navigation");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
@@ -1353,7 +1353,7 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text (S, "replacement");
       Editor.Clipboard.Set_Text (To_Unbounded_String ("boundary clipboard"));
       Editor.Navigation_History.Record_Explicit_Navigation
-        (S.Navigation_History,
+        (S.Navigation.History,
          (Buffer_Id => Natural (Editor.Buffers.Global_Active_Buffer),
           Has_File_Path => True,
           File_Path => S.Buffer_Lifecycle.File_Info.Path,
@@ -1869,7 +1869,7 @@ procedure Test_Delete_Validation_Order_And_Active_Source
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text (S, "replace");
       Editor.Clipboard.Set_Text (To_Unbounded_String ("clipboard"));
       Editor.Navigation_History.Record_Explicit_Navigation
-        (S.Navigation_History,
+        (S.Navigation.History,
          (Buffer_Id => Natural (Editor.Buffers.Global_Active_Buffer),
           Has_File_Path => True,
           File_Path => S.Buffer_Lifecycle.File_Info.Path,
@@ -1884,8 +1884,8 @@ procedure Test_Delete_Validation_Order_And_Active_Source
       Before_Gen := S.Buffer_Lifecycle.File_Info.Saved_Generation;
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
-      Before_Back := S.Navigation_History.Back_Stack.Length;
-      Before_Fwd := S.Navigation_History.Forward_Stack.Length;
+      Before_Back := S.Navigation.History.Back_Stack.Length;
+      Before_Fwd := S.Navigation.History.Forward_Stack.Length;
 
       Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
@@ -1901,8 +1901,8 @@ procedure Test_Delete_Validation_Order_And_Active_Source
         and then Buffer_Text (S) = To_String (Before_Text)
         and then Editor.History.Undo_Stack.Length = Before_Undo
         and then Editor.History.Redo_Stack.Length = Before_Redo
-        and then S.Navigation_History.Back_Stack.Length = Before_Back
-        and then S.Navigation_History.Forward_Stack.Length = Before_Fwd
+        and then S.Navigation.History.Back_Stack.Length = Before_Back
+        and then S.Navigation.History.Forward_Stack.Length = Before_Fwd
         and then To_String (S.Search.Active_Find_Query) = "delete"
         and then To_String (S.Search.Active_Replace_Text) = "replace"
         and then To_String (Editor.Clipboard.Get_Text) = "clipboard",
@@ -1915,8 +1915,8 @@ procedure Test_Delete_Validation_Order_And_Active_Source
       Before_Gen := S.Buffer_Lifecycle.File_Info.Saved_Generation;
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
-      Before_Back := S.Navigation_History.Back_Stack.Length;
-      Before_Fwd := S.Navigation_History.Forward_Stack.Length;
+      Before_Back := S.Navigation.History.Back_Stack.Length;
+      Before_Fwd := S.Navigation.History.Forward_Stack.Length;
 
       Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
@@ -1931,8 +1931,8 @@ procedure Test_Delete_Validation_Order_And_Active_Source
         and then Buffer_Text (S) = To_String (Before_Text)
         and then Editor.History.Undo_Stack.Length = Before_Undo
         and then Editor.History.Redo_Stack.Length = Before_Redo
-        and then S.Navigation_History.Back_Stack.Length = Before_Back
-        and then S.Navigation_History.Forward_Stack.Length = Before_Fwd
+        and then S.Navigation.History.Back_Stack.Length = Before_Back
+        and then S.Navigation.History.Forward_Stack.Length = Before_Fwd
         and then To_String (S.Search.Active_Find_Query) = "delete"
         and then To_String (S.Search.Active_Replace_Text) = "replace"
         and then To_String (Editor.Clipboard.Get_Text) = "clipboard"
@@ -2201,7 +2201,7 @@ procedure Test_Delete_Validation_Order_And_Active_Source
       Editor.Clipboard.Set_Text (To_Unbounded_String ("clipboard"));
       Editor.Executor.Selection_Commands.Execute_Select_All_Selection_Command (S);
       Editor.Navigation_History.Record_Explicit_Navigation
-        (S.Navigation_History,
+        (S.Navigation.History,
          (Buffer_Id => Natural (Editor.Buffers.Global_Active_Buffer),
           Has_File_Path => True,
           File_Path => S.Buffer_Lifecycle.File_Info.Path,
@@ -2210,8 +2210,8 @@ procedure Test_Delete_Validation_Order_And_Active_Source
           Column => 0,
           Viewport_Row => 0,
           Reason => Editor.Navigation_History.Navigation_Reason_Find_Next));
-      Before_Back := S.Navigation_History.Back_Stack.Length;
-      Before_Fwd := S.Navigation_History.Forward_Stack.Length;
+      Before_Back := S.Navigation.History.Back_Stack.Length;
+      Before_Fwd := S.Navigation.History.Forward_Stack.Length;
       Remove_If_Exists (C_Path);
       Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
@@ -2223,8 +2223,8 @@ procedure Test_Delete_Validation_Order_And_Active_Source
         and then To_String (S.Search.Active_Find_Query) = "C"
         and then To_String (S.Search.Active_Replace_Text) = "see"
         and then To_String (Editor.Clipboard.Get_Text) = "clipboard"
-        and then S.Navigation_History.Back_Stack.Length = Before_Back
-        and then S.Navigation_History.Forward_Stack.Length = Before_Fwd
+        and then S.Navigation.History.Back_Stack.Length = Before_Back
+        and then S.Navigation.History.Forward_Stack.Length = Before_Fwd
         and then not S.Buffer_Lifecycle.Has_Reopen_Candidate,
         "integrated: filesystem failure preserves C association, feature state, and reopen candidates");
       Write_Bytes (C_Path, "C original");
@@ -2238,8 +2238,8 @@ procedure Test_Delete_Validation_Order_And_Active_Source
         and then To_String (S.Search.Active_Find_Query) = "C"
         and then To_String (S.Search.Active_Replace_Text) = "see"
         and then To_String (Editor.Clipboard.Get_Text) = "clipboard"
-        and then S.Navigation_History.Back_Stack.Length = Before_Back
-        and then S.Navigation_History.Forward_Stack.Length = Before_Fwd,
+        and then S.Navigation.History.Back_Stack.Length = Before_Back
+        and then S.Navigation.History.Forward_Stack.Length = Before_Fwd,
         "integrated: successful C delete preserves editor-local state while clearing association");
       Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, C1_Path);
       Editor.Executor.Buffer_Close_Commands.Execute_Close_Active_Buffer (S);
@@ -2321,7 +2321,7 @@ procedure Test_Delete_Validation_Order_And_Active_Source
       Editor.Executor.Selection_Commands.Execute_Select_All_Selection_Command (S);
       Editor.Clipboard.Set_Text (To_Unbounded_String ("read only clipboard"));
       Editor.Navigation_History.Record_Explicit_Navigation
-        (S.Navigation_History,
+        (S.Navigation.History,
          (Buffer_Id => Natural (Editor.Buffers.Global_Active_Buffer),
           Has_File_Path => True,
           File_Path => S.Buffer_Lifecycle.File_Info.Path,
@@ -2334,8 +2334,8 @@ procedure Test_Delete_Validation_Order_And_Active_Source
       Before_Text := To_Unbounded_String (Buffer_Text (S));
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
-      Before_Back := S.Navigation_History.Back_Stack.Length;
-      Before_Fwd := S.Navigation_History.Forward_Stack.Length;
+      Before_Back := S.Navigation.History.Back_Stack.Length;
+      Before_Fwd := S.Navigation.History.Forward_Stack.Length;
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Delete_Buffer_File);
@@ -2368,8 +2368,8 @@ procedure Test_Delete_Validation_Order_And_Active_Source
         and then not S.Buffer_Lifecycle.File_Info.Dirty
         and then Editor.History.Undo_Stack.Length = Before_Undo
         and then Editor.History.Redo_Stack.Length = Before_Redo
-        and then S.Navigation_History.Back_Stack.Length = Before_Back
-        and then S.Navigation_History.Forward_Stack.Length = Before_Fwd
+        and then S.Navigation.History.Back_Stack.Length = Before_Back
+        and then S.Navigation.History.Forward_Stack.Length = Before_Fwd
         and then To_String (S.Search.Active_Find_Query) = "delete"
         and then To_String (S.Search.Active_Replace_Text) = "remove"
         and then To_String (Editor.Clipboard.Get_Text) = "read only clipboard",
@@ -2410,8 +2410,8 @@ procedure Test_Delete_Validation_Order_And_Active_Source
         and then S.Buffer_Lifecycle.File_Info.Saved_Generation = 0
         and then Editor.History.Undo_Stack.Length = Before_Undo
         and then Editor.History.Redo_Stack.Length = Before_Redo
-        and then S.Navigation_History.Back_Stack.Length = Before_Back
-        and then S.Navigation_History.Forward_Stack.Length = Before_Fwd
+        and then S.Navigation.History.Back_Stack.Length = Before_Back
+        and then S.Navigation.History.Forward_Stack.Length = Before_Fwd
         and then To_String (S.Search.Active_Find_Query) = "delete"
         and then To_String (S.Search.Active_Replace_Text) = "remove"
         and then To_String (Editor.Clipboard.Get_Text) = "read only clipboard"
@@ -2483,7 +2483,7 @@ procedure Test_Delete_Cleanup_Preserves_Source_State_And_Persistence
       S.Buffer_Lifecycle.Reopen_Candidate_Path := To_Unbounded_String (Reopen_Path);
       S.Buffer_Lifecycle.Reopen_Candidate_Label := To_Unbounded_String ("reopen");
       Editor.Navigation_History.Record_Explicit_Navigation
-        (S.Navigation_History,
+        (S.Navigation.History,
          (Buffer_Id => Natural (Editor.Buffers.Global_Active_Buffer),
           Has_File_Path => True,
           File_Path => S.Buffer_Lifecycle.File_Info.Path,
@@ -2496,8 +2496,8 @@ procedure Test_Delete_Cleanup_Preserves_Source_State_And_Persistence
       Before_Text := To_Unbounded_String (Buffer_Text (S));
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
-      Before_Back := S.Navigation_History.Back_Stack.Length;
-      Before_Fwd := S.Navigation_History.Forward_Stack.Length;
+      Before_Back := S.Navigation.History.Back_Stack.Length;
+      Before_Fwd := S.Navigation.History.Forward_Stack.Length;
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Delete_Buffer_File);
       Workspace := Editor.State.Build_Workspace_Snapshot (S);
@@ -2510,8 +2510,8 @@ procedure Test_Delete_Cleanup_Preserves_Source_State_And_Persistence
         and then Ada.Directories.Exists (Reopen_Path)
         and then S.Buffer_Lifecycle.File_Info.Has_Path
         and then Buffer_Text (S) = To_String (Before_Text)
-        and then S.Navigation_History.Back_Stack.Length = Before_Back
-        and then S.Navigation_History.Forward_Stack.Length = Before_Fwd,
+        and then S.Navigation.History.Back_Stack.Length = Before_Back
+        and then S.Navigation.History.Forward_Stack.Length = Before_Fwd,
         "availability/workspace snapshot must be read-only and must not infer or repair delete source state");
       Assert_Summary_Excludes ("last delete");
       Assert_Summary_Excludes ("delete history");
@@ -2545,8 +2545,8 @@ procedure Test_Delete_Cleanup_Preserves_Source_State_And_Persistence
         and then Editor.Buffers.Global_Active_Buffer = Editor.Buffers.Buffer_Id (1)
         and then Editor.History.Undo_Stack.Length = Before_Undo
         and then Editor.History.Redo_Stack.Length = Before_Redo
-        and then S.Navigation_History.Back_Stack.Length = Before_Back
-        and then S.Navigation_History.Forward_Stack.Length = Before_Fwd
+        and then S.Navigation.History.Back_Stack.Length = Before_Back
+        and then S.Navigation.History.Forward_Stack.Length = Before_Fwd
         and then To_String (S.Search.Active_Find_Query) = ""
         and then To_String (S.Search.Active_Replace_Text) = "canonical"
         and then To_String (Editor.Clipboard.Get_Text) = "clipboard",

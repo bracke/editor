@@ -115,9 +115,9 @@ package body Editor.Clipboard.Tests is
       Why            : String)
    is
    begin
-      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = Expected_Back,
+      Assert (Editor.Navigation_History.Back_Count (S.Navigation.History) = Expected_Back,
               Why & " must not change navigation back stack");
-      Assert (Editor.Navigation_History.Forward_Count (S.Navigation_History) = Expected_Fwd,
+      Assert (Editor.Navigation_History.Forward_Count (S.Navigation.History) = Expected_Fwd,
               Why & " must not change navigation forward stack");
    end Assert_No_Navigation_History_Change;
 
@@ -688,8 +688,8 @@ package body Editor.Clipboard.Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Beta");
       Before_Find_Q := S.Search.Active_Find_Query;
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation.History);
       Before_Undo := Undo_Count;
       Before_Redo := Redo_Count;
 
@@ -760,8 +760,8 @@ package body Editor.Clipboard.Tests is
       Mark_Clean (S);
       Reset_Transient_State;
       Editor.Clipboard.Set_Text (To_Unbounded_String ("Beta"));
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation.History);
 
       Set_Primary_Caret (S, 6);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Paste);
@@ -807,8 +807,8 @@ package body Editor.Clipboard.Tests is
       Editor.Clipboard.Set_Text (To_Unbounded_String ("Previous"));
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Beta");
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation.History);
 
       Set_Primary_Selection (S, 6, 10);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Cut);
@@ -1101,12 +1101,12 @@ package body Editor.Clipboard.Tests is
       Editor.Buffer_Switcher.Open (S.Surface.Buffer_Switcher);
       Editor.Buffer_Switcher.Set_Filter_Text
         (S.Surface.Buffer_Switcher, Before_Switcher_Filter);
-      Editor.Bookmarks.Show (S.Bookmarks);
+      Editor.Bookmarks.Show (S.Navigation.Bookmarks);
       Editor.Bookmarks.Toggle
-        (S.Bookmarks, "alpha.adb", "alpha.adb", 1, 0, True, Added);
-      Editor.Recent_Buffers.Mark_Activated (S.Recent_Buffers, 17);
-      Before_Bookmark_Count := Editor.Bookmarks.Count (S.Bookmarks);
-      Before_Recent_Count := Editor.Recent_Buffers.Count (S.Recent_Buffers);
+        (S.Navigation.Bookmarks, "alpha.adb", "alpha.adb", 1, 0, True, Added);
+      Editor.Recent_Buffers.Mark_Activated (S.Navigation.Recent_Buffers, 17);
+      Before_Bookmark_Count := Editor.Bookmarks.Count (S.Navigation.Bookmarks);
+      Before_Recent_Count := Editor.Recent_Buffers.Count (S.Navigation.Recent_Buffers);
 
       Set_Primary_Selection (S, 6, 10);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy);
@@ -1124,10 +1124,10 @@ package body Editor.Clipboard.Tests is
       Assert (Editor.Buffer_Switcher.Filter_Text (S.Surface.Buffer_Switcher) =
                 Before_Switcher_Filter,
               "clipboard commands must not mutate Open Buffer Switcher filters");
-      Assert (Editor.Bookmarks.Count (S.Bookmarks) = Before_Bookmark_Count
-              and then Editor.Bookmarks.Is_Visible (S.Bookmarks),
+      Assert (Editor.Bookmarks.Count (S.Navigation.Bookmarks) = Before_Bookmark_Count
+              and then Editor.Bookmarks.Is_Visible (S.Navigation.Bookmarks),
               "clipboard commands must not mutate bookmarks or bookmark surface state");
-      Assert (Editor.Recent_Buffers.Count (S.Recent_Buffers) = Before_Recent_Count,
+      Assert (Editor.Recent_Buffers.Count (S.Navigation.Recent_Buffers) = Before_Recent_Count,
               "clipboard commands must not update recent-buffer history");
    end Test_Feature_Independence_During_Clipboard_Workflow;
 

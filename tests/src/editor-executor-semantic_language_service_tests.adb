@@ -82,8 +82,8 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic reference fixture refreshes Outline");
 
-      Editor.Outline.Select_Item (S.Outline, 1);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Outline.Select_Item (S.Outline_Runtime.Outline, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline_Runtime.Outline, S.Panel.Feature_Panel);
       Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
       Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
       S.Caret.Carets.Replace_Element
@@ -140,8 +140,8 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
       Assert (Editor.Feature_Search_Results.Item_Target_Buffer
                 (S.Panel.Feature_Search_Results, 1) = S.Buffer_Lifecycle.Active_Buffer_Token,
               "semantic reference row targets the live buffer token");
-      Assert (Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel)
-              and then Editor.Panels.Active_Bottom_Content (S.Panels) =
+      Assert (Editor.Panels.Is_Visible (S.Panel.Panels, Editor.Panels.Bottom_Panel)
+              and then Editor.Panels.Active_Bottom_Content (S.Panel.Panels) =
                 Editor.Panels.Search_Results_Content,
               "semantic find references shows the Search Results panel");
       Assert (Editor.Feature_Panel.Selected_Row (S.Panel.Feature_Panel) = 1,
@@ -177,8 +177,8 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic workspace symbol fixture refreshes Outline");
 
-      Editor.Outline.Select_Item (S.Outline, 1);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Outline.Select_Item (S.Outline_Runtime.Outline, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline_Runtime.Outline, S.Panel.Feature_Panel);
       Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
       Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
       S.Caret.Carets.Replace_Element
@@ -238,8 +238,8 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
       Assert (Editor.Feature_Search_Results.Item_Has_Target
                 (S.Panel.Feature_Search_Results, 1),
               "workspace symbol row is navigable");
-      Assert (Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel)
-              and then Editor.Panels.Active_Bottom_Content (S.Panels) =
+      Assert (Editor.Panels.Is_Visible (S.Panel.Panels, Editor.Panels.Bottom_Panel)
+              and then Editor.Panels.Active_Bottom_Content (S.Panel.Panels) =
                 Editor.Panels.Search_Results_Content,
               "semantic workspace symbols show the Search Results panel");
 
@@ -270,8 +270,8 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic completion fixture refreshes Outline");
 
-      Editor.Outline.Select_Item (S.Outline, 1);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Outline.Select_Item (S.Outline_Runtime.Outline, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline_Runtime.Outline, S.Panel.Feature_Panel);
       Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
       Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
       S.Caret.Carets.Replace_Element
@@ -330,7 +330,7 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
       Assert (S.Semantic.Popup.Item_Count = 3
               and then To_String (S.Semantic.Popup.Items (1).Label) = "R",
               "semantic completion popup carries bounded completion rows");
-      Assert (not Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel),
+      Assert (not Editor.Panels.Is_Visible (S.Panel.Panels, Editor.Panels.Bottom_Panel),
               "semantic completions do not force-open the Search Results panel");
       Assert (Editor.Feature_Panel.Selected_Row (S.Panel.Feature_Panel) = 1,
               "semantic completions select the first projected row");
@@ -408,8 +408,8 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic hover fixture refreshes Outline");
 
-      Editor.Outline.Select_Item (S.Outline, 1);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Outline.Select_Item (S.Outline_Runtime.Outline, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline_Runtime.Outline, S.Panel.Feature_Panel);
       Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
       Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 
@@ -459,7 +459,7 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
               and then To_String (S.Semantic.Popup.Detail) =
                 "procedure (Count : Natural)",
               "semantic hover popup carries label and detail");
-      Assert (not Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel),
+      Assert (not Editor.Panels.Is_Visible (S.Panel.Panels, Editor.Panels.Bottom_Panel),
               "semantic hover does not force-open the Search Results panel");
       Assert (Editor.Feature_Panel.Selected_Row (S.Panel.Feature_Panel) = 1,
               "semantic hover selects the projected row");

@@ -198,7 +198,7 @@ package body Editor.Active_Find.Tests is
         (Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Pos) = Natural (S.Search.Active_Find_Match.Start_Index),
          "find navigation must collapse the caret at the selected match start");
       Assert
-        (Editor.Navigation_History.Has_Back (S.Navigation_History),
+        (Editor.Navigation_History.Has_Back (S.Navigation.History),
          "successful find navigation must record the pre-find location");
 
       Editor.Executor.Find_Replace_Commands.Execute_Find_Previous (S);
@@ -633,7 +633,7 @@ package body Editor.Active_Find.Tests is
         (Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Pos) = 10,
          "find from selection must not move the caret");
       Assert
-        (not Editor.Navigation_History.Has_Back (S.Navigation_History),
+        (not Editor.Navigation_History.Has_Back (S.Navigation.History),
          "find from selection must not record navigation history");
       Assert
         (Active_Message_Text (S) = "Find query set: 1 matches",
@@ -724,7 +724,7 @@ package body Editor.Active_Find.Tests is
          and then Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Pos) = 5,
          "active-word Find must extract only [A-Za-z0-9_]+ token at the caret and not move");
       Assert
-        (not Editor.Navigation_History.Has_Back (S.Navigation_History),
+        (not Editor.Navigation_History.Has_Back (S.Navigation.History),
          "active-word Find must not record navigation history");
 
       Set_Primary_Caret (S, Pos => 8, Anchor => 8);
@@ -994,19 +994,19 @@ package body Editor.Active_Find.Tests is
       Assert
         (To_String (S.Search.Active_Find_Query) = "needle"
          and then Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Pos) = 0
-         and then not Editor.Navigation_History.Has_Back (S.Navigation_History),
+         and then not Editor.Navigation_History.Has_Back (S.Navigation.History),
          "context-derived Find query must not move the caret or record history");
 
       Editor.Executor.Find_Replace_Commands.Execute_Find_Next (S);
       Assert
         (S.Search.Active_Find_Match.Start_Row = 2
-         and then Editor.Navigation_History.Back_Count (S.Navigation_History) = 1,
+         and then Editor.Navigation_History.Back_Count (S.Navigation.History) = 1,
          "find.next after context query must move to the next match and record one previous location");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Back);
       Assert
         (Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Pos) = 0
-         and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = 1,
+         and then Editor.Navigation_History.Forward_Count (S.Navigation.History) = 1,
          "navigation.back must return to the pre-find caret location and populate the forward stack");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Forward);
@@ -1039,14 +1039,14 @@ package body Editor.Active_Find.Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Find_Next (S);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Back);
       Assert
-        (Editor.Navigation_History.Has_Forward (S.Navigation_History),
+        (Editor.Navigation_History.Has_Forward (S.Navigation.History),
          "setup must leave a forward navigation target after back");
 
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "NoSuchToken");
       Editor.Executor.Find_Replace_Commands.Execute_Find_Next (S);
       Assert
         (Active_Message_Text (S) = "No matches"
-         and then Editor.Navigation_History.Has_Forward (S.Navigation_History),
+         and then Editor.Navigation_History.Has_Forward (S.Navigation.History),
          "failed no-match find.next must not clear the existing forward stack");
    end Test_No_Match_Find_Does_Not_Clear_Forward_Stack;
 
@@ -1086,7 +1086,7 @@ package body Editor.Active_Find.Tests is
       Assert
         (Active_Message_Text (S) = "No matches"
          and then S.Search.Active_Find_Matches.Is_Empty
-         and then not Editor.Navigation_History.Has_Back (S.Navigation_History),
+         and then not Editor.Navigation_History.Has_Back (S.Navigation.History),
          "find.next in the new buffer must recompute against that buffer only and avoid history on no matches");
 
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, Original);
@@ -1140,7 +1140,7 @@ package body Editor.Active_Find.Tests is
       After := Editor.Input_Bridge.Get_State_For_Test;
       Assert
         (Editor.Search.Has_Match (After.Search.Active_Find_Match)
-         and then Editor.Navigation_History.Has_Back (After.Navigation_History)
+         and then Editor.Navigation_History.Has_Back (After.Navigation.History)
          and then Active_Message_Text (After) = "Found match 2 of 2",
          "Enter in active Find prompt must route find.next through Executor and record history only on movement");
    end Test_Find_Prompt_Input_Routing_And_Feature_Isolation;
@@ -1225,7 +1225,7 @@ package body Editor.Active_Find.Tests is
       Assert
         (S.Buffer_Lifecycle.File_Info.Dirty
          and then S.Search.Active_Find_Match.Start_Row = 2
-         and then Editor.Navigation_History.Back_Count (S.Navigation_History) = 1,
+         and then Editor.Navigation_History.Back_Count (S.Navigation.History) = 1,
          "find.next in a dirty buffer must only move the caret and record successful navigation");
 
       Editor.Executor.Find_Replace_Commands.Execute_Find_Previous (S);
@@ -1301,7 +1301,7 @@ package body Editor.Active_Find.Tests is
       After := Editor.Input_Bridge.Get_State_For_Test;
       Assert
         (Editor.Search.Has_Match (After.Search.Active_Find_Match)
-         and then Editor.Navigation_History.Has_Back (After.Navigation_History)
+         and then Editor.Navigation_History.Has_Back (After.Navigation.History)
          and then Active_Message_Text (After) = "Found previous match 3 of 3",
          "Shift+Enter owned by active Find must route edit.find.previous through Executor");
 
@@ -1373,7 +1373,7 @@ package body Editor.Active_Find.Tests is
         (Ada.Strings.Fixed.Index (To_String (Summary), "alpha") = 0
          and then Ada.Strings.Fixed.Index (To_String (Summary), "find") = 0
          and then Ada.Strings.Fixed.Index (To_String (Summary), "Find") = 0
-         and then Editor.Navigation_History.Has_Back (S.Navigation_History),
+         and then Editor.Navigation_History.Has_Back (S.Navigation.History),
          "workspace snapshots must exclude transient Find query/matches/case/whole-word/source/stale/error and non-persistent navigation history");
    end Test_Find_State_Excluded_From_Workspace_Snapshot;
 
@@ -1526,7 +1526,7 @@ package body Editor.Active_Find.Tests is
          "default active-buffer Find must be case-insensitive");
 
       Editor.Navigation_History.Record_Forward_Navigation
-        (S.Navigation_History,
+        (S.Navigation.History,
          (Buffer_Id => 1,
           Has_File_Path => False,
           File_Path => Null_Unbounded_String,
@@ -1535,16 +1535,16 @@ package body Editor.Active_Find.Tests is
           Column => 0,
           Viewport_Row => 0,
           Reason => Editor.Navigation_History.Navigation_Reason_Forward));
-      Back_Before := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Forward_Before := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Back_Before := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Forward_Before := Editor.Navigation_History.Forward_Count (S.Navigation.History);
 
       Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Toggle (S);
       Assert
         (S.Search.Active_Find_Case_Sensitive
          and then Natural (S.Search.Active_Find_Matches.Length) = 2
          and then Editor.Search.Has_Match (S.Search.Active_Find_Match)
-         and then Editor.Navigation_History.Back_Count (S.Navigation_History) = Back_Before
-         and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = Forward_Before
+         and then Editor.Navigation_History.Back_Count (S.Navigation.History) = Back_Before
+         and then Editor.Navigation_History.Forward_Count (S.Navigation.History) = Forward_Before
          and then Active_Message_Text (S) = "Find case: sensitive; 2 matches",
          "case toggle must switch to sensitive matching and recompute current matches");
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
@@ -1784,7 +1784,7 @@ package body Editor.Active_Find.Tests is
          "default active-buffer Find must remain substring matching");
 
       Editor.Navigation_History.Record_Forward_Navigation
-        (S.Navigation_History,
+        (S.Navigation.History,
          (Buffer_Id => 1,
           Has_File_Path => False,
           File_Path => Null_Unbounded_String,
@@ -1793,16 +1793,16 @@ package body Editor.Active_Find.Tests is
           Column => 0,
           Viewport_Row => 0,
           Reason => Editor.Navigation_History.Navigation_Reason_Forward));
-      Back_Before := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Forward_Before := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Back_Before := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Forward_Before := Editor.Navigation_History.Forward_Count (S.Navigation.History);
 
       Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Toggle (S);
       Assert
         (S.Search.Active_Find_Whole_Word
          and then Natural (S.Search.Active_Find_Matches.Length) = 4
          and then Editor.Search.Has_Match (S.Search.Active_Find_Match)
-         and then Editor.Navigation_History.Back_Count (S.Navigation_History) = Back_Before
-         and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = Forward_Before
+         and then Editor.Navigation_History.Back_Count (S.Navigation.History) = Back_Before
+         and then Editor.Navigation_History.Forward_Count (S.Navigation.History) = Forward_Before
          and then Active_Message_Text (S) = "Find whole word: on; 4 matches",
          "whole-word toggle must recompute bounded matches without navigation side effects");
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
@@ -2081,7 +2081,7 @@ package body Editor.Active_Find.Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Toggle (S);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Toggle (S);
-      Back_Before := Editor.Navigation_History.Back_Count (S.Navigation_History);
+      Back_Before := Editor.Navigation_History.Back_Count (S.Navigation.History);
       Caret_Before := Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Pos);
 
       Editor.Executor.Find_Replace_Commands.Execute_Find_From_Active_Word (S);
@@ -2091,7 +2091,7 @@ package body Editor.Active_Find.Tests is
          and then To_String (S.Search.Active_Find_Query) = "Execute"
          and then Natural (S.Search.Active_Find_Matches.Length) = 1
          and then Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Pos) = Caret_Before
-         and then Editor.Navigation_History.Back_Count (S.Navigation_History) = Back_Before,
+         and then Editor.Navigation_History.Back_Count (S.Navigation.History) = Back_Before,
          "find-from-active-word must preserve options, avoid Execute_Command under whole-word, and not navigate");
 
       Set_Primary_Caret (S, Pos => 15, Anchor => 8);
@@ -2101,7 +2101,7 @@ package body Editor.Active_Find.Tests is
          and then S.Search.Active_Find_Whole_Word
          and then To_String (S.Search.Active_Find_Query) = "execute"
          and then Natural (S.Search.Active_Find_Matches.Length) = 1
-         and then Editor.Navigation_History.Back_Count (S.Navigation_History) = Back_Before,
+         and then Editor.Navigation_History.Back_Count (S.Navigation.History) = Back_Before,
          "find-from-selection must preserve active case and whole-word options");
 
       Set_Primary_Caret (S, Pos => 15, Anchor => 15);
@@ -2112,7 +2112,7 @@ package body Editor.Active_Find.Tests is
          and then To_String (S.Search.Active_Find_Query) = "execute"
          and then Natural (S.Search.Active_Find_Matches.Length) = 1
          and then Active_Message_Text (S) = "No selected text"
-         and then Editor.Navigation_History.Back_Count (S.Navigation_History) = Back_Before,
+         and then Editor.Navigation_History.Back_Count (S.Navigation.History) = Back_Before,
          "failed context Find must preserve query, options, matches, caret, and navigation history");
    end Test_Context_Find_Preserves_Options_And_Failures;
 
@@ -2151,10 +2151,10 @@ package body Editor.Active_Find.Tests is
          and then Natural (S.Search.Active_Find_Matches.Length) = 3,
          "case toggle after context query must compose with whole-word for the same query");
 
-      Back_Before := Editor.Navigation_History.Back_Count (S.Navigation_History);
+      Back_Before := Editor.Navigation_History.Back_Count (S.Navigation.History);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Next (S);
       Assert
-        (Editor.Navigation_History.Back_Count (S.Navigation_History) = Back_Before + 1
+        (Editor.Navigation_History.Back_Count (S.Navigation.History) = Back_Before + 1
          and then S.Search.Active_Find_Match.Start_Row = 1
          and then Active_Message_Text (S) = "Found match 2 of 3",
          "only successful next after option changes must record navigation history");
@@ -2250,7 +2250,7 @@ package body Editor.Active_Find.Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Run");
       Caret_Before := Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Pos);
-      Back_Before := Editor.Navigation_History.Back_Count (S.Navigation_History);
+      Back_Before := Editor.Navigation_History.Back_Count (S.Navigation.History);
 
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Execute_Command_Id
@@ -2259,7 +2259,7 @@ package body Editor.Active_Find.Tests is
       Assert
         (After.Search.Active_Find_Case_Sensitive
          and then Natural (After.Caret.Carets (After.Caret.Carets.First_Index).Pos) = Caret_Before
-         and then Editor.Navigation_History.Back_Count (After.Navigation_History) = Back_Before,
+         and then Editor.Navigation_History.Back_Count (After.Navigation.History) = Back_Before,
          "Input_Bridge must route case toggle through Executor without local caret/history mutation");
 
       Editor.Input_Bridge.Set_State_For_Test (After);
@@ -2270,7 +2270,7 @@ package body Editor.Active_Find.Tests is
         (After.Search.Active_Find_Whole_Word
          and then Natural (After.Search.Active_Find_Matches.Length) = 2
          and then Natural (After.Caret.Carets (After.Caret.Carets.First_Index).Pos) = Caret_Before
-         and then Editor.Navigation_History.Back_Count (After.Navigation_History) = Back_Before,
+         and then Editor.Navigation_History.Back_Count (After.Navigation.History) = Back_Before,
          "Input_Bridge must route whole-word toggle through Executor and recompute with current query");
 
       Editor.Input_Bridge.Set_State_For_Test (After);
@@ -2283,7 +2283,7 @@ package body Editor.Active_Find.Tests is
         ((not After.Search.Active_Find_Case_Sensitive)
          and then (not After.Search.Active_Find_Whole_Word)
          and then Natural (After.Search.Active_Find_Matches.Length) = 3
-         and then Editor.Navigation_History.Back_Count (After.Navigation_History) = Back_Before,
+         and then Editor.Navigation_History.Back_Count (After.Navigation.History) = Back_Before,
          "Input_Bridge clear commands must also route through Executor and avoid navigation side effects");
    end Test_Input_Routes_Option_Commands_Through_Executor;
 
@@ -2336,13 +2336,13 @@ package body Editor.Active_Find.Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Run");
       Caret_Before := Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Pos);
-      Back_Before := Editor.Navigation_History.Back_Count (S.Navigation_History);
+      Back_Before := Editor.Navigation_History.Back_Count (S.Navigation.History);
 
       Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Toggle (S);
       Assert
         (S.Search.Active_Find_Case_Sensitive
          and then Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Pos) = Caret_Before
-         and then Editor.Navigation_History.Back_Count (S.Navigation_History) = Back_Before
+         and then Editor.Navigation_History.Back_Count (S.Navigation.History) = Back_Before
          and then Active_Message_Text (S) = "Find case: sensitive; 2 matches",
          "case toggle must recompute and message once without caret movement or navigation history");
 
@@ -2350,7 +2350,7 @@ package body Editor.Active_Find.Tests is
       Assert
         (S.Search.Active_Find_Whole_Word
          and then Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Pos) = Caret_Before
-         and then Editor.Navigation_History.Back_Count (S.Navigation_History) = Back_Before
+         and then Editor.Navigation_History.Back_Count (S.Navigation.History) = Back_Before
          and then Active_Message_Text (S) = "Find whole word: on; 2 matches",
          "whole-word toggle must recompute and message once without caret movement or navigation history");
 
@@ -2359,7 +2359,7 @@ package body Editor.Active_Find.Tests is
         ((not S.Search.Active_Find_Case_Sensitive)
          and then S.Search.Active_Find_Whole_Word
          and then Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Pos) = Caret_Before
-         and then Editor.Navigation_History.Back_Count (S.Navigation_History) = Back_Before
+         and then Editor.Navigation_History.Back_Count (S.Navigation.History) = Back_Before
          and then Active_Message_Text (S) = "Find case: insensitive; 2 matches",
          "case.clear must reset only case mode and preserve whole-word without history");
 
@@ -2367,7 +2367,7 @@ package body Editor.Active_Find.Tests is
       Assert
         ((not S.Search.Active_Find_Whole_Word)
          and then Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Pos) = Caret_Before
-         and then Editor.Navigation_History.Back_Count (S.Navigation_History) = Back_Before
+         and then Editor.Navigation_History.Back_Count (S.Navigation.History) = Back_Before
          and then Active_Message_Text (S) = "Find whole word: off; 2 matches",
          "whole-word.clear must reset only whole-word mode without history");
    end Test_Option_Commands_Do_Not_Record_History_Or_Move_Caret;
@@ -2389,7 +2389,7 @@ package body Editor.Active_Find.Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Toggle (S);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Run");
       Caret_Before := Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Pos);
-      Back_Before := Editor.Navigation_History.Back_Count (S.Navigation_History);
+      Back_Before := Editor.Navigation_History.Back_Count (S.Navigation.History);
 
       Assert
         (S.Buffer_Lifecycle.File_Info.Dirty
@@ -2406,7 +2406,7 @@ package body Editor.Active_Find.Tests is
          and then S.Search.Active_Find_Whole_Word
          and then Natural (S.Search.Active_Find_Matches.Length) = 2
          and then Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Pos) = Caret_Before
-         and then Editor.Navigation_History.Back_Count (S.Navigation_History) = Back_Before,
+         and then Editor.Navigation_History.Back_Count (S.Navigation.History) = Back_Before,
          "case clear in dirty buffer must recompute against unsaved text without saving or navigating");
 
       Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Clear (S);
@@ -2415,7 +2415,7 @@ package body Editor.Active_Find.Tests is
          and then (not S.Search.Active_Find_Whole_Word)
          and then Natural (S.Search.Active_Find_Matches.Length) = 3
          and then Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Pos) = Caret_Before
-         and then Editor.Navigation_History.Back_Count (S.Navigation_History) = Back_Before,
+         and then Editor.Navigation_History.Back_Count (S.Navigation.History) = Back_Before,
          "whole-word clear in dirty buffer must include embedded unsaved occurrences without dirty-state changes");
    end Test_Dirty_Buffer_Options_Use_Unsaved_Text;
 
@@ -2535,7 +2535,7 @@ package body Editor.Active_Find.Tests is
          and then Ada.Strings.Fixed.Index (To_String (Summary), "Find") = 0
          and then Ada.Strings.Fixed.Index (To_String (Summary), "case") = 0
          and then Ada.Strings.Fixed.Index (To_String (Summary), "whole") = 0
-         and then Editor.Navigation_History.Has_Back (S.Navigation_History),
+         and then Editor.Navigation_History.Has_Back (S.Navigation.History),
          "workspace persistence summary must exclude Find query, option names, matches, stale/source state, and navigation history payloads");
    end Test_Workspace_Snapshot_Excludes_Option_Tokens;
 
@@ -2565,7 +2565,7 @@ package body Editor.Active_Find.Tests is
          and then Natural (S.Search.Active_Find_Match.Index) = 3
          and then Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Pos) =
            Natural (S.Search.Active_Find_Match.Start_Index)
-         and then Editor.Navigation_History.Back_Count (S.Navigation_History) = 1
+         and then Editor.Navigation_History.Back_Count (S.Navigation.History) = 1
          and then Snap.Find_Match_Count = 3
          and then Snap.Find_Selected_Match_Index = 3
          and then Snap.Find_Selected_Match_Ordinal = 3
@@ -2575,7 +2575,7 @@ package body Editor.Active_Find.Tests is
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Back);
       Assert
-        (Editor.Navigation_History.Forward_Count (S.Navigation_History) = 1,
+        (Editor.Navigation_History.Forward_Count (S.Navigation.History) = 1,
          "navigation.back after find.last must populate forward history");
 
       Editor.Executor.Find_Replace_Commands.Execute_Find_First (S);
@@ -2585,7 +2585,7 @@ package body Editor.Active_Find.Tests is
          and then Natural (S.Search.Active_Find_Match.Index) = 1
          and then Snap.Find_Selected_Match_Ordinal = 1
          and then To_String (Snap.Find_Status_Text) = "1/3"
-         and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = 0
+         and then Editor.Navigation_History.Forward_Count (S.Navigation.History) = 0
          and then Active_Message_Text (S) = "Found first match 1 of 3",
          "find.first after back must select first match, expose 1/3 status, and clear forward stack only through successful navigation");
    end Test_First_Last_And_Status;
@@ -2612,8 +2612,8 @@ package body Editor.Active_Find.Tests is
       Set_Primary_Caret (S, Pos => 8, Anchor => 8);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Last (S);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Back);
-      Back_Before := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Forward_Before := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Back_Before := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Forward_Before := Editor.Navigation_History.Forward_Count (S.Navigation.History);
 
       Set_Primary_Caret (S, Pos => 8, Anchor => 8);
       Caret_Before := Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Pos);
@@ -2623,8 +2623,8 @@ package body Editor.Active_Find.Tests is
         (S.Search.Active_Find_Match.Start_Row = 2
          and then Natural (S.Search.Active_Find_Match.Index) = 2
          and then Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Pos) = Caret_Before
-         and then Editor.Navigation_History.Back_Count (S.Navigation_History) = Back_Before
-         and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = Forward_Before
+         and then Editor.Navigation_History.Back_Count (S.Navigation.History) = Back_Before
+         and then Editor.Navigation_History.Forward_Count (S.Navigation.History) = Forward_Before
          and then Snap.Find_Selected_Match_Ordinal = 2
          and then To_String (Snap.Find_Status_Text) = "2/2"
          and then Active_Message_Text (S) = "Selected find match 2 of 2",
@@ -2698,7 +2698,7 @@ package body Editor.Active_Find.Tests is
       Assert
         (Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Pos) = Caret
          and then Active_Message_Text (S) = "No find query"
-         and then not Editor.Navigation_History.Has_Back (S.Navigation_History),
+         and then not Editor.Navigation_History.Has_Back (S.Navigation.History),
          "find.first with no query must not move or record history");
 
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "missing");
@@ -2717,7 +2717,7 @@ package body Editor.Active_Find.Tests is
       Assert
         (Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Pos) = Caret
          and then Active_Message_Text (S) = "No matches"
-         and then not Editor.Navigation_History.Has_Back (S.Navigation_History),
+         and then not Editor.Navigation_History.Has_Back (S.Navigation.History),
          "find.last with no matches must not move or record history");
    end Test_No_Query_No_Matches_And_Availability_Are_Read_Only;
 
@@ -2839,7 +2839,7 @@ package body Editor.Active_Find.Tests is
          and then To_String (S.Search.Active_Find_Query) = "beta"
          and then Natural (S.Search.Active_Find_Matches.Length) = 2
          and then Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Pos) = Caret_Before
-         and then not Editor.Navigation_History.Has_Back (S.Navigation_History)
+         and then not Editor.Navigation_History.Has_Back (S.Navigation.History)
          and then Active_Message_Text (S) = "Find query set: 2 matches",
          "find.show from hidden must prefill a valid single-line selection, recompute, emit one useful message, and not navigate");
       Assert
@@ -2956,7 +2956,7 @@ package body Editor.Active_Find.Tests is
          and then Natural (S.Search.Active_Find_Matches.Length) = 4
          and then Snap.Find_Match_Count = 4
          and then Snap.Find_Selected_Match_Ordinal in 1 .. 4
-         and then not Editor.Navigation_History.Has_Back (S.Navigation_History),
+         and then not Editor.Navigation_History.Has_Back (S.Navigation.History),
          "show must prefill selection, recompute current ranges, select a valid ordinal, and avoid history");
       Assert_Find_Coherent (S, "show prefill");
 
@@ -3029,27 +3029,27 @@ package body Editor.Active_Find.Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Toggle (S);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Toggle (S);
       Assert
-        (not Editor.Navigation_History.Has_Back (S.Navigation_History),
+        (not Editor.Navigation_History.Has_Back (S.Navigation.History),
          "show/query/options must not record navigation history");
 
       Editor.Executor.Find_Replace_Commands.Execute_Find_Next (S);
       Assert
         (S.Search.Active_Find_Match.Start_Row = 3
-         and then Editor.Navigation_History.Back_Count (S.Navigation_History) = 1,
+         and then Editor.Navigation_History.Back_Count (S.Navigation.History) = 1,
          "successful find.next movement must record exactly one previous location");
       Editor.Executor.Find_Replace_Commands.Execute_Find_Last (S);
       Assert
         (S.Search.Active_Find_Match.Start_Row = 4
-         and then Editor.Navigation_History.Back_Count (S.Navigation_History) = 2,
+         and then Editor.Navigation_History.Back_Count (S.Navigation.History) = 2,
          "successful find.last movement must record history");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Back);
       Assert
-        (Editor.Navigation_History.Has_Forward (S.Navigation_History),
+        (Editor.Navigation_History.Has_Forward (S.Navigation.History),
          "navigation.back after Find movement must populate forward stack");
       Editor.Executor.Find_Replace_Commands.Execute_Find_Reveal_Current (S);
       Assert
-        (Editor.Navigation_History.Has_Forward (S.Navigation_History)
+        (Editor.Navigation_History.Has_Forward (S.Navigation.History)
          and then Active_Message_Text (S) /= "",
          "reveal-current must select coherently without clearing forward history");
 
@@ -3057,12 +3057,12 @@ package body Editor.Active_Find.Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Find_First (S);
       Assert
         (Active_Message_Text (S) = "No matches"
-         and then Editor.Navigation_History.Has_Forward (S.Navigation_History),
+         and then Editor.Navigation_History.Has_Forward (S.Navigation.History),
          "failed find.first must neither record movement nor clear an existing forward stack");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Forward);
       Assert
-        (not Editor.Navigation_History.Has_Forward (S.Navigation_History),
+        (not Editor.Navigation_History.Has_Forward (S.Navigation.History),
          "preserved forward target must remain usable after a failed Find movement command");
    end Test_Navigation_History_Only_For_Movement;
 
@@ -3125,7 +3125,7 @@ package body Editor.Active_Find.Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Find_Next (S);
       Assert
         (Active_Message_Text (S) = "No matches"
-         and then not Editor.Navigation_History.Has_Back (S.Navigation_History),
+         and then not Editor.Navigation_History.Has_Back (S.Navigation.History),
          "Find movement in a different active buffer must recompute there and avoid history on no-match failure");
 
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, Original);
@@ -3193,7 +3193,7 @@ package body Editor.Active_Find.Tests is
       After := Editor.Input_Bridge.Get_State_For_Test;
       Assert
         (Editor.Search.Has_Match (After.Search.Active_Find_Match)
-         and then Editor.Navigation_History.Has_Back (After.Navigation_History)
+         and then Editor.Navigation_History.Has_Back (After.Navigation.History)
          and then To_Unbounded_String (Editor.Project_Search.Query (After.Surface.Project_Search)) = Project_Text,
          "Find Enter must route movement through Executor without mutating Project Search state");
 
@@ -3315,7 +3315,7 @@ package body Editor.Active_Find.Tests is
         (Ada.Strings.Fixed.Index (To_String (Summary), "PersistToken") = 0
          and then Ada.Strings.Fixed.Index (To_String (Summary), "find") = 0
          and then Ada.Strings.Fixed.Index (To_String (Summary), "Find") = 0
-         and then Editor.Navigation_History.Has_Back (S.Navigation_History),
+         and then Editor.Navigation_History.Has_Back (S.Navigation.History),
          "workspace persistence must exclude Find prompt/query/options/matches/selection/source/stale/error and navigation history");
    end Test_Persistence_And_Absent_Command_Final_Coverage;
 

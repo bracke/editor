@@ -262,8 +262,8 @@ package body Editor.Executor.Command_Surface_Commands is
                Editor.Executor.Shared_Services.Report_Info (S, "File conflict cancelled");
                Editor.Render_Cache.Invalidate_All;
                return Editor.Command_Execution.Cancelled (Id);
-            elsif Editor.Guided_Prompts.Is_Active (S.Guided_Prompt) then
-               Editor.Guided_Prompts.Cancel (S.Guided_Prompt);
+            elsif Editor.Guided_Prompts.Is_Active (S.Workflow.Guided_Prompt) then
+               Editor.Guided_Prompts.Cancel (S.Workflow.Guided_Prompt);
                Editor.Executor.Shared_Services.Report_Info (S, "Prompt cancelled.");
                Editor.Render_Cache.Invalidate_All;
                return Editor.Command_Execution.Cancelled (Id);

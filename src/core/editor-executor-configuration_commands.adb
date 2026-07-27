@@ -292,8 +292,8 @@ package body Editor.Executor.Configuration_Commands is
          return;
       end if;
 
-      Editor.Configuration_Recovery.Reset_Settings_Domain (S.Settings, Status);
-      Editor.State.Apply_Settings (S, S.Settings);
+      Editor.Configuration_Recovery.Reset_Settings_Domain (S.Configuration.Settings, Status);
+      Editor.State.Apply_Settings (S, S.Configuration.Settings);
       Report_Recovery_Status (S, Status);
    end Execute_Configuration_Reset_Settings;
 
@@ -391,8 +391,8 @@ package body Editor.Executor.Configuration_Commands is
       end if;
 
       Editor.Configuration_Recovery.Clear_Reset_All_Confirmation;
-      Editor.Settings.Set_Defaults (S.Settings);
-      Editor.State.Apply_Settings (S, S.Settings);
+      Editor.Settings.Set_Defaults (S.Configuration.Settings);
+      Editor.State.Apply_Settings (S, S.Configuration.Settings);
       Row := Editor.Configuration_Recovery.Status_From_Settings
         (Editor.Settings.Settings_Not_Found);
       Row.User_Action_Suggestion := To_Unbounded_String ("Settings reset to defaults.");
@@ -478,7 +478,7 @@ package body Editor.Executor.Configuration_Commands is
       end if;
 
       Editor.Configuration_Recovery.Save_Clean_Settings
-        (S.Settings, Editor.Settings.Settings_File_Path, Status);
+        (S.Configuration.Settings, Editor.Settings.Settings_File_Path, Status);
       Report_Recovery_Status (S, Status);
    end Execute_Configuration_Save_Clean_Settings;
 
@@ -553,7 +553,7 @@ package body Editor.Executor.Configuration_Commands is
         (Snapshot, Editor.Settings.Settings_File_Path, Summary);
 
       if Summary.Status = Editor.Settings.Settings_Ok then
-         S.Settings := Snapshot;
+         S.Configuration.Settings := Snapshot;
          Report_Success
            (S, Editor.Settings_Management.Persistence_Summary_Message
              ("save", Summary));
@@ -615,10 +615,10 @@ package body Editor.Executor.Configuration_Commands is
    begin
       if Editor.Settings_Management.Has_Pending_Reset_All (UI) then
          Editor.Settings_Management.Confirm_Reset_All_Settings
-           (S.Settings, UI, Status);
+           (S.Configuration.Settings, UI, Status);
          Editor.Settings_Management.Set_Current_Settings_Editor_State (UI);
          if Status = Editor.Settings_Management.Setting_Update_Ok then
-            Editor.State.Apply_Settings (S, S.Settings);
+            Editor.State.Apply_Settings (S, S.Configuration.Settings);
             Report_Success (S, "Settings reset to defaults.");
          else
             Report_Error

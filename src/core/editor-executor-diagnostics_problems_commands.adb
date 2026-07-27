@@ -125,15 +125,15 @@ package body Editor.Executor.Diagnostics_Problems_Commands is
       Editor.Problems.Ensure_Selected_Row_Visible
         (S.Panel.Problems_View, Visible, Editor.Executor.Problems_Visible_Row_Count);
       Editor.Panels.Set_Bottom_Content
-        (S.Panels, Editor.Panels.Problems_Content);
+        (S.Panel.Panels, Editor.Panels.Problems_Content);
       Editor.Panels.Set_Visible
-        (S.Panels, Editor.Panels.Bottom_Panel, True);
+        (S.Panel.Panels, Editor.Panels.Bottom_Panel, True);
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_Diagnostics);
       Editor.Executor.Shared_Services.Report_Info
         (S, "Problems filter: "
          & Editor.Problems.Severity_Filter_Label (Filter));
-      Editor.Panels.Set_Current (S.Panels);
+      Editor.Panels.Set_Current (S.Panel.Panels);
       Editor.Render_Cache.Invalidate_All;
    end Execute_Problems_Filter;
 
@@ -152,9 +152,9 @@ package body Editor.Executor.Diagnostics_Problems_Commands is
       Editor.Problems.Ensure_Selected_Row_Visible
         (S.Panel.Problems_View, Visible, Editor.Executor.Problems_Visible_Row_Count);
       Editor.Panels.Set_Bottom_Content
-        (S.Panels, Editor.Panels.Problems_Content);
+        (S.Panel.Panels, Editor.Panels.Problems_Content);
       Editor.Panels.Set_Visible
-        (S.Panels, Editor.Panels.Bottom_Panel, True);
+        (S.Panel.Panels, Editor.Panels.Bottom_Panel, True);
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_Diagnostics);
       case Sort is
@@ -165,7 +165,7 @@ package body Editor.Executor.Diagnostics_Problems_Commands is
          when Editor.Problems.Problems_Sort_By_Source =>
             Editor.Executor.Shared_Services.Report_Info (S, "Problems sort: source");
       end case;
-      Editor.Panels.Set_Current (S.Panels);
+      Editor.Panels.Set_Current (S.Panel.Panels);
       Editor.Render_Cache.Invalidate_All;
    end Execute_Problems_Sort;
 
@@ -184,9 +184,9 @@ package body Editor.Executor.Diagnostics_Problems_Commands is
       Editor.Problems.Ensure_Selected_Row_Visible
         (S.Panel.Problems_View, Visible, Editor.Executor.Problems_Visible_Row_Count);
       Editor.Panels.Set_Bottom_Content
-        (S.Panels, Editor.Panels.Problems_Content);
+        (S.Panel.Panels, Editor.Panels.Problems_Content);
       Editor.Panels.Set_Visible
-        (S.Panels, Editor.Panels.Bottom_Panel, True);
+        (S.Panel.Panels, Editor.Panels.Bottom_Panel, True);
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_Diagnostics);
       case Group is
@@ -195,7 +195,7 @@ package body Editor.Executor.Diagnostics_Problems_Commands is
          when Editor.Problems.Problems_Group_By_Source =>
             Editor.Executor.Shared_Services.Report_Info (S, "Problems group: source");
       end case;
-      Editor.Panels.Set_Current (S.Panels);
+      Editor.Panels.Set_Current (S.Panel.Panels);
       Editor.Render_Cache.Invalidate_All;
    end Execute_Problems_Group;
 

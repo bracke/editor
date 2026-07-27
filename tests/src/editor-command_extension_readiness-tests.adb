@@ -133,7 +133,7 @@ package body Editor.Command_Extension_Readiness.Tests is
       Settings_After  : Natural;
    begin
       Editor.State.Init (S);
-      Editor.Settings.Set_Cursor_Blink (S.Settings, False);
+      Editor.Settings.Set_Cursor_Blink (S.Configuration.Settings, False);
       Metadata_Before := Editor.Command_Domain.Command_Metadata_Fingerprint;
       Settings_Before := Editor.Command_Domain.Settings_Fingerprint (S);
       Editor.Executor.Execute_Command
@@ -157,7 +157,7 @@ package body Editor.Command_Extension_Readiness.Tests is
         Editor.Command_Domain.No_Domains;
    begin
       Editor.State.Init (Before);
-      Editor.Settings.Set_Minimap_Visible (Before.Settings, False);
+      Editor.Settings.Set_Minimap_Visible (Before.Configuration.Settings, False);
       After := Before;
       Editor.Executor.Execute_Command
         (After, Editor.Command_Ids.Command_Reset_Settings_To_Defaults);

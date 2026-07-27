@@ -122,7 +122,7 @@ package body Editor.Focus_Management.Tests is
       Target.Kind := Editor.Pending_Transitions.Pending_Close_Project;
       Summary.Dirty_Count := 1;
       Editor.Pending_Transitions.Set_Pending
-        (S.Pending_Transitions, Target, Summary);
+        (S.Workflow.Pending_Transitions, Target, Summary);
       Editor.Overlay_Focus.Activate
         (S.Panel.Overlay_Focus,
          Editor.Overlay_Focus.Quick_Open_Overlay,
@@ -159,7 +159,7 @@ package body Editor.Focus_Management.Tests is
       Target.Kind := Editor.Pending_Transitions.Pending_Close_Project;
       Summary.Dirty_Count := 1;
       Editor.Pending_Transitions.Set_Pending
-        (S.Pending_Transitions, Target, Summary);
+        (S.Workflow.Pending_Transitions, Target, Summary);
 
       Assert
         (not Editor.Focus_Management.Command_Allowed_While_Pending
@@ -851,9 +851,9 @@ package body Editor.Focus_Management.Tests is
    begin
       Editor.State.Init (S);
       Editor.Panels.Set_Bottom_Content
-        (S.Panels, Editor.Panels.Search_Results_Content);
+        (S.Panel.Panels, Editor.Panels.Search_Results_Content);
       Editor.Panels.Set_Visible
-        (S.Panels, Editor.Panels.Bottom_Panel, True);
+        (S.Panel.Panels, Editor.Panels.Bottom_Panel, True);
       Editor.Panel_Focus.Focus_Bottom_Panel
         (S.Panel.Panel_Focus, Editor.Panel_Focus.Search_Results_Focus);
       Editor.Overlay_Focus.Activate
@@ -932,9 +932,9 @@ package body Editor.Focus_Management.Tests is
    begin
       Editor.State.Init (S);
       Editor.Panels.Set_Bottom_Content
-        (S.Panels, Editor.Panels.Search_Results_Content);
+        (S.Panel.Panels, Editor.Panels.Search_Results_Content);
       Editor.Panels.Set_Visible
-        (S.Panels, Editor.Panels.Bottom_Panel, True);
+        (S.Panel.Panels, Editor.Panels.Bottom_Panel, True);
       Editor.Panel_Focus.Focus_Bottom_Panel
         (S.Panel.Panel_Focus, Editor.Panel_Focus.Search_Results_Focus);
 
@@ -957,7 +957,7 @@ package body Editor.Focus_Management.Tests is
          "closing Quick Open should remove overlay text ownership");
 
       Editor.Panels.Set_Visible
-        (S.Panels, Editor.Panels.Bottom_Panel, False);
+        (S.Panel.Panels, Editor.Panels.Bottom_Panel, False);
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_Quick_Open);
       Editor.Focus_Management.Apply_Command_Focus_Result
@@ -1064,9 +1064,9 @@ package body Editor.Focus_Management.Tests is
       S : Editor.State.State_Type;
    begin
       Editor.Panels.Set_Bottom_Content
-        (S.Panels, Editor.Panels.Search_Results_Content);
+        (S.Panel.Panels, Editor.Panels.Search_Results_Content);
       Editor.Panels.Set_Visible
-        (S.Panels, Editor.Panels.Bottom_Panel, True);
+        (S.Panel.Panels, Editor.Panels.Bottom_Panel, True);
       Editor.Panel_Focus.Focus_Bottom_Panel
         (S.Panel.Panel_Focus, Editor.Panel_Focus.Search_Results_Focus);
 
@@ -1618,7 +1618,7 @@ package body Editor.Focus_Management.Tests is
       Target.Kind := Editor.Pending_Transitions.Pending_Close_Project;
       Summary.Dirty_Count := 1;
       Editor.Pending_Transitions.Set_Pending
-        (S.Pending_Transitions, Target, Summary);
+        (S.Workflow.Pending_Transitions, Target, Summary);
 
       Assert
         (Editor.Focus_Management.Command_Allowed_While_Pending
@@ -1681,7 +1681,7 @@ package body Editor.Focus_Management.Tests is
       S : Editor.State.State_Type;
    begin
       Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
-      Editor.Outline.Activate_Filter_Input (S.Outline);
+      Editor.Outline.Activate_Filter_Input (S.Outline_Runtime.Outline);
 
       Assert
         (Editor.Focus_Management.Effective_Focus_Owner (S) =
@@ -1770,7 +1770,7 @@ package body Editor.Focus_Management.Tests is
         (Editor.Focus_Management.Assert_Panel_Focus_Management_Coherent (S),
          "outline filter and its parent Outline panel should not be treated as competing owners");
 
-      Editor.Outline.Deactivate_Filter_Input (S.Outline);
+      Editor.Outline.Deactivate_Filter_Input (S.Outline_Runtime.Outline);
 
       Assert
         (Editor.Focus_Management.Effective_Focus_Owner (S) =
@@ -2001,9 +2001,9 @@ package body Editor.Focus_Management.Tests is
    begin
       Editor.State.Init (S);
       Editor.Panels.Set_Bottom_Content
-        (S.Panels, Editor.Panels.Search_Results_Content);
+        (S.Panel.Panels, Editor.Panels.Search_Results_Content);
       Editor.Panels.Set_Visible
-        (S.Panels, Editor.Panels.Bottom_Panel, True);
+        (S.Panel.Panels, Editor.Panels.Bottom_Panel, True);
       Editor.Panel_Focus.Focus_Bottom_Panel
         (S.Panel.Panel_Focus, Editor.Panel_Focus.Search_Results_Focus);
 

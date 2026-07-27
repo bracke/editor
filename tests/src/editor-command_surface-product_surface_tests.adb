@@ -610,7 +610,7 @@ package body Editor.Command_Surface.Product_Surface_Tests is
          Editor.State.Init (S);
          Before_Project := Editor.Project.Has_Project (S.Project_Runtime.Project);
          Before_Dirty := S.Buffer_Lifecycle.File_Info.Dirty;
-         Before_Pending := Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions);
+         Before_Pending := Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions);
 
          R := Editor.Executor.Execute_Command_With_Result (S, Id);
          Assert (R.Status /= Editor.Executor.Command_Unavailable,
@@ -619,7 +619,7 @@ package body Editor.Command_Surface.Product_Surface_Tests is
                  Label & " must not mutate project root state");
          Assert (S.Buffer_Lifecycle.File_Info.Dirty = Before_Dirty,
                  Label & " must not mutate file dirty state");
-         Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions) = Before_Pending,
+         Assert (Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions) = Before_Pending,
                  Label & " must not create or clear pending transitions");
       end Check;
    begin

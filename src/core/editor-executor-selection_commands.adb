@@ -404,7 +404,7 @@ package body Editor.Executor.Selection_Commands is
       --  per-row caret projection. Preferred_Column tracks the command cursor
       --  column for status/navigation while render/copy use the spans.
       S.Caret.Preferred_Column := Cursor.Column;
-      Editor.Folding.Expand_To_Reveal_Row (S.Folding, Cursor.Row);
+      Editor.Folding.Expand_To_Reveal_Row (S.Syntax.Folding, Cursor.Row);
       Editor.Render_Cache.Invalidate_All;
       Editor.Invariants.Check (S);
    end Execute_Set_Rectangular_Selection;

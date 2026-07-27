@@ -327,7 +327,7 @@ package body Editor.Gutter_Markers.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "a" & ASCII.LF & "b");
-      Add_Marker (S.Gutter_Markers, 0, Bookmark_Marker);
+      Add_Marker (S.Gutter.Markers, 0, Bookmark_Marker);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.View.Set_Viewport (800, 200);
       Editor.Scrollbars.Reset;
@@ -351,9 +351,9 @@ package body Editor.Gutter_Markers.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "a" & ASCII.LF & "b");
 
-      Add_Marker (S.Gutter_Markers, 1, Dirty_Line_Marker);
-      Add_Marker (S.Gutter_Markers, 1, Bookmark_Marker);
-      Add_Marker (S.Gutter_Markers, 1, Diagnostic_Warning_Marker);
+      Add_Marker (S.Gutter.Markers, 1, Dirty_Line_Marker);
+      Add_Marker (S.Gutter.Markers, 1, Bookmark_Marker);
+      Add_Marker (S.Gutter.Markers, 1, Diagnostic_Warning_Marker);
 
       Target := Editor.State.Line_Start (S, 1);
       Editor.State.Add_Diagnostic
@@ -382,9 +382,9 @@ package body Editor.Gutter_Markers.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "a" & ASCII.LF & "b" & ASCII.LF & "c");
-      Editor.Folding.Add_Fold (S.Folding, 0, 1);
-      Editor.Folding.Toggle_Fold_At_Row (S.Folding, 0);
-      Add_Marker (S.Gutter_Markers, 1, Bookmark_Marker);
+      Editor.Folding.Add_Fold (S.Syntax.Folding, 0, 1);
+      Editor.Folding.Toggle_Fold_At_Row (S.Syntax.Folding, 0);
+      Add_Marker (S.Gutter.Markers, 1, Bookmark_Marker);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.View.Set_Viewport (800, 200);
       Editor.Scrollbars.Reset;
@@ -416,7 +416,7 @@ package body Editor.Gutter_Markers.Tests is
 
       Editor.Input_Bridge.Build_Render_Packet (Without);
 
-      Add_Marker (S.Gutter_Markers, 1, Bookmark_Marker);
+      Add_Marker (S.Gutter.Markers, 1, Bookmark_Marker);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Build_Render_Packet (With_Marker);
 
@@ -499,7 +499,7 @@ package body Editor.Gutter_Markers.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "a" & ASCII.LF & "b");
-      Add_Marker (S.Gutter_Markers, 1, Bookmark_Marker);
+      Add_Marker (S.Gutter.Markers, 1, Bookmark_Marker);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.View.Set_Viewport (800, 200);
       Editor.Scrollbars.Reset;
@@ -533,7 +533,7 @@ package body Editor.Gutter_Markers.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "a" & ASCII.LF & "b");
-      Add_Marker (S.Gutter_Markers, 1, Bookmark_Marker);
+      Add_Marker (S.Gutter.Markers, 1, Bookmark_Marker);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.View.Set_Viewport (800, 200);
       Editor.Scrollbars.Reset;
@@ -556,7 +556,7 @@ package body Editor.Gutter_Markers.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "a" & ASCII.LF & "b");
-      Add_Marker (S.Gutter_Markers, 0, Bookmark_Marker);
+      Add_Marker (S.Gutter.Markers, 0, Bookmark_Marker);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.View.Set_Viewport (800, 200);
       Editor.Scrollbars.Reset;
@@ -579,7 +579,7 @@ package body Editor.Gutter_Markers.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "a" & ASCII.LF & "b");
-      Add_Marker (S.Gutter_Markers, 1, Bookmark_Marker);
+      Add_Marker (S.Gutter.Markers, 1, Bookmark_Marker);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.View.Set_Viewport (800, 200);
       Editor.Scrollbars.Reset;
@@ -601,7 +601,7 @@ package body Editor.Gutter_Markers.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "a" & ASCII.LF & "b");
-      Add_Marker (S.Gutter_Markers, 1, Bookmark_Marker);
+      Add_Marker (S.Gutter.Markers, 1, Bookmark_Marker);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.View.Set_Viewport (800, 200);
       Editor.Scrollbars.Reset;
@@ -661,7 +661,7 @@ package body Editor.Gutter_Markers.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "a" & ASCII.LF & "b");
-      Add_Marker (S.Gutter_Markers, 1, Dirty_Line_Marker);
+      Add_Marker (S.Gutter.Markers, 1, Dirty_Line_Marker);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.View.Set_Viewport (800, 200);
       Editor.Scrollbars.Reset;
@@ -695,9 +695,9 @@ package body Editor.Gutter_Markers.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "a" & ASCII.LF & "b");
       Editor.Dirty_Lines.Set_Baseline_Text
-        (S.Dirty_Lines, "a" & ASCII.LF & "b");
+        (S.Gutter.Dirty_Lines, "a" & ASCII.LF & "b");
       Editor.Dirty_Lines.Recompute
-        (S.Dirty_Lines, "a" & ASCII.LF & "changed");
+        (S.Gutter.Dirty_Lines, "a" & ASCII.LF & "changed");
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.View.Set_Viewport (800, 200);
       Editor.Scrollbars.Reset;
@@ -730,8 +730,8 @@ package body Editor.Gutter_Markers.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "a" & ASCII.LF & "b");
-      Editor.Dirty_Lines.Set_Baseline_Text (S.Dirty_Lines, "a");
-      Editor.Dirty_Lines.Recompute (S.Dirty_Lines, "a" & ASCII.LF & "b");
+      Editor.Dirty_Lines.Set_Baseline_Text (S.Gutter.Dirty_Lines, "a");
+      Editor.Dirty_Lines.Recompute (S.Gutter.Dirty_Lines, "a" & ASCII.LF & "b");
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.View.Set_Viewport (800, 200);
       Editor.Scrollbars.Reset;
@@ -767,7 +767,7 @@ package body Editor.Gutter_Markers.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "a" & ASCII.LF & "b" & ASCII.LF & "c");
-      Add_Marker (S.Gutter_Markers, 1, Bookmark_Marker);
+      Add_Marker (S.Gutter.Markers, 1, Bookmark_Marker);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.View.Set_Viewport (800, 200);
       Editor.Scrollbars.Reset;
@@ -956,14 +956,14 @@ package body Editor.Gutter_Markers.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "a" & ASCII.LF & "b");
-      Add_Marker (S.Gutter_Markers, 0, Added_Line_Marker);
+      Add_Marker (S.Gutter.Markers, 0, Added_Line_Marker);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.View.Set_Viewport (800, 200);
       Editor.Scrollbars.Reset;
       Editor.Input_Bridge.Build_Render_Packet (Added_Packet);
 
-      Clear (S.Gutter_Markers);
-      Add_Marker (S.Gutter_Markers, 0, Modified_Line_Marker);
+      Clear (S.Gutter.Markers);
+      Add_Marker (S.Gutter.Markers, 0, Modified_Line_Marker);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Build_Render_Packet (Modified_Packet);
 
@@ -1006,14 +1006,14 @@ package body Editor.Gutter_Markers.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "a" & ASCII.LF & "b");
-      Add_Marker (S.Gutter_Markers, 0, Added_Line_Marker);
+      Add_Marker (S.Gutter.Markers, 0, Added_Line_Marker);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.View.Set_Viewport (800, 200);
       Editor.Scrollbars.Reset;
       Editor.Input_Bridge.Build_Render_Packet (Added_Packet);
 
-      Clear (S.Gutter_Markers);
-      Add_Marker (S.Gutter_Markers, 0, Modified_Line_Marker);
+      Clear (S.Gutter.Markers);
+      Add_Marker (S.Gutter.Markers, 0, Modified_Line_Marker);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Build_Render_Packet (Modified_Packet);
 
@@ -1039,16 +1039,16 @@ package body Editor.Gutter_Markers.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "a" & ASCII.LF & "b");
-      Add_Marker (S.Gutter_Markers, 0, Added_Line_Marker);
-      Add_Marker (S.Gutter_Markers, 0, Diagnostic_Error_Marker);
+      Add_Marker (S.Gutter.Markers, 0, Added_Line_Marker);
+      Add_Marker (S.Gutter.Markers, 0, Diagnostic_Error_Marker);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.View.Set_Viewport (800, 200);
       Editor.Scrollbars.Reset;
       Editor.Input_Bridge.Build_Render_Packet (Diagnostic_Packet);
 
-      Clear (S.Gutter_Markers);
-      Add_Marker (S.Gutter_Markers, 0, Modified_Line_Marker);
-      Add_Marker (S.Gutter_Markers, 0, Bookmark_Marker);
+      Clear (S.Gutter.Markers);
+      Add_Marker (S.Gutter.Markers, 0, Modified_Line_Marker);
+      Add_Marker (S.Gutter.Markers, 0, Bookmark_Marker);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Build_Render_Packet (Bookmark_Packet);
 
@@ -1074,9 +1074,9 @@ package body Editor.Gutter_Markers.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "a" & ASCII.LF & "b");
       Editor.Dirty_Lines.Set_Baseline_Text
-        (S.Dirty_Lines, "a" & ASCII.LF & "b");
+        (S.Gutter.Dirty_Lines, "a" & ASCII.LF & "b");
       Editor.Dirty_Lines.Recompute
-        (S.Dirty_Lines, "a" & ASCII.LF & "changed");
+        (S.Gutter.Dirty_Lines, "a" & ASCII.LF & "changed");
       Editor.View.Set_Viewport (800, 200);
       Editor.Scrollbars.Reset;
 
@@ -1084,7 +1084,7 @@ package body Editor.Gutter_Markers.Tests is
 
       Assert (Has_Marker (Snap.Gutter_Markers, 1, Modified_Line_Marker),
               "modified dirty row should derive a modified-line marker in the render snapshot");
-      Assert (not Has_Marker (S.Gutter_Markers, 1, Modified_Line_Marker),
+      Assert (not Has_Marker (S.Gutter.Markers, 1, Modified_Line_Marker),
               "derived modified-line marker should not be stored in explicit marker state");
    end Test_Diff_Dirty_Markers_Derived_From_Dirty_State;
 
@@ -1097,8 +1097,8 @@ package body Editor.Gutter_Markers.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "a" & ASCII.LF & "b");
-      Editor.Dirty_Lines.Set_Baseline_Text (S.Dirty_Lines, "a");
-      Editor.Dirty_Lines.Recompute (S.Dirty_Lines, "a" & ASCII.LF & "b");
+      Editor.Dirty_Lines.Set_Baseline_Text (S.Gutter.Dirty_Lines, "a");
+      Editor.Dirty_Lines.Recompute (S.Gutter.Dirty_Lines, "a" & ASCII.LF & "b");
       Editor.View.Set_Viewport (800, 200);
       Editor.Scrollbars.Reset;
 
@@ -1119,12 +1119,12 @@ package body Editor.Gutter_Markers.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "a" & ASCII.LF & "b" & ASCII.LF & "c");
-      Editor.Folding.Add_Fold (S.Folding, 0, 2);
-      Editor.Folding.Toggle_Fold_At_Row (S.Folding, 0);
+      Editor.Folding.Add_Fold (S.Syntax.Folding, 0, 2);
+      Editor.Folding.Toggle_Fold_At_Row (S.Syntax.Folding, 0);
       Editor.Dirty_Lines.Set_Baseline_Text
-        (S.Dirty_Lines, "a" & ASCII.LF & "b" & ASCII.LF & "c");
+        (S.Gutter.Dirty_Lines, "a" & ASCII.LF & "b" & ASCII.LF & "c");
       Editor.Dirty_Lines.Recompute
-        (S.Dirty_Lines, "a" & ASCII.LF & "changed" & ASCII.LF & "c");
+        (S.Gutter.Dirty_Lines, "a" & ASCII.LF & "changed" & ASCII.LF & "c");
       Editor.View.Set_Viewport (800, 200);
       Editor.Scrollbars.Reset;
 
@@ -1145,11 +1145,11 @@ package body Editor.Gutter_Markers.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "a" & ASCII.LF & "b");
-      Toggle_Bookmark (S.Gutter_Markers, 1);
+      Toggle_Bookmark (S.Gutter.Markers, 1);
       Editor.Dirty_Lines.Set_Baseline_Text
-        (S.Dirty_Lines, "a" & ASCII.LF & "b");
+        (S.Gutter.Dirty_Lines, "a" & ASCII.LF & "b");
       Editor.Dirty_Lines.Recompute
-        (S.Dirty_Lines, "a" & ASCII.LF & "changed");
+        (S.Gutter.Dirty_Lines, "a" & ASCII.LF & "changed");
       Editor.View.Set_Viewport (800, 200);
       Editor.Scrollbars.Reset;
 
@@ -1171,8 +1171,8 @@ package body Editor.Gutter_Markers.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "a");
-      Editor.Dirty_Lines.Set_Baseline_Text (S.Dirty_Lines, "a");
-      Editor.Dirty_Lines.Recompute (S.Dirty_Lines, "changed");
+      Editor.Dirty_Lines.Set_Baseline_Text (S.Gutter.Dirty_Lines, "a");
+      Editor.Dirty_Lines.Recompute (S.Gutter.Dirty_Lines, "changed");
       Editor.View.Set_Viewport (800, 200);
       Editor.Scrollbars.Reset;
 

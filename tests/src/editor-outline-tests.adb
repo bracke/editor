@@ -285,7 +285,7 @@ package body Editor.Outline.Tests is
         (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "refresh outline executes through executor");
-      Assert (Item_Count (S.Outline) = 2, "refresh extracts marker outline state");
+      Assert (Item_Count (S.Outline_Runtime.Outline) = 2, "refresh extracts marker outline state");
       Assert (Editor.Feature_Panel.Is_Visible (S.Panel.Feature_Panel),
               "refresh outline shows feature panel");
       Assert (Editor.Feature_Panel.Row_Label (S.Panel.Feature_Panel, 2) = "procedure Run",
@@ -299,7 +299,7 @@ package body Editor.Outline.Tests is
         (S, Editor.Command_Ids.Command_Clear_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "clear outline executes through executor");
-      Assert (Item_Count (S.Outline) = 0, "clear removes outline state");
+      Assert (Item_Count (S.Outline_Runtime.Outline) = 0, "clear removes outline state");
       Assert (Editor.Feature_Panel.Row_Count (S.Panel.Feature_Panel) = 0,
               "clear removes outline feature rows");
       Assert (not Editor.Feature_Panel.Has_Selection (S.Panel.Feature_Panel),
@@ -353,9 +353,9 @@ package body Editor.Outline.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "@outline procedure Reset_Test" & ASCII.LF & "x");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
-      F := Fingerprint (S.Outline);
+      F := Fingerprint (S.Outline_Runtime.Outline);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Clear_Feature_Panel);
-      Assert (Fingerprint (S.Outline) = F,
+      Assert (Fingerprint (S.Outline_Runtime.Outline) = F,
               "generic clear feature panel does not clear outline source state");
       Assert (Editor.Feature_Panel.Row_Count (S.Panel.Feature_Panel) = 0,
               "generic clear feature panel clears displayed rows");
@@ -374,14 +374,14 @@ package body Editor.Outline.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "@outline procedure Reset_Test" & ASCII.LF & "x");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
-      Outline_Before := Fingerprint (S.Outline);
+      Outline_Before := Fingerprint (S.Outline_Runtime.Outline);
       Panel_Before := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
       Messages_Before := Editor.Messages.Count (S.Panel.Messages);
       A := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
               "open selected is unavailable until selection exists");
-      Assert (Fingerprint (S.Outline) = Outline_Before,
+      Assert (Fingerprint (S.Outline_Runtime.Outline) = Outline_Before,
               "availability preserves outline fingerprint");
       Assert (Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel) = Panel_Before,
               "availability preserves feature-panel fingerprint");
@@ -402,8 +402,8 @@ package body Editor.Outline.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "@outline procedure Reset_Test" & ASCII.LF & "x");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
-      Editor.State.Apply_Settings (S, S.Settings);
-      Assert (Item_Count (S.Outline) = 1, "settings application does not clear extracted outline");
+      Editor.State.Apply_Settings (S, S.Configuration.Settings);
+      Assert (Item_Count (S.Outline_Runtime.Outline) = 1, "settings application does not clear extracted outline");
       Editor.Keybindings.Reset_To_Defaults;
       Assert (Editor.Keybindings.Primary_Binding_For_Command
         (Editor.Command_Ids.Command_Refresh_Outline).Has_Binding,
@@ -417,7 +417,7 @@ package body Editor.Outline.Tests is
         and then Id = Editor.Command_Ids.Command_Refresh_Outline,
         "custom outline chord resolves to command id");
       Editor.State.Reset_Project_Scoped_State (S);
-      Assert (Item_Count (S.Outline) = 0, "project-scoped reset clears outline");
+      Assert (Item_Count (S.Outline_Runtime.Outline) = 0, "project-scoped reset clears outline");
       Assert (Editor.Feature_Panel.Row_Count (S.Panel.Feature_Panel) = 0,
               "project-scoped reset clears outline rows");
    end Test_Separation_From_Project_Reset_Settings_And_Keybindings;
@@ -436,10 +436,10 @@ package body Editor.Outline.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "@outline procedure Reset_Test" & ASCII.LF & "x");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
-      Outline_Before := Fingerprint (S.Outline);
+      Outline_Before := Fingerprint (S.Outline_Runtime.Outline);
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Clear_Feature_Panel);
-      Assert (Fingerprint (S.Outline) = Outline_Before,
+      Assert (Fingerprint (S.Outline_Runtime.Outline) = Outline_Before,
               "clear feature panel preserves outline content owner state");
       Assert (Editor.Feature_Panel.Row_Count (S.Panel.Feature_Panel) = 0,
               "clear feature panel clears display rows");
@@ -450,7 +450,7 @@ package body Editor.Outline.Tests is
         (S, Editor.Command_Ids.Command_Clear_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "clear outline remains available while outline state exists");
-      Assert (Item_Count (S.Outline) = 0,
+      Assert (Item_Count (S.Outline_Runtime.Outline) = 0,
               "clear outline clears preserved outline state");
       Assert (Editor.Feature_Panel.Row_Count (S.Panel.Feature_Panel) = 0,
               "clear outline leaves rows cleared");
@@ -471,9 +471,9 @@ package body Editor.Outline.Tests is
       Editor.Feature_Panel.Select_First (S.Panel.Feature_Panel);
       Summary := Editor.State.Project_Scoped_State_Summary_For (S);
 
-      Assert (Summary.Outline_Item_Count = Item_Count (S.Outline),
+      Assert (Summary.Outline_Item_Count = Item_Count (S.Outline_Runtime.Outline),
               "project summary exposes outline item count");
-      Assert (Summary.Outline_Fingerprint = Fingerprint (S.Outline),
+      Assert (Summary.Outline_Fingerprint = Fingerprint (S.Outline_Runtime.Outline),
               "project summary exposes outline fingerprint");
       Assert (Summary.Feature_Panel_Row_Count =
                 Editor.Feature_Panel.Row_Count (S.Panel.Feature_Panel),
@@ -545,19 +545,19 @@ package body Editor.Outline.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "availability must not populate outline");
-      Outline_Before := Fingerprint (S.Outline);
+      Outline_Before := Fingerprint (S.Outline_Runtime.Outline);
       Panel_Before := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
       Messages_Before := Editor.Messages.Count (S.Panel.Messages);
 
       for Id of Outline_Commands loop
          A := Editor.Executor.Command_Availability (S, Id);
-         Assert (Fingerprint (S.Outline) = Outline_Before,
+         Assert (Fingerprint (S.Outline_Runtime.Outline) = Outline_Before,
                  "outline availability preserves outline fingerprint");
          Assert (Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel) = Panel_Before,
                  "outline availability preserves feature-panel fingerprint");
          Assert (Editor.Messages.Count (S.Panel.Messages) = Messages_Before,
                  "outline availability emits no messages");
-         Assert (Item_Count (S.Outline) = 0,
+         Assert (Item_Count (S.Outline_Runtime.Outline) = 0,
                  "outline availability does not refresh placeholder items");
       end loop;
    end Test_Availability_Does_Not_Refresh_Outline;
@@ -573,17 +573,17 @@ package body Editor.Outline.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "@outline procedure Reset_Test" & ASCII.LF & "x");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
-      Assert (Item_Count (S.Outline) = 1,
+      Assert (Item_Count (S.Outline_Runtime.Outline) = 1,
               "fixture has refreshed extracted outline items");
 
       Editor.State.Reset_Project_Scoped_State (S);
-      Assert (Item_Count (S.Outline) = 0,
+      Assert (Item_Count (S.Outline_Runtime.Outline) = 0,
               "project-scoped reset clears outline items");
       Assert (Editor.Feature_Panel.Row_Count (S.Panel.Feature_Panel) = 0,
               "project-scoped reset clears feature-panel rows");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Show_Outline);
-      Assert (Item_Count (S.Outline) = 0,
+      Assert (Item_Count (S.Outline_Runtime.Outline) = 0,
               "show outline after reset does not auto-refresh extracted items");
       Assert (Editor.Feature_Panel.Row_Count (S.Panel.Feature_Panel) = 0,
               "show outline after reset does not auto-project rows");
@@ -704,7 +704,7 @@ package body Editor.Outline.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "@outline package Old" & ASCII.LF & "x");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
-      Assert (Item_Count (S.Outline) = 1,
+      Assert (Item_Count (S.Outline_Runtime.Outline) = 1,
               "fixture starts with extracted outline item");
 
       Editor.Feature_Panel.Select_First (S.Panel.Feature_Panel);
@@ -714,7 +714,7 @@ package body Editor.Outline.Tests is
 
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "zero-item refresh is successful, not failed");
-      Assert (Item_Count (S.Outline) = 0,
+      Assert (Item_Count (S.Outline_Runtime.Outline) = 0,
               "zero-item refresh clears previous outline items");
       Assert (Editor.Feature_Panel.Row_Count (S.Panel.Feature_Panel) = 1
                 and then Editor.Feature_Panel.Row_Kind (S.Panel.Feature_Panel, 1) =
@@ -754,7 +754,7 @@ package body Editor.Outline.Tests is
               "refresh outline does not save or mutate buffer text");
       Assert (Natural (S.Caret.Carets.Length) = Caret_Count_Before,
               "refresh outline does not alter caret count");
-      Assert (Item_Count (S.Outline) = 1,
+      Assert (Item_Count (S.Outline_Runtime.Outline) = 1,
               "dirty buffer extraction reads current in-memory text");
    end Test_Dirty_Buffer_Refresh_Is_Read_Only;
 
@@ -772,7 +772,7 @@ package body Editor.Outline.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "@outline package Initial" & ASCII.LF & "x");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
-      Outline_Before := Fingerprint (S.Outline);
+      Outline_Before := Fingerprint (S.Outline_Runtime.Outline);
       Panel_Before := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
       Messages_Before := Editor.Messages.Count (S.Panel.Messages);
 
@@ -784,7 +784,7 @@ package body Editor.Outline.Tests is
 
       Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "refresh outline remains available with an active buffer");
-      Assert (Fingerprint (S.Outline) = Outline_Before,
+      Assert (Fingerprint (S.Outline_Runtime.Outline) = Outline_Before,
               "availability does not extract changed buffer text");
       Assert (Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel) = Panel_Before,
               "availability does not project changed buffer text");
@@ -812,9 +812,9 @@ package body Editor.Outline.Tests is
       Assert (Editor.Feature_Panel.Row_Kind (S.Panel.Feature_Panel, 2) =
                 Editor.Feature_Panel.Feature_Row_Item,
               "outline subprogram projects to a feature-panel item row");
-      Assert (Item_Target_Kind (S.Outline, 2) = Buffer_Position_Target,
+      Assert (Item_Target_Kind (S.Outline_Runtime.Outline, 2) = Buffer_Position_Target,
               "extracted item stores buffer-position target metadata");
-      Assert (Item_Line (S.Outline, 2) = 2 and then Item_Column (S.Outline, 2) = 1,
+      Assert (Item_Line (S.Outline_Runtime.Outline, 2) = 2 and then Item_Column (S.Outline_Runtime.Outline, 2) = 1,
               "extracted item stores one-based line and column");
 
       Active_Before := Editor.State.Has_Active_Buffer (S);
@@ -1148,7 +1148,7 @@ package body Editor.Outline.Tests is
         (S, Editor.Command_Ids.Command_Refresh_Outline);
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Focus_Outline);
-      Select_Item (S.Outline, 2);
+      Select_Item (S.Outline_Runtime.Outline, 2);
       Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 2);
 
       Result := Editor.Executor.Execute_Command_With_Result
@@ -1590,11 +1590,11 @@ package body Editor.Outline.Tests is
            (Result.Status /= Editor.Executor.Command_Failed,
             "outline command must not fail without active buffer: " &
             Editor.Commands.Name_Metadata.Stable_Command_Name (Id));
-         Assert (Invariant_Holds (S.Outline),
+         Assert (Invariant_Holds (S.Outline_Runtime.Outline),
                  "no-active-buffer command keeps outline state consistent");
-         Assert (Item_Count (S.Outline) = 0,
+         Assert (Item_Count (S.Outline_Runtime.Outline) = 0,
                  "no-active-buffer command must not create stale outline rows");
-         Assert (not Filter_Input_Is_Active (S.Outline),
+         Assert (not Filter_Input_Is_Active (S.Outline_Runtime.Outline),
                  "no-active-buffer command must not leave filter input active");
       end loop;
    end Test_All_Outline_Commands_Are_Safe_Without_Active_Buffer;
@@ -1631,16 +1631,16 @@ package body Editor.Outline.Tests is
            (S, Editor.Command_Ids.Command_Refresh_Outline);
          Assert (Result.Status = Editor.Executor.Command_Executed,
                  "setup refresh produces extracted rows");
-         Apply_Filter (S.Outline, "run");
-         Commit_Filter_To_History (S.Outline);
-         Activate_Filter_Input (S.Outline);
+         Apply_Filter (S.Outline_Runtime.Outline, "run");
+         Commit_Filter_To_History (S.Outline_Runtime.Outline);
+         Activate_Filter_Input (S.Outline_Runtime.Outline);
 
          Editor.State.Reset_Project_Scoped_State (S);
-         Assert (Item_Count (S.Outline) = 0,
+         Assert (Item_Count (S.Outline_Runtime.Outline) = 0,
                  "project close clears accepted outline rows before sweep");
-         Assert (Filter_History_Count (S.Outline) = 0,
+         Assert (Filter_History_Count (S.Outline_Runtime.Outline) = 0,
                  "project close clears session-local filter history before sweep");
-         Assert (not Filter_Input_Is_Active (S.Outline),
+         Assert (not Filter_Input_Is_Active (S.Outline_Runtime.Outline),
                  "project close deactivates filter input before sweep");
 
          Result := Editor.Executor.Execute_Command_With_Result (S, Id);
@@ -1648,14 +1648,14 @@ package body Editor.Outline.Tests is
            (Result.Status /= Editor.Executor.Command_Failed,
             "closed-project outline command must not fail: " &
             Editor.Commands.Name_Metadata.Stable_Command_Name (Id));
-         Assert (Invariant_Holds (S.Outline),
+         Assert (Invariant_Holds (S.Outline_Runtime.Outline),
                  "closed-project command keeps outline state consistent");
-         Assert (Filter_History_Count (S.Outline) = 0,
+         Assert (Filter_History_Count (S.Outline_Runtime.Outline) = 0,
                  "closed-project command must not resurrect filter history");
          if Id /= Editor.Command_Ids.Command_Refresh_Outline then
-            Assert (Item_Count (S.Outline) = 0,
+            Assert (Item_Count (S.Outline_Runtime.Outline) = 0,
                     "closed-project non-refresh command must not resurrect stale outline rows");
-            Assert (not Filter_Input_Is_Active (S.Outline),
+            Assert (not Filter_Input_Is_Active (S.Outline_Runtime.Outline),
                     "closed-project non-refresh command must not activate stale filter input");
          end if;
       end loop;
@@ -1734,7 +1734,7 @@ package body Editor.Outline.Tests is
    begin
       Editor.State.Init (S);
       Replace_Items
-        (S.Outline,
+        (S.Outline_Runtime.Outline,
          (1 =>
             (Kind        => Outline_Package,
              Label       => Ada.Strings.Unbounded.To_Unbounded_String ("Demo"),
@@ -1753,25 +1753,25 @@ package body Editor.Outline.Tests is
              Buffer_Token => S.Buffer_Lifecycle.Registry_Token,
              Line         => 2,
              Column       => 4)));
-      Select_Item (S.Outline, 2);
-      Apply_Filter (S.Outline, "run");
-      Update_Current_Symbol_For_Cursor (S.Outline, S.Buffer_Lifecycle.Registry_Token, 2, 4);
+      Select_Item (S.Outline_Runtime.Outline, 2);
+      Apply_Filter (S.Outline_Runtime.Outline, "run");
+      Update_Current_Symbol_For_Cursor (S.Outline_Runtime.Outline, S.Buffer_Lifecycle.Registry_Token, 2, 4);
 
-      Before_FP := Fingerprint (S.Outline);
-      Before_Rows := Item_Count (S.Outline);
-      Before_Select := Selected_Index (S.Outline);
-      Before_Current := Current_Symbol_Index (S.Outline);
-      Before_Filter := Ada.Strings.Unbounded.To_Unbounded_String (Filter_Text (S.Outline));
+      Before_FP := Fingerprint (S.Outline_Runtime.Outline);
+      Before_Rows := Item_Count (S.Outline_Runtime.Outline);
+      Before_Select := Selected_Index (S.Outline_Runtime.Outline);
+      Before_Current := Current_Symbol_Index (S.Outline_Runtime.Outline);
+      Before_Filter := Ada.Strings.Unbounded.To_Unbounded_String (Filter_Text (S.Outline_Runtime.Outline));
 
       Review := Editor.Outline_Audit.Review_Outline_Contract (S);
       Assert (Review.Review_Passed,
               Editor.Outline_Audit.Build_Outline_Contract_Review_Feedback (Review));
-      Assert (Fingerprint (S.Outline) = Before_FP, "review does not mutate outline content");
-      Assert (Item_Count (S.Outline) = Before_Rows, "review does not replace rows");
-      Assert (Selected_Index (S.Outline) = Before_Select, "review does not change selection");
-      Assert (Current_Symbol_Index (S.Outline) = Before_Current,
+      Assert (Fingerprint (S.Outline_Runtime.Outline) = Before_FP, "review does not mutate outline content");
+      Assert (Item_Count (S.Outline_Runtime.Outline) = Before_Rows, "review does not replace rows");
+      Assert (Selected_Index (S.Outline_Runtime.Outline) = Before_Select, "review does not change selection");
+      Assert (Current_Symbol_Index (S.Outline_Runtime.Outline) = Before_Current,
               "review does not change current symbol");
-      Assert (Filter_Text (S.Outline) = Ada.Strings.Unbounded.To_String (Before_Filter),
+      Assert (Filter_Text (S.Outline_Runtime.Outline) = Ada.Strings.Unbounded.To_String (Before_Filter),
               "review does not change filter text");
    end Test_Outline_Contract_Review_Is_Side_Effect_Free;
 
@@ -1824,9 +1824,9 @@ package body Editor.Outline.Tests is
         (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "empty Ada outline refresh still succeeds");
-      Assert (Item_Count (S.Outline) = 0,
+      Assert (Item_Count (S.Outline_Runtime.Outline) = 0,
               "zero extracted items leave no symbol rows");
-      Assert (Outline_Empty_State_Label (S.Outline) = "No outline items found.",
+      Assert (Outline_Empty_State_Label (S.Outline_Runtime.Outline) = "No outline items found.",
               "empty extraction has a product-facing label");
       Assert (Editor.Feature_Panel.Row_Count (S.Panel.Feature_Panel) = 1,
               "empty outline projects one display row");
@@ -1900,7 +1900,7 @@ package body Editor.Outline.Tests is
         (S, Editor.Command_Ids.Command_Show_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "show outline remains an explicit UI workflow with no active buffer");
-      Assert (Outline_Empty_State_Label (S.Outline) = "No active buffer.",
+      Assert (Outline_Empty_State_Label (S.Outline_Runtime.Outline) = "No active buffer.",
               "no-active-buffer outline state is explicit");
       Assert (Editor.Feature_Panel.Row_Count (S.Panel.Feature_Panel) = 1,
               "no-active-buffer state projects one display row");

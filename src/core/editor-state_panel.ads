@@ -6,6 +6,7 @@ with Editor.Feature_Search_Results;
 with Editor.Messages;
 with Editor.Overlay_Focus;
 with Editor.Panel_Focus;
+with Editor.Panels;
 with Editor.Problems;
 with Editor.Search_Results;
 
@@ -29,6 +30,7 @@ package Editor.State_Panel is
       Messages           : Editor.Messages.Message_State;
       Search_Results_View : Editor.Search_Results.Search_Results_View_State;
       Problems_View       : Editor.Problems.Problems_View_State;
+      Panels              : Editor.Panels.Panel_Set;
       Panel_Focus         : Editor.Panel_Focus.Panel_Focus_State;
       Overlay_Focus       : Editor.Overlay_Focus.Overlay_Focus_State;
    end record;

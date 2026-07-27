@@ -54,7 +54,7 @@ package body Editor.Executor.Navigation_Commands is
             return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Command_Ids.Command_Navigation_Back =>
-            if not Editor.Navigation_History.Has_Back (S.Navigation_History) then
+            if not Editor.Navigation_History.Has_Back (S.Navigation.History) then
                return Editor.Commands.Availability_Metadata.Unavailable
                  ("No previous navigation location");
             end if;
@@ -62,7 +62,7 @@ package body Editor.Executor.Navigation_Commands is
 
          when Editor.Command_Ids.Command_Navigation_Forward =>
             if not Editor.Navigation_History.Has_Forward
-              (S.Navigation_History)
+              (S.Navigation.History)
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  ("No next navigation location");
@@ -70,9 +70,9 @@ package body Editor.Executor.Navigation_Commands is
             return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Command_Ids.Command_Navigation_History_Clear =>
-            if not Editor.Navigation_History.Has_Back (S.Navigation_History)
+            if not Editor.Navigation_History.Has_Back (S.Navigation.History)
               and then not Editor.Navigation_History.Has_Forward
-                (S.Navigation_History)
+                (S.Navigation.History)
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No navigation history");
             end if;
@@ -154,7 +154,7 @@ package body Editor.Executor.Navigation_Commands is
    is
    begin
       Editor.Navigation_History.Record_Explicit_Navigation_If_Target_Changed
-        (S.Navigation_History, Previous, Target);
+        (S.Navigation.History, Previous, Target);
    end Record_Navigation_If_Target_Changed;
 
    procedure Record_Navigation_If_Current_Changed
@@ -243,7 +243,7 @@ package body Editor.Executor.Navigation_Commands is
                S.Semantic.Language_Index := Saved_Index;
                S.Semantic.Language_Service := Saved_Service;
             end;
-            Editor.Recent_Buffers.Mark_Activated (S.Recent_Buffers, Natural (Id));
+            Editor.Recent_Buffers.Mark_Activated (S.Navigation.Recent_Buffers, Natural (Id));
          else
             if not Ada.Directories.Exists (Path) then
                Status := Editor.Executor.Navigation_Target_Missing;
@@ -290,8 +290,8 @@ package body Editor.Executor.Navigation_Commands is
       Forward : Editor.Navigation_History.Location_Vectors.Vector)
    is
    begin
-      S.Navigation_History.Back_Stack := Back;
-      S.Navigation_History.Forward_Stack := Forward;
+      S.Navigation.History.Back_Stack := Back;
+      S.Navigation.History.Forward_Stack := Forward;
    end Restore_Navigation_Stacks;
 
    function Navigation_Display
@@ -330,13 +330,13 @@ package body Editor.Executor.Navigation_Commands is
         Editor.Executor.Current_Navigation_Location
           (S, Editor.Navigation_History.Navigation_Reason_Back);
       Old_Back    : constant Editor.Navigation_History.Location_Vectors.Vector :=
-        S.Navigation_History.Back_Stack;
+        S.Navigation.History.Back_Stack;
       Old_Forward : constant Editor.Navigation_History.Location_Vectors.Vector :=
-        S.Navigation_History.Forward_Stack;
+        S.Navigation.History.Forward_Stack;
       Status      : Editor.Executor.Navigation_Apply_Status :=
         Editor.Executor.Navigation_Target_Missing;
    begin
-      if not Editor.Navigation_History.Pop_Back (S.Navigation_History, Target) then
+      if not Editor.Navigation_History.Pop_Back (S.Navigation.History, Target) then
          Editor.Executor.Shared_Services.Report_Info (S, "No previous navigation location");
          Editor.Render_Cache.Invalidate_All;
          return;
@@ -354,7 +354,7 @@ package body Editor.Executor.Navigation_Commands is
       end if;
 
       Editor.Navigation_History.Record_Forward_Navigation
-        (S.Navigation_History, Current);
+        (S.Navigation.History, Current);
       if Status = Editor.Executor.Navigation_Target_Invalid_Location then
          Editor.Executor.Shared_Services.Report_Info
            (S, "Navigated back to " & Navigation_Display (Target)
@@ -376,14 +376,14 @@ package body Editor.Executor.Navigation_Commands is
         Editor.Executor.Current_Navigation_Location
           (S, Editor.Navigation_History.Navigation_Reason_Forward);
       Old_Back    : constant Editor.Navigation_History.Location_Vectors.Vector :=
-        S.Navigation_History.Back_Stack;
+        S.Navigation.History.Back_Stack;
       Old_Forward : constant Editor.Navigation_History.Location_Vectors.Vector :=
-        S.Navigation_History.Forward_Stack;
+        S.Navigation.History.Forward_Stack;
       Status      : Editor.Executor.Navigation_Apply_Status :=
         Editor.Executor.Navigation_Target_Missing;
    begin
       if not Editor.Navigation_History.Pop_Forward
-        (S.Navigation_History, Target)
+        (S.Navigation.History, Target)
       then
          Editor.Executor.Shared_Services.Report_Info (S, "No next navigation location");
          Editor.Render_Cache.Invalidate_All;
@@ -402,7 +402,7 @@ package body Editor.Executor.Navigation_Commands is
       end if;
 
       Editor.Navigation_History.Record_Back_Navigation
-        (S.Navigation_History, Current);
+        (S.Navigation.History, Current);
       if Status = Editor.Executor.Navigation_Target_Invalid_Location then
          Editor.Executor.Shared_Services.Report_Info
            (S, "Navigated forward to " & Navigation_Display (Target)
@@ -420,12 +420,12 @@ package body Editor.Executor.Navigation_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if not Editor.Navigation_History.Has_Back (S.Navigation_History)
-        and then not Editor.Navigation_History.Has_Forward (S.Navigation_History)
+      if not Editor.Navigation_History.Has_Back (S.Navigation.History)
+        and then not Editor.Navigation_History.Has_Forward (S.Navigation.History)
       then
          Editor.Executor.Shared_Services.Report_Info (S, "No navigation history to clear");
       else
-         Editor.Navigation_History.Clear (S.Navigation_History);
+         Editor.Navigation_History.Clear (S.Navigation.History);
          Editor.Executor.Shared_Services.Report_Info (S, "Navigation history cleared");
       end if;
       Editor.Render_Cache.Invalidate_All;

@@ -67,7 +67,7 @@ package body Editor.Executor.Command_Kind_Availability_Commands is
       --  surfaces must not advertise a second lifecycle/destructive/configuration
       --  prompt while the first prompt or confirmation is pending.  Cancel stays
       --  available so the user can leave the modal prompt atomically.
-      if Editor.Guided_Prompts.Is_Active (S.Guided_Prompt) then
+      if Editor.Guided_Prompts.Is_Active (S.Workflow.Guided_Prompt) then
          --  prompt focus is modal at the
          --  command-surface level, not only inside Input_Bridge dispatch.
          --  Confirmation/entry is handled by prompt-local input paths; normal
@@ -81,7 +81,7 @@ package body Editor.Executor.Command_Kind_Availability_Commands is
             when No_Command =>
                return Editor.Commands.Availability_Metadata.Unavailable ("No command");
             when others =>
-               if Editor.Guided_Prompts.Is_Confirmation (S.Guided_Prompt) then
+               if Editor.Guided_Prompts.Is_Confirmation (S.Workflow.Guided_Prompt) then
                   return Editor.Commands.Availability_Metadata.Unavailable
                     ("Command unavailable while confirmation is pending");
                else

@@ -632,8 +632,8 @@ package body Editor.Executor.File_Save_Commands is
       --  Executor-owned runtime state only.  They do not refresh outline,
       --  search, diagnostics, build, quick-open, render, or persistence data.
       S.Search.Active_Find_Stale := True;
-      Editor.Outline.Clear (S.Outline);
-      S.Outline_Cursor.Key_Valid := False;
+      Editor.Outline.Clear (S.Outline_Runtime.Outline);
+      S.Outline_Runtime.Cursor.Key_Valid := False;
       Editor.Project_Search.Mark_Stale_Unconditionally (S.Surface.Project_Search);
       Editor.Project_Search.Mark_Replace_Preview_Stale (S.Surface.Project_Search);
       Editor.Feature_Diagnostics.Mark_Diagnostics_For_Buffer_Stale
@@ -756,12 +756,12 @@ package body Editor.Executor.File_Save_Commands is
       Target : Editor.Pending_Transitions.Pending_Transition_Target;
       Guard  : Editor.Dirty_Guards.Dirty_Transition_Result;
    begin
-      if not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions) then
+      if not Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions) then
          Editor.Executor.Shared_Services.Report_Info (S, Editor.Dirty_Guards.No_Pending_Transition_Message);
          return;
       end if;
 
-      Target := Editor.Pending_Transitions.Target (S.Pending_Transitions);
+      Target := Editor.Pending_Transitions.Target (S.Workflow.Pending_Transitions);
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
@@ -776,10 +776,10 @@ package body Editor.Executor.File_Save_Commands is
              (Editor.Workspace_Persistence.Session_File_Path
                 (To_String (Target.Path)))
          then
-            Editor.Pending_Transitions.Clear (S.Pending_Transitions);
+            Editor.Pending_Transitions.Clear (S.Workflow.Pending_Transitions);
             Editor.Executor.Shared_Services.Report_Info (S, "No workspace state");
          else
-            Editor.Pending_Transitions.Clear (S.Pending_Transitions);
+            Editor.Pending_Transitions.Clear (S.Workflow.Pending_Transitions);
             --  completeness: stale dirty reload/revert prompts are
             --  file-lifecycle confirmations, not generic project/close
             --  transitions.  Report the lifecycle operation that was rejected
@@ -837,7 +837,7 @@ package body Editor.Executor.File_Save_Commands is
                          | Editor.Files.File_Open_Is_Directory
                          | Editor.Files.File_Open_Invalid_Path;
                      Editor.Buffers.Sync_Global_Active_From_State (S);
-                     Editor.Pending_Transitions.Clear (S.Pending_Transitions);
+                     Editor.Pending_Transitions.Clear (S.Workflow.Pending_Transitions);
                      Editor.Executor.Shared_Services.Report_Error (S, Read_Failure_Recovery_Message (Result, "reload"));
                      return;
                   end if;
@@ -847,7 +847,7 @@ package body Editor.Executor.File_Save_Commands is
                   File_Lifecycle_Invalidate_Derived_State
                     (S, "Derived state is stale after reload");
                   Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
-                  Editor.Pending_Transitions.Clear (S.Pending_Transitions);
+                  Editor.Pending_Transitions.Clear (S.Workflow.Pending_Transitions);
                   Editor.Executor.Shared_Services.Report_Success (S, "Buffer reloaded");
                end;
             end if;
@@ -885,7 +885,7 @@ package body Editor.Executor.File_Save_Commands is
                          | Editor.Files.File_Open_Is_Directory
                          | Editor.Files.File_Open_Invalid_Path;
                      Editor.Buffers.Sync_Global_Active_From_State (S);
-                     Editor.Pending_Transitions.Clear (S.Pending_Transitions);
+                     Editor.Pending_Transitions.Clear (S.Workflow.Pending_Transitions);
                      Editor.Executor.Shared_Services.Report_Error (S, Read_Failure_Recovery_Message (Result, "revert"));
                      return;
                   end if;
@@ -895,7 +895,7 @@ package body Editor.Executor.File_Save_Commands is
                   File_Lifecycle_Invalidate_Derived_State
                     (S, "Derived state is stale after revert");
                   Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
-                  Editor.Pending_Transitions.Clear (S.Pending_Transitions);
+                  Editor.Pending_Transitions.Clear (S.Workflow.Pending_Transitions);
                   Editor.Executor.Shared_Services.Report_Success (S, "Buffer reverted");
                end;
             end if;
@@ -1073,7 +1073,7 @@ package body Editor.Executor.File_Save_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions) then
+      if not Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions) then
          Editor.Executor.Shared_Services.Report_Info
            (S, Editor.Dirty_Guards.No_Pending_Transition_Message);
          return;
@@ -1081,7 +1081,7 @@ package body Editor.Executor.File_Save_Commands is
 
       declare
          Target : constant Editor.Pending_Transitions.Pending_Transition_Target :=
-           Editor.Pending_Transitions.Target (S.Pending_Transitions);
+           Editor.Pending_Transitions.Target (S.Workflow.Pending_Transitions);
          Message : constant String :=
            (case Target.Kind is
               when Editor.Pending_Transitions.Pending_Switch_Project =>
@@ -1101,7 +1101,7 @@ package body Editor.Executor.File_Save_Commands is
               when others =>
                  Editor.Dirty_Guards.Pending_Transition_Canceled_Message);
       begin
-         Editor.Pending_Transitions.Clear (S.Pending_Transitions);
+         Editor.Pending_Transitions.Clear (S.Workflow.Pending_Transitions);
          Editor.Executor.Shared_Services.Report_Info (S, Message);
       end;
    end Execute_Cancel_Pending_Transition;

@@ -589,7 +589,7 @@ procedure Editor_Product_Smoke is
       Check (Ada.Directories.Exists (Session_Path),
              "clear workspace state must require confirmation before deleting");
       Check
-        (Editor.Pending_Transitions.Target_Kind (S.Pending_Transitions) =
+        (Editor.Pending_Transitions.Target_Kind (S.Workflow.Pending_Transitions) =
            Editor.Pending_Transitions.Pending_Clear_Workspace_State,
          "clear workspace state did not stage a destructive confirmation");
       Editor.Executor.Execute_Command
@@ -792,12 +792,12 @@ procedure Editor_Product_Smoke is
       Needs_Buffer : Boolean)
    is
       Target : constant Editor.Pending_Transitions.Pending_Transition_Target :=
-        Editor.Pending_Transitions.Target (S.Pending_Transitions);
+        Editor.Pending_Transitions.Target (S.Workflow.Pending_Transitions);
       Audit : constant Editor.Pending_Transitions.Pending_Transition_Boundary_Audit :=
         Editor.Pending_Transitions.Audit_Pending_Transition_Boundary
-          (S.Pending_Transitions);
+          (S.Workflow.Pending_Transitions);
    begin
-      Check (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Check (Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
              "dirty lifecycle command did not stage a pending transition");
       Check (Target.Kind = Expected,
              "dirty lifecycle command staged the wrong transition kind: expected "
@@ -955,9 +955,9 @@ begin
       Col                 : Natural := 0;
    begin
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
-      Check (Editor.Outline.Item_Count (S.Outline) >= 3,
+      Check (Editor.Outline.Item_Count (S.Outline_Runtime.Outline) >= 3,
              "outline.refresh returned no real Ada declaration rows");
-      Check (Editor.Outline.Is_Current_For_Buffer (S.Outline, Token_A, Revision_A),
+      Check (Editor.Outline.Is_Current_For_Buffer (S.Outline_Runtime.Outline, Token_A, Revision_A),
              "outline is not current for the refreshed source buffer");
       Check (Editor.State.Current_Text (S) = Text_Before_Outline,
              "outline.refresh mutated buffer text");
@@ -994,16 +994,16 @@ begin
       Check (S.Buffer_Lifecycle.File_Info.Dirty,
              "outline smoke edit did not mark demo buffer dirty");
       Check (not Editor.Outline.Is_Current_For_Buffer
-               (S.Outline, Token_A, Editor.State.Current_Buffer_Revision (S)),
+               (S.Outline_Runtime.Outline, Token_A, Editor.State.Current_Buffer_Revision (S)),
              "edited buffer still reports outline current");
       Check (Editor.Outline.Freshness_For_Active_Buffer
-               (S.Outline, Token_A, Editor.State.Current_Buffer_Revision (S)) =
+               (S.Outline_Runtime.Outline, Token_A, Editor.State.Current_Buffer_Revision (S)) =
              Editor.Outline.Outline_Stale,
              "edited buffer did not mark outline stale");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
       Check (Editor.Outline.Is_Current_For_Buffer
-               (S.Outline, Token_A, Editor.State.Current_Buffer_Revision (S)),
+               (S.Outline_Runtime.Outline, Token_A, Editor.State.Current_Buffer_Revision (S)),
              "outline.refresh did not make edited buffer current again");
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
       Check (not S.Buffer_Lifecycle.File_Info.Dirty,
@@ -1011,7 +1011,7 @@ begin
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Unit_Path);
       Check (not Editor.Outline.Is_Current_For_Buffer
-               (S.Outline, S.Buffer_Lifecycle.Active_Buffer_Token, Editor.State.Current_Buffer_Revision (S)),
+               (S.Outline_Runtime.Outline, S.Buffer_Lifecycle.Active_Buffer_Token, Editor.State.Current_Buffer_Revision (S)),
              "outline falsely reports current after switching buffers");
    end;
 
@@ -1153,12 +1153,12 @@ begin
          others  => <>);
    begin
       Editor.Panels.Set_Bottom_Content
-        (S.Panels, Editor.Panels.Problems_Content);
+        (S.Panel.Panels, Editor.Panels.Problems_Content);
       Editor.Panels.Set_Visible
-        (S.Panels, Editor.Panels.Bottom_Panel, True);
+        (S.Panel.Panels, Editor.Panels.Bottom_Panel, True);
       Editor.Panels.Set_Current_Size
-        (S.Panels, Editor.Panels.Bottom_Panel, 6);
-      Editor.Panels.Set_Current (S.Panels);
+        (S.Panel.Panels, Editor.Panels.Bottom_Panel, 6);
+      Editor.Panels.Set_Current (S.Panel.Panels);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Focus_Problems);
       Editor.Command_Palette.Reset;
       Editor.Input_Bridge.Reset;
@@ -1216,9 +1216,9 @@ begin
       Finish ("diagnostics_problems_filters", "diagnostics Problems filters");
       return;
    end if;
-   Editor.Navigation_History.Clear (S.Navigation_History);
+   Editor.Navigation_History.Clear (S.Navigation.History);
    Editor.Navigation_History.Record_Explicit_Navigation
-     (S.Navigation_History,
+     (S.Navigation.History,
       (Buffer_Id     => S.Buffer_Lifecycle.Active_Buffer_Token,
        Has_File_Path => S.Buffer_Lifecycle.File_Info.Has_Path,
        File_Path     => S.Buffer_Lifecycle.File_Info.Path,
@@ -1235,12 +1235,12 @@ begin
           & "; reason="
           & Editor.Feature_Diagnostics.Selected_Diagnostic_Open_Unavailable_Reason
               (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel));
-   Check (Editor.Navigation_History.Back_Count (S.Navigation_History) > 0,
+   Check (Editor.Navigation_History.Back_Count (S.Navigation.History) > 0,
           "Diagnostics navigation did not record a back target");
    Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Back);
    Check (S.Buffer_Lifecycle.File_Info.Has_Path,
           "navigation back after Diagnostics did not retain a file-backed target");
-   Check (Editor.Navigation_History.Forward_Count (S.Navigation_History) > 0,
+   Check (Editor.Navigation_History.Forward_Count (S.Navigation.History) > 0,
           "navigation back after Diagnostics did not record a forward target");
    Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Forward);
    Check (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Unit_Path,

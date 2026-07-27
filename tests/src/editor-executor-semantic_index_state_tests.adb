@@ -84,8 +84,8 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic availability fixture refreshes Outline");
 
-      Editor.Outline.Select_Item (S.Outline, 1);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Outline.Select_Item (S.Outline_Runtime.Outline, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline_Runtime.Outline, S.Panel.Feature_Panel);
       Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
       Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 
@@ -154,8 +154,8 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic hidden-panel fixture refreshes Outline");
 
-      Editor.Outline.Select_Item (S.Outline, 1);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Outline.Select_Item (S.Outline_Runtime.Outline, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline_Runtime.Outline, S.Panel.Feature_Panel);
       Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
       Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 
@@ -274,8 +274,8 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic overflow fixture refreshes Outline");
 
-      Editor.Outline.Select_Item (S.Outline, 1);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Outline.Select_Item (S.Outline_Runtime.Outline, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline_Runtime.Outline, S.Panel.Feature_Panel);
       Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
       Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 
@@ -348,8 +348,8 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic stale-current fixture refreshes Outline");
 
-      Editor.Outline.Select_Item (S.Outline, 1);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Outline.Select_Item (S.Outline_Runtime.Outline, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline_Runtime.Outline, S.Panel.Feature_Panel);
       Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
       Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
       S.Buffer_Lifecycle.File_Info.Has_Path := True;
@@ -496,8 +496,8 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic stale-edit fixture refreshes Outline");
 
-      Editor.Outline.Select_Item (S.Outline, 1);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Outline.Select_Item (S.Outline_Runtime.Outline, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline_Runtime.Outline, S.Panel.Feature_Panel);
       Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
       Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 
@@ -719,7 +719,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Assert (Editor.Ada_Language_Service.Status (S.Semantic.Language_Service) =
               Editor.Ada_Language_Service.Status (S.Semantic.Language_Index),
               "semantic project refresh syncs language service");
-      Assert (Editor.Syntax_Semantics.Symbol_Count (S.Syntax_Symbols) > 0,
+      Assert (Editor.Syntax_Semantics.Symbol_Count (S.Syntax.Symbols) > 0,
               "semantic project refresh updates active-buffer semantic map");
       Assert (S.Semantic.Syntax_Symbols_Buffer_Token = S.Buffer_Lifecycle.Active_Buffer_Token,
               "semantic project refresh stamps active-buffer semantic token");
@@ -778,7 +778,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               "automatic project index should sync the language service");
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Main_Path);
-      Assert (Editor.Syntax_Semantics.Symbol_Count (S.Syntax_Symbols) > 0,
+      Assert (Editor.Syntax_Semantics.Symbol_Count (S.Syntax.Symbols) > 0,
               "opening an Ada file should prepare active-buffer semantic state");
       Assert (S.Semantic.Syntax_Symbols_Buffer_Token = S.Buffer_Lifecycle.Active_Buffer_Token,
               "automatic file-open semantics should stamp the active buffer");
@@ -1126,8 +1126,8 @@ package body Editor.Executor.Semantic_Index_State_Tests is
         (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "indexed body/spec fixture refreshes spec Outline");
-      for I in 1 .. Editor.Outline.Item_Count (S.Outline) loop
-         if Editor.Outline.Item_Kind (S.Outline, I) =
+      for I in 1 .. Editor.Outline.Item_Count (S.Outline_Runtime.Outline) loop
+         if Editor.Outline.Item_Kind (S.Outline_Runtime.Outline, I) =
            Editor.Outline.Outline_Package
          then
             Spec_Row := I;
@@ -1135,8 +1135,8 @@ package body Editor.Executor.Semantic_Index_State_Tests is
          end if;
       end loop;
       Assert (Spec_Row /= 0, "indexed body/spec fixture exposes spec package row");
-      Editor.Outline.Select_Item (S.Outline, Spec_Row);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Outline.Select_Item (S.Outline_Runtime.Outline, Spec_Row);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline_Runtime.Outline, S.Panel.Feature_Panel);
       Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
       Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, Spec_Row);
 
@@ -1165,8 +1165,8 @@ package body Editor.Executor.Semantic_Index_State_Tests is
         (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "indexed body/spec fixture refreshes body Outline");
-      for I in 1 .. Editor.Outline.Item_Count (S.Outline) loop
-         if Editor.Outline.Item_Kind (S.Outline, I) =
+      for I in 1 .. Editor.Outline.Item_Count (S.Outline_Runtime.Outline) loop
+         if Editor.Outline.Item_Kind (S.Outline_Runtime.Outline, I) =
            Editor.Outline.Outline_Package_Body
          then
             Body_Row := I;
@@ -1174,8 +1174,8 @@ package body Editor.Executor.Semantic_Index_State_Tests is
          end if;
       end loop;
       Assert (Body_Row /= 0, "indexed body/spec fixture exposes package body row");
-      Editor.Outline.Select_Item (S.Outline, Body_Row);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Outline.Select_Item (S.Outline_Runtime.Outline, Body_Row);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline_Runtime.Outline, S.Panel.Feature_Panel);
       Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
       Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, Body_Row);
 
@@ -1194,7 +1194,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
         (S, Editor.Command_Ids.Command_Goto_Spec);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "indexed package body row offers goto spec from label '" &
-              Editor.Outline.Item_Label (S.Outline, Body_Row) & "': " &
+              Editor.Outline.Item_Label (S.Outline_Runtime.Outline, Body_Row) & "': " &
               Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail));
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Goto_Spec);
@@ -1218,11 +1218,11 @@ package body Editor.Executor.Semantic_Index_State_Tests is
         (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "indexed body/spec fixture refreshes separate subunit Outline");
-      for I in 1 .. Editor.Outline.Item_Count (S.Outline) loop
-         if Editor.Outline.Item_Kind (S.Outline, I) =
+      for I in 1 .. Editor.Outline.Item_Count (S.Outline_Runtime.Outline) loop
+         if Editor.Outline.Item_Kind (S.Outline_Runtime.Outline, I) =
            Editor.Outline.Outline_Procedure
            and then Ada.Strings.Fixed.Index
-             (Editor.Outline.Item_Label (S.Outline, I), "Run") > 0
+             (Editor.Outline.Item_Label (S.Outline_Runtime.Outline, I), "Run") > 0
          then
             Sep_Row := I;
             exit;
@@ -1230,8 +1230,8 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       end loop;
       Assert (Sep_Row /= 0,
               "indexed body/spec fixture exposes separate procedure body row");
-      Editor.Outline.Select_Item (S.Outline, Sep_Row);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Outline.Select_Item (S.Outline_Runtime.Outline, Sep_Row);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline_Runtime.Outline, S.Panel.Feature_Panel);
       Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
       Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, Sep_Row);
 
@@ -1239,7 +1239,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
         (S, Editor.Command_Ids.Command_Goto_Spec);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "indexed separate procedure body row offers goto spec from label '" &
-              Editor.Outline.Item_Label (S.Outline, Sep_Row) & "': " &
+              Editor.Outline.Item_Label (S.Outline_Runtime.Outline, Sep_Row) & "': " &
               Editor.Commands.Availability_Metadata.Unavailable_Reason (Avail));
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Goto_Spec);
@@ -1262,8 +1262,8 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "stale body/spec fixture refreshes spec Outline again");
       Spec_Row := 0;
-      for I in 1 .. Editor.Outline.Item_Count (S.Outline) loop
-         if Editor.Outline.Item_Kind (S.Outline, I) =
+      for I in 1 .. Editor.Outline.Item_Count (S.Outline_Runtime.Outline) loop
+         if Editor.Outline.Item_Kind (S.Outline_Runtime.Outline, I) =
            Editor.Outline.Outline_Package
          then
             Spec_Row := I;
@@ -1271,8 +1271,8 @@ package body Editor.Executor.Semantic_Index_State_Tests is
          end if;
       end loop;
       Assert (Spec_Row /= 0, "stale body/spec fixture exposes spec package row");
-      Editor.Outline.Select_Item (S.Outline, Spec_Row);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Outline.Select_Item (S.Outline_Runtime.Outline, Spec_Row);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline_Runtime.Outline, S.Panel.Feature_Panel);
       Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
       Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, Spec_Row);
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Insert (0, 'X'));
@@ -1411,12 +1411,12 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Assert (Editor.Ada_Project_Index.File_Count (S.Semantic.Language_Index) >= 2,
               "language index navigation fixture indexed both files");
 
-      Editor.Navigation_History.Clear (S.Navigation_History);
+      Editor.Navigation_History.Clear (S.Navigation.History);
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, Main_Id);
       Assert (S.Buffer_Lifecycle.File_Info.Has_Path
               and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Main_Path,
               "language index navigation fixture switches to main");
-      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 1,
+      Assert (Editor.Navigation_History.Back_Count (S.Navigation.History) = 1,
               "language index navigation fixture records previous lib buffer");
 
       Result := Editor.Executor.Execute_Command_With_Result
@@ -1771,12 +1771,12 @@ package body Editor.Executor.Semantic_Index_State_Tests is
          "   procedure From_Disk;" & ASCII.LF &
          "end Lib;" & ASCII.LF);
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
-      Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "dirty reload creates a confirmation prompt");
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Retry_Pending_Transition);
 
-      Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (not Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "reload confirmation clears the prompt");
       Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "reload confirmation clears dirty state");
@@ -1850,12 +1850,12 @@ package body Editor.Executor.Semantic_Index_State_Tests is
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Revert_Active_Buffer);
-      Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "dirty revert creates a confirmation prompt");
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Retry_Pending_Transition);
 
-      Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (not Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "revert confirmation clears the prompt");
       Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "revert confirmation clears dirty state");

@@ -64,7 +64,7 @@ package body Editor.Executor.Buffer_Close_Prompt_Commands is
       Was_Active : Boolean)
    is
    begin
-      Editor.Recent_Buffers.Remove (S.Recent_Buffers, Natural (Id));
+      Editor.Recent_Buffers.Remove (S.Navigation.Recent_Buffers, Natural (Id));
       Editor.Feature_Panel_Controller.Reset_All_Features_For_Buffer_Close
         (S, Natural (Id));
       if Was_Active then
@@ -91,8 +91,8 @@ package body Editor.Executor.Buffer_Close_Prompt_Commands is
          end;
       end if;
       Editor.Executor.Pending_Transition_Policy.Invalidate_Pending_Transition_If_Stale (S);
-      if Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel)
-        and then Editor.Panels.Active_Bottom_Content (S.Panels) =
+      if Editor.Panels.Is_Visible (S.Panel.Panels, Editor.Panels.Bottom_Panel)
+        and then Editor.Panels.Active_Bottom_Content (S.Panel.Panels) =
           Editor.Panels.Problems_Content
       then
          declare
@@ -507,7 +507,7 @@ package body Editor.Executor.Buffer_Close_Prompt_Commands is
          end;
       end loop;
 
-      Editor.Pending_Transitions.Clear (S.Pending_Transitions);
+      Editor.Pending_Transitions.Clear (S.Workflow.Pending_Transitions);
       if Editor.Buffers.Global_Count > 0 then
          Editor.Buffers.Load_Global_Active_Into_State (S);
       else
@@ -550,7 +550,7 @@ package body Editor.Executor.Buffer_Close_Prompt_Commands is
          end;
       end loop;
 
-      Editor.Pending_Transitions.Clear (S.Pending_Transitions);
+      Editor.Pending_Transitions.Clear (S.Workflow.Pending_Transitions);
       if Editor.Buffers.Global_Contains (Active) then
          Editor.Buffers.Global_Set_Active_Buffer (Active);
          Editor.Buffers.Load_Global_Active_Into_State (S);

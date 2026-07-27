@@ -379,10 +379,10 @@ package body Editor.Settings_Management.Tests is
       Assert (Snap.Settings_UI.Display_Row_Count >= 1,
               "current transient settings query should still project matching rows");
 
-      Editor.Settings.Set_Command_Palette_Show_Keybindings (S.Settings, False);
+      Editor.Settings.Set_Command_Palette_Show_Keybindings (S.Configuration.Settings, False);
       Editor.Settings_Management.Execute_Settings_Surface_Command
         (Editor.Settings_Management.Settings_Action_Reset_All,
-         S.Settings, Status);
+         S.Configuration.Settings, Status);
       Assert (Status = Editor.Settings_Management.Setting_Update_Confirmation_Required,
               "global settings surface command should request reset-all confirmation");
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
@@ -919,7 +919,7 @@ package body Editor.Settings_Management.Tests is
    begin
       Editor.State.Init (S);
       Editor.Settings_Management.Reset_Transient_State;
-      Editor.Settings.Set_Command_Palette_Show_Keybindings (S.Settings, True);
+      Editor.Settings.Set_Command_Palette_Show_Keybindings (S.Configuration.Settings, True);
 
       Editor.Settings_Management.Focus_Settings (UI);
       UI.Selected_Index := Selected;
@@ -941,13 +941,13 @@ package body Editor.Settings_Management.Tests is
       Editor.Input_Bridge.Handle_Key_Chord
         (Key (Editor.Keybindings.Key_Enter));
       After := Editor.Input_Bridge.Get_State_For_Test;
-      Assert (not Editor.Settings.Command_Palette_Show_Keybindings (After.Settings),
+      Assert (not Editor.Settings.Command_Palette_Show_Keybindings (After.Configuration.Settings),
               "Enter toggles the focused selected setting through Input_Bridge");
 
       Editor.Input_Bridge.Handle_Key_Chord
         (Key (Editor.Keybindings.Key_Delete));
       After := Editor.Input_Bridge.Get_State_For_Test;
-      Assert (Editor.Settings.Command_Palette_Show_Keybindings (After.Settings),
+      Assert (Editor.Settings.Command_Palette_Show_Keybindings (After.Configuration.Settings),
               "Delete resets the focused selected setting through Input_Bridge");
 
       Editor.Input_Bridge.Handle_Key_Chord

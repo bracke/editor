@@ -43,7 +43,7 @@ package body Editor.Executor.Bookmark_Commands is
          when Command_Clear_Bookmarks =>
             if not Has_Buffer then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
-            elsif not Editor.Gutter_Markers.Has_Bookmarks (S.Gutter_Markers) then
+            elsif not Editor.Gutter_Markers.Has_Bookmarks (S.Gutter.Markers) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No bookmarks");
             end if;
             return Editor.Commands.Availability_Metadata.Available;
@@ -52,11 +52,11 @@ package body Editor.Executor.Bookmark_Commands is
             | Command_Previous_Bookmark
             | Command_Clear_All_Bookmarks =>
             if Editor.Buffers.Global_Count = 0 then
-               if not Editor.Gutter_Markers.Has_Bookmarks (S.Gutter_Markers) then
+               if not Editor.Gutter_Markers.Has_Bookmarks (S.Gutter.Markers) then
                   return Editor.Commands.Availability_Metadata.Unavailable ("No bookmarks");
                end if;
             elsif not Editor.Buffers.Global_Has_Bookmarks
-              and then not Editor.Gutter_Markers.Has_Bookmarks (S.Gutter_Markers)
+              and then not Editor.Gutter_Markers.Has_Bookmarks (S.Gutter.Markers)
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No bookmarks");
             end if;
@@ -77,14 +77,14 @@ package body Editor.Executor.Bookmark_Commands is
             | Command_Bookmark_Previous
             | Command_Bookmark_Goto_Next
             | Command_Bookmark_Goto_Previous =>
-            if not Editor.Bookmarks.Has_Bookmarks (S.Bookmarks) then
+            if not Editor.Bookmarks.Has_Bookmarks (S.Navigation.Bookmarks) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No bookmarks");
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Bookmark_Open_Selected
             | Command_Bookmark_Remove_Selected =>
-            if not Editor.Bookmarks.Has_Selected (S.Bookmarks) then
+            if not Editor.Bookmarks.Has_Selected (S.Navigation.Bookmarks) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No selected bookmark");
             end if;
             return Editor.Commands.Availability_Metadata.Available;
@@ -92,7 +92,7 @@ package body Editor.Executor.Bookmark_Commands is
          when Command_Bookmark_Reveal_Current =>
             if not Editor.State.Has_Active_Buffer (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
-            elsif not Editor.Bookmarks.Has_Bookmarks (S.Bookmarks) then
+            elsif not Editor.Bookmarks.Has_Bookmarks (S.Navigation.Bookmarks) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No bookmarks");
             elsif not S.Buffer_Lifecycle.File_Info.Has_Path then
                return Editor.Commands.Availability_Metadata.Unavailable ("No bookmarkable location");
@@ -103,7 +103,7 @@ package body Editor.Executor.Bookmark_Commands is
             return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Bookmark_Hide =>
-            if not Editor.Bookmarks.Is_Visible (S.Bookmarks) then
+            if not Editor.Bookmarks.Is_Visible (S.Navigation.Bookmarks) then
                return Editor.Commands.Availability_Metadata.Unavailable ("Bookmarks hidden");
             end if;
             return Editor.Commands.Availability_Metadata.Available;
@@ -183,13 +183,13 @@ package body Editor.Executor.Bookmark_Commands is
       Visible_Count      : Natural := 1;
       Layout             : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
    begin
-      Editor.Folding.Expand_To_Reveal_Row (S.Folding, Row);
+      Editor.Folding.Expand_To_Reveal_Row (S.Syntax.Folding, Row);
 
       Target_Index := Editor.Cursors.Cursor_Index
         (Index_For_Line_Column (S, Row, 0));
 
       Visible_Target_Row := Editor.Folding.Document_Row_To_Visible_Row
-        (S.Folding, Row, Visible_Found);
+        (S.Syntax.Folding, Row, Visible_Found);
       if not Visible_Found then
          Visible_Target_Row := Row;
       end if;
@@ -211,7 +211,7 @@ package body Editor.Executor.Bookmark_Commands is
       Visible_Count := Natural'Max
         (1,
          Editor.Folding.Visible_Row_Count
-           (S.Folding, Editor.State.Line_Count (S)));
+           (S.Syntax.Folding, Editor.State.Line_Count (S)));
 
       if Visible_Target_Row > Viewport_Rows / 2 then
          Desired := Visible_Target_Row - Viewport_Rows / 2;
@@ -275,7 +275,7 @@ package body Editor.Executor.Bookmark_Commands is
       end if;
 
       Editor.Bookmarks.Toggle
-        (S.Bookmarks,
+        (S.Navigation.Bookmarks,
          File_Path    => To_String (Path),
          Display_Path => To_String (Display),
          Line_Number  => Line,
@@ -307,7 +307,7 @@ package body Editor.Executor.Bookmark_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      Editor.Bookmarks.Show (S.Bookmarks);
+      Editor.Bookmarks.Show (S.Navigation.Bookmarks);
       Report_Info (S, "Bookmarks shown");
       Editor.Render_Cache.Invalidate_All;
    end Execute_Bookmark_Show;
@@ -316,7 +316,7 @@ package body Editor.Executor.Bookmark_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      Editor.Bookmarks.Hide (S.Bookmarks);
+      Editor.Bookmarks.Hide (S.Navigation.Bookmarks);
       Report_Info (S, "Bookmarks hidden");
       Editor.Render_Cache.Invalidate_All;
    end Execute_Bookmark_Hide;
@@ -325,8 +325,8 @@ package body Editor.Executor.Bookmark_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      Editor.Bookmarks.Toggle_Visible (S.Bookmarks);
-      if Editor.Bookmarks.Is_Visible (S.Bookmarks) then
+      Editor.Bookmarks.Toggle_Visible (S.Navigation.Bookmarks);
+      if Editor.Bookmarks.Is_Visible (S.Navigation.Bookmarks) then
          Report_Info (S, "Bookmarks shown");
       else
          Report_Info (S, "Bookmarks hidden");
@@ -337,12 +337,12 @@ package body Editor.Executor.Bookmark_Commands is
    procedure Execute_Bookmark_Clear_All
      (S : in out Editor.State.State_Type)
    is
-      Count : constant Natural := Editor.Bookmarks.Count (S.Bookmarks);
+      Count : constant Natural := Editor.Bookmarks.Count (S.Navigation.Bookmarks);
    begin
       if Count = 0 then
          Report_Info (S, "No bookmarks");
       else
-         Editor.Bookmarks.Clear_Bookmarks (S.Bookmarks);
+         Editor.Bookmarks.Clear_Bookmarks (S.Navigation.Bookmarks);
          Report_Info
            (S,
             "Cleared " & Editor.Image_Helpers.Trim_Image (Count) & " bookmarks");
@@ -354,10 +354,10 @@ package body Editor.Executor.Bookmark_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if not Editor.Bookmarks.Has_Bookmarks (S.Bookmarks) then
+      if not Editor.Bookmarks.Has_Bookmarks (S.Navigation.Bookmarks) then
          Report_Info (S, "No bookmarks");
       else
-         Editor.Bookmarks.Select_Next (S.Bookmarks);
+         Editor.Bookmarks.Select_Next (S.Navigation.Bookmarks);
          Report_Info (S, "Selected next bookmark");
       end if;
       Editor.Render_Cache.Invalidate_All;
@@ -367,10 +367,10 @@ package body Editor.Executor.Bookmark_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if not Editor.Bookmarks.Has_Bookmarks (S.Bookmarks) then
+      if not Editor.Bookmarks.Has_Bookmarks (S.Navigation.Bookmarks) then
          Report_Info (S, "No bookmarks");
       else
-         Editor.Bookmarks.Select_Previous (S.Bookmarks);
+         Editor.Bookmarks.Select_Previous (S.Navigation.Bookmarks);
          Report_Info (S, "Selected previous bookmark");
       end if;
       Editor.Render_Cache.Invalidate_All;
@@ -389,7 +389,7 @@ package body Editor.Executor.Bookmark_Commands is
       if not Editor.State.Has_Active_Buffer (S) then
          Report_Info (S, "No active buffer.");
          return;
-      elsif not Editor.Bookmarks.Has_Bookmarks (S.Bookmarks) then
+      elsif not Editor.Bookmarks.Has_Bookmarks (S.Navigation.Bookmarks) then
          Report_Info (S, "No bookmarks");
          return;
       elsif not S.Buffer_Lifecycle.File_Info.Has_Path then
@@ -400,7 +400,7 @@ package body Editor.Executor.Bookmark_Commands is
       Editor.State.Row_Col_For_Index (S, Safe_Caret (S), Row, Col);
       Line := Row + 1;
       Editor.Bookmarks.Reveal_Current
-        (S.Bookmarks,
+        (S.Navigation.Bookmarks,
          File_Path   => To_String (S.Buffer_Lifecycle.File_Info.Path),
          Line_Number => Line,
          Status      => Status,
@@ -408,13 +408,13 @@ package body Editor.Executor.Bookmark_Commands is
 
       case Status is
          when Editor.Bookmarks.Reveal_Selected_Exact =>
-            Editor.Bookmarks.Show (S.Bookmarks);
+            Editor.Bookmarks.Show (S.Navigation.Bookmarks);
             Report_Info
               (S, "Selected bookmark at current location: "
                & To_String (Item.Display_Path) & ":"
                & Editor.Image_Helpers.Trim_Image (Item.Line_Number));
          when Editor.Bookmarks.Reveal_Selected_Nearest_In_File =>
-            Editor.Bookmarks.Show (S.Bookmarks);
+            Editor.Bookmarks.Show (S.Navigation.Bookmarks);
             Report_Info
               (S, "Selected bookmark in active file: "
                & To_String (Item.Display_Path) & ":"
@@ -433,17 +433,17 @@ package body Editor.Executor.Bookmark_Commands is
       Removed : Boolean := False;
       Item   : Editor.Bookmarks.Bookmark_Entry;
    begin
-      if not Editor.Bookmarks.Has_Bookmarks (S.Bookmarks) then
+      if not Editor.Bookmarks.Has_Bookmarks (S.Navigation.Bookmarks) then
          Report_Info (S, "No bookmarks");
          return;
-      elsif not Editor.Bookmarks.Has_Selected (S.Bookmarks) then
+      elsif not Editor.Bookmarks.Has_Selected (S.Navigation.Bookmarks) then
          Report_Info (S, "No selected bookmark");
          return;
       end if;
 
-      Editor.Bookmarks.Remove_Selected (S.Bookmarks, Removed, Item);
+      Editor.Bookmarks.Remove_Selected (S.Navigation.Bookmarks, Removed, Item);
       if Removed then
-         Editor.Bookmarks.Show (S.Bookmarks);
+         Editor.Bookmarks.Show (S.Navigation.Bookmarks);
          Report_Info
            (S, "Bookmark removed: " & To_String (Item.Display_Path) & ":"
             & Editor.Image_Helpers.Trim_Image (Item.Line_Number));
@@ -492,7 +492,7 @@ package body Editor.Executor.Bookmark_Commands is
         or else (not Was_Open and then not Ada.Directories.Exists (Target_Path))
       then
          if Show_On_Failure then
-            Editor.Bookmarks.Show (S.Bookmarks);
+            Editor.Bookmarks.Show (S.Navigation.Bookmarks);
          end if;
          Report_Warning (S, "Could not open " & Display & ": file not found");
          Editor.Render_Cache.Invalidate_All;
@@ -504,7 +504,7 @@ package body Editor.Executor.Bookmark_Commands is
 
       if not S.Buffer_Lifecycle.File_Info.Has_Path or else To_String (S.Buffer_Lifecycle.File_Info.Path) /= Target_Path then
          if Show_On_Failure then
-            Editor.Bookmarks.Show (S.Bookmarks);
+            Editor.Bookmarks.Show (S.Navigation.Bookmarks);
          end if;
          Report_Warning (S, "Could not open " & Display);
          return;
@@ -516,7 +516,7 @@ package body Editor.Executor.Bookmark_Commands is
          Target_Row := 0;
       end if;
       Target_Col := Natural'Min (Target_Col, Editor.Navigation.Line_Length (S, Target_Row));
-      Editor.Folding.Expand_To_Reveal_Row (S.Folding, Target_Row);
+      Editor.Folding.Expand_To_Reveal_Row (S.Syntax.Folding, Target_Row);
       Target_Index := Editor.Cursors.Cursor_Index (Index_For_Line_Column (S, Target_Row, Target_Col));
       S.Caret.Carets.Clear;
       S.Caret.Carets.Append
@@ -532,12 +532,12 @@ package body Editor.Executor.Bookmark_Commands is
          Structured_File_Navigation_Target
            (Target_Path, Item.Line_Number, Target_Col));
 
-      Visible_Row := Editor.Folding.Document_Row_To_Visible_Row (S.Folding, Target_Row, Visible_Found);
+      Visible_Row := Editor.Folding.Document_Row_To_Visible_Row (S.Syntax.Folding, Target_Row, Visible_Found);
       if not Visible_Found then
          Visible_Row := Target_Row;
       end if;
       Viewport_Rows := Natural'Max (1, Editor.Layout.Visible_Row_Count (Layout, Editor.View.Viewport_Height));
-      Visible_Count := Natural'Max (1, Editor.Folding.Visible_Row_Count (S.Folding, Editor.State.Line_Count (S)));
+      Visible_Count := Natural'Max (1, Editor.Folding.Visible_Row_Count (S.Syntax.Folding, Editor.State.Line_Count (S)));
       if Visible_Row > Viewport_Rows / 2 then
          Desired := Visible_Row - Viewport_Rows / 2;
       else
@@ -604,7 +604,7 @@ package body Editor.Executor.Bookmark_Commands is
       Current_Bookmark_Navigation_Location
         (S, Has_Location, File_Path, Line_Number, Column, Has_Column);
       Editor.Bookmarks.Select_Next_From_Location
-        (S.Bookmarks,
+        (S.Navigation.Bookmarks,
          Has_Location => Has_Location,
          File_Path    => To_String (File_Path),
          Line_Number  => Line_Number,
@@ -637,7 +637,7 @@ package body Editor.Executor.Bookmark_Commands is
       Current_Bookmark_Navigation_Location
         (S, Has_Location, File_Path, Line_Number, Column, Has_Column);
       Editor.Bookmarks.Select_Previous_From_Location
-        (S.Bookmarks,
+        (S.Navigation.Bookmarks,
          Has_Location => Has_Location,
          File_Path    => To_String (File_Path),
          Line_Number  => Line_Number,
@@ -661,7 +661,7 @@ package body Editor.Executor.Bookmark_Commands is
    is
       Found : Boolean := False;
       Item : constant Editor.Bookmarks.Bookmark_Entry :=
-        Editor.Bookmarks.Selected (S.Bookmarks, Found);
+        Editor.Bookmarks.Selected (S.Navigation.Bookmarks, Found);
    begin
       if not Found then
          Report_Info (S, "No selected bookmark");
@@ -678,7 +678,7 @@ package body Editor.Executor.Bookmark_Commands is
    is
       Had_Bookmark : constant Boolean :=
         Editor.Gutter_Markers.Has_Marker
-          (S.Gutter_Markers, Row, Editor.Gutter_Markers.Bookmark_Marker);
+          (S.Gutter.Markers, Row, Editor.Gutter_Markers.Bookmark_Marker);
    begin
       if not Editor.State.Has_Active_Buffer (S)
         or else Row >= Editor.State.Line_Count (S)
@@ -688,7 +688,7 @@ package body Editor.Executor.Bookmark_Commands is
          return;
       end if;
 
-      Editor.Gutter_Markers.Toggle_Bookmark (S.Gutter_Markers, Row);
+      Editor.Gutter_Markers.Toggle_Bookmark (S.Gutter.Markers, Row);
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
@@ -757,7 +757,7 @@ package body Editor.Executor.Bookmark_Commands is
         (Editor.Buffers.Global_Registry_For_UI, Target_Buffer);
       return Row < Editor.State.Line_Count (Target_State)
         and then Editor.Gutter_Markers.Has_Marker
-          (Target_State.Gutter_Markers, Row, Editor.Gutter_Markers.Bookmark_Marker);
+          (Target_State.Gutter.Markers, Row, Editor.Gutter_Markers.Bookmark_Marker);
    end Buffer_Has_Bookmark_Row;
 
    function Find_Bookmark_Target
@@ -809,7 +809,7 @@ package body Editor.Executor.Bookmark_Commands is
                      for Row in 0 .. Target_Line_Count - 1 loop
                         if (Step > 0 or else Row > Current_Row)
                           and then Editor.Gutter_Markers.Has_Marker
-                            (Target_State.Gutter_Markers, Row, Editor.Gutter_Markers.Bookmark_Marker)
+                            (Target_State.Gutter.Markers, Row, Editor.Gutter_Markers.Bookmark_Marker)
                         then
                            Target :=
                              (Buffer_Id    => Natural (Summary.Id),
@@ -829,7 +829,7 @@ package body Editor.Executor.Bookmark_Commands is
                   Candidate_Row := Candidate_Row - 1;
                   if (Step > 0 or else Candidate_Row < Current_Row)
                     and then Editor.Gutter_Markers.Has_Marker
-                      (Target_State.Gutter_Markers, Candidate_Row, Editor.Gutter_Markers.Bookmark_Marker)
+                      (Target_State.Gutter.Markers, Candidate_Row, Editor.Gutter_Markers.Bookmark_Marker)
                   then
                      Target :=
                        (Buffer_Id    => Natural (Summary.Id),
@@ -855,7 +855,7 @@ package body Editor.Executor.Bookmark_Commands is
             for Row in 0 .. Current_Row loop
                if Row < Editor.State.Line_Count (Target_State)
                  and then Editor.Gutter_Markers.Has_Marker
-                   (Target_State.Gutter_Markers, Row, Editor.Gutter_Markers.Bookmark_Marker)
+                   (Target_State.Gutter.Markers, Row, Editor.Gutter_Markers.Bookmark_Marker)
                then
                   Target :=
                     (Buffer_Id    => Natural (Current_Buffer),
@@ -873,7 +873,7 @@ package body Editor.Executor.Bookmark_Commands is
                Candidate_Row := Candidate_Row - 1;
                if Candidate_Row >= Current_Row
                  and then Editor.Gutter_Markers.Has_Marker
-                   (Target_State.Gutter_Markers, Candidate_Row, Editor.Gutter_Markers.Bookmark_Marker)
+                   (Target_State.Gutter.Markers, Candidate_Row, Editor.Gutter_Markers.Bookmark_Marker)
                then
                   Target :=
                     (Buffer_Id    => Natural (Current_Buffer),
@@ -901,7 +901,7 @@ package body Editor.Executor.Bookmark_Commands is
    begin
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Gutter_Markers.Prune_Bookmarks_At_Or_After
-        (S.Gutter_Markers, Editor.State.Line_Count (S));
+        (S.Gutter.Markers, Editor.State.Line_Count (S));
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Buffers.Global_Prune_Stale_Bookmarks;
       Editor.Buffers.Load_Global_Active_Into_State (S);
@@ -940,7 +940,7 @@ package body Editor.Executor.Bookmark_Commands is
    begin
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Gutter_Markers.Prune_Bookmarks_At_Or_After
-        (S.Gutter_Markers, Editor.State.Line_Count (S));
+        (S.Gutter.Markers, Editor.State.Line_Count (S));
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Buffers.Global_Prune_Stale_Bookmarks;
       Editor.Buffers.Load_Global_Active_Into_State (S);
@@ -975,10 +975,10 @@ package body Editor.Executor.Bookmark_Commands is
    begin
       if not Editor.State.Has_Active_Buffer (S) then
          Report_Info (S, "Bookmark unavailable: no active buffer");
-      elsif not Editor.Gutter_Markers.Has_Bookmarks (S.Gutter_Markers) then
+      elsif not Editor.Gutter_Markers.Has_Bookmarks (S.Gutter.Markers) then
          Report_Info (S, "No bookmarks to clear");
       else
-         Editor.Gutter_Markers.Clear_Bookmarks (S.Gutter_Markers);
+         Editor.Gutter_Markers.Clear_Bookmarks (S.Gutter.Markers);
          Editor.Buffers.Sync_Global_Active_From_State (S);
          Report_Info (S, "Bookmarks cleared for buffer");
       end if;

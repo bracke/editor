@@ -99,7 +99,7 @@ package body Editor.Executor.Pending_Transition_Policy is
       --  not overwrite that payload.  The user must explicitly cancel or retry
       --  the pending operation first.
 
-      if Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions) then
+      if Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions) then
          Editor.Executor.Shared_Services.Report_Warning (S, "Command unavailable while confirmation is pending");
          return;
       end if;
@@ -149,7 +149,7 @@ package body Editor.Executor.Pending_Transition_Policy is
       end if;
 
       Editor.Pending_Transitions.Set_Pending
-        (S.Pending_Transitions, Captured_Target, Guard.Summary);
+        (S.Workflow.Pending_Transitions, Captured_Target, Guard.Summary);
       Report_Dirty_Block (S, Guard);
    end Set_Pending_Dirty_Transition;
 
@@ -316,9 +316,9 @@ package body Editor.Executor.Pending_Transition_Policy is
      (State : Editor.State.State_Type) return Boolean
    is
    begin
-      return Editor.Pending_Transitions.Has_Pending (State.Pending_Transitions)
+      return Editor.Pending_Transitions.Has_Pending (State.Workflow.Pending_Transitions)
         and then Pending_Target_Is_Valid
-          (State, Editor.Pending_Transitions.Target (State.Pending_Transitions));
+          (State, Editor.Pending_Transitions.Target (State.Workflow.Pending_Transitions));
    end Pending_Transition_Is_Still_Valid;
 
    function Same_Pending_Project_Path
@@ -338,9 +338,9 @@ package body Editor.Executor.Pending_Transition_Policy is
       Explicit_Switch     : Boolean) return Boolean
    is
       Target : constant Editor.Pending_Transitions.Pending_Transition_Target :=
-        Editor.Pending_Transitions.Target (S.Pending_Transitions);
+        Editor.Pending_Transitions.Target (S.Workflow.Pending_Transitions);
    begin
-      if not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions) then
+      if not Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions) then
          return True;
       end if;
 
@@ -360,9 +360,9 @@ package body Editor.Executor.Pending_Transition_Policy is
      (S : Editor.State.State_Type) return Boolean
    is
       Target : constant Editor.Pending_Transitions.Pending_Transition_Target :=
-        Editor.Pending_Transitions.Target (S.Pending_Transitions);
+        Editor.Pending_Transitions.Target (S.Workflow.Pending_Transitions);
    begin
-      return not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions)
+      return not Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions)
         or else Target.Kind in Editor.Pending_Transitions.Pending_Close_Project
           | Editor.Pending_Transitions.Pending_Clear_Project;
    end Pending_Project_Close_Command_Matches;
@@ -371,10 +371,10 @@ package body Editor.Executor.Pending_Transition_Policy is
      (State : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Pending_Transitions.Has_Pending (State.Pending_Transitions)
+      if Editor.Pending_Transitions.Has_Pending (State.Workflow.Pending_Transitions)
         and then not Pending_Transition_Is_Still_Valid (State)
       then
-         Editor.Pending_Transitions.Clear (State.Pending_Transitions);
+         Editor.Pending_Transitions.Clear (State.Workflow.Pending_Transitions);
       end if;
    end Invalidate_Pending_Transition_If_Stale;
 

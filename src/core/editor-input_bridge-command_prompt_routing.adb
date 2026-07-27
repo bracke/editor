@@ -93,7 +93,7 @@ package body Editor.Input_Bridge.Command_Prompt_Routing is
       case Id is
          when Editor.Command_Ids.Command_Open_Project =>
             Editor.Guided_Prompts.Start
-              (S.Guided_Prompt,
+              (S.Workflow.Guided_Prompt,
                Editor.Guided_Prompts.Project_Open_Prompt,
                Id,
                "Open Project",
@@ -105,7 +105,7 @@ package body Editor.Input_Bridge.Command_Prompt_Routing is
             Report_Info ("Enter project path.");
          when Editor.Command_Ids.Command_Switch_Project =>
             Editor.Guided_Prompts.Start
-              (S.Guided_Prompt,
+              (S.Workflow.Guided_Prompt,
                Editor.Guided_Prompts.Project_Switch_Prompt,
                Id,
                "Switch Project",
@@ -117,7 +117,7 @@ package body Editor.Input_Bridge.Command_Prompt_Routing is
             Report_Info ("Enter project path.");
          when Editor.Command_Ids.Command_Restore_Workspace_State =>
             Editor.Guided_Prompts.Start
-              (S.Guided_Prompt,
+              (S.Workflow.Guided_Prompt,
                Editor.Guided_Prompts.Workspace_Load_Prompt,
                Id,
                "Load Workspace",
@@ -128,7 +128,7 @@ package body Editor.Input_Bridge.Command_Prompt_Routing is
             Report_Info ("Enter workspace path.");
          when Editor.Command_Ids.Command_Save_Workspace_State =>
             Editor.Guided_Prompts.Start
-              (S.Guided_Prompt,
+              (S.Workflow.Guided_Prompt,
                Editor.Guided_Prompts.Workspace_Save_Prompt,
                Id,
                "Save Workspace",
@@ -139,7 +139,7 @@ package body Editor.Input_Bridge.Command_Prompt_Routing is
          when Editor.Command_Ids.Command_Run_Project_Search
             | Editor.Command_Ids.Command_Run_Project_Search_From_Bar =>
             Editor.Guided_Prompts.Start
-              (S.Guided_Prompt,
+              (S.Workflow.Guided_Prompt,
                Editor.Guided_Prompts.Search_Query_Prompt,
                Id,
                "Project Search",
@@ -149,7 +149,7 @@ package body Editor.Input_Bridge.Command_Prompt_Routing is
             Report_Info ("Enter search text.");
          when Editor.Command_Ids.Command_Project_Search_Replace_Preview =>
             Editor.Guided_Prompts.Start
-              (S.Guided_Prompt,
+              (S.Workflow.Guided_Prompt,
                Editor.Guided_Prompts.Replace_Text_Prompt,
                Id,
                "Replacement Text",
@@ -159,7 +159,7 @@ package body Editor.Input_Bridge.Command_Prompt_Routing is
             Report_Info ("Enter replacement text.");
          when Editor.Command_Ids.Command_Keybindings_Assign_Selected =>
             Editor.Guided_Prompts.Start
-              (S.Guided_Prompt,
+              (S.Workflow.Guided_Prompt,
                Editor.Guided_Prompts.Keybinding_Capture_Prompt,
                Id,
                "Assign Keybinding",
@@ -169,7 +169,7 @@ package body Editor.Input_Bridge.Command_Prompt_Routing is
             Report_Info ("Press keybinding chord.");
          when Editor.Command_Ids.Command_File_Tree_Create_File =>
             Editor.Guided_Prompts.Start
-              (S.Guided_Prompt,
+              (S.Workflow.Guided_Prompt,
                Editor.Guided_Prompts.File_Tree_Create_File_Prompt,
                Id,
                "Create File",
@@ -179,7 +179,7 @@ package body Editor.Input_Bridge.Command_Prompt_Routing is
             Report_Info ("Enter file name.");
          when Editor.Command_Ids.Command_File_Tree_Create_Directory =>
             Editor.Guided_Prompts.Start
-              (S.Guided_Prompt,
+              (S.Workflow.Guided_Prompt,
                Editor.Guided_Prompts.File_Tree_Create_Directory_Prompt,
                Id,
                "Create Directory",
@@ -189,7 +189,7 @@ package body Editor.Input_Bridge.Command_Prompt_Routing is
             Report_Info ("Enter directory name.");
          when Editor.Command_Ids.Command_File_Tree_Rename_Selected =>
             Editor.Guided_Prompts.Start
-              (S.Guided_Prompt,
+              (S.Workflow.Guided_Prompt,
                Editor.Guided_Prompts.File_Tree_Rename_Prompt,
                Id,
                "Rename File or Directory",
@@ -212,7 +212,7 @@ package body Editor.Input_Bridge.Command_Prompt_Routing is
                if Found and then Node_Id /= Editor.File_Tree.No_File_Tree_Node then
                   Summary := Editor.File_Tree.Node (S.Surface.File_Tree, Node_Id);
                   Editor.Guided_Prompts.Update_Input
-                    (S.Guided_Prompt, To_String (Summary.Name));
+                    (S.Workflow.Guided_Prompt, To_String (Summary.Name));
                end if;
             end;
             Report_Info ("Enter new name.");
@@ -223,7 +223,7 @@ package body Editor.Input_Bridge.Command_Prompt_Routing is
                  Editor.Executor.Current_Semantic_Symbol_Name (S);
             begin
                Editor.Guided_Prompts.Start
-                 (S.Guided_Prompt,
+                 (S.Workflow.Guided_Prompt,
                   Editor.Guided_Prompts.Semantic_Rename_Prompt,
                   Id,
                   "Rename Symbol",
@@ -234,7 +234,7 @@ package body Editor.Input_Bridge.Command_Prompt_Routing is
                      then "Rename"
                      else "Preview"));
                if Symbol'Length > 0 then
-                  Editor.Guided_Prompts.Update_Input (S.Guided_Prompt, Symbol);
+                  Editor.Guided_Prompts.Update_Input (S.Workflow.Guided_Prompt, Symbol);
                end if;
             end;
             Report_Info ("Enter new symbol name.");
@@ -275,7 +275,7 @@ package body Editor.Input_Bridge.Command_Prompt_Routing is
                end if;
 
                Editor.Guided_Prompts.Start
-                 (S.Guided_Prompt,
+                 (S.Workflow.Guided_Prompt,
                   Editor.Guided_Prompts.Confirmation_Prompt,
                   Id,
                   "Delete File or Directory",
@@ -307,7 +307,7 @@ package body Editor.Input_Bridge.Command_Prompt_Routing is
             | Editor.Command_Ids.Command_Close_Other_Buffers
             | Editor.Command_Ids.Command_Diagnostics_Clear =>
             Editor.Guided_Prompts.Start
-              (S.Guided_Prompt,
+              (S.Workflow.Guided_Prompt,
                Editor.Guided_Prompts.Confirmation_Prompt,
                Id,
                "Confirm Action",

@@ -237,7 +237,7 @@ package body Editor.Executor.File_Lifecycle_Commands is
          end case;
       end if;
 
-      if Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions) then
+      if Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions) then
          if Editor.Executor.File_Lifecycle_Confirmation_Pending (S) then
             case Id is
                when Command_Save_File
@@ -345,7 +345,7 @@ package body Editor.Executor.File_Lifecycle_Commands is
          when Command_Cancel_Pending_Transition
             | Command_Retry_Pending_Transition
             | Command_Discard_Pending_Transition =>
-            if not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions) then
+            if not Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions) then
                Result := Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Dirty_Guards.No_Pending_Transition_Message);
                return;
@@ -353,7 +353,7 @@ package body Editor.Executor.File_Lifecycle_Commands is
             if Id = Command_Discard_Pending_Transition then
                declare
                   Target : constant Editor.Pending_Transitions.Pending_Transition_Target :=
-                    Editor.Pending_Transitions.Target (S.Pending_Transitions);
+                    Editor.Pending_Transitions.Target (S.Workflow.Pending_Transitions);
                begin
                   if Target.Kind in Editor.Pending_Transitions.Pending_Reload_Active_Buffer
                       | Editor.Pending_Transitions.Pending_Revert_Active_Buffer

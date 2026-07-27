@@ -159,8 +159,8 @@ package body Editor.Feature_Panel.Fixtures is
       Summary : Editor.Dirty_Guards.Dirty_Buffer_Summary :=
         (Dirty_Count => 1, Untitled_Count => 0, File_Backed_Count => 1);
    begin
-      Editor.Pending_Transitions.Set_Pending (S.Pending_Transitions, Target, Summary);
-      pragma Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Editor.Pending_Transitions.Set_Pending (S.Workflow.Pending_Transitions, Target, Summary);
+      pragma Assert (Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
                      "pending-transition fixture has pending state");
       pragma Assert (Row_Count (S.Panel.Feature_Panel) = 3,
                      "pending-transition fixture preserves feature rows");

@@ -71,15 +71,15 @@ package body Editor.Executor.UI_Tests is
       Editor.State.Add_Diagnostic
         (S, Start_Index => 0, End_Index => 1,
          Severity => Editor.Diagnostics.Error, Message => "first");
-      Editor.Panels.Set_Visible (S.Panels, Editor.Panels.Bottom_Panel, False);
+      Editor.Panels.Set_Visible (S.Panel.Panels, Editor.Panels.Bottom_Panel, False);
 
       Editor.Executor.Panel_Focus_Commands.Execute_Focus_Problems (S);
 
       Assert
-        (Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel),
+        (Editor.Panels.Is_Visible (S.Panel.Panels, Editor.Panels.Bottom_Panel),
          "focus Problems should show the bottom panel");
       Assert
-        (Editor.Panels.Active_Bottom_Content (S.Panels) =
+        (Editor.Panels.Active_Bottom_Content (S.Panel.Panels) =
            Editor.Panels.Problems_Content,
          "focus Problems should select Problems bottom content");
       Assert
@@ -159,7 +159,7 @@ package body Editor.Executor.UI_Tests is
         (Editor.Panel_Focus.Editor_Text_Has_Focus (S.Panel.Panel_Focus),
          "Enter should return focus to editor text after opening a problem");
       Assert
-        (Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel),
+        (Editor.Panels.Is_Visible (S.Panel.Panels, Editor.Panels.Bottom_Panel),
          "Enter should keep Problems panel visible");
    end Test_Problems_Open_Returns_To_Editor_Text;
 
@@ -202,7 +202,7 @@ package body Editor.Executor.UI_Tests is
         (Editor.Panel_Focus.Editor_Text_Has_Focus (S.Panel.Panel_Focus),
          "Escape should return focus to editor text");
       Assert
-        (Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel),
+        (Editor.Panels.Is_Visible (S.Panel.Panels, Editor.Panels.Bottom_Panel),
          "Escape should not hide the Problems panel");
    end Test_Problems_Escape_Returns_To_Editor_Text;
 

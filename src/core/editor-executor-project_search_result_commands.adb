@@ -66,13 +66,13 @@ package body Editor.Executor.Project_Search_Result_Commands is
    is
    begin
       Editor.Panels.Set_Bottom_Content
-        (S.Panels, Editor.Panels.Search_Results_Content);
-      Editor.Panels.Set_Visible (S.Panels, Editor.Panels.Bottom_Panel, True);
+        (S.Panel.Panels, Editor.Panels.Search_Results_Content);
+      Editor.Panels.Set_Visible (S.Panel.Panels, Editor.Panels.Bottom_Panel, True);
       if Editor.Panel_Focus.Bottom_Panel_Has_Focus (S.Panel.Panel_Focus) then
          Editor.Focus_Management.Set_Focus_Owner
            (S, Editor.Focus_Management.Focus_Project_Search_Results);
       end if;
-      Editor.Panels.Set_Current (S.Panels);
+      Editor.Panels.Set_Current (S.Panel.Panels);
       Editor.Render_Cache.Invalidate_All;
    end Show_Search_Results_Panel;
 
@@ -716,7 +716,7 @@ package body Editor.Executor.Project_Search_Result_Commands is
         (Natural'Max (End_Column, Start_Column),
          Editor.Navigation.Line_Length (S, Target_Row));
 
-      Editor.Folding.Expand_To_Reveal_Row (S.Folding, Target_Row);
+      Editor.Folding.Expand_To_Reveal_Row (S.Syntax.Folding, Target_Row);
       Target_Index := Editor.Cursors.Cursor_Index
         (Editor.Navigation.Index_For_Line_Column (S, Target_Row, Start_Column));
       End_Index := Editor.Cursors.Cursor_Index
@@ -737,7 +737,7 @@ package body Editor.Executor.Project_Search_Result_Commands is
            (Target_Path, Result.Row, Start_Column));
 
       Visible_Row := Editor.Folding.Document_Row_To_Visible_Row
-        (S.Folding, Target_Row, Visible_Found);
+        (S.Syntax.Folding, Target_Row, Visible_Found);
       if not Visible_Found then
          Visible_Row := Target_Row;
       end if;
@@ -745,7 +745,7 @@ package body Editor.Executor.Project_Search_Result_Commands is
       Viewport_Rows := Natural'Max
         (1, Editor.Layout.Visible_Row_Count (Layout, Editor.View.Viewport_Height));
       Visible_Count := Natural'Max
-        (1, Editor.Folding.Visible_Row_Count (S.Folding, Editor.State.Line_Count (S)));
+        (1, Editor.Folding.Visible_Row_Count (S.Syntax.Folding, Editor.State.Line_Count (S)));
 
       if Visible_Row > Viewport_Rows / 2 then
          Desired := Visible_Row - Viewport_Rows / 2;

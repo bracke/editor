@@ -27,7 +27,7 @@ package body Editor.Focus_Management is
      (S : Editor.State.State_Type) return Boolean
    is
    begin
-      return Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions);
+      return Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions);
    end Pending_Confirmation_Owns_Focus;
 
    function Overlay_Input_Owns_Text
@@ -37,7 +37,7 @@ package body Editor.Focus_Management is
       return Editor.Overlay_Focus.Has_Active_Overlay (S.Panel.Overlay_Focus)
         or else Editor.Feature_Search_Results.Search_Input_Is_Active
           (S.Panel.Feature_Search_Results)
-        or else Editor.Outline.Filter_Input_Is_Active (S.Outline);
+        or else Editor.Outline.Filter_Input_Is_Active (S.Outline_Runtime.Outline);
    end Overlay_Input_Owns_Text;
 
    function Effective_Focus_Owner
@@ -46,12 +46,12 @@ package body Editor.Focus_Management is
    begin
       if Pending_Confirmation_Owns_Focus (S) then
          return Focus_Pending_Confirmation;
-      elsif Editor.Guided_Prompts.Is_Active (S.Guided_Prompt) then
+      elsif Editor.Guided_Prompts.Is_Active (S.Workflow.Guided_Prompt) then
          --  Guided prompts own input focus above normal overlays/panels.
          --  Confirmation prompts keep the existing pending-confirmation label
          --  so status summaries distinguish modal confirmation from ordinary
          --  text-entry prompts without adding a new persistence-visible state.
-         if Editor.Guided_Prompts.Is_Confirmation (S.Guided_Prompt) then
+         if Editor.Guided_Prompts.Is_Confirmation (S.Workflow.Guided_Prompt) then
             return Focus_Pending_Confirmation;
          else
             return Focus_Workspace_Prompt;
@@ -97,7 +97,7 @@ package body Editor.Focus_Management is
         (S.Panel.Feature_Search_Results)
       then
          return Focus_Project_Search_Query;
-      elsif Editor.Outline.Filter_Input_Is_Active (S.Outline) then
+      elsif Editor.Outline.Filter_Input_Is_Active (S.Outline_Runtime.Outline) then
          return Focus_Outline_Filter;
       elsif Editor.Feature_Panel.Is_Focused (S.Panel.Feature_Panel) then
          case Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel) is
@@ -1239,7 +1239,7 @@ package body Editor.Focus_Management is
      (S : Editor.State.State_Type) return Boolean
    is
    begin
-      return (not Editor.Outline.Filter_Input_Is_Active (S.Outline))
+      return (not Editor.Outline.Filter_Input_Is_Active (S.Outline_Runtime.Outline))
         or else
           (Editor.Feature_Panel.Is_Visible (S.Panel.Feature_Panel)
            and then Editor.Feature_Panel.Is_Focused (S.Panel.Feature_Panel)
@@ -1270,11 +1270,11 @@ package body Editor.Focus_Management is
       Count (Editor.Overlay_Focus.Has_Active_Overlay (S.Panel.Overlay_Focus));
       Count (Editor.Feature_Search_Results.Search_Input_Is_Active
         (S.Panel.Feature_Search_Results));
-      Count (Editor.Outline.Filter_Input_Is_Active (S.Outline));
+      Count (Editor.Outline.Filter_Input_Is_Active (S.Outline_Runtime.Outline));
       Count (Editor.Feature_Panel.Is_Focused (S.Panel.Feature_Panel)
         and then not Editor.Feature_Search_Results.Search_Input_Is_Active
           (S.Panel.Feature_Search_Results)
-        and then not Editor.Outline.Filter_Input_Is_Active (S.Outline));
+        and then not Editor.Outline.Filter_Input_Is_Active (S.Outline_Runtime.Outline));
       Count (S.Build.Build_UI.Build_UI_Focused);
       Count (S.Build.Latest_Result_Focused);
       Count (S.Build.Latest_Output_Details.Build_Output_Details_Focused);
@@ -1320,8 +1320,8 @@ package body Editor.Focus_Management is
            (S.Panel.Feature_Search_Results);
       end if;
 
-      if Editor.Outline.Filter_Input_Is_Active (S.Outline) then
-         Editor.Outline.Deactivate_Filter_Input (S.Outline);
+      if Editor.Outline.Filter_Input_Is_Active (S.Outline_Runtime.Outline) then
+         Editor.Outline.Deactivate_Filter_Input (S.Outline_Runtime.Outline);
       end if;
    end Clear_Overlay_And_Local_Text_Focus;
 
@@ -1363,16 +1363,16 @@ package body Editor.Focus_Management is
          when Editor.Overlay_Focus.Previous_File_Tree =>
             return Editor.Project.Has_Project (S.Project_Runtime.Project)
               and then Editor.Panels.Is_Visible
-                (S.Panels, Editor.Panels.File_Tree_Panel);
+                (S.Panel.Panels, Editor.Panels.File_Tree_Panel);
          when Editor.Overlay_Focus.Previous_Search_Results =>
             return Editor.Panels.Is_Visible
-                (S.Panels, Editor.Panels.Bottom_Panel)
-              and then Editor.Panels.Active_Bottom_Content (S.Panels) =
+                (S.Panel.Panels, Editor.Panels.Bottom_Panel)
+              and then Editor.Panels.Active_Bottom_Content (S.Panel.Panels) =
                 Editor.Panels.Search_Results_Content;
          when Editor.Overlay_Focus.Previous_Problems =>
             return Editor.Panels.Is_Visible
-                (S.Panels, Editor.Panels.Bottom_Panel)
-              and then Editor.Panels.Active_Bottom_Content (S.Panels) =
+                (S.Panel.Panels, Editor.Panels.Bottom_Panel)
+              and then Editor.Panels.Active_Bottom_Content (S.Panel.Panels) =
                 Editor.Panels.Problems_Content;
          when Editor.Overlay_Focus.Previous_None =>
             return False;
@@ -1460,20 +1460,20 @@ package body Editor.Focus_Management is
                S.Panel.Panel_Focus);
          when Focus_File_Tree =>
             Editor.Panels.Set_Visible
-              (S.Panels, Editor.Panels.File_Tree_Panel, True);
+              (S.Panel.Panels, Editor.Panels.File_Tree_Panel, True);
             Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
          when Focus_Project_Search_Results =>
             Editor.Panels.Set_Bottom_Content
-              (S.Panels, Editor.Panels.Search_Results_Content);
+              (S.Panel.Panels, Editor.Panels.Search_Results_Content);
             Editor.Panels.Set_Visible
-              (S.Panels, Editor.Panels.Bottom_Panel, True);
+              (S.Panel.Panels, Editor.Panels.Bottom_Panel, True);
             Editor.Panel_Focus.Focus_Bottom_Panel
               (S.Panel.Panel_Focus, Editor.Panel_Focus.Search_Results_Focus);
          when Focus_Diagnostics =>
             Editor.Panels.Set_Bottom_Content
-              (S.Panels, Editor.Panels.Problems_Content);
+              (S.Panel.Panels, Editor.Panels.Problems_Content);
             Editor.Panels.Set_Visible
-              (S.Panels, Editor.Panels.Bottom_Panel, True);
+              (S.Panel.Panels, Editor.Panels.Bottom_Panel, True);
             Editor.Panel_Focus.Focus_Bottom_Panel
               (S.Panel.Panel_Focus, Editor.Panel_Focus.Problems_Focus);
          when Focus_Outline =>
@@ -1493,13 +1493,13 @@ package body Editor.Focus_Management is
                pragma Unreferenced (Accepted);
                Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
                Editor.Feature_Panel.Set_Focused (S.Panel.Feature_Panel, True);
-               Editor.Outline.Activate_Filter_Input (S.Outline);
+               Editor.Outline.Activate_Filter_Input (S.Outline_Runtime.Outline);
             end;
          when Focus_Build_UI =>
             Editor.Build_UI.Focus (S.Build.Build_UI);
          when Focus_Terminal =>
             Editor.Panels.Set_Visible
-              (S.Panels, Editor.Panels.Bottom_Panel, True);
+              (S.Panel.Panels, Editor.Panels.Bottom_Panel, True);
             Editor.Terminal_Tasks.Focus (S.Build.Terminal_Tasks);
          when Focus_Build_Result_Summary =>
             --  The latest build result summary is display-only, but it still

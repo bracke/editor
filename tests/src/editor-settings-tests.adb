@@ -828,7 +828,7 @@ package body Editor.Settings.Tests is
         (S.Surface.Buffer_Switcher, Editor.Buffer_Switcher.Filters.Name_Sort);
       Editor.Buffer_Switcher.Show_Marked_Review (S.Surface.Buffer_Switcher);
 
-      Editor.Settings.Save_To_File (S.Settings, Path, Status);
+      Editor.Settings.Save_To_File (S.Configuration.Settings, Path, Status);
       Assert (Status = Editor.Settings.Settings_Ok,
               "settings save should succeed with Buffer List runtime state present");
 
@@ -904,12 +904,12 @@ package body Editor.Settings.Tests is
 
       Editor.State.Init (S);
       Editor.Settings_Management.Reset_Transient_State;
-      Assert (Editor.Settings.Minimap_Visible (S.Settings),
+      Assert (Editor.Settings.Minimap_Visible (S.Configuration.Settings),
               "state fixture must start with default minimap setting");
       Editor.Minimap.Set_Enabled (False);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_Settings);
 
-      Assert (Editor.Settings.Minimap_Visible (S.Settings),
+      Assert (Editor.Settings.Minimap_Visible (S.Configuration.Settings),
               "failed Save Settings must not replace in-memory state settings snapshot");
       M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Settings file could not be written.",
@@ -939,7 +939,7 @@ package body Editor.Settings.Tests is
       Editor.State.Apply_Settings (S, Model);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Reload_Settings);
 
-      Assert (not Editor.Settings.Minimap_Visible (S.Settings),
+      Assert (not Editor.Settings.Minimap_Visible (S.Configuration.Settings),
               "malformed settings reload must not partially replace state settings");
       M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Settings file is invalid.",
@@ -1077,7 +1077,7 @@ package body Editor.Settings.Tests is
          Dirty        => True,
          others       => <>);
       Editor.Pending_Transitions.Set_Pending
-        (S.Pending_Transitions, Target, Dirty);
+        (S.Workflow.Pending_Transitions, Target, Dirty);
       Editor.Recent_Projects.Add_Or_Promote
         (S.Project_Runtime.Recent_Projects, Editor.Test_Temp.Base & "/editor-a", "editor-a", 104);
 
@@ -1105,7 +1105,7 @@ package body Editor.Settings.Tests is
       Assert (Editor.Lifecycle_Audit.Status (Result) =
                 Editor.Lifecycle_Audit.Lifecycle_Audit_Ok,
               Editor.Lifecycle_Audit.Summary (Result));
-      Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "Reset Settings must not clear pending transitions");
       Editor.Settings_Management.Reset_Transient_State;
       Delete_If_Exists (Settings_Path);
@@ -1140,7 +1140,7 @@ package body Editor.Settings.Tests is
       Assert (Status = Editor.Settings.Settings_Ok,
               "default settings fixture must load");
       Editor.State.Apply_Settings (S, Loaded);
-      Assert (Editor.Settings.Minimap_Visible (S.Settings),
+      Assert (Editor.Settings.Minimap_Visible (S.Configuration.Settings),
               "default fixture starts with minimap visible");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Toggle_Minimap);

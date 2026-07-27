@@ -154,7 +154,7 @@ package body Editor.Executor.Project_Workspace_Tests is
               "blocked project close must keep the dirty project buffer");
       Assert (Editor.Buffers.Global_Summary_For (Id).Is_Dirty,
               "blocked project close must preserve dirty marker");
-      Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "blocked project close must leave an explicit pending transition");
       Assert (Latest_Message_Text (S) = "Cannot close project with unsaved changes",
               "blocked project close feedback must not imply close happened");
@@ -211,7 +211,7 @@ package body Editor.Executor.Project_Workspace_Tests is
               "unrelated dirty buffer must remain open");
       Assert (Editor.Buffers.Global_Summary_For (Other_Id).Is_Dirty,
               "unrelated dirty marker must be preserved");
-      Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (not Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "successful project close must not leave a pending transition");
 
       Remove_File_If_Exists (Other_F);
@@ -268,7 +268,7 @@ package body Editor.Executor.Project_Workspace_Tests is
               "switch must preserve outside-project buffers");
       Assert (Editor.Buffers.Global_Summary_For (Outside_Id).Is_Dirty,
               "switch must preserve outside-project dirty buffers");
-      Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (not Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "successful switch must leave no pending transition");
       Assert (Latest_Message_Text (S) = "Project switched",
               "successful switch feedback must be deterministic");
@@ -321,13 +321,13 @@ package body Editor.Executor.Project_Workspace_Tests is
       Id := Editor.Buffers.Global_Find_By_Path (Project_A, Found);
       Assert (Found and then Editor.Buffers.Global_Summary_For (Id).Is_Dirty,
               "blocked switch must preserve dirty project buffer");
-      Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "blocked switch must capture a pending transition");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Cancel_Pending_Transition);
       Assert (Editor.Project.Root_Path (S.Project_Runtime.Project) = Ada.Directories.Full_Name (Root_A),
               "cancelled switch must still preserve active project");
-      Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (not Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "cancelled switch must clear only the transient payload");
       Assert (Latest_Message_Text (S) = "Switch project cancelled.",
               "switch cancellation feedback must be specific");
@@ -405,7 +405,7 @@ package body Editor.Executor.Project_Workspace_Tests is
               "switch without source project must not initialize File Tree");
       Assert (Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) = 0,
               "switch without source project must not promote Recent Projects");
-      Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (not Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "switch without source project must not create pending state");
       Assert (Latest_Message_Text (S) = "No project open.",
               "switch without source project must report missing source project");
@@ -457,7 +457,7 @@ package body Editor.Executor.Project_Workspace_Tests is
               "same-project switch must not close clean project buffers");
       Assert (Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) = 1,
               "same-project switch must not promote a duplicate recent entry");
-      Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (not Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "same-project switch must not create a pending transition");
       Assert (Latest_Message_Text (S) = "Project already open",
               "same-project switch feedback must be deterministic");
@@ -511,7 +511,7 @@ package body Editor.Executor.Project_Workspace_Tests is
               "same-project missing-root switch must not close buffers");
       Assert (Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) = 1,
               "same-project missing-root switch must not repromote Recent Projects");
-      Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (not Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "same-project missing-root switch must not create pending state");
       Assert (Latest_Message_Text (S) = "Project already open",
               "same-project missing-root switch must report no-op, not target failure");
@@ -553,9 +553,9 @@ package body Editor.Executor.Project_Workspace_Tests is
       Cmd.Path := To_Unbounded_String (Root_B);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "pending-switch setup must capture B as target");
-      Target := Editor.Pending_Transitions.Target (S.Pending_Transitions);
+      Target := Editor.Pending_Transitions.Target (S.Workflow.Pending_Transitions);
       Assert (Target.Kind = Editor.Pending_Transitions.Pending_Switch_Project,
               "pending-switch setup must use switch transition kind");
 
@@ -564,9 +564,9 @@ package body Editor.Executor.Project_Workspace_Tests is
 
       Assert (Editor.Project.Root_Path (S.Project_Runtime.Project) = Ada.Directories.Full_Name (Root_A),
               "different switch target while pending must preserve source project");
-      Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "different switch target while pending must preserve pending payload");
-      Target := Editor.Pending_Transitions.Target (S.Pending_Transitions);
+      Target := Editor.Pending_Transitions.Target (S.Workflow.Pending_Transitions);
       Assert (Target.Kind = Editor.Pending_Transitions.Pending_Switch_Project,
               "different switch target must not replace transition kind");
       Assert (Editor.Recent_Projects.Normalized_Root_Path (To_String (Target.Path)) =
@@ -612,9 +612,9 @@ package body Editor.Executor.Project_Workspace_Tests is
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_Project);
 
-      Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "pending-close setup must capture close confirmation");
-      Target := Editor.Pending_Transitions.Target (S.Pending_Transitions);
+      Target := Editor.Pending_Transitions.Target (S.Workflow.Pending_Transitions);
       Assert (Target.Kind = Editor.Pending_Transitions.Pending_Close_Project,
               "pending-close setup must use close transition kind");
 
@@ -624,9 +624,9 @@ package body Editor.Executor.Project_Workspace_Tests is
 
       Assert (Editor.Project.Root_Path (S.Project_Runtime.Project) = Ada.Directories.Full_Name (Root_A),
               "switch while close pending must preserve source project");
-      Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "switch while close pending must preserve pending close payload");
-      Target := Editor.Pending_Transitions.Target (S.Pending_Transitions);
+      Target := Editor.Pending_Transitions.Target (S.Workflow.Pending_Transitions);
       Assert (Target.Kind = Editor.Pending_Transitions.Pending_Close_Project,
               "switch while close pending must not replace pending close");
       Assert (Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) = 1,
@@ -676,13 +676,13 @@ package body Editor.Executor.Project_Workspace_Tests is
       Id := Editor.Buffers.Global_Find_By_Path (Project_A, Found);
       Assert (Found and then Editor.Buffers.Global_Summary_For (Id).Is_Dirty,
               "blocked close must preserve dirty project buffer");
-      Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "blocked close must capture a pending confirmation");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Cancel_Pending_Transition);
       Assert (Editor.Project.Root_Path (S.Project_Runtime.Project) = Ada.Directories.Full_Name (Root),
               "cancelled close must still preserve active project");
-      Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (not Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "cancelled close must clear only the transient payload");
       Assert (Latest_Message_Text (S) = "Close project cancelled.",
               "close cancellation feedback must be specific");
@@ -731,7 +731,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Cmd.Path := To_Unbounded_String (Root_B);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "retry setup must create pending switch");
 
       S.Buffer_Lifecycle.File_Info.Dirty := False;
@@ -746,7 +746,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Outside_Id := Editor.Buffers.Global_Find_By_Path (Outside_F, Found);
       Assert (Found and then Editor.Buffers.Global_Summary_For (Outside_Id).Is_Dirty,
               "switch retry must retain outside-project dirty buffer");
-      Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (not Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "successful switch retry must clear pending switch");
 
       Remove_File_If_Exists (Outside_F);
@@ -792,7 +792,7 @@ package body Editor.Executor.Project_Workspace_Tests is
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_Project);
 
-      Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "retry setup must create pending close");
 
       S.Buffer_Lifecycle.File_Info.Dirty := False;
@@ -805,7 +805,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Outside_Id := Editor.Buffers.Global_Find_By_Path (Outside_F, Found);
       Assert (Found and then Editor.Buffers.Global_Summary_For (Outside_Id).Is_Dirty,
               "close retry must retain outside-project dirty buffer");
-      Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (not Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "successful close retry must clear pending close");
       Assert (Latest_Message_Text (S) = "Project closed",
               "close retry feedback must be deterministic");
@@ -846,7 +846,7 @@ package body Editor.Executor.Project_Workspace_Tests is
               "clean close must clear File Tree rows");
       Assert (Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) = 1,
               "clean close must retain Recent Projects entries");
-      Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (not Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "clean close must leave no pending transition");
       Assert (Latest_Message_Text (S) = "Project closed",
               "clean close feedback must be deterministic");
@@ -976,7 +976,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Assert (Found, "recent switch setup must open outside buffer");
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Project_A);
       Assert (Editor.Recent_Buffers.Contains
-                (S.Recent_Buffers, Natural (Outside_Id)),
+                (S.Navigation.Recent_Buffers, Natural (Outside_Id)),
               "recent switch setup must track outside buffer");
 
       Cmd.Kind := Editor.Command_Kinds.Switch_Project;
@@ -987,9 +987,9 @@ package body Editor.Executor.Project_Workspace_Tests is
               "recent switch setup must switch projects");
       Assert (Editor.Buffers.Global_Contains (Outside_Id),
               "switch must retain outside buffer");
-      Assert (Editor.Recent_Buffers.Count (S.Recent_Buffers) = 1,
+      Assert (Editor.Recent_Buffers.Count (S.Navigation.Recent_Buffers) = 1,
               "switch must prune project-owned recent buffers only");
-      Assert (Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 1) = Natural (Outside_Id),
+      Assert (Editor.Recent_Buffers.Id_At (S.Navigation.Recent_Buffers, 1) = Natural (Outside_Id),
               "switch must preserve retained outside-buffer recency");
 
       Remove_File_If_Exists (Outside_F);
@@ -1027,7 +1027,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Assert (Found, "recent close setup must open outside buffer");
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Project_A);
       Assert (Editor.Recent_Buffers.Contains
-                (S.Recent_Buffers, Natural (Outside_Id)),
+                (S.Navigation.Recent_Buffers, Natural (Outside_Id)),
               "recent close setup must track outside buffer");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_Project);
@@ -1036,9 +1036,9 @@ package body Editor.Executor.Project_Workspace_Tests is
               "recent close setup must close project");
       Assert (Editor.Buffers.Global_Contains (Outside_Id),
               "close must retain outside buffer");
-      Assert (Editor.Recent_Buffers.Count (S.Recent_Buffers) = 1,
+      Assert (Editor.Recent_Buffers.Count (S.Navigation.Recent_Buffers) = 1,
               "close must prune project-owned recent buffers only");
-      Assert (Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 1) = Natural (Outside_Id),
+      Assert (Editor.Recent_Buffers.Id_At (S.Navigation.Recent_Buffers, 1) = Natural (Outside_Id),
               "close must preserve retained outside-buffer recency");
 
       Remove_File_If_Exists (Outside_F);
@@ -1103,7 +1103,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Cmd.Path := To_Unbounded_String (Root_B);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "switch with dirty project buffer should create a pending transition");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Discard_Pending_Transition);
@@ -1120,7 +1120,7 @@ package body Editor.Executor.Project_Workspace_Tests is
               "switch discard should retain outside-project buffers from the unaffected set");
       Assert (Editor.Buffers.Global_Summary_For (Outside_Id).Is_Dirty,
               "switch discard should preserve retained outside dirty text/state");
-      Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (not Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "completed switch discard should clear pending transition");
 
       Remove_File_If_Exists (Outside_F);

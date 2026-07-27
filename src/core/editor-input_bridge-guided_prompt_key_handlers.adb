@@ -22,36 +22,36 @@ package body Editor.Input_Bridge.Guided_Prompt_Key_Handlers is
       Report_Info  : not null access procedure (Text : String)) return Boolean
    is
    begin
-      if not Editor.Guided_Prompts.Is_Active (S.Guided_Prompt) then
+      if not Editor.Guided_Prompts.Is_Active (S.Workflow.Guided_Prompt) then
          return False;
       end if;
 
       case Chord.Key is
          when Editor.Keybindings.Key_Escape =>
-            Editor.Guided_Prompts.Cancel (S.Guided_Prompt);
+            Editor.Guided_Prompts.Cancel (S.Workflow.Guided_Prompt);
             Report_Info ("Prompt cancelled.");
          when Editor.Keybindings.Key_Enter =>
             Accept_Enter.all;
          when Editor.Keybindings.Key_Up =>
             Editor.Guided_Prompts.Move_File_Picker_Selection
-              (S.Guided_Prompt, -1);
+              (S.Workflow.Guided_Prompt, -1);
          when Editor.Keybindings.Key_Down =>
             Editor.Guided_Prompts.Move_File_Picker_Selection
-              (S.Guided_Prompt, 1);
+              (S.Workflow.Guided_Prompt, 1);
          when Editor.Keybindings.Key_Right =>
             if Editor.Guided_Prompts.Apply_File_Picker_Selection
-              (S.Guided_Prompt)
+              (S.Workflow.Guided_Prompt)
             then
                Report_Info ("Directory selected.");
             end if;
          when Editor.Keybindings.Key_Backspace =>
-            Editor.Guided_Prompts.Backspace (S.Guided_Prompt);
+            Editor.Guided_Prompts.Backspace (S.Workflow.Guided_Prompt);
          when Editor.Keybindings.Key_Delete =>
-            Editor.Guided_Prompts.Delete_Forward (S.Guided_Prompt);
+            Editor.Guided_Prompts.Delete_Forward (S.Workflow.Guided_Prompt);
          when others =>
             if Editor.Input_Bridge.Keybinding_Handlers
               .Handle_Keybinding_Prompt_Key
-                (S.Guided_Prompt, Chord, Report_Info)
+                (S.Workflow.Guided_Prompt, Chord, Report_Info)
             then
                return True;
             end if;

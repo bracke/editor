@@ -264,7 +264,7 @@ package body Editor.Gutter.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "a" & ASCII.LF & "b" & ASCII.LF & "c");
-      Editor.Folding.Add_Fold (S.Folding, 0, 1);
+      Editor.Folding.Add_Fold (S.Syntax.Folding, 0, 1);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.View.Set_Viewport (800, 200);
       Editor.Scrollbars.Reset;
@@ -310,13 +310,13 @@ package body Editor.Gutter.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "0" & ASCII.LF & "1" & ASCII.LF & "2" & ASCII.LF & "3");
-      Editor.Folding.Add_Fold (S.Folding, 1, 2);
-      Editor.Folding.Toggle_Fold_At_Row (S.Folding, 1);
+      Editor.Folding.Add_Fold (S.Syntax.Folding, 1, 2);
+      Editor.Folding.Toggle_Fold_At_Row (S.Syntax.Folding, 1);
       Row := Editor.Gutter.Document_Row_For_Y
         (Y             => Row_Y (2),
          Layout        => Layout,
          Scroll_Y      => 0,
-         Folding       => S.Folding,
+         Folding       => S.Syntax.Folding,
          Document_Rows => Editor.State.Line_Count (S));
       Assert
         (Row = 3,

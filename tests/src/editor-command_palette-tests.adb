@@ -892,9 +892,9 @@ package body Editor.Command_Palette.Tests is
         "Toggle Bookmark command id should dispatch through executor");
 
       Editor.Gutter_Markers.Add_Marker
-        (S.Gutter_Markers, 0, Editor.Gutter_Markers.Bookmark_Marker);
+        (S.Gutter.Markers, 0, Editor.Gutter_Markers.Bookmark_Marker);
       Editor.Gutter_Markers.Add_Marker
-        (S.Gutter_Markers, 2, Editor.Gutter_Markers.Bookmark_Marker);
+        (S.Gutter.Markers, 2, Editor.Gutter_Markers.Bookmark_Marker);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Execute_Command_Id (Editor.Command_Ids.Command_Next_Bookmark);
       Editor.Input_Bridge.Get_Render_Snapshot (Snap);
@@ -912,7 +912,7 @@ package body Editor.Command_Palette.Tests is
               "Clear Buffer Bookmarks command id should remove active-buffer bookmarks");
 
       Editor.Gutter_Markers.Add_Marker
-        (S.Gutter_Markers, 1, Editor.Gutter_Markers.Bookmark_Marker);
+        (S.Gutter.Markers, 1, Editor.Gutter_Markers.Bookmark_Marker);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Execute_Command_Id (Editor.Command_Ids.Command_Clear_All_Bookmarks);
       Editor.Input_Bridge.Get_Render_Snapshot (Snap);

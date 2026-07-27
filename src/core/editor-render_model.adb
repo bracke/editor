@@ -351,16 +351,16 @@ package body Editor.Render_Model is
       Effective_Col : Natural := Col;
       Found         : Boolean := False;
    begin
-      if Editor.Folding.Is_Row_Hidden (S.Folding, Effective_Row) then
+      if Editor.Folding.Is_Row_Hidden (S.Syntax.Folding, Effective_Row) then
          Effective_Row :=
            Editor.Folding.Fold_Start_For_Hidden_Row
-             (S.Folding, Effective_Row, Found);
+             (S.Syntax.Folding, Effective_Row, Found);
          Effective_Col := 0;
       end if;
 
       if Effective_Row > 0 then
          for R in 0 .. Effective_Row - 1 loop
-            if not Editor.Folding.Is_Row_Hidden (S.Folding, R) then
+            if not Editor.Folding.Is_Row_Hidden (S.Syntax.Folding, R) then
                Ordinal := Ordinal +
                  Natural
                    (Editor.Wrap.Visual_Row_Count_For_Logical_Line
@@ -423,7 +423,7 @@ package body Editor.Render_Model is
    begin
       for Row in FR .. LR loop
          exit when Count >= Max_Visible_Visual_Rows;
-         if not Editor.Folding.Is_Row_Hidden (S.Folding, Row) then
+         if not Editor.Folding.Is_Row_Hidden (S.Syntax.Folding, Row) then
             declare
                Line_Len : constant Natural := Logical_Line_Length (S, Row);
                Start_Col : constant Natural := Natural'Min (Editor.View.Scroll_X, Line_Len);
@@ -470,7 +470,7 @@ package body Editor.Render_Model is
       Logical_Last  : Natural := Last_Row;
    begin
       for Row in 0 .. Last_Row loop
-         if not Editor.Folding.Is_Row_Hidden (S.Folding, Row) then
+         if not Editor.Folding.Is_Row_Hidden (S.Syntax.Folding, Row) then
             declare
                Parts : constant Natural :=
                  Natural
@@ -501,7 +501,7 @@ package body Editor.Render_Model is
       Logical_Last := First_Row;
 
       for Row in First_Row .. Last_Row loop
-         if not Editor.Folding.Is_Row_Hidden (S.Folding, Row) then
+         if not Editor.Folding.Is_Row_Hidden (S.Syntax.Folding, Row) then
             declare
                Line_Len : constant Natural := Logical_Line_Length (S, Row);
                Parts    : constant Natural :=
@@ -539,7 +539,7 @@ package body Editor.Render_Model is
       end if;
 
       for Row in 0 .. Editor.State.Line_Count (S) - 1 loop
-         if not Editor.Folding.Is_Row_Hidden (S.Folding, Row) then
+         if not Editor.Folding.Is_Row_Hidden (S.Syntax.Folding, Row) then
             Count := Count +
               Natural
                 (Editor.Wrap.Visual_Row_Count_For_Logical_Line
@@ -582,15 +582,15 @@ package body Editor.Render_Model is
       O.Sel_End_Virtual_Column := (others => 0);
       O.Line_Start_Row_Base := 0;
       O.Total_Line_Count := Editor.State.Line_Count (S);
-      O.Folding := S.Folding;
-      O.Gutter_Markers := S.Gutter_Markers;
-      O.Gutter_Marker_Hover := S.Gutter_Marker_Hover;
+      O.Folding := S.Syntax.Folding;
+      O.Gutter_Markers := S.Gutter.Markers;
+      O.Gutter_Marker_Hover := S.Gutter.Marker_Hover;
       O.Semantic_Popup := S.Semantic.Popup;
       O.Messages := S.Panel.Messages;
       declare
          Snapshot : Editor.Bookmarks.Bookmark_Snapshot;
       begin
-         Editor.Bookmarks.Build_Snapshot (S.Bookmarks, Snapshot);
+         Editor.Bookmarks.Build_Snapshot (S.Navigation.Bookmarks, Snapshot);
          O.Bookmarks_Visible := Snapshot.Bookmarks_Visible;
          O.Bookmark_Count := Snapshot.Bookmark_Count;
          O.Bookmark_Selected_Index := Snapshot.Bookmark_Selected_Index;
@@ -1009,7 +1009,7 @@ package body Editor.Render_Model is
            Editor.Feature_Search_Results.Search_Input_Is_Active
              (S.Panel.Feature_Search_Results);
          O.Outline_Filter_Input_Active :=
-           Editor.Outline.Filter_Input_Is_Active (S.Outline);
+           Editor.Outline.Filter_Input_Is_Active (S.Outline_Runtime.Outline);
          O.Active_Feature := Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel);
       end;
       O.Wrap_Mode := Editor.View.Wrap_Mode;
@@ -1020,7 +1020,7 @@ package body Editor.Render_Model is
       else
          O.Visible_Line_Count :=
            Natural'Max
-             (1, Editor.Folding.Visible_Row_Count (S.Folding, O.Total_Line_Count));
+             (1, Editor.Folding.Visible_Row_Count (S.Syntax.Folding, O.Total_Line_Count));
       end if;
       O.Visible_Visual_Count := 0;
       O.Visible_Visual_Rows := (others => (Logical_Row => 0, Start_Col => 0, End_Col => 0));
@@ -1058,10 +1058,10 @@ package body Editor.Render_Model is
                begin
                   O.Visible_First_Row :=
                     Editor.Folding.Visible_Row_To_Document_Row
-                      (S.Folding, First_Visible);
+                      (S.Syntax.Folding, First_Visible);
                   O.Visible_Last_Row :=
                     Editor.Folding.Visible_Row_To_Document_Row
-                      (S.Folding, Last_Visible);
+                      (S.Syntax.Folding, Last_Visible);
                end;
             end;
          end if;
@@ -1084,16 +1084,16 @@ package body Editor.Render_Model is
             Fold_Found    : Boolean := False;
             Visible_Found : Boolean := False;
          begin
-            if Editor.Folding.Is_Row_Hidden (S.Folding, Caret_Doc_Row) then
+            if Editor.Folding.Is_Row_Hidden (S.Syntax.Folding, Caret_Doc_Row) then
                Caret_Doc_Row :=
                  Editor.Folding.Fold_Start_For_Hidden_Row
-                   (S.Folding, Caret_Doc_Row, Fold_Found);
+                   (S.Syntax.Folding, Caret_Doc_Row, Fold_Found);
                O.Primary_Caret_Col := 0;
             end if;
 
             O.Primary_Caret_Row :=
               Editor.Folding.Document_Row_To_Visible_Row
-                (S.Folding, Caret_Doc_Row, Visible_Found);
+                (S.Syntax.Folding, Caret_Doc_Row, Visible_Found);
             if not Visible_Found then
                O.Primary_Caret_Row := 0;
             end if;
@@ -1118,12 +1118,12 @@ package body Editor.Render_Model is
       --  diff-style marker kinds.  Gutter_Markers remains independent of
       --  Dirty_Lines ownership; hidden folded rows are naturally skipped
       --  because only visible visual rows are scanned.
-      if Editor.Dirty_Lines.Dirty_Line_Count (S.Dirty_Lines) > 0 then
+      if Editor.Dirty_Lines.Dirty_Line_Count (S.Gutter.Dirty_Lines) > 0 then
          for I in 1 .. O.Visible_Visual_Count loop
             declare
                Row  : constant Natural := O.Visible_Visual_Rows (I).Logical_Row;
                Kind : constant Editor.Dirty_Lines.Dirty_Line_Kind :=
-                 Editor.Dirty_Lines.Kind_For_Row (S.Dirty_Lines, Row);
+                 Editor.Dirty_Lines.Kind_For_Row (S.Gutter.Dirty_Lines, Row);
             begin
                case Kind is
                   when Editor.Dirty_Lines.Added_Line =>
@@ -1342,7 +1342,7 @@ package body Editor.Render_Model is
                if Editor.Rectangle_Selection.Has_Selection (C) then
                   Editor.State.Row_Col_For_Index (S, C.Pos, Row, Col);
                   if Row >= O.Visible_First_Row and then Row <= O.Visible_Last_Row
-                    and then not Editor.Folding.Is_Row_Hidden (S.Folding, Row)
+                    and then not Editor.Folding.Is_Row_Hidden (S.Syntax.Folding, Row)
                   then
                      Count := Count + 1;
                      O.Rectangular_Selections (Count) :=
@@ -1561,7 +1561,7 @@ package body Editor.Render_Model is
                      if Editor.Settings.Use_Syntax_Colouring then
                         declare
                            Tokens : constant Editor.Syntax.Token_Span_Array :=
-                             Editor.Syntax_Cache.Tokens_For_Line (S.Syntax_Cache, Row + 1);
+                             Editor.Syntax_Cache.Tokens_For_Line (S.Syntax.Cache, Row + 1);
                            Cursor : Natural := Row_Start;
                         begin
                            for T of Tokens loop
@@ -1583,15 +1583,15 @@ package body Editor.Render_Model is
                                        Token_Text : constant String :=
                                          Line (Line'First + T.Start_Col .. Line'First + T.End_Col - 1);
                                     begin
-                                       if Editor.Ada_Language_Model.Symbol_Count (S.Syntax_Analysis) > 0 then
+                                       if Editor.Ada_Language_Model.Symbol_Count (S.Syntax.Analysis) > 0 then
                                           declare
                                              Scope : constant Editor.Ada_Language_Model.Symbol_Id :=
                                                Editor.Ada_Language_Model.Scope_For_Position
-                                                 (S.Syntax_Analysis, Positive (Row + 1),
+                                                 (S.Syntax.Analysis, Positive (Row + 1),
                                                   Positive (T.Start_Col + 1));
                                           begin
                                              Base := Editor.Syntax_Semantics.Kind_For_Identifier_In_Scope
-                                               (S.Syntax_Analysis, Token_Text, Scope);
+                                               (S.Syntax.Analysis, Token_Text, Scope);
                                           end;
 
                                           --  scope-aware lookup is preferred for parser-owned
@@ -1600,11 +1600,11 @@ package body Editor.Render_Model is
                                           --  parser gaps.
                                           if Base = Editor.Syntax.Identifier then
                                              Base := Editor.Syntax_Semantics.Kind_For_Identifier
-                                               (S.Syntax_Symbols, Token_Text);
+                                               (S.Syntax.Symbols, Token_Text);
                                           end if;
                                        else
                                           Base := Editor.Syntax_Semantics.Kind_For_Identifier
-                                            (S.Syntax_Symbols, Token_Text);
+                                            (S.Syntax.Symbols, Token_Text);
                                        end if;
                                     end;
                                  end if;
@@ -1709,10 +1709,10 @@ package body Editor.Render_Model is
       O.Terminal_Tasks :=
         Editor.Terminal_Tasks.Build_Render_Snapshot (S.Build.Terminal_Tasks);
       O.Keybindings_UI := Editor.Keybinding_Management.Build_Surface_Snapshot;
-      O.Settings_UI := Editor.Settings_Management.Build_Current_Surface_Snapshot (S.Settings);
+      O.Settings_UI := Editor.Settings_Management.Build_Current_Surface_Snapshot (S.Configuration.Settings);
       O.Configuration_Audit_UI :=
         Editor.Settings_Management.Build_Current_Configuration_Audit_Surface
-          (S.Settings);
+          (S.Configuration.Settings);
       O.Settings_Command_Catalog_UI :=
         Editor.Settings_Management.Build_Current_Settings_Command_Catalog;
 
@@ -1762,7 +1762,7 @@ package body Editor.Render_Model is
              (Editor.Empty_State_Guidance.Empty_State_Slot_For_Surface
                 (Editor.Empty_State_Guidance.Configuration_Recovery_Surface));
       end;
-      O.Guided_Prompt := Editor.Guided_Prompts.Snapshot (S.Guided_Prompt);
+      O.Guided_Prompt := Editor.Guided_Prompts.Snapshot (S.Workflow.Guided_Prompt);
 
    end Build_Render_Snapshot;
 

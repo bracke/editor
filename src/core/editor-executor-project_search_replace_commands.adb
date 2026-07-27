@@ -56,7 +56,7 @@ package body Editor.Executor.Project_Search_Replace_Commands is
      (S : Editor.State.State_Type) return Boolean
    is
    begin
-      return Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions);
+      return Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions);
    end Project_Search_Replace_Pending_Blocked;
 
    function Mark_Dirty_Open_Project_Replace_Targets_Stale
@@ -183,7 +183,7 @@ package body Editor.Executor.Project_Search_Replace_Commands is
       if Found then
          Editor.Buffers.Global_Set_Active_Buffer (Id);
          Editor.Buffers.Load_Global_Active_Into_State (S);
-         Editor.Recent_Buffers.Mark_Activated (S.Recent_Buffers, Natural (Id));
+         Editor.Recent_Buffers.Mark_Activated (S.Navigation.Recent_Buffers, Natural (Id));
          Opened := S.Buffer_Lifecycle.File_Info.Has_Path
            and then Same_File_Path (To_String (S.Buffer_Lifecycle.File_Info.Path), Path);
          return;
@@ -207,7 +207,7 @@ package body Editor.Executor.Project_Search_Replace_Commands is
       if Found then
          Editor.Buffers.Global_Set_Active_Buffer (Id);
          Editor.Buffers.Load_Global_Active_Into_State (S);
-         Editor.Recent_Buffers.Mark_Activated (S.Recent_Buffers, Natural (Id));
+         Editor.Recent_Buffers.Mark_Activated (S.Navigation.Recent_Buffers, Natural (Id));
       else
          Editor.Buffers.Global_Add_File_Buffer
            (Path         => To_String (Result.Path),
@@ -215,7 +215,7 @@ package body Editor.Executor.Project_Search_Replace_Commands is
             Contents     => To_String (Result.Contents),
             New_Id       => Id);
          Editor.Buffers.Load_Global_Active_Into_State (S);
-         Editor.Recent_Buffers.Mark_Activated (S.Recent_Buffers, Natural (Id));
+         Editor.Recent_Buffers.Mark_Activated (S.Navigation.Recent_Buffers, Natural (Id));
       end if;
 
       Opened := S.Buffer_Lifecycle.File_Info.Has_Path

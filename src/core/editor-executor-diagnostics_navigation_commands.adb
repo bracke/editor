@@ -44,14 +44,14 @@ package body Editor.Executor.Diagnostics_Navigation_Commands is
          return;
       end if;
 
-      Editor.Folding.Expand_To_Reveal_Row (S.Folding, Target.Row);
+      Editor.Folding.Expand_To_Reveal_Row (S.Syntax.Folding, Target.Row);
 
       Target_Index := Editor.Cursors.Cursor_Index
         (Editor.Navigation.Index_For_Line_Column
            (S, Target.Row, Target.Column));
 
       Visible_Target_Row := Editor.Folding.Document_Row_To_Visible_Row
-        (S.Folding, Target.Row, Visible_Found);
+        (S.Syntax.Folding, Target.Row, Visible_Found);
       if not Visible_Found then
          Visible_Target_Row := Target.Row;
       end if;
@@ -73,7 +73,7 @@ package body Editor.Executor.Diagnostics_Navigation_Commands is
       Visible_Count := Natural'Max
         (1,
          Editor.Folding.Visible_Row_Count
-           (S.Folding, Editor.State.Line_Count (S)));
+           (S.Syntax.Folding, Editor.State.Line_Count (S)));
 
       if Visible_Target_Row > Viewport_Rows / 2 then
          Desired := Visible_Target_Row - Viewport_Rows / 2;

@@ -651,7 +651,7 @@ package body Editor.Files.Save_Operation_Tests is
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Undo_Before := Editor.History.Undo_Stack.Length;
       Redo_Before := Editor.History.Redo_Stack.Length;
-      Recent_Before := Editor.Recent_Buffers.Count (S.Recent_Buffers);
+      Recent_Before := Editor.Recent_Buffers.Count (S.Navigation.Recent_Buffers);
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, Path_B2);
 
@@ -681,7 +681,7 @@ package body Editor.Files.Save_Operation_Tests is
         and then Editor.Clipboard.Has_Text
         and then To_String (Editor.Clipboard.Get_Text) = "clip",
         "Save As must preserve Find/Replace and Clipboard state");
-      Assert (Editor.Recent_Buffers.Count (S.Recent_Buffers) = Recent_Before,
+      Assert (Editor.Recent_Buffers.Count (S.Navigation.Recent_Buffers) = Recent_Before,
         "Save As must not update recent-buffer history");
       M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then Editor.Messages.Count (S.Panel.Messages) = 1

@@ -413,7 +413,7 @@ package body Editor.Input_Bridge.Tests is
       Found_Action : Boolean := False;
    begin
       Snapshot := Editor.Pending_Transition_Bar.Build_Snapshot
-        (S.Pending_Transitions, (others => <>));
+        (S.Workflow.Pending_Transitions, (others => <>));
       Assert
         (Editor.Pending_Transition_Bar.Assert_Pending_Bar_Route_Audit_Passes
            (Snapshot),
@@ -474,11 +474,11 @@ package body Editor.Input_Bridge.Tests is
       Id : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
    begin
       Editor.State.Init (S);
-      Editor.Pending_Transitions.Set_Pending (S.Pending_Transitions, Target, Dirty);
+      Editor.Pending_Transitions.Set_Pending (S.Workflow.Pending_Transitions, Target, Dirty);
       Click_Pending_Bar_Action
         (S, Editor.Pending_Transition_Bar.Cancel_Pending_Transition_Action, After);
 
-      Assert (not Editor.Pending_Transitions.Has_Pending (After.Pending_Transitions),
+      Assert (not Editor.Pending_Transitions.Has_Pending (After.Workflow.Pending_Transitions),
               "clicking pending bar Cancel must route through cancel command");
       Message := Editor.Messages.Active_Message (After.Panel.Messages, Found_Message);
       Assert (Found_Message
@@ -487,11 +487,11 @@ package body Editor.Input_Bridge.Tests is
               "pending bar input route must publish cancel command feedback");
 
       Editor.State.Init (S);
-      Editor.Pending_Transitions.Set_Pending (S.Pending_Transitions, Target, Dirty);
+      Editor.Pending_Transitions.Set_Pending (S.Workflow.Pending_Transitions, Target, Dirty);
       Click_Pending_Bar_Action
         (S, Editor.Pending_Transition_Bar.Retry_Pending_Transition_Action, After);
 
-      Assert (not Editor.Pending_Transitions.Has_Pending (After.Pending_Transitions),
+      Assert (not Editor.Pending_Transitions.Has_Pending (After.Workflow.Pending_Transitions),
               "clicking pending bar Retry must clear stale pending transition");
       Message := Editor.Messages.Active_Message (After.Panel.Messages, Found_Message);
       Assert (Found_Message
@@ -509,7 +509,7 @@ package body Editor.Input_Bridge.Tests is
       Assert (Id /= Editor.Buffers.No_Buffer,
               "pending discard fixture must register an active buffer");
       Editor.Pending_Transitions.Set_Pending
-        (S.Pending_Transitions,
+        (S.Workflow.Pending_Transitions,
          (Kind       => Editor.Pending_Transitions.Pending_Close_Buffer,
           Path       => Null_Unbounded_String,
           Display    => To_Unbounded_String ("dirty close target"),
@@ -522,7 +522,7 @@ package body Editor.Input_Bridge.Tests is
       Click_Pending_Bar_Action
         (S, Editor.Pending_Transition_Bar.Discard_Pending_Transition_Action, After);
 
-      Assert (not Editor.Pending_Transitions.Has_Pending (After.Pending_Transitions),
+      Assert (not Editor.Pending_Transitions.Has_Pending (After.Workflow.Pending_Transitions),
               "clicking pending bar Discard must clear pending transition");
       Assert (not Editor.Buffers.Global_Contains (Id),
               "clicking pending bar Discard must route through discard command");
@@ -670,8 +670,8 @@ package body Editor.Input_Bridge.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "abc" & ASCII.LF & "def");
-      Editor.Panels.Set_Visible (S.Panels, Editor.Panels.Bottom_Panel, True);
-      Editor.Panels.Set_Current (S.Panels);
+      Editor.Panels.Set_Visible (S.Panel.Panels, Editor.Panels.Bottom_Panel, True);
+      Editor.Panels.Set_Current (S.Panel.Panels);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.View.Set_Viewport (Width => 800, Height => 480);
 
@@ -690,8 +690,8 @@ package body Editor.Input_Bridge.Tests is
         (After.Caret.Carets (After.Caret.Carets.First_Index).Pos = Before_Pos,
          "clicking inside the Problems panel must be handled as a no-op and not move the caret");
 
-      Editor.Panels.Initialize_Defaults (S.Panels);
-      Editor.Panels.Set_Current (S.Panels);
+      Editor.Panels.Initialize_Defaults (S.Panel.Panels);
+      Editor.Panels.Set_Current (S.Panel.Panels);
    end Test_Problems_Panel_Click_Is_Handled_No_Op;
 
 
@@ -715,9 +715,9 @@ package body Editor.Input_Bridge.Tests is
          Severity => Editor.Diagnostics.Error,
          Message => "bad");
       Editor.Panels.Set_Bottom_Content
-        (S.Panels, Editor.Panels.Problems_Content);
-      Editor.Panels.Set_Visible (S.Panels, Editor.Panels.Bottom_Panel, True);
-      Editor.Panels.Set_Current (S.Panels);
+        (S.Panel.Panels, Editor.Panels.Problems_Content);
+      Editor.Panels.Set_Visible (S.Panel.Panels, Editor.Panels.Bottom_Panel, True);
+      Editor.Panels.Set_Current (S.Panel.Panels);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.View.Set_Viewport (Width => 800, Height => 480);
 
@@ -738,8 +738,8 @@ package body Editor.Input_Bridge.Tests is
         (After.Panel.Active_Diagnostic.Has_Active and then After.Panel.Active_Diagnostic.Index = 1,
          "Problems row click must set the active diagnostic");
 
-      Editor.Panels.Initialize_Defaults (S.Panels);
-      Editor.Panels.Set_Current (S.Panels);
+      Editor.Panels.Initialize_Defaults (S.Panel.Panels);
+      Editor.Panels.Set_Current (S.Panel.Panels);
    end Test_Problems_Row_Click_Jumps_To_Diagnostic;
 
 
@@ -762,17 +762,17 @@ package body Editor.Input_Bridge.Tests is
          Severity => Editor.Diagnostics.Error,
          Message => "bad");
       Editor.Panels.Set_Bottom_Content
-        (S.Panels, Editor.Panels.Problems_Content);
-      Editor.Panels.Set_Visible (S.Panels, Editor.Panels.Bottom_Panel, True);
-      Editor.Panels.Set_Current (S.Panels);
+        (S.Panel.Panels, Editor.Panels.Problems_Content);
+      Editor.Panels.Set_Visible (S.Panel.Panels, Editor.Panels.Bottom_Panel, True);
+      Editor.Panels.Set_Current (S.Panel.Panels);
       Editor.Command_Palette.Reset;
       Editor.Input_Bridge.Reset;
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.View.Set_Viewport (Width => 800, Height => 480);
       After := Editor.Input_Bridge.Get_State_For_Test;
       Assert
-        (Editor.Panels.Is_Visible (After.Panels, Editor.Panels.Bottom_Panel)
-         and then Editor.Panels.Active_Bottom_Content (After.Panels) =
+        (Editor.Panels.Is_Visible (After.Panel.Panels, Editor.Panels.Bottom_Panel)
+         and then Editor.Panels.Active_Bottom_Content (After.Panel.Panels) =
            Editor.Panels.Problems_Content,
          "setup must install a visible Problems bottom panel");
 
@@ -826,8 +826,8 @@ package body Editor.Input_Bridge.Tests is
          Editor.Problems.Problems_Group_By_Source,
          "right Problems header click must cycle grouping");
 
-      Editor.Panels.Initialize_Defaults (S.Panels);
-      Editor.Panels.Set_Current (S.Panels);
+      Editor.Panels.Initialize_Defaults (S.Panel.Panels);
+      Editor.Panels.Set_Current (S.Panel.Panels);
    end Test_Problems_Header_Clicks_Route_Filter_Sort_Group;
 
    procedure Test_Build_UI_Suppressed_Row_Click_Selects_Suppressed_Diagnostic
@@ -1178,8 +1178,8 @@ package body Editor.Input_Bridge.Tests is
          Severity => Editor.Diagnostics.Warning,
          Message => "second");
       Editor.Panels.Set_Bottom_Content
-        (S.Panels, Editor.Panels.Problems_Content);
-      Editor.Panels.Set_Visible (S.Panels, Editor.Panels.Bottom_Panel, True);
+        (S.Panel.Panels, Editor.Panels.Problems_Content);
+      Editor.Panels.Set_Visible (S.Panel.Panels, Editor.Panels.Bottom_Panel, True);
       Editor.Panel_Focus.Focus_Bottom_Panel
         (S.Panel.Panel_Focus, Editor.Panel_Focus.Problems_Focus);
       Editor.Input_Bridge.Set_State_For_Test (S);
@@ -1430,8 +1430,8 @@ package body Editor.Input_Bridge.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "abc");
-      Editor.Outline.Replace_Items (S.Outline, Items);
-      Editor.Outline.Activate_Filter_Input (S.Outline);
+      Editor.Outline.Replace_Items (S.Outline_Runtime.Outline, Items);
+      Editor.Outline.Activate_Filter_Input (S.Outline_Runtime.Outline);
       Editor.Input_Bridge.Set_State_For_Test (S);
 
       Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
@@ -1445,7 +1445,7 @@ package body Editor.Input_Bridge.Tests is
         (Snap.Length = 3,
          "active Outline filter must prevent accidental buffer edits");
       Assert
-        (Editor.Outline.Filter_Text (After.Outline) = "y",
+        (Editor.Outline.Filter_Text (After.Outline_Runtime.Outline) = "y",
          "typed text must be routed to the active Outline filter");
       Editor.Buffers.Reset_Global_For_Test;
    end Test_Outline_Filter_Input_Consumes_Text_Before_Buffer;
@@ -1647,9 +1647,9 @@ package body Editor.Input_Bridge.Tests is
             Message => "problem" & Natural'Image (I));
       end loop;
       Editor.Panels.Set_Bottom_Content
-        (S.Panels, Editor.Panels.Problems_Content);
-      Editor.Panels.Set_Visible (S.Panels, Editor.Panels.Bottom_Panel, True);
-      Editor.Panels.Set_Current (S.Panels);
+        (S.Panel.Panels, Editor.Panels.Problems_Content);
+      Editor.Panels.Set_Visible (S.Panel.Panels, Editor.Panels.Bottom_Panel, True);
+      Editor.Panels.Set_Current (S.Panel.Panels);
       Editor.View.Reset_Scroll;
       Editor.View.Set_Viewport (Width => 800, Height => Editor.Layout.Cell_H * 10);
       Editor.Input_Bridge.Set_State_For_Test (S);
@@ -1671,8 +1671,8 @@ package body Editor.Input_Bridge.Tests is
         (Editor.View.Scroll_Y = 0,
          "wheel over Problems panel must not scroll editor text");
 
-      Editor.Panels.Initialize_Defaults (S.Panels);
-      Editor.Panels.Set_Current (S.Panels);
+      Editor.Panels.Initialize_Defaults (S.Panel.Panels);
+      Editor.Panels.Set_Current (S.Panel.Panels);
       Editor.Buffers.Reset_Global_For_Test;
    end Test_Wheel_Over_Problems_Scrolls_Problems_Not_Editor;
 
@@ -2031,8 +2031,8 @@ package body Editor.Input_Bridge.Tests is
 
       Before_Text := To_Unbounded_String (Editor.State.Current_Text (S));
       Before_Caret := S.Caret.Carets (S.Caret.Carets.First_Index);
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation.History);
       Before_Undo := Natural (Editor.History.Undo_Stack.Length);
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
 
@@ -2076,8 +2076,8 @@ package body Editor.Input_Bridge.Tests is
               "route preview must not mutate Find/Replace state");
       Assert (Editor.Clipboard.Get_Text = To_Unbounded_String ("CLIP"),
               "route preview must not mutate Clipboard text");
-      Assert (Editor.Navigation_History.Back_Count (After.Navigation_History) = Before_Back
-              and then Editor.Navigation_History.Forward_Count (After.Navigation_History) = Before_Fwd,
+      Assert (Editor.Navigation_History.Back_Count (After.Navigation.History) = Before_Back
+              and then Editor.Navigation_History.Forward_Count (After.Navigation.History) = Before_Fwd,
               "route preview must not record Navigation History");
       Assert (Natural (Editor.History.Undo_Stack.Length) = Before_Undo
               and then Natural (Editor.History.Redo_Stack.Length) = Before_Redo,
@@ -2283,8 +2283,8 @@ package body Editor.Input_Bridge.Tests is
       Before_Caret := S.Caret.Carets (S.Caret.Carets.First_Index);
       Before_Undo := Natural (Editor.History.Undo_Stack.Length);
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Forward := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Forward := Editor.Navigation_History.Forward_Count (S.Navigation.History);
 
       Assert
         (Editor.Input_Bridge.Resolve_Text_Entry_Focus_Target =
@@ -2348,8 +2348,8 @@ package body Editor.Input_Bridge.Tests is
               "route previews must not mutate Find/Replace state");
       Assert (Editor.Clipboard.Get_Text = To_Unbounded_String ("CLIP"),
               "route previews must not mutate Clipboard state");
-      Assert (Editor.Navigation_History.Back_Count (After.Navigation_History) = Before_Back
-              and then Editor.Navigation_History.Forward_Count (After.Navigation_History) = Before_Forward,
+      Assert (Editor.Navigation_History.Back_Count (After.Navigation.History) = Before_Back
+              and then Editor.Navigation_History.Forward_Count (After.Navigation.History) = Before_Forward,
               "route previews must not record Navigation History");
 
       Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (After);
@@ -2404,8 +2404,8 @@ package body Editor.Input_Bridge.Tests is
       S.Search.Active_Replace_Text := To_Unbounded_String ("ghi");
       Set_Primary_Caret (S, 4, 7);
       Editor.Input_Bridge.Set_State_For_Test (S);
-      Before_Nav_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Nav_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Nav_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Nav_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation.History);
 
       Assert
         (Editor.Input_Bridge.Preview_Text_Entry_Route (Text_Command ("X")) =
@@ -2426,8 +2426,8 @@ package body Editor.Input_Bridge.Tests is
               "Find/Replace invalidation is driven by the canonical Text Insert owner");
       Assert (Editor.Clipboard.Get_Text = To_Unbounded_String ("CLIP"),
               "Text Insert replacement must not mutate Clipboard");
-      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = Before_Nav_Back
-              and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = Before_Nav_Fwd,
+      Assert (Editor.Navigation_History.Back_Count (S.Navigation.History) = Before_Nav_Back
+              and then Editor.Navigation_History.Forward_Count (S.Navigation.History) = Before_Nav_Fwd,
               "Text Insert replacement must not record Navigation History");
 
       Editor.Input_Bridge.Handle (Kind_Command (Editor.Command_Kinds.Undo));
@@ -2950,7 +2950,7 @@ package body Editor.Input_Bridge.Tests is
         (Editor.Command_Ids.Command_File_Tree_Create_File);
       S := Editor.Input_Bridge.Get_State_For_Test;
 
-      Assert (not Editor.Guided_Prompts.Is_Active (S.Guided_Prompt),
+      Assert (not Editor.Guided_Prompts.Is_Active (S.Workflow.Guided_Prompt),
               "create-file must not open a prompt with no project");
       Msg := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then Editor.Messages.Text (Msg) = "No project open.",
@@ -2978,7 +2978,7 @@ package body Editor.Input_Bridge.Tests is
       Editor.Input_Bridge.Execute_Command_Id
         (Editor.Command_Ids.Command_Open_Project);
       S := Editor.Input_Bridge.Get_State_For_Test;
-      Snapshot := Editor.Guided_Prompts.Snapshot (S.Guided_Prompt);
+      Snapshot := Editor.Guided_Prompts.Snapshot (S.Workflow.Guided_Prompt);
 
       Assert (Snapshot.Active,
               "Open Project command must start a path prompt");
@@ -3090,14 +3090,14 @@ package body Editor.Input_Bridge.Tests is
         (Editor.Command_Ids.Command_Open_Project);
       S := Editor.Input_Bridge.Get_State_For_Test;
 
-      Editor.Guided_Prompts.Update_Input (S.Guided_Prompt, Root);
-      for I in 1 .. Natural (S.Guided_Prompt.File_Picker_Rows.Length) loop
-         if To_String (S.Guided_Prompt.File_Picker_Rows.Element (Positive (I)).Label) =
+      Editor.Guided_Prompts.Update_Input (S.Workflow.Guided_Prompt, Root);
+      for I in 1 .. Natural (S.Workflow.Guided_Prompt.File_Picker_Rows.Length) loop
+         if To_String (S.Workflow.Guided_Prompt.File_Picker_Rows.Element (Positive (I)).Label) =
            "a_dir/"
          then
-            S.Guided_Prompt.File_Picker_Selected_Index := Positive (I);
+            S.Workflow.Guided_Prompt.File_Picker_Selected_Index := Positive (I);
             Found := True;
-            Path := S.Guided_Prompt.File_Picker_Rows.Element (Positive (I)).Path;
+            Path := S.Workflow.Guided_Prompt.File_Picker_Rows.Element (Positive (I)).Path;
             exit;
          end if;
       end loop;
@@ -3111,7 +3111,7 @@ package body Editor.Input_Bridge.Tests is
         ((Key       => Editor.Keybindings.Key_Right,
           Modifiers => (others => False)));
       S := Editor.Input_Bridge.Get_State_For_Test;
-      Assert (Editor.Guided_Prompts.Input_Text (S.Guided_Prompt) =
+      Assert (Editor.Guided_Prompts.Input_Text (S.Workflow.Guided_Prompt) =
                 Ada.Directories.Full_Name (A_Dir),
               "Right applies the selected directory to the path field");
 
@@ -3152,12 +3152,12 @@ package body Editor.Input_Bridge.Tests is
         (Editor.Command_Ids.Command_Open_Project);
       S := Editor.Input_Bridge.Get_State_For_Test;
 
-      Editor.Guided_Prompts.Update_Input (S.Guided_Prompt, Root);
-      for I in 1 .. Natural (S.Guided_Prompt.File_Picker_Rows.Length) loop
-         if To_String (S.Guided_Prompt.File_Picker_Rows.Element (Positive (I)).Label) =
+      Editor.Guided_Prompts.Update_Input (S.Workflow.Guided_Prompt, Root);
+      for I in 1 .. Natural (S.Workflow.Guided_Prompt.File_Picker_Rows.Length) loop
+         if To_String (S.Workflow.Guided_Prompt.File_Picker_Rows.Element (Positive (I)).Label) =
            "a_dir/"
          then
-            S.Guided_Prompt.File_Picker_Selected_Index := Positive (I);
+            S.Workflow.Guided_Prompt.File_Picker_Selected_Index := Positive (I);
             Found := True;
             exit;
          end if;
@@ -3171,9 +3171,9 @@ package body Editor.Input_Bridge.Tests is
       Editor.Input_Bridge.Handle (Enter);
       S := Editor.Input_Bridge.Get_State_For_Test;
 
-      Assert (Editor.Guided_Prompts.Is_Active (S.Guided_Prompt),
+      Assert (Editor.Guided_Prompts.Is_Active (S.Workflow.Guided_Prompt),
               "runtime Enter on child directory browses instead of closing prompt");
-      Assert (Editor.Guided_Prompts.Input_Text (S.Guided_Prompt) =
+      Assert (Editor.Guided_Prompts.Input_Text (S.Workflow.Guided_Prompt) =
                 Ada.Directories.Full_Name (A_Dir),
               "runtime Enter applies selected directory to the path field");
 
@@ -3231,11 +3231,11 @@ package body Editor.Input_Bridge.Tests is
       Editor.Input_Bridge.Execute_Command_Id
         (Editor.Command_Ids.Command_File_Tree_Rename_Selected);
       S := Editor.Input_Bridge.Get_State_For_Test;
-      Snapshot := Editor.Guided_Prompts.Snapshot (S.Guided_Prompt);
+      Snapshot := Editor.Guided_Prompts.Snapshot (S.Workflow.Guided_Prompt);
 
       Assert (Snapshot.Active,
               "rename starts an editable prompt for a selected target");
-      Assert (Editor.Guided_Prompts.Input_Text (S.Guided_Prompt) = "a.txt",
+      Assert (Editor.Guided_Prompts.Input_Text (S.Workflow.Guided_Prompt) = "a.txt",
               "rename prompt must prefill the selected leaf name");
 
       Cleanup_Fixture (Root);
@@ -3280,7 +3280,7 @@ package body Editor.Input_Bridge.Tests is
       Editor.Input_Bridge.Execute_Command_Id
         (Editor.Command_Ids.Command_File_Tree_Delete_Selected);
       S := Editor.Input_Bridge.Get_State_For_Test;
-      Snapshot := Editor.Guided_Prompts.Snapshot (S.Guided_Prompt);
+      Snapshot := Editor.Guided_Prompts.Snapshot (S.Workflow.Guided_Prompt);
 
       Assert (Snapshot.Active,
               "delete starts a confirmation prompt");
@@ -3323,14 +3323,14 @@ package body Editor.Input_Bridge.Tests is
          Editor.Input_Bridge.Set_State_For_Test (S);
          Editor.Input_Bridge.Execute_Command_Id (Id);
          S := Editor.Input_Bridge.Get_State_For_Test;
-         Assert (Editor.Guided_Prompts.Is_Active (S.Guided_Prompt),
+         Assert (Editor.Guided_Prompts.Is_Active (S.Workflow.Guided_Prompt),
                  "cancel-message setup must start the prompt");
 
          Editor.Input_Bridge.Set_State_For_Test (S);
          Editor.Input_Bridge.Execute_Command_Id (Editor.Command_Ids.Command_Cancel);
          S := Editor.Input_Bridge.Get_State_For_Test;
 
-         Assert (not Editor.Guided_Prompts.Is_Active (S.Guided_Prompt),
+         Assert (not Editor.Guided_Prompts.Is_Active (S.Workflow.Guided_Prompt),
                  "cancel must clear the transient prompt");
          Msg := Editor.Messages.Active_Message (S.Panel.Messages, Found);
          Assert (Found and then Editor.Messages.Text (Msg) = Expected,

@@ -301,7 +301,7 @@ package body Editor.Input_Bridge.Wheel_Handlers is
 
       if Point_In_Rect (X, Y, File_Rect)
         and then Editor.Panels.Is_Visible
-          (S.Panels, Editor.Panels.File_Tree_Panel)
+          (S.Panel.Panels, Editor.Panels.File_Tree_Panel)
       then
          Editor.File_Tree_View.Scroll_By
            (S.Surface.File_Tree_View,
@@ -335,7 +335,7 @@ package body Editor.Input_Bridge.Wheel_Handlers is
 
       if Point_In_Rect (X, Y, Bottom)
         and then Editor.Panels.Is_Visible
-          (S.Panels, Editor.Panels.Bottom_Panel)
+          (S.Panel.Panels, Editor.Panels.Bottom_Panel)
       then
          declare
             Rows : Natural :=
@@ -346,7 +346,7 @@ package body Editor.Input_Bridge.Wheel_Handlers is
                Rows := Rows - 1;
             end if;
 
-            if Editor.Panels.Active_Bottom_Content (S.Panels) =
+            if Editor.Panels.Active_Bottom_Content (S.Panel.Panels) =
               Editor.Panels.Search_Results_Content
             then
                declare
@@ -361,7 +361,7 @@ package body Editor.Input_Bridge.Wheel_Handlers is
                end;
                Editor.Render_Cache.Invalidate_All;
                return;
-            elsif Editor.Panels.Active_Bottom_Content (S.Panels) =
+            elsif Editor.Panels.Active_Bottom_Content (S.Panel.Panels) =
               Editor.Panels.Problems_Content
             then
                declare

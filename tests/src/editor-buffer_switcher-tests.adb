@@ -3046,19 +3046,19 @@ package body Editor.Buffer_Switcher.Tests is
       Setup_Global_Switcher_State (S, Alpha, Beta);
       Editor.Keybindings.Clear;
       Editor.Keybindings.Bind (Chord, Command_Buffer_Switcher_Mark_Set);
-      Editor.Settings.Set_Command_Palette_Show_Keybindings (S.Settings, True);
+      Editor.Settings.Set_Command_Palette_Show_Keybindings (S.Configuration.Settings, True);
 
       Hints := Editor.Buffer_Switcher_Contextual_Hints.Build_Switcher_Contextual_Hints (S);
       Assert (Hint_Key_Text (Hints, Command_Buffer_Switcher_Mark_Set) = "Ctrl+M",
               "hint keybinding text must follow active runtime bindings");
 
-      Editor.Settings.Set_Command_Palette_Show_Keybindings (S.Settings, False);
+      Editor.Settings.Set_Command_Palette_Show_Keybindings (S.Configuration.Settings, False);
       Hints := Editor.Buffer_Switcher_Contextual_Hints.Build_Switcher_Contextual_Hints (S);
       Assert (Hint_Key_Text (Hints, Command_Buffer_Switcher_Mark_Set) = "",
               "hint keybinding text must be hidden when display is disabled");
 
       Editor.Keybindings.Unbind (Chord);
-      Editor.Settings.Set_Command_Palette_Show_Keybindings (S.Settings, True);
+      Editor.Settings.Set_Command_Palette_Show_Keybindings (S.Configuration.Settings, True);
       Hints := Editor.Buffer_Switcher_Contextual_Hints.Build_Switcher_Contextual_Hints (S);
       Assert (Hint_Key_Text (Hints, Command_Buffer_Switcher_Mark_Set) = "",
               "hint keybinding text must disappear after runtime unbind");
@@ -4303,7 +4303,7 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffers.Global_Set_Active_Buffer (Inside);
       Editor.Buffer_Switcher.Open (S.Surface.Buffer_Switcher);
       Editor.Buffer_Switcher.Recompute_Rows
-        (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, S.Recent_Buffers, S.Project_Runtime.Project, Config);
+        (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, S.Navigation.Recent_Buffers, S.Project_Runtime.Project, Config);
 
       Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Surface.Buffer_Switcher, Inside, Found);
       Assert (Found and then Row.Is_Project_Owned
@@ -4359,7 +4359,7 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffers.Global_Set_Active_Buffer (Inside);
       Editor.Buffer_Switcher.Open (S.Surface.Buffer_Switcher);
       Editor.Buffer_Switcher.Recompute_Rows
-        (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, S.Recent_Buffers, S.Project_Runtime.Project, Config);
+        (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, S.Navigation.Recent_Buffers, S.Project_Runtime.Project, Config);
 
       Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Surface.Buffer_Switcher, Inside, Found);
       Assert (Found and then To_String (Row.Display_Label) = "src/main.adb",
@@ -4377,7 +4377,7 @@ package body Editor.Buffer_Switcher.Tests is
          No_Project : Editor.Project.Project_State;
       begin
          Editor.Buffer_Switcher.Recompute_Rows
-           (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, S.Recent_Buffers, No_Project, Config);
+           (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, S.Navigation.Recent_Buffers, No_Project, Config);
       end;
       Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Surface.Buffer_Switcher, Inside, Found);
       Assert (Found and then Row.Project_Ownership = Editor.Buffer_Switcher.Rows.Buffer_Project_No_Project
@@ -4513,7 +4513,7 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffers.Global_Set_Active_Buffer (Main_A);
       Editor.Buffer_Switcher.Open (S.Surface.Buffer_Switcher);
       Editor.Buffer_Switcher.Recompute_Rows
-        (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, S.Recent_Buffers, S.Project_Runtime.Project, Config);
+        (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, S.Navigation.Recent_Buffers, S.Project_Runtime.Project, Config);
 
       Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Surface.Buffer_Switcher, Main_A, Found);
       Assert (Found and then To_String (Row.Display_Label) = "src/main.adb",
@@ -4583,7 +4583,7 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffer_Switcher.Recompute_Rows
         (S.Surface.Buffer_Switcher,
          Editor.Buffers.Global_Registry_For_UI,
-         S.Recent_Buffers,
+         S.Navigation.Recent_Buffers,
          S.Project_Runtime.Project,
          Config);
 
@@ -4631,7 +4631,7 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffer_Switcher.Recompute_Rows
         (S.Surface.Buffer_Switcher,
          Editor.Buffers.Global_Registry_For_UI,
-         S.Recent_Buffers,
+         S.Navigation.Recent_Buffers,
          S.Project_Runtime.Project,
          Config);
       Row := Editor.Buffer_Switcher.Row_For_Buffer
@@ -4649,7 +4649,7 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffer_Switcher.Recompute_Rows
         (S.Surface.Buffer_Switcher,
          Editor.Buffers.Global_Registry_For_UI,
-         S.Recent_Buffers,
+         S.Navigation.Recent_Buffers,
          S.Project_Runtime.Project,
          Config);
       Assert (Editor.Buffer_Switcher.Row_Count (S.Surface.Buffer_Switcher) = 3
@@ -5868,7 +5868,7 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffer_Switcher.Recompute_Rows
         (S.Surface.Buffer_Switcher,
          Editor.Buffers.Global_Registry_For_UI,
-         S.Recent_Buffers,
+         S.Navigation.Recent_Buffers,
          S.Project_Runtime.Project,
          Config);
 

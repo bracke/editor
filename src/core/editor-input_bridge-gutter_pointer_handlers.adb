@@ -83,7 +83,7 @@ package body Editor.Input_Bridge.Gutter_Pointer_Handlers is
       Row     : Natural)
    is
    begin
-      case Editor.Dirty_Lines.Kind_For_Row (S.Dirty_Lines, Row) is
+      case Editor.Dirty_Lines.Kind_For_Row (S.Gutter.Dirty_Lines, Row) is
          when Editor.Dirty_Lines.Added_Line =>
             Editor.Gutter_Markers.Add_Marker
               (Markers, Row, Editor.Gutter_Markers.Added_Line_Marker);
@@ -124,7 +124,7 @@ package body Editor.Input_Bridge.Gutter_Pointer_Handlers is
       Row : Natural)
    is
       Effective_Markers : Editor.Gutter_Markers.Gutter_Marker_State :=
-        S.Gutter_Markers;
+        S.Gutter.Markers;
       Still_Found : Boolean := False;
       Still_Kind  : Editor.Gutter_Markers.Gutter_Marker_Kind;
    begin
@@ -169,7 +169,7 @@ package body Editor.Input_Bridge.Gutter_Pointer_Handlers is
            (Y             => Cmd.Click_Y,
             Layout        => Layout,
             Scroll_Y      => Editor.View.Scroll_Y,
-            Folding       => S.Folding,
+            Folding       => S.Syntax.Folding,
             Document_Rows => Doc_Count);
          Select_Gutter_Line_Range
            (S, Pointer_State.Gutter_Line_Selection_Anchor_Row, Doc_Row);
@@ -185,7 +185,7 @@ package body Editor.Input_Bridge.Gutter_Pointer_Handlers is
          Line_Count      => Doc_Count,
          Viewport_Height => Editor.View.Viewport_Height,
          Scroll_Y        => Editor.View.Scroll_Y,
-         Folding         => S.Folding);
+         Folding         => S.Syntax.Folding);
       Zone := Hit.Zone;
       Doc_Row := Hit.Row;
 
@@ -193,7 +193,7 @@ package body Editor.Input_Bridge.Gutter_Pointer_Handlers is
 
          declare
             Effective_Markers : Editor.Gutter_Markers.Gutter_Marker_State :=
-              S.Gutter_Markers;
+              S.Gutter.Markers;
          begin
             Add_Effective_Dirty_Marker (S, Effective_Markers, Doc_Row);
             Add_Diagnostic_Markers (S, Effective_Markers, Doc_Row);
@@ -244,9 +244,9 @@ package body Editor.Input_Bridge.Gutter_Pointer_Handlers is
 
          when Editor.Gutter.Fold_Marker_Zone =>
             if Cmd.Kind = Editor.Command_Kinds.Move_To_Point
-              and then Editor.Folding.Has_Fold_Start (S.Folding, Doc_Row)
+              and then Editor.Folding.Has_Fold_Start (S.Syntax.Folding, Doc_Row)
             then
-               Editor.Folding.Toggle_Fold_At_Row (S.Folding, Doc_Row);
+               Editor.Folding.Toggle_Fold_At_Row (S.Syntax.Folding, Doc_Row);
                Editor.Render_Cache.Invalidate_All;
                return True;
             end if;

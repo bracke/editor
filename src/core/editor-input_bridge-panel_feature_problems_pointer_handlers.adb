@@ -218,8 +218,8 @@ package body Editor.Input_Bridge.Panel_Feature_Problems_Pointer_Handlers is
          return False;
       end if;
 
-      if not Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel)
-        or else Editor.Panels.Active_Bottom_Content (S.Panels)
+      if not Editor.Panels.Is_Visible (S.Panel.Panels, Editor.Panels.Bottom_Panel)
+        or else Editor.Panels.Active_Bottom_Content (S.Panel.Panels)
           /= Editor.Panels.Problems_Content
       then
          return False;

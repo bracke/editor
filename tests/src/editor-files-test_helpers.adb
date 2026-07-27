@@ -95,7 +95,7 @@ package body Editor.Files.Test_Helpers is
    is
    begin
       Editor.Executor.File_Save_Basic_Commands.Execute_Revert_Active_Buffer (S);
-      if Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions) then
+      if Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions) then
          Editor.Messages.Clear (S.Panel.Messages);
          Editor.Executor.Execute_Command
            (S, Editor.Command_Ids.Command_Retry_Pending_Transition);

@@ -84,10 +84,10 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
    is
    begin
       Assert
-        (Editor.Navigation_History.Back_Count (S.Navigation_History) = Expected_Back,
+        (Editor.Navigation_History.Back_Count (S.Navigation.History) = Expected_Back,
          Why & ": navigation back stack changed");
       Assert
-        (Editor.Navigation_History.Forward_Count (S.Navigation_History) = Expected_Fwd,
+        (Editor.Navigation_History.Forward_Count (S.Navigation.History) = Expected_Fwd,
          Why & ": navigation forward stack changed");
    end Assert_Navigation_Counts;
 
@@ -1440,8 +1440,8 @@ procedure Test_Line_Comment_Command_Descriptors
       S.Search.Active_Find_Stale := False;
       S.Search.Active_Replace_Text := To_Unbounded_String ("Bee");
       S.Search.Active_Replace_Prompt := True;
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation.History);
 
       Set_Primary_Selection
         (S,

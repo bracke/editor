@@ -174,7 +174,7 @@ package body Editor.Feature_Panel.Tests is
       Editor.State.Init (S);
       Set_Visible (S.Panel.Feature_Panel, True);
       Set_Placeholder_Rows (S.Panel.Feature_Panel);
-      Editor.State.Apply_Settings (S, S.Settings);
+      Editor.State.Apply_Settings (S, S.Configuration.Settings);
       Assert (Row_Count (S.Panel.Feature_Panel) = 3,
               "settings application must not clear transient feature rows");
 
@@ -451,7 +451,7 @@ package body Editor.Feature_Panel.Tests is
       Assert (Editor.State.Is_Dirty (Dirty_Rows),
               "dirty-buffer + rows fixture is available");
       Assert (Editor.Pending_Transitions.Has_Pending
-                (Pending_Rows.Pending_Transitions),
+                (Pending_Rows.Workflow.Pending_Transitions),
               "pending-transition + rows fixture is available");
       Assert (Row_Count (Palette_Rows.Panel.Feature_Panel) = 3,
               "command-palette + rows fixture is available");
@@ -716,14 +716,14 @@ package body Editor.Feature_Panel.Tests is
       Select_First (S.Panel.Feature_Panel);
       Before := Fingerprint (S.Panel.Feature_Panel);
 
-      Editor.Pending_Transitions.Set_Pending (S.Pending_Transitions, Target, Summary);
+      Editor.Pending_Transitions.Set_Pending (S.Workflow.Pending_Transitions, Target, Summary);
       Assert (Fingerprint (S.Panel.Feature_Panel) = Before,
               "blocked transition setup preserves feature-panel state");
-      Editor.Pending_Transitions.Clear (S.Pending_Transitions);
+      Editor.Pending_Transitions.Clear (S.Workflow.Pending_Transitions);
       Assert (Fingerprint (S.Panel.Feature_Panel) = Before,
               "cancel pending transition preserves feature-panel state");
 
-      Editor.State.Apply_Settings (S, S.Settings);
+      Editor.State.Apply_Settings (S, S.Configuration.Settings);
       Assert (Fingerprint (S.Panel.Feature_Panel) = Before,
               "settings application does not reset feature-panel rows");
 
@@ -958,18 +958,18 @@ package body Editor.Feature_Panel.Tests is
         (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "outline refresh executes before messages switch");
-      Outline_Fingerprint := Editor.Outline.Fingerprint (S.Outline);
+      Outline_Fingerprint := Editor.Outline.Fingerprint (S.Outline_Runtime.Outline);
 
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Show_Messages);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "messages.show executes after outline projection");
-      Assert (Editor.Outline.Fingerprint (S.Outline) = Outline_Fingerprint,
+      Assert (Editor.Outline.Fingerprint (S.Outline_Runtime.Outline) = Outline_Fingerprint,
               "switching to messages preserves accepted outline state");
       Assert (Editor.Feature_Panel.Row_Label (S.Panel.Feature_Panel, 1) = "Messages",
               "active projection is rebuilt for messages");
 
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline_Runtime.Outline, S.Panel.Feature_Panel);
       Assert (Editor.Feature_Panel.Row_Label (S.Panel.Feature_Panel, 1) /= "Messages",
               "switching back to outline rebuilds through the outline projection path");
       Assert (Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages) = 0,
@@ -993,7 +993,7 @@ package body Editor.Feature_Panel.Tests is
         (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "outline refresh executes before messages clear isolation test");
-      Outline_Count := Editor.Outline.Item_Count (S.Outline);
+      Outline_Count := Editor.Outline.Item_Count (S.Outline_Runtime.Outline);
       Editor.Feature_Messages.Add_Message
         (S.Panel.Feature_Messages, Editor.Feature_Messages.Info_Message,
          "Project opened");
@@ -1007,7 +1007,7 @@ package body Editor.Feature_Panel.Tests is
               "messages.clear executes through the normal executor path");
       Assert (Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages) = 0,
               "messages.clear removes only messages source rows");
-      Assert (Editor.Outline.Item_Count (S.Outline) = Outline_Count,
+      Assert (Editor.Outline.Item_Count (S.Outline_Runtime.Outline) = Outline_Count,
               "messages.clear does not clear accepted outline rows");
       Assert (Editor.Feature_Panel.Row_Label (S.Panel.Feature_Panel, 1) = "Messages",
               "messages.clear leaves the panel showing the messages empty projection");
@@ -1042,7 +1042,7 @@ package body Editor.Feature_Panel.Tests is
               "outline clear executes while messages state exists");
       Assert (Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages) = 1,
               "outline.clear does not clear messages source rows");
-      Assert (Editor.Outline.Item_Count (S.Outline) = 0,
+      Assert (Editor.Outline.Item_Count (S.Outline_Runtime.Outline) = 0,
               "outline.clear still clears outline source rows");
    end Test_Clear_Outline_Does_Not_Clear_Messages;
 
@@ -1255,7 +1255,7 @@ package body Editor.Feature_Panel.Tests is
         (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "outline refresh executes before mixed feature switch test");
-      Outline_Count := Editor.Outline.Item_Count (S.Outline);
+      Outline_Count := Editor.Outline.Item_Count (S.Outline_Runtime.Outline);
 
       Editor.Feature_Messages.Add_Message
         (S.Panel.Feature_Messages, Editor.Feature_Messages.Warning_Message,
@@ -1266,13 +1266,13 @@ package body Editor.Feature_Panel.Tests is
               "messages.show executes during mixed feature switch test");
       Assert (Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages) = 1,
               "messages source rows survive switching to messages projection");
-      Assert (Editor.Outline.Item_Count (S.Outline) = Outline_Count,
+      Assert (Editor.Outline.Item_Count (S.Outline_Runtime.Outline) = Outline_Count,
               "outline source rows survive switching to messages projection");
 
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline_Runtime.Outline, S.Panel.Feature_Panel);
       Assert (Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages) = 1,
               "messages source rows survive switching back to outline projection");
-      Assert (Editor.Outline.Item_Count (S.Outline) = Outline_Count,
+      Assert (Editor.Outline.Item_Count (S.Outline_Runtime.Outline) = Outline_Count,
               "outline source rows survive switching back from messages projection");
    end Test_Feature_Panel_Switch_Outline_Messages_Preserves_Both_States;
 
@@ -1503,20 +1503,20 @@ package body Editor.Feature_Panel.Tests is
         (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "outline refresh executes before messages filter isolation test");
-      Outline_Count := Editor.Outline.Item_Count (S.Outline);
+      Outline_Count := Editor.Outline.Item_Count (S.Outline_Runtime.Outline);
       Editor.Feature_Messages.Add_Message
         (S.Panel.Feature_Messages, Editor.Feature_Messages.Info_Message, "Project opened");
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Toggle_Message_Info);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "messages severity toggle executes through command registry");
-      Assert (Editor.Outline.Item_Count (S.Outline) = Outline_Count,
+      Assert (Editor.Outline.Item_Count (S.Outline_Runtime.Outline) = Outline_Count,
               "messages filter commands do not mutate outline source rows");
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Show_All_Messages);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "messages.show-all executes through command registry");
-      Assert (Editor.Outline.Item_Count (S.Outline) = Outline_Count,
+      Assert (Editor.Outline.Item_Count (S.Outline_Runtime.Outline) = Outline_Count,
               "messages.show-all does not mutate outline state");
    end Test_Messages_Filter_Commands_Do_Not_Affect_Outline;
 
@@ -1683,7 +1683,7 @@ package body Editor.Feature_Panel.Tests is
         (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "outline refresh executes before producer isolation test");
-      Outline_Count := Editor.Outline.Item_Count (S.Outline);
+      Outline_Count := Editor.Outline.Item_Count (S.Outline_Runtime.Outline);
 
       Editor.Message_Producers.Post_Message
         (S,
@@ -1692,7 +1692,7 @@ package body Editor.Feature_Panel.Tests is
          "project",
          Editor.Feature_Messages.Project_Source);
 
-      Assert (Editor.Outline.Item_Count (S.Outline) = Outline_Count,
+      Assert (Editor.Outline.Item_Count (S.Outline_Runtime.Outline) = Outline_Count,
               "Messages producer does not mutate accepted outline rows");
       Assert (Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages) = 1,
               "Messages producer appends only Messages source rows");
@@ -1837,7 +1837,7 @@ package body Editor.Feature_Panel.Tests is
       Editor.State.Load_Text
         (S, "procedure Main is" & ASCII.LF & "begin" & ASCII.LF & "   null;" & ASCII.LF & "end Main;");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
-      Outline_Count := Editor.Outline.Item_Count (S.Outline);
+      Outline_Count := Editor.Outline.Item_Count (S.Outline_Runtime.Outline);
 
       Editor.Feature_Messages.Add_Message
         (S.Panel.Feature_Messages, Editor.Feature_Messages.Error_Message, "failed", "main.adb");
@@ -1846,7 +1846,7 @@ package body Editor.Feature_Panel.Tests is
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Clear_Selected_Message);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Clear_Error_Messages);
 
-      Assert (Editor.Outline.Item_Count (S.Outline) = Outline_Count,
+      Assert (Editor.Outline.Item_Count (S.Outline_Runtime.Outline) = Outline_Count,
               "Messages action commands must not mutate outline source rows");
    end Test_Messages_Action_Commands_Do_Not_Affect_Outline;
 
@@ -2125,7 +2125,7 @@ package body Editor.Feature_Panel.Tests is
       Editor.Feature_Search_Results.Add_Search_Result
         (S.Panel.Feature_Search_Results, "hit", "demo", True, S.Buffer_Lifecycle.Registry_Token, 1, 1);
       Editor.Feature_Panel_Controller.Reset_All_Features_For_Project_Close (S);
-      Assert (not Editor.Outline.Has_Items (S.Outline),
+      Assert (not Editor.Outline.Has_Items (S.Outline_Runtime.Outline),
               "project close lifecycle dispatcher resets Outline");
       Assert (Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages) = 0,
               "project close lifecycle dispatcher resets Messages");
@@ -2182,7 +2182,7 @@ package body Editor.Feature_Panel.Tests is
       Assert (Row_Label (S.Panel.Feature_Panel, 1) = "hit one"
         and then Row_Label (S.Panel.Feature_Panel, 2) = "hit two",
               "search results projection preserves insertion order");
-      Assert (Editor.Outline.Has_Items (S.Outline),
+      Assert (Editor.Outline.Has_Items (S.Outline_Runtime.Outline),
               "showing search results does not mutate Outline");
       Assert (Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages) = 1,
               "showing search results does not mutate Messages");
@@ -2191,7 +2191,7 @@ package body Editor.Feature_Panel.Tests is
         (S, Editor.Command_Ids.Command_Clear_Search_Results_Feature);
       Assert (Editor.Feature_Search_Results.Row_Count (S.Panel.Feature_Search_Results) = 0,
               "search results clear removes source rows");
-      Assert (Editor.Outline.Has_Items (S.Outline),
+      Assert (Editor.Outline.Has_Items (S.Outline_Runtime.Outline),
               "clearing search results does not clear Outline");
       Assert (Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages) = 1,
               "clearing search results does not clear Messages");
@@ -2369,7 +2369,7 @@ package body Editor.Feature_Panel.Tests is
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Search_Results_Search_Active_Buffer);
 
-      Assert (Editor.Outline.Has_Items (S.Outline),
+      Assert (Editor.Outline.Has_Items (S.Outline_Runtime.Outline),
               "active-buffer search does not mutate Outline");
       Assert (Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages) = 1,
               "active-buffer search does not mutate Messages");
@@ -2740,7 +2740,7 @@ package body Editor.Feature_Panel.Tests is
                  "can repeatedly switch to Search Results");
       end loop;
 
-      Assert (Editor.Outline.Has_Items (S.Outline),
+      Assert (Editor.Outline.Has_Items (S.Outline_Runtime.Outline),
               "repeated feature switching preserves Outline state");
       Assert (Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages) = Message_Count,
               "repeated feature switching preserves Messages state");
@@ -2875,7 +2875,7 @@ package body Editor.Feature_Panel.Tests is
 
       Assert (Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages) = 0,
               "clear-active clears active Messages state");
-      Assert (Editor.Outline.Has_Items (S.Outline),
+      Assert (Editor.Outline.Has_Items (S.Outline_Runtime.Outline),
               "clear-active leaves inactive Outline state intact");
       Assert (Editor.Feature_Search_Results.Row_Count (S.Panel.Feature_Search_Results) > 0,
               "clear-active leaves inactive Search Results state intact");
@@ -2946,7 +2946,7 @@ package body Editor.Feature_Panel.Tests is
         and then Row_Label (S.Panel.Feature_Panel, 2) =
                 "info: diagnostic two — scaffold — Target file missing or unavailable [Unknown]",
               "Diagnostics projection preserves source-grouped review order");
-      Assert (Editor.Outline.Has_Items (S.Outline),
+      Assert (Editor.Outline.Has_Items (S.Outline_Runtime.Outline),
               "diagnostics.show does not mutate Outline");
       Assert (Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages) = 1,
               "diagnostics.show does not mutate Messages");
@@ -2956,7 +2956,7 @@ package body Editor.Feature_Panel.Tests is
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Diagnostics_Clear);
       Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "diagnostics.clear removes Diagnostics rows");
-      Assert (Editor.Outline.Has_Items (S.Outline),
+      Assert (Editor.Outline.Has_Items (S.Outline_Runtime.Outline),
               "diagnostics.clear does not clear Outline");
       Assert (Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages) = 1,
               "diagnostics.clear does not clear Messages");
@@ -3405,7 +3405,7 @@ package body Editor.Feature_Panel.Tests is
         (S, Editor.Command_Ids.Command_Diagnostics_Copy_Selected_Text);
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Diagnostics_Clear_Errors);
-      Assert (Editor.Outline.Has_Items (S.Outline),
+      Assert (Editor.Outline.Has_Items (S.Outline_Runtime.Outline),
               "diagnostics action commands do not affect Outline");
       Assert (Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages) = 1,
               "diagnostics action commands do not affect Messages");
@@ -5010,7 +5010,7 @@ package body Editor.Feature_Panel.Tests is
          "@outline procedure Run" & ASCII.LF &
          "needle" & ASCII.LF);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
-      Assert (Editor.Outline.Item_Count (S.Outline) >= 2,
+      Assert (Editor.Outline.Item_Count (S.Outline_Runtime.Outline) >= 2,
               "setup has Outline rows");
 
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "needle");
@@ -5027,7 +5027,7 @@ package body Editor.Feature_Panel.Tests is
               "clear active Search Results executes");
       Assert (Editor.Feature_Search_Results.Row_Count (S.Panel.Feature_Search_Results) = 0,
               "clear removes active Search Results rows");
-      Assert (Editor.Outline.Item_Count (S.Outline) >= 2,
+      Assert (Editor.Outline.Item_Count (S.Outline_Runtime.Outline) >= 2,
               "clear does not mutate sibling Outline rows");
    end Test_Clear_Active_Feature_Does_Not_Clear_Sibling_Feature;
 

@@ -826,8 +826,8 @@ package body Editor.History.Tests is
    begin
       Editor.State.Init (S);
       Set_Buffer_Text (S, "A");
-      Back_Before := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Forward_Before := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Back_Before := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Forward_Before := Editor.Navigation_History.Forward_Count (S.Navigation.History);
 
       Set_Caret (S, 1);
       Editor.Executor.Execute_No_Log (S, Paste ("B"));
@@ -845,8 +845,8 @@ package body Editor.History.Tests is
       Assert_Stacks (1, 0, "redo transfers entry to undo");
       Assert (Latest_Message_Text (S) = "Redid edit",
               "redo emits one primary redo message");
-      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = Back_Before
-              and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = Forward_Before,
+      Assert (Editor.Navigation_History.Back_Count (S.Navigation.History) = Back_Before
+              and then Editor.Navigation_History.Forward_Count (S.Navigation.History) = Forward_Before,
               "undo/redo must not record navigation history");
    end Test_Basic_Text_Edit_Undo_Redo_Workflow;
 

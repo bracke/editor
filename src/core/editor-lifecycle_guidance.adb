@@ -34,7 +34,7 @@ package body Editor.Lifecycle_Guidance is
      (S : Editor.State.State_Type) return Boolean
    is
    begin
-      return Editor.Settings.Command_Palette_Show_Keybindings (S.Settings);
+      return Editor.Settings.Command_Palette_Show_Keybindings (S.Configuration.Settings);
    end Show_Shortcuts;
 
    function Shortcut_Text

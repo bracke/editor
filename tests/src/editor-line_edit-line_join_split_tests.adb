@@ -81,10 +81,10 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
    is
    begin
       Assert
-        (Editor.Navigation_History.Back_Count (S.Navigation_History) = Expected_Back,
+        (Editor.Navigation_History.Back_Count (S.Navigation.History) = Expected_Back,
          Why & ": navigation back stack changed");
       Assert
-        (Editor.Navigation_History.Forward_Count (S.Navigation_History) = Expected_Fwd,
+        (Editor.Navigation_History.Forward_Count (S.Navigation.History) = Expected_Fwd,
          Why & ": navigation forward stack changed");
    end Assert_Navigation_Counts;
 
@@ -424,8 +424,8 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
       S.Search.Active_Replace_Text := To_Unbounded_String ("BETA");
       Set_Primary_Selection (S, 0, 5);
       Before_Clip := Editor.Clipboard.Get_Text;
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Forward := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Forward := Editor.Navigation_History.Forward_Count (S.Navigation.History);
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Line_Join_Next);
@@ -679,8 +679,8 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
       S.Search.Active_Find_Stale := False;
       Before_Text := To_Unbounded_String (Text_Buffer.UTF8_Text (S.Buffer));
       Before_Clip := Editor.Clipboard.Get_Text;
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Forward := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Forward := Editor.Navigation_History.Forward_Count (S.Navigation.History);
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Line_Join_Next);
@@ -911,8 +911,8 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
       S.Search.Active_Replace_Text := Before_Replace;
       S.Search.Active_Replace_Prompt := True;
       Set_Primary_Selection (S, 0, 16);
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Forward := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Forward := Editor.Navigation_History.Forward_Count (S.Navigation.History);
       Before_Text := To_Unbounded_String (Buffer_Text (S));
 
       Snap := Editor.Render_Model.Build_Snapshot (S);
@@ -1114,8 +1114,8 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
       S.Search.Active_Find_Query := To_Unbounded_String ("Quick Open");
       S.Search.Active_Replace_Text := To_Unbounded_String ("QO");
       S.Search.Active_Find_Stale := False;
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation.History);
 
       Editor.Command_Palette.Reset;
       Editor.Command_Palette.Filtered_Commands (Candidates);
@@ -1183,8 +1183,8 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
       S.Search.Active_Find_Query := To_Unbounded_String ("Beta");
       S.Search.Active_Replace_Text := To_Unbounded_String ("BETA");
       S.Search.Active_Find_Stale := False;
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation.History);
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Join_Next);
       Assert_Line_Join_Coherent
@@ -1325,8 +1325,8 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
       S.Search.Active_Find_Query := To_Unbounded_String ("Beta");
       S.Search.Active_Replace_Text := To_Unbounded_String ("BETA");
       S.Search.Active_Find_Stale := False;
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation.History);
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
@@ -1508,8 +1508,8 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
       S.Search.Active_Find_Query := To_Unbounded_String ("AlphaBeta");
       S.Search.Active_Replace_Text := To_Unbounded_String ("A-B");
       S.Search.Active_Find_Stale := False;
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation.History);
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
@@ -1796,8 +1796,8 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
          Editor.History.Redo_Stack.Clear;
          Editor.Clipboard.Set_Text (To_Unbounded_String ("MATRIX-CLIP"));
          Set_Caret (S, Caret);
-         Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-         Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+         Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+         Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation.History);
 
          Editor.Executor.Execute_Command
            (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
@@ -1871,8 +1871,8 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
       S.Search.Active_Find_Query := To_Unbounded_String ("AlphaBeta");
       S.Search.Active_Replace_Text := To_Unbounded_String ("Alpha-Beta");
       S.Search.Active_Find_Stale := False;
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation.History);
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
@@ -2191,8 +2191,8 @@ procedure Test_Line_Split_Canonical_Behavior_And_State_Boundaries
       S.Search.Active_Find_Query := To_Unbounded_String ("Alpha");
       S.Search.Active_Replace_Text := To_Unbounded_String ("Omega");
       S.Search.Active_Find_Stale := False;
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation.History);
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Split_At_Caret);

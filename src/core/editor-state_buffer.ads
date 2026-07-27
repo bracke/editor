@@ -61,6 +61,10 @@ package Editor.State_Buffer is
    type Reopen_Candidate_Array is
      array (Reopen_Candidate_Index) of Ada.Strings.Unbounded.Unbounded_String;
 
+   type Text_Projection_State is record
+      Line_Starts : Line_Start_Vectors.Vector;
+   end record;
+
    type Buffer_Lifecycle_State is record
       File_Info : File_State;
 

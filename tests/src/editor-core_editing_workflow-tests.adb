@@ -427,25 +427,25 @@ package body Editor.Core_Editing_Workflow.Tests is
       Cmd : Editor.Commands.Payloads.Command;
    begin
       Init_Executor_Test_State (S);
-      Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Dirty_Lines) = 0,
+      Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Gutter.Dirty_Lines) = 0,
               "new buffer should start with zero dirty lines");
 
       Cmd := Editor.Test_Helper.Insert (0, 'X');
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Dirty_Lines) = 1,
+      Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Gutter.Dirty_Lines) = 1,
               "insert into empty buffer should mark one dirty line");
-      Assert (Editor.Dirty_Lines.Kind_For_Row (S.Dirty_Lines, 0) =
+      Assert (Editor.Dirty_Lines.Kind_For_Row (S.Gutter.Dirty_Lines, 0) =
                 Editor.Dirty_Lines.Modified_Line,
               "edit of baseline empty row should be modified");
 
       Cmd.Kind := Editor.Command_Kinds.Undo;
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Dirty_Lines) = 0,
+      Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Gutter.Dirty_Lines) = 0,
               "undo back to baseline should clear dirty-line rows");
 
       Cmd.Kind := Editor.Command_Kinds.Redo;
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Dirty_Lines) = 1,
+      Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Gutter.Dirty_Lines) = 1,
               "redo should recompute dirty-line rows");
    end Test_Dirty_Lines_Insert_And_Undo;
 
@@ -466,12 +466,12 @@ package body Editor.Core_Editing_Workflow.Tests is
 
       Cmd := Editor.Test_Helper.Insert (4, '!');
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Dirty_Lines) = 1,
+      Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Gutter.Dirty_Lines) = 1,
               "edit before save should mark dirty-line state");
 
       Cmd.Kind := Editor.Command_Kinds.Save_File;
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Dirty_Lines) = 0,
+      Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Gutter.Dirty_Lines) = 0,
               "successful save should clear dirty-line state");
       Assert (S.Buffer_Lifecycle.File_Info.Dirty = False,
               "successful save should keep file-level dirty state clean");
@@ -495,29 +495,29 @@ package body Editor.Core_Editing_Workflow.Tests is
 
       Cmd := Editor.Test_Helper.Insert (1, '!');
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Dirty_Lines) = 1,
+      Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Gutter.Dirty_Lines) = 1,
               "editing buffer A should mark A dirty lines");
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Editor.Buffers.Global_Add_Untitled_Buffer (B_Id);
       Editor.Buffers.Load_Global_Active_Into_State (S);
-      Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Dirty_Lines) = 0,
+      Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Gutter.Dirty_Lines) = 0,
               "new buffer B should start without dirty lines");
 
       Cmd := Editor.Test_Helper.Insert (0, 'B');
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Dirty_Lines) = 1,
+      Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Gutter.Dirty_Lines) = 1,
               "editing buffer B should mark B dirty lines");
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Editor.Buffers.Global_Set_Active_Buffer (A_Id);
       Editor.Buffers.Load_Global_Active_Into_State (S);
-      Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Dirty_Lines) = 1,
+      Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Gutter.Dirty_Lines) = 1,
               "switching back to A should restore A dirty-line state");
 
       Editor.Buffers.Global_Set_Active_Buffer (B_Id);
       Editor.Buffers.Load_Global_Active_Into_State (S);
-      Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Dirty_Lines) = 1,
+      Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Gutter.Dirty_Lines) = 1,
               "switching back to B should restore B dirty-line state");
    end Test_Dirty_Lines_Buffer_Isolation;
 
@@ -533,12 +533,12 @@ package body Editor.Core_Editing_Workflow.Tests is
 
       Cmd := Editor.Test_Helper.Insert (4, '!');
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Dirty_Lines) = 1,
+      Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Gutter.Dirty_Lines) = 1,
               "setup edit should mark one dirty row before failed save");
 
       Cmd.Kind := Editor.Command_Kinds.Save_File;
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Dirty_Lines) = 1,
+      Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Gutter.Dirty_Lines) = 1,
               "save without path should preserve dirty-line state");
    end Test_Dirty_Lines_Save_Without_Path_Preserves_State;
 
@@ -555,7 +555,7 @@ package body Editor.Core_Editing_Workflow.Tests is
 
       Cmd := Editor.Test_Helper.Insert (4, '!');
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Dirty_Lines) = 1,
+      Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Gutter.Dirty_Lines) = 1,
               "setup edit should mark one dirty row before failed open");
 
       Cmd.Kind := Editor.Command_Kinds.Open_File;
@@ -563,7 +563,7 @@ package body Editor.Core_Editing_Workflow.Tests is
       Remove_File_If_Exists (To_String (Cmd.Path));
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Dirty_Lines) = 1,
+      Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Gutter.Dirty_Lines) = 1,
               "failed open should preserve active dirty-line state");
       Assert (Editor.State.Current_Text (S) = "base!",
               "failed open should preserve active buffer contents");
@@ -603,13 +603,13 @@ package body Editor.Core_Editing_Workflow.Tests is
       Editor.Buffers.Load_Global_Active_Into_State (S);
       Cmd.Kind := Editor.Command_Kinds.Save_File;
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Dirty_Lines) = 0,
+      Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Gutter.Dirty_Lines) = 0,
               "saving active buffer A should clear A dirty-line state");
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Editor.Buffers.Global_Set_Active_Buffer (B_Id);
       Editor.Buffers.Load_Global_Active_Into_State (S);
-      Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Dirty_Lines) = 1,
+      Assert (Editor.Dirty_Lines.Dirty_Line_Count (S.Gutter.Dirty_Lines) = 1,
               "saving buffer A must not clear buffer B dirty-line state");
 
       Remove_File_If_Exists (A_Path);
@@ -988,7 +988,7 @@ package body Editor.Core_Editing_Workflow.Tests is
          Source_Label  => "active",
          Target_Buffer => S.Buffer_Lifecycle.Registry_Token,
          Snapshot_Version => Editor.State.Current_Buffer_Revision (S));
-      Result := Editor.Outline.Fixtures.Populate_Synthetic_Outline (S.Outline);
+      Result := Editor.Outline.Fixtures.Populate_Synthetic_Outline (S.Outline_Runtime.Outline);
 
       Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
       Cmd.Ch := 'Z';
@@ -1006,7 +1006,7 @@ package body Editor.Core_Editing_Workflow.Tests is
               "targeted Diagnostics rows for edited buffer must be removed");
       Assert (Editor.Feature_Search_Results.Results_Stale (S.Panel.Feature_Search_Results),
               "Search Results must be generation-marked stale after edit");
-      Assert (Editor.Outline.Filtered_Row_Count (S.Outline) = 0,
+      Assert (Editor.Outline.Filtered_Row_Count (S.Outline_Runtime.Outline) = 0,
               "Outline rows must be cleared after buffer edit");
    end Test_Edit_Invalidates_Feature_Targets;
 
@@ -1841,7 +1841,7 @@ package body Editor.Core_Editing_Workflow.Tests is
         (Editor.State.Current_Text (S) = Before,
          "navigation commands must not mutate buffer text");
       Assert
-        (Editor.Dirty_Lines.Dirty_Line_Count (S.Dirty_Lines) = 0,
+        (Editor.Dirty_Lines.Dirty_Line_Count (S.Gutter.Dirty_Lines) = 0,
          "navigation commands must not create dirty-line state");
       Assert
         (not S.Buffer_Lifecycle.File_Info.Dirty,

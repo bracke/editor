@@ -138,7 +138,7 @@ package body Editor.Render_Model.Tests is
       File_Tree_Config : Editor.File_Tree_View.File_Tree_View_Config;
       State_For_Test : Editor.State.State_Type := S;
    begin
-      State_For_Test.Panels := Test_Panels;
+      State_For_Test.Panel.Panels := Test_Panels;
       Editor.Input_Bridge.Set_State_For_Test (State_For_Test);
       Editor.Settings.Reset;
       Editor.Settings.Set_Show_Minimap (Minimap_Enabled);
@@ -150,7 +150,7 @@ package body Editor.Render_Model.Tests is
       File_Tree_Config := Editor.File_Tree_View.Current_Config;
       File_Tree_Config.Enabled := False;
       Editor.File_Tree_View.Set_Current_Config (File_Tree_Config);
-      Editor.Panels.Set_Current (State_For_Test.Panels);
+      Editor.Panels.Set_Current (State_For_Test.Panel.Panels);
       Editor.Scrollbars.Set_Enabled (False);
       Editor.Cursor.Set_Current (Default_Cursor_Config);
       Editor.Cursor.Set_Blink (Visible_Blink_Config);
@@ -4889,7 +4889,7 @@ package body Editor.Render_Model.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "pending");
-      Editor.Pending_Transitions.Set_Pending (S.Pending_Transitions, Target, Dirty);
+      Editor.Pending_Transitions.Set_Pending (S.Workflow.Pending_Transitions, Target, Dirty);
 
       Set_Render_State_For_Test (S);
       Editor.View.Reset_Scroll;
@@ -4954,7 +4954,7 @@ package body Editor.Render_Model.Tests is
       Editor.Command_Palette.Open;
       Editor.Command_Palette.Append_Character ('b');
       Editor.Command_Palette.Append_Character ('u');
-      Editor.Pending_Transitions.Set_Pending (S.Pending_Transitions, Target, Dirty);
+      Editor.Pending_Transitions.Set_Pending (S.Workflow.Pending_Transitions, Target, Dirty);
 
       Set_Render_State_For_Test (S);
       Editor.View.Reset_Scroll;
@@ -5188,7 +5188,7 @@ package body Editor.Render_Model.Tests is
 
       Editor.Feature_Search_Results.Deactivate_Search_Query_Input
         (S.Panel.Feature_Search_Results);
-      Editor.Outline.Activate_Filter_Input (S.Outline);
+      Editor.Outline.Activate_Filter_Input (S.Outline_Runtime.Outline);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert
         (Snap.Outline_Filter_Input_Active,
@@ -5215,7 +5215,7 @@ package body Editor.Render_Model.Tests is
       Before := To_Unbounded_String (Editor.State.Current_Text (S));
 
       Editor.Bookmarks.Toggle
-        (S.Bookmarks,
+        (S.Navigation.Bookmarks,
          File_Path    => "/project/src/main.adb",
          Display_Path => "src/main.adb",
          Line_Number  => 2,
@@ -5240,7 +5240,7 @@ package body Editor.Render_Model.Tests is
         (Editor.State.Line_Count (S) = 3,
          "bookmark marker projection must not mutate line count");
       Assert
-        (Editor.Bookmarks.Count (S.Bookmarks) = 1,
+        (Editor.Bookmarks.Count (S.Navigation.Bookmarks) = 1,
          "bookmark marker projection must not mutate bookmark state");
    end Test_Bookmark_Marker_Projection;
 
@@ -5260,11 +5260,11 @@ package body Editor.Render_Model.Tests is
       S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("src/main.adb");
 
       Editor.Bookmarks.Toggle
-        (S.Bookmarks, "/project/src/main.adb", "src/main.adb", 2, 1, True, Added);
+        (S.Navigation.Bookmarks, "/project/src/main.adb", "src/main.adb", 2, 1, True, Added);
       Editor.Bookmarks.Toggle
-        (S.Bookmarks, "/project/src/other.adb", "src/other.adb", 1, 1, True, Added);
+        (S.Navigation.Bookmarks, "/project/src/other.adb", "src/other.adb", 1, 1, True, Added);
       Editor.Bookmarks.Toggle
-        (S.Bookmarks, "/project/src/main.adb", "src/main.adb", 99, 1, True, Added);
+        (S.Navigation.Bookmarks, "/project/src/main.adb", "src/main.adb", 99, 1, True, Added);
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
 
@@ -5281,7 +5281,7 @@ package body Editor.Render_Model.Tests is
            (Snap.Gutter_Markers, 98, Editor.Gutter_Markers.Bookmark_Marker),
          "out-of-range bookmark must not create an editor marker");
       Assert
-        (Editor.Bookmarks.Count (S.Bookmarks) = 3,
+        (Editor.Bookmarks.Count (S.Navigation.Bookmarks) = 3,
          "out-of-range and other-file bookmarks remain in bookmark state");
    end Test_Bookmark_Markers_Filter_By_File_And_Range;
 
@@ -5301,14 +5301,14 @@ package body Editor.Render_Model.Tests is
       S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("src/main.adb");
 
       Editor.Bookmarks.Toggle
-        (S.Bookmarks, "/project/src/main.adb", "src/main.adb", 1, 1, True, Added);
+        (S.Navigation.Bookmarks, "/project/src/main.adb", "src/main.adb", 1, 1, True, Added);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert
         (Editor.Gutter_Markers.Has_Marker
            (Snap.Gutter_Markers, 0, Editor.Gutter_Markers.Bookmark_Marker),
          "setup should expose bookmark marker before clear");
 
-      Editor.Bookmarks.Clear_Bookmarks (S.Bookmarks);
+      Editor.Bookmarks.Clear_Bookmarks (S.Navigation.Bookmarks);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert
         (not Editor.Gutter_Markers.Has_Marker
@@ -5329,7 +5329,7 @@ package body Editor.Render_Model.Tests is
       Editor.State.Load_Text (S, "one" & ASCII.LF & "two");
 
       Editor.Bookmarks.Toggle
-        (S.Bookmarks, "/project/src/main.adb", "src/main.adb", 1, 1, True, Added);
+        (S.Navigation.Bookmarks, "/project/src/main.adb", "src/main.adb", 1, 1, True, Added);
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
 
@@ -5338,7 +5338,7 @@ package body Editor.Render_Model.Tests is
            (Snap.Gutter_Markers, 0, Editor.Gutter_Markers.Bookmark_Marker),
          "bookmark markers must not render without a stable buffer file identity");
       Assert
-        (Editor.Bookmarks.Count (S.Bookmarks) = 1,
+        (Editor.Bookmarks.Count (S.Navigation.Bookmarks) = 1,
          "identity filtering must not prune bookmark state");
    end Test_Bookmark_Markers_Require_Buffer_Identity;
 
@@ -5360,9 +5360,9 @@ package body Editor.Render_Model.Tests is
       S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("src/main.adb");
 
       Editor.Bookmarks.Toggle
-        (S.Bookmarks, "/project/src/main.adb", "src/main.adb", 1, 1, True, Added);
+        (S.Navigation.Bookmarks, "/project/src/main.adb", "src/main.adb", 1, 1, True, Added);
       Editor.Bookmarks.Toggle
-        (S.Bookmarks, "/project/src/main.adb", "src/main.adb", 2, 1, True, Added);
+        (S.Navigation.Bookmarks, "/project/src/main.adb", "src/main.adb", 2, 1, True, Added);
       Editor.Diagnostics.Add
         (S.Panel.Diagnostics,
          Start_Index => 0,
@@ -5409,11 +5409,11 @@ package body Editor.Render_Model.Tests is
       S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String ("/project/src/main.adb");
       S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("src/main.adb");
 
-      Editor.Bookmarks.Show (S.Bookmarks);
+      Editor.Bookmarks.Show (S.Navigation.Bookmarks);
       Editor.Bookmarks.Toggle
-        (S.Bookmarks, "/project/src/main.adb", "src/main.adb", 1, 1, True, Added);
+        (S.Navigation.Bookmarks, "/project/src/main.adb", "src/main.adb", 1, 1, True, Added);
       Editor.Bookmarks.Toggle
-        (S.Bookmarks, "/project/src/main.adb", "src/main.adb", 3, 1, True, Added);
+        (S.Navigation.Bookmarks, "/project/src/main.adb", "src/main.adb", 3, 1, True, Added);
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert
@@ -5425,7 +5425,7 @@ package body Editor.Render_Model.Tests is
            (Snap.Gutter_Markers, 2, Editor.Gutter_Markers.Bookmark_Marker),
          "setup should expose second marker");
 
-      Editor.Bookmarks.Select_Next (S.Bookmarks);
+      Editor.Bookmarks.Select_Next (S.Navigation.Bookmarks);
       S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
 
@@ -5458,14 +5458,14 @@ package body Editor.Render_Model.Tests is
       S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("src/main.adb");
 
       Editor.Bookmarks.Toggle
-        (S.Bookmarks, "/project/src/main.adb", "src/main.adb", 2, 1, True, Added);
+        (S.Navigation.Bookmarks, "/project/src/main.adb", "src/main.adb", 2, 1, True, Added);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert
         (Editor.Gutter_Markers.Has_Marker
            (Snap.Gutter_Markers, 1, Editor.Gutter_Markers.Bookmark_Marker),
          "setup should expose bookmark marker before lifecycle clear");
 
-      Editor.Bookmarks.Clear (S.Bookmarks);
+      Editor.Bookmarks.Clear (S.Navigation.Bookmarks);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert
         (not Editor.Gutter_Markers.Has_Marker

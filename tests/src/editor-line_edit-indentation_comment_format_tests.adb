@@ -83,10 +83,10 @@ package body Editor.Line_Edit.Indentation_Comment_Format_Tests is
    is
    begin
       Assert
-        (Editor.Navigation_History.Back_Count (S.Navigation_History) = Expected_Back,
+        (Editor.Navigation_History.Back_Count (S.Navigation.History) = Expected_Back,
          Why & ": navigation back stack changed");
       Assert
-        (Editor.Navigation_History.Forward_Count (S.Navigation_History) = Expected_Fwd,
+        (Editor.Navigation_History.Forward_Count (S.Navigation.History) = Expected_Fwd,
          Why & ": navigation forward stack changed");
    end Assert_Navigation_Counts;
 
@@ -504,8 +504,8 @@ package body Editor.Line_Edit.Indentation_Comment_Format_Tests is
       S.Search.Active_Find_Query := To_Unbounded_String ("beta");
       S.Search.Active_Find_Stale := False;
       Set_Primary_Selection (S, 8, 6);
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation.History);
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Indent_Increase);
 
@@ -687,8 +687,8 @@ package body Editor.Line_Edit.Indentation_Comment_Format_Tests is
          S.Search.Active_Find_Query := To_Unbounded_String ("Alpha");
          S.Search.Active_Find_Stale := False;
          Set_Caret (S, Caret_Pos);
-         Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-         Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+         Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+         Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation.History);
          Before_Msgs := Natural (Editor.Messages.Count (S.Panel.Messages));
 
          Editor.Executor.Execute_Command
@@ -817,8 +817,8 @@ package body Editor.Line_Edit.Indentation_Comment_Format_Tests is
          S.Search.Active_Find_Query := To_Unbounded_String ("Alpha");
          S.Search.Active_Find_Stale := False;
          Set_Caret (S, 0);
-         Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-         Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+         Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+         Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation.History);
          Before_Redo := Natural (Editor.History.Redo_Stack.Length);
          Before_Dirty := Editor.State.Is_Dirty (S);
 
@@ -1176,8 +1176,8 @@ package body Editor.Line_Edit.Indentation_Comment_Format_Tests is
          S.Search.Active_Replace_Text := To_Unbounded_String ("Omega");
          S.Search.Active_Replace_Prompt := True;
          Set_Caret (S, 0);
-         Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-         Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+         Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+         Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation.History);
 
          Editor.Executor.Execute_Command (S, Command);
 
@@ -1354,8 +1354,8 @@ procedure Test_Canonical_Line_Comment_Path_And_Persistence_Exclusion
       S.Search.Active_Replace_Prompt := True;
       Before_Replace := S.Search.Active_Replace_Text;
       Before_Clip := Editor.Clipboard.Get_Text;
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation.History);
 
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 1, 1)));
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Comment_Line);

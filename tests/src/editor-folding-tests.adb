@@ -34,9 +34,9 @@ package body Editor.Folding.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "a" & ASCII.LF & "b" & ASCII.LF & "c" & ASCII.LF & "d");
-      Editor.Folding.Add_Fold (S.Folding, 1, 2);
+      Editor.Folding.Add_Fold (S.Syntax.Folding, 1, 2);
       if Collapsed then
-         Editor.Folding.Toggle_Fold_At_Row (S.Folding, 1);
+         Editor.Folding.Toggle_Fold_At_Row (S.Syntax.Folding, 1);
       end if;
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.View.Set_Viewport (800, 160);
@@ -172,8 +172,8 @@ package body Editor.Folding.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text
         (S, "0" & ASCII.LF & "1" & ASCII.LF & "2" & ASCII.LF & "3");
-      Editor.Folding.Add_Fold (S.Folding, 1, 2);
-      Editor.Folding.Toggle_Fold_At_Row (S.Folding, 1);
+      Editor.Folding.Add_Fold (S.Syntax.Folding, 1, 2);
+      Editor.Folding.Toggle_Fold_At_Row (S.Syntax.Folding, 1);
 
       Editor.Navigation.Vertical_Target_Info
         (S                => S,
@@ -204,8 +204,8 @@ package body Editor.Folding.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "x" & ASCII.LF & Long_Line & ASCII.LF & "y");
-      Editor.Folding.Add_Fold (S.Folding, 0, 1);
-      Editor.Folding.Toggle_Fold_At_Row (S.Folding, 0);
+      Editor.Folding.Add_Fold (S.Syntax.Folding, 0, 1);
+      Editor.Folding.Toggle_Fold_At_Row (S.Syntax.Folding, 0);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.View.Set_Viewport (240, 400);
       Editor.Scrollbars.Reset;
@@ -229,8 +229,8 @@ package body Editor.Folding.Tests is
       Editor.State.Load_Text
         (S, "0" & ASCII.LF & "1" & ASCII.LF & "2" & ASCII.LF & "3"
             & ASCII.LF & "4");
-      Editor.Folding.Add_Fold (S.Folding, 1, 3);
-      Editor.Folding.Toggle_Fold_At_Row (S.Folding, 1);
+      Editor.Folding.Add_Fold (S.Syntax.Folding, 1, 3);
+      Editor.Folding.Toggle_Fold_At_Row (S.Syntax.Folding, 1);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.View.Set_Viewport (800, Editor.Layout.Cell_H);
       Editor.Scrollbars.Reset;
@@ -253,12 +253,12 @@ package body Editor.Folding.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "0" & ASCII.LF & "1" & ASCII.LF & "2" & ASCII.LF & "3" & ASCII.LF & "4");
-      Editor.Folding.Add_Fold (S.Folding, 1, 4);
-      Editor.Folding.Toggle_Fold_At_Row (S.Folding, 1);
+      Editor.Folding.Add_Fold (S.Syntax.Folding, 1, 4);
+      Editor.Folding.Toggle_Fold_At_Row (S.Syntax.Folding, 1);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.View.Set_Viewport (800, Editor.Layout.Cell_H * 2);
       Editor.View.Set_Scroll_Y_Clamped
-        (Row_Count      => Editor.Folding.Visible_Row_Count (S.Folding, Editor.State.Line_Count (S)),
+        (Row_Count      => Editor.Folding.Visible_Row_Count (S.Syntax.Folding, Editor.State.Line_Count (S)),
          Viewport_Rows  => 2,
          Desired_Scroll => 99);
       Assert (Editor.View.Scroll_Y = 0,

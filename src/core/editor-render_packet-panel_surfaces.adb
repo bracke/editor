@@ -246,9 +246,9 @@ package body Editor.Render_Packet.Panel_Surfaces is
       function Pending_Status_Label return String
       is
       begin
-         if Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions) then
+         if Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions) then
             return "Confirmation required: "
-              & Editor.Pending_Transitions.Display_Text (S.Pending_Transitions);
+              & Editor.Pending_Transitions.Display_Text (S.Workflow.Pending_Transitions);
          elsif S.Buffer_Lifecycle.Dirty_Close_Prompt_Active then
             if S.Buffer_Lifecycle.Dirty_Close_Prompt_Save_Failure_Count > 0 then
                return "Dirty close review: save failed; buffer remains open";
@@ -281,7 +281,7 @@ package body Editor.Render_Packet.Panel_Surfaces is
       function Project_State_Label return String
       is
          Pending_Kind : constant Editor.Pending_Transitions.Pending_Transition_Kind :=
-           Editor.Pending_Transitions.Target_Kind (S.Pending_Transitions);
+           Editor.Pending_Transitions.Target_Kind (S.Workflow.Pending_Transitions);
       begin
          case Pending_Kind is
             when Editor.Pending_Transitions.Pending_Open_Project
@@ -322,10 +322,10 @@ package body Editor.Render_Packet.Panel_Surfaces is
       function Outline_Status_Label return String
       is
          Summary : constant Editor.Outline.Outline_Summary :=
-           Editor.Outline.Summary (S.Outline);
-         Filter  : constant String := Editor.Outline.Filter_Text (S.Outline);
+           Editor.Outline.Summary (S.Outline_Runtime.Outline);
+         Filter  : constant String := Editor.Outline.Filter_Text (S.Outline_Runtime.Outline);
       begin
-         if Editor.Outline.Last_Extraction_Source_Class (S.Outline) =
+         if Editor.Outline.Last_Extraction_Source_Class (S.Outline_Runtime.Outline) =
            Editor.Outline.Stale_Extracted_Outline
          then
             return "Outline: stale";
@@ -341,15 +341,15 @@ package body Editor.Render_Packet.Panel_Surfaces is
             when others =>
                if Filter /= "" then
                   return "Outline: filter " & Natural'Image
-                    (Editor.Outline.Filtered_Navigable_Symbol_Count (S.Outline)) &
+                    (Editor.Outline.Filtered_Navigable_Symbol_Count (S.Outline_Runtime.Outline)) &
                     " of" & Natural'Image
-                    (Editor.Outline.Navigable_Symbol_Count (S.Outline));
-               elsif Editor.Outline.Has_Current_Symbol (S.Outline) then
+                    (Editor.Outline.Navigable_Symbol_Count (S.Outline_Runtime.Outline));
+               elsif Editor.Outline.Has_Current_Symbol (S.Outline_Runtime.Outline) then
                   return "Current: " &
-                    Editor.Outline.Current_Symbol_Label (S.Outline);
+                    Editor.Outline.Current_Symbol_Label (S.Outline_Runtime.Outline);
                else
                   return "Outline:" & Natural'Image
-                    (Editor.Outline.Navigable_Symbol_Count (S.Outline)) &
+                    (Editor.Outline.Navigable_Symbol_Count (S.Outline_Runtime.Outline)) &
                     " symbols";
                end if;
          end case;
@@ -842,7 +842,7 @@ package body Editor.Render_Packet.Panel_Surfaces is
          Editor.Pending_Transition_Bar.Surface_Rendering.Build_Packet
            (Packet         => Out_Packet,
             State          => S,
-            Pending        => S.Pending_Transitions,
+            Pending        => S.Workflow.Pending_Transitions,
             Layout_Config  => Layout,
             Viewport_Width => Editor.View.Viewport_Width,
             Viewport_Height => Editor.View.Viewport_Height,

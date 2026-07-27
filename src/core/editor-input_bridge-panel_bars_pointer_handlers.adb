@@ -37,7 +37,7 @@ package body Editor.Input_Bridge.Panel_Bars_Pointer_Handlers is
       Config : constant Editor.Pending_Transition_Bar.Pending_Bar_Config := (others => <>);
       Snapshot : constant Editor.Pending_Transition_Bar.Pending_Bar_Snapshot :=
         Editor.Pending_Transition_Bar.Build_Snapshot
-          (S.Pending_Transitions, Config);
+          (S.Workflow.Pending_Transitions, Config);
       Status_Y : constant Integer :=
         Editor.Layout.Status_Bar_Y (Layout_Config, Editor.View.Viewport_Height);
       Bar_Y : constant Integer :=
@@ -208,20 +208,20 @@ package body Editor.Input_Bridge.Panel_Bars_Pointer_Handlers is
       begin
          Editor.File_Tree_View.Set_Current_Width_In_Columns
            (Editor.Panels.Current_Size
-              (S.Panels, Editor.Panels.File_Tree_Panel));
-         Editor.Panels.Set_Current (S.Panels);
+              (S.Panel.Panels, Editor.Panels.File_Tree_Panel));
+         Editor.Panels.Set_Current (S.Panel.Panels);
       end Synchronize_File_Tree_Width;
    begin
-      if Editor.Panels.Resize_Active (S.Panels) then
+      if Editor.Panels.Resize_Active (S.Panel.Panels) then
          declare
             Resize : constant Editor.Panels.Panel_Resize_State :=
-              Editor.Panels.Resize_State (S.Panels);
+              Editor.Panels.Resize_State (S.Panel.Panels);
          begin
             if Cmd.Kind = Editor.Command_Kinds.Drag_To_Point
               or else Cmd.Kind = Editor.Command_Kinds.Drag_Rectangle_To_Point
             then
                Editor.Panels.Update_Resize
-                 (Panels      => S.Panels,
+                 (Panels      => S.Panel.Panels,
                   Mouse_X     => Integer (Cmd.Click_X),
                   Mouse_Y     => Integer (Cmd.Click_Y),
                   Cell_Width  => Editor.Layout.Cell_W,
@@ -229,18 +229,18 @@ package body Editor.Input_Bridge.Panel_Bars_Pointer_Handlers is
                if Resize.Panel = Editor.Panels.File_Tree_Panel then
                   Synchronize_File_Tree_Width;
                else
-                  Editor.Panels.Set_Current (S.Panels);
+                  Editor.Panels.Set_Current (S.Panel.Panels);
                end if;
                Editor.Render_Cache.Invalidate_All;
                return True;
             elsif Cmd.Kind = Editor.Command_Kinds.Pointer_Hover then
                return True;
             else
-               Editor.Panels.End_Resize (S.Panels);
+               Editor.Panels.End_Resize (S.Panel.Panels);
                if Resize.Panel = Editor.Panels.File_Tree_Panel then
                   Synchronize_File_Tree_Width;
                else
-                  Editor.Panels.Set_Current (S.Panels);
+                  Editor.Panels.Set_Current (S.Panel.Panels);
                end if;
                Editor.Render_Cache.Invalidate_All;
                return True;
@@ -264,11 +264,11 @@ package body Editor.Input_Bridge.Panel_Bars_Pointer_Handlers is
             Pointer_State.Reset_All;
             Editor.State.Clear_Gutter_Marker_Hover (S);
             Editor.Panels.Begin_Resize
-              (Panels  => S.Panels,
+              (Panels  => S.Panel.Panels,
                Id      => Id,
                Mouse_X => Integer (Cmd.Click_X),
                Mouse_Y => Integer (Cmd.Click_Y));
-            Editor.Panels.Set_Current (S.Panels);
+            Editor.Panels.Set_Current (S.Panel.Panels);
             Editor.Render_Cache.Invalidate_All;
             return True;
          end if;

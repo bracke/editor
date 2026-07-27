@@ -419,7 +419,7 @@ package body Editor.External_Producers.Tests is
       Search_Before : Natural;
    begin
       Prepare_State (S);
-      Outline_Before := Editor.Outline.Item_Count (S.Outline);
+      Outline_Before := Editor.Outline.Item_Count (S.Outline_Runtime.Outline);
       Messages_Before := Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages);
       Search_Before := Editor.Feature_Search_Results.Row_Count (S.Panel.Feature_Search_Results);
       Items.Append (Rec ("external diagnostic"));
@@ -429,7 +429,7 @@ package body Editor.External_Producers.Tests is
       begin
          Assert (Result.Accepted_Count = 1, "external diagnostic accepted");
       end;
-      Assert (Editor.Outline.Item_Count (S.Outline) = Outline_Before,
+      Assert (Editor.Outline.Item_Count (S.Outline_Runtime.Outline) = Outline_Before,
               "external producer does not mutate Outline");
       Assert (Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages) = Messages_Before,
               "external producer does not mutate Messages");
@@ -736,7 +736,7 @@ package body Editor.External_Producers.Tests is
    begin
       Prepare_State (S);
       Name_Current_Buffer (S);
-      Outline_Before := Editor.Outline.Item_Count (S.Outline);
+      Outline_Before := Editor.Outline.Item_Count (S.Outline_Runtime.Outline);
       Messages_Before := Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages);
       Search_Before := Editor.Feature_Search_Results.Row_Count (S.Panel.Feature_Search_Results);
       Inputs.Append (CRec ("external compiler warning",
@@ -748,7 +748,7 @@ package body Editor.External_Producers.Tests is
       begin
          Assert (Result.Accepted_Count = 1, "compiler diagnostic accepted");
       end;
-      Assert (Editor.Outline.Item_Count (S.Outline) = Outline_Before,
+      Assert (Editor.Outline.Item_Count (S.Outline_Runtime.Outline) = Outline_Before,
               "compiler ingestion does not mutate Outline");
       Assert (Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages) = Messages_Before,
               "compiler ingestion does not mutate Messages");
@@ -1425,7 +1425,7 @@ package body Editor.External_Producers.Tests is
       Result : Editor.External_Producers.Diagnostic_Line_Parsing.Ingestion_Result;
    begin
       Prepare_State (S);
-      Outline_Before := Editor.Outline.Item_Count (S.Outline);
+      Outline_Before := Editor.Outline.Item_Count (S.Outline_Runtime.Outline);
       Messages_Before := Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages);
       Search_Before := Editor.Feature_Search_Results.Row_Count (S.Panel.Feature_Search_Results);
       Lines.Append (To_Unbounded_String ("src/main.adb:1:1: warning: parsed warning"));
@@ -1433,7 +1433,7 @@ package body Editor.External_Producers.Tests is
         (S, Compiler_Source, Lines);
       Assert (Result.Ingestion_Result.Accepted_Count = 1,
               "line diagnostic is ingested");
-      Assert (Editor.Outline.Item_Count (S.Outline) = Outline_Before,
+      Assert (Editor.Outline.Item_Count (S.Outline_Runtime.Outline) = Outline_Before,
               "line ingestion does not mutate Outline");
       Assert (Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages) = Messages_Before,
               "line ingestion does not mutate Messages");
@@ -4302,7 +4302,7 @@ package body Editor.External_Producers.Tests is
       Search_Before : Natural;
    begin
       Prepare_State (S);
-      Outline_Before := Editor.Outline.Item_Count (S.Outline);
+      Outline_Before := Editor.Outline.Item_Count (S.Outline_Runtime.Outline);
       Messages_Before := Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages);
       Search_Before := Editor.Feature_Search_Results.Row_Count (S.Panel.Feature_Search_Results);
       Result := Editor.External_Producers.Build_Requests.Build_Build_Run_Result
@@ -4312,7 +4312,7 @@ package body Editor.External_Producers.Tests is
         (S, Build_Source, Result);
       Assert (Command.Ingestion.Ingestion_Result.Accepted_Count = 1,
               "build diagnostic is ingested");
-      Assert (Editor.Outline.Item_Count (S.Outline) = Outline_Before,
+      Assert (Editor.Outline.Item_Count (S.Outline_Runtime.Outline) = Outline_Before,
               "build output ingestion does not mutate Outline");
       Assert (Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages) = Messages_Before,
               "build output ingestion does not mutate Messages");
@@ -4769,7 +4769,7 @@ package body Editor.External_Producers.Tests is
               "setup user opt-in diagnostic is accepted");
       Assert (Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel) = Active_Before,
               "user opt-in build command does not switch active feature by default");
-      Assert (Editor.Outline.Item_Count (S.Outline) = 0,
+      Assert (Editor.Outline.Item_Count (S.Outline_Runtime.Outline) = 0,
               "user opt-in build command does not mutate Outline");
       Assert (Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages) = 0,
               "user opt-in build command does not mutate Messages");

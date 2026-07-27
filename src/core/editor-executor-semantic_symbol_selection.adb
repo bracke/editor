@@ -72,7 +72,7 @@ package body Editor.Executor.Semantic_Symbol_Selection is
       Outline_Row : Positive) return String
    is
       Label : constant String :=
-        Editor.Outline.Item_Label (S.Outline, Outline_Row);
+        Editor.Outline.Item_Label (S.Outline_Runtime.Outline, Outline_Row);
       Name  : Unbounded_String := To_Unbounded_String (Label);
    begin
       Name := To_Unbounded_String (Strip_Prefix (To_String (Name), "generic package "));
@@ -124,7 +124,7 @@ package body Editor.Executor.Semantic_Symbol_Selection is
       Outline_Row : Positive) return String
    is
       Detail : constant String :=
-        Editor.Outline.Item_Detail (S.Outline, Outline_Row);
+        Editor.Outline.Item_Detail (S.Outline_Runtime.Outline, Outline_Row);
       First_Paren : Natural := 0;
       Return_Pos  : Natural := 0;
    begin
@@ -175,10 +175,10 @@ package body Editor.Executor.Semantic_Symbol_Selection is
 
       Panel_Row := Editor.Feature_Panel.Selected_Row (S.Panel.Feature_Panel);
       Outline_Row := Editor.Outline.Map_Panel_Row_To_Outline_Row
-        (S.Outline, S.Panel.Feature_Panel, Panel_Row);
+        (S.Outline_Runtime.Outline, S.Panel.Feature_Panel, Panel_Row);
       if Outline_Row = 0
         or else not Editor.Outline.Validate_Outline_Row_For_Selection
-          (S.Outline, S.Panel.Feature_Panel, Panel_Row)
+          (S.Outline_Runtime.Outline, S.Panel.Feature_Panel, Panel_Row)
       then
          return (others => <>);
       end if;
@@ -189,7 +189,7 @@ package body Editor.Executor.Semantic_Symbol_Selection is
          return (others => <>);
       end if;
 
-      Row_Kind := Editor.Outline.Item_Kind (S.Outline, Positive (Outline_Row));
+      Row_Kind := Editor.Outline.Item_Kind (S.Outline_Runtime.Outline, Positive (Outline_Row));
       case Row_Kind is
          when Editor.Outline.Outline_Package =>
             Kind := Editor.Ada_Language_Model.Symbol_Package;

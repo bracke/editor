@@ -655,10 +655,10 @@ package body Editor.Outline.Lexical_Tests is
             "   procedure Old;" & ASCII.LF &
             "end Real;");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
-      Assert (Item_Count (S.Outline) = 2,
+      Assert (Item_Count (S.Outline_Runtime.Outline) = 2,
               "boundary fixture starts from an explicit lexical-safe refresh");
 
-      Outline_Before := Fingerprint (S.Outline);
+      Outline_Before := Fingerprint (S.Outline_Runtime.Outline);
       Panel_Before := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
       Messages_Before := Editor.Messages.Count (S.Panel.Messages);
 
@@ -669,7 +669,7 @@ package body Editor.Outline.Lexical_Tests is
             "   procedure New_Real;" & ASCII.LF &
             "end Changed;");
 
-      Outline_Before := Fingerprint (S.Outline);
+      Outline_Before := Fingerprint (S.Outline_Runtime.Outline);
       Panel_Before := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
       Messages_Before := Editor.Messages.Count (S.Panel.Messages);
 
@@ -677,7 +677,7 @@ package body Editor.Outline.Lexical_Tests is
         (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "refresh availability remains available with an active buffer");
-      Assert (Fingerprint (S.Outline) = Outline_Before,
+      Assert (Fingerprint (S.Outline_Runtime.Outline) = Outline_Before,
               "availability does not scan changed Ada text");
       Assert (Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel) = Panel_Before,
               "availability does not reproject lexical-safe rows");
@@ -685,7 +685,7 @@ package body Editor.Outline.Lexical_Tests is
               "availability emits no lexical scan feedback");
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
-      Assert (Fingerprint (S.Outline) = Outline_Before,
+      Assert (Fingerprint (S.Outline_Runtime.Outline) = Outline_Before,
               "render snapshot does not run lexical scanning or refresh outline");
       Assert (Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel) = Panel_Before,
               "render snapshot observes existing feature-panel rows only");
@@ -709,7 +709,7 @@ package body Editor.Outline.Lexical_Tests is
             "   procedure Run;" & ASCII.LF &
             "end Real;");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
-      Assert (Item_Count (S.Outline) = 3,
+      Assert (Item_Count (S.Outline_Runtime.Outline) = 3,
               "persistence fixture has lexical-safe outline rows before snapshot");
 
       Snapshot := Editor.State.Build_Workspace_Snapshot (S);

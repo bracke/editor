@@ -204,8 +204,8 @@ package body Editor.Line_Numbers.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "a" & ASCII.LF & "b" & ASCII.LF & "c" & ASCII.LF & "d");
-      Editor.Folding.Add_Fold (S.Folding, 1, 2);
-      Editor.Folding.Toggle_Fold_At_Row (S.Folding, 1);
+      Editor.Folding.Add_Fold (S.Syntax.Folding, 1, 2);
+      Editor.Folding.Toggle_Fold_At_Row (S.Syntax.Folding, 1);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Settings.Reset;
       Editor.Line_Numbers.Reset;

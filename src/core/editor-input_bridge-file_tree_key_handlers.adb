@@ -105,7 +105,7 @@ package body Editor.Input_Bridge.File_Tree_Key_Handlers is
 
       if (not Editor.Project.Has_Project (S.Project_Runtime.Project))
         or else not Editor.Panels.Is_Visible
-          (S.Panels, Editor.Panels.File_Tree_Panel)
+          (S.Panel.Panels, Editor.Panels.File_Tree_Panel)
       then
          Execute (Editor.Command_Ids.Command_Focus_Editor_Text);
          Notify_Input;

@@ -448,8 +448,8 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
          Before_Caret := S.Caret.Carets (0);
          Before_Undo := Editor.History.Undo_Stack.Length;
          Before_Redo := Editor.History.Redo_Stack.Length;
-         Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-         Before_Forward := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+         Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+         Before_Forward := Editor.Navigation_History.Forward_Count (S.Navigation.History);
          Before_Query := S.Search.Active_Find_Query;
          Before_Replace := S.Search.Active_Replace_Text;
          Before_Clipboard := Editor.Clipboard.Get_Text;
@@ -471,8 +471,8 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
          Assert (Editor.History.Undo_Stack.Length = Before_Undo
            and then Editor.History.Redo_Stack.Length = Before_Redo,
            Label & ": reload failure/block must preserve Undo/Redo stacks");
-         Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = Before_Back
-           and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = Before_Forward,
+         Assert (Editor.Navigation_History.Back_Count (S.Navigation.History) = Before_Back
+           and then Editor.Navigation_History.Forward_Count (S.Navigation.History) = Before_Forward,
            Label & ": reload failure/block must preserve Navigation History");
          Assert (S.Search.Active_Find_Query = Before_Query
            and then S.Search.Active_Replace_Text = Before_Replace,
@@ -499,7 +499,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       S.Search.Active_Replace_Text := To_Unbounded_String ("replacement");
       Editor.Clipboard.Set_Text (To_Unbounded_String ("clipboard payload"));
       Editor.Navigation_History.Record_Explicit_Navigation
-        (S.Navigation_History,
+        (S.Navigation.History,
          (Buffer_Id => Natural (Editor.Buffers.Global_Active_Buffer),
           Has_File_Path => True,
           File_Path => To_Unbounded_String (Path),
@@ -849,8 +849,8 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
          Before_Undo := Editor.History.Undo_Stack.Length;
          Before_Redo := Editor.History.Redo_Stack.Length;
          Before_Caret := S.Caret.Carets (0);
-         Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-         Before_Forward := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+         Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+         Before_Forward := Editor.Navigation_History.Forward_Count (S.Navigation.History);
          Before_Clipboard := Editor.Clipboard.Get_Text;
          Before_Has_Clipboard := Editor.Clipboard.Has_Text;
          Before_Query := S.Search.Active_Find_Query;
@@ -871,8 +871,8 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
          Assert (S.Caret.Carets (0).Pos = Before_Caret.Pos
            and then S.Caret.Carets (0).Anchor = Before_Caret.Anchor,
            Label & ": caret/selection must be preserved");
-         Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = Before_Back
-           and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = Before_Forward,
+         Assert (Editor.Navigation_History.Back_Count (S.Navigation.History) = Before_Back
+           and then Editor.Navigation_History.Forward_Count (S.Navigation.History) = Before_Forward,
            Label & ": Navigation History must be preserved");
          Assert (Editor.Clipboard.Has_Text = Before_Has_Clipboard
            and then Editor.Clipboard.Get_Text = Before_Clipboard,
@@ -911,7 +911,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       S.Buffer_Lifecycle.Reopen_Candidate_Path := To_Unbounded_String (A_Path);
       S.Buffer_Lifecycle.Reopen_Candidate_Label := To_Unbounded_String ("A");
       Editor.Navigation_History.Record_Explicit_Navigation
-        (S.Navigation_History,
+        (S.Navigation.History,
          (Buffer_Id => Natural (B_Id),
           Has_File_Path => True,
           File_Path => To_Unbounded_String (B_Path),
@@ -1988,8 +1988,8 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
          Before_Replace := S.Search.Active_Replace_Text;
          Before_Clip := Editor.Clipboard.Get_Text;
          Before_Has_Clip := Editor.Clipboard.Has_Text;
-         Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-         Before_Forward := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+         Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+         Before_Forward := Editor.Navigation_History.Forward_Count (S.Navigation.History);
          Before_Reopen := S.Buffer_Lifecycle.Has_Reopen_Candidate;
          Before_Reopen_Path := S.Buffer_Lifecycle.Reopen_Candidate_Path;
       end Capture;
@@ -2010,8 +2010,8 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
          Assert (Editor.Clipboard.Has_Text = Before_Has_Clip
            and then Editor.Clipboard.Get_Text = Before_Clip,
            Label & ": Clipboard changed");
-         Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = Before_Back
-           and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = Before_Forward,
+         Assert (Editor.Navigation_History.Back_Count (S.Navigation.History) = Before_Back
+           and then Editor.Navigation_History.Forward_Count (S.Navigation.History) = Before_Forward,
            Label & ": Navigation History changed");
          Assert (S.Buffer_Lifecycle.Has_Reopen_Candidate = Before_Reopen
            and then S.Buffer_Lifecycle.Reopen_Candidate_Path = Before_Reopen_Path,
@@ -2038,7 +2038,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       S.Buffer_Lifecycle.Has_Reopen_Candidate := True;
       S.Buffer_Lifecycle.Reopen_Candidate_Path := To_Unbounded_String (Path);
       Editor.Navigation_History.Record_Explicit_Navigation
-        (S.Navigation_History,
+        (S.Navigation.History,
          (Buffer_Id => Natural (Editor.Buffers.Global_Active_Buffer),
           Has_File_Path => True,
           File_Path => To_Unbounded_String (Path),

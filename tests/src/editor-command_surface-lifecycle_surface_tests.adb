@@ -719,7 +719,7 @@ package body Editor.Command_Surface.Lifecycle_Surface_Tests is
       Editor.State.Init (S);
       Editor.Buffers.Ensure_Global_Registry (S);
       S.Buffer_Lifecycle.File_Info.Dirty := True;
-      Editor.Settings.Set_Command_Palette_Show_Keybindings (S.Settings, False);
+      Editor.Settings.Set_Command_Palette_Show_Keybindings (S.Configuration.Settings, False);
       Before_Text := To_Unbounded_String (Editor.State.Current_Text (S));
       Before_Dirty := S.Buffer_Lifecycle.File_Info.Dirty;
 
@@ -778,10 +778,10 @@ package body Editor.Command_Surface.Lifecycle_Surface_Tests is
       Without_Keys : Unbounded_String;
    begin
       Editor.State.Init (S);
-      Editor.Settings.Set_Command_Palette_Show_Keybindings (S.Settings, True);
+      Editor.Settings.Set_Command_Palette_Show_Keybindings (S.Configuration.Settings, True);
       With_Keys := To_Unbounded_String
         (Editor.Lifecycle_Guidance.Open_Buffer_Row_Hint (S, Summary));
-      Editor.Settings.Set_Command_Palette_Show_Keybindings (S.Settings, False);
+      Editor.Settings.Set_Command_Palette_Show_Keybindings (S.Configuration.Settings, False);
       Without_Keys := To_Unbounded_String
         (Editor.Lifecycle_Guidance.Open_Buffer_Row_Hint (S, Summary));
 
@@ -868,7 +868,7 @@ package body Editor.Command_Surface.Lifecycle_Surface_Tests is
       S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Editor.Test_Temp.Base & "/status.adb");
       S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("status.adb");
       S.Buffer_Lifecycle.File_Info.Dirty := False;
-      Editor.Settings.Set_Command_Palette_Show_Keybindings (S.Settings, False);
+      Editor.Settings.Set_Command_Palette_Show_Keybindings (S.Configuration.Settings, False);
       Editor.Buffers.Ensure_Global_Registry (S);
 
       Hint := To_Unbounded_String (Editor.Lifecycle_Guidance.Status_Bar_Hint (S));

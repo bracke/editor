@@ -253,17 +253,17 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Execute_Command_Id (Id);
       S := Editor.Input_Bridge.Get_State_For_Test;
-      Snapshot := Editor.Guided_Prompts.Snapshot (S.Guided_Prompt);
+      Snapshot := Editor.Guided_Prompts.Snapshot (S.Workflow.Guided_Prompt);
       Assert (Snapshot.Active, Expected_Title & " prompt starts");
-      Assert (S.Guided_Prompt.Kind = Expected_Kind,
+      Assert (S.Workflow.Guided_Prompt.Kind = Expected_Kind,
               Expected_Title & " prompt has the expected kind");
 
-      Editor.Guided_Prompts.Update_Input (S.Guided_Prompt, Text);
+      Editor.Guided_Prompts.Update_Input (S.Workflow.Guided_Prompt, Text);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Execute_Command_Id
         (Editor.Command_Ids.Command_Insert_Newline);
       S := Editor.Input_Bridge.Get_State_For_Test;
-      Assert (not Editor.Guided_Prompts.Is_Active (S.Guided_Prompt),
+      Assert (not Editor.Guided_Prompts.Is_Active (S.Workflow.Guided_Prompt),
               Expected_Title & " prompt completes and clears transient input");
    end Run_File_Tree_Text_Prompt_Command;
 
@@ -276,7 +276,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Input_Bridge.Execute_Command_Id
         (Editor.Command_Ids.Command_File_Tree_Delete_Selected);
       S := Editor.Input_Bridge.Get_State_For_Test;
-      Snapshot := Editor.Guided_Prompts.Snapshot (S.Guided_Prompt);
+      Snapshot := Editor.Guided_Prompts.Snapshot (S.Workflow.Guided_Prompt);
       Assert (Snapshot.Active, "delete confirmation prompt starts");
       Assert (Snapshot.Requires_Confirmation and then Snapshot.Destructive,
               "delete prompt is a destructive confirmation");
@@ -285,7 +285,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Input_Bridge.Execute_Command_Id
         (Editor.Command_Ids.Command_Insert_Newline);
       S := Editor.Input_Bridge.Get_State_For_Test;
-      Assert (not Editor.Guided_Prompts.Is_Active (S.Guided_Prompt),
+      Assert (not Editor.Guided_Prompts.Is_Active (S.Workflow.Guided_Prompt),
               "delete confirmation completes and clears transient state");
    end Run_File_Tree_Delete_Confirmation;
 
@@ -637,22 +637,22 @@ package body Editor.Dogfood_Workflow.Tests is
                 Editor.Outline_Extractor.Extraction_Ok,
               "Ada Outline extraction succeeds on the real dogfood buffer");
       Editor.Outline.Begin_Extraction
-        (S.Outline, Editor.Outline_Extractor.Identity (Extracted));
-      Editor.Outline_Extractor.Apply_To_Outline (Extracted, S.Outline);
-      Assert (Editor.Outline.Item_Count (S.Outline) >= 3,
+        (S.Outline_Runtime.Outline, Editor.Outline_Extractor.Identity (Extracted));
+      Editor.Outline_Extractor.Apply_To_Outline (Extracted, S.Outline_Runtime.Outline);
+      Assert (Editor.Outline.Item_Count (S.Outline_Runtime.Outline) >= 3,
               "Outline exposes real extracted Ada rows");
-      Assert (Has_Outline_Label (S.Outline, "Dogfood_Demo"),
+      Assert (Has_Outline_Label (S.Outline_Runtime.Outline, "Dogfood_Demo"),
               "Outline includes the package/package-body row");
-      Assert (Has_Outline_Label (S.Outline, "Run"),
+      Assert (Has_Outline_Label (S.Outline_Runtime.Outline, "Run"),
               "Outline includes the procedure row");
-      Assert (Has_Outline_Label (S.Outline, "Known_Token"),
+      Assert (Has_Outline_Label (S.Outline_Runtime.Outline, "Known_Token"),
               "Outline includes the function row");
-      Outline_Row := First_Target_Row (S.Outline);
+      Outline_Row := First_Target_Row (S.Outline_Runtime.Outline);
       Assert (Outline_Row > 0, "at least one Outline row has a source target");
-      Editor.Outline.Select_Item (S.Outline, Outline_Row);
-      Assert (Editor.Outline.Item_Line (S.Outline, Outline_Row) > 0,
+      Editor.Outline.Select_Item (S.Outline_Runtime.Outline, Outline_Row);
+      Assert (Editor.Outline.Item_Line (S.Outline_Runtime.Outline, Outline_Row) > 0,
               "Outline target has a one-based source line");
-      Assert (Editor.Outline.Item_Column (S.Outline, Outline_Row) > 0,
+      Assert (Editor.Outline.Item_Column (S.Outline_Runtime.Outline, Outline_Row) > 0,
               "Outline target has a one-based source column");
 
       --  Project Search finds and validates a real source target.
@@ -916,8 +916,8 @@ package body Editor.Dogfood_Workflow.Tests is
           Max_File_Size_Bytes => 64 * 1024,
           Regex_Max_Steps => 100_000));
       Editor.Outline.Begin_Extraction
-        (S2.Outline, Editor.Outline_Extractor.Identity (Extracted));
-      Editor.Outline_Extractor.Apply_To_Outline (Extracted, S2.Outline);
+        (S2.Outline_Runtime.Outline, Editor.Outline_Extractor.Identity (Extracted));
+      Editor.Outline_Extractor.Apply_To_Outline (Extracted, S2.Outline_Runtime.Outline);
       Editor.Feature_Diagnostics.Add_Diagnostic
         (S2.Panel.Feature_Diagnostics,
          Editor.Feature_Diagnostics.Diagnostic_Warning,
@@ -928,7 +928,7 @@ package body Editor.Dogfood_Workflow.Tests is
       S2.Build.Latest_Result := Saved_Latest_Build_Result;
       S2.Build.Latest_Output_Details := Saved_Latest_Build_Output_Details;
       Editor.Guided_Prompts.Start
-        (S2.Guided_Prompt,
+        (S2.Workflow.Guided_Prompt,
          Editor.Guided_Prompts.Search_Query_Prompt,
          Editor.Command_Ids.Command_Run_Project_Search,
          "Project Search",
@@ -939,7 +939,7 @@ package body Editor.Dogfood_Workflow.Tests is
               "restart precondition has transient Quick Open state");
       Assert (Editor.Project_Search.Result_Count (S2.Surface.Project_Search) > 0,
               "restart precondition has transient Project Search results");
-      Assert (Editor.Outline.Item_Count (S2.Outline) > 0,
+      Assert (Editor.Outline.Item_Count (S2.Outline_Runtime.Outline) > 0,
               "restart precondition has transient Outline rows");
       Assert (Editor.Feature_Diagnostics.Row_Count (S2.Panel.Feature_Diagnostics) > 0,
               "restart precondition has transient Diagnostics rows");
@@ -949,7 +949,7 @@ package body Editor.Dogfood_Workflow.Tests is
               "restart precondition has transient latest Build result");
       Assert (S2.Build.Latest_Output_Details.Has_Output_Details,
               "restart precondition has transient Build output details");
-      Assert (Editor.Guided_Prompts.Is_Active (S2.Guided_Prompt),
+      Assert (Editor.Guided_Prompts.Is_Active (S2.Workflow.Guided_Prompt),
               "restart precondition has transient prompt state");
 
       Workspace_Restore := Editor.Executor.Execute_Command_With_Result
@@ -972,7 +972,7 @@ package body Editor.Dogfood_Workflow.Tests is
               "workspace restore clears Quick Open transient matches");
       Assert (Editor.Project_Search.Result_Count (S2.Surface.Project_Search) = 0,
               "workspace restore clears Project Search transient results");
-      Assert (Editor.Outline.Item_Count (S2.Outline) = 0,
+      Assert (Editor.Outline.Item_Count (S2.Outline_Runtime.Outline) = 0,
               "workspace restore clears Outline transient rows");
       Assert (Editor.Feature_Diagnostics.Row_Count (S2.Panel.Feature_Diagnostics) = 0,
               "workspace restore clears Diagnostics transient rows");
@@ -983,9 +983,9 @@ package body Editor.Dogfood_Workflow.Tests is
               "workspace restore clears latest Build result state");
       Assert (not S2.Build.Latest_Output_Details.Has_Output_Details,
               "workspace restore clears Build output details state");
-      Assert (not Editor.Guided_Prompts.Is_Active (S2.Guided_Prompt),
+      Assert (not Editor.Guided_Prompts.Is_Active (S2.Workflow.Guided_Prompt),
               "workspace restore clears prompt state");
-      Assert (not Editor.Pending_Transitions.Has_Pending (S2.Pending_Transitions),
+      Assert (not Editor.Pending_Transitions.Has_Pending (S2.Workflow.Pending_Transitions),
               "workspace restore clears pending lifecycle decisions");
 
       Persisted := To_Unbounded_String
@@ -1495,9 +1495,9 @@ package body Editor.Dogfood_Workflow.Tests is
             S.Buffer_Lifecycle.Lifecycle_Generation,
             578));
       Editor.Outline.Begin_Extraction
-        (S.Outline, Editor.Outline_Extractor.Identity (Extracted));
-      Editor.Outline_Extractor.Apply_To_Outline (Extracted, S.Outline);
-      Assert (Editor.Outline.Has_Items (S.Outline),
+        (S.Outline_Runtime.Outline, Editor.Outline_Extractor.Identity (Extracted));
+      Editor.Outline_Extractor.Apply_To_Outline (Extracted, S.Outline_Runtime.Outline);
+      Assert (Editor.Outline.Has_Items (S.Outline_Runtime.Outline),
               "Project A Outline state is populated before switch");
 
       Editor.Feature_Diagnostics.Clear_Diagnostics (S.Panel.Feature_Diagnostics);
@@ -1534,7 +1534,7 @@ package body Editor.Dogfood_Workflow.Tests is
 
       Assert (Editor.Project.Root_Path (S.Project_Runtime.Project) = To_String (Project_A_Root),
               "dirty switch attempt preserves Project A");
-      Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "dirty switch attempt captures pending transition");
       Assert (Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) = 1,
               "dirty blocked switch does not promote Project B to Recent Projects");
@@ -1542,7 +1542,7 @@ package body Editor.Dogfood_Workflow.Tests is
               "dirty blocked switch preserves Project A File Tree");
       Assert (Editor.Project_Search.Result_Count (S.Surface.Project_Search) = 1,
               "dirty blocked switch preserves Project A Search state");
-      Assert (Editor.Outline.Has_Items (S.Outline),
+      Assert (Editor.Outline.Has_Items (S.Outline_Runtime.Outline),
               "dirty blocked switch preserves Project A Outline state");
       Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 1,
               "dirty blocked switch preserves Project A Diagnostics state");
@@ -1553,7 +1553,7 @@ package body Editor.Dogfood_Workflow.Tests is
         (S, Editor.Command_Ids.Command_Cancel_Pending_Transition);
       Assert (Editor.Project.Root_Path (S.Project_Runtime.Project) = To_String (Project_A_Root),
               "cancelled switch leaves Project A active");
-      Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (not Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "cancelled switch clears only pending transition state");
       Assert (Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) = 1,
               "cancelled switch still does not promote Project B");
@@ -1566,7 +1566,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Cmd.Kind := Editor.Command_Kinds.Switch_Project;
       Cmd.Path := To_Unbounded_String (Root_B);
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "second dirty switch attempt captures pending transition");
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Discard_Pending_Transition);
@@ -1575,14 +1575,14 @@ package body Editor.Dogfood_Workflow.Tests is
               "confirmed switch leaves an active project");
       Assert (Editor.Project.Root_Path (S.Project_Runtime.Project) = Ada.Directories.Full_Name (Root_B),
               "confirmed switch activates Project B");
-      Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (not Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "confirmed switch clears pending transition state");
       Buffer := Editor.Buffers.Global_Find_By_Path (Source_A, Found);
       Assert (not Found,
               "confirmed switch closes discarded Project A dirty buffer");
       Assert (Editor.Project_Search.Result_Count (S.Surface.Project_Search) = 0,
               "confirmed switch clears Project A Search results");
-      Assert (not Editor.Outline.Has_Items (S.Outline),
+      Assert (not Editor.Outline.Has_Items (S.Outline_Runtime.Outline),
               "confirmed switch clears Project A Outline state");
       Project_A_Diagnostic_Remains := False;
       for I in 1 .. Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) loop
@@ -2594,14 +2594,14 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Input_Bridge.Execute_Command_Id
         (Editor.Command_Ids.Command_File_Tree_Create_File);
       S := Editor.Input_Bridge.Get_State_For_Test;
-      Assert (Editor.Guided_Prompts.Is_Active (S.Guided_Prompt),
+      Assert (Editor.Guided_Prompts.Is_Active (S.Workflow.Guided_Prompt),
               "create-file prompt starts through the product command path");
       Editor.Guided_Prompts.Update_Input
-        (S.Guided_Prompt, "src/cancelled_from_prompt.adb");
+        (S.Workflow.Guided_Prompt, "src/cancelled_from_prompt.adb");
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Execute_Command_Id (Editor.Command_Ids.Command_Cancel);
       S := Editor.Input_Bridge.Get_State_For_Test;
-      Assert (not Editor.Guided_Prompts.Is_Active (S.Guided_Prompt),
+      Assert (not Editor.Guided_Prompts.Is_Active (S.Workflow.Guided_Prompt),
               "prompt cancellation clears transient prompt state");
       Assert (Active_Message_Text (S) = "Create file cancelled.",
               "create-file cancellation reports product wording");
@@ -3080,7 +3080,7 @@ package body Editor.Dogfood_Workflow.Tests is
         (S, Editor.Command_Ids.Command_Diagnostics_Open_Selected);
       Assert (Diagnostic_Open.Status = Editor.Command_Execution.Command_Executed,
               "main workflow smoke opens a Diagnostic target");
-      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) > 0,
+      Assert (Editor.Navigation_History.Back_Count (S.Navigation.History) > 0,
               "main workflow smoke records navigation history before back");
 
       Back_Result := Editor.Executor.Execute_Command_With_Result
@@ -3233,12 +3233,12 @@ package body Editor.Dogfood_Workflow.Tests is
                 Editor.Outline_Extractor.Extraction_Ok,
               "daily loop Outline extraction succeeds on active source buffer");
       Editor.Outline.Begin_Extraction
-        (S.Outline, Editor.Outline_Extractor.Identity (Extracted));
-      Editor.Outline_Extractor.Apply_To_Outline (Extracted, S.Outline);
-      Outline_Row := First_Target_Row (S.Outline);
+        (S.Outline_Runtime.Outline, Editor.Outline_Extractor.Identity (Extracted));
+      Editor.Outline_Extractor.Apply_To_Outline (Extracted, S.Outline_Runtime.Outline);
+      Outline_Row := First_Target_Row (S.Outline_Runtime.Outline);
       Assert (Outline_Row > 0,
               "daily loop Outline has an activatable symbol row");
-      Editor.Outline.Select_Item (S.Outline, Outline_Row);
+      Editor.Outline.Select_Item (S.Outline_Runtime.Outline, Outline_Row);
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_Outline);
       Editor.Executor.Execute_Command
@@ -3447,23 +3447,23 @@ package body Editor.Dogfood_Workflow.Tests is
       Write_File (Save_As_Path, "confirmed reload from disk");
       Before_Text := To_Unbounded_String (Editor.State.Current_Text (S));
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
-      Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "dirty reload captures a confirmation instead of mutating text");
       Assert (To_Unbounded_String (Editor.State.Current_Text (S)) = Before_Text
                 and then S.Buffer_Lifecycle.File_Info.Dirty,
               "dirty reload prompt preserves dirty text before a decision");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Cancel_Pending_Transition);
-      Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (not Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "cancelled dirty reload clears only the pending decision");
       Assert (To_Unbounded_String (Editor.State.Current_Text (S)) = Before_Text
                 and then S.Buffer_Lifecycle.File_Info.Dirty,
               "cancelled dirty reload preserves dirty text and state");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
-      Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "dirty reload can be requested again after cancellation");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Retry_Pending_Transition);
-      Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (not Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "confirmed dirty reload clears the pending decision");
       Assert (Editor.State.Current_Text (S) = "confirmed reload from disk"
                 and then not S.Buffer_Lifecycle.File_Info.Dirty,
@@ -3473,23 +3473,23 @@ package body Editor.Dogfood_Workflow.Tests is
       Write_File (Save_As_Path, "confirmed revert from disk");
       Before_Text := To_Unbounded_String (Editor.State.Current_Text (S));
       Editor.Executor.File_Save_Basic_Commands.Execute_Revert_Active_Buffer (S);
-      Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "dirty revert captures a confirmation instead of mutating text");
       Assert (To_Unbounded_String (Editor.State.Current_Text (S)) = Before_Text
                 and then S.Buffer_Lifecycle.File_Info.Dirty,
               "dirty revert prompt preserves dirty text before a decision");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Cancel_Pending_Transition);
-      Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (not Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "cancelled dirty revert clears only the pending decision");
       Assert (To_Unbounded_String (Editor.State.Current_Text (S)) = Before_Text
                 and then S.Buffer_Lifecycle.File_Info.Dirty,
               "cancelled dirty revert preserves dirty text and state");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Revert_Active_Buffer (S);
-      Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "dirty revert can be requested again after cancellation");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Retry_Pending_Transition);
-      Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (not Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "confirmed dirty revert clears the pending decision");
       Assert (Editor.State.Current_Text (S) = "confirmed revert from disk"
                 and then not S.Buffer_Lifecycle.File_Info.Dirty,
@@ -3508,10 +3508,10 @@ package body Editor.Dogfood_Workflow.Tests is
       Append_Text (" + dirty missing revert edit");
       Before_Text := To_Unbounded_String (Editor.State.Current_Text (S));
       Editor.Executor.File_Save_Basic_Commands.Execute_Revert_Active_Buffer (S);
-      Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "dirty revert with a missing file still requires explicit confirmation");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Retry_Pending_Transition);
-      Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (not Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "failed missing-file revert clears the stale decision after reporting failure");
       Assert (To_Unbounded_String (Editor.State.Current_Text (S)) = Before_Text
                 and then S.Buffer_Lifecycle.File_Info.Dirty,
@@ -4147,10 +4147,10 @@ package body Editor.Dogfood_Workflow.Tests is
       Dirty_Text := To_Unbounded_String (Editor.State.Current_Text (S));
       Dirty_Id := Editor.Buffers.Global_Active_Buffer;
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_Project);
-      Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "dirty project close captures pending decision");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Cancel_Pending_Transition);
-      Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (not Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "dirty project close cancel clears only the pending decision");
       Assert (Editor.Project.Has_Project (S.Project_Runtime.Project)
                 and then Editor.Project.Root_Path (S.Project_Runtime.Project) = Ada.Directories.Full_Name (Root_A),
@@ -4175,12 +4175,12 @@ package body Editor.Dogfood_Workflow.Tests is
       Cmd.Kind := Editor.Command_Kinds.Switch_Project;
       Cmd.Path := To_Unbounded_String (Root_B);
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "dirty project switch captures pending decision");
       Assert (Editor.Project.Root_Path (S.Project_Runtime.Project) = Ada.Directories.Full_Name (Root_A),
               "dirty project switch does not activate the target before confirmation");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Cancel_Pending_Transition);
-      Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (not Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "dirty project switch cancel clears the pending decision");
       Assert (Editor.Project.Root_Path (S.Project_Runtime.Project) = Ada.Directories.Full_Name (Root_A),
               "dirty project switch cancel preserves the current project");

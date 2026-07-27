@@ -82,11 +82,11 @@ package body Editor.Rectangle_Selection is
             Visible_Count : constant Natural :=
               Natural'Max
                 (1, Editor.Folding.Visible_Row_Count
-                      (S.Folding, Editor.State.Line_Count (S)));
+                      (S.Syntax.Folding, Editor.State.Line_Count (S)));
             Visible_Row : constant Natural := Natural'Min (Row, Visible_Count - 1);
          begin
             Row := Editor.Folding.Visible_Row_To_Document_Row
-              (S.Folding, Visible_Row);
+              (S.Syntax.Folding, Visible_Row);
             if Row >= Editor.State.Line_Count (S) then
                Row := Editor.State.Line_Count (S) - 1;
             end if;

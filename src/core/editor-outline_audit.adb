@@ -138,14 +138,14 @@ package body Editor.Outline_Audit is
    begin
       return Command_Surface_Check
         and then Outline_Helper_Purity_Check
-          (State.Outline, State.Buffer_Lifecycle.Registry_Token)
-        and then Editor.Outline.Invariant_Holds (State.Outline);
+          (State.Outline_Runtime.Outline, State.Buffer_Lifecycle.Registry_Token)
+        and then Editor.Outline.Invariant_Holds (State.Outline_Runtime.Outline);
    end Assert_Ada_Symbol_Navigation_Coherent;
 
    function Assert_Ada_Local_Structure_Awareness_Coherent
      (State : Editor.State.State_Type) return Boolean
    is
-      Copy    : Editor.Outline.Outline_State := State.Outline;
+      Copy    : Editor.Outline.Outline_State := State.Outline_Runtime.Outline;
       Before  : constant Natural := Editor.Outline.Fingerprint (Copy);
       Current : Natural := 0;
    begin
@@ -379,18 +379,18 @@ package body Editor.Outline_Audit is
       Review : Outline_Contract_Review;
    begin
       Review.Active_Buffer_Only :=
-        Active_Buffer_Scope_Check (State.Outline, State.Buffer_Lifecycle.Registry_Token);
-      Review.Refresh_Command_Owned := Refresh_Ownership_Check (State.Outline);
+        Active_Buffer_Scope_Check (State.Outline_Runtime.Outline, State.Buffer_Lifecycle.Registry_Token);
+      Review.Refresh_Command_Owned := Refresh_Ownership_Check (State.Outline_Runtime.Outline);
       Review.Extraction_Deterministic :=
-        Editor.Outline.Invariant_Holds (State.Outline);
+        Editor.Outline.Invariant_Holds (State.Outline_Runtime.Outline);
       Review.Projection_Side_Effect_Free :=
-        Projection_Purity_Check (State.Outline);
-      Review.Selection_Stable := Selection_Stable_Check (State.Outline);
+        Projection_Purity_Check (State.Outline_Runtime.Outline);
+      Review.Selection_Stable := Selection_Stable_Check (State.Outline_Runtime.Outline);
       Review.Current_Symbol_Derived :=
-        Current_Symbol_Check (State.Outline, State.Buffer_Lifecycle.Registry_Token);
+        Current_Symbol_Check (State.Outline_Runtime.Outline, State.Buffer_Lifecycle.Registry_Token);
       Review.Targets_Validated :=
-        Target_Validation_Check (State.Outline, State.Buffer_Lifecycle.Registry_Token);
-      Review.Filters_Projection_Only := Filter_Projection_Check (State.Outline);
+        Target_Validation_Check (State.Outline_Runtime.Outline, State.Buffer_Lifecycle.Registry_Token);
+      Review.Filters_Projection_Only := Filter_Projection_Check (State.Outline_Runtime.Outline);
       Review.Ada_Symbol_Navigation_Coherent :=
         Assert_Ada_Symbol_Navigation_Coherent (State);
       Review.Ada_Local_Structure_Coherent :=
@@ -398,7 +398,7 @@ package body Editor.Outline_Audit is
       Review.Ada_Lexical_Safety_Coherent :=
         Assert_Ada_Lexical_Safety_Coherent (State);
       Review.Lifecycle_Reset_Stable :=
-        Lifecycle_Check (State.Outline, State.Buffer_Lifecycle.Registry_Token);
+        Lifecycle_Check (State.Outline_Runtime.Outline, State.Buffer_Lifecycle.Registry_Token);
       Review.Persistence_Clean := Manifest.Persistence_Exclusion_Clean;
       Review.Feature_Panel_Intact := Panel_Review.Review_Passed;
       Review.Command_Surface_Intact := Command_Review.Review_Passed;

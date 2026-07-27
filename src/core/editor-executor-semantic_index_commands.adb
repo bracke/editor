@@ -158,10 +158,10 @@ package body Editor.Executor.Semantic_Index_Commands is
             Analysis);
 
          if Update_Semantics then
-            Editor.Syntax_Semantics.Clear (S.Syntax_Symbols);
-            S.Syntax_Analysis := Analysis;
+            Editor.Syntax_Semantics.Clear (S.Syntax.Symbols);
+            S.Syntax.Analysis := Analysis;
             Editor.Syntax_Semantics.Build_Map_From_Analysis
-              (S.Syntax_Symbols, Analysis);
+              (S.Syntax.Symbols, Analysis);
             S.Semantic.Syntax_Symbols_Revision := Editor.State.Current_Buffer_Revision (S);
             S.Semantic.Syntax_Symbols_Buffer_Token := Active_Buffer_Token;
             Editor.Ada_Live_Semantic_Diagnostics.Publish
@@ -315,7 +315,7 @@ package body Editor.Executor.Semantic_Index_Commands is
                Active_Buffer_Token,
                Editor.State.Current_Buffer_Revision (S),
                Editor.State.Current_Lifecycle_Generation (S),
-               S.Syntax_Analysis);
+               S.Syntax.Analysis);
          end if;
 
          Editor.Ada_Live_Semantic_Diagnostics.Publish_Cross_Unit
@@ -483,10 +483,10 @@ package body Editor.Executor.Semantic_Index_Commands is
                Analysis : constant Editor.Ada_Language_Model.Analysis_Result :=
                  Editor.Ada_Declaration_Parser.Parse (Text, Label);
             begin
-               Editor.Syntax_Semantics.Clear (S.Syntax_Symbols);
-               S.Syntax_Analysis := Analysis;
+               Editor.Syntax_Semantics.Clear (S.Syntax.Symbols);
+               S.Syntax.Analysis := Analysis;
                Editor.Syntax_Semantics.Build_Map_From_Analysis
-                 (S.Syntax_Symbols, Analysis);
+                 (S.Syntax.Symbols, Analysis);
                S.Semantic.Syntax_Symbols_Revision := Buffer_Revision;
                S.Semantic.Syntax_Symbols_Buffer_Token := Buffer_Token;
                if Label'Length > 0 and then Is_Ada_Source_Path (Label) then
@@ -514,7 +514,7 @@ package body Editor.Executor.Semantic_Index_Commands is
                  (S,
                   "Semantic colouring refreshed for active buffer: " &
                   Natural'Image
-                    (Editor.Syntax_Semantics.Symbol_Count (S.Syntax_Symbols)) &
+                    (Editor.Syntax_Semantics.Symbol_Count (S.Syntax.Symbols)) &
                   " symbols.");
                Editor.Render_Cache.Invalidate_All;
                return Result_After_Command (Id);

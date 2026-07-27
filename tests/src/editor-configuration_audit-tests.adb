@@ -509,7 +509,7 @@ package body Editor.Configuration_Audit.Tests is
          Dirty        => True,
          others       => <>);
       Editor.Pending_Transitions.Set_Pending
-        (S.Pending_Transitions, Target, Dirty);
+        (S.Workflow.Pending_Transitions, Target, Dirty);
 
       Before := Editor.Configuration_Audit.Configuration_State_Summary_For (S);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Reload_Settings);
@@ -994,7 +994,7 @@ package body Editor.Configuration_Audit.Tests is
       Target.Buffer_Id := 42;
       Target.Has_Buffer := True;
       Editor.Pending_Transitions.Set_Pending
-        (S.Pending_Transitions, Target, Pending_Summary);
+        (S.Workflow.Pending_Transitions, Target, Pending_Summary);
 
       Summary := Editor.Configuration_Audit.Buffer_Boundary_Audit_For
         (S, "workspace-format-version=1" & ASCII.LF);
@@ -1040,7 +1040,7 @@ package body Editor.Configuration_Audit.Tests is
       Target.Observed_File_Token_Label := To_Unbounded_String ("opaque-file-token-77");
       Target.Has_Observed_File_Token := True;
       Editor.Pending_Transitions.Set_Pending
-        (S.Pending_Transitions, Target, Pending_Summary);
+        (S.Workflow.Pending_Transitions, Target, Pending_Summary);
 
       Summary := Editor.Configuration_Audit.Buffer_Boundary_Audit_For
         (S, "workspace-format-version=1" & ASCII.LF);
@@ -1070,7 +1070,7 @@ package body Editor.Configuration_Audit.Tests is
       Target.Buffer_Id := 42;
       Target.Has_Buffer := True;
       Editor.Pending_Transitions.Set_Pending
-        (S.Pending_Transitions, Target, Pending_Summary);
+        (S.Workflow.Pending_Transitions, Target, Pending_Summary);
 
       Editor.Configuration_Audit.Audit_Buffer_Metadata_Lifecycle_Boundaries
         (Result, S, "workspace-format-version=1" & ASCII.LF);
@@ -1455,7 +1455,7 @@ package body Editor.Configuration_Audit.Tests is
               "safe startup must leave no fabricated active file path");
       Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "safe startup must not fabricate dirty buffer text");
-      Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (not Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "startup recovery must not restore pending confirmations");
 
       Recovery := Editor.Startup_Readiness.Configuration_Recovery_View (Startup);

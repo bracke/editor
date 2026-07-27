@@ -829,9 +829,9 @@ package body Editor.Bookmarks.Tests is
       S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String ("/p/src/editor/executor.adb");
       S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("executor.adb");
 
-      Editor.Bookmarks.Toggle (S.Bookmarks, "/p/src/editor/executor.adb", "src/editor/executor.adb", 2, 1, True, Added);
-      Editor.Bookmarks.Toggle (S.Bookmarks, "/p/src/editor/executor.adb", "src/editor/executor.adb", 99, 1, True, Added);
-      Editor.Bookmarks.Toggle (S.Bookmarks, "/p/src/other.adb", "src/other.adb", 1, 1, True, Added);
+      Editor.Bookmarks.Toggle (S.Navigation.Bookmarks, "/p/src/editor/executor.adb", "src/editor/executor.adb", 2, 1, True, Added);
+      Editor.Bookmarks.Toggle (S.Navigation.Bookmarks, "/p/src/editor/executor.adb", "src/editor/executor.adb", 99, 1, True, Added);
+      Editor.Bookmarks.Toggle (S.Navigation.Bookmarks, "/p/src/other.adb", "src/other.adb", 1, 1, True, Added);
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert (Editor.Gutter_Markers.Has_Marker
@@ -844,12 +844,12 @@ package body Editor.Bookmarks.Tests is
                 (Snap.Gutter_Markers, 0, Editor.Gutter_Markers.Bookmark_Marker),
               "bookmark for another file is not rendered in the active buffer");
       Assert (not Editor.Gutter_Markers.Has_Marker
-                (S.Gutter_Markers, 1, Editor.Gutter_Markers.Bookmark_Marker),
+                (S.Gutter.Markers, 1, Editor.Gutter_Markers.Bookmark_Marker),
               "render snapshot derivation does not mutate stored gutter markers");
       Assert (Editor.State.Line_Count (S) = 3, "marker derivation does not change line count");
       Assert (Editor.State.Current_Text (S) = "one" & ASCII.LF & "two" & ASCII.LF & "three",
               "marker derivation does not alter line text");
-      Assert_Bookmarks_Coherent (S.Bookmarks, "after marker snapshot");
+      Assert_Bookmarks_Coherent (S.Navigation.Bookmarks, "after marker snapshot");
    end Editor_Surface_Markers_Are_Derived_And_Bounded;
 
    procedure Lifecycle_Reset_Clears_Bookmarks_And_Markers
@@ -864,20 +864,20 @@ package body Editor.Bookmarks.Tests is
       Editor.State.Load_Text (S, "one" & ASCII.LF & "two");
       S.Buffer_Lifecycle.File_Info.Has_Path := True;
       S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String ("/p/src/a.adb");
-      Editor.Bookmarks.Toggle (S.Bookmarks, "/p/src/a.adb", "src/a.adb", 1, 1, True, Added);
-      Editor.Bookmarks.Show (S.Bookmarks);
+      Editor.Bookmarks.Toggle (S.Navigation.Bookmarks, "/p/src/a.adb", "src/a.adb", 1, 1, True, Added);
+      Editor.Bookmarks.Show (S.Navigation.Bookmarks);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert (Snap.Bookmark_Count = 1, "setup has one bookmark before lifecycle reset");
 
       Editor.State.Reset_Project_Scoped_State (S);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
-      Assert (Editor.Bookmarks.Count (S.Bookmarks) = 0, "project lifecycle reset clears bookmarks");
-      Assert (not Editor.Bookmarks.Is_Visible (S.Bookmarks), "project lifecycle reset hides bookmark surface");
+      Assert (Editor.Bookmarks.Count (S.Navigation.Bookmarks) = 0, "project lifecycle reset clears bookmarks");
+      Assert (not Editor.Bookmarks.Is_Visible (S.Navigation.Bookmarks), "project lifecycle reset hides bookmark surface");
       Assert (Snap.Bookmark_Count = 0, "later snapshots expose no old-project bookmark rows");
       Assert (not Editor.Gutter_Markers.Has_Marker
                 (Snap.Gutter_Markers, 0, Editor.Gutter_Markers.Bookmark_Marker),
               "later snapshots expose no old-project editor marker");
-      Assert_Bookmarks_Coherent (S.Bookmarks, "after lifecycle reset");
+      Assert_Bookmarks_Coherent (S.Navigation.Bookmarks, "after lifecycle reset");
    end Lifecycle_Reset_Clears_Bookmarks_And_Markers;
 
    procedure Workspace_Snapshot_Excludes_Bookmark_State
@@ -892,18 +892,18 @@ package body Editor.Bookmarks.Tests is
       Editor.State.Init (S);
       S.Buffer_Lifecycle.File_Info.Has_Path := True;
       S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String ("/p/src/a.adb");
-      Editor.Bookmarks.Toggle (S.Bookmarks, "/p/src/a.adb", "src/a.adb", 1, 1, True, Added);
-      Editor.Bookmarks.Toggle (S.Bookmarks, "/p/src/stale.adb", "src/stale.adb", 50, 1, True, Added);
-      Editor.Bookmarks.Show (S.Bookmarks);
+      Editor.Bookmarks.Toggle (S.Navigation.Bookmarks, "/p/src/a.adb", "src/a.adb", 1, 1, True, Added);
+      Editor.Bookmarks.Toggle (S.Navigation.Bookmarks, "/p/src/stale.adb", "src/stale.adb", 50, 1, True, Added);
+      Editor.Bookmarks.Show (S.Navigation.Bookmarks);
       Snapshot := Editor.State.Build_Workspace_Snapshot (S);
       Before_Debug := To_Unbounded_String (Editor.Workspace_Persistence.Debug_Summary (Snapshot));
 
       Assert (Index (To_String (Before_Debug), "bookmark") = 0
                 and then Index (To_String (Before_Debug), "Bookmark") = 0,
               "workspace debug summary contains no bookmark section or marker state");
-      Assert (Editor.Bookmarks.Count (S.Bookmarks) = 2,
+      Assert (Editor.Bookmarks.Count (S.Navigation.Bookmarks) = 2,
               "building a workspace snapshot does not clear or repair bookmark state");
-      Assert (Editor.Bookmarks.Is_Visible (S.Bookmarks),
+      Assert (Editor.Bookmarks.Is_Visible (S.Navigation.Bookmarks),
               "building a workspace snapshot does not mutate bookmark surface visibility");
    end Workspace_Snapshot_Excludes_Bookmark_State;
 
@@ -935,7 +935,7 @@ package body Editor.Bookmarks.Tests is
         (S, Editor.Command_Ids.Command_Bookmark_Toggle_Current_Location);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "toggle-current-location executes through Executor");
-      Assert (Editor.Bookmarks.Count (S.Bookmarks) = 1,
+      Assert (Editor.Bookmarks.Count (S.Navigation.Bookmarks) = 1,
               "executor toggle adds exactly one session-local bookmark");
       Assert_Latest_Message_Contains (S, "Bookmark added", "toggle add");
 
@@ -944,7 +944,7 @@ package body Editor.Bookmarks.Tests is
         (S, Editor.Command_Ids.Command_Bookmark_Show);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "bookmark.show executes through Executor");
-      Assert (Editor.Bookmarks.Is_Visible (S.Bookmarks),
+      Assert (Editor.Bookmarks.Is_Visible (S.Navigation.Bookmarks),
               "show makes bookmark surface visible");
       Assert_Latest_Message_Contains (S, "Bookmarks shown", "bookmark show");
 
@@ -953,7 +953,7 @@ package body Editor.Bookmarks.Tests is
         (S, Editor.Command_Ids.Command_Bookmark_Next);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "bookmark.next executes through Executor");
-      Assert (Editor.Bookmarks.Selected_Index (S.Bookmarks) = 1,
+      Assert (Editor.Bookmarks.Selected_Index (S.Navigation.Bookmarks) = 1,
               "next keeps the only bookmark selected");
       Assert_Latest_Message_Contains (S, "Selected next bookmark", "bookmark next");
 
@@ -962,7 +962,7 @@ package body Editor.Bookmarks.Tests is
         (S, Editor.Command_Ids.Command_Bookmark_Previous);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "bookmark.previous executes through Executor");
-      Assert (Editor.Bookmarks.Selected_Index (S.Bookmarks) = 1,
+      Assert (Editor.Bookmarks.Selected_Index (S.Navigation.Bookmarks) = 1,
               "previous keeps the only bookmark selected");
       Assert_Latest_Message_Contains (S, "Selected previous bookmark", "bookmark previous");
 
@@ -971,7 +971,7 @@ package body Editor.Bookmarks.Tests is
         (S, Editor.Command_Ids.Command_Bookmark_Reveal_Current);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "bookmark.reveal-current executes through Executor");
-      Assert (Editor.Bookmarks.Selected_Index (S.Bookmarks) = 1,
+      Assert (Editor.Bookmarks.Selected_Index (S.Navigation.Bookmarks) = 1,
               "reveal-current selects the active-location bookmark");
       Assert_Latest_Message_Contains (S, "Selected bookmark", "bookmark reveal current");
 
@@ -987,10 +987,10 @@ package body Editor.Bookmarks.Tests is
         (S, Editor.Command_Ids.Command_Bookmark_Clear_All);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "bookmark.clear-all executes through Executor");
-      Assert (Editor.Bookmarks.Count (S.Bookmarks) = 0,
+      Assert (Editor.Bookmarks.Count (S.Navigation.Bookmarks) = 0,
               "clear-all clears bookmark state");
       Assert_Latest_Message_Contains (S, "Cleared", "bookmark clear all");
-      Assert_Bookmarks_Coherent (S.Bookmarks, "after executor command sequence");
+      Assert_Bookmarks_Coherent (S.Navigation.Bookmarks, "after executor command sequence");
    end Executor_Bookmark_Commands_Emit_One_Message_And_Preserve_Independence;
 
    procedure Executor_Stale_Selected_Bookmark_Failure_Preserves_State
@@ -1002,16 +1002,16 @@ package body Editor.Bookmarks.Tests is
       Result : Editor.Executor.Command_Execution_Result;
    begin
       Editor.State.Init (S);
-      Editor.Bookmarks.Show (S.Bookmarks);
+      Editor.Bookmarks.Show (S.Navigation.Bookmarks);
       Editor.Bookmarks.Toggle
-        (S.Bookmarks,
+        (S.Navigation.Bookmarks,
          File_Path    => "/definitely/not/present/bookmark-stale.adb",
          Display_Path => "src/stale.adb",
          Line_Number  => 12,
          Column       => 1,
          Has_Column   => True,
          Added        => Added);
-      Assert (Added and then Editor.Bookmarks.Count (S.Bookmarks) = 1,
+      Assert (Added and then Editor.Bookmarks.Count (S.Navigation.Bookmarks) = 1,
               "test setup creates one stale selected bookmark");
 
       Editor.Messages.Dismiss_All (S.Panel.Messages);
@@ -1020,13 +1020,13 @@ package body Editor.Bookmarks.Tests is
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "open-selected stale target reports unavailable after command-path warning");
       Assert_Latest_Message_Contains (S, "file not found", "stale open-selected failure");
-      Assert (Editor.Bookmarks.Count (S.Bookmarks) = 1,
+      Assert (Editor.Bookmarks.Count (S.Navigation.Bookmarks) = 1,
               "stale open failure does not prune the bookmark");
-      Assert (Editor.Bookmarks.Selected_Index (S.Bookmarks) = 1,
+      Assert (Editor.Bookmarks.Selected_Index (S.Navigation.Bookmarks) = 1,
               "stale open failure preserves selected bookmark");
-      Assert (Editor.Bookmarks.Is_Visible (S.Bookmarks),
+      Assert (Editor.Bookmarks.Is_Visible (S.Navigation.Bookmarks),
               "open-selected stale failure keeps/shows the bookmark surface per policy");
-      Assert_Bookmarks_Coherent (S.Bookmarks, "after stale open-selected failure");
+      Assert_Bookmarks_Coherent (S.Navigation.Bookmarks, "after stale open-selected failure");
    end Executor_Stale_Selected_Bookmark_Failure_Preserves_State;
 
    procedure Availability_And_Command_Name_Boundaries_Are_Side_Effect_Free
@@ -1048,11 +1048,11 @@ package body Editor.Bookmarks.Tests is
       S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String ("/p/src/a.adb");
       Editor.Project_Search.Set_Query (S.Surface.Project_Search, "unchanged");
       Editor.Quick_Open.Set_Query_Text (S.Surface.Quick_Open, "unchanged");
-      Editor.Bookmarks.Toggle (S.Bookmarks, "/p/src/a.adb", "src/a.adb", 1, 1, True, Added);
-      Editor.Bookmarks.Show (S.Bookmarks);
-      Before_Count := Editor.Bookmarks.Count (S.Bookmarks);
-      Before_Selected := Editor.Bookmarks.Selected_Index (S.Bookmarks);
-      Before_Visible := Editor.Bookmarks.Is_Visible (S.Bookmarks);
+      Editor.Bookmarks.Toggle (S.Navigation.Bookmarks, "/p/src/a.adb", "src/a.adb", 1, 1, True, Added);
+      Editor.Bookmarks.Show (S.Navigation.Bookmarks);
+      Before_Count := Editor.Bookmarks.Count (S.Navigation.Bookmarks);
+      Before_Selected := Editor.Bookmarks.Selected_Index (S.Navigation.Bookmarks);
+      Before_Visible := Editor.Bookmarks.Is_Visible (S.Navigation.Bookmarks);
       Before_Project_Query := To_Unbounded_String (Editor.Project_Search.Query (S.Surface.Project_Search));
       Before_Quick_Query := To_Unbounded_String (Editor.Quick_Open.Query_Text (S.Surface.Quick_Open));
 
@@ -1069,17 +1069,17 @@ package body Editor.Bookmarks.Tests is
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
               "open-selected availability should be true when a selected bookmark exists");
 
-      Assert (Editor.Bookmarks.Count (S.Bookmarks) = Before_Count,
+      Assert (Editor.Bookmarks.Count (S.Navigation.Bookmarks) = Before_Count,
               "availability checks must not mutate bookmark count");
-      Assert (Editor.Bookmarks.Selected_Index (S.Bookmarks) = Before_Selected,
+      Assert (Editor.Bookmarks.Selected_Index (S.Navigation.Bookmarks) = Before_Selected,
               "availability checks must not mutate selected bookmark");
-      Assert (Editor.Bookmarks.Is_Visible (S.Bookmarks) = Before_Visible,
+      Assert (Editor.Bookmarks.Is_Visible (S.Navigation.Bookmarks) = Before_Visible,
               "availability checks must not mutate surface visibility");
       Assert (Editor.Project_Search.Query (S.Surface.Project_Search) = To_String (Before_Project_Query),
               "availability checks must not mutate Project Search state");
       Assert (Editor.Quick_Open.Query_Text (S.Surface.Quick_Open) = To_String (Before_Quick_Query),
               "availability checks must not mutate Quick Open state");
-      Assert_Bookmarks_Coherent (S.Bookmarks, "after availability checks");
+      Assert_Bookmarks_Coherent (S.Navigation.Bookmarks, "after availability checks");
 
       Assert_Optional_Bookmark_Command_Absent ("bookmark.persist");
       Assert_Optional_Bookmark_Command_Absent ("bookmark.label-selected");
@@ -1153,16 +1153,16 @@ package body Editor.Bookmarks.Tests is
       S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("active.adb");
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
-      Editor.Bookmarks.Show (S.Bookmarks);
+      Editor.Bookmarks.Show (S.Navigation.Bookmarks);
       Editor.Bookmarks.Toggle
-        (S.Bookmarks,
+        (S.Navigation.Bookmarks,
          File_Path    => "/p/src/bookmark-target-looking-path.adb",
          Display_Path => "src/bookmark-target-looking-path.adb",
          Line_Number  => 9,
          Column       => 1,
          Has_Column   => True,
          Added        => Added);
-      Selected := Editor.Bookmarks.Selected (S.Bookmarks, Found);
+      Selected := Editor.Bookmarks.Selected (S.Navigation.Bookmarks, Found);
 
       Assert (Found, "setup has a selected bookmark row");
       Assert (To_String (Selected.File_Path) /= To_String (S.Buffer_Lifecycle.File_Info.Path),
@@ -1172,7 +1172,7 @@ package body Editor.Bookmarks.Tests is
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability),
               "file lifecycle availability still follows active buffer state, not bookmark selection");
       Assert_Bookmarks_File_Lifecycle_Observation_Coherent
-        (S.Bookmarks, "selected row source boundary");
+        (S.Navigation.Bookmarks, "selected row source boundary");
 
       Assert_Optional_Bookmark_Command_Absent ("bookmark.save");
       Assert_Optional_Bookmark_Command_Absent ("bookmark.save-as");
@@ -1231,12 +1231,12 @@ package body Editor.Bookmarks.Tests is
       S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("rendered.adb");
       S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Bookmarks.Toggle
-        (S.Bookmarks, "/p/src/rendered.adb", "src/rendered.adb", 1, 1, True, Added);
-      Editor.Bookmarks.Show (S.Bookmarks);
-      Editor.Bookmarks.Build_Snapshot (S.Bookmarks, Before);
+        (S.Navigation.Bookmarks, "/p/src/rendered.adb", "src/rendered.adb", 1, 1, True, Added);
+      Editor.Bookmarks.Show (S.Navigation.Bookmarks);
+      Editor.Bookmarks.Build_Snapshot (S.Navigation.Bookmarks, Before);
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
-      Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After);
+      Editor.Bookmarks.Build_Snapshot (S.Navigation.Bookmarks, After);
 
       Assert (Natural (Before.Bookmark_Rows.Length) = Natural (After.Bookmark_Rows.Length),
               "render snapshot does not add/remove Bookmark rows");
@@ -1249,7 +1249,7 @@ package body Editor.Bookmarks.Tests is
       Assert (Editor.State.Current_Text (S) = "one" & ASCII.LF & "two",
               "render snapshot remains side-effect-free for buffer text");
       Assert_Bookmarks_File_Lifecycle_Observation_Coherent
-        (S.Bookmarks, "render boundary");
+        (S.Navigation.Bookmarks, "render boundary");
    end Render_Snapshot_Does_Not_Mutate_Bookmark_Observation_State;
 
    procedure Adjacent_Observation_Freezes_Remain_Intact
@@ -1269,7 +1269,7 @@ package body Editor.Bookmarks.Tests is
                 (S.Surface.Project_Search),
               "Project Search observation freeze remains intact");
       Assert_Bookmarks_File_Lifecycle_Observation_Coherent
-        (S.Bookmarks, "adjacent freezes baseline");
+        (S.Navigation.Bookmarks, "adjacent freezes baseline");
    end Adjacent_Observation_Freezes_Remain_Intact;
 
    procedure Save_And_Copy_Observation_Reliability
@@ -1290,10 +1290,10 @@ package body Editor.Bookmarks.Tests is
       Remove_If_Exists (Copy_Target);
       Write_File (Path, "before");
       Setup_Active_File (S, Path, "after", Dirty => True);
-      Editor.Bookmarks.Show (S.Bookmarks);
+      Editor.Bookmarks.Show (S.Navigation.Bookmarks);
       Editor.Bookmarks.Toggle
-        (S.Bookmarks, Path, Ada.Directories.Simple_Name (Path), 1, 1, True, Added);
-      Editor.Bookmarks.Build_Snapshot (S.Bookmarks, Before);
+        (S.Navigation.Bookmarks, Path, Ada.Directories.Simple_Name (Path), 1, 1, True, Added);
+      Editor.Bookmarks.Build_Snapshot (S.Navigation.Bookmarks, Before);
       Editor.Render_Model.Build_Render_Snapshot (S, Render_Before);
       Assert (Render_Before.Bookmark_Rows (1).Is_Open
                 and then Render_Before.Bookmark_Rows (1).Is_Active
@@ -1301,7 +1301,7 @@ package body Editor.Bookmarks.Tests is
               "setup exposes dirty active open marker only in render snapshot");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
-      Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After_Save_State);
+      Editor.Bookmarks.Build_Snapshot (S.Navigation.Bookmarks, After_Save_State);
       Editor.Render_Model.Build_Render_Snapshot (S, Render_After);
 
       Assert_Same_Retained_Bookmark_Rows
@@ -1313,15 +1313,15 @@ package body Editor.Bookmarks.Tests is
               "dirty hint is not cached in Bookmark state after save");
 
       Editor.Executor.File_Operation_Commands.Execute_Copy_Buffer_File (S, Copy_Target);
-      Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After_Copy_State);
+      Editor.Bookmarks.Build_Snapshot (S.Navigation.Bookmarks, After_Copy_State);
       Assert_Same_Retained_Bookmark_Rows
         (After_Save_State, After_Copy_State, "copy observation");
-      Assert (Editor.Bookmarks.Count (S.Bookmarks) = 1,
+      Assert (Editor.Bookmarks.Count (S.Navigation.Bookmarks) = 1,
               "copy does not add copied target as a bookmark");
       Assert (To_String (After_Copy_State.Bookmark_Rows (1).File_Path) = Path,
               "copy preserves retained source bookmark path");
       Assert_Bookmarks_File_Lifecycle_Observation_Coherent
-        (S.Bookmarks, "save/copy reliability");
+        (S.Navigation.Bookmarks, "save/copy reliability");
 
       Remove_If_Exists (Path);
       Remove_If_Exists (Copy_Target);
@@ -1346,12 +1346,12 @@ package body Editor.Bookmarks.Tests is
       Remove_If_Exists (Moved);
       Write_File (Original, "rename move delete");
       Setup_Active_File (S, Original, "rename move delete");
-      Editor.Bookmarks.Show (S.Bookmarks);
-      Editor.Bookmarks.Toggle (S.Bookmarks, Original, "retained/original.txt", 3, 1, True, Added);
-      Editor.Bookmarks.Build_Snapshot (S.Bookmarks, Before);
+      Editor.Bookmarks.Show (S.Navigation.Bookmarks);
+      Editor.Bookmarks.Toggle (S.Navigation.Bookmarks, Original, "retained/original.txt", 3, 1, True, Added);
+      Editor.Bookmarks.Build_Snapshot (S.Navigation.Bookmarks, Before);
 
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, Renamed);
-      Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After_Rename);
+      Editor.Bookmarks.Build_Snapshot (S.Navigation.Bookmarks, After_Rename);
       Assert (To_String (S.Buffer_Lifecycle.File_Info.Path) = Renamed,
               "rename updates canonical active buffer association");
       Assert_Same_Retained_Bookmark_Rows
@@ -1360,24 +1360,24 @@ package body Editor.Bookmarks.Tests is
               "rename target is not promoted into retained bookmark path");
 
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, Moved);
-      Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After_Move);
+      Editor.Bookmarks.Build_Snapshot (S.Navigation.Bookmarks, After_Move);
       Assert (To_String (S.Buffer_Lifecycle.File_Info.Path) = Moved,
               "move updates canonical active buffer association");
       Assert_Same_Retained_Bookmark_Rows
         (After_Rename, After_Move, "move retained target boundary");
-      Assert (Editor.Bookmarks.Count (S.Bookmarks) = 1,
+      Assert (Editor.Bookmarks.Count (S.Navigation.Bookmarks) = 1,
               "move does not create a duplicate bookmark row");
 
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
-      Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After_Delete);
+      Editor.Bookmarks.Build_Snapshot (S.Navigation.Bookmarks, After_Delete);
       Assert (not S.Buffer_Lifecycle.File_Info.Has_Path,
               "delete clears canonical active buffer association");
       Assert_Same_Retained_Bookmark_Rows
         (After_Move, After_Delete, "delete retained target boundary");
-      Assert (Editor.Bookmarks.Count (S.Bookmarks) = 1,
+      Assert (Editor.Bookmarks.Count (S.Navigation.Bookmarks) = 1,
               "delete does not create a recovery bookmark or prune retained target");
       Assert_Bookmarks_File_Lifecycle_Observation_Coherent
-        (S.Bookmarks, "rename/move/delete reliability");
+        (S.Navigation.Bookmarks, "rename/move/delete reliability");
 
       Remove_If_Exists (Original);
       Remove_If_Exists (Renamed);
@@ -1398,12 +1398,12 @@ package body Editor.Bookmarks.Tests is
       Remove_If_Exists (Path);
       Write_File (Path, "blocked");
       Setup_Active_File (S, Path, "blocked");
-      Editor.Bookmarks.Show (S.Bookmarks);
-      Editor.Bookmarks.Toggle (S.Bookmarks, Path, "failed_blocked_source.txt", 4, 1, True, Added);
-      Editor.Bookmarks.Build_Snapshot (S.Bookmarks, Before);
+      Editor.Bookmarks.Show (S.Navigation.Bookmarks);
+      Editor.Bookmarks.Toggle (S.Navigation.Bookmarks, Path, "failed_blocked_source.txt", 4, 1, True, Added);
+      Editor.Bookmarks.Build_Snapshot (S.Navigation.Bookmarks, Before);
 
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, "   ");
-      Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After_Invalid_Rename);
+      Editor.Bookmarks.Build_Snapshot (S.Navigation.Bookmarks, After_Invalid_Rename);
       Assert_Same_Retained_Bookmark_Rows
         (Before, After_Invalid_Rename, "invalid rename preservation");
       Assert (To_String (S.Buffer_Lifecycle.File_Info.Path) = Path,
@@ -1412,13 +1412,13 @@ package body Editor.Bookmarks.Tests is
       S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, Temp_Path ("dirty_move_target.txt"));
-      Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After_Dirty_Move);
+      Editor.Bookmarks.Build_Snapshot (S.Navigation.Bookmarks, After_Dirty_Move);
       Assert_Same_Retained_Bookmark_Rows
         (After_Invalid_Rename, After_Dirty_Move, "dirty move blocked preservation");
       Assert (To_String (S.Buffer_Lifecycle.File_Info.Path) = Path,
               "dirty move does not adopt blocked target path");
       Assert_Bookmarks_File_Lifecycle_Observation_Coherent
-        (S.Bookmarks, "failed/blocked reliability");
+        (S.Navigation.Bookmarks, "failed/blocked reliability");
 
       Remove_If_Exists (Path);
       Remove_If_Exists (Temp_Path ("dirty_move_target.txt"));
@@ -1442,20 +1442,20 @@ package body Editor.Bookmarks.Tests is
       Remove_If_Exists (Explicit_Target);
       Write_File (Active, "selection source");
       Setup_Active_File (S, Active, "selection source");
-      Editor.Bookmarks.Show (S.Bookmarks);
+      Editor.Bookmarks.Show (S.Navigation.Bookmarks);
       Editor.Bookmarks.Toggle
-        (S.Bookmarks,
+        (S.Navigation.Bookmarks,
          File_Path    => Temp_Path ("bookmark_selected_should_not_be_target.txt"),
          Display_Path => "bookmark_selected_should_not_seed_prompt.txt",
          Line_Number  => 12,
          Column       => 1,
          Has_Column   => True,
          Added        => Added);
-      Editor.Bookmarks.Build_Snapshot (S.Bookmarks, Before);
+      Editor.Bookmarks.Build_Snapshot (S.Navigation.Bookmarks, Before);
 
       Editor.Executor.File_Target_Prompt_Commands.Execute_File_Target_Command
         (S, Editor.Command_Ids.Command_Rename_Buffer_File, Explicit_Target);
-      Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After);
+      Editor.Bookmarks.Build_Snapshot (S.Navigation.Bookmarks, After);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Workspace := Editor.State.Build_Workspace_Snapshot (S);
       Summary := To_Unbounded_String (Editor.Workspace_Persistence.Debug_Summary (Workspace));
@@ -1473,7 +1473,7 @@ package body Editor.Bookmarks.Tests is
                 and then Index (To_String (Summary), "selection_explicit_target") = 0,
               "workspace persistence excludes Bookmark lifecycle observation state");
       Assert_Bookmarks_File_Lifecycle_Observation_Coherent
-        (S.Bookmarks, "selection/prompt/render/persistence boundary");
+        (S.Navigation.Bookmarks, "selection/prompt/render/persistence boundary");
 
       Remove_If_Exists (Active);
       Remove_If_Exists (Explicit_Target);
@@ -1559,47 +1559,47 @@ package body Editor.Bookmarks.Tests is
       Remove_If_Exists (Moved);
       Write_File (Original, "original");
       Setup_Active_File (S, Original, "changed", Dirty => True);
-      Editor.Bookmarks.Show (S.Bookmarks);
+      Editor.Bookmarks.Show (S.Navigation.Bookmarks);
       Editor.Bookmarks.Toggle
-        (S.Bookmarks, Original, "retained/original.txt", 5, 1, True, Added);
-      Editor.Bookmarks.Build_Snapshot (S.Bookmarks, Before);
+        (S.Navigation.Bookmarks, Original, "retained/original.txt", 5, 1, True, Added);
+      Editor.Bookmarks.Build_Snapshot (S.Navigation.Bookmarks, Before);
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
-      Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After_Save);
+      Editor.Bookmarks.Build_Snapshot (S.Navigation.Bookmarks, After_Save);
       Assert_Same_Retained_Bookmark_Rows
         (Before, After_Save, "save cleanup retains bookmark target");
       Assert (not After_Save.Bookmark_Rows (1).Is_Dirty,
               "save cleanup leaves no dirty cache in Bookmark state");
 
       Editor.Executor.File_Operation_Commands.Execute_Copy_Buffer_File (S, Copy_Target);
-      Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After_Copy);
+      Editor.Bookmarks.Build_Snapshot (S.Navigation.Bookmarks, After_Copy);
       Assert_Same_Retained_Bookmark_Rows
         (After_Save, After_Copy, "copy cleanup retains bookmark target");
       Assert (Index (To_String (After_Copy.Bookmark_Rows (1).File_Path), "copy_target") = 0,
               "copy target is not recorded as Bookmark target history");
 
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, Renamed);
-      Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After_Rename);
+      Editor.Bookmarks.Build_Snapshot (S.Navigation.Bookmarks, After_Rename);
       Assert_Same_Retained_Bookmark_Rows
         (After_Copy, After_Rename, "rename cleanup retains bookmark target");
       Assert (Index (To_String (After_Rename.Bookmark_Rows (1).File_Path), "renamed") = 0,
               "rename target is not migrated into Bookmark state");
 
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, Moved);
-      Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After_Move);
+      Editor.Bookmarks.Build_Snapshot (S.Navigation.Bookmarks, After_Move);
       Assert_Same_Retained_Bookmark_Rows
         (After_Rename, After_Move, "move cleanup retains bookmark target");
       Assert (Index (To_String (After_Move.Bookmark_Rows (1).File_Path), "moved") = 0,
               "move target is not recorded as Bookmark target history");
 
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
-      Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After_Delete);
+      Editor.Bookmarks.Build_Snapshot (S.Navigation.Bookmarks, After_Delete);
       Assert_Same_Retained_Bookmark_Rows
         (After_Move, After_Delete, "delete cleanup retains bookmark target");
-      Assert (Editor.Bookmarks.Count (S.Bookmarks) = 1,
+      Assert (Editor.Bookmarks.Count (S.Navigation.Bookmarks) = 1,
               "delete does not create repair, recovery, or pruning behavior");
       Assert_Bookmarks_File_Lifecycle_Observation_Coherent
-        (S.Bookmarks, "lifecycle cleanup retained target preservation");
+        (S.Navigation.Bookmarks, "lifecycle cleanup retained target preservation");
 
       Remove_If_Exists (Original);
       Remove_If_Exists (Copy_Target);
@@ -1623,16 +1623,16 @@ package body Editor.Bookmarks.Tests is
       Remove_If_Exists (Explicit_Target);
       Write_File (Active, "active");
       Setup_Active_File (S, Active, "active");
-      Editor.Bookmarks.Show (S.Bookmarks);
+      Editor.Bookmarks.Show (S.Navigation.Bookmarks);
       Editor.Bookmarks.Toggle
-        (S.Bookmarks,
+        (S.Navigation.Bookmarks,
          File_Path    => Temp_Path ("bookmark_selected_not_target.txt"),
          Display_Path => "bookmark_selected_not_target.txt",
          Line_Number  => 8,
          Column       => 1,
          Has_Column   => True,
          Added        => Added);
-      Editor.Bookmarks.Build_Snapshot (S.Bookmarks, Before);
+      Editor.Bookmarks.Build_Snapshot (S.Navigation.Bookmarks, Before);
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Rename_Buffer_File);
@@ -1640,7 +1640,7 @@ package body Editor.Bookmarks.Tests is
               "lifecycle availability is driven by canonical active buffer, not Bookmark selection");
       Editor.Executor.File_Target_Prompt_Commands.Execute_File_Target_Command
         (S, Editor.Command_Ids.Command_Rename_Buffer_File, Explicit_Target);
-      Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After);
+      Editor.Bookmarks.Build_Snapshot (S.Navigation.Bookmarks, After);
 
       Assert (To_String (S.Buffer_Lifecycle.File_Info.Path) = Explicit_Target,
               "explicit target command uses Executor target, not Bookmark row text");
@@ -1656,7 +1656,7 @@ package body Editor.Bookmarks.Tests is
       Assert_Optional_Bookmark_Command_Absent ("bookmark.prompt-copy-buffer-file");
       Assert_Optional_Bookmark_Command_Absent ("bookmark.prompt-move-buffer-file");
       Assert_Bookmarks_File_Lifecycle_Observation_Coherent
-        (S.Bookmarks, "selection prompt and route cleanup");
+        (S.Navigation.Bookmarks, "selection prompt and route cleanup");
 
       Remove_If_Exists (Active);
       Remove_If_Exists (Explicit_Target);
@@ -1678,12 +1678,12 @@ package body Editor.Bookmarks.Tests is
       Remove_If_Exists (Path);
       Write_File (Path, "render");
       Setup_Active_File (S, Path, "render dirty", Dirty => True);
-      Editor.Bookmarks.Show (S.Bookmarks);
-      Editor.Bookmarks.Toggle (S.Bookmarks, Path, "render_persist.txt", 2, 1, True, Added);
-      Editor.Bookmarks.Build_Snapshot (S.Bookmarks, Before);
+      Editor.Bookmarks.Show (S.Navigation.Bookmarks);
+      Editor.Bookmarks.Toggle (S.Navigation.Bookmarks, Path, "render_persist.txt", 2, 1, True, Added);
+      Editor.Bookmarks.Build_Snapshot (S.Navigation.Bookmarks, Before);
 
       Editor.Render_Model.Build_Render_Snapshot (S, Render);
-      Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After);
+      Editor.Bookmarks.Build_Snapshot (S.Navigation.Bookmarks, After);
       Workspace := Editor.State.Build_Workspace_Snapshot (S);
       Summary := To_Unbounded_String (Editor.Workspace_Persistence.Debug_Summary (Workspace));
 
@@ -1701,7 +1701,7 @@ package body Editor.Bookmarks.Tests is
                 and then Index (To_String (Summary), "Bookmark") = 0,
               "workspace persistence excludes Bookmark lifecycle cleanup state");
       Assert_Bookmarks_File_Lifecycle_Observation_Coherent
-        (S.Bookmarks, "render and persistence cleanup");
+        (S.Navigation.Bookmarks, "render and persistence cleanup");
 
       Remove_If_Exists (Path);
    end Render_And_Persistence_Cleanup_Are_Side_Effect_Free;
@@ -1785,13 +1785,13 @@ package body Editor.Bookmarks.Tests is
       Write_File (Prompt_Source, "prompt source");
 
       Setup_Active_File (Direct, Direct_Source, "direct source");
-      Editor.Bookmarks.Show (Direct.Bookmarks);
+      Editor.Bookmarks.Show (Direct.Navigation.Bookmarks);
       Editor.Bookmarks.Toggle
-        (Direct.Bookmarks, Direct_Source, "direct_source.txt", 1, 1, True, Added);
-      Editor.Bookmarks.Build_Snapshot (Direct.Bookmarks, Before_Direct);
+        (Direct.Navigation.Bookmarks, Direct_Source, "direct_source.txt", 1, 1, True, Added);
+      Editor.Bookmarks.Build_Snapshot (Direct.Navigation.Bookmarks, Before_Direct);
       Editor.Executor.File_Target_Prompt_Commands.Execute_File_Target_Command
         (Direct, Editor.Command_Ids.Command_Copy_Buffer_File, Direct_Copy);
-      Editor.Bookmarks.Build_Snapshot (Direct.Bookmarks, After_Direct_Copy);
+      Editor.Bookmarks.Build_Snapshot (Direct.Navigation.Bookmarks, After_Direct_Copy);
       Assert_Retained_Bookmark_Snapshot_Frozen
         (Before_Direct, After_Direct_Copy, "direct copy observation");
       Assert (Direct.Buffer_Lifecycle.File_Info.Has_Path
@@ -1800,7 +1800,7 @@ package body Editor.Bookmarks.Tests is
 
       Editor.Executor.File_Target_Prompt_Commands.Execute_File_Target_Command
         (Direct, Editor.Command_Ids.Command_Rename_Buffer_File, Direct_Rename);
-      Editor.Bookmarks.Build_Snapshot (Direct.Bookmarks, After_Direct_Rename);
+      Editor.Bookmarks.Build_Snapshot (Direct.Navigation.Bookmarks, After_Direct_Rename);
       Editor.Render_Model.Build_Render_Snapshot (Direct, Render_After_Rename);
       Assert (To_String (Direct.Buffer_Lifecycle.File_Info.Path) = Direct_Rename,
               "rename updates only canonical active buffer association");
@@ -1810,17 +1810,17 @@ package body Editor.Bookmarks.Tests is
                 and then not Render_After_Rename.Bookmark_Rows (1).Is_Active,
               "retained static old target is not repaired or migrated after rename");
       Assert_Bookmarks_File_Lifecycle_Observation_Coherent
-        (Direct.Bookmarks, "direct operation final freeze");
+        (Direct.Navigation.Bookmarks, "direct operation final freeze");
 
       Added := False;
       Setup_Active_File (Prompted, Prompt_Source, "prompt source");
-      Editor.Bookmarks.Show (Prompted.Bookmarks);
+      Editor.Bookmarks.Show (Prompted.Navigation.Bookmarks);
       Editor.Bookmarks.Toggle
-        (Prompted.Bookmarks, Prompt_Source, "bookmark-label-must-not-seed-copy-target.txt",
+        (Prompted.Navigation.Bookmarks, Prompt_Source, "bookmark-label-must-not-seed-copy-target.txt",
          1, 1, True, Added);
-      Editor.Bookmarks.Build_Snapshot (Prompted.Bookmarks, Before_Prompt);
+      Editor.Bookmarks.Build_Snapshot (Prompted.Navigation.Bookmarks, Before_Prompt);
       Editor.Executor.Execute_Command (Prompted, Editor.Command_Ids.Command_Copy_Buffer_File);
-      Editor.Bookmarks.Build_Snapshot (Prompted.Bookmarks, Prompt_Open);
+      Editor.Bookmarks.Build_Snapshot (Prompted.Navigation.Bookmarks, Prompt_Open);
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (Prompted),
               "prompted copy opens canonical target prompt");
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Label (Prompted) = "Copy target",
@@ -1831,14 +1831,14 @@ package body Editor.Bookmarks.Tests is
         (Before_Prompt, Prompt_Open, "prompt opening observation");
       Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text (Prompted, Prompt_Copy);
       Editor.Executor.File_Target_Prompt_Commands.Confirm_File_Target_Prompt (Prompted);
-      Editor.Bookmarks.Build_Snapshot (Prompted.Bookmarks, After_Prompt_Copy);
+      Editor.Bookmarks.Build_Snapshot (Prompted.Navigation.Bookmarks, After_Prompt_Copy);
       Assert_Retained_Bookmark_Snapshot_Frozen
         (Before_Prompt, After_Prompt_Copy, "prompted copy observation");
       Assert (Prompted.Buffer_Lifecycle.File_Info.Has_Path
                 and then To_String (Prompted.Buffer_Lifecycle.File_Info.Path) = Prompt_Source,
               "prompted copy preserves canonical source association");
       Assert_Bookmarks_File_Lifecycle_Observation_Coherent
-        (Prompted.Bookmarks, "prompted operation final freeze");
+        (Prompted.Navigation.Bookmarks, "prompted operation final freeze");
 
       Remove_If_Exists (Direct_Source);
       Remove_If_Exists (Prompt_Source);
@@ -1867,13 +1867,13 @@ package body Editor.Bookmarks.Tests is
       Write_File (Active, "active");
       Write_File (Bookmark_Target, "bookmark target");
       Setup_Active_File (S, Active, "active");
-      Editor.Bookmarks.Show (S.Bookmarks);
+      Editor.Bookmarks.Show (S.Navigation.Bookmarks);
       Editor.Bookmarks.Toggle
-        (S.Bookmarks, Bookmark_Target, Copy_Target, 7, 1, True, Added);
-      Editor.Bookmarks.Build_Snapshot (S.Bookmarks, Before);
+        (S.Navigation.Bookmarks, Bookmark_Target, Copy_Target, 7, 1, True, Added);
+      Editor.Bookmarks.Build_Snapshot (S.Navigation.Bookmarks, Before);
 
-      Editor.Bookmarks.Select_Next (S.Bookmarks);
-      Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After_Select);
+      Editor.Bookmarks.Select_Next (S.Navigation.Bookmarks);
+      Editor.Bookmarks.Build_Snapshot (S.Navigation.Bookmarks, After_Select);
       Assert (To_String (After_Select.Bookmark_Rows (1).File_Display_Path) = Copy_Target,
               "selected row deliberately contains target-like text");
       Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Active,
@@ -1884,7 +1884,7 @@ package body Editor.Bookmarks.Tests is
               "lifecycle availability still follows canonical active buffer");
       Editor.Executor.File_Target_Prompt_Commands.Execute_File_Target_Command
         (S, Editor.Command_Ids.Command_Copy_Buffer_File, Copy_Target);
-      Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After_Copy);
+      Editor.Bookmarks.Build_Snapshot (S.Navigation.Bookmarks, After_Copy);
 
       Assert (Ada.Directories.Exists (Copy_Target),
               "explicit copy target comes from Executor argument");
@@ -1895,7 +1895,7 @@ package body Editor.Bookmarks.Tests is
       Assert_Retained_Bookmark_Snapshot_Frozen
         (Before, After_Copy, "activation-free selected row boundary");
       Assert_Bookmarks_File_Lifecycle_Observation_Coherent
-        (S.Bookmarks, "selection/target/text final freeze");
+        (S.Navigation.Bookmarks, "selection/target/text final freeze");
 
       Remove_If_Exists (Active);
       Remove_If_Exists (Bookmark_Target);
@@ -1920,11 +1920,11 @@ package body Editor.Bookmarks.Tests is
       Remove_If_Exists (Path);
       Write_File (Path, "render persistence");
       Setup_Active_File (S, Path, "render persistence dirty", Dirty => True);
-      Editor.Bookmarks.Show (S.Bookmarks);
-      Editor.Bookmarks.Toggle (S.Bookmarks, Path, "render_persist.txt", 2, 1, True, Added);
-      Editor.Bookmarks.Build_Snapshot (S.Bookmarks, Before);
+      Editor.Bookmarks.Show (S.Navigation.Bookmarks);
+      Editor.Bookmarks.Toggle (S.Navigation.Bookmarks, Path, "render_persist.txt", 2, 1, True, Added);
+      Editor.Bookmarks.Build_Snapshot (S.Navigation.Bookmarks, Before);
       Editor.Render_Model.Build_Render_Snapshot (S, Render_Before);
-      Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After_Render);
+      Editor.Bookmarks.Build_Snapshot (S.Navigation.Bookmarks, After_Render);
 
       Assert (Render_Before.Bookmark_Rows (1).Is_Open
                 and then Render_Before.Bookmark_Rows (1).Is_Active
@@ -1934,7 +1934,7 @@ package body Editor.Bookmarks.Tests is
         (Before, After_Render, "render does not cache enriched Bookmark fields");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
-      Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After_Save);
+      Editor.Bookmarks.Build_Snapshot (S.Navigation.Bookmarks, After_Save);
       Editor.Render_Model.Build_Render_Snapshot (S, Render_After_Save);
       Workspace := Editor.State.Build_Workspace_Snapshot (S);
       Summary := To_Unbounded_String (Editor.Workspace_Persistence.Debug_Summary (Workspace));
@@ -1958,7 +1958,7 @@ package body Editor.Bookmarks.Tests is
                 (S.Surface.Project_Search),
               "preserves Project Search lifecycle freeze");
       Assert_Bookmarks_File_Lifecycle_Observation_Coherent
-        (S.Bookmarks, "render/persistence/adjacent final freeze");
+        (S.Navigation.Bookmarks, "render/persistence/adjacent final freeze");
 
       Remove_If_Exists (Path);
    end Final_Render_Persistence_Adjacent_Freeze;

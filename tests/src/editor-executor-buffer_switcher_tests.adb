@@ -323,8 +323,8 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Editor.Buffer_Switcher.Set_Sort_Mode (S.Surface.Buffer_Switcher, Editor.Buffer_Switcher.Filters.Pinned_Sort);
       Before_Filter := Editor.Buffer_Switcher.Metadata_Filter (S.Surface.Buffer_Switcher);
       Before_Sort := Editor.Buffer_Switcher.Sort_Mode (S.Surface.Buffer_Switcher);
-      Before_Recent_1 := Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 1);
-      Before_Recent_2 := Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 2);
+      Before_Recent_1 := Editor.Recent_Buffers.Id_At (S.Navigation.Recent_Buffers, 1);
+      Before_Recent_2 := Editor.Recent_Buffers.Id_At (S.Navigation.Recent_Buffers, 2);
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Buffer_Switcher_Sort_Default);
@@ -366,9 +366,9 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Assert (To_String (Editor.Buffer_Switcher.Metadata_Filter (S.Surface.Buffer_Switcher).Text) =
               To_String (Before_Filter.Text),
               "availability must not change switcher filter text");
-      Assert (Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 1) = Before_Recent_1,
+      Assert (Editor.Recent_Buffers.Id_At (S.Navigation.Recent_Buffers, 1) = Before_Recent_1,
               "availability must not mutate recent-buffer order head");
-      Assert (Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 2) = Before_Recent_2,
+      Assert (Editor.Recent_Buffers.Id_At (S.Navigation.Recent_Buffers, 2) = Before_Recent_2,
               "availability must not mutate recent-buffer order tail");
       Assert (Editor.Buffers.Global_Is_Buffer_Pinned (B_Id),
               "availability must not change pinned state");
@@ -408,7 +408,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       A_Id := Editor.Buffers.Global_Active_Buffer;
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, B_Path);
       B_Id := Editor.Buffers.Global_Active_Buffer;
-      Editor.Navigation_History.Clear (S.Navigation_History);
+      Editor.Navigation_History.Clear (S.Navigation.History);
 
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Buffer_Switcher_Previous_Result (S);
@@ -457,7 +457,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
 
       Assert (Editor.Buffers.Global_Active_Buffer = B_Id,
               "selected metadata actions must not activate the selected buffer");
-      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 0,
+      Assert (Editor.Navigation_History.Back_Count (S.Navigation.History) = 0,
               "selected metadata actions must not add navigation history");
       Assert (not Editor.Buffers.Is_Dirty (Editor.Buffers.Global_Registry_For_UI, A_Id),
               "selected metadata actions must not dirty selected buffer");
@@ -974,9 +974,9 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       A_Id := Editor.Buffers.Global_Active_Buffer;
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, B_Path);
       B_Id := Editor.Buffers.Global_Active_Buffer;
-      Editor.Navigation_History.Clear (S.Navigation_History);
-      Before_Recent_1 := Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 1);
-      Before_Recent_2 := Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 2);
+      Editor.Navigation_History.Clear (S.Navigation.History);
+      Before_Recent_1 := Editor.Recent_Buffers.Id_At (S.Navigation.Recent_Buffers, 1);
+      Before_Recent_2 := Editor.Recent_Buffers.Id_At (S.Navigation.Recent_Buffers, 2);
 
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Buffer_Switcher_Previous_Result (S);
@@ -996,11 +996,11 @@ package body Editor.Executor.Buffer_Switcher_Tests is
               "preview target must follow selected switcher row");
       Assert (Editor.Buffers.Global_Active_Buffer = B_Id,
               "preview must not activate selected buffer");
-      Assert (Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 1) = Before_Recent_1,
+      Assert (Editor.Recent_Buffers.Id_At (S.Navigation.Recent_Buffers, 1) = Before_Recent_1,
               "preview must not update recent activation head");
-      Assert (Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 2) = Before_Recent_2,
+      Assert (Editor.Recent_Buffers.Id_At (S.Navigation.Recent_Buffers, 2) = Before_Recent_2,
               "preview must not update recent activation tail");
-      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 0,
+      Assert (Editor.Navigation_History.Back_Count (S.Navigation.History) = 0,
               "preview must not add navigation history");
 
       Editor.Executor.Buffer_Switcher_Preview_Commands
@@ -1117,9 +1117,9 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       A_Id := Editor.Buffers.Global_Active_Buffer;
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, B_Path);
       B_Id := Editor.Buffers.Global_Active_Buffer;
-      Editor.Navigation_History.Clear (S.Navigation_History);
-      Before_Recent_1 := Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 1);
-      Before_Recent_2 := Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 2);
+      Editor.Navigation_History.Clear (S.Navigation.History);
+      Before_Recent_1 := Editor.Recent_Buffers.Id_At (S.Navigation.Recent_Buffers, 1);
+      Before_Recent_2 := Editor.Recent_Buffers.Id_At (S.Navigation.Recent_Buffers, 2);
 
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Buffer_Switcher_Previous_Result (S);
@@ -1145,11 +1145,11 @@ package body Editor.Executor.Buffer_Switcher_Tests is
               "marking must not activate selected buffer");
       Assert (Editor.Buffer_Switcher.Preview_Target (S.Surface.Buffer_Switcher) = A_Id,
               "marking must preserve selected preview target");
-      Assert (Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 1) = Before_Recent_1,
+      Assert (Editor.Recent_Buffers.Id_At (S.Navigation.Recent_Buffers, 1) = Before_Recent_1,
               "marking must not update recent-buffer head");
-      Assert (Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 2) = Before_Recent_2,
+      Assert (Editor.Recent_Buffers.Id_At (S.Navigation.Recent_Buffers, 2) = Before_Recent_2,
               "marking must not update recent-buffer tail");
-      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 0,
+      Assert (Editor.Navigation_History.Back_Count (S.Navigation.History) = 0,
               "marking must not push navigation history");
       declare
          Row : constant Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row :=
@@ -1299,9 +1299,9 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
       Editor.Buffer_Switcher.Set_Mark (S.Surface.Buffer_Switcher, A_Id);
       Editor.Buffer_Switcher.Set_Mark (S.Surface.Buffer_Switcher, B_Id);
-      Before_Recent_1 := Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 1);
-      Before_Recent_2 := Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 2);
-      Editor.Navigation_History.Clear (S.Navigation_History);
+      Before_Recent_1 := Editor.Recent_Buffers.Id_At (S.Navigation.Recent_Buffers, 1);
+      Before_Recent_2 := Editor.Recent_Buffers.Id_At (S.Navigation.Recent_Buffers, 2);
+      Editor.Navigation_History.Clear (S.Navigation.History);
 
       Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Pin_Marked);
@@ -1340,11 +1340,11 @@ package body Editor.Executor.Buffer_Switcher_Tests is
               "unpin marked must unpin marked alpha");
       Assert (not Editor.Buffers.Global_Is_Buffer_Pinned (B_Id),
               "unpin marked must unpin marked beta");
-      Assert (Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 1) = Before_Recent_1,
+      Assert (Editor.Recent_Buffers.Id_At (S.Navigation.Recent_Buffers, 1) = Before_Recent_1,
               "marked metadata actions must not update recent-buffer head");
-      Assert (Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 2) = Before_Recent_2,
+      Assert (Editor.Recent_Buffers.Id_At (S.Navigation.Recent_Buffers, 2) = Before_Recent_2,
               "marked metadata actions must not update recent-buffer tail");
-      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 0,
+      Assert (Editor.Navigation_History.Back_Count (S.Navigation.History) = 0,
               "marked metadata actions must not push navigation history");
 
       Remove_Tree_If_Exists (Root);
@@ -1473,9 +1473,9 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
       Editor.Buffer_Switcher.Set_Mark (S.Surface.Buffer_Switcher, A_Id);
       Editor.Buffer_Switcher.Set_Mark (S.Surface.Buffer_Switcher, B_Id);
-      Before_Recent_1 := Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 1);
-      Before_Recent_2 := Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 2);
-      Editor.Navigation_History.Clear (S.Navigation_History);
+      Before_Recent_1 := Editor.Recent_Buffers.Id_At (S.Navigation.Recent_Buffers, 1);
+      Before_Recent_2 := Editor.Recent_Buffers.Id_At (S.Navigation.Recent_Buffers, 2);
+      Editor.Navigation_History.Clear (S.Navigation.History);
 
       Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Group_Assign);
@@ -1520,11 +1520,11 @@ package body Editor.Executor.Buffer_Switcher_Tests is
               "marked metadata apply must preserve beta mark");
       Assert (Editor.Buffers.Global_Active_Buffer = C_Id,
               "marked metadata apply must not activate marked buffers");
-      Assert (Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 1) = Before_Recent_1,
+      Assert (Editor.Recent_Buffers.Id_At (S.Navigation.Recent_Buffers, 1) = Before_Recent_1,
               "marked metadata apply must not update recent-buffer head");
-      Assert (Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 2) = Before_Recent_2,
+      Assert (Editor.Recent_Buffers.Id_At (S.Navigation.Recent_Buffers, 2) = Before_Recent_2,
               "marked metadata apply must not update recent-buffer tail");
-      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 0,
+      Assert (Editor.Navigation_History.Back_Count (S.Navigation.History) = 0,
               "marked metadata apply must not add navigation history");
 
       Cmd := Editor.Commands.Payloads.Command_For_Id
@@ -1766,7 +1766,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
       Editor.Buffer_Switcher.Set_Filter_Text (S.Surface.Buffer_Switcher, "alpha");
       Editor.Buffer_Switcher.Recompute_Rows
-        (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, S.Recent_Buffers, Config);
+        (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, S.Navigation.Recent_Buffers, Config);
       Assert (Editor.Buffer_Switcher.Row_Count (S.Surface.Buffer_Switcher) = 1,
               "setup should have one visible literal match");
       Editor.Executor.Buffer_Switcher_Mark_Commands
@@ -1797,9 +1797,9 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Before_Sort := Editor.Buffer_Switcher.Sort_Mode (S.Surface.Buffer_Switcher);
       Before_Selected := Editor.Buffer_Switcher.Selected_Row_Index (S.Surface.Buffer_Switcher);
       Before_Preview := Editor.Buffer_Switcher.Preview_Target (S.Surface.Buffer_Switcher);
-      Before_Recent_1 := Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 1);
-      Before_Recent_2 := Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 2);
-      Editor.Navigation_History.Clear (S.Navigation_History);
+      Before_Recent_1 := Editor.Recent_Buffers.Id_At (S.Navigation.Recent_Buffers, 1);
+      Before_Recent_2 := Editor.Recent_Buffers.Id_At (S.Navigation.Recent_Buffers, 2);
+      Editor.Navigation_History.Clear (S.Navigation.History);
 
       Editor.Executor.Buffer_Switcher_Mark_Commands
         .Execute_Buffer_Switcher_Mark_Kind
@@ -1837,10 +1837,10 @@ package body Editor.Executor.Buffer_Switcher_Tests is
               "mark presets do not change dirty state");
       Assert (Editor.Buffers.Global_Active_Buffer = D_Id,
               "mark presets do not activate buffers");
-      Assert (Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 1) = Before_Recent_1
-              and then Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 2) = Before_Recent_2,
+      Assert (Editor.Recent_Buffers.Id_At (S.Navigation.Recent_Buffers, 1) = Before_Recent_1
+              and then Editor.Recent_Buffers.Id_At (S.Navigation.Recent_Buffers, 2) = Before_Recent_2,
               "mark presets do not update recent-buffer order");
-      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 0,
+      Assert (Editor.Navigation_History.Back_Count (S.Navigation.History) = 0,
               "mark presets do not add navigation history");
       Assert (Editor.Buffer_Switcher.Metadata_Filter (S.Surface.Buffer_Switcher).Kind = Before_Filter.Kind
               and then To_String (Editor.Buffer_Switcher.Metadata_Filter (S.Surface.Buffer_Switcher).Text) =
@@ -1968,9 +1968,9 @@ package body Editor.Executor.Buffer_Switcher_Tests is
         .Execute_Buffer_Switcher_Preview_Show (S);
       Before_Filter := Editor.Buffer_Switcher.Metadata_Filter (S.Surface.Buffer_Switcher);
       Before_Sort := Editor.Buffer_Switcher.Sort_Mode (S.Surface.Buffer_Switcher);
-      Before_Recent_1 := Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 1);
-      Before_Recent_2 := Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 2);
-      Editor.Navigation_History.Clear (S.Navigation_History);
+      Before_Recent_1 := Editor.Recent_Buffers.Id_At (S.Navigation.Recent_Buffers, 1);
+      Before_Recent_2 := Editor.Recent_Buffers.Id_At (S.Navigation.Recent_Buffers, 2);
+      Editor.Navigation_History.Clear (S.Navigation.History);
 
       Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Review_Show);
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -2032,10 +2032,10 @@ package body Editor.Executor.Buffer_Switcher_Tests is
               "marked review commands must not change labels");
       Assert (Editor.Buffers.Global_Active_Buffer = C_Id,
               "marked review navigation must not activate buffers");
-      Assert (Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 1) = Before_Recent_1
-              and then Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 2) = Before_Recent_2,
+      Assert (Editor.Recent_Buffers.Id_At (S.Navigation.Recent_Buffers, 1) = Before_Recent_1
+              and then Editor.Recent_Buffers.Id_At (S.Navigation.Recent_Buffers, 2) = Before_Recent_2,
               "marked review commands must not update recent-buffer order");
-      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 0,
+      Assert (Editor.Navigation_History.Back_Count (S.Navigation.History) = 0,
               "marked review commands must not add navigation history");
 
       Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Review_Hide);
@@ -2246,8 +2246,8 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
       Editor.Buffer_Switcher.Set_Mark (S.Surface.Buffer_Switcher, A_Id);
       Editor.Buffer_Switcher.Set_Mark (S.Surface.Buffer_Switcher, B_Id);
-      Before_Recent_1 := Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 1);
-      Editor.Navigation_History.Clear (S.Navigation_History);
+      Before_Recent_1 := Editor.Recent_Buffers.Id_At (S.Navigation.Recent_Buffers, 1);
+      Editor.Navigation_History.Clear (S.Navigation.History);
       Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Close_Marked);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Pending_Marked_Action (S.Surface.Buffer_Switcher) = Editor.Buffer_Switcher.Reviews.Pending_Marked_Close,
@@ -2268,9 +2268,9 @@ package body Editor.Executor.Buffer_Switcher_Tests is
               "prepare must not mutate buffer metadata");
       Assert (Editor.Buffers.Global_Active_Buffer = C_Id,
               "prepare must not activate marked buffers");
-      Assert (Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 1) = Before_Recent_1,
+      Assert (Editor.Recent_Buffers.Id_At (S.Navigation.Recent_Buffers, 1) = Before_Recent_1,
               "prepare must not update recent-buffer activation order");
-      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 0,
+      Assert (Editor.Navigation_History.Back_Count (S.Navigation.History) = 0,
               "prepare must not add navigation history");
       Editor.Buffer_Switcher.Clear_All_Marks (S.Surface.Buffer_Switcher);
       Editor.Buffer_Switcher.Set_Mark (S.Surface.Buffer_Switcher, C_Id);
@@ -2469,8 +2469,8 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       Assert (Editor.Buffer_Switcher.Is_Marked (S.Surface.Buffer_Switcher, C_Id),
               "summary must not mutate current marks");
 
-      Before_Recent := Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 1);
-      Editor.Navigation_History.Clear (S.Navigation_History);
+      Before_Recent := Editor.Recent_Buffers.Id_At (S.Navigation.Recent_Buffers, 1);
+      Editor.Navigation_History.Clear (S.Navigation.History);
       Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Next);
       Editor.Executor.Execute_No_Log (S, Cmd);
       declare
@@ -2482,9 +2482,9 @@ package body Editor.Executor.Buffer_Switcher_Tests is
       end;
       Assert (Editor.Buffers.Global_Active_Buffer = C_Id,
               "pending navigation must not activate the selected target");
-      Assert (Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 1) = Before_Recent,
+      Assert (Editor.Recent_Buffers.Id_At (S.Navigation.Recent_Buffers, 1) = Before_Recent,
               "pending navigation must not update recent-buffer order");
-      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 0,
+      Assert (Editor.Navigation_History.Back_Count (S.Navigation.History) = 0,
               "pending navigation must not add navigation history");
 
       Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Command_Ids.Command_Buffer_Switcher_Selected_Close);

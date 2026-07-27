@@ -659,7 +659,7 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
       S.Buffer_Lifecycle.Reopen_Candidate_Path := To_Unbounded_String (Reopen_Path);
       S.Buffer_Lifecycle.Reopen_Candidate_Label := To_Unbounded_String ("reopen");
       Editor.Navigation_History.Record_Explicit_Navigation
-        (S.Navigation_History,
+        (S.Navigation.History,
          (Buffer_Id => Natural (Editor.Buffers.Global_Active_Buffer),
           Has_File_Path => True,
           File_Path => S.Buffer_Lifecycle.File_Info.Path,
@@ -674,8 +674,8 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
       Before_Base := S.Buffer_Lifecycle.File_Info.Saved_Generation;
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
-      Before_Back := S.Navigation_History.Back_Stack.Length;
-      Before_Fwd := S.Navigation_History.Forward_Stack.Length;
+      Before_Back := S.Navigation.History.Back_Stack.Length;
+      Before_Fwd := S.Navigation.History.Forward_Stack.Length;
       Before_Caret := S.Caret.Carets (0);
 
       Availability := Editor.Executor.Command_Availability
@@ -700,8 +700,8 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
         and then To_String (S.Buffer_Lifecycle.File_Info.Path) = To_String (Before_Path)
         and then Buffer_Text (S) = To_String (Before_Text)
         and then not S.Buffer_Lifecycle.File_Info.Dirty
-        and then S.Navigation_History.Back_Stack.Length = Before_Back
-        and then S.Navigation_History.Forward_Stack.Length = Before_Fwd
+        and then S.Navigation.History.Back_Stack.Length = Before_Back
+        and then S.Navigation.History.Forward_Stack.Length = Before_Fwd
         and then To_String (S.Search.Active_Find_Query) = "transient"
         and then To_String (S.Search.Active_Replace_Text) = "stable"
         and then To_String (Editor.Clipboard.Get_Text) = "clipboard",
@@ -720,8 +720,8 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
         and then not S.Buffer_Lifecycle.File_Info.Dirty
         and then Editor.History.Undo_Stack.Length = Before_Undo
         and then Editor.History.Redo_Stack.Length = Before_Redo
-        and then S.Navigation_History.Back_Stack.Length = Before_Back
-        and then S.Navigation_History.Forward_Stack.Length = Before_Fwd
+        and then S.Navigation.History.Back_Stack.Length = Before_Back
+        and then S.Navigation.History.Forward_Stack.Length = Before_Fwd
         and then S.Caret.Carets.Length = 1
         and then S.Caret.Carets (0).Pos = Before_Caret.Pos
         and then S.Caret.Carets (0).Anchor = Before_Caret.Anchor
@@ -743,8 +743,8 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
         and then not S.Buffer_Lifecycle.File_Info.Dirty
         and then Editor.History.Undo_Stack.Length = Before_Undo
         and then Editor.History.Redo_Stack.Length = Before_Redo
-        and then S.Navigation_History.Back_Stack.Length = Before_Back
-        and then S.Navigation_History.Forward_Stack.Length = Before_Fwd
+        and then S.Navigation.History.Back_Stack.Length = Before_Back
+        and then S.Navigation.History.Forward_Stack.Length = Before_Fwd
         and then S.Caret.Carets (0).Pos = Before_Caret.Pos
         and then S.Caret.Carets (0).Anchor = Before_Caret.Anchor
         and then To_String (S.Search.Active_Find_Query) = "transient"
@@ -1143,7 +1143,7 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
       S.Buffer_Lifecycle.Reopen_Candidate_Path := To_Unbounded_String (Reopen_Path);
       S.Buffer_Lifecycle.Reopen_Candidate_Label := To_Unbounded_String ("reopen");
       Editor.Navigation_History.Record_Explicit_Navigation
-        (S.Navigation_History,
+        (S.Navigation.History,
          (Buffer_Id => Natural (Editor.Buffers.Global_Active_Buffer),
           Has_File_Path => True,
           File_Path => S.Buffer_Lifecycle.File_Info.Path,
@@ -1157,8 +1157,8 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
       Before_Base := S.Buffer_Lifecycle.File_Info.Saved_Generation;
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
-      Before_Back := S.Navigation_History.Back_Stack.Length;
-      Before_Fwd := S.Navigation_History.Forward_Stack.Length;
+      Before_Back := S.Navigation.History.Back_Stack.Length;
+      Before_Fwd := S.Navigation.History.Forward_Stack.Length;
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Availability := Editor.Executor.Command_Availability
@@ -1187,8 +1187,8 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
         and then not S.Buffer_Lifecycle.File_Info.Dirty
         and then Editor.History.Undo_Stack.Length = Before_Undo
         and then Editor.History.Redo_Stack.Length = Before_Redo
-        and then S.Navigation_History.Back_Stack.Length = Before_Back
-        and then S.Navigation_History.Forward_Stack.Length = Before_Fwd
+        and then S.Navigation.History.Back_Stack.Length = Before_Back
+        and then S.Navigation.History.Forward_Stack.Length = Before_Fwd
         and then To_String (Editor.Clipboard.Get_Text) = "read-only clipboard"
         and then To_String (S.Search.Active_Find_Query) = "read only"
         and then To_String (S.Search.Active_Replace_Text) = "side effect"

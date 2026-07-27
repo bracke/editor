@@ -127,7 +127,7 @@ package body Editor.Feature_Panel_Controller is
    begin
       case Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel) is
          when Editor.Feature_Panel.Outline_Feature =>
-            Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+            Editor.Outline.Set_Rows_From_Outline (S.Outline_Runtime.Outline, S.Panel.Feature_Panel);
          when Editor.Feature_Panel.Messages_Feature =>
             Editor.Feature_Messages.Project_Rows (S.Panel.Feature_Messages, S.Panel.Feature_Panel);
          when Editor.Feature_Panel.Search_Results_Feature =>
@@ -204,7 +204,7 @@ package body Editor.Feature_Panel_Controller is
    begin
       case Feature is
          when Editor.Feature_Panel.Outline_Feature =>
-            Editor.Outline.Reset_Outline_For_Buffer_Close (S.Outline, Buffer_Token);
+            Editor.Outline.Reset_Outline_For_Buffer_Close (S.Outline_Runtime.Outline, Buffer_Token);
          when Editor.Feature_Panel.Messages_Feature =>
             Editor.Feature_Messages.Reset_For_Buffer_Close
               (S.Panel.Feature_Messages, Buffer_Token);
@@ -238,7 +238,7 @@ package body Editor.Feature_Panel_Controller is
    begin
       case Feature is
          when Editor.Feature_Panel.Outline_Feature =>
-            Editor.Outline.Reset_For_Project_Close (S.Outline);
+            Editor.Outline.Reset_For_Project_Close (S.Outline_Runtime.Outline);
          when Editor.Feature_Panel.Messages_Feature =>
             Editor.Feature_Messages.Reset_For_Project_Close (S.Panel.Feature_Messages);
          when Editor.Feature_Panel.Search_Results_Feature =>
@@ -272,7 +272,7 @@ package body Editor.Feature_Panel_Controller is
 
       case Feature is
          when Editor.Feature_Panel.Outline_Feature =>
-            Editor.Outline.Clear (S.Outline);
+            Editor.Outline.Clear (S.Outline_Runtime.Outline);
          when Editor.Feature_Panel.Messages_Feature =>
             Editor.Feature_Messages.Reset_For_Workspace_Close (S.Panel.Feature_Messages);
          when Editor.Feature_Panel.Search_Results_Feature =>

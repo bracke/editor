@@ -102,7 +102,7 @@ package body Editor.Lifecycle_Audit.Tests is
          Dirty        => True,
          others       => <>);
       Editor.Pending_Transitions.Set_Pending
-        (S.Pending_Transitions, Target, Dirty);
+        (S.Workflow.Pending_Transitions, Target, Dirty);
       Editor.Recent_Projects.Add_Or_Promote
         (S.Project_Runtime.Recent_Projects, Editor.Test_Temp.Base & "/editor-a", "editor-a", 100);
 
@@ -173,7 +173,7 @@ package body Editor.Lifecycle_Audit.Tests is
       Install_Project (S, Editor.Test_Temp.Base & "/editor-a", "editor-a");
       S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Pending_Transitions.Set_Pending
-        (S.Pending_Transitions, Target, Dirty);
+        (S.Workflow.Pending_Transitions, Target, Dirty);
 
       Snapshot := Editor.State.Build_Workspace_Snapshot (S);
 
@@ -187,7 +187,7 @@ package body Editor.Lifecycle_Audit.Tests is
         (not Editor.Workspace_Persistence.Has_Active_File_Path (Snapshot),
          "workspace snapshot must not serialize pending-transition target state");
       Assert
-        (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+        (Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
          "building workspace snapshot must not clear pending transition");
       Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "building workspace snapshot must not save dirty text");
@@ -225,7 +225,7 @@ package body Editor.Lifecycle_Audit.Tests is
       Install_Project (S, Editor.Test_Temp.Base & "/editor-a", "editor-a");
       S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Pending_Transitions.Set_Pending
-        (S.Pending_Transitions, Target, Dirty);
+        (S.Workflow.Pending_Transitions, Target, Dirty);
       Editor.Recent_Projects.Add_Or_Promote
         (S.Project_Runtime.Recent_Projects, Editor.Test_Temp.Base & "/editor-a", "editor-a", 104);
 

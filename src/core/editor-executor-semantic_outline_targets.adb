@@ -63,7 +63,7 @@ package body Editor.Executor.Semantic_Outline_Targets is
       Outline_Row : Positive) return String
    is
       Label : constant String :=
-        Editor.Outline.Item_Label (S.Outline, Outline_Row);
+        Editor.Outline.Item_Label (S.Outline_Runtime.Outline, Outline_Row);
       Name  : Unbounded_String := To_Unbounded_String (Label);
    begin
       Name := To_Unbounded_String (Strip_Prefix (To_String (Name), "generic package "));
@@ -115,7 +115,7 @@ package body Editor.Executor.Semantic_Outline_Targets is
       Outline_Row : Positive) return Boolean
    is
       Label : constant String :=
-        Editor.Outline.Item_Label (S.Outline, Outline_Row);
+        Editor.Outline.Item_Label (S.Outline_Runtime.Outline, Outline_Row);
    begin
       return Label'Length >= 13
         and then
@@ -133,7 +133,7 @@ package body Editor.Executor.Semantic_Outline_Targets is
       Outline_Row : Positive) return Boolean
    is
       Label : constant String :=
-        Editor.Outline.Item_Label (S.Outline, Outline_Row);
+        Editor.Outline.Item_Label (S.Outline_Runtime.Outline, Outline_Row);
    begin
       return Strip_Prefix (Label, "separate body ") /= Label;
    end Outline_Row_Is_Separate_Body;
@@ -168,7 +168,7 @@ package body Editor.Executor.Semantic_Outline_Targets is
       Outline_Row : Positive) return String
    is
       Detail : constant String :=
-        Editor.Outline.Item_Detail (S.Outline, Outline_Row);
+        Editor.Outline.Item_Detail (S.Outline_Runtime.Outline, Outline_Row);
       First_Paren : Natural := 0;
       Return_Pos  : Natural := 0;
    begin
@@ -214,7 +214,7 @@ package body Editor.Executor.Semantic_Outline_Targets is
       end if;
 
       Freshness := Editor.Outline.Freshness_For_Active_Buffer
-        (S.Outline,
+        (S.Outline_Runtime.Outline,
          S.Buffer_Lifecycle.Active_Buffer_Token,
          Editor.State.Current_Buffer_Revision (S));
       return Freshness /= Editor.Outline.Outline_Stale;
@@ -246,10 +246,10 @@ package body Editor.Executor.Semantic_Outline_Targets is
 
       Panel_Row := Editor.Feature_Panel.Selected_Row (S.Panel.Feature_Panel);
       Outline_Row := Editor.Outline.Map_Panel_Row_To_Outline_Row
-        (S.Outline, S.Panel.Feature_Panel, Panel_Row);
+        (S.Outline_Runtime.Outline, S.Panel.Feature_Panel, Panel_Row);
       if Outline_Row = 0
         or else not Editor.Outline.Validate_Outline_Row_For_Selection
-          (S.Outline, S.Panel.Feature_Panel, Panel_Row)
+          (S.Outline_Runtime.Outline, S.Panel.Feature_Panel, Panel_Row)
       then
          return (others => <>);
       end if;
@@ -260,7 +260,7 @@ package body Editor.Executor.Semantic_Outline_Targets is
          return (others => <>);
       end if;
 
-      Row_Kind := Editor.Outline.Item_Kind (S.Outline, Positive (Outline_Row));
+      Row_Kind := Editor.Outline.Item_Kind (S.Outline_Runtime.Outline, Positive (Outline_Row));
       Row_Is_Body := Outline_Row_Is_Body (S, Positive (Outline_Row));
       Row_Profile := To_Unbounded_String
         (Outline_Row_Profile (S, Positive (Outline_Row)));

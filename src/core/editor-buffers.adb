@@ -97,18 +97,18 @@ package body Editor.Buffers is
       State.Search.Active_Replace_Error_Message := Null_Unbounded_String;
       Editor.Quick_Open.Clear (State.Surface.Quick_Open);
       Editor.Buffer_Switcher.Clear (State.Surface.Buffer_Switcher);
-      Editor.Recent_Buffers.Clear (State.Recent_Buffers);
+      Editor.Recent_Buffers.Clear (State.Navigation.Recent_Buffers);
       Editor.Project_Search.Clear (State.Surface.Project_Search);
       Editor.Project_Search_Bar.Clear (State.Surface.Project_Search_Bar);
       State.Panel.Search_Results_View := (Top_Row => 1);
       Editor.Problems.Clear_View (State.Panel.Problems_View);
-      Editor.Panels.Initialize_Defaults (State.Panels);
+      Editor.Panels.Initialize_Defaults (State.Panel.Panels);
       Editor.Panel_Focus.Clear (State.Panel.Panel_Focus);
       Editor.Overlay_Focus.Clear (State.Panel.Overlay_Focus);
-      Editor.Pending_Transitions.Clear (State.Pending_Transitions);
-      Editor.Navigation_History.Clear (State.Navigation_History);
+      Editor.Pending_Transitions.Clear (State.Workflow.Pending_Transitions);
+      Editor.Navigation_History.Clear (State.Navigation.History);
       Editor.Feature_Panel.Clear (State.Panel.Feature_Panel);
-      Editor.Outline.Clear (State.Outline);
+      Editor.Outline.Clear (State.Outline_Runtime.Outline);
       Editor.Feature_Messages.Clear (State.Panel.Feature_Messages);
       Editor.Feature_Search_Results.Clear (State.Panel.Feature_Search_Results);
       Editor.Feature_Diagnostics.Clear (State.Panel.Feature_Diagnostics);
@@ -977,14 +977,14 @@ package body Editor.Buffers is
       I        : constant Natural := Index_Of (Global_Registry, Global_Registry.Active);
       Messages : constant Editor.Messages.Message_State := State.Panel.Messages;
       Feature_Panel : constant Editor.Feature_Panel.Feature_Panel_State := State.Panel.Feature_Panel;
-      Outline : constant Editor.Outline.Outline_State := State.Outline;
+      Outline : constant Editor.Outline.Outline_State := State.Outline_Runtime.Outline;
       Feature_Messages : constant Editor.Feature_Messages.Message_Feature_State := State.Panel.Feature_Messages;
       Feature_Search_Results : constant Editor.Feature_Search_Results.Search_Results_Feature_State := State.Panel.Feature_Search_Results;
       Feature_Diagnostics : constant Editor.Feature_Diagnostics.Diagnostics_Feature_State := State.Panel.Feature_Diagnostics;
       Project  : constant Editor.Project.Project_State := State.Project_Runtime.Project;
       File_Tree : constant Editor.File_Tree.File_Tree_State := State.Surface.File_Tree;
       File_Tree_View : constant Editor.File_Tree_View.File_Tree_View_State := State.Surface.File_Tree_View;
-      Panels   : constant Editor.Panels.Panel_Set := State.Panels;
+      Panels   : constant Editor.Panels.Panel_Set := State.Panel.Panels;
       Active_Find_Input : constant Editor.Input_Field.Input_Field_State := State.Search.Active_Find_Input;
       Active_Find_Prompt : constant Boolean := State.Search.Active_Find_Prompt;
       Active_Find_Query  : constant Unbounded_String := State.Search.Active_Find_Query;
@@ -994,14 +994,14 @@ package body Editor.Buffers is
       Active_Replace_Text : constant Unbounded_String := State.Search.Active_Replace_Text;
       Quick_Open : constant Editor.Quick_Open.Quick_Open_State := State.Surface.Quick_Open;
       Buffer_Switcher : constant Editor.Buffer_Switcher.Buffer_Switcher_State := State.Surface.Buffer_Switcher;
-      Recent_Buffers : constant Editor.Recent_Buffers.Recent_Buffer_State := State.Recent_Buffers;
+      Recent_Buffers : constant Editor.Recent_Buffers.Recent_Buffer_State := State.Navigation.Recent_Buffers;
       Project_Search : constant Editor.Project_Search.Project_Search_State := State.Surface.Project_Search;
       Project_Search_Bar : constant Editor.Project_Search_Bar.Project_Search_Bar_State := State.Surface.Project_Search_Bar;
       Search_Results_View : constant Editor.Search_Results.Search_Results_View_State := State.Panel.Search_Results_View;
       Problems_View : constant Editor.Problems.Problems_View_State := State.Panel.Problems_View;
       Panel_Focus : constant Editor.Panel_Focus.Panel_Focus_State := State.Panel.Panel_Focus;
       Overlay_Focus : constant Editor.Overlay_Focus.Overlay_Focus_State := State.Panel.Overlay_Focus;
-      Navigation_History : constant Editor.Navigation_History.Navigation_History_State := State.Navigation_History;
+      Navigation_History : constant Editor.Navigation_History.Navigation_History_State := State.Navigation.History;
       Reopen_Candidate_Count : constant Natural := State.Buffer_Lifecycle.Reopen_Candidate_Count;
       Reopen_Candidate_Paths : constant Editor.State_Buffer.Reopen_Candidate_Array := State.Buffer_Lifecycle.Reopen_Candidate_Paths;
       Reopen_Candidate_Labels : constant Editor.State_Buffer.Reopen_Candidate_Array := State.Buffer_Lifecycle.Reopen_Candidate_Labels;
@@ -1062,10 +1062,10 @@ package body Editor.Buffers is
       State.Project_Runtime.Project := Project;
       State.Surface.File_Tree := File_Tree;
       State.Surface.File_Tree_View := File_Tree_View;
-      State.Panels := Panels;
+      State.Panel.Panels := Panels;
       State.Panel.Messages := Messages;
       State.Panel.Feature_Panel := Feature_Panel;
-      State.Outline := Outline;
+      State.Outline_Runtime.Outline := Outline;
       State.Panel.Feature_Messages := Feature_Messages;
       State.Panel.Feature_Search_Results := Feature_Search_Results;
       State.Panel.Feature_Diagnostics := Feature_Diagnostics;
@@ -1073,14 +1073,14 @@ package body Editor.Buffers is
       State.Search.Active_Find_Prompt := Active_Find_Prompt;
       State.Surface.Quick_Open := Quick_Open;
       State.Surface.Buffer_Switcher := Buffer_Switcher;
-      State.Recent_Buffers := Recent_Buffers;
+      State.Navigation.Recent_Buffers := Recent_Buffers;
       State.Surface.Project_Search := Project_Search;
       State.Surface.Project_Search_Bar := Project_Search_Bar;
       State.Panel.Search_Results_View := Search_Results_View;
       State.Panel.Problems_View := Problems_View;
       State.Panel.Panel_Focus := Panel_Focus;
       State.Panel.Overlay_Focus := Overlay_Focus;
-      State.Navigation_History := Navigation_History;
+      State.Navigation.History := Navigation_History;
       State.Buffer_Lifecycle.Reopen_Candidate_Count := Reopen_Candidate_Count;
       State.Buffer_Lifecycle.Reopen_Candidate_Paths := Reopen_Candidate_Paths;
       State.Buffer_Lifecycle.Reopen_Candidate_Labels := Reopen_Candidate_Labels;
@@ -1489,7 +1489,7 @@ package body Editor.Buffers is
       for I in Global_Registry.Items.First_Index .. Global_Registry.Items.Last_Index loop
          if Global_Registry.Items (I).State /= null then
             Total := Total + Editor.Gutter_Markers.Bookmark_Count
-              (Global_Registry.Items (I).State.Gutter_Markers);
+              (Global_Registry.Items (I).State.Gutter.Markers);
          end if;
       end loop;
 
@@ -1511,7 +1511,7 @@ package body Editor.Buffers is
       for I in Global_Registry.Items.First_Index .. Global_Registry.Items.Last_Index loop
          if Global_Registry.Items (I).State /= null then
             Editor.Gutter_Markers.Clear_Bookmarks
-              (Global_Registry.Items (I).State.Gutter_Markers);
+              (Global_Registry.Items (I).State.Gutter.Markers);
          end if;
       end loop;
    end Global_Clear_All_Bookmarks;
@@ -1529,7 +1529,7 @@ package body Editor.Buffers is
          if Global_Registry.Items (I).State /= null then
             Line_Count := Editor.State.Line_Count (Global_Registry.Items (I).State.all);
             Editor.Gutter_Markers.Prune_Bookmarks_At_Or_After
-              (Global_Registry.Items (I).State.Gutter_Markers, Line_Count);
+              (Global_Registry.Items (I).State.Gutter.Markers, Line_Count);
          end if;
       end loop;
    end Global_Prune_Stale_Bookmarks;

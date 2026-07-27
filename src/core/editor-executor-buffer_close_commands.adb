@@ -372,7 +372,7 @@ package body Editor.Executor.Buffer_Close_Commands is
                Editor.Executor.Buffer_Close_Prompt_Commands.Execute_Close_Other_Buffers_Confirmed
                  (S, Editor.Buffers.Buffer_Id (Target.Buffer_Id));
             else
-               Editor.Pending_Transitions.Clear (S.Pending_Transitions);
+               Editor.Pending_Transitions.Clear (S.Workflow.Pending_Transitions);
                Editor.Executor.Shared_Services.Report_Warning (S, Editor.Commands.Workflow_Messages.Reason_Close_Review_Stale);
             end if;
          when Editor.Pending_Transitions.Pending_Open_Project
@@ -417,12 +417,12 @@ package body Editor.Executor.Buffer_Close_Commands is
       Closed : Natural := 0;
       Kept   : Natural := 0;
    begin
-      if not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions) then
+      if not Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions) then
          Editor.Executor.Shared_Services.Report_Info (S, Editor.Dirty_Guards.No_Pending_Transition_Message);
          return;
       end if;
 
-      Target := Editor.Pending_Transitions.Target (S.Pending_Transitions);
+      Target := Editor.Pending_Transitions.Target (S.Workflow.Pending_Transitions);
       if Target.Kind in Editor.Pending_Transitions.Pending_Reload_Active_Buffer
           | Editor.Pending_Transitions.Pending_Revert_Active_Buffer
       then
@@ -434,7 +434,7 @@ package body Editor.Executor.Buffer_Close_Commands is
       end if;
 
       if not Editor.Executor.Pending_Transition_Policy.Pending_Target_Is_Valid (S, Target) then
-         Editor.Pending_Transitions.Clear (S.Pending_Transitions);
+         Editor.Pending_Transitions.Clear (S.Workflow.Pending_Transitions);
          Editor.Executor.Shared_Services.Report_Warning (S, Editor.Dirty_Guards.Pending_Transition_No_Longer_Valid_Message);
          return;
       end if;
@@ -478,13 +478,13 @@ package body Editor.Executor.Buffer_Close_Commands is
          S.Buffer_Lifecycle.File_Info := (others => <>);
          S.Buffer_Lifecycle.Buffer_Revision := 0;
          S.Buffer_Lifecycle.Active_Buffer_Token := 0;
-         S.Line_Starts.Clear;
-         S.Line_Starts.Append (0);
+         S.Text_Projection.Line_Starts.Clear;
+         S.Text_Projection.Line_Starts.Append (0);
       else
          Editor.Buffers.Load_Global_Active_Into_State (S);
       end if;
 
-      Editor.Pending_Transitions.Clear (S.Pending_Transitions);
+      Editor.Pending_Transitions.Clear (S.Workflow.Pending_Transitions);
       Continue_After_Pending_Discard (S, Target);
 
       if Target.Kind = Editor.Pending_Transitions.Pending_Close_Buffer then
@@ -657,7 +657,7 @@ package body Editor.Executor.Buffer_Close_Commands is
       Id : Editor.Buffers.Buffer_Id)
    is
    begin
-      Editor.Recent_Buffers.Remove (S.Recent_Buffers, Natural (Id));
+      Editor.Recent_Buffers.Remove (S.Navigation.Recent_Buffers, Natural (Id));
       Editor.Feature_Panel_Controller.Reset_All_Features_For_Buffer_Close
         (S, Natural (Id));
       Editor.Feature_Messages.Reset_For_Buffer_Close
@@ -684,8 +684,8 @@ package body Editor.Executor.Buffer_Close_Commands is
       end if;
 
       Editor.Executor.Pending_Transition_Policy.Invalidate_Pending_Transition_If_Stale (S);
-      if Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel)
-        and then Editor.Panels.Active_Bottom_Content (S.Panels) =
+      if Editor.Panels.Is_Visible (S.Panel.Panels, Editor.Panels.Bottom_Panel)
+        and then Editor.Panels.Active_Bottom_Content (S.Panel.Panels) =
           Editor.Panels.Problems_Content
       then
          declare

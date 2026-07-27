@@ -37,8 +37,13 @@ with Editor.State_Panel;
 with Editor.State_Semantic;
 with Editor.State_Build;
 with Editor.State_Caret;
+with Editor.State_Gutter;
+with Editor.State_Navigation;
 with Editor.State_Outline;
 with Editor.State_Surface;
+with Editor.State_Settings;
+with Editor.State_Syntax;
+with Editor.State_Workflow;
 
 package Editor.State is
 
@@ -130,27 +135,20 @@ package Editor.State is
       --  Cached public line-start projection for callers that need direct
       --  row/index snapshots. Text_Buffer remains the authoritative text store;
       --  mutation paths must refresh this projection through the helpers below.
-      Line_Starts        : Line_Start_Vectors.Vector;
+      Text_Projection  : Editor.State_Buffer.Text_Projection_State;
       Search           : Editor.State_Search.Search_Runtime_State;
       Panel            : Editor.State_Panel.Panel_Runtime_State;
-      Gutter_Markers    : Editor.Gutter_Markers.Gutter_Marker_State;
-      Dirty_Lines       : Editor.Dirty_Lines.Dirty_Line_State;
+      Gutter           : Editor.State_Gutter.Gutter_Runtime_State;
       Project_Runtime   : Editor.State_Project.Project_Runtime_State;
-      Settings          : Editor.Settings.Settings_Model;
-      Pending_Transitions : Editor.Pending_Transitions.Pending_Transition_State;
-      Outline          : Editor.Outline.Outline_State;
+      Configuration    : Editor.State_Settings.Settings_Runtime_State;
+      Workflow         : Editor.State_Workflow.Workflow_Runtime_State;
       --  Passive outline cursor synchronization cache.  Cursor movement may
       --  update the current-symbol marker from the latest accepted outline,
       --  but it must not trigger extraction, selection changes, or navigation.
-      Outline_Cursor  : Editor.State_Outline.Outline_Cursor_Sync_State;
+      Outline_Runtime : Editor.State_Outline.Outline_Runtime_State;
       Surface         : Editor.State_Surface.Surface_Runtime_State;
-      Panels            : Editor.Panels.Panel_Set;
-      Navigation_History : Editor.Navigation_History.Navigation_History_State;
-      Recent_Buffers    : Editor.Recent_Buffers.Recent_Buffer_State;
-      Bookmarks         : Editor.Bookmarks.Bookmark_State;
-      Gutter_Marker_Hover : Editor.Gutter_Markers.Gutter_Marker_Hover_State;
+      Navigation      : Editor.State_Navigation.Navigation_Runtime_State;
       Semantic         : Editor.State_Semantic.Semantic_Runtime_State;
-      Folding           : Editor.Folding.Folding_State;
       --  Buffer lifecycle owns file identity, reopen candidates, active
       --  buffer tokens/revisions, file-target prompts, file-conflict prompts,
       --  and dirty-close review state. It is runtime/editor state only; no
@@ -159,19 +157,16 @@ package Editor.State is
       --  Transient per-buffer syntax state. This is intentionally runtime-only:
       --  it is invalidated by text changes/reload/revert, consumed by render
       --  snapshots, and never serialized to workspace/session files.
-      Syntax_Cache      : Editor.Syntax_Cache.Syntax_Cache;
-      Syntax_Symbols    : Editor.Syntax_Semantics.Semantic_Map;
       --  Parser-owned analysis retained for render-time scope-aware semantic
       --  lookup.  This is stamped with the same buffer/revision as
       --  Syntax_Symbols and is never persisted.
-      Syntax_Analysis   : Editor.Ada_Language_Model.Analysis_Result;
+      Syntax          : Editor.State_Syntax.Syntax_Runtime_State;
       Build            : Editor.State_Build.Build_Runtime_State;
       --  transient guided workflow prompt state. This state owns
       --  modal/scoped prompt input, validation, captured chords, and pending
       --  confirmation summaries only while a multi-step workflow is active.
       --  It is deliberately excluded from workspace, settings, keybindings,
       --  recent-projects, and every persistence domain.
-      Guided_Prompt : Editor.Guided_Prompts.Prompt_State;
    end record;
 
    subtype Project_Scoped_State_Summary is

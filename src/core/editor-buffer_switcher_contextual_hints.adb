@@ -182,7 +182,7 @@ package body Editor.Buffer_Switcher_Contextual_Hints is
         Editor.Buffer_Switcher.Build_Switcher_Batch_State_Snapshot
           (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI);
       Show_Keybindings : constant Boolean :=
-        Editor.Settings.Command_Palette_Show_Keybindings (S.Settings);
+        Editor.Settings.Command_Palette_Show_Keybindings (S.Configuration.Settings);
       Hints : Switcher_Contextual_Hint_Vectors.Vector;
       Found : Boolean := False;
       Row   : constant Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row :=

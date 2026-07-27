@@ -46,7 +46,7 @@ package body Editor.Executor.Outline_Commands is
             return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Clear_Outline =>
-            if not Editor.Outline.Has_Items (S.Outline) then
+            if not Editor.Outline.Has_Items (S.Outline_Runtime.Outline) then
                return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Reason_No_Outline_Items);
             end if;
@@ -87,12 +87,12 @@ package body Editor.Executor.Outline_Commands is
             if not Has_Buffer then
                return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Reason_No_Active_Buffer);
-            elsif Editor.Outline.Source_Class (S.Outline) /=
+            elsif Editor.Outline.Source_Class (S.Outline_Runtime.Outline) /=
               Editor.Outline.Extracted_Outline
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Reason_No_Outline_Items);
-            elsif Editor.Outline.Last_Extraction_Source_Class (S.Outline) =
+            elsif Editor.Outline.Last_Extraction_Source_Class (S.Outline_Runtime.Outline) =
               Editor.Outline.Stale_Extracted_Outline
             then
                return Editor.Commands.Availability_Metadata.Unavailable
@@ -108,7 +108,7 @@ package body Editor.Executor.Outline_Commands is
                      return Editor.Commands.Availability_Metadata.Unavailable
                        (Editor.Outline.Reason_No_Active_Buffer);
                   elsif not Editor.Outline.Outline_Buffer_Identity_Matches
-                    (S.Outline, Buffer)
+                    (S.Outline_Runtime.Outline, Buffer)
                   then
                      return Editor.Commands.Availability_Metadata.Unavailable
                        (Editor.Outline.Reason_Outline_Belongs_To_Another_Buffer);
@@ -118,10 +118,10 @@ package body Editor.Executor.Outline_Commands is
                     (S, Natural (Safe_Caret (S)), Row, Col);
                   if Id = Command_Next_Outline_Symbol then
                      Target := Editor.Outline.Find_Next_Symbol_For_Position
-                       (S.Outline, Buffer, Row + 1, Col + 1, True);
+                       (S.Outline_Runtime.Outline, Buffer, Row + 1, Col + 1, True);
                   else
                      Target := Editor.Outline.Find_Previous_Symbol_For_Position
-                       (S.Outline, Buffer, Row + 1, Col + 1, True);
+                       (S.Outline_Runtime.Outline, Buffer, Row + 1, Col + 1, True);
                   end if;
 
                   if Target = 0 then
@@ -137,12 +137,12 @@ package body Editor.Executor.Outline_Commands is
             if not Has_Buffer then
                return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Reason_No_Active_Buffer);
-            elsif Editor.Outline.Source_Class (S.Outline) /=
+            elsif Editor.Outline.Source_Class (S.Outline_Runtime.Outline) /=
               Editor.Outline.Extracted_Outline
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Reason_No_Outline_Items);
-            elsif Editor.Outline.Last_Extraction_Source_Class (S.Outline) =
+            elsif Editor.Outline.Last_Extraction_Source_Class (S.Outline_Runtime.Outline) =
               Editor.Outline.Stale_Extracted_Outline
             then
                return Editor.Commands.Availability_Metadata.Unavailable
@@ -158,7 +158,7 @@ package body Editor.Executor.Outline_Commands is
                      return Editor.Commands.Availability_Metadata.Unavailable
                        (Editor.Outline.Reason_No_Active_Buffer);
                   elsif not Editor.Outline.Outline_Buffer_Identity_Matches
-                    (S.Outline, Buffer)
+                    (S.Outline_Runtime.Outline, Buffer)
                   then
                      return Editor.Commands.Availability_Metadata.Unavailable
                        (Editor.Outline.Reason_Outline_Belongs_To_Another_Buffer);
@@ -167,13 +167,13 @@ package body Editor.Executor.Outline_Commands is
                   Editor.Navigation.Line_Column_For_Index
                     (S, Natural (Safe_Caret (S)), Row, Col);
                   Target := Editor.Outline.Find_Current_Symbol_For_Cursor
-                    (S.Outline, Buffer, Row + 1, Col + 1);
+                    (S.Outline_Runtime.Outline, Buffer, Row + 1, Col + 1);
 
                   if Target = 0 then
                      return Editor.Commands.Availability_Metadata.Unavailable
                        (Editor.Outline.Message_Outline_No_Current_Symbol);
                   elsif Editor.Outline.Visible_Row_For_Outline_Row
-                    (S.Outline, Target) = 0
+                    (S.Outline_Runtime.Outline, Target) = 0
                   then
                      return Editor.Commands.Availability_Metadata.Unavailable
                        (Editor.Outline.Message_Outline_No_Matching_Symbols);
@@ -187,22 +187,22 @@ package body Editor.Executor.Outline_Commands is
             if not Has_Buffer then
                return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Reason_No_Active_Buffer);
-            elsif Editor.Outline.Source_Class (S.Outline) /=
+            elsif Editor.Outline.Source_Class (S.Outline_Runtime.Outline) /=
               Editor.Outline.Extracted_Outline
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Reason_No_Outline_Items);
-            elsif Editor.Outline.Last_Extraction_Source_Class (S.Outline) =
+            elsif Editor.Outline.Last_Extraction_Source_Class (S.Outline_Runtime.Outline) =
               Editor.Outline.Stale_Extracted_Outline
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Message_Outline_Stale_Result_Discarded);
             elsif not Editor.Outline.Outline_Buffer_Identity_Matches
-              (S.Outline, Active_Feature_Buffer_Token (S))
+              (S.Outline_Runtime.Outline, Active_Feature_Buffer_Token (S))
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Reason_Outline_Belongs_To_Another_Buffer);
-            elsif not Editor.Outline.Has_Selectable_Filter_Match (S.Outline) then
+            elsif not Editor.Outline.Has_Selectable_Filter_Match (S.Outline_Runtime.Outline) then
                return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Message_Outline_No_Matching_Symbols);
             end if;
@@ -216,18 +216,18 @@ package body Editor.Executor.Outline_Commands is
             if not Has_Buffer then
                return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Reason_No_Active_Buffer);
-            elsif Editor.Outline.Source_Class (S.Outline) /=
+            elsif Editor.Outline.Source_Class (S.Outline_Runtime.Outline) /=
               Editor.Outline.Extracted_Outline
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Reason_No_Outline_Items);
-            elsif Editor.Outline.Last_Extraction_Source_Class (S.Outline) =
+            elsif Editor.Outline.Last_Extraction_Source_Class (S.Outline_Runtime.Outline) =
               Editor.Outline.Stale_Extracted_Outline
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Message_Outline_Stale_Result_Discarded);
             elsif not Editor.Outline.Outline_Buffer_Identity_Matches
-              (S.Outline, Active_Feature_Buffer_Token (S))
+              (S.Outline_Runtime.Outline, Active_Feature_Buffer_Token (S))
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Reason_Outline_Belongs_To_Another_Buffer);
@@ -236,7 +236,7 @@ package body Editor.Executor.Outline_Commands is
 
          when Command_Clear_Outline_Filter
             | Command_Clear_Outline_Filter_History =>
-            if Editor.Outline.Source_Class (S.Outline) /=
+            if Editor.Outline.Source_Class (S.Outline_Runtime.Outline) /=
               Editor.Outline.Extracted_Outline
             then
                return Editor.Commands.Availability_Metadata.Unavailable
@@ -310,7 +310,7 @@ package body Editor.Executor.Outline_Commands is
       Editor.Buffers.Ensure_Global_Registry (S);
       declare
          Request_Token : constant Natural :=
-           Editor.Outline.Next_Request_Token (S.Outline);
+           Editor.Outline.Next_Request_Token (S.Outline_Runtime.Outline);
          Text : constant String := Editor.State.Current_Text (S);
          Snapshot : constant Editor.Outline_Extractor.Buffer_Text_Snapshot :=
            Editor.Outline_Extractor.Make_Snapshot
@@ -330,23 +330,23 @@ package body Editor.Executor.Outline_Commands is
             declare
                Mapped_Selected : constant Natural :=
                  Editor.Outline.Map_Panel_Row_To_Outline_Row
-                   (S.Outline, S.Panel.Feature_Panel,
+                   (S.Outline_Runtime.Outline, S.Panel.Feature_Panel,
                     Editor.Feature_Panel.Selected_Row (S.Panel.Feature_Panel));
             begin
-               Editor.Outline.Select_Item (S.Outline, Mapped_Selected);
+               Editor.Outline.Select_Item (S.Outline_Runtime.Outline, Mapped_Selected);
             end;
          else
-            Editor.Outline.Select_Item (S.Outline, 0);
+            Editor.Outline.Select_Item (S.Outline_Runtime.Outline, 0);
          end if;
 
          Editor.Outline.Begin_Extraction
-           (S.Outline, Editor.Outline_Extractor.Identity (Snapshot));
+           (S.Outline_Runtime.Outline, Editor.Outline_Extractor.Identity (Snapshot));
          Extract_Result := Editor.Outline_Extractor.Extract (Snapshot);
 
          case Editor.Outline_Extractor.Status (Extract_Result) is
             when Editor.Outline_Extractor.Extraction_Ok =>
                Editor.Outline_Extractor.Apply_To_Outline
-                 (Extract_Result, S.Outline);
+                 (Extract_Result, S.Outline_Runtime.Outline);
                declare
                   Cursor_Row : Natural := 0;
                   Cursor_Col : Natural := 0;
@@ -354,13 +354,13 @@ package body Editor.Executor.Outline_Commands is
                   Editor.Navigation.Line_Column_For_Index
                     (S, Natural (Safe_Caret (S)), Cursor_Row, Cursor_Col);
                   Editor.Outline.Update_Current_Symbol_For_Cursor
-                    (S.Outline, Active_Feature_Buffer_Token (S),
+                    (S.Outline_Runtime.Outline, Active_Feature_Buffer_Token (S),
                      Cursor_Row + 1, Cursor_Col + 1);
                end;
                Editor.Feature_Panel.Forget_Feature_View_State
                  (S.Panel.Feature_Panel, Editor.Feature_Panel.Outline_Feature);
                Editor.Outline.Set_Rows_From_Outline
-                 (S.Outline, S.Panel.Feature_Panel);
+                 (S.Outline_Runtime.Outline, S.Panel.Feature_Panel);
                Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
                Report_Info (S, Editor.Outline.Message_Outline_Refreshed);
                Editor.Render_Cache.Invalidate_All;
@@ -368,24 +368,24 @@ package body Editor.Executor.Outline_Commands is
 
             when Editor.Outline_Extractor.Extraction_Unavailable =>
                Editor.Outline_Extractor.Apply_To_Outline
-                 (Extract_Result, S.Outline);
-               Editor.Outline.Clear_Current_Symbol (S.Outline);
+                 (Extract_Result, S.Outline_Runtime.Outline);
+               Editor.Outline.Clear_Current_Symbol (S.Outline_Runtime.Outline);
                Editor.Feature_Panel.Forget_Feature_View_State
                  (S.Panel.Feature_Panel, Editor.Feature_Panel.Outline_Feature);
                Editor.Outline.Set_Rows_From_Outline
-                 (S.Outline, S.Panel.Feature_Panel);
+                 (S.Outline_Runtime.Outline, S.Panel.Feature_Panel);
                Report_Info (S, Editor.Outline.Message_Outline_Unsupported_Buffer);
                Editor.Render_Cache.Invalidate_All;
                return Editor.Command_Execution.Unavailable (Id);
 
             when Editor.Outline_Extractor.Extraction_Failed =>
                Editor.Outline_Extractor.Apply_To_Outline
-                 (Extract_Result, S.Outline);
-               Editor.Outline.Clear_Current_Symbol (S.Outline);
+                 (Extract_Result, S.Outline_Runtime.Outline);
+               Editor.Outline.Clear_Current_Symbol (S.Outline_Runtime.Outline);
                Editor.Feature_Panel.Forget_Feature_View_State
                  (S.Panel.Feature_Panel, Editor.Feature_Panel.Outline_Feature);
                Editor.Outline.Set_Rows_From_Outline
-                 (S.Outline, S.Panel.Feature_Panel);
+                 (S.Outline_Runtime.Outline, S.Panel.Feature_Panel);
                Report_Info (S, Editor.Outline.Message_Outline_Refresh_Failed);
                Editor.Render_Cache.Invalidate_All;
                return Editor.Command_Execution.Failed (Id);
@@ -427,10 +427,10 @@ package body Editor.Executor.Outline_Commands is
       return Editor.Command_Execution.Command_Execution_Result
    is
    begin
-      if not Editor.Outline.Has_Items (S.Outline) then
+      if not Editor.Outline.Has_Items (S.Outline_Runtime.Outline) then
          return No_Op (Id);
       end if;
-      Editor.Outline.Clear (S.Outline);
+      Editor.Outline.Clear (S.Outline_Runtime.Outline);
       Editor.Feature_Panel.Forget_Feature_View_State
         (S.Panel.Feature_Panel, Editor.Feature_Panel.Outline_Feature);
       Editor.Feature_Panel.Clear_Rows (S.Panel.Feature_Panel);
@@ -446,7 +446,7 @@ package body Editor.Executor.Outline_Commands is
    is
    begin
       if not Editor.State.Has_Active_Buffer (S) then
-         Editor.Outline.Mark_No_Active_Buffer (S.Outline);
+         Editor.Outline.Mark_No_Active_Buffer (S.Outline_Runtime.Outline);
          Editor.Feature_Panel.Forget_Feature_View_State
            (S.Panel.Feature_Panel, Editor.Feature_Panel.Outline_Feature);
       end if;
@@ -479,13 +479,13 @@ package body Editor.Executor.Outline_Commands is
       return Editor.Command_Execution.Command_Execution_Result
    is
    begin
-      if Editor.Outline.Selected_Index (S.Outline) > 0
+      if Editor.Outline.Selected_Index (S.Outline_Runtime.Outline) > 0
         and then
           (Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel) /=
              Editor.Feature_Panel.Outline_Feature
            or else not Editor.Feature_Panel.Has_Selection (S.Panel.Feature_Panel))
       then
-         Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+         Editor.Outline.Set_Rows_From_Outline (S.Outline_Runtime.Outline, S.Panel.Feature_Panel);
       end if;
 
       declare
@@ -493,7 +493,7 @@ package body Editor.Executor.Outline_Commands is
            Editor.Feature_Panel.Selected_Row (S.Panel.Feature_Panel);
          Outline_Row : constant Natural :=
            Editor.Outline.Map_Panel_Row_To_Outline_Row
-             (S.Outline, S.Panel.Feature_Panel, Row);
+             (S.Outline_Runtime.Outline, S.Panel.Feature_Panel, Row);
       begin
          if Outline_Row = 0 then
             Report_Info (S, Editor.Outline.Message_Outline_Item_Has_No_Target);
@@ -504,14 +504,14 @@ package body Editor.Executor.Outline_Commands is
          declare
             Target_Buffer : constant Natural :=
               Editor.Outline.Item_Buffer_Token
-                (S.Outline, Positive (Outline_Row));
+                (S.Outline_Runtime.Outline, Positive (Outline_Row));
             Target_Line : constant Natural :=
-              Editor.Outline.Item_Line (S.Outline, Positive (Outline_Row));
+              Editor.Outline.Item_Line (S.Outline_Runtime.Outline, Positive (Outline_Row));
             Target_Column_One_Based : constant Natural :=
-              Editor.Outline.Item_Column (S.Outline, Positive (Outline_Row));
+              Editor.Outline.Item_Column (S.Outline_Runtime.Outline, Positive (Outline_Row));
          begin
             if not Editor.Outline.Validate_Outline_Row_For_Activation
-                (S.Outline, S.Panel.Feature_Panel, Row, Target_Buffer)
+                (S.Outline_Runtime.Outline, S.Panel.Feature_Panel, Row, Target_Buffer)
               or else not Feature_Target_Position_Is_Valid
                 (S, Target_Buffer, Target_Line, Target_Column_One_Based)
             then
@@ -547,20 +547,20 @@ package body Editor.Executor.Outline_Commands is
          Report_Info (S, Editor.Outline.Reason_No_Active_Buffer);
          Editor.Render_Cache.Invalidate_All;
          return No_Op (Id);
-      elsif Editor.Outline.Source_Class (S.Outline) /=
+      elsif Editor.Outline.Source_Class (S.Outline_Runtime.Outline) /=
         Editor.Outline.Extracted_Outline
       then
          Report_Info (S, Editor.Outline.Reason_No_Outline_Items);
          Editor.Render_Cache.Invalidate_All;
          return No_Op (Id);
-      elsif Editor.Outline.Last_Extraction_Source_Class (S.Outline) =
+      elsif Editor.Outline.Last_Extraction_Source_Class (S.Outline_Runtime.Outline) =
         Editor.Outline.Stale_Extracted_Outline
       then
          Report_Info (S, Editor.Outline.Message_Outline_Stale_Result_Discarded);
          Editor.Render_Cache.Invalidate_All;
          return No_Op (Id);
       elsif not Editor.Outline.Outline_Buffer_Identity_Matches
-        (S.Outline, Active_Feature_Buffer_Token (S))
+        (S.Outline_Runtime.Outline, Active_Feature_Buffer_Token (S))
       then
          Report_Info (S, Editor.Outline.Reason_Outline_Belongs_To_Another_Buffer);
          Editor.Render_Cache.Invalidate_All;
@@ -568,10 +568,10 @@ package body Editor.Executor.Outline_Commands is
       end if;
 
       Sync_Current_Outline_Symbol_From_Caret (S);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline_Runtime.Outline, S.Panel.Feature_Panel);
 
       if not Editor.Outline.Can_Reveal_Current_Symbol
-        (S.Outline, S.Panel.Feature_Panel, Active_Feature_Buffer_Token (S))
+        (S.Outline_Runtime.Outline, S.Panel.Feature_Panel, Active_Feature_Buffer_Token (S))
       then
          Editor.Feature_Panel.Clear_Reveal_Request (S.Panel.Feature_Panel);
          Report_Info (S, Editor.Outline.Message_Outline_No_Current_Symbol);
@@ -580,9 +580,9 @@ package body Editor.Executor.Outline_Commands is
       end if;
 
       Target := Editor.Outline.Visible_Row_For_Outline_Row
-        (S.Outline, Editor.Outline.Current_Symbol_Index (S.Outline));
+        (S.Outline_Runtime.Outline, Editor.Outline.Current_Symbol_Index (S.Outline_Runtime.Outline));
       Editor.Outline.Select_Item
-        (S.Outline, Editor.Outline.Current_Symbol_Index (S.Outline));
+        (S.Outline_Runtime.Outline, Editor.Outline.Current_Symbol_Index (S.Outline_Runtime.Outline));
       Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
       Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, Target);
       Editor.Feature_Panel.Request_Reveal_Row (S.Panel.Feature_Panel, Target);
@@ -597,14 +597,14 @@ package body Editor.Executor.Outline_Commands is
       return Boolean
    is
    begin
-      if Editor.Outline.Last_Extraction_Source_Class (S.Outline) =
+      if Editor.Outline.Last_Extraction_Source_Class (S.Outline_Runtime.Outline) =
         Editor.Outline.Stale_Extracted_Outline
       then
          Report_Info (S, Editor.Outline.Message_Outline_Stale_Result_Discarded);
          Editor.Render_Cache.Invalidate_All;
          return False;
       elsif not Editor.Outline.Outline_Buffer_Identity_Matches
-        (S.Outline, Active_Feature_Buffer_Token (S))
+        (S.Outline_Runtime.Outline, Active_Feature_Buffer_Token (S))
       then
          Report_Info (S, Editor.Outline.Reason_Outline_Belongs_To_Another_Buffer);
          Editor.Render_Cache.Invalidate_All;
@@ -624,7 +624,7 @@ package body Editor.Executor.Outline_Commands is
       Target : Natural := 0;
       Buffer : constant Natural := Active_Feature_Buffer_Token (S);
    begin
-      if Buffer = 0 or else Editor.Outline.Source_Class (S.Outline) /=
+      if Buffer = 0 or else Editor.Outline.Source_Class (S.Outline_Runtime.Outline) /=
         Editor.Outline.Extracted_Outline
       then
          Report_Info (S, Editor.Outline.Message_Outline_No_Symbols);
@@ -638,10 +638,10 @@ package body Editor.Executor.Outline_Commands is
         (S, Natural (Safe_Caret (S)), Row, Col);
       if Id = Editor.Command_Ids.Command_Next_Outline_Symbol then
          Target := Editor.Outline.Find_Next_Symbol_For_Position
-           (S.Outline, Buffer, Row + 1, Col + 1, True);
+           (S.Outline_Runtime.Outline, Buffer, Row + 1, Col + 1, True);
       else
          Target := Editor.Outline.Find_Previous_Symbol_For_Position
-           (S.Outline, Buffer, Row + 1, Col + 1, True);
+           (S.Outline_Runtime.Outline, Buffer, Row + 1, Col + 1, True);
       end if;
 
       if Target = 0 then
@@ -652,11 +652,11 @@ package body Editor.Executor.Outline_Commands is
 
       declare
          Target_Buffer : constant Natural :=
-           Editor.Outline.Item_Buffer_Token (S.Outline, Positive (Target));
+           Editor.Outline.Item_Buffer_Token (S.Outline_Runtime.Outline, Positive (Target));
          Target_Line : constant Natural :=
-           Editor.Outline.Item_Line (S.Outline, Positive (Target));
+           Editor.Outline.Item_Line (S.Outline_Runtime.Outline, Positive (Target));
          Target_Column_One_Based : constant Natural :=
-           Editor.Outline.Item_Column (S.Outline, Positive (Target));
+           Editor.Outline.Item_Column (S.Outline_Runtime.Outline, Positive (Target));
       begin
          if Target_Buffer /= Buffer
            or else not Feature_Target_Position_Is_Valid
@@ -667,12 +667,12 @@ package body Editor.Executor.Outline_Commands is
             return No_Op (Id);
          end if;
 
-         Editor.Outline.Select_Item (S.Outline, Target);
-         Editor.Outline.Set_Current_Symbol_Index (S.Outline, Target);
-         Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+         Editor.Outline.Select_Item (S.Outline_Runtime.Outline, Target);
+         Editor.Outline.Set_Current_Symbol_Index (S.Outline_Runtime.Outline, Target);
+         Editor.Outline.Set_Rows_From_Outline (S.Outline_Runtime.Outline, S.Panel.Feature_Panel);
          declare
             Visible_Target : constant Natural :=
-              Editor.Outline.Visible_Row_For_Outline_Row (S.Outline, Target);
+              Editor.Outline.Visible_Row_For_Outline_Row (S.Outline_Runtime.Outline, Target);
          begin
             if Visible_Target /= 0 then
                Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, Visible_Target);
@@ -702,7 +702,7 @@ package body Editor.Executor.Outline_Commands is
          Report_Info (S, Editor.Outline.Reason_No_Active_Buffer);
          Editor.Render_Cache.Invalidate_All;
          return No_Op (Id);
-      elsif Editor.Outline.Source_Class (S.Outline) /=
+      elsif Editor.Outline.Source_Class (S.Outline_Runtime.Outline) /=
         Editor.Outline.Extracted_Outline
       then
          Report_Info (S, Editor.Outline.Reason_No_Outline_Items);
@@ -715,7 +715,7 @@ package body Editor.Executor.Outline_Commands is
       Editor.Navigation.Line_Column_For_Index
         (S, Natural (Safe_Caret (S)), Row, Col);
       Target := Editor.Outline.Find_Current_Symbol_For_Cursor
-        (S.Outline, Buffer, Row + 1, Col + 1);
+        (S.Outline_Runtime.Outline, Buffer, Row + 1, Col + 1);
 
       if Target = 0 then
          Report_Info (S, Editor.Outline.Message_Outline_No_Current_Symbol);
@@ -723,19 +723,19 @@ package body Editor.Executor.Outline_Commands is
          return No_Op (Id);
       end if;
 
-      if Editor.Outline.Visible_Row_For_Outline_Row (S.Outline, Target) = 0 then
+      if Editor.Outline.Visible_Row_For_Outline_Row (S.Outline_Runtime.Outline, Target) = 0 then
          Report_Info (S, Editor.Outline.Message_Outline_No_Matching_Symbols);
          Editor.Render_Cache.Invalidate_All;
          return No_Op (Id);
       end if;
 
       Editor.Outline.Update_Current_Symbol_For_Cursor
-        (S.Outline, Buffer, Row + 1, Col + 1);
-      Editor.Outline.Select_Item (S.Outline, Target);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+        (S.Outline_Runtime.Outline, Buffer, Row + 1, Col + 1);
+      Editor.Outline.Select_Item (S.Outline_Runtime.Outline, Target);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline_Runtime.Outline, S.Panel.Feature_Panel);
       declare
          Visible_Target : constant Natural :=
-           Editor.Outline.Visible_Row_For_Outline_Row (S.Outline, Target);
+           Editor.Outline.Visible_Row_For_Outline_Row (S.Outline_Runtime.Outline, Target);
       begin
          Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, Visible_Target);
          Editor.Feature_Panel.Request_Reveal_Row
@@ -753,7 +753,7 @@ package body Editor.Executor.Outline_Commands is
    is
    begin
       if not Editor.Outline.Outline_Buffer_Identity_Matches
-        (S.Outline, Active_Feature_Buffer_Token (S))
+        (S.Outline_Runtime.Outline, Active_Feature_Buffer_Token (S))
       then
          Report_Info (S, Editor.Outline.Reason_Outline_Belongs_To_Another_Buffer);
          Editor.Render_Cache.Invalidate_All;
@@ -761,13 +761,13 @@ package body Editor.Executor.Outline_Commands is
       end if;
 
       if (if Next
-          then Editor.Outline.Select_Next_Selectable (S.Outline)
-          else Editor.Outline.Select_Previous_Selectable (S.Outline))
+          then Editor.Outline.Select_Next_Selectable (S.Outline_Runtime.Outline)
+          else Editor.Outline.Select_Previous_Selectable (S.Outline_Runtime.Outline))
       then
          declare
             Visible_Target : constant Natural :=
               Editor.Outline.Visible_Row_For_Outline_Row
-                (S.Outline, Editor.Outline.Selected_Index (S.Outline));
+                (S.Outline_Runtime.Outline, Editor.Outline.Selected_Index (S.Outline_Runtime.Outline));
          begin
             Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, Visible_Target);
             Editor.Feature_Panel.Request_Reveal_Row
@@ -794,7 +794,7 @@ package body Editor.Executor.Outline_Commands is
 
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_Outline_Filter);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline_Runtime.Outline, S.Panel.Feature_Panel);
       Editor.Render_Cache.Invalidate_All;
       return Executed (Id);
    end Execute_Focus_Outline_Filter;
@@ -811,11 +811,11 @@ package body Editor.Executor.Outline_Commands is
       end if;
 
       if Length (Cmd.Text) > 0 then
-         Editor.Outline.Apply_Filter (S.Outline, To_String (Cmd.Text));
+         Editor.Outline.Apply_Filter (S.Outline_Runtime.Outline, To_String (Cmd.Text));
       else
-         Editor.Outline.Apply_Filter (S.Outline, To_String (Cmd.Query));
+         Editor.Outline.Apply_Filter (S.Outline_Runtime.Outline, To_String (Cmd.Query));
       end if;
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline_Runtime.Outline, S.Panel.Feature_Panel);
       Editor.Render_Cache.Invalidate_All;
       return Executed (Id);
    end Execute_Filter_Outline;
@@ -826,8 +826,8 @@ package body Editor.Executor.Outline_Commands is
       return Editor.Command_Execution.Command_Execution_Result
    is
    begin
-      Editor.Outline.Clear_Filter (S.Outline);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Outline.Clear_Filter (S.Outline_Runtime.Outline);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline_Runtime.Outline, S.Panel.Feature_Panel);
       Editor.Render_Cache.Invalidate_All;
       return Executed (Id);
    end Execute_Clear_Outline_Filter;
@@ -842,13 +842,13 @@ package body Editor.Executor.Outline_Commands is
          return No_Op (Id);
       end if;
 
-      if Editor.Outline.Filter_Input_Is_Active (S.Outline) then
-         Editor.Outline.Deactivate_Filter_Input (S.Outline);
+      if Editor.Outline.Filter_Input_Is_Active (S.Outline_Runtime.Outline) then
+         Editor.Outline.Deactivate_Filter_Input (S.Outline_Runtime.Outline);
       else
          Editor.Focus_Management.Set_Focus_Owner
            (S, Editor.Focus_Management.Focus_Outline_Filter);
       end if;
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline_Runtime.Outline, S.Panel.Feature_Panel);
       Editor.Render_Cache.Invalidate_All;
       return Executed (Id);
    end Execute_Toggle_Outline_Filter;
@@ -867,10 +867,10 @@ package body Editor.Executor.Outline_Commands is
 
       Changed :=
         (if Next
-         then Editor.Outline.Select_Next_Filter_History_Entry (S.Outline)
-         else Editor.Outline.Select_Previous_Filter_History_Entry (S.Outline));
+         then Editor.Outline.Select_Next_Filter_History_Entry (S.Outline_Runtime.Outline)
+         else Editor.Outline.Select_Previous_Filter_History_Entry (S.Outline_Runtime.Outline));
       if Changed then
-         Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+         Editor.Outline.Set_Rows_From_Outline (S.Outline_Runtime.Outline, S.Panel.Feature_Panel);
          Editor.Render_Cache.Invalidate_All;
          return Executed (Id);
       end if;
@@ -883,7 +883,7 @@ package body Editor.Executor.Outline_Commands is
       return Editor.Command_Execution.Command_Execution_Result
    is
    begin
-      Editor.Outline.Clear_Filter_History (S.Outline);
+      Editor.Outline.Clear_Filter_History (S.Outline_Runtime.Outline);
       Editor.Render_Cache.Invalidate_All;
       return Executed (Id);
    end Execute_Clear_Outline_Filter_History;
@@ -947,18 +947,18 @@ package body Editor.Executor.Outline_Commands is
    is
       Mapped : constant Natural :=
         Editor.Outline.Map_Panel_Row_To_Outline_Row
-          (S.Outline, S.Panel.Feature_Panel, Row, Expected_Panel_Generation);
+          (S.Outline_Runtime.Outline, S.Panel.Feature_Panel, Row, Expected_Panel_Generation);
    begin
       if Mapped = 0
         or else not Editor.Outline.Validate_Outline_Row_For_Selection
-          (S.Outline, S.Panel.Feature_Panel, Row, Expected_Panel_Generation)
+          (S.Outline_Runtime.Outline, S.Panel.Feature_Panel, Row, Expected_Panel_Generation)
       then
          Report_Target_Unavailable (S);
          Editor.Render_Cache.Invalidate_All;
          return No_Op (Editor.Command_Ids.Command_Open_Selected_Outline_Item);
       end if;
 
-      Editor.Outline.Select_Item (S.Outline, Mapped);
+      Editor.Outline.Select_Item (S.Outline_Runtime.Outline, Mapped);
       Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, Row);
       Editor.Render_Cache.Invalidate_All;
       return Executed (Editor.Command_Ids.Command_Open_Selected_Outline_Item);
@@ -972,13 +972,13 @@ package body Editor.Executor.Outline_Commands is
    is
       Mapped : constant Natural :=
         Editor.Outline.Map_Panel_Row_To_Outline_Row
-          (S.Outline, S.Panel.Feature_Panel, Row, Expected_Panel_Generation);
+          (S.Outline_Runtime.Outline, S.Panel.Feature_Panel, Row, Expected_Panel_Generation);
       Click_Result : Editor.Command_Execution.Command_Execution_Result;
    begin
       if Mapped = 0
         or else not Editor.Outline.Validate_Outline_Row_For_Activation
-          (S.Outline, S.Panel.Feature_Panel, Row,
-           Editor.Outline.Item_Buffer_Token (S.Outline, Positive (Mapped)),
+          (S.Outline_Runtime.Outline, S.Panel.Feature_Panel, Row,
+           Editor.Outline.Item_Buffer_Token (S.Outline_Runtime.Outline, Positive (Mapped)),
            Expected_Panel_Generation)
       then
          Report_Target_Unavailable (S);

@@ -495,7 +495,7 @@ package body Editor.Executor.Project_Lifecycle_Commands is
    function Capture_Retained_Outside_Recent_Buffers
      (S : in out Editor.State.State_Type) return Retained_Recent_Buffer_Snapshot
    is
-      Count    : constant Natural := Editor.Recent_Buffers.Count (S.Recent_Buffers);
+      Count    : constant Natural := Editor.Recent_Buffers.Count (S.Navigation.Recent_Buffers);
       Snapshot : Retained_Recent_Buffer_Snapshot (1 .. Count) :=
         (others => Editor.Recent_Buffers.No_Buffer_Key);
       Sets     : constant Editor.Buffers.Buffer_Project_Lifecycle_Sets :=
@@ -505,7 +505,7 @@ package body Editor.Executor.Project_Lifecycle_Commands is
       for Index in 1 .. Count loop
          declare
             Key : constant Editor.Recent_Buffers.Buffer_Key :=
-              Editor.Recent_Buffers.Id_At (S.Recent_Buffers, Index);
+              Editor.Recent_Buffers.Id_At (S.Navigation.Recent_Buffers, Index);
             Id  : constant Editor.Buffers.Buffer_Id := Editor.Buffers.Buffer_Id (Key);
          begin
             if Key /= Editor.Recent_Buffers.No_Buffer_Key
@@ -532,12 +532,12 @@ package body Editor.Executor.Project_Lifecycle_Commands is
              (Editor.Buffers.Buffer_Id (Snapshot (Index)))
          then
             Editor.Recent_Buffers.Mark_Activated
-              (S.Recent_Buffers,
+              (S.Navigation.Recent_Buffers,
                Snapshot (Index),
                Preserve_Traversal => True);
          end if;
       end loop;
-      Editor.Recent_Buffers.Clear_Traversal (S.Recent_Buffers);
+      Editor.Recent_Buffers.Clear_Traversal (S.Navigation.Recent_Buffers);
    end Restore_Retained_Outside_Recent_Buffers;
 
    function Active_Buffer_Retained_Outside_Project
@@ -661,12 +661,12 @@ package body Editor.Executor.Project_Lifecycle_Commands is
          else "");
    begin
 
-      if Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions) then
+      if Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions) then
          if not Pending_Project_Close_Command_Matches (S) then
             Report_Warning (S, "Command unavailable while confirmation is pending");
             return;
          elsif not Pending_Transition_Is_Still_Valid (S) then
-            Editor.Pending_Transitions.Clear (S.Pending_Transitions);
+            Editor.Pending_Transitions.Clear (S.Workflow.Pending_Transitions);
             Report_Warning
               (S, Editor.Dirty_Guards.Pending_Transition_No_Longer_Valid_Message);
             return;
@@ -724,7 +724,7 @@ package body Editor.Executor.Project_Lifecycle_Commands is
       --  closing a project retains outside-project
       --  buffers under the selected policy, so their undo/redo stacks must remain
       --  intact.  Navigation history is still project-scoped and is cleared below.
-      Editor.Navigation_History.Clear (S.Navigation_History);
+      Editor.Navigation_History.Clear (S.Navigation.History);
       Report_Info (S, "Project closed");
       Editor.Message_Producers.Post_Message
         (S,
@@ -802,14 +802,14 @@ package body Editor.Executor.Project_Lifecycle_Commands is
       end Current_State_Is_Disposable_Initial_Untitled;
    begin
 
-      if Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions) then
+      if Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions) then
          if not Pending_Project_Open_Command_Matches
            (S, Path, Recent_Project_Open, Explicit_Switch)
          then
             Report_Warning (S, "Command unavailable while confirmation is pending");
             return;
          elsif not Pending_Transition_Is_Still_Valid (S) then
-            Editor.Pending_Transitions.Clear (S.Pending_Transitions);
+            Editor.Pending_Transitions.Clear (S.Workflow.Pending_Transitions);
             Report_Warning
               (S, Editor.Dirty_Guards.Pending_Transition_No_Longer_Valid_Message);
             return;
@@ -930,7 +930,7 @@ package body Editor.Executor.Project_Lifecycle_Commands is
             end;
          end if;
 
-         Editor.Pending_Transitions.Clear (S.Pending_Transitions);
+         Editor.Pending_Transitions.Clear (S.Workflow.Pending_Transitions);
          Clear_Project_Transition_State (S);
          Editor.Clipboard.Clear;
          Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Result);

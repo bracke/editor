@@ -139,8 +139,8 @@ package body Editor.Executor.Diagnostics_Tests is
       Assert (Editor.Feature_Search_Results.Item_Target_Buffer
                 (S.Panel.Feature_Search_Results, 1) = S.Buffer_Lifecycle.Active_Buffer_Token,
               "selected diagnostic explain action row targets the live buffer");
-      Assert (Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel)
-              and then Editor.Panels.Active_Bottom_Content (S.Panels) =
+      Assert (Editor.Panels.Is_Visible (S.Panel.Panels, Editor.Panels.Bottom_Panel)
+              and then Editor.Panels.Active_Bottom_Content (S.Panel.Panels) =
                 Editor.Panels.Search_Results_Content,
               "selected diagnostic explain action shows Search Results");
 
@@ -1056,8 +1056,8 @@ package body Editor.Executor.Diagnostics_Tests is
       Assert (Editor.Feature_Search_Results.Item_Match_Length
                 (S.Panel.Feature_Search_Results, 1) = 1,
               "selected diagnostic review action row carries action span");
-      Assert (Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel)
-              and then Editor.Panels.Active_Bottom_Content (S.Panels) =
+      Assert (Editor.Panels.Is_Visible (S.Panel.Panels, Editor.Panels.Bottom_Panel)
+              and then Editor.Panels.Active_Bottom_Content (S.Panel.Panels) =
                 Editor.Panels.Search_Results_Content,
               "selected diagnostic review action shows Search Results");
 
@@ -1095,8 +1095,8 @@ package body Editor.Executor.Diagnostics_Tests is
       Init_Executor_Test_State (S);
       Editor.State.Load_Text
         (S, "0" & ASCII.LF & "1" & ASCII.LF & "2" & ASCII.LF & "3");
-      Editor.Folding.Add_Fold (S.Folding, 1, 3);
-      Editor.Folding.Toggle_Fold_At_Row (S.Folding, 1);
+      Editor.Folding.Add_Fold (S.Syntax.Folding, 1, 3);
+      Editor.Folding.Toggle_Fold_At_Row (S.Syntax.Folding, 1);
       Editor.State.Add_Diagnostic
         (S, Start_Index => 4, End_Index => 5,
          Severity => Editor.Diagnostics.Error);
@@ -1104,7 +1104,7 @@ package body Editor.Executor.Diagnostics_Tests is
       Editor.Executor.Diagnostics_Navigation_Commands.Execute_Jump_To_Diagnostic (S, 1);
 
       Assert
-        (not Editor.Folding.Is_Fold_Collapsed (S.Folding, 1),
+        (not Editor.Folding.Is_Fold_Collapsed (S.Syntax.Folding, 1),
          "diagnostic jump should expand the fold hiding its target row");
       Assert
         (Editor.Executor.Safe_Caret (S) = 4,

@@ -26,7 +26,7 @@ package body Editor.Executor.Buffer_Switcher_Shared is
       Editor.Buffer_Switcher.Recompute_Rows
         (S.Surface.Buffer_Switcher,
          Editor.Buffers.Global_Registry_For_UI,
-         S.Recent_Buffers,
+         S.Navigation.Recent_Buffers,
          S.Project_Runtime.Project,
          Default_Buffer_Switcher_Config);
       Editor.Render_Cache.Invalidate_All;

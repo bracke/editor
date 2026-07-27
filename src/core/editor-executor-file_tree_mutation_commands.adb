@@ -938,15 +938,15 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
            (S.Semantic.Language_Index, S.Buffer_Lifecycle.Active_Buffer_Token);
          Editor.Ada_Language_Service.Invalidate_Buffer
            (S.Semantic.Language_Service, S.Buffer_Lifecycle.Active_Buffer_Token);
-         Editor.Syntax_Semantics.Clear (S.Syntax_Symbols);
-         Editor.Ada_Language_Model.Clear (S.Syntax_Analysis);
+         Editor.Syntax_Semantics.Clear (S.Syntax.Symbols);
+         Editor.Ada_Language_Model.Clear (S.Syntax.Analysis);
          S.Semantic.Syntax_Symbols_Revision := Natural'Last;
          S.Semantic.Syntax_Symbols_Buffer_Token := 0;
       end if;
 
       if Affects_Active_File then
-         Editor.Outline.Clear (S.Outline);
-         S.Outline_Cursor.Key_Valid := False;
+         Editor.Outline.Clear (S.Outline_Runtime.Outline);
+         S.Outline_Runtime.Cursor.Key_Valid := False;
          Editor.Diagnostics.Clear (S.Panel.Diagnostics);
          Editor.Feature_Diagnostics.Clear_Diagnostics (S.Panel.Feature_Diagnostics);
       end if;

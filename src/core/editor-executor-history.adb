@@ -383,14 +383,14 @@ package body Editor.Executor.History is
 
       Editor.State.Normalize_Carets (S);
 
-      if Editor.Dirty_Lines.Has_Baseline (S.Dirty_Lines) then
+      if Editor.Dirty_Lines.Has_Baseline (S.Gutter.Dirty_Lines) then
          --  dirty state is derived from the current saved baseline
          --  when one exists, not from the stale dirty flag captured when the
          --  undo entry was created. This keeps save-then-undo correct: saving
          --  updates the baseline while preserving transient undo history.
          Editor.State.Refresh_Dirty_Lines (S);
          Editor.State.Set_Dirty
-           (S, Editor.Dirty_Lines.Dirty_Line_Count (S.Dirty_Lines) > 0);
+           (S, Editor.Dirty_Lines.Dirty_Line_Count (S.Gutter.Dirty_Lines) > 0);
       elsif Dirty then
          Editor.State.Set_Dirty (S, True);
          Editor.State.Refresh_Dirty_Lines (S);

@@ -82,8 +82,8 @@ package body Editor.Executor.Buffer_Prune_Tests is
               and then Editor.Buffer_Switcher.Row_At (S.Surface.Buffer_Switcher, 1).Id = A_Id,
               "setup should select first pending target in pending review");
 
-      Before_Recent := Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 1);
-      Editor.Navigation_History.Clear (S.Navigation_History);
+      Before_Recent := Editor.Recent_Buffers.Id_At (S.Navigation.Recent_Buffers, 1);
+      Editor.Navigation_History.Clear (S.Navigation.History);
       Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Remove_Selected);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
@@ -102,9 +102,9 @@ package body Editor.Executor.Buffer_Prune_Tests is
               "remove-selected must not mutate metadata");
       Assert (Editor.Buffers.Global_Active_Buffer = C_Id,
               "remove-selected must not activate a buffer");
-      Assert (Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 1) = Before_Recent,
+      Assert (Editor.Recent_Buffers.Id_At (S.Navigation.Recent_Buffers, 1) = Before_Recent,
               "remove-selected must not update recent-buffer order");
-      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 0,
+      Assert (Editor.Navigation_History.Back_Count (S.Navigation.History) = 0,
               "remove-selected must not add navigation history");
       Assert (Editor.Buffer_Switcher.Has_Pending_Marked_Review (S.Surface.Buffer_Switcher)
               and then Editor.Buffer_Switcher.Row_Count (S.Surface.Buffer_Switcher) = 1
@@ -280,8 +280,8 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Assert (Editor.Buffer_Switcher.Pruned_Pending_Marked_Close_Target_Count (S.Surface.Buffer_Switcher) = 2,
               "pruning keeps session-local pruned pending target history");
 
-      Before_Recent := Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 1);
-      Editor.Navigation_History.Clear (S.Navigation_History);
+      Before_Recent := Editor.Recent_Buffers.Id_At (S.Navigation.Recent_Buffers, 1);
+      Editor.Navigation_History.Clear (S.Navigation.History);
       Editor.Buffer_Switcher.Clear_Mark (S.Surface.Buffer_Switcher, C_Id);
       Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Pruned_Summary);
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -309,9 +309,9 @@ package body Editor.Executor.Buffer_Prune_Tests is
               "restore-last must not mutate metadata");
       Assert (Editor.Buffers.Global_Active_Buffer = C_Id,
               "restore-last must not activate buffers");
-      Assert (Editor.Recent_Buffers.Id_At (S.Recent_Buffers, 1) = Before_Recent,
+      Assert (Editor.Recent_Buffers.Id_At (S.Navigation.Recent_Buffers, 1) = Before_Recent,
               "restore-last must not update recent-buffer order");
-      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 0,
+      Assert (Editor.Navigation_History.Back_Count (S.Navigation.History) = 0,
               "restore-last must not add navigation history");
 
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -469,7 +469,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
               and then Editor.Buffer_Switcher.Pruned_Pending_Marked_Close_Target_Count (S.Surface.Buffer_Switcher) = 2,
               "pruned summary does not mutate active pending or pruned target state");
 
-      Editor.Navigation_History.Clear (S.Navigation_History);
+      Editor.Navigation_History.Clear (S.Navigation.History);
       Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Pruned_Review_Show);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffer_Switcher.Has_Pruned_Pending_Marked_Review (S.Surface.Buffer_Switcher)
@@ -491,7 +491,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
               and then Editor.Buffer_Switcher.Is_Marked (S.Surface.Buffer_Switcher, C_Id),
               "pruned navigation does not restore or unmark the selected target");
       Assert (Editor.Buffers.Global_Active_Buffer = C_Id
-              and then Editor.Navigation_History.Back_Count (S.Navigation_History) = 0,
+              and then Editor.Navigation_History.Back_Count (S.Navigation.History) = 0,
               "pruned navigation does not activate buffers or add navigation history");
 
       Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Pruned_Previous);
@@ -577,7 +577,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Editor.Buffer_Switcher.Recompute_Rows
         (S.Surface.Buffer_Switcher,
          Editor.Buffers.Global_Registry_For_UI,
-         S.Recent_Buffers,
+         S.Navigation.Recent_Buffers,
          Editor.Buffer_Switcher.Config.Buffer_Switcher_Config'(others => <>));
 
       Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Pruned_Summary);
@@ -660,7 +660,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
               "dirty summary reports dirty active pending targets against still-open pending targets");
 
       Editor.Buffer_Switcher.Show_Preview (S.Surface.Buffer_Switcher);
-      Editor.Navigation_History.Clear (S.Navigation_History);
+      Editor.Navigation_History.Clear (S.Navigation.History);
       Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Next);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Latest_Message_Text (S) = "Selected next dirty pending close target",
@@ -671,7 +671,7 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Assert (Editor.Buffer_Switcher.Preview_Target (S.Surface.Buffer_Switcher) = B_Id,
               "dirty navigation refreshes the preview target through existing selection behavior");
       Assert (Editor.Buffers.Global_Active_Buffer = C_Id
-              and then Editor.Navigation_History.Back_Count (S.Navigation_History) = 0,
+              and then Editor.Navigation_History.Back_Count (S.Navigation.History) = 0,
               "dirty navigation does not activate buffers or add navigation history");
 
       Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Previous);
@@ -762,8 +762,8 @@ package body Editor.Executor.Buffer_Prune_Tests is
 
       Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Remove_Selected);
-      Editor.Navigation_History.Clear (S.Navigation_History);
-      Recent_Before := Editor.Recent_Buffers.Count (S.Recent_Buffers);
+      Editor.Navigation_History.Clear (S.Navigation.History);
+      Recent_Before := Editor.Recent_Buffers.Count (S.Navigation.Recent_Buffers);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Latest_Message_Text (S) =
               "Removed dirty pending close target beta.adb; pending close now has 2 targets; Dirty: 0",
@@ -787,8 +787,8 @@ package body Editor.Executor.Buffer_Prune_Tests is
               and then Editor.Buffers.Global_Buffer_Note (B_Id) = "keep dirty",
               "dirty-remove-selected does not mutate pinned state, group, label, or note metadata");
       Assert (Editor.Buffers.Global_Active_Buffer = C_Id
-              and then Editor.Navigation_History.Back_Count (S.Navigation_History) = 0
-              and then Editor.Recent_Buffers.Count (S.Recent_Buffers) = Recent_Before,
+              and then Editor.Navigation_History.Back_Count (S.Navigation.History) = 0
+              and then Editor.Recent_Buffers.Count (S.Navigation.Recent_Buffers) = Recent_Before,
               "dirty-remove-selected does not activate buffers, add navigation history, or update recent-buffer state");
 
       Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Next);
@@ -983,8 +983,8 @@ package body Editor.Executor.Buffer_Prune_Tests is
 
       Editor.Buffer_Switcher.Set_Filter_Text (S.Surface.Buffer_Switcher, "alpha");
       Editor.Buffer_Switcher.Set_Pinned_Filter (S.Surface.Buffer_Switcher);
-      Recent_Before := Editor.Recent_Buffers.Count (S.Recent_Buffers);
-      Editor.Navigation_History.Clear (S.Navigation_History);
+      Recent_Before := Editor.Recent_Buffers.Count (S.Navigation.Recent_Buffers);
+      Editor.Navigation_History.Clear (S.Navigation.History);
 
       Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Preview);
       Avail := Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Preview);
@@ -1009,8 +1009,8 @@ package body Editor.Executor.Buffer_Prune_Tests is
               and then Editor.Buffers.Global_Buffer_Label (B_Id) = "dirty"
               and then Editor.Buffers.Global_Buffer_Note (B_Id) = "captured"
               and then Editor.Buffers.Global_Active_Buffer = D_Id
-              and then Editor.Navigation_History.Back_Count (S.Navigation_History) = 0
-              and then Editor.Recent_Buffers.Count (S.Recent_Buffers) = Recent_Before,
+              and then Editor.Navigation_History.Back_Count (S.Navigation.History) = 0
+              and then Editor.Recent_Buffers.Count (S.Navigation.Recent_Buffers) = Recent_Before,
               "preview does not mutate marks, metadata, active buffer, navigation history, or recent-buffer state");
       Assert (Editor.Buffer_Switcher.Count_Badge_Text (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI) =
               "Marked: 3 | Pending close: 3 | Dirty: 2 | Dirty prune: 2 | Applicable: 2",
@@ -1130,8 +1130,8 @@ package body Editor.Executor.Buffer_Prune_Tests is
                 (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI) = 2,
               "setup has two dirty active pending close targets");
 
-      Recent_Before := Editor.Recent_Buffers.Count (S.Recent_Buffers);
-      Editor.Navigation_History.Clear (S.Navigation_History);
+      Recent_Before := Editor.Recent_Buffers.Count (S.Navigation.Recent_Buffers);
+      Editor.Navigation_History.Clear (S.Navigation.History);
 
       Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Preview);
@@ -1164,8 +1164,8 @@ package body Editor.Executor.Buffer_Prune_Tests is
               and then Found
               and then Editor.Buffer_Switcher.Row_Is_Dirty_Prune_Target (S.Surface.Buffer_Switcher, Row.Id)
               and then Editor.Buffers.Global_Active_Buffer = C_Id
-              and then Editor.Navigation_History.Back_Count (S.Navigation_History) = 0
-              and then Editor.Recent_Buffers.Count (S.Recent_Buffers) = Recent_Before,
+              and then Editor.Navigation_History.Back_Count (S.Navigation.History) = 0
+              and then Editor.Recent_Buffers.Count (S.Navigation.Recent_Buffers) = Recent_Before,
               "dirty-prune next selects a captured target without activation, navigation history, or recent-buffer mutation");
 
       Cmd := Editor.Commands.Payloads.Command_For_Id
@@ -1298,8 +1298,8 @@ package body Editor.Executor.Buffer_Prune_Tests is
               and then Editor.Buffer_Switcher.Pruned_Pending_Marked_Close_Target_Count (S.Surface.Buffer_Switcher) = 0,
               "non-preview selection leaves preview, pending, and pruned state unchanged");
 
-      Recent_Before := Editor.Recent_Buffers.Count (S.Recent_Buffers);
-      Editor.Navigation_History.Clear (S.Navigation_History);
+      Recent_Before := Editor.Recent_Buffers.Count (S.Navigation.Recent_Buffers);
+      Editor.Navigation_History.Clear (S.Navigation.History);
       Editor.Buffer_Switcher.Show_Preview (S.Surface.Buffer_Switcher);
       Editor.Buffer_Switcher.Show_Dirty_Prune_Review (S.Surface.Buffer_Switcher);
       Editor.Buffer_Switcher.Recompute_Rows
@@ -1335,8 +1335,8 @@ package body Editor.Executor.Buffer_Prune_Tests is
               and then Editor.Buffers.Global_Buffer_Label (B_Id) = "dirty"
               and then Editor.Buffers.Global_Buffer_Note (B_Id) = "captured"
               and then Editor.Buffers.Global_Active_Buffer = C_Id
-              and then Editor.Navigation_History.Back_Count (S.Navigation_History) = 0
-              and then Editor.Recent_Buffers.Count (S.Recent_Buffers) = Recent_Before,
+              and then Editor.Navigation_History.Back_Count (S.Navigation.History) = 0
+              and then Editor.Recent_Buffers.Count (S.Navigation.Recent_Buffers) = Recent_Before,
               "remove-selected does not close, clean, mark, mutate metadata, activate, or update navigation/recent history");
       Assert (Editor.Buffer_Switcher.Has_Dirty_Prune_Review (S.Surface.Buffer_Switcher)
               and then Editor.Buffer_Switcher.Row_Count (S.Surface.Buffer_Switcher) = 1
@@ -1449,8 +1449,8 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Assert (Latest_Message_Text (S) = "No removed dirty-prune preview targets",
               "restore-last-removed reports empty removed preview history");
 
-      Recent_Before := Editor.Recent_Buffers.Count (S.Recent_Buffers);
-      Editor.Navigation_History.Clear (S.Navigation_History);
+      Recent_Before := Editor.Recent_Buffers.Count (S.Navigation.Recent_Buffers);
+      Editor.Navigation_History.Clear (S.Navigation.History);
       Editor.Buffer_Switcher.Show_Preview (S.Surface.Buffer_Switcher);
       Editor.Buffer_Switcher.Show_Dirty_Prune_Review (S.Surface.Buffer_Switcher);
       Editor.Buffer_Switcher.Recompute_Rows
@@ -1498,8 +1498,8 @@ package body Editor.Executor.Buffer_Prune_Tests is
               and then Editor.Buffers.Global_Buffer_Label (B_Id) = "dirty"
               and then Editor.Buffers.Global_Buffer_Note (B_Id) = "captured"
               and then Editor.Buffers.Global_Active_Buffer = C_Id
-              and then Editor.Navigation_History.Back_Count (S.Navigation_History) = 0
-              and then Editor.Recent_Buffers.Count (S.Recent_Buffers) = Recent_Before,
+              and then Editor.Navigation_History.Back_Count (S.Navigation.History) = 0
+              and then Editor.Recent_Buffers.Count (S.Navigation.Recent_Buffers) = Recent_Before,
               "restore-last-removed does not close, clean, mark, mutate metadata, activate, or update navigation/recent history");
       Assert (Editor.Buffer_Switcher.Has_Dirty_Prune_Review (S.Surface.Buffer_Switcher)
               and then Editor.Buffer_Switcher.Row_Count (S.Surface.Buffer_Switcher) = 2,
@@ -1601,8 +1601,8 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Editor.Buffer_Switcher.Recompute_Rows
         (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, (others => <>));
       Editor.Buffer_Switcher.Select_Buffer_Or_Row (S.Surface.Buffer_Switcher, B_Id, 1);
-      Recent_Before := Editor.Recent_Buffers.Count (S.Recent_Buffers);
-      Editor.Navigation_History.Clear (S.Navigation_History);
+      Recent_Before := Editor.Recent_Buffers.Count (S.Navigation.Recent_Buffers);
+      Editor.Navigation_History.Clear (S.Navigation.History);
 
       Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Removed_Summary);
@@ -1623,8 +1623,8 @@ package body Editor.Executor.Buffer_Prune_Tests is
               and then Editor.Buffer_Switcher.Dirty_Pending_Marked_Close_Prune_Target_Count (S.Surface.Buffer_Switcher) = 1
               and then not Editor.Buffer_Switcher.Row_Is_Dirty_Prune_Target (S.Surface.Buffer_Switcher, C_Id)
               and then Editor.Buffer_Switcher.Is_Pending_Marked_Close_Target (S.Surface.Buffer_Switcher, C_Id)
-              and then Editor.Recent_Buffers.Count (S.Recent_Buffers) = Recent_Before
-              and then Editor.Navigation_History.Back_Count (S.Navigation_History) = 0,
+              and then Editor.Recent_Buffers.Count (S.Navigation.Recent_Buffers) = Recent_Before
+              and then Editor.Navigation_History.Back_Count (S.Navigation.History) = 0,
               "removed-next selects a still-open removed target in effective order without restoring, pruning, activating, or history mutation");
 
       Cmd := Editor.Commands.Payloads.Command_For_Id
@@ -1706,8 +1706,8 @@ package body Editor.Executor.Buffer_Prune_Tests is
       Editor.Buffer_Switcher.Show_Dirty_Prune_Review (S.Surface.Buffer_Switcher);
       Editor.Buffer_Switcher.Recompute_Rows
         (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, (others => <>));
-      Recent_Before := Editor.Recent_Buffers.Count (S.Recent_Buffers);
-      Editor.Navigation_History.Clear (S.Navigation_History);
+      Recent_Before := Editor.Recent_Buffers.Count (S.Navigation.Recent_Buffers);
+      Editor.Navigation_History.Clear (S.Navigation.History);
 
       Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Stale_Summary);
@@ -1745,8 +1745,8 @@ package body Editor.Executor.Buffer_Prune_Tests is
               and then not Editor.Buffers.Is_Dirty (Editor.Buffers.Global_Registry_For_UI, B_Id)
               and then Editor.Buffers.Global_Contains (C_Id)
               and then Editor.Buffers.Is_Dirty (Editor.Buffers.Global_Registry_For_UI, C_Id)
-              and then Editor.Navigation_History.Back_Count (S.Navigation_History) = 0
-              and then Editor.Recent_Buffers.Count (S.Recent_Buffers) = Recent_Before,
+              and then Editor.Navigation_History.Back_Count (S.Navigation.History) = 0
+              and then Editor.Recent_Buffers.Count (S.Navigation.Recent_Buffers) = Recent_Before,
               "clear-stale does not close buffers, alter dirty state, or update navigation/recent history");
 
       Avail := Editor.Executor.Command_Availability

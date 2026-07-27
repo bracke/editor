@@ -180,7 +180,7 @@ package body Editor.Outline.Ada_Extraction_Tests is
         (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "first refresh executes through executor");
-      Outline_First := Fingerprint (S.Outline);
+      Outline_First := Fingerprint (S.Outline_Runtime.Outline);
       Panel_First := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
 
       Editor.State.Load_Text
@@ -190,7 +190,7 @@ package body Editor.Outline.Ada_Extraction_Tests is
         (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "second refresh executes through executor");
-      Assert (Fingerprint (S.Outline) /= Outline_First,
+      Assert (Fingerprint (S.Outline_Runtime.Outline) /= Outline_First,
               "buffer extractor refresh inspects explicit active-buffer snapshot");
       Assert (Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel).Row_Labels_Hash /=
                 Panel_First.Row_Labels_Hash,
@@ -408,7 +408,7 @@ package body Editor.Outline.Ada_Extraction_Tests is
         (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "Ada outline refresh executes through the command path");
-      Assert (Item_Count (S.Outline) = 2,
+      Assert (Item_Count (S.Outline_Runtime.Outline) = 2,
               "Ada command refresh extracts package and procedure rows");
 
       Editor.Feature_Panel.Select_First (S.Panel.Feature_Panel);
@@ -1929,11 +1929,11 @@ package body Editor.Outline.Ada_Extraction_Tests is
         (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "Ada outline refresh remains command-owned");
-      Assert (Item_Count (S.Outline) = 3,
+      Assert (Item_Count (S.Outline_Runtime.Outline) = 3,
               "Ada outline extracts package, subtype, and procedure rows");
-      Assert (Item_Label (S.Outline, 2) = "subtype Count",
+      Assert (Item_Label (S.Outline_Runtime.Outline, 2) = "subtype Count",
               "subtype row has a compact Ada symbol label");
-      Assert (Item_Kind (S.Outline, 2) = Outline_Type,
+      Assert (Item_Kind (S.Outline_Runtime.Outline, 2) = Outline_Type,
               "subtype reuses the existing type outline kind");
       Assert (Editor.Feature_Panel.Row_Label (S.Panel.Feature_Panel, 2) = "subtype Count",
               "Feature Panel projection displays the subtype row");

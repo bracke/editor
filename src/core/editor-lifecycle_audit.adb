@@ -120,7 +120,7 @@ package body Editor.Lifecycle_Audit is
       Search_View    : constant Editor.Search_Results.Search_Results_Snapshot :=
         Editor.Search_Results.Build_Snapshot (State.Surface.Project_Search, (others => <>));
       Pending_Kind   : constant Editor.Pending_Transitions.Pending_Transition_Kind :=
-        Editor.Pending_Transitions.Target_Kind (State.Pending_Transitions);
+        Editor.Pending_Transitions.Target_Kind (State.Workflow.Pending_Transitions);
    begin
       if Registry_Count > 0 then
          Dirty_Count := Editor.Buffers.Global_Dirty_Buffer_Count;
@@ -150,7 +150,7 @@ package body Editor.Lifecycle_Audit is
          Project_Search_Result_Count => Editor.Project_Search.Result_Count (State.Surface.Project_Search),
          Search_Results_Row_Count    => Editor.Search_Results.Row_Count (Search_View),
          Recent_Project_Count        => Editor.Recent_Projects.Count (State.Project_Runtime.Recent_Projects),
-         Has_Pending_Transition      => Editor.Pending_Transitions.Has_Pending (State.Pending_Transitions),
+         Has_Pending_Transition      => Editor.Pending_Transitions.Has_Pending (State.Workflow.Pending_Transitions),
          Pending_Kind_Name           => To_Unbounded_String (Pending_Kind_Image (Pending_Kind)),
          Message_Count               => Editor.Messages.Count (State.Panel.Messages));
    end State_Summary;
@@ -159,7 +159,7 @@ package body Editor.Lifecycle_Audit is
    function Settings_Lifecycle_Summary_For
      (State : Editor.State.State_Type) return Settings_Lifecycle_Summary
    is
-      Normalized : Editor.Settings.Settings_Model := State.Settings;
+      Normalized : Editor.Settings.Settings_Model := State.Configuration.Settings;
       Palette    : constant Editor.Command_Palette.Command_Palette_Config :=
         Editor.Command_Palette.Current_Config;
       Dirty_Count : Natural := 0;
@@ -184,7 +184,7 @@ package body Editor.Lifecycle_Audit is
          Command_Palette_Show_Bindings => Palette.Show_Keybindings,
          Has_Project                   => Editor.Project.Has_Project (State.Project_Runtime.Project),
          Dirty_Buffer_Count            => Dirty_Count,
-         Has_Pending_Transition        => Editor.Pending_Transitions.Has_Pending (State.Pending_Transitions),
+         Has_Pending_Transition        => Editor.Pending_Transitions.Has_Pending (State.Workflow.Pending_Transitions),
          Recent_Project_Count          => Editor.Recent_Projects.Count (State.Project_Runtime.Recent_Projects));
    end Settings_Lifecycle_Summary_For;
 

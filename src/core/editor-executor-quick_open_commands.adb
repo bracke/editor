@@ -598,7 +598,7 @@ package body Editor.Executor.Quick_Open_Commands is
            Tree     => S.Surface.File_Tree,
            Project  => S.Project_Runtime.Project,
            Registry => Editor.Buffers.Global_Registry_For_UI,
-           Recent   => S.Recent_Buffers);
+           Recent   => S.Navigation.Recent_Buffers);
       Count : constant Natural := Natural (Snapshot.Candidates.Length);
       Current : Natural := 0;
       Target  : Natural := 0;

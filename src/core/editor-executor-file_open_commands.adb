@@ -183,7 +183,7 @@ package body Editor.Executor.File_Open_Commands is
       Editor.Buffers.Sync_Global_Active_From_State (S);
       if Editor.Buffers.Global_Active_Buffer /= Editor.Buffers.No_Buffer then
          Editor.Recent_Buffers.Mark_Activated
-           (S.Recent_Buffers, Natural (Editor.Buffers.Global_Active_Buffer));
+           (S.Navigation.Recent_Buffers, Natural (Editor.Buffers.Global_Active_Buffer));
       end if;
 
       if S.Buffer_Lifecycle.File_Info.Has_Path
@@ -198,7 +198,7 @@ package body Editor.Executor.File_Open_Commands is
          end if;
          Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
          Editor.Recent_Buffers.Mark_Activated
-           (S.Recent_Buffers, Natural (Editor.Buffers.Global_Active_Buffer));
+           (S.Navigation.Recent_Buffers, Natural (Editor.Buffers.Global_Active_Buffer));
          Editor.Executor.Shared_Services.Report_Info_Append (S,
             "Focused existing buffer " & To_String (S.Buffer_Lifecycle.File_Info.Display_Name)
             & "; disk was not reloaded");
@@ -214,7 +214,7 @@ package body Editor.Executor.File_Open_Commands is
             Editor.Buffers.Sync_Global_Active_From_State (S);
          end if;
          Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
-         Editor.Recent_Buffers.Mark_Activated (S.Recent_Buffers, Natural (Id));
+         Editor.Recent_Buffers.Mark_Activated (S.Navigation.Recent_Buffers, Natural (Id));
          Editor.Executor.Shared_Services.Report_Info_Append (S,
             "Focused existing buffer " & To_String (S.Buffer_Lifecycle.File_Info.Display_Name)
             & "; disk was not reloaded");
@@ -247,7 +247,7 @@ package body Editor.Executor.File_Open_Commands is
             Editor.Buffers.Sync_Global_Active_From_State (S);
             if Editor.Buffers.Global_Active_Buffer /= Editor.Buffers.No_Buffer then
                Editor.Recent_Buffers.Mark_Activated
-                 (S.Recent_Buffers, Natural (Editor.Buffers.Global_Active_Buffer));
+                 (S.Navigation.Recent_Buffers, Natural (Editor.Buffers.Global_Active_Buffer));
             end if;
          end if;
 
@@ -265,7 +265,7 @@ package body Editor.Executor.File_Open_Commands is
                Editor.Buffers.Sync_Global_Active_From_State (S);
             end if;
             Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
-            Editor.Recent_Buffers.Mark_Activated (S.Recent_Buffers, Natural (Id));
+            Editor.Recent_Buffers.Mark_Activated (S.Navigation.Recent_Buffers, Natural (Id));
             Editor.Executor.Shared_Services.Report_Info_Append (S,
                "Focused existing buffer " & To_String (S.Buffer_Lifecycle.File_Info.Display_Name)
                & "; disk was not reloaded");
@@ -286,7 +286,7 @@ package body Editor.Executor.File_Open_Commands is
          Capture_Active_File_Token (S);
          Editor.Buffers.Sync_Global_Active_From_State (S);
          Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
-         Editor.Recent_Buffers.Mark_Activated (S.Recent_Buffers, Natural (Id));
+         Editor.Recent_Buffers.Mark_Activated (S.Navigation.Recent_Buffers, Natural (Id));
          Editor.Executor.Shared_Services.Report_Success (S, "Opened " & To_String (Result.Display_Name));
       else
          Editor.Executor.Shared_Services.Report_Error (S, "Open failed: " & Editor.Files.Status_Message (Result));
@@ -329,7 +329,7 @@ package body Editor.Executor.File_Open_Commands is
          Editor.Buffers.Sync_Global_Active_From_State (S);
          if Editor.Buffers.Global_Active_Buffer /= Editor.Buffers.No_Buffer then
             Editor.Recent_Buffers.Mark_Activated
-              (S.Recent_Buffers, Natural (Editor.Buffers.Global_Active_Buffer));
+              (S.Navigation.Recent_Buffers, Natural (Editor.Buffers.Global_Active_Buffer));
          end if;
          Editor.Buffers.Global_Add_Untitled_Buffer (Id);
          Load_Global_Active_Preserving_Language_Index;
@@ -342,7 +342,7 @@ package body Editor.Executor.File_Open_Commands is
       end if;
 
       if Id /= Editor.Buffers.No_Buffer then
-         Editor.Recent_Buffers.Mark_Activated (S.Recent_Buffers, Natural (Id));
+         Editor.Recent_Buffers.Mark_Activated (S.Navigation.Recent_Buffers, Natural (Id));
       end if;
       Editor.Executor.Shared_Services.Report_Info (S, "New buffer");
    end Execute_New_Buffer;
@@ -374,13 +374,13 @@ package body Editor.Executor.File_Open_Commands is
 
       if Editor.Buffers.Global_Active_Buffer /= Editor.Buffers.No_Buffer then
          Editor.Recent_Buffers.Mark_Activated
-           (S.Recent_Buffers, Natural (Editor.Buffers.Global_Active_Buffer),
+           (S.Navigation.Recent_Buffers, Natural (Editor.Buffers.Global_Active_Buffer),
             Preserve_Traversal => Recent_Traversal);
       end if;
 
       if Id = Editor.Buffers.Global_Active_Buffer then
          Editor.Recent_Buffers.Mark_Activated
-           (S.Recent_Buffers, Natural (Id), Preserve_Traversal => Recent_Traversal);
+           (S.Navigation.Recent_Buffers, Natural (Id), Preserve_Traversal => Recent_Traversal);
          return;
       end if;
 
@@ -389,7 +389,7 @@ package body Editor.Executor.File_Open_Commands is
            Editor.Buffers.Global_Active_Buffer;
       begin
          if Old_Id /= Editor.Buffers.No_Buffer then
-            Editor.Outline.Remember_Filter_For_Buffer (S.Outline, Natural (Old_Id));
+            Editor.Outline.Remember_Filter_For_Buffer (S.Outline_Runtime.Outline, Natural (Old_Id));
          end if;
       end;
       Editor.Buffers.Global_Set_Active_Buffer (Id);
@@ -405,13 +405,13 @@ package body Editor.Executor.File_Open_Commands is
       end;
       Editor.Executor.Record_Navigation_If_Current_Changed (S, Before_Location);
       Editor.Recent_Buffers.Mark_Activated
-        (S.Recent_Buffers, Natural (Id), Preserve_Traversal => Recent_Traversal);
-      Editor.Outline.Deactivate_Filter_Input (S.Outline);
-      if Editor.Outline.Restore_Filter_For_Buffer (S.Outline, Natural (Id)) then
-         Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+        (S.Navigation.Recent_Buffers, Natural (Id), Preserve_Traversal => Recent_Traversal);
+      Editor.Outline.Deactivate_Filter_Input (S.Outline_Runtime.Outline);
+      if Editor.Outline.Restore_Filter_For_Buffer (S.Outline_Runtime.Outline, Natural (Id)) then
+         Editor.Outline.Set_Rows_From_Outline (S.Outline_Runtime.Outline, S.Panel.Feature_Panel);
       end if;
-      if Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel)
-        and then Editor.Panels.Active_Bottom_Content (S.Panels) =
+      if Editor.Panels.Is_Visible (S.Panel.Panels, Editor.Panels.Bottom_Panel)
+        and then Editor.Panels.Active_Bottom_Content (S.Panel.Panels) =
           Editor.Panels.Problems_Content
       then
          declare

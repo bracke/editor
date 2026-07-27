@@ -30,7 +30,7 @@ package body Editor.Input_Bridge.Feature_Panel_Key_Handlers is
    is
    begin
       Editor.Outline.Set_Rows_From_Outline
-        (S.Outline, S.Panel.Feature_Panel);
+        (S.Outline_Runtime.Outline, S.Panel.Feature_Panel);
       Editor.Render_Cache.Invalidate_All;
    end Project_Outline_Rows;
 
@@ -95,32 +95,32 @@ package body Editor.Input_Bridge.Feature_Panel_Key_Handlers is
                  (Editor.Command_Ids.Command_Select_Next_Outline_Item);
             end if;
          when Editor.Keybindings.Key_Enter =>
-            Editor.Outline.Commit_Filter_To_History (S.Outline);
+            Editor.Outline.Commit_Filter_To_History (S.Outline_Runtime.Outline);
             Execute (Editor.Command_Ids.Command_Open_Selected_Outline_Item);
          when Editor.Keybindings.Key_Escape =>
-            if Editor.Outline.Filter_Text (S.Outline) /= "" then
-               Editor.Outline.Clear_Filter_Text (S.Outline);
+            if Editor.Outline.Filter_Text (S.Outline_Runtime.Outline) /= "" then
+               Editor.Outline.Clear_Filter_Text (S.Outline_Runtime.Outline);
             else
-               Editor.Outline.Deactivate_Filter_Input (S.Outline);
+               Editor.Outline.Deactivate_Filter_Input (S.Outline_Runtime.Outline);
             end if;
             Project_Outline_Rows (S);
          when Editor.Keybindings.Key_Backspace =>
-            Editor.Outline.Delete_Filter_Character_Backward (S.Outline);
+            Editor.Outline.Delete_Filter_Character_Backward (S.Outline_Runtime.Outline);
             Project_Outline_Rows (S);
          when Editor.Keybindings.Key_Delete =>
-            Editor.Outline.Delete_Filter_Character_Forward (S.Outline);
+            Editor.Outline.Delete_Filter_Character_Forward (S.Outline_Runtime.Outline);
             Project_Outline_Rows (S);
          when Editor.Keybindings.Key_Left =>
-            Editor.Outline.Move_Filter_Caret_Left (S.Outline);
+            Editor.Outline.Move_Filter_Caret_Left (S.Outline_Runtime.Outline);
             Editor.Render_Cache.Invalidate_All;
          when Editor.Keybindings.Key_Right =>
-            Editor.Outline.Move_Filter_Caret_Right (S.Outline);
+            Editor.Outline.Move_Filter_Caret_Right (S.Outline_Runtime.Outline);
             Editor.Render_Cache.Invalidate_All;
          when Editor.Keybindings.Key_Home =>
-            Editor.Outline.Move_Filter_Caret_Start (S.Outline);
+            Editor.Outline.Move_Filter_Caret_Start (S.Outline_Runtime.Outline);
             Editor.Render_Cache.Invalidate_All;
          when Editor.Keybindings.Key_End =>
-            Editor.Outline.Move_Filter_Caret_End (S.Outline);
+            Editor.Outline.Move_Filter_Caret_End (S.Outline_Runtime.Outline);
             Editor.Render_Cache.Invalidate_All;
          when others =>
             null;
@@ -144,7 +144,7 @@ package body Editor.Input_Bridge.Feature_Panel_Key_Handlers is
          when Editor.Keybindings.Key_Enter =>
             if Editor.Feature_Panel.Selected_Row (S.Panel.Feature_Panel) /= 0
               and then Editor.Outline.Feature_Row_Maps_To_Item
-                (S.Outline,
+                (S.Outline_Runtime.Outline,
                  S.Panel.Feature_Panel,
                  Editor.Feature_Panel.Selected_Row (S.Panel.Feature_Panel))
             then
@@ -176,7 +176,7 @@ package body Editor.Input_Bridge.Feature_Panel_Key_Handlers is
         (S.Panel.Feature_Search_Results)
       then
          return Handle_Search_Input_Key (S, Chord, Execute);
-      elsif Editor.Outline.Filter_Input_Is_Active (S.Outline) then
+      elsif Editor.Outline.Filter_Input_Is_Active (S.Outline_Runtime.Outline) then
          return Handle_Outline_Filter_Key (S, Chord, Execute);
       else
          Handle_Feature_Row_Key (S, Chord, Execute);

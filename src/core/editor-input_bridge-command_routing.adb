@@ -153,7 +153,7 @@ package body Editor.Input_Bridge.Command_Routing is
          return True;
       end if;
 
-      if Editor.Outline.Filter_Input_Is_Active (S.Outline) then
+      if Editor.Outline.Filter_Input_Is_Active (S.Outline_Runtime.Outline) then
          Handled := Handle_Outline_Filter_Input (Cmd);
          if Handled then
             null;

@@ -202,8 +202,8 @@ package body Editor.State is
       Normalized : Editor.Settings.Settings_Model := Settings;
    begin
       Editor.Settings.Normalize (Normalized);
-      S.Settings := Normalized;
-      Editor.Settings.Apply (S.Settings, Summary);
+      S.Configuration.Settings := Normalized;
+      Editor.Settings.Apply (S.Configuration.Settings, Summary);
       Editor.Render_Cache.Invalidate_All;
    end Apply_Settings;
 
@@ -222,17 +222,17 @@ package body Editor.State is
         (Text_Buffer.Validate_Line_Counts (S.Buffer),
          "Rope line metadata is inconsistent");
 
-      if S.Line_Starts.Length > 0 then
+      if S.Text_Projection.Line_Starts.Length > 0 then
          pragma Assert
-           (S.Line_Starts.Element (0) = 0,
+           (S.Text_Projection.Line_Starts.Element (0) = 0,
             "Line index must start at 0 when present");
       end if;
    end Check_Line_Index;
 
    procedure Rebuild_Line_Index (S : in out State_Type) is
    begin
-      S.Line_Starts.Clear;
-      S.Line_Starts.Append (0);
+      S.Text_Projection.Line_Starts.Clear;
+      S.Text_Projection.Line_Starts.Append (0);
    end Rebuild_Line_Index;
 
    function Line_Count (S : State_Type) return Natural is
@@ -278,14 +278,14 @@ package body Editor.State is
      (S : in out State_Type)
    is
    begin
-      Editor.Dirty_Lines.Recompute (S.Dirty_Lines, Current_Text (S));
+      Editor.Dirty_Lines.Recompute (S.Gutter.Dirty_Lines, Current_Text (S));
    end Refresh_Dirty_Lines;
 
    procedure Reset_Dirty_Line_Baseline
      (S : in out State_Type)
    is
    begin
-      Editor.Dirty_Lines.Clear_Dirty_State_To_Current (S.Dirty_Lines, Current_Text (S));
+      Editor.Dirty_Lines.Clear_Dirty_State_To_Current (S.Gutter.Dirty_Lines, Current_Text (S));
    end Reset_Dirty_Line_Baseline;
 
    procedure Toggle_Bookmark
@@ -293,14 +293,14 @@ package body Editor.State is
       Row : Natural)
    is
    begin
-      Editor.Gutter_Markers.Toggle_Bookmark (S.Gutter_Markers, Row);
+      Editor.Gutter_Markers.Toggle_Bookmark (S.Gutter.Markers, Row);
    end Toggle_Bookmark;
 
    procedure Clear_Gutter_Marker_Hover
      (S : in out State_Type)
    is
    begin
-      S.Gutter_Marker_Hover := (Active => False, Row => 0, Kind => Editor.Gutter_Markers.Dirty_Line_Marker);
+      S.Gutter.Marker_Hover := (Active => False, Row => 0, Kind => Editor.Gutter_Markers.Dirty_Line_Marker);
    end Clear_Gutter_Marker_Hover;
 
    procedure Set_Gutter_Marker_Hover
@@ -309,7 +309,7 @@ package body Editor.State is
       Kind : Editor.Gutter_Markers.Gutter_Marker_Kind)
    is
    begin
-      S.Gutter_Marker_Hover := (Active => True, Row => Row, Kind => Kind);
+      S.Gutter.Marker_Hover := (Active => True, Row => Row, Kind => Kind);
    end Set_Gutter_Marker_Hover;
 
    procedure Replace_Document
@@ -321,8 +321,8 @@ package body Editor.State is
 
       --  Do not rebuild a full-document line-start vector. The rope stores
       --  newline counts and answers row/index queries directly.
-      S.Line_Starts.Clear;
-      S.Line_Starts.Append (0);
+      S.Text_Projection.Line_Starts.Clear;
+      S.Text_Projection.Line_Starts.Append (0);
 
       S.Caret.Carets.Clear;
       S.Caret.Carets.Append
@@ -349,22 +349,22 @@ package body Editor.State is
       S.Search.Active_Replace_Prompt := False;
       S.Panel.Diagnostics.Clear;
       S.Panel.Active_Diagnostic := (Has_Active => False, Index => Editor.Diagnostics.No_Diagnostic);
-      Editor.Gutter_Markers.Clear (S.Gutter_Markers);
+      Editor.Gutter_Markers.Clear (S.Gutter.Markers);
       Editor.Dirty_Lines.Clear_Dirty_State_To_Current
-        (S.Dirty_Lines, Text);
+        (S.Gutter.Dirty_Lines, Text);
       Editor.Messages.Clear (S.Panel.Messages);
       Editor.Input_Field.Clear (S.Search.Active_Find_Input);
       Editor.Quick_Open.Clear (S.Surface.Quick_Open);
       Editor.Buffer_Switcher.Clear (S.Surface.Buffer_Switcher);
-      Editor.Recent_Buffers.Clear (S.Recent_Buffers);
+      Editor.Recent_Buffers.Clear (S.Navigation.Recent_Buffers);
       Editor.Go_To_Line.Clear (S.Surface.Go_To_Line);
       Editor.Project_Search.Clear (S.Surface.Project_Search);
-      Editor.Bookmarks.Clear (S.Bookmarks);
+      Editor.Bookmarks.Clear (S.Navigation.Bookmarks);
       S.Panel.Search_Results_View.Top_Row := 1;
       Editor.Panel_Focus.Focus_Editor_Text (S.Panel.Panel_Focus);
       Editor.Overlay_Focus.Clear (S.Panel.Overlay_Focus);
       Clear_Gutter_Marker_Hover (S);
-      Editor.Folding.Clear (S.Folding);
+      Editor.Folding.Clear (S.Syntax.Folding);
       S.Buffer_Lifecycle.File_Info.Has_Path := False;
       S.Buffer_Lifecycle.File_Info.Path := Null_Unbounded_String;
       S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("Untitled");
@@ -414,9 +414,9 @@ package body Editor.State is
       S.Buffer_Lifecycle.Reopen_Candidate_Path := Null_Unbounded_String;
       S.Buffer_Lifecycle.Reopen_Candidate_Label := Null_Unbounded_String;
       Bump_Buffer_Revision (S);
-      Editor.Syntax_Cache.Clear (S.Syntax_Cache);
-      Editor.Syntax_Semantics.Clear (S.Syntax_Symbols);
-      Editor.Ada_Language_Model.Clear (S.Syntax_Analysis);
+      Editor.Syntax_Cache.Clear (S.Syntax.Cache);
+      Editor.Syntax_Semantics.Clear (S.Syntax.Symbols);
+      Editor.Ada_Language_Model.Clear (S.Syntax.Analysis);
       S.Semantic.Syntax_Source_Revision := Natural'Last;
       S.Semantic.Syntax_Source_Buffer_Token := 0;
       S.Semantic.Syntax_Symbols_Revision := Natural'Last;
@@ -534,9 +534,9 @@ package body Editor.State is
       S.Buffer_Lifecycle.Active_Buffer_Token := S.Buffer_Lifecycle.Registry_Token;
       S.Buffer_Lifecycle.Buffer_Revision := 0;
       S.Buffer_Lifecycle.Lifecycle_Generation := 0;
-      Editor.Syntax_Cache.Clear (S.Syntax_Cache);
-      Editor.Syntax_Semantics.Clear (S.Syntax_Symbols);
-      Editor.Ada_Language_Model.Clear (S.Syntax_Analysis);
+      Editor.Syntax_Cache.Clear (S.Syntax.Cache);
+      Editor.Syntax_Semantics.Clear (S.Syntax.Symbols);
+      Editor.Ada_Language_Model.Clear (S.Syntax.Analysis);
       S.Semantic.Syntax_Source_Revision := Natural'Last;
       S.Semantic.Syntax_Source_Buffer_Token := 0;
       S.Semantic.Syntax_Symbols_Revision := Natural'Last;
@@ -569,21 +569,21 @@ package body Editor.State is
       S.Search.Active_Replace_Prompt := False;
       S.Panel.Diagnostics.Clear;
       S.Panel.Active_Diagnostic := (Has_Active => False, Index => Editor.Diagnostics.No_Diagnostic);
-      Editor.Gutter_Markers.Clear (S.Gutter_Markers);
+      Editor.Gutter_Markers.Clear (S.Gutter.Markers);
       Reset_Dirty_Line_Baseline (S);
       Editor.Project.Clear (S.Project_Runtime.Project);
       Editor.Feature_Panel.Clear (S.Panel.Feature_Panel);
       Editor.Feature_Messages.Reset_For_Workspace_Close (S.Panel.Feature_Messages);
       Editor.Feature_Search_Results.Reset_For_Workspace_Close (S.Panel.Feature_Search_Results);
-      Editor.Outline.Clear (S.Outline);
-      S.Outline_Cursor.Key_Valid := False;
-      S.Outline_Cursor.Buffer_Token := 0;
-      S.Outline_Cursor.Line := 0;
-      S.Outline_Cursor.Column := 0;
+      Editor.Outline.Clear (S.Outline_Runtime.Outline);
+      S.Outline_Runtime.Cursor.Key_Valid := False;
+      S.Outline_Runtime.Cursor.Buffer_Token := 0;
+      S.Outline_Runtime.Cursor.Line := 0;
+      S.Outline_Runtime.Cursor.Column := 0;
       declare
          Loaded_Settings : Editor.Settings.Settings_Model;
       begin
-         Editor.Settings.Set_Defaults (S.Settings);
+         Editor.Settings.Set_Defaults (S.Configuration.Settings);
          Editor.Settings.Load_From_File
            (Editor.Settings.Settings_File_Path, Loaded_Settings, Startup_Settings_Status);
          if Startup_Settings_Status = Editor.Settings.Settings_Ok
@@ -591,7 +591,7 @@ package body Editor.State is
          then
             Apply_Settings (S, Loaded_Settings);
          else
-            Editor.Settings.Apply (S.Settings);
+            Editor.Settings.Apply (S.Configuration.Settings);
          end if;
       end;
       if not Runtime_Keybindings_Initialized then
@@ -633,13 +633,13 @@ package body Editor.State is
 
       Editor.File_Tree.Clear (S.Surface.File_Tree);
       Editor.File_Tree_View.Clear_View (S.Surface.File_Tree_View);
-      Editor.Panels.Initialize_Defaults (S.Panels);
-      Editor.Panels.Set_Current (S.Panels);
+      Editor.Panels.Initialize_Defaults (S.Panel.Panels);
+      Editor.Panels.Set_Current (S.Panel.Panels);
       Editor.Messages.Clear (S.Panel.Messages);
       Editor.Input_Field.Clear (S.Search.Active_Find_Input);
       Editor.Quick_Open.Clear (S.Surface.Quick_Open);
       Editor.Buffer_Switcher.Clear (S.Surface.Buffer_Switcher);
-      Editor.Recent_Buffers.Clear (S.Recent_Buffers);
+      Editor.Recent_Buffers.Clear (S.Navigation.Recent_Buffers);
       Editor.Go_To_Line.Clear (S.Surface.Go_To_Line);
       Editor.Input_Field.Clear (S.Search.Active_Find_Input);
       S.Search.Active_Find_Query := Null_Unbounded_String;
@@ -653,14 +653,14 @@ package body Editor.State is
       S.Search.Active_Replace_Text := Null_Unbounded_String;
       S.Search.Active_Replace_Error_Message := Null_Unbounded_String;
       S.Search.Active_Replace_Prompt := False;
-      Editor.Navigation_History.Clear (S.Navigation_History);
+      Editor.Navigation_History.Clear (S.Navigation.History);
       Editor.Project_Search.Clear (S.Surface.Project_Search);
-      Editor.Bookmarks.Clear (S.Bookmarks);
+      Editor.Bookmarks.Clear (S.Navigation.Bookmarks);
       S.Panel.Search_Results_View.Top_Row := 1;
       Editor.Panel_Focus.Focus_Editor_Text (S.Panel.Panel_Focus);
       Editor.Overlay_Focus.Clear (S.Panel.Overlay_Focus);
       Clear_Gutter_Marker_Hover (S);
-      Editor.Folding.Clear (S.Folding);
+      Editor.Folding.Clear (S.Syntax.Folding);
       S.Buffer_Lifecycle.File_Info.Has_Path := False;
       S.Buffer_Lifecycle.File_Info.Path := Null_Unbounded_String;
       S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("Untitled");
@@ -806,8 +806,8 @@ package body Editor.State is
       --  row metadata is maintained by the rope itself during the
       --  mutation. Keep only a minimal line-start marker and avoid any
       --  document-wide scan here.
-      S.Line_Starts.Clear;
-      S.Line_Starts.Append (0);
+      S.Text_Projection.Line_Starts.Clear;
+      S.Text_Projection.Line_Starts.Append (0);
 
       S.Search.Active_Find_Matches.Clear;
       S.Search.Active_Find_Match := Editor.Search.No_Match;
@@ -845,10 +845,10 @@ package body Editor.State is
       end if;
       --  Keep visible Messages rows passive during ordinary editing; source
       --  cleanup above is enough to make later explicit feature use valid.
-      if Editor.Outline.Source_Buffer_Token (S.Outline) = 0 then
-         Editor.Outline.Reset_For_Buffer_Change (S.Outline);
+      if Editor.Outline.Source_Buffer_Token (S.Outline_Runtime.Outline) = 0 then
+         Editor.Outline.Reset_For_Buffer_Change (S.Outline_Runtime.Outline);
       else
-         Editor.Outline.Mark_For_Buffer_Change (S.Outline);
+         Editor.Outline.Mark_For_Buffer_Change (S.Outline_Runtime.Outline);
       end if;
       --  Do not refresh or reproject Outline rows from the edit path.  The
       --  explicit Outline refresh/show path remains responsible for visible
@@ -858,7 +858,7 @@ package body Editor.State is
       --  markers are row-level and intentionally do not implement
       --  a line-history remapping algorithm yet; markers beyond the current
       --  document range simply do not render.
-      Editor.Folding.Clear (S.Folding);
+      Editor.Folding.Clear (S.Syntax.Folding);
       S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Feature_Search_Results.Mark_Stale_For_Buffer_Change
         (S.Panel.Feature_Search_Results, S.Buffer_Lifecycle.Active_Buffer_Token, S.Buffer_Lifecycle.Buffer_Revision);
@@ -880,7 +880,7 @@ package body Editor.State is
          First_Row : constant Natural :=
            Row_For_Index (S, Editor.Cursors.Cursor_Index (Change.Start_Index));
       begin
-         Editor.Syntax_Cache.Set_Line_Count (S.Syntax_Cache, Line_Count (S));
+         Editor.Syntax_Cache.Set_Line_Count (S.Syntax.Cache, Line_Count (S));
          --  The cache is line-indexed and does not apply edit deltas.  Any
          --  insertion/deletion before an existing cached row can shift the
          --  text that row represents, so every cached row from the first
@@ -889,13 +889,13 @@ package body Editor.State is
          --  once the dirty suffix has stabilized during visible-range
          --  preparation.
          if Line_Count (S) = 0 then
-            Editor.Syntax_Cache.Clear (S.Syntax_Cache);
+            Editor.Syntax_Cache.Clear (S.Syntax.Cache);
          else
             Editor.Syntax_Cache.Mark_Range_Dirty
-              (S.Syntax_Cache, First_Row + 1, Line_Count (S));
+              (S.Syntax.Cache, First_Row + 1, Line_Count (S));
          end if;
-         Editor.Syntax_Semantics.Clear (S.Syntax_Symbols);
-         Editor.Ada_Language_Model.Clear (S.Syntax_Analysis);
+         Editor.Syntax_Semantics.Clear (S.Syntax.Symbols);
+         Editor.Ada_Language_Model.Clear (S.Syntax.Analysis);
          S.Semantic.Syntax_Source_Revision := S.Buffer_Lifecycle.Buffer_Revision;
          S.Semantic.Syntax_Source_Buffer_Token := S.Buffer_Lifecycle.Active_Buffer_Token;
          S.Semantic.Syntax_Symbols_Revision := Natural'Last;
@@ -982,26 +982,26 @@ package body Editor.State is
       Analysis : constant Editor.Ada_Language_Model.Analysis_Result :=
         Editor.Ada_Declaration_Parser.Parse (Current_Text (S), Source_Label);
    begin
-      Editor.Syntax_Semantics.Clear (S.Syntax_Symbols);
-      S.Syntax_Analysis := Analysis;
+      Editor.Syntax_Semantics.Clear (S.Syntax.Symbols);
+      S.Syntax.Analysis := Analysis;
 
       --  completeness: visible-range syntax preparation
       --  now builds semantic colouring from the shared parser-owned Ada
       --  language model.  This keeps the normal render preparation path aligned
       --  with semantic.refresh-buffer and avoids re-projecting through Outline
       --  rows before semantic classification.
-      Editor.Syntax_Semantics.Build_Map_From_Analysis (S.Syntax_Symbols, Analysis);
+      Editor.Syntax_Semantics.Build_Map_From_Analysis (S.Syntax.Symbols, Analysis);
 
       --  Fallback remains intentionally conservative for unsupported or empty
       --  parser results, and still ignores comments/strings through the
       --  line-level learner.
-      if Editor.Syntax_Semantics.Symbol_Count (S.Syntax_Symbols) = 0 then
+      if Editor.Syntax_Semantics.Symbol_Count (S.Syntax.Symbols) = 0 then
          for Row in 0 .. Line_Count (S) - 1 loop
             declare
                Line : constant String := Text_Line (S, Row);
             begin
                Editor.Syntax_Semantics.Learn_Declarations_From_Line
-                 (S.Syntax_Symbols, Line);
+                 (S.Syntax.Symbols, Line);
             end;
          end loop;
       end if;
@@ -1024,9 +1024,9 @@ package body Editor.State is
       Changed : Boolean := False;
    begin
       if Total = 0 or else Empty_Document then
-         Editor.Syntax_Cache.Clear (S.Syntax_Cache);
-         Editor.Syntax_Semantics.Clear (S.Syntax_Symbols);
-         Editor.Ada_Language_Model.Clear (S.Syntax_Analysis);
+         Editor.Syntax_Cache.Clear (S.Syntax.Cache);
+         Editor.Syntax_Semantics.Clear (S.Syntax.Symbols);
+         Editor.Ada_Language_Model.Clear (S.Syntax.Analysis);
          S.Semantic.Syntax_Source_Revision := Natural'Last;
          S.Semantic.Syntax_Source_Buffer_Token := 0;
          S.Semantic.Syntax_Symbols_Revision := Natural'Last;
@@ -1035,9 +1035,9 @@ package body Editor.State is
       end if;
 
       if S.Semantic.Syntax_Source_Buffer_Token /= S.Buffer_Lifecycle.Active_Buffer_Token then
-         Editor.Syntax_Cache.Clear (S.Syntax_Cache);
-         Editor.Syntax_Semantics.Clear (S.Syntax_Symbols);
-         Editor.Ada_Language_Model.Clear (S.Syntax_Analysis);
+         Editor.Syntax_Cache.Clear (S.Syntax.Cache);
+         Editor.Syntax_Semantics.Clear (S.Syntax.Symbols);
+         Editor.Ada_Language_Model.Clear (S.Syntax.Analysis);
          S.Semantic.Syntax_Source_Revision := Natural'Last;
          S.Semantic.Syntax_Source_Buffer_Token := S.Buffer_Lifecycle.Active_Buffer_Token;
          S.Semantic.Syntax_Symbols_Revision := Natural'Last;
@@ -1045,9 +1045,9 @@ package body Editor.State is
       end if;
 
       if S.Semantic.Syntax_Source_Revision /= S.Buffer_Lifecycle.Buffer_Revision
-        or else Editor.Syntax_Cache.Cached_Line_Count (S.Syntax_Cache) /= Total
+        or else Editor.Syntax_Cache.Cached_Line_Count (S.Syntax.Cache) /= Total
       then
-         Editor.Syntax_Cache.Set_Line_Count (S.Syntax_Cache, Total);
+         Editor.Syntax_Cache.Set_Line_Count (S.Syntax.Cache, Total);
          S.Semantic.Syntax_Source_Revision := S.Buffer_Lifecycle.Buffer_Revision;
          S.Semantic.Syntax_Source_Buffer_Token := S.Buffer_Lifecycle.Active_Buffer_Token;
       end if;
@@ -1064,19 +1064,19 @@ package body Editor.State is
       --  range, relex from that line so unterminated strings/recovery state
       --  cannot leave the requested rows using stale predecessor state.
       for Candidate in 0 .. Stop loop
-         if Editor.Syntax_Cache.Is_Dirty (S.Syntax_Cache, Candidate + 1) then
+         if Editor.Syntax_Cache.Is_Dirty (S.Syntax.Cache, Candidate + 1) then
             Row := Candidate;
             exit;
          end if;
       end loop;
 
       while Row <= Dirty_Stop loop
-         if Editor.Syntax_Cache.Is_Dirty (S.Syntax_Cache, Row + 1) then
+         if Editor.Syntax_Cache.Is_Dirty (S.Syntax.Cache, Row + 1) then
             declare
                Line : constant String := Text_Line (S, Row);
             begin
                Editor.Syntax_Cache.Relex_Dirty_Line
-                 (S.Syntax_Cache, Row + 1, Line, Changed);
+                 (S.Syntax.Cache, Row + 1, Line, Changed);
             end;
          else
             Changed := False;
@@ -1284,7 +1284,7 @@ package body Editor.State is
         Editor.Search_Results.Build_Snapshot
           (S.Surface.Project_Search, (others => <>));
       Pending_Kind : constant Editor.Pending_Transitions.Pending_Transition_Kind :=
-        Editor.Pending_Transitions.Target_Kind (S.Pending_Transitions);
+        Editor.Pending_Transitions.Target_Kind (S.Workflow.Pending_Transitions);
       Panel_Summary : constant Editor.Feature_Panel.Feature_Panel_Summary :=
         Editor.Feature_Panel.Summary (S.Panel.Feature_Panel);
    begin
@@ -1294,8 +1294,8 @@ package body Editor.State is
          File_Tree_Expansion_Count   => Editor.File_Tree.Expanded_Node_Count (S.Surface.File_Tree),
          Quick_Open_Result_Count     => Editor.Quick_Open.Result_Count (S.Surface.Quick_Open),
          Project_Search_Result_Count => Editor.Project_Search.Result_Count (S.Surface.Project_Search),
-         Bookmark_Count => Editor.Bookmarks.Count (S.Bookmarks),
-         Bookmarks_Visible => Editor.Bookmarks.Is_Visible (S.Bookmarks),
+         Bookmark_Count => Editor.Bookmarks.Count (S.Navigation.Bookmarks),
+         Bookmarks_Visible => Editor.Bookmarks.Is_Visible (S.Navigation.Bookmarks),
          Search_Results_Row_Count    => Editor.Search_Results.Row_Count (Snapshot),
          Has_Project_Search_Query    =>
            Editor.Project_Search.Has_Query (S.Surface.Project_Search)
@@ -1308,11 +1308,11 @@ package body Editor.State is
          Feature_Panel_Fingerprint   =>
            Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel),
          Outline_Item_Count          =>
-           Editor.Outline.Item_Count (S.Outline),
+           Editor.Outline.Item_Count (S.Outline_Runtime.Outline),
          Outline_Has_Items           =>
-           Editor.Outline.Has_Items (S.Outline),
+           Editor.Outline.Has_Items (S.Outline_Runtime.Outline),
          Outline_Fingerprint         =>
-           Editor.Outline.Fingerprint (S.Outline),
+           Editor.Outline.Fingerprint (S.Outline_Runtime.Outline),
          Feature_Message_Row_Count   =>
            Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages),
          Feature_Search_Result_Count =>
@@ -1345,7 +1345,7 @@ package body Editor.State is
       Editor.File_Tree_View.Clear_View (S.Surface.File_Tree_View);
       Editor.Quick_Open.Clear (S.Surface.Quick_Open);
       Editor.Buffer_Switcher.Clear (S.Surface.Buffer_Switcher);
-      Editor.Recent_Buffers.Clear (S.Recent_Buffers);
+      Editor.Recent_Buffers.Clear (S.Navigation.Recent_Buffers);
       Editor.Go_To_Line.Clear (S.Surface.Go_To_Line);
       Editor.Input_Field.Clear (S.Search.Active_Find_Input);
       S.Search.Active_Find_Query := Null_Unbounded_String;
@@ -1359,9 +1359,9 @@ package body Editor.State is
       S.Search.Active_Replace_Text := Null_Unbounded_String;
       S.Search.Active_Replace_Error_Message := Null_Unbounded_String;
       S.Search.Active_Replace_Prompt := False;
-      Editor.Navigation_History.Clear (S.Navigation_History);
+      Editor.Navigation_History.Clear (S.Navigation.History);
       Editor.Project_Search.Clear (S.Surface.Project_Search);
-      Editor.Bookmarks.Clear (S.Bookmarks);
+      Editor.Bookmarks.Clear (S.Navigation.Bookmarks);
       Editor.Project_Search_Bar.Clear (S.Surface.Project_Search_Bar);
       S.Panel.Search_Results_View.Top_Row := 1;
       Editor.Problems.Clear_View (S.Panel.Problems_View);
@@ -1388,7 +1388,7 @@ package body Editor.State is
       S.Project_Runtime.Recent_Projects_Focused := False;
 
       Clear_File_Target_Prompt (S);
-      Editor.Guided_Prompts.Clear (S.Guided_Prompt);
+      Editor.Guided_Prompts.Clear (S.Workflow.Guided_Prompt);
 
       if Active = Editor.Overlay_Focus.Quick_Open_Overlay
         or else Active = Editor.Overlay_Focus.Buffer_Switcher_Overlay
@@ -1408,7 +1408,7 @@ package body Editor.State is
          Editor.Panel_Focus.Focus_Editor_Text (S.Panel.Panel_Focus);
       end if;
 
-      Editor.Pending_Transitions.Clear (S.Pending_Transitions);
+      Editor.Pending_Transitions.Clear (S.Workflow.Pending_Transitions);
       if S.Buffer_Lifecycle.Lifecycle_Generation = Natural'Last then
          S.Buffer_Lifecycle.Lifecycle_Generation := 1;
       else
@@ -1475,14 +1475,14 @@ package body Editor.State is
 
       Editor.Workspace_Persistence.Set_File_Tree_Panel
         (Snapshot,
-         Editor.Panels.Is_Visible (S.Panels, Editor.Panels.File_Tree_Panel),
-         Editor.Panels.Current_Size (S.Panels, Editor.Panels.File_Tree_Panel));
+         Editor.Panels.Is_Visible (S.Panel.Panels, Editor.Panels.File_Tree_Panel),
+         Editor.Panels.Current_Size (S.Panel.Panels, Editor.Panels.File_Tree_Panel));
 
       Editor.Workspace_Persistence.Set_Bottom_Panel
         (Snapshot,
-         Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel),
-         Editor.Panels.Current_Size (S.Panels, Editor.Panels.Bottom_Panel),
-         (if Editor.Panels.Active_Bottom_Content (S.Panels) =
+         Editor.Panels.Is_Visible (S.Panel.Panels, Editor.Panels.Bottom_Panel),
+         Editor.Panels.Current_Size (S.Panel.Panels, Editor.Panels.Bottom_Panel),
+         (if Editor.Panels.Active_Bottom_Content (S.Panel.Panels) =
                Editor.Panels.Search_Results_Content
           then Editor.Workspace_Persistence.Workspace_Search_Results_Content
           else Editor.Workspace_Persistence.Workspace_Problems_Content));

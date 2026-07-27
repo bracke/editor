@@ -81,10 +81,10 @@ package body Editor.Line_Edit.Text_Delete_Character_Tests is
    is
    begin
       Assert
-        (Editor.Navigation_History.Back_Count (S.Navigation_History) = Expected_Back,
+        (Editor.Navigation_History.Back_Count (S.Navigation.History) = Expected_Back,
          Why & ": navigation back stack changed");
       Assert
-        (Editor.Navigation_History.Forward_Count (S.Navigation_History) = Expected_Fwd,
+        (Editor.Navigation_History.Forward_Count (S.Navigation.History) = Expected_Fwd,
          Why & ": navigation forward stack changed");
    end Assert_Navigation_Counts;
 
@@ -646,8 +646,8 @@ package body Editor.Line_Edit.Text_Delete_Character_Tests is
       Editor.State.Load_Text (S, Plain);
       Editor.State.Set_Dirty (S, False);
       Set_Primary_Selection (S, Anchor, Pos);
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation.History);
       Before_Dirty := Editor.State.Is_Dirty (S);
 
       Assert
@@ -759,28 +759,28 @@ package body Editor.Line_Edit.Text_Delete_Character_Tests is
       Editor.State.Load_Text (S, "ABCD");
       Set_Caret (S, 1);
       Editor.Navigation_History.Record_Explicit_Navigation
-        (S.Navigation_History,
+        (S.Navigation.History,
          (Buffer_Id => 1, Has_File_Path => False,
           File_Path => Null_Unbounded_String,
           Display_Path => Null_Unbounded_String,
           Line => 1, Column => 0, Viewport_Row => 0,
           Reason => Editor.Navigation_History.Navigation_Reason_Go_To_Line));
       Editor.Navigation_History.Record_Explicit_Navigation
-        (S.Navigation_History,
+        (S.Navigation.History,
          (Buffer_Id => 1, Has_File_Path => False,
           File_Path => Null_Unbounded_String,
           Display_Path => Null_Unbounded_String,
           Line => 1, Column => 1, Viewport_Row => 0,
           Reason => Editor.Navigation_History.Navigation_Reason_Go_To_Line));
       Editor.Navigation_History.Record_Forward_Navigation
-        (S.Navigation_History,
+        (S.Navigation.History,
          (Buffer_Id => 1, Has_File_Path => False,
           File_Path => Null_Unbounded_String,
           Display_Path => Null_Unbounded_String,
           Line => 1, Column => 2, Viewport_Row => 0,
           Reason => Editor.Navigation_History.Navigation_Reason_Forward));
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation.History);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Char_Delete_Next);
       Assert_Buffer_Text (S, "ACD", "character delete after navigation must edit active text");
       Assert_Navigation_Counts
@@ -1072,21 +1072,21 @@ package body Editor.Line_Edit.Text_Delete_Character_Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Beta");
       Editor.Navigation_History.Record_Explicit_Navigation
-        (S.Navigation_History,
+        (S.Navigation.History,
          (Buffer_Id => 1, Has_File_Path => False,
           File_Path => Null_Unbounded_String,
           Display_Path => Null_Unbounded_String,
           Line => 1, Column => 1, Viewport_Row => 0,
           Reason => Editor.Navigation_History.Navigation_Reason_Go_To_Line));
       Editor.Navigation_History.Record_Forward_Navigation
-        (S.Navigation_History,
+        (S.Navigation.History,
          (Buffer_Id => 1, Has_File_Path => False,
           File_Path => Null_Unbounded_String,
           Display_Path => Null_Unbounded_String,
           Line => 1, Column => 2, Viewport_Row => 0,
           Reason => Editor.Navigation_History.Navigation_Reason_Forward));
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation.History);
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Char_Delete_Next);
       Assert_Buffer_Text
@@ -1324,21 +1324,21 @@ package body Editor.Line_Edit.Text_Delete_Character_Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Beta");
       Editor.Navigation_History.Record_Explicit_Navigation
-        (S.Navigation_History,
+        (S.Navigation.History,
          (Buffer_Id => 1, Has_File_Path => False,
           File_Path => Null_Unbounded_String,
           Display_Path => Null_Unbounded_String,
           Line => 1, Column => 1, Viewport_Row => 0,
           Reason => Editor.Navigation_History.Navigation_Reason_Go_To_Line));
       Editor.Navigation_History.Record_Forward_Navigation
-        (S.Navigation_History,
+        (S.Navigation.History,
          (Buffer_Id => 1, Has_File_Path => False,
           File_Path => Null_Unbounded_String,
           Display_Path => Null_Unbounded_String,
           Line => 1, Column => 2, Viewport_Row => 0,
           Reason => Editor.Navigation_History.Navigation_Reason_Forward));
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation.History);
 
       Set_Caret (S, 10);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Char_Delete_Previous);

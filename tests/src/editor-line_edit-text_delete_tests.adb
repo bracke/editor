@@ -81,10 +81,10 @@ package body Editor.Line_Edit.Text_Delete_Tests is
    is
    begin
       Assert
-        (Editor.Navigation_History.Back_Count (S.Navigation_History) = Expected_Back,
+        (Editor.Navigation_History.Back_Count (S.Navigation.History) = Expected_Back,
          Why & ": navigation back stack changed");
       Assert
-        (Editor.Navigation_History.Forward_Count (S.Navigation_History) = Expected_Fwd,
+        (Editor.Navigation_History.Forward_Count (S.Navigation.History) = Expected_Fwd,
          Why & ": navigation forward stack changed");
    end Assert_Navigation_Counts;
 
@@ -646,8 +646,8 @@ package body Editor.Line_Edit.Text_Delete_Tests is
       Editor.State.Load_Text (S, Plain);
       Editor.State.Set_Dirty (S, False);
       Set_Primary_Selection (S, Anchor, Pos);
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation.History);
       Before_Dirty := Editor.State.Is_Dirty (S);
 
       Assert
@@ -754,8 +754,8 @@ package body Editor.Line_Edit.Text_Delete_Tests is
       Editor.Clipboard.Set_Text (Before_Clip);
       Editor.State.Load_Text (S, "Alpha" & ASCII.LF & "Beta" & ASCII.LF & "Gamma");
       Set_Primary_Selection (S, 6, 10);
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation.History);
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Delete);
       Assert_Buffer_Text
@@ -953,8 +953,8 @@ package body Editor.Line_Edit.Text_Delete_Tests is
       Editor.State.Set_Dirty (S, False);
       S.Search.Active_Find_Query := To_Unbounded_String ("Beta");
       S.Search.Active_Find_Stale := False;
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation.History);
 
       Set_Primary_Selection (S, 6, 10);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Delete);
@@ -1281,8 +1281,8 @@ package body Editor.Line_Edit.Text_Delete_Tests is
       S.Search.Active_Replace_Prompt := True;
       S.Search.Active_Replace_Text := To_Unbounded_String ("DELTA");
       Set_Primary_Selection (S, 6, 10);
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation.History);
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Delete);
       Assert_Buffer_Text (S, "Alpha  Gamma", "find workflow delete");
@@ -1493,8 +1493,8 @@ procedure Test_Selection_Delete_Canonical_State_Only_Workflow
       S.Search.Active_Find_Query := To_Unbounded_String ("Beta");
       S.Search.Active_Replace_Text := To_Unbounded_String ("Delta");
       Set_Primary_Selection (S, 6, 10);
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation.History);
 
       Chord := Editor.Keybindings.Parse_Chord ("Ctrl+Alt+M", Found_Chord);
       Assert (Found_Chord, "test chord must parse");

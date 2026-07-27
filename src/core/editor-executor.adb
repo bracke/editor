@@ -370,7 +370,7 @@ package body Editor.Executor is
       Visible_Count      : Natural := 1;
       Layout             : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
    begin
-      Editor.Folding.Expand_To_Reveal_Row (S.Folding, Target_Row);
+      Editor.Folding.Expand_To_Reveal_Row (S.Syntax.Folding, Target_Row);
 
       Target_Index := Editor.Cursors.Cursor_Index
         (Index_For_Line_Column (S, Target_Row, Target_Column));
@@ -385,7 +385,7 @@ package body Editor.Executor is
       S.Caret.Preferred_Column := Target_Column;
 
       Visible_Target_Row := Editor.Folding.Document_Row_To_Visible_Row
-        (S.Folding, Target_Row, Visible_Found);
+        (S.Syntax.Folding, Target_Row, Visible_Found);
       if not Visible_Found then
          Visible_Target_Row := Target_Row;
       end if;
@@ -397,7 +397,7 @@ package body Editor.Executor is
       Visible_Count := Natural'Max
         (1,
          Editor.Folding.Visible_Row_Count
-           (S.Folding, Editor.State.Line_Count (S)));
+           (S.Syntax.Folding, Editor.State.Line_Count (S)));
 
       if Visible_Target_Row > Viewport_Rows / 2 then
          Desired := Visible_Target_Row - Viewport_Rows / 2;
@@ -509,13 +509,13 @@ package body Editor.Executor is
          return True;
       end if;
 
-      if not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions) then
+      if not Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions) then
          return False;
       end if;
 
       declare
          Target : constant Editor.Pending_Transitions.Pending_Transition_Target :=
-           Editor.Pending_Transitions.Target (S.Pending_Transitions);
+           Editor.Pending_Transitions.Target (S.Workflow.Pending_Transitions);
       begin
          return Target.Kind in
            Editor.Pending_Transitions.Pending_Reload_Active_Buffer
@@ -534,13 +534,13 @@ package body Editor.Executor is
          return False;
       end if;
 
-      if Editor.Outline.Selected_Index (S.Outline) > 0
+      if Editor.Outline.Selected_Index (S.Outline_Runtime.Outline) > 0
         and then
           (Editor.Feature_Panel.Active_Feature (Panel) /=
              Editor.Feature_Panel.Outline_Feature
            or else not Editor.Feature_Panel.Has_Selection (Panel))
       then
-         Editor.Outline.Set_Rows_From_Outline (S.Outline, Panel);
+         Editor.Outline.Set_Rows_From_Outline (S.Outline_Runtime.Outline, Panel);
       end if;
       if not Editor.Feature_Panel.Has_Selection (Panel) then
          return False;
@@ -548,7 +548,7 @@ package body Editor.Executor is
 
       Row := Editor.Feature_Panel.Selected_Row (Panel);
       Outline_Row := Editor.Outline.Map_Panel_Row_To_Outline_Row
-        (S.Outline, Panel, Row);
+        (S.Outline_Runtime.Outline, Panel, Row);
       if Outline_Row = 0 then
          return False;
       end if;
@@ -556,11 +556,11 @@ package body Editor.Executor is
       declare
          Target_Buffer : constant Natural :=
            Editor.Outline.Item_Buffer_Token
-             (S.Outline, Positive (Outline_Row));
+             (S.Outline_Runtime.Outline, Positive (Outline_Row));
          Target_Line : constant Natural :=
-           Editor.Outline.Item_Line (S.Outline, Positive (Outline_Row));
+           Editor.Outline.Item_Line (S.Outline_Runtime.Outline, Positive (Outline_Row));
          Target_Column : constant Natural :=
-           Editor.Outline.Item_Column (S.Outline, Positive (Outline_Row));
+           Editor.Outline.Item_Column (S.Outline_Runtime.Outline, Positive (Outline_Row));
       begin
          --  declaration navigation and open-selected availability
          --  must expose the same stale-target policy as execution.  A selected
@@ -568,7 +568,7 @@ package body Editor.Executor is
          --  live buffer and an in-range source position before the command is
          --  advertised as available.
          return Editor.Outline.Validate_Outline_Row_For_Activation
-             (S.Outline, Panel, Row, Target_Buffer)
+             (S.Outline_Runtime.Outline, Panel, Row, Target_Buffer)
            and then Feature_Target_Position_Is_Valid
              (S, Target_Buffer, Target_Line, Target_Column);
       end;
@@ -818,10 +818,10 @@ package body Editor.Executor is
       Col : Natural := 0;
    begin
       if not Editor.State.Has_Active_Buffer (S) or else S.Buffer_Lifecycle.Registry_Token = 0 then
-         S.Outline_Cursor.Key_Valid := False;
-         if Editor.Outline.Has_Current_Symbol (S.Outline) then
-            Editor.Outline.Clear_Current_Symbol (S.Outline);
-            Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+         S.Outline_Runtime.Cursor.Key_Valid := False;
+         if Editor.Outline.Has_Current_Symbol (S.Outline_Runtime.Outline) then
+            Editor.Outline.Clear_Current_Symbol (S.Outline_Runtime.Outline);
+            Editor.Outline.Set_Rows_From_Outline (S.Outline_Runtime.Outline, S.Panel.Feature_Panel);
             Editor.Render_Cache.Invalidate_All;
          end if;
          return;
@@ -829,38 +829,38 @@ package body Editor.Executor is
 
       Line_Column_For_Index (S, Natural (Safe_Caret (S)), Row, Col);
 
-      if S.Outline_Cursor.Key_Valid
-        and then S.Outline_Cursor.Buffer_Token = Active_Feature_Buffer_Token (S)
-        and then S.Outline_Cursor.Line = Row + 1
-        and then S.Outline_Cursor.Column = Col + 1
+      if S.Outline_Runtime.Cursor.Key_Valid
+        and then S.Outline_Runtime.Cursor.Buffer_Token = Active_Feature_Buffer_Token (S)
+        and then S.Outline_Runtime.Cursor.Line = Row + 1
+        and then S.Outline_Runtime.Cursor.Column = Col + 1
       then
-         if Editor.Outline.Source_Class (S.Outline) /= Editor.Outline.Extracted_Outline
-           and then Editor.Outline.Has_Current_Symbol (S.Outline)
+         if Editor.Outline.Source_Class (S.Outline_Runtime.Outline) /= Editor.Outline.Extracted_Outline
+           and then Editor.Outline.Has_Current_Symbol (S.Outline_Runtime.Outline)
          then
-            Editor.Outline.Clear_Current_Symbol (S.Outline);
-            Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+            Editor.Outline.Clear_Current_Symbol (S.Outline_Runtime.Outline);
+            Editor.Outline.Set_Rows_From_Outline (S.Outline_Runtime.Outline, S.Panel.Feature_Panel);
             Editor.Render_Cache.Invalidate_All;
          end if;
          return;
       end if;
 
-      S.Outline_Cursor.Key_Valid := True;
-      S.Outline_Cursor.Buffer_Token := Active_Feature_Buffer_Token (S);
-      S.Outline_Cursor.Line := Row + 1;
-      S.Outline_Cursor.Column := Col + 1;
+      S.Outline_Runtime.Cursor.Key_Valid := True;
+      S.Outline_Runtime.Cursor.Buffer_Token := Active_Feature_Buffer_Token (S);
+      S.Outline_Runtime.Cursor.Line := Row + 1;
+      S.Outline_Runtime.Cursor.Column := Col + 1;
 
-      if Editor.Outline.Source_Class (S.Outline) /= Editor.Outline.Extracted_Outline then
-         if Editor.Outline.Has_Current_Symbol (S.Outline) then
-            Editor.Outline.Clear_Current_Symbol (S.Outline);
-            Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      if Editor.Outline.Source_Class (S.Outline_Runtime.Outline) /= Editor.Outline.Extracted_Outline then
+         if Editor.Outline.Has_Current_Symbol (S.Outline_Runtime.Outline) then
+            Editor.Outline.Clear_Current_Symbol (S.Outline_Runtime.Outline);
+            Editor.Outline.Set_Rows_From_Outline (S.Outline_Runtime.Outline, S.Panel.Feature_Panel);
             Editor.Render_Cache.Invalidate_All;
          end if;
          return;
       end if;
 
       Editor.Outline.Update_Current_Symbol_For_Cursor
-        (S.Outline, Active_Feature_Buffer_Token (S), Row + 1, Col + 1);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+        (S.Outline_Runtime.Outline, Active_Feature_Buffer_Token (S), Row + 1, Col + 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline_Runtime.Outline, S.Panel.Feature_Panel);
       Editor.Render_Cache.Invalidate_All;
    end Sync_Current_Outline_Symbol_From_Caret;
    function Safe_Anchor
@@ -1624,9 +1624,9 @@ package body Editor.Executor is
         (S, S.Search.Active_Find_Match.Start_Index, Row, Col);
       pragma Unreferenced (Col);
 
-      Editor.Folding.Expand_To_Reveal_Row (S.Folding, Row);
+      Editor.Folding.Expand_To_Reveal_Row (S.Syntax.Folding, Row);
       Visible_Target_Row := Editor.Folding.Document_Row_To_Visible_Row
-        (S.Folding, Row, Visible_Found);
+        (S.Syntax.Folding, Row, Visible_Found);
       if not Visible_Found then
          Visible_Target_Row := Row;
       end if;
@@ -1638,7 +1638,7 @@ package body Editor.Executor is
       Visible_Count := Natural'Max
         (1,
          Editor.Folding.Visible_Row_Count
-           (S.Folding, Editor.State.Line_Count (S)));
+           (S.Syntax.Folding, Editor.State.Line_Count (S)));
 
       if Visible_Target_Row > Viewport_Rows / 2 then
          Desired := Visible_Target_Row - Viewport_Rows / 2;
@@ -1887,8 +1887,8 @@ package body Editor.Executor is
                     (S.Semantic.Language_Service, S.Buffer_Lifecycle.Active_Buffer_Token);
                end if;
 
-               Editor.Syntax_Semantics.Clear (S.Syntax_Symbols);
-               Editor.Ada_Language_Model.Clear (S.Syntax_Analysis);
+               Editor.Syntax_Semantics.Clear (S.Syntax.Symbols);
+               Editor.Ada_Language_Model.Clear (S.Syntax.Analysis);
                S.Semantic.Syntax_Symbols_Revision := Natural'Last;
                S.Semantic.Syntax_Symbols_Buffer_Token := 0;
             end;
@@ -1899,10 +1899,10 @@ package body Editor.Executor is
             --  observations for the attempted edit.  For an unchanged text
             --  result, restore the dirty observation to what the current
             --  baseline actually says, without creating a new baseline.
-            if Editor.Dirty_Lines.Has_Baseline (S.Dirty_Lines) then
+            if Editor.Dirty_Lines.Has_Baseline (S.Gutter.Dirty_Lines) then
                Editor.State.Refresh_Dirty_Lines (S);
                Editor.State.Set_Dirty
-                 (S, Editor.Dirty_Lines.Dirty_Line_Count (S.Dirty_Lines) > 0);
+                 (S, Editor.Dirty_Lines.Dirty_Line_Count (S.Gutter.Dirty_Lines) > 0);
             else
                Editor.State.Set_Dirty (S, Before.Buffer_Lifecycle.File_Info.Dirty);
             end if;

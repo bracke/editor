@@ -495,7 +495,7 @@ package body Editor.Files.Save_Reload_Tests is
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
-      Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
         "reload of dirty buffer should create a transient confirmation");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
@@ -504,7 +504,7 @@ package body Editor.Files.Save_Reload_Tests is
 
       Assert (Buffer_Text (S) = "disk baseline dirty",
         "stale reload confirmation must not reload after save resolved dirty text");
-      Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (not Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
         "stale reload confirmation must be cleared after retry rejection");
       M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found
@@ -536,7 +536,7 @@ package body Editor.Files.Save_Reload_Tests is
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Revert_Active_Buffer (S);
-      Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
         "revert of dirty buffer should create a transient confirmation");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
@@ -545,7 +545,7 @@ package body Editor.Files.Save_Reload_Tests is
 
       Assert (Buffer_Text (S) = "disk baseline dirty",
         "stale revert confirmation must not discard text after save resolved dirty text");
-      Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (not Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
         "stale revert confirmation must be cleared after retry rejection");
       M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found
@@ -578,11 +578,11 @@ package body Editor.Files.Save_Reload_Tests is
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
-      Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
         "dirty reload starts an explicit confirmation before cancel");
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Cancel_Pending_Transition);
-      Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (not Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
         "reload cancel clears only the transient confirmation");
       Assert (Buffer_Text (S) = "disk baseline dirty" and then S.Buffer_Lifecycle.File_Info.Dirty,
         "reload cancel preserves dirty buffer text and dirty state");
@@ -591,11 +591,11 @@ package body Editor.Files.Save_Reload_Tests is
         "reload cancel must name the file lifecycle operation");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Revert_Active_Buffer (S);
-      Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
         "dirty revert starts an explicit confirmation before cancel");
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Cancel_Pending_Transition);
-      Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (not Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
         "revert cancel clears only the transient confirmation");
       Assert (Buffer_Text (S) = "disk baseline dirty" and then S.Buffer_Lifecycle.File_Info.Dirty,
         "revert cancel preserves dirty buffer text and dirty state");
@@ -630,7 +630,7 @@ package body Editor.Files.Save_Reload_Tests is
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
-      Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
         "dirty reload should create a lifecycle confirmation");
 
       Availability := Editor.Executor.Command_Availability
@@ -659,7 +659,7 @@ package body Editor.Files.Save_Reload_Tests is
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File);
 
-      Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
         "rejected Save Current must leave reload confirmation pending");
       Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "rejected Save Current must preserve dirty text/state");
@@ -671,7 +671,7 @@ package body Editor.Files.Save_Reload_Tests is
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File_As);
 
-      Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
         "rejected Save As must leave reload confirmation pending");
       Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "rejected Save As must preserve dirty text/state");
@@ -683,7 +683,7 @@ package body Editor.Files.Save_Reload_Tests is
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_All);
 
-      Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
         "rejected Save All must leave reload confirmation pending");
       Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "rejected Save All must preserve dirty text/state");
@@ -740,7 +740,7 @@ package body Editor.Files.Save_Reload_Tests is
       Editor.Buffers.Global_Set_Active_Buffer (Active_Id);
       Editor.Buffers.Load_Global_Active_Into_State (S);
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
-      Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
         "dirty reload should create a lifecycle confirmation");
 
       for Command of Blocked loop
@@ -754,7 +754,7 @@ package body Editor.Files.Save_Reload_Tests is
       end loop;
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Next_Buffer);
-      Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
         "rejected buffer switch must leave reload confirmation pending");
       Assert (Editor.Buffers.Global_Active_Buffer = Active_Id,
         "rejected buffer switch must not change the captured reload target");
@@ -815,7 +815,7 @@ package body Editor.Files.Save_Reload_Tests is
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
-      Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
         "dirty reload should create a lifecycle confirmation before blocking edits");
 
       for Command of Blocked loop
@@ -829,7 +829,7 @@ package body Editor.Files.Save_Reload_Tests is
       end loop;
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Insert_Newline);
-      Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
         "rejected text mutation must leave reload confirmation pending");
       Assert (Buffer_Text (S) = "disk baseline dirty" and then S.Buffer_Lifecycle.File_Info.Dirty,
         "rejected text mutation must preserve dirty text/state");
@@ -1574,8 +1574,8 @@ package body Editor.Files.Save_Reload_Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "def");
       Editor.State.Add_Diagnostic (S, 0, 1, Editor.Diagnostics.Warning);
       Editor.Gutter_Markers.Add_Marker
-        (S.Gutter_Markers, 0, Editor.Gutter_Markers.Bookmark_Marker);
-      Editor.Folding.Add_Fold (S.Folding, 0, 1);
+        (S.Gutter.Markers, 0, Editor.Gutter_Markers.Bookmark_Marker);
+      Editor.Folding.Add_Fold (S.Syntax.Folding, 0, 1);
       Editor.View.Set_Scroll (4, 2);
       S.Buffer_Lifecycle.File_Info.Dirty := True;
       Before_Caret := S.Caret.Carets (0);
@@ -1596,9 +1596,9 @@ package body Editor.Files.Save_Reload_Tests is
       Assert (S.Panel.Diagnostics.Length > 0,
         "Save As should not clear diagnostics");
       Assert (Editor.Gutter_Markers.Has_Marker
-        (S.Gutter_Markers, 0, Editor.Gutter_Markers.Bookmark_Marker),
+        (S.Gutter.Markers, 0, Editor.Gutter_Markers.Bookmark_Marker),
         "Save As should not clear gutter markers");
-      Assert (S.Folding.Ranges.Length > 0,
+      Assert (S.Syntax.Folding.Ranges.Length > 0,
         "Save As should not clear folding state");
       Remove_If_Exists (Path);
    end Test_Save_As_Does_Not_Reset_Editor_State;

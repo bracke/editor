@@ -143,7 +143,7 @@ package body Editor.Quick_Open.Surface_Rendering is
            Tree     => State.Surface.File_Tree,
            Project  => State.Project_Runtime.Project,
            Registry => Editor.Buffers.Global_Registry_For_UI,
-           Recent   => State.Recent_Buffers);
+           Recent   => State.Navigation.Recent_Buffers);
       Text_Cols : constant Natural :=
         (if G.Width / Cell_W > 2 then G.Width / Cell_W - 2 else 1);
       Field_Y : constant Float := Float (G.Y + Integer (Config.Header_Height_In_Rows * Cell_H));

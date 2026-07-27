@@ -32,11 +32,11 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
          return;
       end if;
 
-      Editor.Panels.Set_Visible (S.Panels, Editor.Panels.File_Tree_Panel, True);
+      Editor.Panels.Set_Visible (S.Panel.Panels, Editor.Panels.File_Tree_Panel, True);
       Editor.Executor.Validate_File_Tree_View (S);
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_File_Tree);
-      Editor.Panels.Set_Current (S.Panels);
+      Editor.Panels.Set_Current (S.Panel.Panels);
       Editor.Render_Cache.Invalidate_All;
    end Execute_Focus_File_Tree;
 

@@ -82,10 +82,10 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
    is
    begin
       Assert
-        (Editor.Navigation_History.Back_Count (S.Navigation_History) = Expected_Back,
+        (Editor.Navigation_History.Back_Count (S.Navigation.History) = Expected_Back,
          Why & ": navigation back stack changed");
       Assert
-        (Editor.Navigation_History.Forward_Count (S.Navigation_History) = Expected_Fwd,
+        (Editor.Navigation_History.Forward_Count (S.Navigation.History) = Expected_Fwd,
          Why & ": navigation forward stack changed");
    end Assert_Navigation_Counts;
 
@@ -647,8 +647,8 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Editor.State.Load_Text (S, Plain);
       Editor.State.Set_Dirty (S, False);
       Set_Primary_Selection (S, Anchor, Pos);
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation.History);
       Before_Dirty := Editor.State.Is_Dirty (S);
 
       Assert
@@ -1107,8 +1107,8 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
       Before_Dirty := Editor.State.Is_Dirty (S);
       Before_Stale := S.Search.Active_Find_Stale;
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation.History);
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Avail := Editor.Executor.Command_Availability
@@ -1303,8 +1303,8 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Show (S);
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text (S, "REPL");
       Set_Primary_Selection (S, 0, 5);
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation.History);
 
       Set_Caret (S, 6);
       Editor.Executor.Execute_Command
@@ -1426,8 +1426,8 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Before_Undo := Natural (Editor.History.Undo_Stack.Length);
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
       Before_Dirty := Editor.State.Is_Dirty (S);
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation.History);
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Word_Delete_Previous);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
@@ -1626,8 +1626,8 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Editor.State.Set_Dirty (S, False);
       Editor.Clipboard.Set_Text (To_Unbounded_String ("CLIPBOARD"));
       Before_Clip := Editor.Clipboard.Get_Text;
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation.History);
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Word_Delete_Previous);
@@ -1764,8 +1764,8 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Set_Primary_Selection (S, 0, 6);
       Editor.Clipboard.Set_Text (To_Unbounded_String ("CLIP"));
       Before_Clip := Editor.Clipboard.Get_Text;
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation.History);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Beta");
 

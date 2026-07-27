@@ -120,7 +120,7 @@ package body Editor.Product_Surface_Cleanup.Tests is
 
       declare
          O_Result : constant Editor.Outline.Outline_Refresh_Result :=
-           Editor.Outline.Fixtures.Populate_Synthetic_Outline (S.Outline);
+           Editor.Outline.Fixtures.Populate_Synthetic_Outline (S.Outline_Runtime.Outline);
          pragma Unreferenced (O_Result);
       begin
          Assert (Editor.Product_Surface_Cleanup.Outline_Has_Fixture_Data (S),
@@ -228,7 +228,7 @@ package body Editor.Product_Surface_Cleanup.Tests is
 
       Assert (Editor.Feature_Panel.Row_Count (S.Panel.Feature_Panel) = 0,
               "Feature Panel empty state has no data rows");
-      Assert (Editor.Outline.Item_Count (S.Outline) = 0,
+      Assert (Editor.Outline.Item_Count (S.Outline_Runtime.Outline) = 0,
               "Outline empty state has no target rows");
       Assert (Editor.Diagnostics.Diagnostic_Count (S.Panel.Diagnostics) = 0,
               "Diagnostics empty state has no diagnostics rows");

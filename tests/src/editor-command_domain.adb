@@ -42,22 +42,22 @@ package body Editor.Command_Domain is
    is
       H : Natural := 19;
    begin
-      H := Hash_Natural (H, Editor.Settings.Version (S.Settings));
+      H := Hash_Natural (H, Editor.Settings.Version (S.Configuration.Settings));
       H := Hash_String (Editor.Settings.Theme_Setting_Kind'Image
-        (Editor.Settings.Theme_Mode (S.Settings)), H);
-      H := Hash_String (Editor.Settings.Theme_Id (S.Settings), H);
-      H := Hash_Boolean (H, Editor.Settings.Has_Line_Number_Mode (S.Settings));
-      H := Hash_String (Editor.Settings.Line_Number_Mode_Name (S.Settings), H);
-      H := Hash_String (Editor.Settings.Cursor_Style_Name (S.Settings), H);
-      H := Hash_Boolean (H, Editor.Settings.Cursor_Blink (S.Settings));
-      H := Hash_Boolean (H, Editor.Settings.Minimap_Visible (S.Settings));
-      H := Hash_Boolean (H, Editor.Settings.Scrollbars_Visible (S.Settings));
+        (Editor.Settings.Theme_Mode (S.Configuration.Settings)), H);
+      H := Hash_String (Editor.Settings.Theme_Id (S.Configuration.Settings), H);
+      H := Hash_Boolean (H, Editor.Settings.Has_Line_Number_Mode (S.Configuration.Settings));
+      H := Hash_String (Editor.Settings.Line_Number_Mode_Name (S.Configuration.Settings), H);
+      H := Hash_String (Editor.Settings.Cursor_Style_Name (S.Configuration.Settings), H);
+      H := Hash_Boolean (H, Editor.Settings.Cursor_Blink (S.Configuration.Settings));
+      H := Hash_Boolean (H, Editor.Settings.Minimap_Visible (S.Configuration.Settings));
+      H := Hash_Boolean (H, Editor.Settings.Scrollbars_Visible (S.Configuration.Settings));
       H := Hash_Boolean
-        (H, Editor.Settings.Command_Palette_Show_Unavailable (S.Settings));
+        (H, Editor.Settings.Command_Palette_Show_Unavailable (S.Configuration.Settings));
       H := Hash_Boolean
-        (H, Editor.Settings.Command_Palette_Show_Keybindings (S.Settings));
+        (H, Editor.Settings.Command_Palette_Show_Keybindings (S.Configuration.Settings));
       H := Hash_Boolean
-        (H, Editor.Settings.Command_Palette_Show_Selected_Description (S.Settings));
+        (H, Editor.Settings.Command_Palette_Show_Selected_Description (S.Configuration.Settings));
       declare
          Runtime : constant Editor.Settings.Settings_State := Editor.Settings.Current;
       begin
@@ -124,7 +124,7 @@ package body Editor.Command_Domain is
          Recent_Project_Count      => Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects),
          Recent_Project_Selection  => S.Project_Runtime.Recent_Project_Selected_Index,
          Has_Pending_Transition    =>
-           Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+           Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
          Settings_Fingerprint      => Settings_Fingerprint (S),
          Keybindings_Fingerprint   => Active_Keybindings_Fingerprint,
          Message_Count             => Editor.Messages.Count (S.Panel.Messages),

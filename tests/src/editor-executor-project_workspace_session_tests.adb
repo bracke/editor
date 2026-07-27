@@ -922,10 +922,10 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
       Editor.Executor.Workspace_Commands.Execute_Clear_Workspace_State (S);
       Assert (Ada.Directories.Exists (Path),
               "first clear workspace command must preserve session file");
-      Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "first clear workspace command should create pending confirmation");
       Assert
-        (Editor.Pending_Transitions.Target_Kind (S.Pending_Transitions) =
+        (Editor.Pending_Transitions.Target_Kind (S.Workflow.Pending_Transitions) =
          Editor.Pending_Transitions.Pending_Clear_Workspace_State,
          "clear workspace confirmation should use dedicated pending kind");
 
@@ -952,7 +952,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
       Init_Executor_Test_State (S);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Editor.Executor.Workspace_Commands.Execute_Clear_Workspace_State (S);
-      Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "clear workspace should open confirmation before cancel");
 
       Result := Editor.Executor.Execute_Command_With_Result
@@ -961,7 +961,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
               "cancel pending transition should execute");
       Assert (Ada.Directories.Exists (Path),
               "cancel should preserve workspace session file");
-      Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (not Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "cancel should clear workspace confirmation");
 
       Remove_Tree_If_Exists (Root);
@@ -988,7 +988,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Editor.Executor.Workspace_Commands.Execute_Clear_Workspace_State (S);
       Assert (Ada.Directories.Exists (Path)
-                and then Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+                and then Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "clear workspace should stage confirmation before retry");
 
       Result := Editor.Executor.Execute_Command_With_Result
@@ -997,7 +997,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
               "retry should confirm clear workspace");
       Assert (not Ada.Directories.Exists (Path),
               "retry should delete workspace session file");
-      Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (not Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "retry should clear workspace confirmation");
 
       Remove_Tree_If_Exists (Root);
@@ -1023,7 +1023,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
       Init_Executor_Test_State (S);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Editor.Executor.Workspace_Commands.Execute_Clear_Workspace_State (S);
-      Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "clear workspace should stage confirmation before stale session removal");
 
       Ada.Directories.Delete_File (Path);
@@ -1031,7 +1031,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
         (S, Editor.Command_Ids.Command_Retry_Pending_Transition);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "retry stale clear workspace should return a command outcome");
-      Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (not Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "stale clear workspace retry should clear pending confirmation");
       Assert (not Ada.Directories.Exists (Path),
               "stale clear workspace retry should not recreate session file");

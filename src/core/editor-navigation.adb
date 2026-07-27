@@ -381,15 +381,15 @@ package body Editor.Navigation is
       Visible_Found : Boolean := False;
       Visible       : Natural := 0;
    begin
-      if Editor.Folding.Is_Row_Hidden (S.Folding, Effective_Row) then
+      if Editor.Folding.Is_Row_Hidden (S.Syntax.Folding, Effective_Row) then
          Effective_Row :=
            Editor.Folding.Fold_Start_For_Hidden_Row
-             (S.Folding, Effective_Row, Found);
+             (S.Syntax.Folding, Effective_Row, Found);
       end if;
 
       Visible :=
         Editor.Folding.Document_Row_To_Visible_Row
-          (S.Folding, Effective_Row, Visible_Found);
+          (S.Syntax.Folding, Effective_Row, Visible_Found);
 
       if Visible_Found then
          return Visible;
@@ -409,7 +409,7 @@ package body Editor.Navigation is
       Last_Row  : constant Natural := Editor.State.Line_Count (S) - 1;
    begin
       for R in 0 .. Last_Row loop
-         if not Editor.Folding.Is_Row_Hidden (S.Folding, R) then
+         if not Editor.Folding.Is_Row_Hidden (S.Syntax.Folding, R) then
             declare
                Parts : constant Natural := Visual_Row_Count (S, R, Wrap_Col);
             begin
@@ -424,7 +424,7 @@ package body Editor.Navigation is
       end loop;
 
       for R in reverse 0 .. Last_Row loop
-         if not Editor.Folding.Is_Row_Hidden (S.Folding, R) then
+         if not Editor.Folding.Is_Row_Hidden (S.Syntax.Folding, R) then
             Row := R;
             Part := Visual_Row_Count (S, R, Wrap_Col) - 1;
             return;
@@ -446,16 +446,16 @@ package body Editor.Navigation is
       Found         : Boolean := False;
       Effective_Part : Natural := Part;
    begin
-      if Editor.Folding.Is_Row_Hidden (S.Folding, Effective_Row) then
+      if Editor.Folding.Is_Row_Hidden (S.Syntax.Folding, Effective_Row) then
          Effective_Row :=
            Editor.Folding.Fold_Start_For_Hidden_Row
-             (S.Folding, Effective_Row, Found);
+             (S.Syntax.Folding, Effective_Row, Found);
          Effective_Part := 0;
       end if;
 
       if Effective_Row > 0 then
          for R in 0 .. Effective_Row - 1 loop
-            if not Editor.Folding.Is_Row_Hidden (S.Folding, R) then
+            if not Editor.Folding.Is_Row_Hidden (S.Syntax.Folding, R) then
                Ordinal := Ordinal + Visual_Row_Count (S, R, Wrap_Col);
             end if;
          end loop;
@@ -511,12 +511,12 @@ package body Editor.Navigation is
             Visible_Count : constant Natural :=
               Natural'Max
                 (1, Editor.Folding.Visible_Row_Count
-                      (S.Folding, Editor.State.Line_Count (S)));
+                      (S.Syntax.Folding, Editor.State.Line_Count (S)));
             Visible_Row : constant Natural := Natural'Min (Row, Visible_Count - 1);
          begin
             Target_Row :=
               Editor.Folding.Visible_Row_To_Document_Row
-                (S.Folding, Visible_Row);
+                (S.Syntax.Folding, Visible_Row);
 
             if Target_Row >= Editor.State.Line_Count (S) then
                Target_Row := Editor.State.Line_Count (S) - 1;
@@ -626,7 +626,7 @@ package body Editor.Navigation is
          Visible_Count : constant Natural :=
            Natural'Max
              (1, Editor.Folding.Visible_Row_Count
-                   (S.Folding, Editor.State.Line_Count (S)));
+                   (S.Syntax.Folding, Editor.State.Line_Count (S)));
          Source_Visible : constant Natural := Fold_Visible_Row (S, Row);
          Target_Visible : Integer := Integer (Source_Visible) + Delta_Rows;
       begin
@@ -639,7 +639,7 @@ package body Editor.Navigation is
          Target_Row :=
            Integer
              (Editor.Folding.Visible_Row_To_Document_Row
-                (S.Folding, Natural (Target_Visible)));
+                (S.Syntax.Folding, Natural (Target_Visible)));
       end;
 
       Len := Line_Length (S, Natural (Target_Row));

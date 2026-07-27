@@ -318,9 +318,9 @@ package body Editor.Go_To_Line.Tests is
 
       Assert_Caret (S, 2, 1,
                     "go-to-line accept must move caret to the requested one-based line:column");
-      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 1,
+      Assert (Editor.Navigation_History.Back_Count (S.Navigation.History) = 1,
               "successful go-to-line must record the previous active location");
-      Assert (Editor.Navigation_History.Forward_Count (S.Navigation_History) = 0,
+      Assert (Editor.Navigation_History.Forward_Count (S.Navigation.History) = 0,
               "successful explicit go-to-line must leave no forward entry");
       Assert (Active_Message_Text (S) = "Went to line 3:2",
               "successful go-to-line message must identify the target");
@@ -349,7 +349,7 @@ package body Editor.Go_To_Line.Tests is
       Editor.Go_To_Line.Open (S.Surface.Go_To_Line);
       Editor.Go_To_Line.Set_Text (S.Surface.Go_To_Line, "500");
       Editor.Executor.Navigation_Commands.Execute_Accept_Goto_Line (S);
-      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 0,
+      Assert (Editor.Navigation_History.Back_Count (S.Navigation.History) = 0,
               "out-of-range go-to-line must not record navigation history");
       Assert_Caret (S, 0, 0, "failed go-to-line must not move the caret");
       Assert (Active_Message_Text (S) = "Line 500 is outside the active buffer",
@@ -358,7 +358,7 @@ package body Editor.Go_To_Line.Tests is
       Editor.Go_To_Line.Open (S.Surface.Go_To_Line);
       Editor.Go_To_Line.Set_Text (S.Surface.Go_To_Line, "1");
       Editor.Executor.Navigation_Commands.Execute_Accept_Goto_Line (S);
-      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 0,
+      Assert (Editor.Navigation_History.Back_Count (S.Navigation.History) = 0,
               "same-location go-to-line must not record navigation history");
       Assert (Active_Message_Text (S) = "Already at line 1",
               "same-location go-to-line must report a deterministic no-op");
@@ -385,16 +385,16 @@ package body Editor.Go_To_Line.Tests is
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Back);
       Assert_Caret (S, 1, 0, "navigation back must restore line 2");
-      Assert (Editor.Navigation_History.Forward_Count (S.Navigation_History) = 1,
+      Assert (Editor.Navigation_History.Forward_Count (S.Navigation.History) = 1,
               "back must create a forward history entry before branch navigation");
 
       Editor.Go_To_Line.Open (S.Surface.Go_To_Line);
       Editor.Go_To_Line.Set_Text (S.Surface.Go_To_Line, "1");
       Editor.Executor.Navigation_Commands.Execute_Accept_Goto_Line (S);
       Assert_Caret (S, 0, 0, "new go-to-line after back must move to line 1");
-      Assert (Editor.Navigation_History.Forward_Count (S.Navigation_History) = 0,
+      Assert (Editor.Navigation_History.Forward_Count (S.Navigation.History) = 0,
               "successful new go-to-line navigation must clear the forward stack");
-      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 2,
+      Assert (Editor.Navigation_History.Back_Count (S.Navigation.History) = 2,
               "successful branch go-to-line must record the execution-time current line");
    end Test_Goto_Line_Clears_Forward_Stack_After_Back;
 
@@ -462,7 +462,7 @@ package body Editor.Go_To_Line.Tests is
       Editor.Go_To_Line.Set_Text (S.Surface.Go_To_Line, "2");
       Editor.Executor.Navigation_Commands.Execute_Accept_Goto_Line (S);
       Assert_Caret (S, 1, 0, "setup must move the caret to line 2");
-      Before := Editor.Navigation_History.Back_Count (S.Navigation_History);
+      Before := Editor.Navigation_History.Back_Count (S.Navigation.History);
 
       Editor.Go_To_Line.Open (S.Surface.Go_To_Line);
       Editor.Go_To_Line.Set_Text (S.Surface.Go_To_Line, "999");
@@ -476,8 +476,8 @@ package body Editor.Go_To_Line.Tests is
               "prefill-current must show the prompt, replace query with current line, and clear errors");
       Assert_Caret (S, 1, 0,
                     "prefill-current must not move the caret");
-      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = Before
-              and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = 0,
+      Assert (Editor.Navigation_History.Back_Count (S.Navigation.History) = Before
+              and then Editor.Navigation_History.Forward_Count (S.Navigation.History) = 0,
               "prefill-current must not record navigation history");
       Assert (Active_Message_Text (S) = "Go To Line target: 2",
               "prefill-current must report target preparation, not navigation success");
@@ -539,12 +539,12 @@ package body Editor.Go_To_Line.Tests is
       Editor.Executor.Navigation_Commands.Execute_Accept_Goto_Line (S);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Back);
       Assert_Caret (S, 0, 0, "setup must navigate back to line 1");
-      Assert (Editor.Navigation_History.Forward_Count (S.Navigation_History) = 1,
+      Assert (Editor.Navigation_History.Forward_Count (S.Navigation.History) = 1,
               "setup must leave a forward history entry");
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Goto_Line_Prefill_Current);
-      Assert (Editor.Navigation_History.Forward_Count (S.Navigation_History) = 1,
+      Assert (Editor.Navigation_History.Forward_Count (S.Navigation.History) = 1,
               "prefill-current after back must preserve the forward stack");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Forward);
       Assert_Caret (S, 2, 0,
@@ -620,7 +620,7 @@ package body Editor.Go_To_Line.Tests is
       Editor.Executor.Navigation_Commands.Execute_Accept_Goto_Line (S);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Back);
       Assert_Caret (S, 0, 0, "setup back must restore the original line");
-      Assert (Editor.Navigation_History.Forward_Count (S.Navigation_History) = 1,
+      Assert (Editor.Navigation_History.Forward_Count (S.Navigation.History) = 1,
               "setup back must leave one forward location");
 
       Editor.Go_To_Line.Open (S.Surface.Go_To_Line);
@@ -629,7 +629,7 @@ package body Editor.Go_To_Line.Tests is
       Assert (Editor.Go_To_Line.Is_Open (S.Surface.Go_To_Line)
               and then Editor.Go_To_Line.Text (S.Surface.Go_To_Line) = "abc",
               "failed prompt accept must keep visible query state for correction");
-      Assert (Editor.Navigation_History.Forward_Count (S.Navigation_History) = 1,
+      Assert (Editor.Navigation_History.Forward_Count (S.Navigation.History) = 1,
               "failed prompt accept after back must not clear the forward stack");
       Assert_Caret (S, 0, 0,
                     "failed prompt accept after back must not move the caret");
@@ -714,7 +714,7 @@ package body Editor.Go_To_Line.Tests is
       Editor.Project_Search.Set_Status
         (S.Surface.Project_Search, Editor.Project_Search.Project_Search_Ok);
       Editor.Bookmarks.Toggle
-        (S.Bookmarks, Editor.Test_Temp.Base & "/a.adb", "a.adb", 1, 0, False, Added);
+        (S.Navigation.Bookmarks, Editor.Test_Temp.Base & "/a.adb", "a.adb", 1, 0, False, Added);
       Editor.Buffer_Switcher.Open (S.Surface.Buffer_Switcher);
       Editor.Buffer_Switcher.Set_Filter_Text
         (S.Surface.Buffer_Switcher, "switch-query");
@@ -730,7 +730,7 @@ package body Editor.Go_To_Line.Tests is
               and then Editor.Project_Search.Status (S.Surface.Project_Search)
                 = Editor.Project_Search.Project_Search_Ok,
               "prefill-current must not mutate Project Search query or status");
-      Assert (Editor.Bookmarks.Count (S.Bookmarks) = 1,
+      Assert (Editor.Bookmarks.Count (S.Navigation.Bookmarks) = 1,
               "prefill-current must not add, remove, or select bookmark state");
       Assert (Editor.Buffer_Switcher.Filter_Text (S.Surface.Buffer_Switcher)
               = "switch-query",
@@ -804,8 +804,8 @@ package body Editor.Go_To_Line.Tests is
               and then Editor.Go_To_Line.Text (S.Surface.Go_To_Line) = ""
               and then not Editor.Go_To_Line.Has_Error (S.Surface.Go_To_Line),
               "project lifecycle reset must hide go-to-line and clear query/error state");
-      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 0
-              and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = 0,
+      Assert (Editor.Navigation_History.Back_Count (S.Navigation.History) = 0
+              and then Editor.Navigation_History.Forward_Count (S.Navigation.History) = 0,
               "project lifecycle reset must retain navigation-history lifecycle semantics");
    end Test_Project_Lifecycle_And_Persistence_Exclude_Goto_Line;
 
@@ -822,7 +822,7 @@ package body Editor.Go_To_Line.Tests is
       Editor.State.Load_Text (S, "one" & ASCII.LF & "two");
       Editor.Go_To_Line.Open (S.Surface.Go_To_Line);
       Editor.Go_To_Line.Set_Text (S.Surface.Go_To_Line, "2");
-      Before := Editor.Navigation_History.Back_Count (S.Navigation_History);
+      Before := Editor.Navigation_History.Back_Count (S.Navigation.History);
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert (Snap.Goto_Line_Visible
@@ -833,7 +833,7 @@ package body Editor.Go_To_Line.Tests is
       Assert (Editor.Go_To_Line.Is_Open (S.Surface.Go_To_Line)
               and then Editor.Go_To_Line.Text (S.Surface.Go_To_Line) = "2",
               "building a render snapshot must not mutate prompt state");
-      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = Before,
+      Assert (Editor.Navigation_History.Back_Count (S.Navigation.History) = Before,
               "building a render snapshot must not mutate navigation history");
    end Test_Render_Snapshot_Is_Read_Only_For_Goto_Line;
 

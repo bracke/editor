@@ -45,18 +45,18 @@ package body Editor.Input_Bridge.Settings_Handlers is
          when Editor.Keybindings.Key_Enter =>
             if Editor.Settings_Management.Has_Pending_Reset_All (UI) then
                Editor.Settings_Management.Confirm_Reset_All_Settings
-                 (S.Settings, UI, Status);
+                 (S.Configuration.Settings, UI, Status);
             else
                Editor.Settings_Management.Execute_Settings_Surface_Command
                  (Editor.Settings_Management.Settings_Action_Toggle_Selected,
-                  S.Settings, UI, Status);
+                  S.Configuration.Settings, UI, Status);
             end if;
             Editor.Settings_Management.Set_Current_Settings_Editor_State (UI);
             Report (Editor.Settings_Management.Update_Status_Label (Status));
          when Editor.Keybindings.Key_Delete =>
             Editor.Settings_Management.Execute_Settings_Surface_Command
               (Editor.Settings_Management.Settings_Action_Reset_Selected,
-               S.Settings, UI, Status);
+               S.Configuration.Settings, UI, Status);
             Editor.Settings_Management.Set_Current_Settings_Editor_State (UI);
             Report (Editor.Settings_Management.Update_Status_Label (Status));
          when Editor.Keybindings.Key_Escape =>

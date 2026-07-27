@@ -322,22 +322,22 @@ package body Editor.Files.Tests is
       Editor.State.Add_Diagnostic
         (S, 0, 3, Editor.Diagnostics.Warning);
       Editor.Gutter_Markers.Add_Marker
-        (S.Gutter_Markers, 1, Editor.Gutter_Markers.Bookmark_Marker);
+        (S.Gutter.Markers, 1, Editor.Gutter_Markers.Bookmark_Marker);
       Editor.State.Set_Gutter_Marker_Hover
         (S, 1, Editor.Gutter_Markers.Bookmark_Marker);
-      Editor.Folding.Add_Fold (S.Folding, 0, 2);
-      Editor.Folding.Toggle_Fold_At_Row (S.Folding, 0);
+      Editor.Folding.Add_Fold (S.Syntax.Folding, 0, 2);
+      Editor.Folding.Toggle_Fold_At_Row (S.Syntax.Folding, 0);
 
       Assert (S.Search.Active_Find_Matches.Length > 0,
         "Test setup should create active Find matches before open");
       Assert (S.Panel.Diagnostics.Length > 0,
         "Test setup should create diagnostics before open");
       Assert (Editor.Gutter_Markers.Has_Marker
-        (S.Gutter_Markers, 1, Editor.Gutter_Markers.Bookmark_Marker),
+        (S.Gutter.Markers, 1, Editor.Gutter_Markers.Bookmark_Marker),
         "Test setup should create a gutter marker before open");
-      Assert (S.Gutter_Marker_Hover.Active,
+      Assert (S.Gutter.Marker_Hover.Active,
         "Test setup should create marker hover before open");
-      Assert (S.Folding.Ranges.Length > 0,
+      Assert (S.Syntax.Folding.Ranges.Length > 0,
         "Test setup should create folding state before open");
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
@@ -351,11 +351,11 @@ package body Editor.Files.Tests is
       Assert (S.Panel.Diagnostics.Length = 0,
         "Successful open should clear diagnostics");
       Assert (not Editor.Gutter_Markers.Has_Marker
-        (S.Gutter_Markers, 1, Editor.Gutter_Markers.Bookmark_Marker),
+        (S.Gutter.Markers, 1, Editor.Gutter_Markers.Bookmark_Marker),
         "Successful open should clear gutter markers");
-      Assert (not S.Gutter_Marker_Hover.Active,
+      Assert (not S.Gutter.Marker_Hover.Active,
         "Successful open should clear marker hover");
-      Assert (S.Folding.Ranges.Length = 0,
+      Assert (S.Syntax.Folding.Ranges.Length = 0,
         "Successful open should clear folding state");
       Assert (Buffer_Text (S) = "replacement",
         "Successful open should still replace buffer contents");
@@ -2358,14 +2358,14 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
       --  dirty text by reading a different disk version than the prompt named.
       Write_Bytes (Path, "first reload disk version with size delta");
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
-      Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
         "dirty reload should create an explicit confirmation");
 
       Write_Bytes (Path, "second reload disk version with another size");
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Retry_Pending_Transition);
 
-      Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (not Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
         "stale dirty reload confirmation should be dismissed");
       Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "stale dirty reload rejection must preserve dirty state");

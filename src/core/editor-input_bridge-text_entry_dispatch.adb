@@ -17,34 +17,34 @@ package body Editor.Input_Bridge.Text_Entry_Dispatch is
       return Boolean
    is
    begin
-      if not Editor.Guided_Prompts.Is_Active (S.Guided_Prompt) then
+      if not Editor.Guided_Prompts.Is_Active (S.Workflow.Guided_Prompt) then
          return False;
       end if;
 
       case Cmd.Kind is
          when Editor.Command_Kinds.Insert_Text_Input =>
             if Editor.Input_Bridge.Keybinding_Handlers
-              .Consume_Keybinding_Text_Input (S.Guided_Prompt, Cmd)
+              .Consume_Keybinding_Text_Input (S.Workflow.Guided_Prompt, Cmd)
             then
                null;
             elsif Cmd.Ch = ASCII.LF or else Cmd.Ch = ASCII.CR then
                Accept_Guided_Prompt_Enter.all;
             elsif Cmd.Ch = ASCII.ESC then
-               Editor.Guided_Prompts.Cancel (S.Guided_Prompt);
+               Editor.Guided_Prompts.Cancel (S.Workflow.Guided_Prompt);
                Report_Info.all ("Prompt cancelled.");
             elsif Length (Cmd.Text) > 0 then
                Editor.Guided_Prompts.Insert_Text
-                 (S.Guided_Prompt, To_String (Cmd.Text));
+                 (S.Workflow.Guided_Prompt, To_String (Cmd.Text));
             elsif Cmd.Ch /= ASCII.NUL then
                Editor.Guided_Prompts.Insert_Text
-                 (S.Guided_Prompt, String'(1 => Cmd.Ch));
+                 (S.Workflow.Guided_Prompt, String'(1 => Cmd.Ch));
             end if;
          when Editor.Command_Kinds.Delete_Char
             | Editor.Command_Kinds.Delete_Previous_Character =>
-            Editor.Guided_Prompts.Backspace (S.Guided_Prompt);
+            Editor.Guided_Prompts.Backspace (S.Workflow.Guided_Prompt);
          when Editor.Command_Kinds.Forward_Delete_Char
             | Editor.Command_Kinds.Delete_Next_Character =>
-            Editor.Guided_Prompts.Delete_Forward (S.Guided_Prompt);
+            Editor.Guided_Prompts.Delete_Forward (S.Workflow.Guided_Prompt);
          when Editor.Command_Kinds.Split_Current_Line_At_Caret =>
             Accept_Guided_Prompt_Enter.all;
          when others =>

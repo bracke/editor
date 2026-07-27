@@ -100,7 +100,7 @@ package body Editor.State.Tests is
       Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Open_Result);
       Editor.Project_Search.Set_Query (S.Surface.Project_Search, "needle");
       Editor.Pending_Transitions.Set_Pending
-        (S.Pending_Transitions, Target, Summary);
+        (S.Workflow.Pending_Transitions, Target, Summary);
       Editor.Recent_Projects.Add_Or_Promote
         (S.Project_Runtime.Recent_Projects, Editor.Test_Temp.Base & "/editor-a", "editor-a", 10);
       Lines.Append

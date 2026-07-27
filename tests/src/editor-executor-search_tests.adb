@@ -71,15 +71,15 @@ package body Editor.Executor.Search_Tests is
 
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Editor.Executor.Project_Search_Result_Commands.Execute_Run_Project_Search (S, "needle");
-      Editor.Panels.Set_Visible (S.Panels, Editor.Panels.Bottom_Panel, False);
+      Editor.Panels.Set_Visible (S.Panel.Panels, Editor.Panels.Bottom_Panel, False);
 
       Editor.Executor.Search_Results_Commands.Execute_Focus_Search_Results (S);
 
       Assert
-        (Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel),
+        (Editor.Panels.Is_Visible (S.Panel.Panels, Editor.Panels.Bottom_Panel),
          "focus Search Results should show the bottom panel when results exist");
       Assert
-        (Editor.Panels.Active_Bottom_Content (S.Panels) =
+        (Editor.Panels.Active_Bottom_Content (S.Panel.Panels) =
            Editor.Panels.Search_Results_Content,
          "focus Search Results should select Search Results bottom content");
       Assert
@@ -300,7 +300,7 @@ package body Editor.Executor.Search_Tests is
         (Editor.Panel_Focus.Editor_Text_Has_Focus (S.Panel.Panel_Focus),
          "Enter should return focus to editor text after opening a result");
       Assert
-        (Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel),
+        (Editor.Panels.Is_Visible (S.Panel.Panels, Editor.Panels.Bottom_Panel),
          "Enter should keep Search Results panel visible");
 
       Cleanup_Project_Search_Multi_Fixture (Root);
@@ -332,7 +332,7 @@ package body Editor.Executor.Search_Tests is
         (Editor.Panel_Focus.Editor_Text_Has_Focus (S.Panel.Panel_Focus),
          "Escape should return focus to editor text");
       Assert
-        (Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel),
+        (Editor.Panels.Is_Visible (S.Panel.Panels, Editor.Panels.Bottom_Panel),
          "Escape should not hide the Search Results panel");
 
       Cleanup_Project_Search_Fixture (Root);
@@ -359,10 +359,10 @@ package body Editor.Executor.Search_Tests is
            Editor.Project_Search.Project_Search_No_Project,
          "project search without an open project should report No_Project status");
       Assert
-        (Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel),
+        (Editor.Panels.Is_Visible (S.Panel.Panels, Editor.Panels.Bottom_Panel),
          "project search failure should still show the bottom panel");
       Assert
-        (Editor.Panels.Active_Bottom_Content (S.Panels) =
+        (Editor.Panels.Active_Bottom_Content (S.Panel.Panels) =
            Editor.Panels.Search_Results_Content,
          "running project search should switch bottom content to Search Results");
    end Test_Run_Project_Search_No_Project;
@@ -391,7 +391,7 @@ package body Editor.Executor.Search_Tests is
         (Editor.Project_Search.Result_Count (S.Surface.Project_Search) = 1,
          "project search fixture should produce one result");
       Assert
-        (Editor.Panels.Active_Bottom_Content (S.Panels) =
+        (Editor.Panels.Active_Bottom_Content (S.Panel.Panels) =
            Editor.Panels.Search_Results_Content,
          "successful project search should select Search Results bottom content");
 
@@ -1132,7 +1132,7 @@ package body Editor.Executor.Search_Tests is
               "running from bar without a project should report no-project deterministically");
       Assert (Editor.Project_Search_Bar.Is_Open (S.Surface.Project_Search_Bar),
               "running from bar should keep project-search bar open");
-      Assert (Editor.Panels.Active_Bottom_Content (S.Panels) =
+      Assert (Editor.Panels.Active_Bottom_Content (S.Panel.Panels) =
                 Editor.Panels.Search_Results_Content,
               "running from bar should show Search Results content");
    end Test_Run_Project_Search_From_Bar;
@@ -1506,9 +1506,9 @@ package body Editor.Executor.Search_Tests is
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Redo);
       Assert (Editor.State.Current_Text (S) = "Execute Run",
               "redo after replace.current reapplies replacement");
-      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 0,
+      Assert (Editor.Navigation_History.Back_Count (S.Navigation.History) = 0,
               "replace.current must not record Navigation History");
-      Assert (Editor.Navigation_History.Forward_Count (S.Navigation_History) = 0,
+      Assert (Editor.Navigation_History.Forward_Count (S.Navigation.History) = 0,
               "replace.current must not mutate forward Navigation History");
    end Test_Replace_Current_Uses_Find_And_Dirties_No_History;
 
@@ -1547,7 +1547,7 @@ package body Editor.Executor.Search_Tests is
               "redo after replace.all reapplies entire replacement result");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
               "replace.all remains one grouped undo entry after redo");
-      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 0,
+      Assert (Editor.Navigation_History.Back_Count (S.Navigation.History) = 0,
               "replace.all must not record Navigation History");
    end Test_Replace_All_Is_Literal_Offset_Safe_And_Recomputes;
 
@@ -1641,8 +1641,8 @@ package body Editor.Executor.Search_Tests is
       Assert (Editor.Search.Has_Match (S.Search.Active_Find_Match)
               and then Natural (S.Search.Active_Find_Match.Start_Index) = 8,
               "precondition: second Find match selected");
-      Back_Before := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Forward_Before := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Back_Before := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Forward_Before := Editor.Navigation_History.Forward_Count (S.Navigation.History);
 
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text (S, "Execute");
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Current (S);
@@ -1654,8 +1654,8 @@ package body Editor.Executor.Search_Tests is
       Assert (Editor.Search.Has_Match (S.Search.Active_Find_Match)
               and then Natural (S.Search.Active_Find_Match.Start_Index) = 0,
               "post-replace selection must wrap to the first remaining match");
-      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = Back_Before
-              and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = Forward_Before,
+      Assert (Editor.Navigation_History.Back_Count (S.Navigation.History) = Back_Before
+              and then Editor.Navigation_History.Forward_Count (S.Navigation.History) = Forward_Before,
               "replace.current must not add or clear navigation history");
    end Test_Replace_Current_Preserves_Valid_Selected_Match;
 
@@ -1727,8 +1727,8 @@ package body Editor.Executor.Search_Tests is
       Set_Buffer_Text (S, "Run Run");
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Run");
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Forward := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Forward := Editor.Navigation_History.Forward_Count (S.Navigation.History);
 
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Show (S);
       Assert (S.Search.Active_Find_Prompt and then S.Search.Active_Replace_Prompt,
@@ -1757,8 +1757,8 @@ package body Editor.Executor.Search_Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Toggle (S);
       Assert (S.Search.Active_Replace_Prompt and then S.Search.Active_Find_Prompt,
               "replace.toggle must show Replace and compatible Find when hidden");
-      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = Before_Back
-              and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = Before_Forward,
+      Assert (Editor.Navigation_History.Back_Count (S.Navigation.History) = Before_Back
+              and then Editor.Navigation_History.Forward_Count (S.Navigation.History) = Before_Forward,
               "replace visibility commands must not mutate Navigation History");
 
       Editor.Executor.Find_Replace_Commands.Execute_Find_Hide (S);
@@ -1824,8 +1824,8 @@ package body Editor.Executor.Search_Tests is
       Assert (Length (S.Search.Active_Replace_Text) = 0
               and then Length (S.Search.Active_Replace_Error_Message) = 0,
               "replace.text.clear must clear text and prior validation error");
-      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 0
-              and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = 0,
+      Assert (Editor.Navigation_History.Back_Count (S.Navigation.History) = 0
+              and then Editor.Navigation_History.Forward_Count (S.Navigation.History) = 0,
               "replacement text edits must not record Navigation History");
    end Test_Replacement_Text_Literal_Matrix_And_No_Recompute;
 
@@ -1845,8 +1845,8 @@ package body Editor.Executor.Search_Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Find_Next (S);
       Assert (Natural (S.Search.Active_Find_Match.Start_Row) = 1,
               "precondition: second match selected");
-      Back_Before := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Forward_Before := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Back_Before := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Forward_Before := Editor.Navigation_History.Forward_Count (S.Navigation.History);
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text (S, "Execute");
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Current (S);
       Assert (Buffer_Text (S) = "Run;" & ASCII.LF & "Execute;" & ASCII.LF & "Run;",
@@ -1858,8 +1858,8 @@ package body Editor.Executor.Search_Tests is
               and then Snap.Active_Find_Matches (1).Start_Row = 0
               and then Snap.Active_Find_Matches (2).Start_Row = 2,
               "rendered Find ranges after replace.current must correspond to post-replacement text");
-      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = Back_Before
-              and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = Forward_Before,
+      Assert (Editor.Navigation_History.Back_Count (S.Navigation.History) = Back_Before
+              and then Editor.Navigation_History.Forward_Count (S.Navigation.History) = Forward_Before,
               "replace.current must not add or clear Navigation History");
 
       Set_Buffer_Text (S, "xx Run yy Run");
@@ -2056,9 +2056,9 @@ package body Editor.Executor.Search_Tests is
       Editor.Quick_Open.Set_Query_Text (S.Surface.Quick_Open, Before_Quick_Open_Query);
       Editor.Project_Search.Set_Query (S.Surface.Project_Search, Before_Project_Search_Query);
       Editor.Navigation_History.Record_Explicit_Navigation
-        (S.Navigation_History, (Buffer_Id => 1, Line => 1, Column => 0, others => <>));
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Forward := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+        (S.Navigation.History, (Buffer_Id => 1, Line => 1, Column => 0, others => <>));
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Forward := Editor.Navigation_History.Forward_Count (S.Navigation.History);
 
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Run");
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Show (S);
@@ -2073,8 +2073,8 @@ package body Editor.Executor.Search_Tests is
               "Replace commands must not mutate Quick Open query state");
       Assert (Editor.Project_Search.Query (S.Surface.Project_Search) = Before_Project_Search_Query,
               "Replace commands must not mutate Project Search state");
-      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = Before_Back
-              and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = Before_Forward,
+      Assert (Editor.Navigation_History.Back_Count (S.Navigation.History) = Before_Back
+              and then Editor.Navigation_History.Forward_Count (S.Navigation.History) = Before_Forward,
               "Replace commands must not push back stack or clear forward stack");
 
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Show (S);

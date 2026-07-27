@@ -364,7 +364,7 @@ package body Editor.Feature_Integration.Tests is
       Ada.Environment_Variables.Clear ("EDITOR_KEYBINDINGS_PATH");
       Editor.Keybindings.Reset_To_Defaults;
       Editor.State.Init (S);
-      Editor.Settings.Set_Command_Palette_Show_Keybindings (S.Settings, True);
+      Editor.Settings.Set_Command_Palette_Show_Keybindings (S.Configuration.Settings, True);
       Editor.Keybindings.Reset_To_Defaults;
       Metadata_Before := Editor.Command_Domain.Command_Metadata_Fingerprint;
       Key_Before := Editor.Command_Domain.Active_Keybindings_Fingerprint;

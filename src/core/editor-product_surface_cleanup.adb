@@ -85,11 +85,11 @@ package body Editor.Product_Surface_Cleanup is
      (S : Editor.State.State_Type) return Boolean
    is
    begin
-      for I in 1 .. Editor.Outline.Item_Count (S.Outline) loop
+      for I in 1 .. Editor.Outline.Item_Count (S.Outline_Runtime.Outline) loop
          if Looks_Like_Demo_Text
-             (Editor.Outline.Item_Label (S.Outline, I))
+             (Editor.Outline.Item_Label (S.Outline_Runtime.Outline, I))
            or else Looks_Like_Demo_Text
-             (Editor.Outline.Item_Detail (S.Outline, I))
+             (Editor.Outline.Item_Detail (S.Outline_Runtime.Outline, I))
          then
             return True;
          end if;

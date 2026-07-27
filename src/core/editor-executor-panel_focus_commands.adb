@@ -63,18 +63,18 @@ package body Editor.Executor.Panel_Focus_Commands is
      (S : in out Editor.State.State_Type)
    is
       Visible : constant Boolean :=
-        Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel);
+        Editor.Panels.Is_Visible (S.Panel.Panels, Editor.Panels.Bottom_Panel);
    begin
-      Editor.Panels.Set_Bottom_Content (S.Panels, Editor.Panels.Problems_Content);
+      Editor.Panels.Set_Bottom_Content (S.Panel.Panels, Editor.Panels.Problems_Content);
       Editor.Panels.Set_Visible
-        (S.Panels, Editor.Panels.Bottom_Panel, not Visible);
+        (S.Panel.Panels, Editor.Panels.Bottom_Panel, not Visible);
       if Visible then
          Editor.Focus_Management.Restore_Focus_To_Editor (S);
       elsif Editor.Panel_Focus.Bottom_Panel_Has_Focus (S.Panel.Panel_Focus) then
          Editor.Focus_Management.Set_Focus_Owner
            (S, Editor.Focus_Management.Focus_Diagnostics);
       end if;
-      Editor.Panels.Set_Current (S.Panels);
+      Editor.Panels.Set_Current (S.Panel.Panels);
       Editor.Render_Cache.Invalidate_All;
    end Execute_Toggle_Problems_Panel;
 
@@ -136,7 +136,7 @@ package body Editor.Executor.Panel_Focus_Commands is
          Report_Info (S, "No problems");
       end if;
 
-      Editor.Panels.Set_Current (S.Panels);
+      Editor.Panels.Set_Current (S.Panel.Panels);
       Editor.Render_Cache.Invalidate_All;
    end Execute_Focus_Problems;
 
@@ -146,8 +146,8 @@ package body Editor.Executor.Panel_Focus_Commands is
    begin
       if Editor.Panel_Focus.Bottom_Panel_Has_Focus (S.Panel.Panel_Focus) then
          Execute_Focus_Editor_Text (S);
-      elsif Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel) then
-         case Editor.Panels.Active_Bottom_Content (S.Panels) is
+      elsif Editor.Panels.Is_Visible (S.Panel.Panels, Editor.Panels.Bottom_Panel) then
+         case Editor.Panels.Active_Bottom_Content (S.Panel.Panels) is
             when Editor.Panels.Search_Results_Content =>
                Editor.Focus_Management.Set_Focus_Owner
                  (S, Editor.Focus_Management.Focus_Project_Search_Results);

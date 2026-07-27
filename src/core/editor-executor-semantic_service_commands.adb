@@ -60,7 +60,7 @@ package body Editor.Executor.Semantic_Service_Commands is
          return Indexed_Fingerprint;
       end if;
 
-      return Editor.Ada_Language_Model.Fingerprint (S.Syntax_Analysis);
+      return Editor.Ada_Language_Model.Fingerprint (S.Syntax.Analysis);
    end Current_Semantic_Analysis_Fingerprint;
 
    function Semantic_Find_References
@@ -341,14 +341,14 @@ package body Editor.Executor.Semantic_Service_Commands is
                       (S.Panel.Feature_Search_Results, S.Panel.Feature_Panel,
                        Select_First_When_Available => True);
                   Editor.Panels.Set_Bottom_Content
-                    (S.Panels, Editor.Panels.Search_Results_Content);
+                    (S.Panel.Panels, Editor.Panels.Search_Results_Content);
                   Editor.Panels.Set_Visible
-                    (S.Panels, Editor.Panels.Bottom_Panel, True);
+                    (S.Panel.Panels, Editor.Panels.Bottom_Panel, True);
                   if Editor.Panel_Focus.Bottom_Panel_Has_Focus (S.Panel.Panel_Focus) then
                      Editor.Focus_Management.Set_Focus_Owner
                        (S, Editor.Focus_Management.Focus_Project_Search_Results);
                   end if;
-                  Editor.Panels.Set_Current (S.Panels);
+                  Editor.Panels.Set_Current (S.Panel.Panels);
                   Report_Info
                     (S,
                      "References for " & Name & ":" &
@@ -409,14 +409,14 @@ package body Editor.Executor.Semantic_Service_Commands is
                       (S.Panel.Feature_Search_Results, S.Panel.Feature_Panel,
                        Select_First_When_Available => True);
                   Editor.Panels.Set_Bottom_Content
-                    (S.Panels, Editor.Panels.Search_Results_Content);
+                    (S.Panel.Panels, Editor.Panels.Search_Results_Content);
                   Editor.Panels.Set_Visible
-                    (S.Panels, Editor.Panels.Bottom_Panel, True);
+                    (S.Panel.Panels, Editor.Panels.Bottom_Panel, True);
                   if Editor.Panel_Focus.Bottom_Panel_Has_Focus (S.Panel.Panel_Focus) then
                      Editor.Focus_Management.Set_Focus_Owner
                        (S, Editor.Focus_Management.Focus_Project_Search_Results);
                   end if;
-                  Editor.Panels.Set_Current (S.Panels);
+                  Editor.Panels.Set_Current (S.Panel.Panels);
                   Report_Info
                     (S,
                      "Workspace symbols for " & Name & ":" &

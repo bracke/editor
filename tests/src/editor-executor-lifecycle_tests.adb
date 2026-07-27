@@ -756,7 +756,7 @@ package body Editor.Executor.Lifecycle_Tests is
          Has_Path   => False,
          others     => <>);
       Editor.Pending_Transitions.Set_Pending
-        (S.Pending_Transitions, Target, Pending_Test_Summary);
+        (S.Workflow.Pending_Transitions, Target, Pending_Test_Summary);
 
       S.Buffer_Lifecycle.File_Info.Dirty := False;
       Editor.Buffers.Sync_Global_Active_From_State (S);
@@ -766,7 +766,7 @@ package body Editor.Executor.Lifecycle_Tests is
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Discard_Pending_Transition);
 
-      Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (not Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "clean revalidated pending close clears transition");
       Assert (not Editor.Buffers.Global_Contains (Id),
               "pending close discard closes reviewed clean target");
@@ -1555,7 +1555,7 @@ package body Editor.Executor.Lifecycle_Tests is
       Init_Executor_Test_State (S);
       Editor.Buffers.Ensure_Global_Registry (S);
       A_Id := Editor.Buffers.Global_Active_Buffer;
-      Editor.Recent_Buffers.Mark_Activated (S.Recent_Buffers, Natural (A_Id));
+      Editor.Recent_Buffers.Mark_Activated (S.Navigation.Recent_Buffers, Natural (A_Id));
 
       Editor.Executor.File_Open_Commands.Execute_New_Buffer (S);
       B_Id := Editor.Buffers.Global_Active_Buffer;
@@ -1575,7 +1575,7 @@ package body Editor.Executor.Lifecycle_Tests is
               "close-others must skip dirty non-active buffers");
       Assert (Editor.Buffers.Global_Contains (C_Id),
               "close-others must keep the active buffer open");
-      Assert (not Editor.Recent_Buffers.Contains (S.Recent_Buffers, Natural (A_Id)),
+      Assert (not Editor.Recent_Buffers.Contains (S.Navigation.Recent_Buffers, Natural (A_Id)),
               "close-others must remove closed buffers from recent order");
       declare
          Found : Boolean := False;
@@ -1607,7 +1607,7 @@ package body Editor.Executor.Lifecycle_Tests is
       Init_Executor_Test_State (S);
       Editor.Buffers.Ensure_Global_Registry (S);
       A_Id := Editor.Buffers.Global_Active_Buffer;
-      Editor.Recent_Buffers.Mark_Activated (S.Recent_Buffers, Natural (A_Id));
+      Editor.Recent_Buffers.Mark_Activated (S.Navigation.Recent_Buffers, Natural (A_Id));
 
       Editor.Executor.File_Open_Commands.Execute_New_Buffer (S);
       B_Id := Editor.Buffers.Global_Active_Buffer;
@@ -1632,7 +1632,7 @@ package body Editor.Executor.Lifecycle_Tests is
               "close-clean must preserve dirty buffer content");
       Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "close-clean must preserve dirty markers");
-      Assert (not Editor.Recent_Buffers.Contains (S.Recent_Buffers, Natural (A_Id)),
+      Assert (not Editor.Recent_Buffers.Contains (S.Navigation.Recent_Buffers, Natural (A_Id)),
               "close-clean must remove closed clean buffers from recent order");
       declare
          Found : Boolean := False;

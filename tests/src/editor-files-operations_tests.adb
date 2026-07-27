@@ -929,7 +929,7 @@ package body Editor.Files.Operations_Tests is
       S.Buffer_Lifecycle.Reopen_Candidate_Path := To_Unbounded_String (Reopen_Path);
       S.Buffer_Lifecycle.Reopen_Candidate_Label := To_Unbounded_String ("reopen");
       Editor.Navigation_History.Record_Explicit_Navigation
-        (S.Navigation_History,
+        (S.Navigation.History,
          (Buffer_Id => Natural (Editor.Buffers.Global_Active_Buffer),
           Has_File_Path => True,
           File_Path => S.Buffer_Lifecycle.File_Info.Path,
@@ -948,8 +948,8 @@ package body Editor.Files.Operations_Tests is
       Before_Base := S.Buffer_Lifecycle.File_Info.Saved_Generation;
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
-      Before_Back := S.Navigation_History.Back_Stack.Length;
-      Before_Fwd := S.Navigation_History.Forward_Stack.Length;
+      Before_Back := S.Navigation.History.Back_Stack.Length;
+      Before_Fwd := S.Navigation.History.Forward_Stack.Length;
       Before_Caret := S.Caret.Carets (0);
       Before_Count := Editor.Buffers.Global_Count;
       Before_Query := S.Search.Active_Find_Query;
@@ -966,8 +966,8 @@ package body Editor.Files.Operations_Tests is
         and then not S.Buffer_Lifecycle.File_Info.Dirty
         and then Editor.History.Undo_Stack.Length = Before_Undo
         and then Editor.History.Redo_Stack.Length = Before_Redo
-        and then S.Navigation_History.Back_Stack.Length = Before_Back
-        and then S.Navigation_History.Forward_Stack.Length = Before_Fwd
+        and then S.Navigation.History.Back_Stack.Length = Before_Back
+        and then S.Navigation.History.Forward_Stack.Length = Before_Fwd
         and then S.Caret.Carets.Length = 1
         and then S.Caret.Carets (0).Pos = Before_Caret.Pos
         and then S.Caret.Carets (0).Anchor = Before_Caret.Anchor
@@ -1536,7 +1536,7 @@ package body Editor.Files.Operations_Tests is
                 (Editor.Lifecycle_Guidance.Status_Bar_Hint (S),
                  "Dirty") > 0,
         "Status Bar should expose ordinary dirty state after blocked reload");
-      if Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions) then
+      if Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions) then
          Editor.Executor.Execute_Command
            (S, Editor.Command_Ids.Command_Cancel_Pending_Transition);
       end if;

@@ -227,30 +227,30 @@ package body Editor.Executor.Test_Support is
 
    function Back_Top_Line (S : Editor.State.State_Type) return Natural is
    begin
-      if S.Navigation_History.Back_Stack.Is_Empty then
+      if S.Navigation.History.Back_Stack.Is_Empty then
          return 0;
       end if;
-      return S.Navigation_History.Back_Stack
-        (S.Navigation_History.Back_Stack.Last_Index).Line;
+      return S.Navigation.History.Back_Stack
+        (S.Navigation.History.Back_Stack.Last_Index).Line;
    end Back_Top_Line;
 
    function Forward_Top_Line (S : Editor.State.State_Type) return Natural is
    begin
-      if S.Navigation_History.Forward_Stack.Is_Empty then
+      if S.Navigation.History.Forward_Stack.Is_Empty then
          return 0;
       end if;
-      return S.Navigation_History.Forward_Stack
-        (S.Navigation_History.Forward_Stack.Last_Index).Line;
+      return S.Navigation.History.Forward_Stack
+        (S.Navigation.History.Forward_Stack.Last_Index).Line;
    end Forward_Top_Line;
 
    function Back_Top_Path (S : Editor.State.State_Type) return String is
    begin
-      if S.Navigation_History.Back_Stack.Is_Empty then
+      if S.Navigation.History.Back_Stack.Is_Empty then
          return "";
       end if;
       return To_String
-        (S.Navigation_History.Back_Stack
-           (S.Navigation_History.Back_Stack.Last_Index).File_Path);
+        (S.Navigation.History.Back_Stack
+           (S.Navigation.History.Back_Stack.Last_Index).File_Path);
    end Back_Top_Path;
 
    procedure Build_Project_Search_Fixture (Root : String) is

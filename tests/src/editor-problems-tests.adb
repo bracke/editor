@@ -328,7 +328,7 @@ package body Editor.Problems.Tests is
          Editor.Problems.Problems_Show_Errors,
          "Problems filter command should select error filter");
       Assert
-        (Editor.Panels.Active_Bottom_Content (S.Panels) =
+        (Editor.Panels.Active_Bottom_Content (S.Panel.Panels) =
          Editor.Panels.Problems_Content,
          "Problems filter command should reveal the Problems panel");
 
@@ -365,7 +365,7 @@ package body Editor.Problems.Tests is
          Editor.Problems.Problems_Sort_By_Severity,
          "Problems sort command should select severity sort");
       Assert
-        (Editor.Panels.Active_Bottom_Content (S.Panels) =
+        (Editor.Panels.Active_Bottom_Content (S.Panel.Panels) =
          Editor.Panels.Problems_Content,
          "Problems sort command should reveal the Problems panel");
 

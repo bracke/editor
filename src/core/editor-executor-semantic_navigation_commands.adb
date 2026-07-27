@@ -76,7 +76,7 @@ package body Editor.Executor.Semantic_Navigation_Commands is
          return Indexed_Fingerprint;
       end if;
 
-      return Editor.Ada_Language_Model.Fingerprint (S.Syntax_Analysis);
+      return Editor.Ada_Language_Model.Fingerprint (S.Syntax.Analysis);
    end Current_Semantic_Analysis_Fingerprint;
 
    function Semantic_Declaration_Target
@@ -286,7 +286,7 @@ package body Editor.Executor.Semantic_Navigation_Commands is
                  (Editor.Outline.Reason_Feature_Panel_Hidden);
             elsif not Editor.Feature_Panel.Has_Selection (S.Panel.Feature_Panel)
               or else not Editor.Outline.Validate_Outline_Row_For_Selection
-                (S.Outline,
+                (S.Outline_Runtime.Outline,
                  S.Panel.Feature_Panel,
                  Editor.Feature_Panel.Selected_Row (S.Panel.Feature_Panel))
             then

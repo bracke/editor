@@ -297,12 +297,12 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
          others     => <>);
    begin
       Editor.Pending_Transitions.Set_Pending
-        (S.Pending_Transitions, Target, Pending_Test_Summary);
+        (S.Workflow.Pending_Transitions, Target, Pending_Test_Summary);
 
       Assert (not Editor.Executor.Pending_Transition_Policy.Pending_Transition_Is_Still_Valid (S),
               "empty-path pending open-project target must be stale");
       Editor.Executor.Pending_Transition_Policy.Invalidate_Pending_Transition_If_Stale (S);
-      Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (not Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "stale pending open-project target must clear deterministically");
    end Test_Pending_Invalid_Open_Project_Clears_Silently;
 
@@ -321,12 +321,12 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
          others     => <>);
    begin
       Editor.Pending_Transitions.Set_Pending
-        (S.Pending_Transitions, Target, Pending_Test_Summary);
+        (S.Workflow.Pending_Transitions, Target, Pending_Test_Summary);
 
       Assert (not Editor.Executor.Pending_Transition_Policy.Pending_Transition_Is_Still_Valid (S),
               "pending close-buffer target must be stale after target disappears");
       Editor.Executor.Pending_Transition_Policy.Invalidate_Pending_Transition_If_Stale (S);
-      Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+      Assert (not Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions),
               "stale pending close-buffer target must clear deterministically");
    end Test_Pending_Invalid_Close_Buffer_Clears_Silently;
 
@@ -632,7 +632,7 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
 
       declare
          Result : constant Editor.Outline.Outline_Refresh_Result :=
-           Editor.Outline.Fixtures.Populate_Synthetic_Outline (S.Outline);
+           Editor.Outline.Fixtures.Populate_Synthetic_Outline (S.Outline_Runtime.Outline);
       begin
          Assert
            (Result.Status = Editor.Outline.Outline_Refresh_Ok,
@@ -656,7 +656,7 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
               "rename must remove old target");
       Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = New_Path,
               "clean active buffer path must be rebased");
-      Assert (not Editor.Outline.Has_Items (S.Outline),
+      Assert (not Editor.Outline.Has_Items (S.Outline_Runtime.Outline),
               "rename of active file must clear stale outline rows");
       Assert (Editor.Diagnostics.Diagnostic_Count (S.Panel.Diagnostics) = 0,
               "rename of active file must clear stale active diagnostics");

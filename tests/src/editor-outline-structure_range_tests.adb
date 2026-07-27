@@ -180,7 +180,7 @@ package body Editor.Outline.Structure_Range_Tests is
             "null;" & ASCII.LF &
             "end Demo;");
       Replace_Items
-        (S.Outline,
+        (S.Outline_Runtime.Outline,
          (1 =>
             (Kind        => Outline_Procedure,
              Label       => Ada.Strings.Unbounded.To_Unbounded_String ("Demo"),
@@ -190,8 +190,8 @@ package body Editor.Outline.Structure_Range_Tests is
              Buffer_Token => S.Buffer_Lifecycle.Registry_Token,
              Line         => 99,
              Column       => 1)));
-      Select_Item (S.Outline, 1);
-      Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Select_Item (S.Outline_Runtime.Outline, 1);
+      Set_Rows_From_Outline (S.Outline_Runtime.Outline, S.Panel.Feature_Panel);
       Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
       Before := S.Caret.Carets (S.Caret.Carets.First_Index).Pos;
 

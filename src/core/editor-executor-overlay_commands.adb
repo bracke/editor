@@ -32,16 +32,16 @@ package body Editor.Executor.Overlay_Commands is
          when Editor.Overlay_Focus.Previous_File_Tree =>
             return Editor.Project.Has_Project (S.Project_Runtime.Project)
               and then Editor.Panels.Is_Visible
-                (S.Panels, Editor.Panels.File_Tree_Panel);
+                (S.Panel.Panels, Editor.Panels.File_Tree_Panel);
          when Editor.Overlay_Focus.Previous_Search_Results =>
             return Editor.Panels.Is_Visible
-                (S.Panels, Editor.Panels.Bottom_Panel)
-              and then Editor.Panels.Active_Bottom_Content (S.Panels) =
+                (S.Panel.Panels, Editor.Panels.Bottom_Panel)
+              and then Editor.Panels.Active_Bottom_Content (S.Panel.Panels) =
                 Editor.Panels.Search_Results_Content;
          when Editor.Overlay_Focus.Previous_Problems =>
             return Editor.Panels.Is_Visible
-                (S.Panels, Editor.Panels.Bottom_Panel)
-              and then Editor.Panels.Active_Bottom_Content (S.Panels) =
+                (S.Panel.Panels, Editor.Panels.Bottom_Panel)
+              and then Editor.Panels.Active_Bottom_Content (S.Panel.Panels) =
                 Editor.Panels.Problems_Content;
          when Editor.Overlay_Focus.Previous_None =>
             return False;
@@ -121,8 +121,8 @@ package body Editor.Executor.Overlay_Commands is
            (S.Panel.Feature_Search_Results);
       end if;
 
-      if Editor.Outline.Filter_Input_Is_Active (S.Outline) then
-         Editor.Outline.Deactivate_Filter_Input (S.Outline);
+      if Editor.Outline.Filter_Input_Is_Active (S.Outline_Runtime.Outline) then
+         Editor.Outline.Deactivate_Filter_Input (S.Outline_Runtime.Outline);
       end if;
    end Clear_Lower_Priority_Focus_For_Overlay;
 

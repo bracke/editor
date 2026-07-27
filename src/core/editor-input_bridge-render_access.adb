@@ -107,7 +107,7 @@ package body Editor.Input_Bridge.Render_Access is
    begin
       return Editor.Panel_Focus.File_Tree_Has_Focus (S.Panel.Panel_Focus)
         and then Editor.Project.Has_Project (S.Project_Runtime.Project)
-        and then Editor.Panels.Is_Visible (S.Panels, Editor.Panels.File_Tree_Panel);
+        and then Editor.Panels.Is_Visible (S.Panel.Panels, Editor.Panels.File_Tree_Panel);
    end File_Tree_Focused_For_Render;
 
    function Feature_Panel_For_Render

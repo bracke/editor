@@ -40,7 +40,7 @@ package body Editor.Input_Bridge.Pointer_Scroll_Handlers is
       Row_Count     : constant Natural :=
         Natural'Max
           (1, Editor.Folding.Visible_Row_Count
-                (S.Folding, Document_Rows));
+                (S.Syntax.Folding, Document_Rows));
       Scrollbars    : constant Editor.Scrollbars.Scrollbar_Config :=
         Editor.Scrollbars.Current;
       Raw_Effective_H : constant Natural :=
@@ -69,16 +69,16 @@ package body Editor.Input_Bridge.Pointer_Scroll_Handlers is
       end if;
 
       if Editor.Folding.Is_Row_Hidden
-           (S.Folding, Target_Document_Row)
+           (S.Syntax.Folding, Target_Document_Row)
       then
          Target_Document_Row :=
            Editor.Folding.Fold_Start_For_Hidden_Row
-             (S.Folding, Target_Document_Row, Found);
+             (S.Syntax.Folding, Target_Document_Row, Found);
       end if;
 
       Desired_Row :=
         Editor.Folding.Document_Row_To_Visible_Row
-          (S.Folding, Target_Document_Row, Found);
+          (S.Syntax.Folding, Target_Document_Row, Found);
 
       if not Found then
          Desired_Row := 0;
@@ -170,7 +170,7 @@ package body Editor.Input_Bridge.Pointer_Scroll_Handlers is
       Row_Count     : constant Natural :=
         Natural'Max
           (1, Editor.Folding.Visible_Row_Count
-                (S.Folding, Editor.State.Line_Count (S)));
+                (S.Syntax.Folding, Editor.State.Line_Count (S)));
       Effective_H   : constant Natural :=
         Editor.Scrollbars.Effective_Viewport_Height
           (Editor.View.Viewport_Height, Config);
@@ -280,7 +280,7 @@ package body Editor.Input_Bridge.Pointer_Scroll_Handlers is
       Row_Count   : constant Natural :=
         Natural'Max
           (1, Editor.Folding.Visible_Row_Count
-                (S.Folding, Editor.State.Line_Count (S)));
+                (S.Syntax.Folding, Editor.State.Line_Count (S)));
       Effective_H : constant Natural :=
         Editor.Scrollbars.Effective_Viewport_Height
           (Editor.View.Viewport_Height, Config);

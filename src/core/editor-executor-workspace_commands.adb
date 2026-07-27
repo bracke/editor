@@ -416,7 +416,7 @@ package body Editor.Executor.Workspace_Commands is
       --  stale Messages, Diagnostics, Search Results, Outline rows, and Feature
       --  Panel rows cannot survive a workspace lifecycle transition.
       Editor.Feature_Panel_Controller.Reset_All_Features_For_Workspace_Close (S);
-      Editor.Navigation_History.Clear (S.Navigation_History);
+      Editor.Navigation_History.Clear (S.Navigation.History);
 
       --  restart/reload dogfood: workspace restore applies only
       --  structural session state.  Clear adjacent transient workflow surfaces
@@ -428,7 +428,7 @@ package body Editor.Executor.Workspace_Commands is
       Editor.Project_Search.Clear (S.Surface.Project_Search);
       Editor.Project_Search_Bar.Clear (S.Surface.Project_Search_Bar);
       Editor.Buffer_Switcher.Clear (S.Surface.Buffer_Switcher);
-      Editor.Guided_Prompts.Clear (S.Guided_Prompt);
+      Editor.Guided_Prompts.Clear (S.Workflow.Guided_Prompt);
       Editor.Executor.File_Target_Prompt_Commands.Clear_File_Target_Prompt (S);
       S.Build.Build_UI := Editor.Build_UI.Empty_State;
       S.Build.Latest_Result := Editor.Build_Result_Summary.Empty_Summary;
@@ -576,37 +576,37 @@ package body Editor.Executor.Workspace_Commands is
            Editor.Workspace_Persistence.Bottom_Panel_Height (Snapshot);
       begin
          Editor.Panels.Set_Visible
-           (S.Panels,
+           (S.Panel.Panels,
             Editor.Panels.File_Tree_Panel,
             Editor.Workspace_Persistence.File_Tree_Panel_Visible (Snapshot));
          Editor.Panels.Set_Current_Size
-           (S.Panels,
+           (S.Panel.Panels,
             Editor.Panels.File_Tree_Panel,
             Requested_File_Tree_Width);
          if Editor.Panels.Current_Size
-              (S.Panels, Editor.Panels.File_Tree_Panel) /= Requested_File_Tree_Width
+              (S.Panel.Panels, Editor.Panels.File_Tree_Panel) /= Requested_File_Tree_Width
          then
             Summary.Panel_Values_Clamped := Summary.Panel_Values_Clamped + 1;
             Partial := True;
          end if;
 
          Editor.Panels.Set_Visible
-           (S.Panels,
+           (S.Panel.Panels,
             Editor.Panels.Bottom_Panel,
             Editor.Workspace_Persistence.Bottom_Panel_Visible (Snapshot));
          Editor.Panels.Set_Current_Size
-           (S.Panels,
+           (S.Panel.Panels,
             Editor.Panels.Bottom_Panel,
             Requested_Bottom_Height);
          if Editor.Panels.Current_Size
-              (S.Panels, Editor.Panels.Bottom_Panel) /= Requested_Bottom_Height
+              (S.Panel.Panels, Editor.Panels.Bottom_Panel) /= Requested_Bottom_Height
          then
             Summary.Panel_Values_Clamped := Summary.Panel_Values_Clamped + 1;
             Partial := True;
          end if;
 
       Editor.Panels.Set_Bottom_Content
-           (S.Panels,
+           (S.Panel.Panels,
             (if Editor.Workspace_Persistence.Active_Bottom_Content (Snapshot) =
                   Editor.Workspace_Persistence.Workspace_Search_Results_Content
              then Editor.Panels.Search_Results_Content
@@ -642,7 +642,7 @@ package body Editor.Executor.Workspace_Commands is
       --  the restored state directly.  Pending dirty/restore transitions are
       --  transient decision state from the previous interaction and must not
       --  become post-restore command readiness or lifecycle guidance.
-      Editor.Pending_Transitions.Clear (S.Pending_Transitions);
+      Editor.Pending_Transitions.Clear (S.Workflow.Pending_Transitions);
       Validate_File_Tree_View (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
@@ -755,7 +755,7 @@ package body Editor.Executor.Workspace_Commands is
             if Restore_Status = Editor.Workspace_Persistence.Workspace_Persistence_Ok
               or else Restore_Status = Editor.Workspace_Persistence.Workspace_Persistence_Partial_Restore
             then
-               Editor.Pending_Transitions.Clear (S.Pending_Transitions);
+               Editor.Pending_Transitions.Clear (S.Workflow.Pending_Transitions);
             end if;
             if Load_Status = Editor.Workspace_Persistence.Workspace_Persistence_Partial_Restore
               or else Restore_Status = Editor.Workspace_Persistence.Workspace_Persistence_Partial_Restore
@@ -801,9 +801,9 @@ package body Editor.Executor.Workspace_Commands is
          return;
       end if;
 
-      if not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions) then
+      if not Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions) then
          Editor.Pending_Transitions.Set_Pending
-           (S.Pending_Transitions,
+           (S.Workflow.Pending_Transitions,
             Pending_Target_For
               (Editor.Pending_Transitions.Pending_Clear_Workspace_State,
                Path    => Editor.Project.Root_Path (S.Project_Runtime.Project),
@@ -813,22 +813,22 @@ package body Editor.Executor.Workspace_Commands is
              File_Backed_Count => 0));
          Report_Warning (S, "Clear workspace state? Retry to confirm.");
          return;
-      elsif Editor.Pending_Transitions.Target_Kind (S.Pending_Transitions) /=
+      elsif Editor.Pending_Transitions.Target_Kind (S.Workflow.Pending_Transitions) /=
         Editor.Pending_Transitions.Pending_Clear_Workspace_State
       then
          Report_Warning (S, "Command unavailable while confirmation is pending");
          return;
       elsif not Pending_Target_Is_Valid
-        (S, Editor.Pending_Transitions.Target (S.Pending_Transitions))
+        (S, Editor.Pending_Transitions.Target (S.Workflow.Pending_Transitions))
       then
-         Editor.Pending_Transitions.Clear (S.Pending_Transitions);
+         Editor.Pending_Transitions.Clear (S.Workflow.Pending_Transitions);
          Report_Info (S, "No workspace state");
          return;
       end if;
 
       begin
          Ada.Directories.Delete_File (To_String (Path));
-         Editor.Pending_Transitions.Clear (S.Pending_Transitions);
+         Editor.Pending_Transitions.Clear (S.Workflow.Pending_Transitions);
          Report_Success (S, "Workspace cleared.");
       exception
          when others =>

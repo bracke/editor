@@ -2848,7 +2848,7 @@ package body Editor.Quick_Open.Tests is
 
       Before := Editor.Quick_Open_Markers.Build_Snapshot
         (S.Surface.Quick_Open, S.Project_Runtime.Project, Editor.Buffers.Global_Registry_For_UI,
-         S.Recent_Buffers);
+         S.Navigation.Recent_Buffers);
       Assert_Quick_Open_File_Lifecycle_Observation_Frozen
         (Before, Beta, "src/beta.adb", False, True,
          "pre-save-as candidate source freeze");
@@ -2859,7 +2859,7 @@ package body Editor.Quick_Open.Tests is
         (S, Editor.Command_Ids.Command_Save_File_As, Target_Path);
       After := Editor.Quick_Open_Markers.Build_Snapshot
         (S.Surface.Quick_Open, S.Project_Runtime.Project, Editor.Buffers.Global_Registry_For_UI,
-         S.Recent_Buffers);
+         S.Navigation.Recent_Buffers);
 
       Assert (Editor.Quick_Open.Query_Text (S.Surface.Quick_Open) = "src/",
               "query text must not become lifecycle target state");
@@ -2944,7 +2944,7 @@ package body Editor.Quick_Open.Tests is
         (S, Editor.Command_Ids.Command_Rename_Buffer_File, Direct_Target);
       Direct_Snap := Editor.Quick_Open_Markers.Build_Snapshot
         (S.Surface.Quick_Open, S.Project_Runtime.Project, Editor.Buffers.Global_Registry_For_UI,
-         S.Recent_Buffers);
+         S.Navigation.Recent_Buffers);
       Assert_Quick_Open_File_Lifecycle_Observation_Frozen
         (Direct_Snap, Direct_Id, "src/renamed.adb", False, True,
          "direct rename observation freeze");
@@ -2990,7 +2990,7 @@ package body Editor.Quick_Open.Tests is
 
       Prompt_Snap := Editor.Quick_Open_Markers.Build_Snapshot
         (S.Surface.Quick_Open, S.Project_Runtime.Project, Editor.Buffers.Global_Registry_For_UI,
-         S.Recent_Buffers);
+         S.Navigation.Recent_Buffers);
       Assert_Quick_Open_File_Lifecycle_Observation_Frozen
         (Prompt_Snap, Prompt_Id, "src/renamed.adb", False, True,
          "prompted rename observation freeze");

@@ -579,8 +579,8 @@ package body Editor.Executor.File_Save_Basic_Commands is
       --  project-file refresh path updates search results separately when a
       --  query is active.
       S.Search.Active_Find_Stale := True;
-      Editor.Outline.Clear (S.Outline);
-      S.Outline_Cursor.Key_Valid := False;
+      Editor.Outline.Clear (S.Outline_Runtime.Outline);
+      S.Outline_Runtime.Cursor.Key_Valid := False;
       Editor.Project_Search.Mark_Stale_Unconditionally (S.Surface.Project_Search);
       Editor.Project_Search.Mark_Replace_Preview_Stale (S.Surface.Project_Search);
       Editor.Feature_Diagnostics.Mark_Diagnostics_For_Buffer_Stale

@@ -177,9 +177,9 @@ package body Editor.Executor.Diagnostics_Action_Commands is
               (S.Panel.Feature_Search_Results, S.Panel.Feature_Panel,
                Select_First_When_Available => True);
             Editor.Panels.Set_Bottom_Content
-              (S.Panels, Editor.Panels.Search_Results_Content);
+              (S.Panel.Panels, Editor.Panels.Search_Results_Content);
             Editor.Panels.Set_Visible
-              (S.Panels, Editor.Panels.Bottom_Panel, True);
+              (S.Panel.Panels, Editor.Panels.Bottom_Panel, True);
             Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
             Shared_Services.Report_Info
               (S, "Choose a diagnostic quick fix");
@@ -522,14 +522,14 @@ package body Editor.Executor.Diagnostics_Action_Commands is
                  (S.Panel.Feature_Search_Results, S.Panel.Feature_Panel,
                   Select_First_When_Available => True);
                Editor.Panels.Set_Bottom_Content
-                 (S.Panels, Editor.Panels.Search_Results_Content);
+                 (S.Panel.Panels, Editor.Panels.Search_Results_Content);
                Editor.Panels.Set_Visible
-                 (S.Panels, Editor.Panels.Bottom_Panel, True);
+                 (S.Panel.Panels, Editor.Panels.Bottom_Panel, True);
                if Editor.Panel_Focus.Bottom_Panel_Has_Focus (S.Panel.Panel_Focus) then
                   Editor.Focus_Management.Set_Focus_Owner
                     (S, Editor.Focus_Management.Focus_Project_Search_Results);
                end if;
-               Editor.Panels.Set_Current (S.Panels);
+               Editor.Panels.Set_Current (S.Panel.Panels);
                Shared_Services.Report_Info (S, To_String (Action_Result.Message));
                Editor.Render_Cache.Invalidate_All;
                return Result_After_Command (Id);

@@ -39,7 +39,7 @@ package body Editor.Executor.Buffer_Navigation_Commands is
             if Editor.Buffers.Global_Count < 2 then
                return Editor.Commands.Availability_Metadata.Unavailable ("No previous buffer");
             elsif not Editor.Recent_Buffers.Has_Previous
-              (S.Recent_Buffers,
+              (S.Navigation.Recent_Buffers,
                Natural (Editor.Buffers.Global_Active_Buffer))
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No previous buffer");
@@ -49,7 +49,7 @@ package body Editor.Executor.Buffer_Navigation_Commands is
          when Command_Next_Recent_Buffer =>
             if Editor.Buffers.Global_Count < 2 then
                return Editor.Commands.Availability_Metadata.Unavailable ("No next buffer");
-            elsif not Editor.Recent_Buffers.Has_Next (S.Recent_Buffers) then
+            elsif not Editor.Recent_Buffers.Has_Next (S.Navigation.Recent_Buffers) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No next buffer");
             end if;
             return Editor.Commands.Availability_Metadata.Available;
@@ -178,7 +178,7 @@ package body Editor.Executor.Buffer_Navigation_Commands is
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Active := Editor.Buffers.Global_Active_Buffer;
-      Limit := Editor.Buffers.Global_Count + Editor.Recent_Buffers.Count (S.Recent_Buffers) + 1;
+      Limit := Editor.Buffers.Global_Count + Editor.Recent_Buffers.Count (S.Navigation.Recent_Buffers) + 1;
 
       if Editor.Buffers.Global_Count < 2 then
          Report_Info (S, "Buffer: no previous buffer");
@@ -187,11 +187,11 @@ package body Editor.Executor.Buffer_Navigation_Commands is
 
       loop
          Target := Editor.Recent_Buffers.Previous_Target
-           (S.Recent_Buffers, Natural (Active));
+           (S.Navigation.Recent_Buffers, Natural (Active));
          exit when Target = Editor.Recent_Buffers.No_Buffer_Key;
          exit when Editor.Buffers.Global_Contains (Editor.Buffers.Buffer_Id (Target))
            and then Editor.Buffers.Buffer_Id (Target) /= Active;
-         Editor.Recent_Buffers.Remove (S.Recent_Buffers, Target);
+         Editor.Recent_Buffers.Remove (S.Navigation.Recent_Buffers, Target);
          Attempts := Attempts + 1;
          exit when Attempts > Limit;
       end loop;
@@ -223,7 +223,7 @@ package body Editor.Executor.Buffer_Navigation_Commands is
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Active := Editor.Buffers.Global_Active_Buffer;
-      Limit := Editor.Buffers.Global_Count + Editor.Recent_Buffers.Count (S.Recent_Buffers) + 1;
+      Limit := Editor.Buffers.Global_Count + Editor.Recent_Buffers.Count (S.Navigation.Recent_Buffers) + 1;
 
       if Editor.Buffers.Global_Count < 2 then
          Report_Info (S, "Buffer: no next buffer");
@@ -231,11 +231,11 @@ package body Editor.Executor.Buffer_Navigation_Commands is
       end if;
 
       loop
-         Target := Editor.Recent_Buffers.Next_Target (S.Recent_Buffers);
+         Target := Editor.Recent_Buffers.Next_Target (S.Navigation.Recent_Buffers);
          exit when Target = Editor.Recent_Buffers.No_Buffer_Key;
          exit when Editor.Buffers.Global_Contains (Editor.Buffers.Buffer_Id (Target))
            and then Editor.Buffers.Buffer_Id (Target) /= Active;
-         Editor.Recent_Buffers.Remove (S.Recent_Buffers, Target);
+         Editor.Recent_Buffers.Remove (S.Navigation.Recent_Buffers, Target);
          Attempts := Attempts + 1;
          exit when Attempts > Limit;
       end loop;

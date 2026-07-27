@@ -746,7 +746,7 @@ package body Editor.Command_Surface.Tests is
          Editor.State.Init (S);
          Before_Project := Editor.Project.Has_Project (S.Project_Runtime.Project);
          Before_Dirty   := S.Buffer_Lifecycle.File_Info.Dirty;
-         Before_Pending := Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions);
+         Before_Pending := Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions);
 
          Assert (not Editor.Commands.Availability_Metadata.Is_Available
                    (Editor.Executor.Command_Availability (S, Id)),
@@ -763,7 +763,7 @@ package body Editor.Command_Surface.Tests is
                  Label & " must not change project root when unavailable");
          Assert (S.Buffer_Lifecycle.File_Info.Dirty = Before_Dirty,
                  Label & " must not change dirty state when unavailable");
-         Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions) = Before_Pending,
+         Assert (Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions) = Before_Pending,
                  Label & " must not create pending transitions when unavailable");
       end Check;
    begin

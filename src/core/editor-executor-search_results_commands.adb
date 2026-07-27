@@ -161,8 +161,8 @@ package body Editor.Executor.Search_Results_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel)
-        and then Editor.Panels.Active_Bottom_Content (S.Panels) =
+      if Editor.Panels.Is_Visible (S.Panel.Panels, Editor.Panels.Bottom_Panel)
+        and then Editor.Panels.Active_Bottom_Content (S.Panel.Panels) =
           Editor.Panels.Search_Results_Content
       then
          Editor.Focus_Management.Set_Focus_Owner
@@ -173,7 +173,7 @@ package body Editor.Executor.Search_Results_Commands is
       else
          Report_Info (S, "No project search results");
       end if;
-      Editor.Panels.Set_Current (S.Panels);
+      Editor.Panels.Set_Current (S.Panel.Panels);
       Editor.Render_Cache.Invalidate_All;
    end Execute_Focus_Search_Results;
 

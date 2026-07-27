@@ -67,8 +67,8 @@ package body Editor.Executor.Semantic_Rename_Tests is
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic rename fixture refreshes Outline");
 
-      Editor.Outline.Select_Item (S.Outline, 1);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Outline.Select_Item (S.Outline_Runtime.Outline, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline_Runtime.Outline, S.Panel.Feature_Panel);
       Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
       Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 
@@ -116,8 +116,8 @@ package body Editor.Executor.Semantic_Rename_Tests is
       Assert (Editor.Feature_Search_Results.Item_Target_Buffer
                 (S.Panel.Feature_Search_Results, 1) = S.Buffer_Lifecycle.Active_Buffer_Token,
               "semantic rename row targets the live buffer token");
-      Assert (Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel)
-              and then Editor.Panels.Active_Bottom_Content (S.Panels) =
+      Assert (Editor.Panels.Is_Visible (S.Panel.Panels, Editor.Panels.Bottom_Panel)
+              and then Editor.Panels.Active_Bottom_Content (S.Panel.Panels) =
                 Editor.Panels.Search_Results_Content,
               "semantic rename preview shows the Search Results panel");
       Assert (Editor.Feature_Panel.Selected_Row (S.Panel.Feature_Panel) = 1,
@@ -149,8 +149,8 @@ package body Editor.Executor.Semantic_Rename_Tests is
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic rename-apply fixture refreshes Outline");
 
-      Editor.Outline.Select_Item (S.Outline, 1);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Outline.Select_Item (S.Outline_Runtime.Outline, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline_Runtime.Outline, S.Panel.Feature_Panel);
       Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
       Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 
@@ -219,8 +219,8 @@ package body Editor.Executor.Semantic_Rename_Tests is
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "open-buffer rename fixture refreshes Outline");
 
-      Editor.Outline.Select_Item (S.Outline, 1);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Outline.Select_Item (S.Outline_Runtime.Outline, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline_Runtime.Outline, S.Panel.Feature_Panel);
       Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
       Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 
@@ -304,8 +304,8 @@ package body Editor.Executor.Semantic_Rename_Tests is
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "disk rename fixture refreshes Outline");
 
-      Editor.Outline.Select_Item (S.Outline, 1);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Outline.Select_Item (S.Outline_Runtime.Outline, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline_Runtime.Outline, S.Panel.Feature_Panel);
       Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
       Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 
@@ -379,8 +379,8 @@ package body Editor.Executor.Semantic_Rename_Tests is
         (Editor.Command_Ids.Command_Refresh_Outline);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      Editor.Outline.Select_Item (S.Outline, 1);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Outline.Select_Item (S.Outline_Runtime.Outline, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline_Runtime.Outline, S.Panel.Feature_Panel);
       Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
       Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
       S.Caret.Carets.Replace_Element
@@ -443,8 +443,8 @@ package body Editor.Executor.Semantic_Rename_Tests is
         (Editor.Command_Ids.Command_Refresh_Outline);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      Editor.Outline.Select_Item (S.Outline, 1);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Outline.Select_Item (S.Outline_Runtime.Outline, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline_Runtime.Outline, S.Panel.Feature_Panel);
       Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
       Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
       S.Caret.Carets.Replace_Element
@@ -523,13 +523,13 @@ package body Editor.Executor.Semantic_Rename_Tests is
         (Editor.Command_Ids.Command_Rename_Symbol_Apply);
       S := Editor.Input_Bridge.Get_State_For_Test;
 
-      Assert (Editor.Guided_Prompts.Is_Active (S.Guided_Prompt),
+      Assert (Editor.Guided_Prompts.Is_Active (S.Workflow.Guided_Prompt),
               "semantic rename apply command should open a guided prompt even when the default target conflicts");
-      Assert (S.Guided_Prompt.Kind = Editor.Guided_Prompts.Semantic_Rename_Prompt,
+      Assert (S.Workflow.Guided_Prompt.Kind = Editor.Guided_Prompts.Semantic_Rename_Prompt,
               "semantic rename prompt kind is exposed to the GUI");
-      Assert (Editor.Guided_Prompts.Input_Text (S.Guided_Prompt) = "Run",
+      Assert (Editor.Guided_Prompts.Input_Text (S.Workflow.Guided_Prompt) = "Run",
               "semantic rename prompt pre-fills the current symbol name");
-      Assert (To_String (S.Guided_Prompt.Confirm_Label) = "Rename",
+      Assert (To_String (S.Workflow.Guided_Prompt.Confirm_Label) = "Rename",
               "semantic rename apply prompt uses the apply confirmation label");
 
       Editor.Buffers.Reset_Global_For_Test;
@@ -558,8 +558,8 @@ package body Editor.Executor.Semantic_Rename_Tests is
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "semantic rename conflict fixture refreshes Outline");
 
-      Editor.Outline.Select_Item (S.Outline, 1);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Outline.Select_Item (S.Outline_Runtime.Outline, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline_Runtime.Outline, S.Panel.Feature_Panel);
       Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
       Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 

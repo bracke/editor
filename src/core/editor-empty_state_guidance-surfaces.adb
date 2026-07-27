@@ -427,7 +427,7 @@ package body Editor.Empty_State_Guidance.Surfaces is
 
    function Build_Outline_Empty_State (S : Editor.State.State_Type) return Empty_State_Snapshot is
       Snapshot : Empty_State_Snapshot;
-      Source : constant Editor.Outline.Outline_Source_Class := Editor.Outline.Source_Class (S.Outline);
+      Source : constant Editor.Outline.Outline_Source_Class := Editor.Outline.Source_Class (S.Outline_Runtime.Outline);
    begin
       if not Has_Active_Buffer (S) then
          Set_Text (Snapshot, Outline_Surface, No_Active_Buffer_State, "Open a file to use Outline.");
@@ -454,7 +454,7 @@ package body Editor.Empty_State_Guidance.Surfaces is
          Add_Suggestion (Snapshot, S, Editor.Command_Ids.Command_Refresh_Outline);
       elsif Source = Editor.Outline.Extracted_Outline
         and then not Editor.Outline.Outline_Buffer_Identity_Matches
-          (S.Outline, S.Buffer_Lifecycle.Active_Buffer_Token)
+          (S.Outline_Runtime.Outline, S.Buffer_Lifecycle.Active_Buffer_Token)
       then
          Set_Text (Snapshot, Outline_Surface, Different_Buffer_State,
                    "Outline belongs to another buffer.",
@@ -464,7 +464,7 @@ package body Editor.Empty_State_Guidance.Surfaces is
       elsif Source = Editor.Outline.Stale_Extracted_Outline then
          Set_Text (Snapshot, Outline_Surface, Stale_State, "Outline is stale; refresh required.");
          Add_Suggestion (Snapshot, S, Editor.Command_Ids.Command_Refresh_Outline);
-      elsif not Editor.Outline.Has_Items (S.Outline) then
+      elsif not Editor.Outline.Has_Items (S.Outline_Runtime.Outline) then
          Set_Text (Snapshot, Outline_Surface, No_Symbols_State, "No symbols found.");
          Add_Suggestion (Snapshot, S, Editor.Command_Ids.Command_Refresh_Outline);
       else

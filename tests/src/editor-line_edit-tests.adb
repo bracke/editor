@@ -91,10 +91,10 @@ package body Editor.Line_Edit.Tests is
    is
    begin
       Assert
-        (Editor.Navigation_History.Back_Count (S.Navigation_History) = Expected_Back,
+        (Editor.Navigation_History.Back_Count (S.Navigation.History) = Expected_Back,
          Why & ": navigation back stack changed");
       Assert
-        (Editor.Navigation_History.Forward_Count (S.Navigation_History) = Expected_Fwd,
+        (Editor.Navigation_History.Forward_Count (S.Navigation.History) = Expected_Fwd,
          Why & ": navigation forward stack changed");
    end Assert_Navigation_Counts;
 
@@ -422,8 +422,8 @@ package body Editor.Line_Edit.Tests is
       Editor.History.Redo_Stack.Clear;
       Editor.Clipboard.Set_Text (To_Unbounded_String ("kept clipboard"));
       Set_Primary_Selection (S, 0, 5);
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation.History);
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Duplicate);
 
@@ -851,8 +851,8 @@ package body Editor.Line_Edit.Tests is
       S.Search.Active_Find_Query := To_Unbounded_String ("Alpha");
       S.Search.Active_Find_Stale := False;
       Set_Primary_Selection (S, 4, 0);
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation.History);
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Indent_Decrease);
@@ -1005,8 +1005,8 @@ package body Editor.Line_Edit.Tests is
       Before_Dirty := Editor.State.Is_Dirty (S);
       Before_Undo := Natural (Editor.History.Undo_Stack.Length);
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation.History);
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       A := Editor.Executor.Command_Availability
@@ -1160,8 +1160,8 @@ package body Editor.Line_Edit.Tests is
       S.Search.Active_Replace_Text := To_Unbounded_String ("ALPHA");
       S.Search.Active_Replace_Prompt := True;
       Set_Primary_Selection (S, 0, 7);
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation.History);
       Before_Text := To_Unbounded_String (Text_Buffer.UTF8_Text (S.Buffer));
 
       Avail := Editor.Executor.Command_Availability
@@ -1268,8 +1268,8 @@ package body Editor.Line_Edit.Tests is
         (S,
          Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 1, 2)),
          Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 0, 4)));
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation.History);
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Comment_Line);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "  -- Alpha" & ASCII.LF & "Beta",
@@ -1593,8 +1593,8 @@ package body Editor.Line_Edit.Tests is
       Before_Find := S.Search.Active_Find_Query;
       Before_Replace := S.Search.Active_Replace_Text;
       Before_Dirty := Editor.State.Is_Dirty (S);
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation.History);
       Before_Undo := Natural (Editor.History.Undo_Stack.Length);
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
       Before_Caret := S.Caret.Carets (S.Caret.Carets.First_Index).Pos;
@@ -1931,8 +1931,8 @@ package body Editor.Line_Edit.Tests is
       Editor.State.Set_Dirty (S, False);
       Editor.Clipboard.Set_Text (Before_Clip);
       Set_Caret (S, 1);
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation.History);
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
       Assert_Line_Join_Coherent
@@ -2538,8 +2538,8 @@ package body Editor.Line_Edit.Tests is
       Editor.State.Load_Text (S, Plain);
       Editor.State.Set_Dirty (S, False);
       Set_Primary_Selection (S, Anchor, Pos);
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation.History);
       Before_Dirty := Editor.State.Is_Dirty (S);
 
       Assert

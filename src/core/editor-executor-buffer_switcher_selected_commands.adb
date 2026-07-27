@@ -139,7 +139,7 @@ package body Editor.Executor.Buffer_Switcher_Selected_Commands is
       Closed_Active := Row.Id = Editor.Buffers.Global_Active_Buffer;
       Editor.Buffers.Global_Close_Buffer (Row.Id, Closed);
       if Closed then
-         Editor.Recent_Buffers.Remove (S.Recent_Buffers, Natural (Row.Id));
+         Editor.Recent_Buffers.Remove (S.Navigation.Recent_Buffers, Natural (Row.Id));
          Editor.Feature_Panel_Controller.Reset_All_Features_For_Buffer_Close
            (S, Natural (Row.Id));
          if Closed_Active then

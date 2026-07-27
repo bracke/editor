@@ -55,7 +55,7 @@ package body Editor.Input_Bridge.Text_Entry_Routing is
    begin
       if Editor.Focus_Management.Pending_Confirmation_Owns_Focus (State) then
          return Text_Entry_No_Target;
-      elsif Editor.Guided_Prompts.Is_Active (State.Guided_Prompt) then
+      elsif Editor.Guided_Prompts.Is_Active (State.Workflow.Guided_Prompt) then
          return Text_Entry_Guided_Prompt;
       elsif Editor.Focus_Management.Overlay_Input_Owns_Text (State) then
          return Text_Entry_Overlay_Input;

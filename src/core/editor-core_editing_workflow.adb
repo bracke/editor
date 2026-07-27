@@ -585,8 +585,8 @@ package body Editor.Core_Editing_Workflow is
         (not S.Buffer_Lifecycle.File_Target_Prompt_Active)
         or else Is_File_Target_Prompt_Command (S.Buffer_Lifecycle.File_Target_Prompt_Command);
       Pending_Coherent : constant Boolean :=
-        (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions))
-        or else Editor.Pending_Transitions.Target_Kind (S.Pending_Transitions) /=
+        (not Editor.Pending_Transitions.Has_Pending (S.Workflow.Pending_Transitions))
+        or else Editor.Pending_Transitions.Target_Kind (S.Workflow.Pending_Transitions) /=
           Editor.Pending_Transitions.No_Pending_Transition;
    begin
       --  Target prompts and dirty pending-transition guards are transient UI

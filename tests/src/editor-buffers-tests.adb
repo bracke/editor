@@ -2083,8 +2083,8 @@ package body Editor.Buffers.Tests is
       Id := Editor.Buffers.Global_Active_Buffer;
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Clipboard.Set_Text (To_Unbounded_String ("clipboard-stays"));
-      Back_Before := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Forward_Before := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Back_Before := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Forward_Before := Editor.Navigation_History.Forward_Count (S.Navigation.History);
 
       Editor.Executor.Buffer_Close_Commands.Execute_Close_Active_Buffer (S);
 
@@ -2103,8 +2103,8 @@ package body Editor.Buffers.Tests is
       Assert (Natural (Editor.History.Undo_Stack.Length) = Before_Undo
         and then Natural (Editor.History.Redo_Stack.Length) = Before_Redo,
         "dirty blocked close must not create undo or redo entries");
-      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = Back_Before
-        and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = Forward_Before,
+      Assert (Editor.Navigation_History.Back_Count (S.Navigation.History) = Back_Before
+        and then Editor.Navigation_History.Forward_Count (S.Navigation.History) = Forward_Before,
         "dirty blocked close must not record navigation");
       Assert (Editor.Clipboard.Has_Text
         and then To_String (Editor.Clipboard.Get_Text) = "clipboard-stays",
@@ -2336,8 +2336,8 @@ package body Editor.Buffers.Tests is
       Before_Dirty := S.Buffer_Lifecycle.File_Info.Dirty;
       Before_Undo := Natural (Editor.History.Undo_Stack.Length);
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Forward := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Forward := Editor.Navigation_History.Forward_Count (S.Navigation.History);
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       A := Editor.Executor.Command_Availability
@@ -2361,8 +2361,8 @@ package body Editor.Buffers.Tests is
       Assert (Natural (Editor.History.Undo_Stack.Length) = Before_Undo
         and then Natural (Editor.History.Redo_Stack.Length) = Before_Redo,
         "read-only projections must not mutate Undo/Redo stacks");
-      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = Before_Back
-        and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = Before_Forward,
+      Assert (Editor.Navigation_History.Back_Count (S.Navigation.History) = Before_Back
+        and then Editor.Navigation_History.Forward_Count (S.Navigation.History) = Before_Forward,
         "read-only projections must not mutate Navigation History");
       Assert (S.Caret.Carets.Length = 1
         and then S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 2
@@ -2595,8 +2595,8 @@ package body Editor.Buffers.Tests is
       Before_Dirty := S.Buffer_Lifecycle.File_Info.Dirty;
       Before_Undo := Natural (Editor.History.Undo_Stack.Length);
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Forward := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Forward := Editor.Navigation_History.Forward_Count (S.Navigation.History);
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       A := Editor.Executor.Command_Availability
@@ -2633,8 +2633,8 @@ package body Editor.Buffers.Tests is
         and then S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 4
         and then S.Caret.Carets (S.Caret.Carets.First_Index).Anchor = 10,
         "failed reopen must preserve caret/selection");
-      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = Before_Back
-        and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = Before_Forward,
+      Assert (Editor.Navigation_History.Back_Count (S.Navigation.History) = Before_Back
+        and then Editor.Navigation_History.Forward_Count (S.Navigation.History) = Before_Forward,
         "failed reopen must not record Navigation History directly");
       Assert (Editor.Clipboard.Has_Text
         and then To_String (Editor.Clipboard.Get_Text) = "failure-clipboard",
@@ -2920,8 +2920,8 @@ package body Editor.Buffers.Tests is
       Before_Text := To_Unbounded_String (Text (S));
       Before_Undo := Natural (Editor.History.Undo_Stack.Length);
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
-      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
+      Before_Back := Editor.Navigation_History.Back_Count (S.Navigation.History);
+      Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation.History);
 
       Write_File (Path, "external disk change must not overwrite dirty duplicate");
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
@@ -2953,8 +2953,8 @@ package body Editor.Buffers.Tests is
       Assert (S.Search.Active_Find_Query = To_Unbounded_String ("duplicate-find")
         and then S.Search.Active_Replace_Text = To_Unbounded_String ("duplicate-replace"),
         "duplicate-open reopen must preserve active buffer Find/Replace state");
-      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = Before_Back
-        and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = Before_Fwd,
+      Assert (Editor.Navigation_History.Back_Count (S.Navigation.History) = Before_Back
+        and then Editor.Navigation_History.Forward_Count (S.Navigation.History) = Before_Fwd,
         "duplicate-open reopen must not record Navigation History directly");
       Assert (Editor.Clipboard.Has_Text
         and then To_String (Editor.Clipboard.Get_Text) = "duplicate clipboard",

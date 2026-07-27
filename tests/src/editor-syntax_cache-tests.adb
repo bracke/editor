@@ -87,7 +87,7 @@ package body Editor.Syntax_Cache.Tests is
         (S.Semantic.Syntax_Source_Buffer_Token = 10,
          "initial syntax cache owner should match active buffer token");
       Assert
-        (Editor.Syntax_Cache.Tokens_For_Line (S.Syntax_Cache, 1)'Length > 0,
+        (Editor.Syntax_Cache.Tokens_For_Line (S.Syntax.Cache, 1)'Length > 0,
          "initial owner should have cached tokens");
 
       S.Buffer_Lifecycle.Active_Buffer_Token := 20;
@@ -99,7 +99,7 @@ package body Editor.Syntax_Cache.Tests is
         (S.Semantic.Syntax_Symbols_Buffer_Token = 20,
          "token mismatch should restamp semantic ownership");
       Assert
-        (Editor.Syntax_Cache.Tokens_For_Line (S.Syntax_Cache, 1)'Length > 0,
+        (Editor.Syntax_Cache.Tokens_For_Line (S.Syntax.Cache, 1)'Length > 0,
          "restamped owner should rebuild deterministic cached tokens");
    end Test_Active_Buffer_Token_Mismatch_Clears_Syntax_Owner;
 
@@ -260,7 +260,7 @@ package body Editor.Syntax_Cache.Tests is
         (S.Semantic.Syntax_Symbols_Buffer_Token = S.Buffer_Lifecycle.Active_Buffer_Token,
          Why & ": semantic symbol owner must match active buffer token");
       Assert
-        (Editor.Syntax_Cache.Tokens_For_Line (S.Syntax_Cache, 1)'Length > 0,
+        (Editor.Syntax_Cache.Tokens_For_Line (S.Syntax.Cache, 1)'Length > 0,
          Why & ": first line must have rebuilt syntax spans");
    end Assert_Syntax_Prepared_For_Current_Buffer;
 
@@ -296,7 +296,7 @@ package body Editor.Syntax_Cache.Tests is
         (S.Semantic.Syntax_Symbols_Buffer_Token = 0,
          Why & ": edit path must clear semantic symbol owner until explicit rebuild");
       Assert
-        (Editor.Syntax_Cache.Is_Dirty (S.Syntax_Cache, 1),
+        (Editor.Syntax_Cache.Is_Dirty (S.Syntax.Cache, 1),
          Why & ": changed first row must be marked dirty for relexing");
       Assert_Syntax_Prepared_For_Current_Buffer (S, Why & " after prepare");
    end Assert_Post_Edit_Syntax_Invalidated;
@@ -498,7 +498,7 @@ package body Editor.Syntax_Cache.Tests is
       Kind        : Editor.Syntax.Token_Kind) return Boolean
    is
       Tokens : constant Editor.Syntax.Token_Span_Array :=
-        Editor.Syntax_Cache.Tokens_For_Line (S.Syntax_Cache, Line_Number);
+        Editor.Syntax_Cache.Tokens_For_Line (S.Syntax.Cache, Line_Number);
    begin
       for I in Tokens'Range loop
          if Tokens (I).Kind = Kind then
@@ -563,7 +563,7 @@ package body Editor.Syntax_Cache.Tests is
         (S.Semantic.Syntax_Symbols_Buffer_Token = 0,
          "empty buffer must not retain stale semantic owner token");
       Assert
-        (Editor.Syntax_Cache.Tokens_For_Line (S.Syntax_Cache, 1)'Length = 0,
+        (Editor.Syntax_Cache.Tokens_For_Line (S.Syntax.Cache, 1)'Length = 0,
          "empty buffer must expose no cached syntax spans");
    end Test_Empty_Buffer_Clears_Syntax_Ownership;
 
@@ -622,7 +622,7 @@ package body Editor.Syntax_Cache.Tests is
 
       Assert
         (Editor.Syntax_Semantics.Kind_For_Identifier
-           (S.Syntax_Symbols, "Field") = Editor.Syntax.Parameter_Identifier,
+           (S.Syntax.Symbols, "Field") = Editor.Syntax.Parameter_Identifier,
          "visible-range semantic preparation must use parser-owned language-model record components");
       Assert
         (S.Semantic.Syntax_Symbols_Revision = S.Buffer_Lifecycle.Buffer_Revision,

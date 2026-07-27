@@ -247,7 +247,7 @@ package body Editor.Configuration_Audit is
           (Serialized_Workspace);
       Pending_Audit : constant Editor.Pending_Transitions.Pending_Transition_Boundary_Audit :=
         Editor.Pending_Transitions.Audit_Pending_Transition_Boundary
-          (State.Pending_Transitions);
+          (State.Workflow.Pending_Transitions);
       Conflict_Audit : constant File_Conflict_Prompt_Boundary_Audit :=
         Audit_File_Conflict_Prompt_Boundary (State);
       Render_Audit : constant
@@ -662,11 +662,11 @@ package body Editor.Configuration_Audit is
       end if;
 
       return
-        (Theme_Id                         => To_Unbounded_String (Editor.Settings.Theme_Id (State.Settings)),
+        (Theme_Id                         => To_Unbounded_String (Editor.Settings.Theme_Id (State.Configuration.Settings)),
          Line_Number_Mode                 =>
            To_Unbounded_String
-             (Editor.Settings.Line_Number_Mode_Name (State.Settings)),
-         Cursor_Blink_Enabled             => Editor.Settings.Cursor_Blink (State.Settings),
+             (Editor.Settings.Line_Number_Mode_Name (State.Configuration.Settings)),
+         Cursor_Blink_Enabled             => Editor.Settings.Cursor_Blink (State.Configuration.Settings),
          Active_Keybinding_Count          => Active_Binding_Count,
          Save_File_Chord                  => To_Unbounded_String (Binding_Display (Editor.Command_Ids.Command_Save_File)),
          Command_Palette_Chord            =>
@@ -676,7 +676,7 @@ package body Editor.Configuration_Audit is
          Has_Project                      => Editor.Project.Has_Project (State.Project_Runtime.Project),
          Recent_Project_Count             => Editor.Recent_Projects.Count (State.Project_Runtime.Recent_Projects),
          Dirty_Buffer_Count               => Dirty_Count,
-         Has_Pending_Transition           => Editor.Pending_Transitions.Has_Pending (State.Pending_Transitions),
+         Has_Pending_Transition           => Editor.Pending_Transitions.Has_Pending (State.Workflow.Pending_Transitions),
          Message_Count                    => Editor.Messages.Count (State.Panel.Messages));
    end Configuration_State_Summary_For;
 

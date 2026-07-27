@@ -293,9 +293,9 @@ use type Editor.Guided_Prompts.Prompt_Kind;
          when Routed_To_Guided_Prompt =>
             case Id is
                when Editor.Command_Ids.Command_Char_Delete_Previous =>
-                  Editor.Guided_Prompts.Backspace (The_Editor.State.Guided_Prompt);
+                  Editor.Guided_Prompts.Backspace (The_Editor.State.Workflow.Guided_Prompt);
                when Editor.Command_Ids.Command_Char_Delete_Next =>
-                  Editor.Guided_Prompts.Delete_Forward (The_Editor.State.Guided_Prompt);
+                  Editor.Guided_Prompts.Delete_Forward (The_Editor.State.Workflow.Guided_Prompt);
                when Editor.Command_Ids.Command_Insert_Newline
                   | Editor.Command_Ids.Command_Line_Split_At_Caret =>
                   Accept_Guided_Prompt_Enter;
@@ -432,35 +432,35 @@ use type Editor.Guided_Prompts.Prompt_Kind;
 
    procedure Confirm_Guided_Prompt is
       Prompt_Id : constant Editor.Command_Ids.Command_Id :=
-        The_Editor.State.Guided_Prompt.Owning_Command;
+        The_Editor.State.Workflow.Guided_Prompt.Owning_Command;
       Selected_Found : Boolean := False;
       Selected_Path  : constant String :=
         Editor.Guided_Prompts.Selected_File_Picker_Path
-          (The_Editor.State.Guided_Prompt, Selected_Found);
+          (The_Editor.State.Workflow.Guided_Prompt, Selected_Found);
       Input_Text : constant String :=
-        (if The_Editor.State.Guided_Prompt.Kind =
+        (if The_Editor.State.Workflow.Guided_Prompt.Kind =
               Editor.Guided_Prompts.Project_Open_Prompt
             and then Selected_Found
          then Selected_Path
-         else Editor.Guided_Prompts.Input_Text (The_Editor.State.Guided_Prompt));
+         else Editor.Guided_Prompts.Input_Text (The_Editor.State.Workflow.Guided_Prompt));
    begin
-      if not Editor.Guided_Prompts.Is_Active (The_Editor.State.Guided_Prompt) then
+      if not Editor.Guided_Prompts.Is_Active (The_Editor.State.Workflow.Guided_Prompt) then
          return;
       end if;
 
-      Editor.Guided_Prompts.Validate (The_Editor.State.Guided_Prompt);
-      if not Editor.Guided_Prompts.Ready (The_Editor.State.Guided_Prompt) then
-         Report_Info (To_String (The_Editor.State.Guided_Prompt.Validation_Message));
+      Editor.Guided_Prompts.Validate (The_Editor.State.Workflow.Guided_Prompt);
+      if not Editor.Guided_Prompts.Ready (The_Editor.State.Workflow.Guided_Prompt) then
+         Report_Info (To_String (The_Editor.State.Workflow.Guided_Prompt.Validation_Message));
          Editor.Render_Cache.Invalidate_All;
          return;
       end if;
 
-      Editor.Guided_Prompts.Mark_Confirmed (The_Editor.State.Guided_Prompt);
+      Editor.Guided_Prompts.Mark_Confirmed (The_Editor.State.Workflow.Guided_Prompt);
       if Editor.Input_Bridge.Keybinding_Handlers
-        .Is_Keybinding_Capture_Prompt (The_Editor.State.Guided_Prompt)
+        .Is_Keybinding_Capture_Prompt (The_Editor.State.Workflow.Guided_Prompt)
       then
          Editor.Input_Bridge.Keybinding_Handlers.Confirm_Keybinding_Capture
-           (The_Editor.State.Guided_Prompt, Report_Info'Access);
+           (The_Editor.State.Workflow.Guided_Prompt, Report_Info'Access);
       else
          --  Completion re-enters Executor through the original stable command
          --  id. Prompt input remains transient; it is copied only into the one
@@ -469,7 +469,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
          declare
             Cmd : Editor.Commands.Payloads.Command := Editor.Commands.Payloads.Command_For_Id (Prompt_Id);
          begin
-            case The_Editor.State.Guided_Prompt.Kind is
+            case The_Editor.State.Workflow.Guided_Prompt.Kind is
                when Editor.Guided_Prompts.Project_Open_Prompt
                   | Editor.Guided_Prompts.Project_Switch_Prompt
                   | Editor.Guided_Prompts.Workspace_Load_Prompt
@@ -501,7 +501,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
                when others =>
                   null;
             end case;
-            Editor.Guided_Prompts.Clear (The_Editor.State.Guided_Prompt);
+            Editor.Guided_Prompts.Clear (The_Editor.State.Workflow.Guided_Prompt);
             Editor.Executor.Execute_No_Log (The_Editor.State, Cmd);
          end;
       end if;
@@ -510,7 +510,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
 
    function Guided_Prompt_Selected_File_Picker_Label return String is
       Prompt : constant Editor.Guided_Prompts.Prompt_State :=
-        The_Editor.State.Guided_Prompt;
+        The_Editor.State.Workflow.Guided_Prompt;
    begin
       if Prompt.Active
         and then Prompt.File_Picker_Active
@@ -528,12 +528,12 @@ use type Editor.Guided_Prompts.Prompt_Kind;
 
    procedure Accept_Guided_Prompt_Enter is
    begin
-      if The_Editor.State.Guided_Prompt.Kind =
+      if The_Editor.State.Workflow.Guided_Prompt.Kind =
            Editor.Guided_Prompts.Project_Open_Prompt
         and then Guided_Prompt_Selected_File_Picker_Label /= ""
         and then Guided_Prompt_Selected_File_Picker_Label /= "./"
         and then Editor.Guided_Prompts.Apply_File_Picker_Selection
-          (The_Editor.State.Guided_Prompt)
+          (The_Editor.State.Workflow.Guided_Prompt)
       then
          Report_Info ("Directory selected.");
          Editor.Render_Cache.Invalidate_All;
@@ -554,15 +554,15 @@ use type Editor.Guided_Prompts.Prompt_Kind;
          return;
       end if;
 
-      if Editor.Guided_Prompts.Is_Active (The_Editor.State.Guided_Prompt) then
+      if Editor.Guided_Prompts.Is_Active (The_Editor.State.Workflow.Guided_Prompt) then
          if Id = Editor.Command_Ids.Command_Cancel then
             declare
                Cancel_Message : constant String :=
-                 Guided_Prompt_Cancel_Message (The_Editor.State.Guided_Prompt);
+                 Guided_Prompt_Cancel_Message (The_Editor.State.Workflow.Guided_Prompt);
             begin
                Restore_Focus_After_Guided_Prompt_Cancel
-                 (The_Editor.State.Guided_Prompt);
-               Editor.Guided_Prompts.Cancel (The_Editor.State.Guided_Prompt);
+                 (The_Editor.State.Workflow.Guided_Prompt);
+               Editor.Guided_Prompts.Cancel (The_Editor.State.Workflow.Guided_Prompt);
                Report_Info (Cancel_Message);
             end;
             Editor.Render_Cache.Invalidate_All;
@@ -577,7 +577,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
             --  ordinary global keybindings and palette executions must not leak
             --  through to editor/file/project mutations while prompt input is
             --  active.
-            if Editor.Guided_Prompts.Is_Confirmation (The_Editor.State.Guided_Prompt) then
+            if Editor.Guided_Prompts.Is_Confirmation (The_Editor.State.Workflow.Guided_Prompt) then
                Report_Info ("Command unavailable while confirmation is pending");
             else
                Report_Info ("Another prompt is active");
@@ -1380,12 +1380,12 @@ use type Editor.Guided_Prompts.Prompt_Kind;
       Editor.Line_Numbers.Reset;
       Editor.Command_Palette.Reset;
       Editor.File_Tree_View.Reset;
-      Editor.Panels.Initialize_Defaults (The_Editor.State.Panels);
-      Editor.Panels.Set_Current (The_Editor.State.Panels);
+      Editor.Panels.Initialize_Defaults (The_Editor.State.Panel.Panels);
+      Editor.Panels.Set_Current (The_Editor.State.Panel.Panels);
       Pointer_State.Reset_All;
       Editor.State.Clear_Gutter_Marker_Hover (The_Editor.State);
-      Editor.Panels.End_Resize (The_Editor.State.Panels);
-      Editor.Panels.Set_Current (The_Editor.State.Panels);
+      Editor.Panels.End_Resize (The_Editor.State.Panel.Panels);
+      Editor.Panels.Set_Current (The_Editor.State.Panel.Panels);
       Editor.Scrollbars.Reset;
       declare
          Loaded_Keybindings : Editor.Keybinding_Config.Keybinding_Config_Model;
@@ -1409,7 +1409,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
       --  guided prompts are transient input/focus state and must
       --  not survive an Input_Bridge reset or become an implicit persistence
       --  domain.
-      Editor.Guided_Prompts.Clear (The_Editor.State.Guided_Prompt);
+      Editor.Guided_Prompts.Clear (The_Editor.State.Workflow.Guided_Prompt);
       Initialized := True;
    end Reset;
 
@@ -1473,7 +1473,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
       --  Active splitter resize owns pointer capture until release/cancel.
       --  It is checked before modal/chrome routing so drag/release events cannot
       --  leak into text, gutter, file-tree rows, minimap, or scrollbars.
-      if Editor.Panels.Resize_Active (The_Editor.State.Panels)
+      if Editor.Panels.Resize_Active (The_Editor.State.Panel.Panels)
         and then Pointer_Surface_Handlers.Handle_Panel_Splitter_Pointer
           (The_Editor.State, Cmd)
       then
@@ -1924,11 +1924,11 @@ use type Editor.Guided_Prompts.Prompt_Kind;
       Editor.Line_Numbers.Reset;
       Editor.Command_Palette.Reset;
       Editor.File_Tree_View.Reset;
-      Editor.Panels.Set_Current (The_Editor.State.Panels);
+      Editor.Panels.Set_Current (The_Editor.State.Panel.Panels);
       Pointer_State.Reset_All;
       Editor.State.Clear_Gutter_Marker_Hover (The_Editor.State);
-      Editor.Panels.End_Resize (The_Editor.State.Panels);
-      Editor.Panels.Set_Current (The_Editor.State.Panels);
+      Editor.Panels.End_Resize (The_Editor.State.Panel.Panels);
+      Editor.Panels.Set_Current (The_Editor.State.Panel.Panels);
       Editor.Scrollbars.Reset;
       Editor.Render_Cache.Invalidate_All;
       Editor.View.Reset_Scroll;
